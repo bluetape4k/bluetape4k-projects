@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.http
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import io.bluetape4k.utils.ShutdownQueue
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,7 +25,10 @@ class BluetapeHttpServerTest {
 
     companion object : KLogging() {
         private val server: BluetapeHttpServer by lazy {
-            BluetapeHttpServer().apply { start() }
+            BluetapeHttpServer().apply {
+                start()
+                ShutdownQueue.register(this)
+            }
         }
     }
 

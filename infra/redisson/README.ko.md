@@ -12,7 +12,7 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 | `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL 확장 함수                                  |
 | `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수            |
 | `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
-| `RedissonCodecs`                | 직렬화(Fory/Kryo5) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록                          |
+| `RedissonCodecs`                | 직렬화(Fory/Kryo5/Jackson3/Fastjson2) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록         |
 | `RedissonLeaderElection`        | `RLock` 기반 단일 리더 선출 (동기 / 비동기)                                                  |
 | `RedissonSuspendLeaderElection` | `RLock` 기반 단일 리더 선출 (Coroutines)                                                |
 | `RedissonLeaderGroupElection`   | `RSemaphore` 기반 복수(N개) 동시 리더 선출                                                 |
@@ -93,23 +93,38 @@ singleServerConfig:
 
 `io.bluetape4k.redis.redisson.codec` 패키지에서 고성능 Codec을 제공합니다.
 
-| 상수                       | 직렬화                    | 압축   | 설명                |
-|--------------------------|------------------------|------|-------------------|
-| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4  | 기본값. 빠른 속도와 압축 균형 |
-| `RedissonCodecs.Fory`    | Fory                   | 없음   | Fory 직렬화만 사용      |
-| `RedissonCodecs.Kryo5`   | Kryo5                  | 없음   | Kryo5 직렬화만 사용     |
-| `RedissonCodecs.LZ4`     | Default                | LZ4  | LZ4 압축 래핑         |
-| `RedissonCodecs.Zstd`    | Default                | Zstd | 높은 압축률            |
+| 상수                            | 직렬화                    | 압축   | 설명                          |
+|---------------------------------|------------------------|------|-------------------------------|
+| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | LZ4  | 기본값. 빠른 속도와 압축 균형             |
+| `RedissonCodecs.Fory`           | Fory                   | 없음   | Fory 직렬화만 사용                   |
+| `RedissonCodecs.Kryo5`          | Kryo5                  | 없음   | Kryo5 직렬화만 사용                  |
+| `RedissonCodecs.LZ4`            | Default                | LZ4  | LZ4 압축 래핑                     |
+| `RedissonCodecs.Zstd`           | Default                | Zstd | 높은 압축률                        |
+| `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | 없음   | Jackson 3.x JSON Codec         |
+| `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | 없음   | Fastjson2 JSONB Codec          |
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.codec.ForyCodec
+import io.bluetape4k.redis.redisson.codec.Jackson3Codec
+import io.bluetape4k.redis.redisson.codec.Fastjson2Codec
 import io.bluetape4k.redis.redisson.codec.Lz4Codec
 
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
     codec = RedissonCodecs.Default   // Fory + LZ4 조합
 }
+
+// JSON 기반 Codec — 사람이 읽을 수 있는 저장 형식
+val jsonClient = redissonClient {
+    useSingleServer().address = "redis://localhost:6379"
+    codec = RedissonCodecs.Jackson3   // Jackson 3.x JSON
+}
+
+// Fastjson2 JSONB — 패키지 기반 보안 제한
+val secureCodec = Fastjson2Codec(
+    allowedPackagePrefixes = setOf("com.example.", "io.bluetape4k.")
+)
 
 // 직접 조합도 가능
 val customCodec = Lz4Codec(innerCodec = ForyCodec())
@@ -118,6 +133,8 @@ val customCodec = Lz4Codec(innerCodec = ForyCodec())
 Codec 클래스:
 
 - `ForyCodec` — Apache Fory 직렬화. 직렬화 실패 시 fallback Codec(Kryo5)으로 자동 전환
+- `Jackson3Codec` — Jackson 3.x JSON 직렬화. 사람이 읽을 수 있는 JSON 텍스트로 저장
+- `Fastjson2Codec` — Fastjson2 JSONB 바이너리 포맷. 클래스 이름 헤더 + JSONB 바이트로 저장. `allowedPackagePrefixes`로 pre-instantiation 보안 검증 지원
 - `Lz4Codec` — LZ4 압축 래퍼. `innerCodec`으로 감쌈
 - `ZstdCodec` — Zstd 압축 래퍼
 - `GzipCodec` — GZip 압축 래퍼
@@ -337,6 +354,19 @@ classDiagram
         +getValueDecoder() Decoder
     }
 
+    class Jackson3Codec {
+        -objectMapper: ObjectMapper
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class Fastjson2Codec {
+        -fallbackCodec: Codec
+        -allowedPackagePrefixes: Set~String~
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
     class RedissonCodecs {
         <<object>>
         +Default: Lz4Codec
@@ -344,6 +374,8 @@ classDiagram
         +Kryo5: Kryo5Codec
         +LZ4: Lz4Codec
         +Zstd: ZstdCodec
+        +Jackson3: Jackson3Codec
+        +Fastjson2: Fastjson2Codec
     }
 
     Codec <|.. ForyCodec
@@ -351,12 +383,17 @@ classDiagram
     Codec <|.. Lz4Codec
     Codec <|.. ZstdCodec
     Codec <|.. GzipCodec
+    Codec <|.. Jackson3Codec
+    Codec <|.. Fastjson2Codec
     Lz4Codec --> ForyCodec : innerCodec
     ZstdCodec --> ForyCodec : innerCodec
     ForyCodec --> Kryo5Codec : fallback
+    Fastjson2Codec --> ForyCodec : fallback
     RedissonCodecs --> Lz4Codec
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
+    RedissonCodecs --> Jackson3Codec
+    RedissonCodecs --> Fastjson2Codec
 
     style Codec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ForyCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -364,6 +401,8 @@ classDiagram
     style Lz4Codec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style ZstdCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style GzipCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Jackson3Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
+    style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
     style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
 ```

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import java.time.Duration
 import kotlin.test.Test
 
 class WebTestClientExtensionsTest: AbstractSpringTest() {
@@ -20,6 +21,7 @@ class WebTestClientExtensionsTest: AbstractSpringTest() {
         WebTestClient
             .bindToServer()
             .baseUrl(baseUrl)
+            .responseTimeout(Duration.ofSeconds(30))
             .build()
 
     @Nested

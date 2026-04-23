@@ -21,6 +21,22 @@ import java.util.concurrent.ThreadLocalRandom
  *
  * GET/POST/PUT/PATCH/DELETE, headers, ip, user-agent, uuid, anything, status 엔드포인트를 제공한다.
  * 모든 엔드포인트는 `/httpbin` prefix 아래에 위치하며, suspend 함수로 구현된다.
+ *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // GET 요청 정보 조회
+ * val response = client.get().uri("/httpbin/get")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * // POST with body
+ * val postResp = client.post().uri("/httpbin/post")
+ *     .bodyValue("hello")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * // 특정 상태 코드 반환
+ * val statusResp = client.get().uri("/httpbin/status/404")
+ *     .exchangeToMono { it.toBodilessEntity() }.awaitSingle()
+ * // statusResp.statusCode.value() == 404
+ * ```
  */
 @RestController
 @RequestMapping("/httpbin")

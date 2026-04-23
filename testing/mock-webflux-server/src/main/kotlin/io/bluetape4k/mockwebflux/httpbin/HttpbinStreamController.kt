@@ -23,6 +23,22 @@ import java.util.zip.GZIPOutputStream
  *
  * gzip/deflate 압축, NDJSON 스트리밍, 이미지 반환 엔드포인트를 제공한다.
  * 스트리밍은 [Flow]로 구현하여 backpressure를 자연스럽게 지원한다.
+ *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // NDJSON 스트리밍: 5개 JSON 라인 수신
+ * val lines = client.get().uri("/httpbin/stream/5")
+ *     .accept(MediaType.APPLICATION_NDJSON)
+ *     .retrieve()
+ *     .bodyToFlux<String>()
+ *     .collectList()
+ *     .awaitSingle()
+ * // lines.size == 5
+ * // gzip 압축 응답 수신
+ * val gzipResp = client.get().uri("/httpbin/gzip")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * ```
  */
 @RestController
 @RequestMapping("/httpbin")
@@ -82,6 +98,18 @@ class HttpbinStreamController(
      * httpbin.org `/stream/{n}` 동작을 모사하며, 각 줄은 독립된 JSON 객체다.
      * WebFlux에서는 [Flow]<String> 반환 시 `application/x-ndjson` produces 와
      * 결합해 자동으로 줄 단위 스트리밍된다.
+     *
+     * ```kotlin
+     * // baseUrl == "http://localhost:9999"
+     * val client = WebClient.create("http://localhost:9999")
+     * val lines = client.get().uri("/httpbin/stream/5")
+     *     .accept(MediaType.APPLICATION_NDJSON)
+     *     .retrieve()
+     *     .bodyToFlux<String>()
+     *     .collectList()
+     *     .awaitSingle()
+     * // lines.size == 5
+     * ```
      *
      * @param n 이벤트 수 (1..100)
      */

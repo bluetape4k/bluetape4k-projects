@@ -73,7 +73,7 @@ jobs:
         with:
           name: detekt-report
           path: '**/build/reports/detekt/*.xml'
-          retention-days: 7
+          retention-days: 30
 
   # ── 3. Core 모듈 테스트 (외부 의존성 없음) ────────────────────────────────
   test-core:
@@ -119,15 +119,15 @@ jobs:
         with:
           name: test-results-core
           path: '**/build/test-results/test/*.xml'
-          retention-days: 7
+          retention-days: 30
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-core
-          path: 'build/*/reports/kover/'
-          retention-days: 7
+          path: '**/build/reports/kover/'
+          retention-days: 30
 
   # ── 4. I/O 모듈 테스트 (순수 JVM) ───────────────────────────────────────
   test-io:
@@ -185,15 +185,15 @@ jobs:
         with:
           name: test-results-io
           path: '**/build/test-results/test/*.xml'
-          retention-days: 7
+          retention-days: 30
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-io
-          path: 'build/*/reports/kover/'
-          retention-days: 7
+          path: '**/build/reports/kover/'
+          retention-days: 30
 
   # ── 5. Utils 모듈 테스트 (순수 JVM) ─────────────────────────────────────
   test-utils:
@@ -261,15 +261,15 @@ jobs:
         with:
           name: test-results-utils
           path: '**/build/test-results/test/*.xml'
-          retention-days: 7
+          retention-days: 30
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-utils
-          path: 'build/*/reports/kover/'
-          retention-days: 7
+          path: '**/build/reports/kover/'
+          retention-days: 30
 
   # ── 6. Misc 모듈 테스트 (VirtualThread/Cache-core/Opentelemetry/MockServer/R2DBC) ─
   test-misc:
@@ -297,7 +297,8 @@ jobs:
             :bluetape4k-virtualthread-jdk25:test \
             :bluetape4k-cache-core:test \
             :bluetape4k-opentelemetry:test \
-              :bluetape4k-mock-web-server:test \
+            :bluetape4k-mock-web-server:test \
+            :bluetape4k-mock-webflux-server:test \
             :bluetape4k-r2dbc:test \
             --parallel
         env:
@@ -312,7 +313,8 @@ jobs:
             :bluetape4k-virtualthread-jdk25:koverXmlReport \
             :bluetape4k-cache-core:koverXmlReport \
             :bluetape4k-opentelemetry:koverXmlReport \
-              :bluetape4k-mock-web-server:koverXmlReport \
+            :bluetape4k-mock-web-server:koverXmlReport \
+            :bluetape4k-mock-webflux-server:koverXmlReport \
             :bluetape4k-r2dbc:koverXmlReport \
             --parallel
         continue-on-error: true
@@ -323,15 +325,15 @@ jobs:
         with:
           name: test-results-misc
           path: '**/build/test-results/test/*.xml'
-          retention-days: 7
+          retention-days: 30
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-misc
-          path: 'build/*/reports/kover/'
-          retention-days: 7
+          path: '**/build/reports/kover/'
+          retention-days: 30
 
   # ── 7. Exposed core 테스트 (H2 인메모리, Docker 불필요) ──────────────────
   test-exposed-core:
@@ -392,15 +394,15 @@ jobs:
         with:
           name: test-results-exposed-core
           path: '**/build/test-results/test/*.xml'
-          retention-days: 7
+          retention-days: 30
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-exposed-core
-          path: 'build/*/reports/kover/'
-          retention-days: 7
+          path: '**/build/reports/kover/'
+          retention-days: 30
 
   # ── 8. Spring Boot (H2 only, Docker 불필요) ──────────────────────────────
   test-spring-h2:
@@ -445,21 +447,419 @@ jobs:
         with:
           name: test-results-spring-h2
           path: '**/build/test-results/test/*.xml'
-          retention-days: 7
+          retention-days: 30
 
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-spring-h2
-          path: 'build/*/reports/kover/'
-          retention-days: 7
+          path: '**/build/reports/kover/'
+          retention-days: 30
 
-  # ── 9. 커버리지 집계 ─────────────────────────────────────────────────────
+  # ── 9. Infra 모듈 테스트 (Redis·Kafka·Cache — Testcontainers) ─────────────
+  test-infra:
+    name: Test / Infra
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Test infra modules (Testcontainers)
+        run: |
+          ./gradlew \
+            :bluetape4k-redis:test \
+            :bluetape4k-redisson:test \
+            :bluetape4k-lettuce:test \
+            :bluetape4k-resilience4j:test \
+            :bluetape4k-bucket4j:test \
+            :bluetape4k-micrometer:test \
+            :bluetape4k-kafka:test \
+            :bluetape4k-cache:test \
+            :bluetape4k-cache-lettuce:test \
+            :bluetape4k-cache-redisson:test \
+            :bluetape4k-cache-hazelcast:test \
+            --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-redis:koverXmlReport \
+            :bluetape4k-redisson:koverXmlReport \
+            :bluetape4k-lettuce:koverXmlReport \
+            :bluetape4k-resilience4j:koverXmlReport \
+            :bluetape4k-bucket4j:koverXmlReport \
+            :bluetape4k-micrometer:koverXmlReport \
+            :bluetape4k-kafka:koverXmlReport \
+            :bluetape4k-cache:koverXmlReport \
+            :bluetape4k-cache-lettuce:koverXmlReport \
+            :bluetape4k-cache-redisson:koverXmlReport \
+            :bluetape4k-cache-hazelcast:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-infra
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-infra
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 10a. Exposed JDBC Docker 테스트 (Redis — Testcontainers) ────────────────
+  test-exposed-jdbc-docker:
+    name: Test / Exposed JDBC (Docker)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test exposed JDBC docker modules
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed:test \
+            :bluetape4k-exposed-jdbc:test \
+            :bluetape4k-exposed-jdbc-caffeine:test \
+            :bluetape4k-exposed-jdbc-lettuce:test \
+            :bluetape4k-exposed-jdbc-redisson:test \
+            --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_DB: h2
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed:koverXmlReport \
+            :bluetape4k-exposed-jdbc:koverXmlReport \
+            :bluetape4k-exposed-jdbc-caffeine:koverXmlReport \
+            :bluetape4k-exposed-jdbc-lettuce:koverXmlReport \
+            :bluetape4k-exposed-jdbc-redisson:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-exposed-jdbc-docker
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-exposed-jdbc-docker
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 10b. Exposed R2DBC Docker 테스트 (Redis·Trino — Testcontainers) ─────────
+  test-exposed-r2dbc-docker:
+    name: Test / Exposed R2DBC (Docker)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test exposed R2DBC docker modules
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-r2dbc:test \
+            :bluetape4k-exposed-r2dbc-lettuce:test \
+            :bluetape4k-exposed-r2dbc-redisson:test \
+            :bluetape4k-exposed-trino:test \
+            --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_DB: h2
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-r2dbc:koverXmlReport \
+            :bluetape4k-exposed-r2dbc-lettuce:koverXmlReport \
+            :bluetape4k-exposed-r2dbc-redisson:koverXmlReport \
+            :bluetape4k-exposed-trino:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-exposed-r2dbc-docker
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-exposed-r2dbc-docker
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 11. Data 모듈 테스트 (RDB·NoSQL — Testcontainers) ────────────────────
+  test-data:
+    name: Test / Data (RDB · NoSQL)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test data modules (Testcontainers DB)
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-postgresql:test \
+            :bluetape4k-exposed-mysql8:test \
+            :bluetape4k-jdbc:test \
+            :bluetape4k-mongodb:test \
+            :bluetape4k-cassandra:test \
+            :bluetape4k-hibernate:test \
+            :bluetape4k-hibernate-cache-lettuce:test \
+            :bluetape4k-hibernate-reactive:test \
+            --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-postgresql:koverXmlReport \
+            :bluetape4k-exposed-mysql8:koverXmlReport \
+            :bluetape4k-jdbc:koverXmlReport \
+            :bluetape4k-mongodb:koverXmlReport \
+            :bluetape4k-cassandra:koverXmlReport \
+            :bluetape4k-hibernate:koverXmlReport \
+            :bluetape4k-hibernate-cache-lettuce:koverXmlReport \
+            :bluetape4k-hibernate-reactive:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-data
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 12a. Spring Boot 3 Docker 테스트 (Redis·DB — Testcontainers) ──────────
+  test-spring3-docker:
+    name: Test / Spring Boot 3 (Docker)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Test spring-boot3 modules (Docker)
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot3-core:test \
+            :bluetape4k-spring-boot3-redis:test \
+            :bluetape4k-spring-boot3-r2dbc:test \
+            :bluetape4k-spring-boot3-exposed-r2dbc:test \
+            :bluetape4k-spring-boot3-batch-exposed:test \
+            :bluetape4k-spring-boot3-mongodb:test \
+            :bluetape4k-spring-boot3-cassandra:test \
+            :bluetape4k-spring-boot3-hibernate-lettuce:test \
+            --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot3-core:koverXmlReport \
+            :bluetape4k-spring-boot3-redis:koverXmlReport \
+            :bluetape4k-spring-boot3-r2dbc:koverXmlReport \
+            :bluetape4k-spring-boot3-exposed-r2dbc:koverXmlReport \
+            :bluetape4k-spring-boot3-batch-exposed:koverXmlReport \
+            :bluetape4k-spring-boot3-mongodb:koverXmlReport \
+            :bluetape4k-spring-boot3-cassandra:koverXmlReport \
+            :bluetape4k-spring-boot3-hibernate-lettuce:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-spring3-docker
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-spring3-docker
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 12b. Spring Boot 4 Docker 테스트 (Redis·DB — Testcontainers) ──────────
+  test-spring4-docker:
+    name: Test / Spring Boot 4 (Docker)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Build mock-webflux-server Docker image
+        run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Test spring-boot4 modules (Docker)
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot4-core:test \
+            :bluetape4k-spring-boot4-redis:test \
+            :bluetape4k-spring-boot4-r2dbc:test \
+            :bluetape4k-spring-boot4-exposed-r2dbc:test \
+            :bluetape4k-spring-boot4-batch-exposed:test \
+            :bluetape4k-spring-boot4-mongodb:test \
+            :bluetape4k-spring-boot4-cassandra:test \
+            :bluetape4k-spring-boot4-hibernate-lettuce:test \
+            --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-spring-boot4-core:koverXmlReport \
+            :bluetape4k-spring-boot4-redis:koverXmlReport \
+            :bluetape4k-spring-boot4-r2dbc:koverXmlReport \
+            :bluetape4k-spring-boot4-exposed-r2dbc:koverXmlReport \
+            :bluetape4k-spring-boot4-batch-exposed:koverXmlReport \
+            :bluetape4k-spring-boot4-mongodb:koverXmlReport \
+            :bluetape4k-spring-boot4-cassandra:koverXmlReport \
+            :bluetape4k-spring-boot4-hibernate-lettuce:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-spring4-docker
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-spring4-docker
+          path: '**/build/reports/kover/'
+          retention-days: 30
+
+  # ── 13. 커버리지 집계 ─────────────────────────────────────────────────────
   coverage-report:
     name: Coverage Report
     runs-on: ubuntu-latest
-    needs: [test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2]
+    needs: [test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2, test-infra, test-exposed-jdbc-docker, test-exposed-r2dbc-docker, test-data, test-spring3-docker, test-spring4-docker]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -484,11 +884,20 @@ jobs:
           path: coverage-artifacts/
           retention-days: 14
 
-  # ── 10. 결과 집계 ─────────────────────────────────────────────────────────
+      - name: Upload coverage to Coveralls
+        if: always()
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          files: coverage-artifacts/**/reports/kover/report.xml
+          format: jacoco
+          fail-on-error: false
+
+  # ── 14. 결과 집계 ─────────────────────────────────────────────────────────
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [gitleaks, build, test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2, coverage-report]
+    needs: [gitleaks, build, test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2, test-infra, test-exposed-jdbc-docker, test-exposed-r2dbc-docker, test-data, test-spring3-docker, test-spring4-docker, coverage-report]
     if: always()
     steps:
       - name: Check all jobs

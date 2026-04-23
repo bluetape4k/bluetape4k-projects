@@ -17,6 +17,19 @@ import java.util.concurrent.ThreadLocalRandom
  *
  * 정적 HTML 목업 페이지를 제공한다. 외부 리소스 의존성 없음.
  * 파일 I/O 는 [Dispatchers.IO] 로 오프로드하여 이벤트 루프를 블로킹하지 않는다.
+ *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // 무작위 HTML 페이지 수신
+ * val randomHtml = client.get().uri("/web/random")
+ *     .accept(MediaType.TEXT_HTML)
+ *     .retrieve().awaitBody<String>()
+ * // 특정 페이지 수신 (home/naver/google/login/article)
+ * val homeHtml = client.get().uri("/web/home")
+ *     .accept(MediaType.TEXT_HTML)
+ *     .retrieve().awaitBody<String>()
+ * ```
  */
 @RestController
 @RequestMapping("/web")

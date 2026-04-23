@@ -34,7 +34,7 @@ class AdminResetContractTest: MockServerTestBase() {
         val get = Request.Builder().url("$baseUrl/jsonplaceholder/posts").get().build()
         client.newCall(get).execute().use { response ->
             response.code shouldBeEqualTo 200
-            response.body!!.string().length shouldBeGreaterThan 100
+            response.body.string().length shouldBeGreaterThan 100
         }
     }
 }

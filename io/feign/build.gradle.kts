@@ -14,7 +14,7 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
-    implementation(platform(Libs.spring_cloud_dependencies))
+    testImplementation(platform(Libs.spring_cloud3_dependencies))
 
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-netty"))
@@ -85,7 +85,7 @@ dependencies {
     //
     // Spring Cloud OpenFeign 사용
     //
-    testImplementation(Libs.springCloudStarter("openfeign"))
+    testImplementation(Libs.springCloud3Starter("openfeign"))
     testImplementation(Libs.springBootStarter("webflux"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")

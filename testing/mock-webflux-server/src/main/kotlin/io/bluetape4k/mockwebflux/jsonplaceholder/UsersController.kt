@@ -19,6 +19,21 @@ import org.springframework.web.bind.annotation.RestController
  *
  * 사용자 목록 조회, 개별 조회, 생성, 수정, 삭제 기능을 Coroutines 기반 suspend 함수로 제공한다.
  *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // 목록 조회
+ * val users = client.get().uri("/jsonplaceholder/users")
+ *     .retrieve().awaitBody<List<Map<String, Any>>>()
+ * // 단건 조회
+ * val user = client.get().uri("/jsonplaceholder/users/1")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * // 생성
+ * val created = client.post().uri("/jsonplaceholder/users")
+ *     .bodyValue(mapOf("name" to "Alice", "email" to "alice@example.com"))
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * ```
+ *
  * @param service jsonplaceholder 인메모리 데이터 서비스
  */
 @RestController

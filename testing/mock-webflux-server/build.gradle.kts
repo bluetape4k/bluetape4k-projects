@@ -34,7 +34,7 @@ dependencies {
     implementation(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-coroutines"))
     implementation(project(":bluetape4k-logging"))
-    implementation(project(":bluetape4k-jackson2"))
+    implementation(project(":bluetape4k-jackson3"))
 
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
@@ -66,6 +66,15 @@ afterEvaluate {
 
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildDockerTask>().configureEach {
     notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
+    doFirst {
+        println(
+            """
+            ⚠️  jibDockerBuild 는 Gradle Configuration Cache 와 호환되지 않습니다.
+               실행 시 반드시 --no-configuration-cache 플래그를 사용하세요:
+               ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+        """.trimIndent()
+        )
+    }
 }
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildImageTask>().configureEach {
     notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
@@ -94,7 +103,7 @@ jib {
         tags = setOf("latest", project.version.toString())
     }
     container {
-        ports = listOf("9999")
+        ports = listOf("80", "8443")
         jvmFlags = listOf("-XX:+UseG1GC", "-Xmx512m")
         mainClass = "io.bluetape4k.mockwebflux.MockWebfluxServerApplicationKt"
     }
@@ -102,9 +111,10 @@ jib {
         val dockerHostEnv = System.getenv("DOCKER_HOST")
         if (dockerHostEnv != null) {
             environment = mapOf("DOCKER_HOST" to dockerHostEnv)
-        } else {
+        } else if (System.getProperty("os.name").lowercase().contains("mac")) {
             executable = "/opt/homebrew/bin/docker"
             environment = mapOf("DOCKER_HOST" to "unix:///Users/debop/.colima/default/docker.sock")
         }
+        // Linux (CI): default docker + /var/run/docker.sock
     }
 }

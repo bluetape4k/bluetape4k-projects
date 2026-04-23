@@ -28,6 +28,8 @@ import org.redisson.codec.SnappyCodecV2
  * - [Kryo5]: Kryo5 직렬화 (빠르고 컴팩트한 바이너리 포맷)
  * - [Fory]: Apache Fory 직렬화 (Kryo5 대비 2~10배 빠름, 기본값)
  * - [Jdk]: JDK 기본 직렬화 (호환성 높지만 속도 느림)
+ * - [Jackson3]: Jackson 3 커스텀 JSON 엔벨로프 (`_type`/`_data`) — human-readable, non-JVM 클라이언트 연동
+ * - [Fastjson2]: Fastjson2 JSONB WriteClassName — JSONB 바이너리, non-JVM 클라이언트 연동
  *
  * ## 압축 방식
  * - Gzip: 높은 압축률, 느린 속도
@@ -43,6 +45,7 @@ import org.redisson.codec.SnappyCodecV2
  * - 범용 고성능: [LZ4Fory] 또는 [LZ4ForyComposite]
  * - 압축률 우선: [ZstdFory] 또는 [ZstdForyComposite]
  * - 호환성 우선: [Jdk]
+ * - Human-readable JSON: [Jackson3] (신뢰된 환경) 또는 [jackson3] (보안 factory)
  */
 object RedissonCodecs: KLogging() {
 
@@ -78,6 +81,40 @@ object RedissonCodecs: KLogging() {
      * 범용 호환성이 높으나 성능이 낮습니다. 레거시 시스템과의 연동에 사용하세요.
      */
     val Jdk: Codec by lazy { SerializationCodec() }
+
+    // -------------------------------------------------------------------------
+    // JSON Codecs
+    // -------------------------------------------------------------------------
+
+    /**
+     * Jackson 3 커스텀 JSON 엔벨로프 Codec. Human-readable JSON 포맷으로 Redis에 저장합니다.
+     *
+     * ⚠️ **보안 경고**: `allowedPackagePrefixes = null` (모든 타입 허용) 기본값입니다.
+     * **신뢰된 내부 Redis 환경에서만 사용**하십시오.
+     * 외부 노출 Redis에서는 [jackson3] factory 함수를 사용하여 `allowedPackagePrefixes`를 지정하십시오:
+     * ```kotlin
+     * val safeCodec = RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))
+     * ```
+     */
+    val Jackson3: Codec by lazy { Jackson3Codec() }
+
+    /**
+     * Fastjson2 JSONB Codec. WriteClassName으로 타입 정보를 JSONB 바이너리에 임베딩합니다.
+     *
+     * ⚠️ **보안 경고**: `allowedPackagePrefixes = null` (모든 타입 허용) 기본값입니다.
+     * **신뢰된 내부 Redis 환경에서만 사용**하십시오.
+     * 외부 노출 Redis에서는 [fastjson2] factory 함수를 사용하여 `allowedPackagePrefixes`를 지정하십시오:
+     * ```kotlin
+     * val safeCodec = RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))
+     * ```
+     */
+    val Fastjson2: Codec by lazy { Fastjson2Codec() }
+
+    /** Map 키: String, 값: Jackson3 JSON 엔벨로프를 사용하는 복합 Codec */
+    val Jackson3Composite: Codec by lazy { CompositeCodec(String, Jackson3, Jackson3) }
+
+    /** Map 키: String, 값: Fastjson2 JSONB를 사용하는 복합 Codec */
+    val Fastjson2Composite: Codec by lazy { CompositeCodec(String, Fastjson2, Fastjson2) }
 
     /** Map 키: String, 값: Kryo5 직렬화를 사용하는 복합 Codec */
     val Kryo5Composite: Codec by lazy { CompositeCodec(String, Kryo5, Kryo5) }
@@ -219,5 +256,43 @@ object RedissonCodecs: KLogging() {
      */
     @JvmStatic
     fun forCompatibility(): Codec = Jdk
+
+    // -------------------------------------------------------------------------
+    // JSON Codec safe factory functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * `allowedPackagePrefixes`를 지정한 안전한 Jackson 3 JSON Codec을 생성합니다.
+     *
+     * 외부에 노출된 Redis 또는 보안 요구사항이 있는 환경에서 [Jackson3] 싱글턴 대신 사용하십시오.
+     * 지정한 prefix에 속하지 않는 클래스 이름이 역직렬화 요청되면 [SecurityException]이 발생합니다.
+     *
+     * ```kotlin
+     * val codec = RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))
+     * config.codec = codec
+     * ```
+     *
+     * @param allowedPackagePrefixes 허용할 패키지 prefix 집합 (예: `setOf("com.mycompany.", "io.bluetape4k.")`)
+     */
+    @JvmStatic
+    fun jackson3(allowedPackagePrefixes: Set<String>): Codec =
+        Jackson3Codec(allowedPackagePrefixes = allowedPackagePrefixes)
+
+    /**
+     * `allowedPackagePrefixes`를 지정한 안전한 Fastjson2 JSONB Codec을 생성합니다.
+     *
+     * 외부에 노출된 Redis 또는 보안 요구사항이 있는 환경에서 [Fastjson2] 싱글턴 대신 사용하십시오.
+     * 지정한 prefix에 속하지 않는 AutoType 클래스 역직렬화 요청 시 [SecurityException]이 발생합니다.
+     *
+     * ```kotlin
+     * val codec = RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))
+     * config.codec = codec
+     * ```
+     *
+     * @param allowedPackagePrefixes 허용할 패키지 prefix 집합 (예: `setOf("com.mycompany.", "io.bluetape4k.")`)
+     */
+    @JvmStatic
+    fun fastjson2(allowedPackagePrefixes: Set<String>): Codec =
+        Fastjson2Codec(allowedPackagePrefixes = allowedPackagePrefixes)
 
 }

@@ -28,7 +28,6 @@ object Plugins {
 
         const val graalvm_native = "1.0.0" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
-        const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
         const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
         const val dependency_check = "12.1.9" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
     }
@@ -62,7 +61,6 @@ object Plugins {
     // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
     const val graalvm_native = "org.graalvm.buildtools.native"
 
-    const val kosogor = "tanvd.kosogor" // https://plugins.gradle.org/plugin/tanvd.kosogor
     const val nmcp = "com.gradleup.nmcp"  // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
     const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"  // https://mvnrepository.com/artifact/com.gradleup.nmcp.aggregation/com.gradleup.nmcp.aggregation.gradle.plugin
     const val dependency_check = "org.owasp.dependencycheck" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
@@ -70,7 +68,7 @@ object Plugins {
 
 object Versions {
 
-    const val kotlin = "2.3.20"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    const val kotlin = "2.3.21"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.10.2"     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     const val kotlinx_serialization = "1.11.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
     const val kotlinx_atomicfu = "0.32.1"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
@@ -79,9 +77,11 @@ object Versions {
 
     const val spring_boot3 = Plugins.Versions.spring_boot3
     const val spring_boot4 = Plugins.Versions.spring_boot4
-    const val spring_cloud = "2025.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
-    const val spring_integration = "6.5.6"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
-    const val reactor_bom = "2024.0.14"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
+
+    const val spring_cloud3 = "2025.0.2"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    const val spring_cloud4 = "2025.1.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    
+    const val reactor_bom = "2025.0.5"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.1" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
@@ -407,44 +407,28 @@ object Libs {
 
     fun springSecurity(module: String) = "org.springframework.security:spring-security-$module"
 
-    // Spring Cloud
-    const val spring_cloud_dependencies = "org.springframework.cloud:spring-cloud-dependencies:${Versions.spring_cloud}"
+    // Spring Cloud for Spring Boot 3
+    const val spring_cloud3_dependencies = "org.springframework.cloud:spring-cloud-dependencies:${Versions.spring_cloud3}"
 
-    fun springCloud(module: String) = "org.springframework.cloud:spring-cloud-$module"
-    fun springCloudStarter(module: String) = "org.springframework.cloud:spring-cloud-starter-$module"
+    fun springCloud3(module: String) = "org.springframework.cloud:spring-cloud-$module"
+    fun springCloud3Starter(module: String) = "org.springframework.cloud:spring-cloud-starter-$module"
 
-    val spring_cloud_commons = springCloud("commons")
-    val spring_cloud_context = springCloud("context")
-    val spring_cloud_stream = springCloud("stream")
-    val spring_cloud_starter_bootstrap = springCloudStarter("bootstrap")
+    val spring_cloud3_commons = springCloud3("commons")
+    val spring_cloud3_context = springCloud3("context")
+    val spring_cloud3_stream = springCloud3("stream")
+    val spring_cloud3_starter_bootstrap = springCloud3Starter("bootstrap")
 
-    // Spring Integration
-    fun springIntegration(module: String) = "org.springframework.integration:spring-integration-$module:${Versions.spring_integration}"
+    // Spring Cloud for Spring Boot 4
+    const val spring_cloud4_dependencies = "org.springframework.cloud:spring-cloud-dependencies:${Versions.spring_cloud4}"
 
-    val spring_integration_bom = springIntegration("bom")
+    fun springCloud4(module: String) = "org.springframework.cloud:spring-cloud-$module"
+    fun springCloud4Starter(module: String) = "org.springframework.cloud:spring-cloud-starter-$module"
 
-    val spring_integration_ampq = springIntegration("amqp")
-    val spring_integration_cassandra = springIntegration("cassandra")
-    val spring_integration_core = springIntegration("core")
-    val spring_integration_debezium = springIntegration("debezium")
-    val spring_integration_file = springIntegration("file")
-    val spring_integration_http = springIntegration("http")
-    val spring_integration_jdbc = springIntegration("jdbc")
-    val spring_integration_jms = springIntegration("jms")
-    val spring_integration_jpa = springIntegration("jpa")
-    val spring_integration_kafka = springIntegration("kafka")
-    val spring_integration_mongodb = springIntegration("mongodb")
-    val spring_integration_mqtt = springIntegration("mqtt")
-    val spring_integration_r2dbc = springIntegration("r2dbc")
-    val spring_integration_redis = springIntegration("redis")
-    val spring_integration_security = springIntegration("security")
-    val spring_integration_stomp = springIntegration("stomp")
-    val spring_integration_test = springIntegration("test")
-    val spring_integration_test_support = springIntegration("test-support")
-    val spring_integration_webflux = springIntegration("webflux")
-    val spring_integration_websocket = springIntegration("websocket")
-    val spring_integration_xmpp = springIntegration("xmpp")
-    val spring_integration_zookeeper = springIntegration("zookeeper")
+    val spring_cloud4_commons = springCloud4("commons")
+    val spring_cloud4_context = springCloud4("context")
+    val spring_cloud4_stream = springCloud4("stream")
+    val spring_cloud4_starter_bootstrap = springCloud4Starter("bootstrap")
+
 
     fun springStatemachine(module: String) =
         "org.springframework.statemachine:spring-statemachine-$module:${Versions.spring_statemachine}"

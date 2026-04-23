@@ -14,11 +14,11 @@ class PingContractTest: MockServerTestBase() {
 
     /** E01: GET /ping → 200 / body "pong" */
     @Test
-    fun `ping_returns_pong`() {
+    fun `ping returns pong`() {
         val req = Request.Builder().url("$baseUrl/ping").get().build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200
-            response.body!!.string() shouldBeEqualTo "pong"
+            response.body.string() shouldBeEqualTo "pong"
         }
     }
 }

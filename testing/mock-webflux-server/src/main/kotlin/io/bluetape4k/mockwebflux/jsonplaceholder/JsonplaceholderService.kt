@@ -18,6 +18,18 @@ import kotlin.concurrent.withLock
  * fixture 데이터를 로드하고 CRUD 저장소를 관리한다.
  * [reloadFromFixtures]는 원자적으로 전체 데이터를 재적재한다.
  *
+ * ```kotlin
+ * // Spring context 에서 주입된 서비스 사용 예
+ * @Autowired lateinit var service: JsonplaceholderService
+ *
+ * // 전체 posts 조회
+ * val posts = service.posts.all()
+ * // ID로 단건 조회
+ * val post = service.posts.find(1L)
+ * // 테스트 후 fixture 재적재로 상태 초기화
+ * service.reloadFromFixtures()
+ * ```
+ *
  * @param fixtureLoader 클래스패스 JSON fixture를 로드하는 컴포넌트
  */
 @Service
