@@ -77,6 +77,32 @@ sf.withSessionSuspending { session ->
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/*`
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/*`
 
+확장 함수 커버리지 향상을 위한 주요 테스트 클래스:
+
+| 테스트 클래스 | API | 검증 함수 |
+|---|---|---|
+| `MutinySessionSupportTest` | Mutiny | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs`(Session), `createNativeQueryAs`(Session/StatelessSession), `getAs(LockMode)` |
+| `StageSessionSupportTest` | Stage | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs`(Session), `createNativeQueryAs`(Session/StatelessSession), `getAs(LockMode)` |
+
+```kotlin
+// Hibernate LockMode 오버로드 (JPA LockModeType과 구분)
+sf.withSessionSuspending { session ->
+    session.findAs<Book>(book.id, LockMode.NONE).awaitSuspending()
+}
+
+// getReferenceAs — 프록시 참조, id 조회 시 DB 접근 없음
+sf.withSessionSuspending { session ->
+    val ref = session.getReferenceAs<Book>(book.id)
+    ref.id  // DB 왕복 없이 접근 가능
+}
+
+// Session에서 createNativeQueryAs 사용
+sf.withSessionSuspending { session ->
+    session.createNativeQueryAs<Long>("SELECT COUNT(*) FROM books")
+        .singleResult.awaitSuspending()
+}
+```
+
 ## 아키텍처 다이어그램
 
 ### Reactive Repository 클래스 구조

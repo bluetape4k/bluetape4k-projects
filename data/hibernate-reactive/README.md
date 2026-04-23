@@ -77,6 +77,32 @@ sf.withSessionSuspending { session ->
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/mutiny/*`
 - `src/test/kotlin/io/bluetape4k/hibernate/reactive/examples/stage/*`
 
+Key test classes covering uncovered extension functions:
+
+| Test Class | API | Covered Functions |
+|---|---|---|
+| `MutinySessionSupportTest` | Mutiny | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs` (Session), `createNativeQueryAs` (Session/StatelessSession), `getAs(LockMode)` |
+| `StageSessionSupportTest` | Stage | `findAs(LockMode)`, `getReferenceAs`, `createQueryAs` (Session), `createNativeQueryAs` (Session/StatelessSession), `getAs(LockMode)` |
+
+```kotlin
+// findAs with Hibernate LockMode (not JPA LockModeType)
+sf.withSessionSuspending { session ->
+    session.findAs<Book>(book.id, LockMode.NONE).awaitSuspending()
+}
+
+// getReferenceAs — proxy reference, no DB access for id
+sf.withSessionSuspending { session ->
+    val ref = session.getReferenceAs<Book>(book.id)
+    ref.id  // accessible without DB roundtrip
+}
+
+// createNativeQueryAs on Session
+sf.withSessionSuspending { session ->
+    session.createNativeQueryAs<Long>("SELECT COUNT(*) FROM books")
+        .singleResult.awaitSuspending()
+}
+```
+
 ## Architecture Diagrams
 
 ### Reactive Repository Class Structure
