@@ -10,6 +10,20 @@ import java.util.concurrent.atomic.AtomicLong
  * jsonplaceholder 데이터를 메모리에 저장하고 관리한다.
  * 스레드 안전한 [ConcurrentHashMap]과 [AtomicLong] 기반 ID 시퀀스를 사용한다.
  *
+ * ```kotlin
+ * data class Item(val id: Long = 0, val name: String)
+ * val repo = InMemoryRepository<Item>(
+ *     idExtractor = { it.id },
+ *     withId = { item, id -> item.copy(id = id) }
+ * )
+ * val saved = repo.add(Item(name = "hello"))
+ * // saved.id > 0
+ * val found = repo.find(saved.id)
+ * val updated = repo.update(saved.id, Item(name = "world"))
+ * val removed = repo.delete(saved.id)
+ * // removed == true
+ * ```
+ *
  * @param T 저장할 엔티티 타입
  * @param idExtractor 엔티티에서 ID를 추출하는 함수
  * @param withId 엔티티에 새 ID를 적용하는 함수

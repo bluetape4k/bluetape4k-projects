@@ -21,6 +21,24 @@ import org.springframework.web.bind.annotation.RestController
  * 게시글 목록 조회, 개별 조회, 생성, 수정, 삭제 기능을 Coroutines 기반 suspend 함수로 제공한다.
  * `userId` 쿼리 파라미터로 특정 사용자의 게시글만 필터링할 수 있다.
  *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // 목록 조회
+ * val posts = client.get().uri("/jsonplaceholder/posts")
+ *     .retrieve().awaitBody<List<Map<String, Any>>>()
+ * // userId 필터링
+ * val userPosts = client.get().uri("/jsonplaceholder/posts?userId=1")
+ *     .retrieve().awaitBody<List<Map<String, Any>>>()
+ * // 단건 조회
+ * val post = client.get().uri("/jsonplaceholder/posts/1")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * // 생성
+ * val created = client.post().uri("/jsonplaceholder/posts")
+ *     .bodyValue(mapOf("userId" to 1, "title" to "title", "body" to "body"))
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * ```
+ *
  * @param service jsonplaceholder 인메모리 데이터 서비스
  */
 @RestController

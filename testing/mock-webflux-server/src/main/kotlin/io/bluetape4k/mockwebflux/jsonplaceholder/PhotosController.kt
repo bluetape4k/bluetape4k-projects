@@ -21,6 +21,20 @@ import org.springframework.web.bind.annotation.RestController
  * 사진 목록 조회, 개별 조회, 생성, 수정, 삭제 기능을 Coroutines 기반 suspend 함수로 제공한다.
  * `albumId` 쿼리 파라미터로 특정 앨범의 사진만 필터링할 수 있다.
  *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // 목록 조회
+ * val photos = client.get().uri("/jsonplaceholder/photos")
+ *     .retrieve().awaitBody<List<Map<String, Any>>>()
+ * // albumId 필터링
+ * val albumPhotos = client.get().uri("/jsonplaceholder/photos?albumId=1")
+ *     .retrieve().awaitBody<List<Map<String, Any>>>()
+ * // 단건 조회
+ * val photo = client.get().uri("/jsonplaceholder/photos/1")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * ```
+ *
  * @param service jsonplaceholder 인메모리 데이터 서비스
  */
 @RestController

@@ -14,6 +14,15 @@ import org.springframework.web.bind.annotation.RestController
  *
  * fixture 재적재, 서버 상태 확인 등 운영 관리 기능을 제공한다.
  *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // 모든 fixture 데이터를 초기 상태로 재적재
+ * val result = client.post().uri("/admin/reset")
+ *     .retrieve().awaitBody<Map<String, String>>()
+ * // result["status"] == "ok"
+ * ```
+ *
  * @param jsonplaceholderService jsonplaceholder 데이터 서비스
  */
 @RestController

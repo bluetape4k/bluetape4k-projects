@@ -26,6 +26,23 @@ import java.util.*
  * 지연, 리다이렉트, 쿠키, 인증, 캐시, ETag 엔드포인트를 제공한다.
  * servlet 버전의 `Thread.sleep()` 은 `kotlinx.coroutines.delay()` 로 대체되어
  * Reactor Netty 이벤트 루프를 블로킹하지 않는다.
+ *
+ * ```kotlin
+ * // baseUrl == "http://localhost:9999"
+ * val client = WebClient.create("http://localhost:9999")
+ * // 500ms 응답 지연
+ * val delayResp = client.get().uri("/httpbin/delay/0.5")
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * // Basic 인증 검증
+ * val authResp = client.get().uri("/httpbin/basic-auth/user/pass")
+ *     .headers { it.setBasicAuth("user", "pass") }
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * // authResp["authenticated"] == true
+ * // Bearer 토큰 인증
+ * val bearerResp = client.get().uri("/httpbin/bearer")
+ *     .headers { it.setBearerAuth("my-token") }
+ *     .retrieve().awaitBody<Map<String, Any>>()
+ * ```
  */
 @RestController
 @RequestMapping("/httpbin")
