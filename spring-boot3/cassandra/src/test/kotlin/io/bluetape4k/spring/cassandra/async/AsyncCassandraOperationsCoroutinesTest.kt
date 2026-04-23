@@ -265,7 +265,7 @@ class AsyncCassandraOperationsCoroutinesTest(
         val entitySize = 20
         val pageSize = 5
 
-        val ids = List(entitySize) {
+        List(entitySize) {
             async(Dispatchers.IO) {
                 val user = newUser()
                 operations.insertSuspending(user)
