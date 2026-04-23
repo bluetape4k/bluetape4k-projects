@@ -64,7 +64,7 @@ class ReactiveCqlOperationsSupportTest(
 
     @Test
     fun `queryForObjectSuspending - CQL with reified type`() = runSuspendIO {
-        val user = insertUser(newUser())
+        insertUser(newUser())
 
         // count 조회 (숫자 타입으로 조회 가능)
         val count = reactiveCqlOps.queryForObjectSuspending<Long>("SELECT count(*) FROM users")
