@@ -41,8 +41,10 @@ class PostgreSQLAgeServer private constructor(
         /** Docker 이미지 이름 */
         const val IMAGE = "apache/age"
 
-        /** Docker 이미지 태그 — Apache AGE 1.6.0 for PostgreSQL 17 */
-        const val TAG = "release_PG17_1.6.0"
+        /**
+         * Docker 이미지 태그 — Apache AGE 1.7.0 for PostgreSQL 18
+         */
+        const val TAG = "release_PG18_1.7.0"
 
         /** 시스템 프로퍼티 등록에 사용할 서버 이름 */
         const val NAME = "postgresql-age"

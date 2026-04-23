@@ -17,7 +17,7 @@ class WebContentContractTest: MockServerTestBase() {
 
     /** E35: GET /web/random → text/html 응답 */
     @Test
-    fun `web_random_returns_html`() {
+    fun `web random returns html`() {
         val req = Request.Builder().url("$baseUrl/web/random").get().build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200
@@ -28,11 +28,11 @@ class WebContentContractTest: MockServerTestBase() {
     /** E36: GET /web/{name} → 각 이름에 대해 HTML 반환 */
     @ParameterizedTest
     @ValueSource(strings = ["home", "naver", "google", "login", "article"])
-    fun `web_named_returns_html_for_each_name`(name: String) {
+    fun `web named returns html for each name`(name: String) {
         val req = Request.Builder().url("$baseUrl/web/$name").get().build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200
-            response.body!!.string().lowercase() shouldContain "<html"
+            response.body.string().lowercase() shouldContain "<html"
         }
     }
 }

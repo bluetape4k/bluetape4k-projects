@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.http
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
+import io.bluetape4k.utils.ShutdownQueue
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.amshove.kluent.shouldBeEqualTo
@@ -26,7 +27,10 @@ class BluetapeWebfluxServerTest {
 
     companion object: KLogging() {
         private val server: BluetapeWebfluxServer by lazy {
-            BluetapeWebfluxServer().apply { start() }
+            BluetapeWebfluxServer().apply {
+                start()
+                ShutdownQueue.register(this)
+            }
         }
     }
 
