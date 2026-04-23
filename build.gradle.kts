@@ -62,10 +62,6 @@ allprojects {
     group = projectGroup
     version = baseVersion + snapshotVersion
 
-    // TODO: 중앙화 하지 않고, 표준방식으로 모듈의 build/ 를 사용하도록 한다
-    // kosogor 대체: 모든 프로젝트 build 출력을 루트 build/<project.name>/ 으로 중앙화
-    layout.buildDirectory.set(rootProject.projectDir.resolve("build/${project.name}"))
-
     repositories {
         mavenCentral()
         google()

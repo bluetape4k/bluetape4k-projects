@@ -126,7 +126,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-core
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 4. I/O 모듈 테스트 (순수 JVM) ───────────────────────────────────────
@@ -192,7 +192,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-io
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 5. Utils 모듈 테스트 (순수 JVM) ─────────────────────────────────────
@@ -268,7 +268,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-utils
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 6. Misc 모듈 테스트 (VirtualThread/Cache-core/Opentelemetry/MockServer/R2DBC) ─
@@ -332,7 +332,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-misc
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 7. Exposed core 테스트 (H2 인메모리, Docker 불필요) ──────────────────
@@ -401,7 +401,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-exposed-core
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 8. Spring Boot (H2 only, Docker 불필요) ──────────────────────────────
@@ -454,7 +454,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-spring-h2
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 9. Infra 모듈 테스트 (Redis·Kafka·Cache — Testcontainers) ─────────────
@@ -529,7 +529,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-infra
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 10. Exposed Docker 테스트 (Redis·Trino — Testcontainers) ─────────────
@@ -596,7 +596,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-exposed-docker
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 11. Data 모듈 테스트 (RDB·NoSQL — Testcontainers) ────────────────────
@@ -660,7 +660,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-data
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 12. Spring Boot Docker 테스트 (Redis·DB — Testcontainers) ────────────
@@ -745,7 +745,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-spring-docker
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 30
 
   # ── 13. 커버리지 집계 ─────────────────────────────────────────────────────

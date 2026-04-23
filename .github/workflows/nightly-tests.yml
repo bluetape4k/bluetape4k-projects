@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-exposed-db
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── Infra (Lettuce / Redisson) ────────────────────────────────────────────
@@ -163,7 +163,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-infra
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── Data (Cassandra / MongoDB / Hibernate / JDBC / R2DBC) ────────────────
@@ -226,7 +226,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-data
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── I/O heavy (WireMock / MockWebServer / Testcontainers) ────────────────
@@ -296,7 +296,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-io-heavy
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── AWS (LocalStack) ─────────────────────────────────────────────────────
@@ -351,7 +351,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-aws
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── Spring Boot 3 (Cassandra / MongoDB / R2DBC / Redis / Hibernate) ──────
@@ -425,7 +425,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-spring-boot3
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── Spring Boot 4 (Cassandra / MongoDB / R2DBC / Redis / Hibernate) ──────
@@ -499,7 +499,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-spring-boot4
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── Misc (Batch / Science / JWT / BigQuery / Timefold) ──────────────────
@@ -560,7 +560,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-misc
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── Testcontainers (mock-server 이미지 포함) ──────────────────────────────
@@ -627,7 +627,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-testcontainers
-          path: 'build/*/reports/kover/'
+          path: '**/build/reports/kover/'
           retention-days: 14
 
   # ── 커버리지 집계 ─────────────────────────────────────────────────────────
