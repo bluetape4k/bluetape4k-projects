@@ -52,7 +52,7 @@ class BluetapeHttpServer private constructor(
         const val PORT = 80
 
         /** 컨테이너 내부 HTTPS 포트 */
-        const val HTTPS_PORT = 443
+        const val HTTPS_PORT = 8443
 
         /**
          * [DockerImageName]으로 [BluetapeHttpServer] 인스턴스를 생성합니다.

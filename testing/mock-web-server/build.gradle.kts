@@ -87,7 +87,7 @@ jib {
         tags = setOf("latest", project.version.toString())
     }
     container {
-        ports = listOf("8888")
+        ports = listOf("80", "8443")
         jvmFlags = listOf("-XX:+UseG1GC", "-Xmx512m")
         mainClass = "io.bluetape4k.mockserver.MockServerApplicationKt"
     }

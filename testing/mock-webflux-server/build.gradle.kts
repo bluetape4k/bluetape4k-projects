@@ -103,7 +103,7 @@ jib {
         tags = setOf("latest", project.version.toString())
     }
     container {
-        ports = listOf("9999")
+        ports = listOf("80", "8443")
         jvmFlags = listOf("-XX:+UseG1GC", "-Xmx512m")
         mainClass = "io.bluetape4k.mockwebflux.MockWebfluxServerApplicationKt"
     }

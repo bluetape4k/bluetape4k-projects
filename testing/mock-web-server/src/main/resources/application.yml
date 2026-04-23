@@ -10,7 +10,7 @@ server:
 
 bluetape4k:
     https:
-        port: 443
+        port: 8443
         key-store: classpath:certs/localhost.p12
         key-store-password: changeit
         key-store-type: PKCS12
