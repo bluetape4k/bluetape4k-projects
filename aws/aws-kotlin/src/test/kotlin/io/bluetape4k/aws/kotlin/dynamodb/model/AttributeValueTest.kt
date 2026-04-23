@@ -71,9 +71,19 @@ class AttributeValueTest {
     }
 
     @Test
-    fun `List는 AttributeValue L로 변환된다`() {
+    fun `String List는 AttributeValue Ss로 변환된다`() {
+        // List<String> → Iterable<CharSequence> 오버로드 → AttributeValue.Ss (String Set)
         val list = listOf("a", "b", "c")
         val av = list.toAttributeValue()
+        av shouldBeInstanceOf AttributeValue.Ss::class
+        (av as AttributeValue.Ss).value.size shouldBeEqualTo 3
+    }
+
+    @Test
+    fun `혼합 List는 AttributeValue L로 변환된다`() {
+        // 혼합 타입 목록은 AttributeValue.L (List)
+        val mixed: List<Any> = listOf("a", 1, true)
+        val av = mixed.toAttributeValue()
         av shouldBeInstanceOf AttributeValue.L::class
         (av as AttributeValue.L).value.size shouldBeEqualTo 3
     }

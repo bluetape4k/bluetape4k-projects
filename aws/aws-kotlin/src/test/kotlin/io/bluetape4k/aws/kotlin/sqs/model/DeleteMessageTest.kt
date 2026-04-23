@@ -37,10 +37,11 @@ class DeleteMessageTest {
     }
 
     @Test
-    fun `deleteMessageBatchRequestEntryOf는 id로 entry를 생성한다`() {
-        val entry = deleteMessageBatchRequestEntryOf(id = "msg-001")
+    fun `deleteMessageBatchRequestEntryOf는 id와 receiptHandle로 entry를 생성한다`() {
+        val entry = deleteMessageBatchRequestEntryOf(id = "msg-001", receiptHandle = "receipt-001")
 
         entry.id shouldBeEqualTo "msg-001"
+        entry.receiptHandle shouldBeEqualTo "receipt-001"
     }
 
     @Test
