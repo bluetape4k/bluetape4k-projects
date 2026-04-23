@@ -452,6 +452,13 @@ jobs:
         env:
           DOCKER_HOST: "unix:///var/run/docker.sock"
 
+      - name: Build mock-webflux-server Docker image
+        run: |
+          ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild \
+            --no-daemon --no-configuration-cache
+        env:
+          DOCKER_HOST: "unix:///var/run/docker.sock"
+
       - name: Test spring-boot4 modules
         run: |
           ./gradlew \
