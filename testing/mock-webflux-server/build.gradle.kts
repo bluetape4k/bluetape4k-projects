@@ -66,6 +66,15 @@ afterEvaluate {
 
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildDockerTask>().configureEach {
     notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
+    doFirst {
+        println(
+            """
+            ⚠️  jibDockerBuild 는 Gradle Configuration Cache 와 호환되지 않습니다.
+               실행 시 반드시 --no-configuration-cache 플래그를 사용하세요:
+               ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+        """.trimIndent()
+        )
+    }
 }
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildImageTask>().configureEach {
     notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")

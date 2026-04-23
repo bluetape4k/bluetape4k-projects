@@ -47,6 +47,15 @@ dependencies {
 // 이 선언이 없으면 configuration cache 활성화 시 "this.project is null" 오류가 발생합니다.
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildDockerTask>().configureEach {
     notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
+    doFirst {
+        println(
+            """
+            ⚠️  jibDockerBuild 는 Gradle Configuration Cache 와 호환되지 않습니다.
+               실행 시 반드시 --no-configuration-cache 플래그를 사용하세요:
+               ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        """.trimIndent()
+        )
+    }
 }
 tasks.withType<com.google.cloud.tools.jib.gradle.BuildImageTask>().configureEach {
     notCompatibleWithConfigurationCache("Jib does not support Gradle configuration cache")
