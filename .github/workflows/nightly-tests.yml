@@ -707,8 +707,7 @@ jobs:
             :bluetape4k-spring-boot3-batch-exposed:test \
             :bluetape4k-spring-boot3-mongodb:test \
             :bluetape4k-spring-boot3-cassandra:test \
-            :bluetape4k-spring-boot3-hibernate-lettuce:test \
-            --parallel
+            :bluetape4k-spring-boot3-hibernate-lettuce:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -781,8 +780,7 @@ jobs:
             :bluetape4k-spring-boot4-batch-exposed:test \
             :bluetape4k-spring-boot4-mongodb:test \
             :bluetape4k-spring-boot4-cassandra:test \
-            :bluetape4k-spring-boot4-hibernate-lettuce:test \
-            --parallel
+            :bluetape4k-spring-boot4-hibernate-lettuce:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
