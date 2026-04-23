@@ -17,7 +17,7 @@ import java.time.Duration
  * `bluetape4k/mock-web-server` Docker 이미지를 로컬 컨테이너로 실행하는 테스트 HTTP 서버입니다.
  *
  * ## 동작/계약
- * - `/ping` 엔드포인트가 HTTP 200을 반환할 때까지(최대 60초) 시작을 기다립니다.
+ * - `/httpbin/get` 엔드포인트가 HTTP 200을 반환할 때까지(최대 120초) 시작을 기다립니다.
  * - `useDefaultPort=true`이면 [PORT](80) 포트를 호스트에 고정 바인딩하려고 시도하고,
  *   그렇지 않으면 동적 포트를 사용합니다.
  * - `reuse=true`일 때 Testcontainers 재사용 옵션을 켭니다.
@@ -186,10 +186,10 @@ class BluetapeHttpServer private constructor(
         withExposedPorts(PORT, HTTPS_PORT)
         withReuse(reuse)
         waitingFor(
-            Wait.forHttp("/ping")
+            Wait.forHttp("/httpbin/get")
                 .forPort(PORT)
                 .forStatusCode(200)
-                .withStartupTimeout(Duration.ofSeconds(60))
+                .withStartupTimeout(Duration.ofSeconds(120))
         )
 
         if (useDefaultPort) {
