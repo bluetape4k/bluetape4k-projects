@@ -75,7 +75,8 @@ class AbstractCassandraModelTest {
     @Test
     fun `동일 참조는 동등`() {
         val entity = StringEntity("id-1")
-        (entity == entity).shouldBeTrue()
+        val sameRef = entity
+        (entity == sameRef).shouldBeTrue()
     }
 
     @Test
