@@ -3,6 +3,7 @@ package io.bluetape4k.spring.core.io.buffer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactive.collect
 import org.reactivestreams.Publisher
 import org.springframework.core.io.Resource
 import org.springframework.core.io.buffer.DataBuffer
@@ -181,7 +182,7 @@ fun Publisher<out DataBuffer>.write(channel: AsynchronousFileChannel, position: 
 @Suppress("UNCHECKED_CAST")
 @JvmName("writeDataBufferToPath")
 suspend fun Publisher<out DataBuffer>.write(destination: Path, vararg options: OpenOption) {
-    DataBufferUtils.write(this as Publisher<DataBuffer>, destination, *options).awaitSingle()
+    DataBufferUtils.write(this as Publisher<DataBuffer>, destination, *options).collect {}
 }
 
 /**
