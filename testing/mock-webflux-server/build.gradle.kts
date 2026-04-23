@@ -34,7 +34,7 @@ dependencies {
     implementation(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-coroutines"))
     implementation(project(":bluetape4k-logging"))
-    implementation(project(":bluetape4k-jackson2"))
+    implementation(project(":bluetape4k-jackson3"))
 
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")
