@@ -43,7 +43,7 @@ import tools.jackson.dataformat.yaml.YAMLMapper
 object JacksonText: KLogging() {
 
     private val enabledSerializationFeatures = arrayOf(
-        SerializationFeature.WRITE_EMPTY_JSON_ARRAYS
+        SerializationFeature.WRITE_EMPTY_JSON_ARRAYS,
     )
 
     private val disabledSerializationFeatures = arrayOf(

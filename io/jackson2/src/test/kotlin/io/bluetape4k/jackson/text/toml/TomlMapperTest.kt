@@ -65,16 +65,10 @@ class TomlMapperTest: AbstractJacksonTextTest() {
             val output = tomlMapper.writeValueAsString(input)
             log.debug { "output=\n$output\n----------" }
 
-            val expected =
-                """
-                |firstName = '${input.firstName}'
-                |lastName = '${input.lastName}'
-                |verified = false
-                |gender = 'MALE'
-                |userImage = 'AQIDBA=='
-                |""".trimMargin()
+            // TOML: 값에 단따옴표가 포함되면 double-quote로 감싸므로 round-trip으로 검증
+            val actual = tomlMapper.readValue<FiveMinuteUser>(output)
 
-            output shouldBeEqualTo expected
+            actual shouldBeEqualTo input
         }
 
         @Test
