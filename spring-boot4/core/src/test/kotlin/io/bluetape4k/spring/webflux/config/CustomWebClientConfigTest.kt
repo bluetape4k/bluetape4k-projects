@@ -6,6 +6,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.tests.httpGet
 import io.bluetape4k.support.uninitialized
+import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -22,7 +23,10 @@ import org.springframework.web.reactive.function.client.awaitBody
  */
 @SpringBootTest(classes = [CustomWebClientConfig::class])
 class CustomWebClientConfigTest {
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val httpbin by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
+        private val httpbinUrl by lazy { httpbin.httpbinUrl }
+    }
 
     @Autowired
     private val webClient: WebClient = uninitialized()
@@ -41,13 +45,11 @@ class CustomWebClientConfigTest {
         runSuspendIO {
             val response =
                 webClient
-                    .httpGet("https://www.google.com")
+                    .httpGet("$httpbinUrl/get")
                     .awaitBody<String>()
 
-            // 로그의 Thread name 을 확인해야 합니다.
-            // 로그 상에 Thread 명에 `web-client-thread-` 가 있다면 custom thread pool 을 사용한 것이다.
-            // [      web-client-thread-1] o.s.w.r.f.client.ExchangeFunctions
-            log.debug { "구글 샤이트=$response" }
+            // 로그 Thread name에 `web-client-thread-`가 있으면 custom thread pool을 사용한 것
+            log.debug { "response=$response" }
         }
 
     @Test
@@ -57,7 +59,7 @@ class CustomWebClientConfigTest {
                 List(2 * Runtimex.availableProcessors) {
                     async {
                         webClient
-                            .httpGet("https://www.google.com")
+                            .httpGet("$httpbinUrl/get")
                             .awaitBody<String>()
                     }
                 }
@@ -73,24 +75,24 @@ class CustomWebClientConfigTest {
                 .add {
                     val body =
                         webClient
-                            .httpGet("https://www.google.com")
+                            .httpGet("$httpbinUrl/get")
                             .awaitBody<String>()
 
-                    log.debug { "구글 샤이트=${body.length}" }
+                    log.debug { "httpbin get=${body.length}" }
                 }.add {
                     val body =
                         webClient
-                            .httpGet("https://www.naver.com")
+                            .httpGet("$httpbinUrl/anything")
                             .awaitBody<String>()
 
-                    log.debug { "네이버 샤이트=${body.length}" }
+                    log.debug { "httpbin anything=${body.length}" }
                 }.add {
                     val body =
                         webClient
-                            .httpGet("https://www.daum.net")
+                            .httpGet("$httpbinUrl/headers")
                             .awaitBody<String>()
 
-                    log.debug { "다음 샤이트=${body.length}" }
+                    log.debug { "httpbin headers=${body.length}" }
                 }.run()
         }
 }
