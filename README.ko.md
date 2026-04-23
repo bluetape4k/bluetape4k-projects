@@ -335,6 +335,15 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 
 - **[junit5](./testing/junit5/README.ko.md)**: JUnit 5 확장 및 유틸리티
 - **[testcontainers](./testing/testcontainers/README.ko.md)**: Testcontainers 지원 (Redis, Kafka, DB 등)
+- **[mock-web-server](./testing/mock-web-server/README.ko.md)**: 통합 테스트용 MVC Mock HTTP Server Docker 이미지
+- **[mock-webflux-server](./testing/mock-webflux-server/README.ko.md)**: 통합 테스트용 WebFlux Mock HTTP Server Docker 이미지
+
+Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configuration cache를 항상 비활성화해야 합니다:
+
+```bash
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+```
 
 ### Virtual Thread 모듈 (`virtualthread/`)
 
