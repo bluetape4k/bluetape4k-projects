@@ -31,9 +31,16 @@ def parse_report(path: str) -> tuple[int, int]:
 
 
 def module_from_path(path: str) -> str:
-    # path: coverage-artifacts/<artifact>/build/<module>/reports/kover/report.xml
-    # 3-level dirname climbs from report.xml -> kover -> reports -> <module>
-    return os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(path))))
+    # actual path: coverage-artifacts/<artifact>/<group>/<module>/build/reports/kover/report.xml
+    # Find the last 'build' segment and return "<group>/<module>" before it.
+    parts = path.replace("\\", "/").split("/")
+    for i in range(len(parts) - 1, 0, -1):
+        if parts[i] == "build":
+            if i >= 2:
+                return f"{parts[i - 2]}/{parts[i - 1]}"
+            return parts[i - 1]
+    # fallback: 4 levels up from report.xml
+    return os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(path)))))
 
 
 def main() -> int:

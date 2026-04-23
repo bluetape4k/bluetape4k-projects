@@ -10,7 +10,6 @@ import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer.Launcher.bluetape
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.containers.wait.strategy.WaitAllStrategy
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
 
@@ -21,7 +20,7 @@ import java.time.Duration
  * httpbin/jsonplaceholder/web 엔드포인트를 제공합니다.
  *
  * ## 동작/계약
- * - `/ping` 엔드포인트가 HTTP 200을 반환할 때까지(최대 60초) 시작을 기다립니다.
+ * - `/httpbin/get` 엔드포인트가 HTTP 200을 반환할 때까지(최대 120초) 시작을 기다립니다.
  * - `useDefaultPort=true`이면 [PORT](80) 포트를 호스트에 고정 바인딩하려고 시도하고,
  *   그렇지 않으면 동적 포트를 사용합니다.
  * - `reuse=true`일 때 Testcontainers 재사용 옵션을 켭니다.
@@ -56,7 +55,7 @@ class BluetapeWebfluxServer private constructor(
         const val PORT = 80
 
         /** 컨테이너 내부 HTTPS 포트 */
-        const val HTTPS_PORT = 443
+        const val HTTPS_PORT = 8443
 
         /**
          * [DockerImageName]으로 [BluetapeWebfluxServer] 인스턴스를 생성합니다.
@@ -190,14 +189,10 @@ class BluetapeWebfluxServer private constructor(
         withExposedPorts(PORT, HTTPS_PORT)
         withReuse(reuse)
         waitingFor(
-            WaitAllStrategy()
-                .withStrategy(
-                    Wait.forHttp("/ping")
-                        .forPort(PORT)
-                        .forStatusCode(200)
-                )
-                .withStrategy(Wait.forListeningPort())
-                .withStartupTimeout(Duration.ofSeconds(60))
+            Wait.forHttp("/httpbin/get")
+                .forPort(PORT)
+                .forStatusCode(200)
+                .withStartupTimeout(Duration.ofSeconds(120))
         )
 
         if (useDefaultPort) {
