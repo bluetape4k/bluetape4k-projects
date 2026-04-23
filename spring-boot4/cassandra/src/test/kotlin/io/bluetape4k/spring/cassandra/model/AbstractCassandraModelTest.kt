@@ -77,7 +77,8 @@ class AbstractCassandraModelTest {
     @Test
     fun `다른 타입과 동등하지 않음`() {
         val entity = StringEntity("id-1")
-        (entity.equals("id-1")).shouldBeFalse()
+        val other: Any = "id-1"
+        (entity == other).shouldBeFalse()
     }
 
     @Test
