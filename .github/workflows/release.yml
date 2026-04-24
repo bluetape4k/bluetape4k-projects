@@ -161,14 +161,33 @@ jobs:
           ref: ${{ needs.resolve-version.outputs.ref }}
           fetch-depth: 0
 
-      - name: Extract CHANGELOG section
-        id: notes
+      - name: Resolve previous tag
+        id: prev_tag
         shell: bash
         env:
           VERSION: ${{ needs.resolve-version.outputs.version }}
         run: |
           set -euo pipefail
+          # 현재 태그를 제외하고 버전 규약에 맞는 최근 태그를 찾는다.
+          PREV=$(git tag --list --sort=-v:refname \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$' \
+            | grep -vx "$VERSION" \
+            | head -1 || true)
+          echo "previous=$PREV" >> "$GITHUB_OUTPUT"
+          echo "이전 태그: ${PREV:-(없음)}"
+
+      - name: Compose release notes
+        id: notes
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          PREV_TAG: ${{ steps.prev_tag.outputs.previous }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
           NOTES_FILE="$(mktemp)"
+
+          # 1) CHANGELOG 본문 추출
           awk -v ver="$VERSION" '
             BEGIN { inblock=0 }
             /^## \[/ {
@@ -180,12 +199,37 @@ jobs:
 
           if [[ ! -s "$NOTES_FILE" ]]; then
             echo "::warning::No CHANGELOG section found for $VERSION. Using fallback notes."
-            printf "Release %s\n\nSee [CHANGELOG.md](./CHANGELOG.md) for details.\n" "$VERSION" > "$NOTES_FILE"
+            printf "Release %s\n\nSee [CHANGELOG.md](./CHANGELOG.md) for details.\n\n" "$VERSION" > "$NOTES_FILE"
+          fi
+
+          # 2) Contributors (이전 태그 → 현재 태그 범위)
+          if [[ -n "$PREV_TAG" ]]; then
+            CONTRIBUTORS=$(git shortlog -sne "${PREV_TAG}..${VERSION}" \
+              | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//' \
+              | sort -u || true)
+            if [[ -n "$CONTRIBUTORS" ]]; then
+              {
+                printf '\n## Contributors\n\n'
+                printf '본 릴리즈에 기여해주신 분들께 감사드립니다.\n\n'
+                while IFS= read -r line; do
+                  printf -- '- %s\n' "$line"
+                done <<< "$CONTRIBUTORS"
+              } >> "$NOTES_FILE"
+            fi
+
+            # 3) Full Changelog 링크
+            printf '\n**Full Changelog**: https://github.com/%s/compare/%s...%s\n' \
+              "$REPO" "$PREV_TAG" "$VERSION" >> "$NOTES_FILE"
+          else
+            printf '\n**Full Changelog**: https://github.com/%s/commits/%s\n' \
+              "$REPO" "$VERSION" >> "$NOTES_FILE"
           fi
 
           echo "notes_file=$NOTES_FILE" >> "$GITHUB_OUTPUT"
-          echo "--- Release notes preview ---"
-          head -40 "$NOTES_FILE"
+          echo "--- Release notes preview (상위 60줄) ---"
+          head -60 "$NOTES_FILE"
+          echo "--- 하단 20줄 ---"
+          tail -20 "$NOTES_FILE"
 
       - name: Create GitHub Release
         env:
