@@ -26,6 +26,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     companion object: KLogging() {
         const val TOTAL_PERMITS = 3
         private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client) }
+        private val executor by lazy { Executors.newFixedThreadPool(10) }
     }
 
     private lateinit var semaphore: LettuceSemaphore
@@ -98,7 +99,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val maxConcurrent = AtomicInteger(0)
         val concurrent = AtomicInteger(0)
         val latch = CountDownLatch(10)
-        val executor = Executors.newFixedThreadPool(10)
 
         repeat(10) {
             executor.submit {
@@ -115,7 +115,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         }
 
         latch.await(10, TimeUnit.SECONDS)
-        executor.shutdown()
         maxConcurrent.get() shouldBeGreaterOrEqualTo 1
     }
 

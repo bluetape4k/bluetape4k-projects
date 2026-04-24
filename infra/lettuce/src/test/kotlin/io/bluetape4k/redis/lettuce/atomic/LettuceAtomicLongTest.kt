@@ -22,6 +22,7 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
         private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val executor by lazy { Executors.newFixedThreadPool(10) }
     }
 
     private lateinit var atomicLong: LettuceAtomicLong
@@ -115,7 +116,6 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
         val threadCount = 10
         val iterationsPerThread = 100
         val latch = CountDownLatch(threadCount)
-        val executor = Executors.newFixedThreadPool(threadCount)
 
         repeat(threadCount) {
             executor.submit {
@@ -128,7 +128,6 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
         }
 
         latch.await(30, TimeUnit.SECONDS)
-        executor.shutdown()
         atomicLong.get() shouldBeEqualTo (threadCount * iterationsPerThread).toLong()
     }
 

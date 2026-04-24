@@ -26,6 +26,7 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
         private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val executor by lazy { Executors.newFixedThreadPool(5) }
     }
 
     private lateinit var lock: LettuceLock
@@ -80,7 +81,6 @@ class LettuceLockTest: AbstractLettuceTest() {
         val threadCount = 5
         val acquiredCount = AtomicInteger(0)
         val latch = CountDownLatch(threadCount)
-        val executor = Executors.newFixedThreadPool(threadCount)
 
         repeat(threadCount) {
             executor.submit {
@@ -95,7 +95,6 @@ class LettuceLockTest: AbstractLettuceTest() {
         }
 
         latch.await(5, TimeUnit.SECONDS)
-        executor.shutdown()
         acquiredCount.get() shouldBeEqualTo 1
     }
 

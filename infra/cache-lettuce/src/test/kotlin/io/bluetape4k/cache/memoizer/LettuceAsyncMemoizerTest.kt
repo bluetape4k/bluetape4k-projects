@@ -8,7 +8,6 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceLongCodec
 import io.bluetape4k.redis.lettuce.map.LettuceMap
-import io.lettuce.core.codec.RedisCodec
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
@@ -17,16 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger
 class LettuceAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     companion object: KLogging() {
-        private fun <V: Any> newMap(
-            codec: RedisCodec<String, V>,
-            name: String,
-        ): LettuceMap<V> = LettuceMap(
-            LettuceClients.connect(RedisServers.redisClient, codec),
-            name
-        )
+        private val intConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceIntCodec) }
+        private val longConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceLongCodec) }
     }
 
-    private val heavyMap = newMap(LettuceIntCodec, "memoizer:lettuce:async:heavy").apply { clear() }
+    private val heavyMap = LettuceMap<Int>(intConnection, "memoizer:lettuce:async:heavy").apply { clear() }
 
     override val heavyFunc: (Int) -> CompletableFuture<Int> = heavyMap.asyncMemoizer { x ->
         CompletableFuture.supplyAsync {
@@ -37,13 +31,13 @@ class LettuceAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
     override val factorial: AsyncFactorialProvider = object: AsyncFactorialProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> =
-            newMap(LettuceLongCodec, "memoizer:lettuce:async:factorial")
+            LettuceMap<Long>(longConnection, "memoizer:lettuce:async:factorial")
                 .asyncMemoizer { calc(it) }
     }
 
     override val fibonacci: AsyncFibonacciProvider = object: AsyncFibonacciProvider {
         override val cachedCalc: (Long) -> CompletableFuture<Long> =
-            newMap(LettuceLongCodec, "memoizer:lettuce:async:fibonacci")
+            LettuceMap<Long>(longConnection, "memoizer:lettuce:async:fibonacci")
                 .asyncMemoizer { calc(it) }
     }
 
@@ -61,7 +55,7 @@ class LettuceAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
     @Test
     fun `동일 key 재진입 시 inFlight remove 가 새 promise 를 오삭제하지 않음`() {
         val evalCount = AtomicInteger(0)
-        val raceMap = newMap(LettuceIntCodec, "memoizer:lettuce:async:race").apply { clear() }
+        val raceMap = LettuceMap<Int>(intConnection, "memoizer:lettuce:async:race").apply { clear() }
         val memoizer = raceMap.asyncMemoizer<Int, Int> { x ->
             evalCount.incrementAndGet()
             CompletableFuture.supplyAsync {

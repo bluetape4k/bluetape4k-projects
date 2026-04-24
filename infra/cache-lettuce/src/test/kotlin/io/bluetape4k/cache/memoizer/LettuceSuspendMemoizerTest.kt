@@ -6,21 +6,14 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceLongCodec
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
-import io.lettuce.core.codec.RedisCodec
-
 class LettuceSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     companion object: KLogging() {
-        private fun <V: Any> newMap(
-            codec: RedisCodec<String, V>,
-            name: String,
-        ): LettuceSuspendMap<V> = LettuceSuspendMap(
-            LettuceClients.connect(RedisServers.redisClient, codec),
-            name
-        )
+        private val intConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceIntCodec) }
+        private val longConnection by lazy { LettuceClients.connect(RedisServers.redisClient, LettuceLongCodec) }
     }
 
-    private val heavyMap = newMap(LettuceIntCodec, "memoizer:lettuce:suspend:heavy")
+    private val heavyMap = LettuceSuspendMap<Int>(intConnection, "memoizer:lettuce:suspend:heavy")
 
     override val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
         Thread.sleep(100)
@@ -29,13 +22,13 @@ class LettuceSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
     override val factorial: SuspendFactorialProvider = object: SuspendFactorialProvider {
         override val cachedCalc: suspend (Long) -> Long =
-            newMap(LettuceLongCodec, "memoizer:lettuce:suspend:factorial")
+            LettuceSuspendMap<Long>(longConnection, "memoizer:lettuce:suspend:factorial")
                 .suspendMemoizer { calc(it) }
     }
 
     override val fibonacci: SuspendFibonacciProvider = object: SuspendFibonacciProvider {
         override val cachedCalc: suspend (Long) -> Long =
-            newMap(LettuceLongCodec, "memoizer:lettuce:suspend:fibonacci")
+            LettuceSuspendMap<Long>(longConnection, "memoizer:lettuce:suspend:fibonacci")
                 .suspendMemoizer { calc(it) }
     }
 }
