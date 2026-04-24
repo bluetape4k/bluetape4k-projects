@@ -17,6 +17,7 @@
 
 ### 1.1 utils/science — NetCdf 지원 완성 🟡
 
+- Issue: [#107](https://github.com/bluetape4k/bluetape4k-projects/issues/107)
 - [ ] `NetCdfCatalogService.kt` — `TODO("Phase 4 UCAR netcdfAll 완료 후 구현 예정")` 구현
   - `listLayers()`, `getLayer()`, `createLayer()` 등 미구현 메서드 완성
 - [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
@@ -24,6 +25,7 @@
 
 ### 1.2 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
 
+- Issue: [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108)
 - [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
   - `findByName()`, `findByAgeGreaterThan()`, `findByNameContaining()` 완성
 
@@ -33,6 +35,7 @@
 
 ### 2.1 io 모듈 레거시 정리 🔴
 
+- Issue: [#109](https://github.com/bluetape4k/bluetape4k-projects/issues/109)
 - [x] `io/crypto/` — jasypt 기반 암호화 모듈 전체 삭제, `tink` 모듈로 대체 완료 (2026-04-17)
 - [ ] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
   - Retrofit2도 SB3/4 core에서 이미 제거됨 — io 모듈도 정리 대상 검토
@@ -45,6 +48,7 @@
 
 ### 2.3 infra 모듈 정리 🟡
 
+- Issue: [#110](https://github.com/bluetape4k/bluetape4k-projects/issues/110)
 - [ ] `infra/` — 12개 deprecated 파일 검토
   - 레거시 캐시, 큐 연동 API 정리
 
@@ -52,6 +56,7 @@
 
 ## 3. testing/testcontainers — HazelcastServer 수정 🔴
 
+- Issue: [#111](https://github.com/bluetape4k/bluetape4k-projects/issues/111)
 - [ ] `HazelcastServer.kt` — deprecated Hazelcast API 4개 수정
   - `Config`, `NetworkConfig`, `JoinConfig`, `TcpIpConfig` 최신 API로 교체
   - Hazelcast 5.x 호환성 확보
@@ -60,6 +65,7 @@
 
 ## 4. x-obsoleted 처리 계획 🟡
 
+- Epic: [#114](https://github.com/bluetape4k/bluetape4k-projects/issues/114)
 14개 레거시 모듈 전수 조사 완료 (2026-04-20). 실무 가치 기준으로 재분류.
 
 ### 4.1 🔴 승격 강력 추천 — 구현 충실도 높고 실무 수요 큼
@@ -123,6 +129,7 @@
 
 ## 5. Spring Boot 3 / 4 동기화 유지 🔴
 
+- Issue: [#112](https://github.com/bluetape4k/bluetape4k-projects/issues/112)
 현재 13개 모듈 완벽 대칭 — 신규 모듈 추가 시 반드시 양쪽에 동시 구현:
 
 - [ ] 신규 모듈 추가 체크리스트 확립 (PR 템플릿에 반영)
@@ -311,6 +318,7 @@ Shopify 프로덕션 사용 검증됨.
 
 ## 11. Javers + Exposed = Event Sourcing / CQRS / DDD 🔴
 
+- Epic: [#115](https://github.com/bluetape4k/bluetape4k-projects/issues/115)
 > x-obsoleted `javers/` 3개 서브모듈(74 kt 파일, Caffeine/Cache2K/Lettuce/Redisson/Kafka 백엔드)을 `data/` 트리로 승격하고, Exposed 생태계와 통합해 **JPA 대체 가능한 Event Sourcing 기반 DDD 스택**을 구축.
 
 ### 11.1 전략적 가치
@@ -380,6 +388,7 @@ Shopify 프로덕션 사용 검증됨.
 
 ## 12. Redis Codec — ForyFast 지원 추가 🟡
 
+- Issue: [#113](https://github.com/bluetape4k/bluetape4k-projects/issues/113)
 > `2026-04-23-redis-json-codec-design.md` 스펙에서 범위 분리. JSON Codec(Jackson3/Fastjson2) 완료 후 후속 PR로 진행.
 
 ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한 고성능 Redis Codec.
