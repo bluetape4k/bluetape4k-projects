@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.hibernate.annotations.Cache
@@ -136,7 +137,7 @@ class LettuceNearCacheIntegrationTest {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    fun `엔티티 재조회 시 Hibernate L2 cache miss→put→hit cycle이 발생한다`() {
+    fun `엔티티 재조회 시 Hibernate L2 cache miss-put-hit cycle이 발생한다`() {
         val sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor::class.java)
         sessionFactory.statistics.clear()
 
@@ -148,10 +149,12 @@ class LettuceNearCacheIntegrationTest {
         val stats = sessionFactory.statistics.getDomainDataRegionStatistics(regionName)
         stats.shouldNotBeNull()
 
-        // 두 번의 findById → 첫 번째는 miss + put, 두 번째는 hit (완전한 L2 cycle 검증)
-        (stats.missCount >= 1L).shouldBeTrue()
-        (stats.putCount >= 1L).shouldBeTrue()
-        (stats.hitCount >= 1L).shouldBeTrue()
+        // NOT_SUPPORTED + statistics.clear() 후 결정적 카운터:
+        //   miss=1 (첫 findById), put=1 (첫 findById 후 L2 insert), hit=1 (두 번째 findById)
+        // save() 는 insert-only 로 L2 put 을 만들지 않음 (hibernate cache spec: insert는 region.afterInsert 호출)
+        stats.missCount shouldBeEqualTo 1L
+        stats.hitCount shouldBeEqualTo 1L
+        stats.putCount shouldBeGreaterOrEqualTo 1L  // save 후 afterInsert 기여 가능성 → 최소 1
     }
 
     @Test
@@ -175,11 +178,11 @@ class LettuceNearCacheIntegrationTest {
 
         val activeRegionsGauge = meterRegistry.find("lettuce.nearcache.active.regions").gauge()
         activeRegionsGauge.shouldNotBeNull()
-        (activeRegionsGauge.value() >= 0.0).shouldBeTrue()
+        activeRegionsGauge.value() shouldBeGreaterOrEqualTo 1.0  // 최소 TestItem region 1개
 
         val totalLocalSizeGauge = meterRegistry.find("lettuce.nearcache.total.local.size").gauge()
         totalLocalSizeGauge.shouldNotBeNull()
-        (totalLocalSizeGauge.value() >= 0.0).shouldBeTrue()
+        totalLocalSizeGauge.value() shouldBeGreaterOrEqualTo 0.0  // Caffeine async eviction 고려
     }
 
     private fun structuredTaskScopeAvailable(): Boolean =
