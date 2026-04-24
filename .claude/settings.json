@@ -26,5 +26,21 @@
   "enabledPlugins": {
     "oh-my-claudecode@omc": true,
     "code-review-graph@code-review-graph": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/kt-test-compile.sh",
+            "asyncRewake": true,
+            "timeout": 120,
+            "statusMessage": "Kotlin 테스트 컴파일 검증 중..."
+          }
+        ]
+      }
+    ]
   }
 }
