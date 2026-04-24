@@ -24,7 +24,7 @@ abstract class AbstractCassandraTestConfiguration: AbstractCassandraConfiguratio
 
         init {
             // default keyspace 를 재생성합니다.
-            CassandraServer.Launcher.recreateKeyspace(DEFAULT_KEYSPACE)
+            AbstractCassandraTest.recreateKeyspaceOnce(DEFAULT_KEYSPACE)
         }
     }
 
@@ -34,7 +34,7 @@ abstract class AbstractCassandraTestConfiguration: AbstractCassandraConfiguratio
 
     override fun getKeyspaceName(): String = DEFAULT_KEYSPACE
 
-    override fun getSchemaAction(): SchemaAction = SchemaAction.RECREATE
+    override fun getSchemaAction(): SchemaAction = SchemaAction.CREATE_IF_NOT_EXISTS
 
     override fun getLocalDataCenter(): String = CassandraServer.LOCAL_DATACENTER1
 
