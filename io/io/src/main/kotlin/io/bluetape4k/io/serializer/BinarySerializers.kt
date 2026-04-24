@@ -357,6 +357,12 @@ object BinarySerializers {
      *
      * **Thread-safety**: 내부적으로 `ThreadSafeFory` (풀 기반)를 사용하므로 멀티스레드 환경에서 안전합니다.
      *
+     * ```kotlin
+     * val bytes = BinarySerializers.FastFory.serialize(myObject)
+     * val restored = BinarySerializers.FastFory.deserialize<MyClass>(bytes)
+     * // restored == myObject
+     * ```
+     *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec(`CompatibleMode.COMPATIBLE`)과 **와이어 포맷이 상호 비호환**합니다.
      * - **비대칭 호환성**: Redisson `FastForyCodec`은 구 Fory 데이터를 fallback으로 읽을 수 있습니다. 반대(기존 Fory codec으로 FastFory 데이터 읽기)는 불가합니다.
@@ -369,6 +375,11 @@ object BinarySerializers {
 
     /**
      * LZ4 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
+     *
+     * ```kotlin
+     * val bytes = BinarySerializers.LZ4FastFory.serialize(myObject)
+     * val restored = BinarySerializers.LZ4FastFory.deserialize<MyClass>(bytes)
+     * ```
      */
     val LZ4FastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.LZ4)
@@ -376,6 +387,11 @@ object BinarySerializers {
 
     /**
      * Zstd 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
+     *
+     * ```kotlin
+     * val bytes = BinarySerializers.ZstdFastFory.serialize(largeObject)
+     * val restored = BinarySerializers.ZstdFastFory.deserialize<MyClass>(bytes)
+     * ```
      */
     val ZstdFastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.Zstd)
@@ -383,6 +399,11 @@ object BinarySerializers {
 
     /**
      * Snappy 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
+     *
+     * ```kotlin
+     * val bytes = BinarySerializers.SnappyFastFory.serialize(myObject)
+     * val restored = BinarySerializers.SnappyFastFory.deserialize<MyClass>(bytes)
+     * ```
      */
     val SnappyFastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.Snappy)
@@ -390,6 +411,11 @@ object BinarySerializers {
 
     /**
      * GZip 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
+     *
+     * ```kotlin
+     * val bytes = BinarySerializers.GZipFastFory.serialize(myObject)
+     * val restored = BinarySerializers.GZipFastFory.deserialize<MyClass>(bytes)
+     * ```
      */
     val GZipFastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.GZip)

@@ -151,6 +151,27 @@ Codec 클래스:
 - `ZstdCodec` — Zstd 압축 래퍼
 - `GzipCodec` — GZip 압축 래퍼
 
+#### 사용 목적별 팩토리 함수
+
+`RedissonCodecs`는 내부 구현을 몰라도 적절한 Codec을 쉽게 선택할 수 있는 사용 목적 기반 팩토리 함수를 제공합니다:
+
+| 팩토리 함수                                  | 반환값              | 설명                                                  |
+|----------------------------------------------|---------------------|-------------------------------------------------------|
+| `RedissonCodecs.forCache()`                  | `LZ4Fory`           | 처리량 중심 값 캐시 (1KB 이상 객체)                   |
+| `RedissonCodecs.forHighThroughput()`         | `LZ4FastFory`       | `forCache()` 대비 ~27% 높은 처리량. 휘발성 캐시 전용 ⚠️ |
+| `RedissonCodecs.forCacheMap()`               | `LZ4ForyComposite`  | Map 형 캐시 (RMap, RLocalCachedMap)                   |
+| `RedissonCodecs.forGeneral()`                | `Fory`              | 범용 혼합 읽기/쓰기 워크로드                          |
+| `RedissonCodecs.forSmallValue()`             | `Kryo5`             | 작은 값 (<1KB) — 압축 오버헤드 생략                   |
+| `RedissonCodecs.forArchival()`               | `ZstdFory`          | 아카이브/콜드 스토리지 — 최고 압축률                  |
+| `RedissonCodecs.forCompatibility()`          | `Jdk`               | 외부 시스템 상호 운용 (non-bluetape4k)                 |
+
+```kotlin
+val config = Config()
+// 고처리량 휘발성 캐시에 FastFory + LZ4 조합 사용
+config.codec = RedissonCodecs.forHighThroughput()
+val redisson = Redisson.create(config)
+```
+
 ---
 
 ### 3. Batch / Transaction

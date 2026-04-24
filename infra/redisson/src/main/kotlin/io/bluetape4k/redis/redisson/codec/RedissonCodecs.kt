@@ -158,6 +158,15 @@ object RedissonCodecs: KLogging() {
      * Apache Fory SCHEMA_CONSISTENT 모드(FastFory) 직렬화 Codec.
      * 기본 [Fory](COMPATIBLE 모드) 대비 더 빠른 직렬화 속도를 제공하며, 직렬화 실패 시 [Fory]로 자동 전환합니다.
      *
+     * ```kotlin
+     * val config = Config()
+     * config.codec = RedissonCodecs.FastFory
+     * val redisson = Redisson.create(config)
+     * val bucket = redisson.getBucket<MyData>("key")
+     * bucket.set(myData)
+     * val result = bucket.get()
+     * ```
+     *
      * ⚠️ [Fory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
      */
     val FastFory: Codec by lazy { FastForyCodec() }
@@ -295,6 +304,24 @@ object RedissonCodecs: KLogging() {
      */
     @JvmStatic
     fun forCache(): Codec = LZ4Fory
+
+    /**
+     * 최고 처리량(high-throughput) 캐시용 Codec.
+     *
+     * [forCache]보다 ~27% 높은 직렬화 처리량이 필요할 때 사용합니다.
+     * FastFory(`SCHEMA_CONSISTENT` + `refTracking=false`) + LZ4 압축 조합입니다.
+     * 직렬화 실패 시 [Fory]로 자동 fallback하여 마이그레이션 기간에도 안전합니다.
+     *
+     * ```kotlin
+     * val config = Config()
+     * config.codec = RedissonCodecs.forHighThroughput()
+     * val redisson = Redisson.create(config)
+     * ```
+     *
+     * ⚠️ [forCache] 및 [LZ4Fory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    @JvmStatic
+    fun forHighThroughput(): Codec = LZ4FastFory
 
     /**
      * Map 형태의 캐시용 Codec.
