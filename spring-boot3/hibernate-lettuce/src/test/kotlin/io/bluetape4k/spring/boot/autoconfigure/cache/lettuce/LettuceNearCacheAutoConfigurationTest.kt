@@ -194,4 +194,15 @@ class LettuceNearCacheAutoConfigurationTest {
                 props["hibernate.cache.lettuce.local.max_size"] shouldBeEqualTo "50000"
             }
     }
+
+    @Test
+    fun `ActuatorEndpoint는 metrics enabled=false여도 등록된다`() {
+        metricsContextRunner
+            .withPropertyValues("bluetape4k.cache.lettuce-near.metrics.enabled=false")
+            .run { context ->
+                // Actuator endpoint는 metrics.enabled 가 아닌 lettuce-near.enabled로 제어되므로
+                // metrics를 비활성해도 endpoint bean은 등록된다
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldHaveSize(1)
+            }
+    }
 }

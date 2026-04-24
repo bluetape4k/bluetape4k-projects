@@ -3,15 +3,19 @@ package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.testcontainers.storage.RedisServer
+import io.micrometer.core.instrument.MeterRegistry
 import jakarta.persistence.Cacheable
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityManagerFactory
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
+import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -56,6 +60,18 @@ class LettuceNearCacheIntegrationTest {
 
     @Autowired
     private lateinit var itemRepository: TestItemRepository
+
+    @Autowired
+    private lateinit var entityManagerFactory: EntityManagerFactory
+
+    @Autowired
+    private lateinit var actuatorEndpoint: LettuceNearCacheActuatorEndpoint
+
+    @Autowired
+    private lateinit var meterRegistry: MeterRegistry
+
+    @Autowired
+    private lateinit var metricsBinder: LettuceNearCacheMetricsBinder
 
     @Test
     @Transactional
@@ -105,6 +121,53 @@ class LettuceNearCacheIntegrationTest {
 
         names.size shouldBeEqualTo 4
         names.forEach { it shouldBeEqualTo "StructuredItem" }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    fun `엔티티 재조회 시 Hibernate L2 cache hitCount가 증가한다`() {
+        val sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor::class.java)
+        sessionFactory.statistics.clear()
+
+        val item = itemRepository.save(TestItem(name = "CacheHitItem"))
+        itemRepository.findById(item.id!!)  // L2 miss → DB read → put to L2
+        itemRepository.findById(item.id!!)  // L2 hit
+
+        val regionName = TestItem::class.java.name
+        val regionStats = runCatching {
+            sessionFactory.statistics.getDomainDataRegionStatistics(regionName)
+        }.getOrNull()
+        val stats = requireNotNull(regionStats) { "region stats for $regionName should not be null" }
+        (stats.hitCount >= 1L).shouldBeTrue()
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    fun `Actuator endpoint가 저장된 엔티티 region의 RegionStats를 반환한다`() {
+        val item = itemRepository.save(TestItem(name = "EndpointItem"))
+        itemRepository.findById(item.id!!)
+
+        val allStats = actuatorEndpoint.getAllRegionStats()
+        allStats.shouldNotBeNull()
+        allStats.keys.any { it.contains("TestItem") }.shouldBeTrue()
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    fun `Metrics Gauge가 active_regions와 total_local_size의 실제 값을 보고한다`() {
+        val item = itemRepository.save(TestItem(name = "MetricsItem"))
+        itemRepository.findById(item.id!!)
+
+        // context 시작 시 metricsBinder.afterSingletonsInstantiated 가 자동 실행됨
+        metricsBinder.shouldNotBeNull()
+
+        val activeRegionsGauge = meterRegistry.find("lettuce.nearcache.active.regions").gauge()
+        activeRegionsGauge.shouldNotBeNull()
+        (activeRegionsGauge.value() >= 0.0).shouldBeTrue()
+
+        val totalLocalSizeGauge = meterRegistry.find("lettuce.nearcache.total.local.size").gauge()
+        totalLocalSizeGauge.shouldNotBeNull()
+        (totalLocalSizeGauge.value() >= 0.0).shouldBeTrue()
     }
 
     private fun structuredTaskScopeAvailable(): Boolean =

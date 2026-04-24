@@ -52,6 +52,7 @@ dependencies {
     compileOnly(Libs.hibernate_core)
     compileOnly(Libs.micrometer_core)
     compileOnly(Libs.springBootStarter("actuator"))
+    compileOnly(Libs.springBoot("micrometer-metrics"))
 
     // 직렬화/압축 런타임
     implementation(Libs.fory_kotlin)
