@@ -3,8 +3,10 @@ package io.bluetape4k.redis.lettuce.leader
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.leader.LeaderElectionOptions
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
@@ -18,6 +20,10 @@ import java.util.concurrent.atomic.AtomicInteger
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LettuceLeaderElectionTest: AbstractLettuceTest() {
 
+    companion object: KLogging() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
+
     private val options = LeaderElectionOptions(waitTime = Duration.ofSeconds(2), Duration.ofSeconds(10))
 
     private lateinit var election: LettuceLeaderElection
@@ -26,7 +32,6 @@ class LettuceLeaderElectionTest: AbstractLettuceTest() {
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         election = LettuceLeaderElection(connection, options)
         lockName = randomName()
     }
@@ -102,7 +107,6 @@ class LettuceLeaderElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 리더 선출 상호 배제 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = LettuceLeaderElection(connection, options)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
@@ -129,7 +133,6 @@ class LettuceLeaderElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 비동기 리더 선출 안정성`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = LettuceLeaderElection(connection, options)
         val executed = AtomicInteger(0)
 
@@ -154,7 +157,6 @@ class LettuceLeaderElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `StructuredTaskScopeTester - 동시 리더 선출 상호 배제 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = LettuceLeaderElection(connection, options)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)

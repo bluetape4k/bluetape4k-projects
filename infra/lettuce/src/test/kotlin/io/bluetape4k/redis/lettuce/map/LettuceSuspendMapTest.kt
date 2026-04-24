@@ -4,6 +4,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,13 +20,14 @@ import org.junit.jupiter.api.Test
 
 class LettuceSuspendMapTest: AbstractLettuceTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private lateinit var map: LettuceSuspendMap<String>
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         map = LettuceSuspendMap(connection, randomName())
     }
 

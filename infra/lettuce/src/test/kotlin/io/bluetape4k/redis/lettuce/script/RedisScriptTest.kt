@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.script
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.codec.StringCodec
@@ -15,7 +16,9 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class RedisScriptTest : AbstractLettuceTest() {
 
-    companion object : KLogging()
+    companion object : KLogging() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private val setAndReturnScript = RedisScript(
         """
@@ -36,7 +39,6 @@ class RedisScriptTest : AbstractLettuceTest() {
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         syncCommands = connection.sync()
         asyncCommands = connection.async()
     }
