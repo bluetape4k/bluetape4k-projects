@@ -97,8 +97,8 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 
 Verify every item before running `gh pr create`:
 
-- [ ] All tests pass for changed modules (CI가 자동 검증)
-- [ ] PR description에 테스트 결과·수정 근거·검증 명령 상세 기록
+- [ ] All tests pass for changed modules (CI verifies automatically)
+- [ ] PR description includes test results, fix rationale, and verification commands in detail
 - [ ] `README.md` **and** `README.ko.md` updated for every changed module
 - [ ] KDoc added/updated for all new or modified public APIs
 - [ ] Work was done inside a `git worktree` (`.worktrees/<branch>/`)
