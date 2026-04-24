@@ -75,6 +75,12 @@ classDiagram
         +jsonplaceholderUrl: String
         +webUrl: String
     }
+    class BluetapeWebfluxServer {
+        +url: String
+        +httpbinUrl: String
+        +jsonplaceholderUrl: String
+        +webUrl: String
+    }
 
     GenericServer <|-- PostgreSQLServer
     GenericServer <|-- PostgisServer
@@ -84,6 +90,7 @@ classDiagram
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
     GenericServer <|-- BluetapeHttpServer
+    GenericServer <|-- BluetapeWebfluxServer
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
 
@@ -96,6 +103,7 @@ classDiagram
     style KafkaServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LocalStackServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style BluetapeHttpServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
+    style BluetapeWebfluxServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
 ```
 
 ### 지원 컨테이너 구조
@@ -156,6 +164,7 @@ flowchart TD
     subgraph HTTPMock
         WM["WireMockServer"]
         BHS["BluetapeHttpServer\n(httpbin+jsonplaceholder+web)"]
+        BWS["BluetapeWebfluxServer\n(WebFlux+Coroutines)"]
     end
 
     subgraph AWS
@@ -188,7 +197,7 @@ flowchart TD
     class KF,RB,PL,NT,RP mqStyle
     class CN,VT,PR,ZK,TX,KC infraStyle
     class TR sqlStyle
-    class WM,BHS mockStyle
+    class WM,BHS,BWS mockStyle
     class LS awsStyle
 ```
 
@@ -242,6 +251,8 @@ flowchart TD
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+| BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
+| BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
 ## 사용 예
 
@@ -358,6 +369,57 @@ val server = BluetapeHttpServer().apply { start() }
 
 // 포트 80 고정 바인딩 (컨테이너 내부 포트)
 val server = BluetapeHttpServer(useDefaultPort = true).apply { start() }
+```
+
+### BluetapeWebfluxServer (Spring WebFlux + Coroutines)
+
+`BluetapeWebfluxServer`는 `bluetape4k/mock-webflux-server` Docker 이미지를 실행합니다.
+Spring Boot 4 WebFlux + Coroutines 기반으로, httpbin/jsonplaceholder/web 엔드포인트를 동일하게 제공합니다.
+
+```kotlin
+// 싱글턴 — 모든 테스트에서 공유
+val server = BluetapeWebfluxServer.Launcher.bluetapeWebfluxServer
+
+// 미리 구성된 URL 헬퍼
+val baseUrl             = server.url                // http://host:<port>
+val httpbinUrl          = server.httpbinUrl         // http://host:<port>/httpbin
+val jsonplaceholderUrl  = server.jsonplaceholderUrl // http://host:<port>/jsonplaceholder
+val webUrl              = server.webUrl             // http://host:<port>/web
+```
+
+#### 자동 등록 시스템 프로퍼티
+
+`start()` 이후 아래 시스템 프로퍼티가 자동으로 등록됩니다:
+
+| 프로퍼티 키                                                  | 예시 값                                    |
+|----------------------------------------------------------|-----------------------------------------|
+| `testcontainers.bluetape-webflux.host`                   | `localhost`                             |
+| `testcontainers.bluetape-webflux.port`                   | `<동적>`                                  |
+| `testcontainers.bluetape-webflux.url`                    | `http://localhost:<동적>`                 |
+| `testcontainers.bluetape-webflux.httpbin-url`            | `http://localhost:<동적>/httpbin`         |
+| `testcontainers.bluetape-webflux.jsonplaceholder-url`    | `http://localhost:<동적>/jsonplaceholder` |
+| `testcontainers.bluetape-webflux.web-url`                | `http://localhost:<동적>/web`             |
+| `testcontainers.bluetape-webflux.https-port`             | `<동적>`                                  |
+| `testcontainers.bluetape-webflux.https-url`              | `https://localhost:<동적>`                |
+
+#### Spring Boot `application-test.yml`
+
+```yaml
+mock:
+  webflux:
+    url: ${testcontainers.bluetape-webflux.url}
+    httpbin-url: ${testcontainers.bluetape-webflux.httpbinUrl}
+    jsonplaceholder-url: ${testcontainers.bluetape-webflux.jsonplaceholderUrl}
+```
+
+#### 수동 인스턴스 (싱글턴 미사용)
+
+```kotlin
+// 동적 포트 (기본값)
+val server = BluetapeWebfluxServer().apply { start() }
+
+// 포트 80 고정 바인딩
+val server = BluetapeWebfluxServer(useDefaultPort = true).apply { start() }
 ```
 
 ### 인증 서버
