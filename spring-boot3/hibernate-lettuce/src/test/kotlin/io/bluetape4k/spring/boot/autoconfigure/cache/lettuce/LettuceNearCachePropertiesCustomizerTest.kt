@@ -1,5 +1,6 @@
 package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
+import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.junit.jupiter.api.Test
@@ -11,6 +12,8 @@ import java.time.Duration
  * Spring 컨텍스트 없이 직접 호출하여 갭 케이스를 검증한다.
  */
 class LettuceNearCachePropertiesCustomizerTest {
+
+    companion object: KLogging()
 
     private fun createCustomizer(props: LettuceNearCacheSpringProperties): HibernatePropertiesCustomizer {
         val config = LettuceNearCacheHibernateAutoConfiguration()

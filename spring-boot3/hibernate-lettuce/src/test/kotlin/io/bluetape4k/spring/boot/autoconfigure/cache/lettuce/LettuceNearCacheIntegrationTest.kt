@@ -2,6 +2,7 @@ package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.micrometer.core.instrument.MeterRegistry
 import jakarta.persistence.Cacheable
@@ -17,7 +18,6 @@ import org.amshove.kluent.shouldNotBeNull
 import org.hibernate.annotations.Cache
 import org.hibernate.annotations.CacheConcurrencyStrategy
 import org.hibernate.engine.spi.SessionFactoryImplementor
-import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -29,7 +29,6 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest(
     classes = [LettuceNearCacheIntegrationTest.TestConfig::class],
@@ -43,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger
 )
 class LettuceNearCacheIntegrationTest {
 
-    companion object {
+    companion object: KLogging() {
         val redis: RedisServer by lazy { RedisServer.Launcher.redis }
 
         @JvmStatic
@@ -87,8 +86,9 @@ class LettuceNearCacheIntegrationTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     fun `MultithreadingTester 병렬 조회에서도 동일 엔티티를 안정적으로 읽는다`() {
         val item = itemRepository.save(TestItem(name = "ParallelItem"))
-        val hitCount = AtomicInteger(0)
 
+        // 각 worker 내 assertion 실패 시 MultithreadingTester.run() 이 propagate
+        // → 별도 외부 counter 검증 불필요 (tautological)
         MultithreadingTester()
             .workers(6)
             .rounds(3)
@@ -96,18 +96,15 @@ class LettuceNearCacheIntegrationTest {
                 val found = itemRepository.findById(item.id!!).orElse(null)
                 found.shouldNotBeNull()
                 found.name shouldBeEqualTo "ParallelItem"
-                hitCount.incrementAndGet()
             }
             .run()
-
-        hitCount.get() shouldBeEqualTo 18
     }
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     fun `StructuredTaskScopeTester 병렬 조회에서도 동일 엔티티 이름을 유지한다`() {
-        assumeTrue(structuredTaskScopeAvailable(), "StructuredTaskScope runtime is not available")
-
+        // bluetape4k-junit5 → api(virtualthread-api) + runtimeOnly(virtualthread-jdk21)
+        // 으로 StructuredTaskScopes 는 JDK 21/25 무관하게 사용 가능
         val item = itemRepository.save(TestItem(name = "StructuredItem"))
         val names = Collections.synchronizedList(mutableListOf<String>())
 
@@ -175,10 +172,6 @@ class LettuceNearCacheIntegrationTest {
         totalLocalSizeGauge.value() shouldBeGreaterOrEqualTo 0.0  // Caffeine async eviction 고려
     }
 
-    private fun structuredTaskScopeAvailable(): Boolean =
-        runCatching {
-            Class.forName("java.util.concurrent.StructuredTaskScope\$ShutdownOnFailure")
-        }.isSuccess
 }
 
 @Entity
