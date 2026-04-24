@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.debug
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufUtil
 import io.netty.buffer.Unpooled
@@ -55,8 +55,9 @@ class FastForyCodec(
         try {
             val bytes = fory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
-        } catch (e: Exception) {
-            log.info(e) { "Encoding: Value is not suitable for FastForyCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+        } catch (e: RuntimeException) {
+            // 직렬화 실패 시 fallback — 마이그레이션 기간에는 흔한 경로이므로 debug 레벨
+            log.debug(e) { "FastFory encode 실패, fallbackCodec[$fallbackCodec]으로 재시도. class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -65,8 +66,9 @@ class FastForyCodec(
         val bytes = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), true)
         try {
             fory.deserialize(bytes)
-        } catch (e: Exception) {
-            log.info(e) { "Decoding: Value is not suitable for FastForyCodec. Using fallbackCodec[$fallbackCodec]" }
+        } catch (e: RuntimeException) {
+            // 역직렬화 실패 시 fallback — 기존 Fory 포맷 데이터 읽기 경로
+            log.debug(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
             val fallbackBuf = Unpooled.wrappedBuffer(bytes)
             try {
                 fallbackCodec.valueDecoder.decode(fallbackBuf, state)

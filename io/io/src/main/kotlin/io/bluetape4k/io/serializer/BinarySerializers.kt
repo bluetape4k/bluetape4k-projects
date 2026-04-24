@@ -353,7 +353,9 @@ object BinarySerializers {
 
     /**
      * SCHEMA_CONSISTENT + refTracking=false 최적화 Fory BinarySerializer.
-     * [Fory] 대비 ~+70% throughput.
+     * [Fory] 대비 ~+27% throughput (Apple M4 Pro / Java 21 JMH 측정).
+     *
+     * **Thread-safety**: 내부적으로 `ThreadSafeFory` (풀 기반)를 사용하므로 멀티스레드 환경에서 안전합니다.
      *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec(`CompatibleMode.COMPATIBLE`)과 **와이어 포맷이 상호 비호환**합니다.
@@ -366,35 +368,28 @@ object BinarySerializers {
     val FastFory: ForyBinarySerializer by lazy { ForyBinarySerializer.fast() }
 
     /**
-     * LZ4 압축 FastFory 직렬화기. [FastFory] 참고.
+     * LZ4 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
      */
     val LZ4FastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.LZ4)
     }
 
     /**
-     * Zstd 압축 FastFory 직렬화기. [FastFory] 참고.
+     * Zstd 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
      */
     val ZstdFastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.Zstd)
     }
 
     /**
-     * Snappy 압축 FastFory 직렬화기. [FastFory] 참고.
+     * Snappy 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
      */
     val SnappyFastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.Snappy)
     }
 
     /**
-     * GZip 압축 FastFory 직렬화기. [FastFory] 참고.
-     *
-     * ⚠️ **와이어 포맷 경고**
-     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec(`CompatibleMode.COMPATIBLE`)과 **와이어 포맷이 상호 비호환**합니다.
-     * - io/lettuce 경로는 fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
-     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 데이터베이스/파일 등 영속 저장에 사용하지 마십시오.
-     * - **순환 참조 객체 불가** (refTracking=false).
-     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     * GZip 압축 FastFory 직렬화기. 와이어 포맷 비호환 경고는 [FastFory] 참고.
      */
     val GZipFastFory: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(FastFory, Compressors.GZip)

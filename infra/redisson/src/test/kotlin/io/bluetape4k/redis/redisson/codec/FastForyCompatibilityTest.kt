@@ -70,6 +70,24 @@ class FastForyCompatibilityTest {
     }
 
     /**
+     * M3: copy-constructor 경로 검증 — Redisson 동적 인스턴스화 시 사용되는 경로.
+     */
+    @Test
+    fun `copy-constructor(classLoader, codec) should produce functional codec`() {
+        val classLoader = Thread.currentThread().contextClassLoader
+        val copied = FastForyCodec(classLoader, fastForyCodec)
+
+        val buf = copied.valueEncoder.encode(testData)
+        try {
+            val decoded = copied.valueDecoder.decode(buf, State())
+            decoded.shouldNotBeNull()
+            decoded shouldBeEqualTo testData
+        } finally {
+            buf.release()
+        }
+    }
+
+    /**
      * Task 7 - 테스트 3 (방향 B 고정): FastForyCodec encode → ForyCodec decode 비호환 검증.
      *
      * FastForyCodec(SCHEMA_CONSISTENT)으로 encode한 데이터는 ForyCodec(COMPATIBLE)으로 올바르게

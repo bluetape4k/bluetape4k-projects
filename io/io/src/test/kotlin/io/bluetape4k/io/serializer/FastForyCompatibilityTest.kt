@@ -3,6 +3,8 @@ package io.bluetape4k.io.serializer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -21,6 +23,17 @@ class FastForyCompatibilityTest {
         val id: Long,
         val name: String,
         val value: Double,
+    ) : Serializable
+
+    data class DomainWithNullable(
+        val id: Long,
+        val name: String?,
+        val tags: List<String>?,
+    ) : Serializable
+
+    data class Nested(
+        val inner: TestDomain,
+        val label: String,
     ) : Serializable
 
     private val sample = TestDomain(id = 1L, name = "bluetape4k", value = 3.14)
@@ -73,6 +86,44 @@ class FastForyCompatibilityTest {
         val restored = serializer.deserialize<TestDomain>(bytes)
         log.debug { "SnappyFastFory restored=$restored" }
         restored.shouldNotBeNull() shouldBeEqualTo sample
+    }
+
+    // ─── edge case tests ────────────────────────────────────────────────────
+
+    @Test
+    fun `FastFory - null 필드 roundtrip 성공`() {
+        val obj = DomainWithNullable(id = 1L, name = null, tags = null)
+        val bytes = BinarySerializers.FastFory.serialize(obj)
+        val restored = BinarySerializers.FastFory.deserialize<DomainWithNullable>(bytes)
+        restored.shouldNotBeNull() shouldBeEqualTo obj
+        restored.name.shouldBeNull()
+        restored.tags.shouldBeNull()
+    }
+
+    @Test
+    fun `FastFory - 빈 컬렉션 roundtrip 성공`() {
+        val obj = DomainWithNullable(id = 2L, name = "empty", tags = emptyList())
+        val bytes = BinarySerializers.FastFory.serialize(obj)
+        val restored = BinarySerializers.FastFory.deserialize<DomainWithNullable>(bytes)
+        restored.shouldNotBeNull() shouldBeEqualTo obj
+        restored.tags!!.shouldNotBeNull()
+    }
+
+    @Test
+    fun `FastFory - 대형 컬렉션 roundtrip 성공`() {
+        val obj = DomainWithNullable(id = 3L, name = "large", tags = List(10_000) { "tag-$it" })
+        val bytes = BinarySerializers.FastFory.serialize(obj)
+        val restored = BinarySerializers.FastFory.deserialize<DomainWithNullable>(bytes)
+        restored.shouldNotBeNull()
+        restored.tags!!.shouldContainSame(obj.tags!!)
+    }
+
+    @Test
+    fun `FastFory - 중첩 객체 roundtrip 성공`() {
+        val obj = Nested(inner = sample, label = "nested-test")
+        val bytes = BinarySerializers.FastFory.serialize(obj)
+        val restored = BinarySerializers.FastFory.deserialize<Nested>(bytes)
+        restored.shouldNotBeNull() shouldBeEqualTo obj
     }
 
     // ─── cross-codec incompatibility tests ──────────────────────────────────
