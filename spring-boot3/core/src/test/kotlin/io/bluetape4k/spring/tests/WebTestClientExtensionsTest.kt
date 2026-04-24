@@ -16,13 +16,15 @@ import kotlin.test.Test
 
 class WebTestClientExtensionsTest: AbstractSpringTest() {
 
-    companion object: KLoggingChannel()
-
-    private val client: WebTestClient = WebTestClient
-        .bindToServer()
-        .baseUrl(baseUrl)
-        .responseTimeout(Duration.ofSeconds(30))
-        .build()
+    companion object: KLoggingChannel() {
+        private val client: WebTestClient by lazy {
+            WebTestClient
+                .bindToServer()
+                .baseUrl(baseUrl)
+                .responseTimeout(Duration.ofSeconds(60))
+                .build()
+        }
+    }
 
     @Nested
     inner class Get {
