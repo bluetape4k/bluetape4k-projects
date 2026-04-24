@@ -419,6 +419,28 @@ flowchart LR
 
 ## 테스트 전략
 
+### CI 테스트 설정 참고 사항
+
+GitHub Actions 같은 Linux CI 환경에서는 Reactor Netty가 **io_uring** 네이티브 트랜스포트를 사용합니다. Spring 애플리케이션 컨텍스트를 공유하는 여러 테스트 메서드가 순차적으로 실행될 때, io_uring 이벤트 루프 재초기화 과정에서 레이스 컨디션이 발생할 수 있습니다:
+
+```
+io.netty.channel.ChannelException: eventfd_write(...) failed: Bad file descriptor
+```
+
+**원인:** `DefaultLoopResources.cacheNativeClientLoops()`가 기존 서버 이벤트 루프 그룹에 `shutdownGracefully()`를 호출하는 시점에 해당 `eventfd` 파일 디스크립터가 이미 닫혀 있어 발생합니다.
+
+**해결책:** `build.gradle.kts`의 test 태스크에 JVM 인수를 추가하여 네이티브 트랜스포트를 비활성화합니다:
+
+```kotlin
+tasks {
+    test {
+        jvmArgs("-Dreactor.netty.native=false")  // 테스트 JVM에만 적용
+    }
+}
+```
+
+이 설정은 테스트 실행 시에만 io_uring 대신 NIO 트랜스포트를 사용하도록 강제합니다. **프로덕션 애플리케이션은 별도 JVM으로 실행되므로 이 플래그의 영향을 받지 않습니다.**
+
 ### 단위 테스트
 
 ```kotlin
