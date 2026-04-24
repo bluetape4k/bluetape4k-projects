@@ -47,6 +47,49 @@
 - `ci.yml`: push/PR on `develop`·`main` 트리거, 8개 job (validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status)
 - `publish-snapshot.yml`: `develop` 브랜치 push 시 Maven Central Snapshots 자동 배포 (`CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `SIGNING_KEY*`)
 
+#### infra/redisson + infra/lettuce — JSON Codec 추가 ([`f3fa8d422`](https://github.com/bluetape4k/bluetape4k-projects/commit/f3fa8d422), [`a27926053`](https://github.com/bluetape4k/bluetape4k-projects/commit/a27926053))
+
+Jackson 3.x / Fastjson2 / Lettuce 전용 JSON 직렬화 Codec을 추가했습니다.
+
+**infra/redisson**
+- `Jackson3Codec`: Jackson 3.x 기반 JSON Codec
+- `Fastjson2Codec`: `[4-byte classNameLen]+[className UTF-8]+[JSONB bytes]` 포맷, pre-instantiation 보안 검증(`allowedPackagePrefixes`), 실패 시 fallback(`ForyCodec`) 자동 전환
+- `RedissonCodecs`에 `jackson3` / `fastjson2` 팩토리 상수 추가
+- `RedissonCodecBenchmark` JMH 벤치마크 추가 (JSON vs Binary vs Compressed 비교)
+
+**infra/lettuce**
+- `LettuceJsonCodec` + `LettuceJsonCodecs` 신규 구현
+- `LettuceJsonCodecs.jackson3<V>()` / `fastjson2<V>()` 팩토리 메서드
+- `LettuceCodecBenchmark` JMH 벤치마크 추가
+
+#### utils/lingua — 모듈 승격 ([`b149fa793`](https://github.com/bluetape4k/bluetape4k-projects/commit/b149fa793))
+
+`bluetape4k-lingua` 모듈이 `utils/lingua`로 정식 승격되었습니다.
+
+- Nightly CI 파이프라인(`test-misc`) 에 `lingua` 모듈 추가
+- CodeRabbit 코드 리뷰 워크플로 추가 (`.coderabbit.yaml`)
+
+#### testing/testcontainers — Elasticsearch/Pulsar JVM 힙 크기 제한 환경 변수 추가 ([`d1135bc1`](https://github.com/bluetape4k/bluetape4k-projects/commit/d1135bc1))
+
+Docker OOMKilled 방지를 위해 JVM 힙 크기를 환경 변수로 제한합니다.
+
+- `ElasticsearchServer` / `ElasticsearchOssServer`: `ES_JAVA_OPTS=-Xms512m -Xmx512m` 추가
+- `PulsarServer`: `PULSAR_MEM=-Xms256m -Xmx256m` 추가
+
+#### testing/mock-webflux-server — Spring Boot 4 WebFlux 기반 Mock 서버 신규 추가 ([`f189a1e5b`](https://github.com/bluetape4k/bluetape4k-projects/commit/f189a1e5b))
+
+Spring Boot 4 + WebFlux + Kotlin Coroutines 기반의 비동기 Mock HTTP 서버.
+
+- `BluetapeWebfluxServer`: `bluetape4k/mock-webflux-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
+- 기존 `mock-web-server`(MVC/Virtual Thread)와 병행 제공
+- `httpbinUrl`, `jsonplaceholderUrl`, `pingUrl` 프로퍼티 제공
+- Jib 빌드: `arm64` / `amd64` 호스트 아키텍처 자동 감지
+
+#### testing/mock-web-server — httpbin `/delay/{seconds}` 소수점 지원 ([`acd16ee7`](https://github.com/bluetape4k/bluetape4k-projects/commit/acd16ee7))
+
+- `/delay/{seconds}` 경로가 `0.5`와 같은 소수점 값을 수신하여 밀리초 단위 delay 가능
+- `Double` 파싱으로 교체하여 `1000`, `0.5`, `1.5` 모두 지원
+
 ### Fixed
 
 #### testing/testcontainers — graphdb 서버 Docker 이미지 TAG 고정 버전으로 수정 ([`f4a3c700e`](https://github.com/bluetape4k/bluetape4k-projects/commit/f4a3c700e))
@@ -61,6 +104,56 @@
 
 - `PostgreSQLAgeServer` KDoc 불일치 수정: 주석의 `PG17_latest` → `release_PG17_1.6.0`
 - `README.md` / `README.ko.md`: Graph DB 서버 Docker 이미지 버전 테이블 추가
+
+#### infra/cache-lettuce — CLIENT TRACKING 경쟁 조건 수정 ([`5b806466`](https://github.com/bluetape4k/bluetape4k-projects/commit/5b806466))
+
+`LettuceNearCache` / `LettuceSuspendNearCache`의 `registerTrackingKey` / `registerTrackingKeys`가 fire-and-forget 방식(await 없음)이어서 외부 SET이 tracking GET보다 먼저 Redis에 도달할 경우 invalidation 메시지가 발송되지 않는 경쟁 조건을 수정했습니다.
+
+- `registerTrackingKey` / `registerTrackingKeys`: fire-and-forget → `await` 방식으로 변경
+
+### Changed
+
+#### 빌드 — Gradle 빌드 출력을 표준 모듈별 `build/` 디렉토리로 변경 ([`fe920ba2`](https://github.com/bluetape4k/bluetape4k-projects/commit/fe920ba2))
+
+- 루트 공유 `build/` 대신 각 모듈 기본 `layout.buildDirectory`(`build/`) 사용
+- kosogor 플러그인 제거 후 표준 Gradle 빌드 출력 경로로 대체 ([`c129b11f`](https://github.com/bluetape4k/bluetape4k-projects/commit/c129b11f))
+
+#### CI/CD — Codecov → Coveralls 커버리지 리포터 교체 ([`d6b1d7de`](https://github.com/bluetape4k/bluetape4k-projects/commit/d6b1d7de))
+
+- `codecov/codecov-action` 제거, `coverallsapp/github-action` 으로 전환
+- README 뱃지: Kotlin, JVM 21, MIT 라이선스 뱃지 추가
+
+#### CI/CD — Nightly Tests를 ci.yml 테스트 구조 기반으로 재편 ([`3aadab9f`](https://github.com/bluetape4k/bluetape4k-projects/commit/3aadab9f))
+
+- `nightly-tests.yml`: `ci.yml`과 동일한 job 구조로 통일, `build` job 추가
+- `test-aws` / `test-testcontainers` job은 Nightly 전용으로 유지
+- `test-misc` → `test-misc` + `test-testcontainers` 분리
+
+#### 의존성 — kotlin-stdlib 2.3.21 업그레이드 ([`1c5c8bce`](https://github.com/bluetape4k/bluetape4k-projects/commit/1c5c8bce))
+
+- `kotlin-stdlib` 2.3.20 → 2.3.21
+
+### Performance
+
+#### bluetape4k/coroutines — Flow 처리량 +32.7% ([`549fa341`](https://github.com/bluetape4k/bluetape4k-projects/commit/549fa341))
+
+- `parallelFlowMap`: per-rail Channel + `select` 기반 fan-in 재설계 (+506%)
+- `AsyncFlow`: `LazyDeferred` atomic 제거, `start()` → `Deferred<T>` 직접 반환으로 단순화
+- JMH 벤치마크: geomean 처리량 +32.7% 개선
+
+#### data/exposed-jdbc — JMH 처리량 +78.9% ([`6df470a9`](https://github.com/bluetape4k/bluetape4k-projects/commit/6df470a9))
+
+- JDBC 배치 insert/update 쿼리 최적화 (25,401 → 45,431 ops/s)
+- HikariCP 풀 설정 및 커넥션 재사용 개선
+
+#### io — ForyBinarySerializer.fast() + KryoBinarySerializer.fast() 최적화 (+97%) ([`126ab849`](https://github.com/bluetape4k/bluetape4k-projects/commit/126ab849))
+
+- `ForyBinarySerializer.fast()`: `SCHEMA_CONSISTENT` + 비동기 컴파일 비활성화로 처리량 향상
+- `KryoBinarySerializer.fast()`: `KryoProvider.createFastKryo()` + Output 풀 재사용으로 처리량 +97%
+
+#### data — R2DBC 풀 과부하 튜닝 ([`07d6d823`](https://github.com/bluetape4k/bluetape4k-projects/commit/07d6d823))
+
+- R2DBC 연결 풀 `initialSize` / `maxSize` / `maxIdleTime` 설정 최적화 가이드 고정 (#98)
 
 ### Removed
 
