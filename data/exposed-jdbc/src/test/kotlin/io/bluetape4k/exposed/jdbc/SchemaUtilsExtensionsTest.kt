@@ -3,6 +3,7 @@ package io.bluetape4k.exposed.jdbc
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.exposed.tests.withDb
+import io.bluetape4k.exposed.tests.withTables
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -20,11 +21,11 @@ class SchemaUtilsExtensionsTest : AbstractExposedTest() {
 
     companion object : KLogging()
 
-    private object SimpleTable : IntIdTable("schema_utils_simple") {
+    private object SimpleTable : IntIdTable("jdbc_schema_ext_simple") {
         val name = varchar("name", 255)
     }
 
-    private object AnotherTable : IntIdTable("schema_utils_another") {
+    private object AnotherTable : IntIdTable("jdbc_schema_ext_another") {
         val value = integer("value")
     }
 
@@ -47,17 +48,11 @@ class SchemaUtilsExtensionsTest : AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `execCreateMissingTablesAndColumns 는 이미 존재하는 테이블에 대해 예외 없이 동작한다`(testDB: TestDB) {
-        withDb(testDB) {
-            try {
-                SchemaUtils.create(SimpleTable)
+        withTables(testDB, SimpleTable) {
+            // withTables 가 이미 생성한 테이블에 대해 두 번 호출해도 예외가 발생하지 않아야 한다
+            execCreateMissingTablesAndColumns(SimpleTable)
 
-                // 이미 존재하는 테이블에 대해 두 번 호출해도 예외가 발생하지 않아야 한다
-                execCreateMissingTablesAndColumns(SimpleTable)
-
-                SimpleTable.exists().shouldBeTrue()
-            } finally {
-                runCatching { SchemaUtils.drop(SimpleTable) }
-            }
+            SimpleTable.exists().shouldBeTrue()
         }
     }
 

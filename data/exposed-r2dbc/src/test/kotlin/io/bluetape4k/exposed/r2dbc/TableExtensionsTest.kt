@@ -2,16 +2,16 @@ package io.bluetape4k.exposed.r2dbc
 
 import io.bluetape4k.exposed.r2dbc.tests.AbstractExposedR2dbcTest
 import io.bluetape4k.exposed.r2dbc.tests.TestDB
-import io.bluetape4k.exposed.r2dbc.tests.withDb
 import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainIgnoringCase
+import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
-import org.jetbrains.exposed.v1.r2dbc.SchemaUtils
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -54,7 +54,8 @@ class TableExtensionsTest : AbstractExposedR2dbcTest() {
             indices.forEach {
                 log.debug { "index=$it" }
             }
-            indices.shouldNotBeEmpty()
+            // r2dbc_tester_by_name 비유니크 인덱스 1개가 반환된다 (PK는 별도)
+            indices shouldHaveSize 1
         }
     }
 
@@ -76,16 +77,10 @@ class TableExtensionsTest : AbstractExposedR2dbcTest() {
 
         val identityTable = object : IntIdTable("r2dbc_identity_seq_table") {}
 
-        withDb(testDB) {
-            try {
-                SchemaUtils.create(identityTable)
-
-                val sequences = identityTable.suspendSequences()
-                log.debug { "sequences=$sequences" }
-                sequences.shouldNotBeEmpty()
-            } finally {
-                SchemaUtils.drop(identityTable)
-            }
+        withTables(testDB, identityTable) {
+            val sequences = identityTable.suspendSequences()
+            log.debug { "sequences=$sequences" }
+            sequences.shouldNotBeEmpty()
         }
     }
 
@@ -97,7 +92,7 @@ class TableExtensionsTest : AbstractExposedR2dbcTest() {
         withTables(testDB, tester) {
             val sequences = tester.suspendSequences()
             log.debug { "sequences=$sequences" }
-            // PostgreSQL이 아닌 경우 시퀀스가 없으므로 빈 리스트 반환
+            sequences.shouldBeEmpty()
         }
     }
 }

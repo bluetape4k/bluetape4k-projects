@@ -6,8 +6,8 @@ import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.r2dbc.batchInsert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
@@ -23,7 +23,7 @@ class QueryExtensionsIntegrationTest : AbstractExposedR2dbcTest() {
 
     companion object : KLoggingChannel()
 
-    private object ItemTable : IntIdTable("query_ext_items") {
+    private object ItemTable : IntIdTable("r2dbc_qext_items") {
         val name = varchar("name", 128)
     }
 
@@ -35,12 +35,11 @@ class QueryExtensionsIntegrationTest : AbstractExposedR2dbcTest() {
             ItemTable.batchInsert(names) { name -> this[ItemTable.name] = name }
 
             val collected = mutableListOf<String>()
-            ItemTable.selectAll().forEach { row ->
+            ItemTable.selectAll().orderBy(ItemTable.id, SortOrder.ASC).forEach { row ->
                 collected.add(row[ItemTable.name])
             }
 
-            collected.size shouldBeEqualTo names.size
-            collected.containsAll(names).shouldBeTrue()
+            collected shouldBeEqualTo names
         }
     }
 
@@ -63,13 +62,11 @@ class QueryExtensionsIntegrationTest : AbstractExposedR2dbcTest() {
             ItemTable.batchInsert(names) { name -> this[ItemTable.name] = name }
 
             val indices = mutableListOf<Int>()
-            ItemTable.selectAll().forEachIndexed { index, _ ->
+            ItemTable.selectAll().orderBy(ItemTable.id, SortOrder.ASC).forEachIndexed { index, _ ->
                 indices.add(index)
             }
 
-            indices.size shouldBeEqualTo names.size
-            indices.first() shouldBeEqualTo 0
-            indices.last() shouldBeEqualTo names.size - 1
+            indices shouldBeEqualTo listOf(0, 1, 2)
         }
     }
 
@@ -77,17 +74,17 @@ class QueryExtensionsIntegrationTest : AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `forEachIndexed 는 row 값과 인덱스를 동시에 접근한다`(testDB: TestDB) = runSuspendIO {
         withTables(testDB, ItemTable) {
-            ItemTable.batchInsert(listOf("x", "y")) { name -> this[ItemTable.name] = name }
+            val names = listOf("x", "y")
+            ItemTable.batchInsert(names) { name -> this[ItemTable.name] = name }
 
-            var totalIndex = 0
-            ItemTable.selectAll().forEachIndexed { index, row ->
-                index shouldBeGreaterThan -1
-                row[ItemTable.name].isNotEmpty().shouldBeTrue()
-                totalIndex += index
+            val pairs = mutableListOf<Pair<Int, String>>()
+            ItemTable.selectAll().orderBy(ItemTable.id, SortOrder.ASC).forEachIndexed { index, row ->
+                pairs.add(index to row[ItemTable.name])
             }
 
-            // index 0 + 1 = 1
-            totalIndex shouldBeEqualTo 1
+            pairs.map { it.first } shouldBeEqualTo listOf(0, 1)
+            pairs.map { it.second } shouldBeEqualTo names
+            pairs.all { it.second.isNotEmpty() }.shouldBeTrue()
         }
     }
 }
