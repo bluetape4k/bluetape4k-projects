@@ -184,4 +184,98 @@ class CriteriaExtensionsTest {
         // $and 키가 포함된다
         actual.criteriaObject.containsKey("\$and").shouldBeEqualTo(true)
     }
+
+    @Test
+    fun `orWith - OR 조건을 올바르게 생성한다`() {
+        val actual = Criteria.where("age").gt(20) orWith Criteria.where("city").`is`("Seoul")
+
+        actual.criteriaObject.shouldNotBeNull()
+        actual.criteriaObject.containsKey("\$or").shouldBeEqualTo(true)
+    }
+
+    @Test
+    fun `norOperatorWith - NOR 조건을 올바르게 생성한다`() {
+        val actual = Criteria().norOperatorWith(
+            Criteria.where("status").`is`("deleted"),
+            Criteria.where("blocked").`is`(true)
+        )
+
+        actual.criteriaObject.shouldNotBeNull()
+        actual.criteriaObject.containsKey("\$nor").shouldBeEqualTo(true)
+    }
+
+    // ====================================================
+    // inValues / notInValues (Array variant)
+    // ====================================================
+
+    @Test
+    fun `inValues(Array) - 배열로 Criteria in을 생성한다`() {
+        val cities = arrayOf("Seoul", "Busan")
+        val actual = Criteria.where("city") inValues cities
+        val expected = Criteria.where("city").`in`(*cities)
+
+        actual.criteriaObject shouldBeEqualTo expected.criteriaObject
+    }
+
+    @Test
+    fun `notInValues(Array) - 배열로 Criteria nin을 생성한다`() {
+        val statuses = arrayOf("deleted", "blocked")
+        val actual = Criteria.where("status") notInValues statuses
+        val expected = Criteria.where("status").nin(*statuses)
+
+        actual.criteriaObject shouldBeEqualTo expected.criteriaObject
+    }
+
+    // ====================================================
+    // isNull 프로퍼티
+    // ====================================================
+
+    @Test
+    fun `isNull 프로퍼티 - null 타입 조건을 생성한다`() {
+        val criteria = Criteria.where("deletedAt").isNull
+        criteria.criteriaObject.shouldNotBeNull()
+        criteria.criteriaObject.containsKey("deletedAt").shouldBeEqualTo(true)
+    }
+
+    // ====================================================
+    // 배열 연산자
+    // ====================================================
+
+    @Test
+    fun `allValues - all 조건을 올바르게 생성한다`() {
+        val tags = listOf("kotlin", "mongodb")
+        val actual = Criteria.where("tags") allValues tags
+        val expected = Criteria.where("tags").all(tags)
+
+        actual.criteriaObject shouldBeEqualTo expected.criteriaObject
+    }
+
+    @Test
+    fun `sizeOf - size 조건을 올바르게 생성한다`() {
+        val actual = Criteria.where("tags") sizeOf 3
+        val expected = Criteria.where("tags").size(3)
+
+        actual.criteriaObject shouldBeEqualTo expected.criteriaObject
+    }
+
+    @Test
+    fun `elemMatches - elemMatch 조건을 올바르게 생성한다`() {
+        val inner = Criteria.where("value").gt(90)
+        val actual = Criteria.where("scores") elemMatches inner
+
+        actual.criteriaObject.shouldNotBeNull()
+        actual.criteriaObject.containsKey("scores").shouldBeEqualTo(true)
+    }
+
+    // ====================================================
+    // regex(Regex)
+    // ====================================================
+
+    @Test
+    fun `regex(Regex) - Kotlin Regex로 Criteria를 생성한다`() {
+        val actual = Criteria.where("name") regex Regex("^Alice", RegexOption.IGNORE_CASE)
+
+        val nameValue = actual.criteriaObject["name"]
+        nameValue.shouldNotBeNull()
+    }
 }

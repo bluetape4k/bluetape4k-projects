@@ -91,4 +91,54 @@ class HttpbinAdvancedContractTest: AbstractMockWebfluxServerTest() {
             .exchange()
             .expectStatus().isNotModified
     }
+
+    @Test
+    fun `E29 basic_auth_with_valid_credentials_returns_200`() {
+        val credentials = java.util.Base64.getEncoder().encodeToString("user:pass".toByteArray())
+        client.get().uri("/httpbin/basic-auth/user/pass")
+            .header("Authorization", "Basic $credentials")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.authenticated").isEqualTo(true)
+    }
+
+    @Test
+    fun `E30 bearer_with_token_returns_200`() {
+        client.get().uri("/httpbin/bearer")
+            .header("Authorization", "Bearer mytoken123")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.authenticated").isEqualTo(true)
+    }
+
+    @Test
+    fun `E31 cache_without_if_modified_since_returns_200_with_last_modified`() {
+        val result = client.get().uri("/httpbin/cache")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .returnResult()
+        val lastModified = result.responseHeaders.getFirst("Last-Modified")
+        assert(!lastModified.isNullOrBlank()) { "Last-Modified header must be present" }
+    }
+
+    @Test
+    fun `E32 etag_without_if_none_match_returns_200_with_etag_header`() {
+        val result = client.get().uri("/httpbin/etag/myetag")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .returnResult()
+        val etag = result.responseHeaders.getFirst("ETag")
+        assert(etag == "\"myetag\"") { "ETag header must be \"myetag\", got: $etag" }
+    }
+
+    @Test
+    fun `E33 redirect_0_returns_302_to_httpbin_get`() {
+        client.get().uri("/httpbin/redirect/0")
+            .exchange()
+            .expectStatus().isFound
+    }
 }

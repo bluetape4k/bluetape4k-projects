@@ -1,11 +1,12 @@
 package io.bluetape4k.exposed.core.jackson3
 
+import io.bluetape4k.jackson3.JacksonSerializer
 import io.r2dbc.spi.Readable
-import tools.jackson.databind.JsonNode
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.Test
+import tools.jackson.databind.JsonNode
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class ReadableExtensionsTest {
@@ -115,7 +116,7 @@ class ReadableExtensionsTest {
         val jsonText = """{"user":{"name":"bytes"}}"""
         val readable = FakeReadable(valuesByIndex = mapOf(0 to jsonText.toByteArray()))
 
-        readable.getJsonNode(0).path("user").path("name").asString() shouldBeEqualTo "bytes"
+        readable.getJsonNode(0).path("user").path("name").asText() shouldBeEqualTo "bytes"
     }
 
     @Test
@@ -123,7 +124,7 @@ class ReadableExtensionsTest {
         val jsonText = """{"user":{"name":"bytes"}}"""
         val readable = FakeReadable(valuesByName = mapOf("node" to jsonText.toByteArray()))
 
-        readable.getJsonNode("node").path("user").path("name").asString() shouldBeEqualTo "bytes"
+        readable.getJsonNode("node").path("user").path("name").asText() shouldBeEqualTo "bytes"
     }
 
     @Test

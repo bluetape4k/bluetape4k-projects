@@ -6,7 +6,9 @@ import io.bluetape4k.spring.AbstractSpringTest
 import kotlinx.coroutines.delay
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.util.StopWatch
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -83,4 +85,30 @@ class StopWatchSupportTest: AbstractSpringTest() {
             result1 shouldBeEqualTo 42
             result2 shouldBeEqualTo 45
         }
+
+    @Test
+    fun `이미 실행 중인 StopWatch에 task 호출 시 IllegalStateException`() {
+        val sw = StopWatch("already running")
+        sw.start("first task")
+        assertThrows<IllegalStateException> {
+            sw.task("second task") { 42 }
+        }
+        sw.stop()
+    }
+
+    @Test
+    fun `이미 실행 중인 StopWatch에 suspendTask 호출 시 IllegalStateException`() = runSuspendTest {
+        val sw = StopWatch("already running suspend")
+        sw.start("first task")
+
+        var caught = false
+        try {
+            sw.suspendTask("second task") { 42 }
+        } catch (_: IllegalStateException) {
+            caught = true
+        }
+        if (sw.isRunning) sw.stop()
+
+        caught.shouldBeTrue()
+    }
 }

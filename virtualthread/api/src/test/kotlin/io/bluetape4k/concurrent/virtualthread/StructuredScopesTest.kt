@@ -3,6 +3,7 @@ package io.bluetape4k.concurrent.virtualthread
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -87,10 +88,10 @@ class StructuredScopesTest {
         // StructuredTaskScopeAll.joinUntil 기본 구현 (interface default) 테스트
         // 직접 mock 구현체를 만들어 joinUntil 이 join 위임을 검증
         var joinCalled = false
-        val scope = object: StructuredTaskScopeAll {
+        val scope = object : StructuredTaskScopeAll {
             override fun <T> fork(task: () -> T): StructuredSubtask<T> {
                 @Suppress("UNCHECKED_CAST")
-                return object: StructuredSubtask<T> {
+                return object : StructuredSubtask<T> {
                     override fun get(): T = task()
                     override fun state(): StructuredTaskScope.Subtask.State = StructuredTaskScope.Subtask.State.SUCCESS
                     override fun exceptionOrNull(): Throwable? = null
