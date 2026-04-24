@@ -1,5 +1,6 @@
 package io.bluetape4k.exposed.r2dbc
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.r2dbc.spi.Readable
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
@@ -8,8 +9,17 @@ import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.nio.ByteBuffer
+import java.util.UUID
 
+/**
+ * [ReadableExtensions] 확장 함수 단위 테스트입니다.
+ *
+ * getAs, getAsOrNull, getExposedBlob, getExposedBlobOrNull, getUuid, getUuidOrNull 의
+ * 인덱스/이름 기반 접근과 null·타입 불일치 처리를 검증합니다.
+ */
 class ReadableExtensionsTest {
+
+    companion object : KLoggingChannel()
     private class FakeReadable(
         private val valuesByIndex: Map<Int, Any?> = emptyMap(),
         private val valuesByName: Map<String, Any?> = emptyMap(),
@@ -144,4 +154,44 @@ class ReadableExtensionsTest {
                 }
             ex.message shouldBeEqualTo "Column[0] is null or unsupported blob value type"
         }
+
+    @Test
+    fun `getUuidOrNull은 인덱스 기반 UUID 값을 반환한다`() {
+        val uuid = UUID.randomUUID()
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to uuid))
+        readable.getUuidOrNull(0) shouldBeEqualTo uuid
+    }
+
+    @Test
+    fun `getUuidOrNull은 인덱스 기반 null 이면 null 을 반환한다`() {
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to null))
+        readable.getUuidOrNull(0).shouldBeNull()
+    }
+
+    @Test
+    fun `getUuidOrNull은 이름 기반 UUID 값을 반환한다`() {
+        val uuid = UUID.randomUUID()
+        val readable = FakeReadable(valuesByName = mapOf("id" to uuid))
+        readable.getUuidOrNull("id") shouldBeEqualTo uuid
+    }
+
+    @Test
+    fun `getUuidOrNull은 이름 기반 null 이면 null 을 반환한다`() {
+        val readable = FakeReadable(valuesByName = mapOf("id" to null))
+        readable.getUuidOrNull("id").shouldBeNull()
+    }
+
+    @Test
+    fun `getUuid는 인덱스 기반 UUID 값을 반환한다`() {
+        val uuid = UUID.randomUUID()
+        val readable = FakeReadable(valuesByIndex = mapOf(0 to uuid))
+        readable.getUuid(0) shouldBeEqualTo uuid
+    }
+
+    @Test
+    fun `getUuid는 이름 기반 UUID 값을 반환한다`() {
+        val uuid = UUID.randomUUID()
+        val readable = FakeReadable(valuesByName = mapOf("uid" to uuid))
+        readable.getUuid("uid") shouldBeEqualTo uuid
+    }
 }
