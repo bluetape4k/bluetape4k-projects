@@ -136,19 +136,21 @@ class LettuceNearCacheIntegrationTest {
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    fun `엔티티 재조회 시 Hibernate L2 cache hitCount가 증가한다`() {
+    fun `엔티티 재조회 시 Hibernate L2 cache miss→put→hit cycle이 발생한다`() {
         val sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor::class.java)
         sessionFactory.statistics.clear()
 
         val item = itemRepository.save(TestItem(name = "CacheHitItem"))
-        itemRepository.findById(item.id!!)
-        itemRepository.findById(item.id!!)
+        itemRepository.findById(item.id!!)  // L2 miss → DB read → put to L2
+        itemRepository.findById(item.id!!)  // L2 hit
 
         val regionName = TestItem::class.java.name
-        val regionStats = runCatching {
-            sessionFactory.statistics.getDomainDataRegionStatistics(regionName)
-        }.getOrNull()
-        val stats = requireNotNull(regionStats) { "region stats for $regionName should not be null" }
+        val stats = sessionFactory.statistics.getDomainDataRegionStatistics(regionName)
+        stats.shouldNotBeNull()
+
+        // 두 번의 findById → 첫 번째는 miss + put, 두 번째는 hit (완전한 L2 cycle 검증)
+        (stats.missCount >= 1L).shouldBeTrue()
+        (stats.putCount >= 1L).shouldBeTrue()
         (stats.hitCount >= 1L).shouldBeTrue()
     }
 
