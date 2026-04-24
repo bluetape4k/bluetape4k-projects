@@ -17,12 +17,14 @@ import kotlin.test.assertFailsWith
 
 class RestClientExtensionsTest: AbstractSpringTest() {
 
-    companion object: KLogging()
-
-    private val client: RestClient = RestClient
-        .builder()
-        .baseUrl(baseUrl)
-        .build()
+    companion object: KLogging() {
+        private val client: RestClient by lazy {
+            RestClient
+                .builder()
+                .baseUrl(baseUrl)
+                .build()
+        }
+    }
 
     @Nested
     inner class Get {

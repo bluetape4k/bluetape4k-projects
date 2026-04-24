@@ -19,12 +19,14 @@ import kotlin.test.assertFailsWith
 
 class WebClientExtensionsTest: AbstractSpringTest() {
 
-    companion object: KLoggingChannel()
-
-    private val client: WebClient = WebClient
-        .builder()
-        .baseUrl(baseUrl)
-        .build()
+    companion object: KLoggingChannel() {
+        private val client: WebClient by lazy {
+            WebClient
+                .builder()
+                .baseUrl(baseUrl)
+                .build()
+        }
+    }
 
     @Nested
     inner class Get {

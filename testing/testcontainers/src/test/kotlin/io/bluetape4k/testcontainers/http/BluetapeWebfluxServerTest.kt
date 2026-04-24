@@ -32,12 +32,14 @@ class BluetapeWebfluxServerTest {
                 ShutdownQueue.register(this)
             }
         }
+
+        private val httpClient by lazy { OkHttpClient() }
+
+        /** mkcert CA cert를 신뢰하는 HTTPS 전용 클라이언트 */
+        private val httpsClient: OkHttpClient by lazy {
+            BluetapeSslContext.configureOkHttp(OkHttpClient.Builder()).build()
+        }
     }
-
-    private val httpClient = OkHttpClient()
-
-    /** mkcert CA cert를 신뢰하는 HTTPS 전용 클라이언트 */
-    private val httpsClient: OkHttpClient = BluetapeSslContext.configureOkHttp(OkHttpClient.Builder()).build()
 
     @BeforeAll
     fun checkDocker() {

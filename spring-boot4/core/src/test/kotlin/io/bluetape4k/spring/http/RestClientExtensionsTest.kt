@@ -23,9 +23,9 @@ class RestClientExtensionsTest {
 
         @JvmStatic
         private val baseUrl by lazy { httpbin.httpbinUrl }
-    }
 
-    private val client: RestClient = restClientOf(baseUrl)
+        private val client: RestClient by lazy { restClientOf(baseUrl) }
+    }
 
     @Nested
     inner class Get {

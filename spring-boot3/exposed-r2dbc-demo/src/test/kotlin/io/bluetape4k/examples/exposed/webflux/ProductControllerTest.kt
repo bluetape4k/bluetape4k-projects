@@ -3,7 +3,6 @@ package io.bluetape4k.examples.exposed.webflux
 import io.bluetape4k.examples.exposed.webflux.domain.ProductRecord
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -24,11 +23,8 @@ class ProductControllerTest {
     @Value("\${local.server.port}")
     private var port: Int = 0
 
-    private lateinit var webTestClient: WebTestClient
-
-    @BeforeEach
-    fun setup() {
-        webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:$port").build()
+    private val webTestClient: WebTestClient by lazy {
+        WebTestClient.bindToServer().baseUrl("http://localhost:$port").build()
     }
 
     @Test
