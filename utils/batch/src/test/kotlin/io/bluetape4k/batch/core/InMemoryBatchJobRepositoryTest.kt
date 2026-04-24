@@ -1,6 +1,9 @@
 package io.bluetape4k.batch.core
 
 import io.bluetape4k.batch.api.BatchStatus
+import io.bluetape4k.batch.api.JobExecution
+import io.bluetape4k.batch.api.StepExecution
+import io.bluetape4k.batch.api.StepReport
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
@@ -24,6 +27,35 @@ class InMemoryBatchJobRepositoryTest {
     @BeforeEach
     fun setUp() {
         repo = InMemoryBatchJobRepository()
+    }
+
+    private suspend fun newJobAndStep() =
+        repo.findOrCreateJobExecution("job1", emptyMap()).let { je ->
+            je to repo.findOrCreateStepExecution(je, "step1")
+        }
+
+    private suspend fun completeStep(
+        je: JobExecution,
+        stepName: String = "step1",
+        status: BatchStatus = BatchStatus.COMPLETED,
+        readCount: Long = 0L,
+        writeCount: Long = 0L,
+        skipCount: Long = 0L,
+        checkpoint: Long? = null,
+    ): StepExecution {
+        val se = repo.findOrCreateStepExecution(je, stepName)
+        repo.completeStepExecution(
+            se,
+            StepReport(
+                stepName = stepName,
+                status = status,
+                readCount = readCount,
+                writeCount = writeCount,
+                skipCount = skipCount,
+                checkpoint = checkpoint
+            )
+        )
+        return se
     }
 
     // ─── findOrCreateJobExecution ───
@@ -90,8 +122,7 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `findOrCreateStepExecution - 신규 생성`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         se.stepName shouldBeEqualTo "step1"
         se.jobExecutionId shouldBeEqualTo je.id
@@ -101,15 +132,7 @@ class InMemoryBatchJobRepositoryTest {
     @Test
     fun `findOrCreateStepExecution - COMPLETED 상태는 변경 없이 반환`() = runSuspendIO {
         val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se1 = repo.findOrCreateStepExecution(je, "step1")
-
-        val report = io.bluetape4k.batch.api.StepReport(
-            stepName = "step1",
-            status = BatchStatus.COMPLETED,
-            readCount = 100,
-            writeCount = 100,
-        )
-        repo.completeStepExecution(se1, report)
+        val se1 = completeStep(je, readCount = 100, writeCount = 100)
 
         val se2 = repo.findOrCreateStepExecution(je, "step1")
         se2.id shouldBeEqualTo se1.id
@@ -120,16 +143,7 @@ class InMemoryBatchJobRepositoryTest {
     @Test
     fun `findOrCreateStepExecution - COMPLETED_WITH_SKIPS 상태는 변경 없이 반환`() = runSuspendIO {
         val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se1 = repo.findOrCreateStepExecution(je, "step1")
-
-        val report = io.bluetape4k.batch.api.StepReport(
-            stepName = "step1",
-            status = BatchStatus.COMPLETED_WITH_SKIPS,
-            readCount = 50,
-            writeCount = 48,
-            skipCount = 2,
-        )
-        repo.completeStepExecution(se1, report)
+        completeStep(je, status = BatchStatus.COMPLETED_WITH_SKIPS, readCount = 50, writeCount = 48, skipCount = 2)
 
         val se2 = repo.findOrCreateStepExecution(je, "step1")
         se2.status shouldBe BatchStatus.COMPLETED_WITH_SKIPS
@@ -139,13 +153,7 @@ class InMemoryBatchJobRepositoryTest {
     @Test
     fun `findOrCreateStepExecution - FAILED 상태는 RUNNING으로 복원`() = runSuspendIO {
         val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se1 = repo.findOrCreateStepExecution(je, "step1")
-
-        val failedReport = io.bluetape4k.batch.api.StepReport(
-            stepName = "step1",
-            status = BatchStatus.FAILED,
-        )
-        repo.completeStepExecution(se1, failedReport)
+        val se1 = completeStep(je, status = BatchStatus.FAILED)
 
         val se2 = repo.findOrCreateStepExecution(je, "step1")
         se2.id shouldBeEqualTo se1.id
@@ -155,13 +163,7 @@ class InMemoryBatchJobRepositoryTest {
     @Test
     fun `findOrCreateStepExecution - STOPPED 상태는 RUNNING으로 복원`() = runSuspendIO {
         val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se1 = repo.findOrCreateStepExecution(je, "step1")
-
-        val stoppedReport = io.bluetape4k.batch.api.StepReport(
-            stepName = "step1",
-            status = BatchStatus.STOPPED,
-        )
-        repo.completeStepExecution(se1, stoppedReport)
+        completeStep(je, status = BatchStatus.STOPPED)
 
         val se2 = repo.findOrCreateStepExecution(je, "step1")
         se2.status shouldBe BatchStatus.RUNNING
@@ -171,27 +173,23 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `saveCheckpoint and loadCheckpoint - round-trip`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         repo.saveCheckpoint(se.id, 42L)
 
-        val loaded = repo.loadCheckpoint(se.id)
-        loaded shouldBeEqualTo 42L
+        repo.loadCheckpoint(se.id) shouldBeEqualTo 42L
     }
 
     @Test
     fun `loadCheckpoint - 저장 전에는 null 반환`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         repo.loadCheckpoint(se.id).shouldBeNull()
     }
 
     @Test
     fun `saveCheckpoint - 덮어쓰기 가능`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
+        val (je, se) = newJobAndStep()
 
         repo.saveCheckpoint(se.id, 10L)
         repo.saveCheckpoint(se.id, 20L)
@@ -203,18 +201,8 @@ class InMemoryBatchJobRepositoryTest {
 
     @Test
     fun `completeStepExecution - 통계 갱신`() = runSuspendIO {
-        val je = repo.findOrCreateJobExecution("job1", emptyMap())
-        val se = repo.findOrCreateStepExecution(je, "step1")
-
-        val report = io.bluetape4k.batch.api.StepReport(
-            stepName = "step1",
-            status = BatchStatus.COMPLETED,
-            readCount = 1000,
-            writeCount = 999,
-            skipCount = 1,
-            checkpoint = 500L,
-        )
-        repo.completeStepExecution(se, report)
+        val (je, _) = newJobAndStep()
+        completeStep(je, readCount = 1000, writeCount = 999, skipCount = 1, checkpoint = 500L)
 
         // findOrCreate 재조회로 저장된 값 확인
         val se2 = repo.findOrCreateStepExecution(je, "step1")

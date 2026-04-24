@@ -1,7 +1,6 @@
 package io.bluetape4k.coroutines.flow
 
 import io.bluetape4k.support.requireZeroOrPositiveNumber
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -20,14 +19,8 @@ internal class LazyDeferred<out T>(
     val coroutineContext: CoroutineContext = EmptyCoroutineContext,
     val block: suspend CoroutineScope.() -> T,
 ) {
-    private val deferred = atomic<Deferred<T>?>(null)
-
-    fun start(scope: CoroutineScope): LazyDeferred<T> {
-        deferred.compareAndSet(null, scope.async(coroutineContext, block = block))
-        return this
-    }
-
-    suspend fun await(): T = deferred.value?.await() ?: error("Coroutine not started")
+    fun start(scope: CoroutineScope): Deferred<T> =
+        scope.async(coroutineContext, block = block)
 }
 
 /**
@@ -51,12 +44,12 @@ class AsyncFlow<T> @PublishedApi internal constructor(
 ): AbstractFlow<T>() {
 
     override suspend fun collectSafely(collector: FlowCollector<T>) {
-        channelFlow {
-            deferredFlow.collect { defer ->
-                send(defer.start(this))
+        channelFlow<Deferred<T>> {
+            deferredFlow.collect { lazy ->
+                send(lazy.start(this))
             }
-        }.collect { defer ->
-            collector.emit(defer.await())
+        }.collect { deferred ->
+            collector.emit(deferred.await())
         }
     }
 }
@@ -94,7 +87,6 @@ inline fun <T, R> Flow<T>.async(
     val deferredFlow: Flow<LazyDeferred<R>> = map { input ->
         LazyDeferred(coroutineContext) { block(input) }
     }
-
     return AsyncFlow(deferredFlow)
 }
 
@@ -120,13 +112,12 @@ inline fun <T, R> AsyncFlow<T>.map(
     crossinline transform: suspend (value: T) -> R,
 ): AsyncFlow<R> {
     return AsyncFlow(
-        deferredFlow
-            .map { input ->
-                LazyDeferred(input.coroutineContext) {
-                    input.start(this)
-                    transform(input.await())
-                }
+        deferredFlow.map { input ->
+            LazyDeferred(input.coroutineContext) {
+                val value = input.start(this).await()
+                transform(value)
             }
+        }
     )
 }
 
@@ -152,17 +143,15 @@ suspend fun <T> AsyncFlow<T>.collect(
     collector: FlowCollector<T> = NoopCollector,
 ) {
     requireFlowBufferCapacity(capacity)
-
-    channelFlow {
-        deferredFlow
-            .buffer(capacity)
-            .collect { defer ->
-                defer.start(this)
-                send(defer)
-            }
-    }.collect { defer ->
-        collector.emit(defer.await())
+    channelFlow<Deferred<T>> {
+        deferredFlow.collect { lazy ->
+            send(lazy.start(this))
+        }
     }
+        .buffer(capacity)
+        .collect { deferred ->
+            collector.emit(deferred.await())
+        }
 }
 
 /**

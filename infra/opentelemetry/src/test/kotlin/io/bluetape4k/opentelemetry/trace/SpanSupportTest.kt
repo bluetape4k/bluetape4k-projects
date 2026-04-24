@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 /**
@@ -130,5 +131,92 @@ class SpanSupportTest: AbstractOtelTest() {
 
         childData.traceId shouldBeEqualTo parentData.traceId
         childData.parentSpanId shouldBeEqualTo parentData.spanId
+    }
+
+    /**
+     * [SpanBuilder.useSpan]이 span을 시작하고 블록 실행 후 자동으로 종료하는지 검증합니다.
+     * SpanBuilder DSL을 통해 span 생성부터 종료까지 단일 흐름으로 처리됩니다.
+     */
+    @Test
+    fun `SpanBuilder useSpan should start and end span`() = runSuspendIO {
+        spanExporter.reset()
+
+        val result = tracer.spanBuilder("builder-use-span").useSpan { span ->
+            span.setAttribute(AttributeKey.stringKey("key"), "value")
+            "done"
+        }
+
+        result shouldBeEqualTo "done"
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+        finished[0].name shouldBeEqualTo "builder-use-span"
+        finished[0].attributes[AttributeKey.stringKey("key")] shouldBeEqualTo "value"
+    }
+
+    /**
+     * [SpanBuilder.useSpan]이 예외 발생 시 ERROR 상태를 설정하고 span을 반드시 종료하는지 검증합니다.
+     * try-finally 보장으로 예외 경로에서도 span 누수가 없음을 확인합니다.
+     */
+    @Test
+    fun `SpanBuilder useSpan should set ERROR and end span on exception`() = runSuspendIO {
+        spanExporter.reset()
+        val failure = RuntimeException("useSpan-error")
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("builder-error-span").useSpan {
+                throw failure
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+        (ex is RuntimeException).shouldBeTrue()
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+        finished[0].status.statusCode shouldBeEqualTo StatusCode.ERROR
+        finished[0].events.any { it.name == "exception" }.shouldBeTrue()
+    }
+
+    /**
+     * [SpanBuilder.useSpan]의 Duration 오버로드가 정상적으로 동작하는지 검증합니다.
+     * 하위 호환용 waitDuration 인자를 허용하면서 span이 즉시 종료됩니다.
+     */
+    @Test
+    fun `SpanBuilder useSpan with Duration should end span`() = runSuspendIO {
+        spanExporter.reset()
+
+        val result = tracer.spanBuilder("builder-duration-span").useSpan(Duration.ofMillis(10)) {
+            "done"
+        }
+
+        result shouldBeEqualTo "done"
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+        finished[0].name shouldBeEqualTo "builder-duration-span"
+    }
+
+    /**
+     * [Tracer.startSpan] DSL 확장 함수가 올바르게 span을 생성하는지 검증합니다.
+     * SpanBuilder 람다를 통해 속성을 설정한 span이 수동 종료 후 완료됩니다.
+     */
+    @Test
+    fun `Tracer startSpan DSL should create span with attributes`() = runSuspendIO {
+        spanExporter.reset()
+
+        val span = tracer.startSpan("dsl-span") {
+            setAttribute(AttributeKey.stringKey("dsl-key"), "dsl-value")
+        }
+        span.end()
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+        finished[0].name shouldBeEqualTo "dsl-span"
+        finished[0].attributes[AttributeKey.stringKey("dsl-key")] shouldBeEqualTo "dsl-value"
     }
 }

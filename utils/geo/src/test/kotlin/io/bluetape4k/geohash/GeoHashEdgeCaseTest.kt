@@ -147,6 +147,23 @@ class GeoHashEdgeCaseTest: AbstractGeoHashTest() {
     }
 
     @Test
+    fun `toBinaryString 길이는 significantBits와 같아야 한다`() {
+        val hash = geoHashWithBits(37.5665, 126.9780, 25)
+        val binary = hash.toBinaryString()
+
+        binary.length shouldBeEqualTo hash.significantBits()
+    }
+
+    @Test
+    fun `toBinaryString과 geoHashOfBinaryString 라운드트립`() {
+        val original = geoHashOfString("9q8yb")
+        val binary = original.toBinaryString()
+        val restored = geoHashOfBinaryString(binary)
+
+        restored.toBase32() shouldBeEqualTo original.toBase32()
+    }
+
+    @Test
     fun `compareTo 검증`() {
         val hash1 = geoHashOfString("9q8y")
         val hash2 = geoHashOfString("9q8z")

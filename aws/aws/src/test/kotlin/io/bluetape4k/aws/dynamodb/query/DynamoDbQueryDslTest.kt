@@ -7,6 +7,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class DynamoDbQueryDslTest {
 
@@ -48,5 +49,48 @@ class DynamoDbQueryDslTest {
         request.filterExpression().shouldNotBeEmpty()
         request.expressionAttributeNames().size shouldBeEqualTo 6
         request.expressionAttributeValues().size shouldBeEqualTo 4
+    }
+
+    @Test
+    fun `queryRequest는 tableName 없으면 예외를 던진다`() {
+        assertThrows<IllegalArgumentException> {
+            queryRequest {
+                primaryKey("pk") { eq("value") }
+            }
+        }
+    }
+
+    @Test
+    fun `queryRequest는 primaryKey 없으면 예외를 던진다`() {
+        assertThrows<IllegalArgumentException> {
+            queryRequest {
+                tableName = "table"
+            }
+        }
+    }
+
+    @Test
+    fun `PrimaryKeyBuilder는 comparator 미설정 시 예외를 던진다`() {
+        assertThrows<IllegalStateException> {
+            PrimaryKeyBuilder("pk").build()
+        }
+    }
+
+    @Test
+    fun `SortKeyBuilder는 comparator 미설정 시 예외를 던진다`() {
+        assertThrows<IllegalStateException> {
+            SortKeyBuilder("sk").build()
+        }
+    }
+
+    @Test
+    fun `primaryKey만으로 queryRequest 생성 가능`() {
+        val request = queryRequest {
+            tableName = "orders"
+            primaryKey("orderId") { eq("order-123") }
+        }
+
+        request.keyConditions()["orderId"].shouldNotBeNull()
+        request.tableName() shouldBeEqualTo "orders"
     }
 }

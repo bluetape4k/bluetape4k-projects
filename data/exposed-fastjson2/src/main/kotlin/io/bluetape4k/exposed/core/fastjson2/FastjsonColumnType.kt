@@ -121,7 +121,7 @@ fun <T: Any> Table.fastjson(
  *
  * ## 동작/계약
  * - [fastjsonSerializer]의 `serializeAsString`/`deserializeFromString`을 래핑해 [fastjson]에 위임합니다.
- * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`이 발생합니다.
  * - 컬럼 등록 시 [Table]은 mutate되고, 반환되는 [Column]은 동일 테이블 메타데이터에 연결됩니다.
  *
  * ```kotlin
@@ -141,5 +141,12 @@ inline fun <reified T: Any> Table.fastjson(
     fastjson(
         name,
         { fastjsonSerializer.serializeAsString(it) },
-        { fastjsonSerializer.deserializeFromString<T>(it)!! }
+        {
+            // `!!` 대신 requireNotNull을 사용: 역직렬화 결과가 null이면 데이터 정합성 오류이므로
+            // NullPointerException(스택 트레이스 불명확) 대신 원인 메시지가 담긴
+            // IllegalArgumentException을 던져 디버깅을 용이하게 합니다.
+            requireNotNull(fastjsonSerializer.deserializeFromString<T>(it)) {
+                "JSON 문자열을 ${T::class.simpleName} 타입으로 역직렬화한 결과가 null입니다. 입력: $it"
+            }
+        }
     )

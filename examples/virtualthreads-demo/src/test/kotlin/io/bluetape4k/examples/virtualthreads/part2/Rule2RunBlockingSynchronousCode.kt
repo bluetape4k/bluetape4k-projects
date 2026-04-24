@@ -4,7 +4,7 @@ import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.concurrent.virtualthread.virtualFuture
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors
  */
 class Rule2RunBlockingSynchronousCode: AbstractVirtualThreadTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     /**
      * CPU 를 많이 쓰는 작업은 기존의 Platform Thread 를 사용하는 CompletableFuture로 실행하는 것을 추천합니다.

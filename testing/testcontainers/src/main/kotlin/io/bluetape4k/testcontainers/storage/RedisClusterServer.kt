@@ -295,7 +295,10 @@ class RedisClusterServer private constructor(
                         .setReadMode(ReadMode.SLAVE)
                         .setSubscriptionMode(SubscriptionMode.SLAVE)
                         .setNatMapper { redisURI ->
-                            val port = redisCluster.mappedPorts[redisURI.port]!!
+                            val port = requireNotNull(redisCluster.mappedPorts[redisURI.port]) {
+                                "Redis Cluster NAT 매핑 실패: port ${redisURI.port}에 대한 매핑 포트를 찾을 수 없습니다. " +
+                                    "mappedPorts=${redisCluster.mappedPorts}"
+                            }
                             org.redisson.misc.RedisURI("redis", "localhost", port)
                         }
                         .apply {

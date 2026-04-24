@@ -28,7 +28,11 @@ class PrimaryKeyBuilder(val keyName: String = "primaryKey") {
     var comparator: Equals? = null
 
     /** 설정된 비교자를 기반으로 [PrimaryKey]를 생성합니다. */
-    fun build(): PrimaryKey = PrimaryKey(keyName, comparator!!)
+    fun build(): PrimaryKey {
+        // WHY: eq() 호출 없이 build() 시 명확한 에러 메시지 제공 (!! 대신)
+        val cmp = checkNotNull(comparator) { "PrimaryKeyBuilder: comparator must be set via 'eq' before build()" }
+        return PrimaryKey(keyName, cmp)
+    }
 }
 
 /** 파티션 키 비교식을 `EQ`로 설정합니다. */

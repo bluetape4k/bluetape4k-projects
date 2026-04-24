@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.redisson.api.RateType
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class RateLimiterExamples: AbstractRedissonCoroutineTest() {
@@ -120,7 +121,7 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         limiter1.acquireAsync().await()
         limiter1.acquireAsync().await()
         limiter1.acquireAsync().await()
-        delay(10)
+        delay(10.milliseconds)
         limiter1.availablePermitsAsync().await() shouldBeEqualTo 0L
         limiter1.tryAcquireAsync(1).await().shouldBeFalse()
 
@@ -136,20 +137,20 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
                     val limiter2 = newRedisson.getRateLimiter(limiterName)
                     limiter2.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration)
                         .await().shouldBeFalse()  // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
-                    delay(1)
+                    delay(1.milliseconds)
 
                     // limiter2는 3개 모두 소진
                     repeat(3) {
                         limiter2.tryAcquireAsync(1).await().shouldBeTrue()
                     }
-                    delay(1)
+                    delay(1.milliseconds)
                     // limiter2는 모두 소진됨
                     limiter2.availablePermitsAsync().await() shouldBeEqualTo 0L
                     limiter2.tryAcquireAsync(1).await().shouldBeFalse()
                 } finally {
                     newRedisson.shutdown()
                 }
-                delay(1)
+                delay(1.milliseconds)
             }
             .run()
 

@@ -36,9 +36,13 @@ import kotlin.concurrent.thread
  */
 open class KLoggingChannel: KLogging() {
 
+    private companion object {
+        private const val DEFAULT_BUFFER_CAPACITY = 64
+    }
+
     private val sharedFlow = MutableSharedFlow<LogEvent>(
         replay = 0,
-        extraBufferCapacity = 64,
+        extraBufferCapacity = DEFAULT_BUFFER_CAPACITY,
         onBufferOverflow = BufferOverflow.SUSPEND
     )
 

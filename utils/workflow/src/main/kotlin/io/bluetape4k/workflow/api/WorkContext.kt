@@ -28,6 +28,16 @@ class WorkContext(
     private val store: ConcurrentHashMap<String, Any> = ConcurrentHashMap(),
 ) {
     /**
+     * 저장된 항목 수를 반환합니다.
+     */
+    val size: Int get() = store.size
+
+    /**
+     * 컨텍스트가 비어있는지 확인합니다.
+     */
+    val isEmpty: Boolean get() = store.isEmpty()
+
+    /**
      * 키로 값을 조회합니다.
      *
      * @param key 조회할 키
@@ -67,6 +77,10 @@ class WorkContext(
      *
      * [ConcurrentHashMap.compute]에 위임하여 race condition 없이 값을 갱신합니다.
      * 병렬 플로우에서 동일 키를 갱신해야 할 때 반드시 이 메서드를 사용하세요.
+     *
+     * ```kotlin
+     * ctx.compute("counter") { _, old -> ((old as? Int) ?: 0) + 1 }
+     * ```
      *
      * @param key 대상 키
      * @param remapper (키, 기존값?) -> 새 값 (null 반환 시 키 제거)

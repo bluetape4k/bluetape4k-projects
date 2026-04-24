@@ -12,7 +12,7 @@ A Kotlin extension module for the Redisson Redis client, providing DSL-based cli
 | `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL extension functions                        |
 | `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions  |
 | `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters |
-| `RedissonCodecs`                | Codec combinations: serializers (Fory/Kryo5) × compression (LZ4/Zstd/Snappy/GZip)   |
+| `RedissonCodecs`                | Codec combinations: serializers (Fory/Kryo5/Jackson3/Fastjson2) × compression (LZ4/Zstd/Snappy/GZip) |
 | `RedissonLeaderElection`        | `RLock`-based single-leader election (sync / async)                                 |
 | `RedissonSuspendLeaderElection` | `RLock`-based single-leader election (Coroutines)                                   |
 | `RedissonLeaderGroupElection`   | `RSemaphore`-based group election for N concurrent leaders                          |
@@ -94,23 +94,38 @@ singleServerConfig:
 
 High-performance codecs are available in the `io.bluetape4k.redis.redisson.codec` package.
 
-| Constant                 | Serializer             | Compression | Description                             |
-|--------------------------|------------------------|-------------|-----------------------------------------|
-| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4         | Default. Balances speed and compression |
-| `RedissonCodecs.Fory`    | Fory                   | None        | Fory serialization only                 |
-| `RedissonCodecs.Kryo5`   | Kryo5                  | None        | Kryo5 serialization only                |
-| `RedissonCodecs.LZ4`     | Default                | LZ4         | LZ4 compression wrapper                 |
-| `RedissonCodecs.Zstd`    | Default                | Zstd        | High compression ratio                  |
+| Constant                        | Serializer             | Compression | Description                             |
+|---------------------------------|------------------------|-------------|-----------------------------------------|
+| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | LZ4         | Default. Balances speed and compression |
+| `RedissonCodecs.Fory`           | Fory                   | None        | Fory serialization only                 |
+| `RedissonCodecs.Kryo5`          | Kryo5                  | None        | Kryo5 serialization only                |
+| `RedissonCodecs.LZ4`            | Default                | LZ4         | LZ4 compression wrapper                 |
+| `RedissonCodecs.Zstd`           | Default                | Zstd        | High compression ratio                  |
+| `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | None        | Jackson 3.x JSON codec                  |
+| `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | None        | Fastjson2 JSONB codec                   |
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.codec.ForyCodec
+import io.bluetape4k.redis.redisson.codec.Jackson3Codec
+import io.bluetape4k.redis.redisson.codec.Fastjson2Codec
 import io.bluetape4k.redis.redisson.codec.Lz4Codec
 
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
     codec = RedissonCodecs.Default   // Fory + LZ4 combination
 }
+
+// JSON-based codecs for human-readable storage
+val jsonClient = redissonClient {
+    useSingleServer().address = "redis://localhost:6379"
+    codec = RedissonCodecs.Jackson3   // Jackson 3.x JSON
+}
+
+// Fastjson2 JSONB with package-based security restriction
+val secureCodec = Fastjson2Codec(
+    allowedPackagePrefixes = setOf("com.example.", "io.bluetape4k.")
+)
 
 // You can also compose codecs manually
 val customCodec = Lz4Codec(innerCodec = ForyCodec())
@@ -119,6 +134,8 @@ val customCodec = Lz4Codec(innerCodec = ForyCodec())
 Codec classes:
 
 - `ForyCodec` — Apache Fory serialization. Automatically falls back to Kryo5 on serialization failure.
+- `Jackson3Codec` — Jackson 3.x JSON serialization. Stores values as human-readable JSON text.
+- `Fastjson2Codec` — Fastjson2 JSONB binary format. Stores class name header + JSONB bytes. Supports `allowedPackagePrefixes` for pre-instantiation security validation.
 - `Lz4Codec` — LZ4 compression wrapper around an `innerCodec`.
 - `ZstdCodec` — Zstd compression wrapper.
 - `GzipCodec` — GZip compression wrapper.
@@ -341,6 +358,19 @@ classDiagram
         +getValueDecoder() Decoder
     }
 
+    class Jackson3Codec {
+        -objectMapper: ObjectMapper
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class Fastjson2Codec {
+        -fallbackCodec: Codec
+        -allowedPackagePrefixes: Set~String~
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
     class RedissonCodecs {
         <<object>>
         +Default: Lz4Codec
@@ -348,6 +378,8 @@ classDiagram
         +Kryo5: Kryo5Codec
         +LZ4: Lz4Codec
         +Zstd: ZstdCodec
+        +Jackson3: Jackson3Codec
+        +Fastjson2: Fastjson2Codec
     }
 
     Codec <|.. ForyCodec
@@ -355,12 +387,17 @@ classDiagram
     Codec <|.. Lz4Codec
     Codec <|.. ZstdCodec
     Codec <|.. GzipCodec
+    Codec <|.. Jackson3Codec
+    Codec <|.. Fastjson2Codec
     Lz4Codec --> ForyCodec : innerCodec
     ZstdCodec --> ForyCodec : innerCodec
     ForyCodec --> Kryo5Codec : fallback
+    Fastjson2Codec --> ForyCodec : fallback
     RedissonCodecs --> Lz4Codec
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
+    RedissonCodecs --> Jackson3Codec
+    RedissonCodecs --> Fastjson2Codec
 
     style Codec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ForyCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -368,6 +405,8 @@ classDiagram
     style Lz4Codec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style ZstdCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style GzipCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Jackson3Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
+    style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
     style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
 ```
@@ -454,6 +493,73 @@ flowchart TD
     style Op3 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
+
+## High-Performance Batch Pattern — Mega-Batch
+
+In coroutine-based workloads, creating **one RBatch per coroutine** (rather than one per operation) reduces Redis round-trips (RTT) by up to 100×.
+
+### Pattern Comparison
+
+| Approach | RTT count (50 coroutines × 100 ops) | Relative throughput |
+|----------|-------------------------------------|---------------------|
+| Individual RMap op | 10,000 | 1× |
+| RBatch per op | 5,000 | ~2× |
+| **1 RBatch per coroutine (mega-batch)** | **50** | **~8×** |
+
+### Mega-Batch Example
+
+```kotlin
+import org.redisson.client.codec.StringCodec
+
+// Pre-computed key pool — eliminates per-op string interpolation
+private val KEY_POOL: Array<Array<String>> = Array(CONCURRENCY + 1) { cid ->
+    Array(OPS_PER_COROUTINE) { opIdx -> "c$cid-op$opIdx" }
+}
+
+suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
+    val jobs = (0 until CONCURRENCY).map { coroutineId ->
+        async(Dispatchers.IO) {
+            // One RBatch per coroutine — StringCodec removes Jackson overhead
+            val batch = redisson.createBatch()
+            val batchMap = batch.getMap<String, String>(mapName, StringCodec.INSTANCE)
+
+            repeat(OPS_PER_COROUTINE) { opIdx ->
+                val key = KEY_POOL[coroutineId][opIdx]   // pre-computed key
+                batchMap.fastPutAsync(key, "value-$coroutineId-$opIdx")
+            }
+
+            batch.execute()  // 100 commands → 1 RTT
+        }
+    }
+    jobs.awaitAll()
+}
+```
+
+### Key Optimization Points
+
+| Optimization | Effect | Notes |
+|--------------|--------|-------|
+| One `createBatch()` per coroutine | 100× RTT reduction | Largest single gain |
+| `StringCodec.INSTANCE` | Eliminates Jackson serialization overhead | Apply only to `Map<String, String>` |
+| Pre-computed KEY_POOL | Removes GC pressure from string interpolation | Effective for repetitive key patterns |
+
+---
+
+## Performance Benchmark
+
+Based on `RedissonConcurrencyBenchmark` (50 coroutines, 100 ops/coroutine):
+
+| Optimization stage | concurrent_ops/sec | Improvement |
+|--------------------|--------------------|-------------|
+| Baseline (individual op) | ~11,737 | — |
+| Warmup stabilization | 16,025 | +36.5% |
+| RBatch pipelining | 28,571 | +143% |
+| **Mega-batch (1 RBatch per coroutine)** | 78,125 | +566% |
+| **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+
+> Run benchmark: `./gradlew :bluetape4k-redisson:test --tests "*.RedissonConcurrencyBenchmark"`
+
+---
 
 ## Redis Version Requirements
 

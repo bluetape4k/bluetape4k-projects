@@ -23,18 +23,18 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
-    compileOnly(project(":bluetape4k-crypto"))
+    
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons
-    api(Libs.commons_io)
-    api(Libs.commons_lang3)
+    compileOnly(Libs.commons_io)
+    compileOnly(Libs.commons_lang3)
     compileOnly(Libs.commons_codec)
     compileOnly(Libs.commons_compress)
 
     // Okio (compressor 내부용)
-    implementation(Libs.okio)
+    api(Libs.okio)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))

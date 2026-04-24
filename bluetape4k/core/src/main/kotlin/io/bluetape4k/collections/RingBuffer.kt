@@ -233,6 +233,10 @@ class RingBuffer<E>(val maxSize: Int): Iterable<E> {
             }
         }
 
+        // 컴팩션 후 논리적 끝 너머 슬롯을 null 처리하여 GC 누수 방지
+        for (i in j until _size) {
+            array[(read + i) % maxSize] = null
+        }
         _size -= removeCount
         write = (read + _size) % maxSize
         removeCount > 0

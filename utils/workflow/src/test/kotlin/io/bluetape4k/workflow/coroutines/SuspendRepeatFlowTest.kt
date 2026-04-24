@@ -18,18 +18,13 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
     fun `maxIterations 횟수만큼 반복 후 Success 반환`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRepeatFlow(
-            work = SuspendWork("count-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("count-work", counter),
             repeatPredicate = { it.isSuccess },
             maxIterations = 5,
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 5
     }
 
@@ -37,18 +32,13 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
     fun `repeatWhile false - 첫 반복 후 중단`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRepeatFlow(
-            work = SuspendWork("count-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("count-work", counter),
             repeatPredicate = { false },
             maxIterations = 10,
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 1
     }
 
@@ -66,9 +56,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 2
     }
 
@@ -85,9 +73,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -104,9 +90,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 1
     }
 
@@ -114,18 +98,13 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
     fun `repeatDelay 0ms - 실제 지연 없이 반복`() = runTest {
         val counter = AtomicInteger(0)
         val flow = SuspendRepeatFlow(
-            work = SuspendWork("fast-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.success(ctx)
-            },
+            work = countingSuspendWork("fast-work", counter),
             repeatPredicate = { it.isSuccess },
             maxIterations = 3,
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -145,9 +124,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(ctx)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(ctx).isSuccess.shouldBeTrue()
         ctx.get<Int>("count") shouldBeEqualTo 5
     }
 
@@ -164,9 +141,7 @@ class SuspendRepeatFlowTest: AbstractWorkflowTest() {
             repeatDelay = 0.milliseconds,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         predicateCalls.get() shouldBeEqualTo 3
     }
 }

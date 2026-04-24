@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 class WithTimeoutOrNullTest: AbstractOkioTest() {
 
@@ -25,7 +26,7 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
         val timeout = Timeout().timeout(10, TimeUnit.MILLISECONDS)
 
         val result = withTimeoutOrNull(timeout) {
-            delay(100)
+            delay(100.milliseconds)
             "late"
         }
 
@@ -39,7 +40,7 @@ class WithTimeoutOrNullTest: AbstractOkioTest() {
             .deadline(10, TimeUnit.MILLISECONDS)
 
         val result = withTimeoutOrNull(timeout) {
-            delay(100)
+            delay(100.milliseconds)
             "late"
         }
 

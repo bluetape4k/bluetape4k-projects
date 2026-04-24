@@ -1,6 +1,7 @@
 package io.bluetape4k.okio
 
 import okio.ByteString
+import okio.ByteString.Companion.toByteString
 import java.nio.charset.Charset
 
 /**
@@ -26,7 +27,7 @@ fun byteStringOf(vararg bytes: Byte): ByteString = ByteString.of(*bytes)
  * ```
  */
 @JvmName("byteStringOfByteArray")
-fun byteStringOf(byteArray: ByteArray): ByteString = ByteString.of(*byteArray)
+fun byteStringOf(byteArray: ByteArray): ByteString = byteArray.toByteString(0, byteArray.size)
 
 /**
  * [text]를 가지는 [ByteString] 인스턴스를 생성합니다.

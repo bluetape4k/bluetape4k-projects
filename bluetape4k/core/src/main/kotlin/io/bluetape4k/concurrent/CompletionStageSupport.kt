@@ -83,12 +83,10 @@ fun <T> CompletionStage<T>.getExceptionOrNull(): Throwable? {
  * @return CompletableFuture<List<*>>
  */
 fun Iterable<CompletionStage<out Any>>.sequence(executor: Executor = ForkJoinExecutor): CompletableFuture<List<*>> {
-    val initial = completableFutureOf(mutableListOf<Any>())
-    return fold(initial) { futureAcc, future ->
-        futureAcc.zip(future, executor) { acc, result ->
-            acc.apply { add(result) }
-        }
-    }.map(executor) { it.toList() }
+    val futures = map { it.toCompletableFuture() }
+    if (futures.isEmpty()) return completableFutureOf(emptyList<Any>())
+    return CompletableFuture.allOf(*futures.toTypedArray())
+        .thenApplyAsync({ futures.map { it.join() } }, executor)
 }
 
 /**
@@ -103,12 +101,10 @@ fun Iterable<CompletionStage<out Any>>.sequence(executor: Executor = ForkJoinExe
  * @return `CompletableFuture<List<T>>`
  */
 fun <T> Collection<CompletionStage<out T>>.sequence(executor: Executor = ForkJoinExecutor): CompletableFuture<List<T>> {
-    val initial = completableFutureOf(mutableListOf<T>())
-    return fold(initial) { futureAcc, future ->
-        futureAcc.zip(future, executor) { acc, result ->
-            acc.apply { add(result) }
-        }
-    }.map(executor) { it.toList() }
+    if (isEmpty()) return completableFutureOf(emptyList())
+    val futures = map { it.toCompletableFuture() }
+    return CompletableFuture.allOf(*futures.toTypedArray())
+        .thenApplyAsync({ futures.map { it.join() } }, executor)
 }
 
 /**

@@ -88,8 +88,8 @@ interface StreamingCompressor {
             return emptyByteArray
         }
 
-        val output = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
-        compress(plain!!.toInputStream(), output)
+        val output = ByteArrayOutputStream(plain!!.size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
+        compress(plain.toInputStream(), output)
         return output.toByteArray()
     }
 
@@ -101,8 +101,8 @@ interface StreamingCompressor {
             return emptyByteArray
         }
 
-        val output = ByteArrayOutputStream(DEFAULT_BUFFER_SIZE)
-        decompress(compressed!!.toInputStream(), output)
+        val output = ByteArrayOutputStream(compressed!!.size.coerceAtLeast(DEFAULT_BUFFER_SIZE))
+        decompress(compressed.toInputStream(), output)
         return output.toByteArray()
     }
 }

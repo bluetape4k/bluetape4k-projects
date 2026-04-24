@@ -54,4 +54,69 @@ class FactsTest {
         val facts = Facts.empty()
         facts.get<String>("missing").shouldBeNull()
     }
+
+    @Test
+    fun `null 값 설정 시 키가 제거된다`() {
+        val facts = Facts.of("key" to "value")
+        facts.containsKey("key").shouldBeTrue()
+        facts["key"] = null
+        facts.containsKey("key").shouldBeFalse()
+        facts.get<String>("key").shouldBeNull()
+    }
+
+    @Test
+    fun `put으로 null 값 설정 시 키가 제거된다`() {
+        val facts = Facts.of("key" to "value")
+        facts.put("key", null)
+        facts.containsKey("key").shouldBeFalse()
+    }
+
+    @Test
+    fun `of 팩토리에서 null 값 쌍은 무시된다`() {
+        val facts = Facts.of("a" to 1, "b" to null, "c" to 3)
+        facts.size shouldBeEqualTo 2
+        facts.containsKey("a").shouldBeTrue()
+        facts.containsKey("b").shouldBeFalse()
+        facts.containsKey("c").shouldBeTrue()
+    }
+
+    @Test
+    fun `from 팩토리에서 null 값은 무시된다`() {
+        val map = mapOf("x" to 1, "y" to null, "z" to "hello")
+        val facts = Facts.from(map)
+        facts.size shouldBeEqualTo 2
+        facts.containsKey("y").shouldBeFalse()
+        facts.get<Int>("x") shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `clear 후 Facts가 비어있다`() {
+        val facts = Facts.of("a" to 1, "b" to 2)
+        facts.clear()
+        facts.isEmpty().shouldBeTrue()
+        facts.size shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `putAll로 여러 Fact를 한번에 추가한다`() {
+        val facts = Facts.empty()
+        facts.putAll("x" to 10, "y" to 20)
+        facts.get<Int>("x") shouldBeEqualTo 10
+        facts.get<Int>("y") shouldBeEqualTo 20
+    }
+
+    @Test
+    fun `equals와 hashCode가 정상 동작한다`() {
+        val facts1 = Facts.of("a" to 1, "b" to 2)
+        val facts2 = Facts.of("a" to 1, "b" to 2)
+        (facts1 == facts2).shouldBeTrue()
+        (facts1.hashCode() == facts2.hashCode()).shouldBeTrue()
+    }
+
+    @Test
+    fun `toString이 정상 동작한다`() {
+        val facts = Facts.of("name" to "test")
+        val str = facts.toString()
+        str.contains("name=test").shouldBeTrue()
+    }
 }

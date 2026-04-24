@@ -36,8 +36,7 @@ class ExposedUpsertItemWriter<T : Any>(
     override fun write(chunk: Chunk<out T>) {
         if (chunk.isEmpty) return
 
-        @Suppress("UNCHECKED_CAST")
-        val items = chunk.items // as List<T>
+        val items = chunk.items
 
         table.batchUpsert(items, shouldReturnGeneratedValues = false) { item ->
             upsertBody(item)

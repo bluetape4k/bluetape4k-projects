@@ -1,8 +1,6 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.logging.KLogging
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputFilter
@@ -54,11 +52,8 @@ class JdkBinarySerializer(
      */
     override fun doSerialize(graph: Any): ByteArray {
         val output = ByteArrayOutputStream(bufferSize)
-        BufferedOutputStream(output, bufferSize).use { bos ->
-            ObjectOutputStream(bos).use { oos ->
-                oos.writeObject(graph)
-                oos.flush()
-            }
+        ObjectOutputStream(output).use { oos ->
+            oos.writeObject(graph)
         }
         return output.toByteArray()
     }
@@ -81,13 +76,11 @@ class JdkBinarySerializer(
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         return ByteArrayInputStream(bytes).use { bis ->
-            BufferedInputStream(bis, bufferSize).use { buffered ->
-                ObjectInputStream(buffered).apply {
-                    val filter = objectInputFilter ?: ObjectInputFilter.Config.getSerialFilter()
-                    filter?.let { setObjectInputFilter(it) }
-                }.use { ois ->
-                    ois.readObject() as? T
-                }
+            ObjectInputStream(bis).apply {
+                val filter = objectInputFilter ?: ObjectInputFilter.Config.getSerialFilter()
+                filter?.let { setObjectInputFilter(it) }
+            }.use { ois ->
+                ois.readObject() as? T
             }
         }
     }

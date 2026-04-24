@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
 
@@ -42,7 +43,7 @@ class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
                 logger.info("test message $it")
             }
         }
-        delay(10)
+        delay(10.milliseconds)
 
         val logTopicPartition = TopicPartition(TOPIC, 0)
         val consumer = KafkaServer.Launcher.createBinaryConsumer(kafka)

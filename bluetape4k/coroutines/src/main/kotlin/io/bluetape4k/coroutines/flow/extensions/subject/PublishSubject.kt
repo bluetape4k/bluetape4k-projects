@@ -6,7 +6,7 @@ import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
-import java.util.concurrent.CancellationException
+import kotlinx.coroutines.CancellationException
 
 /**
  * 구독 시점 이후에 emit된 값만 전달하는 Publish Subject 구현입니다.

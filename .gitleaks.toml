@@ -1,0 +1,42 @@
+title = "bluetape4k gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlisted paths and patterns"
+
+paths = [
+    '''.idea/''',
+    '''build/''',
+    '''.gradle/''',
+    '''gradle/wrapper/''',
+    # 테스트용 keypair - 실제 운영 키 아님
+    '''src/test/resources/keypair/''',
+    # 테스트용 localhost HTTPS 인증서 - 실제 운영 인증서 아님
+    '''testing/mock-web-server/src/main/resources/certs/''',
+    '''testing/mock-webflux-server/src/main/resources/certs/''',
+    # 문서 예시 코드
+    '''docs/''',
+    '''README\.md''',
+    '''README\.ko\.md''',
+    # Claude Code 설정 파일 — Kotlin 컴파일러 플래그(-Xjsr305=strict 등) false positive
+    '''CLAUDE\.md''',
+    # 빌드 스크립트 — GPR 환경변수 이름(bluetape4kGprPublishKey 등) false positive
+    '''build\.gradle\.kts''',
+]
+
+regexes = [
+    # 테스트 코드에서 흔히 쓰는 예시 패턴
+    '''YOUR_.*_HERE''',
+    '''example[-_]key''',
+    '''test[-_]api[-_]key''',
+]
+
+stopwords = [
+    # Kotlin 컴파일러 플래그 — API 키 아님
+    "Xjsr305",
+    # Gradle GPR 환경변수 이름 — 실제 시크릿 값 아님
+    "bluetape4kGprPublishKey",
+    "bluetape4kGprKey",
+]

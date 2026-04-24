@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.script.RedisScript
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
@@ -10,7 +12,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -39,12 +41,17 @@ class LettuceSuspendLock(
     companion object: KLoggingChannel() {
         private const val RETRY_DELAY_MS = 50L
         private const val DEFAULT_MAX_WAIT_MINUTES = 5L
-        private const val UNLOCK_SCRIPT =
+
+        // 개선: 상수 String → RedisScript 로 감싸 SHA1 을 1 회만 계산하고 EVALSHA 재사용합니다.
+        private val UNLOCK_SCRIPT = RedisScript(
             "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end"
+        )
     }
 
     private val tokenRef = atomic<String?>(null)
-    private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
+
+    // 개선: getter → final field 로 변경 (매 호출 connection.async() 호출 제거).
+    private val asyncCommands: RedisAsyncCommands<String, String> = connection.async()
 
     /**
      * 락이 현재 잠겨 있는지 코루틴으로 확인합니다.
@@ -159,10 +166,10 @@ class LettuceSuspendLock(
             tokenRef.getAndSet(null)
                 ?: throw IllegalStateException("현재 인스턴스가 락을 보유하지 않습니다: lockKey=$lockKey")
 
-        val released =
-            asyncCommands
-                .eval<Long>(UNLOCK_SCRIPT, ScriptOutputType.INTEGER, arrayOf(lockKey), token)
-                .await()
+        // 개선: EVALSHA 우선 실행, NOSCRIPT 발생 시 원문 전송으로 자동 fallback.
+        val released = RedisScriptRunner.runSuspending<Long>(
+            asyncCommands, UNLOCK_SCRIPT, ScriptOutputType.INTEGER, arrayOf(lockKey), token
+        )
 
         if (released == 0L) {
             throw IllegalStateException("Lock 해제 실패 (토큰 불일치 또는 만료, suspend): lockKey=$lockKey")

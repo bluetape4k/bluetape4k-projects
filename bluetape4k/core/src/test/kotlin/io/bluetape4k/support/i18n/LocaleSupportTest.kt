@@ -16,8 +16,12 @@ class LocaleSupportTest {
 
     @Test
     fun `시스템 기본 Locale 확인`() {
-        Locale.getDefault().isDefault().shouldBeTrue()
-        Locale.ENGLISH.isDefault().shouldBeFalse()
+        val defaultLocale = Locale.getDefault()
+        defaultLocale.isDefault().shouldBeTrue()
+
+        // 기본 Locale과 다른 Locale을 선택해 isDefault() == false 확인
+        val nonDefaultLocale = if (defaultLocale == Locale.KOREAN) Locale.ENGLISH else Locale.KOREAN
+        nonDefaultLocale.isDefault().shouldBeFalse()
     }
 
     @Test

@@ -1,7 +1,5 @@
 package io.bluetape4k.csv
 
-import com.univocity.parsers.csv.CsvWriterSettings
-import com.univocity.parsers.tsv.TsvWriterSettings
 import java.io.File
 import java.io.FileWriter
 import java.nio.charset.Charset
@@ -24,7 +22,7 @@ fun File.writeCsvRecords(
     headers: List<String>? = null,
     rows: Iterable<Iterable<*>>,
     cs: Charset = UTF_8,
-    settings: CsvWriterSettings = DefaultCsvWriterSettings,
+    settings: CsvSettings = CsvSettings.DEFAULT,
 ) {
     FileWriter(this, cs).use { fw ->
         CsvRecordWriter(fw, settings).use { writer ->
@@ -51,7 +49,7 @@ fun <T> File.writeCsvRecords(
     headers: List<String>? = null,
     entities: Iterable<T>,
     cs: Charset = UTF_8,
-    settings: CsvWriterSettings = DefaultCsvWriterSettings,
+    settings: CsvSettings = CsvSettings.DEFAULT,
     transform: (T) -> Iterable<*>,
 ) {
     FileWriter(this, cs).use { fw ->
@@ -79,7 +77,7 @@ fun File.writeTsvRecords(
     headers: List<String>? = null,
     rows: Iterable<Iterable<*>>,
     cs: Charset = UTF_8,
-    settings: TsvWriterSettings = DefaultTsvWriterSettings,
+    settings: TsvSettings = TsvSettings.DEFAULT,
 ) {
     FileWriter(this, cs).use { fw ->
         TsvRecordWriter(fw, settings).use { writer ->
@@ -106,7 +104,7 @@ fun <T> File.writeTsvRecords(
     headers: List<String>? = null,
     entities: Iterable<T>,
     cs: Charset = UTF_8,
-    settings: TsvWriterSettings = DefaultTsvWriterSettings,
+    settings: TsvSettings = TsvSettings.DEFAULT,
     transform: (T) -> Iterable<*>,
 ) {
     FileWriter(this, cs).use { fw ->

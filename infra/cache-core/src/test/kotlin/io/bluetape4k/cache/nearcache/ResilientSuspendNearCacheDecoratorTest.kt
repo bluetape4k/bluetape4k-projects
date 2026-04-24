@@ -130,4 +130,55 @@ class ResilientSuspendNearCacheDecoratorTest {
 
         cache.stats() shouldBeEqualTo expectedStats
     }
+
+    /**
+     * CancellationException은 코루틴 취소 신호이므로 catch(e: Exception)에서 삼키지 않고
+     * 반드시 재전파해야 한다. 그렇지 않으면 코루틴이 취소되지 않고 좀비 상태가 된다.
+     */
+    @Test
+    fun `get - CancellationException은 RETURN_FRONT_OR_NULL 전략에서도 반드시 재전파된다`() = runSuspendIO {
+        coEvery { delegate.get("key1") } throws kotlinx.coroutines.CancellationException("test cancellation")
+
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+                getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
+            )
+        )
+
+        var propagated = false
+        try {
+            cache.get("key1")
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            propagated = true
+        }
+        propagated shouldBeEqualTo true
+    }
+
+    /**
+     * getAll()에서도 CancellationException은 RETURN_FRONT_OR_NULL 전략과 무관하게 재전파된다.
+     */
+    @Test
+    fun `getAll - CancellationException은 RETURN_FRONT_OR_NULL 전략에서도 반드시 재전파된다`() = runSuspendIO {
+        coEvery { delegate.getAll(any()) } throws kotlinx.coroutines.CancellationException("test cancellation")
+
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 1,
+                retryWaitDuration = Duration.ofMillis(10),
+                getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
+            )
+        )
+
+        var propagated = false
+        try {
+            cache.getAll(setOf("k1", "k2"))
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            propagated = true
+        }
+        propagated shouldBeEqualTo true
+    }
 }

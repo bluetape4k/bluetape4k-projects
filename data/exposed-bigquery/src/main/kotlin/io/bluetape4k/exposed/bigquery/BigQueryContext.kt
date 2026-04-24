@@ -9,6 +9,8 @@ import io.bluetape4k.exposed.bigquery.BigQueryContext.Companion.create
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -105,6 +107,12 @@ class BigQueryContext(
         }
     }
 
+    /**
+     * BigQuery REST API 요청 객체를 생성합니다.
+     *
+     * Legacy SQL은 사용하지 않으며(ZetaSQL 표준), 데이터셋 컨텍스트와 쿼리 타임아웃을 설정합니다.
+     * 앞뒤 공백을 제거하여 BigQuery 파서가 불필요한 공백으로 오류를 반환하는 상황을 방지합니다.
+     */
     private fun newQueryRequest(sql: String): QueryRequest =
         QueryRequest()
             .setQuery(sql.trimIndent().trim())
@@ -114,13 +122,27 @@ class BigQueryContext(
 
     // ── RAW SQL ───────────────────────────────────────────────────────────────
 
-    /** 원시 SQL 문자열을 BigQuery에서 실행합니다. DML 또는 단순 조회에 사용합니다. */
+    /**
+     * 원시 SQL 문자열을 BigQuery에서 실행합니다. DML 또는 단순 조회에 사용합니다.
+     *
+     * 서버가 오류를 반환하면 [BigQueryQueryException]을 던집니다.
+     *
+     * @param sql 실행할 SQL 문자열 (표준 SQL, Legacy SQL 불가)
+     * @throws BigQueryQueryException BigQuery 서버 오류 응답 시
+     */
     fun runRawQuery(sql: String): QueryResponse {
         return bigquery.jobs().query(projectId, newQueryRequest(sql)).execute()
             .also { it.checkErrors(sql) }
     }
 
-    /** 원시 SQL 문자열을 BigQuery에서 비동기로 실행합니다. */
+    /**
+     * 원시 SQL 문자열을 BigQuery에서 비동기로 실행합니다.
+     *
+     * [dispatcher]에서 블로킹 HTTP 호출을 수행하므로 코루틴에서 안전하게 호출할 수 있습니다.
+     *
+     * @param sql 실행할 SQL 문자열
+     * @throws BigQueryQueryException BigQuery 서버 오류 응답 시
+     */
     suspend fun runRawQuerySuspending(sql: String): QueryResponse =
         withContext(dispatcher) { runRawQuery(sql) }
 
@@ -286,6 +308,10 @@ class BigQueryContext(
 
         // 추가 페이지 emit
         while (!jobComplete || pageToken != null) {
+            // 취소 시그널을 다음 HTTP 요청 직전에 확인한다.
+            // withContext(dispatcher) 내부에서만 취소를 감지하면 한 페이지 전체를 내려받은 뒤에야
+            // 취소가 전파되므로, 루프 선두에서 즉시 확인하여 불필요한 네트워크 비용을 막는다.
+            currentCoroutineContext().ensureActive()
             checkNotNull(jobId) { "jobReference가 없는 상태에서 추가 페이지를 요청할 수 없습니다." }
             val page = withContext(dispatcher) {
                 bigquery.jobs().getQueryResults(projectId, jobId)
@@ -294,9 +320,11 @@ class BigQueryContext(
                     .execute()
             }
 
+            // 추가 페이지 응답에도 errors 필드가 포함될 수 있다.
+            // RuntimeException 대신 BigQueryQueryException을 던져 호출자가 BigQuery 오류임을 명확히 구분하게 한다.
             page.errors?.takeIf { it.isNotEmpty() }?.let { errors ->
                 val msg = errors.joinToString("; ") { it.message ?: it.reason ?: "unknown" }
-                throw RuntimeException("BigQuery 쿼리 오류: $msg")
+                throw BigQueryQueryException("BigQuery 쿼리 오류: $msg")
             }
 
             if (schema == null) schema = page.schema
@@ -329,9 +357,11 @@ class BigQueryContext(
                 .setTimeoutMs(DEFAULT_QUERY_TIMEOUT_MS)
                 .execute()
 
+            // collectAllRows(동기 버전)에서도 페이지 단위 오류를 동일하게 처리한다.
+            // RuntimeException 대신 BigQueryQueryException으로 던져 호출자가 일관성 있게 catch할 수 있게 한다.
             page.errors?.takeIf { it.isNotEmpty() }?.let { errors ->
                 val msg = errors.joinToString("; ") { it.message ?: it.reason ?: "unknown" }
-                throw RuntimeException("BigQuery 쿼리 오류: $msg")
+                throw BigQueryQueryException("BigQuery 쿼리 오류: $msg")
             }
 
             if (schema == null) schema = page.schema
@@ -343,10 +373,13 @@ class BigQueryContext(
         return schema to allRows
     }
 
+    // QueryResponse.errors 는 최초 쿼리 응답(runRawQuery)에서 발생한 오류를 담는다.
+    // SQL을 최대 200자로 잘라 메시지에 포함하는 이유: BigQuery 오류 메시지만으로는 어떤 SQL이 실패했는지
+    // 파악하기 어렵기 때문이다. 200자 제한은 로그 라인 길이를 적정 수준으로 유지한다.
     private fun QueryResponse.checkErrors(sql: String) {
         if (errors?.isNotEmpty() == true) {
             val msg = errors.joinToString("; ") { it.message ?: it.reason ?: "unknown" }
-            throw RuntimeException("BigQuery 쿼리 오류: $msg\nSQL: ${sql.take(200)}")
+            throw BigQueryQueryException("BigQuery 쿼리 오류: $msg\nSQL: ${sql.take(200)}")
         }
     }
 

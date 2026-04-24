@@ -28,6 +28,8 @@ import org.redisson.codec.SnappyCodecV2
  * - [Kryo5]: Kryo5 직렬화 (빠르고 컴팩트한 바이너리 포맷)
  * - [Fory]: Apache Fory 직렬화 (Kryo5 대비 2~10배 빠름, 기본값)
  * - [Jdk]: JDK 기본 직렬화 (호환성 높지만 속도 느림)
+ * - [Jackson3]: Jackson 3 커스텀 JSON 엔벨로프 (`_type`/`_data`) — human-readable, non-JVM 클라이언트 연동
+ * - [Fastjson2]: Fastjson2 JSONB WriteClassName — JSONB 바이너리, non-JVM 클라이언트 연동
  *
  * ## 압축 방식
  * - Gzip: 높은 압축률, 느린 속도
@@ -43,6 +45,7 @@ import org.redisson.codec.SnappyCodecV2
  * - 범용 고성능: [LZ4Fory] 또는 [LZ4ForyComposite]
  * - 압축률 우선: [ZstdFory] 또는 [ZstdForyComposite]
  * - 호환성 우선: [Jdk]
+ * - Human-readable JSON: [Jackson3] (신뢰된 환경) 또는 [jackson3] (보안 factory)
  */
 object RedissonCodecs: KLogging() {
 
@@ -78,6 +81,40 @@ object RedissonCodecs: KLogging() {
      * 범용 호환성이 높으나 성능이 낮습니다. 레거시 시스템과의 연동에 사용하세요.
      */
     val Jdk: Codec by lazy { SerializationCodec() }
+
+    // -------------------------------------------------------------------------
+    // JSON Codecs
+    // -------------------------------------------------------------------------
+
+    /**
+     * Jackson 3 커스텀 JSON 엔벨로프 Codec. Human-readable JSON 포맷으로 Redis에 저장합니다.
+     *
+     * ⚠️ **보안 경고**: `allowedPackagePrefixes = null` (모든 타입 허용) 기본값입니다.
+     * **신뢰된 내부 Redis 환경에서만 사용**하십시오.
+     * 외부 노출 Redis에서는 [jackson3] factory 함수를 사용하여 `allowedPackagePrefixes`를 지정하십시오:
+     * ```kotlin
+     * val safeCodec = RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))
+     * ```
+     */
+    val Jackson3: Codec by lazy { Jackson3Codec() }
+
+    /**
+     * Fastjson2 JSONB Codec. WriteClassName으로 타입 정보를 JSONB 바이너리에 임베딩합니다.
+     *
+     * ⚠️ **보안 경고**: `allowedPackagePrefixes = null` (모든 타입 허용) 기본값입니다.
+     * **신뢰된 내부 Redis 환경에서만 사용**하십시오.
+     * 외부 노출 Redis에서는 [fastjson2] factory 함수를 사용하여 `allowedPackagePrefixes`를 지정하십시오:
+     * ```kotlin
+     * val safeCodec = RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))
+     * ```
+     */
+    val Fastjson2: Codec by lazy { Fastjson2Codec() }
+
+    /** Map 키: String, 값: Jackson3 JSON 엔벨로프를 사용하는 복합 Codec */
+    val Jackson3Composite: Codec by lazy { CompositeCodec(String, Jackson3, Jackson3) }
+
+    /** Map 키: String, 값: Fastjson2 JSONB를 사용하는 복합 Codec */
+    val Fastjson2Composite: Codec by lazy { CompositeCodec(String, Fastjson2, Fastjson2) }
 
     /** Map 키: String, 값: Kryo5 직렬화를 사용하는 복합 Codec */
     val Kryo5Composite: Codec by lazy { CompositeCodec(String, Kryo5, Kryo5) }
@@ -159,5 +196,103 @@ object RedissonCodecs: KLogging() {
 
     /** Map 키: String, 값: JDK 직렬화 + Zstd 압축을 사용하는 복합 Codec */
     val ZstdJdkComposite: Codec by lazy { CompositeCodec(String, ZstdJdk, ZstdJdk) }
+
+    // -------------------------------------------------------------------------
+    // Use-case oriented factory functions (H4 - Iteration 2)
+    //
+    // 이 팩토리 함수들은 기존 val 프로퍼티를 대체하지 않고, 사용 목적(use-case)에
+    // 따라 적절한 Codec 을 쉽게 선택할 수 있도록 제공됩니다.
+    // Java 호출자는 @JvmStatic 덕분에 `RedissonCodecs.forCache()` 형식으로 호출합니다.
+    // -------------------------------------------------------------------------
+
+    /**
+     * 처리량 중심의 값(value) 캐시용 Codec.
+     *
+     * 1KB 이상의 객체를 자주 읽는 RBucket/RList 등 범용 value 캐시에 적합합니다.
+     * LZ4 압축 + Fory 직렬화 조합으로 속도와 크기 균형을 제공합니다.
+     */
+    @JvmStatic
+    fun forCache(): Codec = LZ4Fory
+
+    /**
+     * Map 형태의 캐시용 Codec.
+     *
+     * RMap / RLocalCachedMap 등 Map 컬렉션 캐시에 적합합니다.
+     * 키는 [String], 값은 LZ4 + Fory 로 직렬화되는 [CompositeCodec] 조합입니다.
+     */
+    @JvmStatic
+    fun forCacheMap(): Codec = LZ4ForyComposite
+
+    /**
+     * 범용 기본 Codec.
+     *
+     * 혼합된 읽기/쓰기 워크로드의 기본 선택지. Apache Fory 직렬화를 사용합니다.
+     */
+    @JvmStatic
+    fun forGeneral(): Codec = Fory
+
+    /**
+     * 작은 값(<1KB) 전용 Codec.
+     *
+     * 작은 객체는 압축 오버헤드가 이익을 넘기 쉬우므로 압축을 생략한 Kryo5 를 권장합니다.
+     */
+    @JvmStatic
+    fun forSmallValue(): Codec = Kryo5
+
+    /**
+     * 아카이브/콜드 스토리지용 Codec.
+     *
+     * 큰 객체를 드물게 읽고 쓰는 상황에서 최고의 압축률을 제공합니다.
+     * Zstd 압축 + Fory 직렬화로 저장 공간 효율을 극대화합니다.
+     */
+    @JvmStatic
+    fun forArchival(): Codec = ZstdFory
+
+    /**
+     * 호환성 우선 Codec.
+     *
+     * bluetape4k 를 사용하지 않는 외부 시스템과의 상호 운용이 필요할 때 사용합니다.
+     * JDK 기본 직렬화를 사용하므로 성능은 낮지만 범용성이 높습니다.
+     */
+    @JvmStatic
+    fun forCompatibility(): Codec = Jdk
+
+    // -------------------------------------------------------------------------
+    // JSON Codec safe factory functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * `allowedPackagePrefixes`를 지정한 안전한 Jackson 3 JSON Codec을 생성합니다.
+     *
+     * 외부에 노출된 Redis 또는 보안 요구사항이 있는 환경에서 [Jackson3] 싱글턴 대신 사용하십시오.
+     * 지정한 prefix에 속하지 않는 클래스 이름이 역직렬화 요청되면 [SecurityException]이 발생합니다.
+     *
+     * ```kotlin
+     * val codec = RedissonCodecs.jackson3(setOf("com.mycompany.", "io.bluetape4k."))
+     * config.codec = codec
+     * ```
+     *
+     * @param allowedPackagePrefixes 허용할 패키지 prefix 집합 (예: `setOf("com.mycompany.", "io.bluetape4k.")`)
+     */
+    @JvmStatic
+    fun jackson3(allowedPackagePrefixes: Set<String>): Codec =
+        Jackson3Codec(allowedPackagePrefixes = allowedPackagePrefixes)
+
+    /**
+     * `allowedPackagePrefixes`를 지정한 안전한 Fastjson2 JSONB Codec을 생성합니다.
+     *
+     * 외부에 노출된 Redis 또는 보안 요구사항이 있는 환경에서 [Fastjson2] 싱글턴 대신 사용하십시오.
+     * 지정한 prefix에 속하지 않는 AutoType 클래스 역직렬화 요청 시 [SecurityException]이 발생합니다.
+     *
+     * ```kotlin
+     * val codec = RedissonCodecs.fastjson2(setOf("com.mycompany.", "io.bluetape4k."))
+     * config.codec = codec
+     * ```
+     *
+     * @param allowedPackagePrefixes 허용할 패키지 prefix 집합 (예: `setOf("com.mycompany.", "io.bluetape4k.")`)
+     */
+    @JvmStatic
+    fun fastjson2(allowedPackagePrefixes: Set<String>): Codec =
+        Fastjson2Codec(allowedPackagePrefixes = allowedPackagePrefixes)
 
 }

@@ -23,7 +23,11 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object RedisCommandSupports: KLogging() {
 
-    private val cache = ConcurrentHashMap<String, Boolean>()
+    // 개선: 기존엔 "${System.identityHashCode(client)}:CMD" 를 String 키로 사용했는데,
+    //       identityHashCode 는 서로 다른 객체 간 충돌이 가능하고(특히 `-XX:hashCode` 고정 모드),
+    //       동일 hash 가 서로 다른 client 의 결과를 공유하면 잘못된 지원 여부가 캐시될 수 있습니다.
+    //       → RedisClient 인스턴스 자체를 1차 키로 사용해 충돌을 원천 차단합니다.
+    private val cache = ConcurrentHashMap<RedisClient, ConcurrentHashMap<String, Boolean>>()
 
     /**
      * Redis 서버가 해당 명령어를 지원하는지 확인합니다.
@@ -36,14 +40,18 @@ object RedisCommandSupports: KLogging() {
      * @return 서버가 해당 명령어를 지원하면 true
      */
     fun supports(redisClient: RedisClient, command: String): Boolean {
-        val cacheKey = "${System.identityHashCode(redisClient)}:${command.uppercase()}"
-        return cache.getOrPut(cacheKey) {
+        val cmd = command.uppercase()
+        // 개선: getOrPut 은 `get → 없으면 producer 실행 → put` 구조라서 경쟁 시 producer 가 중복 실행될 수 있습니다.
+        //       producer 는 COMMAND INFO 를 위한 실제 연결을 만들고 닫으므로 중복은 곧 네트워크 낭비입니다.
+        //       → 원자적 computeIfAbsent 로 변경하여 명령어별 최초 1회만 조회되도록 보장합니다.
+        val perClient = cache.computeIfAbsent(redisClient) { ConcurrentHashMap() }
+        return perClient.computeIfAbsent(cmd) {
             val conn = redisClient.connect()
             try {
                 runCatching {
-                    val result = conn.sync().commandInfo(command)
+                    val result = conn.sync().commandInfo(cmd)
                     val supported = result.isNotEmpty()
-                    log.debug { "RedisCommandSupports: command=${command.uppercase()}, supported=$supported" }
+                    log.debug { "RedisCommandSupports: command=$cmd, supported=$supported" }
                     supported
                 }.getOrDefault(false)
             } finally {

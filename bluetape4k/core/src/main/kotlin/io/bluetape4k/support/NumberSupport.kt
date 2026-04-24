@@ -58,17 +58,15 @@ val BigIntMax = Long.MAX_VALUE.toBigInt()
          * // BigDecimal::class in StandardNumberTypes
          * ```
          */
-val StandardNumberTypes: Set<KClass<out Number>> = java.util.Collections.unmodifiableSet(
-    hashSetOf(
-        Byte::class,
-        Short::class,
-        Int::class,
-        Long::class,
-        Float::class,
-        Double::class,
-        BigDecimal::class,
-        BigInteger::class,
-    )
+val StandardNumberTypes: Set<KClass<out Number>> = setOf(
+    Byte::class,
+    Short::class,
+    Int::class,
+    Long::class,
+    Float::class,
+    Double::class,
+    BigDecimal::class,
+    BigInteger::class,
 )
 
 /**
@@ -106,40 +104,6 @@ val DefaultDecimalFormat: DecimalFormat get() = DecimalFormat(defaultNumberForma
  */
 inline fun Number.toHuman(pattern: String = defaultNumberFormatPattern): String =
     DecimalFormat(pattern).format(this)
-
-/**
- * 숫자의 범위를 [minValue]와 [maxValue] 사이로 제한한다.
- *
- * ```
- * val number = 123
- * number.coerce(0, 100)  // 100
- * number.coerce(200, 300)  // 200
- * number.coerce(0, 200)  // 123
- * ```
- */
-@Deprecated(
-    message = "stdlib의 coerceIn을 사용하세요.",
-    replaceWith = ReplaceWith("this.coerceIn(minValue, maxValue)"),
-)
-        /**
-         * 숫자 값을 [minValue]~[maxValue] 범위로 제한합니다.
-         *
-         * ## 동작/계약
-         * - `this < minValue`면 [minValue], `this > maxValue`면 [maxValue]를 반환합니다.
-         * - 내부적으로 Kotlin 표준 함수 `coerceIn`을 호출합니다.
-         * - 수신 값은 변경되지 않으며 새 값(또는 동일 값)을 반환합니다.
-         * - 범위 경계 비교만 수행하므로 추가 할당 없이 상수 시간에 동작합니다.
-         *
-         * ```kotlin
-         * // 123.coerce(0, 100) == 100
-         * // 50.coerce(0, 100) == 50
-         * ```
-         *
-         * @param minValue 허용 최소값(포함)
-         * @param maxValue 허용 최대값(포함)
-         */
-fun <T> T.coerce(minValue: T, maxValue: T): T where T: Number, T: Comparable<T> =
-    this.coerceIn(minValue, maxValue)
 
 /**
  * 문자열이 16진수 숫자를 나타내는 문자열인지 확인한다.
@@ -190,33 +154,19 @@ inline fun Char.isHexDigit(): Boolean =
  * ```
  */
 fun String.decodeBigInt(): BigInteger {
-    if (isBlank()) {
-        return BigInteger.ZERO
+    if (isBlank()) return BigInteger.ZERO
+
+    val negative = startsWith("-")
+    val str = if (negative) substring(1) else this
+
+    val (digits, radix) = when {
+        str.startsWith("0x", ignoreCase = true) -> str.substring(2) to 16
+        str.startsWith("#")                     -> str.substring(1) to 16
+        str.startsWith("0") && str.length > 1   -> str.substring(1) to 8
+        else                                     -> str to 10
     }
 
-    var radix = 10
-    var index = 0
-    var negative = false
-
-    // Handle minus sign, if present.
-    if (this.startsWith("-")) {
-        negative = true
-        index++
-    }
-
-    // Handle radix specifier, if present.
-    if (this.startsWith("0x", index) || this.startsWith("0X", index)) {
-        index += 2
-        radix = 16
-    } else if (this.startsWith("#", index)) {
-        index++
-        radix = 16
-    } else if (this.startsWith("0", index) && this.length > 1 + index) {
-        index++
-        radix = 8
-    }
-
-    val result = BigInteger(this.substring(index), radix)
+    val result = BigInteger(digits, radix)
     return if (negative) result.negate() else result
 }
 

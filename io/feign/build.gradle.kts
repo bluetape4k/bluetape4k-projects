@@ -14,15 +14,16 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
-    implementation(platform(Libs.spring_cloud_dependencies))
+    testImplementation(platform(Libs.spring_cloud3_dependencies))
+
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
@@ -84,7 +85,7 @@ dependencies {
     //
     // Spring Cloud OpenFeign 사용
     //
-    testImplementation(Libs.springCloudStarter("openfeign"))
+    testImplementation(Libs.springCloud3Starter("openfeign"))
     testImplementation(Libs.springBootStarter("webflux"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")

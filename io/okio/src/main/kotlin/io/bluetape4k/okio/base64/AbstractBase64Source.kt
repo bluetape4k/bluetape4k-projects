@@ -68,7 +68,7 @@ abstract class AbstractBase64Source(delegate: Source): ForwardingSource(delegate
             }
             if (decodeLength > 0) {
                 val decoded = decodeBase64Bytes(sourceBuffer.readUtf8(decodeLength))
-                check(decoded != null) { "base64 decode failed. decoded is null." }
+                    ?: throw IOException("base64 decode failed: null result for input.")
                 if (decoded.size > 0) {
                     log.debug { "decoded: $decoded" }
                 }

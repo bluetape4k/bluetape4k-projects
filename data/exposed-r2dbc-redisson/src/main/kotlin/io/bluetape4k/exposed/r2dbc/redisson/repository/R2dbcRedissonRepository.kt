@@ -183,11 +183,18 @@ interface R2dbcRedissonRepository<ID: Any, E: Serializable>: R2dbcRedisRepositor
     /**
      * 여러 ID의 엔티티를 캐시에서 제거합니다.
      *
+     * 단건씩 순차 호출 대신 배열로 한 번에 전달해 네트워크 왕복을 줄입니다.
+     *
      * @param ids 삭제할 엔티티 식별자 목록
      */
     override suspend fun invalidateAll(ids: Collection<ID>) {
         if (ids.isEmpty()) return
-        ids.forEach { id -> cache.fastRemoveAsync(id).await() }
+        // WHY: fastRemoveAsync(vararg keys) 는 단일 Redis DEL 커맨드로 처리되므로
+        //      루프로 ids.forEach { fastRemoveAsync(it) } 보다 네트워크 왕복이 1회로 줄어든다.
+        //      toTypedArray<Any>() 후 강제 캐스팅은 Kotlin reified 제네릭 배열 생성의
+        //      런타임 타입 소거 한계를 우회하기 위한 것으로, 실제 타입은 일치한다.
+        @Suppress("UNCHECKED_CAST")
+        cache.fastRemoveAsync(*ids.toTypedArray<Any>() as Array<ID>).await()
     }
 
     /**

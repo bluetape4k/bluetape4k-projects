@@ -91,4 +91,19 @@ class KsuidMillisTest {
                     idMap.putIfAbsent(ksuid, 1).shouldBeNull()
                 }.run()
         }
+
+    @Test
+    fun `prettyString에서 payload가 12바이트(24 hex chars)여야 한다`() {
+        val ksuid = Ksuid.Millis.generate()
+        val pretty = Ksuid.Millis.prettyString(ksuid)
+
+        log.debug { "prettyString:\n$pretty" }
+
+        // prettyString 결과에서 Payload 행을 추출
+        val payloadLine = pretty.lines().first { it.startsWith("Payload") }
+        val payloadHex = payloadLine.substringAfter("= ").trim()
+
+        // Millis payload는 12바이트 = 24 hex chars
+        payloadHex.length shouldBeEqualTo Ksuid.Millis.PAYLOAD_LEN * 2
+    }
 }

@@ -66,6 +66,7 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
             level
         )
 
+        check(!Zstd.isError(compressedSize)) { "Zstd compression failed: ${Zstd.getErrorName(compressedSize)}" }
         return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize.toInt())
     }
 

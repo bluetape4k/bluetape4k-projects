@@ -12,6 +12,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class MulticastSubjectTest {
 
@@ -25,7 +26,7 @@ class MulticastSubjectTest {
         withSingleThread { dispatcher ->
             val job = launch(dispatcher) {
                 subject
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result.add(it) }
             }.log("job")

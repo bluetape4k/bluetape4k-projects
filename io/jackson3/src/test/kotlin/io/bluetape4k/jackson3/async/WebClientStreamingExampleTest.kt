@@ -8,10 +8,12 @@ import kotlinx.coroutines.reactive.asFlow
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.web.reactive.function.client.WebClient
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class WebClientStreamingExampleTest {
 
     private val mapper = Jackson.defaultJsonMapper

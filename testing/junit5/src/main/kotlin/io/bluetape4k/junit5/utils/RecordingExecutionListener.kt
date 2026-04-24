@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  *
  * ## 동작/계약
  * - 각 콜백에서 [ExecutionEvent]를 생성해 내부 리스트에 순차 추가합니다.
- * - 내부 저장소는 `CopyOnWriteArrayList`여서 읽기 중심 조회에 안전합니다.
+ * - 내부 저장소는 [ConcurrentLinkedQueue]여서 동시 읽기/쓰기에 안전합니다.
  * - 조회 함수는 저장된 이벤트 목록을 필터링해 새 리스트로 반환합니다.
  *
  * ```kotlin

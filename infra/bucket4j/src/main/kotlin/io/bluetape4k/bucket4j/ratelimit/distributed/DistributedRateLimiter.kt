@@ -8,6 +8,7 @@ import io.bluetape4k.bucket4j.ratelimit.validateRateLimitRequest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import kotlinx.coroutines.CancellationException
 
 /**
  * 분산 버킷에 대해 즉시 소비 시도를 수행하는 동기 rate limiter 구현체입니다.
@@ -64,6 +65,10 @@ class DistributedRateLimiter(
         return try {
             val bucketProxy = bucketProxyProvider.resolveBucket(key)
             toRateLimitResult(bucketProxy.tryConsumeAndReturnRemaining(numToken), numToken)
+        } catch (e: CancellationException) {
+            // CancellationException 은 Exception 의 하위 타입이므로 catch (Exception) 에 잡혀 ERROR 로 변환될 수 있다.
+            // 코루틴 컨텍스트에서 동기 RateLimiter 를 호출할 때 취소 신호가 손실되지 않도록 반드시 재전파한다.
+            throw e
         } catch (e: Exception) {
             log.warn(e) { "Rate Limiter 적용에 실패했습니다. key=$key" }
             RateLimitResult.error(e)

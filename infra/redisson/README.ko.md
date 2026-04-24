@@ -12,7 +12,7 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 | `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL 확장 함수                                  |
 | `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수            |
 | `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
-| `RedissonCodecs`                | 직렬화(Fory/Kryo5) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록                          |
+| `RedissonCodecs`                | 직렬화(Fory/Kryo5/Jackson3/Fastjson2) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록         |
 | `RedissonLeaderElection`        | `RLock` 기반 단일 리더 선출 (동기 / 비동기)                                                  |
 | `RedissonSuspendLeaderElection` | `RLock` 기반 단일 리더 선출 (Coroutines)                                                |
 | `RedissonLeaderGroupElection`   | `RSemaphore` 기반 복수(N개) 동시 리더 선출                                                 |
@@ -93,23 +93,38 @@ singleServerConfig:
 
 `io.bluetape4k.redis.redisson.codec` 패키지에서 고성능 Codec을 제공합니다.
 
-| 상수                       | 직렬화                    | 압축   | 설명                |
-|--------------------------|------------------------|------|-------------------|
-| `RedissonCodecs.Default` | Fory (fallback: Kryo5) | LZ4  | 기본값. 빠른 속도와 압축 균형 |
-| `RedissonCodecs.Fory`    | Fory                   | 없음   | Fory 직렬화만 사용      |
-| `RedissonCodecs.Kryo5`   | Kryo5                  | 없음   | Kryo5 직렬화만 사용     |
-| `RedissonCodecs.LZ4`     | Default                | LZ4  | LZ4 압축 래핑         |
-| `RedissonCodecs.Zstd`    | Default                | Zstd | 높은 압축률            |
+| 상수                            | 직렬화                    | 압축   | 설명                          |
+|---------------------------------|------------------------|------|-------------------------------|
+| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | LZ4  | 기본값. 빠른 속도와 압축 균형             |
+| `RedissonCodecs.Fory`           | Fory                   | 없음   | Fory 직렬화만 사용                   |
+| `RedissonCodecs.Kryo5`          | Kryo5                  | 없음   | Kryo5 직렬화만 사용                  |
+| `RedissonCodecs.LZ4`            | Default                | LZ4  | LZ4 압축 래핑                     |
+| `RedissonCodecs.Zstd`           | Default                | Zstd | 높은 압축률                        |
+| `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | 없음   | Jackson 3.x JSON Codec         |
+| `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | 없음   | Fastjson2 JSONB Codec          |
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.codec.ForyCodec
+import io.bluetape4k.redis.redisson.codec.Jackson3Codec
+import io.bluetape4k.redis.redisson.codec.Fastjson2Codec
 import io.bluetape4k.redis.redisson.codec.Lz4Codec
 
 val client = redissonClient {
     useSingleServer().address = "redis://localhost:6379"
     codec = RedissonCodecs.Default   // Fory + LZ4 조합
 }
+
+// JSON 기반 Codec — 사람이 읽을 수 있는 저장 형식
+val jsonClient = redissonClient {
+    useSingleServer().address = "redis://localhost:6379"
+    codec = RedissonCodecs.Jackson3   // Jackson 3.x JSON
+}
+
+// Fastjson2 JSONB — 패키지 기반 보안 제한
+val secureCodec = Fastjson2Codec(
+    allowedPackagePrefixes = setOf("com.example.", "io.bluetape4k.")
+)
 
 // 직접 조합도 가능
 val customCodec = Lz4Codec(innerCodec = ForyCodec())
@@ -118,6 +133,8 @@ val customCodec = Lz4Codec(innerCodec = ForyCodec())
 Codec 클래스:
 
 - `ForyCodec` — Apache Fory 직렬화. 직렬화 실패 시 fallback Codec(Kryo5)으로 자동 전환
+- `Jackson3Codec` — Jackson 3.x JSON 직렬화. 사람이 읽을 수 있는 JSON 텍스트로 저장
+- `Fastjson2Codec` — Fastjson2 JSONB 바이너리 포맷. 클래스 이름 헤더 + JSONB 바이트로 저장. `allowedPackagePrefixes`로 pre-instantiation 보안 검증 지원
 - `Lz4Codec` — LZ4 압축 래퍼. `innerCodec`으로 감쌈
 - `ZstdCodec` — Zstd 압축 래퍼
 - `GzipCodec` — GZip 압축 래퍼
@@ -337,6 +354,19 @@ classDiagram
         +getValueDecoder() Decoder
     }
 
+    class Jackson3Codec {
+        -objectMapper: ObjectMapper
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
+    class Fastjson2Codec {
+        -fallbackCodec: Codec
+        -allowedPackagePrefixes: Set~String~
+        +getValueEncoder() Encoder
+        +getValueDecoder() Decoder
+    }
+
     class RedissonCodecs {
         <<object>>
         +Default: Lz4Codec
@@ -344,6 +374,8 @@ classDiagram
         +Kryo5: Kryo5Codec
         +LZ4: Lz4Codec
         +Zstd: ZstdCodec
+        +Jackson3: Jackson3Codec
+        +Fastjson2: Fastjson2Codec
     }
 
     Codec <|.. ForyCodec
@@ -351,12 +383,17 @@ classDiagram
     Codec <|.. Lz4Codec
     Codec <|.. ZstdCodec
     Codec <|.. GzipCodec
+    Codec <|.. Jackson3Codec
+    Codec <|.. Fastjson2Codec
     Lz4Codec --> ForyCodec : innerCodec
     ZstdCodec --> ForyCodec : innerCodec
     ForyCodec --> Kryo5Codec : fallback
+    Fastjson2Codec --> ForyCodec : fallback
     RedissonCodecs --> Lz4Codec
     RedissonCodecs --> ForyCodec
     RedissonCodecs --> Kryo5Codec
+    RedissonCodecs --> Jackson3Codec
+    RedissonCodecs --> Fastjson2Codec
 
     style Codec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ForyCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -364,6 +401,8 @@ classDiagram
     style Lz4Codec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style ZstdCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style GzipCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style Jackson3Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
+    style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
     style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
 ```
@@ -450,6 +489,73 @@ flowchart TD
     style Op3 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
 ```
+
+## 고성능 Batch 패턴 — 메가배치
+
+코루틴 환경에서 대량 Redis 쓰기/읽기 처리 시, **코루틴당 1개의 RBatch**를 생성하면 Redis 왕복(RTT)을 100배 이상 줄일 수 있습니다.
+
+### 패턴 비교
+
+| 방식 | RTT 수 (50 코루틴 × 100 ops) | 상대 처리량 |
+|------|------------------------------|-----------|
+| 개별 RMap op | 10,000 | 1× |
+| op당 RBatch | 5,000 | ~2× |
+| **코루틴당 1 RBatch (메가배치)** | **50** | **~8×** |
+
+### 메가배치 구현 예시
+
+```kotlin
+import org.redisson.client.codec.StringCodec
+
+// 키 풀 사전 생성 — per-op 문자열 보간 제거
+private val KEY_POOL: Array<Array<String>> = Array(CONCURRENCY + 1) { cid ->
+    Array(OPS_PER_COROUTINE) { opIdx -> "c$cid-op$opIdx" }
+}
+
+suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
+    val jobs = (0 until CONCURRENCY).map { coroutineId ->
+        async(Dispatchers.IO) {
+            // 코루틴당 RBatch 1개 — StringCodec으로 Jackson 오버헤드 제거
+            val batch = redisson.createBatch()
+            val batchMap = batch.getMap<String, String>(mapName, StringCodec.INSTANCE)
+
+            repeat(OPS_PER_COROUTINE) { opIdx ->
+                val key = KEY_POOL[coroutineId][opIdx]   // 사전 계산된 키
+                batchMap.fastPutAsync(key, "value-$coroutineId-$opIdx")
+            }
+
+            batch.execute()  // 100개 명령 → 1 RTT
+        }
+    }
+    jobs.awaitAll()
+}
+```
+
+### 핵심 최적화 포인트
+
+| 최적화 | 효과 | 비고 |
+|--------|------|------|
+| `redisson.createBatch()` 코루틴당 1개 | RTT 100배 감소 | 가장 큰 개선 |
+| `StringCodec.INSTANCE` | Jackson 직렬화 오버헤드 제거 | String 타입 Map에만 적용 |
+| 사전 계산된 KEY_POOL | 문자열 보간 GC 압력 제거 | 반복 키 패턴에 유효 |
+
+---
+
+## 성능 벤치마크
+
+`RedissonConcurrencyBenchmark` 기준 (50 코루틴, 코루틴당 100 ops):
+
+| 최적화 단계 | concurrent_ops/sec | 개선율 |
+|------------|-------------------|--------|
+| 기준선 (개별 op) | ~11,737 | — |
+| Warmup 안정화 | 16,025 | +36.5% |
+| RBatch 파이프라이닝 | 28,571 | +143% |
+| **메가배치 (코루틴당 1 RBatch)** | 78,125 | +566% |
+| **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+
+> 벤치마크 실행: `./gradlew :bluetape4k-redisson:test --tests "*.RedissonConcurrencyBenchmark"`
+
+---
 
 ## Redis 버전 요구사항
 

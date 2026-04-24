@@ -20,6 +20,15 @@ class DefaultRuleEngineTest {
         return DefaultRuleEngine(config)
     }
 
+    private inline fun buildRule(
+        name: String,
+        priority: Int = 0,
+        crossinline cond: (Facts) -> Boolean,
+        crossinline act: (Facts) -> Unit,
+    ): DefaultRule = rule {
+        this.name = name; this.priority = priority; condition { cond(it) }; action { act(it) }
+    }
+
     @Test
     fun `기본 설정으로 엔진 생성`() {
         val engine = createEngine()
@@ -29,27 +38,17 @@ class DefaultRuleEngineTest {
     @Test
     fun `단일 Rule 실행`() {
         val engine = createEngine()
-        val rule = rule {
-            name = "test"
-            condition { true }
-            action { facts -> facts["executed"] = true }
-        }
+        val rule = buildRule("test", cond = { true }, act = { it["executed"] = true })
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule), facts)
-        facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(rule), facts); facts.get<Boolean>("executed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test
     fun `조건 불만족 시 Rule 미실행`() {
         val engine = createEngine()
-        val rule = rule {
-            name = "test"
-            condition { false }
-            action { facts -> facts["executed"] = true }
-        }
+        val rule = buildRule("test", cond = { false }, act = { it["executed"] = true })
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule), facts)
-        facts.containsKey("executed").shouldBeFalse()
+        engine.fire(ruleSetOf(rule), facts); facts.containsKey("executed").shouldBeFalse()
     }
 
     @Test
@@ -57,18 +56,8 @@ class DefaultRuleEngineTest {
         val config = RuleEngineConfig(skipOnFirstAppliedRule = true)
         val engine = createEngine(config)
 
-        val rule1 = rule {
-            name = "rule1"
-            priority = 1
-            condition { true }
-            action { facts -> facts["rule1"] = true }
-        }
-        val rule2 = rule {
-            name = "rule2"
-            priority = 2
-            condition { true }
-            action { facts -> facts["rule2"] = true }
-        }
+        val rule1 = buildRule("rule1", 1, { true }, { it["rule1"] = true })
+        val rule2 = buildRule("rule2", 2, { true }, { it["rule2"] = true })
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule1, rule2), facts)
@@ -81,22 +70,11 @@ class DefaultRuleEngineTest {
         val config = RuleEngineConfig(skipOnFirstFailedRule = true)
         val engine = createEngine(config)
 
-        val rule1 = rule {
-            name = "failRule"
-            priority = 1
-            condition { true }
-            action { error("fail!") }
-        }
-        val rule2 = rule {
-            name = "rule2"
-            priority = 2
-            condition { true }
-            action { facts -> facts["rule2"] = true }
-        }
+        val rule1 = buildRule("failRule", 1, { true }, { error("fail!") })
+        val rule2 = buildRule("rule2", 2, { true }, { it["rule2"] = true })
 
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule1, rule2), facts)
-        facts.containsKey("rule2").shouldBeFalse()
+        engine.fire(ruleSetOf(rule1, rule2), facts); facts.containsKey("rule2").shouldBeFalse()
     }
 
     @Test
@@ -104,18 +82,8 @@ class DefaultRuleEngineTest {
         val config = RuleEngineConfig(skipOnFirstNonTriggeredRule = true)
         val engine = createEngine(config)
 
-        val rule1 = rule {
-            name = "falseRule"
-            priority = 1
-            condition { false }
-            action { facts -> facts["rule1"] = true }
-        }
-        val rule2 = rule {
-            name = "rule2"
-            priority = 2
-            condition { true }
-            action { facts -> facts["rule2"] = true }
-        }
+        val rule1 = buildRule("falseRule", 1, { false }, { it["rule1"] = true })
+        val rule2 = buildRule("rule2", 2, { true }, { it["rule2"] = true })
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule1, rule2), facts)
@@ -128,18 +96,8 @@ class DefaultRuleEngineTest {
         val config = RuleEngineConfig(priorityThreshold = 5)
         val engine = createEngine(config)
 
-        val rule1 = rule {
-            name = "low"
-            priority = 1
-            condition { true }
-            action { facts -> facts["low"] = true }
-        }
-        val rule2 = rule {
-            name = "high"
-            priority = 10
-            condition { true }
-            action { facts -> facts["high"] = true }
-        }
+        val rule1 = buildRule("low", 1, { true }, { it["low"] = true })
+        val rule2 = buildRule("high", 10, { true }, { it["high"] = true })
 
         val facts = Facts.empty()
         engine.fire(ruleSetOf(rule1, rule2), facts)
@@ -150,16 +108,8 @@ class DefaultRuleEngineTest {
     @Test
     fun `check 메서드로 Rule 평가`() {
         val engine = createEngine()
-        val rule1 = rule {
-            name = "trueRule"
-            condition { true }
-            action { }
-        }
-        val rule2 = rule {
-            name = "falseRule"
-            condition { false }
-            action { }
-        }
+        val rule1 = buildRule("trueRule", cond = { true }, act = { })
+        val rule2 = buildRule("falseRule", cond = { false }, act = { })
 
         val facts = Facts.empty()
         val result = engine.check(ruleSetOf(rule1, rule2), facts)
@@ -172,21 +122,10 @@ class DefaultRuleEngineTest {
         val engine = createEngine()
         val executionOrder = mutableListOf<String>()
 
-        val rule1 = rule {
-            name = "second"
-            priority = 2
-            condition { true }
-            action { executionOrder.add("second") }
-        }
-        val rule2 = rule {
-            name = "first"
-            priority = 1
-            condition { true }
-            action { executionOrder.add("first") }
-        }
+        val rule1 = buildRule("second", 2, { true }, { executionOrder.add("second") })
+        val rule2 = buildRule("first", 1, { true }, { executionOrder.add("first") })
 
-        engine.fire(ruleSetOf(rule1, rule2), Facts.empty())
-        executionOrder shouldBeEqualTo listOf("first", "second")
+        engine.fire(ruleSetOf(rule1, rule2), Facts.empty()); executionOrder shouldBeEqualTo listOf("first", "second")
     }
 
     @Test

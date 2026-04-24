@@ -9,11 +9,13 @@ import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
 import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.coroutines.multi
@@ -57,14 +59,9 @@ class LettuceSuspendNearCache<V: Any>(
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): SuspendNearCacheOperations<V> {
     companion object: KLoggingChannel() {
-        private const val COMPARE_AND_SET_SCRIPT = """
-            local current = redis.call('GET', KEYS[1])
-            if current == false or current ~= ARGV[1] then
-                return 0
-            end
-            redis.call('SET', KEYS[1], ARGV[2], 'XX', 'KEEPTTL')
-            return 1
-        """
+        // 개선: sync 구현과 동일하게 [NearCacheScripts.COMPARE_AND_SET] 를 재사용한다.
+        //       매 호출마다 원문 전송 대신 EVALSHA → NOSCRIPT fallback 으로 네트워크 비용을 줄인다.
+        private val COMPARE_AND_SET_SCRIPT = NearCacheScripts.COMPARE_AND_SET
 
         /**
          * String 키/값 타입의 Near Suspend Cache를 생성한다.
@@ -90,6 +87,12 @@ class LettuceSuspendNearCache<V: Any>(
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
     private val commands: RedisCoroutinesCommands<String, V> = connection.coroutines()
+
+    // 개선: `connection.async()` 는 호출마다 wrapper 를 생성할 수 있어, 핫 패스
+    //       (`getAll`, `registerTrackingKey`, `registerTrackingKeys`) 에서 반복 호출을
+    //       피하도록 한 번 획득해 재사용합니다.
+    private val asyncCommands: RedisAsyncCommands<String, V> = connection.async()
+
     private val trackingListener: TrackingInvalidationListener<V> =
         TrackingInvalidationListener(frontCache, connection, config.cacheName)
 
@@ -131,7 +134,8 @@ class LettuceSuspendNearCache<V: Any>(
         val missedKeys = (keys - result.keys).toList()
 
         if (missedKeys.isNotEmpty()) {
-            val values = connection.async()
+            // 개선: 재사용 가능한 `asyncCommands` 를 사용해 wrapper 생성 비용을 제거한다.
+            val values = asyncCommands
                 .mget(*missedKeys.map(config::redisKey).toTypedArray())
                 .await()
             values.forEachIndexed { index, keyValue ->
@@ -205,7 +209,8 @@ class LettuceSuspendNearCache<V: Any>(
      */
     override suspend fun remove(key: String) {
         frontCache.remove(key)
-        commands.del(config.redisKey(key))
+        // 개선: `DEL` → `UNLINK` 로 전환해 Redis 메인 스레드 블로킹을 회피한다.
+        commands.unlink(config.redisKey(key))
     }
 
     /**
@@ -214,7 +219,8 @@ class LettuceSuspendNearCache<V: Any>(
     override suspend fun removeAll(keys: Set<String>) {
         frontCache.removeAll(keys)
         val rKeys = keys.map { config.redisKey(it) }.toTypedArray()
-        commands.del(*rKeys)
+        // 개선: 대량 삭제에서 non-blocking `UNLINK` 가 p99 latency 에 유리하다.
+        commands.unlink(*rKeys)
     }
 
     /**
@@ -242,14 +248,27 @@ class LettuceSuspendNearCache<V: Any>(
         oldValue: V,
         newValue: V,
     ): Boolean {
-        val replaced =
-            commands.eval<Long>(
-                COMPARE_AND_SET_SCRIPT,
+        // 개선: EVALSHA 우선 → NOSCRIPT 발생 시 원문 전송으로 fallback.
+        //       SHA1 은 생성 시점에 캐시되고 재사용되므로 매 호출마다 원문을 전송하지 않는다.
+        val rKey = config.redisKey(key)
+        val result: Long = try {
+            commands.evalsha<Long>(
+                COMPARE_AND_SET_SCRIPT.sha1,
                 ScriptOutputType.INTEGER,
-                arrayOf(config.redisKey(key)),
+                arrayOf(rKey),
                 oldValue,
                 newValue
-            ) == 1L
+            ).also { if (it == null) log.warn { "CAS evalsha returned null for key=$rKey — treating as not-replaced" } } ?: 0L
+        } catch (_: RedisNoScriptException) {
+            commands.eval<Long>(
+                COMPARE_AND_SET_SCRIPT.source,
+                ScriptOutputType.INTEGER,
+                arrayOf(rKey),
+                oldValue,
+                newValue
+            ).also { if (it == null) log.warn { "CAS eval returned null for key=$rKey — treating as not-replaced" } } ?: 0L
+        }
+        val replaced = result == 1L
         if (replaced) {
             frontCache.put(key, newValue)
             registerTrackingKey(key)
@@ -306,7 +325,8 @@ class LettuceSuspendNearCache<V: Any>(
             val result: KeyScanCursor<String>? = commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100))
             if (result != null) {
                 if (result.keys.isNotEmpty()) {
-                    commands.del(*result.keys.toTypedArray())
+                    // 개선: 대량 SCAN 결과 일괄 삭제에 non-blocking `UNLINK` 를 사용한다.
+                    commands.unlink(*result.keys.toTypedArray())
                 }
                 finished = result.isFinished
                 cursor = result
@@ -408,10 +428,10 @@ class LettuceSuspendNearCache<V: Any>(
         }
     }
 
-    private fun registerTrackingKey(key: String) {
-        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
-        // write 경로 지연을 줄이기 위해 fire-and-forget으로 등록한다.
-        connection.async().get(config.redisKey(key))
+    private suspend fun registerTrackingKey(key: String) {
+        // CLIENT TRACKING 활성화: await을 사용해 GET이 Redis에 처리된 후 반환한다.
+        // fire-and-forget 방식은 외부 SET이 tracking GET보다 먼저 Redis에 도착하는 경쟁 조건을 유발한다.
+        asyncCommands.get(config.redisKey(key)).await()
     }
 
     private suspend fun setRedisBulk(map: Map<String, V>) {
@@ -429,8 +449,8 @@ class LettuceSuspendNearCache<V: Any>(
         }
     }
 
-    private fun registerTrackingKeys(keys: Collection<String>) {
+    private suspend fun registerTrackingKeys(keys: Collection<String>) {
         if (keys.isEmpty()) return
-        connection.async().mget(*keys.map(config::redisKey).toTypedArray())
+        asyncCommands.mget(*keys.map(config::redisKey).toTypedArray()).await()
     }
 }

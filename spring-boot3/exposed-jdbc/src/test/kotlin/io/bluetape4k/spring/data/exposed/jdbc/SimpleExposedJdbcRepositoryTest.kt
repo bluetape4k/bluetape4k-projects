@@ -228,4 +228,46 @@ class SimpleExposedJdbcRepositoryTest: AbstractExposedJdbcRepositoryTest() {
         id.shouldNotBeNull()
         id shouldBeEqualTo user.id.value
     }
+
+    @Test
+    fun `count with DSL op returns correct count`() {
+        createUser("Alice", "alice@example.com", 30)
+        createUser("Bob", "bob@example.com", 17)
+        createUser("Charlie", "charlie@example.com", 25)
+
+        userJdbcRepository.count { Users.age greaterEq 18 } shouldBeEqualTo 2L
+    }
+
+    @Test
+    fun `findAllById with empty list returns empty`() {
+        createUser("Alice", "alice@example.com", 30)
+        val found = userJdbcRepository.findAllById(emptyList())
+        found shouldHaveSize 0
+    }
+
+    @Test
+    fun `deleteAllById with empty list does nothing`() {
+        createUser("Alice", "alice@example.com", 30)
+        userJdbcRepository.deleteAllById(emptyList())
+        userJdbcRepository.count() shouldBeEqualTo 1L
+    }
+
+    @Test
+    fun `findAll with paging second page`() {
+        repeat(7) { i -> createUser("User$i", "user$i@example.com", 20 + i) }
+        val page = userJdbcRepository.findAll(PageRequest.of(1, 3))
+
+        page.content shouldHaveSize 3
+        page.totalElements shouldBeEqualTo 7L
+        page.number shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `findAll with paging beyond last page returns empty content`() {
+        repeat(3) { i -> createUser("User$i", "user$i@example.com", 20 + i) }
+        val page = userJdbcRepository.findAll(PageRequest.of(5, 3))
+
+        page.content shouldHaveSize 0
+        page.totalElements shouldBeEqualTo 3L
+    }
 }

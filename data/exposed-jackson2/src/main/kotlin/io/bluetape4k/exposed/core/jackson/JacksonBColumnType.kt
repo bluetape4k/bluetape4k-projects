@@ -87,7 +87,7 @@ fun <T: Any> Table.jacksonb(
  *
  * ## 동작/계약
  * - [serializer]의 직렬화/역직렬화 함수를 감싸 [jacksonb] 오버로드에 위임합니다.
- * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`이 발생하며, 타입명과 원본 JSON이 메시지에 포함됩니다.
  * - 반환되는 컬럼 인스턴스는 수신 [Table]에 등록된 컬럼과 동일합니다.
  *
  * ```kotlin
@@ -107,5 +107,13 @@ inline fun <reified T: Any> Table.jacksonb(
     jacksonb(
         name,
         serialize = { serializer.serializeAsString(it) },
-        deserialize = { serializer.deserializeFromString<T>(it)!! }
+        // WHY: `!!` 대신 requireNotNull을 사용하는 이유 —
+        //   ① JSONB 역직렬화가 null을 반환하는 것은 바이너리 JSON 포맷 불일치 또는 타입 매핑 오류를 의미하며,
+        //      NullPointerException보다 IllegalArgumentException이 의도를 더 정확히 전달합니다.
+        //   ② 타입명과 원본 JSON 문자열을 메시지에 포함해 운영 로그에서 원인을 즉시 추적할 수 있습니다.
+        deserialize = {
+            requireNotNull(serializer.deserializeFromString<T>(it)) {
+                "JSONB 역직렬화 결과가 null입니다. 타입 [${T::class.qualifiedName}] 으로 변환할 수 없는 JSON 입니다: $it"
+            }
+        }
     )

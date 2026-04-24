@@ -176,19 +176,5 @@ fun <T: Comparable<T>> Range<T>.overlaps(other: Range<T>): Boolean {
  * listOf(openOpenRangeOf(1, 5)).isAscending()      // true — 단일 원소는 항상 오름차순
  * ```
  */
-fun <T: Comparable<T>> Iterable<Range<T>>.isAscending(): Boolean {
-    val iterator = iterator()
-    if (!iterator.hasNext()) return true
-
-    var max = iterator.next().first
-    while (iterator.hasNext()) {
-        val range = iterator.next()
-        if (max > range.first) {
-            return false
-        }
-        if (range.first > max) {
-            max = range.first
-        }
-    }
-    return true
-}
+fun <T: Comparable<T>> Iterable<Range<T>>.isAscending(): Boolean =
+    zipWithNext().all { (prev, next) -> prev.first <= next.first }

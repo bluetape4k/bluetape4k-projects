@@ -367,12 +367,6 @@ fun <T> Array<T>.removeLast(): Array<T> {
 }
 
 /**
- * Array의 마지막 요소를 삭제한 새로운 Array를 반환합니다.
- */
-@Deprecated("use removeLast() instead", ReplaceWith("removeLast()"))
-fun <T> Array<T>.removeLastValue(): Array<T> = this.copyOfRange(0, size - 1)
-
-/**
  * Array의 마지막 요소에 지정한 값을 설정합니다.
  *
  * @param value 설정할 값
@@ -609,11 +603,8 @@ inline fun DoubleArray.forEachCatching(action: (Double) -> Unit): List<Result<Un
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun CharArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0.toChar()) zc++
-    return zc
-}
+fun CharArray.leadingZeros(): Int =
+    indexOfFirst { it != 0.toChar() }.let { if (it == -1) size else it }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.
@@ -624,11 +615,8 @@ fun CharArray.leadingZeros(): Int {
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun ByteArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0.toByte()) zc++
-    return zc
-}
+fun ByteArray.leadingZeros(): Int =
+    indexOfFirst { it != 0.toByte() }.let { if (it == -1) size else it }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.
@@ -639,11 +627,8 @@ fun ByteArray.leadingZeros(): Int {
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun ShortArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0.toShort()) zc++
-    return zc
-}
+fun ShortArray.leadingZeros(): Int =
+    indexOfFirst { it != 0.toShort() }.let { if (it == -1) size else it }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.
@@ -654,11 +639,8 @@ fun ShortArray.leadingZeros(): Int {
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun IntArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0) zc++
-    return zc
-}
+fun IntArray.leadingZeros(): Int =
+    indexOfFirst { it != 0 }.let { if (it == -1) size else it }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.
@@ -669,11 +651,8 @@ fun IntArray.leadingZeros(): Int {
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun LongArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0L) zc++
-    return zc
-}
+fun LongArray.leadingZeros(): Int =
+    indexOfFirst { it != 0L }.let { if (it == -1) size else it }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.
@@ -684,11 +663,8 @@ fun LongArray.leadingZeros(): Int {
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun FloatArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0.0F) zc++
-    return zc
-}
+fun FloatArray.leadingZeros(): Int =
+    indexOfFirst { it != 0.0F }.let { if (it == -1) size else it }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.
@@ -699,11 +675,8 @@ fun FloatArray.leadingZeros(): Int {
  * 이 함수는 인덱스 `0`부터 순차적으로 탐색하며,
  * 처음으로 0이 아닌 값을 만나면 즉시 중단합니다.
  */
-fun DoubleArray.leadingZeros(): Int {
-    var zc = 0
-    while (zc < size && this[zc] == 0.0) zc++
-    return zc
-}
+fun DoubleArray.leadingZeros(): Int =
+    indexOfFirst { it != 0.0 }.let { if (it == -1) size else it }
 
 /**
  * 배열의 크기가 [newSize] 가 될 때까지 [padValue] 로 뒤를 채운 새 배열을 반환합니다.

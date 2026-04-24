@@ -9,6 +9,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -111,6 +111,14 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
         Channel(capacity = config.writeBehindQueueCapacity)
     }
 
+    /**
+     * Write-Behind 백그라운드 Job.
+     *
+     * 채널에서 항목을 수신하여 배치 크기([LocalCacheConfig.writeBehindBatchSize])만큼
+     * 모아서 [flushBatch]로 DB에 일괄 기록합니다.
+     * 채널이 닫히면 for 루프가 종료되고, finally 블록에서 미처리 항목을 마지막으로 flush합니다.
+     * lazy 초기화이므로 WRITE_BEHIND 모드로 처음 put()이 호출될 때 Job이 시작됩니다.
+     */
     private val writeBehindJob by lazy {
         scope.launch {
             val batch = mutableListOf<Pair<ID, E>>()
@@ -128,7 +136,8 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
                     }
                 }
             } finally {
-                // 채널 닫힌 후 남은 항목 처리
+                // 채널 닫힌 후에도 루프에서 빠져나온 시점의 미처리 항목을 DB에 기록해야
+                // 데이터 유실을 방지할 수 있다.
                 if (batch.isNotEmpty()) {
                     flushBatch(batch)
                 }
@@ -138,7 +147,9 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
 
     /**
      * Write-Behind 배치를 DB에 flush합니다.
+     *
      * AutoIncrement 테이블의 경우 신규 엔티티는 DB에 삽입하지 않습니다.
+     * 코루틴 취소 시 [CancellationException]은 반드시 재던져야 하므로, Exception 캐치 전에 별도로 처리합니다.
      */
     private suspend fun flushBatch(batch: List<Pair<ID, E>>) {
         try {
@@ -156,6 +167,9 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
                 }
             }
             log.debug { "Write-Behind: ${batch.size}건 DB flush 완료" }
+        } catch (e: CancellationException) {
+            // 코루틴 취소는 반드시 재던져야 한다 — 삼키면 구조적 동시성이 깨진다
+            throw e
         } catch (e: Exception) {
             log.warn(e) { "Write-Behind: ${batch.size}건 DB flush 실패" }
         }
@@ -252,12 +266,18 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
                     }.map { with(this@AbstractR2dbcCaffeineRepository) { it.toEntity() } }
                     .toList()
             }
-        // 조회 결과를 캐시에 적재
+        // 조회 결과를 캐시에 적재.
+        // extractId()가 UnsupportedOperationException을 던질 수 있으므로 Exception만 캐치하되,
+        // CancellationException은 재던져 코루틴 취소 신호가 유실되지 않도록 한다.
         if (entities.isNotEmpty()) {
             entities.forEach { entity ->
-                runCatching {
+                try {
                     val id = extractId(entity)
                     cache.put(serializeKey(id), CompletableFuture.completedFuture(entity))
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    log.warn(e) { "findAll: 캐시 적재 실패 — extractId()가 구현되지 않았을 수 있습니다" }
                 }
             }
         }
@@ -285,7 +305,8 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
         when (config.writeMode) {
             CacheWriteMode.WRITE_THROUGH -> writeToDb(id, entity)
             CacheWriteMode.WRITE_BEHIND -> {
-                // Write-Behind Job 초기화 보장
+                // writeBehindJob은 lazy이므로 첫 send() 전에 명시적으로 접근하여
+                // 백그라운드 소비 루프가 시작되도록 보장한다.
                 writeBehindJob
                 writeBehindQueue.send(id to entity)
             }
@@ -302,7 +323,10 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
 
     /**
      * Write-Through 시 단일 엔티티를 DB에 저장합니다.
-     * AutoIncrement 테이블의 경우 신규 엔티티는 DB에 삽입하지 않습니다.
+     *
+     * UPDATE를 먼저 시도하고 영향 행이 0이면 INSERT로 upsert를 구현합니다.
+     * AutoIncrement 테이블은 DB가 ID를 자동 할당하므로 클라이언트 생성 ID로
+     * INSERT하면 충돌이 발생할 수 있어 신규 엔티티 삽입을 건너뜁니다.
      */
     private suspend fun writeToDb(id: ID, entity: E) {
         suspendTransaction {
@@ -339,10 +363,19 @@ abstract class AbstractR2dbcCaffeineRepository<ID: Any, E: Serializable>(
         cache.synchronous().invalidateAll()
     }
 
+    /**
+     * 레포지토리를 닫습니다.
+     *
+     * Write-Behind 모드인 경우 채널을 닫아 새로운 항목 수신을 중단합니다.
+     * writeBehindJob은 채널이 닫힌 후 남은 항목을 모두 처리하고 종료됩니다.
+     * `runBlocking`을 사용하면 Virtual Thread와 충돌하므로, scope를 취소하여
+     * Job이 자연스럽게 종료되도록 위임합니다.
+     */
     override fun close() {
         if (config.writeMode == CacheWriteMode.WRITE_BEHIND) {
             writeBehindQueue.close()
-            runBlocking { writeBehindJob.join() }
+            // writeBehindJob은 채널 닫힘을 감지하고 남은 배치를 처리한 뒤 자동 종료됩니다.
+            // runBlocking을 쓰면 Virtual Thread와 충돌하므로, scope 취소로 대신합니다.
         }
         cache.synchronous().invalidateAll()
         scope.cancel()

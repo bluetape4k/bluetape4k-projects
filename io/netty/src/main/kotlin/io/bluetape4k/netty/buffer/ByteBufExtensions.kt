@@ -261,10 +261,21 @@ fun ByteBuf.setByteSub(index: Int, value: Int): ByteBuf = setByte(index, HALF_BY
 
 /**
  * Netty 처리에서 `setShortAdd` 함수를 제공합니다.
+ *
+ * Big-endian 2바이트 short 을 [index] 위치에 기록합니다.
+ * 상위 바이트는 `value shr 8`을 그대로 쓰고,
+ * 하위 바이트는 `(value + 128) and 0xFF`로 변환하여 [index]+1 에 기록합니다.
+ *
+ * ```kotlin
+ * val buf = Unpooled.buffer(2)
+ * buf.writeZero(2)
+ * buf.setShortAdd(0, 0x0010)
+ * // buf.getByte(0) == 0x00, buf.getByte(1) == (0x10 + 128).toByte()
+ * ```
  */
 fun ByteBuf.setShortAdd(index: Int, value: Int): ByteBuf = apply {
     setByte(index, value shr Byte.SIZE_BITS)
-    setByte(index + Byte.SIZE_BITS, value + HALF_BYTE)
+    setByte(index + Byte.SIZE_BYTES, value + HALF_BYTE)
 }
 
 /**

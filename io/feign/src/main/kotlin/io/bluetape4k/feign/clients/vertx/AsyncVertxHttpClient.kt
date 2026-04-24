@@ -6,9 +6,6 @@ import feign.Response
 import io.bluetape4k.http.vertx.vertxHttpClientOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.vertx.core.http.HttpClient
-import io.vertx.kotlin.coroutines.coAwait
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -17,7 +14,7 @@ import java.util.concurrent.CompletableFuture
  *
  * ## 동작/계약
  * - [execute]는 Vert.x 요청을 [CompletableFuture]로 반환합니다.
- * - close 시 내부 Vert.x client를 코루틴으로 종료합니다.
+ * - close 시 내부 Vert.x client를 비동기로 종료합니다.
  * - 기본 생성 경로는 [vertxHttpClientOf]를 사용합니다.
  *
  * ```kotlin
@@ -66,9 +63,14 @@ class AsyncVertxHttpClient private constructor(
         return vertxClient.sendAsync(feignRequest, feignOptions)
     }
 
+    /**
+     * 내부 Vert.x HTTP 클라이언트를 종료합니다.
+     *
+     * ## 동작/계약
+     * - [HttpClient.close]는 non-blocking 호출입니다.
+     * - runBlocking을 사용하지 않아 코루틴 컨텍스트와 충돌하지 않습니다.
+     */
     override fun close() {
-        runBlocking(Dispatchers.IO) {
-            vertxClient.close().coAwait()
-        }
+        vertxClient.close()
     }
 }

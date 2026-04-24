@@ -6,6 +6,7 @@ import io.bluetape4k.logging.info
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -73,5 +74,34 @@ class InMemoryLogbackAppenderTest {
         } finally {
             localAppender.stop()
         }
+    }
+
+    @Test
+    fun `다중 스레드에서 동시 로깅해도 예외가 발생하지 않는다`() {
+        val threadCount = 8
+        val messagesPerThread = 100
+        val latch = java.util.concurrent.CountDownLatch(threadCount)
+
+        val threads = List(threadCount) { threadIdx ->
+            Thread.ofVirtual().start {
+                repeat(messagesPerThread) { msgIdx ->
+                    log.debug { "thread-$threadIdx msg-$msgIdx" }
+                }
+                latch.countDown()
+            }
+        }
+
+        latch.await(5, java.util.concurrent.TimeUnit.SECONDS).shouldBeTrue()
+        threads.forEach { it.join(1000) }
+
+        // CopyOnWriteArrayList 이므로 동시 접근에 안전해야 함
+        appender.size shouldBeEqualTo threadCount * messagesPerThread
+    }
+
+    @Test
+    fun `stop 호출 후 isStarted 는 false 이다`() {
+        appender.stop()
+        assertTrue(!appender.isStarted)
+        appender.size shouldBeEqualTo 0
     }
 }

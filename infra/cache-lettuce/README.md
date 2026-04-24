@@ -181,3 +181,30 @@ Redis keys are namespaced through the configured cache name and key prefix so mu
 - Use `NearJCache` / `SuspendNearJCache` when JCache standard compatibility is important.
 - Use `LettuceNearCache` / `LettuceSuspendNearCache` when richer stats and resilience features matter.
 - RESP3 `CLIENT TRACKING` is the basis for automatic invalidation.
+
+## Performance / Stability Notes
+
+These contracts are guaranteed across the `LettuceNearCache`, `LettuceSuspendNearCache`, `LettuceAsyncMemoizer`, and `LettuceJCache` implementations.
+
+### `replace(key, oldValue, newValue)` — CAS via EVALSHA + NOSCRIPT fallback
+
+Both sync and suspend NearCache variants execute compare-and-set via a shared Lua script (`NearCacheScripts.COMPARE_AND_SET`). The SHA1 is computed once at class load time and reused for every call.
+
+- Primary path: `EVALSHA <sha1> 1 <key> <old> <new>` — 20-byte script digest instead of the full script body.
+- Fallback path: when the server returns `NOSCRIPT` (e.g., after `SCRIPT FLUSH` or a failover), the client retries with the full `EVAL` payload. Semantics are identical — the second call is transparent to the caller.
+
+### `remove` / `removeAll` / `clearBack` — non-blocking delete
+
+Bulk deletes issue `UNLINK` instead of `DEL`. Large keys are evicted on a background thread in Redis, so the client roundtrip is O(1) regardless of value size. Semantics are otherwise identical to `DEL`.
+
+### `LettuceJCache.close()` — JCache spec compliance
+
+`close()` releases resources (listeners, executors, connection handles) but does **not** delete data. Previously `close()` also ran `clear()`, which violated the JSR-107 contract. If you need data removal on shutdown, call `clear()` explicitly before `close()`.
+
+### `LettuceJCache.putAll` — existence check batching
+
+When `CacheEntryListener` is registered, CREATED/UPDATED event classification used to cost `N × HEXISTS` roundtrips. It now uses a single `HMGET` to fetch the existence bitmap in one shot — O(1) roundtrips regardless of entry count.
+
+### `LettuceAsyncMemoizer` — in-flight race fix
+
+When a promise completes and another invocation for the same key races during cleanup, the old implementation (`inFlight.remove(key)`) could accidentally evict the replacement promise. The new code uses `ConcurrentHashMap.remove(key, promise)` to remove only the exact key+value pair we created.

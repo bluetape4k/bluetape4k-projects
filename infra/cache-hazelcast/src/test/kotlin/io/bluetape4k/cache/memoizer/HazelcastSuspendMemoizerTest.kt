@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
@@ -25,7 +27,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     private val heavyMap: IMap<Int, Int> = newMap("heavy")
 
     override val heavyFunc: suspend (Int) -> Int = heavyMap.suspendMemoizer { x ->
-        delay(100)
+        delay(100.milliseconds)
         x * x
     }
 
@@ -77,7 +79,7 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         val evaluateCount = AtomicInteger(0)
         val memoizer = map.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()
-            delay(100)
+            delay(100.milliseconds)
             key * key
         }
 
@@ -85,6 +87,49 @@ class HazelcastSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
             val results = List(16) { async { memoizer(7) } }.awaitAll()
             results.forEach { it shouldBeEqualTo 49 }
             evaluateCount.get() shouldBeEqualTo 1
+        } finally {
+            map.destroy()
+        }
+    }
+
+    @Test
+    fun `cached value bypasses evaluator`() = runSuspendIO {
+        // IMap에 사전 캐시된 값이 있으면 evaluator를 호출하지 않아야 한다.
+        val map: IMap<Int, Int> = newMap()
+        map.put(9, 81)
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.suspendMemoizer { key ->
+            evaluateCount.incrementAndGet()
+            key * key
+        }
+
+        try {
+            memoizer(9) shouldBeEqualTo 81
+            evaluateCount.get() shouldBeEqualTo 0
+        } finally {
+            map.destroy()
+        }
+    }
+
+    @Test
+    fun `failed evaluation is removed from in-flight and next call re-evaluates`() = runSuspendIO {
+        // 첫 번째 호출에서 evaluator가 실패하면 in-flight에서 제거되어
+        // 다음 호출이 evaluator를 다시 실행할 수 있어야 한다.
+        val map: IMap<Int, Int> = newMap()
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.suspendMemoizer { key ->
+            when (evaluateCount.incrementAndGet()) {
+                1 -> error("boom")
+                else -> key * key
+            }
+        }
+
+        try {
+            assertFailsWith<IllegalStateException> {
+                memoizer(5)
+            }
+            memoizer(5) shouldBeEqualTo 25
+            evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.destroy()
         }

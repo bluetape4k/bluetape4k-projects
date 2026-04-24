@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineSupportTest {
 
@@ -23,14 +24,14 @@ class CoroutineSupportTest {
 
         val defaultScope = CoroutineScope(Dispatchers.Default)
         val u1: Uni<Long> = defaultScope.asUni {
-            delay(100L)
+            delay(100L.milliseconds)
             log.debug { "suspend method 1 실행 in Uni" }
             expected1
         }
 
         val ioScope = CoroutineScope(Dispatchers.IO)
         val u2: Uni<Long> = ioScope.asUni {
-            delay(100L)
+            delay(100L.milliseconds)
             log.debug { "suspend method 2 실행 in Uni" }
             expected2
         }

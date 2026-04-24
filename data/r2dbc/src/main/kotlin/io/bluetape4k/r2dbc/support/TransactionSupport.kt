@@ -51,16 +51,12 @@ suspend inline fun <T: Any> DatabaseClient.withTransactionSuspend(
         }
 }
 
+/**
+ * @deprecated `withTransactionSuspend` 을 대신 사용하세요.
+ * 내부적으로 [withTransactionSuspend] 에 위임합니다.
+ */
 @Deprecated("use withTransactionSuspend", replaceWith = ReplaceWith("withTransactionSuspend(block)"))
 suspend inline fun <T: Any> DatabaseClient.withTransactionSuspending(
     transactionDefinition: TransactionDefinition = TransactionDefinition.withDefaults(),
     crossinline block: suspend (tx: ReactiveTransaction) -> T?,
-): T? {
-    val tm = R2dbcTransactionManager(this.connectionFactory)
-
-    return TransactionalOperator
-        .create(tm, transactionDefinition)
-        .executeAndAwait {
-            block(it)
-        }
-}
+): T? = withTransactionSuspend(transactionDefinition, block)

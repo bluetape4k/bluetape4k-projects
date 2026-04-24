@@ -149,6 +149,11 @@ suspend inline fun SesClient.createTemplate(template: Template): CreateTemplateR
  * @return [Template] 템플릿 정보, 없으면 null
  */
 suspend inline fun SesClient.getTemplateOrNull(templateName: String): Template? =
-    runCatching {
+    // WHY: runCatching + getOrNull()은 CancellationException을 삼키므로 suspend에서 직접 try-catch 사용
+    try {
         getTemplate { this.templateName = templateName }.template
-    }.getOrNull()
+    } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        null
+    }

@@ -2,10 +2,11 @@ package io.bluetape4k.redis.lettuce.filter
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.redis.lettuce.awaitSuspending
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import io.bluetape4k.redis.lettuce.awaitSuspending
 
 /**
  * 삭제를 지원하는 Redis 기반 Cuckoo Filter 코루틴 구현입니다.
@@ -33,7 +34,9 @@ class LettuceSuspendCuckooFilter(
 
     private val bucketsKey = "$filterName:buckets"
     private val configKey = "$filterName:config"
-    private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
+
+    // 개선: getter → final field 로 변경 (매 호출 connection.async() 호출 제거).
+    private val asyncCommands: RedisAsyncCommands<String, String> = connection.async()
 
     /** 전체 버킷 수입니다. */
     val numBuckets: Long = (options.capacity + options.bucketSize - 1) / options.bucketSize
@@ -86,8 +89,10 @@ class LettuceSuspendCuckooFilter(
      */
     suspend fun insert(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
-        return asyncCommands.eval<Long>(
-            CuckooFilterScripts.INSERT,
+        // 개선: EVALSHA 우선, NOSCRIPT 발생 시 원문 전송 fallback.
+        return RedisScriptRunner.runSuspending<Long>(
+            asyncCommands,
+            CuckooFilterScripts.INSERT_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(bucketsKey, configKey),
             fp.toString(),
@@ -96,7 +101,7 @@ class LettuceSuspendCuckooFilter(
             options.bucketSize.toString(),
             options.maxIterations.toString(),
             numBuckets.toString()
-        ).awaitSuspending() == 1L
+        ) == 1L
     }
 
     /**
@@ -112,14 +117,15 @@ class LettuceSuspendCuckooFilter(
      */
     suspend fun contains(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
-        return asyncCommands.eval<Long>(
-            CuckooFilterScripts.CONTAINS,
+        return RedisScriptRunner.runSuspending<Long>(
+            asyncCommands,
+            CuckooFilterScripts.CONTAINS_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(bucketsKey, configKey),
             fp.toString(),
             i1.toString(),
             i2.toString()
-        ).awaitSuspending() == 1L
+        ) == 1L
     }
 
     /**
@@ -133,14 +139,15 @@ class LettuceSuspendCuckooFilter(
      */
     suspend fun delete(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
-        return asyncCommands.eval<Long>(
-            CuckooFilterScripts.DELETE,
+        return RedisScriptRunner.runSuspending<Long>(
+            asyncCommands,
+            CuckooFilterScripts.DELETE_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(bucketsKey, configKey),
             fp.toString(),
             i1.toString(),
             i2.toString()
-        ).awaitSuspending() == 1L
+        ) == 1L
     }
 
     /**

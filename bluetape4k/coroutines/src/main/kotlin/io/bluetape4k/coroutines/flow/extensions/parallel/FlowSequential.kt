@@ -1,14 +1,15 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
-import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
-import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.uninitialized
-import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
+import kotlin.coroutines.coroutineContext
 
 internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractFlow<T>() {
 
@@ -17,86 +18,66 @@ internal class FlowSequential<T>(private val source: ParallelFlow<T>): AbstractF
     override suspend fun collectSafely(collector: FlowCollector<T>) {
         coroutineScope {
             val n = source.parallelism
-            val resumeCollector = Resumable()
-            val collectors = Array(n) { RailCollector<T>(resumeCollector) }
-            val state = FlowSequentialState()
 
-            launch {
+            // Per-rail channels. Each rail writes to its own channel instead of
+            // contending on a single shared output channel. The consumer uses
+            // `select` to fairly multiplex across the N channels.
+            val perRailChannels = Array(n) { Channel<T>(capacity = 64) }
+            val writers = Array<FlowCollector<T>>(n) { i -> ChannelWriter(perRailChannels[i]) }
+
+            val producer = launch {
                 try {
-                    source.collect(*collectors)
-                    state.done.value = true
-                    resumeCollector.resume()
+                    source.collect(*writers)
+                    perRailChannels.forEach { it.close() }
                 } catch (ex: Throwable) {
-                    state.error.value = ex
-                    state.done.value = true
-                    resumeCollector.resume()
+                    perRailChannels.forEach { it.close(ex) }
                 }
             }
 
-            while (true) {
-                val d = state.done.value
-                var empty = true
+            try {
+                // Keep a mutable list of still-open rails. When a rail closes we remove it.
+                val activeChannels = perRailChannels.toMutableList()
+                while (activeChannels.isNotEmpty()) {
+                    // select returns either an emitted value (Result.success) or
+                    // the closed marker (Result.failure or closed) per channel.
+                    var receivedValue: T? = null
+                    var receivedValuePresent = false
+                    var closedChannel: Channel<T>? = null
 
-                collectors.forEach { rail ->
-                    if (rail.hasValue) {
-                        empty = false
-                        val v = rail.value
-
-                        @Suppress("UNCHECKED_CAST")
-                        rail.value = null as T
-                        rail.hasValue = false
-
-                        try {
-                            collector.emit(v)
-                        } catch (ex: Throwable) {
-                            collectors.forEach {
-                                it.error = ex
-                                it.resume()
+                    select<Unit> {
+                        for (ch in activeChannels) {
+                            ch.onReceiveCatching { result ->
+                                if (result.isClosed) {
+                                    // Propagate any exception from the producer.
+                                    val cause = result.exceptionOrNull()
+                                    if (cause != null) throw cause
+                                    closedChannel = ch
+                                } else {
+                                    receivedValue = result.getOrThrow()
+                                    receivedValuePresent = true
+                                }
                             }
-                            throw ex
                         }
-                        rail.resume()
-                        return@forEach
+                    }
+
+                    if (receivedValuePresent) {
+                        coroutineContext.ensureActive()
+                        @Suppress("UNCHECKED_CAST")
+                        collector.emit(receivedValue as T)
+                    } else if (closedChannel != null) {
+                        activeChannels.remove(closedChannel)
                     }
                 }
-
-                if (d && empty) {
-                    val ex = state.error.value
-                    ex?.let { throw it }
-                    return@coroutineScope
-                }
-                if (empty) {
-                    resumeCollector.await()
-                }
+            } catch (ex: Throwable) {
+                producer.cancel()
+                throw ex
             }
         }
     }
 
-    private class FlowSequentialState {
-        val done = atomic(false)
-        val error = atomic<Throwable?>(null)
-    }
-
-    private class RailCollector<T>(private val resumeCollector: Resumable): Resumable(), FlowCollector<T> {
-
-        var value: T = uninitialized()
-
-        @Volatile
-        var hasValue: Boolean = false
-
-        @Volatile
-        var error: Throwable? = null
-
+    private class ChannelWriter<T>(private val channel: SendChannel<T>): FlowCollector<T> {
         override suspend fun emit(value: T) {
-            this.value = value
-            hasValue = true
-            resumeCollector.resume()
-
-            await()
-
-            error?.let {
-                throw FlowOperationException("Error occurred while emitting value. $value", it)
-            }
+            channel.send(value)
         }
     }
 }

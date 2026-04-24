@@ -11,6 +11,7 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
+import kotlin.test.assertFailsWith
 
 @TempFolderTest
 class ImageScalerTest: AbstractImageTest() {
@@ -66,6 +67,32 @@ class ImageScalerTest: AbstractImageTest() {
             }
 
             scaled.writeJpg("$BASE_PATH/cafe_proportional.jpg")
+            scaled.write(ImageFormat.JPG, tempFolder.createFile())
+        }
+    }
+
+    @Test
+    fun `ratio가 0 이하이면 예외가 발생한다`() {
+        getImage(CAFE_JPG).use { input ->
+            val image = ImageIO.read(input)
+
+            assertFailsWith<IllegalArgumentException> {
+                image.scale(0.0)
+            }
+            assertFailsWith<IllegalArgumentException> {
+                image.scale(-0.5)
+            }
+        }
+    }
+
+    @Test
+    fun `이미지를 2배로 확대한다`(tempFolder: TempFolder) {
+        getImage(CAFE_JPG).use { input ->
+            val image = ImageIO.read(input)
+            val scaled = image.scale(2.0)
+
+            scaled.width shouldBeEqualTo image.width * 2
+            scaled.height shouldBeEqualTo image.height * 2
             scaled.write(ImageFormat.JPG, tempFolder.createFile())
         }
     }

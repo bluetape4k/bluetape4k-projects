@@ -19,24 +19,6 @@ import java.util.*
 fun dateOf(epochMillis: Long = System.currentTimeMillis()): Date = Date(epochMillis)
 
 /**
- * 두 [Date]의 시간 값을 더합니다.
- *
- * ```kotlin
- * val base = dateOf(1000L)
- * val other = dateOf(500L)
- * val result = base + other  // Date(1500L)
- * ```
- *
- * @param that 더할 [Date]
- * @return 두 시간을 합한 새로운 [Date]
- */
-@Deprecated(
-    message = "두 Date 값을 더하는 것은 의미론적으로 올바르지 않습니다. Duration을 사용하세요.",
-    level = DeprecationLevel.WARNING
-)
-operator fun Date.plus(that: Date): Date = Date(this.time + that.time)
-
-/**
  * [Date]에 밀리초를 더합니다.
  *
  * ```kotlin
@@ -127,24 +109,6 @@ operator fun Date.minus(duration: Duration): Date = Date(this.time - duration.to
  * @return [Period]의 일 수를 뺀 새로운 [Date]
  */
 operator fun Date.minus(period: Period): Date = Date(this.time - period.inWholeDaysUtc() * MillisPerDay)
-
-/**
- * 두 [Timestamp]의 시간 값을 더합니다.
- *
- * ```kotlin
- * val base = Timestamp(1_000L)
- * val other = Timestamp(500L)
- * val result = base + other  // Timestamp(1_500L)
- * ```
- *
- * @param that 더할 [Timestamp]
- * @return 두 시간을 합한 새로운 [Timestamp]
- */
-@Deprecated(
-    message = "두 Timestamp 값을 더하는 것은 의미론적으로 올바르지 않습니다. Duration을 사용하세요.",
-    level = DeprecationLevel.WARNING
-)
-operator fun Timestamp.plus(that: Timestamp): Timestamp = Timestamp(this.time + that.time)
 
 /**
  * [Timestamp]에 밀리초를 더합니다.

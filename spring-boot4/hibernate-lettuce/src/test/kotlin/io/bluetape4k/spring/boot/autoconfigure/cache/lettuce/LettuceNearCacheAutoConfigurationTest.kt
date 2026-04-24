@@ -155,4 +155,43 @@ class LettuceNearCacheAutoConfigurationTest {
                 context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
             }
     }
+
+    @Test
+    fun `useResp3=false 설정이 Hibernate properties에 반영된다`() {
+        contextRunner
+            .withPropertyValues("bluetape4k.cache.lettuce-near.use-resp3=false")
+            .run { context ->
+                val customizer = context.getBean<HibernatePropertiesCustomizer>()
+                val props = mutableMapOf<String, Any>()
+                customizer.customize(props)
+
+                props["hibernate.cache.lettuce.use_resp3"] shouldBeEqualTo "false"
+            }
+    }
+
+    @Test
+    fun `codec 설정이 Hibernate properties에 반영된다`() {
+        contextRunner
+            .withPropertyValues("bluetape4k.cache.lettuce-near.codec=zstdfory")
+            .run { context ->
+                val customizer = context.getBean<HibernatePropertiesCustomizer>()
+                val props = mutableMapOf<String, Any>()
+                customizer.customize(props)
+
+                props["hibernate.cache.lettuce.codec"] shouldBeEqualTo "zstdfory"
+            }
+    }
+
+    @Test
+    fun `local maxSize 설정이 Hibernate properties에 반영된다`() {
+        contextRunner
+            .withPropertyValues("bluetape4k.cache.lettuce-near.local.max-size=50000")
+            .run { context ->
+                val customizer = context.getBean<HibernatePropertiesCustomizer>()
+                val props = mutableMapOf<String, Any>()
+                customizer.customize(props)
+
+                props["hibernate.cache.lettuce.local.max_size"] shouldBeEqualTo "50000"
+            }
+    }
 }

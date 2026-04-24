@@ -23,6 +23,12 @@ package io.bluetape4k.collections
  *
  * @return 컬렉션 원소를 담은 런타임 타입 배열
  */
+/**
+ * T가 컴파일 타임에 알려진 경우 `toTypedArray()`를 직접 사용하세요.
+ * 이 함수는 타입 소거(type erasure) 컨텍스트 — 즉, `reified`를 쓸 수 없는 제네릭 함수 내부 —
+ * 에서 첫 번째 원소의 런타임 타입을 기반으로 올바른 배열 타입을 생성합니다.
+ * 빈 컬렉션의 경우 `Array<Any>`로 생성됩니다.
+ */
 @Suppress("UNCHECKED_CAST")
 fun <T: Any> Collection<T>.toVarargArray(): Array<T> {
     val componentType = firstOrNull()?.javaClass ?: Any::class.java

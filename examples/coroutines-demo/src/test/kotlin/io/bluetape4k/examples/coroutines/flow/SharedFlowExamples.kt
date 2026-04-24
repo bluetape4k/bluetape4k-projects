@@ -19,6 +19,7 @@ import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 복수의 collector 에게 동시에 데이터를 전달하는 SharedFlow 를 사용하는 예제
@@ -69,7 +70,7 @@ class SharedFlowExamples {
                     cancelAndConsumeRemainingEvents()
                 }
             }
-            delay(100)
+            delay(100.milliseconds)
 
             // 복수의 collector 들도 모두 같은 데이터를 수신한다.
             collected1.get() shouldBeEqualTo 2
@@ -120,7 +121,7 @@ class SharedFlowExamples {
                 }
             }
 
-            delay(100)
+            delay(100.milliseconds)
             collectCounter1.get() shouldBeEqualTo 2
             collectCounter2.get() shouldBeEqualTo 2
 
@@ -151,7 +152,7 @@ class SharedFlowExamples {
     @Test
     fun `shareIn - change flow to shared flow`() = runTest {
         val flow = flowOf("A", "B", "C")
-            .onEach { delay(1000) }
+            .onEach { delay(1000.milliseconds) }
             .log("source")
 
         val sharedFlow = flow.shareIn(this, started = SharingStarted.Eagerly, replay = 0)
@@ -160,25 +161,25 @@ class SharedFlowExamples {
         val counter2 = AtomicInteger(0)
         val counter3 = AtomicInteger(0)
 
-        advanceTimeBy(500)
+        advanceTimeBy(500.milliseconds)
         launch {
             sharedFlow.log("#1")
                 .collect { counter1.incrementAndGet() }
         }
 
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         launch {
             sharedFlow.log("#2")
                 .collect { counter2.incrementAndGet() }
         }
 
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         launch {
             sharedFlow.log("#3")
                 .collect { counter3.incrementAndGet() }
         }
 
-        advanceTimeBy(5000)
+        advanceTimeBy(5000.milliseconds)
 
         counter1.get() shouldBeEqualTo 3
         counter2.get() shouldBeEqualTo 2

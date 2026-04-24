@@ -23,9 +23,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             repeatPredicate = { report -> report.context.get<Int>("count")!! < 3 },
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -41,9 +39,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             maxIterations = 5,
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 5
     }
 
@@ -60,9 +56,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             repeatPredicate = { report -> report.context.get<Boolean>("done") != true },
         )
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 4
     }
 
@@ -79,9 +73,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             maxIterations = 100,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Aborted::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Aborted::class
         counter.get() shouldBeEqualTo 2
     }
 
@@ -98,9 +90,7 @@ class RepeatWorkFlowTest: AbstractWorkflowTest() {
             maxIterations = 100,
         )
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Cancelled::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
         counter.get() shouldBeEqualTo 3
     }
 }

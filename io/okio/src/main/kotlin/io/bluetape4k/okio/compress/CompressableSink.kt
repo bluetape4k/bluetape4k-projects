@@ -108,7 +108,11 @@ open class StreamingCompressSink(
             return
         }
         closed = true
-        compressingStream.close()
+        try {
+            compressingStream.close()
+        } finally {
+            runCatching { bufferedDelegate.close() }
+        }
     }
 
     private fun ensureOpen() {

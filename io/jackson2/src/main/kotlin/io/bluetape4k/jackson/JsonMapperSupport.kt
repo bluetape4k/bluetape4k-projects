@@ -245,3 +245,17 @@ fun <T: Any> ObjectMapper.prettyWriteAsBytes(graph: T?): ByteArray? =
     ReplaceWith("writeAsString(jsonNode)"),
 )
 fun ObjectMapper.writeTree(jsonNode: JsonNode): String = writeAsString(jsonNode)
+
+/**
+ * 등록된 Jackson 모듈의 ID 목록을 [List]로 반환합니다.
+ *
+ * Jackson 2의 [ObjectMapper.getRegisteredModuleIds]는 [Set]를 반환하므로,
+ * 이 확장 함수는 편의상 [List]로 변환하여 반환합니다.
+ *
+ * ```kotlin
+ * val ids = mapper.registeredModuleIdList()
+ * // ids.isNotEmpty() == true
+ * ```
+ */
+fun ObjectMapper.registeredModuleIdList(): List<Any> =
+    registeredModuleIds.toList()

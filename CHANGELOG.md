@@ -4,7 +4,202 @@
 
 ---
 
-## [Unreleased] — 1.7.0-SNAPSHOT
+## [Unreleased]
+
+<!-- 1.7.0 이후 변경 사항을 이곳에 기록합니다. -->
+
+---
+
+## [1.7.0] — 2026-04-24
+
+### Added
+
+#### io/csv — univocity-parsers 제거, 자체 RFC 4180 엔진으로 교체 ([`c8ad4f97e`](https://github.com/bluetape4k/bluetape4k-projects/commit/c8ad4f97e))
+
+`bluetape4k-csv` v1.5.0부터 내부 파서/라이터 엔진이 univocity-parsers 에서 자체 구현으로 교체됩니다.
+
+**V1 — 기존 API 유지 (설정 타입만 변경)**
+
+| 변경 전 (univocity) | 변경 후 (자체 엔진) |
+|---------------------|-------------------|
+| `CsvParserSettings` | `CsvSettings` |
+| `TsvParserSettings` | `TsvSettings` |
+| `CsvWriterSettings` | `CsvSettings` |
+| `TsvWriterSettings` | `TsvSettings` |
+
+- `CsvLexer` / `TsvLexer`: RFC 4180 문자 단위 상태 기계 렉서, BOM 감지·제거, CRLF/LF/CR 지원
+- `DelimitedWriter` → `CsvLineWriter` / `TsvLineWriter`: null → 인용 없는 빈 필드, `""` → `""` 인용 출력 (RFC 4180 roundtrip 보장)
+- `SuspendCsvRecordReader` / `SuspendTsvRecordReader`: `channelFlow + ensureActive()` 기반 코루틴 취소 협력
+- `SuspendCsvRecordWriter` / `SuspendTsvRecordWriter`: `Mutex` 기반 동시 쓰기 보호
+- `Record` 공개 인터페이스 (`io.bluetape4k.csv.Record`) — `com.univocity.parsers.common.record.Record` 대체
+
+**V2 — Flow DSL API (신규, `io.bluetape4k.csv.v2`)**
+
+- `CsvRow`: 불변 data class 레코드 (`getString`, `getInt`, `getLong`, `getBoolean`, …)
+- `FlowCsvReader` / `FlowCsvReaderImpl`: `csvReader { } / tsvReader { }` DSL, `read(InputStream)` / `readFile(Path)` → `Flow<CsvRow>`
+- `FlowCsvWriter` / `FlowCsvWriterImpl`: `csvWriter(writer) { quoteAll = true } / tsvWriter(writer) { }` DSL, `writeAll(Flow<Iterable<*>>)`, `Mutex` 동시성 보호
+- `Record.toCsvRow()` (public): V1 Record → V2 CsvRow 변환
+
+**마이그레이션**: [`io/csv/MIGRATION.md`](io/csv/MIGRATION.md) 참조
+
+#### core — `virtualFutureOfNullable` 추가 ([`ce48b684b`](https://github.com/bluetape4k/bluetape4k-projects/commit/ce48b684b))
+
+`virtualFutureOf`가 non-null 타입만 지원하던 한계를 해소합니다.
+
+- `virtualFutureOfNullable<V> { }` — Virtual Thread 위에서 nullable 결과를 반환하는 `CompletableFuture<V?>` 생성
+
+#### CI/CD — GitHub Actions 파이프라인 구성 ([`ce48b684b`](https://github.com/bluetape4k/bluetape4k-projects/commit/ce48b684b))
+
+- `ci.yml`: push/PR on `develop`·`main` 트리거, 8개 job (validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status)
+- `publish-snapshot.yml`: `develop` 브랜치 push 시 Maven Central Snapshots 자동 배포 (`CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `SIGNING_KEY*`)
+
+#### infra/redisson + infra/lettuce — JSON Codec 추가 ([`f3fa8d422`](https://github.com/bluetape4k/bluetape4k-projects/commit/f3fa8d422), [`a27926053`](https://github.com/bluetape4k/bluetape4k-projects/commit/a27926053))
+
+Jackson 3.x / Fastjson2 / Lettuce 전용 JSON 직렬화 Codec을 추가했습니다.
+
+**infra/redisson**
+- `Jackson3Codec`: Jackson 3.x 기반 JSON Codec
+- `Fastjson2Codec`: `[4-byte classNameLen]+[className UTF-8]+[JSONB bytes]` 포맷, pre-instantiation 보안 검증(`allowedPackagePrefixes`), 실패 시 fallback(`ForyCodec`) 자동 전환
+- `RedissonCodecs`에 `jackson3` / `fastjson2` 팩토리 상수 추가
+- `RedissonCodecBenchmark` JMH 벤치마크 추가 (JSON vs Binary vs Compressed 비교)
+
+**infra/lettuce**
+- `LettuceJsonCodec` + `LettuceJsonCodecs` 신규 구현
+- `LettuceJsonCodecs.jackson3<V>()` / `fastjson2<V>()` 팩토리 메서드
+- `LettuceCodecBenchmark` JMH 벤치마크 추가
+
+#### utils/lingua — 모듈 승격 ([`b149fa793`](https://github.com/bluetape4k/bluetape4k-projects/commit/b149fa793))
+
+`bluetape4k-lingua` 모듈이 `utils/lingua`로 정식 승격되었습니다.
+
+- Nightly CI 파이프라인(`test-misc`) 에 `lingua` 모듈 추가
+- CodeRabbit 코드 리뷰 워크플로 추가 (`.coderabbit.yaml`)
+
+#### testing/testcontainers — Elasticsearch/Pulsar JVM 힙 크기 제한 환경 변수 추가 ([`d1135bc1`](https://github.com/bluetape4k/bluetape4k-projects/commit/d1135bc1))
+
+Docker OOMKilled 방지를 위해 JVM 힙 크기를 환경 변수로 제한합니다.
+
+- `ElasticsearchServer` / `ElasticsearchOssServer`: `ES_JAVA_OPTS=-Xms512m -Xmx512m` 추가
+- `PulsarServer`: `PULSAR_MEM=-Xms256m -Xmx256m` 추가
+
+#### testing/mock-webflux-server — Spring Boot 4 WebFlux 기반 Mock 서버 신규 추가 ([`f189a1e5b`](https://github.com/bluetape4k/bluetape4k-projects/commit/f189a1e5b))
+
+Spring Boot 4 + WebFlux + Kotlin Coroutines 기반의 비동기 Mock HTTP 서버.
+
+- `BluetapeWebfluxServer`: `bluetape4k/mock-webflux-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
+- 기존 `mock-web-server`(MVC/Virtual Thread)와 병행 제공
+- `httpbinUrl`, `jsonplaceholderUrl`, `pingUrl` 프로퍼티 제공
+- Jib 빌드: `arm64` / `amd64` 호스트 아키텍처 자동 감지
+
+#### testing/mock-web-server — httpbin `/delay/{seconds}` 소수점 지원 ([`acd16ee7`](https://github.com/bluetape4k/bluetape4k-projects/commit/acd16ee7))
+
+- `/delay/{seconds}` 경로가 `0.5`와 같은 소수점 값을 수신하여 밀리초 단위 delay 가능
+- `Double` 파싱으로 교체하여 `1000`, `0.5`, `1.5` 모두 지원
+
+### Fixed
+
+#### testing/testcontainers — graphdb 서버 Docker 이미지 TAG 고정 버전으로 수정 ([`f4a3c700e`](https://github.com/bluetape4k/bluetape4k-projects/commit/f4a3c700e))
+
+`latest` 또는 부동(floating) major 버전 태그를 사용하던 Graph DB 서버를 특정 버전으로 고정합니다.
+
+| 서버 | 이전 TAG | 이후 TAG |
+|------|----------|----------|
+| `Neo4jServer` | `5` (floating major) | `5.26.24` |
+| `MemgraphServer` | `3.2.1` | `3.9.0` |
+| `PostgreSQLAgeServer` | `latest` | `release_PG17_1.6.0` |
+
+- `PostgreSQLAgeServer` KDoc 불일치 수정: 주석의 `PG17_latest` → `release_PG17_1.6.0`
+- `README.md` / `README.ko.md`: Graph DB 서버 Docker 이미지 버전 테이블 추가
+
+#### infra/cache-lettuce — CLIENT TRACKING 경쟁 조건 수정 ([`5b806466`](https://github.com/bluetape4k/bluetape4k-projects/commit/5b806466))
+
+`LettuceNearCache` / `LettuceSuspendNearCache`의 `registerTrackingKey` / `registerTrackingKeys`가 fire-and-forget 방식(await 없음)이어서 외부 SET이 tracking GET보다 먼저 Redis에 도달할 경우 invalidation 메시지가 발송되지 않는 경쟁 조건을 수정했습니다.
+
+- `registerTrackingKey` / `registerTrackingKeys`: fire-and-forget → `await` 방식으로 변경
+
+### Changed
+
+#### 빌드 — Gradle 빌드 출력을 표준 모듈별 `build/` 디렉토리로 변경 ([`fe920ba2`](https://github.com/bluetape4k/bluetape4k-projects/commit/fe920ba2))
+
+- 루트 공유 `build/` 대신 각 모듈 기본 `layout.buildDirectory`(`build/`) 사용
+- kosogor 플러그인 제거 후 표준 Gradle 빌드 출력 경로로 대체 ([`c129b11f`](https://github.com/bluetape4k/bluetape4k-projects/commit/c129b11f))
+
+#### CI/CD — Codecov → Coveralls 커버리지 리포터 교체 ([`d6b1d7de`](https://github.com/bluetape4k/bluetape4k-projects/commit/d6b1d7de))
+
+- `codecov/codecov-action` 제거, `coverallsapp/github-action` 으로 전환
+- README 뱃지: Kotlin, JVM 21, MIT 라이선스 뱃지 추가
+
+#### CI/CD — Nightly Tests를 ci.yml 테스트 구조 기반으로 재편 ([`3aadab9f`](https://github.com/bluetape4k/bluetape4k-projects/commit/3aadab9f))
+
+- `nightly-tests.yml`: `ci.yml`과 동일한 job 구조로 통일, `build` job 추가
+- `test-aws` / `test-testcontainers` job은 Nightly 전용으로 유지
+- `test-misc` → `test-misc` + `test-testcontainers` 분리
+
+#### 의존성 — kotlin-stdlib 2.3.21 업그레이드 ([`1c5c8bce`](https://github.com/bluetape4k/bluetape4k-projects/commit/1c5c8bce))
+
+- `kotlin-stdlib` 2.3.20 → 2.3.21
+
+### Performance
+
+#### bluetape4k/coroutines — Flow 처리량 +32.7% ([`549fa341`](https://github.com/bluetape4k/bluetape4k-projects/commit/549fa341))
+
+- `parallelFlowMap`: per-rail Channel + `select` 기반 fan-in 재설계 (+506%)
+- `AsyncFlow`: `LazyDeferred` atomic 제거, `start()` → `Deferred<T>` 직접 반환으로 단순화
+- JMH 벤치마크: geomean 처리량 +32.7% 개선
+
+#### data/exposed-jdbc — JMH 처리량 +78.9% ([`6df470a9`](https://github.com/bluetape4k/bluetape4k-projects/commit/6df470a9))
+
+- JDBC 배치 insert/update 쿼리 최적화 (25,401 → 45,431 ops/s)
+- HikariCP 풀 설정 및 커넥션 재사용 개선
+
+#### io — ForyBinarySerializer.fast() + KryoBinarySerializer.fast() 최적화 (+97%) ([`126ab849`](https://github.com/bluetape4k/bluetape4k-projects/commit/126ab849))
+
+- `ForyBinarySerializer.fast()`: `SCHEMA_CONSISTENT` + 비동기 컴파일 비활성화로 처리량 향상
+- `KryoBinarySerializer.fast()`: `KryoProvider.createFastKryo()` + Output 풀 재사용으로 처리량 +97%
+
+#### data — R2DBC 풀 과부하 튜닝 ([`07d6d823`](https://github.com/bluetape4k/bluetape4k-projects/commit/07d6d823))
+
+- R2DBC 연결 풀 `initialSize` / `maxSize` / `maxIdleTime` 설정 최적화 가이드 고정 (#98)
+
+### Removed
+
+#### data/exposed-jasypt — 모듈 전체 삭제 ([`120c1f5a2`](https://github.com/bluetape4k/bluetape4k-projects/commit/120c1f5a2))
+
+jasypt 기반 암호화 컬럼 타입을 `exposed-tink`(Google Tink AEAD/DAEAD)로 완전 대체합니다.
+
+- `JasyptVarCharColumnType`, `JasyptBinaryColumnType`, `JasyptBlobColumnType` 및 테스트 전체 삭제
+- `settings.gradle.kts`에서 `bluetape4k-exposed-jasypt` 모듈 제외
+
+#### io/crypto — 모듈 전체 삭제 ([`120c1f5a2`](https://github.com/bluetape4k/bluetape4k-projects/commit/120c1f5a2))
+
+jasypt(`org.jasypt.*`) 기반 `Encryptor`, `Digester` 등 암호화 유틸리티 모듈을 삭제합니다. 암호화는 `io/tink`(`TinkEncryptor`) 사용을 권장합니다.
+
+- `Libs.jasypt` 상수 제거
+- 5개 모듈(`okio`, `jackson2`, `jackson3`, `io`, `exposed-jdbc-tests`)에서 `bluetape4k-crypto` compileOnly 의존성 제거
+- `data/exposed-core`의 deprecated `EncryptedVarCharColumnType` 등 3개 클래스 삭제
+
+#### core — `@Deprecated` 항목 전수 제거 ([`da4b6dd1f`](https://github.com/bluetape4k/bluetape4k-projects/commit/da4b6dd1f), [`3d8bef82f`](https://github.com/bluetape4k/bluetape4k-projects/commit/3d8bef82f))
+
+`bluetape4k-core` main source에서 `@Deprecated` 항목 26개를 모두 제거했습니다 (-665 lines).
+
+| 파일 | 제거 항목 |
+|------|----------|
+| `Systemx` | `JAVA_CLASS_VERION`(오타), `processCount`, `javaIoTmpDir`, `isJava6`~`isJava10` |
+| `TimeSpec` | `MILLIS_IN_DAY`, `MILLIS_IN_HOUR`, `MILLIS_IN_MINUTE` |
+| `DateSupport` | `Date.plus(Date)`, `Timestamp.plus(Timestamp)` |
+| `StringSupport` | `ifEmpty`(nullable), `asStringList`, `redact` |
+| `NumberSupport` | `coerce` |
+| `AutoCloseableSupport` | `using` infix |
+| `EnumSupport` | `Class<E>`/`KClass<E>` 기반 함수 8개 |
+| `ExecutorSupport` | deprecated `VirtualThreadExecutor` |
+| `StructuredTaskScopeSupport` | `structuredTaskScopeFirst` |
+| `ProgressionSupport` | `IntProgression.grouped()`, `LongProgression.grouped()` |
+| `IterableSupport` / `SequenceSupport` | `tryMap` |
+| `QueueSupport` | `linkedBlokcingDequeOf`·`QueueOf` 오타 함수 4개 |
+| `AnySupport` | `areEquals` |
+| `ArraySupport` | `removeLastValue` |
+| `ApacheConstructorUtils` | `getAccessbleConstructor`(오타) |
+| `images/ImageInputStream·OutputStream` | `using` deprecated |
 
 ---
 
@@ -30,7 +225,8 @@ Jackson 버전 불일치(`spring-boot4`의 `DefaultRetrofitClientConfiguration`�
 
 ### Added
 
-#### testing/mock-server — `bluetape4k-mock-server` 신규 모듈 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
+#### testing/mock-web-server — `bluetape4k-mock-web-server` 신규 모듈 ([
+`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
 
 Spring Boot 4 + Java 25 + Virtual Threads 기반의 자체 내장 Mock HTTP 서버.
 기존 외부 의존(`httpbin.org`, `jsonplaceholder.typicode.com`)을 컨테이너화된 로컬 서버로 대체합니다.
@@ -44,13 +240,14 @@ Spring Boot 4 + Java 25 + Virtual Threads 기반의 자체 내장 Mock HTTP 서�
 
 #### testing/testcontainers — `BluetapeHttpServer` 추가, `HttpbinServer` 대체 ([`a340e49b4`](https://github.com/bluetape4k/bluetape4k-projects/commit/a340e49b4))
 
-- `BluetapeHttpServer`: `bluetape4k/mock-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
+- `BluetapeHttpServer`: `bluetape4k/mock-web-server` Docker 이미지를 기반으로 하는 Testcontainers 래퍼
 - `httpbinUrl`, `jsonplaceholderUrl`, `pingUrl` 프로퍼티 제공
 - 기존 `HttpbinServer`, `HttpbinHttp2Server` 및 관련 테스트 제거
 
 ### Changed
 
-#### testing/mock-server — 전체 모듈 `BluetapeHttpServer` 마이그레이션 ([`22986785c`](https://github.com/bluetape4k/bluetape4k-projects/commit/22986785c))
+#### testing/mock-web-server — 전체 모듈 `BluetapeHttpServer` 마이그레이션 ([
+`22986785c`](https://github.com/bluetape4k/bluetape4k-projects/commit/22986785c))
 
 io/feign, io/retrofit2, io/http, infra/micrometer, spring-boot3/4 등 외부 httpbin에 의존하던 테스트를 모두 `BluetapeHttpServer`로 전환하였습니다.
 

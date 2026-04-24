@@ -7,7 +7,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
-import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -51,12 +50,7 @@ class ExposedJdbcBatchReaderTest : AbstractBatchJdbcTest() {
         withBatchTables(testDB) {
             val results = mutableListOf<SourceRecord>()
             runSuspendIO {
-                transaction(testDB.db!!) {
-                    BatchSourceTable.batchInsert((1..25).toList()) { i ->
-                        this[BatchSourceTable.name] = "item-$i"
-                        this[BatchSourceTable.value] = i
-                    }
-                }
+                transaction(testDB.db!!) { insertSources(25) }
                 val reader = makeReader(testDB, pageSize = 10)
                 reader.open()
                 var item = reader.read()
@@ -96,12 +90,7 @@ class ExposedJdbcBatchReaderTest : AbstractBatchJdbcTest() {
         withBatchTables(testDB) {
             var count = 0
             runSuspendIO {
-                transaction(testDB.db!!) {
-                    BatchSourceTable.batchInsert((1..20).toList()) { i ->
-                        this[BatchSourceTable.name] = "item-$i"
-                        this[BatchSourceTable.value] = i
-                    }
-                }
+                transaction(testDB.db!!) { insertSources(20) }
                 val reader = makeReader(testDB, pageSize = 10)
                 reader.open()
                 while (reader.read() != null) count++
@@ -121,12 +110,7 @@ class ExposedJdbcBatchReaderTest : AbstractBatchJdbcTest() {
             val results2 = mutableListOf<SourceRecord>()
 
             runSuspendIO {
-                transaction(testDB.db!!) {
-                    BatchSourceTable.batchInsert((1..30).toList()) { i ->
-                        this[BatchSourceTable.name] = "item-$i"
-                        this[BatchSourceTable.value] = i
-                    }
-                }
+                transaction(testDB.db!!) { insertSources(30) }
                 // 첫 10개 읽기 후 checkpoint 저장
                 val reader = makeReader(testDB, pageSize = 10)
                 reader.open()
@@ -163,12 +147,7 @@ class ExposedJdbcBatchReaderTest : AbstractBatchJdbcTest() {
         withBatchTables(testDB) {
             var cp: Any? = null
             runSuspendIO {
-                transaction(testDB.db!!) {
-                    BatchSourceTable.batchInsert((1..5).toList()) { i ->
-                        this[BatchSourceTable.name] = "item-$i"
-                        this[BatchSourceTable.value] = i
-                    }
-                }
+                transaction(testDB.db!!) { insertSources(5) }
                 val reader = makeReader(testDB, pageSize = 5)
                 reader.open()
                 // 커밋 전 checkpoint는 null
@@ -193,12 +172,7 @@ class ExposedJdbcBatchReaderTest : AbstractBatchJdbcTest() {
         withBatchTables(testDB) {
             var count = 0
             runSuspendIO {
-                transaction(testDB.db!!) {
-                    BatchSourceTable.batchInsert((1..11).toList()) { i ->
-                        this[BatchSourceTable.name] = "item-$i"
-                        this[BatchSourceTable.value] = i
-                    }
-                }
+                transaction(testDB.db!!) { insertSources(11) }
                 val reader = makeReader(testDB, pageSize = 10)
                 reader.open()
                 while (reader.read() != null) count++

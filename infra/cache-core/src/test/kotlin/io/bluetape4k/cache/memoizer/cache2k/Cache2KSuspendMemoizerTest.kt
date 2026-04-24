@@ -8,6 +8,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import org.cache2k.Cache
 import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.milliseconds
 
 class Cache2KSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
@@ -19,7 +20,7 @@ class Cache2KSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     }.build()
 
     override val heavyFunc: suspend (Int) -> Int = cache.suspendMemoizer {
-        delay(100L)
+        delay(100L.milliseconds)
         it * it
     }
 

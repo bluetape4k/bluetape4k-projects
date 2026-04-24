@@ -302,4 +302,58 @@ class TinkColumnTypeTest: AbstractExposedTest() {
             row[roomyTable.secret] shouldBeEqualTo longEmail
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `DAEAD 컬럼으로 여러 행 중 특정 행을 검색할 수 있다`(testDB: TestDB) {
+        // 동일 키셋(TinkDaeads.AES256_SIV)이면 여러 행이 있어도 WHERE 조건으로 정확히 1건을 찾을 수 있다.
+        val multiRowTable = object: IntIdTable("tink_daead_multirow_$testDB") {
+            val email = tinkDaeadVarChar("email", 512, TinkDaeads.AES256_SIV)
+        }
+
+        withTables(testDB, multiRowTable) {
+            val email1 = "alice@example.com"
+            val email2 = "bob@example.com"
+            val email3 = "carol@example.com"
+
+            multiRowTable.insertAndGetId { it[email] = email1 }
+            multiRowTable.insertAndGetId { it[email] = email2 }
+            multiRowTable.insertAndGetId { it[email] = email3 }
+
+            multiRowTable.selectAll().count() shouldBeEqualTo 3L
+
+            // 결정적 암호화로 WHERE 절 검색이 정확히 1건을 반환해야 한다.
+            multiRowTable.selectAll().where { multiRowTable.email eq email2 }.count() shouldBeEqualTo 1L
+            multiRowTable.selectAll().where { multiRowTable.email eq email2 }.single()
+                .let { it[multiRowTable.email] shouldBeEqualTo email2 }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `DAEAD 컬럼 Update 후 동일 값으로 재검색이 가능하다`(testDB: TestDB) {
+        // 값 갱신 후에도 결정적 암호화가 유지되어 WHERE 검색이 동작해야 한다.
+        val updateSearchTable = object: IntIdTable("tink_daead_update_search_$testDB") {
+            val email = tinkDaeadVarChar("email", 512, TinkDaeads.AES256_SIV)
+        }
+
+        withTables(testDB, updateSearchTable) {
+            val original = "original@example.com"
+            val updated = "updated@example.com"
+
+            val id = updateSearchTable.insertAndGetId { it[email] = original }
+
+            // 업데이트 전 검색 확인
+            updateSearchTable.selectAll().where { updateSearchTable.email eq original }.count() shouldBeEqualTo 1L
+
+            updateSearchTable.update({ updateSearchTable.id eq id }) {
+                it[email] = updated
+            }
+
+            // 업데이트 후 새 값 검색
+            updateSearchTable.selectAll().where { updateSearchTable.email eq updated }.count() shouldBeEqualTo 1L
+            // 이전 값으로 검색하면 0건
+            updateSearchTable.selectAll().where { updateSearchTable.email eq original }.count() shouldBeEqualTo 0L
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package io.bluetape4k.hibernate.reactive.stage
 
 import io.bluetape4k.vertx.currentVertxDispatcher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.future.asCompletableFuture
@@ -28,7 +29,14 @@ suspend inline fun <T> Stage.SessionFactory.withSessionSuspending(
 ): T = coroutineScope {
     withSession { session: Stage.Session ->
         async(currentVertxDispatcher()) {
-            work(session)
+            try {
+                work(session)
+            } catch (e: CancellationException) {
+                // async 블록은 Stage CompletionStage 콜백 내부에서 실행된다.
+                // CompletableFuture로 변환되는 경계에서 CancellationException이 일반 예외로
+                // 변환될 수 있으므로, 코루틴 취소 협력을 위해 명시적으로 재전파한다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -54,7 +62,13 @@ suspend inline fun <T> Stage.SessionFactory.withSessionSuspending(
 ): T = coroutineScope {
     withSession(tenantId) { session: Stage.Session ->
         async(currentVertxDispatcher()) {
-            work(session)
+            try {
+                work(session)
+            } catch (e: CancellationException) {
+                // tenant 세션도 동일: CompletableFuture 변환 경계에서 취소 신호가 소실되지 않도록
+                // CancellationException을 재전파해 구조적 동시성을 유지한다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -79,7 +93,13 @@ suspend inline fun <T> Stage.SessionFactory.withStatelessSessionSuspending(
 ): T = coroutineScope {
     withStatelessSession { stateless: Stage.StatelessSession ->
         async(currentVertxDispatcher()) {
-            work(stateless)
+            try {
+                work(stateless)
+            } catch (e: CancellationException) {
+                // StatelessSession 콜백도 CompletableFuture로 감싸진다.
+                // CancellationException을 재전파하지 않으면 취소가 부모 스코프에 전달되지 않는다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -105,7 +125,12 @@ suspend inline fun <T> Stage.SessionFactory.withStatelessSessionSuspending(
 ): T = coroutineScope {
     withStatelessSession(tenantId) { stateless: Stage.StatelessSession ->
         async(currentVertxDispatcher()) {
-            work(stateless)
+            try {
+                work(stateless)
+            } catch (e: CancellationException) {
+                // tenant stateless 세션도 동일: CompletableFuture 래핑 전 취소 신호를 보존한다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -130,7 +155,14 @@ suspend fun <T> Stage.SessionFactory.withTransactionSuspending(
 ): T = coroutineScope {
     withTransaction { session: Stage.Session ->
         async(currentVertxDispatcher()) {
-            work(session)
+            try {
+                work(session)
+            } catch (e: CancellationException) {
+                // withTransaction 콜백은 Stage CompletionStage 파이프라인 내에서 실행된다.
+                // CompletableFuture 변환 시 CancellationException이 ExecutionException으로 감싸질 수 있어
+                // coroutineScope 취소 전파를 위해 명시적 재전파가 필요하다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -157,7 +189,13 @@ suspend inline fun <T> Stage.SessionFactory.withTransactionSuspending(
 ): T = coroutineScope {
     withTransaction { session: Stage.Session, transaction: Stage.Transaction ->
         async(currentVertxDispatcher()) {
-            work(session, transaction)
+            try {
+                work(session, transaction)
+            } catch (e: CancellationException) {
+                // 트랜잭션 객체를 함께 받는 오버로드에서도 동일: CompletableFuture 경계에서
+                // 취소 예외가 일반 예외로 변환되지 않도록 즉시 재전파한다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -184,7 +222,12 @@ suspend inline fun <T> Stage.SessionFactory.withTransactionSuspending(
 ): T = coroutineScope {
     withTransaction(tenantId) { session: Stage.Session, transaction: Stage.Transaction ->
         async(currentVertxDispatcher()) {
-            work(session, transaction)
+            try {
+                work(session, transaction)
+            } catch (e: CancellationException) {
+                // tenant 트랜잭션 오버로드: Stage 비동기 경계를 넘기 전 취소 신호를 보존한다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -210,7 +253,13 @@ suspend inline fun <T> Stage.SessionFactory.withStatelessTransactionSuspending(
 ): T = coroutineScope {
     withStatelessTransaction { stateless: Stage.StatelessSession ->
         async(currentVertxDispatcher()) {
-            work(stateless)
+            try {
+                work(stateless)
+            } catch (e: CancellationException) {
+                // withStatelessTransaction 콜백도 CompletableFuture로 브리지된다.
+                // 취소를 재전파하지 않으면 부모 코루틴이 완료 신호를 받지 못해 행(hang) 가능성이 있다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -237,7 +286,13 @@ suspend inline fun <T> Stage.SessionFactory.withStatelessTransactionSuspending(
 ): T = coroutineScope {
     withStatelessTransaction { stateless: Stage.StatelessSession, transaction: Stage.Transaction ->
         async(currentVertxDispatcher()) {
-            work(stateless, transaction)
+            try {
+                work(stateless, transaction)
+            } catch (e: CancellationException) {
+                // 트랜잭션 객체를 함께 받는 stateless 오버로드에서도 동일:
+                // CompletableFuture 래핑 전 CancellationException을 재전파해 취소 협력을 보장한다.
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }
@@ -264,7 +319,11 @@ suspend inline fun <T> Stage.SessionFactory.withStatelessTransactionSuspending(
 ): T = coroutineScope {
     withStatelessTransaction(tenantId) { stateless: Stage.StatelessSession, transaction: Stage.Transaction ->
         async(currentVertxDispatcher()) {
-            work(stateless, transaction)
+            try {
+                work(stateless, transaction)
+            } catch (e: CancellationException) {
+                throw e
+            }
         }.asCompletableFuture()
     }.await()
 }

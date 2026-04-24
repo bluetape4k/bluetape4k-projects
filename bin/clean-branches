@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# remote에서 삭제된 로컬 브랜치(gone) 및 연결된 worktree를 정리한다.
+set -euo pipefail
+
+git fetch --prune
+
+GONE=$(git branch -v | grep '\[gone\]' | sed 's/^[+* ]*//' | awk '{print $1}')
+
+if [ -z "$GONE" ]; then
+  echo "정리할 브랜치가 없습니다."
+  exit 0
+fi
+
+ROOT=$(git rev-parse --show-toplevel)
+
+echo "$GONE" | while read -r branch; do
+  echo "처리 중: $branch"
+  worktree=$(git worktree list | grep "\[$branch\]" | awk '{print $1}' || true)
+  if [ -n "$worktree" ] && [ "$worktree" != "$ROOT" ]; then
+    echo "  worktree 제거: $worktree"
+    git worktree remove --force "$worktree"
+  fi
+  echo "  브랜치 삭제: $branch"
+  git branch -D "$branch"
+done

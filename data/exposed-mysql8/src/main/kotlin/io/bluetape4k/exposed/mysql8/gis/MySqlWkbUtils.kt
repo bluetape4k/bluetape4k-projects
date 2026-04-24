@@ -1,6 +1,7 @@
 package io.bluetape4k.exposed.mysql8.gis
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.io.ByteOrderValues
 import org.locationtech.jts.io.WKBReader
@@ -45,7 +46,13 @@ object MySqlWkbUtils: KLogging() {
         }
         val srid = ByteBuffer.wrap(bytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).int
         val wkb = bytes.copyOfRange(4, bytes.size)
-        val geometry = WKBReader().read(wkb)
+        // WKBReader.read()는 손상된 바이트나 잘못된 WKB 형식일 때 ParseException을 던진다.
+        // runCatching으로 감싸는 이유: 예외 발생 시 srid와 wkbSize 같은 진단 컨텍스트를
+        // warn 로그에 포함시켜 어떤 데이터가 파싱에 실패했는지 추적할 수 있도록 하기 위함이다.
+        // getOrThrow()로 예외를 재전파하여 호출 측의 정상 오류 흐름은 그대로 유지한다.
+        val geometry = runCatching { WKBReader().read(wkb) }
+            .onFailure { e -> log.warn(e) { "WKB 파싱 실패: srid=$srid, wkbSize=${wkb.size}" } }
+            .getOrThrow()
         geometry.srid = srid
         return geometry
     }

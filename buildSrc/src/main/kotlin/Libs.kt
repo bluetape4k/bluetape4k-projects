@@ -11,7 +11,8 @@ object Plugins {
         const val protobuf = "0.9.6"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
         const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro/com.github.davidmc24.gradle.plugin.avro.gradle.plugin
 
-        const val jacoco = "0.8.11"
+        const val jacoco = "0.8.14"   // https://www.eclemma.org/jacoco/
+        const val kover = "0.9.1"     // https://github.com/Kotlin/kotlinx-kover/releases
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"  // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
@@ -23,12 +24,12 @@ object Plugins {
         const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
-        const val gatling = "3.15.0"  // https://plugins.gradle.org/plugin/io.gatling.gradle
+        const val gatling = "3.15.0.1"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
         const val graalvm_native = "1.0.0" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
-        const val kosogor = "1.0.23" // https://plugins.gradle.org/plugin/tanvd.kosogor
         const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
+        const val dependency_check = "12.1.9" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
     }
 
     const val detekt = "io.gitlab.arturbosch.detekt"
@@ -41,6 +42,9 @@ object Plugins {
     const val avro = "com.github.davidmc24.gradle.plugin.avro" // https://github.com/davidmc24/gradle-avro-plugin
 
     const val jarTest = "com.github.hauner.jarTest"
+
+    // https://github.com/Kotlin/kotlinx-kover — Kotlin-native test coverage plugin
+    const val kover = "org.jetbrains.kotlinx.kover"
 
     const val testLogger = "com.adarshr.test-logger" // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
     const val shadow = "com.gradleup.shadow" // https://plugins.gradle.org/plugin/com.gradleup.shadow
@@ -57,25 +61,27 @@ object Plugins {
     // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
     const val graalvm_native = "org.graalvm.buildtools.native"
 
-    const val kosogor = "tanvd.kosogor" // https://plugins.gradle.org/plugin/tanvd.kosogor
     const val nmcp = "com.gradleup.nmcp"  // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
     const val nmcp_aggregation = "com.gradleup.nmcp.aggregation"  // https://mvnrepository.com/artifact/com.gradleup.nmcp.aggregation/com.gradleup.nmcp.aggregation.gradle.plugin
+    const val dependency_check = "org.owasp.dependencycheck" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
 }
 
 object Versions {
 
-    const val kotlin = "2.3.20"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
+    const val kotlin = "2.3.21"                 // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     const val kotlinx_coroutines = "1.10.2"     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    const val kotlinx_serialization = "1.10.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
+    const val kotlinx_serialization = "1.11.0"  // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
     const val kotlinx_atomicfu = "0.32.1"      // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu
 
     const val kotlinx_benchmark = Plugins.Versions.kotlinx_benchmark
 
     const val spring_boot3 = Plugins.Versions.spring_boot3
     const val spring_boot4 = Plugins.Versions.spring_boot4
-    const val spring_cloud = "2025.0.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
-    const val spring_integration = "6.5.6"  // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-core
-    const val reactor_bom = "2024.0.14"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
+
+    const val spring_cloud3 = "2025.0.2"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    const val spring_cloud4 = "2025.1.1"     // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies
+    
+    const val reactor_bom = "2025.0.5"      // https://mvnrepository.com/artifact/io.projectreactor/reactor-bom
     const val spring_statemachine = "4.0.1" // https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 
     const val chaos_monkey = "3.2.2"        // https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot
@@ -89,14 +95,14 @@ object Versions {
     const val springfox_swagger = "3.0.0"
     const val problem = "0.29.1"             // https://mvnrepository.com/artifact/org.zalando/problem-spring-web
 
-    const val bucket4j = "8.17.0"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
+    const val bucket4j = "8.18.0"        // https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
     const val resilience4j = "2.4.0"     // https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
     const val netty = "4.2.12.Final"      // https://mvnrepository.com/artifact/io.netty/netty-all
 
-    const val aws2 = "2.42.28"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
-    const val aws2_crt = "0.44.0"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    const val aws_kotlin = "1.6.51"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
-    const val aws_smithy_kotlin = "1.6.9" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
+    const val aws2 = "2.42.37"            // https://mvnrepository.com/artifact/software.amazon.awssdk/aws-sdk-java
+    const val aws2_crt = "0.45.1"         // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
+    const val aws_kotlin = "1.6.59"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
+    const val aws_smithy_kotlin = "1.6.11" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
     const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
@@ -112,7 +118,6 @@ object Versions {
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     const val okhttp3 = "5.3.2"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     const val okio = "3.17.0"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
-    const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson_annotations = "2.21" // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
     const val jackson = "2.21.2"    // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
@@ -204,6 +209,9 @@ object Versions {
 
     // Gatling
     const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
+
+    // NLP / Language Detection
+    const val lingua = "1.2.2"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
 }
 
 object Libs {
@@ -398,44 +406,28 @@ object Libs {
 
     fun springSecurity(module: String) = "org.springframework.security:spring-security-$module"
 
-    // Spring Cloud
-    const val spring_cloud_dependencies = "org.springframework.cloud:spring-cloud-dependencies:${Versions.spring_cloud}"
+    // Spring Cloud for Spring Boot 3
+    const val spring_cloud3_dependencies = "org.springframework.cloud:spring-cloud-dependencies:${Versions.spring_cloud3}"
 
-    fun springCloud(module: String) = "org.springframework.cloud:spring-cloud-$module"
-    fun springCloudStarter(module: String) = "org.springframework.cloud:spring-cloud-starter-$module"
+    fun springCloud3(module: String) = "org.springframework.cloud:spring-cloud-$module"
+    fun springCloud3Starter(module: String) = "org.springframework.cloud:spring-cloud-starter-$module"
 
-    val spring_cloud_commons = springCloud("commons")
-    val spring_cloud_context = springCloud("context")
-    val spring_cloud_stream = springCloud("stream")
-    val spring_cloud_starter_bootstrap = springCloudStarter("bootstrap")
+    val spring_cloud3_commons = springCloud3("commons")
+    val spring_cloud3_context = springCloud3("context")
+    val spring_cloud3_stream = springCloud3("stream")
+    val spring_cloud3_starter_bootstrap = springCloud3Starter("bootstrap")
 
-    // Spring Integration
-    fun springIntegration(module: String) = "org.springframework.integration:spring-integration-$module:${Versions.spring_integration}"
+    // Spring Cloud for Spring Boot 4
+    const val spring_cloud4_dependencies = "org.springframework.cloud:spring-cloud-dependencies:${Versions.spring_cloud4}"
 
-    val spring_integration_bom = springIntegration("bom")
+    fun springCloud4(module: String) = "org.springframework.cloud:spring-cloud-$module"
+    fun springCloud4Starter(module: String) = "org.springframework.cloud:spring-cloud-starter-$module"
 
-    val spring_integration_ampq = springIntegration("amqp")
-    val spring_integration_cassandra = springIntegration("cassandra")
-    val spring_integration_core = springIntegration("core")
-    val spring_integration_debezium = springIntegration("debezium")
-    val spring_integration_file = springIntegration("file")
-    val spring_integration_http = springIntegration("http")
-    val spring_integration_jdbc = springIntegration("jdbc")
-    val spring_integration_jms = springIntegration("jms")
-    val spring_integration_jpa = springIntegration("jpa")
-    val spring_integration_kafka = springIntegration("kafka")
-    val spring_integration_mongodb = springIntegration("mongodb")
-    val spring_integration_mqtt = springIntegration("mqtt")
-    val spring_integration_r2dbc = springIntegration("r2dbc")
-    val spring_integration_redis = springIntegration("redis")
-    val spring_integration_security = springIntegration("security")
-    val spring_integration_stomp = springIntegration("stomp")
-    val spring_integration_test = springIntegration("test")
-    val spring_integration_test_support = springIntegration("test-support")
-    val spring_integration_webflux = springIntegration("webflux")
-    val spring_integration_websocket = springIntegration("websocket")
-    val spring_integration_xmpp = springIntegration("xmpp")
-    val spring_integration_zookeeper = springIntegration("zookeeper")
+    val spring_cloud4_commons = springCloud4("commons")
+    val spring_cloud4_context = springCloud4("context")
+    val spring_cloud4_stream = springCloud4("stream")
+    val spring_cloud4_starter_bootstrap = springCloud4Starter("bootstrap")
+
 
     fun springStatemachine(module: String) =
         "org.springframework.statemachine:spring-statemachine-$module:${Versions.spring_statemachine}"
@@ -660,12 +652,6 @@ object Libs {
     val aws_smithy_kotlin_serde = awsSmithyKotlin("serde-jvm")
     val aws_smithy_kotlin_serde_json = awsSmithyKotlin("serde-json-jvm")
 
-    // AsyncHttpClient
-    const val async_http_client = "org.asynchttpclient:async-http-client:${Versions.asynchttpclient}"
-    const val async_http_client_extras_retrofit2 =
-        "org.asynchttpclient:async-http-client-extras-retrofit2:${Versions.asynchttpclient}"
-    const val async_http_client_extras_rxjava2 =
-        "org.asynchttpclient:async-http-client-extras-rxjava2:${Versions.asynchttpclient}"
 
     // Apache HttpComponents HttpClient5
     const val httpclient5 = "org.apache.httpcomponents.client5:httpclient5:${Versions.httpclient5}"
@@ -719,6 +705,7 @@ object Libs {
     val okhttp3 = okhttp("okhttp")
     val okhttp3_logging_interceptor = okhttp("logging-interceptor")
     val okhttp3_mockwebserver = okhttp("mockwebserver")
+    val okhttp3_coroutines = okhttp("okhttp-coroutines")
     val okhttp3_sse = okhttp("okhttp-sse")
     val okhttp3_urlconnection = okhttp("okhttp-urlconnection")
     val okhttp3_ws = okhttp("okhttp-ws")
@@ -861,7 +848,6 @@ object Libs {
     const val xz = "org.tukaani:xz:1.11"                         // https://mvnrepository.com/artifact/org.tukaani/xz
 
     // Cryptography
-    const val jasypt = "org.jasypt:jasypt:1.9.3"   // https://mvnrepository.com/artifact/org.jasypt/jasypt
     const val bouncycastle_bcprov = "org.bouncycastle:bcprov-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
     const val bouncycastle_bcpkix = "org.bouncycastle:bcpkix-jdk18on:1.83"  // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on
     const val tink = "com.google.crypto.tink:tink:1.20.0"  // https://mvnrepository.com/artifact/com.google.crypto.tink/tink
@@ -1512,6 +1498,9 @@ object Libs {
     val scrimage_core = scrimage("core")
     val scrimage_filters = scrimage("filters")
     val scrimage_webp = scrimage("webp")
+
+    // NLP / Language Detection
+    const val lingua = "com.github.pemistahl:lingua:${Versions.lingua}"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
 }
 
 // @formatter:on

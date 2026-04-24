@@ -24,6 +24,6 @@ internal object ChannelCompletionHandler: CompletionHandler<Int, CancellableCont
      * Okio 코루틴에서 `failed` 함수를 제공합니다.
      */
     override fun failed(exc: Throwable?, attachment: CancellableContinuation<Int>) {
-        exc?.let { attachment.resumeWithException(it) }
+        attachment.resumeWithException(exc ?: java.io.IOException("AsynchronousChannel completion failure (cause unknown)"))
     }
 }

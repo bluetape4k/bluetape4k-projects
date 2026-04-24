@@ -263,4 +263,61 @@ class SuspendedQueryTest: AbstractExposedTest() {
                 }
             }
         }
+
+    /**
+     * 빈 테이블에서 fetchBatchedResultFlow 를 호출하면 빈 리스트를 반환해야 합니다.
+     * 커서 기반 페이징에서 첫 배치 결과가 없으면 즉시 종료되어야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `빈 테이블에서 배치 조회하면 빈 리스트를 반환한다`(testDB: TestDB) =
+        runSuspendIO {
+            withTablesSuspending(testDB, ProductTable) {
+                val batches =
+                    ProductTable
+                        .select(ProductTable.id)
+                        .fetchBatchedResultFlow(10)
+                        .toList()
+
+                batches shouldBeEqualTo emptyList()
+            }
+        }
+
+    /**
+     * Query 에 수동으로 LIMIT 을 설정한 뒤 fetchBatchedResultFlow 를 호출하면
+     * IllegalArgumentException 이 발생해야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `수동 LIMIT 이 설정된 query 에서 배치 조회하면 예외를 던진다`(testDB: TestDB) =
+        runSuspendIO {
+            withTablesSuspending(testDB, ProductTable) {
+                assertFailsWith<IllegalArgumentException> {
+                    ProductTable
+                        .select(ProductTable.id)
+                        .limit(5)
+                        .fetchBatchedResultFlow(10)
+                        .toList()
+                }
+            }
+        }
+
+    /**
+     * Query 에 수동으로 ORDER BY 를 설정한 뒤 fetchBatchedResultFlow 를 호출하면
+     * IllegalArgumentException 이 발생해야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `수동 ORDER BY 가 설정된 query 에서 배치 조회하면 예외를 던진다`(testDB: TestDB) =
+        runSuspendIO {
+            withTablesSuspending(testDB, ProductTable) {
+                assertFailsWith<IllegalArgumentException> {
+                    ProductTable
+                        .select(ProductTable.id)
+                        .orderBy(ProductTable.id, SortOrder.ASC)
+                        .fetchBatchedResultFlow(10)
+                        .toList()
+                }
+            }
+        }
 }

@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class FutureSupportTest {
 
@@ -57,7 +58,7 @@ class FutureSupportTest {
             .rounds(16 * ITEM_COUNT / 4)
             .add {
                 val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
-                    delay(Random.nextLong(10))
+                    delay(Random.nextLong(10).milliseconds)
                     log.trace { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }

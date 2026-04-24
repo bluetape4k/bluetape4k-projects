@@ -8,9 +8,6 @@ import io.bluetape4k.aws.kotlin.dynamodb.Defaults.MAX_BATCH_ITEM_SIZE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
 
@@ -32,11 +29,13 @@ import kotlinx.coroutines.flow.buffer
  * @param retry Resilience4j [Retry] 정책 (기본: "dynamo-batch" 기본 설정)
  * @param maxUnprocessedRetry 미처리 항목 재시도 최대 횟수 (기본: 10)
  */
+// WHY: CoroutineScope 위임 제거 — 모든 메서드가 suspend이므로 호출자의 코루틴 컨텍스트를 사용하며,
+// 독립 scope가 존재할 경우 SupervisorJob이 취소되지 않아 리소스 누수가 발생할 수 있다.
 class DynamoDbBatchExecutor<T: Any>(
     private val client: DynamoDbClient,
     private val retry: Retry = Retry.ofDefaults("dynamo-batch"),
     private val maxUnprocessedRetry: Int = 10,
-): CoroutineScope by CoroutineScope(Dispatchers.IO + SupervisorJob()) {
+) {
     companion object: KLoggingChannel()
 
     /**

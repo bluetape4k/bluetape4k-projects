@@ -38,7 +38,7 @@ infix fun <T> T.prependTo(tail: MutableList<T>): MutableList<T> {
  * ```
  */
 fun <T> MutableList<T>.prepend(vararg elements: T): MutableList<T> = apply {
-    addAll(0, listOf(*elements))
+    addAll(0, elements.asList())
 }
 
 /**
@@ -112,7 +112,7 @@ fun <T> List<T>.padTo(newSize: Int, item: T): List<T> {
     }
 
     return this.toMutableList().apply {
-        addAll(List(remains) { item })
+        repeat(remains) { add(item) }
     }
 }
 
@@ -137,7 +137,64 @@ fun <T> List<T>.eachCount(): Map<T, Int> {
 
     val counts = LinkedHashMap<T, Int>(this.size)
     for (value in this) {
-        counts[value] = (counts[value] ?: 0) + 1
+        counts.merge(value, 1, Int::plus)
     }
     return counts
 }
+
+/**
+ * [predicate]가 true인 요소를 기준으로 청크를 분리합니다.
+ * [predicate]를 만족하는 요소는 새 청크의 **첫 번째 원소**가 됩니다.
+ *
+ * ```kotlin
+ * listOf(1, 2, 3, 4, 5).chunkedBy { it % 3 == 0 }
+ * // [[1, 2], [3, 4, 5]]
+ * ```
+ *
+ * @param predicate 새 청크 시작 조건
+ * @return 청크 리스트
+ */
+fun <T> Iterable<T>.chunkedBy(predicate: (T) -> Boolean): List<List<T>> {
+    val result = ArrayList<List<T>>()
+    var current = ArrayList<T>()
+    for (e in this) {
+        if (predicate(e) && current.isNotEmpty()) {
+            result.add(current)
+            current = ArrayList()
+        }
+        current.add(e)
+    }
+    if (current.isNotEmpty()) result.add(current)
+    return result
+}
+
+/**
+ * 인덱스를 유효 범위 내로 클램프하여 안전하게 부분 리스트를 반환합니다.
+ * [fromIndex] 또는 [toIndex]가 범위를 벗어나도 예외를 던지지 않습니다.
+ *
+ * ```kotlin
+ * listOf(1, 2, 3, 4, 5).safeSubList(-1, 100)  // [1, 2, 3, 4, 5]
+ * listOf(1, 2, 3, 4, 5).safeSubList(1, 3)     // [2, 3]
+ * ```
+ *
+ * @param fromIndex 시작 인덱스 (클램프됨)
+ * @param toIndex 종료 인덱스 (클램프됨, exclusive)
+ * @return 부분 리스트
+ */
+fun <T> List<T>.safeSubList(fromIndex: Int, toIndex: Int): List<T> {
+    val from = fromIndex.coerceIn(0, size)
+    val to = toIndex.coerceIn(from, size)
+    return subList(from, to)
+}
+
+/**
+ * 각 요소에 0부터 시작하는 인덱스를 붙여 [IndexedValue] 리스트로 반환합니다.
+ *
+ * ```kotlin
+ * listOf("a", "b", "c").zipWithIndex()
+ * // [IndexedValue(0, "a"), IndexedValue(1, "b"), IndexedValue(2, "c")]
+ * ```
+ *
+ * @return [IndexedValue] 리스트
+ */
+fun <T> Iterable<T>.zipWithIndex(): List<IndexedValue<T>> = withIndex().toList()

@@ -28,9 +28,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("work-3") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -57,9 +55,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute(successSuspendWork("work-2"))
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     // ──────────────────────────────────────────────────
@@ -74,9 +70,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("work-2") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -87,9 +81,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("work-fail") { ctx -> WorkReport.failure(ctx, RuntimeException("병렬 실패")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     // ──────────────────────────────────────────────────
@@ -104,9 +96,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             otherwise("otherwise-work") { ctx -> WorkReport.failure(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     @Test
@@ -120,9 +110,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             otherwise("otherwise-work") { c -> WorkReport.failure(c) }
         }
 
-        val report = flow.execute(ctx)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(ctx) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -132,9 +120,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             then("then-work") { ctx -> WorkReport.failure(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
     }
 
     // ──────────────────────────────────────────────────
@@ -151,9 +137,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             repeatDelay(0.milliseconds)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 4
     }
 
@@ -173,9 +157,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             repeatDelay(0.milliseconds)
         }
 
-        val report = flow.execute(ctx)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(ctx).isSuccess.shouldBeTrue()
         ctx.get<Int>("count") shouldBeEqualTo 3
     }
 
@@ -194,9 +176,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 1
     }
 
@@ -204,20 +184,14 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
     fun `suspendRetryFlow DSL - N번 실패 후 성공`() = runTest {
         val counter = AtomicInteger(0)
         val flow = suspendRetryFlow("test-retry-flaky") {
-            execute("flaky-work") { ctx ->
-                val cnt = counter.incrementAndGet()
-                if (cnt < 3) WorkReport.failure(ctx, RuntimeException("시도 #$cnt 실패"))
-                else WorkReport.success(ctx)
-            }
+            execute("flaky-work") { ctx -> val cnt = counter.incrementAndGet(); if (cnt < 3) WorkReport.failure(ctx, RuntimeException("시도 #$cnt 실패")) else WorkReport.success(ctx) }
             policy {
                 maxAttempts = 5
                 delay = 0.milliseconds
             }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -225,19 +199,14 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
     fun `suspendRetryFlow DSL - maxAttempts 소진`() = runTest {
         val counter = AtomicInteger(0)
         val flow = suspendRetryFlow("test-retry-exhaust") {
-            execute("fail-work") { ctx ->
-                counter.incrementAndGet()
-                WorkReport.failure(ctx, RuntimeException("항상 실패"))
-            }
+            execute("fail-work") { ctx -> counter.incrementAndGet(); WorkReport.failure(ctx, RuntimeException("항상 실패")) }
             policy {
                 maxAttempts = 3
                 delay = 0.milliseconds
             }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
         counter.get() shouldBeEqualTo 3
     }
 
@@ -255,9 +224,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -271,9 +238,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -286,9 +251,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
     }
 
     @Test
@@ -302,9 +265,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -324,9 +285,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         seqCounter.get() shouldBeEqualTo 2
         parallelCounter.get() shouldBeEqualTo 2
     }
@@ -406,9 +365,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("fail-2") { ctx -> WorkReport.failure(ctx, RuntimeException("실패2")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -422,9 +379,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -460,9 +415,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         allCounter.get() shouldBeEqualTo 2
     }
 }

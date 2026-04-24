@@ -208,6 +208,24 @@ class VectorColumnTypeTest: AbstractExposedTest() {
     }
 
     @Test
+    fun `VectorColumnType 은 빈 문자열 입력 시 IllegalArgumentException 을 던진다`() {
+        val columnType = VectorColumnType(DIMENSION)
+
+        assertThrows<IllegalArgumentException> {
+            columnType.valueFromDB("")
+        }
+    }
+
+    @Test
+    fun `VectorColumnType 은 공백 문자열 입력 시 IllegalArgumentException 을 던진다`() {
+        val columnType = VectorColumnType(DIMENSION)
+
+        assertThrows<IllegalArgumentException> {
+            columnType.valueFromDB("   ")
+        }
+    }
+
+    @Test
     fun `VectorDistanceOp 는 select expr 로 거리값을 직접 조회할 수 있다`() {
         withVectorTables(EmbeddingPairs) {
             EmbeddingPairs.insert {

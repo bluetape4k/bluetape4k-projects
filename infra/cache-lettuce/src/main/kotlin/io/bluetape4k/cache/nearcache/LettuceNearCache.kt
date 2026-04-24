@@ -11,6 +11,7 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.KeyScanCursor
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture
+import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScanArgs
 import io.lettuce.core.ScanCursor
 import io.lettuce.core.ScriptOutputType
@@ -57,14 +58,10 @@ class LettuceNearCache<V: Any>(
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): NearCacheOperations<V> {
     companion object: KLogging() {
-        private const val COMPARE_AND_SET_SCRIPT = """
-            local current = redis.call('GET', KEYS[1])
-            if current == false or current ~= ARGV[1] then
-                return 0
-            end
-            redis.call('SET', KEYS[1], ARGV[2], 'XX', 'KEEPTTL')
-            return 1
-        """
+        // 개선: 기존엔 raw Lua 원문을 `commands.eval` 로 매번 전송해 네트워크/파싱 비용이
+        //       반복해서 발생했습니다. 이제 [NearCacheScripts.COMPARE_AND_SET] 로 SHA1 을
+        //       1회 계산해 두고 `evalsha` → NOSCRIPT 발생 시 원문 전송으로 fallback 합니다.
+        private val COMPARE_AND_SET_SCRIPT = NearCacheScripts.COMPARE_AND_SET
 
         /**
          * String 키/값 타입의 Near Cache를 생성한다.
@@ -90,6 +87,12 @@ class LettuceNearCache<V: Any>(
     private val frontCache: LettuceLocalCache<String, V> = LettuceCaffeineLocalCache(config)
     private val connection: StatefulRedisConnection<String, V> = redisClient.connect(codec)
     private val commands: RedisCommands<String, V> = connection.sync()
+
+    // 개선: `connection.async()` 는 매 호출마다 wrapper 인스턴스를 반환할 수 있어
+    //       핫 패스 (`registerTrackingKey`, `registerTrackingKeys`, `getAll`) 에서 getter 를
+    //       반복 호출하지 않도록 한 번 획득해 재사용한다.
+    private val asyncCommands: RedisAsyncCommands<String, V> = connection.async()
+
     private val trackingListener: TrackingInvalidationListener<V> =
         TrackingInvalidationListener(frontCache, connection, config.cacheName)
 
@@ -133,10 +136,11 @@ class LettuceNearCache<V: Any>(
         val missedKeys = keys - result.keys.toSet()
 
         if (missedKeys.isNotEmpty()) {
-            val pipeline: RedisAsyncCommands<String, V> = connection.async()
+            // 개선: 재사용 가능한 `asyncCommands` 필드를 사용해 매 호출마다 생성되는
+            //       wrapper 비용을 제거한다.
             val futures: Map<String, RedisFuture<V>> =
                 missedKeys.associateWith { key ->
-                    pipeline.get(config.redisKey(key))
+                    asyncCommands.get(config.redisKey(key))
                 }
             connection.flushCommands()
             futures.forEach { (key, future) ->
@@ -209,7 +213,9 @@ class LettuceNearCache<V: Any>(
      */
     override fun remove(key: String) {
         frontCache.remove(key)
-        commands.del(config.redisKey(key))
+        // 개선: `DEL` 은 큰 값 삭제 시 Redis 메인 스레드를 블로킹합니다. `UNLINK` 로 바꿔
+        //       Redis 가 백그라운드에서 메모리를 해제하도록 해 p99 latency 를 낮춥니다.
+        commands.unlink(config.redisKey(key))
     }
 
     /**
@@ -218,7 +224,8 @@ class LettuceNearCache<V: Any>(
     override fun removeAll(keys: Set<String>) {
         frontCache.removeAll(keys)
         val rkeys = keys.map { config.redisKey(it) }
-        commands.del(*rkeys.toTypedArray())
+        // 개선: 대량 삭제에서 `UNLINK` 의 이점이 크므로 `DEL` → `UNLINK` 로 변경합니다.
+        commands.unlink(*rkeys.toTypedArray())
     }
 
     /**
@@ -246,14 +253,27 @@ class LettuceNearCache<V: Any>(
         oldValue: V,
         newValue: V,
     ): Boolean {
-        val replaced =
-            commands.eval<Long>(
-                COMPARE_AND_SET_SCRIPT,
+        // 개선: EVALSHA 우선 → NOSCRIPT 발생 시 원문 전송으로 fallback.
+        //       SHA1 은 생성 시점에 한 번만 계산된 값을 재사용하므로 네트워크 페이로드가 20B 로 축소됩니다.
+        val rKey = config.redisKey(key)
+        val result: Long = try {
+            commands.evalsha<Long>(
+                COMPARE_AND_SET_SCRIPT.sha1,
                 ScriptOutputType.INTEGER,
-                arrayOf(config.redisKey(key)),
+                arrayOf(rKey),
                 oldValue,
                 newValue
-            ) == 1L
+            )
+        } catch (_: RedisNoScriptException) {
+            commands.eval<Long>(
+                COMPARE_AND_SET_SCRIPT.source,
+                ScriptOutputType.INTEGER,
+                arrayOf(rKey),
+                oldValue,
+                newValue
+            )
+        }
+        val replaced = result == 1L
         if (replaced) {
             frontCache.put(key, newValue)
             registerTrackingKey(key)
@@ -306,7 +326,8 @@ class LettuceNearCache<V: Any>(
             val result: KeyScanCursor<String> =
                 commands.scan(cursor, ScanArgs.Builder.matches(pattern).limit(100L))
             if (result.keys.isNotEmpty()) {
-                commands.del(*result.keys.toTypedArray())
+                // 개선: 대량 키 일괄 삭제에 `UNLINK` 를 사용해 Redis 메인 스레드 블로킹을 방지한다.
+                commands.unlink(*result.keys.toTypedArray())
             }
             cursor = result
         } while (!result.isFinished)
@@ -413,12 +434,13 @@ class LettuceNearCache<V: Any>(
     }
 
     private fun registerTrackingKey(key: String) {
-        // CLIENT TRACKING 활성화: 다른 인스턴스가 이 키를 수정할 때 invalidation을 받을 수 있도록
-        connection.async().get(config.redisKey(key))
+        // CLIENT TRACKING 활성화: sync commands를 사용해 GET이 Redis에 처리된 후 반환한다.
+        // fire-and-forget 방식은 외부 SET이 tracking GET보다 먼저 Redis에 도착하는 경쟁 조건을 유발한다.
+        commands.get(config.redisKey(key))
     }
 
     private fun registerTrackingKeys(keys: Collection<String>) {
         if (keys.isEmpty()) return
-        connection.async().mget(*keys.map(config::redisKey).toTypedArray())
+        commands.mget(*keys.map(config::redisKey).toTypedArray())
     }
 }

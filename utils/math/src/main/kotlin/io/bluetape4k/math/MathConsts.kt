@@ -109,6 +109,12 @@ object MathConsts {
      * ```kotlin
      * val result = MathConsts.pow2(3)   // 8 (2^3)
      * ```
+     *
+     * @param index 0 이상 [POW2] 배열 크기 미만의 인덱스
+     * @throws IllegalArgumentException index가 범위를 벗어날 경우
      */
-    fun pow2(index: Int): Int = POW2[index]
+    fun pow2(index: Int): Int {
+        require(index in POW2.indices) { "index[$index] must be in 0..${POW2.size - 1}" }
+        return POW2[index]
+    }
 }

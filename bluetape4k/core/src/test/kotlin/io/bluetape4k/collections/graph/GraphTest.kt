@@ -16,6 +16,7 @@ import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class GraphTest: AbstractCollectionTest() {
 
@@ -130,7 +131,7 @@ class GraphTest: AbstractCollectionTest() {
         fun `verify depth first with flow`() = runTest {
             val nodes = Graph
                 .searchAsFlow(Graph.TraversalOrder.DFS, root) {
-                    it.children.asFlow().onEach { delay(10) }
+                    it.children.asFlow().onEach { delay(10.milliseconds) }
                 }
 
             val names = nodes
@@ -194,7 +195,7 @@ class GraphTest: AbstractCollectionTest() {
         fun `verify breadth first with flow`() = runTest {
             val nodes = Graph
                 .searchAsFlow(Graph.TraversalOrder.BFS, root) {
-                    it.children.asFlow().onEach { delay(10) }
+                    it.children.asFlow().onEach { delay(10.milliseconds) }
                 }
 
             val names = nodes

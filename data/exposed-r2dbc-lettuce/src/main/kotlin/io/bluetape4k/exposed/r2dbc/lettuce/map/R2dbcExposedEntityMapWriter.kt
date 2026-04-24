@@ -73,6 +73,12 @@ class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
      * [map]의 엔티티를 DB에 일괄 upsert한다.
      * 기존 PK가 있으면 UPDATE, 없으면 [chunkSize] 단위로 batch INSERT를 수행한다.
      * [WriteMode.NONE]이거나 [map]이 비어 있으면 아무것도 하지 않는다.
+     *
+     * ### WHY: `!!` 대신 `checkNotNull` 사용
+     * `existingIds`와 `newIds`는 모두 `map.keys`의 부분집합이므로 `map[id]`는
+     * 논리적으로 항상 존재한다. 하지만 `!!`는 NPE 발생 시 위치와 원인을 특정하기
+     * 어렵다. `checkNotNull`로 교체하면 버그 발생 시 어느 id가 문제인지 메시지로
+     * 즉시 알 수 있어 디버깅 비용을 줄인다.
      */
     override suspend fun writeEntities(map: Map<ID, E>) {
         if (map.isEmpty() || writeMode == WriteMode.NONE) return
@@ -85,15 +91,20 @@ class R2dbcExposedEntityMapWriter<ID: Any, E: Any>(
                 .toList()
                 .toSet()
 
+        // existingIds는 map.keys의 부분집합이므로 map[id]는 항상 존재하지만,
+        // !! 대신 checkNotNull로 의도를 명확히 하고 버그 발생 시 명확한 메시지를 제공한다.
         for (id in existingIds) {
-            table.update({ table.id eq id }) { updateEntity(it, map[id]!!) }
+            val entity = checkNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+            table.update({ table.id eq id }) { updateEntity(it, entity) }
         }
 
         val newIds = map.keys - existingIds
         if (newIds.isNotEmpty()) {
             for (chunk in newIds.chunked(chunkSize)) {
                 table.batchInsert(chunk, shouldReturnGeneratedValues = false) { id ->
-                    insertEntity(this, map[id]!!)
+                    // newIds는 map.keys의 부분집합이므로 map[id]는 항상 존재한다.
+                    val entity = checkNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+                    insertEntity(this, entity)
                 }
             }
         }

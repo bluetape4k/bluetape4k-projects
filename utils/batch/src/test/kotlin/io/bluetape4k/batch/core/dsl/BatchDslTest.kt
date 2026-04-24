@@ -33,15 +33,16 @@ class BatchDslTest {
         override suspend fun write(items: List<String>) {}
     }
 
+    private fun BatchJobBuilder.noopStep(name: String) = step<String, String>(name) {
+        reader(noopReader); writer(noopWriter)
+    }
+
     // ─── 1. 기본 DSL 구성 ────────────────────────────────────────────────────
 
     @Test
     fun `기본 DSL - batchJob과 단일 step 구성`() {
         val job = batchJob("myJob") {
-            step<String, String>("step1") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
+            noopStep("step1")
         }
 
         job.shouldNotBeNull()
@@ -55,18 +56,9 @@ class BatchDslTest {
     @Test
     fun `다중 step - 순서대로 등록됨`() {
         val job = batchJob("multiStepJob") {
-            step<String, String>("step1") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
-            step<String, String>("step2") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
-            step<String, String>("step3") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
+            noopStep("step1")
+            noopStep("step2")
+            noopStep("step3")
         }
 
         job.steps.size shouldBeEqualTo 3
@@ -79,10 +71,7 @@ class BatchDslTest {
     fun `params vararg - Job 파라미터 설정`() {
         val job = batchJob("paramJob") {
             params("date" to "2026-04-10", "env" to "prod")
-            step<String, String>("step1") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
+            noopStep("step1")
         }
 
         job.params["date"] shouldBeEqualTo "2026-04-10"
@@ -93,10 +82,7 @@ class BatchDslTest {
     fun `params map - Job 파라미터 Map으로 설정`() {
         val job = batchJob("paramJob") {
             params(mapOf("k1" to 42, "k2" to true))
-            step<String, String>("step1") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
+            noopStep("step1")
         }
 
         job.params["k1"] shouldBeEqualTo 42
@@ -110,10 +96,7 @@ class BatchDslTest {
         val customRepo = InMemoryBatchJobRepository()
         val job = batchJob("repoJob") {
             repository(customRepo)
-            step<String, String>("step1") {
-                reader(noopReader)
-                writer(noopWriter)
-            }
+            noopStep("step1")
         }
 
         job.shouldNotBeNull()  // 빌드 성공으로 충분
@@ -189,10 +172,7 @@ class BatchDslTest {
     fun `빈 job name - IllegalArgumentException 발생`() {
         invoking {
             batchJob("") {
-                step<String, String>("step1") {
-                    reader(noopReader)
-                    writer(noopWriter)
-                }
+                noopStep("step1")
             }
         } shouldThrow IllegalArgumentException::class
     }

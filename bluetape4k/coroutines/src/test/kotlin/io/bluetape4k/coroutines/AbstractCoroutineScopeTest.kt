@@ -1,5 +1,6 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.Job
@@ -8,7 +9,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 abstract class AbstractCoroutineScopeTest {
@@ -30,14 +31,14 @@ abstract class AbstractCoroutineScopeTest {
     val scope: CloseableCoroutineScope by lazy { getCoroutineScope() }
 
     private suspend fun add(x: Int, y: Int): Int {
-        delay(Random.nextLong(10))
+        delay(Random.nextLong(10).milliseconds)
         log.trace { "add($x, $y)" }
         return x + y
     }
 
     @Test
     @Order(1)
-    fun `기본 CoroutineScope 사용`() = runTest {
+    fun `기본 CoroutineScope 사용`() = runSuspendIO {
         val result1 = scope.async { add(1, 3) }
         val result2 = scope.async { add(2, 4) }
 
@@ -47,20 +48,18 @@ abstract class AbstractCoroutineScopeTest {
 
     @Test
     @Order(2)
-    fun `CoroutineScope 취소`() = runTest {
+    fun `CoroutineScope 취소`() = runSuspendIO {
         scope.launch {
-            delay(2000)
+            delay(2000.milliseconds)
             fail("작업1은 중간에 취소되어야 합니다.")
         }
         scope.launch {
-            delay(2000)
+            delay(2000.milliseconds)
             fail("작업2는 중간에 취소되어야 합니다.")
         }
 
-        delay(10)
+        delay(10.milliseconds)
         scope.cancel()
-        // CoroutineScope가 취소되면 자식 코루틴도 취소됩니다.
-        // coroutineScope.coroutineContext.cancelChildren()
 
         yield()
         scope.isActive.shouldBeFalse()
@@ -68,14 +67,14 @@ abstract class AbstractCoroutineScopeTest {
 
     @Test
     @Order(3)
-    fun `clearJobs는 자식 작업을 취소하고 cause를 전달한다`() = runTest {
+    fun `clearJobs는 자식 작업을 취소하고 cause를 전달한다`() = runSuspendIO {
         getCoroutineScope().use { scope ->
             var caught: CancellationException? = null
 
             val job: Job = scope.launch {
                 try {
                     while (true) {
-                        delay(10)
+                        delay(10.milliseconds)
                     }
                 } catch (e: CancellationException) {
                     caught = e
@@ -83,6 +82,7 @@ abstract class AbstractCoroutineScopeTest {
                 }
             }
 
+            delay(50.milliseconds)  // job이 delay(10) 루프에 진입할 때까지 대기
             scope.clearJobs(CancellationException("stop-by-test"))
 
             job.join()

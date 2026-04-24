@@ -33,7 +33,10 @@ inline fun sqsClientOf(
     httpClient: HttpClientEngine? = HttpClientEngineProvider.defaultHttpEngine,
     crossinline builder: SqsClient.Config.Builder.() -> Unit = {},
 ): SqsClient {
-    endpointUrl?.hostAndPort.requireNotBlank("endpointUrl")
+    // WHY: endpointUrl이 null이면 기본 AWS 엔드포인트 사용 — null일 때는 검증 불필요
+    endpointUrl?.let {
+        it.host.toString().requireNotBlank("endpointUrl.host")
+    }
 
     return SqsClient {
         endpointUrl?.let { this.endpointUrl = it }

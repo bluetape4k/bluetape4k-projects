@@ -10,6 +10,9 @@ import io.github.resilience4j.cache.event.CacheOnMissEvent
 import io.github.resilience4j.core.EventConsumer
 import io.github.resilience4j.core.EventProcessor
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 import javax.cache.Cache
 
 /**
@@ -19,6 +22,24 @@ import javax.cache.Cache
 class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, V> {
 
     companion object: KLoggingChannel()
+
+    /**
+     * 키별 Mutex 풀입니다.
+     *
+     * 동일 키에 대해 여러 코루틴이 동시에 cache miss를 경험하면 loader()가 중복 호출되는
+     * race condition이 발생합니다. 키 단위 Mutex로 직렬화해 loader()가 한 번만 실행되도록
+     * 보장합니다. computeIfAbsent 완료 후 Mutex를 제거해 메모리 누수를 방지합니다.
+     */
+    private val keyLocks = ConcurrentHashMap<Any, Mutex>()
+
+    private fun mutexFor(key: Any): Mutex = keyLocks.computeIfAbsent(key) { Mutex() }
+
+    private fun releaseMutex(key: Any, mutex: Mutex) {
+        // lock이 해제된 상태이면 다음 요청자가 없으므로 안전하게 제거합니다.
+        if (!mutex.isLocked) {
+            keyLocks.remove(key, mutex)
+        }
+    }
 
     private val _eventProcessor = SuspendCacheEventProcessor()
     private val _metrics = SuspendCacheMetrics()
@@ -42,12 +63,61 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
     /**
      * 캐시된 정보를 로드합니다. 만약 캐시에 없을 시에는 [loader]를 이용하여 정보를 얻어 캐시에 저장하고, 반환합니다.
      *
+     * 동일 키에 대해 여러 코루틴이 동시에 cache miss를 경험하면 모두 loader()를 호출하는 race condition이
+     * 발생할 수 있습니다. 키별 Mutex로 직렬화하여 loader()가 한 번만 실행되도록 보장합니다.
+     *
+     * - fast-path: hit 시 Mutex 없이 바로 반환 (hit 메트릭 기록)
+     * - miss 시: Mutex 획득 → double-check(raw, 중복 miss 방지) → loader 실행
+     *
      * @param cacheKey  Cache Key
      * @param loader    Value loader
      * @return cached value
      */
     override suspend fun computeIfAbsent(cacheKey: K, loader: suspend () -> V): V {
-        return getValueFromCache(cacheKey) ?: computeAndPut(cacheKey, loader)
+        // 빠른 경로: 이미 캐시된 값이 있으면 Mutex 없이 즉시 반환합니다.
+        // hit 메트릭은 getValueFromCache 내부에서 기록됩니다.
+        getValueFromCache(cacheKey)?.let { return it }
+
+        // 캐시 미스: 키별 Mutex로 직렬화합니다.
+        val key = cacheKey as Any
+        val mutex = mutexFor(key)
+        return try {
+            mutex.withLock {
+                // Mutex 획득 후 재확인 (double-check locking):
+                // fast-path에서 miss를 기록한 뒤 대기하는 동안 앞선 코루틴이
+                // 이미 값을 채웠을 수 있습니다. 이 때는 miss를 중복 기록하지 않고
+                // hit만 기록하기 위해 rawGetWithHit()을 사용합니다.
+                rawGetWithHit(cacheKey) ?: computeAndPut(cacheKey, loader)
+            }
+        } finally {
+            releaseMutex(key, mutex)
+        }
+    }
+
+    /**
+     * JCache에서 값을 직접 조회하고, 값이 있으면 hit 메트릭을 기록합니다.
+     *
+     * [computeIfAbsent]의 Mutex 내부 double-check 전용입니다.
+     *
+     * ## 메트릭 정합성
+     * fast-path에서 이미 onCacheMiss를 기록했으므로, Mutex 획득 후 재확인 시
+     * onCacheMiss가 중복으로 기록되지 않도록 분리된 메서드입니다.
+     * 앞선 코루틴이 이미 값을 로드해 캐시에 넣은 경우에는 hit 메트릭을 기록하여
+     * miss 1건이 hit 1건으로 보정됩니다.
+     */
+    private fun rawGetWithHit(cacheKey: K): V? {
+        return try {
+            if (jcache.containsKey(cacheKey)) {
+                // double-check에서 값이 있으면 hit으로 정정합니다.
+                // fast-path의 miss 카운트는 이미 기록되었으므로 별도 보정은 하지 않습니다.
+                onCacheHit(cacheKey)
+                jcache[cacheKey]
+            } else {
+                null
+            }
+        } catch (e: Throwable) {
+            null
+        }
     }
 
     /**

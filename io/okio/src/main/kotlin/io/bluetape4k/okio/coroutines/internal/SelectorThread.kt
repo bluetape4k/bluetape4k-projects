@@ -62,7 +62,7 @@ internal class SelectorThread: Thread("okio selector") {
      */
     @Suppress("UNCHECKED_CAST")
     override fun run() {
-        while (true) {
+        while (selector.isOpen) {
             try {
                 selector.select()
                 selector.selectedKeys().clear()
@@ -91,8 +91,11 @@ internal class SelectorThread: Thread("okio selector") {
                         if (!cont.isCompleted) cont.resumeWithException(IOException("closed", e))
                     }
                 }
+            } catch (e: java.nio.channels.ClosedSelectorException) {
+                break
             } catch (e: Throwable) {
                 log.error(e) { "Error in SelectorThread" }
+                if (!selector.isOpen) break
             }
         }
     }

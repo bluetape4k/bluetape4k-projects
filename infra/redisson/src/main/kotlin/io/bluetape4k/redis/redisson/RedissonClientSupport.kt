@@ -6,9 +6,11 @@ import org.redisson.api.RedissonClient
 import org.redisson.api.RedissonReactiveClient
 import org.redisson.client.codec.Codec
 import org.redisson.config.Config
+import org.redisson.config.ConstantDelay
 import java.io.File
 import java.io.InputStream
 import java.net.URL
+import java.time.Duration
 
 /**
  * YAML 입력 스트림으로 Redisson [Config]를 생성하고 codec을 설정합니다.
@@ -150,4 +152,71 @@ inline fun redissonReactiveClient(block: Config.() -> Unit): RedissonReactiveCli
  */
 fun redissonReactiveClientOf(config: Config): RedissonReactiveClient {
     return redissonClientOf(config).reactive()
+}
+
+/**
+ * 고동시성 환경에 적합한 Connection Pool 및 Netty 스레드 설정을 [Config]에 적용합니다.
+ *
+ * ## 적용 내용
+ * - threads: CPU × 2 (최대 32)
+ * - nettyThreads: CPU × 2 (최대 32)
+ * - SingleServerConfig:
+ *   - connectionPoolSize: CPU × 8 (64~256)
+ *   - connectionMinimumIdleSize: CPU × 2 (8~32)
+ *   - keepAlive: true
+ *   - pingConnectionInterval: 30초
+ *   - tcpNoDelay: true
+ *   - connectTimeout: 3초
+ *   - timeout: 5초
+ *   - retryAttempts: 3
+ *   - retryInterval: 1초
+ *
+ * ```kotlin
+ * val config = Config().applyHighConcurrencyDefaults()
+ * config.useSingleServer().address = RedissonConst.DEFAULT_URL
+ * val client = redissonClientOf(config)
+ * ```
+ *
+ * @return 설정이 적용된 [Config] (chain 가능)
+ */
+fun Config.applyHighConcurrencyDefaults(): Config = apply {
+    threads = RedissonConst.DEFAULT_NETTY_THREADS
+    nettyThreads = RedissonConst.DEFAULT_NETTY_THREADS
+    // keepAlive/tcpNoDelay moved to top-level Config in Redisson 4.x (non-deprecated API)
+    isTcpKeepAlive = true
+    isTcpNoDelay = true
+    useSingleServer().apply {
+        connectionPoolSize = RedissonConst.DEFAULT_CONNECTION_POOL_SIZE
+        connectionMinimumIdleSize = RedissonConst.DEFAULT_CONNECTION_MIN_IDLE_SIZE
+        pingConnectionInterval = RedissonConst.DEFAULT_PING_INTERVAL_MILLIS
+        connectTimeout = RedissonConst.DEFAULT_CONNECT_TIMEOUT_MILLIS
+        timeout = RedissonConst.DEFAULT_OPERATION_TIMEOUT_MILLIS
+        retryAttempts = RedissonConst.DEFAULT_RETRY_ATTEMPTS
+        // retryInterval is deprecated → use retryDelay (DelayStrategy)
+        retryDelay = ConstantDelay(Duration.ofMillis(RedissonConst.DEFAULT_RETRY_INTERVAL_MILLIS.toLong()))
+        idleConnectionTimeout = RedissonConst.DEFAULT_IDLE_CONNECTION_TIMEOUT_MILLIS
+    }
+}
+
+/**
+ * 고동시성 환경에 최적화된 [RedissonClient]를 생성합니다.
+ *
+ * [applyHighConcurrencyDefaults]를 적용한 [Config]로 클라이언트를 생성합니다.
+ *
+ * ```kotlin
+ * val client = redissonClientForHighConcurrency("redis://127.0.0.1:6379")
+ * ```
+ *
+ * @param url Redis 서버 URL (예: "redis://127.0.0.1:6379")
+ * @param codec 사용할 Codec (기본값: [RedissonCodecs.Default])
+ * @return 고동시성 설정이 적용된 [RedissonClient]
+ */
+fun redissonClientForHighConcurrency(
+    url: String,
+    codec: Codec = RedissonCodecs.Default,
+): RedissonClient {
+    val config = Config().applyHighConcurrencyDefaults()
+    config.useSingleServer().address = url
+    config.codec = codec
+    return Redisson.create(config)
 }

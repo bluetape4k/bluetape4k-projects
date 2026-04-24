@@ -6,6 +6,7 @@ import io.bluetape4k.leader.LeaderGroupElectionOptions
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -19,10 +20,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private val maxLeaders = 3
     private val options = LeaderGroupElectionOptions(maxLeaders, Duration.ofSeconds(5), Duration.ofSeconds(10))
@@ -33,15 +37,12 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         suspendElection = LettuceSuspendLeaderGroupElection(connection, options)
         lockName = randomName()
     }
 
     @AfterEach
     fun teardown() {
-        // 세마포어 키 정리
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         connection.sync().del(lockName)
     }
 
@@ -78,7 +79,6 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `확장 함수로 LettuceLeaderGroupElection 생성`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = connection.leaderGroupElection(options)
         el.shouldNotBeNull()
         val result = el.runIfLeader(lockName) { "ext" }
@@ -87,7 +87,6 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `확장 함수로 LettuceSuspendLeaderGroupElection 생성`() = runSuspendIO {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = connection.suspendLeaderGroupElection(options)
         el.shouldNotBeNull()
         val result = el.runIfLeader(lockName) { "ext-suspend" }
@@ -100,7 +99,6 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 리더 그룹 선출 maxLeaders 제한 검증`() = runSuspendIO {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = LettuceSuspendLeaderGroupElection(connection, options)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
@@ -113,7 +111,7 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
                 el.runIfLeader(lockName) {
                     val current = concurrent.incrementAndGet()
                     maxConcurrent.updateAndGet { max -> maxOf(max, current) }
-                    delay(20)
+                    delay(20.milliseconds)
                     concurrent.decrementAndGet()
                     executed.incrementAndGet()
                 }
@@ -127,7 +125,6 @@ class LettuceSuspendLeaderGroupElectionTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 리더 그룹 총 실행 횟수 검증`() = runSuspendIO {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val el = LettuceSuspendLeaderGroupElection(connection, options)
         val executed = AtomicInteger(0)
         val rounds = 10

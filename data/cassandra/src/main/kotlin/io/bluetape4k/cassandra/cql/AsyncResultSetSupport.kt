@@ -2,6 +2,7 @@ package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
 import com.datastax.oss.driver.api.core.cql.Row
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
@@ -41,6 +42,11 @@ inline fun <T> AsyncResultSet.asFlow(crossinline mapper: suspend (row: Row) -> T
             emit(mapper(row))
         }
         if (!page.hasMorePages()) break
-        page = page.fetchNextPage().await()
+        // CancellationException은 코루틴 취소 신호이므로 반드시 재전파해야 flow가 정상 취소됨
+        try {
+            page = page.fetchNextPage().await()
+        } catch (e: CancellationException) {
+            throw e
+        }
     }
 }

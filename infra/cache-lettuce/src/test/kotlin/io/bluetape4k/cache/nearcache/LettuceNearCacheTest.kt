@@ -138,6 +138,22 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     }
 
     @Test
+    fun `replace(key, oldValue, newValue) - SCRIPT FLUSH 후 NOSCRIPT fallback`() {
+        cache.put("flush-k", "v1")
+        // Redis 서버의 Lua 스크립트 캐시를 비워 NOSCRIPT 상황을 강제로 재현한다.
+        directCommands.scriptFlush()
+
+        // EVALSHA 는 NOSCRIPT 를 던지지만, 내부적으로 EVAL 원문으로 fallback 되어야 정상 수행되어야 한다.
+        cache.replace("flush-k", "wrong", "v2").shouldBeFalse()
+        cache.replace("flush-k", "v1", "v2").shouldBeTrue()
+        cache.get("flush-k") shouldBeEqualTo "v2"
+
+        // fallback 이후 스크립트가 다시 서버에 캐시되었으므로 연속 호출도 EVALSHA 경로로 동작한다.
+        cache.replace("flush-k", "v2", "v3").shouldBeTrue()
+        cache.get("flush-k") shouldBeEqualTo "v3"
+    }
+
+    @Test
     fun `getAndRemove - 캐시 값 조회 및 삭제`() {
         verifyGetAndRemove(
             put = { k, v -> cache.put(k, v) },

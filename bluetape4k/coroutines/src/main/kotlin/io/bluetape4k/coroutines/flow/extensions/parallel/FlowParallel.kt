@@ -1,11 +1,10 @@
 package io.bluetape4k.coroutines.flow.extensions.parallel
 
-import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
-import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireEquals
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -24,107 +23,25 @@ internal class FlowParallel<T>(
             val n = collectors.size
             n.requireEquals(parallelism, "collectors.size")
 
-            val generator = Resumable()
-            val rails = Array<RailCollector<T>>(parallelism) { RailCollector(generator) }
+            val rails: Array<Channel<T>> = Array(n) { Channel(capacity = 256) }
 
             for (i in 0 until n) {
                 launch(runOn(i)) {
-                    rails[i].drain(collectors[i])
+                    rails[i].consumeEach { v -> collectors[i].emit(v) }
                 }
             }
-
-            var index = 0
 
             try {
-                source.collect {
-                    var idx = index
-
-                    outer@ while (true) {
-                        for (i in 0 until n) {
-                            val j = idx
-                            val rail = rails[j]
-                            idx = j + 1
-                            if (idx == n) {
-                                idx = 0
-                            }
-                            if (rail.next(it)) {
-                                index = idx
-                                break@outer
-                            }
-                        }
-                        index = idx
-                        generator.await()
-                    }
+                var idx = 0
+                source.collect { v ->
+                    rails[idx].send(v)
+                    idx++
+                    if (idx == n) idx = 0
                 }
-                rails.forEach { rail -> rail.complete() }
+                rails.forEach { it.close() }
             } catch (ex: Throwable) {
-                rails.forEach { rail -> rail.error(ex) }
-            }
-        }
-    }
-
-    private class RailCollector<T>(private val resumeGenerator: Resumable): Resumable() {
-
-        private val consumerReady = atomic(false)
-
-        @Suppress("UNCHECKED_CAST")
-        private var value: T = null as T
-
-        @Volatile
-        private var hasValue: Boolean = false
-
-        @Volatile
-        private var error: Throwable? = null
-
-        @Volatile
-        private var done: Boolean = false
-
-        fun next(value: T): Boolean {
-            if (consumerReady.compareAndSet(expect = true, update = false)) {
-                this.value = value
-                this.hasValue = true
-                resume()
-                return true
-            }
-            return false
-        }
-
-        fun error(ex: Throwable) {
-            this.error = ex
-            this.done = true
-            resume()
-        }
-
-        fun complete() {
-            this.done = true
-            resume()
-        }
-
-        suspend fun drain(collector: FlowCollector<T>) {
-            while (true) {
-                consumerReady.value = true
-                resumeGenerator.resume()
-
-                await()
-
-                if (hasValue) {
-                    val v = value
-                    @Suppress("UNCHECKED_CAST")
-                    value = null as T
-                    hasValue = false
-
-                    try {
-                        collector.emit(v)
-                    } catch (ex: Throwable) {
-                        resumeGenerator.resume()
-                        throw ex
-                    }
-                }
-
-                if (done) {
-                    error?.let { throw FlowOperationException("Fail to drain", it) }
-                    return
-                }
+                rails.forEach { it.close(ex) }
+                throw ex
             }
         }
     }

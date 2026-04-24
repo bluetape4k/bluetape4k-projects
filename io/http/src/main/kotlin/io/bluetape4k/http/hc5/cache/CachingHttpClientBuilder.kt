@@ -53,7 +53,7 @@ inline fun cachingHttpClient(
  * @return [CloseableHttpClient] 인스턴스
  */
 fun memoryCachingHttpClientOf(): CloseableHttpClient =
-    CachingHttpClients.createMemoryBound()
+    cachingHttpClient(InMemoryHttpCacheStorage.createObjectCache())
 
 /**
  * 파일에 캐시하는 [CloseableHttpClient]를 생성합니다.

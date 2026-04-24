@@ -86,4 +86,52 @@ class RestClientCoroutinesDslTest {
             )
             restClient.suspendDelete("/test")
         }
+
+    @Test
+    fun `suspendGetOrNull은 응답 본문이 있으면 역직렬화한다`() =
+        runTest {
+            mockServer.enqueue(
+                MockResponse()
+                    .setBody("hello")
+                    .addHeader("Content-Type", "text/plain")
+            )
+            val result: String? = restClient.suspendGetOrNull("/test")
+            result shouldBeEqualTo "hello"
+        }
+
+    @Test
+    fun `suspendPostOrNull은 응답 본문이 있으면 역직렬화한다`() =
+        runTest {
+            mockServer.enqueue(
+                MockResponse()
+                    .setBody("created")
+                    .addHeader("Content-Type", "text/plain")
+            )
+            val result: String? = restClient.suspendPostOrNull("/test", "payload", MediaType.APPLICATION_JSON)
+            result shouldBeEqualTo "created"
+        }
+
+    @Test
+    fun `suspendPutOrNull은 응답 본문이 있으면 역직렬화한다`() =
+        runTest {
+            mockServer.enqueue(
+                MockResponse()
+                    .setBody("updated")
+                    .addHeader("Content-Type", "text/plain")
+            )
+            val result: String? = restClient.suspendPutOrNull("/test", "payload", MediaType.APPLICATION_JSON)
+            result shouldBeEqualTo "updated"
+        }
+
+    @Test
+    fun `suspendPatchOrNull은 응답 본문이 있으면 역직렬화한다`() =
+        runTest {
+            mockServer.enqueue(
+                MockResponse()
+                    .setBody("patched")
+                    .addHeader("Content-Type", "text/plain")
+            )
+            val result: String? = restClient.suspendPatchOrNull("/test", "payload", MediaType.APPLICATION_JSON)
+            result shouldBeEqualTo "patched"
+        }
 }

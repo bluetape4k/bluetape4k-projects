@@ -358,42 +358,68 @@ fun <N: Number> Array<out N>.skewness(): Double = descriptiveStatistics().skewne
 
 
 // Slicing operations
+
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 기술 통계를 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.descriptiveStatisticsBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Descriptives> =
     aggregateBy(keySelector, valueMapper) { it.descriptiveStatistics() }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 기술 통계를 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.descriptiveStatisticsBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Descriptives> =
     asSequence().descriptiveStatisticsBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 기술 통계를 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.descriptiveStatisticsBy(): Map<K, Descriptives> =
     aggregateBy({ it.first }, { it.second }) { it.descriptiveStatistics() }
 
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 기술 통계를 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.descriptiveStatisticsBy(): Map<K, Descriptives> =
     asSequence().descriptiveStatisticsBy()
 
+/** 키 기준으로 그룹핑한 뒤 각 그룹의 중앙값을 계산합니다. */
 inline fun <T: Any, K: Any> Sequence<T>.medianBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.median() }
 
+/** 키 기준으로 그룹핑한 뒤 각 그룹의 중앙값을 계산합니다. */
 inline fun <T: Any, K: Any> Iterable<T>.medianBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     asSequence().medianBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 중앙값을 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.medianBy(): Map<K, Double> =
     aggregateBy({ it.first }, { it.second }) { it.median() }
 
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 중앙값을 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.medianBy(): Map<K, Double> =
     asSequence().medianBy()
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 p번째 백분위수를 계산합니다.
+ *
+ * @param percentile 백분위수 (0.0~100.0)
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.percentileBy(
     percentile: Double,
     keySelector: (T) -> K,
@@ -401,6 +427,13 @@ inline fun <T: Any, K: Any> Sequence<T>.percentileBy(
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.percentile(percentile) }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 p번째 백분위수를 계산합니다.
+ *
+ * @param percentile 백분위수 (0.0~100.0)
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.percentileBy(
     percentile: Double,
     keySelector: (T) -> K,
@@ -408,104 +441,190 @@ inline fun <T: Any, K: Any> Iterable<T>.percentileBy(
 ): Map<K, Double> =
     asSequence().percentileBy(percentile, keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 p번째 백분위수를 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.percentileBy(percentile: Double): Map<K, Double> =
     aggregateBy({ it.first }, { it.second }) { it.percentile(percentile) }
 
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 p번째 백분위수를 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.percentileBy(percentile: Double): Map<K, Double> =
     asSequence().percentileBy(percentile)
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 합계를 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.sumBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.sumOf { x -> x.toDouble() } }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 합계를 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.sumBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     asSequence().sumBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 합계를 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.sumBy(): Map<K, Double> = sumBy({ it.first }, { it.second })
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 합계를 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.sumBy(): Map<K, Double> = asSequence().sumBy()
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 평균을 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.averageBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.map { n -> n.toDouble() }.average() }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 평균을 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.averageBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     asSequence().averageBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 평균을 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.averageBy(): Map<K, Double> = averageBy({ it.first }, { it.second })
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 평균을 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.averageBy(): Map<K, Double> = asSequence().averageBy()
 
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 분산을 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.varianceBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.variance() }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 분산을 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.varianceBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     asSequence().varianceBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 분산을 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.varianceBy(): Map<K, Double> = varianceBy({ it.first }, { it.second })
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 분산을 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.varianceBy(): Map<K, Double> = asSequence().varianceBy()
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 표준편차를 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.stdevBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.stdev() }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 표준편차를 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.stdevBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     asSequence().stdevBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 표준편차를 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.stdevBy(): Map<K, Double> = stdevBy({ it.first }, { it.second })
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 표준편차를 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.stdevBy(): Map<K, Double> = asSequence().stdevBy()
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹을 정규화합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.normalizeBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, DoubleArray> =
     aggregateBy(keySelector, valueMapper) { it.normalize() }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹을 정규화합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.normalizeBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, DoubleArray> =
     asSequence().normalizeBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 정규화합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.normalizeBy(): Map<K, DoubleArray> =
     normalizeBy({ it.first }, { it.second })
 
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 정규화합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.normalizeBy(): Map<K, DoubleArray> = asSequence().normalizeBy()
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 기하 평균을 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Sequence<T>.geometricMeanBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     aggregateBy(keySelector, valueMapper) { it.geometricMean() }
 
+/**
+ * 키 기준으로 그룹핑한 뒤 각 그룹의 기하 평균을 계산합니다.
+ *
+ * @param keySelector 그룹 키 선택자
+ * @param valueMapper 수치 값 선택자
+ */
 inline fun <T: Any, K: Any> Iterable<T>.geometricMeanBy(
     keySelector: (T) -> K,
     valueMapper: (T) -> Number,
 ): Map<K, Double> =
     asSequence().geometricMeanBy(keySelector, valueMapper)
 
+/** Pair 시퀀스를 키 기준으로 그룹핑하여 기하 평균을 계산합니다. */
 fun <K: Any, N: Number> Sequence<Pair<K, N>>.geometricMeanBy(): Map<K, Double> =
     geometricMeanBy({ it.first }, { it.second })
 
+/** Pair 컬렉션을 키 기준으로 그룹핑하여 기하 평균을 계산합니다. */
 fun <K: Any, N: Number> Iterable<Pair<K, N>>.geometricMeanBy(): Map<K, Double> =
     asSequence().geometricMeanBy()

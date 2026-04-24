@@ -407,4 +407,61 @@ class SimpleExposedR2dbcRepositoryTest: AbstractExposedR2dbcRepositoryTest() {
             adults[0].name shouldBeEqualTo "Alice"
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
+    fun `findById returns null when entity not found`(testDB: TestDB) = runTest {
+        withTables(testDB, Users) {
+            userRepository.findByIdOrNull(-999L).shouldBeNull()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
+    fun `save updates existing entity`(testDB: TestDB) = runTest {
+        withTables(testDB, Users) {
+            val user = createUser("Alice", "alice@example.com", 30)
+            val userId = user.id.requireNotNull("user.id")
+
+            val updated = userRepository.save(User(id = userId, name = "Alice Updated", email = "alice@example.com", age = 31))
+            updated.name shouldBeEqualTo "Alice Updated"
+
+            val found = userRepository.findByIdOrNull(userId)
+            found.shouldNotBeNull()
+            found.name shouldBeEqualTo "Alice Updated"
+            found.age shouldBeEqualTo 31
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
+    fun `findAllById with empty list returns empty`(testDB: TestDB) = runTest {
+        withTables(testDB, Users) {
+            createUser("Alice", "alice@example.com", 30)
+            val found = userRepository.findAllById(emptyList()).toList()
+            found shouldHaveSize 0
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
+    fun `findAll with paging second page returns correct content`(testDB: TestDB) = runTest {
+        withTables(testDB, Users) {
+            repeat(7) { i -> createUser("User$i", "user$i@example.com", 20 + i) }
+            val page = userRepository.findAll(PageRequest.of(1, 3))
+            page.content shouldHaveSize 3
+            page.totalElements shouldBeEqualTo 7L
+            page.number shouldBeEqualTo 1
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(AbstractExposedR2dbcTest.ENABLE_DIALECTS_METHOD)
+    fun `deleteAllById with empty list does nothing`(testDB: TestDB) = runTest {
+        withTables(testDB, Users) {
+            createUser("Alice", "alice@example.com", 30)
+            userRepository.deleteAllById(emptyList())
+            userRepository.count() shouldBeEqualTo 1L
+        }
+    }
 }

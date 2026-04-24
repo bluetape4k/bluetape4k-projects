@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.r2dbc.vendors.DatabaseDialectMetadata
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /** 현재 트랜잭션의 identifier 규칙으로 문자열 식별자 표기를 보정합니다. */
 fun String.inProperCase(): String =
@@ -52,5 +53,5 @@ fun <T> Column<T>.constraintNamePart() = (currentDialectTest as? SQLServerDialec
 suspend fun Table.insertAndSuspending(duration: Long) {
     this.insert { }
     TransactionManager.current().commit()
-    delay(duration)
+    delay(duration.milliseconds)
 }

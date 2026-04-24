@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.whileSelect
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
+
+private const val DEFAULT_DEBOUNCE_BUFFER_CAPACITY = 16
 
 /**
  * 디바운스 구간 동안 들어온 값을 버퍼링해 리스트로 묶어 방출합니다.
@@ -31,23 +33,23 @@ fun <T> Flow<T>.bufferingDebounce(timeout: Duration): Flow<List<T>> = flow {
     coroutineScope {
         val itemChannel = this@bufferingDebounce.produceIn(this)
         try {
-            var bufferedItems = mutableListOf<T>()
+            var bufferedItems = ArrayList<T>(DEFAULT_DEBOUNCE_BUFFER_CAPACITY)
             var deboundedTimeout = timeout
+            var prevTimeNs = System.nanoTime()
 
             whileSelect {
-                var prevTimeMs = System.currentTimeMillis()
                 if (bufferedItems.isNotEmpty()) {
                     onTimeout(deboundedTimeout) {
                         emit(bufferedItems)
-                        bufferedItems = mutableListOf()
+                        bufferedItems = ArrayList(DEFAULT_DEBOUNCE_BUFFER_CAPACITY)
                         deboundedTimeout = timeout
                         true
                     }
                 }
                 itemChannel.onReceiveCatching { result ->
-                    val receiveTimeMs = System.currentTimeMillis()
-                    deboundedTimeout -= (receiveTimeMs - prevTimeMs).milliseconds
-                    prevTimeMs = receiveTimeMs
+                    val receiveTimeNs = System.nanoTime()
+                    deboundedTimeout -= (receiveTimeNs - prevTimeNs).nanoseconds
+                    prevTimeNs = receiveTimeNs
                     result
                         .onSuccess { item -> bufferedItems.add(item) }
                         .onFailure { if (bufferedItems.isNotEmpty()) emit(bufferedItems) }

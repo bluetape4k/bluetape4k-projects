@@ -79,4 +79,40 @@ class TempFolderClassTest {
             folder.rootPath shouldBeEqualTo folder.root.path
         }
     }
+
+    @Test
+    fun `경로 순회 공격 시도 시 createFile 은 예외를 발생시킨다`() {
+        TempFolder().use { folder ->
+            assertFailsWith<IllegalArgumentException> {
+                folder.createFile("../escape.txt")
+            }
+            assertFailsWith<IllegalArgumentException> {
+                folder.createFile("../../etc/passwd")
+            }
+        }
+    }
+
+    @Test
+    fun `경로 순회 공격 시도 시 createDirectory 는 예외를 발생시킨다`() {
+        TempFolder().use { folder ->
+            assertFailsWith<IllegalArgumentException> {
+                folder.createDirectory("../escape")
+            }
+            assertFailsWith<IllegalArgumentException> {
+                folder.createDirectory("../../tmp")
+            }
+        }
+    }
+
+    @Test
+    fun `close 후 재호출해도 예외가 발생하지 않는다`() {
+        val tempFolder = TempFolder()
+        tempFolder.root.exists().shouldBeTrue()
+
+        tempFolder.close()
+        tempFolder.root.exists().shouldBeFalse()
+
+        // 이미 삭제된 상태에서 재호출해도 예외 없이 종료
+        tempFolder.close()
+    }
 }

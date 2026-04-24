@@ -6,6 +6,8 @@ import io.bluetape4k.exposed.cache.CacheMode
 import io.bluetape4k.exposed.cache.CacheWriteMode
 import io.bluetape4k.exposed.lettuce.map.SuspendedExposedEntityMapLoader
 import io.bluetape4k.exposed.lettuce.map.SuspendedExposedEntityMapWriter
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendedLoadedMap
 import io.bluetape4k.redis.lettuce.map.WriteMode
@@ -62,6 +64,7 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
     private val client: RedisClient,
     override val config: LettuceCacheConfig = LettuceCacheConfig.READ_WRITE_THROUGH,
 ): SuspendedJdbcLettuceRepository<ID, E> {
+    companion object: KLoggingChannel()
     abstract override val table: IdTable<ID>
 
     abstract override fun ResultRow.toEntity(): E
@@ -207,9 +210,12 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
                     }.map { with(this@AbstractSuspendedJdbcLettuceRepository) { it.toEntity() } }
             }.await()
 
-        // 조회 결과를 캐시에 적재
+        // WHY: findAll은 캐시 우회 조회가 아니라 Read-through 경로이므로,
+        //      DB에서 가져온 결과를 캐시에 적재해 다음 단일 조회(get/getAll)가 캐시를 히트하게 한다.
+        //      Redis 장애 시에도 DB 조회 결과를 그대로 반환해야 하므로 예외를 캐치하고 경고만 기록한다.
         entities.forEach { entity ->
             runCatching { cache.set(extractId(entity), entity) }
+                .onFailure { e -> log.warn(e) { "캐시 적재 실패: id=${extractId(entity)}" } }
         }
         return entities
     }
@@ -271,8 +277,20 @@ abstract class AbstractSuspendedJdbcLettuceRepository<ID: Any, E: Serializable>(
         cache.clear()
     }
 
+    /**
+     * 레포지토리가 보유한 캐시 리소스를 해제한다.
+     *
+     * [LettuceSuspendNearCache.close]는 suspend 함수이지만, [AutoCloseable] 계약상 `close()`는 blocking이어야 한다.
+     * 이 메서드는 shutdown 경로에서만 호출되므로 `runBlocking` 사용이 허용된다.
+     * Virtual Thread에서 호출될 수 있으므로, monitor lock을 사용하지 않는다.
+     */
     override fun close() {
-        nearCache?.let { runBlocking { it.close() } }
-        cache.close()
+        // nearCache.close()는 suspend 함수이므로 AutoCloseable 경계에서만 runBlocking 사용
+        nearCache?.let { nc ->
+            runCatching { runBlocking { nc.close() } }
+                .onFailure { e -> log.warn(e) { "nearCache 종료 중 오류 발생" } }
+        }
+        runCatching { cache.close() }
+            .onFailure { e -> log.warn(e) { "cache 종료 중 오류 발생" } }
     }
 }

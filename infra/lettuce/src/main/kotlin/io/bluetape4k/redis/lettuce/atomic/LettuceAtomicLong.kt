@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.atomic
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.script.RedisScript
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
@@ -37,32 +39,39 @@ class LettuceAtomicLong(
     val initialValue: Long = 0L,
 ) {
     companion object: KLogging() {
+        // 개선: 원문 상수 → RedisScript 인스턴스로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
+
         /**
          * Lua: GET and SET (원자적)
          * KEYS[1]=key, ARGV[1]=newValue
          * 반환: 이전 값 (없으면 "0")
          */
-        private const val GET_AND_SET_SCRIPT = """
+        private val GET_AND_SET_SCRIPT = RedisScript(
+            """
 local old = redis.call('get', KEYS[1])
 redis.call('set', KEYS[1], ARGV[1])
 if old then return old else return '0' end"""
+        )
 
         /**
          * Lua: GET and ADD (원자적)
          * KEYS[1]=key, ARGV[1]=delta
          * 반환: 이전 값 (없으면 "0")
          */
-        private const val GET_AND_ADD_SCRIPT = """
+        private val GET_AND_ADD_SCRIPT = RedisScript(
+            """
 local old = tonumber(redis.call('get', KEYS[1])) or 0
 redis.call('incrby', KEYS[1], ARGV[1])
 return tostring(old)"""
+        )
 
         /**
          * Lua: Compare and Set (원자적)
          * KEYS[1]=key, ARGV[1]=expect, ARGV[2]=update
          * 반환: 1 (성공), 0 (실패)
          */
-        private const val COMPARE_AND_SET_SCRIPT = """
+        private val COMPARE_AND_SET_SCRIPT = RedisScript(
+            """
 local current = redis.call('get', KEYS[1])
 if (current == false and ARGV[1] == '0') or current == ARGV[1] then
   redis.call('set', KEYS[1], ARGV[2])
@@ -70,10 +79,14 @@ if (current == false and ARGV[1] == '0') or current == ARGV[1] then
 else
   return 0
 end"""
+        )
     }
 
-    private val syncCommands: RedisCommands<String, String> get() = connection.sync()
-    private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
+    // 개선: 기존엔 getter 로 매 호출마다 `connection.sync()` / `connection.async()` 를 호출했습니다.
+    //       Lettuce 내부에서 재사용 가능한 객체를 돌려주긴 하지만 getter 호출 비용은 핫 패스에서
+    //       불필요하므로 생성자에서 한 번만 얻어 필드에 고정합니다.
+    private val syncCommands: RedisCommands<String, String> = connection.sync()
+    private val asyncCommands: RedisAsyncCommands<String, String> = connection.async()
 
     init {
         // 키가 없을 경우에만 초기값 설정
@@ -121,8 +134,8 @@ end"""
      * @return 이전 값
      */
     fun getAndSet(value: Long): Long {
-        val result = syncCommands.eval<String>(
-            GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
+        val result: String? = RedisScriptRunner.run(
+            syncCommands, GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), value.toString()
         )
         return result?.toLongOrNull() ?: 0L
@@ -176,8 +189,8 @@ end"""
      * @return 증가 전 값
      */
     fun getAndIncrement(): Long {
-        val result = syncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
+        val result = RedisScriptRunner.run<String>(
+            syncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "1"
         )
         return result?.toLongOrNull() ?: 0L
@@ -189,8 +202,8 @@ end"""
      * @return 감소 전 값
      */
     fun getAndDecrement(): Long {
-        val result = syncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
+        val result = RedisScriptRunner.run<String>(
+            syncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "-1"
         )
         return result?.toLongOrNull() ?: 0L
@@ -203,8 +216,8 @@ end"""
      * @return 더하기 전 값
      */
     fun getAndAdd(delta: Long): Long {
-        val result = syncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
+        val result = RedisScriptRunner.run<String>(
+            syncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), delta.toString()
         )
         return result?.toLongOrNull() ?: 0L
@@ -218,8 +231,8 @@ end"""
      * @return 변경 성공 여부
      */
     fun compareAndSet(expect: Long, update: Long): Boolean {
-        val result = syncCommands.eval<Long>(
-            COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
+        val result = RedisScriptRunner.run<Long>(
+            syncCommands, COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(key), expect.toString(), update.toString()
         )
         return result == 1L
@@ -241,10 +254,10 @@ end"""
 
     /** 현재 값을 반환하고 새 값으로 설정합니다 (비동기). */
     fun getAndSetAsync(value: Long): CompletableFuture<Long> =
-        asyncCommands.eval<String>(
-            GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
+        RedisScriptRunner.runAsync<String>(
+            asyncCommands, GET_AND_SET_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), value.toString()
-        ).toCompletableFuture().thenApply { it?.toLongOrNull() ?: 0L }
+        ).thenApply { it?.toLongOrNull() ?: 0L }
 
     /** 값을 1 증가시키고 증가된 값을 반환합니다 (비동기). */
     fun incrementAndGetAsync(): CompletableFuture<Long> =
@@ -263,30 +276,30 @@ end"""
 
     /** 현재 값을 반환하고 1 증가시킵니다 (비동기). */
     fun getAndIncrementAsync(): CompletableFuture<Long> =
-        asyncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
+        RedisScriptRunner.runAsync<String>(
+            asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "1"
-        ).toCompletableFuture().thenApply { it?.toLongOrNull() ?: 0L }
+        ).thenApply { it?.toLongOrNull() ?: 0L }
 
     /** 현재 값을 반환하고 1 감소시킵니다 (비동기). */
     fun getAndDecrementAsync(): CompletableFuture<Long> =
-        asyncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
+        RedisScriptRunner.runAsync<String>(
+            asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), "-1"
-        ).toCompletableFuture().thenApply { it?.toLongOrNull() ?: 0L }
+        ).thenApply { it?.toLongOrNull() ?: 0L }
 
     /** 현재 값을 반환하고 delta를 더합니다 (비동기). */
     fun getAndAddAsync(delta: Long): CompletableFuture<Long> =
-        asyncCommands.eval<String>(
-            GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
+        RedisScriptRunner.runAsync<String>(
+            asyncCommands, GET_AND_ADD_SCRIPT, ScriptOutputType.VALUE,
             arrayOf(key), delta.toString()
-        ).toCompletableFuture().thenApply { it?.toLongOrNull() ?: 0L }
+        ).thenApply { it?.toLongOrNull() ?: 0L }
 
     /** 현재 값이 expect와 같으면 update로 변경합니다 (비동기). */
     fun compareAndSetAsync(expect: Long, update: Long): CompletableFuture<Boolean> =
-        asyncCommands.eval<Long>(
-            COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
+        RedisScriptRunner.runAsync<Long>(
+            asyncCommands, COMPARE_AND_SET_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(key), expect.toString(), update.toString()
-        ).toCompletableFuture().thenApply { it == 1L }
+        ).thenApply { it == 1L }
 
 }

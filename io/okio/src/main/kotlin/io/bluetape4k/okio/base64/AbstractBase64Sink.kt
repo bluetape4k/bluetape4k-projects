@@ -42,8 +42,7 @@ abstract class AbstractBase64Sink(delegate: Sink): ForwardingSink(delegate) {
         byteCount.requireInRange(0, source.size, "byteCount")
         if (byteCount == 0L) return
 
-        val bytesToRead = byteCount
-        val readByteString = source.readByteString(bytesToRead)
+        val readByteString = source.readByteString(byteCount)
 
         // Base64 encode
         val encodedSink = getEncodedBuffer(readByteString)

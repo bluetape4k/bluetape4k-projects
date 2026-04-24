@@ -2,11 +2,13 @@ package io.bluetape4k.redis.lettuce.semaphore
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.script.RedisScript
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.bluetape4k.support.requirePositiveNumber
-import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.ScriptOutputType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
@@ -39,34 +41,41 @@ class LettuceSuspendSemaphore(
     companion object: KLogging() {
         private const val RETRY_DELAY_MS = 50L
 
+        // 개선: 상수 String → RedisScript 로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
+
         /**
          * Lua: 원자적 acquire
          * KEYS[1]=semaphoreKey, ARGV[1]=permits
          * 반환: 남은 허가 수 (허가 수 부족 시 -1)
          */
-        private const val ACQUIRE_SCRIPT = """
+        private val ACQUIRE_SCRIPT = RedisScript(
+            """
 local v = tonumber(redis.call('get', KEYS[1]))
 if v and v >= tonumber(ARGV[1]) then
   return redis.call('decrby', KEYS[1], ARGV[1])
 else
   return -1
 end"""
+        )
 
         /**
          * Lua: 원자적 release (최대값 초과 방지)
          * KEYS[1]=semaphoreKey, ARGV[1]=permits, ARGV[2]=maxPermits
          * 반환: 현재 남은 허가 수
          */
-        private const val RELEASE_SCRIPT = """
+        private val RELEASE_SCRIPT = RedisScript(
+            """
 local v = tonumber(redis.call('incrby', KEYS[1], ARGV[1]))
 if v > tonumber(ARGV[2]) then
   redis.call('set', KEYS[1], ARGV[2])
   return tonumber(ARGV[2])
 end
 return v"""
+        )
     }
 
-    private val asyncCommands: RedisAsyncCommands<String, String> get() = connection.async()
+    // 개선: getter → final field 로 변경 (매 호출 connection.async() 호출 제거).
+    private val asyncCommands: RedisAsyncCommands<String, String> = connection.async()
 
     init {
         totalPermits.requirePositiveNumber("totalPermits")
@@ -121,10 +130,10 @@ return v"""
     suspend fun tryAcquire(permits: Int = 1): Boolean {
         permits.requirePositiveNumber("permits")
 
-        val result = asyncCommands.eval<Long>(
-            ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
+        val result = RedisScriptRunner.runSuspending<Long>(
+            asyncCommands, ACQUIRE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString()
-        ).await()
+        )
         val acquired = result >= 0
         log.debug { "Semaphore tryAcquire: key=$semaphoreKey, permits=$permits, acquired=$acquired" }
         return acquired
@@ -178,10 +187,10 @@ return v"""
     suspend fun release(permits: Int = 1) {
         permits.requirePositiveNumber("permits")
 
-        val remaining = asyncCommands.eval<Long>(
-            RELEASE_SCRIPT, ScriptOutputType.INTEGER,
+        val remaining = RedisScriptRunner.runSuspending<Long>(
+            asyncCommands, RELEASE_SCRIPT, ScriptOutputType.INTEGER,
             arrayOf(semaphoreKey), permits.toString(), totalPermits.toString()
-        ).await()
+        )
         log.debug { "Semaphore release: key=$semaphoreKey, permits=$permits, remaining=$remaining" }
     }
 }

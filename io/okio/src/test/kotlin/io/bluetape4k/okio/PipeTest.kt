@@ -27,6 +27,7 @@ import java.io.InterruptedIOException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class PipeTest: AbstractOkioTest() {
 
@@ -394,19 +395,19 @@ class PipeTest: AbstractOkioTest() {
         val pipe = Pipe(100L)
 
         val job = launch {
-            delay(1000L)
+            delay(1000L.milliseconds)
             log.debug { "Write abc" }
             pipe.sink.write(bufferOf("abc"), 3L)
 
-            delay(1000L)
+            delay(1000L.milliseconds)
             log.debug { "Write def" }
             pipe.sink.write(bufferOf("def"), 3L)
 
-            delay(1000L)
+            delay(1000L.milliseconds)
             log.debug { "Write ghi" }
             pipe.sink.write(bufferOf("ghi"), 3L)
 
-            delay(1000L)
+            delay(1000L.milliseconds)
             log.debug { "Write jkl" }
             pipe.sink.write(bufferOf("jkl"), 3L)
         }

@@ -103,4 +103,48 @@ class MySqlWkbUtilsTest {
         val parsedSrid = ByteBuffer.wrap(bytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).int
         parsedSrid.shouldBeEqualTo(SRID_WGS84)
     }
+
+    @Test
+    fun `parseMySqlInternalGeometry - LineString 라운드트립`() {
+        val coords = arrayOf(
+            Coordinate(126.97, 37.56),
+            Coordinate(126.98, 37.57),
+            Coordinate(126.99, 37.58),
+        )
+        val line = geometryFactory.createLineString(coords)
+        line.srid = SRID_WGS84
+
+        val bytes = MySqlWkbUtils.buildMySqlInternalGeometry(line)
+        val parsed = MySqlWkbUtils.parseMySqlInternalGeometry(bytes)
+
+        parsed.equalsExact(line, 1e-10).shouldBeTrue()
+        parsed.srid.shouldBeEqualTo(SRID_WGS84)
+        parsed.numPoints.shouldBeEqualTo(3)
+    }
+
+    @Test
+    fun `parseMySqlInternalGeometry - MultiPoint 라운드트립`() {
+        val p1 = geometryFactory.createPoint(Coordinate(126.97, 37.56))
+        val p2 = geometryFactory.createPoint(Coordinate(126.98, 37.57))
+        val mp = geometryFactory.createMultiPoint(arrayOf(p1, p2))
+        mp.srid = SRID_WGS84
+
+        val bytes = MySqlWkbUtils.buildMySqlInternalGeometry(mp)
+        val parsed = MySqlWkbUtils.parseMySqlInternalGeometry(bytes)
+
+        parsed.equalsExact(mp, 1e-10).shouldBeTrue()
+        parsed.srid.shouldBeEqualTo(SRID_WGS84)
+        parsed.numGeometries.shouldBeEqualTo(2)
+    }
+
+    @Test
+    fun `buildMySqlInternalGeometry - 결과 크기는 4 + WKB 크기`() {
+        val point = geometryFactory.createPoint(Coordinate(1.0, 2.0))
+        // Point WKB: 1(byteOrder) + 4(type) + 8(x) + 8(y) = 21 bytes
+        val expectedWkbSize = 21
+
+        val bytes = MySqlWkbUtils.buildMySqlInternalGeometry(point)
+
+        bytes.size.shouldBeEqualTo(4 + expectedWkbSize)
+    }
 }

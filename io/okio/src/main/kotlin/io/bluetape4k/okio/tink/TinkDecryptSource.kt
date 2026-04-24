@@ -62,7 +62,6 @@ open class TinkDecryptSource(
         if (decryptedReady) {
             return
         }
-        decryptedReady = true
 
         val encryptedBuffer = Buffer()
         var noProgressCount = 0
@@ -81,12 +80,12 @@ open class TinkDecryptSource(
             noProgressCount = 0
         }
 
-        if (encryptedBuffer.size == 0L) {
-            return
+        if (encryptedBuffer.size > 0L) {
+            val decryptedBytes = encryptor.decrypt(encryptedBuffer.readByteArray())
+            decryptedBuffer.write(decryptedBytes)
         }
-
-        val decryptedBytes = encryptor.decrypt(encryptedBuffer.readByteArray())
-        decryptedBuffer.write(decryptedBytes)
+        // Set only after successful completion to prevent data loss on exception
+        decryptedReady = true
     }
 
     /**

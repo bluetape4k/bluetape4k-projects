@@ -621,6 +621,25 @@ sequenceDiagram
 | `core/TableExtensions.kt`                           | Table metadata extension functions             |
 | `core/SchemaUtilsExtensions.kt`                     | SchemaUtils extension functions                |
 
+## Performance Benchmarks
+
+JMH benchmark results for `ExposedJdbcBenchmark` (PostgreSQL via Testcontainers, HikariCP pool).
+See [2026-04-21-self-improve.md](./2026-04-21-self-improve.md) for the full optimization history.
+
+**Environment**: Java 21, Kotlin 2.3, PostgreSQL 16, HikariCP max=24, @Threads(14), @Warmup(3×3s) + @Measurement(5×5s)
+
+| Benchmark | ops/s |
+|-----------|-------|
+| `singleInsert` | ~14,400 |
+| `singleFindById` | ~15,000 |
+| `singleUpdate` | ~14,300 |
+| `joinQuery` (INNER JOIN + WHERE + LIMIT 100) | ~1,510 |
+| `batchInsert` (batchSize=100) | ~217 |
+| **Total** | **~45,431** |
+
+> Optimized over 8 rounds of automated self-improve: **+78.9% improvement** from baseline (25,401 → 45,431 ops/s).
+> Key wins: HikariCP pool tuning (+71%), composite index on `bench_orders` (+1.5%), JMH measurement stabilization (+2.9%).
+
 ## Testing
 
 ```bash

@@ -77,4 +77,44 @@ class TinkEncryptSinkTest: AbstractTinkEncryptTest() {
             sink.write(source, source.size + 1L)
         }
     }
+
+    @Test
+    fun `write empty source produces no output`() {
+        val source = bufferOf(ByteArray(0))
+        val encrypted = Buffer()
+        val sink = encrypted.asTinkEncryptSink(TinkEncryptors.AES256_GCM)
+
+        sink.write(source, 0L)
+        encrypted.size shouldBeEqualTo 0L
+    }
+
+    @ParameterizedTest
+    @MethodSource("encryptors")
+    fun `encrypt sink close delegates to underlying sink`(encryptor: TinkEncryptor) {
+        val underlying = Buffer()
+        val encryptSink = underlying.asTinkEncryptSink(encryptor)
+
+        // close를 호출해도 예외가 발생하지 않아야 합니다.
+        encryptSink.close()
+    }
+
+    @ParameterizedTest
+    @MethodSource("encryptors")
+    fun `multiple writes are independently encrypted`(encryptor: TinkEncryptor) {
+        val plainText1 = "first chunk"
+        val plainText2 = "second chunk"
+
+        val output = Buffer()
+        val encryptSink = output.asTinkEncryptSink(encryptor)
+
+        // 두 번 쓰면 두 개의 독립적인 암호문이 누적된다.
+        encryptSink.write(bufferOf(plainText1), plainText1.length.toLong())
+        val encrypted1Size = output.size
+
+        encryptSink.write(bufferOf(plainText2), plainText2.length.toLong())
+        val totalEncryptedSize = output.size
+
+        // 두 번째 write 후에도 데이터가 누적되어야 한다.
+        (totalEncryptedSize > encrypted1Size) shouldBeEqualTo true
+    }
 }

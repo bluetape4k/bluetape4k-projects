@@ -43,11 +43,21 @@ class MeasureColumnType<T: Units>(
 
     override fun sqlType(): String = delegate.sqlType()
 
+    /**
+     * DB에서 읽은 값을 [Measure]로 변환합니다.
+     *
+     * - [Measure] 인스턴스는 그대로 캐스팅합니다.
+     * - [Number]는 [fromBaseValue]로 복원합니다.
+     * - 그 외 타입은 즉시 예외를 던집니다 (DB 컬럼 타입 불일치).
+     */
     @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): Measure<T>? = when (value) {
         is Measure<*> -> value as Measure<T>
-        is Number -> fromBaseValue(value.toDouble())
-        else      -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
+        is Number     -> fromBaseValue(value.toDouble())
+        else          -> error(
+            "MeasureColumnType(baseUnit=$baseUnit): DB에서 읽은 값 타입이 지원되지 않습니다. " +
+                "value=$value, type=${value::class.qualifiedName}"
+        )
     }
 
     override fun notNullValueToDB(value: Measure<T>): Any = value `in` baseUnit
@@ -74,10 +84,20 @@ class TemperatureColumnType: ColumnType<Temperature>() {
 
     override fun sqlType(): String = delegate.sqlType()
 
+    /**
+     * DB에서 읽은 값을 [Temperature]로 변환합니다.
+     *
+     * - [Temperature] 인스턴스는 그대로 반환합니다.
+     * - [Number]는 Kelvin 기준 [Temperature.fromKelvin]으로 복원합니다.
+     * - 그 외 타입은 즉시 예외를 던집니다 (DB 컬럼 타입 불일치).
+     */
     override fun valueFromDB(value: Any): Temperature? = when (value) {
         is Temperature -> value
-        is Number -> Temperature.fromKelvin(value.toDouble())
-        else      -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
+        is Number      -> Temperature.fromKelvin(value.toDouble())
+        else           -> error(
+            "TemperatureColumnType: DB에서 읽은 값 타입이 지원되지 않습니다. " +
+                "value=$value, type=${value::class.qualifiedName}"
+        )
     }
 
     override fun notNullValueToDB(value: Temperature): Any = value.inKelvin()
@@ -104,10 +124,20 @@ class TemperatureDeltaColumnType: ColumnType<TemperatureDelta>() {
 
     override fun sqlType(): String = delegate.sqlType()
 
+    /**
+     * DB에서 읽은 값을 [TemperatureDelta]로 변환합니다.
+     *
+     * - [TemperatureDelta] 인스턴스는 그대로 반환합니다.
+     * - [Number]는 Kelvin delta 기준 [TemperatureDelta]로 복원합니다.
+     * - 그 외 타입은 즉시 예외를 던집니다 (DB 컬럼 타입 불일치).
+     */
     override fun valueFromDB(value: Any): TemperatureDelta? = when (value) {
         is TemperatureDelta -> value
-        is Number -> TemperatureDelta(value.toDouble())
-        else      -> error("Unexpected value=$value, type=${value::class.qualifiedName}")
+        is Number           -> TemperatureDelta(value.toDouble())
+        else                -> error(
+            "TemperatureDeltaColumnType: DB에서 읽은 값 타입이 지원되지 않습니다. " +
+                "value=$value, type=${value::class.qualifiedName}"
+        )
     }
 
     override fun notNullValueToDB(value: TemperatureDelta): Any = value.inKelvin()

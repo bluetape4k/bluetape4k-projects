@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 연속 중복 값을 제거한 `ReceiveChannel`을 생성합니다.
@@ -226,7 +227,7 @@ suspend fun <E> ReceiveChannel<E>.debounce(
             val currentTime = System.currentTimeMillis()
             if (currentTime < nextTime) {
                 // 지연시키기
-                delay(timeMillis = minOf(nextTime - currentTime, waitMillis))
+                delay(minOf(nextTime - currentTime, waitMillis).milliseconds)
                 var mostRecent = received
                 // channel에 요소가 있다면 가장 최신의 요소를 얻기 위해 계속 수신합니다. (중간 요소들은 모두 무시됩니다)
                 while (true) {

@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -97,5 +98,41 @@ class TrinoConnectionWrapperTest {
 
         result shouldBeEqualTo mockStatement
         verify { mockConn.prepareStatement(sql) }
+    }
+
+    @Test
+    fun `close 호출 시 내부 JDBC 연결에 close 를 위임한다`() {
+        every { mockConn.close() } just runs
+        val wrapper = TrinoConnectionWrapper(mockConn)
+
+        wrapper.close()
+
+        verify(exactly = 1) { mockConn.close() }
+    }
+
+    @Test
+    fun `isClosed 는 내부 JDBC 연결의 isClosed 를 위임한다`() {
+        every { mockConn.isClosed } returns false
+        val wrapper = TrinoConnectionWrapper(mockConn)
+
+        wrapper.isClosed.shouldBeFalse()
+    }
+
+    @Test
+    fun `여러 번 commit 호출해도 예외 없이 완료된다`() {
+        val wrapper = TrinoConnectionWrapper(mockConn)
+
+        repeat(3) { wrapper.commit() }
+        // commit은 no-op이므로 내부 연결에는 위임하지 않아야 합니다.
+        verify(exactly = 0) { mockConn.commit() }
+    }
+
+    @Test
+    fun `여러 번 rollback 호출해도 예외 없이 완료된다`() {
+        val wrapper = TrinoConnectionWrapper(mockConn)
+
+        repeat(3) { wrapper.rollback() }
+        // rollback은 no-op이므로 내부 연결에는 위임하지 않아야 합니다.
+        verify(exactly = 0) { mockConn.rollback() }
     }
 }

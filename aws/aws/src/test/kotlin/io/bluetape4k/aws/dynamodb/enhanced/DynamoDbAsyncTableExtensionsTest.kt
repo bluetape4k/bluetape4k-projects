@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType
 import java.io.Serializable
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
 
@@ -67,11 +68,11 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
             }.await()
 
         // 테이블 활성화 대기
-        delay(500)
+        delay(500.milliseconds)
 
         val entity = TestEntity(UUID.randomUUID().toString(), "John", 30)
         table.putItem(entity)
-        delay(100)
+        delay(100.milliseconds)
 
         val result = table.getItem(entity.id)
 
@@ -116,7 +117,7 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
                 )
             }.await()
 
-        delay(500)
+        delay(500.milliseconds)
 
         val result = table.getItem("non-existent-id")
         result.shouldBeNull()
@@ -157,11 +158,11 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
                 )
             }.await()
 
-        delay(500)
+        delay(500.milliseconds)
 
         val entity = TestEntity(UUID.randomUUID().toString(), "Jane", 25)
         table.putItem(entity)
-        delay(100)
+        delay(100.milliseconds)
 
         val beforeDelete = table.getItem(entity.id)
         beforeDelete.shouldNotBeNull()
@@ -171,7 +172,7 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
         deleted.shouldNotBeNull()
         deleted.id shouldBeEqualTo entity.id
 
-        delay(100)
+        delay(100.milliseconds)
         val afterDelete = table.getItem(entity.id)
         afterDelete.shouldBeNull()
 
@@ -211,11 +212,11 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
                 )
             }.await()
 
-        delay(500)
+        delay(500.milliseconds)
 
         val entity = TestEntity(UUID.randomUUID().toString(), "Test", 30)
         table.putItem(entity)
-        delay(100)
+        delay(100.milliseconds)
 
         val exists = table.exists(entity.id)
         exists.shouldBeTrue()
@@ -256,7 +257,7 @@ class DynamoDbAsyncTableExtensionsTest: AbstractDynamodbTest() {
                 )
             }.await()
 
-        delay(500)
+        delay(500.milliseconds)
 
         val exists = table.exists("non-existent")
         exists.shouldBeFalse()

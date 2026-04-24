@@ -48,14 +48,24 @@ fun FieldSet.fetchBatchedResultFlow(
  * ## 동작/계약
  * - 현재 Query의 `set`, 기존 `where`, 추가 `where`를 함께 사용해 [SuspendedQuery]를 만들고 배치 조회를 수행합니다.
  * - 추가 `where`가 있으면 기존 조건과 `AND`로 결합됩니다.
- * - 수동 `limit`/`orderBy`가 이미 걸린 Query는 [SuspendedQuery.fetchBatchResultFlow]에서 거부됩니다.
+ * - 수동 `limit`/`orderBy`가 이미 걸린 Query는 즉시 [IllegalArgumentException]을 던집니다.
+ *   [SuspendedQuery] 생성자가 `limit`/`orderByExpressions`를 복사하지 않으므로 여기서 사전 검증합니다.
  */
 fun Query.fetchBatchedResultFlow(
     batch: Int = DEFAULT_BATCH_SIZE,
     sortOrder: SortOrder = SortOrder.ASC,
     where: Op<Boolean>? = null,
-): Flow<List<ResultRow>> =
-    SuspendedQuery(this@fetchBatchedResultFlow, where = where).fetchBatchResultFlow(batch, sortOrder)
+): Flow<List<ResultRow>> {
+    // WHY: SuspendedQuery 생성자는 sourceQuery 의 limit/orderByExpressions 를 복사하지 않습니다.
+    // 따라서 이미 limit/orderBy 가 설정된 Query 를 그대로 전달하면 해당 설정이 무시되어
+    // 의도하지 않은 배치 결과가 발생할 수 있습니다. caller 에게 즉시 명확한 예외를 전달해
+    // 사용 오류를 조기에 발견할 수 있도록 진입점에서 사전 검증합니다.
+    require(limit == null) { "A manual `LIMIT` clause should not be set. By default, `batchSize` will be used." }
+    require(orderByExpressions.isEmpty()) {
+        "A manual `ORDER BY` clause should not be set. By default, the auto-incrementing column will be used."
+    }
+    return SuspendedQuery(this@fetchBatchedResultFlow, where = where).fetchBatchResultFlow(batch, sortOrder)
+}
 
 /**
  * Exposed Query를 커서 기반 배치 조회 [Flow]로 노출하는 Query 구현입니다.
@@ -90,6 +100,8 @@ open class SuspendedQuery(
         sortOrder: SortOrder = SortOrder.ASC,
     ): Flow<List<ResultRow>> {
         batchSize.requirePositiveNumber("batchSize")
+        // WHY: fetchBatchResultFlow 는 내부에서 limit = batchSize 와 orderBy = cursorColumn 을 직접 설정합니다.
+        // 외부에서 이미 limit/orderBy 를 지정하면 내부 설정과 충돌하여 페이징이 올바르게 동작하지 않습니다.
         require(limit == null) { "A manual `LIMIT` clause should not be set. By default, `batchSize` will be used." }
         require(orderByExpressions.isEmpty()) {
             "A manual `ORDER BY` clause should not be set. By default, the auto-incrementing column will be used."
@@ -176,7 +188,15 @@ open class SuspendedQuery(
                     }
                     if (results.size < batchSize) break
 
-                    lastOffset = toLong(results.last()[cursorColumn]!!)
+                    // WHY: `!!` 연산자 대신 requireNotNull 을 사용해 명확한 에러 메시지를 제공합니다.
+                    // cursorColumn 값이 null 이면 다음 배치의 시작 오프셋을 계산할 수 없어 무한루프 또는
+                    // 잘못된 결과가 발생합니다. PK 컬럼은 통상 NOT NULL 이지만, nullable Column 을
+                    // cursorColumn 으로 잘못 지정한 경우에도 명확한 진단 메시지로 즉시 실패시킵니다.
+                    lastOffset = toLong(
+                        requireNotNull(results.last().getOrNull(cursorColumn)) {
+                            "커서 컬럼(${cursorColumn.name}) 값이 null입니다. NOT NULL 컬럼을 커서로 사용하세요."
+                        }
+                    )
                 }
             } finally {
                 this@SuspendedQuery.limit = originalLimit

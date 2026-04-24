@@ -1,9 +1,7 @@
 package io.bluetape4k.csv.coroutines
 
-import com.univocity.parsers.csv.CsvWriterSettings
-import com.univocity.parsers.tsv.TsvWriterSettings
-import io.bluetape4k.csv.DefaultCsvWriterSettings
-import io.bluetape4k.csv.DefaultTsvWriterSettings
+import io.bluetape4k.csv.CsvSettings
+import io.bluetape4k.csv.TsvSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -28,7 +26,7 @@ suspend fun File.writeCsvRecordsSuspending(
     headers: List<String>? = null,
     rows: Iterable<Iterable<*>>,
     cs: Charset = UTF_8,
-    settings: CsvWriterSettings = DefaultCsvWriterSettings,
+    settings: CsvSettings = CsvSettings.DEFAULT,
 ) {
     withContext(Dispatchers.IO) {
         FileWriter(this@writeCsvRecordsSuspending, cs).buffered().use { bufferedWriter ->
@@ -57,7 +55,7 @@ suspend fun <T> File.writeCsvRecordsSuspending(
     headers: List<String>? = null,
     entities: Iterable<T>,
     cs: Charset = UTF_8,
-    settings: CsvWriterSettings = DefaultCsvWriterSettings,
+    settings: CsvSettings = CsvSettings.DEFAULT,
     transform: (T) -> Iterable<*>,
 ) {
     withContext(Dispatchers.IO) {
@@ -87,7 +85,7 @@ suspend fun File.writeTsvRecordsSuspending(
     headers: List<String>? = null,
     rows: Iterable<Iterable<*>>,
     cs: Charset = UTF_8,
-    settings: TsvWriterSettings = DefaultTsvWriterSettings,
+    settings: TsvSettings = TsvSettings.DEFAULT,
 ) {
     withContext(Dispatchers.IO) {
         FileWriter(this@writeTsvRecordsSuspending, cs).buffered().use { bufferedWriter ->
@@ -105,7 +103,7 @@ suspend fun File.writeTsvRecordsSuspending(
  * ## 동작/계약
  * - 전체 쓰기는 `Dispatchers.IO`에서 실행됩니다.
  * - [transform] 결과를 행으로 기록합니다.
- * - 변환/쓰기 예외는 호출자에게 전파됩니다.
+ * - 변환/쓰기 예외는 전파됩니다.
  *
  * ```kotlin
  * file.writeTsvRecordsSuspending(headers = listOf("name"), entities = listOf("Alice")) { listOf(it) }
@@ -116,7 +114,7 @@ suspend fun <T> File.writeTsvRecordsSuspending(
     headers: List<String>? = null,
     entities: Iterable<T>,
     cs: Charset = UTF_8,
-    settings: TsvWriterSettings = DefaultTsvWriterSettings,
+    settings: TsvSettings = TsvSettings.DEFAULT,
     transform: (T) -> Iterable<*>,
 ) {
     withContext(Dispatchers.IO) {

@@ -18,9 +18,11 @@ import java.security.SecureRandom
  */
 object Base58: KLogging() {
 
+    private const val ASCII_TABLE_SIZE = 128
+
     private val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
     private val ENCODED_ZERO: Char = ALPHABET[0]
-    private val INDEXES: IntArray = IntArray(128) { -1 }.apply {
+    private val INDEXES: IntArray = IntArray(ASCII_TABLE_SIZE) { -1 }.apply {
         ALPHABET.forEachIndexed { i, ch ->
             this[ch.code] = i
         }
@@ -62,11 +64,7 @@ object Base58: KLogging() {
             return ""
         }
 
-        // Count leading zeros.
-        var zeros = 0
-        while (zeros < source.size && source[zeros].toInt() == 0) {
-            zeros++
-        }
+        val zeros = source.indexOfFirst { it.toInt() != 0 }.let { if (it < 0) source.size else it }
 
         // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
         val input = source.copyOf(source.size)
@@ -84,7 +82,7 @@ object Base58: KLogging() {
         while (outputStart < encoded.size && encoded[outputStart] == ENCODED_ZERO) {
             ++outputStart
         }
-        while (--zeros >= 0) {
+        repeat(zeros) {
             encoded[--outputStart] = ENCODED_ZERO
         }
         // 인코딩된 문자열을 반환합니다(선행하는 0을 포함합니다).
@@ -120,18 +118,14 @@ object Base58: KLogging() {
         // Base58 ASCII 문자열을 Base58 바이트 배열로 변환합니다.
         val input58 = ByteArray(source.length) {
             val c = source[it]
-            val digit = if (c.code < 128) INDEXES[c.code] else -1
+            val digit = if (c.code < INDEXES.size) INDEXES[c.code] else -1
             if (digit < 0) {
                 throw IllegalArgumentException("Illegal character in Base58: `$c` at position $it")
             }
             digit.toByte()
         }
 
-        // 선행하는 0의 개수를 세어봅니다.
-        var zeros = 0
-        while (zeros < input58.size && input58[zeros].toInt() == 0) {
-            zeros++
-        }
+        val zeros = input58.indexOfFirst { it.toInt() != 0 }.let { if (it < 0) input58.size else it }
 
         // Base-58 숫자를 Base-256 숫자로 변환합니다.
         val decoded = ByteArray(source.length)

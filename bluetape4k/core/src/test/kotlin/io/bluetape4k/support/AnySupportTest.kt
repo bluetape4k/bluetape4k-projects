@@ -37,22 +37,6 @@ class AnySupportTest {
     }
 
     @Test
-    fun `두 값 비교하기 with null safe`() {
-        val a: String? = null
-        val b: Int? = null
-        areEquals(a, b).shouldBeTrue()
-
-        areEquals(null, null).shouldBeTrue()
-        areEquals(null, "").shouldBeFalse()
-        areEquals("", "").shouldBeTrue()
-        areEquals("a", "a").shouldBeTrue()
-
-        // Array 도 비교할 수 있다
-        areEquals(emptyIntArray, emptyIntArray).shouldBeTrue()
-        areEquals(byteArrayOf(1), byteArrayOf(1)).shouldBeFalse()
-    }
-
-    @Test
     fun `두 array 비교하기`() {
         arrayEquals(byteArrayOf(1), byteArrayOf(1)).shouldBeTrue()
         arrayEquals(byteArrayOf(1), byteArrayOf(2)).shouldBeFalse()

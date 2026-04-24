@@ -56,7 +56,14 @@ class PermutationStream<T>(val underlying: Permutation<T>): Stream<T> {
     private var closed: Boolean = false
     private var closeHandler: Runnable? = null
 
-    private fun underlyingStream(): Stream<T> = underlying.toList().stream()
+    private fun underlyingStream(): Stream<T> =
+        java.util.stream.StreamSupport.stream(
+            java.util.Spliterators.spliteratorUnknownSize(
+                underlying.iterator(),
+                java.util.Spliterator.ORDERED
+            ),
+            false
+        )
 
     /**
      * 초깃값과 누산 함수를 사용하여 모든 요소를 하나의 값으로 줄입니다.
@@ -198,6 +205,8 @@ class PermutationStream<T>(val underlying: Permutation<T>): Stream<T> {
      */
     @Suppress("UNCHECKED_CAST")
     override fun findFirst(): Optional<T> {
+        @Suppress("UNCHECKED_CAST")
+        if (underlying.isEmpty()) return Optional.empty<T>() as Optional<T>
         return Optional.ofNullable(underlying.head) as Optional<T>
     }
 
@@ -213,6 +222,8 @@ class PermutationStream<T>(val underlying: Permutation<T>): Stream<T> {
      */
     @Suppress("UNCHECKED_CAST")
     override fun findAny(): Optional<T> {
+        @Suppress("UNCHECKED_CAST")
+        if (underlying.isEmpty()) return Optional.empty<T>() as Optional<T>
         return Optional.ofNullable(underlying.head) as Optional<T>
     }
 

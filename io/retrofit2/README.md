@@ -6,7 +6,7 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-retrofit2` is a module that extends [Retrofit2](https://square.github.io/retrofit/) with Kotlin DSL and Coroutines support.
 
-Beyond the default OkHttp transport, it supports multiple HTTP backends including Apache HC5, Vert.x, and AsyncHttpClient. It also provides error handling via Kotlin's
+Beyond the default OkHttp transport, it supports multiple HTTP backends including Apache HC5 and Vert.x. It also provides error handling via Kotlin's
 `Result` type and automatically detects and registers Reactive Streams adapters.
 
 ## Architecture
@@ -31,7 +31,6 @@ flowchart TD
         OKH[OkHttpClient\ndefault]
         HC5[Hc5CallFactory\nApache HC5]
         VTX[VertxCallFactory\nVert.x]
-        AHC[AhcCallFactory\nAsyncHttpClient]
     end
 
     subgraph Converter["Converter Factory"]
@@ -49,7 +48,6 @@ flowchart TD
     OKH --> SERVER[(HTTP Server)]
     HC5 --> SERVER
     VTX --> SERVER
-    AHC --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
     classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
@@ -58,7 +56,7 @@ flowchart TD
 
     class APP,API coreStyle
     class RB,RCA,RC serviceStyle
-    class OKH,HC5,VTX,AHC asyncStyle
+    class OKH,HC5,VTX asyncStyle
     class JCF,SCF utilStyle
     class RX utilStyle
 ```
@@ -100,16 +98,11 @@ classDiagram
         +newCall(request) Call
     }
 
-    class AhcCallFactory {
-        +newCall(request) Call
-    }
-
     CallAdapter <|.. ResultCallAdapterFactory
     ResultCallAdapterFactory ..> ResultCall : creates
     Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
     Retrofit --> Hc5CallFactory : callFactory
     Retrofit --> VertxCallFactory : callFactory
-    Retrofit --> AhcCallFactory : callFactory
 
     style Retrofit fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style CallAdapter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
@@ -117,7 +110,6 @@ classDiagram
     style ResultCall fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style Hc5CallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style VertxCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style AhcCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### Suspend Function HTTP Request Flow (Result Pattern)
@@ -237,7 +229,6 @@ Use HTTP clients other than OkHttp3 as a `Call.Factory`.
 | OkHttpClient (default) | OkHttp3                 | Lightweight, HTTP/2, general purpose        |
 | Hc5CallFactory         | Apache HttpComponents 5 | Rich configuration, enterprise environments |
 | VertxCallFactory       | Vert.x                  | Event-loop based, high performance          |
-| AhcCallFactory         | AsyncHttpClient         | Netty-based, high-volume async requests     |
 
 ```kotlin
 // Retrofit with Apache HC5
@@ -340,8 +331,6 @@ io.bluetape4k.retrofit2
     ├── vertx/                       # Vert.x CallFactory
     │   ├── VertxCallFactory.kt
     │   └── VertxOkHttp3Support.kt
-    └── ahc/                         # AsyncHttpClient CallFactory
-        └── AhcCallFactorySupport.kt
 ```
 
 ## Dependencies

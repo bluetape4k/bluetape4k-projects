@@ -1,6 +1,8 @@
 package io.bluetape4k.coroutines.flow.extensions
 
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
@@ -153,12 +155,14 @@ private fun <T> repeatIndefinitely(
 ): Flow<T> = when (durationFunc) {
     null -> flow {
         while (true) {
+            currentCoroutineContext().ensureActive()
             emitAll(flow)
         }
     }
 
     is FixedDelayDurationFunction -> flow {
         while (true) {
+            currentCoroutineContext().ensureActive()
             emitAll(flow)
             delay(durationFunc.duration)
         }
@@ -167,6 +171,7 @@ private fun <T> repeatIndefinitely(
     else -> flow {
         var soFar = 1
         while (true) {
+            currentCoroutineContext().ensureActive()
             emitAll(flow)
             delay(durationFunc(soFar++))
         }

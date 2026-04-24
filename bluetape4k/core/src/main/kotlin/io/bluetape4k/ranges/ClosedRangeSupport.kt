@@ -16,16 +16,8 @@ import java.math.BigInteger
  *
  * @return 컬렉션이 비어있거나 각 원소의 start 값이 비내림차순이면 `true`
  */
-fun <T: Comparable<T>> Iterable<ClosedRange<T>>.isAscending(): Boolean {
-    val first = firstOrNull() ?: return true
-
-    var max = first.start
-    return drop(1).fold(true) { isAscending, elem ->
-        val newAscending = isAscending && (max <= elem.start)
-        max = maxOf(max, elem.start)
-        newAscending
-    }
-}
+fun <T: Comparable<T>> Iterable<ClosedRange<T>>.isAscending(): Boolean =
+    zipWithNext().all { (prev, next) -> prev.start <= next.start }
 
 /**
  * [BigDecimal] 수형의 [ClosedClosedRange]를 생성합니다.

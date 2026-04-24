@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -25,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 suspend fun <T> SubjectApi<T>.awaitCollector(timeout: Duration = 5.seconds) {
     withTimeout(timeout) {
         while (!hasCollectors) {
-            delay(1)
+            delay(1.milliseconds)
         }
     }
 }
@@ -53,7 +54,7 @@ suspend fun <T> SubjectApi<T>.awaitCollectors(minCollectorCount: Int = 1, timeou
     val limit = minCollectorCount.coerceAtLeast(1)
     withTimeout(timeout) {
         while (collectorCount < limit) {
-            delay(1)
+            delay(1.milliseconds)
         }
     }
 }

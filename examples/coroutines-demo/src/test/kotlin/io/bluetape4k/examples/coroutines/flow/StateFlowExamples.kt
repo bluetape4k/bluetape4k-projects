@@ -16,6 +16,7 @@ import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 상태를 관리하는 [MutableStateFlow] 에 대한 예제
@@ -65,7 +66,7 @@ class StateFlowExamples {
     @Test
     fun `stateIn - 일반 flow 를 StateFlow로 변환하기`() = runTest {
         val flow = flowOf("A", "B", "C")
-            .onEach { delay(100) }
+            .onEach { delay(100.milliseconds) }
             .log("source")
 
         // stateIn 을 이용하여 일반 Flow를 StateFlow로 변환합니다.
@@ -82,7 +83,7 @@ class StateFlowExamples {
                 .collect { receivedCounter.incrementAndGet() }
         }
 
-        advanceTimeBy(500)
+        advanceTimeBy(500.milliseconds)
         log.info { "State=${stateFlow.value}" }
 
         // state 가 A -> B -> C 로 3번 변경되었다 

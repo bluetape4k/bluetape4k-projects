@@ -204,7 +204,8 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     suspend fun deleteAll(keys: Collection<K>) {
         if (keys.isEmpty()) return
         if (config.writeMode != WriteMode.NONE) writer?.delete(keys)
-        asyncCommands.del(*keys.map { redisKey(it) }.toTypedArray()).await()
+        // 개선: 대량 삭제는 UNLINK(비동기 해제)로 전환해 이벤트루프 블로킹을 최소화합니다.
+        asyncCommands.unlink(*keys.map { redisKey(it) }.toTypedArray()).await()
     }
 
     /**
@@ -223,7 +224,8 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      */
     suspend fun evictAll(keys: Collection<K>) {
         if (keys.isEmpty()) return
-        asyncCommands.del(*keys.map { redisKey(it) }.toTypedArray()).await()
+        // 개선: 캐시 대량 만료는 UNLINK 로 전환.
+        asyncCommands.unlink(*keys.map { redisKey(it) }.toTypedArray()).await()
     }
 
     /**
@@ -241,7 +243,8 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         do {
             val scanResult = asyncCommands.scan(cursor, scanArgs).await()
             if (scanResult.keys.isNotEmpty()) {
-                deleted += asyncCommands.del(*scanResult.keys.toTypedArray()).await()
+                // 개선: SCAN+DEL → SCAN+UNLINK 로 대용량 invalidate 비차단 처리.
+                deleted += asyncCommands.unlink(*scanResult.keys.toTypedArray()).await()
             }
             cursor = scanResult
         } while (!cursor.isFinished)
@@ -258,7 +261,8 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         do {
             val scanResult = asyncCommands.scan(cursor, scanArgs).await()
             if (scanResult.keys.isNotEmpty()) {
-                asyncCommands.del(*scanResult.keys.toTypedArray()).await()
+                // 개선: clear() 도 UNLINK 적용.
+                asyncCommands.unlink(*scanResult.keys.toTypedArray()).await()
             }
             cursor = scanResult
         } while (!cursor.isFinished)
@@ -294,10 +298,16 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                     }
                 } else {
                     runCatching {
+                        // 개선: 기존엔 키만 LPUSH 해 실패 복구가 불가능했습니다.
+                        //       이제 키 리스트(모니터링용)와 해시(키→값, 복구용)를 함께 저장합니다.
                         val deadLetterKey = "${config.keyPrefix}:dead-letter"
+                        val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+                        val serializedKeys = batch.keys.map { keySerializer(it) }
                         strAsyncCommands
-                            .lpush(deadLetterKey, *batch.keys.map { keySerializer(it) }.toTypedArray())
+                            .lpush(deadLetterKey, *serializedKeys.toTypedArray())
                             .await()
+                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+                        asyncCommands.hset(deadLetterValuesKey, valueMap).await()
                     }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
                 }
             }

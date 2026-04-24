@@ -187,6 +187,7 @@ class PropertyExportingServerContractTest {
             "io.bluetape4k.testcontainers.mq.RabbitMQServer",
             "io.bluetape4k.testcontainers.database.MySQL8Server",
             "io.bluetape4k.testcontainers.database.MariaDBServer",
+            "io.bluetape4k.testcontainers.http.BluetapeWebfluxServer",
         )
 
         val contractInterface = PropertyExportingServer::class.java

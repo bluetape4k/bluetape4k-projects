@@ -99,7 +99,6 @@ fun DoubleArray.lastIndexOf(target: Double, start: Int = 0, end: Int = size - 1)
     start.requireInRange(0, end, "start")
     end.requireInOpenRange(start, size, "end")
 
-    this.min()
     for (i in end downTo start) {
         if (this[i] == target) {
             return i
@@ -183,10 +182,9 @@ fun DoubleArray.ensureCapacity(minCapacity: Int, padding: Int): DoubleArray {
 fun concat(vararg arrays: DoubleArray): DoubleArray {
     val totalLength = arrays.sumOf { it.size }
     val result = DoubleArray(totalLength)
-    var offset = 0
-    for (array in arrays) {
+    arrays.fold(0) { offset, array ->
         array.copyInto(result, offset)
-        offset += array.size
+        offset + array.size
     }
     return result
 }

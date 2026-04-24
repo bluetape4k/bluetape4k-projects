@@ -3,7 +3,7 @@ package io.bluetape4k.examples.virtualthreads.part2
 import io.bluetape4k.concurrent.virtualthread.runWith
 import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeAll
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.junit.jupiter.api.Assertions.fail
@@ -19,7 +19,7 @@ import kotlin.test.assertFailsWith
  */
 class Rule5UseThreadLocalCarefully: AbstractVirtualThreadTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Nested
     inner class DoNot {

@@ -25,7 +25,8 @@ import java.time.Duration
  *     updateEntity = { stmt, e -> stmt[ActorTable.name] = e.name },
  *     insertEntity = { stmt, e -> stmt[ActorTable.name] = e.name }
  * )
- * runBlocking { writer.write(mapOf(1L to ActorRecord(id = 1L, name = "Alice"))) }
+ * // suspend 컨텍스트(예: runTest, coroutineScope)에서 호출한다
+ * writer.write(mapOf(1L to ActorRecord(id = 1L, name = "Alice")))
  * ```
  *
  * @param ID PK 타입
@@ -72,15 +73,24 @@ class SuspendedExposedEntityMapWriter<ID: Any, E: Any>(
                 .toSet()
 
         existingIds.forEach { id ->
-            table.update({ table.id eq id }) { updateEntity(it, map[id]!!) }
+            // WHY: existingIds는 DB에서 map.keys를 기준으로 조회된 ID 집합이므로
+            //      map에 반드시 해당 키가 존재한다. !! 연산자 대신 requireNotNull을 사용해
+            //      NPE 발생 시 명확한 오류 메시지를 제공한다.
+            val entity = requireNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+            table.update({ table.id eq id }) { updateEntity(it, entity) }
         }
 
-        // AutoInc 테이블의 경우 DB가 ID를 할당하므로 클라이언트 지정 ID로 삽입하지 않는다
+        // WHY: AutoInc 테이블은 DB가 PK를 자동 할당하므로, 클라이언트가 지정한 ID로 INSERT하면
+        //      DUPLICATE KEY 오류가 발생할 수 있다. 따라서 AutoInc 테이블에는 신규 INSERT를 건너뛴다.
         val isAutoInc = table.id.autoIncColumnType != null
         val newIds = map.keys - existingIds
         if (newIds.isNotEmpty() && !isAutoInc) {
             newIds.chunked(chunkSize).forEach { chunk ->
-                table.batchInsert(chunk) { id -> insertEntity(this, map[id]!!) }
+                table.batchInsert(chunk) { id ->
+                    // WHY: newIds는 map.keys에서 existingIds를 뺀 집합이므로 map에 반드시 존재한다
+                    val entity = requireNotNull(map[id]) { "map에 id=$id 에 해당하는 엔티티가 없습니다" }
+                    insertEntity(this, entity)
+                }
             }
         }
     }

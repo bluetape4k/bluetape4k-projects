@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.Serializable
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [SuspendedJdbcCacheTestScenario] 기반 Write-Through 캐시 suspend 시나리오입니다.
@@ -77,7 +78,7 @@ interface SuspendedJdbcWriteThroughScenario<ID: Any, E: Serializable>: Suspended
             entityFromCache.shouldNotBeNull()
             assertSameEntityWithoutAudit(entityFromCache, updatedEntity)
 
-            delay(DEFAULT_DELAY)
+            delay(DEFAULT_DELAY.milliseconds)
 
             // DB에서 조회한 값
             val entityFromDB = repository.findByIdFromDb(id)
@@ -116,7 +117,7 @@ interface SuspendedJdbcWriteThroughScenario<ID: Any, E: Serializable>: Suspended
                 )
             }
 
-            delay(DEFAULT_DELAY)
+            delay(DEFAULT_DELAY.milliseconds)
 
             // DB에서 조회한 값
             val entitiesFromDB = repository.findAllFromDb(ids)
@@ -145,7 +146,7 @@ interface SuspendedJdbcWriteThroughScenario<ID: Any, E: Serializable>: Suspended
             val newMap = newEntities.associateBy { repository.extractId(it) }
             repository.putAll(newMap)
 
-            delay(DEFAULT_DELAY)
+            delay(DEFAULT_DELAY.milliseconds)
 
             val newCount = repository.table.selectAll().count()
 
@@ -173,7 +174,7 @@ interface SuspendedJdbcWriteThroughScenario<ID: Any, E: Serializable>: Suspended
             // 캐시에서 삭제
             repository.invalidate(id)
 
-            delay(DEFAULT_DELAY)
+            delay(DEFAULT_DELAY.milliseconds)
 
             // 캐시에서 삭제했지만, DB에는 여전히 존재한다.
             val entityFromDB = repository.findByIdFromDb(id)

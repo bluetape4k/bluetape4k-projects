@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import kotlin.time.Duration.Companion.milliseconds
 
 @SpringBootTest(classes = [BasicConfiguration::class])
 class BasicUserRepositoryTest(
@@ -78,7 +79,7 @@ class BasicUserRepositoryTest(
 		  whether they are available or not. So we are forced to just wait. *sigh*
 		 */
         log.debug { "Wait for create index ... 'basic_users_uname' " }
-        delay(100)
+        delay(100.milliseconds)
 
         val user = newBasicUser()
         repository.save(user)
@@ -101,7 +102,7 @@ class BasicUserRepositoryTest(
             Cassandra secondary indexes are created in the background without the possibility to check
             whether they are available or not. So we are forced to just wait. *sigh*
         */
-        delay(1000)
+        delay(1000.milliseconds)
 
         val user = newBasicUser()
         repository.save(user)

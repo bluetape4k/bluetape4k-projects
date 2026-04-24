@@ -126,14 +126,12 @@ class CheckpointJsonTest {
 
     @Test
     fun `jackson3 팩토리 - 반환 타입이 CheckpointJson`() {
-        val json = CheckpointJson.jackson3()
-        json shouldBeInstanceOf CheckpointJson::class
+        CheckpointJson.jackson3() shouldBeInstanceOf CheckpointJson::class
     }
 
     @Test
     fun `Jackson3CheckpointJson - write는 non-null JSON 문자열 반환`() {
-        val json = sut.write(100L)
-        json.isNotBlank() shouldBe true
+        sut.write(100L).isNotBlank() shouldBe true
     }
 
     @Test

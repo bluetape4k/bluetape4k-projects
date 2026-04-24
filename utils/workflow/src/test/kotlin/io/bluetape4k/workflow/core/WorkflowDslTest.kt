@@ -2,6 +2,7 @@ package io.bluetape4k.workflow.core
 
 import io.bluetape4k.workflow.api.AbstractWorkflowTest
 import io.bluetape4k.workflow.api.ErrorStrategy
+import io.bluetape4k.workflow.api.Work
 import io.bluetape4k.workflow.api.WorkReport
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
@@ -12,6 +13,19 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
 class WorkflowDslTest: AbstractWorkflowTest() {
+
+    private fun setCtxWork(name: String, key: String, value: Any): Work =
+        Work(name) { ctx -> ctx[key] = value; WorkReport.success(ctx) }
+
+    private fun countAndSetWork(name: String, counter: AtomicInteger, ctxKey: String): Work =
+        Work(name) { ctx -> val count = counter.incrementAndGet(); ctx[ctxKey] = count; WorkReport.success(ctx) }
+
+    private fun flakyWork(name: String, counter: AtomicInteger, failUntil: Int): Work =
+        Work(name) { ctx ->
+            val attempt = counter.incrementAndGet()
+            if (attempt < failUntil) WorkReport.failure(ctx, RuntimeException("attempt $attempt"))
+            else WorkReport.success(ctx)
+        }
 
     @Test
     fun `sequentialFlow DSL로 플로우 구성`() {
@@ -24,9 +38,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             errorStrategy(ErrorStrategy.CONTINUE)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -40,9 +52,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("p-3") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -52,19 +62,11 @@ class WorkflowDslTest: AbstractWorkflowTest() {
 
         val flow = conditionalFlow("test-conditional") {
             condition { ctx -> (ctx.get<Int>("value") ?: 0) > 5 }
-            then("big-value") { ctx ->
-                ctx["result"] = "big"
-                WorkReport.success(ctx)
-            }
-            otherwise("small-value") { ctx ->
-                ctx["result"] = "small"
-                WorkReport.success(ctx)
-            }
+            then(setCtxWork("big-value", "result", "big"))
+            otherwise(setCtxWork("small-value", "result", "small"))
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         context.get<String>("result") shouldBeEqualTo "big"
     }
 
@@ -73,18 +75,12 @@ class WorkflowDslTest: AbstractWorkflowTest() {
         val counter = AtomicInteger(0)
 
         val flow = repeatFlow("test-repeat") {
-            execute("count-step") { ctx ->
-                val count = counter.incrementAndGet()
-                ctx["count"] = count
-                WorkReport.success(ctx)
-            }
+            execute(countAndSetWork("count-step", counter, "count"))
             until { report -> (report.context.get<Int>("count") ?: 0) >= 3 }
             maxIterations(10)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -93,11 +89,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
         val counter = AtomicInteger(0)
 
         val flow = retryFlow("test-retry") {
-            execute("flaky-work") { ctx ->
-                val attempt = counter.incrementAndGet()
-                if (attempt < 2) WorkReport.failure(ctx, RuntimeException("attempt $attempt"))
-                else WorkReport.success(ctx)
-            }
+            execute(flakyWork("flaky-work", counter, 2))
             policy {
                 maxAttempts = 5
                 delay = 0.milliseconds
@@ -105,9 +97,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -126,9 +116,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 4
     }
 
@@ -143,9 +131,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -189,17 +175,12 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             conditional("branch") {
                 condition { ctx -> ctx.get<Boolean>("flag") == true }
                 then("true-branch") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
-                otherwise("false-branch") { ctx ->
-                    ctx["branch"] = "false"
-                    WorkReport.success(ctx)
-                }
+                otherwise(setCtxWork("false-branch", "branch", "false"))
             }
             execute("after") { ctx -> counter.incrementAndGet(); WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
         context.get<String>("branch") shouldBeEqualTo "false"
     }
@@ -211,11 +192,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
         val flow = sequentialFlow("seq-with-retry") {
             execute("before") { ctx -> WorkReport.success(ctx) }
             retry("inner-retry") {
-                execute("flaky") { ctx ->
-                    val attempt = counter.incrementAndGet()
-                    if (attempt < 3) WorkReport.failure(ctx, RuntimeException("fail $attempt"))
-                    else WorkReport.success(ctx)
-                }
+                execute(flakyWork("flaky", counter, 3))
                 policy {
                     maxAttempts = 5
                     delay = 0.milliseconds
@@ -224,9 +201,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 3
     }
 
@@ -235,18 +210,12 @@ class WorkflowDslTest: AbstractWorkflowTest() {
         val counter = AtomicInteger(0)
 
         val flow = repeatFlow("test-repeat-while") {
-            execute("step") { ctx ->
-                val count = counter.incrementAndGet()
-                ctx["count"] = count
-                WorkReport.success(ctx)
-            }
+            execute(countAndSetWork("step", counter, "count"))
             repeatWhile { report -> (report.context.get<Int>("count") ?: 0) < 5 }
             maxIterations(10)
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 5
     }
 
@@ -293,9 +262,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("fail-2") { ctx -> WorkReport.failure(ctx, RuntimeException("실패2")) }
         }
 
-        val report = flow.execute(context)
-
-        report shouldBeInstanceOf WorkReport.Failure::class
+        flow.execute(context) shouldBeInstanceOf WorkReport.Failure::class
     }
 
     @Test
@@ -309,9 +276,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             }
         }
 
-        val report = root.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        root.execute(context).isSuccess.shouldBeTrue()
         counter.get() shouldBeEqualTo 2
     }
 
@@ -347,9 +312,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
             execute("after") { ctx -> WorkReport.success(ctx) }
         }
 
-        val report = flow.execute(context)
-
-        report.isSuccess.shouldBeTrue()
+        flow.execute(context).isSuccess.shouldBeTrue()
         allCounter.get() shouldBeEqualTo 2
     }
 }

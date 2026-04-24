@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.redisson.api.RScoredSortedSet
 import org.redisson.api.SetIntersectionArgs
 import org.redisson.api.SetUnionArgs
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Scored sorted set examples
@@ -112,7 +113,7 @@ class ScoredSortedSetExamples: AbstractRedissonCoroutineTest() {
         val job = scope.launch {
             zset.takeFirstAsync().await() shouldBeEqualTo "1"
         }
-        delay(1)
+        delay(1.milliseconds)
 
         zset.sizeAsync().await() shouldBeEqualTo 0
 

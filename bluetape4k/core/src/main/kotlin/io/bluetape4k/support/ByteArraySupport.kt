@@ -243,10 +243,9 @@ fun ByteArray.ensureCapacity(minCapacity: Int, padding: Int): ByteArray {
 fun concat(vararg arrays: ByteArray): ByteArray {
     val totalSize = arrays.sumOf { it.size }
     val result = ByteArray(totalSize)
-    var offset = 0
-    for (array in arrays) {
+    arrays.fold(0) { offset, array ->
         array.copyInto(result, offset)
-        offset += array.size
+        offset + array.size
     }
     return result
 }

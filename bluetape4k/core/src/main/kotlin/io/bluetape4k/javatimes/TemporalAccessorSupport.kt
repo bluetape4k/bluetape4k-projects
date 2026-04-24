@@ -415,7 +415,8 @@ val TemporalAccessor.zone: ZoneId? get() = queryOrNull { ZoneId.from(this) }
  * // zoneId != null
  * ```
  */
-val TemporalAccessor.zoneId: ZoneId? get() = queryOrNull { ZoneId.from(this) }
+@Deprecated("Use zone instead", ReplaceWith("zone"))
+val TemporalAccessor.zoneId: ZoneId? get() = zone
 
 /**
  * [TemporalAccessor]에서 [ZonedDateTime]을 안전하게 추출합니다.

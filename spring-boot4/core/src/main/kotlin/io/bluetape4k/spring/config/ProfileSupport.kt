@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Profile
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("local")
 annotation class LocalProfile(
@@ -39,7 +39,7 @@ annotation class LocalProfile(
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("dev", "develop", "development")
 annotation class DevelopProfile(
@@ -61,7 +61,7 @@ annotation class DevelopProfile(
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("feature")
 annotation class FeatureProfile(
@@ -83,7 +83,7 @@ annotation class FeatureProfile(
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("test", "testing")
 annotation class TestProfile(
@@ -105,7 +105,7 @@ annotation class TestProfile(
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("qa")
 annotation class QaProfile(
@@ -127,7 +127,7 @@ annotation class QaProfile(
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("stage", "staging")
 annotation class StageProfile(
@@ -149,7 +149,7 @@ annotation class StageProfile(
  *
  * @property name 프로파일 이름 메타데이터
  */
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @Profile("prod", "product", "production")
 annotation class ProductionProfile(

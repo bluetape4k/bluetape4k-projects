@@ -1,100 +1,75 @@
 package io.bluetape4k.states.core
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.states.api.StateMachineException
+import io.bluetape4k.states.testing.arrives
+import io.bluetape4k.states.testing.assertRejects
+import io.bluetape4k.states.testing.verifyPath
+import io.bluetape4k.states.testing.via
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class StateMachineDslTest {
-
     companion object: KLogging()
 
-    enum class Light {
-        RED,
-        YELLOW,
-        GREEN
-    }
+    enum class L { RED, YELLOW, GREEN }
+    sealed class E { data object Next: E() }
 
-    sealed class LightEvent {
-        data object Next: LightEvent()
-    }
-
-    @Test
-    fun `DSL로 상태 머신을 생성할 수 있다`() {
-        val fsm = stateMachine<Light, LightEvent> {
-            initialState = Light.RED
+    @Test fun `DSL로 상태 머신을 생성할 수 있다`() {
+        val m = stateMachine<L, E> {
+            initialState = L.RED
             finalStates = emptySet()
-            transition(Light.RED, on<LightEvent.Next>(), to = Light.GREEN)
-            transition(Light.GREEN, on<LightEvent.Next>(), to = Light.YELLOW)
-            transition(Light.YELLOW, on<LightEvent.Next>(), to = Light.RED)
+            transition(L.RED, on<E.Next>(), to = L.GREEN)
+            transition(L.GREEN, on<E.Next>(), to = L.YELLOW)
+            transition(L.YELLOW, on<E.Next>(), to = L.RED)
         }
-
-        fsm.currentState shouldBeEqualTo Light.RED
-        fsm.transition(LightEvent.Next)
-        fsm.currentState shouldBeEqualTo Light.GREEN
+        m.verifyPath(L.RED via E.Next arrives L.GREEN)
     }
 
-    @Test
-    fun `onTransition 콜백이 호출된다`() {
-        val transitions = mutableListOf<String>()
-
-        val fsm = stateMachine<Light, LightEvent> {
-            initialState = Light.RED
-            transition(Light.RED, on<LightEvent.Next>(), to = Light.GREEN)
-            onTransition { prev, _, next ->
-                transitions.add("$prev -> $next")
-            }
+    @Test fun `onTransition 콜백이 호출된다`() {
+        val log = mutableListOf<String>()
+        val m = stateMachine<L, E> {
+            initialState = L.RED
+            transition(L.RED, on<E.Next>(), to = L.GREEN)
+            onTransition { p, _, n -> log.add("$p -> $n") }
         }
-
-        fsm.transition(LightEvent.Next)
-        transitions shouldContain "RED -> GREEN"
+        m.transition(E.Next)
+        log shouldContain "RED -> GREEN"
     }
 
-    @Test
-    fun `finalStates 없이 상태 머신을 생성할 수 있다`() {
-        val fsm = stateMachine<Light, LightEvent> {
-            initialState = Light.RED
-            transition(Light.RED, on<LightEvent.Next>(), to = Light.GREEN)
+    @Test fun `finalStates 없이 상태 머신을 생성할 수 있다`() {
+        val m = stateMachine<L, E> {
+            initialState = L.RED
+            transition(L.RED, on<E.Next>(), to = L.GREEN)
         }
-
-        fsm.finalStates shouldBeEqualTo emptySet()
-        fsm.isInFinalState().shouldBeFalse()
+        m.finalStates shouldBeEqualTo emptySet()
+        m.isInFinalState().shouldBeFalse()
     }
 
-    @Test
-    fun `여러 전이를 등록할 수 있다`() {
-        val fsm = stateMachine<Light, LightEvent> {
-            initialState = Light.RED
-            transition(Light.RED, on<LightEvent.Next>(), to = Light.GREEN)
-            transition(Light.GREEN, on<LightEvent.Next>(), to = Light.YELLOW)
-            transition(Light.YELLOW, on<LightEvent.Next>(), to = Light.RED)
+    @Test fun `여러 전이를 등록할 수 있다`() {
+        val m = stateMachine<L, E> {
+            initialState = L.RED
+            transition(L.RED, on<E.Next>(), to = L.GREEN)
+            transition(L.GREEN, on<E.Next>(), to = L.YELLOW)
+            transition(L.YELLOW, on<E.Next>(), to = L.RED)
         }
-
-        fsm.transition(LightEvent.Next)
-        fsm.currentState shouldBeEqualTo Light.GREEN
-        fsm.transition(LightEvent.Next)
-        fsm.currentState shouldBeEqualTo Light.YELLOW
-        fsm.transition(LightEvent.Next)
-        fsm.currentState shouldBeEqualTo Light.RED
+        m.verifyPath(
+            L.RED via E.Next arrives L.GREEN,
+            L.GREEN via E.Next arrives L.YELLOW,
+            L.YELLOW via E.Next arrives L.RED,
+        )
     }
 
-    @Test
-    fun `등록되지 않은 전이에서 예외가 발생한다`() {
-        val fsm = stateMachine<Light, LightEvent> {
-            initialState = Light.RED
-            finalStates = setOf(Light.GREEN)
-            transition(Light.RED, on<LightEvent.Next>(), to = Light.GREEN)
+    @Test fun `등록되지 않은 전이에서 예외가 발생한다`() {
+        val m = stateMachine<L, E> {
+            initialState = L.RED
+            finalStates = setOf(L.GREEN)
+            transition(L.RED, on<E.Next>(), to = L.GREEN)
         }
-
-        fsm.transition(LightEvent.Next)
-        fsm.isInFinalState().shouldBeTrue()
-
-        assertThrows<StateMachineException> {
-            fsm.transition(LightEvent.Next)
-        }
+        m.transition(E.Next)
+        m.isInFinalState().shouldBeTrue()
+        m.assertRejects(E.Next)
     }
 }

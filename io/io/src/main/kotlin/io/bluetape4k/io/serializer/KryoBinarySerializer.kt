@@ -2,11 +2,8 @@ package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.Input
-import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.logging.KLogging
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 /**
  *  [Kryo](https://github.com/EsotericSoftware/kryo) 라이브러리를 이용하는 [BinarySerializer]
@@ -60,6 +57,40 @@ class KryoBinarySerializer(
          *
          * @param classes 직렬화를 허용할 사용자 정의 클래스 목록
          */
+        /**
+         * [FieldSerializer] 기반 고성능 [KryoBinarySerializer]를 반환합니다.
+         *
+         * 기본 [KryoBinarySerializer] 대비 처리량이 향상됩니다 ([CompatibleFieldSerializer] 필드별 청크 헤더 제거).
+         *
+         * ## 적합한 사용 사례
+         * - 클래스 구조가 변경되지 않는 **고정 스키마** DTO (필드 추가·제거 없음).
+         * - 휘발성 캐시·메시지큐 등 배포 단위로 데이터가 교체되는 환경.
+         * - **Kotlin nullable 타입이 없는** 순수 non-null 필드 객체.
+         *
+         * ## 사용하면 안 되는 경우
+         * - **`ByteArray?`, `String?` 등 Kotlin nullable 타입** 포함 클래스: [FieldSerializer]가
+         *   nullable 타입을 올바르게 처리하지 못해 역직렬화 오류가 발생합니다.
+         * - **스키마 진화** (필드 추가·제거·순서 변경)가 필요한 경우: [CompatibleFieldSerializer]를 사용하세요.
+         * - 기본 [KryoBinarySerializer]로 직렬화한 데이터를 역직렬화하는 경우: 포맷이 달라 오류가 발생합니다.
+         *
+         * ```kotlin
+         * // ✅ 올바른 사용: non-null 고정 스키마 DTO
+         * data class Item(val id: Long, val name: String, val price: Double)
+         * val serializer = KryoBinarySerializer.fast()
+         * val bytes = serializer.serialize(Item(1L, "book", 9.99))
+         *
+         * // ❌ 잘못된 사용: nullable 필드 포함 클래스
+         * data class Order(val id: Long, val note: String?)  // String? → fast() 사용 불가
+         * ```
+         */
+        @JvmStatic
+        fun fast(): KryoBinarySerializer {
+            val pool = object: Pool<Kryo>(true, false, 1024) {
+                override fun create(): Kryo = KryoProvider.createFastKryo()
+            }
+            return KryoBinarySerializer(kryoPool = pool)
+        }
+
         @JvmStatic
         fun secure(vararg classes: Class<*>): KryoBinarySerializer {
             val pool = object: Pool<Kryo>(true, false, 1024) {
@@ -102,16 +133,16 @@ class KryoBinarySerializer(
      * I/O 직렬화에서 `doSerialize` 함수를 제공합니다.
      */
     override fun doSerialize(graph: Any): ByteArray {
-        val buffer = ByteArrayOutputStream(bufferSize)
-
-        Output(bufferSize, -1).use { output ->
-            output.outputStream = buffer
+        val output = KryoProvider.obtainOutput()
+        return try {
+            output.reset()
             useKryo {
                 writeClassAndObject(output, graph)
             }
-            output.flush()
+            output.toBytes()
+        } finally {
+            KryoProvider.releaseOutput(output)
         }
-        return buffer.toByteArray()
     }
 
     /**
@@ -119,12 +150,9 @@ class KryoBinarySerializer(
      */
     @Suppress("UNCHECKED_CAST")
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
-        return ByteArrayInputStream(bytes).use { bis ->
-            Input(bufferSize).use { input ->
-                input.inputStream = bis
-                useKryo {
-                    readClassAndObject(input) as? T
-                }
+        return Input(bytes).use { input ->
+            useKryo {
+                readClassAndObject(input) as? T
             }
         }
     }

@@ -8,11 +8,12 @@ configurations {
 
 dependencies {
     implementation(platform(Libs.spring_boot3_dependencies))
+
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
     api(project(":bluetape4k-idgenerators"))
-    api(project(":bluetape4k-jackson2"))
-    api(project(":bluetape4k-resilience4j"))
+    compileOnly(project(":bluetape4k-jackson2"))
+    compileOnly(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
@@ -38,10 +39,10 @@ dependencies {
     compileOnly(Libs.aws2_sts)
 
     // Coroutines
-    api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactive)
-    implementation(Libs.kotlinx_coroutines_reactor)
+    compileOnly(project(":bluetape4k-coroutines"))
+    compileOnly(Libs.kotlinx_coroutines_core)
+    compileOnly(Libs.kotlinx_coroutines_reactive)
+    compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
     // Test

@@ -1,5 +1,12 @@
 # Bluetape4k Projects
 
+[![CI](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml/badge.svg)](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml)
+[![Coverage](https://coveralls.io/repos/github/bluetape4k/bluetape4k-projects/badge.svg?branch=develop)](https://coveralls.io/github/bluetape4k/bluetape4k-projects)
+[![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin)](https://kotlinlang.org)
+[![JVM](https://img.shields.io/badge/JVM-21-ED8B00?logo=openjdk)](https://openjdk.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 JVM 환경에서 Kotlin 언어로 개발할 때 사용하는 공용 라이브러리
 
 [English](./README.md) | 한국어
@@ -328,6 +335,15 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 
 - **[junit5](./testing/junit5/README.ko.md)**: JUnit 5 확장 및 유틸리티
 - **[testcontainers](./testing/testcontainers/README.ko.md)**: Testcontainers 지원 (Redis, Kafka, DB 등)
+- **[mock-web-server](./testing/mock-web-server/README.ko.md)**: 통합 테스트용 MVC Mock HTTP Server Docker 이미지
+- **[mock-webflux-server](./testing/mock-webflux-server/README.ko.md)**: 통합 테스트용 WebFlux Mock HTTP Server Docker 이미지
+
+Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configuration cache를 항상 비활성화해야 합니다:
+
+```bash
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+```
 
 ### Virtual Thread 모듈 (`virtualthread/`)
 
@@ -364,7 +380,7 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 - ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
 - ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
 - ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
-- ~~**lingua**~~: 언어 감지 — 사용 빈도 낮아 폐기
+- **[lingua](./utils/lingua/README.ko.md)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼와 혼합 언어 `Set<Language>` 검출 지원
 - ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
 - ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
 
@@ -412,7 +428,7 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.5.0
+baseVersion=1.7.0
 snapshotVersion=-SNAPSHOT
 ```
 
@@ -455,13 +471,17 @@ central.password=your-central-portal-password
 
 # 권장: In-memory PGP signing
 signingUseGpgCmd=false
-signingKeyId=YOUR_KEY_ID
+signingKeyId=YOUR_LAST_8_HEX_DIGITS
 signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 signingPassword=YOUR_KEY_PASSPHRASE
 
 # Maven Central Snapshots 업로드 병렬도 (기본값: 8)
 centralSnapshotsParallelism=8
 ```
+
+- `signingKeyId`에는 signing subkey ID의 **뒤 8자리 hex 값**만 넣어야 합니다. 예: `5C6DF399`
+- `7CF28E155C6DF399` 같은 16자리 long key ID를 넣으면 빌드가 `5C6DF399`로 정규화하고 경고를 출력합니다.
+- GitHub Actions secret `SIGNING_KEY_ID`에는 `signingKeyId=...`가 아니라 값만 넣어야 합니다.
 
 ### 참고
 

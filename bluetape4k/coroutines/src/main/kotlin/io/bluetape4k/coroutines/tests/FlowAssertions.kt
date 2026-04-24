@@ -1,6 +1,5 @@
 package io.bluetape4k.coroutines.tests
 
-import io.bluetape4k.coroutines.flow.extensions.toFastList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -24,7 +23,7 @@ import kotlin.test.assertFailsWith
  * ```
  */
 suspend inline fun <T> Flow<T>.assertEmpty() {
-    toFastList().shouldBeEmpty()
+    toList().shouldBeEmpty()
 }
 
 /**
@@ -42,7 +41,7 @@ suspend inline fun <T> Flow<T>.assertEmpty() {
  * @param expected 기대 결과 Flow입니다.
  */
 suspend inline fun <T> Flow<T>.assertResult(expected: Flow<T>) {
-    toFastList() shouldBeEqualTo expected.toFastList()
+    toList() shouldBeEqualTo expected.toList()
 }
 
 /**
@@ -60,7 +59,7 @@ suspend inline fun <T> Flow<T>.assertResult(expected: Flow<T>) {
  * @param values 기대 값 목록입니다.
  */
 suspend inline fun <T> Flow<T>.assertResult(vararg values: T) {
-    toFastList() shouldBeEqualTo values.toList()
+    toList() shouldBeEqualTo values.toList()
 }
 
 /**
@@ -78,7 +77,7 @@ suspend inline fun <T> Flow<T>.assertResult(vararg values: T) {
  * @param values 기대 값 목록입니다.
  */
 suspend inline fun <T> Flow<T>.assertResultSet(vararg values: T) {
-    toFastList().toSet() shouldBeEqualTo values.toSet()
+    toList().toSet() shouldBeEqualTo values.toSet()
 }
 
 /**
@@ -96,7 +95,7 @@ suspend inline fun <T> Flow<T>.assertResultSet(vararg values: T) {
  * @param values 기대 값 iterable입니다.
  */
 suspend inline fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
-    toFastList().toSet() shouldBeEqualTo values.toSet()
+    toList().toSet() shouldBeEqualTo values.toSet()
 }
 
 /**
@@ -135,5 +134,10 @@ suspend inline fun <T, reified E: Throwable> Flow<T>.assertFailure(vararg values
  * ```
  */
 suspend inline fun <reified E: Throwable> Flow<*>.assertError() {
-    this.catch { it shouldBeInstanceOf E::class }.collect()
+    var caught = false
+    this.catch { e ->
+        e shouldBeInstanceOf E::class
+        caught = true
+    }.collect()
+    caught shouldBeEqualTo true
 }

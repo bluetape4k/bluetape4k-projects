@@ -285,18 +285,27 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
     /**
      * 지정한 파티션들의 커밋된 offset 정보를 반환합니다.
      *
+     * Kafka Consumer API에서 committed()는 Map 값이 nullable 입니다.
+     * 아직 한 번도 커밋된 적 없는 파티션은 null을 반환하며,
+     * 이를 non-null 타입으로 선언하면 런타임 NPE가 발생할 수 있습니다.
+     *
      * ```kotlin
      * val partition = TopicPartition("my-topic", 0)
      * val committed = consumer.committed(setOf(partition))
      * // committed[partition]?.offset() 이 마지막으로 커밋된 offset
+     * // committed[partition] 이 null 이면 해당 파티션은 커밋 이력 없음
      * ```
      *
      * @param partitions 조회할 파티션 집합
-     * @return 파티션별 커밋 정보 맵
+     * @return 파티션별 커밋 정보 맵 (커밋 이력 없는 파티션은 null)
      */
-    suspend fun committed(partitions: Set<TopicPartition>): Map<TopicPartition, OffsetAndMetadata> =
+    suspend fun committed(partitions: Set<TopicPartition>): Map<TopicPartition, OffsetAndMetadata?> =
         doOnConsumer {
-            it.committed(partitions)
+            // Kafka Consumer.committed()의 Java 반환 타입은 Map<TopicPartition, OffsetAndMetadata>이지만,
+            // 실제로는 커밋 이력 없는 파티션에 대해 null 값을 포함한다 (플랫폼 타입).
+            // non-null로 선언하면 런타임에 NPE가 발생하므로 nullable로 선언한다.
+            @Suppress("UNCHECKED_CAST")
+            it.committed(partitions) as Map<TopicPartition, OffsetAndMetadata?>
         }
 
     /**
@@ -415,21 +424,30 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
     /**
      * 지정한 timestamp에 해당하는 파티션별 offset 정보를 반환합니다.
      *
+     * Kafka Consumer.offsetsForTimes()의 반환 타입은 Map 값이 nullable 입니다.
+     * 해당 timestamp 이후의 메시지가 없는 파티션은 null이 반환되며,
+     * non-null 타입으로 선언하면 런타임 NPE 위험이 있습니다.
+     *
      * ```kotlin
      * val partition = TopicPartition("my-topic", 0)
      * val ts = System.currentTimeMillis() - 60_000
      * val offsets = consumer.offsetsForTimes(mapOf(partition to ts))
      * // offsets[partition]?.offset() 이 ts 시점의 offset
+     * // offsets[partition] 이 null 이면 해당 timestamp 이후 메시지 없음
      * ```
      *
      * @param timestampsToSearch 파티션별 timestamp 맵
-     * @return 파티션별 offset 정보 맵
+     * @return 파티션별 offset 정보 맵 (해당 시각 이후 메시지 없으면 null)
      */
     suspend fun offsetsForTimes(
         timestampsToSearch: Map<TopicPartition, Long>,
-    ): Map<TopicPartition, OffsetAndTimestamp> =
+    ): Map<TopicPartition, OffsetAndTimestamp?> =
         doOnConsumer {
-            it.offsetsForTimes(timestampsToSearch)
+            // Kafka Consumer.offsetsForTimes()의 Java 반환 타입은 Map<TopicPartition, OffsetAndTimestamp>이지만,
+            // 해당 timestamp 이후 메시지가 없는 파티션은 null 값을 반환한다 (플랫폼 타입).
+            // 이를 non-null 타입으로 받으면 런타임에 NPE가 발생하므로 nullable로 선언한다.
+            @Suppress("UNCHECKED_CAST")
+            it.offsetsForTimes(timestampsToSearch) as Map<TopicPartition, OffsetAndTimestamp?>
         }
 
     /**

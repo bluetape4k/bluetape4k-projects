@@ -1,31 +1,33 @@
 package io.bluetape4k.redis.lettuce.filter
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class LettuceBloomFilterTest: AbstractLettuceTest() {
 
+    companion object: KLogging() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
+
     private lateinit var bloomFilter: LettuceBloomFilter
 
     @BeforeEach
     fun setup() {
         bloomFilter = LettuceBloomFilter(
-            LettuceClients.connect(client, StringCodec.UTF8),
+            connection,
             "bf-${randomName()}",
             BloomFilterOptions(expectedInsertions = 1000L, falseProbability = 0.01),
         )
         bloomFilter.tryInit()
     }
-
-    @AfterEach
-    fun teardown() = bloomFilter.close()
 
     @Test
     fun `BloomFilterOptions - 잘못된 falseProbability 예외`() {
@@ -53,13 +55,11 @@ class LettuceBloomFilterTest: AbstractLettuceTest() {
     @Test
     fun `tryInit - 다른 파라미터로 재초기화 시 예외`() {
         val other = LettuceBloomFilter(
-            LettuceClients.connect(client, StringCodec.UTF8),
+            connection,
             bloomFilter.filterName,
             BloomFilterOptions(expectedInsertions = 9999L, falseProbability = 0.5),
         )
-        other.use {
-            assertThrows<IllegalStateException> { it.tryInit() }
-        }
+        assertThrows<IllegalStateException> { other.tryInit() }
     }
 
     @Test

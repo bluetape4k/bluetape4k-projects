@@ -101,18 +101,6 @@ val Any.isArray: Boolean get() = this.javaClass.isArray
 fun hashOf(vararg values: Any?): Int = Objects.hash(*values)
 
 /**
- * 두 객체의 동등성을 비교합니다.
- *
- * ## 동작/계약
- * - Kotlin의 `==`가 이미 null-safe 동등성 비교를 제공하므로, 이 함수는 더 이상 권장되지 않습니다.
- *
- * @deprecated Kotlin에서는 `a == b`를 사용하세요.
- */
-@Deprecated("use `a == b` instead", ReplaceWith("a == b"))
-fun areEquals(a: Any?, b: Any?): Boolean =
-    (a == null && b == null) || (a != null && a == b)
-
-/**
  * 두 객체를 null-safe로 비교하되, 둘 다 배열인 경우 배열 내용까지 비교합니다.
  *
  * ## 동작/계약

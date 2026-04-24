@@ -30,7 +30,11 @@ class SortKeyBuilder(val keyName: String = "sortKey") {
     var comparator: DynamoComparator? = null
 
     /** 설정된 비교 연산자를 기반으로 [SortKey]를 생성합니다. */
-    fun build(): SortKey = SortKey(keyName, comparator!!)
+    fun build(): SortKey {
+        // WHY: comparator 미설정 시 명확한 에러 메시지 제공 (!! 대신)
+        val cmp = checkNotNull(comparator) { "SortKeyBuilder: comparator must be set via 'eq', 'between', etc. before build()" }
+        return SortKey(keyName, cmp)
+    }
 }
 
 /** 정렬 키를 `BETWEEN` 비교식으로 설정합니다. */

@@ -11,163 +11,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 /**
- * 밀리초당 나노초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = NANO_PER_MILLIS
- * // value
- * // true
- * ```
- */
-const val NANO_PER_MILLIS: Long = 1_000_000L
-
-/**
- * 초당 나노초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = NANO_PER_SECOND
- * // value
- * // true
- * ```
- */
-const val NANO_PER_SECOND: Long = 1_000_000_000L
-
-/**
- * 하루의 밀리초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = MILLIS_IN_DAY
- * // value
- * // true
- * ```
- */
-@Deprecated(
-    message = "Use MillisPerDay 등 camelCase 상수를 사용하세요",
-    replaceWith = ReplaceWith("MillisPerDay")
-)
-val MILLIS_IN_DAY: Long = Duration.ofDays(1).toMillis()
-
-/**
- * 한 시간의 밀리초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = MILLIS_IN_HOUR
- * // value
- * // true
- * ```
- */
-@Deprecated(
-    message = "Use MillisPerHour 등 camelCase 상수를 사용하세요",
-    replaceWith = ReplaceWith("MillisPerHour")
-)
-val MILLIS_IN_HOUR = Duration.ofHours(1).toMillis()
-
-/**
- * 1분의 밀리초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = MILLIS_IN_MINUTE
- * // value
- * // true
- * ```
- */
-@Deprecated(
-    message = "Use MillisPerMinute 등 camelCase 상수를 사용하세요",
-    replaceWith = ReplaceWith("MillisPerMinute")
-)
-val MILLIS_IN_MINUTE = Duration.ofMinutes(1).toMillis()
-
-/**
- * 하루의 나노초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = NANOS_IN_DAY
- * // value
- * // true
- * ```
- */
-val NANOS_IN_DAY: Long = Duration.ofDays(1).toNanos()
-
-/**
- * 한 시간의 나노초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = NANOS_IN_HOUR
- * // value
- * // true
- * ```
- */
-val NANOS_IN_HOUR: Long = Duration.ofHours(1).toNanos()
-
-/**
- * 1분의 나노초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = NANOS_IN_MINUTE
- * // value
- * // true
- * ```
- */
-val NANOS_IN_MINUTE = Duration.ofMinutes(1).toNanos()
-
-/**
- * 1초의 나노초 수
- *
- * ## 동작/계약
- * - null 입력이 없으며 상수/프로퍼티 값을 제공합니다.
- * - 수신 객체 mutate 없이 값을 조회하거나 계산해 반환합니다.
- * - 시간/타임존 의존 값은 실행 환경(JVM 기본 설정)에 따라 달라질 수 있습니다.
- *
- * ```kotlin
- * val value = NANOS_IN_SECOND
- * // value
- * // true
- * ```
- */
-val NANOS_IN_SECOND = Duration.ofSeconds(1).toNanos()
-
-
-/**
  * 기본 날짜/시각 포맷터 (ISO_INSTANT)
  *
  * ## 동작/계약
@@ -591,6 +434,11 @@ const val MicrosPerHour: Long = MicrosPerMinute * MinutesPerHour
 const val MicrosPerDay: Long = MicrosPerHour * HoursPerDay
 
 /**
+ * 마이크로초당 나노초 수
+ */
+const val NanosPerMicro: Long = 1_000L
+
+/**
  * 밀리초당 나노초 수
  *
  * ## 동작/계약
@@ -669,6 +517,24 @@ const val NanosPerHour: Long = NanosPerMinute * MinutesPerHour
  * ```
  */
 const val NanosPerDay: Long = NanosPerHour * HoursPerDay
+
+@Deprecated("Use NanosPerMillis instead", ReplaceWith("NanosPerMillis"))
+const val NANO_PER_MILLIS: Long = NanosPerMillis
+
+@Deprecated("Use NanosPerSecond instead", ReplaceWith("NanosPerSecond"))
+const val NANO_PER_SECOND: Long = NanosPerSecond
+
+@Deprecated("Use NanosPerDay instead", ReplaceWith("NanosPerDay"))
+const val NANOS_IN_DAY: Long = NanosPerDay
+
+@Deprecated("Use NanosPerHour instead", ReplaceWith("NanosPerHour"))
+const val NANOS_IN_HOUR: Long = NanosPerHour
+
+@Deprecated("Use NanosPerMinute instead", ReplaceWith("NanosPerMinute"))
+const val NANOS_IN_MINUTE: Long = NanosPerMinute
+
+@Deprecated("Use NanosPerSecond instead", ReplaceWith("NanosPerSecond"))
+const val NANOS_IN_SECOND: Long = NanosPerSecond
 
 /**
  * 밀리초당 틱 수
@@ -765,7 +631,7 @@ const val TicksPerDay = TicksPerHour * HoursPerDay
  * // true
  * ```
  */
-val Weekdays = arrayOf(
+val Weekdays: List<DayOfWeek> = listOf(
     DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY
 )
 
@@ -783,7 +649,7 @@ val Weekdays = arrayOf(
  * // true
  * ```
  */
-val Weekends = arrayOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+val Weekends: List<DayOfWeek> = listOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 
 /**
  * 주의 시작 요일 (월요일)
@@ -1047,4 +913,4 @@ val DefaultEndOffset: Duration = MinNegativeDuration
  *
  * @return 토요일 또는 일요일이면 true, 그렇지 않으면 false
  */
-fun DayOfWeek.isWeekend(): Boolean = Weekends.contains(this)
+fun DayOfWeek.isWeekend(): Boolean = this == DayOfWeek.SATURDAY || this == DayOfWeek.SUNDAY

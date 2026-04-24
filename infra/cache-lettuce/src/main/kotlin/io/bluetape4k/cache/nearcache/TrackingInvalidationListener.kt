@@ -137,13 +137,25 @@ class TrackingInvalidationListener<V: Any>(
      */
     override fun close() {
         if (started.compareAndSet(expect = true, update = false)) {
-            runCatching {
-                connection.sync().clientTracking(trackingDisabled)
-            }.onFailure { e ->
-                log.warn(e) { "Failed to disable CLIENT TRACKING: ${e.message}" }
+            if (connection.isOpen) {
+                runCatching {
+                    connection.sync().clientTracking(trackingDisabled)
+                }.onFailure { e ->
+                    if (e.isConnectionClosedFailure()) {
+                        log.debug { "CLIENT TRACKING disable skipped because connection is already closed" }
+                    } else {
+                        log.warn(e) { "Failed to disable CLIENT TRACKING: ${e.message}" }
+                    }
+                }
+            } else {
+                log.debug { "CLIENT TRACKING disable skipped because connection is already closed" }
             }
-            connection.removeListener(pushListener)
+            runCatching { connection.removeListener(pushListener) }
             log.debug { "CLIENT TRACKING disabled and listener removed for cacheName=$cacheName" }
         }
     }
+
+    private fun Throwable.isConnectionClosedFailure(): Boolean =
+        generateSequence(this) { it.cause }
+            .any { it.message?.contains("Connection is closed", ignoreCase = true) == true }
 }

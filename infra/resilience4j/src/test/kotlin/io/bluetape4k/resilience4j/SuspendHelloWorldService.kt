@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class SuspendHelloWorldService {
@@ -16,25 +17,25 @@ class SuspendHelloWorldService {
     private val sync: Channel<Unit> = Channel(Channel.UNLIMITED)
 
     suspend fun returnHelloWorld(): String {
-        delay(1) // so tests are fast, but compiler agrees suspend modifier is required
+        delay(1.milliseconds) // so tests are fast, but compiler agrees suspend modifier is required
         invocationCounter.incrementAndGet()
         return "Hello world"
     }
 
     suspend fun returnMessage(message: String): String {
-        delay(1) // so tests are fast, but compiler agrees suspend modifier is required
+        delay(1.milliseconds) // so tests are fast, but compiler agrees suspend modifier is required
         invocationCounter.incrementAndGet()
         return message
     }
 
     suspend fun throwException() {
-        delay(1) // so tests are fast, but compiler agrees suspend modifier is required
+        delay(1.milliseconds) // so tests are fast, but compiler agrees suspend modifier is required
         invocationCounter.incrementAndGet()
         error("test exception")
     }
 
     suspend fun throwExceptionWithMessage(message: String): String {
-        delay(1)
+        delay(1.milliseconds)
         invocationCounter.incrementAndGet()
         error(message)
     }

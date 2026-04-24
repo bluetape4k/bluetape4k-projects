@@ -1,7 +1,7 @@
 package io.bluetape4k.examples.virtualthreads.part2
 
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
@@ -19,7 +19,7 @@ import java.util.concurrent.Executors
  */
 class Rule3DoNotPooledVirtualThreads: AbstractVirtualThreadTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val TASK_SIZE = 1000
     }
 

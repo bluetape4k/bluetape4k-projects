@@ -10,7 +10,6 @@ import io.bluetape4k.jackson.uuid.JsonUuidModule
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.util.*
 
 /**
@@ -35,7 +34,6 @@ inline fun jackson2ObjectMapperBuilderCustomizer(
         // Classpath에 있는 모든 Jackson용 Module을 찾아서 추가합니다.
         builder.findModulesViaServiceLoader(true)
 
-        ZoneOffset.getAvailableZoneIds()
         builder.timeZone(TimeZone.getTimeZone(ZoneId.of("Asia/Seoul")))
 
         builder.modules(

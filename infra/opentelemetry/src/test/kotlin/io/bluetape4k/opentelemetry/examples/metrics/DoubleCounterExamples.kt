@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.File
 import java.nio.file.Path
+import kotlin.time.Duration.Companion.milliseconds
 
 class DoubleCounterExamples: AbstractOtelTest() {
 
@@ -60,7 +61,7 @@ class DoubleCounterExamples: AbstractOtelTest() {
         directory.listFiles()
             ?.forEach { file ->
                 if (file.isDirectory) {
-                    delay(100L)
+                    delay(100L.milliseconds)
                     calculateSpaceUsedByFilesWithExtensionsAsync(extensions, file, diskSpaceCounter)
                 } else {
                     extensions.find { file.extension == it }?.let { ext ->

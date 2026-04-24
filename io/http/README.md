@@ -6,7 +6,7 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-http` integrates multiple HTTP client libraries through Kotlin extension functions and DSLs.
 
-It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, and AsyncHttpClient, with built-in support for Kotlin Coroutines and Virtual Threads.
+It provides a consistent interface for Apache HttpComponents 5, OkHttp3, and Vert.x HttpClient, with built-in support for Kotlin Coroutines and Virtual Threads.
 
 ## Architecture
 
@@ -21,7 +21,7 @@ flowchart TD
 
     subgraph bluetape4k-http
         EXT[executeSuspending\nextension functions]
-        DSL[Builder DSLs\nhttpAsyncClient / okhttp3Client / asyncHttpClientOf]
+        DSL[Builder DSLs\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf]
     end
 
     subgraph Backends["HTTP Client Backends"]
@@ -29,7 +29,6 @@ flowchart TD
         HC5C[HC5 Classic\nhttpClient]
         HC5CA[HC5 Caching\ncachingHttpAsyncClient]
         OKH[OkHttp3\nokhttp3Client]
-        AHC[AsyncHttpClient\nasyncHttpClientOf]
         VTX[Vert.x HttpClient\nvertxHttpClientOf]
     end
 
@@ -40,13 +39,11 @@ flowchart TD
     DSL --> HC5C
     DSL --> HC5CA
     DSL --> OKH
-    DSL --> AHC
     DSL --> VTX
     HC5A --> SERVER[(HTTP Server)]
     HC5C --> SERVER
     HC5CA --> SERVER
     OKH --> SERVER
-    AHC --> SERVER
     VTX --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
@@ -58,7 +55,7 @@ flowchart TD
     class APP coreStyle
     class CO asyncStyle
     class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,AHC,VTX serviceStyle
+    class HC5A,HC5C,HC5CA,OKH,VTX serviceStyle
     class SERVER extStyle
 ```
 
@@ -195,6 +192,20 @@ val client = httpClient {
 val response = client.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
 ```
 
+**Virtual Thread Classic HttpClient:**
+
+```kotlin
+import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+
+// HC5 Classic client backed by a Virtual Thread connection pool
+val client = virtualThreadHttpClientOf(maxConnTotal = 200, maxConnPerRoute = 100)
+
+client.use {
+    val response = it.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
+    println(response.code)
+}
+```
+
 **Caching HttpClient:**
 
 ```kotlin
@@ -222,14 +233,30 @@ Square's OkHttp3 client made convenient with a Kotlin DSL.
 - MockWebServer utilities
 - Coroutines extensions
 
+**DSL Builder Functions (`OkHttp3Support.kt`):**
+
+| Function | Description |
+|----------|-------------|
+| `okhttp3Client(connectionPool, dispatcher, block)` | Create an `OkHttpClient` with optional pool/dispatcher |
+| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)` | Create a `ConnectionPool` |
+| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` backed by Virtual Threads |
+| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)` | Create a `Dispatcher` with a custom `ExecutorService` |
+| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)` | Get a pre-configured `OkHttpClient.Builder` |
+| `okhttp3RequestOf(url, block)` | Create an `okhttp3.Request` |
+| `okhttp3CacheControl(block)` | Create a `CacheControl` via DSL |
+| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)` | Create a `CacheControl` with duration parameters |
+
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
-import io.bluetape4k.logging.KotlinLogging
 
-private val log = KotlinLogging.logger {}
+// Connection pool + Virtual Thread Dispatcher
+val pool = okHttp3ConnectionPool(maxIdleConnections = 50)
+val dispatcher = okhttp3DispatcherWithVirtualThread(maxRequests = 200)
 
-// Create a Virtual Thread-based OkHttpClient
-val client = okhttp3Client {
+val client = okhttp3Client(
+    connectionPool = pool,
+    dispatcher = dispatcher,
+) {
     addInterceptor(LoggingInterceptor(log))
     addNetworkInterceptor(CachingResponseInterceptor())
 }
@@ -240,7 +267,12 @@ val request = okhttp3RequestOf("https://httpbin.org/get") {
     header("Accept", "application/json")
 }
 
-// Async request in a Coroutines context
+// Sync call
+client.newCall(request).execute().use { response ->
+    println(response.body.string())
+}
+
+// Async call in a Coroutines context
 val response = client.executeSuspending(request)
 ```
 
@@ -264,22 +296,6 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
-### 4. AsyncHttpClient (AHC)
-
-Wraps Netty-based AsyncHttpClient with Kotlin Coroutines.
-
-```kotlin
-import io.bluetape4k.http.ahc.*
-
-val client = asyncHttpClientOf {
-    setMaxConnections(100)
-    setMaxConnectionsPerHost(10)
-}
-
-// Async request in a Coroutines context
-val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
-```
-
 ## HTTP Client Comparison
 
 | Client            | Protocol         | Characteristics                     | Use Case                     |
@@ -288,7 +304,82 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 | HC5 Async         | HTTP/1.1, HTTP/2 | Async, Coroutines integration       | High-performance async       |
 | OkHttp3           | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client  |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem integration |
-| AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty-based, high-performance       | High-volume async requests   |
+
+## Performance Benchmark
+
+Three JMH (Java Microbenchmark Harness) benchmarks compare client throughput.
+All benchmarks target a separate Docker container server, isolating the server JVM from the client JVM.
+
+```bash
+# Run all benchmarks
+./gradlew :bluetape4k-http:testBenchmark
+
+# Run a specific benchmark
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientLatencyBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientCompressionCacheBenchmark"
+```
+
+### 1. HttpClientBenchmark — Base Throughput (`GET /ping`)
+
+**Setup**: `BluetapeHttpServer` (Docker) · `@Threads(8)` · warmup 1×2s · measurement 3×3s
+
+Lightweight `/ping` responses to measure pure connection throughput.
+
+| Client | Mode | Notes |
+|--------|------|-------|
+| OkHttp3 Sync | sync | Platform thread |
+| OkHttp3 VirtualThread | sync | Virtual Thread Dispatcher |
+| OkHttp3 Coroutines | async | `Call.executeAsync()` (official okhttp-coroutines) |
+| Java HttpClient Sync | sync | JDK built-in |
+| Java HttpClient VirtualThread | sync | Virtual Thread executor |
+| Java HttpClient H2 Sync | sync | HTTP/2 |
+| HC5 Classic | sync | Apache HttpComponents 5 |
+| HC5 Classic VirtualThread | sync | VT-based connection manager |
+| HC5 Classic Coroutines | coroutine | `Dispatchers.IO` |
+| HC5 Async Coroutines | async | `executeSuspending()` |
+| Vert.x WebClient Coroutines | async | Event loop |
+
+> **Note**: With no simulated latency all modes produce similar throughput.
+> Differences arise mainly from connection pool configuration and thread model.
+
+### 2. HttpClientLatencyBenchmark — High-Latency Throughput (`GET /httpbin/delay/0.05`)
+
+**Setup**: `BluetapeHttpServer` (Docker, 50 ms delay) · `@Threads(100)` · warmup 1×3s · measurement 3×5s
+
+**Theoretical sync ceiling**: 100 threads × (1000 ms / 50 ms) = **2,000 ops/s**
+Async / coroutine modes can exceed this ceiling without blocking threads.
+
+### 3. HttpClientCompressionCacheBenchmark — Cache + gzip Effect
+
+**Setup**: `WireMockServer` (Docker, 10 ms fixed delay) · gzip 1 KB response · `Cache-Control: public, max-age=3600` · `@Threads(8)` · warmup 2×3s · measurement 3×5s
+
+**Theoretical baseline (no cache)**: 8 threads × (1000 ms / 10 ms) = **800 ops/s**
+
+| Client | Cache | ops/s | vs baseline |
+|--------|-------|------:|-------------|
+| HC5 Classic + InMemoryCache | In-memory (Heap) | **813,906** | ×1,233 |
+| OkHttp3 + DiskLruCache | Disk (OS page cache) | **35,359** | ×53 |
+| HC5 Classic (no cache) | — | 682 | ×1 |
+| HC5 Classic VirtualThread (no cache) | — | 668 | — |
+| OkHttp3 (no cache) | — | 661 | — |
+
+**Key Insights**:
+- **Cache effect**: Eliminating a 10 ms network RTT alone achieves 35K–813K ops/s
+- **HC5 MemCache vs OkHttp DiskCache (23× gap)**:
+  - HC5: `ConcurrentHashMap` direct lookup → ~1–10 μs/op
+  - OkHttp: `DiskLruCache` `synchronized` + journal write + per-hit gzip decompression → ~200–230 μs/op
+  - The 1 KB cache file fits in a single 4 KB OS page, so after warmup reads are purely from page cache (RAM), not real disk I/O — but the filesystem call overhead remains
+- **OkHttp DiskCache at 35K ops/s is correct**: test-verified with `networkResponse == null` and `cacheResponse != null` on every cache hit
+
+**Recommended client by use case**:
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Repeated GET + maximum cache throughput | HC5 CachingHttpClient (MemCache) |
+| Cache persistence across restarts | OkHttp3 + DiskLruCache |
+| General high-throughput (no caching needed) | HC5 Classic VirtualThread or OkHttp3 |
+| High-latency async bulk requests | HC5 Async Coroutines or Vert.x WebClient |
 
 ## Coroutines Support
 
@@ -330,9 +421,6 @@ io.bluetape4k.http
 │   ├── CachingRequestInterceptor.kt
 │   ├── CachingResponseInterceptor.kt
 │   └── mock/               # MockWebServer utilities
-├── ahc/                    # AsyncHttpClient
-│   ├── AsyncHttpClientSupport.kt
-│   └── CoroutineSupport.kt
 └── vertx/                  # Vert.x HttpClient
     └── VertxHttpClientSupport.kt
 ```
@@ -345,7 +433,6 @@ dependencies {
 
     // Optional (add only what you need)
     implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
     implementation("io.vertx:vertx-core")                    // Vert.x
 }
 ```
@@ -362,5 +449,4 @@ dependencies {
 - [Apache HttpComponents 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Vert.x HttpClient](https://vertx.io/docs/vertx-core/kotlin/)
-- [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client)
 - [httpbin.org](https://httpbin.org/) - HTTP testing API

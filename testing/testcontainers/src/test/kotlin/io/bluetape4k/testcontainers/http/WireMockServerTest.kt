@@ -96,4 +96,39 @@ class WireMockServerTest: AbstractContainerTest() {
         assertFailsWith<IllegalArgumentException> { WireMockServer(image = " ") }
         assertFailsWith<IllegalArgumentException> { WireMockServer(tag = " ") }
     }
+
+    @Test
+    fun `start 전에 stubFor 호출하면 IllegalStateException 이 발생한다`() {
+        val unstartedServer = WireMockServer()
+        assertFailsWith<IllegalStateException> {
+            unstartedServer.stubFor(WireMock.get("/test").willReturn(WireMock.ok()))
+        }
+    }
+
+    @Test
+    fun `start 전에 resetAll 호출하면 IllegalStateException 이 발생한다`() {
+        val unstartedServer = WireMockServer()
+        assertFailsWith<IllegalStateException> {
+            unstartedServer.resetAll()
+        }
+    }
+
+    @Test
+    fun `resetAll 후 이전 stub 이 제거된다`() {
+        wireMock.stubFor(
+            WireMock.get("/to-be-reset").willReturn(WireMock.ok("before reset"))
+        )
+
+        wireMock.resetAll()
+
+        val url = URI("${wireMock.baseUrl}/to-be-reset").toURL()
+        val conn = url.openConnection() as HttpURLConnection
+        try {
+            conn.requestMethod = "GET"
+            conn.connect()
+            conn.responseCode shouldBeEqualTo 404
+        } finally {
+            conn.disconnect()
+        }
+    }
 }

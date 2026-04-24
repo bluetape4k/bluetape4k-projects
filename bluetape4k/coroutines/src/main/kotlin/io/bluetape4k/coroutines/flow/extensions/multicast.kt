@@ -55,6 +55,8 @@ internal fun <T, R> multicastInternal(
                         inner.next(it)
                     }
                 inner.complete()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 inner.error(e)
             }
@@ -72,6 +74,8 @@ internal fun <T, R> multicastInternal(
                     }
                 }
                 subject.complete()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 subject.emitError(e)
             }

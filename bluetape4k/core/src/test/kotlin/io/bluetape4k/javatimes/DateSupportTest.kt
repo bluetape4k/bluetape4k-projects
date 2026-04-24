@@ -27,15 +27,6 @@ class DateSupportTest {
     }
 
     @Test
-    fun `Date plus Date 연산`() {
-        val date1 = dateOf(1000L)
-        val date2 = dateOf(2000L)
-
-        val result = date1 + date2
-        result.time shouldBeEqualTo 3000L
-    }
-
-    @Test
     fun `Date plus Long 연산`() {
         val date = dateOf(1000L)
 
@@ -101,15 +92,6 @@ class DateSupportTest {
 
         val result = date - period
         result.time shouldBeEqualTo 3 * MillisPerDay
-    }
-
-    @Test
-    fun `Timestamp plus Timestamp 연산`() {
-        val ts1 = Timestamp(1000L)
-        val ts2 = Timestamp(2000L)
-
-        val result = ts1 + ts2
-        result.time shouldBeEqualTo 3000L
     }
 
     @Test

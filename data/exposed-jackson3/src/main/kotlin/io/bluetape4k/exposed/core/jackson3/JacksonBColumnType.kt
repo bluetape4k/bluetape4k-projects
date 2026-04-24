@@ -87,7 +87,8 @@ fun <T: Any> Table.jacksonb(
  *
  * ## 동작/계약
  * - [serializer]의 직렬화/역직렬화 함수를 감싸 [jacksonb] 오버로드에 위임합니다.
- * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`을 발생시킵니다.
+ *   DB에서 읽은 JSONB가 `null`로 역직렬화되는 것은 데이터 정합성 오류를 나타내기 때문입니다.
  * - 반환되는 컬럼 인스턴스는 수신 [Table]에 등록된 컬럼과 동일합니다.
  *
  * ```kotlin
@@ -107,5 +108,11 @@ inline fun <reified T: Any> Table.jacksonb(
     jacksonb(
         name,
         serialize = { serializer.serializeAsString(it) },
-        deserialize = { serializer.deserializeFromString<T>(it)!! }
+        deserialize = {
+            // WHY: `!!` 대신 requireNotNull 사용 — NPE 대신 명확한 IllegalArgumentException을 던져
+            //       컬럼명·타입·입력값을 메시지에 포함시킴으로써 데이터 정합성 오류를 즉시 진단 가능하게 함
+            requireNotNull(serializer.deserializeFromString<T>(it)) {
+                "JSONB 역직렬화 결과가 null입니다. 컬럼='$name', 타입='${T::class.qualifiedName}', 입력='$it'"
+            }
+        }
     )

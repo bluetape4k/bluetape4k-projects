@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 부모-자식 코루틴 간 [CoroutineContext] 전달과 재정의를 보여주는 예제입니다.
@@ -25,13 +26,13 @@ class CoroutineContextBuilderExamples {
     fun `부모-자식 간에 CoroutineContext 통해 정보 전달을 한다`() = runTest(CoroutineName("parent")) {
         suspendLogging("Started")
         val v1 = async {
-            delay(500)
+            delay(500.milliseconds)
             suspendLogging("Running coroutines")
             42
         }
 
         launch {
-            delay(1000)
+            delay(1000.milliseconds)
             suspendLogging("Running launch")
         }
         suspendLogging { "The answer is ${v1.await()}" }
@@ -41,13 +42,13 @@ class CoroutineContextBuilderExamples {
     fun `자식은 부모의 Context를 재정의 합니다`() = runTest(CoroutineName("parent")) {
         suspendLogging("Started")
         val v1 = async(CoroutineName("c1")) {
-            delay(500)
+            delay(500.milliseconds)
             suspendLogging("Running coroutines")
             42
         }
 
         launch(CoroutineName("c2")) {
-            delay(1000)
+            delay(1000.milliseconds)
             suspendLogging("Running launch")
         }
         suspendLogging { "The answer is ${v1.await()}" }
@@ -58,13 +59,13 @@ class CoroutineContextBuilderExamples {
         runTest(CoroutineName("parent") + PropertyCoroutineContext(mapOf("key1" to "value1"))) {
             suspendLogging("Started")
             val v1 = async(CoroutineName("child") + PropertyCoroutineContext(mapOf("key2" to "value2"))) {
-                delay(500)
+                delay(500.milliseconds)
                 suspendLogging("Running coroutines")
                 42
             }
 
             launch(PropertyCoroutineContext(mapOf("key3" to "value3"))) {
-                delay(1000)
+                delay(1000.milliseconds)
                 suspendLogging("Running launch")
             }
             suspendLogging { "The answer is ${v1.await()}" }

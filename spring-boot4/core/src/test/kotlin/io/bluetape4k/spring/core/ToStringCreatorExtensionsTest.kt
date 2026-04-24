@@ -7,6 +7,7 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.spring.AbstractSpringTest
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.io.Serializable
 import java.time.LocalDate
 
@@ -65,5 +66,69 @@ class ToStringCreatorExtensionsTest: AbstractSpringTest() {
                 tokens["name"] = name
                 tokens["age"] = age
             }.toString()
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Boolean 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["active"] = true
+        creator.toString() shouldContain "active"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Byte 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["grade"] = 1.toByte()
+        creator.toString() shouldContain "grade"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Char 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["initial"] = 'D'
+        creator.toString() shouldContain "initial"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Short 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["count"] = 2.toShort()
+        creator.toString() shouldContain "count"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Int 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["age"] = 42
+        creator.toString() shouldContain "age"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Long 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["version"] = 1L
+        creator.toString() shouldContain "version"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Float 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["ratio"] = 1.5f
+        creator.toString() shouldContain "ratio"
+    }
+
+    @Test
+    fun `ToStringCreatorAppendTokens Double 타입 오버로드`() {
+        val creator = toStringCreatorOf(Any()) {}
+        val tokens = creator.append()
+        tokens["score"] = 99.9
+        creator.toString() shouldContain "score"
     }
 }

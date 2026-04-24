@@ -65,10 +65,23 @@ class TomlMapperTest: AbstractJacksonTextTest() {
             val output = tomlMapper.writeValueAsString(input)
             log.debug { "output=\n$output\n----------" }
 
+            // TOML: 값에 단따옴표가 포함되면 double-quote로 감싸므로 round-trip으로 검증
+            val actual = tomlMapper.readValue<FiveMinuteUser>(output)
+            actual shouldBeEqualTo input
+        }
+
+        @Test
+        fun `serialize employee with fixed data produces single-quoted toml`() {
+            // apostrophe 없는 고정 데이터 → TOML literal string(single-quote) 포맷 검증
+            val input = FiveMinuteUser("Bob", "Palmer", false, Gender.MALE, byteArrayOf(1, 2, 3, 4))
+
+            val output = tomlMapper.writeValueAsString(input)
+            log.debug { "output=\n$output\n----------" }
+
             val expected =
                 """
-                |firstName = '${input.firstName}'
-                |lastName = '${input.lastName}'
+                |firstName = 'Bob'
+                |lastName = 'Palmer'
                 |verified = false
                 |gender = 'MALE'
                 |userImage = 'AQIDBA=='

@@ -68,4 +68,14 @@ class CodecFactorySupportTest: AbstractAvroTest() {
         val codec = codecFactoryOf("  snappy  ")
         codec.shouldNotBeNull()
     }
+
+    @ParameterizedTest(name = "codecFactoryOf({0}) returns same lazy instance")
+    @ValueSource(
+        strings = ["null", "none", "deflate", "snappy", "zstd", "zstandard", "zstd-fast", "zstd-archive", "archive", "bzip2", "xz"]
+    )
+    fun `codecFactoryOf 는 lazy 상수와 동일 인스턴스를 반환한다`(codecName: String) {
+        val first = codecFactoryOf(codecName)
+        val second = codecFactoryOf(codecName)
+        (first === second).shouldBeTrue()
+    }
 }

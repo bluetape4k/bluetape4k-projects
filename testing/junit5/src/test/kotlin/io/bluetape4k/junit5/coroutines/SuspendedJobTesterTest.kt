@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class SuspendedJobTesterTest {
     companion object: KLoggingChannel() {
@@ -171,7 +172,7 @@ class SuspendedJobTesterTest {
         val count: Int by counter
 
         override suspend fun invoke() {
-            delay(10)
+            delay(10.milliseconds)
             counter.incrementAndGet()
             log.trace { "execution count: $count" }
         }

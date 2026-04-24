@@ -1,13 +1,21 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.warn
 import java.sql.Connection
 import java.sql.SQLException
+
+@PublishedApi
+internal val log = KotlinLogging.logger {}
 
 /**
  * 데이터베이스 트랜잭션을 실행합니다.
  *
  * 이 함수는 자동으로 트랜잭션을 시작하고, 블록 실행이 성공하면 커밋하고,
  * 예외가 발생하면 롤백합니다. 마지막에는 Connection을 자동으로 닫습니다.
+ *
+ * [CancellationException][kotlinx.coroutines.CancellationException]은 catch 없이 그대로 전파됩니다.
+ * rollback/상태복원 실패는 원래 예외에 suppressed로 기록하여 무시하지 않습니다.
  *
  * ```kotlin
  * dataSource.withTransaction { conn ->
@@ -41,17 +49,17 @@ inline fun <T> Connection.withTransaction(
         try {
             this.rollback()
         } catch (rollbackEx: SQLException) {
-            // 롤백 실패 시 원래 예외에 추가 정보로 기록
+            // 롤백 실패 시 원래 예외에 추가 정보로 기록하여 무시하지 않음
             e.addSuppressed(rollbackEx)
         }
         throw e
     } finally {
-        // 원래 상태로 복원
+        // 원래 상태로 복원 실패 시에도 로그를 남겨 무시하지 않음
         try {
             this.autoCommit = originalAutoCommit
             this.transactionIsolation = originalIsolationLevel
         } catch (e: SQLException) {
-            // 상태 복원 실패는 무시
+            log.warn(e) { "트랜잭션 상태 복원 실패 (autoCommit=$originalAutoCommit, isolationLevel=$originalIsolationLevel)" }
         }
     }
 }

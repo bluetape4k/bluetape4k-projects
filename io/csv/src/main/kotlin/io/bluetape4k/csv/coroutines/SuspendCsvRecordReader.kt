@@ -1,23 +1,25 @@
 package io.bluetape4k.csv.coroutines
 
-import com.univocity.parsers.common.record.Record
-import com.univocity.parsers.csv.CsvParser
-import com.univocity.parsers.csv.CsvParserSettings
-import io.bluetape4k.csv.DefaultCsvParserSettings
+import io.bluetape4k.csv.CsvSettings
+import io.bluetape4k.csv.Record
+import io.bluetape4k.csv.internal.CsvLexer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flowOn
 import java.io.InputStream
 import java.nio.charset.Charset
 
 /**
- * CSV 입력을 코루틴 [Flow]로 제공하는 [SuspendRecordReader] 구현체입니다.
+ * 자체 [CsvLexer]를 사용하는 CSV [SuspendRecordReader] 구현체입니다.
  *
  * ## 동작/계약
- * - [CsvParser] 결과를 `asFlow()`로 변환해 순차 방출합니다.
- * - [skipHeaders]가 `true`면 첫 레코드를 drop 합니다.
+ * - [CsvLexer] 결과를 [channelFlow]로 변환해 방출합니다.
+ * - 레코드 처리 전마다 [ensureActive]로 취소를 협력적으로 확인합니다.
+ * - 블로킹 IO는 [Dispatchers.IO]에서 실행됩니다.
+ * - [skipHeaders]가 `true`면 첫 레코드를 헤더로 처리합니다.
  * - 파싱/변환 예외는 collect 호출자에게 전파됩니다.
  *
  * ```kotlin
@@ -28,47 +30,36 @@ import java.nio.charset.Charset
  * ```
  */
 class SuspendCsvRecordReader(
-    private val settings: CsvParserSettings = DefaultCsvParserSettings,
-): SuspendRecordReader {
+    private val settings: CsvSettings = CsvSettings.DEFAULT,
+) : SuspendRecordReader {
 
-    companion object: KLoggingChannel()
+    companion object : KLoggingChannel()
 
     /**
      * CSV 입력 스트림을 읽어 변환된 [Flow]를 반환합니다.
      *
-     * ## 동작/계약
-     * - `iterateRecords(input, encoding)` 결과를 flow로 노출합니다.
-     * - [transform]은 각 레코드마다 suspend로 실행됩니다.
+     * [channelFlow]를 사용해 취소 협력(cooperative cancellation)을 보장하며,
+     * [Dispatchers.IO]에서 블로킹 IO를 수행합니다.
      *
-     * ```kotlin
-     * val ids = SuspendCsvRecordReader().read(input, skipHeaders = true) { it.getLong("id") }.toList()
-     * // ids == listOf(1L, 2L)
-     * ```
+     * @param input 읽을 CSV 입력 스트림
+     * @param encoding 텍스트 디코딩에 사용할 문자셋
+     * @param skipHeaders `true`이면 첫 행을 헤더로 처리
+     * @param transform 레코드를 결과 타입으로 변환하는 suspend 함수
      */
     override fun <T> read(
         input: InputStream,
         encoding: Charset,
         skipHeaders: Boolean,
         transform: suspend (Record) -> T,
-    ): Flow<T> =
-        CsvParser(settings)
-            .iterateRecords(input, encoding)
-            .asFlow()
-            .drop(if (skipHeaders) 1 else 0)
-            .map { transform(it) }
+    ): Flow<T> = channelFlow {
+        CsvLexer(input.reader(encoding), settings, skipHeaders).use { lexer ->
+            while (lexer.hasNext()) {
+                ensureActive()
+                send(transform(lexer.next()))
+            }
+        }
+    }.flowOn(Dispatchers.IO)
 
-    /**
-     * 리소스를 닫습니다.
-     *
-     * ## 동작/계약
-     * - 현재 구현은 별도 리소스를 보유하지 않아 no-op입니다.
-     *
-     * ```kotlin
-     * val reader = SuspendCsvRecordReader()
-     * reader.close()
-     * // close 호출 후 부작용 없음
-     * ```
-     */
     override fun close() {
         // Nothing to do.
     }

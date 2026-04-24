@@ -42,4 +42,20 @@ class ExposedItemWriterTest : AbstractExposedBatchTest() {
             TargetTable.selectAll().count() shouldBeEqualTo 0L
         }
     }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `대량 chunk batchInsert 정상 동작`(testDB: TestDB) {
+        withBatchTables(testDB) {
+            val writer = ExposedItemWriter<TargetRecord>(table = TargetTable) {
+                this[TargetTable.sourceName] = it.sourceName
+                this[TargetTable.transformedValue] = it.transformedValue
+            }
+
+            val items = (1..1000).map { TargetRecord("name-$it", it * 2) }
+            writer.write(Chunk(items))
+
+            TargetTable.selectAll().count() shouldBeEqualTo 1000L
+        }
+    }
 }

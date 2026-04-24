@@ -227,8 +227,27 @@ sequenceDiagram
 **직렬화 방식 선택 가이드:**
 
 - **호환성 우선**: Jdk (모든 Java 환경)
-- **성능 우선**: Kryo, Fory (3-10배 빠름)
+- **최고 성능**: `ForyBinarySerializer.fast()` (nullable 지원, +71%), `KryoBinarySerializer.fast()` (non-null only, +97%)
+- **범용 성능**: `BinarySerializers.Kryo`, `BinarySerializers.Fory`
 - **저장 공간 절약**: LZ4Kryo, ZstdFory (압축 포함)
+
+**fast() API — 고성능 모드:**
+
+`ForyBinarySerializer`와 `KryoBinarySerializer` 모두 `fast()` 팩토리를 제공하여 적합한 환경에서 고처리량 직렬화를 지원합니다.
+
+| 직렬화기 | 모드 | 처리량 | Nullable 지원 | 사용 환경 |
+|---|---|---|---|---|
+| `ForyBinarySerializer.fast()` | SCHEMA_CONSISTENT, refTracking 비활성 | ~116K ops/s (+71%) | ✅ 지원 | 휘발성 캐시, 고정 스키마 DTO, DAG 그래프 |
+| `KryoBinarySerializer.fast()` | FieldSerializer, 청크 헤더 없음 | ~68K ops/s (+97%) | ❌ 미지원 | non-null 고정 스키마 DTO 전용 |
+| `BinarySerializers.Fory` | COMPATIBLE, refTracking | ~68K ops/s | ✅ 지원 | 스키마 진화, 영속 저장소 |
+| `BinarySerializers.Kryo` | CompatibleFieldSerializer | ~34K ops/s | ✅ 지원 | 범용, nullable 필드 포함 |
+
+> 벤치마크: 4096바이트 `ByteArray` 필드를 포함한 `SimpleData` 객체 20개. JMH 처리량 모드, 3초 측정, 4회 워밍업.
+
+**`ForyBinarySerializer.fast()`가 최선의 선택인 이유:**
+- nullable 타입(`ByteArray?`, `String?`)을 올바르게 처리합니다.
+- 기본 Fory 대비 +71% 처리량 향상.
+- 주의: 기존 `BinarySerializers.Fory`(COMPATIBLE 모드)로 직렬화한 데이터와 포맷이 달라 함께 사용할 수 없습니다.
 
 ### 3. 파일 유틸리티 (FileSupport)
 
@@ -350,6 +369,45 @@ val forySerializer = BinarySerializers.Fory
 val foryBytes = forySerializer.serialize(user)
 ```
 
+**fast() API — 고성능 직렬화:**
+
+```kotlin
+import io.bluetape4k.io.serializer.ForyBinarySerializer
+import io.bluetape4k.io.serializer.KryoBinarySerializer
+
+// ✅ ForyBinarySerializer.fast() — 기본 Fory 대비 약 +71% 빠름
+// nullable 타입 지원. 휘발성 캐시와 고정 스키마 DTO에 사용.
+// 주의: BinarySerializers.Fory(COMPATIBLE)와 포맷이 달라 함께 사용 불가.
+val foryFast = ForyBinarySerializer.fast()
+val bytes = foryFast.serialize(user)             // 직렬화
+val restored = foryFast.deserialize<User>(bytes) // 역직렬화 (동일 직렬화기만 사용)
+
+// ✅ nullable 타입도 올바르게 처리됨
+data class CacheEntry(val id: Long, val payload: ByteArray?, val tag: String?)
+val entry = CacheEntry(1L, byteArrayOf(1, 2, 3), "v1")
+val cached = foryFast.serialize(entry)           // 정상 동작
+
+// ❌ COMPATIBLE 포맷 데이터와 혼용 불가
+val standard = BinarySerializers.Fory.serialize(user)
+foryFast.deserialize<User>(standard)             // 오류 — 포맷 불일치
+
+// ❌ 순환 참조 객체 사용 불가 (refTracking=false)
+// data class Node(val id: Int, var next: Node?)  // 순환 참조 → 무한 루프
+
+// ✅ KryoBinarySerializer.fast() — 기본 Kryo 대비 약 +97% 빠름
+// 주의: Kotlin nullable 타입(ByteArray?, String?) 미지원 → 역직렬화 오류 발생.
+// 순수 non-null 필드 DTO에만 사용하세요.
+data class NonNullItem(val id: Long, val name: String, val price: Double) // 모두 non-null
+val kryoFast = KryoBinarySerializer.fast()
+val itemBytes = kryoFast.serialize(NonNullItem(1L, "book", 9.99))
+val item = kryoFast.deserialize<NonNullItem>(itemBytes)  // 정상
+
+// ❌ nullable 필드 포함 클래스에 사용 불가
+data class Order(val id: Long, val note: String?)  // String? → 역직렬화 오류!
+val orderBytes = kryoFast.serialize(Order(1L, null))
+kryoFast.deserialize<Order>(orderBytes)            // 오류 또는 잘못된 결과
+```
+
 ### 파일 유틸리티
 
 ```kotlin
@@ -418,6 +476,30 @@ path.tryReadAllBytes().onSuccess { bytes ->
 ### 직렬화 성능 비교
 
 `SimpleData` 객체 20개 컬렉션의 직렬화/역직렬화 처리량입니다.
+JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
+
+**Byte Array (4096 bytes) 포함 시 — 표준 vs fast() 비교:**
+
+| 직렬화기 | ops/s | 기준 대비 | Nullable | 비고 |
+|---|---|---|---|---|
+| `ForyBinarySerializer.fast()` | ~116,000 | +71% | ✅ | SCHEMA_CONSISTENT, refTracking 비활성 |
+| `KryoBinarySerializer.fast()` | ~68,000 | +97% | ❌ | FieldSerializer, outputPool 재사용 |
+| `BinarySerializers.Fory` | ~68,000 | 기준 | ✅ | COMPATIBLE 모드, 영속 저장 적합 |
+| `BinarySerializers.Kryo` | ~34,000 | 기준 | ✅ | CompatibleFieldSerializer, 범용 |
+| Jdk | ~8,431 | — | ✅ | Java 표준 |
+| Jackson | ~4,323 | — | ✅ | 바이너리 데이터에 불리 |
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
+xychart-beta horizontal
+    title "직렬화 처리량 — Byte Array 4096B (ops/s)"
+    x-axis ["Jackson", "Jdk", "Kryo (std)", "Fory (std)", "Kryo fast()", "Fory fast()"]
+    y-axis "ops/s" 0 --> 130000
+    bar [4323, 8431, 34000, 68000, 68000, 116000]
+```
+
+> `ForyBinarySerializer.fast()`는 nullable 타입을 지원하며 기본 Fory 대비 +71% 빠릅니다.
+> `KryoBinarySerializer.fast()`는 +97% 빠르지만 Kotlin nullable 필드(`Type?`)를 **지원하지 않습니다**.
 
 **Byte Array 속성이 없는 경우:**
 
@@ -436,27 +518,6 @@ xychart-beta horizontal
     y-axis "ops/s" 0 --> 320000
     bar [22249, 39510, 81823, 305821]
 ```
-
-**Byte Array (4096 bytes) 포함 시:**
-
-| 라이브러리   | ops/s  | 비고           |
-|---------|--------|--------------|
-| Fory    | 59,192 | 최고 성능        |
-| Kryo    | 29,329 | 범용 추천        |
-| Jdk     | 8,431  | Java 표준      |
-| Jackson | 4,323  | 바이너리 데이터에 불리 |
-
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
-xychart-beta horizontal
-    title "직렬화 성능 비교 — Byte Array 4096B 포함 (ops/s)"
-    x-axis ["Jackson", "Jdk", "Kryo", "Fory"]
-    y-axis "ops/s" 0 --> 65000
-    bar [4323, 8431, 29329, 59192]
-```
-
-> Fory는 Kryo 대비 약 3배 이상 빠릅니다.
-> ByteArray가 포함된 경우, Jackson이 가장 느립니다.
 
 ### 압축 성능 비교
 

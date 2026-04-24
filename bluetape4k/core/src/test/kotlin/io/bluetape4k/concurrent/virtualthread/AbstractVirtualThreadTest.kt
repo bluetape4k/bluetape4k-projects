@@ -5,6 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class AbstractVirtualThreadTest {
 
@@ -26,7 +27,7 @@ abstract class AbstractVirtualThreadTest {
 
     protected suspend fun <T> sleepAndAwait(millis: Int, value: T): T {
         log.debug { "[SUSPEND] $value started" }
-        delay(millis.toLong())
+        delay(millis.milliseconds)
         log.debug { "[SUSPEND] $value finished" }
         return value
     }

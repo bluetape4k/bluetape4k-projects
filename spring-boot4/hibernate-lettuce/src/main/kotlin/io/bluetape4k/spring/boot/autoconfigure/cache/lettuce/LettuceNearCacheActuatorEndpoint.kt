@@ -89,6 +89,19 @@ class LettuceNearCacheActuatorEndpoint(
         )
     }
 
+    /**
+     * 단일 region의 캐시 통계 정보.
+     *
+     * @property regionName Hibernate 2nd Level Cache region 이름
+     * @property localSize Caffeine L1 캐시의 현재 항목 수
+     * @property localHitRate Caffeine L1 캐시 히트율 (0.0~1.0, 통계 비활성화 시 null)
+     * @property localHitCount Caffeine L1 캐시 히트 수 (통계 비활성화 시 null)
+     * @property localMissCount Caffeine L1 캐시 미스 수 (통계 비활성화 시 null)
+     * @property localEvictionCount Caffeine L1 캐시에서 제거된 항목 수 (통계 비활성화 시 null)
+     * @property l2HitCount Hibernate L2 캐시 히트 수 (statistics 비활성화 시 null)
+     * @property l2MissCount Hibernate L2 캐시 미스 수 (statistics 비활성화 시 null)
+     * @property l2PutCount Hibernate L2 캐시 PUT 수 (statistics 비활성화 시 null)
+     */
     data class RegionStats(
         val regionName: String,
         val localSize: Long,

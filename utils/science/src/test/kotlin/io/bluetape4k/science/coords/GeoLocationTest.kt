@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class GeoLocationTest {
 
@@ -49,5 +50,44 @@ class GeoLocationTest {
     fun `상수 ZERO의 위경도가 0이다`() {
         GeoLocation.ZERO.latitude shouldBeEqualTo 0.0
         GeoLocation.ZERO.longitude shouldBeEqualTo 0.0
+    }
+
+    @Test
+    fun `위도 범위 초과 시 예외가 발생한다`() {
+        assertThrows<IllegalArgumentException> { GeoLocation(91.0, 0.0) }
+        assertThrows<IllegalArgumentException> { GeoLocation(-91.0, 0.0) }
+    }
+
+    @Test
+    fun `경도 범위 초과 시 예외가 발생한다`() {
+        assertThrows<IllegalArgumentException> { GeoLocation(0.0, 181.0) }
+        assertThrows<IllegalArgumentException> { GeoLocation(0.0, -181.0) }
+    }
+
+    @Test
+    fun `경계값 위경도가 허용된다`() {
+        val northPole = GeoLocation(90.0, 180.0)
+        northPole.latitude shouldBeEqualTo 90.0
+        northPole.longitude shouldBeEqualTo 180.0
+
+        val southPole = GeoLocation(-90.0, -180.0)
+        southPole.latitude shouldBeEqualTo -90.0
+        southPole.longitude shouldBeEqualTo -180.0
+    }
+
+    @Test
+    fun `distanceTo가 대칭적이다`() {
+        val distance1 = SEOUL.distanceTo(NEW_YORK)
+        val distance2 = NEW_YORK.distanceTo(SEOUL)
+        distance1 shouldBeEqualTo distance2
+    }
+
+    @Test
+    fun `가까운 두 지점의 거리가 합리적이다`() {
+        // 서울시청과 강남역: 약 9~11km
+        val cityHall = GeoLocation(37.5665, 126.9780)
+        val gangnam = GeoLocation(37.4979, 127.0276)
+        val distance = cityHall.distanceTo(gangnam)
+        distance.shouldBeInRange(7_000.0..12_000.0)
     }
 }

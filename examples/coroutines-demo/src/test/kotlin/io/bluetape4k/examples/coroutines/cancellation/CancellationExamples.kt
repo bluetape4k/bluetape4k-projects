@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * 코루틴 취소(Cancellation) 메커니즘을 보여주는 예제입니다.
@@ -44,13 +45,13 @@ class CancellationExamples {
 
         val job = launch {
             repeat(1000) { i ->
-                delay(200)
+                delay(200.milliseconds)
                 counter.incrementAndGet()
                 log.debug { "[#1] Printing $i" }
             }
         }.log("#1")
 
-        advanceTimeBy(1100)
+        advanceTimeBy(1100.milliseconds)
         job.cancelAndJoin()
         counter.get() shouldBeEqualTo 5L
         log.debug { "Cancelled successfully." }
@@ -61,7 +62,7 @@ class CancellationExamples {
         val job = launch {
             try {
                 repeat(1000) {
-                    delay(200)
+                    delay(200.milliseconds)
                     log.debug { "Printing $it" }
                 }
             } catch (e: CancellationException) {
@@ -70,7 +71,7 @@ class CancellationExamples {
             }
         }.log("job")
 
-        advanceTimeBy(1100)
+        advanceTimeBy(1100.milliseconds)
         job.cancelAndJoin()
         log.debug { "Cancelled successfully" }
     }
@@ -81,7 +82,7 @@ class CancellationExamples {
         var cleanup = false
         val job = launch {
             try {
-                delay(200)
+                delay(200.milliseconds)
                 // 이 작업은 수행되지 않습니다.
                 counter.incrementAndGet()
                 log.debug { "Coroutine finished" }
@@ -89,14 +90,14 @@ class CancellationExamples {
                 log.debug { "Finally" }
                 // 취소 시에도 무조건 작업을 수행하도록 합니다.
                 withContext(NonCancellable) {
-                    delay(1000)
+                    delay(1000.milliseconds)
                     cleanup = true
                     log.debug { "Cleanup done with NonCancellation." }
                 }
             }
         }.log("job")
 
-        delay(100)
+        delay(100.milliseconds)
         job.cancelAndJoin()
         log.info { "Done" }
 
@@ -107,7 +108,7 @@ class CancellationExamples {
     @Test
     fun `invokeOnCompletion event listener 로 취소 시 작업 수행`() = runTest {
         val canceled = AtomicBoolean(false)
-        val job = launch { delay(1000) }.log("delayed")
+        val job = launch { delay(1000.milliseconds) }.log("delayed")
 
         // invoeOnCompletion Handler를 사용하여, Cancel 에 대한 처리를 수행할 수 있습니다.
         job.invokeOnCompletion(onCancelling = true) { cause: Throwable? ->
@@ -119,7 +120,7 @@ class CancellationExamples {
             }
         }
 
-        advanceTimeBy(100)
+        advanceTimeBy(100.milliseconds)
         job.cancelAndJoin()     // Cancelled
 
         canceled.get().shouldBeTrue()
@@ -130,13 +131,13 @@ class CancellationExamples {
         val counter = AtomicInteger(0)
         val job = launch {
             while (isActive) {
-                delay(100)         // delay 나 yield 로 suspend point 를 줘야 `isActive` 를 조회할 수 있다
+                delay(100.milliseconds)  // delay 나 yield 로 suspend point 를 줘야 `isActive` 를 조회할 수 있다
                 counter.incrementAndGet()
                 suspendLogging { "[#1] Printing. count=${counter.get()}" }
             }
         }.log("#1")
 
-        advanceTimeBy(550)
+        advanceTimeBy(550.milliseconds)
         job.cancelAndJoin()
 
         counter.get() shouldBeGreaterOrEqualTo 5

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class PublishSubjectTest {
 
@@ -76,14 +77,14 @@ class PublishSubjectTest {
 
             val job1 = launch(dispatcher) {
                 subject
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect { result1.add(it) }
             }.log("job1")
 
             val job2 = launch(dispatcher) {
                 subject
-                    .onEach { delay(20) }
+                    .onEach { delay(20.milliseconds) }
                     .log("#2")
                     .collect { result2.add(it) }
             }
@@ -204,14 +205,14 @@ class PublishSubjectTest {
         coroutineScope {
             launch {
                 subject
-                    .onEach { delay(1) }
+                    .onEach { delay(1.milliseconds) }
                     .log("#1")
                     .collect { counter1.incrementAndGet() }
             }.log("job1")
 
             launch {
                 subject
-                    .onEach { delay(3) }
+                    .onEach { delay(3.milliseconds) }
                     .log("#2")
                     .collect { counter2.incrementAndGet() }
 
@@ -240,14 +241,14 @@ class PublishSubjectTest {
         coroutineScope {
             launch {
                 subject
-                    .onEach { delay(1) }
+                    .onEach { delay(1.milliseconds) }
                     .log("#1")
                     .collect { counter1.incrementAndGet() }
             }.log("job1")
 
             launch {
                 subject.take(n / 2)
-                    .onEach { delay(2) }
+                    .onEach { delay(2.milliseconds) }
                     .log("#2")
                     .collect { counter2.incrementAndGet() }
             }.log("job2")
@@ -320,7 +321,7 @@ class PublishSubjectTest {
 
             val job = launch {
                 subject
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .log("#1")
                     .collect {
                         if (counter1.incrementAndGet() == expected) {

@@ -26,6 +26,7 @@ import org.redisson.api.options.LocalCachedMapOptions
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
+import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonNearCacheTest {
 
@@ -285,17 +286,17 @@ class RedissonNearCacheTest {
                 nearCache1.expireAsync(1.seconds.toJavaDuration())
             }
 
-            delay(500)
+            delay(500.milliseconds)
 
             nearCache2.containsKeyAsync(key1).await().shouldBeTrue()
 
-            delay(500)
+            delay(500.milliseconds)
 
             await atMost 3.seconds.toJavaDuration() untilSuspending {
                 nearCache2.containsKeyAsync(key1).await().not()
             }
 
-            delay(100)
+            delay(100.milliseconds)
             // 1초가 지나서 expire 되었다.
             nearCache1.containsKeyAsync(key1).await().shouldBeFalse()
 
@@ -305,7 +306,7 @@ class RedissonNearCacheTest {
             launch {
                 nearCache2.expireAsync(Duration.ofSeconds(1))
             }
-            delay(1000)
+            delay(1000.milliseconds)
             await atMost 3.seconds.toJavaDuration() untilSuspending {
                 nearCache1.containsKeyAsync(key2).await().not()
             }

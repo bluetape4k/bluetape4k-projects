@@ -12,6 +12,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonSuspendLeaderElectionSupportTest: AbstractRedissonTest() {
 
@@ -42,6 +43,6 @@ class RedissonSuspendLeaderElectionSupportTest: AbstractRedissonTest() {
     }
 
     private suspend fun randomDelay(from: Long = 5L, until: Long = 10L) {
-        delay(Random.nextLong(from, until))
+        delay(Random.nextLong(from, until).milliseconds)
     }
 }

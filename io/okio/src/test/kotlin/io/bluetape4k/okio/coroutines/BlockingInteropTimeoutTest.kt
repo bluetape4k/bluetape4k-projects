@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 class BlockingInteropTimeoutTest: AbstractOkioTest() {
 
@@ -15,7 +16,7 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
     fun `asBlocking source read timeout은 예외를 던진다`() {
         val suspended = object: SuspendedSource {
             override suspend fun read(sink: Buffer, byteCount: Long): Long {
-                delay(100)
+                delay(100.milliseconds)
                 return -1L
             }
 
@@ -34,7 +35,7 @@ class BlockingInteropTimeoutTest: AbstractOkioTest() {
     fun `asBlocking sink write timeout은 예외를 던진다`() {
         val suspended = object: SuspendedSink {
             override suspend fun write(source: Buffer, byteCount: Long) {
-                delay(100)
+                delay(100.milliseconds)
             }
 
             override suspend fun flush() {}

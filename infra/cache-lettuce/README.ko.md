@@ -561,3 +561,60 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
 - 다른 분산 캐시 백엔드가 필요한 경우:
   - Redisson 기반: `bluetape4k-cache-redisson`
   - Hazelcast 기반: `bluetape4k-cache-hazelcast`
+
+## 성능 · 안정성 계약 (Performance / Stability Notes)
+
+아래 계약은 `LettuceNearCache`, `LettuceSuspendNearCache`, `LettuceAsyncMemoizer`, `LettuceJCache` 모든 구현에 공통 적용됩니다.
+
+### `replace(key, oldValue, newValue)` — EVALSHA + NOSCRIPT fallback 기반 CAS
+
+동기/코루틴 변형 모두 공용 Lua 스크립트(`NearCacheScripts.COMPARE_AND_SET`)로 compare-and-set 을 수행합니다. SHA1 은 클래스 로드 시점에 한 번 계산되어 이후 모든 호출에서 재사용됩니다.
+
+- 1차 경로: `EVALSHA <sha1> 1 <key> <old> <new>` — 스크립트 원문 대신 20B SHA1 만 전송.
+- Fallback: 서버가 `NOSCRIPT` 를 반환하면(`SCRIPT FLUSH` / failover 등) 자동으로 원문 `EVAL` 로 재시도합니다. 호출자 관점에서 동작은 완전히 동일합니다.
+
+### `remove` / `removeAll` / `clearBack` — 비차단 삭제
+
+벌크 삭제는 `DEL` 대신 `UNLINK` 를 사용합니다. 큰 값은 Redis 백그라운드 스레드에서 회수되므로, 값 크기와 무관하게 클라이언트 roundtrip 이 O(1) 입니다. 동작 의미(semantics)는 `DEL` 과 동일합니다.
+
+### `LettuceJCache.close()` — JCache 명세 준수
+
+`close()` 는 리소스(리스너, executor, 연결 핸들)를 해제할 뿐 **데이터를 삭제하지 않습니다**. 과거 구현은 `close()` 내부에서 `clear()` 를 수행해 JSR-107 계약을 위반했으므로 제거되었습니다. 종료 시점에 데이터를 비우려면 `close()` 이전에 `clear()` 를 명시적으로 호출하세요.
+
+### `LettuceJCache.putAll` — 존재 여부 조회 배치화
+
+`CacheEntryListener` 가 등록된 경우 CREATED/UPDATED 이벤트 구분을 위해 키별로 `HEXISTS` 를 `N` 번 호출하던 비용을 단일 `HMGET` 한 번으로 줄였습니다. 엔트리 개수와 무관하게 roundtrip 이 1회로 고정됩니다.
+
+### `LettuceAsyncMemoizer` — in-flight 레이스 수정
+
+같은 키에 대해 evaluator 완료 직후 다른 호출이 재진입하며 새 promise 를 심는 경우, 기존 `inFlight.remove(key)` 가 재진입 promise 까지 함께 삭제하는 버그가 있었습니다. 현재는 `ConcurrentHashMap.remove(key, promise)` 로 **정확히 내가 생성한 key+value 쌍** 만 제거합니다.
+
+### 변경 요약 Flowchart
+
+```mermaid
+flowchart LR
+    subgraph CAS["replace(k, old, new)"]
+        A1[EVALSHA sha1] -->|성공| A2[결과 반환]
+        A1 -.NOSCRIPT.-> A3[EVAL source]
+        A3 --> A2
+    end
+    subgraph Delete["remove / removeAll / clearBack"]
+        B1[UNLINK key...] --> B2[즉시 반환]
+        B2 -.-> B3[Redis background free]
+    end
+    subgraph Close["LettuceJCache.close()"]
+        C1[closed = true] --> C2[cacheManager.closeCache]
+        C2 --> C3[closeResource]
+        C1 -.x.-> CX[map.clear 삭제됨]
+    end
+    subgraph Memoizer["LettuceAsyncMemoizer.whenComplete"]
+        D1[complete] --> D2["inFlight.remove(key, promise)"]
+        D2 -->|key+value 일치| D3[제거]
+        D2 -->|일치 안 함| D4[보존]
+    end
+
+    style CAS fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style Delete fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style Close fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    style Memoizer fill:#FFF3E0,stroke:#FFB74D,color:#E65100
+```

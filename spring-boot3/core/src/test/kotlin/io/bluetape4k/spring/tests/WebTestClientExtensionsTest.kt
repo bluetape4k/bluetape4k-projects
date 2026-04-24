@@ -5,22 +5,69 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import java.time.Duration
 import kotlin.test.Test
 
-class WebTestClientExtensionsTest: AbstractSpringTest() {
+class WebTestClientExtensionsTest {
 
     companion object: KLoggingChannel()
 
-    private val client: WebTestClient = WebTestClient
-        .bindToServer()
-        .baseUrl(baseUrl)
-        .build()
+    private lateinit var server: MockWebServer
+    private lateinit var client: WebTestClient
+    private lateinit var baseUrl: String
+
+    @BeforeEach
+    fun setup() {
+        server = MockWebServer().apply {
+            dispatcher = httpbinDispatcher()
+            start()
+        }
+        baseUrl = server.url("/").toString().trimEnd('/')
+        client = WebTestClient
+            .bindToServer()
+            .baseUrl(baseUrl)
+            .responseTimeout(Duration.ofSeconds(5))
+            .build()
+    }
+
+    @AfterEach
+    fun teardown() {
+        server.shutdown()
+    }
+
+    private fun httpbinDispatcher(): Dispatcher =
+        object: Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                val path = request.path?.substringBefore("?") ?: "/"
+                if (path == "/not-existing") {
+                    return MockResponse().setResponseCode(HttpStatus.NOT_FOUND.value())
+                }
+
+                val responseBody = """
+                    {
+                      "url": "$baseUrl$path",
+                      "data": "${request.body.readUtf8()}"
+                    }
+                """.trimIndent()
+
+                return MockResponse()
+                    .setResponseCode(HttpStatus.OK.value())
+                    .setHeader("Content-Type", "application/json")
+                    .setBody(if (request.method == "HEAD") "" else responseBody)
+            }
+        }
 
     @Nested
     inner class Get {

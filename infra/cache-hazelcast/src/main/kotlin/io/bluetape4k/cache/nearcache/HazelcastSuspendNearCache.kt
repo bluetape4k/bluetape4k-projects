@@ -79,22 +79,23 @@ class HazelcastSuspendNearCache<V: Any>(
 
     /**
      * 여러 키에 대한 값을 한 번에 조회한다.
+     * IMap.getAll()로 단일 네트워크 요청을 사용해 N-roundtrip 비용을 줄인다.
      */
     override suspend fun getAll(keys: Set<String>): Map<String, V> {
         val result = frontCache.getAll(keys).toMutableMap()
         val missedKeys = keys - result.keys
 
         if (missedKeys.isNotEmpty()) {
-            missedKeys.forEach { key ->
-                val backValue = imap.getAsync(key).await()
-                if (backValue != null) {
-                    result[key] = backValue
-                    frontCache.put(key, backValue)
-                    backHitCount.incrementAndGet()
-                } else {
-                    backMissCount.incrementAndGet()
-                }
+            // IMap.getAll()은 단일 네트워크 요청으로 여러 키를 조회한다.
+            // N번의 getAsync() 대신 bulk 조회를 사용해 N-roundtrip 비용을 줄인다.
+            val backValues = withContext(Dispatchers.IO) { imap.getAll(missedKeys) }
+            backValues.forEach { (key, backValue) ->
+                result[key] = backValue
+                frontCache.put(key, backValue)
+                backHitCount.incrementAndGet()
             }
+            val stillMissed = (missedKeys - backValues.keys).size
+            backMissCount.addAndGet(stillMissed.toLong())
         }
 
         return result
@@ -116,11 +117,12 @@ class HazelcastSuspendNearCache<V: Any>(
 
     /**
      * 여러 key-value를 한 번에 저장한다.
+     * IMap.putAll()은 단일 네트워크 요청으로 일괄 저장하므로 N번의 setAsync() 대신 사용한다.
      */
     override suspend fun putAll(entries: Map<String, V>) {
         frontCache.putAll(entries)
-        val futures = entries.map { (key, value) -> imap.setAsync(key, value) }
-        futures.forEach { it.await() }
+        // IMap.putAll()은 bulk 전송으로 N-roundtrip 비용을 줄인다.
+        withContext(Dispatchers.IO) { imap.putAll(entries) }
     }
 
     /**

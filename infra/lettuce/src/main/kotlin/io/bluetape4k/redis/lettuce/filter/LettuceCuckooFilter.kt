@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.filter
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
@@ -93,8 +94,10 @@ class LettuceCuckooFilter(
      */
     fun insert(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
-        return commands.eval<Long>(
-            CuckooFilterScripts.INSERT,
+        // 개선: EVALSHA 우선, NOSCRIPT 발생 시 원문 전송 fallback.
+        return RedisScriptRunner.run<Long>(
+            commands,
+            CuckooFilterScripts.INSERT_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(bucketsKey, configKey),
             fp.toString(),
@@ -119,8 +122,9 @@ class LettuceCuckooFilter(
      */
     fun contains(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
-        return commands.eval<Long>(
-            CuckooFilterScripts.CONTAINS,
+        return RedisScriptRunner.run<Long>(
+            commands,
+            CuckooFilterScripts.CONTAINS_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(bucketsKey, configKey),
             fp.toString(),
@@ -142,8 +146,9 @@ class LettuceCuckooFilter(
      */
     fun delete(element: String): Boolean {
         val (fp, i1, i2) = fingerprint(element)
-        return commands.eval<Long>(
-            CuckooFilterScripts.DELETE,
+        return RedisScriptRunner.run<Long>(
+            commands,
+            CuckooFilterScripts.DELETE_SCRIPT,
             ScriptOutputType.INTEGER,
             arrayOf(bucketsKey, configKey),
             fp.toString(),

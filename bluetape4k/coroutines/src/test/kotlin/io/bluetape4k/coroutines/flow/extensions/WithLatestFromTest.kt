@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class WithLatestFromTest: AbstractFlowTest() {
 
@@ -43,8 +44,8 @@ class WithLatestFromTest: AbstractFlowTest() {
 
     @Test
     fun `with other latest with delay`() = runTest {
-        val f1 = flowOf(1, 2, 3, 4).onEach { delay(300) }.log("f1")
-        val f2 = flowOf("a", "b", "c", "d", "e", "f").onEach { delay(100) }.log("f2")
+        val f1 = flowOf(1, 2, 3, 4).onEach { delay(300.milliseconds) }.log("f1")
+        val f2 = flowOf("a", "b", "c", "d", "e", "f").onEach { delay(100.milliseconds) }.log("f2")
 
         f2.withLatestFrom(f1)
             .assertResult("c" to 1, "d" to 1, "e" to 1, "f" to 2)

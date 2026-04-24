@@ -4,10 +4,10 @@ import io.bluetape4k.batch.api.BatchProcessor
 import io.bluetape4k.batch.api.BatchReader
 import io.bluetape4k.batch.api.BatchReport
 import io.bluetape4k.batch.api.BatchStatus
-import io.bluetape4k.batch.api.BatchWriter
 import io.bluetape4k.batch.api.SkipPolicy
 import io.bluetape4k.batch.core.BatchStepRunnerTest.CollectingWriter
 import io.bluetape4k.batch.core.BatchStepRunnerTest.ListBatchReader
+import io.bluetape4k.batch.core.dsl.batchJob
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.workflow.api.WorkContext
 import org.amshove.kluent.shouldBe
@@ -42,6 +42,27 @@ class BatchJobTest {
         skipPolicy = skipPolicy,
     )
 
+    private suspend fun runSingleStepJob(name: String, step: BatchStep<*, *>): BatchReport =
+        batchJob(name) { addStep(step) }.run()
+
+    private fun singleStepJob(name: String, step: BatchStep<*, *>): BatchJob =
+        batchJob(name) { addStep(step) }
+
+    private fun failingReader(message: String = "실패"): BatchReader<String> =
+        object : BatchReader<String> {
+            override suspend fun read(): String? = throw RuntimeException(message)
+        }
+
+    private fun failStep(
+        name: String = "failStep",
+        message: String = "실패",
+    ): BatchStep<String, String> = BatchStep(
+        name = name,
+        chunkSize = 1,
+        reader = failingReader(message),
+        writer = CollectingWriter(),
+    )
+
     // ─── 단일 Step 성공 ───────────────────────────────────────────────────────
 
     @Test
@@ -49,14 +70,7 @@ class BatchJobTest {
         val writer = CollectingWriter<String>()
         val step = simpleStep("step1", listOf("a", "b", "c"), writer)
 
-        val job = BatchJob(
-            name = "testJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
-
-        val report = job.run()
+        val report = runSingleStepJob("testJob", step)
 
         report shouldBeInstanceOf BatchReport.Success::class
         report.stepReports.size shouldBeEqualTo 1
@@ -74,12 +88,10 @@ class BatchJobTest {
         val step1 = simpleStep("step1", listOf("a", "b"), writer1)
         val step2 = simpleStep("step2", listOf("c", "d"), writer2)
 
-        val job = BatchJob(
-            name = "multiStepJob",
-            params = emptyMap(),
-            steps = listOf(step1, step2),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("multiStepJob") {
+            addStep(step1)
+            addStep(step2)
+        }
 
         val report = job.run()
 
@@ -96,23 +108,13 @@ class BatchJobTest {
     @Test
     fun `Step FAILED - BatchReport Failure 반환, 후속 Step 미실행`() = runSuspendIO {
         val writer2 = CollectingWriter<String>()
-        val failingReader = object : BatchReader<String> {
-            override suspend fun read(): String? = throw RuntimeException("step 1 read 실패")
-        }
-        val step1 = BatchStep(
-            name = "failStep",
-            chunkSize = 1,
-            reader = failingReader,
-            writer = CollectingWriter(),
-        )
+        val step1 = failStep("failStep", "step 1 read 실패")
         val step2 = simpleStep("step2", listOf("x"), writer2)
 
-        val job = BatchJob(
-            name = "failJob",
-            params = emptyMap(),
-            steps = listOf(step1, step2),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = batchJob("failJob") {
+            addStep(step1)
+            addStep(step2)
+        }
 
         val report = job.run()
 
@@ -140,14 +142,7 @@ class BatchJobTest {
             skipPolicy = SkipPolicy.ALL,
         )
 
-        val job = BatchJob(
-            name = "skipJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
-
-        val report = job.run()
+        val report = runSingleStepJob("skipJob", step)
 
         report shouldBeInstanceOf BatchReport.PartiallyCompleted::class
         report.stepReports[0].skipCount shouldBeEqualTo 1L
@@ -167,12 +162,7 @@ class BatchJobTest {
             writer = CollectingWriter(),
         )
 
-        val job = BatchJob(
-            name = "cancelJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = singleStepJob("cancelJob", step)
 
         var thrown: Throwable? = null
         try {
@@ -193,33 +183,22 @@ class BatchJobTest {
         val repo = InMemoryBatchJobRepository()
 
         // 1차 실행: step1 완료, step2 실패 → BatchReport.Failure
-        val failingReader = object : BatchReader<String> {
-            override suspend fun read(): String? = throw RuntimeException("step2 강제 실패")
+        val job1 = batchJob("restartJob") {
+            repository(repo)
+            addStep(simpleStep("step1", listOf("a", "b"), writer1))
+            addStep(failStep("step2", "step2 강제 실패"))
         }
-        val job1 = BatchJob(
-            name = "restartJob",
-            params = emptyMap(),
-            steps = listOf(
-                simpleStep("step1", listOf("a", "b"), writer1),
-                BatchStep(name = "step2", chunkSize = 1, reader = failingReader, writer = CollectingWriter()),
-            ),
-            repository = repo,
-        )
         val report1 = job1.run()
         report1 shouldBeInstanceOf BatchReport.Failure::class
         writer1.collected shouldBeEqualTo listOf("a", "b")  // step1은 성공
 
         // 2차 실행: FAILED JobExecution 재사용 → step1 COMPLETED(skip), step2 재실행
         val writer2b = CollectingWriter<String>()
-        val job2 = BatchJob(
-            name = "restartJob",
-            params = emptyMap(),
-            steps = listOf(
-                simpleStep("step1", listOf("x", "y"), writer1),  // step1 skip → writer1에 추가 없음
-                simpleStep("step2", listOf("c", "d"), writer2b),
-            ),
-            repository = repo,
-        )
+        val job2 = batchJob("restartJob") {
+            repository(repo)
+            addStep(simpleStep("step1", listOf("x", "y"), writer1))  // step1 skip → writer1에 추가 없음
+            addStep(simpleStep("step2", listOf("c", "d"), writer2b))
+        }
         val report2 = job2.run()
 
         report2 shouldBeInstanceOf BatchReport.Success::class
@@ -232,42 +211,21 @@ class BatchJobTest {
     @Test
     fun `execute - Success → WorkReport success`() = runSuspendIO {
         val step = simpleStep("step1", listOf("a"))
-        val job = BatchJob(
-            name = "workJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = singleStepJob("workJob", step)
 
         val context = WorkContext()
-        val workReport = job.execute(context)
-
-        workReport.status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
+        job.execute(context).status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
         context.contains("batch.workJob.report") shouldBe true
     }
 
     @Test
     fun `execute - Failure → WorkReport failure`() = runSuspendIO {
-        val failingStep = BatchStep(
-            name = "step1",
-            chunkSize = 1,
-            reader = object : BatchReader<String> {
-                override suspend fun read(): String? = throw RuntimeException("실패")
-            },
-            writer = CollectingWriter(),
-        )
+        val failingStep = failStep(name = "step1")
 
-        val job = BatchJob(
-            name = "failWorkJob",
-            params = emptyMap(),
-            steps = listOf(failingStep),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = singleStepJob("failWorkJob", failingStep)
 
         val context = WorkContext()
-        val workReport = job.execute(context)
-
-        workReport.status shouldBe io.bluetape4k.workflow.api.WorkStatus.FAILED
+        job.execute(context).status shouldBe io.bluetape4k.workflow.api.WorkStatus.FAILED
     }
 
     @Test
@@ -283,17 +241,10 @@ class BatchJobTest {
             skipPolicy = SkipPolicy.ALL,
         )
 
-        val job = BatchJob(
-            name = "partialJob",
-            params = emptyMap(),
-            steps = listOf(step),
-            repository = InMemoryBatchJobRepository(),
-        )
+        val job = singleStepJob("partialJob", step)
 
         val context = WorkContext()
-        val workReport = job.execute(context)
-
-        workReport.status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
+        job.execute(context).status shouldBe io.bluetape4k.workflow.api.WorkStatus.COMPLETED
         context.get<Long>("batch.partialJob.skipCount") shouldBeEqualTo 1L
     }
 }

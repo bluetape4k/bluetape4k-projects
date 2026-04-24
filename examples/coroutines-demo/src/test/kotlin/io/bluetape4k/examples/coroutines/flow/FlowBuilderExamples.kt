@@ -19,6 +19,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 class FlowBuilderExamples {
 
@@ -60,7 +61,7 @@ class FlowBuilderExamples {
     @Test
     fun `convert function to flow`() = runTest {
         val function: suspend () -> String = suspend {
-            advanceTimeBy(1000)
+            advanceTimeBy(1000.milliseconds)
             "UserName"
         }
 
@@ -70,7 +71,7 @@ class FlowBuilderExamples {
     }
 
     private suspend fun getUserName(): String {
-        delay(1000)
+        delay(1000.milliseconds)
         return "UserName"
     }
 
@@ -84,7 +85,7 @@ class FlowBuilderExamples {
     fun `flow builder`() = runTest {
         val nums = flow {
             repeat(3) { num ->
-                delay(10)
+                delay(10.milliseconds)
                 emit(num)
             }
         }
@@ -101,7 +102,7 @@ class FlowBuilderExamples {
             }
             launch {
                 // delay 를 줘도 flow 는 cold stream 이므로, buffer 에 쌓여있는 값들은 모두 처리됩니다.
-                advanceTimeBy(15)
+                advanceTimeBy(15.milliseconds)
                 nums.log("job2")
                     .collect {
                         counter2.incrementAndGet()

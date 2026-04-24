@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: SuspendedCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
@@ -115,7 +116,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: Suspen
                             .toInt()
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
-                delay(timeMillis = DEFAULT_DELAY)
+                delay(DEFAULT_DELAY.milliseconds)
             }
         }
 
@@ -164,7 +165,7 @@ interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: Suspen
             withSuspendedEntityTable(testDB) {
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(timeMillis = DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 repository.getAll(getExistingIds())
@@ -194,6 +195,35 @@ interface SuspendedReadThroughScenario<ID: Any, E: java.io.Serializable>: Suspen
         runSuspendIO {
             withSuspendedEntityTable(testDB) {
                 repository.invalidateByPattern("not-exists-*") shouldBeEqualTo 0L
+            }
+        }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `countFromDb - DB에서 전체 레코드 수를 직접 조회한다`(testDB: TestDB) =
+        runSuspendIO {
+            withSuspendedEntityTable(testDB) {
+                val count = repository.countFromDb()
+                count shouldBeEqualTo repository.table.selectAll().count()
+                count shouldBeGreaterThan 0L
+            }
+        }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findAll - limit, offset 파라미터로 페이지 조회한다`(testDB: TestDB) =
+        runSuspendIO {
+            withSuspendedEntityTable(testDB) {
+                val all = repository.findAll()
+                all.shouldNotBeEmpty()
+
+                val page = repository.findAll(limit = 1, offset = 0L)
+                page.shouldNotBeEmpty()
+                page.size shouldBeEqualTo 1
+
+                val page2 = repository.findAll(limit = 1, offset = 1L)
+                page2.shouldNotBeEmpty()
+                page2.size shouldBeEqualTo 1
             }
         }
 }

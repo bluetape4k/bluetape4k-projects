@@ -77,7 +77,8 @@ suspend fun SesV2Client.sendBulk(emailRequest: SendBulkEmailRequest): SendBulkEm
  * @return [Template] 템플릿 정보, 없으면 null
  */
 suspend fun SesV2Client.getTemplateOrNull(templateName: String): Template? {
-    return runCatching {
+    // WHY: runCatching + getOrNull()은 CancellationException을 삼키므로 suspend에서 직접 try-catch 사용
+    return try {
         val response = getEmailTemplate(GetEmailTemplateRequest { this.templateName = templateName })
         response.templateContent?.let {
             Template {
@@ -85,5 +86,9 @@ suspend fun SesV2Client.getTemplateOrNull(templateName: String): Template? {
                 this.templateContent = response.templateContent
             }
         }
-    }.getOrNull()
+    } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        null
+    }
 }

@@ -12,6 +12,8 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceClients`                    | Factory and connection pool management for `RedisClient` / `StatefulRedisConnection`                                                         |
 | `LettuceBinaryCodec<V>`             | High-performance generic value serialization codec based on `BinarySerializer`                                                               |
 | `LettuceBinaryCodecs`               | Factory combining serializers (Jdk/Kryo/Fory) with compression (GZip/Deflate/LZ4/Snappy/Zstd)                                                |
+| `LettuceJsonCodec<V>`               | JSON-based value codec using Jackson 3.x or Fastjson2 — stores values as human-readable JSON text                                            |
+| `LettuceJsonCodecs`                 | Factory object providing `jackson3<V>()` and `fastjson2<V>()` factory methods                                                                |
 | `LettuceIntCodec`                   | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`)                                       |
 | `LettuceLongCodec`                  | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)                                         |
 | `LettuceProtobufCodecs`             | Protobuf-based codec factory (requires `bluetape4k-protobuf`)                                                                                |
@@ -36,6 +38,8 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceSuspendBloomFilter`         | Redis BitSet-based Bloom Filter (suspend-only)                                                                                               |
 | `LettuceCuckooFilter`               | Redis-based Cuckoo Filter with deletion support (sync). Coroutine variant: `LettuceSuspendCuckooFilter`                                      |
 | `LettuceSuspendCuckooFilter`        | Redis-based Cuckoo Filter with deletion support (suspend-only)                                                                               |
+| `RedisScript`                       | Reusable Lua script with pre-computed SHA1. Enables `EVALSHA`-first execution with automatic `EVAL` fallback on `NOSCRIPT`                   |
+| `RedisScriptRunner`                 | Helper object to execute `RedisScript` via sync / async / suspend APIs with `EVALSHA`→`EVAL` fallback                                        |
 
 `LettuceCacheConfig` constraints:
 
@@ -46,6 +50,69 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 
 > **Memoizer** has been moved to the
 `bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../cache-lettuce/README.md) for details.
+
+## Performance Optimizations
+
+`LettuceClients` ships with several built-in performance optimizations applied by default. These were discovered and validated through an automated self-improvement benchmark loop (`LettuceThroughputBenchmark`, 10,000 async SET+GET ops via Testcontainers Redis).
+
+### Benchmark Results
+
+| Optimization | ops/sec | vs Baseline |
+|---|---|---|
+| Default (no tuning) | ~31,847 | — |
+| + Shared `DEFAULT_CLIENT_RESOURCES` (NCPU thread pool) | 32,154 | +1% |
+| + Full pipeline (`withPipeline{}` SET+GET) | 40,816 | +28% |
+| + `SocketOptions` (keepAlive + tcpNoDelay) | 46,728 | +47% |
+| **+ Merged pipeline + `awaitAll()`** | **81,967** | **+157%** |
+
+### Key Techniques
+
+#### 1. Shared `DEFAULT_CLIENT_RESOURCES` (NCPU Thread Pool)
+
+All `RedisClient` instances created via `LettuceClients.clientOf(...)` share a single `ClientResources` singleton tuned to `NCPU` I/O and computation threads. This avoids per-client thread creation overhead.
+
+#### 2. Tuned `SocketOptions`
+
+Every client automatically applies `keepAlive=true`, `tcpNoDelay=true`, and `connectTimeout=5s` via `ClientOptions`. These reduce TCP-level latency without requiring protocol changes.
+
+#### 3. `withPipeline{}` — Batch Flush Extension
+
+```kotlin
+import io.bluetape4k.redis.lettuce.withPipeline
+
+// Issue all commands → single flush → await results outside
+val (setFutures, getFutures) = connection.withPipeline { cmd ->
+    val sets = (0 until count).map { i -> cmd.set("key:$i", value) }
+    val gets = (0 until count).map { i -> cmd.get("key:$i") }
+    sets to gets
+}
+setFutures.awaitAll()   // Collection<RedisFuture>.awaitAll() from RedisFutureSupport
+getFutures.awaitAll()
+```
+
+- Disables `autoFlushCommands` while issuing commands, then issues a **single `flushCommands()`** for the entire batch
+- Merge SET and GET into **one block** to eliminate the inter-phase barrier (single TCP burst vs two sequential bursts)
+- `restores `autoFlushCommands(true)` in `finally` for safety
+
+#### 4. `Collection<RedisFuture>.awaitAll()` — Bulk Await
+
+```kotlin
+import io.bluetape4k.redis.lettuce.awaitAll
+
+// One CompletableFuture.allOf continuation vs N×async{} coroutine spawns
+val results: List<String?> = futures.awaitAll()
+```
+
+Prefer `RedisFutureSupport.awaitAll()` over `futures.map { async { it.await() } }.awaitAll()` — the latter spawns one coroutine per future, while `awaitAll()` uses a single `CompletableFuture.allOf` continuation.
+
+### Lessons from Benchmarking
+
+| What NOT to do | Why |
+|---|---|
+| `ProtocolVersion.RESP3` + `TimeoutOptions.enabled()` + `REJECT_COMMANDS` | −12% at high-ops localhost scale — per-command overhead dominates |
+| `ByteArrayCodec` for small ASCII values | −17% — Lettuce's `StringCodec` ASCII fast-path + buffer reuse beats ByteArrayCodec at 64B |
+| Await inside `withPipeline{}` lambda | `flushCommands()` never fires — coroutine suspends before the flush |
+| Partial pipelining (SET only, not GET) | The non-pipelined leg becomes the bottleneck |
 
 ## Dependency
 
@@ -150,6 +217,8 @@ val results = listOf(
 
 ## Codec Combinations
 
+### Binary Codecs (`LettuceBinaryCodecs`)
+
 | Factory Method          | Serializer | Compression |
 |-------------------------|------------|-------------|
 | `jdk()`                 | JDK        | None        |
@@ -160,6 +229,33 @@ val results = listOf(
 | `zstdFory()`            | Fory       | Zstd        |
 | `snappyFory()`          | Fory       | Snappy      |
 | `gzipFory()`            | Fory       | GZip        |
+
+### JSON Codecs (`LettuceJsonCodecs`)
+
+Human-readable JSON text storage. Useful for debugging or interoperability with other systems.
+
+```kotlin
+import io.bluetape4k.redis.lettuce.codec.LettuceJsonCodecs
+
+data class User(val id: Long, val name: String)
+
+// Jackson 3.x JSON codec
+val jacksonCodec = LettuceJsonCodecs.jackson3<User>()
+val jacksonConnection = redisClient.connect(jacksonCodec)
+val cmds = jacksonConnection.sync()
+
+cmds.set("user:1", User(1L, "Alice"))
+val user = cmds.get("user:1")   // User(id=1, name="Alice")
+
+// Fastjson2 JSON codec
+val fastjsonCodec = LettuceJsonCodecs.fastjson2<User>()
+val fastjsonConnection = redisClient.connect(fastjsonCodec)
+```
+
+| Factory Method      | Serializer | Format | Description                |
+|---------------------|------------|--------|----------------------------|
+| `jackson3<V>()`     | Jackson 3  | JSON   | Jackson ObjectMapper-based |
+| `fastjson2<V>()`    | Fastjson2  | JSON   | Fastjson2 JSON-based       |
 
 ### Primitive Codecs
 

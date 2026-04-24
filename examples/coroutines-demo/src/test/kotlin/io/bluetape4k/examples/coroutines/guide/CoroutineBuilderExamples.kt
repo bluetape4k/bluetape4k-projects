@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineBuilderExamples {
 
@@ -18,7 +19,7 @@ class CoroutineBuilderExamples {
     @Test
     fun `job example`() = runTest {
         val job = launch(Dispatchers.Default) {
-            advanceTimeBy(1000)
+            advanceTimeBy(1000.milliseconds)
         }.log("job")
         yield()
         job.join()
@@ -27,7 +28,7 @@ class CoroutineBuilderExamples {
     @Test
     fun `async example`() = runTest {
         val task: Deferred<Long> = async(Dispatchers.IO) {
-            advanceTimeBy(1000)
+            advanceTimeBy(1000.milliseconds)
             42L
         }.log("task")
         yield()

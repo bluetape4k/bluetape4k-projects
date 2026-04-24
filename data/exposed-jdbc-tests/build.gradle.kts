@@ -19,7 +19,7 @@ dependencies {
     // Bluetape4k
     compileOnly(project(":bluetape4k-jdbc"))
     compileOnly(project(":bluetape4k-io"))
-    compileOnly(project(":bluetape4k-crypto"))
+    
 
     api(project(":bluetape4k-junit5"))
     api(project(":bluetape4k-testcontainers"))

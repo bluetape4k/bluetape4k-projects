@@ -29,6 +29,7 @@ import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("DEPRECATION")
 class CacheWriteBehindExample: AbstractCacheExample() {
@@ -188,7 +189,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
 
                 // 캐시만 Expired 되기를 기다렸다가 다시 로드한다.
                 await untilSuspending {
-                    delay(100)
+                    delay(100.milliseconds)
                     cache.size < ACTOR_SIZE
                 }
 
@@ -250,7 +251,7 @@ class CacheWriteBehindExample: AbstractCacheExample() {
                 cache.fastRemoveAsync(*writeIds.toTypedArray()).await()
 
                 await untilSuspending {
-                    delay(100)
+                    delay(100.milliseconds)
                     newSuspendedTransaction {
                         ActorTable.selectAll().where { ActorTable.id inList writeIds }.count()
                     } == 0L

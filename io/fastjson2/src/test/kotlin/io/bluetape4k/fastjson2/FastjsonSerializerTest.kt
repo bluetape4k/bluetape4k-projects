@@ -98,4 +98,33 @@ class FastjsonSerializerTest: AbstractJsonSerializerTest() {
             serializer.deserializeFromString<User>("{not-json")
         }
     }
+
+    @Test
+    fun `Class 오버로드 - null 문자열 역직렬화 시 null 반환`() {
+        val result = serializer.deserializeFromString(null, User::class.java)
+        result.shouldBeNull()
+    }
+
+    @Test
+    fun `Class 오버로드 - 빈 문자열 역직렬화 시 null 반환`() {
+        val result = serializer.deserializeFromString("", User::class.java)
+        result.shouldBeNull()
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
+    fun `Class 오버로드 - 문자열 직렬화 역직렬화 왕복`() {
+        val user = newUser()
+        val json = serializer.serializeAsString(user)
+        json.shouldNotBeEmpty()
+
+        val restored = serializer.deserializeFromString(json, User::class.java)
+        restored.shouldNotBeNull() shouldBeEqualTo user
+    }
+
+    @Test
+    fun `Class 오버로드 - 잘못된 JSON 역직렬화 시 예외를 던진다`() {
+        assertFailsWith<JsonSerializationException> {
+            serializer.deserializeFromString("{not-json", User::class.java)
+        }
+    }
 }

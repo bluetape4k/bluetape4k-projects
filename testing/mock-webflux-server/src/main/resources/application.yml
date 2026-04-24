@@ -1,0 +1,28 @@
+server:
+    port: 80
+spring:
+    application:
+        name: mock-webflux-server
+    jackson:
+        default-property-inclusion: non_null
+    cache:
+        type: caffeine
+        cache-names:
+            - web-content
+            - fixture-data
+            - httpbin-image
+bluetape4k:
+    https:
+        port: 8443
+        key-store: classpath:certs/localhost.p12
+        key-store-password: changeit
+        key-store-type: PKCS12
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info
+logging:
+    level:
+        io.bluetape4k.mockwebflux: INFO

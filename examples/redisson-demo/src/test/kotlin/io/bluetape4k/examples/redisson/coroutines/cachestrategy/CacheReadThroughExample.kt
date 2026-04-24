@@ -29,6 +29,7 @@ import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.MapCacheOptions
 import java.time.Duration
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.milliseconds
 
 class CacheReadThroughExample: AbstractCacheExample() {
 
@@ -224,7 +225,7 @@ class CacheReadThroughExample: AbstractCacheExample() {
             // NOTE: parallelism 을 2 이상은 redisson connection 이 불안하다.
             cache.loadAll(true, 1)
 
-            delay(100)
+            delay(100.milliseconds)
 
             // 캐시에 이미 로딩된 데이터를 요청한다.
             val readTimeFromCache = measureTimeMillis {

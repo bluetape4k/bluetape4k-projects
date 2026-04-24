@@ -163,10 +163,9 @@ fun IntArray.ensureCapacity(minCapacity: Int, padding: Int): IntArray {
 fun concat(vararg arrays: IntArray): IntArray {
     val totalLength = arrays.sumOf { it.size }
     val result = IntArray(totalLength)
-    var offset = 0
-    for (array in arrays) {
+    arrays.fold(0) { offset, array ->
         array.copyInto(result, offset)
-        offset += array.size
+        offset + array.size
     }
     return result
 }

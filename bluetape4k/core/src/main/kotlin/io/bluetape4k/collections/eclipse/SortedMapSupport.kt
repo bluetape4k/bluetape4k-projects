@@ -228,7 +228,7 @@ fun <K: Comparable<K>, V> Sequence<Pair<K, V>>.toMutableSortedMap(
  * // out.size == 2
  * ```
  */
-@JvmName("toMutableSortedMapFromSequencePairToDest")
+@JvmName("toMutableSortedMapFromIteratorPairToDest")
 fun <K: Comparable<K>, V> Iterator<Pair<K, V>>.toMutableSortedMap(
     destination: MutableSortedMap<K, V> = SortedMaps.mutable.of(),
 ): MutableSortedMap<K, V> =

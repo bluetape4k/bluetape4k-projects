@@ -1,6 +1,5 @@
 package io.bluetape4k.csv
 
-import com.univocity.parsers.common.record.Record
 import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -14,7 +13,7 @@ import kotlin.text.Charsets.UTF_8
 
 abstract class AbstractRecordReaderTest {
 
-    companion object: KLogging()
+    companion object : KLogging()
 
     abstract val reader: RecordReader
 
@@ -24,10 +23,10 @@ abstract class AbstractRecordReaderTest {
     val mapper = { record: Record ->
         val tagFamily = record.getValue(0, "").trim()
         val representative = record.getValue(1, "").trim()
-        val synonym = record.getValue<String?>(2, null)?.trim()
-        val tagType = record.getValue<String?>(3, null)?.trim()
-        val priority = record.getValue<Int?>(4, null)
-        val parentRepresentative = record.getValue<String?>(5, null)?.trim()
+        val synonym = record.getString(2)?.trim()
+        val tagType = record.getString(3)?.trim()
+        val priority = record.getIntOrNull(4)
+        val parentRepresentative = record.getString(5)?.trim()
         val level = record.getValue(6, 0)
 
         ProductType(
@@ -73,7 +72,7 @@ abstract class AbstractRecordReaderTest {
     }
 
     @Test
-    fun `read extra words from csv file `() {
+    fun `read extra words from csv file`() {
         Resourcex.getInputStream(extraWordsPath)!!.buffered().use { bis ->
             val records = reader.read(bis, UTF_8, true)
 

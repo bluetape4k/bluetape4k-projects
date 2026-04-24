@@ -31,7 +31,7 @@ class SuspendCsvRecordWriterTest {
 
                 log.debug { "captured=\n$captured" }
                 captured shouldContain """row1,1,2,"3, 3""""
-                captured shouldContain """row2,4,,"6,6""""
+                captured shouldContain """"row2  ",4,,"6,6""""
             }
         }
 

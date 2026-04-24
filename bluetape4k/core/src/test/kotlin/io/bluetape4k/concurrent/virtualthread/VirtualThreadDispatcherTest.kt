@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import org.junit.jupiter.api.RepeatedTest
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.milliseconds
 
 class VirtualThreadDispatcherTest {
 
@@ -31,7 +32,7 @@ class VirtualThreadDispatcherTest {
         val elapsedTime = measureTimeMillis {
             val tasks = List(TASK_SIZE) {
                 launch(dispather) {
-                    delay(SLEEP_TIME)
+                    delay(SLEEP_TIME.milliseconds)
                     log.trace { "Task $it is done" }
                 }
             }
@@ -45,7 +46,7 @@ class VirtualThreadDispatcherTest {
         val elapsedTime = measureTimeMillis {
             val jobs = List(TASK_SIZE) {
                 launch {
-                    delay(SLEEP_TIME)
+                    delay(SLEEP_TIME.milliseconds)
                     log.trace { "Job $it is done" }
                 }
             }
@@ -63,7 +64,7 @@ class VirtualThreadDispatcherTest {
             .workers(TASK_SIZE)
             .rounds(TASK_SIZE)
             .add {
-                delay(SLEEP_TIME)
+                delay(SLEEP_TIME.milliseconds)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
             }
             .run()
@@ -78,7 +79,7 @@ class VirtualThreadDispatcherTest {
             .workers(TASK_SIZE)
             .rounds(TASK_SIZE)
             .add {
-                delay(SLEEP_TIME)
+                delay(SLEEP_TIME.milliseconds)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
             }
             .run()
@@ -93,7 +94,7 @@ class VirtualThreadDispatcherTest {
             .workers(TASK_SIZE)
             .rounds(TASK_SIZE)
             .add {
-                delay(SLEEP_TIME)
+                delay(SLEEP_TIME.milliseconds)
                 log.trace { "Job[${jobNumber.incrementAndGet()}] is done" }
             }
             .run()

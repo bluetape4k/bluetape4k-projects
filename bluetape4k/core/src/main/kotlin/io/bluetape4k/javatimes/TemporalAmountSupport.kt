@@ -97,7 +97,14 @@ val TemporalAmount.millis: Long
  * ```
  */
 val TemporalAmount.sign: Int
-    get() = toDurationExact().compareTo(Duration.ZERO)
+    get() {
+        val d = toDurationExact()
+        return when {
+            d.isZero     -> 0
+            d.isNegative -> -1
+            else         -> 1
+        }
+    }
 
 /**
  * [TemporalAmount]가 0인지 여부를 반환합니다.
@@ -108,7 +115,7 @@ val TemporalAmount.sign: Int
  * ```
  */
 val TemporalAmount.isZero: Boolean
-    get() = sign == 0
+    get() = toDurationExact().isZero
 
 /**
  * [TemporalAmount]가 양수인지 여부를 반환합니다.
@@ -119,7 +126,7 @@ val TemporalAmount.isZero: Boolean
  * ```
  */
 val TemporalAmount.isPositive: Boolean
-    get() = sign > 0
+    get() = !toDurationExact().let { it.isZero || it.isNegative }
 
 /**
  * [TemporalAmount]가 음수인지 여부를 반환합니다.
@@ -130,7 +137,7 @@ val TemporalAmount.isPositive: Boolean
  * ```
  */
 val TemporalAmount.isNegative: Boolean
-    get() = sign < 0
+    get() = toDurationExact().isNegative
 
 /**
  * [TemporalAmount]가 양수가 아닌지 여부를 반환합니다. (0 이하)
@@ -142,7 +149,7 @@ val TemporalAmount.isNegative: Boolean
  * ```
  */
 val TemporalAmount.isNotPositive: Boolean
-    get() = sign <= 0
+    get() = toDurationExact().let { it.isZero || it.isNegative }
 
 /**
  * [TemporalAmount]가 음수가 아닌지 여부를 반환합니다. (0 이상)
@@ -154,7 +161,7 @@ val TemporalAmount.isNotPositive: Boolean
  * ```
  */
 val TemporalAmount.isNotNegative: Boolean
-    get() = sign >= 0
+    get() = !toDurationExact().isNegative
 
 /**
  * [chronoUnit]의 숫자를 [TemporalAmount]로 변환합니다.
@@ -184,7 +191,7 @@ fun Long.temporalAmount(chronoUnit: ChronoUnit): TemporalAmount = when (chronoUn
     ChronoUnit.MINUTES -> Duration.ofMinutes(this)
     ChronoUnit.SECONDS -> Duration.ofSeconds(this)
     ChronoUnit.MILLIS  -> Duration.ofMillis(this)
-    ChronoUnit.MICROS  -> Duration.ofNanos(this * 1000L)
+    ChronoUnit.MICROS  -> Duration.ofNanos(this * NanosPerMicro)
     ChronoUnit.NANOS   -> Duration.ofNanos(this)
     else               -> throw IllegalArgumentException("Not supported ChronoUnit. chronounit=$chronoUnit")
 }

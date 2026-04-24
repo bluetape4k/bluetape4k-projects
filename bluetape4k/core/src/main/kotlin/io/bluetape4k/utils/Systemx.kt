@@ -39,12 +39,6 @@ object Systemx {
     const val OS_VERSION = "os.version"
     const val JAVA_VERSION = "java.version"
 
-    @Deprecated(
-        message = "Use JAVA_CLASS_VERSION",
-        replaceWith = ReplaceWith("JAVA_CLASS_VERSION"),
-    )
-    const val JAVA_CLASS_VERION = "java.class.version"
-
     const val JAVA_CLASS_VERSION = "java.class.version"
     const val JAVA_SPECIFICATION_VERSION = "java.specification.version"
     const val JAVA_VENDOR = "java.vendor"
@@ -64,13 +58,6 @@ object Systemx {
 
     /** System Properties */
     val systemProps: Properties by lazy { System.getProperties() }
-
-    /** CPU Core count */
-    @Deprecated(
-        message = "Use availableProcessors",
-        replaceWith = ReplaceWith("availableProcessors"),
-    )
-    val processCount: Int by lazy { Runtime.getRuntime().availableProcessors() }
 
     /** CPU Core count */
     val availableProcessors: Int by lazy { Runtime.getRuntime().availableProcessors() }
@@ -118,26 +105,6 @@ object Systemx {
         if (raw.startsWith("1.")) raw.removePrefix("1.").substringBefore('.').toIntOrNull()
         else raw.substringBefore('.').toIntOrNull()
     }
-
-    /** Java 1.6 인가? */
-    @Deprecated(message = "Java 21+ 환경에서는 항상 false입니다.")
-    val isJava6: Boolean by lazy { JavaFeatureVersion == 6 }
-
-    /** Java 1.7 인가? */
-    @Deprecated(message = "Java 21+ 환경에서는 항상 false입니다.")
-    val isJava7: Boolean by lazy { JavaFeatureVersion == 7 }
-
-    /** Java 1.8 인가? */
-    @Deprecated(message = "Java 21+ 환경에서는 항상 false입니다.")
-    val isJava8: Boolean by lazy { JavaFeatureVersion == 8 }
-
-    /** Java 9 인가? */
-    @Deprecated(message = "Java 21+ 환경에서는 항상 false입니다.")
-    val isJava9: Boolean by lazy { JavaFeatureVersion == 9 }
-
-    /** Java 10 인가? */
-    @Deprecated(message = "Java 21+ 환경에서는 항상 false입니다.")
-    val isJava10: Boolean by lazy { JavaFeatureVersion == 10 }
 
     /** Java 11 인가? */
     val isJava11: Boolean by lazy { JavaFeatureVersion == 11 }
@@ -192,13 +159,6 @@ object Systemx {
 
     /** 임시 디렉토리 */
     val tempDir: String? by lazy { systemProperty(TEMP_DIR) }
-
-    /** 임시 디렉토리 */
-    @Deprecated(
-        message = "Use tempDir",
-        replaceWith = ReplaceWith("tempDir"),
-    )
-    val javaIoTmpDir: String? by lazy { systemProperty(TEMP_DIR) }
 
     /** OS 이름 */
     val osName: String? by lazy { systemProperty(OS_NAME) }

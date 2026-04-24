@@ -6,7 +6,7 @@
 
 `bluetape4k-http`는 다양한 HTTP 클라이언트 라이브러리를 Kotlin 확장 함수와 DSL로 통합하여 제공하는 모듈입니다.
 
-Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, AsyncHttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
+Apache HttpComponents 5, OkHttp3, Vert.x HttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
 
 ## 아키텍처
 
@@ -21,7 +21,7 @@ flowchart TD
 
     subgraph bluetape4k-http
         EXT[executeSuspending\n확장 함수]
-        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / asyncHttpClientOf]
+        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf]
     end
 
     subgraph Backends["HTTP 클라이언트 백엔드"]
@@ -29,7 +29,6 @@ flowchart TD
         HC5C[HC5 Classic\nhttpClient]
         HC5CA[HC5 캐싱\ncachingHttpAsyncClient]
         OKH[OkHttp3\nokhttp3Client]
-        AHC[AsyncHttpClient\nasyncHttpClientOf]
         VTX[Vert.x HttpClient\nvertxHttpClientOf]
     end
 
@@ -40,13 +39,11 @@ flowchart TD
     DSL --> HC5C
     DSL --> HC5CA
     DSL --> OKH
-    DSL --> AHC
     DSL --> VTX
     HC5A --> SERVER[(HTTP 서버)]
     HC5C --> SERVER
     HC5CA --> SERVER
     OKH --> SERVER
-    AHC --> SERVER
     VTX --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
@@ -58,7 +55,7 @@ flowchart TD
     class APP coreStyle
     class CO asyncStyle
     class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,AHC,VTX serviceStyle
+    class HC5A,HC5C,HC5CA,OKH,VTX serviceStyle
     class SERVER extStyle
 ```
 
@@ -195,6 +192,20 @@ val client = httpClient {
 val response = client.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
 ```
 
+**Virtual Thread Classic HttpClient:**
+
+```kotlin
+import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+
+// Virtual Thread 기반 커넥션 풀을 사용하는 HC5 Classic 클라이언트
+val client = virtualThreadHttpClientOf(maxConnTotal = 200, maxConnPerRoute = 100)
+
+client.use {
+    val response = it.execute(classicRequestOf(Method.GET, "https://httpbin.org/get"))
+    println(response.code)
+}
+```
+
 **캐싱 HttpClient:**
 
 ```kotlin
@@ -222,14 +233,30 @@ Square의 OkHttp3 클라이언트를 Kotlin DSL로 간편하게 생성하고 사
 - MockWebServer 유틸리티
 - Coroutines 확장
 
+**DSL 빌더 함수 (`OkHttp3Support.kt`):**
+
+| 함수 | 설명 |
+|-----|------|
+| `okhttp3Client(connectionPool, dispatcher, block)` | `OkHttpClient` 생성 (pool/dispatcher 선택 설정) |
+| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)` | `ConnectionPool` 생성 |
+| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Virtual Thread 기반 `Dispatcher` 생성 |
+| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)` | 커스텀 `ExecutorService` 기반 `Dispatcher` 생성 |
+| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)` | 사전 구성된 `OkHttpClient.Builder` 반환 |
+| `okhttp3RequestOf(url, block)` | `okhttp3.Request` DSL 생성 |
+| `okhttp3CacheControl(block)` | `CacheControl` DSL 생성 |
+| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)` | 기간 파라미터 기반 `CacheControl` 생성 |
+
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
-import io.bluetape4k.logging.KotlinLogging
 
-private val log = KotlinLogging.logger {}
+// Connection Pool + Virtual Thread Dispatcher
+val pool = okHttp3ConnectionPool(maxIdleConnections = 50)
+val dispatcher = okhttp3DispatcherWithVirtualThread(maxRequests = 200)
 
-// Virtual Thread 기반 OkHttpClient 생성
-val client = okhttp3Client {
+val client = okhttp3Client(
+    connectionPool = pool,
+    dispatcher = dispatcher,
+) {
     addInterceptor(LoggingInterceptor(log))
     addNetworkInterceptor(CachingResponseInterceptor())
 }
@@ -238,6 +265,11 @@ val client = okhttp3Client {
 val request = okhttp3RequestOf("https://httpbin.org/get") {
     get()
     header("Accept", "application/json")
+}
+
+// 동기 호출
+client.newCall(request).execute().use { response ->
+    println(response.body.string())
 }
 
 // Coroutines 환경에서 비동기 요청
@@ -264,22 +296,6 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
-### 4. AsyncHttpClient (AHC)
-
-Netty 기반의 AsyncHttpClient를 Kotlin Coroutines로 래핑합니다.
-
-```kotlin
-import io.bluetape4k.http.ahc.*
-
-val client = asyncHttpClientOf {
-    setMaxConnections(100)
-    setMaxConnectionsPerHost(10)
-}
-
-// Coroutines 환경에서 비동기 요청
-val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
-```
-
 ## HTTP 클라이언트 비교
 
 | 클라이언트             | 프로토콜             | 특성                    | 용도            |
@@ -288,7 +304,103 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 | HC5 Async         | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합    | 고성능 비동기 통신    |
 | OkHttp3           | HTTP/1.1, HTTP/2 | 경량, Virtual Thread 기본 | 범용 HTTP 클라이언트 |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | 이벤트 루프 기반             | Vert.x 생태계 통합 |
-| AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty 기반, 고성능         | 대량 비동기 요청     |
+
+## 성능 벤치마크
+
+JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트별 처리량을 측정합니다.
+모든 벤치마크는 별도의 Docker 컨테이너 서버에 요청하여 서버 JVM과 클라이언트 JVM을 분리합니다.
+
+```bash
+# 전체 벤치마크 실행
+./gradlew :bluetape4k-http:testBenchmark
+
+# 특정 벤치마크만 실행
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientLatencyBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientCompressionCacheBenchmark"
+```
+
+### 1. HttpClientBenchmark — 기본 처리량 (`GET /ping`)
+
+**환경**: `BluetapeHttpServer` (Docker) · `@Threads(8)` · warmup 1×2s · measurement 3×3s
+
+경량 `/ping` 응답으로 순수 연결 처리량을 측정합니다.
+
+| 클라이언트 | 방식 | 특징 |
+|-----------|------|------|
+| OkHttp3 Sync | 동기 | 플랫폼 스레드 |
+| OkHttp3 VirtualThread | 동기 | Virtual Thread Dispatcher |
+| OkHttp3 Coroutines | 비동기 | `Call.executeAsync()` (공식 okhttp-coroutines) |
+| Java HttpClient Sync | 동기 | JDK 내장 |
+| Java HttpClient VirtualThread | 동기 | Virtual Thread executor |
+| Java HttpClient H2 Sync | 동기 | HTTP/2 |
+| HC5 Classic | 동기 | Apache HttpComponents 5 |
+| HC5 Classic VirtualThread | 동기 | VT 기반 커넥션 매니저 |
+| HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
+| HC5 Async Coroutines | 비동기 | `executeSuspending()` |
+| Vert.x WebClient Coroutines | 비동기 | 이벤트 루프 |
+
+> **참고**: 지연 없는 경량 응답이므로 동기/비동기 방식 모두 유사한 처리량을 냅니다.
+> 차이는 주로 커넥션 풀 설정과 스레드 모델에서 발생합니다.
+
+### 2. HttpClientLatencyBenchmark — 고지연 환경 처리량 (`GET /httpbin/delay/0.05`)
+
+**환경**: `BluetapeHttpServer` (Docker, 50ms 지연) · `@Threads(100)` · warmup 1×3s · measurement 3×5s
+
+**이론값**: 100 threads × (1000ms / 50ms) = **2,000 ops/s** (동기 상한)
+비동기/코루틴 방식은 스레드 블로킹 없이 이 상한을 초과합니다.
+
+| 클라이언트 | 방식 | 비고 |
+|-----------|------|------|
+| OkHttp3 Sync | 동기 | 100 플랫폼 스레드 차단 |
+| OkHttp3 VirtualThread | 동기 | VT로 차단 비용 감소 |
+| OkHttp3 Coroutines | 비동기 | `Dispatchers.IO` + `executeAsync()` |
+| Java HttpClient Sync | 동기 | — |
+| Java HttpClient VirtualThread | 동기 | — |
+| Java HttpClient Coroutines | 비동기 | `sendAwait()` |
+| HC5 Classic | 동기 | — |
+| HC5 Classic VirtualThread | 동기 | — |
+| HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
+| HC5 Async Coroutines | 비동기 | `executeSuspending()` |
+| Vert.x WebClient Coroutines | 비동기 | — |
+
+### 3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과
+
+**환경**: `WireMockServer` (Docker, 10ms 고정 지연) · gzip 1KB 응답 · `Cache-Control: public, max-age=3600` · `@Threads(8)` · warmup 2×3s · measurement 3×5s
+
+**이론값(캐시 없음)**: 8 threads × (1000ms / 10ms) = **800 ops/s**
+
+| 클라이언트 | 캐시 | ops/s | 배율 |
+|-----------|------|------:|------|
+| HC5 Classic + InMemoryCache | 인메모리 (Heap) | **813,906** | ×1,233 |
+| OkHttp3 + DiskLruCache | 디스크 (OS 페이지 캐시) | **35,359** | ×53 |
+| HC5 Classic (캐시 없음) | — | 682 | ×1 |
+| HC5 Classic VirtualThread (캐시 없음) | — | 668 | — |
+| OkHttp3 (캐시 없음) | — | 661 | — |
+
+**인사이트**:
+- **캐시 효과**: 10ms 네트워크 지연 제거만으로 35K–813K ops/s 달성
+- **HC5 MemCache vs OkHttp DiskCache (23배 차이)**:
+  - HC5: `ConcurrentHashMap` 직접 조회 → ~1–10 μs/op
+  - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
+  - OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
+
+```mermaid
+bar
+    title HTTP 캐시 효과 (ops/s, @Threads=8, WireMock 10ms 지연)
+    "HC5 + MemCache" : 813906
+    "OkHttp + DiskCache" : 35359
+    "NoCache 기준" : 682
+```
+
+**권장 선택**:
+
+| 상황 | 권장 |
+|------|------|
+| 반복 GET + 캐시 최우선 | HC5 CachingHttpClient (MemCache) |
+| 재시작 후 캐시 유지 필요 | OkHttp3 + DiskLruCache |
+| 범용 고성능 (캐시 불필요) | HC5 Classic VirtualThread 또는 OkHttp3 |
+| 고지연 비동기 대량 요청 | HC5 Async Coroutines 또는 Vert.x WebClient |
 
 ## Coroutines 지원
 
@@ -330,9 +442,6 @@ io.bluetape4k.http
 │   ├── CachingRequestInterceptor.kt
 │   ├── CachingResponseInterceptor.kt
 │   └── mock/               # MockWebServer 유틸리티
-├── ahc/                    # AsyncHttpClient
-│   ├── AsyncHttpClientSupport.kt
-│   └── CoroutineSupport.kt
 └── vertx/                  # Vert.x HttpClient
     └── VertxHttpClientSupport.kt
 ```
@@ -345,7 +454,6 @@ dependencies {
 
     // 선택적 의존성 (필요한 것만 추가)
     implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
     implementation("io.vertx:vertx-core")                    // Vert.x
 }
 ```
@@ -362,5 +470,4 @@ dependencies {
 - [Apache HttpComponents 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Vert.x HttpClient](https://vertx.io/docs/vertx-core/kotlin/)
-- [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client)
 - [httpbin.org](https://httpbin.org/) - HTTP 테스트용 API

@@ -134,4 +134,29 @@ class MongoCollectionExtensionsTest: AbstractMongoTest() {
         docs.first().getInteger("age") shouldBeEqualTo 22
         docs.last().getInteger("age") shouldBeEqualTo 35
     }
+
+    @Test
+    fun `findFirstOrNull 조건에 맞는 문서 반환`() = runTest(timeout = 30.seconds) {
+        val doc = collection.findFirstOrNull(Filters.eq("name", "Charlie"))
+        doc.shouldNotBeNull()
+        doc.getString("name") shouldBeEqualTo "Charlie"
+    }
+
+    @Test
+    fun `findFirstOrNull 조건에 맞는 문서 없으면 null 반환`() = runTest(timeout = 30.seconds) {
+        val doc = collection.findFirstOrNull(Filters.eq("name", "NotExist"))
+        doc.shouldBeNull()
+    }
+
+    @Test
+    fun `findAsFlow 필터와 sort 함께 적용`() = runTest(timeout = 30.seconds) {
+        val docs = collection.findAsFlow(
+            filter = Filters.eq("city", "Seoul"),
+            sort = Sorts.descending("age")
+        ).toList()
+        // Seoul: Alice(25), Charlie(35), Eve(22) — 내림차순: Charlie(35), Alice(25), Eve(22)
+        docs.size shouldBeEqualTo 3
+        docs.first().getInteger("age") shouldBeEqualTo 35
+        docs.last().getInteger("age") shouldBeEqualTo 22
+    }
 }

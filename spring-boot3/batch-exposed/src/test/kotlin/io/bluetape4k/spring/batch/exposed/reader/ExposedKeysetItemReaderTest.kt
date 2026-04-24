@@ -8,7 +8,9 @@ import io.bluetape4k.spring.batch.exposed.insertTestData
 import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.jetbrains.exposed.v1.core.greaterEq
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.batch.item.ExecutionContext
@@ -129,6 +131,85 @@ class ExposedKeysetItemReaderTest : AbstractExposedBatchTest() {
             results.size shouldBeEqualTo 20
             results.first().id shouldBeEqualTo 21L
             results.last().id shouldBeEqualTo 40L
+
+            reader.close()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `additionalCondition으로 value 필터링`(testDB: TestDB) {
+        withBatchTables(testDB) {
+            insertTestData(50)
+
+            // value >= 25인 레코드만 읽기 (item-25 ~ item-50)
+            val reader = ExposedKeysetItemReader.forEntityId(
+                table = SourceTable,
+                pageSize = 10,
+                rowMapper = { row ->
+                    SourceRecord(
+                        id = row[SourceTable.id].value,
+                        name = row[SourceTable.name],
+                        value = row[SourceTable.value],
+                    )
+                },
+                additionalCondition = { SourceTable.value greaterEq 25 },
+                database = testDB.db,
+            )
+
+            val context = ExecutionContext().apply {
+                putLong(ExposedRangePartitioner.PARTITION_MIN_ID, 1L)
+                putLong(ExposedRangePartitioner.PARTITION_MAX_ID, 50L)
+            }
+            reader.open(context)
+
+            val results = mutableListOf<SourceRecord>()
+            var item = reader.read()
+            while (item != null) {
+                results.add(item)
+                item = reader.read()
+            }
+
+            results.size shouldBeEqualTo 26  // value 25..50
+            results.all { it.value >= 25 }.shouldBeTrue()
+
+            reader.close()
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `close 후 재사용 시 상태가 초기화된다`(testDB: TestDB) {
+        withBatchTables(testDB) {
+            insertTestData(10)
+
+            val reader = createReader(testDB)
+            val context = ExecutionContext().apply {
+                putLong(ExposedRangePartitioner.PARTITION_MIN_ID, 1L)
+                putLong(ExposedRangePartitioner.PARTITION_MAX_ID, 10L)
+            }
+            reader.open(context)
+
+            // 일부만 읽고 close
+            repeat(5) { reader.read().shouldNotBeNull() }
+            reader.close()
+
+            // 다시 open 시 처음부터 읽어야 함
+            val newContext = ExecutionContext().apply {
+                putLong(ExposedRangePartitioner.PARTITION_MIN_ID, 1L)
+                putLong(ExposedRangePartitioner.PARTITION_MAX_ID, 10L)
+            }
+            reader.open(newContext)
+
+            val results = mutableListOf<SourceRecord>()
+            var item = reader.read()
+            while (item != null) {
+                results.add(item)
+                item = reader.read()
+            }
+
+            results.size shouldBeEqualTo 10
+            results.first().id shouldBeEqualTo 1L
 
             reader.close()
         }

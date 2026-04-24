@@ -1,5 +1,12 @@
 # Bluetape4k Projects
 
+[![CI](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml/badge.svg)](https://github.com/bluetape4k/bluetape4k-projects/actions/workflows/ci.yml)
+[![Coverage](https://coveralls.io/repos/github/bluetape4k/bluetape4k-projects/badge.svg?branch=develop)](https://coveralls.io/github/bluetape4k/bluetape4k-projects)
+[![Maven](https://badges.mvnrepository.com/badge/io.github.bluetape4k/bluetape4k-bom/badge.svg?label=Maven)](https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin)](https://kotlinlang.org)
+[![JVM](https://img.shields.io/badge/JVM-21-ED8B00?logo=openjdk)](https://openjdk.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Shared Kotlin/JVM library collection for backend development
 
 English | [한국어](./README.ko.md)
@@ -331,6 +338,16 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 
 - **[junit5](./testing/junit5/README.md)**: JUnit 5 extensions and utilities
 - **[testcontainers](./testing/testcontainers/README.md)**: Testcontainers support (Redis, Kafka, databases, etc.)
+- **[mock-web-server](./testing/mock-web-server/README.md)**: MVC mock HTTP server Docker image for integration tests
+- **[mock-webflux-server](./testing/mock-webflux-server/README.md)
+  **: WebFlux mock HTTP server Docker image for integration tests
+
+When rebuilding mock server Docker images with Jib, always disable the Gradle configuration cache:
+
+```bash
+./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
+```
 
 ### Virtual Thread Modules (`virtualthread/`)
 
@@ -367,7 +384,7 @@ No longer maintained. Excluded from the build and scheduled for removal.
 - ~~**javers**~~: JaVers audit log — dropped, low usage
 - ~~**tokenizer**~~: Korean/Japanese morphological analyzer — dropped, low usage
 - ~~**ahocorasick**~~: Aho-Corasick string search — dropped, low usage
-- ~~**lingua**~~: Language detection — dropped, low usage
+- **[lingua](./utils/lingua/README.md)**: Language detection — Kotlin DSL wrapper over Lingua with mixed-language `Set<Language>` detection
 - ~~**naivebayes**~~: Naive Bayes classifier — dropped, low usage
 - ~~**mutiny-examples**~~: Mutiny usage examples — dropped
 
@@ -415,7 +432,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.5.0
+baseVersion=1.7.0
 snapshotVersion=-SNAPSHOT
 ```
 
@@ -456,13 +473,17 @@ central.password=your-central-portal-password
 
 # Recommended: in-memory PGP signing
 signingUseGpgCmd=false
-signingKeyId=YOUR_KEY_ID
+signingKeyId=YOUR_LAST_8_HEX_DIGITS
 signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 signingPassword=YOUR_KEY_PASSPHRASE
 
 # Maven Central Snapshots upload parallelism (default: 8)
 centralSnapshotsParallelism=8
 ```
+
+- `signingKeyId` must be the trailing 8 hex digits of the signing subkey ID, for example `5C6DF399`.
+- If you accidentally provide a 16-digit long key ID such as `7CF28E155C6DF399`, the build normalizes it to `5C6DF399` and prints a warning.
+- GitHub Actions secret `SIGNING_KEY_ID` should contain only the raw value, not `signingKeyId=...`.
 
 ### Notes
 

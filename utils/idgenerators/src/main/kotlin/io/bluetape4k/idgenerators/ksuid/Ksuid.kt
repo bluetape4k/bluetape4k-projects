@@ -222,7 +222,7 @@ object Ksuid {
             ByteBuffer.wrap(decodedKsuid.copyOf(TIMESTAMP_LEN)).long + EPOCH_MILLIS
 
         private fun extractPayload(decodedKsuid: ByteArray): String =
-            decodedKsuid.copyOfRange(TIMESTAMP_LEN, decodedKsuid.size - TIMESTAMP_LEN).encodeHexString()
+            decodedKsuid.copyOfRange(TIMESTAMP_LEN, TIMESTAMP_LEN + PAYLOAD_LEN).encodeHexString()
     }
 
     // ── 하위 호환 상수 (Seconds 위임) ──────────────────────────────────────

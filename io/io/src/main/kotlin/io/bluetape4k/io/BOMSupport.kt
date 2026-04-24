@@ -34,22 +34,16 @@ private val utf_16le_array = byteArrayOf(FF, FE)
  * @return `(건너뛸 바이트 수, 감지된 문자셋)` 쌍
  */
 fun ByteArray.getBOM(defaultCharset: Charset = Charsets.UTF_8): Pair<Int, Charset> {
-    val bom4 = this.copyOf(BOM_SIZE)
-    if (bom4.contentEquals(utf_32be_array))
-        return Pair(4, Charsets.UTF_32BE)
-    if (bom4.contentEquals(utf_32le_array))
-        return Pair(4, Charsets.UTF_32LE)
-
-    val bom3 = bom4.copyOf(3)
-    if (bom3.contentEquals(utf_8_array))
-        return Pair(3, Charsets.UTF_8)
-
-    val bom2 = bom3.copyOf(2)
-    if (bom2.contentEquals(utf_16be_array))
-        return Pair(2, Charsets.UTF_16BE)
-    if (bom2.contentEquals(utf_16le_array))
-        return Pair(2, Charsets.UTF_16LE)
-
+    val len = size
+    if (len >= 4) {
+        if (this[0] == ZZ && this[1] == ZZ && this[2] == FE && this[3] == FF) return Pair(4, Charsets.UTF_32BE)
+        if (this[0] == FF && this[1] == FE && this[2] == ZZ && this[3] == ZZ) return Pair(4, Charsets.UTF_32LE)
+    }
+    if (len >= 3 && this[0] == EF && this[1] == BB && this[2] == BF) return Pair(3, Charsets.UTF_8)
+    if (len >= 2) {
+        if (this[0] == FE && this[1] == FF) return Pair(2, Charsets.UTF_16BE)
+        if (this[0] == FF && this[1] == FE) return Pair(2, Charsets.UTF_16LE)
+    }
     return Pair(0, defaultCharset)
 }
 
@@ -78,8 +72,9 @@ fun InputStream.withoutBom(defaultCharset: Charset = Charsets.UTF_8): Pair<Input
     val bom = ByteArray(BOM_SIZE)
     val pushbackStream = PushbackInputStream(this, BOM_SIZE)
     val readSize = pushbackStream.read(bom, 0, bom.size)
-    val (skipSize, charset) = bom.getBOM(defaultCharset)
+    if (readSize <= 0) return pushbackStream to defaultCharset
 
+    val (skipSize, charset) = bom.getBOM(defaultCharset)
     pushbackStream.unread(bom, skipSize, readSize - skipSize)
     return pushbackStream to charset
 }

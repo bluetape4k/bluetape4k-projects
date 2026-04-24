@@ -136,17 +136,19 @@ fun Insert.addWriteOptions(writeOptions: WriteOptions): Insert {
  * ```
  */
 fun Update.addWriteOptions(writeOptions: WriteOptions): Update {
-    var applied = this
+    if (this !is UpdateStart) return this
 
-    if (applied is UpdateStart) {
-        if (writeOptions.isPositiveTtl) {
-            applied = applied.usingTtl(writeOptions.ttl!!.seconds.toInt()) as Update
-        }
-        if (writeOptions.timestamp != null) {
-            applied = (applied as UpdateStart).usingTimestamp(writeOptions.timestamp!!) as Update
-        }
+    var start: UpdateStart = this
+
+    if (writeOptions.isPositiveTtl) {
+        start = start.usingTtl(writeOptions.ttl!!.seconds.toInt())
     }
-    return applied
+    if (writeOptions.timestamp != null) {
+        start = start.usingTimestamp(writeOptions.timestamp!!)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    return start as Update
 }
 
 /**

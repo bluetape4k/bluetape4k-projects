@@ -178,20 +178,12 @@ fun durationOfDay(
     minutes: Int = 0,
     seconds: Int = 0,
     nanos: Int = 0,
-): Duration {
-    var duration = days.days()
-
-    if (hours != 0)
-        duration += hours.hours()
-    if (minutes != 0)
-        duration += minutes.minutes()
-    if (seconds != 0)
-        duration += seconds.seconds()
-    if (nanos != 0)
-        duration += nanos.nanos()
-
-    return duration
-}
+): Duration =
+    days.days() +
+        hours.hours() +
+        minutes.minutes() +
+        seconds.seconds() +
+        nanos.nanos()
 
 /**
  * 시/분/초/나노초 단위를 조합해 [Duration]을 생성합니다.
@@ -210,18 +202,11 @@ fun durationOfHour(
     minutes: Int = 0,
     seconds: Int = 0,
     nanos: Int = 0,
-): Duration {
-    var duration = hours.hours()
-
-    if (minutes != 0)
-        duration += minutes.minutes()
-    if (seconds != 0)
-        duration += seconds.seconds()
-    if (nanos != 0)
-        duration += nanos.nanos()
-
-    return duration
-}
+): Duration =
+    hours.hours() +
+        minutes.minutes() +
+        seconds.seconds() +
+        nanos.nanos()
 
 /**
  * 분/초/나노초 단위를 조합해 [Duration]을 생성합니다.
@@ -239,16 +224,10 @@ fun durationOfMinute(
     minutes: Int,
     seconds: Int = 0,
     nanos: Int = 0,
-): Duration {
-    var duration = minutes.minutes()
-
-    if (seconds != 0)
-        duration += seconds.seconds()
-    if (nanos != 0)
-        duration += nanos.nanos()
-
-    return duration
-}
+): Duration =
+    minutes.minutes() +
+        seconds.seconds() +
+        nanos.nanos()
 
 /**
  * 초/나노초 단위를 조합해 [Duration]을 생성합니다.
@@ -265,14 +244,9 @@ fun durationOfMinute(
 fun durationOfSecond(
     seconds: Int,
     nanos: Int = 0,
-): Duration {
-    var duration = seconds.seconds()
-
-    if (nanos != 0)
-        duration += nanos.nanos()
-
-    return duration
-}
+): Duration =
+    seconds.seconds() +
+        nanos.nanos()
 
 /**
  * [nanos] 나노초에 해당하는 [Duration]을 반환합니다.
@@ -298,6 +272,7 @@ fun durationOfNano(nanos: Long): Duration = Duration.ofNanos(nanos)
  * val duration = 1.asNanos()  // 1나노초
  * ```
  */
+@Deprecated("Use Int.nanos() instead", ReplaceWith("this.nanos()", "io.bluetape4k.javatimes.nanos"))
 fun Int.asNanos(): Duration = Duration.ofNanos(this.toLong())
 
 /**
@@ -310,6 +285,7 @@ fun Int.asNanos(): Duration = Duration.ofNanos(this.toLong())
  * val duration = 1.asMillis()  // 1밀리초
  * ```
  */
+@Deprecated("Use Int.millis() instead", ReplaceWith("this.millis()", "io.bluetape4k.javatimes.millis"))
 fun Int.asMillis(): Duration = Duration.ofMillis(this.toLong())
 
 /**
@@ -322,6 +298,7 @@ fun Int.asMillis(): Duration = Duration.ofMillis(this.toLong())
  * val duration = 1.asSeconds()  // 1초
  * ```
  */
+@Deprecated("Use Int.seconds() instead", ReplaceWith("this.seconds()", "io.bluetape4k.javatimes.seconds"))
 fun Int.asSeconds(nanoAdjustment: Long = 0L): Duration = Duration.ofSeconds(this.toLong(), nanoAdjustment)
 
 /**
@@ -334,6 +311,7 @@ fun Int.asSeconds(nanoAdjustment: Long = 0L): Duration = Duration.ofSeconds(this
  * val duration = 1.asMinutes()  // 1분
  * ```
  */
+@Deprecated("Use Int.minutes() instead", ReplaceWith("this.minutes()", "io.bluetape4k.javatimes.minutes"))
 fun Int.asMinutes(): Duration = Duration.ofMinutes(this.toLong())
 
 /**
@@ -346,6 +324,7 @@ fun Int.asMinutes(): Duration = Duration.ofMinutes(this.toLong())
  * val duration = 1.asHours()  // 1시간
  * ```
  */
+@Deprecated("Use Int.hours() instead", ReplaceWith("this.hours()", "io.bluetape4k.javatimes.hours"))
 fun Int.asHours(): Duration = Duration.ofHours(this.toLong())
 
 /**
@@ -358,6 +337,7 @@ fun Int.asHours(): Duration = Duration.ofHours(this.toLong())
  * val duration = 1.asDays()  // 1일
  * ```
  */
+@Deprecated("Use Int.days() instead", ReplaceWith("this.days()", "io.bluetape4k.javatimes.days"))
 fun Int.asDays(): Duration = Duration.ofDays(this.toLong())
 
 /**
@@ -370,6 +350,7 @@ fun Int.asDays(): Duration = Duration.ofDays(this.toLong())
  * val duration = 1L.asNanos()  // 1나노초
  * ```
  */
+@Deprecated("Use Long.nanos() instead", ReplaceWith("this.nanos()", "io.bluetape4k.javatimes.nanos"))
 fun Long.asNanos(): Duration = Duration.ofNanos(this)
 
 /**
@@ -382,6 +363,7 @@ fun Long.asNanos(): Duration = Duration.ofNanos(this)
  * val duration = 1L.asMillis()  // 1밀리초
  * ```
  */
+@Deprecated("Use Long.millis() instead", ReplaceWith("this.millis()", "io.bluetape4k.javatimes.millis"))
 fun Long.asMillis(): Duration = Duration.ofMillis(this)
 
 /**
@@ -394,6 +376,7 @@ fun Long.asMillis(): Duration = Duration.ofMillis(this)
  * val duration = 1L.asSeconds()  // 1초
  * ```
  */
+@Deprecated("Use Long.seconds() instead", ReplaceWith("this.seconds()", "io.bluetape4k.javatimes.seconds"))
 fun Long.asSeconds(nanoAdjustment: Long = 0L): Duration = Duration.ofSeconds(this, nanoAdjustment)
 
 /**
@@ -406,6 +389,7 @@ fun Long.asSeconds(nanoAdjustment: Long = 0L): Duration = Duration.ofSeconds(thi
  * val duration = 1L.asMinutes()  // 1분
  * ```
  */
+@Deprecated("Use Long.minutes() instead", ReplaceWith("this.minutes()", "io.bluetape4k.javatimes.minutes"))
 fun Long.asMinutes(): Duration = Duration.ofMinutes(this)
 
 /**
@@ -418,6 +402,7 @@ fun Long.asMinutes(): Duration = Duration.ofMinutes(this)
  * val duration = 1L.asHours()  // 1시간
  * ```
  */
+@Deprecated("Use Long.hours() instead", ReplaceWith("this.hours()", "io.bluetape4k.javatimes.hours"))
 fun Long.asHours(): Duration = Duration.ofHours(this)
 
 /**
@@ -430,6 +415,7 @@ fun Long.asHours(): Duration = Duration.ofHours(this)
  * val duration = 1L.asDays()  // 1일
  * ```
  */
+@Deprecated("Use Long.days() instead", ReplaceWith("this.days()", "io.bluetape4k.javatimes.days"))
 fun Long.asDays(): Duration = Duration.ofDays(this)
 
 

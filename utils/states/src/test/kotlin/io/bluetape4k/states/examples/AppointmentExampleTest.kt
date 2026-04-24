@@ -2,156 +2,105 @@ package io.bluetape4k.states.examples
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.states.api.StateMachineException
 import io.bluetape4k.states.core.on
 import io.bluetape4k.states.core.suspendStateMachine
+import io.bluetape4k.states.testing.arrives
+import io.bluetape4k.states.testing.assertRejects
+import io.bluetape4k.states.testing.verifyPath
+import io.bluetape4k.states.testing.via
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
-/**
- * clinic-appointment 마이그레이션 데모 테스트입니다.
- *
- * 기존 AppointmentStateMachine 패턴을 bluetape4k-states DSL로 재구현한 예제입니다.
- */
 class AppointmentExampleTest {
-
     companion object: KLogging()
 
-    sealed class AppointmentState(val stateName: String) {
-        data object PENDING: AppointmentState("PENDING")
-        data object REQUESTED: AppointmentState("REQUESTED")
-        data object CONFIRMED: AppointmentState("CONFIRMED")
-        data object CHECKED_IN: AppointmentState("CHECKED_IN")
-        data object IN_PROGRESS: AppointmentState("IN_PROGRESS")
-        data object COMPLETED: AppointmentState("COMPLETED")
-        data object CANCELLED: AppointmentState("CANCELLED")
-        data object NO_SHOW: AppointmentState("NO_SHOW")
-
-        override fun toString(): String = stateName
+    sealed class S(val n: String) {
+        data object PENDING: S("PENDING")
+        data object REQUESTED: S("REQUESTED")
+        data object CONFIRMED: S("CONFIRMED")
+        data object CHECKED_IN: S("CHECKED_IN")
+        data object IN_PROGRESS: S("IN_PROGRESS")
+        data object COMPLETED: S("COMPLETED")
+        data object CANCELLED: S("CANCELLED")
+        data object NO_SHOW: S("NO_SHOW")
+        override fun toString() = n
     }
 
-    sealed class AppointmentEvent {
-        data object Request: AppointmentEvent()
-        data object Confirm: AppointmentEvent()
-        data object CheckIn: AppointmentEvent()
-        data object StartTreatment: AppointmentEvent()
-        data object Complete: AppointmentEvent()
-        data class Cancel(val reason: String = ""): AppointmentEvent()
-        data object MarkNoShow: AppointmentEvent()
-
-        override fun toString(): String = this::class.simpleName ?: "Unknown"
+    sealed class E {
+        data object Request: E()
+        data object Confirm: E()
+        data object CheckIn: E()
+        data object StartTreatment: E()
+        data object Complete: E()
+        data class Cancel(val reason: String = ""): E()
+        data object MarkNoShow: E()
+        override fun toString() = this::class.simpleName ?: "Unknown"
     }
 
-    private fun createAppointmentFsm() = suspendStateMachine<AppointmentState, AppointmentEvent> {
-        initialState = AppointmentState.PENDING
-        finalStates = setOf(AppointmentState.COMPLETED, AppointmentState.CANCELLED, AppointmentState.NO_SHOW)
+    private fun fsm() = suspendStateMachine<S, E> {
+        initialState = S.PENDING
+        finalStates = setOf(S.COMPLETED, S.CANCELLED, S.NO_SHOW)
+        transition(S.PENDING, on<E.Request>(), to = S.REQUESTED)
+        transition(S.PENDING, on<E.Cancel>(), to = S.CANCELLED)
+        transition(S.REQUESTED, on<E.Confirm>(), to = S.CONFIRMED)
+        transition(S.REQUESTED, on<E.Cancel>(), to = S.CANCELLED)
+        transition(S.CONFIRMED, on<E.CheckIn>(), to = S.CHECKED_IN)
+        transition(S.CONFIRMED, on<E.MarkNoShow>(), to = S.NO_SHOW)
+        transition(S.CONFIRMED, on<E.Cancel>(), to = S.CANCELLED)
+        transition(S.CHECKED_IN, on<E.StartTreatment>(), to = S.IN_PROGRESS)
+        transition(S.CHECKED_IN, on<E.Cancel>(), to = S.CANCELLED)
+        transition(S.IN_PROGRESS, on<E.Complete>(), to = S.COMPLETED)
+        onTransition { p, ev, n -> log.debug { "예약: $p --[$ev]--> $n" } }
+    }
 
-        // PENDING -> REQUESTED
-        transition(AppointmentState.PENDING, on<AppointmentEvent.Request>(), to = AppointmentState.REQUESTED)
-        // PENDING -> CANCELLED
-        transition(AppointmentState.PENDING, on<AppointmentEvent.Cancel>(), to = AppointmentState.CANCELLED)
-
-        // REQUESTED -> CONFIRMED
-        transition(AppointmentState.REQUESTED, on<AppointmentEvent.Confirm>(), to = AppointmentState.CONFIRMED)
-        // REQUESTED -> CANCELLED
-        transition(AppointmentState.REQUESTED, on<AppointmentEvent.Cancel>(), to = AppointmentState.CANCELLED)
-
-        // CONFIRMED -> CHECKED_IN
-        transition(AppointmentState.CONFIRMED, on<AppointmentEvent.CheckIn>(), to = AppointmentState.CHECKED_IN)
-        // CONFIRMED -> NO_SHOW
-        transition(AppointmentState.CONFIRMED, on<AppointmentEvent.MarkNoShow>(), to = AppointmentState.NO_SHOW)
-        // CONFIRMED -> CANCELLED
-        transition(AppointmentState.CONFIRMED, on<AppointmentEvent.Cancel>(), to = AppointmentState.CANCELLED)
-
-        // CHECKED_IN -> IN_PROGRESS
-        transition(
-            AppointmentState.CHECKED_IN,
-            on<AppointmentEvent.StartTreatment>(),
-            to = AppointmentState.IN_PROGRESS
+    @Test fun `예약 정상 흐름 - PENDING에서 COMPLETED까지`() = runTest {
+        val m = fsm()
+        m.verifyPath(
+            S.PENDING via E.Request arrives S.REQUESTED,
+            S.REQUESTED via E.Confirm arrives S.CONFIRMED,
+            S.CONFIRMED via E.CheckIn arrives S.CHECKED_IN,
+            S.CHECKED_IN via E.StartTreatment arrives S.IN_PROGRESS,
+            S.IN_PROGRESS via E.Complete arrives S.COMPLETED,
         )
-        // CHECKED_IN -> CANCELLED
-        transition(AppointmentState.CHECKED_IN, on<AppointmentEvent.Cancel>(), to = AppointmentState.CANCELLED)
-
-        // IN_PROGRESS -> COMPLETED
-        transition(AppointmentState.IN_PROGRESS, on<AppointmentEvent.Complete>(), to = AppointmentState.COMPLETED)
-
-        onTransition { prev, event, next ->
-            log.debug { "예약 상태 전이: $prev --[$event]--> $next" }
-        }
+        m.isInFinalState().shouldBeTrue()
     }
 
-    @Test
-    fun `예약 정상 흐름 - PENDING에서 COMPLETED까지`() = runTest {
-        val fsm = createAppointmentFsm()
-
-        fsm.transition(AppointmentEvent.Request)
-        fsm.currentState shouldBeEqualTo AppointmentState.REQUESTED
-
-        fsm.transition(AppointmentEvent.Confirm)
-        fsm.currentState shouldBeEqualTo AppointmentState.CONFIRMED
-
-        fsm.transition(AppointmentEvent.CheckIn)
-        fsm.currentState shouldBeEqualTo AppointmentState.CHECKED_IN
-
-        fsm.transition(AppointmentEvent.StartTreatment)
-        fsm.currentState shouldBeEqualTo AppointmentState.IN_PROGRESS
-
-        fsm.transition(AppointmentEvent.Complete)
-        fsm.currentState shouldBeEqualTo AppointmentState.COMPLETED
-
-        fsm.isInFinalState().shouldBeTrue()
+    @Test fun `예약 취소 - REQUESTED 상태에서`() = runTest {
+        val m = fsm()
+        m.verifyPath(
+            S.PENDING via E.Request arrives S.REQUESTED,
+            S.REQUESTED via E.Cancel("환자 요청") arrives S.CANCELLED,
+        )
+        m.isInFinalState().shouldBeTrue()
     }
 
-    @Test
-    fun `예약 취소 - REQUESTED 상태에서`() = runTest {
-        val fsm = createAppointmentFsm()
-
-        fsm.transition(AppointmentEvent.Request)
-        fsm.transition(AppointmentEvent.Cancel("환자 요청"))
-
-        fsm.currentState shouldBeEqualTo AppointmentState.CANCELLED
-        fsm.isInFinalState().shouldBeTrue()
+    @Test fun `미내원 처리`() = runTest {
+        val m = fsm()
+        m.verifyPath(
+            S.PENDING via E.Request arrives S.REQUESTED,
+            S.REQUESTED via E.Confirm arrives S.CONFIRMED,
+            S.CONFIRMED via E.MarkNoShow arrives S.NO_SHOW,
+        )
+        m.isInFinalState().shouldBeTrue()
     }
 
-    @Test
-    fun `미내원 처리`() = runTest {
-        val fsm = createAppointmentFsm()
-
-        fsm.transition(AppointmentEvent.Request)
-        fsm.transition(AppointmentEvent.Confirm)
-        fsm.transition(AppointmentEvent.MarkNoShow)
-
-        fsm.currentState shouldBeEqualTo AppointmentState.NO_SHOW
-        fsm.isInFinalState().shouldBeTrue()
+    @Test fun `StateFlow로 상태 변경을 관찰할 수 있다`() = runTest {
+        val m = fsm()
+        m.stateFlow.value shouldBeEqualTo S.PENDING
+        m.transition(E.Request); m.stateFlow.value shouldBeEqualTo S.REQUESTED
+        m.transition(E.Confirm); m.stateFlow.value shouldBeEqualTo S.CONFIRMED
     }
 
-    @Test
-    fun `StateFlow로 상태 변경을 관찰할 수 있다`() = runTest {
-        val fsm = createAppointmentFsm()
-
-        fsm.stateFlow.value shouldBeEqualTo AppointmentState.PENDING
-
-        fsm.transition(AppointmentEvent.Request)
-        fsm.stateFlow.value shouldBeEqualTo AppointmentState.REQUESTED
-
-        fsm.transition(AppointmentEvent.Confirm)
-        fsm.stateFlow.value shouldBeEqualTo AppointmentState.CONFIRMED
-    }
-
-    @Test
-    fun `IN_PROGRESS에서 취소 불가`() = runTest {
-        val fsm = createAppointmentFsm()
-
-        fsm.transition(AppointmentEvent.Request)
-        fsm.transition(AppointmentEvent.Confirm)
-        fsm.transition(AppointmentEvent.CheckIn)
-        fsm.transition(AppointmentEvent.StartTreatment)
-
-        assertThrows<StateMachineException> {
-            fsm.transition(AppointmentEvent.Cancel("진료중 취소 시도"))
-        }
+    @Test fun `IN_PROGRESS에서 취소 불가`() = runTest {
+        val m = fsm()
+        m.verifyPath(
+            S.PENDING via E.Request arrives S.REQUESTED,
+            S.REQUESTED via E.Confirm arrives S.CONFIRMED,
+            S.CONFIRMED via E.CheckIn arrives S.CHECKED_IN,
+            S.CHECKED_IN via E.StartTreatment arrives S.IN_PROGRESS,
+        )
+        m.assertRejects(E.Cancel("진료중 취소 시도"))
     }
 }

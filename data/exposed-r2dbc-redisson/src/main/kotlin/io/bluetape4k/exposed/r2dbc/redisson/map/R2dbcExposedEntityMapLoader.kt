@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.singleOrNull
@@ -80,6 +81,9 @@ open class R2dbcExposedEntityMapLoader<ID: Any, E: Any>(
                 log.debug { "DB에서 모든 ID 로딩 중... 로딩된 id 수=$loadedIds, offset=$offset" }
             }
             log.debug { "DB에서 모든 ID 로딩 완료. 로딩된 id 수=$loadedIds" }
+        } catch (cause: CancellationException) {
+            // 코루틴 취소는 반드시 재전파해야 한다 — 삼키면 구조적 동시성이 깨진다
+            throw cause
         } catch (cause: Throwable) {
             log.error(cause) { "R2dbc를 이용하여 DB에서 모든 ID 로딩 중 오류 발생" }
             throw cause

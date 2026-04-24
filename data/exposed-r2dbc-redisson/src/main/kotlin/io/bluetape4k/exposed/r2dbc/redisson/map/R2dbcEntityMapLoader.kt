@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,6 +63,9 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
                             .apply {
                                 log.debug { "DB로부터 엔티티를 로딩했습니다. id=$id, entity=$this" }
                             }
+                    } catch (e: CancellationException) {
+                        // 코루틴 취소는 반드시 재전파해야 한다 — 삼키면 구조적 동시성이 깨진다
+                        throw e
                     } catch (e: Throwable) {
                         log.error(e) { "DB에서 엔티티 로딩 중 오류 발생. id=$id" }
                         throw e
@@ -70,6 +74,8 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
             }.asCompletableFuture()
 
     override fun loadAllKeys(): AsyncIterator<ID> {
+        // WHY: RENDEZVOUS(버퍼 없음) — 소비자(AsyncIterator)가 준비될 때만 생산자가 진행한다.
+        //      버퍼를 두면 DB에서 읽은 ID가 메모리에 쌓여 OOM 위험이 있으므로 백프레셔를 강제한다.
         val channel =
             Channel<ID>(Channel.RENDEZVOUS).also {
                 it.invokeOnClose { cause ->
@@ -82,19 +88,28 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
             try {
                 suspendTransaction {
                     this.queryTimeout = DEFAULT_QUERY_TIMEOUT // 30 seconds
+                    // WHY: withTimeoutOrNull — 전체 키 로딩이 60초를 초과하면 채널을 닫아
+                    //      소비자가 무한 대기하는 교착 상태를 방지한다.
                     withTimeoutOrNull(DEFAULT_LOAD_ALL_IDS_TIMEOUT) {
                         loadAllIdsFromDB(channel)
                     } ?: log.warn { "DB에서 모든 ID를 읽는 작업 중 Timeout 이 발생했습니다. timeout=$DEFAULT_LOAD_ALL_IDS_TIMEOUT msec" }
                 }
+            } catch (e: CancellationException) {
+                // 코루틴 취소는 반드시 재전파해야 한다 — 삼키면 구조적 동시성이 깨진다
+                channel.close(e)
+                throw e
             } catch (e: Throwable) {
                 log.error(e) { "DB에서 모든 ID 로딩 중 오류 발생" }
+                channel.close(e)
                 throw e
             } finally {
+                // 정상 완료(오류 없음) 시 채널을 닫는다; 오류 경로에서는 이미 위에서 닫혔다
                 channel.close()
             }
         }
 
         return object: AsyncIterator<ID> {
+            // 채널에서 미리 받아 둔 결과를 저장. hasNext() 이후 next() 에서 재사용한다
             private var pendingReceive: CompletableFuture<ChannelResult<ID>>? = null
 
             private fun ensurePending(): CompletableFuture<ChannelResult<ID>> =
@@ -107,6 +122,10 @@ open class R2dbcEntityMapLoader<ID: Any, E: Any>(
             override fun hasNext(): CompletionStage<Boolean?> =
                 ensurePending()
                     .thenApply { result ->
+                        // 더 이상 원소가 없으면 pending 을 초기화해 메모리 누수를 방지한다
+                        if (!result.isSuccess) {
+                            pendingReceive = null
+                        }
                         result.isSuccess
                     }
 

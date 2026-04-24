@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ForkJoinPool
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class RouteGuideClient private constructor(channel: ManagedChannel): AbstractGrpcClient(channel) {
 
@@ -102,7 +103,7 @@ class RouteGuideClient private constructor(channel: ManagedChannel): AbstractGrp
             log.debug { "Visiting point ${feature.location.toStr()}" }
 
             emit(feature.location)
-            delay(random.nextLong(100L, 300L))
+            delay(random.nextLong(100L, 300L).milliseconds)
         }
     }
 
@@ -133,7 +134,7 @@ class RouteGuideClient private constructor(channel: ManagedChannel): AbstractGrp
         notes.forEach { note ->
             log.debug { "Sending message '${note.message}' at ${note.location.toStr()}" }
             emit(note)
-            delay(100)
+            delay(100.milliseconds)
         }
     }
 }

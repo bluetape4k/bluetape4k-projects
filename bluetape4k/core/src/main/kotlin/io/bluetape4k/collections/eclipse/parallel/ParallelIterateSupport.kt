@@ -366,7 +366,6 @@ inline fun <K, V> Iterable<V>.parGroupBy(
 inline fun <T, K, V> Iterable<T>.parAggregateBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    concurrentMultimap: MutableMultimap<K, V> = SynchronizedPutFastListMultimap.newMultimap<K, V>(),
     crossinline groupBy: (T) -> K,
     crossinline zeroValueFactory: () -> V,
     crossinline nonMutatingAggregator: (V, T) -> V,
@@ -396,7 +395,6 @@ inline fun <T, K, V> Iterable<T>.parAggregateBy(
 inline fun <T, K, V> Iterable<T>.parAggregateInPlaceBy(
     batchSize: Int = DEFAULT_PARALLEL_BATCH_SIZE,
     executor: ExecutorService = PARALLEL_EXECUTOR_SERVICE,
-    concurrentMultimap: MutableMultimap<K, V> = SynchronizedPutFastListMultimap.newMultimap<K, V>(),
     crossinline groupBy: (T) -> K,
     crossinline zeroValueFactory: () -> V,
     crossinline mutatingAggregator: (V, T) -> Unit,

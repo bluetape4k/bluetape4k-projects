@@ -18,6 +18,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.max
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class LocalSuspendLeaderGroupElectionTest {
 
@@ -95,7 +96,7 @@ class LocalSuspendLeaderGroupElectionTest {
                 election.runIfLeader(lockName) {
                     val current = currentConcurrent.incrementAndGet()
                     peakConcurrent.updateAndGet { max(it, current) }
-                    delay(Random.nextLong(5, 15))
+                    delay(Random.nextLong(5, 15).milliseconds)
                     currentConcurrent.decrementAndGet()
                 }
             }
@@ -125,7 +126,7 @@ class LocalSuspendLeaderGroupElectionTest {
 
             // 모든 슬롯이 점유될 때까지 대기
             while (startedCount.get() < maxLeaders) {
-                delay(5)
+                delay(5.milliseconds)
             }
 
             election.state(lockName).isFull.shouldBeTrue()
@@ -172,14 +173,14 @@ class LocalSuspendLeaderGroupElectionTest {
             .add {
                 election.runIfLeader(lockName) {
                     log.debug { "suspend 작업 1. task1=${task1.get()}" }
-                    delay(Random.nextLong(1, 5))
+                    delay(Random.nextLong(1, 5).milliseconds)
                     task1.incrementAndGet()
                 }
             }
             .add {
                 election.runIfLeader(lockName) {
                     log.debug { "suspend 작업 2. task2=${task2.get()}" }
-                    delay(Random.nextLong(1, 5))
+                    delay(Random.nextLong(1, 5).milliseconds)
                     task2.incrementAndGet()
                 }
             }

@@ -124,7 +124,7 @@ fun <T: Any> Table.jackson(
  *
  * ## 동작/계약
  * - [jacksonSerializer]의 문자열 변환 함수를 감싸 [jackson] 오버로드에 위임합니다.
- * - 역직렬화 결과가 `null`이면 `!!` 때문에 `NullPointerException`이 발생합니다.
+ * - 역직렬화 결과가 `null`이면 `requireNotNull`로 `IllegalArgumentException`이 발생하며, 타입명과 원본 JSON이 메시지에 포함됩니다.
  * - 반환되는 컬럼 인스턴스는 수신 [Table]에 등록된 컬럼과 동일합니다.
  *
  * ```kotlin
@@ -144,5 +144,13 @@ inline fun <reified T: Any> Table.jackson(
     jackson(
         name,
         serialize = { jacksonSerializer.serializeAsString(it) },
-        deserialize = { jacksonSerializer.deserializeFromString<T>(it)!! }
+        // WHY: `!!` 대신 requireNotNull을 사용하는 이유 —
+        //   ① null 반환은 JSON 구조 불일치 또는 타입 매핑 실패를 의미하므로 NullPointerException보다
+        //      IllegalArgumentException이 원인을 더 명확하게 드러냅니다.
+        //   ② 타입명과 원본 JSON을 메시지에 포함해 디버깅 시 즉시 원인을 파악할 수 있습니다.
+        deserialize = {
+            requireNotNull(jacksonSerializer.deserializeFromString<T>(it)) {
+                "JSON 역직렬화 결과가 null입니다. 타입 [${T::class.qualifiedName}] 으로 변환할 수 없는 JSON 입니다: $it"
+            }
+        }
     )

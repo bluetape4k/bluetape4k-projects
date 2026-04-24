@@ -1,7 +1,10 @@
 package io.bluetape4k.exposed.duckdb
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -11,6 +14,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 /**
  * DuckDB에서 suspend 트랜잭션을 실행합니다.
+ *
+ * 코루틴 취소([CancellationException])는 항상 상위로 재전파됩니다.
  *
  * ```kotlin
  * val db = DuckDBDatabase.file("/tmp/analytics.db")
@@ -36,6 +41,8 @@ suspend fun <T> suspendTransaction(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: Transaction.() -> T,
 ): T = withContext(dispatcher) {
+    // DuckDB JDBC는 블로킹 드라이버이므로 Dispatchers.IO(또는 커스텀 VirtualThread 디스패처)에서 실행한다.
+    // withContext는 코루틴 취소를 자동으로 전파하므로 별도 취소 처리 없이 CancellationException이 상위로 전달된다.
     transaction(db) { block() }
 }
 
@@ -47,6 +54,9 @@ suspend fun <T> suspendTransaction(
  * 따라서 소비 API는 [Flow]이지만, 엄밀한 의미의 row-by-row 스트리밍은 아닙니다.
  * 중간 규모 결과를 코루틴 파이프라인으로 연결할 때 적합하며,
  * 매우 큰 결과셋은 페이지네이션 또는 전용 배치 전략을 별도로 고려해야 합니다.
+ *
+ * 각 emit 전에 [currentCoroutineContext]의 활성 상태를 확인하여 코루틴 취소 시
+ * [CancellationException]을 즉시 전파합니다.
  *
  * ```kotlin
  * val db = DuckDBDatabase.file("/tmp/analytics.db")
@@ -68,6 +78,15 @@ fun <T> queryFlow(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: Transaction.() -> Iterable<T>,
 ): Flow<T> = flow {
+    // DuckDB JDBC ResultSet은 트랜잭션 경계 밖에서 접근하면 예외가 발생하므로,
+    // 트랜잭션 내부에서 toList()로 즉시 materialization 한다.
     val items = withContext(dispatcher) { transaction(db) { block().toList() } }
-    items.forEach { emit(it) }
+    for (item in items) {
+        // forEach 대신 for+ensureActive()를 사용하는 이유:
+        // forEach는 suspend 람다가 아니므로 코루틴 취소 신호를 emit 사이에서 확인하지 못한다.
+        // 대규모 결과셋에서 취소가 지연되면 불필요한 emit이 누적될 수 있으므로
+        // 각 emit 직전에 취소 여부를 명시적으로 확인하여 CancellationException을 즉시 전파한다.
+        currentCoroutineContext().ensureActive()
+        emit(item)
+    }
 }

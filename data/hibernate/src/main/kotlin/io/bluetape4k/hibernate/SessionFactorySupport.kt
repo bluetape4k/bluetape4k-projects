@@ -74,7 +74,14 @@ fun SessionFactory.getEventListenerRegistry(): EventListenerRegistry? {
  * ```
  */
 fun SessionFactory.getEntityName(entityClass: Class<*>): String? {
-    return this.metamodel.entity(entityClass)?.name
+    return try {
+        this.metamodel.entity(entityClass)?.name
+    } catch (_: IllegalArgumentException) {
+        // WHY: JPA 명세상 metamodel.entity()는 매핑되지 않은 클래스에 대해 IllegalArgumentException을
+        //      던지도록 정의되어 있다. 호출자가 엔티티 여부를 사전에 알 수 없는 경우(예: 리플렉션 기반 조회)를
+        //      위해 예외를 삼키고 null을 반환한다. 예외 메시지를 로깅하지 않는 이유는 정상적인 경로이기 때문이다.
+        null
+    }
 }
 
 /**

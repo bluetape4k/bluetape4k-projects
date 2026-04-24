@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 @OutputCapture
 class LoggingSupportTest {
@@ -21,7 +22,7 @@ class LoggingSupportTest {
     @Test
     fun `job logging`(capturer: OutputCapturer) = runTest {
         val job = launch(start = CoroutineStart.LAZY) {
-            delay(10)
+            delay(10.milliseconds)
             log.info { "Hello world!" }
         }.log("TestJob")
 

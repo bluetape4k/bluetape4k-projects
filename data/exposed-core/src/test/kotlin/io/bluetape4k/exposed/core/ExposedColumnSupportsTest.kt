@@ -1,6 +1,6 @@
 package io.bluetape4k.exposed.core
 
-import io.bluetape4k.crypto.randomBytes
+import kotlin.random.Random
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.jetbrains.exposed.v1.core.Table
@@ -29,7 +29,7 @@ class ExposedColumnSupportsTest {
         convertToLanguageType(uuid, UUID::class) shouldBeEqualTo uuid
 
 
-        val bytes = randomBytes(16)
+        val bytes = Random.nextBytes(16)
         convertToLanguageType(bytes, ByteArray::class) shouldBeEqualTo bytes
     }
 

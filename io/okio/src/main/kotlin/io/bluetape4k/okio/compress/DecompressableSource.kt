@@ -64,7 +64,6 @@ open class DecompressableSource(
         if (decodedReady) {
             return
         }
-        decodedReady = true
 
         val sourceBuffer = Buffer()
         var noProgressCount = 0
@@ -87,6 +86,16 @@ open class DecompressableSource(
         val decompressed = compressor.decompress(sourceBuffer.readByteArray())
         decodedBuffer.write(bufferOf(decompressed), decompressed.size.toLong())
         log.debug { "압축 복원: compressed=$sourceSize bytes, decompressed=${decodedBuffer.size} bytes" }
+        // Set only after successful completion to prevent data loss on exception
+        decodedReady = true
+    }
+
+    /**
+     * 내부 복호화 버퍼와 위임 [okio.Source]를 닫습니다.
+     */
+    override fun close() {
+        super.close()
+        decodedBuffer.close()
     }
 }
 
@@ -170,7 +179,11 @@ open class StreamingDecompressSource(
             return
         }
         closed = true
-        decompressingStream.close()
+        try {
+            decompressingStream.close()
+        } finally {
+            runCatching { bufferedDelegate.close() }
+        }
     }
 
     private fun ensureOpen() {

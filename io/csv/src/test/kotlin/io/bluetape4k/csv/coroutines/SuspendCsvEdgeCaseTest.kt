@@ -164,7 +164,7 @@ class SuspendCsvEdgeCaseTest {
 
             records shouldHaveSize 2
             records[0].getValue(0, "") shouldBeEqualTo "Alice"
-            records[0].getValue<String?>(1, null).shouldBeNull()
+            records[0].getString(1).shouldBeNull()
             records[1].getValue(0, "") shouldBeEqualTo "Bob"
             records[1].getValue(1, "") shouldBeEqualTo "present"
         }

@@ -1,8 +1,9 @@
 package io.bluetape4k.exposed.mysql8.gis
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
-import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.jetbrains.exposed.v1.core.ColumnType
 import org.jetbrains.exposed.v1.core.vendors.MysqlDialect
 import org.jetbrains.exposed.v1.core.vendors.currentDialect
@@ -59,7 +60,8 @@ class GeometryColumnType<T: Geometry>(
 
     init {
         geometryType.requireNotBlank("geometryType")
-        srid.requirePositiveNumber("srid")
+        // SRID 0은 Cartesian SRS로 유효하므로 0 이상을 허용한다
+        srid.requireZeroOrPositiveNumber("srid")
     }
 
     override fun sqlType(): String {
@@ -72,9 +74,18 @@ class GeometryColumnType<T: Geometry>(
     @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T {
         val geometry = when (value) {
+            // MySQL JDBC 드라이버는 Geometry 컬럼을 MySQL Internal Format(4바이트 LE SRID + WKB)의
+            // ByteArray로 반환하므로 직접 파싱이 필요하다.
             is ByteArray -> MySqlWkbUtils.parseMySqlInternalGeometry(value)
-            is Geometry -> value
-            else        -> error("지원하지 않는 타입: ${value::class.simpleName}")
+            // 이미 파싱된 Geometry 객체(캐시 또는 테스트 목업)는 그대로 사용한다.
+            is Geometry  -> value
+            else         -> {
+                // 예상치 못한 타입은 warn 로그로 컨텍스트를 남긴 뒤 예외를 던진다.
+                // warn을 먼저 남기는 이유: error()만 사용하면 어떤 geometryType에서 발생했는지
+                // 스택 트레이스만으로 추적하기 어렵기 때문이다.
+                log.warn { "지원하지 않는 DB 값 타입: ${value::class.simpleName}. geometryType=$geometryType" }
+                error("지원하지 않는 타입: ${value::class.simpleName}")
+            }
         }
         // "GEOMETRY" 범용 컬럼은 타입 검증 건너뜀
         if (geometryType.uppercase() != "GEOMETRY") {

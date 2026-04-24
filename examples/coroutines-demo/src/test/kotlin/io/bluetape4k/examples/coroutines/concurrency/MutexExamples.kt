@@ -15,6 +15,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * [Mutex]와 [Semaphore]를 이용한 코루틴 동시성 제어 예제입니다.
@@ -71,7 +72,7 @@ class MutexExamples {
 
                     // 작업 시뮬레이션
                     // delay(10)
-                    advanceTimeBy(10)
+                    advanceTimeBy(10.milliseconds)
 
                     activeCount.decrementAndGet()
                 }

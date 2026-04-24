@@ -1,5 +1,6 @@
 package io.bluetape4k.aws.auth
 
+import io.bluetape4k.support.requireNotBlank
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 
@@ -60,8 +61,12 @@ val LocalAwsCredentialsProvider: StaticCredentialsProvider =
  * // credentials.accessKeyId() == "ak"
  * ```
  */
-fun awsBasicCredentialsOf(accessKeyId: String, securityAccessKey: String): AwsBasicCredentials =
-    AwsBasicCredentials.create(accessKeyId, securityAccessKey)
+fun awsBasicCredentialsOf(accessKeyId: String, securityAccessKey: String): AwsBasicCredentials {
+    // WHY: 빈 자격 증명 문자열은 AWS API 호출 시 모호한 401/403 에러를 유발하므로 조기 실패
+    accessKeyId.requireNotBlank("accessKeyId")
+    securityAccessKey.requireNotBlank("securityAccessKey")
+    return AwsBasicCredentials.create(accessKeyId, securityAccessKey)
+}
 
 /**
  * [AwsBasicCredentials]를 감싼 [StaticCredentialsProvider]를 생성합니다.

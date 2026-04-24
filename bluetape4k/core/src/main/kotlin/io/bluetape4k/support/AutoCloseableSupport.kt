@@ -84,17 +84,3 @@ inline infix fun <T: AutoCloseable, R> T.useSafe(action: (T) -> R): R {
     }
 }
 
-/**
- * [AutoCloseable]을 사용하는 함수를 수행합니다.
- *
- * @param action 수행할 함수
- * @return 수행 결과
- */
-@Deprecated("use useSafe instead", ReplaceWith("this.useSafe(action)"))
-inline infix fun <T: AutoCloseable, R> T.using(action: (T) -> R): R {
-    return try {
-        action(this)
-    } finally {
-        closeSafe()
-    }
-}

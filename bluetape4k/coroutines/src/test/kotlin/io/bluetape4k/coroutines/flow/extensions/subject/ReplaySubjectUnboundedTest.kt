@@ -18,6 +18,7 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 class ReplaySubjectUnboundedTest {
 
@@ -32,7 +33,7 @@ class ReplaySubjectUnboundedTest {
             val job = launch {
                 replay
                     .log("#1")
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .collect { result.add(it) }
             }.log("job1")
 
@@ -60,7 +61,7 @@ class ReplaySubjectUnboundedTest {
 
         val result = mutableListOf<Int>()
         replay
-            .onEach { delay(10) }
+            .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect { result.add(it) }
 
@@ -78,7 +79,7 @@ class ReplaySubjectUnboundedTest {
             val job = launch {
                 try {
                     replay
-                        .onEach { delay(10) }
+                        .onEach { delay(10.milliseconds) }
                         .log("#1")
                         .collect { result.add(it) }
                 } catch (e: Throwable) {
@@ -131,7 +132,7 @@ class ReplaySubjectUnboundedTest {
 
             val job = launch {
                 replay
-                    .onEach { delay(10) }
+                    .onEach { delay(10.milliseconds) }
                     .take(3)
                     .log("#1")
                     .collect { result.add(it) }
@@ -174,7 +175,7 @@ class ReplaySubjectUnboundedTest {
             val result1 = mutableListOf<Int>()
             val job1 = launch {
                 replay
-                    .onEach { delay(50) }
+                    .onEach { delay(50.milliseconds) }
                     .log("#1")
                     .collect { result1.add(it) }
             }.log("job1")
@@ -182,7 +183,7 @@ class ReplaySubjectUnboundedTest {
             val result2 = mutableListOf<Int>()
             val job2 = launch {
                 replay
-                    .onEach { delay(100) }
+                    .onEach { delay(100.milliseconds) }
                     .log("#2")
                     .collect { result2.add(it) }
             }.log("job2")
@@ -210,7 +211,7 @@ class ReplaySubjectUnboundedTest {
             val result1 = mutableListOf<Int>()
             val job1 = launch {
                 replay
-                    .onEach { delay(50) }
+                    .onEach { delay(50.milliseconds) }
                     .log("#1")
                     .collect { result1.add(it) }
             }.log("job1")
@@ -218,7 +219,7 @@ class ReplaySubjectUnboundedTest {
             val result2 = mutableListOf<Int>()
             val job2 = launch {
                 replay
-                    .onEach { delay(100) }
+                    .onEach { delay(100.milliseconds) }
                     .take(3)
                     .log("#2")
                     .collect { result2.add(it) }
@@ -285,7 +286,7 @@ class ReplaySubjectUnboundedTest {
 
             val job1 = launch {
                 replay
-                    .onEach { delay(1) }
+                    .onEach { delay(1.milliseconds) }
                     .log("#1")
                     .collect {
                         if (counter1.incrementAndGet() == expected) {
@@ -296,7 +297,7 @@ class ReplaySubjectUnboundedTest {
 
             val job2 = launch {
                 replay
-                    .onEach { delay(1) }
+                    .onEach { delay(1.milliseconds) }
                     .log("#2")
                     .collect { counter2.incrementAndGet() }
             }.log("job2")

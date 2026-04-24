@@ -21,6 +21,7 @@ inline fun messageAttributeValueOf(
 ): MessageAttributeValue =
     MessageAttributeValue {
         stringValue = value
+        dataType = "String"
         builder()
     }
 
@@ -43,7 +44,7 @@ inline fun messageAttributeValueOf(
 ): MessageAttributeValue =
     MessageAttributeValue {
         stringListValues = values
-
+        dataType = "String"
         builder()
     }
 
@@ -66,7 +67,7 @@ inline fun messageAttributeValueOf(
 ): MessageAttributeValue =
     MessageAttributeValue {
         binaryValue = value
-
+        dataType = "Binary"
         builder()
     }
 
@@ -89,6 +90,6 @@ inline fun messageAttributeValueOf(
 ): MessageAttributeValue =
     MessageAttributeValue {
         binaryListValues = values
-
+        dataType = "Binary"
         builder()
     }

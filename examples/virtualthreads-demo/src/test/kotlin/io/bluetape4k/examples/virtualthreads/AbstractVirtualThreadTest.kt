@@ -1,17 +1,18 @@
 package io.bluetape4k.examples.virtualthreads
 
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 @EnabledForJreRange(min = JRE.JAVA_21)
 abstract class AbstractVirtualThreadTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         val faker = Fakers.faker
     }
@@ -29,7 +30,7 @@ abstract class AbstractVirtualThreadTest {
 
     protected suspend fun <T> sleepAndAwait(millis: Int, value: T): T {
         log.debug { "[SUSPEND] $value started" }
-        delay(millis.toLong())
+        delay(millis.toLong().milliseconds)
         log.debug { "[SUSPEND] $value finished" }
         return value
     }

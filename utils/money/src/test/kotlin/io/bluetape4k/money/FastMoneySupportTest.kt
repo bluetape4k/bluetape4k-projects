@@ -109,4 +109,34 @@ class FastMoneySupportTest {
         val formatKRW = MonetaryFormats.getAmountFormat(Locale.KOREA)
         formatKRW.format(tenkKRW) shouldBeEqualTo "KRW1,000"
     }
+
+    @Test
+    fun `fastMoneyMinorOf 문자열 통화코드로 생성`() {
+        val usd = fastMoneyMinorOf("USD", 1245L, 2)
+        usd.toString() shouldBeEqualTo "USD 12.45"
+
+        val krw = fastMoneyMinorOf("KRW", 50000L, 0)
+        krw.toString() shouldBeEqualTo "KRW 50000"
+    }
+
+    @Test
+    fun `toFastMoneyMinor 확장 함수로 생성`() {
+        val usd = 1245L.toFastMoneyMinor(USD, 2)
+        usd.toString() shouldBeEqualTo "USD 12.45"
+
+        val eur = 999L.toFastMoneyMinor("EUR", 2)
+        eur.toString() shouldBeEqualTo "EUR 9.99"
+    }
+
+    @Test
+    fun `inFastKRW와 inFastUSD와 inFastEUR 확장 함수`() {
+        1200.inFastKRW().currency shouldBeEqualTo KRW
+        1200.inFastKRW().numberValue<Int>() shouldBeEqualTo 1200
+
+        1.05.inFastUSD().currency shouldBeEqualTo USD
+        1.05.inFastUSD().numberValue<Double>().shouldBeNear(1.05, 1e-5)
+
+        2.50.inFastEUR().currency shouldBeEqualTo EUR
+        2.50.inFastEUR().numberValue<Double>().shouldBeNear(2.50, 1e-5)
+    }
 }

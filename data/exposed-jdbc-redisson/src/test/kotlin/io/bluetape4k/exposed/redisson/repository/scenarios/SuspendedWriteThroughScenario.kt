@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: SuspendedCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
@@ -57,7 +58,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: Suspe
                 entityFromCache.shouldNotBeNull()
                 assertSameEntityWithoutAudit(entityFromCache, updatedEntity)
 
-                delay(DEFAULT_DELAY)
+                delay(DEFAULT_DELAY.milliseconds)
 
                 // DB에서 조회한 값
                 val entityFromDB = repository.findByIdFromDb(id)
@@ -76,7 +77,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: Suspe
 
             withSuspendedEntityTable(testDB) {
                 val ids = getExistingIds()
-                delay(10)
+                delay(10.milliseconds)
 
                 await
                     .atMost(Duration.ofSeconds(30))
@@ -85,7 +86,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: Suspe
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 // 캐시에서 조회한 값
@@ -112,7 +113,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: Suspe
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 // DB에서 조회한 값
@@ -144,7 +145,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: Suspe
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(timeMillis = DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 val newCount = repository.table.selectAll().count()
@@ -177,7 +178,7 @@ interface SuspendedWriteThroughScenario<ID: Any, E: java.io.Serializable>: Suspe
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 if (cacheConfig.deleteFromDBOnInvalidate) {

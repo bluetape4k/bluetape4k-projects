@@ -16,19 +16,19 @@ class BufferingDebouncedTest: AbstractFlowTest() {
 
     companion object: KLoggingChannel()
 
-    // NOTE: runTest 대신 runSuspendTest 를 사용해야 Timer 가 동작합니다.
+    // NOTE: runTest 대신 runSuspendIO 를 사용해야 실제 Timer 가 동작합니다.
 
     @Test
     fun `debounced window 내에 발생한 모든 요소를 버퍼링하고, 디바운스 타이머가 만료되면 List로 발행합니다`() = runSuspendIO {
         val source = flow {
             emit(1)
-            delay(110)
+            delay(110.milliseconds)
             emit(2)
-            delay(90)
+            delay(95.milliseconds)
             emit(3)
-            delay(110)
+            delay(100.milliseconds)
             emit(4)
-            delay(90)
+            delay(80.milliseconds)
         }
 
         val buffered = source.bufferingDebounce(200.milliseconds)  // [1, 2], [3, 4]
@@ -44,15 +44,15 @@ class BufferingDebouncedTest: AbstractFlowTest() {
         val source =
             flow {
                 emit(1)
-                delay(150)
+                delay(150.milliseconds)
                 emit(2)
-                delay(150)
+                delay(150.milliseconds)
                 emit(3)
-                delay(150)
+                delay(150.milliseconds)
 
                 throw RuntimeException("Boom!")
 
-                delay(90)
+                delay(90.milliseconds)
                 emit(4)
             }.catch { }
 

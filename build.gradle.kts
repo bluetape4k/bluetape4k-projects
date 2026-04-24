@@ -36,9 +36,13 @@ plugins {
     id(Plugins.shadow) version Plugins.Versions.shadow apply false
 
     id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
-    id(Plugins.kosogor) version Plugins.Versions.kosogor
     id(Plugins.nmcp_aggregation) version Plugins.Versions.nmcp
     id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
+
+    id(Plugins.dependency_check) version Plugins.Versions.dependency_check
+
+    // 테스트 커버리지 (Kotlin inline/suspend 정확 지원)
+    id(Plugins.kover) version Plugins.Versions.kover
 }
 
 val centralPublishing = resolveCentralPublishingConfig()
@@ -66,8 +70,6 @@ allprojects {
         // UCAR/Unidata — NetCDF/CDM 라이브러리
         maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
     }
-
-
 }
 
 subprojects {
@@ -111,7 +113,11 @@ subprojects {
         // Atomicfu
         plugin("org.jetbrains.kotlinx.atomicfu")
 
-        // plugin("jacoco")
+        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo 는 별도 필터링)
+        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo")) {
+            plugin(Plugins.kover)
+        }
+
         plugin("maven-publish")
         plugin("signing")
 
@@ -119,7 +125,6 @@ subprojects {
 
         plugin(Plugins.dokka)
         plugin(Plugins.testLogger)
-        plugin(Plugins.kosogor)
     }
 
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
@@ -414,10 +419,6 @@ subprojects {
             dependency(Libs.retrofit2_converter_scalars)
             dependency(Libs.retrofit2_mock)
 
-            // Http
-            dependency(Libs.async_http_client)
-            dependency(Libs.async_http_client_extras_retrofit2)
-            dependency(Libs.async_http_client_extras_rxjava2)
 
             dependency(Libs.httpclient5)
 
@@ -658,6 +659,36 @@ dependencies {
     publishableProjects.forEach { publishableProject ->
         add("nmcpAggregation", project(publishableProject.path))
     }
+}
+
+// ── OWASP Dependency Check ────────────────────────────────────────────────
+dependencyCheck {
+    // NVD API 키 (환경변수 NVD_API_KEY 또는 Gradle 프로퍼티로 전달)
+    nvd.apiKey = providers.environmentVariable("NVD_API_KEY")
+        .orElse(providers.gradleProperty("nvdApiKey"))
+        .orElse("")
+        .get()
+    // 취약점 점수 7.0 이상이면 빌드 실패 (CVSS High/Critical)
+    failBuildOnCVSS = 7.0f
+    // 분석 제외: 테스트, 컴파일 전용 의존성
+    skipConfigurations = listOf("testRuntimeClasspath", "testCompileClasspath")
+    formats = listOf("HTML", "SARIF")
+    outputDirectory = layout.buildDirectory.dir("reports").get().asFile
+    suppressionFile = "config/owasp-suppressions.xml"
+}
+
+// ─── Kover 집계 설정 ────────────────────────────────────────────────────
+// 루트 프로젝트에서 모든 측정 대상 서브모듈을 `kover` 의존성으로 등록하여
+// `./gradlew koverXmlReport` / `koverHtmlReport` 실행 시 집계된 리포트를 생성한다.
+dependencies {
+    subprojects
+        .filter { sub ->
+            sub.name != "bluetape4k-bom" &&
+                    !sub.path.contains("workshop") &&
+                    !sub.path.contains("examples") &&
+                    !sub.path.contains("-demo")
+        }
+        .forEach { sub -> kover(project(sub.path)) }
 }
 
 tasks.register("testDataExposedModules") {

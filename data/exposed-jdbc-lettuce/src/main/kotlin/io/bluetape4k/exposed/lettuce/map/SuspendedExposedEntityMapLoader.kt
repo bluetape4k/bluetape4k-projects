@@ -15,7 +15,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  *     table = ActorTable,
  *     toEntity = { row -> ActorRecord(id = row[ActorTable.id].value, name = row[ActorTable.name]) }
  * )
- * val actor = runBlocking { loader.load(1L) }  // suspend 컨텍스트에서 DB 조회
+ * // suspend 컨텍스트(예: runTest, coroutineScope)에서 호출한다
+ * val actor = loader.load(1L)
  * ```
  *
  * @param ID PK 타입

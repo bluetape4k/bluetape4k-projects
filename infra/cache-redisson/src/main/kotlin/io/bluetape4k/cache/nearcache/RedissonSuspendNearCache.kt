@@ -65,7 +65,7 @@ class RedissonSuspendNearCache<V: Any>(
     /**
      * [key]가 캐시에 존재하는지 확인합니다.
      */
-    override suspend fun containsKey(key: String): Boolean = localCachedMap.containsKeyAsync(key).await() == true
+    override suspend fun containsKey(key: String): Boolean = localCachedMap.containsKeyAsync(key).await()
 
     /**
      * [key]-[value] 쌍을 저장합니다.
@@ -113,7 +113,7 @@ class RedissonSuspendNearCache<V: Any>(
         key: String,
         oldValue: V,
         newValue: V,
-    ): Boolean = localCachedMap.replaceAsync(key, oldValue, newValue).await() == true
+    ): Boolean = localCachedMap.replaceAsync(key, oldValue, newValue).await()
 
     /**
      * [key]를 삭제합니다.
@@ -123,13 +123,11 @@ class RedissonSuspendNearCache<V: Any>(
     }
 
     /**
-     * 여러 [keys]를 일괄 삭제합니다.
-     *
-     * 모든 삭제 요청을 먼저 비동기로 시작한 뒤 일괄 완료를 기다립니다.
+     * 여러 [keys]를 일괄 삭제합니다. 값 반환이 불필요하므로 `fastRemoveAsync` 로 단일 라운드트립 처리합니다.
      */
     override suspend fun removeAll(keys: Set<String>) {
-        val futures = keys.map { localCachedMap.removeAsync(it) }
-        futures.forEach { it.await() }
+        if (keys.isEmpty()) return
+        localCachedMap.fastRemoveAsync(*keys.toTypedArray()).await()
     }
 
     /**
@@ -173,8 +171,7 @@ class RedissonSuspendNearCache<V: Any>(
     /**
      * Redis 캐시 엔트리 수를 반환합니다.
      */
-    override suspend fun backCacheSize(): Long =
-        localCachedMap.sizeAsync().await()?.toLong() ?: localCachedMap.size.toLong()
+    override suspend fun backCacheSize(): Long = localCachedMap.sizeAsync().await().toLong()
 
     /**
      * 캐시 통계 스냅샷을 반환합니다.

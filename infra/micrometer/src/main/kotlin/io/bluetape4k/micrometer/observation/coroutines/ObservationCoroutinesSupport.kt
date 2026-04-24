@@ -4,18 +4,16 @@ import io.bluetape4k.coroutines.reactor.currentReactiveContext
 import io.bluetape4k.coroutines.reactor.getOrNull
 import io.bluetape4k.micrometer.observation.start
 import io.bluetape4k.support.requireNotBlank
-import io.micrometer.context.ContextSnapshotFactory
 import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.reactor.asCoroutineContext
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.reactor.mono
-import reactor.core.publisher.Mono
+import kotlinx.coroutines.withContext
 import reactor.util.context.Context
-
-private val observationContextSnapshotFactory: ContextSnapshotFactory = ContextSnapshotFactory.builder().build()
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
 
 /**
  * 현재 Coroutine Scope에서 Observation을 가져옵니다.
@@ -33,6 +31,27 @@ private val observationContextSnapshotFactory: ContextSnapshotFactory = ContextS
  */
 suspend fun currentObservationInContext(): Observation? =
     currentReactiveContext()?.getOrNull(ObservationThreadLocalAccessor.KEY)
+
+private class ObservationScopeContextElement(
+    private val observation: Observation,
+): ThreadContextElement<Observation.Scope>, AbstractCoroutineContextElement(Key) {
+
+    companion object Key: CoroutineContext.Key<ObservationScopeContextElement>
+
+    override fun updateThreadContext(context: CoroutineContext): Observation.Scope =
+        observation.openScope()
+
+    override fun restoreThreadContext(context: CoroutineContext, oldState: Observation.Scope) {
+        oldState.close()
+    }
+}
+
+private suspend fun Observation.asCoroutineObservationContext(): CoroutineContext {
+    val reactorContext = (currentReactiveContext() ?: Context.empty())
+        .put(ObservationThreadLocalAccessor.KEY, this)
+
+    return reactorContext.asCoroutineContext() + ObservationScopeContextElement(this)
+}
 
 /**
  * 이미 생성된 [Observation]을 suspend 블록에 연결해 실행합니다.
@@ -165,36 +184,21 @@ suspend fun <T: Any> withObservationContextSuspending(
     name: String,
     observationRegistry: ObservationRegistry,
     block: suspend CoroutineScope.() -> T?,
-): T? =
-    Mono
-        .deferContextual { contextView ->
-            name.requireNotBlank("name")
-            observationContextSnapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY)
-                .use { _ ->
-                    val observation = observationRegistry.start(name)
-                    Mono
-                        .defer {
-                            // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
-                            //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
-                            //                log.info(
-                            //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
-                            //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
-                            //                )
-                            mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
-                                try {
-                                    observation.openScope().use {
-                                        block()
-                                    }
-                                } catch (e: Throwable) {
-                                    observation.error(e)
-                                    throw e
-                                } finally {
-                                    observation.stop()
-                                }
-                            }
-                        }
-                }
-        }.awaitSingleOrNull()
+): T? {
+    name.requireNotBlank("name")
+    val observation = observationRegistry.start(name)
+
+    return try {
+        withContext(observation.asCoroutineObservationContext()) {
+            block()
+        }
+    } catch (e: Throwable) {
+        observation.error(e)
+        throw e
+    } finally {
+        observation.stop()
+    }
+}
 
 
 /**
@@ -217,33 +221,18 @@ suspend fun <T: Any> withObservationContextSuspending(
  */
 suspend fun <T: Any> Observation.withObservationContextSuspending(
     block: suspend (Observation.Context) -> T?,
-): T? =
-    Mono
-        .deferContextual { contextView ->
-            observationContextSnapshotFactory.setThreadLocalsFrom<T>(contextView, ObservationThreadLocalAccessor.KEY)
-                .use { _ ->
-                    val observation = this@withObservationContextSuspending
-                    observation.start()
-                    Mono
-                        .defer {
-                            // Tracing 정보를 보려면, 아래와 같이 TracingObservationHandler.TracingContext 에서 가져오면 된다.
-                            //                val tracingContext = observation.context.get<TracingObservationHandler.TracingContext>(TracingObservationHandler.TracingContext::class.java)
-                            //                log.info(
-                            //                    "tracingContext traceId=${tracingContext?.span?.context()?.traceId()}, " +
-                            //                        "spanId=${tracingContext?.span?.context()?.spanId()}"
-                            //                )
-                            mono(Context.of(ObservationThreadLocalAccessor.KEY, observation).asCoroutineContext()) {
-                                try {
-                                    observation.openScope().use {
-                                        block(observation.context)
-                                    }
-                                } catch (e: Throwable) {
-                                    observation.error(e)
-                                    throw e
-                                } finally {
-                                    observation.stop()
-                                }
-                            }
-                        }
-                }
-        }.awaitSingleOrNull()
+): T? {
+    val observation = this@withObservationContextSuspending
+    observation.start()
+
+    return try {
+        withContext(observation.asCoroutineObservationContext()) {
+            block(observation.context)
+        }
+    } catch (e: Throwable) {
+        observation.error(e)
+        throw e
+    } finally {
+        observation.stop()
+    }
+}

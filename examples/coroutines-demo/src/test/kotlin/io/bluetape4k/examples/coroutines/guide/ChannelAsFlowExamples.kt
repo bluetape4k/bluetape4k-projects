@@ -27,6 +27,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.milliseconds
 
 class ChannelAsFlowExamples {
 
@@ -73,7 +74,7 @@ class ChannelAsFlowExamples {
         jobs += List(jobSize) {
             launch(producerDispatcher) {
                 while (isActive) {
-                    delay(1)
+                    delay(1.milliseconds)
                     totalProduced.incrementAndGet()
                     eventBus.postEvent(Event.Created)
 
@@ -84,7 +85,7 @@ class ChannelAsFlowExamples {
         jobs += List(jobSize) {
             launch(producerDispatcher) {
                 while (isActive) {
-                    delay(1)
+                    delay(1.milliseconds)
                     totalProduced.incrementAndGet()
                     eventBus.postEvent(Event.Deleted)
 
@@ -102,10 +103,10 @@ class ChannelAsFlowExamples {
             }.log("consumer-$it")
         }
 
-        advanceTimeBy(1000)
+        advanceTimeBy(1000.milliseconds)
         jobs.forEach { it.cancelAndJoin() }
 
-        advanceTimeBy(2000)
+        advanceTimeBy(2000.milliseconds)
         consumedJobs.forEach { it.cancelAndJoin() }
 
         log.debug { "Produced: ${totalProduced.get()}, Consumed: ${totalConsumed.get()}" }

@@ -2,6 +2,7 @@ package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import org.redisson.api.RMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -86,27 +87,35 @@ class RedissonAsyncMemoizer<T: Any, R: Any>(
             .toCompletableFuture()
             .whenComplete { cached, error ->
                 if (error != null) {
-                    inFlight.remove(key)
+                    inFlight.remove(key, promise)
                     promise.completeExceptionally(error)
                 } else if (cached != null) {
-                    inFlight.remove(key)
+                    inFlight.remove(key, promise)
                     promise.complete(cached)
                 } else {
                     runCatching { evaluator(key).toCompletableFuture() }
                         .fold(
                             onSuccess = { future ->
                                 future.whenComplete { value, evalError ->
-                                    inFlight.remove(key)
                                     if (evalError != null) {
+                                        inFlight.remove(key, promise)
                                         promise.completeExceptionally(evalError)
                                     } else {
                                         map.putIfAbsentAsync(key, value)
-                                        promise.complete(value)
+                                            .whenComplete { _, putError ->
+                                                if (putError != null) {
+                                                    log.warn(putError) {
+                                                        "Failed to cache value: map=${map.name}, key=$key"
+                                                    }
+                                                }
+                                                inFlight.remove(key, promise)
+                                                promise.complete(value)
+                                            }
                                     }
                                 }
                             },
                             onFailure = { evalError ->
-                                inFlight.remove(key)
+                                inFlight.remove(key, promise)
                                 promise.completeExceptionally(evalError)
                             }
                         )

@@ -1,7 +1,5 @@
 package io.bluetape4k.testcontainers.storage
 
-import com.hazelcast.config.rest.RestConfig
-import com.hazelcast.spi.properties.HazelcastProperty
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
@@ -36,6 +34,10 @@ class HazelcastServer private constructor(
         const val TAG = "5-slim"
         const val NAME = "hazelcast"
         const val PORT = 5701
+
+        // Hazelcast 5.x 시스템 프로퍼티 이름 (GroupProperty 대체)
+        private const val PROP_HTTP_HEALTHCHECK_ENABLED = "hazelcast.http.healthcheck.enabled"
+        private const val PROP_REST_ENABLED = "hazelcast.rest.enabled"
 
         /**
          * [DockerImageName]으로 [HazelcastServer] 인스턴스를 생성합니다.
@@ -87,9 +89,7 @@ class HazelcastServer private constructor(
         }
     }
 
-    private val enabledFeatures = HashSet<HazelcastProperty>()
     private val customProperties = HashSet<String>()
-    private lateinit var config: RestConfig
 
     override val port: Int get() = getMappedPort(PORT)
 
@@ -118,34 +118,23 @@ class HazelcastServer private constructor(
     }
 
     /**
-     * HTTP health-check 관련 JVM 속성 활성화를 위한 예약 설정입니다.
+     * HTTP health-check 엔드포인트(`/hazelcast/health`)를 활성화합니다.
      *
-     * ## 동작/계약
-     * - 현재 버전에서는 TODO로 비활성화되어 실제 설정 변경은 없습니다.
-     * - fluent API 체이닝을 위해 자기 자신을 반환합니다.
+     * Hazelcast 5.x에서는 `GroupProperty.HTTP_HEALTHCHECK_ENABLED` 대신
+     * `hazelcast.http.healthcheck.enabled` 시스템 프로퍼티를 사용합니다.
      */
     fun withHttpHealthCheck() = apply {
-        // TODO: deprecated feature 수정 필요
-        // enabledFeatures.add(GroupProperty.HTTP_HEALTHCHECK_ENABLED)
+        customProperties.add("$PROP_HTTP_HEALTHCHECK_ENABLED=true")
     }
 
     /**
-     * REST client 관련 JVM 속성 활성화를 위한 예약 설정입니다.
+     * REST API 엔드포인트를 활성화합니다.
      *
-     * ## 동작/계약
-     * - 현재 버전에서는 TODO로 비활성화되어 실제 설정 변경은 없습니다.
-     * - fluent API 체이닝을 위해 자기 자신을 반환합니다.
+     * Hazelcast 5.x에서는 `GroupProperty.REST_CLIENT_ENABLED` 대신
+     * `hazelcast.rest.enabled` 시스템 프로퍼티를 사용합니다.
      */
     fun withRESTClient() = apply {
-        // TODO: deprecated feature 수정 필요
-        // enabledFeatures.add(GroupProperty.REST_CLIENT_ENABLED)
-    }
-
-    /**
-     * REST API 구성을 저장합니다.
-     */
-    fun withRestApi(config: RestConfig) {
-        this.config = config
+        customProperties.add("$PROP_REST_ENABLED=true")
     }
 
     /**
@@ -158,11 +147,11 @@ class HazelcastServer private constructor(
     override fun configure() {
         super.configure()
 
-        val javaOpts = enabledFeatures.joinToString(" ") { "-D${it.name}=true" }
         val customProps = customProperties.joinToString(" ") { "-D$it" }
-
-        log.debug { "javaOpts=$javaOpts" }
-        withEnv("JAVA_OPTS", "$javaOpts $customProps")
+        log.debug { "JAVA_OPTS=$customProps" }
+        if (customProps.isNotBlank()) {
+            withEnv("JAVA_OPTS", customProps)
+        }
     }
 
     /**

@@ -397,4 +397,98 @@ class ReactiveMongoOperationsCoroutinesTest: AbstractReactiveMongoCoroutineTest(
             user.shouldNotBeNull()
             user.name shouldBeEqualTo "Alice"
         }
+
+    // ====================================================
+    // Remove (entity overload)
+    // ====================================================
+
+    @Test
+    fun `removeSuspending(entity) - 엔티티를 직접 삭제한다`() = runTest {
+        val alice = mongoOperations.findOneOrNullSuspending<User>(
+            Query(Criteria.where("name").`is`("Alice"))
+        )
+        alice.shouldNotBeNull()
+
+        val result = mongoOperations.removeSuspending(alice)
+        result.deletedCount shouldBeEqualTo 1L
+
+        val count = mongoOperations.countSuspending<User>()
+        count shouldBeEqualTo (testUsers.size - 1).toLong()
+    }
+
+    // ====================================================
+    // findByIdSuspending - throws if not found
+    // ====================================================
+
+    @Test
+    fun `findByIdSuspending - ID로 사용자를 조회한다`() = runTest {
+        val alice = mongoOperations.findOneOrNullSuspending<User>(
+            Query(Criteria.where("name").`is`("Alice"))
+        )
+        alice.shouldNotBeNull()
+
+        val found = mongoOperations.findByIdSuspending<User>(alice.id!!)
+        found.name shouldBeEqualTo "Alice"
+    }
+
+    // ====================================================
+    // Distinct
+    // ====================================================
+
+    @Test
+    fun `findDistinctAsFlow - 고유한 도시 목록을 조회한다`() = runTest {
+        val cities = mongoOperations.findDistinctAsFlow<User, String>(
+            Query(),
+            field = "city"
+        ).toList()
+
+        cities.toSet() shouldBeEqualTo setOf("Seoul", "Busan", "Incheon")
+    }
+
+    // ====================================================
+    // TypedAggregation
+    // ====================================================
+
+    @Test
+    fun `aggregateAsFlow(TypedAggregation) - 도시별 카운트를 집계한다`() = runTest {
+        val typedAgg = Aggregation.newAggregation(
+            User::class.java,
+            Aggregation.group("city").count().`as`("count"),
+            Aggregation.sort(Sort.by(Sort.Direction.DESC, "count"))
+        )
+
+        val results = mongoOperations.aggregateAsFlow<CityCount>(typedAgg).toList()
+
+        results.isNotEmpty().shouldBeTrue()
+        val seoulCount = results.find { it.id == "Seoul" }
+        seoulCount.shouldNotBeNull()
+        seoulCount.count shouldBeEqualTo 3
+    }
+
+    // ====================================================
+    // Collection management
+    // ====================================================
+
+    @Test
+    fun `collectionExistsSuspending - 컬렉션 존재 여부를 확인한다`() = runTest {
+        val exists = mongoOperations.collectionExistsSuspending("test_users")
+        exists.shouldBeTrue()
+    }
+
+    @Test
+    fun `createCollectionSuspending - 컬렉션을 삭제 후 재생성한다`() = runTest {
+        mongoOperations.dropCollectionSuspending<User>()
+        mongoOperations.createCollectionSuspending<User>()
+
+        val exists = mongoOperations.collectionExistsSuspending("test_users")
+        exists.shouldBeTrue()
+    }
+
+    @Test
+    fun `dropCollectionSuspending(name) - 이름으로 컬렉션을 삭제한다`() = runTest {
+        val collName = "drop_test_collection"
+        mongoOperations.dropCollectionSuspending(collName)
+        val exists = mongoOperations.collectionExistsSuspending(collName)
+        exists.shouldBeFalse()
+    }
 }

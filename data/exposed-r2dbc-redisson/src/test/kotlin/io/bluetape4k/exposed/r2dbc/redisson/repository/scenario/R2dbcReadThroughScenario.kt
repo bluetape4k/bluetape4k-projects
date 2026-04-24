@@ -18,6 +18,7 @@ import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 interface R2dbcReadThroughScenario<ID: Any, E: java.io.Serializable>: R2dbcCacheTestScenario<ID, E> {
     companion object: KLoggingChannel() {
@@ -113,7 +114,7 @@ interface R2dbcReadThroughScenario<ID: Any, E: java.io.Serializable>: R2dbcCache
                             .toInt()
 
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
-                delay(DEFAULT_DELAY)
+                delay(DEFAULT_DELAY.milliseconds)
             }
         }
 
@@ -149,7 +150,7 @@ interface R2dbcReadThroughScenario<ID: Any, E: java.io.Serializable>: R2dbcCache
             withR2dbcEntityTable(testDB) {
                 // @ParameterizedTest 때문에 testDB 들이 꼬인다... 대기 시간을 둬서, 다른 DB와의 영항을 미치지 않게 한다
                 if (cacheConfig.isReadWrite) {
-                    delay(DEFAULT_DELAY)
+                    delay(DEFAULT_DELAY.milliseconds)
                 }
 
                 repository.getAll(getExistingIds())

@@ -11,6 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable
 import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest
 import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput
 import software.amazon.awssdk.services.dynamodb.model.ResourceInUseException
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 비동기 방식으로 DynamoDb Table을 생성하는 유틸리티 클래스입니다.
@@ -58,6 +59,9 @@ class DynamoDbAsyncTableCreator {
         try {
             asyncTable.createTable(request).await()
             log.info { "Table [${asyncTable.tableName()}] created." }
+        } catch (e: CancellationException) {
+            // WHY: CancellationException을 catch하면 structured concurrency가 깨지므로 반드시 재전파
+            throw e
         } catch (e: Throwable) {
             when (e.cause) {
                 is ResourceInUseException -> {

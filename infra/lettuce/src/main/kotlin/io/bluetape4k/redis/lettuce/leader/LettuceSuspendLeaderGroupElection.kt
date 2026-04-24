@@ -9,6 +9,7 @@ import io.bluetape4k.redis.lettuce.semaphore.LettuceSemaphore
 import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.api.StatefulRedisConnection
 import kotlinx.coroutines.future.await
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * [StatefulRedisConnection]에서 [LettuceSuspendLeaderGroupElection] 인스턴스를 생성합니다.
@@ -51,12 +52,15 @@ class LettuceSuspendLeaderGroupElection(
 
     override val maxLeaders: Int = options.maxLeaders
 
+    // 개선: LettuceSemaphore 인스턴스를 lockName 별로 1회만 생성/초기화 하여 재사용합니다.
+    //       ConcurrentHashMap.computeIfAbsent 로 원자적 캐싱을 보장합니다.
+    private val semaphores = ConcurrentHashMap<String, LettuceSemaphore>()
+
     private fun getSemaphore(lockName: String): LettuceSemaphore {
         lockName.requireNotBlank("lockName")
-
-        val semaphore = LettuceSemaphore(connection, lockName, maxLeaders)
-        semaphore.initialize()
-        return semaphore
+        return semaphores.computeIfAbsent(lockName) {
+            LettuceSemaphore(connection, it, maxLeaders).apply { initialize() }
+        }
     }
 
     override fun activeCount(lockName: String): Int {

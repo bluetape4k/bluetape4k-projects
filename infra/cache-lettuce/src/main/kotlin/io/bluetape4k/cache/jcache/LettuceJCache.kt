@@ -30,7 +30,8 @@ import javax.cache.processor.MutableEntry
  * ## 동작/계약
  * - 캐시 항목은 [LettuceMap]을 통해 Redis hash에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
  * - [ttlSeconds]가 지정되면 Redis 8+에서는 `HSETEX` 후 hash key `EXPIRE`를 함께 갱신하고, 미지원 서버에서는 `HSET/HMSET + EXPIRE`로 fallback 합니다.
- * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
+ * - `close()`는 JSR-107 명세에 따라 리소스만 해제하며, Redis hash 데이터는 **삭제하지 않습니다**.
+ *   데이터 삭제가 필요하면 `close()` 전에 `clear()`를 명시적으로 호출하세요.
  * - 직렬화는 [codec]의 serializer로 처리하며, 기본값은 LZ4+Fory 기반 직렬화입니다.
  */
 class LettuceJCache<K: Any, V: Any>(
@@ -143,8 +144,15 @@ class LettuceJCache<K: Any, V: Any>(
         checkNotClosed()
         if (map.isEmpty()) return
         val encodedMap = map.entries.associate { (k, v) -> encodeKey(k) to encodeValue(v) }
-        // 리스너가 있을 때만 저장 전에 존재 여부를 사전 수집하여 CREATED/UPDATED 이벤트를 구분
-        val existingKeys = if (listeners.isNotEmpty()) map.keys.filter { containsKey(it) }.toSet() else emptySet()
+        // 개선: 기존엔 `map.keys.filter { containsKey(it) }` 로 key 당 HEXISTS 한 번씩 호출해
+        //       N-round-trip 이 발생했습니다. 리스너가 있을 때만 단일 HMGET (`this.map.getAll`)
+        //       로 일괄 조회하여 round-trip 을 1회로 줄입니다.
+        val existingKeys: Set<K> = if (listeners.isNotEmpty()) {
+            val fetched = this.map.getAll(encodedMap.keys.toList())
+            map.keys.filter { fetched[encodeKey(it)] != null }.toSet()
+        } else {
+            emptySet()
+        }
         this.map.putAllTtl(encodedMap, ttlDuration)
         if (listeners.isNotEmpty()) {
             map.forEach { (k, v) ->
@@ -333,7 +341,8 @@ class LettuceJCache<K: Any, V: Any>(
 
     override fun close() {
         if (!closed.compareAndSet(expect = false, update = true)) return
-        runCatching { map.clear() }
+        // JCache 명세: close()는 리소스를 해제하는 것이지 데이터를 삭제하는 것이 아님.
+        // 데이터 삭제가 필요하면 close() 전에 clear()를 명시적으로 호출할 것.
         cacheManager.closeCache(this)
         runCatching { closeResource() }
     }

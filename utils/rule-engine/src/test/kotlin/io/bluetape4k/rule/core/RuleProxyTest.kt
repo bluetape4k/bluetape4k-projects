@@ -139,8 +139,7 @@ class RuleProxyTest {
         val annotatedRule = AgeCheckRule().asRule()
 
         val facts = Facts.of("age" to 25)
-        engine.fire(ruleSetOf(annotatedRule), facts)
-        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(annotatedRule), facts); facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
     }
 
     @Test

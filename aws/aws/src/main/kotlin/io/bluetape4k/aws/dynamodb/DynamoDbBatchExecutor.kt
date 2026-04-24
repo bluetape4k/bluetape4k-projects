@@ -207,9 +207,10 @@ class DynamoDbBatchExecutor<T: Any>(
         val requestItems = writeList.groupBy({ it.tableName }, { it.writeRequest })
         val batchRequest = BatchWriteItemRequest { requestItems(requestItems) }
 
-        // Non-Blocking 으로 저장 작업을 수행하기 위해서
-        return withContext(coroutineContext) {
-            // DynamoDB의 Batch 쓰기 작업
+        // WHY: DynamoDbClient.batchWriteItem은 blocking 호출이므로 Dispatchers.IO에서 실행.
+        // 클래스 CoroutineScope가 이미 Dispatchers.IO를 포함하지만,
+        // withContext로 명시적으로 보장하여 호출자의 디스패처에 의존하지 않음.
+        return withContext(Dispatchers.IO) {
             dynamoDB.batchWriteItem(batchRequest)
         }
     }
