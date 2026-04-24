@@ -53,7 +53,29 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 
 `LettuceClients`는 기본적으로 여러 성능 최적화가 적용되어 있습니다. 이 최적화들은 자동화된 self-improvement 벤치마크 루프(`LettuceThroughputBenchmark`, Testcontainers Redis에서 비동기 SET+GET 1만 회)를 통해 발견·검증되었습니다.
 
-### 벤치마크 결과
+### Codec 벤치마크 결과
+
+`LettuceCodecBenchmark` 기준 (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+
+| Codec | ops/ms | Fory 대비 |
+|-------|-------:|----------:|
+| **FastFory** | **3,300** | **+27%** |
+| Fory | 2,596 | 기준 |
+| Kryo | 1,061 | -59% |
+| LZ4FastFory | 922 | — |
+| LZ4Fory | 854 | — |
+| LZ4Kryo | 545 | — |
+| ZstdFastFory | 208 | — |
+| ZstdFory | 202 | — |
+| ZstdKryo | 137 | — |
+| JDK | 135 | -95% |
+| GzipFastFory | 111 | — |
+| Jackson3 | 868 | — |
+
+> 전체 결과: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> 실행: `./gradlew :bluetape4k-lettuce:benchmark`
+
+### 커넥션 벤치마크 결과
 
 | 최적화 기법 | ops/sec | 기준 대비 |
 |---|---|---|

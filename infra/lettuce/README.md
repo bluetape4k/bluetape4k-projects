@@ -55,7 +55,29 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 
 `LettuceClients` ships with several built-in performance optimizations applied by default. These were discovered and validated through an automated self-improvement benchmark loop (`LettuceThroughputBenchmark`, 10,000 async SET+GET ops via Testcontainers Redis).
 
-### Benchmark Results
+### Codec Benchmark Results
+
+Based on `LettuceCodecBenchmark` (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+
+| Codec | ops/ms | vs Fory |
+|-------|-------:|--------:|
+| **FastFory** | **3,300** | **+27%** |
+| Fory | 2,596 | 기준 |
+| Kryo | 1,061 | -59% |
+| LZ4FastFory | 922 | — |
+| LZ4Fory | 854 | — |
+| LZ4Kryo | 545 | — |
+| ZstdFastFory | 208 | — |
+| ZstdFory | 202 | — |
+| ZstdKryo | 137 | — |
+| JDK | 135 | -95% |
+| GzipFastFory | 111 | — |
+| Jackson3 | 868 | — |
+
+> Full results: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> Run: `./gradlew :bluetape4k-lettuce:benchmark`
+
+### Connection Benchmark Results
 
 | Optimization | ops/sec | vs Baseline |
 |---|---|---|

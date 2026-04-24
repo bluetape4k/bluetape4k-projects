@@ -553,6 +553,31 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 ---
 
+## Codec 벤치마크
+
+`RedissonCodecBenchmark` 기준 (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+
+| Codec | ops/ms | Fory 대비 |
+|-------|-------:|----------:|
+| **FastFory** | **3,208** | **+26%** |
+| Fory | 2,539 | 기준 |
+| Fastjson2 | 2,040 | -20% |
+| Kryo5 | 1,238 | -51% |
+| LZ4FastFory | 874 | — |
+| LZ4Fory | 815 | — |
+| LZ4Kryo5 | 571 | — |
+| ZstdFastFory | 206 | — |
+| ZstdFory | 202 | — |
+| ZstdKryo5 | 142 | — |
+| JDK | 135 | -95% |
+| GzipFastFory | 110 | — |
+| Jackson3 | 489 | -81% |
+
+> 전체 결과: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> 실행: `./gradlew :bluetape4k-redisson:benchmark`
+
+---
+
 ## 성능 벤치마크
 
 `RedissonConcurrencyBenchmark` 기준 (50 코루틴, 코루틴당 100 ops):
