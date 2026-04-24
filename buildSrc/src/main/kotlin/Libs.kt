@@ -118,7 +118,6 @@ object Versions {
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
     const val okhttp3 = "5.3.2"     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     const val okio = "3.17.0"        // https://mvnrepository.com/artifact/com.squareup.okio/okio
-    const val asynchttpclient = "2.12.4"  // https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client
 
     const val jackson_annotations = "2.21" // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
     const val jackson = "2.21.2"    // https://mvnrepository.com/artifact/com.fasterxml.jackson/jackson-bom
@@ -653,12 +652,6 @@ object Libs {
     val aws_smithy_kotlin_serde = awsSmithyKotlin("serde-jvm")
     val aws_smithy_kotlin_serde_json = awsSmithyKotlin("serde-json-jvm")
 
-    // AsyncHttpClient
-    const val async_http_client = "org.asynchttpclient:async-http-client:${Versions.asynchttpclient}"
-    const val async_http_client_extras_retrofit2 =
-        "org.asynchttpclient:async-http-client-extras-retrofit2:${Versions.asynchttpclient}"
-    const val async_http_client_extras_rxjava2 =
-        "org.asynchttpclient:async-http-client-extras-rxjava2:${Versions.asynchttpclient}"
 
     // Apache HttpComponents HttpClient5
     const val httpclient5 = "org.apache.httpcomponents.client5:httpclient5:${Versions.httpclient5}"

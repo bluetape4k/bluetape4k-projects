@@ -419,10 +419,6 @@ subprojects {
             dependency(Libs.retrofit2_converter_scalars)
             dependency(Libs.retrofit2_mock)
 
-            // Http
-            dependency(Libs.async_http_client)
-            dependency(Libs.async_http_client_extras_retrofit2)
-            dependency(Libs.async_http_client_extras_rxjava2)
 
             dependency(Libs.httpclient5)
 

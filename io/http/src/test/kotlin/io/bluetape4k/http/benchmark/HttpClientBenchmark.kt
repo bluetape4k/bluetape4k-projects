@@ -1,7 +1,5 @@
 package io.bluetape4k.http.benchmark
 
-import io.bluetape4k.http.ahc.asyncHttpClient
-import io.bluetape4k.http.ahc.executeSuspending
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.jdk.sendAwait
 import okhttp3.coroutines.executeAsync
@@ -23,7 +21,6 @@ import kotlinx.benchmark.TearDown
 import kotlinx.benchmark.Warmup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import okhttp3.ConnectionPool
 import okhttp3.Dispatcher as OkHttpDispatcher
@@ -36,8 +33,6 @@ import org.apache.hc.client5.http.impl.async.HttpAsyncClients
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
 import org.apache.hc.core5.http.io.entity.EntityUtils
-import org.asynchttpclient.DefaultAsyncHttpClient
-import org.asynchttpclient.DefaultAsyncHttpClientConfig
 import org.openjdk.jmh.annotations.Threads
 import java.net.URI
 import java.net.http.HttpClient
@@ -46,8 +41,6 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * 다양한 HTTP Client 의 throughput 을 비교하는 JMH 벤치마크.
@@ -58,11 +51,10 @@ import kotlin.coroutines.resumeWithException
  * 엔드포인트: `GET /ping` → HTTP 200 (경량 응답, 순수 연결 처리량 측정)
  *
  * 비교 대상:
- * - OkHttp3 동기 / Virtual Thread
- * - java.net.http 동기 / Virtual Thread / HTTP2
+ * - OkHttp3 동기 / Virtual Thread / Coroutines
+ * - java.net.http 동기 / Virtual Thread / HTTP2 / Coroutines
  * - Apache HC5 Classic 동기 / Coroutines / Virtual Thread
  * - Apache HC5 Async + Coroutines
- * - Apache AsyncHttpClient + Coroutines (Default / Unconfined)
  * - Vert.x WebClient + Coroutines
  */
 @State(Scope.Benchmark)
@@ -89,8 +81,6 @@ open class HttpClientBenchmark {
     private lateinit var hc5Classic: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
-    private lateinit var ahcClient: org.asynchttpclient.AsyncHttpClient
-    private lateinit var ahcOptimizedClient: org.asynchttpclient.AsyncHttpClient
     private lateinit var vertx: Vertx
     private lateinit var vertxWebClient: WebClient
 
@@ -155,22 +145,6 @@ open class HttpClientBenchmark {
 
         hc5Async = HttpAsyncClients.createDefault().also { it.start() }
 
-        ahcClient = DefaultAsyncHttpClient(
-            DefaultAsyncHttpClientConfig.Builder()
-                .setConnectTimeout(5_000)
-                .setRequestTimeout(5_000)
-                .build()
-        )
-
-        ahcOptimizedClient = asyncHttpClient {
-            setConnectTimeout(5_000)
-            setRequestTimeout(5_000)
-            setMaxConnectionsPerHost(200)
-            setMaxConnections(500)
-            setKeepAlive(true)
-            setTcpNoDelay(true)
-        }
-
         vertx = Vertx.vertx()
         vertxWebClient = WebClient.create(
             vertx,
@@ -185,8 +159,6 @@ open class HttpClientBenchmark {
     fun teardown() {
         runCatching { vertxWebClient.close() }
         runCatching { runBlocking { vertx.close().coAwait() } }
-        runCatching { ahcOptimizedClient.close() }
-        runCatching { ahcClient.close() }
         runCatching { hc5Async.close() }
         runCatching { hc5Classic.close() }
         runCatching { hc5ClassicVt.close() }
@@ -300,23 +272,6 @@ open class HttpClientBenchmark {
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.IO) {
         val request = SimpleRequestBuilder.get(pingUrl).build()
         hc5Async.executeSuspending(request).code
-    }
-
-    @Benchmark
-    fun ahcCoroutines(): Int = runBlocking(Dispatchers.IO) {
-        suspendCancellableCoroutine { cont ->
-            val future = ahcClient.prepareGet(pingUrl).execute().toCompletableFuture()
-            future.whenComplete { response, error ->
-                if (error != null) cont.resumeWithException(error)
-                else cont.resume(response.statusCode)
-            }
-            cont.invokeOnCancellation { future.cancel(true) }
-        }
-    }
-
-    @Benchmark
-    fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.IO) {
-        ahcOptimizedClient.prepareGet(pingUrl).executeSuspending().statusCode
     }
 
     @Benchmark
