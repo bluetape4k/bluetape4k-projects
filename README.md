@@ -432,7 +432,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.5.0
+baseVersion=1.7.0
 snapshotVersion=-SNAPSHOT
 ```
 
