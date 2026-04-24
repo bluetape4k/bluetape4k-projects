@@ -102,6 +102,18 @@ singleServerConfig:
 | `RedissonCodecs.Zstd`           | Default                | Zstd | 높은 압축률                        |
 | `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | 없음   | Jackson 3.x JSON Codec         |
 | `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | 없음   | Fastjson2 JSONB Codec          |
+| `RedissonCodecs.FastFory`       | FastFory               | 없음   | FastFory 직렬화만 사용                   |
+| `RedissonCodecs.LZ4FastFory`    | FastFory               | LZ4  | FastFory + LZ4 압축                     |
+| `RedissonCodecs.ZstdFastFory`   | FastFory               | Zstd | FastFory + Zstd 압축                    |
+| `RedissonCodecs.SnappyFastFory` | FastFory               | Snappy | FastFory + Snappy 압축                  |
+| `RedissonCodecs.GzipFastFory`   | FastFory               | GZip | FastFory + GZip 압축                    |
+| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | 없음   | FastFory Composite 직렬화                 |
+| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4  | FastFory Composite + LZ4 압축             |
+| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd | FastFory Composite + Zstd 압축            |
+| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy | FastFory Composite + Snappy 압축          |
+| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip | FastFory Composite + GZip 압축            |
+
+> ⚠️ **와이어 포맷 경고**: FastFory 코덱은 `CompatibleMode.SCHEMA_CONSISTENT`를 사용합니다. `FastForyCodec`은 구 Fory 데이터를 fallback으로 읽을 수 있으나, `ForyCodec`으로 FastFory 데이터를 읽는 것은 **불가**합니다. 휘발성 캐시 전용.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs

@@ -143,6 +143,88 @@ object RedissonCodecs: KLogging() {
     /** Map 키: String, 값: JDK 직렬화 + Gzip 압축을 사용하는 복합 Codec */
     val GzipJdkComposite: Codec by lazy { CompositeCodec(String, GzipJdk, GzipJdk) }
 
+    // -------------------------------------------------------------------------
+    // FastFory (SCHEMA_CONSISTENT) Codecs
+    //
+    // ⚠️ 와이어 포맷 경고:
+    // - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
+    // - **비대칭 호환성**: FastFory codec은 구 Fory(COMPATIBLE) 데이터를 fallback으로 읽을 수 있습니다. 반대는 불가합니다.
+    // - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
+    // - **순환 참조 객체 불가** (refTracking=false).
+    // - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+    // -------------------------------------------------------------------------
+
+    /**
+     * Apache Fory SCHEMA_CONSISTENT 모드(FastFory) 직렬화 Codec.
+     * 기본 [Fory](COMPATIBLE 모드) 대비 더 빠른 직렬화 속도를 제공하며, 직렬화 실패 시 [Fory]로 자동 전환합니다.
+     *
+     * ⚠️ [Fory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val FastFory: Codec by lazy { FastForyCodec() }
+
+    /**
+     * Map 키: String, 값: FastFory 직렬화를 사용하는 복합 Codec.
+     *
+     * ⚠️ [ForyComposite] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val FastForyComposite: Codec by lazy { CompositeCodec(String, FastFory, FastFory) }
+
+    /**
+     * FastFory 직렬화 + LZ4 압축 Codec. 고성능 캐시 환경에서 권장하는 조합입니다.
+     *
+     * ⚠️ [LZ4Fory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val LZ4FastFory: Codec by lazy { Lz4Codec(FastFory) }
+
+    /**
+     * Map 키: String, 값: FastFory 직렬화 + LZ4 압축을 사용하는 복합 Codec.
+     *
+     * ⚠️ [LZ4ForyComposite] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val LZ4FastForyComposite: Codec by lazy { CompositeCodec(String, LZ4FastFory, LZ4FastFory) }
+
+    /**
+     * FastFory 직렬화 + Zstd 압축 Codec. 압축률과 속도의 균형이 뛰어난 조합입니다.
+     *
+     * ⚠️ [ZstdFory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val ZstdFastFory: Codec by lazy { ZstdCodec(FastFory) }
+
+    /**
+     * Map 키: String, 값: FastFory 직렬화 + Zstd 압축을 사용하는 복합 Codec.
+     *
+     * ⚠️ [ZstdForyComposite] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val ZstdFastForyComposite: Codec by lazy { CompositeCodec(String, ZstdFastFory, ZstdFastFory) }
+
+    /**
+     * FastFory 직렬화 + Snappy 압축 Codec.
+     *
+     * ⚠️ [SnappyFory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val SnappyFastFory: Codec by lazy { SnappyCodecV2(FastFory) }
+
+    /**
+     * Map 키: String, 값: FastFory 직렬화 + Snappy 압축을 사용하는 복합 Codec.
+     *
+     * ⚠️ [SnappyForyComposite] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val SnappyFastForyComposite: Codec by lazy { CompositeCodec(String, SnappyFastFory, SnappyFastFory) }
+
+    /**
+     * FastFory 직렬화 + Gzip 압축 Codec. 높은 압축률이 필요할 때 사용합니다.
+     *
+     * ⚠️ [GzipFory] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val GzipFastFory: Codec by lazy { GzipCodec(FastFory) }
+
+    /**
+     * Map 키: String, 값: FastFory 직렬화 + Gzip 압축을 사용하는 복합 Codec.
+     *
+     * ⚠️ [GzipForyComposite] codec과 와이어 포맷이 상호 비호환입니다. **휘발성 캐시 전용**으로 사용하십시오.
+     */
+    val GzipFastForyComposite: Codec by lazy { CompositeCodec(String, GzipFastFory, GzipFastFory) }
+
     /** Kryo5 직렬화 + LZ4 압축 Codec. 빠른 속도가 필요한 캐시 환경에 적합합니다. */
     val LZ4Kryo5: Codec by lazy { Lz4Codec(Kryo5) }
 

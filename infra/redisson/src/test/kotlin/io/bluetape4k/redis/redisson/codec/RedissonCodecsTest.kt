@@ -61,6 +61,18 @@ class RedissonCodecsTest: AbstractRedissonTest() {
         RedissonCodecs.GzipJdkComposite,
         RedissonCodecs.GzipForyComposite,
         RedissonCodecs.GzipKryo5Composite,
+
+        RedissonCodecs.FastFory,
+        RedissonCodecs.LZ4FastFory,
+        RedissonCodecs.ZstdFastFory,
+        RedissonCodecs.SnappyFastFory,
+        RedissonCodecs.GzipFastFory,
+
+        RedissonCodecs.FastForyComposite,
+        RedissonCodecs.LZ4FastForyComposite,
+        RedissonCodecs.ZstdFastForyComposite,
+        RedissonCodecs.SnappyFastForyComposite,
+        RedissonCodecs.GzipFastForyComposite,
     )
 
     @ParameterizedTest(name = "codec={0}")

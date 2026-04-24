@@ -229,6 +229,13 @@ val results = listOf(
 | `zstdFory()`            | Fory       | Zstd        |
 | `snappyFory()`          | Fory       | Snappy      |
 | `gzipFory()`            | Fory       | GZip        |
+| `fastFory()`            | FastFory   | None        |
+| `lz4FastFory()`         | FastFory   | LZ4         |
+| `zstdFastFory()`        | FastFory   | Zstd        |
+| `snappyFastFory()`      | FastFory   | Snappy      |
+| `gzipFastFory()`        | FastFory   | GZip        |
+
+> **⚠️ Wire Format Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT` and are **NOT compatible** with the default Fory codec. No fallback. Use only for volatile caches.
 
 ### JSON Codecs (`LettuceJsonCodecs`)
 
@@ -554,6 +561,12 @@ classDiagram
         +lz4Fory~V~(): LettuceBinaryCodec~V~
         +zstdFory~V~(): LettuceBinaryCodec~V~
         +snappyFory~V~(): LettuceBinaryCodec~V~
+        +gzipFory~V~(): LettuceBinaryCodec~V~
+        +fastFory~V~(): LettuceBinaryCodec~V~
+        +lz4FastFory~V~(): LettuceBinaryCodec~V~
+        +zstdFastFory~V~(): LettuceBinaryCodec~V~
+        +snappyFastFory~V~(): LettuceBinaryCodec~V~
+        +gzipFastFory~V~(): LettuceBinaryCodec~V~
     }
     class LettuceIntCodec {
         <<object>>

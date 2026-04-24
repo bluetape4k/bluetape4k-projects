@@ -226,6 +226,13 @@ val results = listOf(
 | `zstdFory()`        | Fory | Zstd   |
 | `snappyFory()`      | Fory | Snappy |
 | `gzipFory()`        | Fory | GZip   |
+| `fastFory()`        | FastFory | 없음     |
+| `lz4FastFory()`     | FastFory | LZ4    |
+| `zstdFastFory()`    | FastFory | Zstd   |
+| `snappyFastFory()`  | FastFory | Snappy |
+| `gzipFastFory()`    | FastFory | GZip   |
+
+> **⚠️ 와이어 포맷 경고**: FastFory 코덱은 기본 Fory codec과 **호환되지 않으며** fallback이 없습니다. 휘발성 캐시 전용.
 
 ### JSON Codec (`LettuceJsonCodecs`)
 
