@@ -3,8 +3,28 @@ name: CI
 on:
   push:
     branches: [develop, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - '.editorconfig'
+      - '.gitleaks.toml'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
+      - '.omc/**'
+      - '.claude/**'
   pull_request:
     branches: [develop, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - '.editorconfig'
+      - '.gitleaks.toml'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
+      - '.omc/**'
+      - '.claude/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
