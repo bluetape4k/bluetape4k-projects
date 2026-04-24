@@ -55,7 +55,29 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 
 `LettuceClients` ships with several built-in performance optimizations applied by default. These were discovered and validated through an automated self-improvement benchmark loop (`LettuceThroughputBenchmark`, 10,000 async SET+GET ops via Testcontainers Redis).
 
-### Benchmark Results
+### Codec Benchmark Results
+
+Based on `LettuceCodecBenchmark` (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+
+| Codec | ops/ms | vs Fory |
+|-------|-------:|--------:|
+| **FastFory** | **3,300** | **+27%** |
+| Fory | 2,596 | 기준 |
+| Kryo | 1,061 | -59% |
+| LZ4FastFory | 922 | — |
+| LZ4Fory | 854 | — |
+| LZ4Kryo | 545 | — |
+| ZstdFastFory | 208 | — |
+| ZstdFory | 202 | — |
+| ZstdKryo | 137 | — |
+| JDK | 135 | -95% |
+| GzipFastFory | 111 | — |
+| Jackson3 | 868 | — |
+
+> Full results: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> Run: `./gradlew :bluetape4k-lettuce:benchmark`
+
+### Connection Benchmark Results
 
 | Optimization | ops/sec | vs Baseline |
 |---|---|---|
@@ -229,6 +251,13 @@ val results = listOf(
 | `zstdFory()`            | Fory       | Zstd        |
 | `snappyFory()`          | Fory       | Snappy      |
 | `gzipFory()`            | Fory       | GZip        |
+| `fastFory()`            | FastFory   | None        |
+| `lz4FastFory()`         | FastFory   | LZ4         |
+| `zstdFastFory()`        | FastFory   | Zstd        |
+| `snappyFastFory()`      | FastFory   | Snappy      |
+| `gzipFastFory()`        | FastFory   | GZip        |
+
+> **⚠️ Wire Format Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT` and are **NOT compatible** with the default Fory codec. No fallback. Use only for volatile caches.
 
 ### JSON Codecs (`LettuceJsonCodecs`)
 
@@ -554,6 +583,12 @@ classDiagram
         +lz4Fory~V~(): LettuceBinaryCodec~V~
         +zstdFory~V~(): LettuceBinaryCodec~V~
         +snappyFory~V~(): LettuceBinaryCodec~V~
+        +gzipFory~V~(): LettuceBinaryCodec~V~
+        +fastFory~V~(): LettuceBinaryCodec~V~
+        +lz4FastFory~V~(): LettuceBinaryCodec~V~
+        +zstdFastFory~V~(): LettuceBinaryCodec~V~
+        +snappyFastFory~V~(): LettuceBinaryCodec~V~
+        +gzipFastFory~V~(): LettuceBinaryCodec~V~
     }
     class LettuceIntCodec {
         <<object>>

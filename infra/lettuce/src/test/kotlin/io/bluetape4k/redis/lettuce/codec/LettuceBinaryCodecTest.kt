@@ -38,6 +38,12 @@ class LettuceBinaryCodecTest: AbstractLettuceTest() {
         LettuceBinaryCodecs.zstdJdk(),
         LettuceBinaryCodecs.zstdFory(),
         LettuceBinaryCodecs.zstdKryo(),
+
+        LettuceBinaryCodecs.fastFory(),
+        LettuceBinaryCodecs.lz4FastFory(),
+        LettuceBinaryCodecs.zstdFastFory(),
+        LettuceBinaryCodecs.snappyFastFory(),
+        LettuceBinaryCodecs.gzipFastFory(),
     )
 
     @ParameterizedTest(name = "codec={0}")

@@ -131,4 +131,71 @@ object LettuceBinaryCodecs {
      * Fory Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> zstdFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.ZstdFory)
+
+
+    // -------------------------------------------------------------------------
+    // FastFory 계열 코덱 (SCHEMA_CONSISTENT 모드, 고성능)
+    // -------------------------------------------------------------------------
+
+    /**
+     * FastFory Serializer를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하는 고성능 직렬화기입니다.
+     *
+     * ⚠️ **와이어 포맷 경고**
+     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
+     * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
+     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
+     * - **순환 참조 객체 불가** (refTracking=false).
+     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     */
+    fun <V: Any> fastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.FastFory)
+
+    /**
+     * FastFory Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * ⚠️ **와이어 포맷 경고**
+     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
+     * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
+     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
+     * - **순환 참조 객체 불가** (refTracking=false).
+     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     */
+    fun <V: Any> lz4FastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.LZ4FastFory)
+
+    /**
+     * FastFory Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * ⚠️ **와이어 포맷 경고**
+     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
+     * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
+     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
+     * - **순환 참조 객체 불가** (refTracking=false).
+     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     */
+    fun <V: Any> zstdFastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.ZstdFastFory)
+
+    /**
+     * FastFory Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * ⚠️ **와이어 포맷 경고**
+     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
+     * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
+     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
+     * - **순환 참조 객체 불가** (refTracking=false).
+     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     */
+    fun <V: Any> snappyFastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.SnappyFastFory)
+
+    /**
+     * FastFory Serializer와 GZip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * ⚠️ **와이어 포맷 경고**
+     * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
+     * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
+     * - **휘발성 캐시(Redis, 메모리 캐시) 전용** — 영속 저장에 사용하지 마십시오.
+     * - **순환 참조 객체 불가** (refTracking=false).
+     * - **스키마 진화 불가** — 필드 추가/제거 시 기존 데이터 역직렬화 실패.
+     */
+    fun <V: Any> gzipFastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.GZipFastFory)
 }

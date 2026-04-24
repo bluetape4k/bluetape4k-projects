@@ -242,6 +242,20 @@ Both `ForyBinarySerializer` and `KryoBinarySerializer` provide a `fast()` factor
 | `BinarySerializers.Fory` | COMPATIBLE, refTracking | ~68K ops/s | ✅ Supported | Schema evolution, persistent storage |
 | `BinarySerializers.Kryo` | CompatibleFieldSerializer | ~34K ops/s | ✅ Supported | General use, nullable fields |
 
+> ⚠️ **Wire Format Warning**: FastFory uses `CompatibleMode.SCHEMA_CONSISTENT` and is **NOT compatible** with the default Fory codec (`CompatibleMode.COMPATIBLE`). Use only for volatile caches (Redis, in-memory). No schema evolution support.
+
+**FastFory Serializers (Compressed Variants):**
+
+Combine FastFory performance with compression for maximum storage savings in volatile caches.
+
+| Serializer | Compression | Throughput | Size reduction | Use case |
+|---|---|---|---|---|
+| `BinarySerializers.FastFory` | None | ~116K ops/s | — | Fast volatile cache, no compression |
+| `BinarySerializers.LZ4FastFory` | LZ4 | ~25K ops/s | 40-60% | Balanced speed and size |
+| `BinarySerializers.ZstdFastFory` | Zstd | ~18K ops/s | 50-70% | Best compression ratio (recommended) |
+| `BinarySerializers.SnappyFastFory` | Snappy | ~30K ops/s | 30-50% | Fast compression, moderate size |
+| `BinarySerializers.GZipFastFory` | GZip | ~12K ops/s | 60-80% | Highest compression (slowest) |
+
 > Benchmark: 20× `SimpleData` objects each containing a 4096-byte `ByteArray` field.
 > Measurement: JMH throughput, 3-second intervals, JVM warmup 4 iterations.
 

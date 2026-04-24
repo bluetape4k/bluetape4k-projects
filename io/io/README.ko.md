@@ -242,6 +242,20 @@ sequenceDiagram
 | `BinarySerializers.Fory` | COMPATIBLE, refTracking | ~68K ops/s | ✅ 지원 | 스키마 진화, 영속 저장소 |
 | `BinarySerializers.Kryo` | CompatibleFieldSerializer | ~34K ops/s | ✅ 지원 | 범용, nullable 필드 포함 |
 
+> ⚠️ **와이어 포맷 경고**: FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **호환되지 않습니다**. 휘발성 캐시(Redis, 메모리) 전용. 스키마 진화 불가.
+
+**FastFory 직렬화기 (압축 조합):**
+
+FastFory 성능에 압축을 결합하여 휘발성 캐시에서 최대 저장 공간 절약.
+
+| 직렬화기 | 압축 | 처리량 | 크기 감소 | 사용 환경 |
+|---|---|---|---|---|
+| `BinarySerializers.FastFory` | 없음 | ~116K ops/s | — | 빠른 휘발성 캐시, 압축 미적용 |
+| `BinarySerializers.LZ4FastFory` | LZ4 | ~25K ops/s | 40-60% | 속도와 크기 균형 |
+| `BinarySerializers.ZstdFastFory` | Zstd | ~18K ops/s | 50-70% | 최고 압축률 (추천) |
+| `BinarySerializers.SnappyFastFory` | Snappy | ~30K ops/s | 30-50% | 빠른 압축, 중간 크기 |
+| `BinarySerializers.GZipFastFory` | GZip | ~12K ops/s | 60-80% | 최고 압축률 (가장 느림) |
+
 > 벤치마크: 4096바이트 `ByteArray` 필드를 포함한 `SimpleData` 객체 20개. JMH 처리량 모드, 3초 측정, 4회 워밍업.
 
 **`ForyBinarySerializer.fast()`가 최선의 선택인 이유:**

@@ -67,6 +67,12 @@ class LettuceCodecBenchmark {
     private val zstdForyCodec = LettuceBinaryCodecs.zstdFory<BenchmarkData>()
     private val zstdKryoCodec = LettuceBinaryCodecs.zstdKryo<BenchmarkData>()
 
+    // FastFory 계열 (SCHEMA_CONSISTENT 고성능 모드)
+    private val fastForyCodec = LettuceBinaryCodecs.fastFory<BenchmarkData>()
+    private val lz4FastForyCodec = LettuceBinaryCodecs.lz4FastFory<BenchmarkData>()
+    private val zstdFastForyCodec = LettuceBinaryCodecs.zstdFastFory<BenchmarkData>()
+    private val gzipFastForyCodec = LettuceBinaryCodecs.gzipFastFory<BenchmarkData>()
+
     @Setup
     fun setup() {
         testData = BenchmarkData(
@@ -155,5 +161,37 @@ class LettuceCodecBenchmark {
     fun zstdKryoEncodeDecode() {
         val encoded = zstdKryoCodec.encodeValue(testData)
         zstdKryoCodec.decodeValue(encoded)
+    }
+
+    // -------------------------------------------------------------------------
+    // FastFory 계열 Codecs (SCHEMA_CONSISTENT 고성능 모드)
+    // -------------------------------------------------------------------------
+
+    /** FastFory 직렬화 encode/decode roundtrip */
+    @Benchmark
+    fun fastForyEncodeDecode() {
+        val encoded = fastForyCodec.encodeValue(testData)
+        fastForyCodec.decodeValue(encoded)
+    }
+
+    /** FastFory + LZ4 압축 encode/decode roundtrip */
+    @Benchmark
+    fun lz4FastForyEncodeDecode() {
+        val encoded = lz4FastForyCodec.encodeValue(testData)
+        lz4FastForyCodec.decodeValue(encoded)
+    }
+
+    /** FastFory + Zstd 압축 encode/decode roundtrip */
+    @Benchmark
+    fun zstdFastForyEncodeDecode() {
+        val encoded = zstdFastForyCodec.encodeValue(testData)
+        zstdFastForyCodec.decodeValue(encoded)
+    }
+
+    /** FastFory + GZip 압축 encode/decode roundtrip */
+    @Benchmark
+    fun gzipFastForyEncodeDecode() {
+        val encoded = gzipFastForyCodec.encodeValue(testData)
+        gzipFastForyCodec.decodeValue(encoded)
     }
 }

@@ -103,6 +103,18 @@ High-performance codecs are available in the `io.bluetape4k.redis.redisson.codec
 | `RedissonCodecs.Zstd`           | Default                | Zstd        | High compression ratio                  |
 | `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | None        | Jackson 3.x JSON codec                  |
 | `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | None        | Fastjson2 JSONB codec                   |
+| `RedissonCodecs.FastFory`       | FastFory               | None        | FastFory serialization only             |
+| `RedissonCodecs.LZ4FastFory`    | FastFory               | LZ4         | FastFory with LZ4 compression           |
+| `RedissonCodecs.ZstdFastFory`   | FastFory               | Zstd        | FastFory with Zstd compression          |
+| `RedissonCodecs.SnappyFastFory` | FastFory               | Snappy      | FastFory with Snappy compression        |
+| `RedissonCodecs.GzipFastFory`   | FastFory               | GZip        | FastFory with GZip compression          |
+| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | None        | FastFory composite serialization        |
+| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4         | FastFory composite with LZ4             |
+| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd        | FastFory composite with Zstd            |
+| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy      | FastFory composite with Snappy          |
+| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip        | FastFory composite with GZip            |
+
+> ⚠️ **Wire Format Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT`. `FastForyCodec` can read legacy Fory data via fallback, but `ForyCodec` **cannot** read FastFory data. Use only for volatile caches.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -542,6 +554,31 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 | One `createBatch()` per coroutine | 100× RTT reduction | Largest single gain |
 | `StringCodec.INSTANCE` | Eliminates Jackson serialization overhead | Apply only to `Map<String, String>` |
 | Pre-computed KEY_POOL | Removes GC pressure from string interpolation | Effective for repetitive key patterns |
+
+---
+
+## Codec Benchmark
+
+Based on `RedissonCodecBenchmark` (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+
+| Codec | ops/ms | vs Fory |
+|-------|-------:|--------:|
+| **FastFory** | **3,208** | **+26%** |
+| Fory | 2,539 | 기준 |
+| Fastjson2 | 2,040 | -20% |
+| Kryo5 | 1,238 | -51% |
+| LZ4FastFory | 874 | — |
+| LZ4Fory | 815 | — |
+| LZ4Kryo5 | 571 | — |
+| ZstdFastFory | 206 | — |
+| ZstdFory | 202 | — |
+| ZstdKryo5 | 142 | — |
+| JDK | 135 | -95% |
+| GzipFastFory | 110 | — |
+| Jackson3 | 489 | -81% |
+
+> Full results: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> Run: `./gradlew :bluetape4k-redisson:benchmark`
 
 ---
 

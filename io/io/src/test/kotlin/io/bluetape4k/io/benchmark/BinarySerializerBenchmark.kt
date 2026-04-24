@@ -4,7 +4,6 @@ package io.bluetape4k.io.benchmark
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.io.serializer.BinarySerializers
-import io.bluetape4k.io.serializer.ForyBinarySerializer
 import io.bluetape4k.junit5.faker.Fakers
 import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.BenchmarkMode
@@ -30,7 +29,12 @@ class BinarySerializerBenchmark {
 
     private val jdk = BinarySerializers.Jdk
     private val kryo = BinarySerializers.Kryo
-    private val fory = ForyBinarySerializer.fast()
+    private val fory = BinarySerializers.Fory
+    private val fastFory = BinarySerializers.FastFory
+    private val lz4FastFory = BinarySerializers.LZ4FastFory
+    private val zstdFastFory = BinarySerializers.ZstdFastFory
+    private val snappyFastFory = BinarySerializers.SnappyFastFory
+    private val gzipFastFory = BinarySerializers.GZipFastFory
     private val jsonMapper = jacksonObjectMapper().findAndRegisterModules()
 
     data class SimpleData(
@@ -97,6 +101,51 @@ class BinarySerializerBenchmark {
     @Benchmark
     fun fory() {
         with(fory) {
+            val bytes = serialize(targets)
+            val results = deserialize<List<SimpleData>>(bytes)!!
+            results.shouldNotBeEmpty() shouldHaveSize targets.size
+        }
+    }
+
+    @Benchmark
+    fun fastFory() {
+        with(fastFory) {
+            val bytes = serialize(targets)
+            val results = deserialize<List<SimpleData>>(bytes)!!
+            results.shouldNotBeEmpty() shouldHaveSize targets.size
+        }
+    }
+
+    @Benchmark
+    fun lz4FastFory() {
+        with(lz4FastFory) {
+            val bytes = serialize(targets)
+            val results = deserialize<List<SimpleData>>(bytes)!!
+            results.shouldNotBeEmpty() shouldHaveSize targets.size
+        }
+    }
+
+    @Benchmark
+    fun zstdFastFory() {
+        with(zstdFastFory) {
+            val bytes = serialize(targets)
+            val results = deserialize<List<SimpleData>>(bytes)!!
+            results.shouldNotBeEmpty() shouldHaveSize targets.size
+        }
+    }
+
+    @Benchmark
+    fun snappyFastFory() {
+        with(snappyFastFory) {
+            val bytes = serialize(targets)
+            val results = deserialize<List<SimpleData>>(bytes)!!
+            results.shouldNotBeEmpty() shouldHaveSize targets.size
+        }
+    }
+
+    @Benchmark
+    fun gzipFastFory() {
+        with(gzipFastFory) {
             val bytes = serialize(targets)
             val results = deserialize<List<SimpleData>>(bytes)!!
             results.shouldNotBeEmpty() shouldHaveSize targets.size

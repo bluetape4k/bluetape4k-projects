@@ -102,6 +102,18 @@ singleServerConfig:
 | `RedissonCodecs.Zstd`           | Default                | Zstd | 높은 압축률                        |
 | `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | 없음   | Jackson 3.x JSON Codec         |
 | `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | 없음   | Fastjson2 JSONB Codec          |
+| `RedissonCodecs.FastFory`       | FastFory               | 없음   | FastFory 직렬화만 사용                   |
+| `RedissonCodecs.LZ4FastFory`    | FastFory               | LZ4  | FastFory + LZ4 압축                     |
+| `RedissonCodecs.ZstdFastFory`   | FastFory               | Zstd | FastFory + Zstd 압축                    |
+| `RedissonCodecs.SnappyFastFory` | FastFory               | Snappy | FastFory + Snappy 압축                  |
+| `RedissonCodecs.GzipFastFory`   | FastFory               | GZip | FastFory + GZip 압축                    |
+| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | 없음   | FastFory Composite 직렬화                 |
+| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4  | FastFory Composite + LZ4 압축             |
+| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd | FastFory Composite + Zstd 압축            |
+| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy | FastFory Composite + Snappy 압축          |
+| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip | FastFory Composite + GZip 압축            |
+
+> ⚠️ **와이어 포맷 경고**: FastFory 코덱은 `CompatibleMode.SCHEMA_CONSISTENT`를 사용합니다. `FastForyCodec`은 구 Fory 데이터를 fallback으로 읽을 수 있으나, `ForyCodec`으로 FastFory 데이터를 읽는 것은 **불가**합니다. 휘발성 캐시 전용.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -538,6 +550,31 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 | `redisson.createBatch()` 코루틴당 1개 | RTT 100배 감소 | 가장 큰 개선 |
 | `StringCodec.INSTANCE` | Jackson 직렬화 오버헤드 제거 | String 타입 Map에만 적용 |
 | 사전 계산된 KEY_POOL | 문자열 보간 GC 압력 제거 | 반복 키 패턴에 유효 |
+
+---
+
+## Codec 벤치마크
+
+`RedissonCodecBenchmark` 기준 (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+
+| Codec | ops/ms | Fory 대비 |
+|-------|-------:|----------:|
+| **FastFory** | **3,208** | **+26%** |
+| Fory | 2,539 | 기준 |
+| Fastjson2 | 2,040 | -20% |
+| Kryo5 | 1,238 | -51% |
+| LZ4FastFory | 874 | — |
+| LZ4Fory | 815 | — |
+| LZ4Kryo5 | 571 | — |
+| ZstdFastFory | 206 | — |
+| ZstdFory | 202 | — |
+| ZstdKryo5 | 142 | — |
+| JDK | 135 | -95% |
+| GzipFastFory | 110 | — |
+| Jackson3 | 489 | -81% |
+
+> 전체 결과: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> 실행: `./gradlew :bluetape4k-redisson:benchmark`
 
 ---
 

@@ -67,6 +67,12 @@ class RedissonCodecBenchmark {
     private val zstdForyCodec = RedissonCodecs.ZstdFory
     private val zstdKryo5Codec = RedissonCodecs.ZstdKryo5
 
+    // FastFory (SCHEMA_CONSISTENT) Codecs
+    private val fastForyCodec = RedissonCodecs.FastFory
+    private val lz4FastForyCodec = RedissonCodecs.LZ4FastFory
+    private val zstdFastForyCodec = RedissonCodecs.ZstdFastFory
+    private val gzipFastForyCodec = RedissonCodecs.GzipFastFory
+
     @Setup
     fun setup() {
         testData = BenchmarkData(
@@ -188,6 +194,54 @@ class RedissonCodecBenchmark {
         val buf = zstdKryo5Codec.valueEncoder.encode(testData)
         try {
             zstdKryo5Codec.valueDecoder.decode(buf, null)
+        } finally {
+            buf.release()
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // FastFory (SCHEMA_CONSISTENT) Codecs
+    // -------------------------------------------------------------------------
+
+    /** Apache Fory SCHEMA_CONSISTENT(FastFory) 직렬화 encode/decode roundtrip */
+    @Benchmark
+    fun fastForyEncodeDecode() {
+        val buf = fastForyCodec.valueEncoder.encode(testData)
+        try {
+            fastForyCodec.valueDecoder.decode(buf, null)
+        } finally {
+            buf.release()
+        }
+    }
+
+    /** FastFory + LZ4 압축 encode/decode roundtrip */
+    @Benchmark
+    fun lz4FastForyEncodeDecode() {
+        val buf = lz4FastForyCodec.valueEncoder.encode(testData)
+        try {
+            lz4FastForyCodec.valueDecoder.decode(buf, null)
+        } finally {
+            buf.release()
+        }
+    }
+
+    /** FastFory + Zstd 압축 encode/decode roundtrip */
+    @Benchmark
+    fun zstdFastForyEncodeDecode() {
+        val buf = zstdFastForyCodec.valueEncoder.encode(testData)
+        try {
+            zstdFastForyCodec.valueDecoder.decode(buf, null)
+        } finally {
+            buf.release()
+        }
+    }
+
+    /** FastFory + Gzip 압축 encode/decode roundtrip */
+    @Benchmark
+    fun gzipFastForyEncodeDecode() {
+        val buf = gzipFastForyCodec.valueEncoder.encode(testData)
+        try {
+            gzipFastForyCodec.valueDecoder.decode(buf, null)
         } finally {
             buf.release()
         }
