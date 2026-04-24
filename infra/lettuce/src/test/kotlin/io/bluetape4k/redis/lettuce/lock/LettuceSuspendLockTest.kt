@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
@@ -22,7 +23,9 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendLockTest: AbstractLettuceTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private lateinit var lockKey: String
 
@@ -32,7 +35,7 @@ class LettuceSuspendLockTest: AbstractLettuceTest() {
     }
 
     private fun suspendLock(leaseTime: Duration = Duration.ofSeconds(10)): LettuceSuspendLock =
-        LettuceSuspendLock(LettuceClients.connect(client, StringCodec.UTF8), lockKey, leaseTime)
+        LettuceSuspendLock(connection, lockKey, leaseTime)
 
     // =========================================================================
     // 코루틴 기본 테스트
@@ -59,7 +62,6 @@ class LettuceSuspendLockTest: AbstractLettuceTest() {
     @Test
     fun `코루틴 동시성 - 여러 코루틴에서 하나만 락 획득`() = runSuspendIO {
         val acquiredCount = AtomicInteger(0)
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
 
         val jobs = List(5) {
             async {
@@ -82,7 +84,6 @@ class LettuceSuspendLockTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 락 상호 배제 검증`() = runSuspendIO {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
         val acquired = AtomicInteger(0)

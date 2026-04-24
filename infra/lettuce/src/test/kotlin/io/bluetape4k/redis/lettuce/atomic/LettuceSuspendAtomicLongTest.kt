@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
@@ -17,18 +18,19 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private lateinit var atomicLong: LettuceAtomicLong
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         atomicLong = LettuceAtomicLong(connection, randomName(), initialValue = 0L)
     }
 
     private fun suspendAtomicLong(): LettuceSuspendAtomicLong =
-        LettuceSuspendAtomicLong(LettuceClients.connect(client, StringCodec.UTF8), atomicLong.key)
+        LettuceSuspendAtomicLong(connection, atomicLong.key)
 
     // =========================================================================
     // 코루틴 기본 테스트
@@ -84,7 +86,7 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
         val jobs = List(count) {
             async {
-                val counter = LettuceSuspendAtomicLong(LettuceClients.connect(client, StringCodec.UTF8), atomicLong.key)
+                val counter = LettuceSuspendAtomicLong(connection, atomicLong.key)
                 counter.incrementAndGet()
             }
         }
@@ -99,7 +101,6 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 incrementAndGet 원자성 검증`() = runSuspendIO {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val workers = 8
         val rounds = 50
 
@@ -118,7 +119,6 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 addAndGet 원자성 검증`() = runSuspendIO {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val workers = 5
         val rounds = 20
         val delta = 3L

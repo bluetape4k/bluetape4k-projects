@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -23,21 +24,21 @@ import java.util.concurrent.atomic.AtomicInteger
 class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
-        private const val TOTAL_PERMITS = 3
+        const val TOTAL_PERMITS = 3
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client) }
+        private val executor by lazy { Executors.newFixedThreadPool(10) }
     }
 
     private lateinit var semaphore: LettuceSemaphore
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client)
         semaphore = LettuceSemaphore(connection, randomName(), totalPermits = TOTAL_PERMITS)
         semaphore.initialize()
     }
 
     @Test
     fun `constructor rejects non positive totalPermits`() {
-        val connection = LettuceClients.connect(client)
         assertThrows<IllegalArgumentException> {
             LettuceSemaphore(connection, randomName(), totalPermits = 0)
         }
@@ -98,8 +99,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         val maxConcurrent = AtomicInteger(0)
         val concurrent = AtomicInteger(0)
         val latch = CountDownLatch(10)
-        val executor = Executors.newFixedThreadPool(10)
-        val connection = LettuceClients.connect(client)
 
         repeat(10) {
             executor.submit {
@@ -116,7 +115,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
         }
 
         latch.await(10, TimeUnit.SECONDS)
-        executor.shutdown()
         maxConcurrent.get() shouldBeGreaterOrEqualTo 1
     }
 
@@ -144,7 +142,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 acquire release 안정성`() {
-        val connection = LettuceClients.connect(client)
         val acquired = AtomicInteger(0)
 
         MultithreadingTester()
@@ -165,7 +162,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 허가 수 제한 검증`() {
-        val connection = LettuceClients.connect(client)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
 
@@ -193,7 +189,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `StructuredTaskScopeTester - 동시 acquire release 안정성`() {
-        val connection = LettuceClients.connect(client)
         val acquired = AtomicInteger(0)
 
         StructuredTaskScopeTester()
@@ -213,7 +208,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `StructuredTaskScopeTester - 동시 허가 수 제한 검증`() {
-        val connection = LettuceClients.connect(client)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
 
