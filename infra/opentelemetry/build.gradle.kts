@@ -10,6 +10,9 @@ tasks {
     test {
         // dependsOn("downloadAgent")
         // jvmArgs = listOf("-javaagent:${project.layout.projectDirectory.asFile}/opentelemetry-javaagent.jar")
+
+        // io_uring 이벤트 루프 재초기화 시 발생하는 레이스 컨디션 방지 (eventfd_write: Bad file descriptor)
+        jvmArgs("-Dreactor.netty.native=false")
     }
 
     // update-otel-agent.sh 를 수동으로 실행하여 OpenTelemetry Java Agent 를 다운로드 받을 수 있습니다.

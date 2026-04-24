@@ -418,6 +418,28 @@ flowchart LR
 
 ## Testing Strategy
 
+### CI Test Configuration Note
+
+On Linux CI environments (GitHub Actions), Reactor Netty uses **io_uring** as its native transport. When multiple test methods run sequentially and share the same Spring application context, a race condition can occur during io_uring event loop reinitialization:
+
+```
+io.netty.channel.ChannelException: eventfd_write(...) failed: Bad file descriptor
+```
+
+This is caused by `DefaultLoopResources.cacheNativeClientLoops()` calling `shutdownGracefully()` on the previous server event loop group while its `eventfd` file descriptor has already been closed.
+
+**Fix:** The test task in `build.gradle.kts` disables the native transport via a JVM flag:
+
+```kotlin
+tasks {
+    test {
+        jvmArgs("-Dreactor.netty.native=false")  // applies to test JVM only
+    }
+}
+```
+
+This forces Reactor Netty to use NIO instead of io_uring during tests. It has **no effect on production**, since the application runs in a separate JVM without this flag.
+
 ### Unit Tests
 
 ```kotlin

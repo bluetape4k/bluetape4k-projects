@@ -194,7 +194,10 @@ class CaffeineHazelcastLocalCache<V: Any>(
 
     override fun clear() = cache.invalidateAll()
 
-    override fun estimatedSize(): Long = cache.estimatedSize()
+    override fun estimatedSize(): Long {
+        cache.cleanUp()
+        return cache.estimatedSize()
+    }
 
     override fun stats(): CacheStats? = if (config.recordStats) cache.stats() else null
 
