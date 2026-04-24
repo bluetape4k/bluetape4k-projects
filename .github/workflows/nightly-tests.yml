@@ -455,8 +455,7 @@ jobs:
             :bluetape4k-cache:test \
             :bluetape4k-cache-lettuce:test \
             :bluetape4k-cache-redisson:test \
-            :bluetape4k-cache-hazelcast:test \
-            --parallel
+            :bluetape4k-cache-hazelcast:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -519,8 +518,7 @@ jobs:
             :bluetape4k-exposed-jdbc:test \
             :bluetape4k-exposed-jdbc-caffeine:test \
             :bluetape4k-exposed-jdbc-lettuce:test \
-            :bluetape4k-exposed-jdbc-redisson:test \
-            --parallel
+            :bluetape4k-exposed-jdbc-redisson:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -577,8 +575,7 @@ jobs:
             :bluetape4k-exposed-r2dbc:test \
             :bluetape4k-exposed-r2dbc-lettuce:test \
             :bluetape4k-exposed-r2dbc-redisson:test \
-            :bluetape4k-exposed-trino:test \
-            --parallel
+            :bluetape4k-exposed-trino:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -638,8 +635,7 @@ jobs:
             :bluetape4k-cassandra:test \
             :bluetape4k-hibernate:test \
             :bluetape4k-hibernate-cache-lettuce:test \
-            :bluetape4k-hibernate-reactive:test \
-            --parallel
+            :bluetape4k-hibernate-reactive:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
