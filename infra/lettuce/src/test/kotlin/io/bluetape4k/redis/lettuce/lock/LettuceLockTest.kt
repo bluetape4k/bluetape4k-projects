@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
@@ -23,13 +24,14 @@ import java.util.concurrent.atomic.AtomicInteger
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceLockTest: AbstractLettuceTest() {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private lateinit var lock: LettuceLock
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         lock = LettuceLock(connection, randomName(), defaultLeaseTime = Duration.ofSeconds(10))
     }
 
@@ -49,7 +51,7 @@ class LettuceLockTest: AbstractLettuceTest() {
     fun `tryLock - 이미 잠긴 경우 즉시 false 반환`() {
         lock.tryLock().shouldBeTrue()
         try {
-            val lock2 = LettuceLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
+            val lock2 = LettuceLock(connection, lock.lockKey)
             lock2.tryLock().shouldBeFalse()
         } finally {
             lock.unlock()
@@ -79,7 +81,6 @@ class LettuceLockTest: AbstractLettuceTest() {
         val acquiredCount = AtomicInteger(0)
         val latch = CountDownLatch(threadCount)
         val executor = Executors.newFixedThreadPool(threadCount)
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
 
         repeat(threadCount) {
             executor.submit {
@@ -114,7 +115,7 @@ class LettuceLockTest: AbstractLettuceTest() {
     fun `tryLockAsync - 이미 잠긴 경우 false`() {
         lock.tryLockAsync().get().shouldBeTrue()
         try {
-            val lock2 = LettuceLock(LettuceClients.connect(client, StringCodec.UTF8), lock.lockKey)
+            val lock2 = LettuceLock(connection, lock.lockKey)
             lock2.tryLockAsync().get().shouldBeFalse()
         } finally {
             lock.unlockAsync().get()
@@ -127,7 +128,6 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 락 상호 배제 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
         val acquired = AtomicInteger(0)
@@ -154,7 +154,6 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 락 획득 후 정상 해제 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val released = AtomicInteger(0)
 
         MultithreadingTester()
@@ -179,7 +178,6 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     @Test
     fun `StructuredTaskScopeTester - 동시 락 상호 배제 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
 

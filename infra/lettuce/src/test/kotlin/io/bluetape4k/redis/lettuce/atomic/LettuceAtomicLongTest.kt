@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
@@ -19,13 +20,14 @@ import java.util.concurrent.TimeUnit
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceAtomicLongTest: AbstractLettuceTest() {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private lateinit var atomicLong: LettuceAtomicLong
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         atomicLong = LettuceAtomicLong(connection, randomName(), initialValue = 0L)
     }
 
@@ -114,7 +116,6 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
         val iterationsPerThread = 100
         val latch = CountDownLatch(threadCount)
         val executor = Executors.newFixedThreadPool(threadCount)
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
 
         repeat(threadCount) {
             executor.submit {
@@ -161,7 +162,6 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 incrementAndGet 원자성 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val workers = 8
         val rounds = 50
 
@@ -179,7 +179,6 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `MultithreadingTester - 동시 addAndGet 원자성 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val workers = 5
         val rounds = 20
         val delta = 3L
@@ -202,7 +201,6 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `StructuredTaskScopeTester - 동시 incrementAndGet 원자성 검증`() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         val rounds = 100
 
         StructuredTaskScopeTester()
