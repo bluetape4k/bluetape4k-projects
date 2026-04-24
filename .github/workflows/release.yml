@@ -1,0 +1,205 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version to publish (e.g. 1.7.0). Must match an existing tag.'
+        required: true
+        type: string
+      diagnoseSigning:
+        description: 'Run signing diagnostics before publishing'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  resolve-version:
+    name: Resolve release version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+      ref: ${{ steps.resolve.outputs.ref }}
+    steps:
+      - id: resolve
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TAG_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            VERSION="$TAG_NAME"
+          else
+            VERSION="$INPUT_VERSION"
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$ ]]; then
+            echo "::error::Invalid version format: $VERSION"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "ref=refs/tags/$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version=$VERSION"
+
+  publish:
+    name: Publish RELEASE to Maven Central Portal
+    needs: resolve-version
+    runs-on: ubuntu-latest
+    environment: maven-central-release
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve-version.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Verify gradle.properties matches tag
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          BASE=$(grep -E '^baseVersion=' gradle.properties | cut -d= -f2)
+          SNAP=$(grep -E '^snapshotVersion=' gradle.properties | cut -d= -f2 || echo "")
+          echo "tag=$VERSION baseVersion=$BASE snapshotVersion='$SNAP'"
+          if [[ "$BASE" != "$VERSION" ]]; then
+            echo "::error::gradle.properties baseVersion ($BASE) does not match tag ($VERSION)"
+            exit 1
+          fi
+          if [[ -n "$SNAP" ]]; then
+            echo "::error::snapshotVersion must be empty for release. Got: '$SNAP'"
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Diagnose signing inputs
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnoseSigning }}
+        shell: bash
+        env:
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          python <<'PY'
+          import base64, os
+
+          raw_key = os.environ.get("SIGNING_KEY", "")
+          key_id = os.environ.get("SIGNING_KEY_ID", "")
+          password = os.environ.get("SIGNING_PASSWORD", "")
+
+          print(f"SIGNING_KEY_ID set={bool(key_id)} length={len(key_id)}")
+          print(f"SIGNING_PASSWORD set={bool(password)} length={len(password)}")
+          print(f"SIGNING_KEY set={bool(raw_key)} length={len(raw_key)}")
+
+          if raw_key.lstrip().startswith("-----BEGIN"):
+              normalized_key = raw_key.replace("\\n", "\n")
+              source = "armored"
+          elif "\\n" in raw_key:
+              normalized_key = raw_key.replace("\\n", "\n")
+              source = "escaped_newlines"
+          else:
+              try:
+                  normalized_key = base64.b64decode(raw_key.strip()).decode("utf-8")
+                  source = "base64"
+              except Exception:
+                  normalized_key = raw_key
+                  source = "raw"
+
+          print(f"SIGNING_KEY source={source} normalized_length={len(normalized_key)}")
+          print(f"SIGNING_KEY armored={'BEGIN PGP PRIVATE KEY BLOCK' in normalized_key}")
+          PY
+
+      - name: Publish to Central Portal
+        run: >
+          ./gradlew publishAggregationToCentralPortal
+          --no-daemon
+          --no-configuration-cache
+          --no-build-cache
+          --stacktrace
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+  github-release:
+    name: Create GitHub Release
+    needs: [resolve-version, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve-version.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Extract CHANGELOG section
+        id: notes
+        shell: bash
+        env:
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          NOTES_FILE="$(mktemp)"
+          awk -v ver="$VERSION" '
+            BEGIN { inblock=0 }
+            /^## \[/ {
+              if (inblock) exit
+              if (index($0, "[" ver "]") > 0) { inblock=1; next }
+            }
+            inblock { print }
+          ' CHANGELOG.md > "$NOTES_FILE"
+
+          if [[ ! -s "$NOTES_FILE" ]]; then
+            echo "::warning::No CHANGELOG section found for $VERSION. Using fallback notes."
+            printf "Release %s\n\nSee [CHANGELOG.md](./CHANGELOG.md) for details.\n" "$VERSION" > "$NOTES_FILE"
+          fi
+
+          echo "notes_file=$NOTES_FILE" >> "$GITHUB_OUTPUT"
+          echo "--- Release notes preview ---"
+          head -40 "$NOTES_FILE"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+          NOTES_FILE: ${{ steps.notes.outputs.notes_file }}
+        run: |
+          set -euo pipefail
+          PRERELEASE_FLAG=""
+          if [[ "$VERSION" =~ -(RC|Beta|Alpha|M) ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file "$NOTES_FILE" \
+            $PRERELEASE_FLAG
