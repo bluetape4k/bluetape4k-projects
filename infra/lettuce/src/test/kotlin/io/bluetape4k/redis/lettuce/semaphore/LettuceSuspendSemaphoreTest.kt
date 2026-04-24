@@ -5,6 +5,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -21,21 +22,20 @@ import kotlin.time.Duration.Companion.milliseconds
 class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
-        private const val TOTAL_PERMITS = 3
+        const val TOTAL_PERMITS = 3
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client) }
     }
 
     private lateinit var semaphore: LettuceSemaphore
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client)
         semaphore = LettuceSemaphore(connection, randomName(), totalPermits = TOTAL_PERMITS)
         semaphore.initialize()
     }
 
     @Test
     fun `constructor rejects non positive totalPermits`() {
-        val connection = LettuceClients.connect(client)
         assertThrows<IllegalArgumentException> {
             LettuceSuspendSemaphore(connection, randomName(), totalPermits = 0)
         }
@@ -47,7 +47,7 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `tryAcquireSuspending - 허가 획득 성공`() = runSuspendIO {
         val suspendSemaphore =
-            LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
+            LettuceSuspendSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
         suspendSemaphore.tryAcquire().shouldBeTrue()
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS - 1
         suspendSemaphore.release()
@@ -57,7 +57,7 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `acquireSuspending and releaseSuspending`() = runSuspendIO {
         val suspendSemaphore =
-            LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
+            LettuceSuspendSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
         suspendSemaphore.acquire(1, waitTime = Duration.ofSeconds(2))
         semaphore.availablePermits() shouldBeEqualTo TOTAL_PERMITS - 1
         suspendSemaphore.release()
@@ -70,7 +70,7 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
 
         val jobs = List(10) {
             async {
-                val s = LettuceSuspendSemaphore(LettuceClients.connect(client), semaphore.semaphoreKey, TOTAL_PERMITS)
+                val s = LettuceSuspendSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
                     acquired.incrementAndGet()
                     delay(50.milliseconds)
@@ -90,7 +90,6 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 acquire release 안정성`() = runSuspendIO {
-        val connection = LettuceClients.connect(client)
         val acquired = AtomicInteger(0)
 
         SuspendedJobTester()
@@ -111,7 +110,6 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 허가 수 제한 검증`() = runSuspendIO {
-        val connection = LettuceClients.connect(client)
         val concurrent = AtomicInteger(0)
         val maxConcurrent = AtomicInteger(0)
 

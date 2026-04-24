@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.map
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -16,13 +17,14 @@ import org.junit.jupiter.api.Test
 
 class LettuceMapTest: AbstractLettuceTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    }
 
     private lateinit var map: LettuceMap<String>
 
     @BeforeEach
     fun setup() {
-        val connection = LettuceClients.connect(client, StringCodec.UTF8)
         map = LettuceMap(connection, randomName())
     }
 
