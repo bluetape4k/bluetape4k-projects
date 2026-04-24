@@ -96,7 +96,10 @@ class CaffeineResilientLocalJCache<K: Any, V: Any>(
 
     override fun clear() = cache.invalidateAll()
 
-    override fun estimatedSize(): Long = cache.estimatedSize()
+    override fun estimatedSize(): Long {
+        cache.cleanUp()
+        return cache.estimatedSize()
+    }
 
     override fun stats(): CacheStats? = cache.stats().takeIf { it.requestCount() > 0 || it.hitCount() > 0 }
 
