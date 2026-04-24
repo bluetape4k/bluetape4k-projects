@@ -1,7 +1,5 @@
 package io.bluetape4k.http.benchmark
 
-import io.bluetape4k.http.ahc.asyncHttpClient
-import io.bluetape4k.http.ahc.executeSuspending
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.jdk.sendAwait
@@ -72,7 +70,6 @@ open class HttpClientLatencyBenchmark {
     private lateinit var hc5Classic: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
-    private lateinit var ahcOptimizedClient: org.asynchttpclient.AsyncHttpClient
     private lateinit var vertx: Vertx
     private lateinit var vertxWebClient: WebClient
 
@@ -137,15 +134,6 @@ open class HttpClientLatencyBenchmark {
             .build()
             .also { it.start() }
 
-        ahcOptimizedClient = asyncHttpClient {
-            setConnectTimeout(5_000)
-            setRequestTimeout(10_000)
-            setMaxConnectionsPerHost(connPerHost)
-            setMaxConnections(connPerHost)
-            setKeepAlive(true)
-            setTcpNoDelay(true)
-        }
-
         vertx = Vertx.vertx()
         vertxWebClient = WebClient.create(
             vertx,
@@ -161,7 +149,6 @@ open class HttpClientLatencyBenchmark {
     fun teardown() {
         runCatching { vertxWebClient.close() }
         runCatching { runBlocking { vertx.close().coAwait() } }
-        runCatching { ahcOptimizedClient.close() }
         runCatching { hc5Async.close() }
         runCatching { hc5Classic.close() }
         runCatching { hc5ClassicVt.close() }
@@ -249,11 +236,6 @@ open class HttpClientLatencyBenchmark {
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.IO) {
         val request = SimpleRequestBuilder.get(delayUrl).build()
         hc5Async.executeSuspending(request).code
-    }
-
-    @Benchmark
-    fun ahcOptimizedCoroutines(): Int = runBlocking(Dispatchers.IO) {
-        ahcOptimizedClient.prepareGet(delayUrl).executeSuspending().statusCode
     }
 
     @Benchmark

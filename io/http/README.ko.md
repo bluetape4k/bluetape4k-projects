@@ -6,7 +6,7 @@
 
 `bluetape4k-http`는 다양한 HTTP 클라이언트 라이브러리를 Kotlin 확장 함수와 DSL로 통합하여 제공하는 모듈입니다.
 
-Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, AsyncHttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
+Apache HttpComponents 5, OkHttp3, Vert.x HttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
 
 ## 아키텍처
 
@@ -21,7 +21,7 @@ flowchart TD
 
     subgraph bluetape4k-http
         EXT[executeSuspending\n확장 함수]
-        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / asyncHttpClientOf]
+        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf]
     end
 
     subgraph Backends["HTTP 클라이언트 백엔드"]
@@ -29,7 +29,6 @@ flowchart TD
         HC5C[HC5 Classic\nhttpClient]
         HC5CA[HC5 캐싱\ncachingHttpAsyncClient]
         OKH[OkHttp3\nokhttp3Client]
-        AHC[AsyncHttpClient\nasyncHttpClientOf]
         VTX[Vert.x HttpClient\nvertxHttpClientOf]
     end
 
@@ -40,13 +39,11 @@ flowchart TD
     DSL --> HC5C
     DSL --> HC5CA
     DSL --> OKH
-    DSL --> AHC
     DSL --> VTX
     HC5A --> SERVER[(HTTP 서버)]
     HC5C --> SERVER
     HC5CA --> SERVER
     OKH --> SERVER
-    AHC --> SERVER
     VTX --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
@@ -58,7 +55,7 @@ flowchart TD
     class APP coreStyle
     class CO asyncStyle
     class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,AHC,VTX serviceStyle
+    class HC5A,HC5C,HC5CA,OKH,VTX serviceStyle
     class SERVER extStyle
 ```
 
@@ -299,22 +296,6 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
-### 4. AsyncHttpClient (AHC)
-
-Netty 기반의 AsyncHttpClient를 Kotlin Coroutines로 래핑합니다.
-
-```kotlin
-import io.bluetape4k.http.ahc.*
-
-val client = asyncHttpClientOf {
-    setMaxConnections(100)
-    setMaxConnectionsPerHost(10)
-}
-
-// Coroutines 환경에서 비동기 요청
-val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
-```
-
 ## HTTP 클라이언트 비교
 
 | 클라이언트             | 프로토콜             | 특성                    | 용도            |
@@ -323,7 +304,6 @@ val response = client.prepareGet("https://httpbin.org/get").executeSuspending()
 | HC5 Async         | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합    | 고성능 비동기 통신    |
 | OkHttp3           | HTTP/1.1, HTTP/2 | 경량, Virtual Thread 기본 | 범용 HTTP 클라이언트 |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | 이벤트 루프 기반             | Vert.x 생태계 통합 |
-| AsyncHttpClient   | HTTP/1.1, HTTP/2 | Netty 기반, 고성능         | 대량 비동기 요청     |
 
 ## 성능 벤치마크
 
@@ -358,7 +338,6 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 | HC5 Classic VirtualThread | 동기 | VT 기반 커넥션 매니저 |
 | HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
 | HC5 Async Coroutines | 비동기 | `executeSuspending()` |
-| AsyncHttpClient Coroutines | 비동기 | Netty 기반 |
 | Vert.x WebClient Coroutines | 비동기 | 이벤트 루프 |
 
 > **참고**: 지연 없는 경량 응답이므로 동기/비동기 방식 모두 유사한 처리량을 냅니다.
@@ -383,7 +362,6 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 | HC5 Classic VirtualThread | 동기 | — |
 | HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
 | HC5 Async Coroutines | 비동기 | `executeSuspending()` |
-| AsyncHttpClient Coroutines | 비동기 | — |
 | Vert.x WebClient Coroutines | 비동기 | — |
 
 ### 3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과
@@ -422,7 +400,7 @@ bar
 | 반복 GET + 캐시 최우선 | HC5 CachingHttpClient (MemCache) |
 | 재시작 후 캐시 유지 필요 | OkHttp3 + DiskLruCache |
 | 범용 고성능 (캐시 불필요) | HC5 Classic VirtualThread 또는 OkHttp3 |
-| 고지연 비동기 대량 요청 | HC5 Async Coroutines 또는 AsyncHttpClient |
+| 고지연 비동기 대량 요청 | HC5 Async Coroutines 또는 Vert.x WebClient |
 
 ## Coroutines 지원
 
@@ -464,9 +442,6 @@ io.bluetape4k.http
 │   ├── CachingRequestInterceptor.kt
 │   ├── CachingResponseInterceptor.kt
 │   └── mock/               # MockWebServer 유틸리티
-├── ahc/                    # AsyncHttpClient
-│   ├── AsyncHttpClientSupport.kt
-│   └── CoroutineSupport.kt
 └── vertx/                  # Vert.x HttpClient
     └── VertxHttpClientSupport.kt
 ```
@@ -479,7 +454,6 @@ dependencies {
 
     // 선택적 의존성 (필요한 것만 추가)
     implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("org.asynchttpclient:async-http-client")  // AsyncHttpClient
     implementation("io.vertx:vertx-core")                    // Vert.x
 }
 ```
@@ -496,5 +470,4 @@ dependencies {
 - [Apache HttpComponents 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Vert.x HttpClient](https://vertx.io/docs/vertx-core/kotlin/)
-- [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client)
 - [httpbin.org](https://httpbin.org/) - HTTP 테스트용 API

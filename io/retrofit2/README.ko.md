@@ -6,7 +6,7 @@
 
 `bluetape4k-retrofit2`는 [Retrofit2](https://square.github.io/retrofit/)를 Kotlin DSL과 Coroutines로 확장하여 제공하는 모듈입니다.
 
-OkHttp 기본 전송 외에 Apache HC5, Vert.x, AsyncHttpClient 등 다양한 HTTP 전송 계층을 지원하며, Kotlin
+OkHttp 기본 전송 외에 Apache HC5, Vert.x 등 다양한 HTTP 전송 계층을 지원하며, Kotlin
 `Result` 타입 기반의 에러 핸들링과 Reactive Streams 어댑터를 자동 감지하여 등록합니다.
 
 ## 아키텍처
@@ -31,7 +31,6 @@ flowchart TD
         OKH[OkHttpClient\n기본값]
         HC5[Hc5CallFactory\nApache HC5]
         VTX[VertxCallFactory\nVert.x]
-        AHC[AhcCallFactory\nAsyncHttpClient]
     end
 
     subgraph Converter["Converter Factory"]
@@ -49,7 +48,6 @@ flowchart TD
     OKH --> SERVER[(HTTP 서버)]
     HC5 --> SERVER
     VTX --> SERVER
-    AHC --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
     classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
@@ -58,7 +56,7 @@ flowchart TD
 
     class APP,API coreStyle
     class RB,RCA,RC serviceStyle
-    class OKH,HC5,VTX,AHC asyncStyle
+    class OKH,HC5,VTX asyncStyle
     class JCF,SCF utilStyle
     class RX utilStyle
 ```
@@ -100,16 +98,11 @@ classDiagram
         +newCall(request) Call
     }
 
-    class AhcCallFactory {
-        +newCall(request) Call
-    }
-
     CallAdapter <|.. ResultCallAdapterFactory
     ResultCallAdapterFactory ..> ResultCall : 생성
     Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
     Retrofit --> Hc5CallFactory : callFactory
     Retrofit --> VertxCallFactory : callFactory
-    Retrofit --> AhcCallFactory : callFactory
 
     style Retrofit fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
     style CallAdapter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
@@ -117,7 +110,6 @@ classDiagram
     style ResultCall fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style Hc5CallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style VertxCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style AhcCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
 ```
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
@@ -235,7 +227,6 @@ OkHttp3 외에 다양한 HTTP 클라이언트를 `Call.Factory`로 사용할 수
 | OkHttpClient (기본) | OkHttp3                 | 경량, HTTP/2, 범용      |
 | Hc5CallFactory    | Apache HttpComponents 5 | 풍부한 설정, 엔터프라이즈 환경   |
 | VertxCallFactory  | Vert.x                  | 이벤트 루프 기반, 고성능      |
-| AhcCallFactory    | AsyncHttpClient         | Netty 기반, 대량 비동기 요청 |
 
 ```kotlin
 // Apache HC5 기반 Retrofit
@@ -338,8 +329,6 @@ io.bluetape4k.retrofit2
     ├── vertx/                       # Vert.x CallFactory
     │   ├── VertxCallFactory.kt
     │   └── VertxOkHttp3Support.kt
-    └── ahc/                         # AsyncHttpClient CallFactory
-        └── AhcCallFactorySupport.kt
 ```
 
 ## 의존성

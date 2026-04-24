@@ -48,7 +48,6 @@ dependencies {
     implementation(Libs.retrofit2_converter_jackson)
     implementation(Libs.okhttp3)
 
-    implementation(Libs.async_http_client_extras_retrofit2)
 
     // Jackson 2
     implementation(project(":bluetape4k-jackson2"))

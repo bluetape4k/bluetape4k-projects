@@ -48,11 +48,6 @@ dependencies {
     compileOnly(Libs.vertx_lang_kotlin)
     compileOnly(Libs.vertx_lang_kotlin_coroutines)
 
-    // Apache AsyncHttpClient
-    compileOnly(Libs.async_http_client)
-    compileOnly(Libs.async_http_client_extras_retrofit2)
-    compileOnly(Libs.async_http_client_extras_rxjava2)
-
     // Jackson
     api(project(":bluetape4k-jackson2"))
     api(Libs.jackson_core)
