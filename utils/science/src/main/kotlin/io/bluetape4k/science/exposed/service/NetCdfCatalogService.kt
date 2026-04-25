@@ -286,13 +286,14 @@ class NetCdfCatalogService(
     private fun importRank2(ctx: ImportContext, ncd: NetcdfDataset, startSliceIdx: Long) {
         if (startSliceIdx > 0L) return  // 단일 슬라이스
 
+        // CoordinateReprojector.from 내부에서 latDim/lonDim 검증되므로 not-null 단정 (M4)
         val reprojector = CoordinateReprojector.from(ctx.variable, ncd, ctx.axisMap)
         val origin = IntArray(2)
         val shape = ctx.variable.shape
         val data = ctx.variable.read(origin, shape)
 
-        val latDim = ctx.axisMap.latDim ?: throw NetCdfException.MissingCoordinate("lat")
-        val lonDim = ctx.axisMap.lonDim ?: throw NetCdfException.MissingCoordinate("lon")
+        val latDim = checkNotNull(ctx.axisMap.latDim) { "axisMap.latDim must not be null after CoordinateReprojector.from" }
+        val lonDim = checkNotNull(ctx.axisMap.lonDim) { "axisMap.lonDim must not be null after CoordinateReprojector.from" }
         val latN = shape[latDim]
         val lonN = shape[lonDim]
 
@@ -331,6 +332,11 @@ class NetCdfCatalogService(
                 dims[lonDim] = lonN
             }
             val data = ctx.variable.read(origin, sliceShape)
+            slicesSinceHeartbeat++
+            // heartbeat throttle: 마지막 슬라이스 또는 N 슬라이스마다 또는 30초 경과 시 lease 갱신
+            val shouldRenew = (t == timeN - 1) ||
+                slicesSinceHeartbeat >= HEARTBEAT_EVERY_SLICES ||
+                Duration.between(lastHeartbeat, Instant.now()) >= HEARTBEAT_INTERVAL
             importSlice2D(
                 ctx = ctx,
                 data = data,
@@ -340,11 +346,9 @@ class NetCdfCatalogService(
                 timeIdxValue = t,
                 levelIdxValue = 0,
                 sliceIdx = t.toLong(),
+                renewProgress = shouldRenew,
             )
-            slicesSinceHeartbeat++
-            if (slicesSinceHeartbeat >= HEARTBEAT_EVERY_SLICES ||
-                Duration.between(lastHeartbeat, Instant.now()) >= HEARTBEAT_INTERVAL
-            ) {
+            if (shouldRenew) {
                 lastHeartbeat = Instant.now()
                 slicesSinceHeartbeat = 0
             }
@@ -384,6 +388,11 @@ class NetCdfCatalogService(
                 dims[lonDim] = lonN
             }
             val data = ctx.variable.read(origin, sliceShape)
+            slicesSinceHeartbeat++
+            val isLast = sliceIdx == totalSlices - 1L
+            val shouldRenew = isLast ||
+                slicesSinceHeartbeat >= HEARTBEAT_EVERY_SLICES ||
+                Duration.between(lastHeartbeat, Instant.now()) >= HEARTBEAT_INTERVAL
             importSlice2D(
                 ctx = ctx,
                 data = data,
@@ -393,11 +402,9 @@ class NetCdfCatalogService(
                 timeIdxValue = t,
                 levelIdxValue = l,
                 sliceIdx = sliceIdx,
+                renewProgress = shouldRenew,
             )
-            slicesSinceHeartbeat++
-            if (slicesSinceHeartbeat >= HEARTBEAT_EVERY_SLICES ||
-                Duration.between(lastHeartbeat, Instant.now()) >= HEARTBEAT_INTERVAL
-            ) {
+            if (shouldRenew) {
                 lastHeartbeat = Instant.now()
                 slicesSinceHeartbeat = 0
             }
@@ -419,6 +426,7 @@ class NetCdfCatalogService(
         timeIdxValue: Int,
         levelIdxValue: Int,
         sliceIdx: Long,
+        renewProgress: Boolean = true,
     ): Pair<Int, Int> {
         var inserted = 0
         var skipped = 0
@@ -432,8 +440,7 @@ class NetCdfCatalogService(
 
         transaction {
             val conn = connection.connection as java.sql.Connection
-            val ps = conn.prepareStatement(sql)
-            try {
+            conn.prepareStatement(sql).use { ps ->
                 val iter = data.indexIterator
                 for (i in 0 until latN) {
                     for (j in 0 until lonN) {
@@ -456,10 +463,10 @@ class NetCdfCatalogService(
                     }
                 }
                 ps.executeBatch()
-            } finally {
-                ps.close()
             }
-            progressRepo.renewLease(ctx.progressId, lastSliceIdx = sliceIdx, leaseTtl = LEASE_TTL)
+            if (renewProgress) {
+                progressRepo.renewLease(ctx.progressId, lastSliceIdx = sliceIdx, leaseTtl = LEASE_TTL)
+            }
         }
 
         sliceTimer?.let { sampler ->
@@ -486,10 +493,17 @@ class NetCdfCatalogService(
 
     /**
      * NaN / `_FillValue` 일치 시 missing 으로 판정.
+     *
+     * `_FillValue` 가 Float 인 경우 Double 변환 시 LSB 차이로 strict equality 가 실패할 수 있어
+     * 절대 오차 (`abs(raw - fillValue) <= max(|fillValue|, 1) * 1e-7`) 로 비교한다 (M1).
+     * Float 의 7 자리 정밀도를 고려한 허용 오차.
      */
     private fun isMissing(raw: Double, fillValue: Double?): Boolean {
         if (raw.isNaN()) return true
-        if (fillValue != null && raw == fillValue) return true
+        if (fillValue != null) {
+            val tolerance = kotlin.math.max(kotlin.math.abs(fillValue), 1.0) * 1e-7
+            if (kotlin.math.abs(raw - fillValue) <= tolerance) return true
+        }
         return false
     }
 

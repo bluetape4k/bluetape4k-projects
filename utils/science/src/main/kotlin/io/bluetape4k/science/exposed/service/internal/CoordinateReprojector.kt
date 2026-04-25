@@ -72,6 +72,10 @@ internal sealed class CoordinateReprojector {
         /** EPSG:4326 (WGS84) — 모든 재투영의 target. */
         const val WGS84: String = "EPSG:4326"
 
+        /** proj4j factory — thread-safe, 내부 EPSG hsql DB 캐시 활용 위해 재사용 (M2). */
+        private val crsFactory: CRSFactory = CRSFactory()
+        private val transformFactory: CoordinateTransformFactory = CoordinateTransformFactory()
+
         /**
          * 화이트리스트된 source CRS (proj4j-epsg 가 해석 가능한 EPSG 코드).
          *
@@ -171,14 +175,13 @@ internal sealed class CoordinateReprojector {
             lonAxis: CoordinateAxis1D,
             srcCrs: String,
         ): Projected {
-            val crsFactory = CRSFactory()
             val sourceCrsObj = try {
                 crsFactory.createFromName(srcCrs)
             } catch (e: Exception) {
                 throw NetCdfException.UnsupportedProjection(srcCrs, e)
             }
             val targetCrsObj = crsFactory.createFromName(WGS84)
-            val transform = CoordinateTransformFactory().createTransform(sourceCrsObj, targetCrsObj)
+            val transform = transformFactory.createTransform(sourceCrsObj, targetCrsObj)
 
             val latN = latAxis.size.toInt()
             val lonN = lonAxis.size.toInt()
