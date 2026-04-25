@@ -102,7 +102,7 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 | 7 | `ExposedJdbcBatchWriter` | duplicate key (ON CONFLICT 동작) | Medium |
 | 8 | `ExposedR2dbcBatchReader/Writer` | 동일 edge cases (R2DBC 측) | Medium |
 | 9 | `ResultRowMappers` | nullable column, type coercion, missing column | High |
-| 10 | `SkipPolicy` | `LimitedSkipPolicy` 카운트 누적 / 초기화 | High |
+| 10 | `SkipPolicy` | `SkipPolicy.maxSkips(n)` 카운트 누적 / 경계값 (`NONE`, `ALL`) | High |
 | 11 | `BatchJobBuilder` / `BatchStepBuilder` | step 여러 개 조합, retryPolicy/skipPolicy/commitTimeout 결합 | Medium |
 | 12 | `CheckpointJson` | malformed JSON, missing fields, 버전 불일치 | Medium |
 
@@ -259,7 +259,8 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 
 | 테스트 함수 | 대상 시나리오 |
 |--------------|----------------|
-| `writer timeout 시 step status 는 FAILED (WriteTimeoutException 은 내부 흡수됨)` | timeout — BatchStepRunner:208 기준 |
+| `writer timeout, retry=0, skipPolicy=NONE → step status FAILED` | timeout + retry 소진 경로 (BatchStepRunner:148) |
+| `writer timeout, skipPolicy=maxSkips(≥chunkSize) → COMPLETED_WITH_SKIPS` | timeout + skip 허용 경로 |
 | `coroutine cancellation 시 commit 후 종료` | graceful shutdown |
 | `cancel 후 step status 는 STOPPED` | 상태 전이 |
 
@@ -269,7 +270,7 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 |--------------|----------------|
 | `checkpoint 에서 재시작 시 lastOffset 부터 처리` | resume |
 | `checkpoint 가 chunk 단위로 갱신` | 저장 |
-| `checkpoint 저장 실패 시 step 은 계속 진행 (경고 로그)` | 실제 동작: saveCheckpoint 실패는 삼켜짐 |
+| `saveCheckpoint 실패 시 retry → skipPolicy 평가 → 소진 시 FAILED` | 실제 동작: catch(Throwable) → retry/skip 루프 (BatchStepRunner:148) |
 
 ### 5.5 신규 파일: `jdbc/tables/ResultRowMappersTest.kt`
 
