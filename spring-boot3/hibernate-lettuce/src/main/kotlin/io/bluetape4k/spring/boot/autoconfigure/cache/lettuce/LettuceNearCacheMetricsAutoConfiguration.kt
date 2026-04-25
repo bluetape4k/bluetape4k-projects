@@ -3,10 +3,13 @@ package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 import io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
 import io.micrometer.core.instrument.MeterRegistry
 import jakarta.persistence.EntityManagerFactory
+import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 
@@ -25,7 +28,14 @@ import org.springframework.context.annotation.Bean
  * // lettuce.nearcache.total.local.size — 전체 Caffeine 캐시 항목 수 (Gauge)
  * ```
  */
-@AutoConfiguration(after = [LettuceNearCacheHibernateAutoConfiguration::class])
+@AutoConfiguration(
+    after = [
+        LettuceNearCacheHibernateAutoConfiguration::class,
+        HibernateJpaAutoConfiguration::class,
+        MetricsAutoConfiguration::class,
+        CompositeMeterRegistryAutoConfiguration::class,
+    ]
+)
 @ConditionalOnClass(LettuceNearCacheRegionFactory::class, EntityManagerFactory::class, MeterRegistry::class)
 @ConditionalOnBean(EntityManagerFactory::class, MeterRegistry::class)
 @ConditionalOnProperty(

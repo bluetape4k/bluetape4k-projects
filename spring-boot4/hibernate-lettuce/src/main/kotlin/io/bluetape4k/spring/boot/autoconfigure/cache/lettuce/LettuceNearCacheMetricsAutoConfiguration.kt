@@ -8,6 +8,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
+import org.springframework.boot.micrometer.metrics.autoconfigure.CompositeMeterRegistryAutoConfiguration
+import org.springframework.boot.micrometer.metrics.autoconfigure.MetricsAutoConfiguration
 import org.springframework.context.annotation.Bean
 
 /**
@@ -33,7 +36,14 @@ import org.springframework.context.annotation.Bean
  * meterRegistry.find("lettuce.nearcache.active.regions").gauge()?.value() // 예: 3.0
  * ```
  */
-@AutoConfiguration(after = [LettuceNearCacheHibernateAutoConfiguration::class])
+@AutoConfiguration(
+    after = [
+        LettuceNearCacheHibernateAutoConfiguration::class,
+        HibernateJpaAutoConfiguration::class,
+        MetricsAutoConfiguration::class,
+        CompositeMeterRegistryAutoConfiguration::class,
+    ]
+)
 @ConditionalOnClass(LettuceNearCacheRegionFactory::class, EntityManagerFactory::class, MeterRegistry::class)
 @ConditionalOnBean(EntityManagerFactory::class, MeterRegistry::class)
 @ConditionalOnProperty(
