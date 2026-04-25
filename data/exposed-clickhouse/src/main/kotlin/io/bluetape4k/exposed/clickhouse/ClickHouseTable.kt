@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.clickhouse
 
 import io.bluetape4k.exposed.clickhouse.engine.ClickHouseEngine
 import io.bluetape4k.exposed.clickhouse.engine.mergeTree
+import io.bluetape4k.logging.KLogging
 import org.jetbrains.exposed.v1.core.Table
 
 /**
@@ -21,6 +22,8 @@ abstract class ClickHouseTable(
     name: String = "",
     val engine: ClickHouseEngine = mergeTree { orderBy("id") },
 ): Table(name) {
+
+    companion object: KLogging()
 
     override fun createStatement(): List<String> =
         super.createStatement()
