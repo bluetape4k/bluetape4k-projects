@@ -179,18 +179,24 @@
 
 ### 6.1 data 계층
 
-- [ ] **exposed-oracle** — Oracle JDBC dialect 지원 (기업 수요)
-- [ ] **exposed-sqlserver** — SQL Server 지원
-- [ ] **exposed-clickhouse** — ClickHouse 분석 DB 지원
-- [ ] **exposed-mariadb** — MariaDB 전용 dialect (MySQL8과 분리)
+> **참고**: Exposed는 Oracle, SQL Server, MariaDB를 공식 지원 (`OracleDialect`, `SQLServerDialect`, `MariaDBDialect` 내장).
+> bluetape4k에서 필요한 것은 **ClickHouse 전용 dialect** 구현임.
+
+- [ ] **exposed-clickhouse** — ClickHouse OLAP 분석 DB Exposed Dialect 구현
+  - Issue: [#145](https://github.com/bluetape4k/bluetape4k-projects/issues/145)
+  - MergeTree ENGINE DDL DSL, UInt/DateTime64/LowCardinality 타입
+  - `toYYYYMM()`, `uniq()`, `argMax()`, `quantile()` 등 ClickHouse 특화 함수
+  - PostgreSQL 대비 집계 쿼리 10~100× 속도 향상, 초당 수백만 행 수집 가능
+  - Trino 대비: 단일 컨테이너 운영, Kotlin DSL 직접 통합, 실시간 수집 지원
 
 #### 참고 자료
 - [JetBrains Exposed GitHub](https://github.com/JetBrains/Exposed)
-- [Exposed 방언 구현 예시 (MySQL/Oracle)](https://github.com/JetBrains/Exposed/tree/main/exposed-core/src/main/kotlin/org/jetbrains/exposed/sql/vendors)
-- [ClickHouse JDBC 드라이버](https://github.com/ClickHouse/clickhouse-java)
+- [Exposed 공식 지원 DB 목록 (Oracle/SQLServer/MariaDB 포함)](https://github.com/JetBrains/Exposed/tree/main/exposed-core/src/main/kotlin/org/jetbrains/exposed/sql/vendors)
 - [ClickHouse 공식 문서](https://clickhouse.com/docs/)
-- [Oracle JDBC 드라이버 (ojdbc)](https://www.oracle.com/database/technologies/jdbc.html)
-- [Microsoft SQL Server JDBC](https://learn.microsoft.com/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server)
+- [ClickHouse JDBC 드라이버 (clickhouse-java)](https://github.com/ClickHouse/clickhouse-java)
+- [ClickHouse MergeTree 엔진](https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree)
+- [ClickHouse 성능 벤치마크](https://clickhouse.com/docs/concepts/why-clickhouse-is-so-fast)
+- [Testcontainers ClickHouse 모듈](https://java.testcontainers.org/modules/clickhouse/)
 
 ### 6.2 infra 계층
 
