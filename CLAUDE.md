@@ -97,6 +97,8 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 
 Verify every item before running `gh pr create`:
 
+- [ ] **로컬 테스트 전수 통과**: `./gradlew :<module>:test` 실행 결과 전달 (passing count + duration)
+- [ ] **Code review 실행**: commit/push/PR 생성 전 `oh-my-claudecode:code-reviewer` (또는 `pr-review-toolkit:code-reviewer`) 에이전트 실행 → HIGH/CRITICAL 이슈 해소 확인
 - [ ] All tests pass for changed modules (CI verifies automatically)
 - [ ] PR description includes test results, fix rationale, and verification commands in detail
 - [ ] `README.md` **and** `README.ko.md` updated for every changed module

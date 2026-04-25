@@ -14,8 +14,13 @@
 
 ## 테스트
 
-- [ ] 관련 테스트 실행 및 통과 확인
+- [ ] **로컬 테스트 실행 결과 명시** (예: `./gradlew :module:test` → N passing, 소요 시간)
 - [ ] `docs/testlogs/YYYY-MM.md` 에 결과 기록 (doc-only 변경 제외)
+
+## Code Review
+
+- [ ] **Code review 에이전트 실행 완료** (`oh-my-claudecode:code-reviewer` 또는 `pr-review-toolkit:code-reviewer`) — HIGH/CRITICAL 이슈 모두 해소
+- [ ] CodeRabbit 리뷰 확인 후 머지
 
 ## 체크리스트
 
@@ -26,4 +31,3 @@
   `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
 - [ ] superpowers 작업인 경우 `docs/superpowers/index/YYYY-MM.md` 업데이트
 - [ ] `virtualthread/api` 변경 시 `jdk21` + `jdk25` 동시 반영
-- [ ] CodeRabbit 리뷰 확인 후 머지
