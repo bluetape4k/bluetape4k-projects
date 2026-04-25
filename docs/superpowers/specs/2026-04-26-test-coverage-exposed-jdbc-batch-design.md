@@ -150,8 +150,8 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 
 ### 3.3 멀티-DB 테스트 전략
 
-- exposed-jdbc 는 **H2 / H2_MYSQL / MYSQL_V8 / POSTGRESQL** 4개 조합으로 `@ParameterizedTest` (`TestDB::class`) 적용. 실제 enum 이름은 `MYSQL_V8` (또한 `MYSQL_V5`, `H2_PSQL`, `H2_MARIADB` 등 존재).
-- DB 의존적 동작 (`batchUpsert`, `batchInsert` with returning, `deleteIgnoreWhere`, isolation level) 은 **반드시 4 DB 전수**.
+- exposed-jdbc 는 **H2 / POSTGRESQL / MYSQL_V8** 3개 조합으로 `@ParameterizedTest` (`TestDB::class`) 적용. `H2_MYSQL` 은 방언 호환성 테스트 전용, 커버리지 목적 기본 매트릭스는 3개.
+- DB 의존적 동작 (`batchUpsert`, `batchInsert` with returning, `deleteIgnoreWhere`, isolation level) 은 **H2 / POSTGRESQL / MYSQL_V8 3개 전수**.
 - DB 무관 로직 (`countBy`, `existsBy`, `existsById`, `isEmpty`) 은 **H2 단독 또는 H2 + POSTGRESQL** 2개로 충분.
 - batch 모듈 jdbc 는 H2 우선 검증 후 PostgreSQL 통합 (`AbstractBatchJdbcTest` 패턴 활용).
 - 활성 DB 집합 기본값은 `TestDB.enabledDialects()` = `{H2, POSTGRESQL, MYSQL_V8}` (useFastDB=true 시 `{H2}`).
@@ -242,24 +242,24 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 
 | 테스트 함수 | 대상 시나리오 |
 |--------------|----------------|
-| `retry policy 가 maxAttempts 도달까지 재시도한다` | retry 동작 |
-| `retry policy 의 exponential backoff 가 적용된다` | 가상 시간 기반 |
+| `retry policy 가 maxAttempts 도달까지 재시도한다` | fake writer 호출 횟수로 검증 (StepReport에 retryAttempts 필드 없음) |
+| `retry policy 의 exponential backoff 가 적용된다` | 가상 시간(`TestCoroutineScheduler`) 기반 |
 | `retry 후 최종 실패 시 step status 는 FAILED` | 실패 종료 |
-| `retry 성공 시 attempts 카운트가 step report 에 기록` | 메트릭 |
+| `retry 성공 (N번째 시도) 시 writeCount 는 정상` | writeCount 로 성공 검증 |
 
 ### 5.2 신규 파일: `core/BatchStepRunnerSkipTest.kt`
 
 | 테스트 함수 | 대상 시나리오 |
 |--------------|----------------|
-| `LimitedSkipPolicy 는 임계치 도달 시 step fail` | skip 임계 |
-| `skip 카운트가 step report 에 누적된다` | 메트릭 |
+| `maxSkips(n) 초과 시 step status 는 FAILED` | `SkipPolicy.maxSkips(n)` 임계 초과 |
+| `skip 카운트가 step report 에 누적된다` | `skipCount` 메트릭 |
 | `processor 예외 시 reader 는 영향받지 않는다` | error isolation |
 
 ### 5.3 신규 파일: `core/BatchStepRunnerTimeoutTest.kt`
 
 | 테스트 함수 | 대상 시나리오 |
 |--------------|----------------|
-| `writer timeout 시 WriteTimeoutException throw` | timeout |
+| `writer timeout 시 step status 는 FAILED (WriteTimeoutException 은 내부 흡수됨)` | timeout — BatchStepRunner:208 기준 |
 | `coroutine cancellation 시 commit 후 종료` | graceful shutdown |
 | `cancel 후 step status 는 STOPPED` | 상태 전이 |
 
@@ -269,7 +269,7 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 |--------------|----------------|
 | `checkpoint 에서 재시작 시 lastOffset 부터 처리` | resume |
 | `checkpoint 가 chunk 단위로 갱신` | 저장 |
-| `checkpoint 손상(JSON 파싱 실패) 시 처음부터 재시작` | corruption recovery |
+| `checkpoint 저장 실패 시 step 은 계속 진행 (경고 로그)` | 실제 동작: saveCheckpoint 실패는 삼켜짐 |
 
 ### 5.5 신규 파일: `jdbc/tables/ResultRowMappersTest.kt`
 
@@ -283,9 +283,9 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 
 | 테스트 함수 | 대상 시나리오 |
 |--------------|----------------|
-| `LimitedSkipPolicy 는 0 limit 시 즉시 실패` | edge |
-| `SkipPolicy.never 는 어떤 예외도 skip 하지 않음` | 기본 동작 |
-| `SkipPolicy.always 는 모든 예외 skip` | 기본 동작 |
+| `maxSkips(0) 는 어떤 예외도 skip 하지 않음` | `SkipPolicy.maxSkips(0)` edge — 기존 `SkipPolicyTest` 미포함 케이스만 |
+| `NONE 은 shouldSkip 항상 false` | `SkipPolicy.NONE` (기존 테스트 커버 여부 확인 후 중복 시 제외) |
+| `ALL 은 shouldSkip 항상 true` | `SkipPolicy.ALL` (동일) |
 
 ### 5.7 신규 파일: `internal/CheckpointJsonEdgeCaseTest.kt`
 
@@ -304,13 +304,13 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 - `BatchBuilderTest.kt` (또는 `BatchJobBuilderTest.kt` 신설): step 2개 + retryPolicy/skipPolicy/commitTimeout 결합 테스트 1건 추가
 - `BatchStepBuilderTest.kt` (신설): `processor(suspend (I) -> O?)` 람다 오버로드, `chunkSize(0)` 검증 실패 케이스
 - `ExposedJdbcBatchReaderTest.kt`: empty result + partial last chunk 케이스 추가
-- `ExposedJdbcBatchWriterTest.kt`: duplicate key conflict 케이스 추가 (ON CONFLICT)
+- `ExposedJdbcBatchWriterTest.kt`: duplicate key conflict 케이스 추가 — `ignore=false` 시 예외, `ignore=true` 시 무시 (`ExposedJdbcBatchWriter(ignore=true)` 생성자 활용)
 - `ExposedR2dbcBatchReaderTest.kt`: 다음 명시적 테스트 추가
   - `읽을 데이터가 없으면 빈 Flow 반환`
   - `chunkSize 보다 적은 데이터에서 단일 partial chunk 발행`
   - `chunkSize 의 정확한 배수에서 마지막 chunk 가 fullsize`
 - `ExposedR2dbcBatchWriterTest.kt`: 다음 명시적 테스트 추가
-  - `중복 키 INSERT 시 ON CONFLICT 동작 검증`
+  - `중복 키 INSERT 시 예외 발생 (R2DBC writer 는 ignore 옵션 없음, 예외 전파 확인)`
   - `writer 가 trans 종료 후 connection 반환`
   - `빈 chunk 입력 시 즉시 0 반환`
 
