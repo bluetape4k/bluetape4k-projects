@@ -600,4 +600,66 @@ class ActorJdbcRepositoryTest: AbstractExposedTest() {
             page.pageNumber shouldBeEqualTo 9999
         }
     }
+
+    /**
+     * totalCount가 pageSize의 정확한 배수인 경우 마지막 페이지 경계를 검증합니다.
+     *
+     * 총 10개, pageSize=5 → 마지막 페이지(pageNumber=1)는 content 5개, hasNext=false 이어야 합니다.
+     * 다음 페이지(pageNumber=2)는 빈 content 이어야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findPage 의 마지막 페이지 경계 검증 - totalCount 가 pageSize 의 정확한 배수인 경우`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            // 기존 배우를 모두 삭제하고 정확히 10개만 삽입
+            repository.deleteAll()
+            val totalInserted = 10
+            val pageSize = 5
+            repeat(totalInserted) {
+                repository.save(newActorRecord())
+            }
+            repository.count() shouldBeEqualTo totalInserted.toLong()
+
+            // 마지막 페이지 (pageNumber=1, 0-based) 검증
+            val lastPage = repository.findPage(pageNumber = 1, pageSize = pageSize)
+            lastPage.content shouldHaveSize pageSize
+            lastPage.pageNumber shouldBeEqualTo 1
+            lastPage.totalCount shouldBeEqualTo totalInserted.toLong()
+            lastPage.hasNext.shouldBeFalse()
+            lastPage.isLast.shouldBeTrue()
+
+            // 초과 페이지(pageNumber=2)는 빈 content 반환
+            val overPage = repository.findPage(pageNumber = 2, pageSize = pageSize)
+            overPage.content.shouldBeEmpty()
+        }
+    }
+
+    /**
+     * pageNumber가 totalPages 이상이면 빈 content를 반환함을 검증합니다.
+     *
+     * 3개 삽입, pageSize=3 → pageNumber=1 은 빈 content 이어야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `findPage 의 pageNumber 가 totalPages 이상이면 빈 content 를 반환한다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            // 기존 배우를 모두 삭제하고 정확히 3개만 삽입
+            repository.deleteAll()
+            val pageSize = 3
+            repeat(pageSize) {
+                repository.save(newActorRecord())
+            }
+            repository.count() shouldBeEqualTo pageSize.toLong()
+
+            // pageNumber=0 은 content 3개 반환
+            val firstPage = repository.findPage(pageNumber = 0, pageSize = pageSize)
+            firstPage.content shouldHaveSize pageSize
+            firstPage.hasNext.shouldBeFalse()
+
+            // pageNumber=1 (totalPages=1 이상) 은 빈 content 반환
+            val outOfBoundPage = repository.findPage(pageNumber = 1, pageSize = pageSize)
+            outOfBoundPage.content.shouldBeEmpty()
+            outOfBoundPage.pageNumber shouldBeEqualTo 1
+        }
+    }
 }
