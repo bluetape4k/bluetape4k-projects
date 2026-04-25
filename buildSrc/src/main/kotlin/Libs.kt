@@ -1220,10 +1220,10 @@ object Libs {
     const val trino_jdbc = "io.trino:trino-jdbc:475"  // https://mvnrepository.com/artifact/io.trino/trino-jdbc
 
     // === Science / GIS ===
-    // TODO: UCAR CDM 5.x+는 Maven Central에 없음. Unidata 저장소 재구성으로 5.6.0 아티팩트 미존재.
-    // Phase 4 구현 전 정확한 좌표 확인 필요. 현재 사용 불가.
-    // 대안 후보: edu.ucar:cdm-core (CDM6 모듈식), edu.ucar:netcdfAll:5.5.3 (구 Nexus)
-    const val ucar_netcdf = "edu.ucar:netcdfAll:5.6.0"                 // 미사용 — 저장소 이슈
+    // UCAR netCDF-Java — Unidata Nexus 저장소(루트 build.gradle.kts:71)에 이미 선언됨
+    // 2025-09-09 release 기준 Maven 직접 조회 검증 (cdm-core/netcdf4 5.9.1)
+    const val ucar_cdm_core = "edu.ucar:cdm-core:5.9.1"  // CDM API + NetCDF-3 IOSP. https://mvnrepository.com/artifact/edu.ucar/cdm-core
+    const val ucar_netcdf4 = "edu.ucar:netcdf4:5.9.1"    // HDF5 / NetCDF-4 IOSP. https://mvnrepository.com/artifact/edu.ucar/netcdf4
     const val geotools_shapefile = "org.geotools:gt-shapefile:31.6"     // https://mvnrepository.com/artifact/org.geotools/gt-shapefile
     const val geotools_referencing = "org.geotools:gt-referencing:31.6" // https://mvnrepository.com/artifact/org.geotools/gt-referencing
     const val geotools_epsg_hsql = "org.geotools:gt-epsg-hsql:31.6"     // https://mvnrepository.com/artifact/org.geotools/gt-epsg-hsql

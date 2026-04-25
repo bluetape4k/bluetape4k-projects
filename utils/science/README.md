@@ -449,10 +449,98 @@ Integration tests can be run with Testcontainers-backed PostgreSQL / PostGIS env
 - Process imports in batches through the PostGIS pipeline
 - Use PostGIS GIST/BRIN spatial indexes for range queries
 
-## Phase 4: NetCDF Support (Planned)
+## NetCDF Support
 
-Planned support includes NetCDF metadata cataloging and grid-value persistence through the same
-`exposed` package pipeline.
+`bluetape4k-science` provides NetCDF file ingestion via UCAR netCDF-Java 5.9.1.
+Metadata is registered into `netcdf_files`, grid values are imported slice-by-slice into `netcdf_grid_values`,
+and import progress is tracked per (file, variable) in `netcdf_import_progress` for safe resume.
+
+### Architecture (NetCDF pipeline)
+
+```mermaid
+flowchart LR
+    NC[".nc file<br/>(NetCDF-3 / 4)"] -->|NetcdfFiles.open| READ[NetCdfCatalogService]
+    READ --> META[(netcdf_files)]
+    READ -->|Variable.read sliced| AXIS[VariableAxisMap]
+    AXIS --> CRS{CRS}
+    CRS -->|EPSG:4326| GEO[Geographic 1D axis]
+    CRS -->|EPSG:3857/UTM/Polar| PROJ[Projected 2D pair<br/>proj4j]
+    GEO --> SLICE[importSlice2D]
+    PROJ --> SLICE
+    SLICE -->|ON CONFLICT DO NOTHING| GRID[(netcdf_grid_values)]
+    SLICE --> PROG[(netcdf_import_progress)]
+    PROG -->|heartbeat lease 5min| PROG
+    SLICE -.optional.-> METR[Micrometer]
+```
+
+### Features
+
+- **Rank 1 ~ 4 variables** : 1D time series (location null), 2D, 3D (time × lat × lon), 4D (time × level × lat × lon).
+- **Heartbeat lease + sliceIdx resume** : per (`fileId`, `variableName`) lease (5 min TTL).
+  Slice index is linearised as `timeIdx × levelN + levelIdx` for safe 4D resume.
+- **CRS reprojection** via proj4j whitelist:
+  EPSG:4326 / 4269 (Geographic 1D), EPSG:3857, EPSG:32601~32660 / 32701~32760 (UTM north / south),
+  EPSG:3413 / 3031 (Polar) — projected CRS use 2D `(lat, lon)` pair caching.
+- **Axis-to-dimension mapping** : non-standard dim order (e.g. `[lat, lon, time]`) handled via
+  `AxisType` first, then name fallback (`lat`/`latitude`, `lon`/`longitude`, `time`/`t`,
+  `level`/`lev`/`pressure`/`depth`).
+- **NaN / `_FillValue` skip** + Micrometer counter (`netcdf.import.nan.skipped`).
+- **Concurrency safety** : raw `INSERT ... ON CONFLICT DO NOTHING` + partial expression unique indexes
+  (`MD5(ST_AsBinary(location))` for non-null location, plain index for null) prevent duplicate rows on resume.
+- **Optional Micrometer instrumentation** : `netcdf.register.duration`, `netcdf.import.variable.records`,
+  `netcdf.import.slice.duration`, `netcdf.import.nan.skipped`, `netcdf.import.status`.
+
+### Limitations / non-goals
+
+- `CoordinateAxis2D` (curvilinear / rotated pole / tripolar grid) is **not supported** — see follow-up
+  issue if needed. A 2D lat/lon axis raises `NetCdfException.MissingCoordinate`.
+- GRIB / BUFR / OPeNDAP formats: not in scope (use `netcdfAll` jar manually if needed).
+- Method signatures are **blocking** — call from a Spring Boot Virtual Thread executor (Java 21+).
+
+### Examples
+
+```kotlin
+val fileRepo = NetCdfFileRepository()
+val progressRepo = NetCdfImportProgressRepository()
+val service = NetCdfCatalogService(fileRepo, progressRepo, meterRegistry)
+
+// Register a NetCDF file (extracts metadata into netcdf_files)
+val fileId: Long = service.registerFile("/data/era5_2024_01.nc")
+
+// Import all values of a variable (creates rows in netcdf_grid_values)
+service.importGridValues(fileId, "temperature")
+
+// Re-call after a crash → resumes from last committed slice
+service.importGridValues(fileId, "temperature")  // no-op if COMPLETED, otherwise resume
+
+// Concurrency : another caller while lease is active
+try {
+    service.importGridValues(fileId, "temperature")
+} catch (e: NetCdfException.ImportAlreadyRunning) {
+    // retry later — lease will expire after 5 minutes if the holder dies
+}
+```
+
+### Required runtime dependencies
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-science:${bluetape4kVersion}")
+    // CDM API + NetCDF-3 IOSP
+    implementation("edu.ucar:cdm-core:5.9.1")
+    // Optional — HDF5 / NetCDF-4 IOSP
+    implementation("edu.ucar:netcdf4:5.9.1")
+    // CRS reprojection
+    implementation("org.locationtech.proj4j:proj4j:${proj4jVersion}")
+    implementation("org.locationtech.proj4j:proj4j-epsg:${proj4jVersion}")  // EPSG:32633 etc.
+    implementation("io.micrometer:micrometer-core:${micrometerVersion}")    // optional
+}
+repositories {
+    mavenCentral()
+    // Unidata Nexus — UCAR artefacts are not on Maven Central
+    maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
+}
+```
 
 ## Related Modules
 
