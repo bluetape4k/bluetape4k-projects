@@ -23,11 +23,21 @@
 - [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
 - [ ] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
 
+#### 참고 자료
+- [UCAR NetCDF-Java 공식 문서](https://docs.unidata.ucar.edu/netcdf-java/current/)
+- [unidata/netcdf-java GitHub](https://github.com/Unidata/netcdf-java)
+- [NetCDF 파일 포맷 명세](https://docs.unidata.ucar.edu/nug/current/)
+
 ### 1.2 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
 
 - Issue: [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108)
 - [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
   - `findByName()`, `findByAgeGreaterThan()`, `findByNameContaining()` 완성
+
+#### 참고 자료
+- [QueryDSL 공식 문서](http://querydsl.com/static/querydsl/latest/reference/html/)
+- [querydsl/querydsl GitHub](https://github.com/querydsl/querydsl)
+- [QueryDSL + Spring Data JPA 통합 가이드](https://docs.spring.io/spring-data/jpa/reference/repositories/core-extensions.html#core.extensions.querydsl)
 
 ---
 
@@ -40,6 +50,11 @@
 - [ ] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
   - Retrofit2도 SB3/4 core에서 이미 제거됨 — io 모듈도 정리 대상 검토
 - [ ] `io/jackson2/`, `io/jackson3/` — deprecated 직렬화 API 정리
+
+#### 참고 자료
+- [Apache HttpClient 5.x 마이그레이션](https://hc.apache.org/httpcomponents-client-5.2.x/migration-guide/index.html)
+- [OkHttp 공식 문서](https://square.github.io/okhttp/)
+- [AsyncHttpClient GitHub](https://github.com/AsyncHttpClient/async-http-client)
 
 ### 2.2 core 모듈 Deprecated 정리 🟡
 
@@ -60,6 +75,11 @@
 - [ ] `HazelcastServer.kt` — deprecated Hazelcast API 4개 수정
   - `Config`, `NetworkConfig`, `JoinConfig`, `TcpIpConfig` 최신 API로 교체
   - Hazelcast 5.x 호환성 확보
+
+#### 참고 자료
+- [Hazelcast 5.x 공식 문서](https://docs.hazelcast.com/hazelcast/5.5/)
+- [Hazelcast 5.x 마이그레이션 가이드](https://docs.hazelcast.com/hazelcast/5.5/migrate/migration-guide-5.0)
+- [Hazelcast Kotlin 클라이언트](https://github.com/hazelcast/hazelcast-kotlin-client)
 
 ---
 
@@ -94,6 +114,16 @@
   - Trie DSL + case-insensitive/whole-word/overlapping 옵션 지원
   - 수요 꾸준함 (커뮤니티/메신저 서비스 필수)
 
+#### 참고 자료 (§4.1 승격 후보)
+- [JaVers 공식 문서](https://javers.org/documentation/)
+- [JaVers GitHub](https://github.com/javers/javers) — Apache 2.0 라이선스
+- [JaVers Event Sourcing 블로그](https://javers.org/blog/2016/01/event-sourcing-using-javers.html)
+- [NATS JetStream 공식 문서](https://docs.nats.io/nats-concepts/jetstream)
+- [nats-io/nats.java GitHub](https://github.com/nats-io/nats.java)
+- [pemistahl/lingua GitHub](https://github.com/pemistahl/lingua) — 75+ 언어 감지
+- [robert-bor/aho-corasick GitHub](https://github.com/robert-bor/aho-corasick) — Java Aho-Corasick 구현
+- [Aho–Corasick 알고리즘 위키](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm)
+
 ### 4.2 🟡 조건부 승격 — 기존 모듈과 통합/부분 이관
 
 - [ ] **bloomfilter** — 부분 승격 또는 흡수
@@ -109,6 +139,13 @@
 - [ ] **logback-kafka → infra/logging-kafka** (14 kt 파일)
   - Kafka appender — `infra/kafka`와 네임스페이스 통합
   - Logback + Kafka는 관측성 스택에 유용 (ELK 대안, 경량 로그 파이프라인)
+
+#### 참고 자료 (§4.2 조건부 승격 후보)
+- [Guava BloomFilter](https://guava.dev/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html)
+- [bloomfilter 알고리즘 위키](https://en.wikipedia.org/wiki/Bloom_filter)
+- [Cuckoo filter 논문 (Fan et al., 2014)](https://www.cs.cmu.edu/~dga/papers/cuckoo-conext2014.pdf)
+- [danielwegener/logback-kafka-appender GitHub](https://github.com/danielwegener/logback-kafka-appender)
+- [Apache Kafka 공식 문서](https://kafka.apache.org/documentation/)
 
 ### 4.3 🟢 삭제 — 구현 없음 또는 사용처 없음
 
@@ -147,17 +184,44 @@
 - [ ] **exposed-clickhouse** — ClickHouse 분석 DB 지원
 - [ ] **exposed-mariadb** — MariaDB 전용 dialect (MySQL8과 분리)
 
+#### 참고 자료
+- [JetBrains Exposed GitHub](https://github.com/JetBrains/Exposed)
+- [Exposed 방언 구현 예시 (MySQL/Oracle)](https://github.com/JetBrains/Exposed/tree/main/exposed-core/src/main/kotlin/org/jetbrains/exposed/sql/vendors)
+- [ClickHouse JDBC 드라이버](https://github.com/ClickHouse/clickhouse-java)
+- [ClickHouse 공식 문서](https://clickhouse.com/docs/)
+- [Oracle JDBC 드라이버 (ojdbc)](https://www.oracle.com/database/technologies/jdbc.html)
+- [Microsoft SQL Server JDBC](https://learn.microsoft.com/sql/connect/jdbc/microsoft-jdbc-driver-for-sql-server)
+
 ### 6.2 infra 계층
 
 - [ ] **infra/nats** — NATS JetStream + Kotlin Coroutines 통합 (x-obsoleted 승격)
 - [ ] **infra/elasticsearch** — Elasticsearch Kotlin Coroutines 클라이언트
 - [ ] **infra/pulsar** — Apache Pulsar 통합
 
+#### 참고 자료
+- [NATS.io 공식 문서](https://docs.nats.io/)
+- [NATS JetStream 개념](https://docs.nats.io/nats-concepts/jetstream)
+- [nats-io/nats.java GitHub](https://github.com/nats-io/nats.java)
+- [Elasticsearch Java API Client (8.x)](https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/current/index.html)
+- [elastic/elasticsearch-java GitHub](https://github.com/elastic/elasticsearch-java)
+- [Apache Pulsar 공식 문서](https://pulsar.apache.org/)
+- [Apache Pulsar Java 클라이언트](https://pulsar.apache.org/docs/client-libraries-java/)
+
 ### 6.3 utils 계층
 
 - [ ] **utils/ai** — LLM 통합 유틸리티 (Anthropic/OpenAI SDK 래퍼)
 - [ ] **utils/vector** — 벡터 임베딩, 유사도 계산 유틸리티
 - [ ] **utils/tracing** — OpenTelemetry + Coroutines 통합 강화
+
+#### 참고 자료
+- [Anthropic Java SDK GitHub](https://github.com/anthropics/anthropic-sdk-java)
+- [OpenAI Java SDK GitHub](https://github.com/openai/openai-java)
+- [LangChain4j GitHub](https://github.com/langchain4j/langchain4j) — Kotlin 친화적 LLM 래퍼
+- [OpenTelemetry Java 공식 문서](https://opentelemetry.io/docs/languages/java/)
+- [OpenTelemetry Kotlin Coroutines 계측](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/kotlinx-coroutines)
+- [Qdrant 벡터 DB](https://qdrant.tech/documentation/)
+- [Weaviate 벡터 DB](https://weaviate.io/developers/weaviate)
+- [Milvus 벡터 DB](https://milvus.io/docs)
 
 ### 6.5 utils/images — 이미지 처리 확장 🟢
 
@@ -169,6 +233,16 @@
 - [ ] **색 히스토그램 유사도** — Chi-square, Bhattacharyya, Earth Mover's Distance
 - [ ] **키포인트 매칭** — SIFT/ORB/AKAZE (OpenCV 또는 BoofCV 통합 검토)
 - [ ] **CLIP/DINOv2 임베딩** — `utils/ai` 의존 시 neural similarity
+
+#### 참고 자료 (유사도 지표)
+- [scrimage 공식 문서](https://sksamuel.github.io/scrimage/)
+- [sksamuel/scrimage GitHub](https://github.com/sksamuel/scrimage)
+- [SSIM 알고리즘 논문 (Wang et al., 2004)](https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf)
+- [MS-SSIM 논문](https://ece.uwaterloo.ca/~z70wang/publications/msssim.pdf)
+- [pHash 공식 사이트](http://phash.org/)
+- [openai/CLIP GitHub](https://github.com/openai/CLIP)
+- [facebookresearch/dinov2 GitHub](https://github.com/facebookresearch/dinov2)
+- [BoofCV (Java 컴퓨터 비전)](https://boofcv.org/)
 
 필터 / 색 보정:
 
@@ -194,6 +268,14 @@
 - [ ] **OCR** — Tesseract (tess4j) 또는 PaddleOCR 통합 인터페이스
 - [ ] **얼굴/객체 탐지** — MediaPipe 또는 ONNX Runtime 연동 인터페이스
 
+#### 참고 자료 (분석 API)
+- [drewnoakes/metadata-extractor GitHub](https://github.com/drewnoakes/metadata-extractor) — EXIF/IPTC/XMP
+- [Tesseract OCR (tess4j)](https://github.com/nguyenq/tess4j) — Java Tesseract 래퍼
+- [PaddleOCR GitHub](https://github.com/PaddlePaddle/PaddleOCR)
+- [MediaPipe Java](https://developers.google.com/mediapipe/solutions/guide)
+- [ONNX Runtime Java](https://onnxruntime.ai/docs/get-started/with-java.html)
+- [Laplacian variance 기반 블러 감지](https://pyimagesearch.com/2015/09/07/blur-detection-with-opencv/) — 원리 설명 (Python)
+
 포맷 지원:
 
 - [ ] **AVIF** — 읽기/쓰기 (libavif 바인딩)
@@ -201,6 +283,13 @@
 - [ ] **TIFF multi-page** — 문서 스캔용 다중 페이지 지원
 - [ ] **Raw 카메라 포맷** — dcraw 연동
 - [ ] **SVG 래스터화** — Apache Batik 래퍼
+
+#### 참고 자료 (포맷 지원)
+- [libavif GitHub](https://github.com/AOMediaCodec/libavif) — AVIF 인코더/디코더
+- [HEIF/HEIC 스펙 (MPEG)](https://nokiatech.github.io/heif/)
+- [Apache Batik SVG Toolkit](https://xmlgraphics.apache.org/batik/)
+- [dcraw 프로젝트](https://www.cybercom.net/~dcoffin/dcraw/) — Raw 카메라 포맷
+- [LibRaw GitHub](https://github.com/LibRaw/LibRaw) — 최신 Raw 처리 라이브러리
 
 성능 / 동시성:
 
@@ -266,10 +355,27 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] **크로스 플랫폼 골든 이미지** — WatermarkFilterTest 패턴을 모든 필터 테스트에 확대 적용
 - [ ] **Property-based test** — 랜덤 이미지 생성 → invariant 검증 (`pHash(scale(x)) ≈ pHash(x)` 등)
 
+#### 참고 자료 (utils/images-vips)
+- [libvips 공식 문서](https://libvips.github.io/libvips/)
+- [libvips GitHub](https://github.com/libvips/libvips)
+- [criteo/JVips GitHub](https://github.com/criteo/JVips) — JNI 바인딩
+- [libvips/libvips-java GitHub](https://github.com/libvips/libvips-java)
+- [Java 22 Foreign Function & Memory API](https://docs.oracle.com/en/java/javase/22/core/foreign-function-and-memory-api.html)
+- [OpenSeadragon (DZI 뷰어)](https://openseadragon.github.io/)
+- [libvips 벤치마크 (vs ImageMagick/PIL)](https://github.com/libvips/libvips/wiki/Speed-and-memory-use)
+
 ### 6.4 testing 계층
 
 - [ ] **testing/testcontainers/llm** — Ollama, LocalAI 컨테이너 지원 완성
 - [ ] **testing/testcontainers/vector-db** — Qdrant, Weaviate, Milvus 지원
+
+#### 참고 자료
+- [Ollama 공식 사이트](https://ollama.com/)
+- [LocalAI GitHub](https://github.com/mudler/LocalAI)
+- [Testcontainers Ollama 모듈](https://github.com/testcontainers/testcontainers-java/tree/main/modules/ollama)
+- [Qdrant 공식 문서](https://qdrant.tech/documentation/)
+- [Weaviate 공식 문서](https://weaviate.io/developers/weaviate)
+- [Milvus 공식 문서](https://milvus.io/docs)
 
 ---
 
@@ -294,6 +400,14 @@ Shopify 프로덕션 사용 검증됨.
   - `-Xcontext-parameters` 전면 도입 검토
 - [ ] **kapt → KSP** 마이그레이션 검토 (kapt 사용 모듈 파악 필요)
 - [x] GitHub Actions CI 파이프라인 구성 완료 (2026-04-17)
+
+#### 참고 자료
+- [Gradle 9.x 릴리스 노트](https://docs.gradle.org/9.0/release-notes.html)
+- [Gradle Configuration Cache](https://docs.gradle.org/current/userguide/configuration_cache.html)
+- [KSP (Kotlin Symbol Processing)](https://kotlinlang.org/docs/ksp-overview.html)
+- [kapt → KSP 마이그레이션 가이드](https://kotlinlang.org/docs/ksp-migration-guide.html)
+- [Kotlin 2.x 새 기능](https://kotlinlang.org/docs/whatsnew-eap.html)
+- [Kotlin Context Parameters 제안](https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md)
   - `ci.yml`: validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status
   - `publish-snapshot.yml`: develop 브랜치 push 시 Maven Central Snapshots 자동 배포
 
@@ -305,6 +419,12 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] `gitleaks detect` — 시크릿 스캔 CI 연동
 - [ ] 의존성 취약점 스캔 — `./gradlew dependencyCheckAnalyze` 주기 실행
 
+#### 참고 자료
+- [Gitleaks GitHub](https://github.com/gitleaks/gitleaks)
+- [OWASP Dependency-Check](https://jeremylong.github.io/DependencyCheck/)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [Google Tink 암호화 라이브러리](https://developers.google.com/tink)
+
 ---
 
 ## 10. 성능 / 품질 🟢
@@ -313,6 +433,12 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] `infra/lettuce` NearCache 성능 벤치마크 공개
 - [ ] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 제거
 - [ ] `StateFlow` / `SharedFlow` 사용 일관성 검토
+
+#### 참고 자료
+- [JMH (Java Microbenchmark Harness)](https://github.com/openjdk/jmh)
+- [Gradle JMH Plugin](https://github.com/melix/jmh-gradle-plugin)
+- [Kotlin Coroutines 구조적 동시성 공식 문서](https://kotlinlang.org/docs/coroutines-and-channels.html)
+- [StateFlow vs SharedFlow 비교](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/)
 
 ---
 
@@ -384,6 +510,17 @@ Shopify 프로덕션 사용 검증됨.
 - 비정규화 JSON 스토리지 → 복잡한 집계 쿼리는 JQL 한계 존재, 별도 projection 필요
 - 마이그레이션 가이드 필요 — 기존 JPA Envers 사용자가 이관할 수 있도록 문서화
 
+#### 참고 자료
+- [JaVers 공식 문서](https://javers.org/documentation/)
+- [JaVers GitHub (Apache 2.0)](https://github.com/javers/javers)
+- [JaVers JQL (Javers Query Language)](https://javers.org/documentation/jql-examples/)
+- [JaVers Event Sourcing 블로그](https://javers.org/blog/2016/01/event-sourcing-using-javers.html)
+- [DDD — Aggregate 패턴 (Martin Fowler)](https://martinfowler.com/bliki/DDD_Aggregate.html)
+- [Event Sourcing 패턴 (Martin Fowler)](https://martinfowler.com/eaaDev/EventSourcing.html)
+- [CQRS 패턴 (Martin Fowler)](https://martinfowler.com/bliki/CQRS.html)
+- [Outbox 패턴](https://microservices.io/patterns/data/transactional-outbox.html)
+- [Hibernate Envers 공식 문서](https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#envers)
+
 ---
 
 ## 12. Redis Codec — ForyFast 지원 추가 🟡
@@ -407,6 +544,15 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한
 - ForyFast(SCHEMA_CONSISTENT)와 Fory(COMPATIBLE) 포맷 상호 비호환 → fallback = Kryo5
 - 순환 참조 객체 불가, 스키마 진화 불가
 - **휘발성 캐시 전용** — DB/파일 영속 데이터에 사용 금지
+
+#### 참고 자료
+- [Apache Fory 공식 사이트](https://fory.apache.org/)
+- [apache/fory GitHub](https://github.com/apache/fory)
+- [Fory Java 사용 가이드](https://fory.apache.org/docs/start/install/)
+- [Redisson Codec 커스터마이징](https://github.com/redisson/redisson/wiki/4.-data-serialization)
+- [Lettuce 커스텀 Codec](https://lettuce.io/core/release/reference/#codecs)
+- [LZ4 Java](https://github.com/lz4/lz4-java)
+- [Zstd Java](https://github.com/luben/zstd-jni)
 
 ---
 
