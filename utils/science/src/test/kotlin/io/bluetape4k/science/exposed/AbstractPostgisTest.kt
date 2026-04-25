@@ -2,7 +2,9 @@ package io.bluetape4k.science.exposed
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.exposed.schema.NetCdfFileTable
+import io.bluetape4k.science.exposed.schema.NetCdfGridValueIndexes
 import io.bluetape4k.science.exposed.schema.NetCdfGridValueTable
+import io.bluetape4k.science.exposed.schema.NetCdfImportProgressTable
 import io.bluetape4k.science.exposed.schema.PoiTable
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
@@ -32,6 +34,7 @@ abstract class AbstractPostgisTest {
         private val gisTables = arrayOf(
             NetCdfFileTable,
             NetCdfGridValueTable,
+            NetCdfImportProgressTable,
             PoiTable,
             SpatialLayerTable,
             SpatialFeatureTable,
@@ -42,6 +45,13 @@ abstract class AbstractPostgisTest {
     fun beforeAll() {
         transaction(db) {
             SchemaUtils.create(*gisTables)
+            // partial expression unique indexes (Spec §4.1 — PostGIS geometry b-tree 미지원 우회)
+            execInBatch(
+                listOf(
+                    NetCdfGridValueIndexes.DDL_UNIQUE_FULL,
+                    NetCdfGridValueIndexes.DDL_UNIQUE_NULLOC,
+                )
+            )
         }
     }
 

@@ -833,14 +833,98 @@ class SpatialImportTest {
 - **단순화**: Douglas-Peucker 알고리즘으로 복잡한 도형 경량화
 - **버퍼 정밀도**: 용도별 tolerance 조정으로 계산 비용 제어
 
-## Phase 4: NetCDF 지원 (예정)
+## NetCDF 지원
 
-현재 `NetCdfRepository`, `NetCdfTables`, `NetCdfCatalogService` 클래스는 존재하나 미구현입니다.
+`bluetape4k-science` 는 UCAR netCDF-Java 5.9.1 기반 NetCDF 파일 임포트를 제공합니다.
+메타데이터는 `netcdf_files` 에 등록되고, 격자 값은 슬라이스 단위로 `netcdf_grid_values` 에 임포트되며,
+변수 단위 진행 상태는 `netcdf_import_progress` 에서 관리되어 안전한 재개가 가능합니다.
 
-**요구사항**:
+### 아키텍처 (NetCDF 파이프라인)
 
-- `edu.ucar:netcdfAll` (Unidata Maven 저장소)
-- 시간 차원 분석 및 변수 메타데이터 캐싱
+```mermaid
+flowchart LR
+    NC[".nc 파일<br/>(NetCDF-3 / 4)"] -->|NetcdfFiles.open| READ[NetCdfCatalogService]
+    READ --> META[(netcdf_files)]
+    READ -->|Variable.read 슬라이스| AXIS[VariableAxisMap]
+    AXIS --> CRS{CRS}
+    CRS -->|EPSG:4326| GEO[Geographic 1D 축]
+    CRS -->|EPSG:3857/UTM/Polar| PROJ[Projected 2D pair<br/>proj4j]
+    GEO --> SLICE[importSlice2D]
+    PROJ --> SLICE
+    SLICE -->|ON CONFLICT DO NOTHING| GRID[(netcdf_grid_values)]
+    SLICE --> PROG[(netcdf_import_progress)]
+    PROG -->|heartbeat lease 5분| PROG
+    SLICE -.옵션.-> METR[Micrometer]
+```
+
+### 주요 기능
+
+- **rank 1 ~ 4 변수**: 1D 시계열 (location null), 2D, 3D (time × lat × lon), 4D (time × level × lat × lon)
+- **heartbeat lease + sliceIdx 재개**: `(fileId, variableName)` 단위 lease (5분 TTL).
+  4D 슬라이스 인덱스는 `timeIdx × levelN + levelIdx` 로 선형화되어 안전하게 재개 가능.
+- **CRS 재투영** (proj4j 화이트리스트):
+  EPSG:4326 / 4269 (Geographic 1D), EPSG:3857, EPSG:32601~32660 / 32701~32760 (UTM 북·남반구),
+  EPSG:3413 / 3031 (극 stereographic) — projected CRS 는 격자 cell 단위 2D `(lat, lon)` pair 캐싱.
+- **Axis-to-dimension 매핑**: 비표준 dim order (예: `[lat, lon, time]`) 도
+  `AxisType` 1차 + 이름 fallback (`lat`/`latitude`, `lon`/`longitude`, `time`/`t`,
+  `level`/`lev`/`pressure`/`depth`) 으로 처리.
+- **NaN / `_FillValue` 자동 skip** + Micrometer counter (`netcdf.import.nan.skipped`).
+- **동시성 안전성**: raw `INSERT ... ON CONFLICT DO NOTHING` + partial expression unique index
+  (`MD5(ST_AsBinary(location))` non-null + 일반 index null) 로 재개 시 중복 row 방지.
+- **선택적 Micrometer 계측**: `netcdf.register.duration`, `netcdf.import.variable.records`,
+  `netcdf.import.slice.duration`, `netcdf.import.nan.skipped`, `netcdf.import.status`.
+
+### 제약 / 비목표
+
+- `CoordinateAxis2D` (curvilinear / rotated pole / tripolar grid) **비지원** — 후속 이슈로 분리.
+  2D lat/lon 축이 발견되면 `NetCdfException.MissingCoordinate` 가 발생합니다.
+- GRIB / BUFR / OPeNDAP 포맷은 본 모듈 범위 외 (필요 시 `netcdfAll` jar 직접 추가).
+- 메서드는 **blocking** 시그니처 — Spring Boot Virtual Thread executor 에서 호출 권장 (Java 21+).
+
+### 사용 예시
+
+```kotlin
+val fileRepo = NetCdfFileRepository()
+val progressRepo = NetCdfImportProgressRepository()
+val service = NetCdfCatalogService(fileRepo, progressRepo, meterRegistry)
+
+// NetCDF 파일 등록 (메타데이터를 netcdf_files 에 저장)
+val fileId: Long = service.registerFile("/data/era5_2024_01.nc")
+
+// 변수의 모든 격자 값 임포트 (netcdf_grid_values 에 row 생성)
+service.importGridValues(fileId, "temperature")
+
+// 크래시 후 재호출 → 마지막 commit 슬라이스 다음부터 재개
+service.importGridValues(fileId, "temperature")  // COMPLETED 면 no-op, 아니면 resume
+
+// 다른 호출자가 active lease 보유 중인 경우
+try {
+    service.importGridValues(fileId, "temperature")
+} catch (e: NetCdfException.ImportAlreadyRunning) {
+    // 5분 후 재시도 (lease TTL 만료 후 정상 재개 가능)
+}
+```
+
+### 런타임 의존성
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-science:${bluetape4kVersion}")
+    // CDM API + NetCDF-3 IOSP
+    implementation("edu.ucar:cdm-core:5.9.1")
+    // 선택 — HDF5 / NetCDF-4 IOSP
+    implementation("edu.ucar:netcdf4:5.9.1")
+    // CRS 재투영
+    implementation("org.locationtech.proj4j:proj4j:${proj4jVersion}")
+    implementation("org.locationtech.proj4j:proj4j-epsg:${proj4jVersion}")  // EPSG:32633 등
+    implementation("io.micrometer:micrometer-core:${micrometerVersion}")    // 선택
+}
+repositories {
+    mavenCentral()
+    // Unidata Nexus — UCAR 아티팩트는 Maven Central 에 미게시
+    maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
+}
+```
 
 ## 관련 모듈
 

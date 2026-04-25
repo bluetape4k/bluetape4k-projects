@@ -77,6 +77,8 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 
 **Auditable pattern** (3 layers): `exposed-core` → `AuditableIdTable` + `UserContext`; `exposed-dao` → `AuditableEntity` auto-sets createdBy/updatedBy; `exposed-jdbc` → `auditedUpdateById()` / `auditedUpdateAll()` auto-sets updatedAt/updatedBy. **Always use `auditedUpdate*` for UPDATE operations.**
 
+**NetCDF pipeline** (`utils/science`): three Exposed tables — `NetCdfFileTable` (`AuditableLongIdTable`, file metadata) · `NetCdfGridValueTable` (plain `LongIdTable`, grid cells with nullable PostGIS `location`, partial expression unique indexes via `MD5(ST_AsBinary(location))`) · `NetCdfImportProgressTable` (plain `LongIdTable`, system-only state with `lastSliceIdx` linear cursor + heartbeat `leaseExpiresAt`; user context not needed). Slice insert uses raw `INSERT ... ON CONFLICT DO NOTHING` (Exposed `upsert` cannot match expression unique indexes).
+
 **High-perf**: LZ4/Zstd compression · Kryo/Fory serialization · Custom Redis codecs.
 
 ## Build Configuration
