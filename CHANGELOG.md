@@ -8,6 +8,25 @@
 
 <!-- 1.7.0 이후 변경 사항을 이곳에 기록합니다. -->
 
+### Documentation
+
+#### utils/science — README 전면 재작성 (GIS/Shapefile/JTS/PostGIS/NetCDF 통합 가이드) ([#128](https://github.com/bluetape4k/bluetape4k-projects/issues/128))
+
+`bluetape4k-science` 모듈의 README.md(영문) + README.ko.md(한국어)를 전면 재작성했습니다.
+PR #127(NetCDF 지원 완성)로 추가된 NetCDF 도메인을 포함해 모듈이 다루는 5개 영역을 동등하게 다룹니다.
+
+**변경 내용**
+
+- 5개 도메인 상태 테이블 추가 (GIS / Shapefile / JTS / PostGIS / NetCDF)
+- Mermaid 통합 아키텍처 다이어그램 신규 작성 (5개 영역 관계도 + 좌표 변환 흐름 + DB 스키마)
+- 패키지 구조(`Module Layout`) 섹션 신설 — 전체 파일 트리 기재
+- 핵심 기능 대조표 — 도메인별 API 한눈에 보기
+- Quick Start 5개 섹션 (5.1 좌표 변환 ~ 5.5 NetCDF 카탈로그) 독립 작성
+- API 가이드 섹션 — coords / projection / shapefile / geometry / exposed(PostGIS + NetCDF) 분리
+- NetCDF 현황 정확히 반영: `NetCdfFileTable/GridValueTable/Repository` ✅, `NetCdfCatalogService` ⚠️ Phase 5
+- 성능 / 운영 가이드 섹션 — 도메인별 인덱스 전략 및 튜닝 포인트
+- "Phase 4: Planned" 표현 제거 → 구현 완료/부분 구현 정확히 명시
+
 ---
 
 ## [1.7.0] — 2026-04-24
