@@ -556,13 +556,15 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한
 
 ---
 
-## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci/MiniStack 🟡
+## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci 🟡
+
+- Issue: [#155](https://github.com/bluetape4k/bluetape4k-projects/issues/155)
 
 > **배경 (2026-04-25 기준)**:
 > - LocalStack GitHub(`localstack/localstack`) **2026-03-23 아카이브**. BSL 라이선스, KMS/CloudFront/EBS 유료 이동.
 > - MinIO GitHub(`minio/minio`) **2026-04-25 아카이브** → AIStor로 리브랜딩.
-> - **floci** (MIT, GraalVM Native, 24ms 시작, 13MiB 메모리, 33 서비스, 공식 Testcontainers 모듈) — **최유력 대안**.
-> - **MiniStack** (MIT, 270MB, <1초, 40+ 서비스, "Real Infrastructure") — floci와 함께 검토.
+> - **floci** (MIT, GraalVM Native, 24ms 시작, 13MiB 메모리, 33 서비스, 공식 Testcontainers 모듈) — **1순위 대안**.
+> - MiniStack/fakecloud는 floci 미지원 서비스 필요 시 fallback 검토.
 
 ### 13.1 올인원 AWS 에뮬레이터 비교
 
