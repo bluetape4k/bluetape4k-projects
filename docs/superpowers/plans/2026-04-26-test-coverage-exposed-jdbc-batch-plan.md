@@ -38,12 +38,15 @@
 | 12 | T-BA-07 | utils/batch | `internal/CheckpointJsonEdgeCaseTest.kt` | medium | 3 |
 | 13 | T-BA-08 | utils/batch | `jdbc/ExposedJdbcBatchWriterTest.kt` (보강) + `r2dbc/ExposedR2dbcBatchWriterTest.kt` (보강) | medium | 5 |
 | 14 | T-BA-09 | utils/batch | `jdbc/ExposedJdbcBatchReaderTest.kt` (보강) + `r2dbc/ExposedR2dbcBatchReaderTest.kt` (보강) | medium | 5 |
-| 15 | T-FINAL | verify | Kover 70% 검증 | medium | — |
-| 16 | T-DOC | docs | README × 2 모듈 | low | — |
-| 17 | T-TESTLOG | docs | `docs/testlogs/2026-04.md` | low | — |
-| 18 | T-SUPERPOWERS | docs | `docs/superpowers/index/2026-04.md` | low | — |
+| 15 | T-EJ-06 | exposed-jdbc | `repository/AuditableJdbcRepositoryVariantTest.kt` — `IntAuditableJdbcRepository`/`UUIDAuditableJdbcRepository` 변종 | medium | 4 |
+| 16 | T-EJ-07 | exposed-jdbc | `repository/MovieJdbcRepositoryTest.kt` 보강 (rollback) + `ActorJdbcRepositoryTest.kt` 보강 (findPage 경계) | medium | 3 |
+| 17 | T-BA-10 | utils/batch | `core/dsl/BatchStepBuilderTest.kt` 보강 — `chunkSize(0)` 검증, processor lambda 오버로드 | low | 3 |
+| 18 | T-FINAL | verify | Kover ≥70% 측정 + `koverVerify` 자동 게이트 설정 | medium | — |
+| 19 | T-DOC | docs | README × 2 모듈 | low | — |
+| 20 | T-TESTLOG | docs | `docs/testlogs/2026-04.md` | low | — |
+| 21 | T-SUPERPOWERS | docs | `docs/superpowers/index/2026-04.md` | low | — |
 
-**합계 신규 테스트 함수: 77개 (보강 10개 포함). 기존 테스트 +67~+80건 증가 예상.**
+**합계 신규 테스트 함수: 87개 (보강 13개 포함). 기존 테스트 +77~+90건 증가 예상.**
 
 ---
 
@@ -255,12 +258,70 @@
 
 ---
 
-## T-FINAL: Kover 커버리지 측정 + 검증 (complexity: medium)
+## T-EJ-06: AuditableJdbcRepositoryVariantTest (complexity: medium)
 
-- **명령**:
+- **파일**: `data/exposed-jdbc/src/test/kotlin/io/bluetape4k/exposed/jdbc/repository/AuditableJdbcRepositoryVariantTest.kt`
+- **대상 소스**: `AuditableJdbcRepository.kt` (line 139: `IntAuditableJdbcRepository`, line 155: `UUIDAuditableJdbcRepository`)
+- **테스트 DB**: H2, POSTGRESQL
+- **테스트 함수 (4개)**:
+  1. `IntAuditableJdbcRepository 구현체의 auditedUpdateById 가 updatedAt 갱신`
+  2. `IntAuditableJdbcRepository 구현체의 auditedUpdateAll 이 여러 행 갱신`
+  3. `UUIDAuditableJdbcRepository 구현체의 auditedUpdateById 가 updatedAt 갱신`
+  4. `UUIDAuditableJdbcRepository 구현체의 auditedUpdateAll 이 여러 행 갱신`
+
+---
+
+## T-EJ-07: Movie/Actor 기존 파일 보강 (complexity: medium)
+
+- **파일들**:
+  - `data/exposed-jdbc/src/test/kotlin/io/bluetape4k/exposed/jdbc/repository/MovieJdbcRepositoryTest.kt`
+  - `data/exposed-jdbc/src/test/kotlin/io/bluetape4k/exposed/jdbc/repository/ActorJdbcRepositoryTest.kt`
+- **추가 테스트 함수 (3개)**:
+  1. (Movie) `transaction rollback 시 모든 변경이 무효화된다`
+  2. (Actor) `findPage 의 마지막 페이지 경계 검증 (totalCount % pageSize == 0 인 경우)`
+  3. (Actor) `findPage 의 pageNumber >= totalPages 시 빈 content 반환`
+
+---
+
+## T-BA-10: BatchStepBuilder 보강 (complexity: low)
+
+- **파일**: `utils/batch/src/test/kotlin/io/bluetape4k/batch/core/dsl/BatchStepBuilderTest.kt` (기존 파일 보강)
+- **대상 소스**: `BatchStepBuilder.kt`, `BatchJobBuilder.kt`
+- **추가 테스트 함수 (3개)**:
+  1. `chunkSize(0) 설정 시 IllegalArgumentException`
+  2. `processor suspend 람다 오버로드가 정상 동작`
+  3. `step 2개 + retryPolicy + skipPolicy + commitTimeout 결합 설정`
+
+---
+
+## T-FINAL: Kover 커버리지 측정 + koverVerify 자동 게이트 (complexity: medium)
+
+> **사전 확인**: `BatchStepRunnerRetryTest` 등 가상 시간 테스트는 `runTest` 사용으로 TestCoroutineScheduler가 적용됨.
+> 기존 `BatchStepRunnerTest` (case 6/7/8)가 동일 패턴으로 동작 확인됨 — 별도 dispatcher 주입 불필요.
+
+- **1단계 — HTML/XML 리포트 생성**:
   ```bash
   ./gradlew :bluetape4k-exposed-jdbc:koverHtmlReport :bluetape4k-batch:koverHtmlReport
   ./gradlew :bluetape4k-exposed-jdbc:koverXmlReport  :bluetape4k-batch:koverXmlReport
+  ```
+- **2단계 — 자동 게이트 설정** (미달 시 빌드 실패):
+  각 모듈의 `build.gradle.kts`에 추가:
+  ```kotlin
+  kover {
+      reports {
+          verify {
+              rule {
+                  bound {
+                      minValue.set(70)
+                      metric = CoverageUnit.LINE
+                  }
+              }
+          }
+      }
+  }
+  ```
+  ```bash
+  ./gradlew :bluetape4k-exposed-jdbc:koverVerify :bluetape4k-batch:koverVerify
   ```
 - **검증**:
   - HTML 리포트 (`build/reports/kover/html/index.html`) 라인 커버리지 ≥ 70% 확인.
@@ -302,22 +363,23 @@
 
 1. 픽스처 신설 (`JdbcRepositoryEdgeCaseSchema`, `AuditableEdgeCaseSchema`, `SoftDeletedEdgeCaseSchema`)
 2. T-EJ-01, T-EJ-02 (가장 큰 갭 / High 우선)
-3. T-BA-01, T-BA-02, T-BA-03 (코어 로직)
-4. T-BA-05, T-BA-06 (mappers + skip policy)
-5. T-EJ-03 (read edge cases) / T-BA-04 (checkpoint)
-6. T-EJ-04, T-EJ-05 (auditable / soft-deleted)
-7. T-BA-07 (CheckpointJson) / T-BA-08, T-BA-09 (보강)
-8. T-FINAL (Kover 측정) — 미달 시 부족분 추가 후 재측정
+3. T-BA-01, T-BA-02, T-BA-03 (코어 로직 / 병렬 가능)
+4. T-BA-05, T-BA-06, T-BA-10 (mappers + skip policy + builder)
+5. T-EJ-03, T-BA-04 (read edge cases + checkpoint / 병렬 가능)
+6. T-EJ-04, T-EJ-05, T-EJ-06 (auditable / soft-deleted / 변종 / 병렬 가능)
+7. T-EJ-07, T-BA-07, T-BA-08, T-BA-09 (기존 파일 보강 / 병렬 가능)
+8. T-FINAL (Kover 측정 + koverVerify 게이트 설정) — 미달 시 부족분 추가 후 재측정
 9. T-DOC, T-TESTLOG, T-SUPERPOWERS
 
 ---
 
 ## 검증 게이트
 
-- [ ] 신규 테스트 함수 ≥ 77개 (보강 10개 포함)
+- [ ] 신규 테스트 함수 ≥ 87개 (보강 13개 포함)
 - [ ] `./gradlew :bluetape4k-exposed-jdbc:test` 전수 pass
 - [ ] `./gradlew :bluetape4k-batch:test` 전수 pass
-- [ ] Kover HTML/XML 리포트 라인 커버리지 ≥ 70% (두 모듈)
+- [ ] `./gradlew :bluetape4k-exposed-jdbc:koverVerify :bluetape4k-batch:koverVerify` 성공 (자동 70% 게이트)
+- [ ] Kover HTML 리포트 라인 커버리지 ≥ 70% (두 모듈) 육안 확인
 - [ ] 신규 파일 모두 200~400 라인 (800 라인 절대 초과 금지)
 - [ ] code-reviewer agent 통과 (HIGH/CRITICAL 0건)
 - [ ] PR description 에 Before/After 테스트 카운트 + Kover % 첨부
