@@ -170,7 +170,21 @@ class ClickHouseNullableColumnType<T: Any>(val inner: ColumnType<T>): ColumnType
 fun Table.chString(name: String): Column<String> =
     registerColumn(name, ClickHouseStringColumnType())
 
-/** `FixedString([length])` 컬럼 등록 */
+/**
+ * ClickHouse `FixedString(N)` 컬럼을 등록합니다. 고정 바이트 길이 [length]의 문자열과 매핑됩니다.
+ *
+ * 짧고 길이가 일정한 코드(국가코드, UUID 등)에 적합합니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val countryCode = fixedString("country_code", 2)   // "KR", "US"
+ *     val traceId     = fixedString("trace_id", 32)
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ * @param length 고정 바이트 길이 (> 0)
+ */
 fun Table.fixedString(name: String, length: Int): Column<String> =
     registerColumn(name, ClickHouseFixedStringColumnType(length))
 
@@ -198,6 +212,20 @@ fun Table.chInt32(name: String): Column<Int> =
 fun Table.chInt64(name: String): Column<Long> =
     registerColumn(name, ClickHouseInt64ColumnType())
 
-/** `Nullable(T)` 컬럼 등록 — [innerType] 으로 inner 타입을 명시합니다. */
+/**
+ * ClickHouse `Nullable(T)` 컬럼을 등록합니다. [innerType]으로 inner 타입을 명시합니다.
+ *
+ * ClickHouse는 기본적으로 모든 컬럼이 NOT NULL이므로, null 허용 컬럼에는 명시적으로 `Nullable(T)`을 사용해야 합니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val optionalScore = chNullable("score", ClickHouseFloat32ColumnType())
+ *     val optionalRegion = chNullable("region", ClickHouseStringColumnType())
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ * @param innerType nullable로 감쌀 inner 컬럼 타입
+ */
 fun <T: Any> Table.chNullable(name: String, innerType: ColumnType<T>): Column<T?> =
     registerColumn<T?>(name, ClickHouseNullableColumnType(innerType))
