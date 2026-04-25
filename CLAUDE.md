@@ -31,6 +31,44 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=  # RELEASE
 ```
 
+## Modern CLI Tools (MANDATORY)
+
+Use these tools in all Bash commands. Classic Unix alternatives are forbidden.
+
+| Task | Tool | Instead of |
+|------|------|------------|
+| File search | `fd` | `find` |
+| Text search | `rg` (ripgrep) | `grep` |
+| File reading | `bat` | `cat` |
+| Directory listing | `eza` | `ls` / `tree` |
+| Directory jump | `zoxide` | `cd` |
+| Fuzzy search | `fzf` | — |
+| Shell history | `atuin` | `history` |
+| JSON parsing | `jq` | — |
+| YAML parsing | `yq` | — |
+| HTTP requests | `httpie` | `curl` |
+| Code structure search/refactor | `ast-grep` (`sg`) | — |
+| Diff viewer | `difftastic` / `delta` | `diff` |
+| Shell linting | `shellcheck` | — |
+| Shell formatting | `shfmt` | — |
+| Python lint/format | `ruff` | `flake8` / `black` |
+| GitHub operations | `gh` | browser / `curl` |
+| Git TUI | `lazygit` | — |
+| File manager TUI | `yazi` | — |
+| Shell prompt | `starship` | — |
+
+All tools installed at `/opt/homebrew/bin/`.
+
+### Specific Rules
+
+- **`ast-grep`**: Use for structural code search and refactoring (pattern-based, not text-based).
+- **`jq` + `yq`**: Pipeline JSON/YAML — `curl ... | jq '.field'`, `yq '.key' file.yaml`.
+- **`gh` CLI**: GitHub operations must use non-interactive mode: `gh pr create --json`, `gh issue list --json`, etc.
+- **`ruff`**: Python linting and formatting — `ruff check .`, `ruff format .`.
+- **External CLI commands**: Always use non-interactive flags (`--yes`, `--quiet`, `--no-input`) and JSON output (`--format json`, `--output json`) where available.
+
+> **Subagent prompts**: still use `Grep`/`Glob`/`Read` tools (not Bash `rg`/`fd`) — those are for the main agent only.
+
 ## After Code Changes
 
 - [ ] Run compile + tests

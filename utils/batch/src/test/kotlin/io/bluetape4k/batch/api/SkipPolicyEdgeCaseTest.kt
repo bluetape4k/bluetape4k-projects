@@ -71,6 +71,7 @@ class SkipPolicyEdgeCaseTest {
     @Test
     fun `커스텀 정책이 exception 무시하고 skipCount 만 사용`() {
         val policy = SkipPolicy { _, skipCount -> skipCount < 10L }
+        // 같은 skipCount 라면 예외 타입과 무관하게 동일한 결과
         val result0 = policy.shouldSkip(RuntimeException("ex1"), 5L)
         val result1 = policy.shouldSkip(IllegalArgumentException("ex2"), 5L)
         result0.shouldBeTrue()
@@ -82,6 +83,7 @@ class SkipPolicyEdgeCaseTest {
         val policy = SkipPolicy { e, _ ->
             e !is IllegalArgumentException
         }
+        // IllegalArgumentException 이면 항상 false, 나머지는 항상 true
         policy.shouldSkip(IllegalArgumentException("specific"), 0L).shouldBeFalse()
         policy.shouldSkip(IllegalArgumentException("specific"), 999L).shouldBeFalse()
         policy.shouldSkip(RuntimeException("other"), 0L).shouldBeTrue()
@@ -95,6 +97,8 @@ class SkipPolicyEdgeCaseTest {
         val nested = IllegalArgumentException("nested cause")
         val wrapped = RuntimeException("wrapped", nested)
         val policy = SkipPolicy.maxSkips(3L)
+
+        // 정책은 주어진 예외 자체만 검증, cause 는 무시
         policy.shouldSkip(wrapped, 2L).shouldBeTrue()
         policy.shouldSkip(wrapped, 3L).shouldBeFalse()
     }
@@ -106,12 +110,15 @@ class SkipPolicyEdgeCaseTest {
         val restrictive = SkipPolicy.maxSkips(1L)
         val permissive = SkipPolicy.maxSkips(Long.MAX_VALUE)
 
+        // skipCount = 0: 둘 다 true
         restrictive.shouldSkip(RuntimeException("any"), 0L).shouldBeTrue()
         permissive.shouldSkip(RuntimeException("any"), 0L).shouldBeTrue()
 
+        // skipCount = 1: restrictive 는 false, permissive 는 true
         restrictive.shouldSkip(RuntimeException("any"), 1L).shouldBeFalse()
         permissive.shouldSkip(RuntimeException("any"), 1L).shouldBeTrue()
 
+        // skipCount = Long.MAX_VALUE: 둘 다 false
         restrictive.shouldSkip(RuntimeException("any"), Long.MAX_VALUE).shouldBeFalse()
         permissive.shouldSkip(RuntimeException("any"), Long.MAX_VALUE).shouldBeFalse()
     }

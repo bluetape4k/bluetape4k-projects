@@ -109,22 +109,76 @@ class ClickHouseUInt64BigIntColumnType: ColumnType<BigInteger>() {
 // Table extension builders
 // ────────────────────────────────────────────────────────────────────────────────
 
-/** `UInt8` 컬럼 등록 */
+/**
+ * ClickHouse `UInt8` 컬럼을 등록합니다. [UByte] (0..255) 와 매핑됩니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val status = chUByte("status")
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ */
 fun Table.chUByte(name: String): Column<UByte> =
     registerColumn(name, ClickHouseUByteColumnType())
 
-/** `UInt16` 컬럼 등록 */
+/**
+ * ClickHouse `UInt16` 컬럼을 등록합니다. [UShort] (0..65535) 와 매핑됩니다.
+ *
+ * ```kotlin
+ * object MetricsTable : Table("metrics") {
+ *     val port = chUShort("port")
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ */
 fun Table.chUShort(name: String): Column<UShort> =
     registerColumn(name, ClickHouseUShortColumnType())
 
-/** `UInt32` 컬럼 등록 */
+/**
+ * ClickHouse `UInt32` 컬럼을 등록합니다. [UInt] (0..4294967295) 와 매핑됩니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val userId = chUInt("user_id")
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ */
 fun Table.chUInt(name: String): Column<UInt> =
     registerColumn(name, ClickHouseUIntColumnType())
 
-/** `UInt64` 컬럼 등록 — [ULong] 매핑 (성능 우선) */
+/**
+ * ClickHouse `UInt64` 컬럼을 등록합니다. [ULong] 매핑 (성능 우선).
+ *
+ * `2^63` 이상의 값이 필요한 경우 [chUInt64BigInt]를 사용하세요.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val eventId = chULong("event_id")
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ */
 fun Table.chULong(name: String): Column<ULong> =
     registerColumn(name, ClickHouseULongColumnType())
 
-/** `UInt64` 컬럼 등록 — [BigInteger] 매핑 (overflow-safe) */
+/**
+ * ClickHouse `UInt64` 컬럼을 등록합니다. [BigInteger] 매핑 (overflow-safe).
+ *
+ * `2^63` 이상의 UInt64 값을 안전하게 처리해야 할 때 사용합니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val largeCounter = chUInt64BigInt("large_counter")
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ */
 fun Table.chUInt64BigInt(name: String): Column<BigInteger> =
     registerColumn(name, ClickHouseUInt64BigIntColumnType())

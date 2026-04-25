@@ -35,7 +35,22 @@ class DateTime64ColumnType(val precision: Int = 3): ColumnType<Instant>() {
 }
 
 /**
- * `DateTime64(precision, 'UTC')` 컬럼을 등록합니다. 기본 [precision]=3 (밀리초).
+ * ClickHouse `DateTime64(precision, 'UTC')` 컬럼을 등록합니다. [Instant] 와 매핑됩니다.
+ *
+ * - precision=0: 초 단위
+ * - precision=3: 밀리초 단위 (기본값)
+ * - precision=6: 마이크로초 단위
+ * - precision=9: 나노초 단위
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val createdAt = dateTime64("created_at")              // 밀리초 (기본)
+ *     val highPrecTs = dateTime64("high_prec_ts", 6)        // 마이크로초
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ * @param precision 소수점 초 자릿수 (0~9, 기본값 3=밀리초)
  */
 fun Table.dateTime64(name: String, precision: Int = 3): Column<Instant> =
     registerColumn(name, DateTime64ColumnType(precision))

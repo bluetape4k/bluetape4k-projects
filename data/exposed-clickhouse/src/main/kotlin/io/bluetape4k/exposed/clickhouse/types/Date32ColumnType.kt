@@ -23,6 +23,18 @@ class Date32ColumnType: ColumnType<LocalDate>() {
     override fun notNullValueToDB(value: LocalDate): Any = java.sql.Date.valueOf(value)
 }
 
-/** `Date32` 컬럼을 등록합니다. */
+/**
+ * ClickHouse `Date32` 컬럼을 등록합니다. [LocalDate] (1900-01-01 ~ 2299-12-31) 와 매핑됩니다.
+ *
+ * 표준 `Date` 타입의 범위(~2149년)를 초과하는 날짜가 필요한 경우 사용합니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val eventDate = date32("event_date")
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ */
 fun Table.date32(name: String): Column<LocalDate> =
     registerColumn(name, Date32ColumnType())

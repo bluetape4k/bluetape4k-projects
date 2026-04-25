@@ -37,6 +37,18 @@ class ClickHouseArrayColumnType<T: Any>(val inner: ColumnType<T>): ColumnType<Li
         value.map { inner.notNullValueToDB(it) }.toTypedArray()
 }
 
-/** `Array(T)` 컬럼을 등록합니다. */
+/**
+ * ClickHouse `Array(T)` 컬럼을 등록합니다. [List]&lt;T&gt; 와 매핑됩니다.
+ *
+ * ```kotlin
+ * object EventTable : Table("events") {
+ *     val tags = chArray("tags", ClickHouseStringColumnType())
+ *     val scores = chArray("scores", ClickHouseFloat32ColumnType())
+ * }
+ * ```
+ *
+ * @param name 컬럼명
+ * @param innerType 배열 원소의 컬럼 타입
+ */
 fun <T: Any> Table.chArray(name: String, innerType: ColumnType<T>): Column<List<T>> =
     registerColumn(name, ClickHouseArrayColumnType(innerType))
