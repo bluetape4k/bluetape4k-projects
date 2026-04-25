@@ -150,6 +150,11 @@ class ClickHouseInt64ColumnType: ColumnType<Long>() {
  */
 class ClickHouseNullableColumnType<T: Any>(val inner: ColumnType<T>): ColumnType<T>() {
 
+    init {
+        // Exposed 레이어에서 null 값 설정을 허용. DDL의 NULL 키워드는 sanitizeForClickHouse가 제거.
+        nullable = true
+    }
+
     override fun sqlType(): String = "Nullable(${inner.sqlType()})"
 
     override fun valueFromDB(value: Any): T? = inner.valueFromDB(value)

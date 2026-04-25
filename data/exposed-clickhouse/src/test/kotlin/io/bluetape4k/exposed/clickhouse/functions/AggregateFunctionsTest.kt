@@ -122,47 +122,56 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
 
     @Test
     fun `ArgMax SQL 생성 확인`() {
-        val argMaxExpr = argMax(Events.eventName, Events.eventId)
-        val queryBuilder = QueryBuilder(true)
-        argMaxExpr.toQueryBuilder(queryBuilder)
-        val sql = queryBuilder.toString()
-        // SQL에 argMax 함수가 포함되어 있어야 함
+        val sql = transaction(db) {
+            val argMaxExpr = argMax(Events.eventName, Events.eventId)
+            val queryBuilder = QueryBuilder(true)
+            argMaxExpr.toQueryBuilder(queryBuilder)
+            queryBuilder.toString()
+        }
         assert(sql.contains("argMax")) { "Expected SQL to contain 'argMax', but was: $sql" }
     }
 
     @Test
     fun `ArgMin SQL 생성 확인`() {
-        val argMinExpr = argMin(Events.eventName, Events.eventId)
-        val queryBuilder = QueryBuilder(true)
-        argMinExpr.toQueryBuilder(queryBuilder)
-        val sql = queryBuilder.toString()
+        val sql = transaction(db) {
+            val argMinExpr = argMin(Events.eventName, Events.eventId)
+            val queryBuilder = QueryBuilder(true)
+            argMinExpr.toQueryBuilder(queryBuilder)
+            queryBuilder.toString()
+        }
         assert(sql.contains("argMin")) { "Expected SQL to contain 'argMin', but was: $sql" }
     }
 
     @Test
     fun `Quantile SQL 생성 확인`() {
-        val quantileExpr = quantile(0.95, Events.eventId)
-        val queryBuilder = QueryBuilder(true)
-        quantileExpr.toQueryBuilder(queryBuilder)
-        val sql = queryBuilder.toString()
+        val sql = transaction(db) {
+            val quantileExpr = quantile(0.95, Events.eventId)
+            val queryBuilder = QueryBuilder(true)
+            quantileExpr.toQueryBuilder(queryBuilder)
+            queryBuilder.toString()
+        }
         assert(sql.contains("quantile(0.95)")) { "Expected SQL to contain 'quantile(0.95)', but was: $sql" }
     }
 
     @Test
     fun `Uniq SQL 생성 확인`() {
-        val uniqExpr = uniq(Events.region)
-        val queryBuilder = QueryBuilder(true)
-        uniqExpr.toQueryBuilder(queryBuilder)
-        val sql = queryBuilder.toString()
+        val sql = transaction(db) {
+            val uniqExpr = uniq(Events.region)
+            val queryBuilder = QueryBuilder(true)
+            uniqExpr.toQueryBuilder(queryBuilder)
+            queryBuilder.toString()
+        }
         assert(sql.contains("uniq(")) { "Expected SQL to contain 'uniq(', but was: $sql" }
     }
 
     @Test
     fun `UniqExact SQL 생성 확인`() {
-        val uniqExactExpr = uniqExact(Events.region)
-        val queryBuilder = QueryBuilder(true)
-        uniqExactExpr.toQueryBuilder(queryBuilder)
-        val sql = queryBuilder.toString()
+        val sql = transaction(db) {
+            val uniqExactExpr = uniqExact(Events.region)
+            val queryBuilder = QueryBuilder(true)
+            uniqExactExpr.toQueryBuilder(queryBuilder)
+            queryBuilder.toString()
+        }
         assert(sql.contains("uniqExact(")) { "Expected SQL to contain 'uniqExact(', but was: $sql" }
     }
 }

@@ -15,6 +15,7 @@ import org.jetbrains.exposed.v1.core.Table
 class LowCardinalityColumnType<T: Any>(val inner: ColumnType<T>): ColumnType<T>() {
     override fun sqlType(): String = "LowCardinality(${inner.sqlType()})"
 
+    @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T = inner.valueFromDB(value) as T
     override fun notNullValueToDB(value: T): Any = inner.notNullValueToDB(value)
 }

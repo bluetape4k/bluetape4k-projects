@@ -35,7 +35,7 @@ class Date32Test: AbstractClickHouseTest() {
 
     @Test
     fun `createStatement contains Date32`() {
-        val ddl = D32Table.createStatement().joinToString("\n")
+        val ddl = transaction(db) { D32Table.createStatement().joinToString("\n") }
         ddl shouldContain "Date32"
     }
 

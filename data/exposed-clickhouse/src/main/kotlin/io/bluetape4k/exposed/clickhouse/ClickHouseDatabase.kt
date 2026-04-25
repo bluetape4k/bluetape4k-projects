@@ -103,7 +103,12 @@ object ClickHouseDatabase: KLogging() {
                 // 연결 획득 후 래퍼 생성 실패 시 원본 연결을 닫아 leak을 방지합니다.
                 val raw = DriverManager.getConnection(url, props)
                 runCatching { ClickHouseConnectionWrapper(raw) }
-                    .getOrElse { e -> raw.runCatching { close() }; throw e }
+                    .getOrElse { e ->
+                        raw.runCatching { close() }.onFailure { closeEx ->
+                            log.warn("Connection close failed after wrapper creation error: ${closeEx.message}")
+                        }
+                        throw e
+                    }
             }
         )
     }
@@ -140,7 +145,12 @@ object ClickHouseDatabase: KLogging() {
                 // 연결 획득 후 래퍼 생성 실패 시 원본 연결을 닫아 leak을 방지합니다.
                 val raw = DriverManager.getConnection(jdbcUrl, props)
                 runCatching { ClickHouseConnectionWrapper(raw) }
-                    .getOrElse { e -> raw.runCatching { close() }; throw e }
+                    .getOrElse { e ->
+                        raw.runCatching { close() }.onFailure { closeEx ->
+                            log.warn("Connection close failed after wrapper creation error: ${closeEx.message}")
+                        }
+                        throw e
+                    }
             }
         )
     }

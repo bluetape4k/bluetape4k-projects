@@ -42,7 +42,7 @@ class SchemaUtilsTest : AbstractClickHouseTest() {
 
     @Test
     fun `Events createStatement includes ENGINE`() {
-        val statements = Events.createStatement()
+        val statements = transaction(db) { Events.createStatement() }
         // CREATE TABLE만 있어야 함 (ALTER/SEQUENCE 없음)
         statements.size shouldBeEqualTo 1
         val ddl = statements.first()
@@ -53,14 +53,14 @@ class SchemaUtilsTest : AbstractClickHouseTest() {
 
     @Test
     fun `Events createStatement does not include PRIMARY KEY constraint`() {
-        val ddl = Events.createStatement().first()
+        val ddl = transaction(db) { Events.createStatement().first() }
         // CONSTRAINT pk PRIMARY KEY (...) 형태 없어야 함
         ddl.lowercase() shouldNotContain "primary key"
     }
 
     @Test
     fun `Events createStatement does not include NOT NULL or NULL`() {
-        val ddl = Events.createStatement().first()
+        val ddl = transaction(db) { Events.createStatement().first() }
         ddl shouldNotContain "NOT NULL"
         // NULL word boundary (Nullable(T) 타입 내부의 NULL 제외)
         val hasStandaloneNull = ddl.contains(Regex("\\bNULL\\b"))
@@ -69,7 +69,7 @@ class SchemaUtilsTest : AbstractClickHouseTest() {
 
     @Test
     fun `Events createStatement does not include REFERENCES`() {
-        val ddl = Events.createStatement().first()
+        val ddl = transaction(db) { Events.createStatement().first() }
         ddl.lowercase() shouldNotContain "references"
     }
 
@@ -89,15 +89,13 @@ class SchemaUtilsTest : AbstractClickHouseTest() {
 
     @Test
     fun `Table with Nullable column DDL is correct`() {
-        // Nullable(Int32) 컬럼이 올바르게 DDL에 반영되는지 확인
         val testTable = object : ClickHouseTable("nullable_test", mergeTree { orderBy("id") }) {
             val id = long("id")
             val nullableVal = chNullable("nullable_val", ClickHouseInt32ColumnType())
         }
-        val ddl = testTable.createStatement().first()
+        val ddl = transaction(db) { testTable.createStatement().first() }
         ddl shouldContain "Nullable(Int32)"
         ddl shouldNotContain "NOT NULL"
-        // NULL word boundary
         val hasStandaloneNull = ddl.contains(Regex("\\bNULL\\b"))
         hasStandaloneNull.shouldBeFalse()
     }
@@ -108,7 +106,7 @@ class SchemaUtilsTest : AbstractClickHouseTest() {
             val id = long("id")
             val category = lowCardinalityString("category")
         }
-        val ddl = testTable.createStatement().first()
+        val ddl = transaction(db) { testTable.createStatement().first() }
         ddl shouldContain "LowCardinality(String)"
         ddl shouldContain "ENGINE = MergeTree()"
     }

@@ -6,8 +6,10 @@ import org.amshove.kluent.shouldBeTrue
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import java.sql.Connection
 import java.sql.DriverManager
+import java.sql.SQLFeatureNotSupportedException
 import java.util.Properties
 
 /**
@@ -31,27 +33,34 @@ class ClickHouseTransactionPocTest : AbstractClickHouseTest() {
     }
 
     /**
-     * C1 검증: autoCommit=true 상태에서 raw commit()이 예외 없이 반환되는지 확인.
-     * ClickHouseConnectionWrapper의 no-op commit() 구현이 타당함을 실 컨테이너로 검증.
+     * C1 검증: raw ClickHouse 드라이버는 autoCommit=true에서도 commit()을 throw한다.
+     * ClickHouseConnectionWrapper의 no-op commit() 구현 필요성을 실 컨테이너로 검증.
      */
     @Test
-    fun `raw commit does not throw exception`() {
+    fun `raw commit throws SQLFeatureNotSupportedException`() {
         rawConnection().use { conn ->
             conn.autoCommit = true
-            conn.commit() // 예외 없어야 함 (no-op)
-            log.info("raw commit() with autoCommit=true: OK (no-op)")
+            // ClickHouse JDBC 0.9.5 드라이버는 commit()을 지원하지 않아 throw함
+            // → ClickHouseConnectionWrapper에서 no-op으로 처리해야 하는 이유
+            assertThrows<SQLFeatureNotSupportedException> {
+                conn.commit()
+            }
+            log.info("raw commit() with autoCommit=true: throws SQLFeatureNotSupportedException as expected")
         }
     }
 
     /**
-     * C1 검증: autoCommit=true 상태에서 raw rollback()이 예외 없이 반환되는지 확인.
+     * C1 검증: raw ClickHouse 드라이버는 autoCommit=true에서도 rollback()을 throw한다.
      */
     @Test
-    fun `raw rollback does not throw exception`() {
+    fun `raw rollback throws SQLFeatureNotSupportedException`() {
         rawConnection().use { conn ->
             conn.autoCommit = true
-            conn.rollback() // 예외 없어야 함 (no-op)
-            log.info("raw rollback() with autoCommit=true: OK (no-op)")
+            // ClickHouse JDBC 0.9.5 드라이버는 rollback()을 지원하지 않아 throw함
+            assertThrows<SQLFeatureNotSupportedException> {
+                conn.rollback()
+            }
+            log.info("raw rollback() with autoCommit=true: throws SQLFeatureNotSupportedException as expected")
         }
     }
 

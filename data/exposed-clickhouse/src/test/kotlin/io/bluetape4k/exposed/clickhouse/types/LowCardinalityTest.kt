@@ -41,7 +41,7 @@ class LowCardinalityTest: AbstractClickHouseTest() {
 
     @Test
     fun `createStatement DDL contains LowCardinality(String)`() {
-        val ddl = LcTable.createStatement().joinToString("\n")
+        val ddl = transaction(db) { LcTable.createStatement().joinToString("\n") }
         ddl shouldContain "LowCardinality(String)"
     }
 

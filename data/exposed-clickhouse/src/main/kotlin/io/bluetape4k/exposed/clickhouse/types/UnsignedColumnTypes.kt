@@ -71,7 +71,14 @@ class ClickHouseULongColumnType: ColumnType<ULong>() {
     override fun valueFromDB(value: Any): ULong = when (value) {
         is ULong -> value
         is Long -> value.toULong()
-        is BigInteger -> value.toLong().toULong()
+        is BigInteger -> {
+            // 2^63 이상의 값은 Long.toULong()으로 truncation 없이 변환 가능 (ULong은 2^64-1까지 지원)
+            // BigInteger가 ULong 범위(0..2^64-1)를 초과하면 명시적 에러
+            require(value.signum() >= 0 && value.bitLength() <= 64) {
+                "BigInteger value $value is out of ULong range (0..2^64-1). Use chUInt64BigInt() for values >= 2^63."
+            }
+            value.toLong().toULong()
+        }
         is Number -> value.toLong().toULong()
         is String -> value.toULong()
         else -> error("Unexpected UInt64 value: $value (${value::class.simpleName})")

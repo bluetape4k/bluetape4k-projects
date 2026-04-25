@@ -39,7 +39,7 @@ class ArrayTypeTest: AbstractClickHouseTest() {
 
     @Test
     fun `createStatement contains Array(String) and Array(Int32)`() {
-        val ddl = ArrTable.createStatement().joinToString("\n")
+        val ddl = transaction(db) { ArrTable.createStatement().joinToString("\n") }
         ddl shouldContain "Array(String)"
         ddl shouldContain "Array(Int32)"
     }
