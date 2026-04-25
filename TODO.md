@@ -556,6 +556,174 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한
 
 ---
 
+## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci/MiniStack 🟡
+
+> **배경 (2026-04-25 기준)**:
+> - LocalStack GitHub(`localstack/localstack`) **2026-03-23 아카이브**. BSL 라이선스, KMS/CloudFront/EBS 유료 이동.
+> - MinIO GitHub(`minio/minio`) **2026-04-25 아카이브** → AIStor로 리브랜딩.
+> - **floci** (MIT, GraalVM Native, 24ms 시작, 13MiB 메모리, 33 서비스, 공식 Testcontainers 모듈) — **최유력 대안**.
+> - **MiniStack** (MIT, 270MB, <1초, 40+ 서비스, "Real Infrastructure") — floci와 함께 검토.
+
+### 13.1 올인원 AWS 에뮬레이터 비교
+
+| 에뮬레이터 | 지원 서비스 | 라이선스 | 이미지 크기 | 메모리 | 시작 시간 | TC 공식 모듈 | 상태 |
+|-----------|------------|---------|------------|-------|---------|------------|------|
+| **floci** | 33개 (S3/SQS/SNS/DynamoDB/Lambda/KMS/RDS-실제/ElastiCache-실제/MSK/Step Functions/...) | **MIT** | **90MB** | **13MiB** | **24ms** | ✅ 공식 | ✅ 매우 활성 (2026-02~) |
+| **MiniStack** | 40+ (동일 + Athena/Transfer Family/...) | **MIT** | ~270MB | ~40MB | <1초 | 커뮤니티 | ✅ 활성 (2.2k ⭐) |
+| **fakecloud** | 23개 (1,680 operations, Smithy 기반) | AGPL-3.0 | 19MB | 10MiB | 500ms | Java SDK 포함 | ✅ 활성 (2026-04~, Rust) |
+| LocalStack (Hobby) | 30+ | BSL | ~1GB | ~500MB | ~20초 | ✅ 공식 | ⚠️ 아카이브 |
+| LocalStack (Ultimate) | 110+ | 독점 | ~1GB | ~500MB | ~20초 | ✅ 공식 | 💰 $89/월 |
+| Moto (서버 모드) | 100+ | Apache 2.0 | Python | 낮음 | 빠름 | ❌ | ✅ 활성 (Python 전용) |
+
+**floci 핵심 차별점 (2026년 기준 최우선 추천):**
+- GraalVM Native Image → 24ms 시작, 메모리 13MiB, Docker 이미지 90MB
+- **공식 Testcontainers 모듈** — `io.floci:floci-testcontainers`
+- RDS: 실제 PostgreSQL/MySQL 컨테이너, ElastiCache: 실제 Redis/Valkey
+- MSK (Kafka), ECS, API Gateway v2, Cognito, Step Functions 포함
+
+**MiniStack 추가 차별점:**
+- Athena (실제 DuckDB), Transfer Family, CloudFront, WAF v2 지원
+- `EDGE_PORT` 등 LocalStack 호환 환경변수로 드롭인 교체 가능
+
+### 13.2 서비스 전용 에뮬레이터
+
+| 에뮬레이터 | 서비스 | 언어 | 라이선스 | TC 통합 | Stars | 상태 |
+|-----------|-------|------|---------|---------|-------|------|
+| **ElasticMQ** | SQS 전용 | Scala/Pekko | Apache 2.0 | JVM 임베드 가능 | 2.8k | ✅ 활성 (JVM 네이티브 최적) |
+| **DynamoDB Local** | DynamoDB 전용 | Java (AWS) | AWS 약관 | GenericContainer | - | ✅ AWS 공식 |
+| **AIStor Free** (구 MinIO) | S3 전용 | Go | AGPLv3 | ✅ 공식 모듈 | 60.8k (아카이브) | ⚠️ 아카이브→AIStor |
+| **GoAWS** | SQS + SNS | Go | MIT | GenericContainer | 836 | ✅ 활성 |
+| **AWS SAM Local** | Lambda + API GW | Python | Apache 2.0 | 간접 가능 | 6.7k | ✅ AWS 공식 |
+| **Mailpit** | SMTP (SES 대체) | Go | MIT | 커뮤니티 모듈 | 9.1k | ✅ 매우 활성 |
+| **WireMock** | HTTP mock (범용) | Java | Apache 2.0 | ✅ 공식 모듈 | 6k+ | ✅ 매우 활성 |
+| **Scality CloudServer** | S3 멀티백엔드 | JS | Apache 2.0 | GenericContainer | 2k | 보통 |
+| ~~Step Functions Local~~ | Step Functions | Java | AWS | GenericContainer | - | ❌ 아카이브 (2년 방치) |
+| ~~s3rver~~ | S3 | JS | MIT | - | 601 | ❌ 2025-09 아카이브 |
+| ~~MailHog~~ | SMTP | Go | MIT | - | 14.6k | ❌ 2020년 중단 |
+| ~~dynalite~~ | DynamoDB | JS | Apache 2.0 | - | 1k | ❌ 2020년 이후 중단 |
+
+### 13.3 서비스별 최적 에뮬레이터 선택 가이드
+
+| AWS 서비스 | 권장 (올인원) | 권장 (전용) | 비고 |
+|-----------|-------------|------------|------|
+| S3 | **floci** | AIStor Free (TC 공식) | MinIO 아카이브됨 |
+| SQS | **floci** | ElasticMQ (JVM 임베드) | SQS 단독 시 ElasticMQ 최적 |
+| SQS + SNS | **floci** | GoAWS | GoAWS: MIT, Docker, 경량 |
+| DynamoDB | **floci** | DynamoDB Local | AWS 공식 = API 완전 보장 |
+| SES/SES v2 | **floci** | Mailpit (SMTP 캡처) | MailHog 대체 → Mailpit |
+| Secrets Manager | **floci** | - | 전용 에뮬레이터 없음 |
+| KMS | **floci** | - | LocalStack Hobby 유료 이동 |
+| Kinesis | **floci** | - | Kinesalite 유지보수 중단 |
+| Lambda + API GW | **floci** | AWS SAM Local | SAM = 실제 Lambda 런타임 |
+| Step Functions | **floci** | - | AWS 공식 Docker 아카이브됨 |
+| RDS | **floci** | TC PostgreSQL | 실제 컨테이너 권장 |
+| ElastiCache | **floci** | TC Redis | 실제 컨테이너 권장 |
+| MSK (Kafka) | **floci** | TC Kafka | floci = 실제 Kafka 컨테이너 |
+| HTTP API mock | - | **WireMock** (TC 공식) | AWS API 형태만 흉내낼 때 |
+| 이메일 캡처 | - | **Mailpit** | REST API + Web UI 제공 |
+
+### 13.4 전환 작업 항목
+
+**Phase 1 — floci 도입 (최우선)**
+
+- [ ] `testing/testcontainers/` 에 `FlociServer.kt` 추가
+  - `io.floci:floci-testcontainers` 공식 모듈 활용
+  - S3/SQS/SNS/DynamoDB/KMS/Secrets Manager 엔드포인트 헬퍼
+  - Spring Boot `@DynamicPropertySource` 통합
+- [ ] `testing/testcontainers/` 에 `ElasticMqEmbeddedServer.kt` 추가 (SQS 전용)
+- [ ] `testing/testcontainers/` 에 `MailpitServer.kt` 추가 (SES 이메일 캡처)
+- [ ] `aws/`, `aws-kotlin/` 모듈 테스트: LocalStack → floci 전환
+
+**Phase 2 — MiniStack 병행 검토**
+
+- [ ] floci vs MiniStack API 호환성 비교 테스트
+  - Athena, Transfer Family 등 floci 미지원 서비스 확인
+  - 필요 시 `MiniStackServer.kt` 추가 (floci fallback)
+
+**Phase 3 — 레거시 정리**
+
+- [ ] `LocalStackServer.kt` deprecated 마킹
+- [ ] 모든 `LocalStackServer` 사용처 floci로 일괄 교체
+- [ ] CI/CD nightly-tests.yml Docker 이미지 전환 (`localstack` → `ghcr.io/floci-io/floci`)
+
+### 13.5 floci Testcontainers 통합 예시
+
+```kotlin
+// floci 공식 Testcontainers 모듈 활용
+@Testcontainers
+class AwsIntegrationTest {
+    companion object {
+        @Container
+        val floci = FlociContainer()  // io.floci:floci-testcontainers
+            .withServices(FlociService.S3, FlociService.SQS, FlociService.DYNAMODB)
+    }
+
+    fun s3Client() = S3Client.builder()
+        .endpointOverride(floci.endpointOverride())
+        .credentialsProvider(StaticCredentialsProvider.create(
+            AwsBasicCredentials.create("test", "test")
+        ))
+        .region(Region.US_EAST_1)
+        .build()
+}
+
+// ElasticMQ 임베디드 (SQS 전용, Docker 불필요)
+class ElasticMqEmbeddedServer(port: Int = 9324) : AutoCloseable {
+    private val server = SQSRestServerBuilder
+        .withPort(port)
+        .withInterface("localhost")
+        .start()
+
+    fun sqsClient() = SqsClient.builder()
+        .endpointOverride(URI.create("http://localhost:$port"))
+        .credentialsProvider(StaticCredentialsProvider.create(
+            AwsBasicCredentials.create("x", "x")
+        ))
+        .region(Region.US_EAST_1)
+        .build()
+
+    override fun close() = server.stopAndWait()
+}
+
+// Mailpit (SES SMTP 캡처)
+class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") {
+    init {
+        withExposedPorts(1025, 8025)  // SMTP, Web UI
+    }
+    fun smtpPort() = getMappedPort(1025)
+    fun webUiUrl() = "http://localhost:${getMappedPort(8025)}"
+}
+```
+
+### 13.6 리스크 / 고려사항
+
+- **floci**: 2026-02 출시 (약 3개월, 생태계 미성숙). 33 서비스 중 엣지 케이스 API 호환성 검증 필요
+- **MiniStack**: 드롭인 교체 가능하나 공식 TC 모듈 없음 (커뮤니티)
+- **fakecloud**: AGPL-3.0 라이선스 — 라이브러리로 배포 시 주의
+- **ElasticMQ**: Scala 의존성 (JAR 크기 증가 ~15MB)
+- **LocalStack 마이그레이션**: 기존 `LocalStackServer` 사용처가 많을 경우 점진적 교체 필요
+
+#### 참고 자료
+- [floci 공식 GitHub](https://github.com/floci-io/floci) — MIT, Java/GraalVM Native
+- [floci Testcontainers 모듈](https://github.com/floci-io/floci/tree/main/testcontainers)
+- [MiniStack 공식 사이트](https://ministack.org)
+- [ministackorg/ministack GitHub](https://github.com/ministackorg/ministack)
+- [fakecloud GitHub](https://github.com/faiscadev/fakecloud) — Rust, AGPL-3.0
+- [LocalStack 아카이브 공지](https://github.com/localstack/localstack)
+- [ElasticMQ GitHub (softwaremill)](https://github.com/softwaremill/elasticmq)
+- [DynamoDB Local Docker Hub](https://hub.docker.com/r/amazon/dynamodb-local)
+- [AIStor (구 MinIO)](https://min.io)
+- [Moto GitHub](https://github.com/getmoto/moto)
+- [GoAWS GitHub](https://github.com/Admiral-Piett/goaws)
+- [AWS SAM CLI GitHub](https://github.com/aws/aws-sam-cli)
+- [WireMock Testcontainers 모듈](https://wiremock.org/docs/solutions/testcontainers/)
+- [Mailpit GitHub](https://github.com/axllent/mailpit)
+- [Scality CloudServer GitHub](https://github.com/scality/cloudserver)
+- [Testcontainers LocalStack 모듈](https://java.testcontainers.org/modules/localstack/)
+- [Testcontainers MinIO 모듈](https://java.testcontainers.org/modules/minio/)
+
+---
+
 ## 완료 기준
 
 각 항목은 다음 조건을 모두 만족해야 완료:
