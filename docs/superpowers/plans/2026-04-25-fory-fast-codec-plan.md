@@ -295,7 +295,7 @@
     - KDoc 추가/갱신 (신규 public API 전수)
     - 작업 위치가 `.worktrees/fory-fast-codec` 인지 확인
     - superpowers index 갱신 완료
-    - `/coderabbit:review` 실행 권장
+    - `/oh-my-claudecode:code-reviewer` 실행 권장
   - PR description 초안에 테스트 결과/벤치마크 표/비대칭 계약 경고 포함
 - **출력(완료 기준)**: 체크리스트 100% 통과, PR 본문 초안 준비 완료
 

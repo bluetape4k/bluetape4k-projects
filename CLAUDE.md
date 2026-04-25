@@ -110,7 +110,7 @@ Verify every item before running `gh pr create`:
   `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`
 - [ ] superpowers work → `docs/superpowers/index/YYYY-MM.md` updated
 - [ ] `virtualthread/api` change → both `jdk21` and `jdk25` updated
-- [ ] Run CodeRabbit review via `/coderabbit:review` skill before merging
+- [ ] Run OMC Code Review via `/oh-my-claudecode:code-reviewer` skill before merging
 
 ## Git Workflow
 

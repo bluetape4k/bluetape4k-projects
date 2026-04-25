@@ -370,7 +370,7 @@ class BluetapeWebfluxServer private constructor(
 | T20 | `./bin/repo-test-summary -- ./gradlew :bluetape4k-mock-web-server:test :bluetape4k-mock-webflux-server:test :bluetape4k-testcontainers:test`; `docs/testlogs/2026-04.md` 기록                               | medium     |
 | T21 | Gatling 수동 실행; p95/p99 PR 첨부                                                                                                                                                                              | medium     |
 | T22 | `docs/superpowers/index/2026-04.md` 항목 추가; `INDEX.md` 건수 갱신                                                                                                                                               | low        |
-| T23 | PR 생성; `/coderabbit:review`; 피드백 반영                                                                                                                                                                       | medium     |
+| T23 | PR 생성; `/oh-my-claudecode:code-reviewer`; 피드백 반영                                                                                                                                                          | medium     |
 
 **Total: 23 tasks — 4 high, 14 medium, 5 low**
 

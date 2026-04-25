@@ -1929,7 +1929,7 @@ git commit -m "docs(superpowers): 2026-04 인덱스에 mock-server 확장 프로
 
 ---
 
-## Task 23: Open PR + CodeRabbit review (T23)
+## Task 23: Open PR + OMC Code Review (T23)
 
 **Complexity:** medium
 **Files:** only follow-up edits triggered by review
@@ -1937,7 +1937,7 @@ git commit -m "docs(superpowers): 2026-04 인덱스에 mock-server 확장 프로
 **Acceptance criteria:**
 
 - `gh pr view --json state` returns `"OPEN"`
-- CodeRabbit review completes; all CRITICAL and HIGH comments addressed
+- OMC Code Review completes; all CRITICAL and HIGH comments addressed
 - Branch is up to date with `develop` with no merge conflicts
 
 - [ ] **Step 1: Push branch**
@@ -1955,9 +1955,9 @@ Run `gh pr create` with title `feat: mock-server 를 MVC/WebFlux 이중 스택�
 - Gatling simulations with p95/p99 numbers attached
 - Test plan checklist with PASS status
 
-- [ ] **Step 3: Trigger CodeRabbit**
+- [ ] **Step 3: Trigger OMC Code Review**
 
-Invoke `/coderabbit:review`. Address every CRITICAL and HIGH comment with fixup commits.
+Invoke `/oh-my-claudecode:code-reviewer`. Address every CRITICAL and HIGH comment with fixup commits.
 
 - [ ] **Step 4: Final verification**
 
@@ -2017,6 +2017,6 @@ Expected: all PASS.
 | T20   | Full test run + testlog entry                                    | medium     |
 | T21   | Run Gatling simulations + record metrics                         | medium     |
 | T22   | superpowers INDEX update                                         | low        |
-| T23   | Open PR + CodeRabbit review                                      | medium     |
+| T23   | Open PR + OMC Code Review                                        | medium     |
 
 **Totals:** 4 high, 15 medium, 5 low.

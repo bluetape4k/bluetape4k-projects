@@ -20,7 +20,7 @@
 ## Code Review
 
 - [ ] **Code review 에이전트 실행 완료** (`oh-my-claudecode:code-reviewer` 또는 `pr-review-toolkit:code-reviewer`) — HIGH/CRITICAL 이슈 모두 해소
-- [ ] CodeRabbit 리뷰 확인 후 머지
+- [ ] OMC Code Review 확인 후 머지
 
 ## 체크리스트
 

@@ -147,7 +147,7 @@
     - Per-module test counts (before/after).
     - Coverage mapping table.
     - Verification commands.
-- Run `/coderabbit:review` before merge.
+- Run `/oh-my-claudecode:code-reviewer` before merge.
 - After merge: `git worktree remove .worktrees/exposed-test-coverage` + `./bin/clean-branches`.
 - Exit: PR merged, worktree removed.
 
