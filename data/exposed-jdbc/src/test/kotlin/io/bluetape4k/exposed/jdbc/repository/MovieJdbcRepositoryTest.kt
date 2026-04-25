@@ -133,4 +133,33 @@ class MovieJdbcRepositoryTest: AbstractExposedTest() {
             }
         }
     }
+
+    /**
+     * Savepoint 를 이용한 트랜잭션 롤백 시 삽입된 데이터가 취소됨을 검증합니다.
+     *
+     * Savepoint 설정 후 새 영화를 삽입하고 Savepoint로 롤백하면,
+     * 삽입 전 개수로 되돌아가야 합니다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `savepoint 롤백 시 삽입된 데이터가 취소된다`(testDB: TestDB) {
+        withMovieAndActors(testDB) {
+            val countBefore = repository.count()
+            log.debug { "countBefore: $countBefore" }
+
+            // Savepoint 설정 후 영화 삽입
+            val savepoint = connection.setSavepoint("before_insert")
+            repository.save(newMovieRecord())
+            val countAfterInsert = repository.count()
+            countAfterInsert shouldBeEqualTo countBefore + 1
+
+            // Savepoint로 롤백 — 삽입 취소
+            connection.rollback(savepoint)
+
+            // 롤백 후 개수는 삽입 전과 동일해야 함
+            val countAfterRollback = repository.count()
+            log.debug { "countAfterRollback: $countAfterRollback" }
+            countAfterRollback shouldBeEqualTo countBefore
+        }
+    }
 }

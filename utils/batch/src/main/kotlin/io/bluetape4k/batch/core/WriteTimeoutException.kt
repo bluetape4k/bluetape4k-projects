@@ -2,6 +2,8 @@ package io.bluetape4k.batch.core
 
 import io.bluetape4k.batch.api.BatchWriter
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 
@@ -34,6 +36,8 @@ internal suspend fun writeWithTimeout(
         try {
             withTimeout(timeout) { w.write(items) }
         } catch (e: TimeoutCancellationException) {
+            // 외부 취소(outer withTimeout/cancellation)가 발생했으면 CancellationException으로 전파
+            currentCoroutineContext().ensureActive()
             throw WriteTimeoutException(
                 "Writer timed out after $timeout",
                 e,
