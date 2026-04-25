@@ -248,8 +248,7 @@ class NetCdfCatalogService(
 
         transaction {
             val conn = connection.connection as java.sql.Connection
-            val ps = conn.prepareStatement(sql)
-            try {
+            conn.prepareStatement(sql).use { ps ->
                 val iter = data.indexIterator
                 var t = 0
                 while (iter.hasNext()) {
@@ -267,8 +266,6 @@ class NetCdfCatalogService(
                     t++
                 }
                 ps.executeBatch()
-            } finally {
-                ps.close()
             }
             progressRepo.renewLease(ctx.progressId, lastSliceIdx = 0L, leaseTtl = LEASE_TTL)
         }

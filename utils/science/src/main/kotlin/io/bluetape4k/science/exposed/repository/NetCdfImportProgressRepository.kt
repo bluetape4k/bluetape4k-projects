@@ -109,7 +109,8 @@ class NetCdfImportProgressRepository: LongJdbcRepository<NetCdfImportProgress> {
         // Step 2: 조건부 UPSERT (PENDING / FAILED / 만료 IN_PROGRESS 만 허용)
         val now = Instant.now()
         val leaseExp = now.plus(leaseTtl)
-        // started_at 은 최초 시작 시각을 보존 — 재개(FAILED→IN_PROGRESS) 시 COALESCE 로 기존 값 유지 (M3)
+        // started_at 은 최초 시작 시각을 보존 — 재개(FAILED→IN_PROGRESS) 시 COALESCE 로 기존 값 유지 (M3).
+        // 컬럼은 NOT NULL 이라 EXCLUDED.started_at 분기는 dead — 의도된 방어적 안전망.
         val sql = """
             INSERT INTO netcdf_import_progress
                 (file_id, variable_name, status, last_slice_idx, lease_expires_at, error_message,
