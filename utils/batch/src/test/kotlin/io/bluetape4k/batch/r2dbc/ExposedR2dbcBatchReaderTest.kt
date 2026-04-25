@@ -169,7 +169,37 @@ class ExposedR2dbcBatchReaderTest : AbstractBatchR2dbcTest() {
         }
     }
 
-    // ─── 6. pageSize + 1 경계 ────────────────────────────────────────────────
+    // ─── 6. chunkSize보다 적은 데이터 → 단일 partial chunk ──────────────────────
+
+    /**
+     * 데이터가 pageSize보다 적을 때 단 한 번의 페이지 조회로 전체를 읽음을 검증한다.
+     *
+     * 데이터 2건, pageSize=5 → 두 건 모두 읽은 후 null 반환.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `데이터가 pageSize보다 적을 때 단일 partial chunk 반환`(testDB: TestDB) {
+        runSuspendIO {
+            withBatchTables(testDB) { db ->
+                insertSources(2)
+
+                val reader = makeReader(db.db!!, pageSize = 5)
+                reader.open()
+                val results = mutableListOf<SourceRecord>()
+                var item = reader.read()
+                while (item != null) {
+                    results.add(item)
+                    item = reader.read()
+                }
+                reader.close()
+
+                results.size shouldBeEqualTo 2
+                results.map { it.id } shouldBeEqualTo listOf(1L, 2L)
+            }
+        }
+    }
+
+    // ─── 7. pageSize + 1 경계 ────────────────────────────────────────────────
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

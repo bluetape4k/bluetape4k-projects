@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.assertFailsWith
 
 /**
  * [ExposedR2dbcBatchWriter] R2DBC 통합 테스트.
@@ -62,7 +63,35 @@ class ExposedR2dbcBatchWriterTest : AbstractBatchR2dbcTest() {
         }
     }
 
-    // ─── 3. 다회 write 누적 ──────────────────────────────────────────────────
+    // ─── 3. 중복 키 INSERT 시 예외 전파 ─────────────────────────────────────────
+
+    /**
+     * `ignore` 옵션 없이 unique 컬럼에 중복 삽입 시 R2DBC 예외가 전파됨을 검증한다.
+     *
+     * [BatchTargetTable.sourceName]은 unique 인덱스를 가지므로 동일 값을 두 번 삽입하면
+     * [Exception]이 발생해야 한다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `중복 키 INSERT 시 예외 전파`(testDB: TestDB) {
+        runSuspendIO {
+            withBatchTables(testDB) { db ->
+                val writer = makeWriter(db.db!!)
+                val items = listOf(TargetRecord("r2dbc-dup", 99))
+
+                writer.write(items)
+
+                // 두 번째 동일 키 삽입 → R2DBC SQL 예외 전파
+                assertFailsWith<Exception> {
+                    writer.write(items)
+                }
+
+                BatchTargetTable.selectAll().count() shouldBeEqualTo 1L
+            }
+        }
+    }
+
+    // ─── 4. 다회 write 누적 ──────────────────────────────────────────────────
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)

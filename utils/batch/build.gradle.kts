@@ -1,6 +1,18 @@
 plugins {
     kotlin("plugin.allopen")
     id(Plugins.kotlinx_benchmark)
+    id(Plugins.kover)
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                // JMH 벤치마크 코드는 커버리지 측정 대상에서 제외
+                packages("io.bluetape4k.batch.benchmark")
+            }
+        }
+    }
 }
 
 allOpen {

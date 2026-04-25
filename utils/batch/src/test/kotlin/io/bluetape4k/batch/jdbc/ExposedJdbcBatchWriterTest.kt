@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.test.assertFailsWith
 
 /**
  * [ExposedJdbcBatchWriter] 통합 테스트.
@@ -85,7 +86,33 @@ class ExposedJdbcBatchWriterTest : AbstractBatchJdbcTest() {
         }
     }
 
-    // ─── 4. ignore = true - 중복 키 무시 ─────────────────────────────────────
+    // ─── 4. ignore = false - 중복 키 예외 발생 ───────────────────────────────
+
+    /**
+     * `ignore=false`(기본값) 상태에서 unique 컬럼에 중복 삽입 시 예외가 전파됨을 검증한다.
+     *
+     * [BatchTargetTable.sourceName]은 unique 인덱스를 가지므로 동일 값 중복 삽입 시
+     * [Exception]이 발생해야 한다.
+     */
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `ignore = false - 중복 키 INSERT 시 예외 발생`(testDB: TestDB) {
+        withBatchTables(testDB) {
+            val writer = makeWriter(testDB, ignore = false)
+            val items = listOf(TargetRecord("dup-key", 42))
+
+            runSuspendIO { writer.write(items) }
+
+            // 두 번째 동일 키 삽입 → SQL 예외 전파
+            assertFailsWith<Exception> {
+                runSuspendIO { writer.write(items) }
+            }
+
+            countTarget(testDB) shouldBeEqualTo 1L
+        }
+    }
+
+    // ─── 5. ignore = true - 중복 키 무시 ─────────────────────────────────────
 
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
