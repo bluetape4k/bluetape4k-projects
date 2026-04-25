@@ -329,15 +329,24 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Test exposed-jdbc (${{ matrix.test_db }})
-        run: ./gradlew :bluetape4k-exposed-jdbc:test
+      - name: Test exposed core+dao+jdbc (${{ matrix.test_db }})
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-core:test \
+            :bluetape4k-exposed-dao:test \
+            :bluetape4k-exposed-jdbc:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: ${{ matrix.test_db }}
 
       - name: Generate Kover XML report
         if: always()
-        run: ./gradlew :bluetape4k-exposed-jdbc:koverXmlReport
+        run: |
+          ./gradlew \
+            :bluetape4k-exposed-core:koverXmlReport \
+            :bluetape4k-exposed-dao:koverXmlReport \
+            :bluetape4k-exposed-jdbc:koverXmlReport \
+            --parallel
         continue-on-error: true
 
       - name: Upload test results
