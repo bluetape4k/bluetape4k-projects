@@ -23,12 +23,28 @@
 - [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
 - [ ] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
 
+<<<<<<< HEAD
+### 1.2 io/csv — Record.toFieldMap() 복원 🟡
+
+- 배경: 1.7.0에서 Apache Commons CSV → 자체 `CsvLexer` 교체 시 `toFieldMap()` 메서드가 누락됨
+- `bluetape4k-graph` 등 외부 소비자가 `record.headers?.zip(record.values)?.toMap()` 로 workaround 중
+- [ ] `Record` 인터페이스에 `toFieldMap(): Map<String, String?>` 확장함수 또는 메서드 추가
+  ```kotlin
+  fun Record.toFieldMap(): Map<String, String?> =
+      headers?.zip(values)?.toMap() ?: emptyMap()
+  ```
+- [ ] `CsvRecordReader` / `SuspendCsvRecordReader` 반환 타입에서 직접 호출 가능하도록 검증
+- [ ] `bluetape4k-graph` graph-io/csv 의 workaround 제거 후 재검증
+
+### 1.3 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
+=======
 #### 참고 자료
 - [UCAR NetCDF-Java 공식 문서](https://docs.unidata.ucar.edu/netcdf-java/current/)
 - [unidata/netcdf-java GitHub](https://github.com/Unidata/netcdf-java)
 - [NetCDF 파일 포맷 명세](https://docs.unidata.ucar.edu/nug/current/)
 
 ### 1.2 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
+>>>>>>> 95b899fb6948c3dfe23002e6965172c7e28fbf54
 
 - Issue: [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108)
 - [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
