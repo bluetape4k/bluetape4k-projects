@@ -6,28 +6,31 @@ import io.bluetape4k.science.exposed.AbstractPostgisTest
 import io.bluetape4k.science.exposed.model.NetCdfFileRecord
 import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
 import io.bluetape4k.science.exposed.service.NetCdfCatalogService
-import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 /**
- * [NetCdfFileTable], [NetCdfGridValueTable] 및 [NetCdfFileRepository], [NetCdfCatalogService] 통합 테스트.
+ * [NetCdfFileTable] / [NetCdfGridValueTable] / [NetCdfImportProgressTable]
+ * 및 [NetCdfFileRepository] CRUD 통합 테스트.
  *
- * PostGIS 컨테이너(`postgis/postgis:16-3.4`)를 Testcontainers로 구동하여
- * DDL 생성, 더미 데이터 insert/findById, CatalogService의 미구현 메서드 예외를 검증합니다.
+ * PostGIS 컨테이너(`postgis/postgis:16-3.4`) 를 Testcontainers 로 구동하여
+ * DDL 생성 + 더미 데이터 insert / findById / findAll 동작을 검증한다.
+ *
+ * 실 NetCDF 파일 기반 [NetCdfCatalogService] 동작은 [NetCdfCatalogServiceTest] 참조.
  */
 class NetCdfTableTest: AbstractPostgisTest() {
 
     companion object: KLogging()
 
     private val fileRepo = NetCdfFileRepository()
-    private val catalogService = NetCdfCatalogService(fileRepo)
+    private val progressRepo = NetCdfImportProgressRepository()
+    private val catalogService = NetCdfCatalogService(fileRepo, progressRepo, meterRegistry = null)
 
     @Test
     fun `DDL - NetCdfFileTable과 NetCdfGridValueTable 생성 확인`() {
@@ -108,7 +111,6 @@ class NetCdfTableTest: AbstractPostgisTest() {
 
             log.debug { "최소 NetCdfFileRecord 저장 성공: id=${saved.id}" }
 
-            // cleanup
             fileRepo.deleteById(saved.id)
         }
     }
@@ -128,26 +130,7 @@ class NetCdfTableTest: AbstractPostgisTest() {
 
             log.debug { "전체 NetCdfFileRecord 수: ${all.size}" }
 
-            // cleanup
             savedIds.forEach { fileRepo.deleteById(it) }
-        }
-    }
-
-    @Test
-    fun `NetCdfCatalogService - registerFile 호출 시 NotImplementedError 발생`() {
-        assertThrows<NotImplementedError> {
-            runBlocking {
-                catalogService.registerFile("/data/test.nc")
-            }
-        }
-    }
-
-    @Test
-    fun `NetCdfCatalogService - importGridValues 호출 시 NotImplementedError 발생`() {
-        assertThrows<NotImplementedError> {
-            runBlocking {
-                catalogService.importGridValues(1L, "temperature")
-            }
         }
     }
 }

@@ -6,6 +6,24 @@ configurations {
     }
 }
 
+// JUnit 5 태그 필터링 — CI 기본은 slow-netcdf 제외, nightly 는 -PincludeTags 로 활성화
+// include 가 명시되면 default exclude 적용 안 함 (충돌 방지 — Codex Plan v2.1 Critical#1)
+tasks.test {
+    useJUnitPlatform {
+        val include = (project.findProperty("includeTags") as String?)
+            ?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+        val excludeProp = (project.findProperty("excludeTags") as String?)
+            ?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() }
+        val exclude = when {
+            excludeProp != null -> excludeProp
+            include.isNotEmpty() -> emptyList()
+            else -> listOf("slow-netcdf")
+        }
+        include.forEach { includeTags(it) }
+        exclude.forEach { excludeTags(it) }
+    }
+}
+
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-logging"))
@@ -21,10 +39,15 @@ dependencies {
     compileOnly(Libs.geotools_referencing)
     compileOnly(Libs.geotools_epsg_hsql)
 
-    // NetCDF (UCAR — compileOnly)
-    // TODO: edu.ucar:netcdfAll 아티팩트 좌표 확인 필요 (Unidata Maven 저장소 재구성됨)
-    // Phase 4 (NetCDF 구현) 시작 전에 정확한 버전/저장소 확인
-    // compileOnly(Libs.ucar_netcdf)
+    // NetCDF (UCAR netCDF-Java 5.9.1 — compileOnly, BSD-3-Clause)
+    // 저장소: 루트 build.gradle.kts:71 에 Unidata Nexus 선언됨
+    compileOnly(Libs.ucar_cdm_core)
+    compileOnly(Libs.ucar_netcdf4)
+    // cdm-core 가 ImmutableList<Variable> 등 Guava 컬렉션을 API 표면에 노출 → 컴파일 시 필요
+    compileOnly(Libs.guava)
+
+    // Micrometer — MeterRegistry 선택 주입 (compileOnly)
+    compileOnly(Libs.micrometer_core)
 
     // Coroutines (compileOnly)
     compileOnly(project(":bluetape4k-coroutines"))

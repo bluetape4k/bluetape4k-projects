@@ -99,3 +99,59 @@ data class NetCdfFileRecord(
         private const val serialVersionUID = 1L
     }
 }
+
+/**
+ * NetCDF 변수 단위 import 진행 상태입니다.
+ *
+ * - [PENDING] : row 가 막 생성된 초기 상태 (`acquireLease` 직전)
+ * - [IN_PROGRESS] : lease 보유 중 — 활성 import 또는 stale (lease 만료 후 다른 호출자가 재획득 가능)
+ * - [COMPLETED] : 정상 완료 — 재호출 시 즉시 no-op
+ * - [FAILED] : 예외 발생으로 중단 — 재호출 시 lastSliceIdx + 1 부터 재시작
+ */
+enum class NetCdfImportStatus { PENDING, IN_PROGRESS, COMPLETED, FAILED }
+
+/**
+ * NetCDF 변수 단위 import 진행 상태 레코드입니다.
+ *
+ * `(fileId, variableName)` unique 로 동일 변수 한 row 를 보장.
+ * heartbeat lease 기반 동시성 제어 — `leaseExpiresAt` 이 미래이고 `status=IN_PROGRESS` 면 활성 import.
+ *
+ * ```kotlin
+ * val progress = NetCdfImportProgress(
+ *     fileId = 1L,
+ *     variableName = "temperature",
+ *     status = NetCdfImportStatus.IN_PROGRESS,
+ *     lastSliceIdx = 12L,
+ *     leaseExpiresAt = Instant.now().plus(Duration.ofMinutes(5)),
+ *     startedAt = Instant.now(),
+ *     updatedAt = Instant.now(),
+ * )
+ * ```
+ *
+ * @param id              기본키 (자동 생성)
+ * @param fileId          소속 NetCDF 파일 ID
+ * @param variableName    임포트 대상 변수 이름
+ * @param status          진행 상태
+ * @param lastSliceIdx    마지막 commit 된 슬라이스의 선형 인덱스 (sliceIdx = timeIdx × levelN + levelIdx)
+ * @param leaseExpiresAt  heartbeat lease 만료 시각 (COMPLETED/FAILED 면 null)
+ * @param errorMessage    실패 메시지 (FAILED 일 때만)
+ * @param startedAt       임포트 시작 시각
+ * @param completedAt     완료 시각 (COMPLETED 일 때만)
+ * @param updatedAt       마지막 갱신 시각 (heartbeat / 상태 전환 시)
+ */
+data class NetCdfImportProgress(
+    val id: Long = 0L,
+    val fileId: Long,
+    val variableName: String,
+    val status: NetCdfImportStatus = NetCdfImportStatus.PENDING,
+    val lastSliceIdx: Long? = null,
+    val leaseExpiresAt: java.time.Instant? = null,
+    val errorMessage: String? = null,
+    val startedAt: java.time.Instant = java.time.Instant.now(),
+    val completedAt: java.time.Instant? = null,
+    val updatedAt: java.time.Instant = java.time.Instant.now(),
+): Serializable {
+    companion object: KLogging() {
+        private const val serialVersionUID = 1L
+    }
+}
