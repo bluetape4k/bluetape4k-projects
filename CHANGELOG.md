@@ -6,26 +6,130 @@
 
 ## [Unreleased]
 
-<!-- 1.7.0 이후 변경 사항을 이곳에 기록합니다. -->
+<!-- 1.8.0 이후 변경 사항을 이곳에 기록합니다. -->
+
+---
+
+## [1.8.0] — Unreleased
+
+### Added
+
+#### utils/science — NetCDF 지원 완성 (UCAR netCDF-Java 5.9.1) ([#127](https://github.com/bluetape4k/bluetape4k-projects/pull/127), [#107](https://github.com/bluetape4k/bluetape4k-projects/issues/107))
+
+`bluetape4k-science` 모듈에 NetCDF 파일 임포트 파이프라인이 완성되었습니다.
+
+**신규 클래스**
+
+- `NetCdfException` — sealed 7종: `FileOpen` / `FileRecordNotFound` / `VariableNotFound` / `UnsupportedVariable` / `MissingCoordinate` / `UnsupportedProjection` / `ImportAlreadyRunning`
+- `NetCdfCatalogService.registerFile()` / `importGridValues()` — UCAR cdm-core 5.9.1 기반 완전 구현
+- `NetCdfImportProgressRepository` — heartbeat lease (`INSERT ON CONFLICT DO UPDATE WHERE RETURNING`)
+- `service/internal/CoordinateReprojector` — sealed: Geographic 1D / Projected 2D pair
+- `service/internal/VariableAxisMap` — AxisType + 이름 fallback 매핑
+
+**스키마 변경**
+
+- `NetCdfGridValueTable.location` → nullable (1D 시계열용)
+- `NetCdfGridValueIndexes` — partial expression unique index 2종 (`MD5(ST_AsBinary(location))`)
+- `NetCdfImportProgressTable` — `lastSliceIdx` 선형 커서 + `leaseExpiresAt` heartbeat
+
+**CRS 재투영 (proj4j)**
+
+- Geographic 1D: EPSG:4326 / EPSG:4269
+- Projected 2D: EPSG:3857, UTM 32601~32760 (북) / 32701~32760 (남), EPSG:3413 / 3031 (Polar)
+
+**Micrometer 5지표**
+
+- `netcdf.register.duration` (Timer, status=success|failure)
+- `netcdf.import.variable.records` (Counter, variable=)
+- `netcdf.import.slice.duration` (Timer)
+- `netcdf.import.nan.skipped` (Counter)
+- `netcdf.import.status` (Counter, status=success|failure|resumed)
+
+**의존성 변경**
+
+- 제거: `edu.ucar:netcdfAll:5.6.0` (유령 아티팩트)
+- 추가: `edu.ucar:cdm-core:5.9.1` + `edu.ucar:netcdf4:5.9.1` (compileOnly)
+- 추가: `micrometer-core` + `guava` (compileOnly)
+
+**CI**
+
+- `ci.yml` `test-utils`에 `:bluetape4k-science:test -PexcludeTags=slow-netcdf` 추가
+- `nightly-tests.yml` `test-utils`에 `:bluetape4k-science:test -PincludeTags=slow-netcdf` 추가
+
+---
+
+#### io/io + infra/redisson + infra/lettuce — FastFory Codec 추가 ([#122](https://github.com/bluetape4k/bluetape4k-projects/pull/122), [#113](https://github.com/bluetape4k/bluetape4k-projects/issues/113))
+
+Fury `SCHEMA_CONSISTENT` + `refTracking=false` 모드 기반 고처리량 직렬화 Codec을 추가했습니다.
+
+**io/io (BinarySerializers)**
+
+- `FastFory` / `LZ4FastFory` / `ZstdFory` / `SnappyFory` / `GZipFory` lazy val 5종 추가
+- `ForyBinarySerializer.fast()` — SCHEMA_CONSISTENT 모드 (~+70% throughput vs COMPATIBLE)
+- `BinarySerializerBenchmark` FastFory 5종 `@Benchmark` 추가
+
+**infra/redisson**
+
+- `FastForyCodec` — Fory COMPATIBLE 바이트 fallback 읽기 지원
+- `RedissonCodecs` FastFory 관련 10종 추가 (FastFory/LZ4/Zstd/Snappy/Gzip + Composite 5종)
+- `RedissonCodecBenchmark` FastFory 4종 추가: FastFory +26% vs Fory (Apple M4 Pro 기준)
+
+**infra/lettuce**
+
+- `LettuceBinaryCodecs` FastFory 5종 팩토리 추가
+- `LettuceCodecBenchmark` FastFory 4종 추가
+
+> **와이어 포맷 경고**: FastFory(SCHEMA_CONSISTENT) ↔ Fory(COMPATIBLE) 비대칭.
+> FastForyCodec → 구 Fory 바이트 fallback 읽기 가능, ForyCodec → FastFory 바이트 읽기 불가.
+> **휘발성 캐시(TTL 있는 Redis)에서만 사용 권장.**
+
+---
+
+### Fixed
+
+#### infra/cache + CI — Caffeine `estimatedSize()` 간헐적 실패 및 워크플로우 개선 ([#123](https://github.com/bluetape4k/bluetape4k-projects/pull/123))
+
+- `HazelcastLocalCache` / `LettuceCaffeineLocalCache` / `ResilientLocalJCache.estimatedSize()`: `cleanUp()` 후 호출로 CI 공유 2코어 환경 비동기 지연 문제 수정
+- `HazelcastEntryEventListener` self-invalidation race condition 수정 — ADD 이벤트 무시, UPDATE/REMOVE 로컬 멤버 이벤트 무시
+- `opentelemetry` 테스트 JVM에 `-Dreactor.netty.native=false` 추가 (io_uring 레이스 컨디션)
+- `ci.yml` `paths-ignore` 추가 — `**.md`, `docs/**` 등 문서 변경 시 CI 빌드 스킵
+- `security.yml` `gitleaks-action@v2` → CLI 직접 설치로 교체 (유료 라이선스 요구 문제 해결)
+
+---
+
+### Changed
+
+#### chore — CodeRabbit 제거, OMC Code Review로 대체 ([`13e759d92`](https://github.com/bluetape4k/bluetape4k-projects/commit/13e759d92))
+
+- `.coderabbit.yaml` 삭제
+- PR 템플릿 및 CLAUDE.md 내 `/coderabbit:review` → `/oh-my-claudecode:code-reviewer` 변경
+
+---
+
+### Tests
+
+#### data/exposed-jdbc + data/exposed-r2dbc — 테스트 커버리지 70%+ 달성 ([#124](https://github.com/bluetape4k/bluetape4k-projects/pull/124))
+
+- `ReadableExtensionsTest` 등 누락 테스트 추가로 `exposed-jdbc` / `exposed-r2dbc` 라인 커버리지 70% 초과 달성
+
+#### spring-boot3/hibernate-lettuce + spring-boot4/hibernate-lettuce — 테스트 커버리지 95.4% 달성 ([#125](https://github.com/bluetape4k/bluetape4k-projects/pull/125))
+
+---
 
 ### Documentation
 
 #### utils/science — README 전면 재작성 (GIS/Shapefile/JTS/PostGIS/NetCDF 통합 가이드) ([#128](https://github.com/bluetape4k/bluetape4k-projects/issues/128))
 
 `bluetape4k-science` 모듈의 README.md(영문) + README.ko.md(한국어)를 전면 재작성했습니다.
-PR #127(NetCDF 지원 완성)로 추가된 NetCDF 도메인을 포함해 모듈이 다루는 5개 영역을 동등하게 다룹니다.
 
-**변경 내용**
+- 5개 도메인 상태 테이블 (GIS / Shapefile / JTS / PostGIS / NetCDF ⚠️ Phase 5)
+- Mermaid 통합 아키텍처 다이어그램 3종 (모듈 관계도 + 좌표 변환 흐름 + DB 스키마)
+- Module Layout 섹션 신설, Quick Start 5개 섹션, API 가이드, 성능/운영 가이드
+- NetCDF 현황 정확히 반영: Table/Repository ✅, `NetCdfCatalogService` ⚠️ Phase 5
 
-- 5개 도메인 상태 테이블 추가 (GIS / Shapefile / JTS / PostGIS / NetCDF)
-- Mermaid 통합 아키텍처 다이어그램 신규 작성 (5개 영역 관계도 + 좌표 변환 흐름 + DB 스키마)
-- 패키지 구조(`Module Layout`) 섹션 신설 — 전체 파일 트리 기재
-- 핵심 기능 대조표 — 도메인별 API 한눈에 보기
-- Quick Start 5개 섹션 (5.1 좌표 변환 ~ 5.5 NetCDF 카탈로그) 독립 작성
-- API 가이드 섹션 — coords / projection / shapefile / geometry / exposed(PostGIS + NetCDF) 분리
-- NetCDF 현황 정확히 반영: `NetCdfFileTable/GridValueTable/Repository` ✅, `NetCdfCatalogService` ⚠️ Phase 5
-- 성능 / 운영 가이드 섹션 — 도메인별 인덱스 전략 및 튜닝 포인트
-- "Phase 4: Planned" 표현 제거 → 구현 완료/부분 구현 정확히 명시
+#### docs(kdoc) — FastFory 공개 API KDoc 강화 ([`30aaf462e`](https://github.com/bluetape4k/bluetape4k-projects/commit/30aaf462e))
+
+- `ForyBinarySerializer.forHighThroughput()` 팩토리 메서드 추가 및 KDoc 예제 강화
 
 ---
 
