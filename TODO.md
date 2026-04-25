@@ -23,6 +23,7 @@
 - [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
 - [ ] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
 
+<<<<<<< HEAD
 ### 1.2 io/csv — Record.toFieldMap() 복원 🟡
 
 - 배경: 1.7.0에서 Apache Commons CSV → 자체 `CsvLexer` 교체 시 `toFieldMap()` 메서드가 누락됨
@@ -36,10 +37,23 @@
 - [ ] `bluetape4k-graph` graph-io/csv 의 workaround 제거 후 재검증
 
 ### 1.3 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
+=======
+#### 참고 자료
+- [UCAR NetCDF-Java 공식 문서](https://docs.unidata.ucar.edu/netcdf-java/current/)
+- [unidata/netcdf-java GitHub](https://github.com/Unidata/netcdf-java)
+- [NetCDF 파일 포맷 명세](https://docs.unidata.ucar.edu/nug/current/)
+
+### 1.2 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
+>>>>>>> 95b899fb6948c3dfe23002e6965172c7e28fbf54
 
 - Issue: [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108)
 - [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
   - `findByName()`, `findByAgeGreaterThan()`, `findByNameContaining()` 완성
+
+#### 참고 자료
+- [QueryDSL 공식 문서](http://querydsl.com/static/querydsl/latest/reference/html/)
+- [querydsl/querydsl GitHub](https://github.com/querydsl/querydsl)
+- [QueryDSL + Spring Data JPA 통합 가이드](https://docs.spring.io/spring-data/jpa/reference/repositories/core-extensions.html#core.extensions.querydsl)
 
 ---
 
@@ -52,6 +66,11 @@
 - [ ] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
   - Retrofit2도 SB3/4 core에서 이미 제거됨 — io 모듈도 정리 대상 검토
 - [ ] `io/jackson2/`, `io/jackson3/` — deprecated 직렬화 API 정리
+
+#### 참고 자료
+- [Apache HttpClient 5.x 마이그레이션](https://hc.apache.org/httpcomponents-client-5.2.x/migration-guide/index.html)
+- [OkHttp 공식 문서](https://square.github.io/okhttp/)
+- [AsyncHttpClient GitHub](https://github.com/AsyncHttpClient/async-http-client)
 
 ### 2.2 core 모듈 Deprecated 정리 🟡
 
@@ -72,6 +91,11 @@
 - [ ] `HazelcastServer.kt` — deprecated Hazelcast API 4개 수정
   - `Config`, `NetworkConfig`, `JoinConfig`, `TcpIpConfig` 최신 API로 교체
   - Hazelcast 5.x 호환성 확보
+
+#### 참고 자료
+- [Hazelcast 5.x 공식 문서](https://docs.hazelcast.com/hazelcast/5.5/)
+- [Hazelcast 5.x 마이그레이션 가이드](https://docs.hazelcast.com/hazelcast/5.5/migrate/migration-guide-5.0)
+- [Hazelcast Kotlin 클라이언트](https://github.com/hazelcast/hazelcast-kotlin-client)
 
 ---
 
@@ -106,6 +130,16 @@
   - Trie DSL + case-insensitive/whole-word/overlapping 옵션 지원
   - 수요 꾸준함 (커뮤니티/메신저 서비스 필수)
 
+#### 참고 자료 (§4.1 승격 후보)
+- [JaVers 공식 문서](https://javers.org/documentation/)
+- [JaVers GitHub](https://github.com/javers/javers) — Apache 2.0 라이선스
+- [JaVers Event Sourcing 블로그](https://javers.org/blog/2016/01/event-sourcing-using-javers.html)
+- [NATS JetStream 공식 문서](https://docs.nats.io/nats-concepts/jetstream)
+- [nats-io/nats.java GitHub](https://github.com/nats-io/nats.java)
+- [pemistahl/lingua GitHub](https://github.com/pemistahl/lingua) — 75+ 언어 감지
+- [robert-bor/aho-corasick GitHub](https://github.com/robert-bor/aho-corasick) — Java Aho-Corasick 구현
+- [Aho–Corasick 알고리즘 위키](https://en.wikipedia.org/wiki/Aho%E2%80%93Corasick_algorithm)
+
 ### 4.2 🟡 조건부 승격 — 기존 모듈과 통합/부분 이관
 
 - [ ] **bloomfilter** — 부분 승격 또는 흡수
@@ -121,6 +155,13 @@
 - [ ] **logback-kafka → infra/logging-kafka** (14 kt 파일)
   - Kafka appender — `infra/kafka`와 네임스페이스 통합
   - Logback + Kafka는 관측성 스택에 유용 (ELK 대안, 경량 로그 파이프라인)
+
+#### 참고 자료 (§4.2 조건부 승격 후보)
+- [Guava BloomFilter](https://guava.dev/releases/snapshot/api/docs/com/google/common/hash/BloomFilter.html)
+- [bloomfilter 알고리즘 위키](https://en.wikipedia.org/wiki/Bloom_filter)
+- [Cuckoo filter 논문 (Fan et al., 2014)](https://www.cs.cmu.edu/~dga/papers/cuckoo-conext2014.pdf)
+- [danielwegener/logback-kafka-appender GitHub](https://github.com/danielwegener/logback-kafka-appender)
+- [Apache Kafka 공식 문서](https://kafka.apache.org/documentation/)
 
 ### 4.3 🟢 삭제 — 구현 없음 또는 사용처 없음
 
@@ -154,10 +195,24 @@
 
 ### 6.1 data 계층
 
-- [ ] **exposed-oracle** — Oracle JDBC dialect 지원 (기업 수요)
-- [ ] **exposed-sqlserver** — SQL Server 지원
-- [ ] **exposed-clickhouse** — ClickHouse 분석 DB 지원
-- [ ] **exposed-mariadb** — MariaDB 전용 dialect (MySQL8과 분리)
+> **참고**: Exposed는 Oracle, SQL Server, MariaDB를 공식 지원 (`OracleDialect`, `SQLServerDialect`, `MariaDBDialect` 내장).
+> bluetape4k에서 필요한 것은 **ClickHouse 전용 dialect** 구현임.
+
+- [ ] **exposed-clickhouse** — ClickHouse OLAP 분석 DB Exposed Dialect 구현
+  - Issue: [#145](https://github.com/bluetape4k/bluetape4k-projects/issues/145)
+  - MergeTree ENGINE DDL DSL, UInt/DateTime64/LowCardinality 타입
+  - `toYYYYMM()`, `uniq()`, `argMax()`, `quantile()` 등 ClickHouse 특화 함수
+  - PostgreSQL 대비 집계 쿼리 10~100× 속도 향상, 초당 수백만 행 수집 가능
+  - Trino 대비: 단일 컨테이너 운영, Kotlin DSL 직접 통합, 실시간 수집 지원
+
+#### 참고 자료
+- [JetBrains Exposed GitHub](https://github.com/JetBrains/Exposed)
+- [Exposed 공식 지원 DB 목록 (Oracle/SQLServer/MariaDB 포함)](https://github.com/JetBrains/Exposed/tree/main/exposed-core/src/main/kotlin/org/jetbrains/exposed/sql/vendors)
+- [ClickHouse 공식 문서](https://clickhouse.com/docs/)
+- [ClickHouse JDBC 드라이버 (clickhouse-java)](https://github.com/ClickHouse/clickhouse-java)
+- [ClickHouse MergeTree 엔진](https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree)
+- [ClickHouse 성능 벤치마크](https://clickhouse.com/docs/concepts/why-clickhouse-is-so-fast)
+- [Testcontainers ClickHouse 모듈](https://java.testcontainers.org/modules/clickhouse/)
 
 ### 6.2 infra 계층
 
@@ -165,11 +220,30 @@
 - [ ] **infra/elasticsearch** — Elasticsearch Kotlin Coroutines 클라이언트
 - [ ] **infra/pulsar** — Apache Pulsar 통합
 
+#### 참고 자료
+- [NATS.io 공식 문서](https://docs.nats.io/)
+- [NATS JetStream 개념](https://docs.nats.io/nats-concepts/jetstream)
+- [nats-io/nats.java GitHub](https://github.com/nats-io/nats.java)
+- [Elasticsearch Java API Client (8.x)](https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/current/index.html)
+- [elastic/elasticsearch-java GitHub](https://github.com/elastic/elasticsearch-java)
+- [Apache Pulsar 공식 문서](https://pulsar.apache.org/)
+- [Apache Pulsar Java 클라이언트](https://pulsar.apache.org/docs/client-libraries-java/)
+
 ### 6.3 utils 계층
 
 - [ ] **utils/ai** — LLM 통합 유틸리티 (Anthropic/OpenAI SDK 래퍼)
 - [ ] **utils/vector** — 벡터 임베딩, 유사도 계산 유틸리티
 - [ ] **utils/tracing** — OpenTelemetry + Coroutines 통합 강화
+
+#### 참고 자료
+- [Anthropic Java SDK GitHub](https://github.com/anthropics/anthropic-sdk-java)
+- [OpenAI Java SDK GitHub](https://github.com/openai/openai-java)
+- [LangChain4j GitHub](https://github.com/langchain4j/langchain4j) — Kotlin 친화적 LLM 래퍼
+- [OpenTelemetry Java 공식 문서](https://opentelemetry.io/docs/languages/java/)
+- [OpenTelemetry Kotlin Coroutines 계측](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/kotlinx-coroutines)
+- [Qdrant 벡터 DB](https://qdrant.tech/documentation/)
+- [Weaviate 벡터 DB](https://weaviate.io/developers/weaviate)
+- [Milvus 벡터 DB](https://milvus.io/docs)
 
 ### 6.5 utils/images — 이미지 처리 확장 🟢
 
@@ -181,6 +255,16 @@
 - [ ] **색 히스토그램 유사도** — Chi-square, Bhattacharyya, Earth Mover's Distance
 - [ ] **키포인트 매칭** — SIFT/ORB/AKAZE (OpenCV 또는 BoofCV 통합 검토)
 - [ ] **CLIP/DINOv2 임베딩** — `utils/ai` 의존 시 neural similarity
+
+#### 참고 자료 (유사도 지표)
+- [scrimage 공식 문서](https://sksamuel.github.io/scrimage/)
+- [sksamuel/scrimage GitHub](https://github.com/sksamuel/scrimage)
+- [SSIM 알고리즘 논문 (Wang et al., 2004)](https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf)
+- [MS-SSIM 논문](https://ece.uwaterloo.ca/~z70wang/publications/msssim.pdf)
+- [pHash 공식 사이트](http://phash.org/)
+- [openai/CLIP GitHub](https://github.com/openai/CLIP)
+- [facebookresearch/dinov2 GitHub](https://github.com/facebookresearch/dinov2)
+- [BoofCV (Java 컴퓨터 비전)](https://boofcv.org/)
 
 필터 / 색 보정:
 
@@ -206,6 +290,14 @@
 - [ ] **OCR** — Tesseract (tess4j) 또는 PaddleOCR 통합 인터페이스
 - [ ] **얼굴/객체 탐지** — MediaPipe 또는 ONNX Runtime 연동 인터페이스
 
+#### 참고 자료 (분석 API)
+- [drewnoakes/metadata-extractor GitHub](https://github.com/drewnoakes/metadata-extractor) — EXIF/IPTC/XMP
+- [Tesseract OCR (tess4j)](https://github.com/nguyenq/tess4j) — Java Tesseract 래퍼
+- [PaddleOCR GitHub](https://github.com/PaddlePaddle/PaddleOCR)
+- [MediaPipe Java](https://developers.google.com/mediapipe/solutions/guide)
+- [ONNX Runtime Java](https://onnxruntime.ai/docs/get-started/with-java.html)
+- [Laplacian variance 기반 블러 감지](https://pyimagesearch.com/2015/09/07/blur-detection-with-opencv/) — 원리 설명 (Python)
+
 포맷 지원:
 
 - [ ] **AVIF** — 읽기/쓰기 (libavif 바인딩)
@@ -213,6 +305,13 @@
 - [ ] **TIFF multi-page** — 문서 스캔용 다중 페이지 지원
 - [ ] **Raw 카메라 포맷** — dcraw 연동
 - [ ] **SVG 래스터화** — Apache Batik 래퍼
+
+#### 참고 자료 (포맷 지원)
+- [libavif GitHub](https://github.com/AOMediaCodec/libavif) — AVIF 인코더/디코더
+- [HEIF/HEIC 스펙 (MPEG)](https://nokiatech.github.io/heif/)
+- [Apache Batik SVG Toolkit](https://xmlgraphics.apache.org/batik/)
+- [dcraw 프로젝트](https://www.cybercom.net/~dcoffin/dcraw/) — Raw 카메라 포맷
+- [LibRaw GitHub](https://github.com/LibRaw/LibRaw) — 최신 Raw 처리 라이브러리
 
 성능 / 동시성:
 
@@ -278,10 +377,27 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] **크로스 플랫폼 골든 이미지** — WatermarkFilterTest 패턴을 모든 필터 테스트에 확대 적용
 - [ ] **Property-based test** — 랜덤 이미지 생성 → invariant 검증 (`pHash(scale(x)) ≈ pHash(x)` 등)
 
+#### 참고 자료 (utils/images-vips)
+- [libvips 공식 문서](https://libvips.github.io/libvips/)
+- [libvips GitHub](https://github.com/libvips/libvips)
+- [criteo/JVips GitHub](https://github.com/criteo/JVips) — JNI 바인딩
+- [libvips/libvips-java GitHub](https://github.com/libvips/libvips-java)
+- [Java 22 Foreign Function & Memory API](https://docs.oracle.com/en/java/javase/22/core/foreign-function-and-memory-api.html)
+- [OpenSeadragon (DZI 뷰어)](https://openseadragon.github.io/)
+- [libvips 벤치마크 (vs ImageMagick/PIL)](https://github.com/libvips/libvips/wiki/Speed-and-memory-use)
+
 ### 6.4 testing 계층
 
 - [ ] **testing/testcontainers/llm** — Ollama, LocalAI 컨테이너 지원 완성
 - [ ] **testing/testcontainers/vector-db** — Qdrant, Weaviate, Milvus 지원
+
+#### 참고 자료
+- [Ollama 공식 사이트](https://ollama.com/)
+- [LocalAI GitHub](https://github.com/mudler/LocalAI)
+- [Testcontainers Ollama 모듈](https://github.com/testcontainers/testcontainers-java/tree/main/modules/ollama)
+- [Qdrant 공식 문서](https://qdrant.tech/documentation/)
+- [Weaviate 공식 문서](https://weaviate.io/developers/weaviate)
+- [Milvus 공식 문서](https://milvus.io/docs)
 
 ---
 
@@ -306,6 +422,14 @@ Shopify 프로덕션 사용 검증됨.
   - `-Xcontext-parameters` 전면 도입 검토
 - [ ] **kapt → KSP** 마이그레이션 검토 (kapt 사용 모듈 파악 필요)
 - [x] GitHub Actions CI 파이프라인 구성 완료 (2026-04-17)
+
+#### 참고 자료
+- [Gradle 9.x 릴리스 노트](https://docs.gradle.org/9.0/release-notes.html)
+- [Gradle Configuration Cache](https://docs.gradle.org/current/userguide/configuration_cache.html)
+- [KSP (Kotlin Symbol Processing)](https://kotlinlang.org/docs/ksp-overview.html)
+- [kapt → KSP 마이그레이션 가이드](https://kotlinlang.org/docs/ksp-migration-guide.html)
+- [Kotlin 2.x 새 기능](https://kotlinlang.org/docs/whatsnew-eap.html)
+- [Kotlin Context Parameters 제안](https://github.com/Kotlin/KEEP/blob/master/proposals/context-parameters.md)
   - `ci.yml`: validate-wrapper, build, test-core, test-io, test-utils, test-exposed-core, test-docker, ci-status
   - `publish-snapshot.yml`: develop 브랜치 push 시 Maven Central Snapshots 자동 배포
 
@@ -317,6 +441,12 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] `gitleaks detect` — 시크릿 스캔 CI 연동
 - [ ] 의존성 취약점 스캔 — `./gradlew dependencyCheckAnalyze` 주기 실행
 
+#### 참고 자료
+- [Gitleaks GitHub](https://github.com/gitleaks/gitleaks)
+- [OWASP Dependency-Check](https://jeremylong.github.io/DependencyCheck/)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [Google Tink 암호화 라이브러리](https://developers.google.com/tink)
+
 ---
 
 ## 10. 성능 / 품질 🟢
@@ -325,6 +455,12 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] `infra/lettuce` NearCache 성능 벤치마크 공개
 - [ ] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 제거
 - [ ] `StateFlow` / `SharedFlow` 사용 일관성 검토
+
+#### 참고 자료
+- [JMH (Java Microbenchmark Harness)](https://github.com/openjdk/jmh)
+- [Gradle JMH Plugin](https://github.com/melix/jmh-gradle-plugin)
+- [Kotlin Coroutines 구조적 동시성 공식 문서](https://kotlinlang.org/docs/coroutines-and-channels.html)
+- [StateFlow vs SharedFlow 비교](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/)
 
 ---
 
@@ -396,6 +532,17 @@ Shopify 프로덕션 사용 검증됨.
 - 비정규화 JSON 스토리지 → 복잡한 집계 쿼리는 JQL 한계 존재, 별도 projection 필요
 - 마이그레이션 가이드 필요 — 기존 JPA Envers 사용자가 이관할 수 있도록 문서화
 
+#### 참고 자료
+- [JaVers 공식 문서](https://javers.org/documentation/)
+- [JaVers GitHub (Apache 2.0)](https://github.com/javers/javers)
+- [JaVers JQL (Javers Query Language)](https://javers.org/documentation/jql-examples/)
+- [JaVers Event Sourcing 블로그](https://javers.org/blog/2016/01/event-sourcing-using-javers.html)
+- [DDD — Aggregate 패턴 (Martin Fowler)](https://martinfowler.com/bliki/DDD_Aggregate.html)
+- [Event Sourcing 패턴 (Martin Fowler)](https://martinfowler.com/eaaDev/EventSourcing.html)
+- [CQRS 패턴 (Martin Fowler)](https://martinfowler.com/bliki/CQRS.html)
+- [Outbox 패턴](https://microservices.io/patterns/data/transactional-outbox.html)
+- [Hibernate Envers 공식 문서](https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#envers)
+
 ---
 
 ## 12. Redis Codec — ForyFast 지원 추가 🟡
@@ -419,6 +566,185 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한
 - ForyFast(SCHEMA_CONSISTENT)와 Fory(COMPATIBLE) 포맷 상호 비호환 → fallback = Kryo5
 - 순환 참조 객체 불가, 스키마 진화 불가
 - **휘발성 캐시 전용** — DB/파일 영속 데이터에 사용 금지
+
+#### 참고 자료
+- [Apache Fory 공식 사이트](https://fory.apache.org/)
+- [apache/fory GitHub](https://github.com/apache/fory)
+- [Fory Java 사용 가이드](https://fory.apache.org/docs/start/install/)
+- [Redisson Codec 커스터마이징](https://github.com/redisson/redisson/wiki/4.-data-serialization)
+- [Lettuce 커스텀 Codec](https://lettuce.io/core/release/reference/#codecs)
+- [LZ4 Java](https://github.com/lz4/lz4-java)
+- [Zstd Java](https://github.com/luben/zstd-jni)
+
+---
+
+## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci 🟡
+
+- Issue: [#155](https://github.com/bluetape4k/bluetape4k-projects/issues/155)
+
+> **배경 (2026-04-25 기준)**:
+> - LocalStack GitHub(`localstack/localstack`) **2026-03-23 아카이브**. BSL 라이선스, KMS/CloudFront/EBS 유료 이동.
+> - MinIO GitHub(`minio/minio`) **2026-04-25 아카이브** → AIStor로 리브랜딩.
+> - **floci** (MIT, GraalVM Native, 24ms 시작, 13MiB 메모리, 33 서비스, 공식 Testcontainers 모듈) — **1순위 대안**.
+> - MiniStack/fakecloud는 floci 미지원 서비스 필요 시 fallback 검토.
+
+### 13.1 올인원 AWS 에뮬레이터 비교
+
+| 에뮬레이터 | 지원 서비스 | 라이선스 | 이미지 크기 | 메모리 | 시작 시간 | TC 공식 모듈 | 상태 |
+|-----------|------------|---------|------------|-------|---------|------------|------|
+| **floci** | 33개 (S3/SQS/SNS/DynamoDB/Lambda/KMS/RDS-실제/ElastiCache-실제/MSK/Step Functions/...) | **MIT** | **90MB** | **13MiB** | **24ms** | ✅ 공식 | ✅ 매우 활성 (2026-02~) |
+| **MiniStack** | 40+ (동일 + Athena/Transfer Family/...) | **MIT** | ~270MB | ~40MB | <1초 | 커뮤니티 | ✅ 활성 (2.2k ⭐) |
+| **fakecloud** | 23개 (1,680 operations, Smithy 기반) | AGPL-3.0 | 19MB | 10MiB | 500ms | Java SDK 포함 | ✅ 활성 (2026-04~, Rust) |
+| LocalStack (Hobby) | 30+ | BSL | ~1GB | ~500MB | ~20초 | ✅ 공식 | ⚠️ 아카이브 |
+| LocalStack (Ultimate) | 110+ | 독점 | ~1GB | ~500MB | ~20초 | ✅ 공식 | 💰 $89/월 |
+| Moto (서버 모드) | 100+ | Apache 2.0 | Python | 낮음 | 빠름 | ❌ | ✅ 활성 (Python 전용) |
+
+**floci 핵심 차별점 (2026년 기준 최우선 추천):**
+- GraalVM Native Image → 24ms 시작, 메모리 13MiB, Docker 이미지 90MB
+- **공식 Testcontainers 모듈** — `io.floci:floci-testcontainers`
+- RDS: 실제 PostgreSQL/MySQL 컨테이너, ElastiCache: 실제 Redis/Valkey
+- MSK (Kafka), ECS, API Gateway v2, Cognito, Step Functions 포함
+
+**MiniStack 추가 차별점:**
+- Athena (실제 DuckDB), Transfer Family, CloudFront, WAF v2 지원
+- `EDGE_PORT` 등 LocalStack 호환 환경변수로 드롭인 교체 가능
+
+### 13.2 서비스 전용 에뮬레이터
+
+| 에뮬레이터 | 서비스 | 언어 | 라이선스 | TC 통합 | Stars | 상태 |
+|-----------|-------|------|---------|---------|-------|------|
+| **ElasticMQ** | SQS 전용 | Scala/Pekko | Apache 2.0 | JVM 임베드 가능 | 2.8k | ✅ 활성 (JVM 네이티브 최적) |
+| **DynamoDB Local** | DynamoDB 전용 | Java (AWS) | AWS 약관 | GenericContainer | - | ✅ AWS 공식 |
+| **AIStor Free** (구 MinIO) | S3 전용 | Go | AGPLv3 | ✅ 공식 모듈 | 60.8k (아카이브) | ⚠️ 아카이브→AIStor |
+| **GoAWS** | SQS + SNS | Go | MIT | GenericContainer | 836 | ✅ 활성 |
+| **AWS SAM Local** | Lambda + API GW | Python | Apache 2.0 | 간접 가능 | 6.7k | ✅ AWS 공식 |
+| **Mailpit** | SMTP (SES 대체) | Go | MIT | 커뮤니티 모듈 | 9.1k | ✅ 매우 활성 |
+| **WireMock** | HTTP mock (범용) | Java | Apache 2.0 | ✅ 공식 모듈 | 6k+ | ✅ 매우 활성 |
+| **Scality CloudServer** | S3 멀티백엔드 | JS | Apache 2.0 | GenericContainer | 2k | 보통 |
+| ~~Step Functions Local~~ | Step Functions | Java | AWS | GenericContainer | - | ❌ 아카이브 (2년 방치) |
+| ~~s3rver~~ | S3 | JS | MIT | - | 601 | ❌ 2025-09 아카이브 |
+| ~~MailHog~~ | SMTP | Go | MIT | - | 14.6k | ❌ 2020년 중단 |
+| ~~dynalite~~ | DynamoDB | JS | Apache 2.0 | - | 1k | ❌ 2020년 이후 중단 |
+
+### 13.3 서비스별 최적 에뮬레이터 선택 가이드
+
+| AWS 서비스 | 권장 (올인원) | 권장 (전용) | 비고 |
+|-----------|-------------|------------|------|
+| S3 | **floci** | AIStor Free (TC 공식) | MinIO 아카이브됨 |
+| SQS | **floci** | ElasticMQ (JVM 임베드) | SQS 단독 시 ElasticMQ 최적 |
+| SQS + SNS | **floci** | GoAWS | GoAWS: MIT, Docker, 경량 |
+| DynamoDB | **floci** | DynamoDB Local | AWS 공식 = API 완전 보장 |
+| SES/SES v2 | **floci** | Mailpit (SMTP 캡처) | MailHog 대체 → Mailpit |
+| Secrets Manager | **floci** | - | 전용 에뮬레이터 없음 |
+| KMS | **floci** | - | LocalStack Hobby 유료 이동 |
+| Kinesis | **floci** | - | Kinesalite 유지보수 중단 |
+| Lambda + API GW | **floci** | AWS SAM Local | SAM = 실제 Lambda 런타임 |
+| Step Functions | **floci** | - | AWS 공식 Docker 아카이브됨 |
+| RDS | **floci** | TC PostgreSQL | 실제 컨테이너 권장 |
+| ElastiCache | **floci** | TC Redis | 실제 컨테이너 권장 |
+| MSK (Kafka) | **floci** | TC Kafka | floci = 실제 Kafka 컨테이너 |
+| HTTP API mock | - | **WireMock** (TC 공식) | AWS API 형태만 흉내낼 때 |
+| 이메일 캡처 | - | **Mailpit** | REST API + Web UI 제공 |
+
+### 13.4 전환 작업 항목
+
+**Phase 1 — floci 도입 (최우선)**
+
+- [ ] `testing/testcontainers/` 에 `FlociServer.kt` 추가
+  - `io.floci:floci-testcontainers` 공식 모듈 활용
+  - S3/SQS/SNS/DynamoDB/KMS/Secrets Manager 엔드포인트 헬퍼
+  - Spring Boot `@DynamicPropertySource` 통합
+- [ ] `testing/testcontainers/` 에 `ElasticMqEmbeddedServer.kt` 추가 (SQS 전용)
+- [ ] `testing/testcontainers/` 에 `MailpitServer.kt` 추가 (SES 이메일 캡처)
+- [ ] `aws/`, `aws-kotlin/` 모듈 테스트: LocalStack → floci 전환
+
+**Phase 2 — MiniStack 병행 검토**
+
+- [ ] floci vs MiniStack API 호환성 비교 테스트
+  - Athena, Transfer Family 등 floci 미지원 서비스 확인
+  - 필요 시 `MiniStackServer.kt` 추가 (floci fallback)
+
+**Phase 3 — 레거시 정리**
+
+- [ ] `LocalStackServer.kt` deprecated 마킹
+- [ ] 모든 `LocalStackServer` 사용처 floci로 일괄 교체
+- [ ] CI/CD nightly-tests.yml Docker 이미지 전환 (`localstack` → `ghcr.io/floci-io/floci`)
+
+### 13.5 floci Testcontainers 통합 예시
+
+```kotlin
+// floci 공식 Testcontainers 모듈 활용
+@Testcontainers
+class AwsIntegrationTest {
+    companion object {
+        @Container
+        val floci = FlociContainer()  // io.floci:floci-testcontainers
+            .withServices(FlociService.S3, FlociService.SQS, FlociService.DYNAMODB)
+    }
+
+    fun s3Client() = S3Client.builder()
+        .endpointOverride(floci.endpointOverride())
+        .credentialsProvider(StaticCredentialsProvider.create(
+            AwsBasicCredentials.create("test", "test")
+        ))
+        .region(Region.US_EAST_1)
+        .build()
+}
+
+// ElasticMQ 임베디드 (SQS 전용, Docker 불필요)
+class ElasticMqEmbeddedServer(port: Int = 9324) : AutoCloseable {
+    private val server = SQSRestServerBuilder
+        .withPort(port)
+        .withInterface("localhost")
+        .start()
+
+    fun sqsClient() = SqsClient.builder()
+        .endpointOverride(URI.create("http://localhost:$port"))
+        .credentialsProvider(StaticCredentialsProvider.create(
+            AwsBasicCredentials.create("x", "x")
+        ))
+        .region(Region.US_EAST_1)
+        .build()
+
+    override fun close() = server.stopAndWait()
+}
+
+// Mailpit (SES SMTP 캡처)
+class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") {
+    init {
+        withExposedPorts(1025, 8025)  // SMTP, Web UI
+    }
+    fun smtpPort() = getMappedPort(1025)
+    fun webUiUrl() = "http://localhost:${getMappedPort(8025)}"
+}
+```
+
+### 13.6 리스크 / 고려사항
+
+- **floci**: 2026-02 출시 (약 3개월, 생태계 미성숙). 33 서비스 중 엣지 케이스 API 호환성 검증 필요
+- **MiniStack**: 드롭인 교체 가능하나 공식 TC 모듈 없음 (커뮤니티)
+- **fakecloud**: AGPL-3.0 라이선스 — 라이브러리로 배포 시 주의
+- **ElasticMQ**: Scala 의존성 (JAR 크기 증가 ~15MB)
+- **LocalStack 마이그레이션**: 기존 `LocalStackServer` 사용처가 많을 경우 점진적 교체 필요
+
+#### 참고 자료
+- [floci 공식 GitHub](https://github.com/floci-io/floci) — MIT, Java/GraalVM Native
+- [floci Testcontainers 모듈](https://github.com/floci-io/floci/tree/main/testcontainers)
+- [MiniStack 공식 사이트](https://ministack.org)
+- [ministackorg/ministack GitHub](https://github.com/ministackorg/ministack)
+- [fakecloud GitHub](https://github.com/faiscadev/fakecloud) — Rust, AGPL-3.0
+- [LocalStack 아카이브 공지](https://github.com/localstack/localstack)
+- [ElasticMQ GitHub (softwaremill)](https://github.com/softwaremill/elasticmq)
+- [DynamoDB Local Docker Hub](https://hub.docker.com/r/amazon/dynamodb-local)
+- [AIStor (구 MinIO)](https://min.io)
+- [Moto GitHub](https://github.com/getmoto/moto)
+- [GoAWS GitHub](https://github.com/Admiral-Piett/goaws)
+- [AWS SAM CLI GitHub](https://github.com/aws/aws-sam-cli)
+- [WireMock Testcontainers 모듈](https://wiremock.org/docs/solutions/testcontainers/)
+- [Mailpit GitHub](https://github.com/axllent/mailpit)
+- [Scality CloudServer GitHub](https://github.com/scality/cloudserver)
+- [Testcontainers LocalStack 모듈](https://java.testcontainers.org/modules/localstack/)
+- [Testcontainers MinIO 모듈](https://java.testcontainers.org/modules/minio/)
 
 ---
 
