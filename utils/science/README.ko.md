@@ -2,104 +2,126 @@
 
 [English](./README.md) | 한국어
 
-GIS(지리정보 시스템) 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이스 적재 파이프라인을 제공하는 통합 모듈입니다.
+GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이스 파이프라인, NetCDF 메타데이터 카탈로그를 통합 제공하는 Kotlin 모듈입니다.
 
-Proj4J 기반 좌표계 변환, GeoTools Shapefile 파싱, JTS 공간 기하학 연산, 그리고 Exposed + PostGIS를 활용한 데이터베이스 파이프라인을 포함합니다.
+## 개요
 
-## 핵심 기능
+`bluetape4k-science`는 다섯 가지 도메인을 다룹니다:
 
-### 좌표 기본 타입 (coords 패키지)
+| # | 도메인 | 핵심 라이브러리 | 상태 |
+|---|--------|---------------|------|
+| 1 | **GIS 좌표 변환** | Proj4J, proj4j-epsg | ✅ 구현 완료 |
+| 2 | **Shapefile 처리** | GeoTools (LGPL) | ✅ 구현 완료 |
+| 3 | **JTS 도형 연산** | JTS Core | ✅ 구현 완료 |
+| 4 | **PostGIS 데이터 파이프라인** | Exposed + PostGIS | ✅ 구현 완료 |
+| 5 | **NetCDF 메타데이터 카탈로그** | UCAR netCDF-Java (스키마 + 저장소만) | ⚠️ 부분 구현 |
 
-**GeoLocation** — WGS84 위경도 좌표
+> **NetCDF 현황**: `NetCdfFileTable`, `NetCdfGridValueTable`, `NetCdfFileRepository`, 모든 모델 클래스는
+> 완전히 구현되어 테스트까지 통과했습니다. `NetCdfCatalogService`(실제 `.nc` 파일 읽기)는
+> `edu.ucar:netcdfAll` 의존성 문제로 Phase 5에 구현 예정입니다.
 
-- 위도: -90~90, 경도: -180~180
-- Haversine 공식 거리 계산
-- 사전 정의된 지점: `SEOUL`, `NEW_YORK`, `TOKYO` 등
+---
 
-**BoundingBox** — 사각형 경계 영역
+## 아키텍처
 
-- 좌표 포함 여부 판정
-- 교집합/합집합 계산
-- 중심점, 너비, 높이 계산
+### 통합 모듈 구조
 
-**DM / DMS** — 도분 / 도분초 표기법
+```mermaid
+flowchart TD
+    Science["bluetape4k-science"]
 
-- `37°33'59.4"N` 형식 파싱
-- GeoLocation 상호 변환
+    subgraph Coords["coords — 좌표 기본 타입"]
+        GeoLocation["GeoLocation\nWGS84 위경도"]
+        BoundingBox["BoundingBox\n사각형 경계"]
+        DMS["DM / DMS\n도분 / 도분초"]
+        UtmZone["UtmZone\nUTM 좌표계"]
+        Vector["Vector\n2D / 3D"]
+    end
 
-**UtmZone** — UTM 좌표계
+    subgraph Projection["projection — 좌표계 변환"]
+        Projections["Projections\nwgs84ToUtm / utmToWgs84\ntransform(EPSG)"]
+        CrsRegistry["CrsRegistry\nEPSG 캐시"]
+    end
 
-- 위경도 → 해당 Zone 자동 판정 (`utmZoneOf()`)
-- Easting/Northing 변환
+    subgraph Shapefile["shapefile — Shapefile I/O"]
+        LoadShape["loadShape() 동기"]
+        LoadShapeAsync["loadShapeAsync() 비동기"]
+        ShapeModels["ShapeModels\nShape / ShapeRecord"]
+    end
 
-**Vector** — 2D/3D 벡터 연산
+    subgraph Geometry["geometry — JTS 도형 연산"]
+        GeomOps["GeometryOperations\nintersection / union / buffer\nsimplify / distance"]
+        PolyExt["PolygonExtensions\n면적 / 둘레"]
+    end
 
-**CoordConverters** — 좌표 변환 유틸리티
+    subgraph ExposedDB["exposed — DB 파이프라인"]
+        SpatialSchema["SpatialLayerTable\nSpatialFeatureTable"]
+        NetCdfSchema["NetCdfFileTable\nNetCdfGridValueTable"]
+        SpatialRepos["SpatialLayerRepository\nSpatialFeatureRepository"]
+        NetCdfRepo["NetCdfFileRepository"]
+        SpatialSvc["ShapefileImportService\nVirtual Thread 배치"]
+        NetCdfSvc["NetCdfCatalogService\n⚠️ Phase 5"]
+    end
 
-- 십진도 ↔ DM/DMS 변환
-- 좌표 정규화
+    Science --> Coords
+    Science --> Projection
+    Science --> Shapefile
+    Science --> Geometry
+    Science --> ExposedDB
 
-### 좌표 변환 및 투영 (projection 패키지)
+    Coords --> Projection
+    Projection --> Shapefile
+    Shapefile --> ExposedDB
+    Geometry --> ExposedDB
 
-**Projections** — Proj4J 기반 변환
+    SpatialSchema --> SpatialRepos --> SpatialSvc
+    NetCdfSchema --> NetCdfRepo --> NetCdfSvc
 
-- `wgs84ToUtm()` — WGS84 → UTM
-- `utmToWgs84()` — UTM → WGS84
-- `transform()` — EPSG 코드 간 임의의 좌표 변환
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    classDef dataStyle fill:#FFF9C4,stroke:#FFF176,color:#F57F17
+    classDef warnStyle fill:#FFF3E0,stroke:#FF8F00,color:#E65100,stroke-dasharray:4
 
-**CrsRegistry** — CRS 레지스트리
+    class Science coreStyle
+    class GeoLocation,BoundingBox,DMS,UtmZone,Vector dataStyle
+    class Projections,CrsRegistry,GeomOps,PolyExt serviceStyle
+    class LoadShape,LoadShapeAsync,ShapeModels utilStyle
+    class SpatialSchema,SpatialRepos,SpatialSvc,NetCdfSchema,NetCdfRepo serviceStyle
+    class NetCdfSvc warnStyle
+```
 
-- EPSG 코드 및 Proj4 문자열 지원
-- 인스턴스 캐싱으로 성능 최적화
+### 좌표 변환 흐름
 
-### Shapefile 읽기 (shapefile 패키지)
+```mermaid
+flowchart TD
+    A[WGS84 GeoLocation\n위도, 경도] -->|wgs84ToUtm| B[UTM Zone 결정\nutmZoneOf]
+    B --> C{남반구?}
+    C -->|latBand < N| D[proj4: +south]
+    C -->|latBand >= N| E[proj4: 북반구]
+    D --> F[BasicCoordinateTransform]
+    E --> F
+    F --> G[UTM 좌표\neasting, northing]
+    G -->|utmToWgs84| H[UtmZone 입력]
+    H --> I[BasicCoordinateTransform 역변환]
+    I --> J[WGS84 GeoLocation]
 
-**ShapefileReader / loadShape()** — 동기 Shapefile 읽기
+    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
+    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef dataStyle fill:#FFF9C4,stroke:#FFF176,color:#F57F17
 
-- `.shp`, `.shx`, `.dbf` 파일 자동 처리
-- 도형(Geometry) + 속성(Attributes) 통합 반환
-- UTF-8 및 커스텀 charset 지원
+    class A,J coreStyle
+    class F,I serviceStyle
+    class G,H dataStyle
+```
 
-**loadShapeAsync()** — 비동기 읽기
-
-- Coroutines 기반, `Dispatchers.IO` 사용
-- 대용량 파일 처리에 최적화
-
-**ShapeModels** — 타입 안전 모델
-
-- `Shape`: 파일 메타데이터
-- `ShapeRecord`: 도형 + 속성
-- `ShapeHeader`: 파일 헤더 정보
-- 공개 API에 GeoTools 타입 노출 안 함
-
-**지원 기하학 타입**
-
-- Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon
-
-### 공간 기하학 연산 (geometry 패키지)
-
-**GeometryOperations** — JTS 기반 연산
-
-- 교집합, 합집합, 차집합
-- 버퍼(Buffer) 영역 생성 (지정 거리)
-- 거리 계산
-- 단순화 (Douglas-Peucker 알고리즘)
-- Envelope (최소 경계 사각형)
-- 포함 여부 판정
-
-**PolygonExtensions** — 다각형 확장
-
-- 면적 계산
-- 둘레 계산
-
-### PostGIS 데이터베이스 파이프라인 (exposed 패키지)
+### PostGIS + NetCDF 데이터베이스 스키마
 
 ```mermaid
 classDiagram
     direction TB
 
     class SpatialLayerRecord {
-        <<dataClass>>
         +id: Long
         +name: String
         +srid: Int
@@ -107,184 +129,366 @@ classDiagram
         +recordCount: Int
     }
     class SpatialFeatureRecord {
-        <<dataClass>>
         +id: Long
         +layerId: Long
         +featureType: String
         +geom: Geometry
-        +properties: Map
+        +properties: Map~String,Any?~
     }
     class NetCdfFileRecord {
-        <<dataClass>>
         +id: Long
         +filename: String
+        +filePath: String
+        +fileSize: Long
         +variables: List~NetCdfVariableInfo~
+        +dimensions: Map~String,Int~
+        +globalAttrs: Map~String,String~
+    }
+    class NetCdfVariableInfo {
+        +name: String
+        +dataType: String
+        +shape: List~Int~
+        +attributes: Map~String,String~
     }
 
     class SpatialLayerTable {
         <<AuditableLongIdTable>>
-        +name: Column~String~
-        +srid: Column~Int~
-        +geometryType: Column~String?~
+        name, srid, geometryType
     }
     class SpatialFeatureTable {
         <<AuditableLongIdTable>>
-        +layerId: Column~EntityID~
-        +geom: Column~PGGeometry~
-        +properties: Column~Map~
+        layerId, geom(PGGeometry), properties(JSONB)
     }
     class NetCdfFileTable {
         <<AuditableLongIdTable>>
-        +filename: Column~String~
-        +variables: Column~List~
+        filename, filePath, fileSize
+        variables(JSONB), dimensions(JSONB)
+        globalAttrs(JSONB), bbox(PostGIS?)
+        timeStart, timeEnd
+    }
+    class NetCdfGridValueTable {
+        <<LongIdTable>>
+        fileId, variableName
+        location(PostGIS POINT)
+        timeIdx, levelIdx, value
+        attrs(JSONB?)
     }
 
-    class SpatialLayerRepository {
-        <<LongJdbcRepository>>
-        +save(SpatialLayerRecord): SpatialLayerRecord
-        +findByName(String): SpatialLayerRecord?
-    }
-    class SpatialFeatureRepository {
-        <<LongJdbcRepository>>
-        +save(SpatialFeatureRecord): SpatialFeatureRecord
-    }
-    class NetCdfFileRepository {
-        <<LongJdbcRepository>>
-        +save(NetCdfFileRecord): NetCdfFileRecord
-    }
+    SpatialLayerRepository --> SpatialLayerTable
+    SpatialLayerRepository --> SpatialLayerRecord
+    SpatialFeatureRepository --> SpatialFeatureTable
+    SpatialFeatureRepository --> SpatialFeatureRecord
+    NetCdfFileRepository --> NetCdfFileTable
+    NetCdfFileRepository --> NetCdfFileRecord
+    NetCdfFileRecord --> NetCdfVariableInfo
+    SpatialFeatureTable --> SpatialLayerTable : 참조
+    NetCdfGridValueTable --> NetCdfFileTable : 참조
 
-    class ShapefileImportService {
-        -layerRepo: SpatialLayerRepository
-        -featureRepo: SpatialFeatureRepository
-        +importShapefile(File, String, Int): Int
-    }
-
-    SpatialLayerRepository --> SpatialLayerTable : uses
-    SpatialLayerRepository --> SpatialLayerRecord : maps
-    SpatialFeatureRepository --> SpatialFeatureTable : uses
-    SpatialFeatureRepository --> SpatialFeatureRecord : maps
-    NetCdfFileRepository --> NetCdfFileTable : uses
-    NetCdfFileRepository --> NetCdfFileRecord : maps
-    ShapefileImportService --> SpatialLayerRepository : delegates
-    ShapefileImportService --> SpatialFeatureRepository : delegates
-    SpatialFeatureTable --> SpatialLayerTable : references
-
+    style NetCdfFileRecord fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style SpatialLayerRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
     style SpatialFeatureRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style NetCdfFileRecord fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style SpatialLayerTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style SpatialFeatureTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style NetCdfFileTable fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style SpatialLayerRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SpatialFeatureRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style NetCdfFileRepository fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ShapefileImportService fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
+    style NetCdfVariableInfo fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
-**Schema** — Exposed 테이블 정의
+---
 
-- `SpatialLayerTable` / `SpatialFeatureTable` — 공간 데이터 저장
-- `PoiTable` — 관심 지점(Point of Interest)
-- `NetCdfFileTable` / `NetCdfGridValueTable` — NetCDF 메타데이터 (Phase 4)
+## 모듈 레이아웃
 
-**Models** — Serializable 데이터 클래스
-
-- `SpatialLayerRecord` / `SpatialFeatureRecord` — 공간 데이터
-- `NetCdfVariableInfo`, `NetCdfDimensionInfo`, `NetCdfFileRecord` — NetCDF (Phase 4)
-
-**Repository** — JDBC 저장소
-
-- `SpatialLayerRepository` — 레이어 관리
-- `SpatialFeatureRepository` — 피처 CRUD 및 공간 검색
-- `NetCdfRepository` — NetCDF 카탈로그 (Phase 4)
-
-**Service** — 비즈니스 로직
-
-- `ShapefileImportService.importShapefile()` — Virtual Thread 기반 배치 임포트
-- `NetCdfCatalogService` — NetCDF 파일 등록 (Phase 4)
-
-```mermaid
-sequenceDiagram
-    box "소비자" #E8F5E9
-    participant Caller
-    end
-    box "서비스" #E3F2FD
-    participant SIS as ShapefileImportService
-    participant VT as VirtualThread
-    end
-    box "저장소" #FFF3E0
-    participant LR as SpatialLayerRepository
-    participant FR as SpatialFeatureRepository
-    end
-    box "데이터베이스" #F3E5F5
-    participant DB as PostgreSQL/PostGIS
-    end
-
-    Caller->>SIS: importShapefile(file, layerName, batchSize)
-    SIS->>SIS: loadShape(file)
-
-    SIS->>VT: newVirtualThreadJdbcTransaction
-    VT->>LR: findByName(layerName)
-    LR->>DB: SELECT
-    DB-->>LR: null (중복 없음)
-    VT->>LR: save(SpatialLayerRecord)
-    LR->>DB: INSERT spatial_layers
-    DB-->>LR: layerRecord (id)
-    VT-->>SIS: layerRecord
-
-    loop 배치마다 (batchSize=1000)
-        SIS->>VT: newVirtualThreadJdbcTransaction
-        VT->>DB: batchInsert spatial_features
-        DB-->>VT: inserted rows
-        VT-->>SIS: batch complete
-    end
-
-    SIS-->>Caller: totalInserted count
-```
-
-## 아키텍처
+### 패키지 구조
 
 ```
-coords (좌표 기본 타입)
-  ├─ GeoLocation (위경도)
-  ├─ BoundingBox (경계 사각형)
-  ├─ DM / DMS (도분/도분초)
-  ├─ UtmZone (UTM 좌표계)
-  └─ Vector (벡터)
-    │
-    └─→ projection (좌표 변환)
-          ├─ Projections (Proj4J 기반)
-          │  ├─ wgs84ToUtm()
-          │  ├─ utmToWgs84()
-          │  └─ transform() [EPSG]
-          └─ CrsRegistry (캐싱)
-              │
-              ├─→ shapefile (Shapefile 읽기)
-              │     ├─ loadShape() [동기]
-              │     ├─ loadShapeAsync() [비동기]
-              │     └─ ShapeModels
-              │          │
-              │          └─→ exposed (PostGIS 파이프라인)
-              │                ├─ schema/ (테이블)
-              │                ├─ model/ (직렬화 데이터)
-              │                ├─ repository/ (JDBC)
-              │                └─ service/ (비즈니스 로직)
-              │
-              └─→ geometry (JTS 도형 연산)
-                    ├─ GeometryOperations
-                    │  ├─ intersection()
-                    │  ├─ buffer()
-                    │  ├─ simplify()
-                    │  └─ distance()
-                    └─ PolygonExtensions
-                         │
-                         └─→ exposed (DB 적재)
+io.bluetape4k.science/
+├── coords/                          — 좌표 기본 타입
+│   ├── GeoLocation.kt              — WGS84 위경도, Haversine 거리
+│   ├── BoundingBox.kt              — 사각형 경계 영역, contains/intersects
+│   ├── BoundingBoxRelation.kt      — 경계 관계 계산
+│   ├── DM.kt / DMS.kt              — 도분 / 도분초 표기법
+│   ├── Vector.kt                   — 2D/3D 벡터
+│   ├── UtmZone.kt                  — UTM Zone 데이터 클래스
+│   ├── UtmZoneSupport.kt           — utmZoneOf(), boundingBox()
+│   └── CoordConverters.kt          — 십진도 ↔ DM/DMS 변환 유틸리티
+│
+├── projection/                      — 좌표계 변환 (Proj4J)
+│   ├── CrsRegistry.kt              — EPSG/Proj4 CRS 레지스트리 (인스턴스 캐싱)
+│   └── Projections.kt              — wgs84ToUtm(), utmToWgs84(), transform()
+│
+├── shapefile/                       — Shapefile I/O (GeoTools)
+│   ├── ShapeModels.kt              — Shape, ShapeRecord, ShapeHeader (GeoTools 미노출 공개 API)
+│   ├── ShapefileReader.kt          — 동기 읽기
+│   └── ShapefileExtensions.kt      — loadShape(), loadShapeAsync()
+│
+├── geometry/                        — 공간 기하학 (JTS)
+│   ├── GeometryOperations.kt       — intersection, union, buffer, simplify, distance
+│   └── PolygonExtensions.kt        — 면적, 둘레
+│
+└── exposed/                         — 데이터베이스 파이프라인
+    ├── model/
+    │   ├── SpatialModels.kt        — SpatialLayerRecord, SpatialFeatureRecord
+    │   └── NetCdfModels.kt         — NetCdfFileRecord, NetCdfVariableInfo, NetCdfDimensionInfo
+    ├── schema/
+    │   ├── SpatialTables.kt        — SpatialLayerTable, SpatialFeatureTable
+    │   ├── PoiTable.kt             — 관심 지점(POI) 테이블
+    │   └── NetCdfTables.kt         — NetCdfFileTable, NetCdfGridValueTable
+    ├── repository/
+    │   ├── SpatialFeatureRepository.kt — 공간 피처 CRUD + bbox 검색
+    │   └── NetCdfFileRepository.kt — NetCDF 파일 메타데이터 CRUD
+    └── service/
+        ├── ShapefileImportService.kt — Virtual Thread 배치 임포트
+        └── NetCdfCatalogService.kt  — ⚠️ Phase 5 — 플레이스홀더만 존재
 ```
+
+---
+
+## 핵심 기능
+
+| 도메인 | 기능 | API |
+|--------|------|-----|
+| **좌표 기본 타입** | WGS84 위경도 + Haversine 거리 | `GeoLocation.distanceTo()` |
+| | 사각형 경계 영역 | `BoundingBox.contains()`, `.intersects()` |
+| | 도분초 표기법 | `DMS.parse()`, `.toDecimal()` |
+| | UTM Zone 자동 판정 | `utmZoneOf(lat, lon)` |
+| | 2D/3D 벡터 연산 | `Vector(x, y, z?)` |
+| **좌표계 변환** | WGS84 ↔ UTM 변환 | `wgs84ToUtm()`, `utmToWgs84()` |
+| | 임의 EPSG 간 변환 | `transform(x, y, srcEpsg, tgtEpsg)` |
+| | CRS 인스턴스 캐싱 | `CrsRegistry` |
+| **Shapefile** | 동기 Shapefile 읽기 | `loadShape(file)` |
+| | 코루틴 기반 비동기 읽기 | `loadShapeAsync(file)` |
+| | 타입 안전 모델 (GeoTools 미노출) | `Shape`, `ShapeRecord` |
+| **도형 연산** | JTS 교집합 / 합집합 / 차집합 | `GeometryOperations.intersection()` |
+| | 버퍼 영역 생성 | `GeometryOperations.buffer()` |
+| | Douglas-Peucker 단순화 | `GeometryOperations.simplify()` |
+| | 거리 계산 | `GeometryOperations.distance()` |
+| **데이터베이스** | 공간 레이어 + 피처 CRUD | `SpatialLayerRepository`, `SpatialFeatureRepository` |
+| | Virtual Thread 배치 Shapefile 임포트 | `ShapefileImportService` |
+| | NetCDF 파일 메타데이터 카탈로그 | `NetCdfFileRepository` ✅ |
+| | NetCDF 격자 값 저장 스키마 | `NetCdfGridValueTable` ✅ |
+| | `.nc` 파일 임포트 서비스 | `NetCdfCatalogService` ⚠️ Phase 5 |
+
+---
+
+## 빠른 시작 (Quick Start)
+
+### 5.1 GIS 좌표 변환
+
+```kotlin
+import io.bluetape4k.science.coords.GeoLocation
+import io.bluetape4k.science.coords.BoundingBox
+import io.bluetape4k.science.coords.DMS
+import io.bluetape4k.science.coords.utmZoneOf
+import io.bluetape4k.science.projection.wgs84ToUtm
+import io.bluetape4k.science.projection.utmToWgs84
+import io.bluetape4k.science.projection.transform
+
+val seoul = GeoLocation(latitude = 37.5665, longitude = 126.9780)
+val tokyo = GeoLocation(latitude = 35.6762, longitude = 139.6503)
+
+// Haversine 거리 계산
+val distanceKm = seoul.distanceTo(tokyo) / 1000.0
+println("서울 ↔ 도쿄: $distanceKm km")
+
+// 경계 영역 확인
+val seoulArea = BoundingBox(minLat = 37.4, maxLat = 37.6, minLon = 126.8, maxLon = 127.0)
+println("서울 시청 포함 여부: ${seoulArea.contains(seoul)}")
+println("중심: ${seoulArea.center}, 너비: ${seoulArea.widthKm} km")
+
+// 도분초 파싱
+val dms = DMS.parse("37°33'59.4\"N")
+println("도분초 → 십진도: ${dms.toDecimal()}")  // 37.5665
+
+// UTM Zone 자동 판정
+val zone = utmZoneOf(37.5665, 126.9780)
+println("서울 UTM Zone: ${zone.longitudeZone}${zone.hemisphere}")  // 52S
+
+// WGS84 ↔ UTM 왕복 변환
+val (easting, northing) = wgs84ToUtm(seoul)
+val restored = utmToWgs84(easting, northing, zone)
+println("UTM 복원 좌표: $restored")
+
+// 임의 EPSG 변환 (WGS84 → 한국 2000 중부원점)
+val (kx, ky) = transform(x = 126.9780, y = 37.5665, sourceEpsg = 4326, targetEpsg = 5179)
+println("EPSG:4326 → EPSG:5179: ($kx, $ky)")
+```
+
+### 5.2 Shapefile 처리
+
+```kotlin
+import io.bluetape4k.science.shapefile.loadShape
+import io.bluetape4k.science.shapefile.loadShapeAsync
+import java.io.File
+
+// 동기 읽기
+val shapeFile = File("/data/provinces.shp")
+val shape = loadShape(shapeFile, charset = Charsets.UTF_8)
+println("파일 타입: ${shape.shapeType}, 레코드 수: ${shape.recordCount}")
+
+shape.records.forEach { record ->
+    println("도형 타입: ${record.geometry.geometryType}")
+    println("속성: ${record.attributes}")
+}
+
+// 비동기 읽기 (Dispatchers.IO 사용)
+suspend fun processAsync() {
+    val large = loadShapeAsync(File("/data/large_dataset.shp"))
+    println("로드 완료: ${large.recordCount} 레코드")
+}
+```
+
+### 5.3 JTS 도형 연산
+
+```kotlin
+import io.bluetape4k.science.geometry.GeometryOperations
+import org.locationtech.jts.io.WKTReader
+
+val wkt = WKTReader()
+val poly1 = wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")
+val poly2 = wkt.read("POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))")
+
+val intersection = GeometryOperations.intersection(poly1, poly2)   // 교집합
+val union        = GeometryOperations.union(poly1, poly2)          // 합집합
+val buffered     = GeometryOperations.buffer(poly1, 100.0)         // 100m 버퍼
+val simplified   = GeometryOperations.simplify(poly1, 1.0)         // Douglas-Peucker
+val distance     = GeometryOperations.distance(poly1, poly2)
+println("거리: $distance m")
+```
+
+### 5.4 PostGIS 데이터 파이프라인
+
+```kotlin
+import io.bluetape4k.science.exposed.service.ShapefileImportService
+import io.bluetape4k.science.exposed.repository.SpatialLayerRepository
+import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
+import org.jetbrains.exposed.sql.Database
+import java.io.File
+
+val database = Database.connect(
+    url = "jdbc:postgresql://localhost:5432/gis_db",
+    driver = "org.postgresql.Driver",
+    user = "postgres",
+    password = "password"
+)
+
+val service = ShapefileImportService(SpatialLayerRepository(), SpatialFeatureRepository())
+val importedCount = service.importShapefile(
+    file = File("/data/harbors.shp"),
+    layerName = "harbors-2024"
+)
+println("임포트 완료: $importedCount 레코드")
+```
+
+### 5.5 NetCDF 메타데이터 카탈로그
+
+DB 스키마와 저장소가 완성되어 있습니다. `NetCdfFileRepository`로 파일 메타데이터를 직접 등록하세요.
+
+```kotlin
+import io.bluetape4k.science.exposed.model.NetCdfFileRecord
+import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
+import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
+import org.jetbrains.exposed.sql.transactions.transaction
+
+val repo = NetCdfFileRepository()
+
+transaction {
+    val record = NetCdfFileRecord(
+        filename = "ERA5_2024_01.nc",
+        filePath = "/data/era5/ERA5_2024_01.nc",
+        fileSize = 104_857_600L,
+        variables = listOf(
+            NetCdfVariableInfo(
+                name = "temperature",
+                dataType = "float",
+                shape = listOf(24, 181, 360),
+                attributes = mapOf("units" to "K", "long_name" to "Air Temperature")
+            ),
+            NetCdfVariableInfo(
+                name = "precipitation",
+                dataType = "float",
+                shape = listOf(24, 181, 360),
+                attributes = mapOf("units" to "mm", "long_name" to "Total Precipitation")
+            )
+        ),
+        dimensions = mapOf("time" to 24, "lat" to 181, "lon" to 360),
+        globalAttrs = mapOf("Conventions" to "CF-1.8", "institution" to "ECMWF")
+    )
+
+    val saved = repo.save(record)
+    println("저장 완료: id=${saved.id}, filename=${saved.filename}")
+
+    val found = repo.findByIdOrNull(saved.id)
+    println("변수 목록: ${found?.variables?.map { it.name }}")  // [temperature, precipitation]
+    println("시간 스텝: ${found?.dimensions?.get("time")}")      // 24
+}
+```
+
+---
+
+## API 가이드
+
+### coords
+
+| 클래스 / 함수 | 설명 |
+|--------------|------|
+| `GeoLocation(lat, lon)` | WGS84 좌표; `.distanceTo()` — Haversine 거리 (미터) |
+| `BoundingBox(minLat, maxLat, minLon, maxLon)` | 사각형 경계; `.contains()`, `.intersects()` |
+| `DMS.parse(str)` / `DM.parse(str)` | 도분초 / 도분 문자열 파싱 |
+| `UtmZone(zone, hemisphere)` | UTM Zone 데이터 클래스 |
+| `utmZoneOf(lat, lon)` | WGS84 좌표로 UTM Zone 자동 판정 |
+| `Vector(x, y, z?)` | 2D/3D 벡터 + 산술 연산 |
+
+### projection
+
+| 함수 | 설명 |
+|------|------|
+| `wgs84ToUtm(geoLocation)` | WGS84 → UTM (easting, northing) |
+| `utmToWgs84(e, n, zone)` | UTM → WGS84 |
+| `transform(x, y, srcEpsg, tgtEpsg)` | 임의 EPSG 간 좌표 변환 |
+| `CrsRegistry` | EPSG 코드별 CRS 인스턴스 캐시 (스레드 안전) |
+
+### shapefile
+
+| 함수 | 설명 |
+|------|------|
+| `loadShape(file, charset?)` | 동기 Shapefile 읽기 |
+| `loadShapeAsync(file, charset?)` | 코루틴 비동기 읽기 (`Dispatchers.IO`) |
+| `Shape` | 파일 메타데이터 + 레코드 목록 |
+| `ShapeRecord` | 도형 + 속성 맵 (GeoTools 타입 미노출) |
+
+### geometry
+
+| 함수 | 설명 |
+|------|------|
+| `GeometryOperations.intersection(a, b)` | 교집합 |
+| `GeometryOperations.union(a, b)` | 합집합 |
+| `GeometryOperations.buffer(g, dist)` | 지정 거리 버퍼 영역 생성 |
+| `GeometryOperations.simplify(g, tol)` | Douglas-Peucker 단순화 |
+| `GeometryOperations.distance(a, b)` | 도형 간 최소 거리 |
+| `Polygon.area()` / `.perimeter()` | 면적 / 둘레 확장 함수 |
+
+### exposed (PostGIS)
+
+| 클래스 | 설명 |
+|--------|------|
+| `SpatialLayerRepository` | 레이어 CRUD (`save`, `findByName`) |
+| `SpatialFeatureRepository` | 피처 CRUD + PostGIS bbox 검색 |
+| `ShapefileImportService` | Virtual Thread 배치 Shapefile 임포트 |
+
+### exposed (NetCDF)
+
+| 클래스 | 상태 | 설명 |
+|--------|------|------|
+| `NetCdfFileRecord` | ✅ | 파일 메타데이터 모델 (filename, path, size, variables, dimensions) |
+| `NetCdfVariableInfo` | ✅ | 변수 기술자 (name, dataType, shape, attributes) |
+| `NetCdfDimensionInfo` | ✅ | 차원 기술자 (name, length, isUnlimited) |
+| `NetCdfFileRepository` | ✅ | 파일 메타데이터 CRUD (`save`, `findByIdOrNull`, `findAll`, `deleteById`) |
+| `NetCdfFileTable` | ✅ | JSONB 컬럼 + PostGIS bbox + 시간 범위 |
+| `NetCdfGridValueTable` | ✅ | 격자 값 테이블 (location: PostGIS POINT, value, timeIdx, levelIdx) |
+| `NetCdfCatalogService` | ⚠️ Phase 5 | 플레이스홀더 — `NotImplementedError` 발생 (`netcdfAll` 해결 후 구현) |
+
+---
 
 ## 설치 및 의존성
 
-bluetape4k-science는 선택적 기능별로 `compileOnly` 의존성을 선언합니다. **필요한 라이브러리만 런타임 의존성으로 추가하세요.**
+`bluetape4k-science`는 기능별 선택 의존성을 `compileOnly`로 선언합니다.
+**필요한 라이브러리만 런타임 의존성으로 추가하세요.**
 
 ### 기본 설치
 
@@ -294,51 +498,60 @@ dependencies {
 }
 ```
 
-### 기능별 의존성 추가
-
-**좌표 변환 (Proj4J 기반)**
+### GIS 좌표 변환 (Proj4J)
 
 ```kotlin
-implementation(Libs.proj4j)            // Proj4J 핵심
-implementation(Libs.proj4j_epsg)       // EPSG 데이터베이스
+implementation(Libs.proj4j)
+implementation(Libs.proj4j_epsg)
 ```
 
-**Shapefile 읽기 (GeoTools)**
-
-GeoTools는 LGPL 라이선스입니다. OSGeo Maven 저장소를 추가해야 합니다.
+### Shapefile 읽기 (GeoTools — LGPL)
 
 ```kotlin
-// build.gradle.kts — repositories 섹션
 repositories {
-    maven(url = "https://repo.osgeo.org/repository/release/") {
-        name = "OSGeo Release"
-    }
+    maven(url = "https://repo.osgeo.org/repository/release/") { name = "OSGeo Release" }
 }
-
-// 의존성
-implementation(Libs.geotools_shapefile)  // Shapefile I/O
-implementation(Libs.geotools_referencing) // 좌표계 참조
-implementation(Libs.geotools_epsg_hsql)   // EPSG 메타데이터
+dependencies {
+    implementation(Libs.geotools_shapefile)
+    implementation(Libs.geotools_referencing)
+    implementation(Libs.geotools_epsg_hsql)
+}
 ```
 
-**공간 기하학 연산 (JTS)**
+> **라이선스**: GeoTools는 LGPL입니다. `bluetape4k-science`는 `compileOnly`로 선언하므로
+> 배포 시 포함되지 않습니다. GeoTools 클래스를 재배포하려면 LGPL을 준수해야 합니다.
+
+### 공간 기하학 (JTS)
 
 ```kotlin
-implementation(Libs.jts_core)  // Java Topology Suite
+implementation(Libs.jts_core)
 ```
 
-**PostGIS 데이터베이스**
+### PostGIS 데이터베이스
 
 ```kotlin
 implementation("io.github.bluetape4k:bluetape4k-exposed-postgresql:${bluetape4kVersion}")
-implementation(Libs.postgis_jdbc)  // PostGIS JDBC
+implementation(Libs.postgis_jdbc)
 ```
 
-**비동기 처리 (Coroutines)**
+### 비동기 처리 (Coroutines)
 
 ```kotlin
 implementation("io.github.bluetape4k:bluetape4k-coroutines:${bluetape4kVersion}")
 implementation(Libs.kotlinx_coroutines_core)
+```
+
+### NetCDF (Phase 5 — 현재 불필요)
+
+`NetCdfCatalogService` 구현 완료 시 필요:
+
+```kotlin
+repositories {
+    maven(url = "https://artifacts.unidata.ucar.edu/repository/unidata-all/") { name = "Unidata" }
+}
+dependencies {
+    implementation("edu.ucar:netcdfAll:5.6.0")
+}
 ```
 
 ### 전체 의존성 예시
@@ -346,639 +559,122 @@ implementation(Libs.kotlinx_coroutines_core)
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-science:${bluetape4kVersion}")
-
-    // GIS 좌표 변환
     implementation(Libs.proj4j)
     implementation(Libs.proj4j_epsg)
-    
-    // Shapefile
     implementation(Libs.geotools_shapefile)
     implementation(Libs.geotools_referencing)
     implementation(Libs.geotools_epsg_hsql)
-    
-    // 공간 기하학
     implementation(Libs.jts_core)
-    
-    // PostGIS
     implementation("io.github.bluetape4k:bluetape4k-exposed-postgresql:${bluetape4kVersion}")
     implementation(Libs.postgis_jdbc)
-    
-    // Coroutines (선택)
     implementation("io.github.bluetape4k:bluetape4k-coroutines:${bluetape4kVersion}")
     implementation(Libs.kotlinx_coroutines_core)
 }
 ```
 
-### GeoTools LGPL 라이선스
-
-**bluetape4k-science는 GeoTools를 `compileOnly`로 선언합니다.**
-
-- **컴파일만**: Shapefile 타입 체크 시 필요
-- **런타임 불필요**: 배포 시 GeoTools 포함되지 않음
-- **재배포 시**: GeoTools를 포함하려면 LGPL 준수 필요
-    - 소스 공개 또는
-    - 동적 링킹(Dynamic Linking) 사용
-
-**권장**:
-
-1. 내부 시스템: 제약 없음
-2. 외부 배포: 클라이언트에서 GeoTools 관리
-3. 포함 배포: LGPL 준수 문서 포함
-
-## 패키지 구조
-
-```mermaid
-classDiagram
-    direction LR
-
-    class GeoLocation {
-        +latitude: Double
-        +longitude: Double
-    }
-    class BoundingBox {
-        +minLat: Double
-        +maxLat: Double
-        +minLon: Double
-        +maxLon: Double
-        +contains(GeoLocation): Boolean
-        +intersects(BoundingBox): Boolean
-    }
-    class UtmZone {
-        +longitudeZone: Int
-        +latitudeZone: Char
-        +boundingBox(): BoundingBox
-        +cellBoundingBox(size, row, col): BoundingBox
-    }
-    class DM {
-        +degree: Int
-        +minute: Double
-    }
-    class DMS {
-        +degree: Int
-        +minute: Int
-        +second: Double
-    }
-
-    class CrsRegistry {
-        <<object>>
-        +getCrs(epsg: String): CoordinateReferenceSystem
-        +clearCache()
-    }
-    class Projections {
-        <<functions>>
-        +wgs84ToUtm(GeoLocation): Pair~Double,Double~
-        +utmToWgs84(easting, northing, UtmZone): GeoLocation
-    }
-
-    class Shape {
-        +header: ShapeHeader
-        +records: List~ShapeRecord~
-        +size: Int
-    }
-    class ShapeRecord {
-        +geometry: Geometry
-        +attributes: Map~String,Any?~
-    }
-    class ShapeHeader {
-        +bbox: BoundingBox
-        +shapeType: Int
-    }
-
-    BoundingBox --> GeoLocation : contains
-    UtmZone --> BoundingBox : produces
-    Shape --> ShapeHeader
-    Shape --> ShapeRecord
-
-
-```
-
-```
-io.bluetape4k.science/
-├── coords/                          — 좌표 기본 타입
-│   ├── GeoLocation.kt              — WGS84 위경도 (Haversine 거리)
-│   ├── BoundingBox.kt              — 사각형 경계 영역
-│   ├── BoundingBoxRelation.kt      — 경계 관계 계산
-│   ├── DM.kt / DMS.kt              — 도분 / 도분초 표기
-│   ├── Vector.kt                   — 2D/3D 벡터
-│   ├── UtmZone.kt                  — UTM Zone 데이터 클래스
-│   ├── UtmZoneSupport.kt           — utmZoneOf(), boundingBox()
-│   └── CoordConverters.kt          — 좌표 변환 유틸리티
-│
-├── projection/                      — 좌표계 변환 (Proj4J)
-│   ├── CrsRegistry.kt              — EPSG/Proj4 CRS 레지스트리
-│   └── Projections.kt              — wgs84ToUtm(), transform()
-│
-├── shapefile/                       — Shapefile 파싱 (GeoTools)
-│   ├── ShapeModels.kt              — Shape, ShapeRecord, ShapeHeader
-│   ├── ShapefileReader.kt          — 동기 읽기
-│   ├── ShapefileExtensions.kt      — 확장 함수 (loadShape 등)
-│
-├── geometry/                        — 공간 기하학 (JTS)
-│   ├── GeometryOperations.kt       — intersection, buffer, simplify
-│   └── PolygonExtensions.kt        — 다각형 확장
-│
-└── exposed/                         — PostGIS DB 파이프라인
-    ├── model/                       — Serializable 데이터 클래스
-    │   ├── SpatialModels.kt        — SpatialLayerRecord, SpatialFeatureRecord
-    │   └── NetCdfModels.kt         — NetCdfVariableInfo 등 (Phase 4)
-    │
-    ├── schema/                      — Exposed 테이블 정의
-    │   ├── SpatialTables.kt        — SpatialLayerTable, SpatialFeatureTable
-    │   ├── PoiTable.kt             — Point of Interest 테이블
-    │   └── NetCdfTables.kt         — NetCDF 메타데이터 (Phase 4)
-    │
-    ├── repository/                  — JDBC 저장소
-    │   ├── SpatialFeatureRepository.kt — 피처 CRUD/검색
-    │   └── NetCdfRepository.kt      — NetCDF 카탈로그 (Phase 4)
-    │
-    └── service/                     — 비즈니스 서비스
-        ├── ShapefileImportService.kt — Virtual Thread 배치 임포트
-        └── NetCdfCatalogService.kt  — NetCDF 등록 (Phase 4)
-```
-
-## 주요 API 사용 예시
-
-### 기본 좌표 타입 사용
-
-**GeoLocation — WGS84 위경도**
-
-```kotlin
-import io.bluetape4k.science.coords.GeoLocation
-
-// 좌표 생성
-val seoul = GeoLocation(latitude = 37.5665, longitude = 126.9780)
-val tokyo = GeoLocation(latitude = 35.6762, longitude = 139.6503)
-
-// Haversine 공식 거리 계산 (미터 단위)
-val distanceMeters = seoul.distanceTo(tokyo)
-val distanceKm = distanceMeters / 1000.0
-println("서울↔도쿄: $distanceKm km")
-
-// 사전 정의 지점
-val newYork = GeoLocation.NEW_YORK
-val london = GeoLocation.LONDON
-```
-
-**BoundingBox — 사각형 경계 영역**
-
-```kotlin
-import io.bluetape4k.science.coords.BoundingBox
-
-// 경계 생성 (남서쪽, 북동쪽)
-val seoulArea = BoundingBox(
-    minLat = 37.4, maxLat = 37.6,  // 위도 범위
-    minLon = 126.8, maxLon = 127.0  // 경도 범위
-)
-
-// 포함 여부 판정
-if (seoulArea.contains(seoul)) {
-    println("서울 시청은 범위 내")
-}
-
-// 경계 정보 계산
-println("중심: ${seoulArea.center}")           // GeoLocation
-println("너비: ${seoulArea.widthKm} km")
-println("높이: ${seoulArea.heightKm} km")
-```
-
-**DMS / DM — 도분초 / 도분 표기**
-
-```kotlin
-import io.bluetape4k.science.coords.DMS
-
-// 도분초 문자열 파싱
-val dms = DMS.parse("37°33'59.4\"N")
-val decimal = dms.toDecimal()  // 37.5665
-println("도분초 → 십진도: $decimal")
-
-// 십진도 → 도분초
-val dmsStr = DMS(degree = 37, minute = 33, second = 59.4, direction = 'N').toString()
-println("십진도 → 도분초: $dmsStr")
-```
-
-**UtmZone — UTM 좌표계**
-
-```kotlin
-import io.bluetape4k.science.coords.utmZoneOf
-import io.bluetape4k.science.coords.UtmZone
-
-// WGS84 좌표 → UTM Zone 자동 판정
-val zone = utmZoneOf(37.5665, 126.9780)
-println("서울: UTM Zone ${zone.longitudeZone}${zone.hemisphere}")  // 52S
-
-// UTM Zone 경계 (BoundingBox)
-val bbox = zone.boundingBox()
-println("Zone 경계: $bbox")
-```
-
-### 좌표계 변환
-
-```mermaid
-flowchart TD
-    A[WGS84 위경도\nGeoLocation] -->|wgs84ToUtm| B[UTM Zone 결정\nutmZoneOf]
-    B --> C{남반구?}
-    C -->|latBand < N| D[proj4: +south]
-    C -->|latBand >= N| E[proj4: 북반구]
-    D --> F[BasicCoordinateTransform]
-    E --> F
-    F --> G[UTM 좌표\neasting, northing]
-
-    G -->|utmToWgs84| H[UtmZone 입력]
-    H --> I{latitudeZone < N?}
-    I -->|Yes| J[proj4: +south]
-    I -->|No| K[proj4: 북반구]
-    J --> L[BasicCoordinateTransform]
-    K --> L
-    L --> M[WGS84 위경도\nGeoLocation]
-
-    style A fill:#4CAF50
-    style G fill:#2196F3
-    style M fill:#4CAF50
-```
-
-**WGS84 ↔ UTM 변환**
-
-```kotlin
-import io.bluetape4k.science.projection.wgs84ToUtm
-import io.bluetape4k.science.projection.utmToWgs84
-import io.bluetape4k.science.coords.UtmZone
-
-// WGS84 → UTM 변환
-val seoul = GeoLocation(37.5665, 126.9780)
-val (easting, northing) = wgs84ToUtm(seoul)
-println("WGS84(37.5665, 126.9780) → UTM($easting, $northing)")
-
-// UTM → WGS84 역변환
-val zone = UtmZone(longitudeZone = 52, hemisphere = 'S')
-val restored = utmToWgs84(easting, northing, zone)
-println("UTM → WGS84: $restored")
-```
-
-**EPSG 코드 간 변환**
-
-```kotlin
-import io.bluetape4k.science.projection.transform
-
-// EPSG:4326 (WGS84) → EPSG:5179 (Korea 2000 Central Belt)
-val (transformedX, transformedY) = transform(
-    x = 126.9780,
-    y = 37.5665,
-    sourceEpsg = 4326,
-    targetEpsg = 5179
-)
-println("EPSG:4326 → EPSG:5179: ($transformedX, $transformedY)")
-```
-
-### Shapefile 읽기
-
-**동기 읽기**
-
-```kotlin
-import io.bluetape4k.science.shapefile.loadShape
-import java.io.File
-
-val shapeFile = File("/data/provinces.shp")
-val shape = loadShape(shapeFile, charset = Charsets.UTF_8)
-
-println("파일: ${shape.shapeType}, 레코드: ${shape.recordCount}")
-
-// 각 도형 처리
-shape.records.forEach { record ->
-    println("도형 타입: ${record.geometry.geometryType}")
-    println("속성: ${record.attributes}")
-}
-```
-
-**비동기 읽기 (Coroutines)**
-
-```kotlin
-import io.bluetape4k.science.shapefile.loadShapeAsync
-import kotlinx.coroutines.runBlocking
-import java.io.File
-
-suspend fun processLargeShapefile() {
-    val shapeFile = File("/data/large_dataset.shp")
-    
-    // Dispatchers.IO에서 비동기 처리
-    val shape = loadShapeAsync(shapeFile)
-    
-    shape.records.forEach { record ->
-        // 도형 처리
-    }
-}
-
-// 실행
-runBlocking {
-    processLargeShapefile()
-}
-```
-
-### 공간 기하학 연산
-
-**JTS 도형 연산**
-
-```kotlin
-import io.bluetape4k.science.geometry.GeometryOperations
-import org.locationtech.jts.io.WKTReader
-
-val wkt = WKTReader()
-
-// 두 다각형
-val poly1 = wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")
-val poly2 = wkt.read("POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))")
-
-// 교집합
-val intersection = GeometryOperations.intersection(poly1, poly2)
-println("교집합: $intersection")
-
-// 합집합
-val union = GeometryOperations.union(poly1, poly2)
-
-// 버퍼 (100m 반경 확대)
-val buffered = GeometryOperations.buffer(poly1, 100.0)
-
-// 단순화 (Douglas-Peucker, tolerance=1.0)
-val simplified = GeometryOperations.simplify(poly1, 1.0)
-
-// 거리 계산
-val distance = GeometryOperations.distance(poly1, poly2)
-println("거리: $distance m")
-```
-
-### PostGIS 데이터베이스 파이프라인
-
-**Virtual Thread 기반 배치 임포트**
-
-```kotlin
-import io.bluetape4k.science.exposed.service.ShapefileImportService
-import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
-import io.bluetape4k.science.exposed.repository.SpatialLayerRepository
-import org.jetbrains.exposed.sql.Database
-import java.io.File
-
-// Database 초기화 (PostgreSQL + PostGIS)
-val database = Database.connect(
-    url = "jdbc:postgresql://localhost:5432/gis_db",
-    driver = "org.postgresql.Driver",
-    user = "postgres",
-    password = "password"
-)
-
-// 저장소 생성
-val layerRepo = SpatialLayerRepository()
-val featureRepo = SpatialFeatureRepository()
-
-// 배치 임포트 (Virtual Thread)
-val service = ShapefileImportService(layerRepo, featureRepo)
-val shapeFile = File("/data/harbors.shp")
-
-val importedCount = service.importShapefile(
-    file = shapeFile,
-    layerName = "harbors-2024"
-)
-println("임포트 완료: $importedCount 레코드")
-```
-
-**공간 검색**
-
-```kotlin
-import io.bluetape4k.science.coords.BoundingBox
-import io.bluetape4k.science.exposed.repository.SpatialFeatureRepository
-import org.jetbrains.exposed.sql.transactions.transaction
-
-transaction {
-    val repo = SpatialFeatureRepository()
-    
-    // BoundingBox 범위 검색
-    val bbox = BoundingBox(
-        minLat = 37.4, maxLat = 37.6,
-        minLon = 126.8, maxLon = 127.0
-    )
-    val features = repo.searchWithinBbox(bbox)
-    println("검색 결과: ${features.size}개 피처")
-}
-```
+---
 
 ## 테스트 (Testcontainers + PostGIS)
 
-Shapefile 임포트 및 공간 검색 테스트는 Testcontainers 기반 PostgreSQL + PostGIS 컨테이너를 사용합니다.
+통합 테스트는 Testcontainers 기반 PostgreSQL + PostGIS 컨테이너(`postgis/postgis:16-3.4`)로 실행됩니다.
+
+### NetCDF 카탈로그 테스트
 
 ```kotlin
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.Test
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
-
 @Testcontainers
-class SpatialImportTest {
-    
-    companion object {
-        @Container
-        val postgres = PostgreSQLContainer("postgis/postgis:16-3.4")
-            .withDatabaseName("test_gis")
-            .withUsername("test_user")
-            .withPassword("test_pass")
+class NetCdfTableTest : AbstractPostgisTest() {
+
+    private val repo = NetCdfFileRepository()
+
+    @Test
+    fun `NetCDF 파일 레코드 저장 및 조회`() {
+        transaction(db) {
+            val record = NetCdfFileRecord(
+                filename = "ERA5_2024_01.nc",
+                filePath = "/data/ERA5_2024_01.nc",
+                fileSize = 1_024_000L,
+                variables = listOf(
+                    NetCdfVariableInfo("temperature", "float", listOf(24, 181, 360),
+                        mapOf("units" to "K"))
+                ),
+                dimensions = mapOf("time" to 24, "lat" to 181, "lon" to 360),
+                globalAttrs = mapOf("Conventions" to "CF-1.8", "institution" to "ECMWF")
+            )
+            val saved = repo.save(record)
+
+            val found = repo.findByIdOrNull(saved.id)
+            found shouldNotBeNull()
+            found.filename shouldBeEqualTo "ERA5_2024_01.nc"
+            found.variables.size shouldBeEqualTo 1
+            found.dimensions["time"] shouldBeEqualTo 24
+        }
     }
 
     @Test
-    fun testShapefileImport() {
-        // Database 초기화 (Testcontainers 제공 URL)
-        val database = Database.connect(
-            url = postgres.jdbcUrl,
-            driver = "org.postgresql.Driver",
-            user = postgres.username,
-            password = postgres.password
-        )
-        
-        transaction {
-            // 테이블 생성
-            SchemaUtils.create(SpatialLayerTable, SpatialFeatureTable)
-            
-            // Shapefile 임포트
-            val service = ShapefileImportService(
-                SpatialLayerRepository(),
-                SpatialFeatureRepository()
-            )
-            val count = service.importShapefile(
-                File("/test-data/provinces.shp"),
-                "provinces"
-            )
-            assert(count > 0)
+    fun `NetCdfCatalogService - registerFile 호출 시 NotImplementedError 발생`() {
+        assertThrows<NotImplementedError> {
+            catalogService.registerFile("/data/test.nc")
         }
     }
 }
 ```
 
-## 성능 최적화
+### Shapefile 임포트 테스트
+
+```kotlin
+@Test
+fun `Shapefile PostGIS 임포트`() {
+    transaction(db) {
+        SchemaUtils.create(SpatialLayerTable, SpatialFeatureTable)
+        val service = ShapefileImportService(SpatialLayerRepository(), SpatialFeatureRepository())
+        val count = service.importShapefile(
+            file = File("src/test/resources/test-data/provinces.shp"),
+            layerName = "provinces-test"
+        )
+        count shouldBeGreaterThan 0
+    }
+}
+```
+
+---
+
+## 성능 / 운영 가이드
 
 ### 좌표 변환
 
-- **CRS 캐싱**: `CrsRegistry`는 EPSG 코드별 CRS 인스턴스를 캐시하여 반복 변환 시 성능 향상
+- **CRS 캐싱**: `CrsRegistry`는 EPSG 코드별 CRS 인스턴스를 캐시 — 반복 변환 비용 거의 없음.
+- **스레드 안전**: `CrsRegistry`는 ConcurrentMap 기반; 멀티스레드 환경에서 안전.
 
 ### Shapefile 처리
 
-- **비동기 I/O**: `loadShapeAsync()` 사용 시 대용량 파일을 Dispatchers.IO에서 논블로킹 처리
-- **스트림 처리**: 메모리 효율적인 레코드 순회 가능
+- 대용량 파일은 `loadShapeAsync()` 사용 — `Dispatchers.IO` 디스패치, 논블로킹 처리.
+- 지연(lazy) 레코드 순회로 수 GB 파일도 메모리 효율적 처리 가능.
 
-### 데이터베이스
+### PostGIS 데이터베이스
 
-- **공간 인덱스**: PostGIS GIST/BRIN 인덱스 자동 생성으로 범위 검색 가속화
-- **배치 적재**: Virtual Thread 기반 배치 처리로 네트워크 지연 최소화
-- **연결 풀링**: Exposed JDBC 기본 풀 사용
+- **공간 인덱스**: `CREATE INDEX ON spatial_features USING GIST (geom)` — bbox 범위 검색 가속.
+- **배치 처리**: `ShapefileImportService`는 설정 가능한 배치 크기(기본 1000행)로 Virtual Thread 처리.
+- **연결 풀링**: HikariCP 또는 Exposed 내장 풀 사용 권장.
 
 ### JTS 도형
 
-- **단순화**: Douglas-Peucker 알고리즘으로 복잡한 도형 경량화
-- **버퍼 정밀도**: 용도별 tolerance 조정으로 계산 비용 제어
+- 저장 전 `GeometryOperations.simplify()` 적용 → 좌표 수 감소, DB 저장 비용 절감.
+- `GeometryFactory`에 일관된 `PrecisionModel` 설정 → 재현 가능한 계산 결과.
 
-## NetCDF 지원
+### NetCDF 카탈로그
 
-`bluetape4k-science` 는 UCAR netCDF-Java 5.9.1 기반 NetCDF 파일 임포트를 제공합니다.
-메타데이터는 `netcdf_files` 에 등록되고, 격자 값은 슬라이스 단위로 `netcdf_grid_values` 에 임포트되며,
-변수 단위 진행 상태는 `netcdf_import_progress` 에서 관리되어 안전한 재개가 가능합니다.
+- `NetCdfFileTable`은 `bbox`(PostGIS POLYGON) + `timeStart/timeEnd` 컬럼 제공 → 시공간 필터링 지원.
+- `netcdf_files(time_start, time_end)` 인덱스 → 시간 범위 쿼리 가속.
+- `netcdf_grid_values(file_id, variable_name)` 복합 인덱스 → 변수별 격자 조회 가속.
 
-### 아키텍처 (NetCDF 파이프라인)
-
-```mermaid
-flowchart LR
-    NC[".nc 파일<br/>(NetCDF-3 / 4)"] -->|NetcdfFiles.open| READ[NetCdfCatalogService]
-    READ --> META[(netcdf_files)]
-    READ -->|Variable.read 슬라이스| AXIS[VariableAxisMap]
-    AXIS --> CRS{CRS}
-    CRS -->|EPSG:4326| GEO[Geographic 1D 축]
-    CRS -->|EPSG:3857/UTM/Polar| PROJ[Projected 2D pair<br/>proj4j]
-    GEO --> SLICE[importSlice2D]
-    PROJ --> SLICE
-    SLICE -->|ON CONFLICT DO NOTHING| GRID[(netcdf_grid_values)]
-    SLICE --> PROG[(netcdf_import_progress)]
-    PROG -->|heartbeat lease 5분| PROG
-    SLICE -.옵션.-> METR[Micrometer]
-```
-
-### 주요 기능
-
-- **rank 1 ~ 4 변수**: 1D 시계열 (location null), 2D, 3D (time × lat × lon), 4D (time × level × lat × lon)
-- **heartbeat lease + sliceIdx 재개**: `(fileId, variableName)` 단위 lease (5분 TTL).
-  4D 슬라이스 인덱스는 `timeIdx × levelN + levelIdx` 로 선형화되어 안전하게 재개 가능.
-- **CRS 재투영** (proj4j 화이트리스트):
-  EPSG:4326 / 4269 (Geographic 1D), EPSG:3857, EPSG:32601~32660 / 32701~32760 (UTM 북·남반구),
-  EPSG:3413 / 3031 (극 stereographic) — projected CRS 는 격자 cell 단위 2D `(lat, lon)` pair 캐싱.
-- **Axis-to-dimension 매핑**: 비표준 dim order (예: `[lat, lon, time]`) 도
-  `AxisType` 1차 + 이름 fallback (`lat`/`latitude`, `lon`/`longitude`, `time`/`t`,
-  `level`/`lev`/`pressure`/`depth`) 으로 처리.
-- **NaN / `_FillValue` 자동 skip** + Micrometer counter (`netcdf.import.nan.skipped`).
-- **동시성 안전성**: raw `INSERT ... ON CONFLICT DO NOTHING` + partial expression unique index
-  (`MD5(ST_AsBinary(location))` non-null + 일반 index null) 로 재개 시 중복 row 방지.
-- **선택적 Micrometer 계측**: `netcdf.register.duration`, `netcdf.import.variable.records`,
-  `netcdf.import.slice.duration`, `netcdf.import.nan.skipped`, `netcdf.import.status`.
-
-### 제약 / 비목표
-
-- `CoordinateAxis2D` (curvilinear / rotated pole / tripolar grid) **비지원** — 후속 이슈로 분리.
-  2D lat/lon 축이 발견되면 `NetCdfException.MissingCoordinate` 가 발생합니다.
-- GRIB / BUFR / OPeNDAP 포맷은 본 모듈 범위 외 (필요 시 `netcdfAll` jar 직접 추가).
-- 메서드는 **blocking** 시그니처 — Spring Boot Virtual Thread executor 에서 호출 권장 (Java 21+).
-
-### 사용 예시
-
-```kotlin
-val fileRepo = NetCdfFileRepository()
-val progressRepo = NetCdfImportProgressRepository()
-val service = NetCdfCatalogService(fileRepo, progressRepo, meterRegistry)
-
-// NetCDF 파일 등록 (메타데이터를 netcdf_files 에 저장)
-val fileId: Long = service.registerFile("/data/era5_2024_01.nc")
-
-// 변수의 모든 격자 값 임포트 (netcdf_grid_values 에 row 생성)
-service.importGridValues(fileId, "temperature")
-
-// 크래시 후 재호출 → 마지막 commit 슬라이스 다음부터 재개
-service.importGridValues(fileId, "temperature")  // COMPLETED 면 no-op, 아니면 resume
-
-// 다른 호출자가 active lease 보유 중인 경우
-try {
-    service.importGridValues(fileId, "temperature")
-} catch (e: NetCdfException.ImportAlreadyRunning) {
-    // 5분 후 재시도 (lease TTL 만료 후 정상 재개 가능)
-}
-```
-
-### 런타임 의존성
-
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-science:${bluetape4kVersion}")
-    // CDM API + NetCDF-3 IOSP
-    implementation("edu.ucar:cdm-core:5.9.1")
-    // 선택 — HDF5 / NetCDF-4 IOSP
-    implementation("edu.ucar:netcdf4:5.9.1")
-    // CRS 재투영
-    implementation("org.locationtech.proj4j:proj4j:${proj4jVersion}")
-    implementation("org.locationtech.proj4j:proj4j-epsg:${proj4jVersion}")  // EPSG:32633 등
-    implementation("io.micrometer:micrometer-core:${micrometerVersion}")    // 선택
-}
-repositories {
-    mavenCentral()
-    // Unidata Nexus — UCAR 아티팩트는 Maven Central 에 미게시
-    maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
-}
-```
+---
 
 ## 관련 모듈
 
-| 모듈                                           | 용도                           |
-|----------------------------------------------|------------------------------|
-| `bluetape4k-core`                            | 기본 유틸리티 (압축, 암호화, 어설션)       |
-| `bluetape4k-coroutines`                      | 코루틴 확장 (DeferredValue, Flow) |
-| `bluetape4k-exposed-postgresql`              | PostGIS 컬럼 타입                |
-| `bluetape4k-exposed-jdbc`                    | Exposed JDBC 저장소             |
-| `bluetape4k-spring-boot3-exposed-jdbc-demo`  | Spring MVC + Exposed 데모      |
-| `bluetape4k-spring-boot3-exposed-r2dbc-demo` | Spring WebFlux + R2DBC 데모    |
-
-## API 요약
-
-### coords
-
-| 클래스/함수                                        | 설명           |
-|-----------------------------------------------|--------------|
-| `GeoLocation(lat, lon)`                       | WGS84 좌표     |
-| `BoundingBox(minLat, maxLat, minLon, maxLon)` | 사각형 경계       |
-| `DMS.parse(str)` / `DM.parse(str)`            | 도분초/도분 파싱    |
-| `UtmZone(zone, hemisphere)`                   | UTM Zone     |
-| `utmZoneOf(lat, lon)`                         | 좌표 → Zone 판정 |
-| `Vector(x, y, z?)`                            | 2D/3D 벡터     |
-
-### projection
-
-| 함수                                  | 설명          |
-|-------------------------------------|-------------|
-| `wgs84ToUtm(geoLocation)`           | WGS84 → UTM |
-| `utmToWgs84(e, n, zone)`            | UTM → WGS84 |
-| `transform(x, y, srcEpsg, tgtEpsg)` | EPSG 간 변환   |
-
-### shapefile
-
-| 함수                               | 설명               |
-|----------------------------------|------------------|
-| `loadShape(file, charset?)`      | Shapefile 동기 읽기  |
-| `loadShapeAsync(file, charset?)` | Shapefile 비동기 읽기 |
-
-### geometry
-
-| 함수                                  | 설명                  |
-|-------------------------------------|---------------------|
-| `GeometryOperations.intersection()` | 교집합                 |
-| `GeometryOperations.union()`        | 합집합                 |
-| `GeometryOperations.buffer()`       | 버퍼 생성               |
-| `GeometryOperations.simplify()`     | Douglas-Peucker 단순화 |
-| `GeometryOperations.distance()`     | 거리 계산               |
-
-### exposed
-
-| 클래스                        | 설명                    |
-|----------------------------|-----------------------|
-| `SpatialFeatureRepository` | 피처 CRUD/검색            |
-| `SpatialLayerRepository`   | 레이어 관리                |
-| `ShapefileImportService`   | Virtual Thread 배치 임포트 |
+| 모듈 | 용도 |
+|------|------|
+| `bluetape4k-core` | 기본 유틸리티 (압축, 어설션) |
+| `bluetape4k-coroutines` | 코루틴 확장 (Flow, DeferredValue) |
+| `bluetape4k-exposed-postgresql` | PostGIS 컬럼 타입 |
+| `bluetape4k-exposed-jdbc` | Exposed JDBC 저장소 기반 클래스 |
+| `bluetape4k-testing-testcontainers` | Testcontainers 헬퍼 |
