@@ -73,6 +73,14 @@ class RedissonCodecsTest: AbstractRedissonTest() {
         RedissonCodecs.ZstdFastForyComposite,
         RedissonCodecs.SnappyFastForyComposite,
         RedissonCodecs.GzipFastForyComposite,
+
+        // use-case factory functions
+        RedissonCodecs.forHighThroughput(),
+        RedissonCodecs.forCache(),
+        RedissonCodecs.forGeneral(),
+        RedissonCodecs.forSmallValue(),
+        RedissonCodecs.forArchival(),
+        RedissonCodecs.forCompatibility(),
     )
 
     @ParameterizedTest(name = "codec={0}")

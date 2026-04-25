@@ -152,6 +152,27 @@ Codec classes:
 - `ZstdCodec` — Zstd compression wrapper.
 - `GzipCodec` — GZip compression wrapper.
 
+#### Use-Case Factory Functions
+
+`RedissonCodecs` provides use-case-oriented factory functions so you can select the right codec without knowing the internals:
+
+| Factory                                | Returns             | Description                                          |
+|----------------------------------------|---------------------|------------------------------------------------------|
+| `RedissonCodecs.forCache()`            | `LZ4Fory`           | High-throughput value cache (>1KB objects)           |
+| `RedissonCodecs.forHighThroughput()`   | `LZ4FastFory`       | ~27% faster than `forCache()`. Volatile cache only ⚠️ |
+| `RedissonCodecs.forCacheMap()`         | `LZ4ForyComposite`  | Map-type cache (RMap, RLocalCachedMap)               |
+| `RedissonCodecs.forGeneral()`          | `Fory`              | General mixed read/write workload                    |
+| `RedissonCodecs.forSmallValue()`       | `Kryo5`             | Small values (<1KB) — skips compression overhead     |
+| `RedissonCodecs.forArchival()`         | `ZstdFory`          | Cold/archival storage — maximum compression          |
+| `RedissonCodecs.forCompatibility()`    | `Jdk`               | Interop with non-bluetape4k systems                  |
+
+```kotlin
+val config = Config()
+// Use the highest-throughput codec for a hot volatile cache
+config.codec = RedissonCodecs.forHighThroughput()
+val redisson = Redisson.create(config)
+```
+
 ---
 
 ### 3. Batch / Transaction

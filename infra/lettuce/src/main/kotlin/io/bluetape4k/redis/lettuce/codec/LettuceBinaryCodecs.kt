@@ -142,6 +142,13 @@ object LettuceBinaryCodecs {
      *
      * FastFory는 `CompatibleMode.SCHEMA_CONSISTENT`를 사용하는 고성능 직렬화기입니다.
      *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.fastFory<MyData>()
+     * val connection = redisClient.connect(codec)
+     * connection.sync().set("key", myData)
+     * val result = connection.sync().get("key")
+     * ```
+     *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
      * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
@@ -153,6 +160,14 @@ object LettuceBinaryCodecs {
 
     /**
      * FastFory Serializer와 LZ4 Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * LZ4 압축으로 네트워크 전송 크기를 줄이면서 고성능 직렬화를 제공합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.lz4FastFory<MyData>()
+     * val connection = redisClient.connect(codec)
+     * connection.sync().set("key", myData)
+     * ```
      *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
@@ -166,6 +181,14 @@ object LettuceBinaryCodecs {
     /**
      * FastFory Serializer와 Zstd Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      *
+     * Zstd 압축은 LZ4보다 높은 압축률을 제공하며, 큰 객체 캐시에 적합합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.zstdFastFory<MyData>()
+     * val connection = redisClient.connect(codec)
+     * connection.sync().set("key", largeData)
+     * ```
+     *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
      * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
@@ -178,6 +201,12 @@ object LettuceBinaryCodecs {
     /**
      * FastFory Serializer와 Snappy Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.snappyFastFory<MyData>()
+     * val connection = redisClient.connect(codec)
+     * connection.sync().set("key", myData)
+     * ```
+     *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
      * - fallback이 없으므로 기존 Fory 데이터를 FastFory로 읽으면 역직렬화 오류가 발생합니다.
@@ -189,6 +218,12 @@ object LettuceBinaryCodecs {
 
     /**
      * FastFory Serializer와 GZip Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     *
+     * ```kotlin
+     * val codec = LettuceBinaryCodecs.gzipFastFory<MyData>()
+     * val connection = redisClient.connect(codec)
+     * connection.sync().set("key", myData)
+     * ```
      *
      * ⚠️ **와이어 포맷 경고**
      * - `CompatibleMode.SCHEMA_CONSISTENT`를 사용하며, 기본 Fory codec과 **와이어 포맷이 상호 비호환**합니다.
