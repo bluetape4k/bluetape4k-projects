@@ -27,8 +27,6 @@ fun Connection.publish(
     headers: Headers? = null,
 ) {
     subject.requireNotBlank("subject")
-    body.requireNotEmpty("body")
-
     publish(subject, headers, body.toUtf8Bytes())
 }
 
@@ -37,7 +35,7 @@ fun Connection.publish(
  *
  * @param subject 발행 대상 subject
  * @param replyTo 응답 수신 subject
- * @param body 메시지 본문 (UTF-8 변환)
+ * @param body 메시지 본문 (UTF-8 변환, 빈 문자열 허용)
  * @param headers 메시지 헤더 (선택)
  */
 fun Connection.publish(
@@ -48,8 +46,6 @@ fun Connection.publish(
 ) {
     subject.requireNotBlank("subject")
     replyTo.requireNotBlank("replyTo")
-    body.requireNotEmpty("body")
-
     publish(subject, replyTo, headers, body.toUtf8Bytes())
 }
 

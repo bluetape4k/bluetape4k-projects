@@ -49,7 +49,7 @@ class NatsJsPubAsync: AbstractNatsTest() {
                     val pa: PublishAck = it.get()
                     log.debug { "Publish succeeded on subject[$DEFAULT_SUBJECT], stream[${pa.stream}], seqno[${pa.seqno}" }
                 } catch (e: Throwable) {
-                    log.error(e) { "Publish failed. pulish ack=${it.get()}" }
+                    log.error(e) { "Publish failed for subject[$DEFAULT_SUBJECT]" }
                 }
             }
         }

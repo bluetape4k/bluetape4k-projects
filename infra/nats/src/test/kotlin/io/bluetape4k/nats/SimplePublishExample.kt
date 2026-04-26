@@ -55,7 +55,7 @@ class SimplePublishExample: AbstractNatsTest() {
             conn.flush(1.seconds)
 
             subscription.isActive.shouldBeTrue()
-            latch.await(1000, TimeUnit.MILLISECONDS)
+            latch.await(1000, TimeUnit.MILLISECONDS).shouldBeTrue()
         }
     }
 }

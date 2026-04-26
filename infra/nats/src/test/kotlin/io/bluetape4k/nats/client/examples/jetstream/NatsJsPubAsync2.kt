@@ -65,8 +65,8 @@ class NatsJsPubAsync2: AbstractNatsTest() {
                         log.debug { "Pub ack received $pa" }
                         ackLatch.countDown()
                     } else {
-                        // not done yet, put it back in the queue
-                        // don't count it b/c we are not done with it.
+                        // not done yet, put it back in the queue after a brief pause to avoid busy-loop
+                        Thread.sleep(10)
                         queue.add(record)
                     }
                 } catch (e: InterruptedException) {

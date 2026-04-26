@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.publish
 import io.bluetape4k.support.toUtf8String
+import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -41,7 +42,7 @@ class PubSubExample: AbstractNatsTest() {
             nc.publish("greet.sue", body)
             nc.publish("greet.pam", body)
 
-            latch.await(5000, TimeUnit.MILLISECONDS)
+            latch.await(5000, TimeUnit.MILLISECONDS).shouldBeTrue()
         }
     }
 }
