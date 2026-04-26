@@ -33,9 +33,9 @@ import java.net.URI
  * server.start()
  *
  * // 에뮬레이터 엔드포인트와 자격 증명 정보를 SDK 타입에 의존하지 않고 사용
- * val endpoint: URI = server.endpoint
- * val accessKey: String = server.accessKey
- * val secretKey: String = server.secretKey
+ * val endpoint: URI = server.awsEndpoint
+ * val accessKey: String = server.awsAccessKey
+ * val secretKey: String = server.awsSecretKey
  * val region: String = server.regionName
  * ```
  *
@@ -156,10 +156,11 @@ class FlociServer private constructor(
     /**
      * 시스템 프로퍼티로 export할 키 목록을 반환합니다.
      *
-     * `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName`을 노출합니다.
+     * 모든 키는 kebab-case 소문자를 사용합니다.
+     * `host`, `port`, `url`, `aws-endpoint`, `aws-access-key`, `aws-secret-key`, `region`을 노출합니다.
      */
     override fun propertyKeys(): Set<String> =
-        setOf("host", "port", "url", "awsEndpoint", "awsAccessKey", "awsSecretKey", "regionName")
+        setOf("host", "port", "url", "aws-endpoint", "aws-access-key", "aws-secret-key", "region")
 
     /**
      * 시스템 프로퍼티로 export할 key/value 맵을 반환합니다.
@@ -170,10 +171,10 @@ class FlociServer private constructor(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "awsEndpoint" to awsEndpoint.toString(),
-        "awsAccessKey" to awsAccessKey,
-        "awsSecretKey" to awsSecretKey,
-        "regionName" to regionName,
+        "aws-endpoint" to awsEndpoint.toString(),
+        "aws-access-key" to awsAccessKey,
+        "aws-secret-key" to awsSecretKey,
+        "region" to regionName,
     )
 
     init {

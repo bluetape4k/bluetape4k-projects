@@ -34,9 +34,11 @@ abstract class AbstractAwsTest {
          */
         @JvmStatic
         val awsEmulator: AwsEmulatorServer by lazy {
-            when (System.getProperty("bluetape4k.aws.emulator", "localstack")) {
+            val name = System.getProperty("bluetape4k.aws.emulator", "localstack").lowercase()
+            when (name) {
                 "floci" -> FlociServer.Launcher.floci
-                else -> LocalStackServer.Launcher.getLocalStack(*services.toTypedArray())
+                "localstack" -> LocalStackServer.Launcher.getLocalStack(*services.toTypedArray())
+                else -> error("Unknown bluetape4k.aws.emulator='$name'. Allowed: localstack, floci")
             }
         }
 

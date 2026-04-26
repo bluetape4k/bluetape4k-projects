@@ -5,6 +5,8 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.elasticmq.rest.sqs.SQSRestServer
 import org.elasticmq.rest.sqs.SQSRestServerBuilder
 import java.net.URI
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * [ElasticMQ](https://github.com/softwaremill/elasticmq) 내장 SQS 에뮬레이터 서버.
@@ -32,7 +34,7 @@ import java.net.URI
 class ElasticMqServer(
     val port: Int = DEFAULT_PORT,
     val bindAddress: String = DEFAULT_BIND_ADDRESS,
-) {
+) : AutoCloseable {
     companion object : KLogging() {
         const val DEFAULT_PORT = 9324
         const val DEFAULT_BIND_ADDRESS = "localhost"
@@ -54,14 +56,16 @@ class ElasticMqServer(
     val regionName: String = REGION_NAME
 
     private var server: SQSRestServer? = null
+    private val lock = ReentrantLock()
 
     /**
      * ElasticMQ SQS 서버를 시작합니다.
      *
-     * 이미 시작된 경우에는 아무 동작도 하지 않습니다.
+     * 이미 시작된 경우에는 아무 동작도 하지 않습니다. Thread-safe합니다.
      */
-    fun start() {
-        if (server != null) return
+    fun start() = lock.withLock {
+        if (server != null) return@withLock
+        // Scala ElasticMQ 라이브러리가 KLogging의 람다 오버로드와 충돌하므로 문자열 형식 사용
         log.debug("Starting ElasticMQ SQS server on $bindAddress:$port")
         server = SQSRestServerBuilder
             .withPort(port)
@@ -72,17 +76,21 @@ class ElasticMqServer(
 
     /**
      * ElasticMQ SQS 서버를 중지합니다.
+     *
+     * 이미 중지된 경우에는 아무 동작도 하지 않습니다 (double-stop safe). Thread-safe합니다.
      */
-    fun stop() {
+    fun stop() = lock.withLock {
         server?.stopAndWait()
         server = null
         log.info("ElasticMQ SQS server stopped.")
     }
 
+    override fun close() = stop()
+
     /**
      * 서버가 현재 실행 중인지 여부를 반환합니다.
      */
-    val isRunning: Boolean get() = server != null
+    val isRunning: Boolean get() = lock.withLock { server != null }
 
     /**
      * 테스트에서 재사용할 [ElasticMqServer] 싱글턴을 제공합니다.
@@ -96,7 +104,7 @@ class ElasticMqServer(
         val elasticMq: ElasticMqServer by lazy {
             ElasticMqServer().apply {
                 start()
-                ShutdownQueue.register(AutoCloseable { stop() })
+                ShutdownQueue.register(this)
             }
         }
     }

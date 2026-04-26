@@ -96,16 +96,17 @@ class LocalStackServer private constructor(
 
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url", "awsEndpoint", "awsAccessKey", "awsSecretKey", "regionName")
+    override fun propertyKeys(): Set<String> =
+        setOf("host", "port", "url", "aws-endpoint", "aws-access-key", "aws-secret-key", "region")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
-        "awsEndpoint" to awsEndpoint.toString(),
-        "awsAccessKey" to awsAccessKey,
-        "awsSecretKey" to awsSecretKey,
-        "regionName" to regionName,
+        "aws-endpoint" to awsEndpoint.toString(),
+        "aws-access-key" to awsAccessKey,
+        "aws-secret-key" to awsSecretKey,
+        "region" to regionName,
     )
 
     init {
