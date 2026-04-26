@@ -134,7 +134,12 @@ classDiagram
 | `filters/CaptionFilterSupport.kt`                    | 캡션 필터                         |
 | `filters/PaddingSupport.kt`                          | 패딩 필터                         |
 | `filters/WatermarkFilterType.kt`                     | 워터마크 타입 (COVER/STAMP)         |
-| `similarity/ImageSimilarity.kt`                      | 이미지 유사도 지표 (픽셀 Δ/MSE/PSNR/SSIM/pHash) |
+| `similarity/ImageSimilarity.kt`                      | 핵심 유사도: 픽셀 Δ, MSE, PSNR, 전역 SSIM, pHash |
+| `similarity/MssimSimilarity.kt`                      | MSSIM — 슬라이딩 윈도우 Gaussian SSIM            |
+| `similarity/HashSimilarity.kt`                       | aHash/dHash/wHash/phashOf (64/256/1024bit), HashDistance |
+| `similarity/HistogramSimilarity.kt`                  | 색상 히스토그램: ChiSquare, Bhattacharyya, EarthMover |
+| `similarity/KeypointSimilarity.kt`                   | Block-Mean descriptor, bestRotationSimilarityTo  |
+| `similarity/SimilarityScaleUtils.kt`                 | prepareForSimilarity — MSSIM 전 다운스케일 유틸리티  |
 | `fonts/FontSupport.kt`                               | 폰트 유틸리티                       |
 | `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
 | `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
@@ -377,12 +382,11 @@ a.pixelMaxDeltaTo(b)   // 채널당 최대 RGB 차이 (0 ~ 255)
 // 통계 기반 지표
 a.mseTo(b)             // Mean Squared Error
 a.psnrTo(b)            // Peak SNR dB (≥ 30 양호, ≥ 40 거의 동일, 동일시 +∞)
-a.ssimTo(b)            // Structural Similarity (-1.0 ~ 1.0, ≥ 0.95 거의 구분 불가)
+a.ssimTo(b)            // 전역 SSIM (-1.0 ~ 1.0, ≥ 0.95 거의 구분 불가)
 
-// 지각 해시 (크기 변화·JPEG 재압축에 견고)
+// 지각 해시 — 레거시 64bit API (크기 변화·JPEG 재압축에 견고)
 a.phash()                      // 64bit Long
 a.phashDistanceTo(b)           // Hamming distance 0 ~ 64 (≤ 5 거의 동일, ≤ 10 유사)
-hammingDistance(a.phash(), b.phash())
 ```
 
 | 지표                  | 용도                            | 완전 동일 |
@@ -390,10 +394,105 @@ hammingDistance(a.phash(), b.phash())
 | `pixelAvgDeltaTo`   | 바이트 단위 회귀 테스트 (허용 오차 비교)      | 0.0   |
 | `pixelMaxDeltaTo`   | 단일 픽셀 이상치 탐지                  | 0     |
 | `psnrTo`            | JPEG/WebP 압축 품질 평가            | +∞    |
-| `ssimTo`            | 인지적 유사도 (리사이즈·필터 민감도 낮음)      | 1.0   |
+| `ssimTo`            | 전역 인지적 유사도                    | 1.0   |
 | `phashDistanceTo`   | 중복 이미지·크롭·리사이즈 탐지             | 0     |
 
-> SSIM은 전역(global) 휘도 기반 구현입니다. 정교한 11×11 sliding window MSSIM이 필요하면 별도 구현을 고려하세요.
+### MSSIM (슬라이딩 윈도우 SSIM)
+
+11×11 Gaussian 윈도우 기반 SSIM으로, 전역 SSIM보다 공간 구조 변화에 민감합니다.
+
+```kotlin
+import io.bluetape4k.images.similarity.*
+
+val a = immutableImageOf(File("a.jpg"))
+val b = immutableImageOf(File("b.jpg"))
+
+// 11×11 Gaussian 윈도우 (기본), 전체 유효 위치 평균
+val mssim = a.mssimTo(b)                    // 0.0 ~ 1.0
+val mssim = a.mssimTo(b, windowSize = 7)    // 더 작은 윈도우
+val mssim = a.mssimTo(b, sigma = 2.0)       // 더 넓은 가우시안
+
+// 대형 이미지는 먼저 다운스케일해서 속도 향상
+val prepared = a.prepareForSimilarity(maxSide = 512)
+val score = prepared.mssimTo(b.prepareForSimilarity(512))
+```
+
+> 두 이미지의 크기가 동일해야 합니다. 일관된 처리를 위해 `prepareForSimilarity` 사용 권장.
+
+### 확장 지각 해시 (aHash / dHash / wHash / pHash)
+
+가변 비트폭(64 / 256 / 1024bit) 지각 해시.
+
+```kotlin
+import io.bluetape4k.images.similarity.*
+
+val a = immutableImageOf(File("a.jpg"))
+val b = immutableImageOf(File("b.jpg"))
+
+// 64bit 편의 단축형
+val da = HashDistance.hamming(a.ahash(), b.ahash())   // 평균 해시
+val dd = HashDistance.hamming(a.dhash(), b.dhash())   // 차이 해시
+val dw = HashDistance.hamming(a.whash(), b.whash())   // 웨이블릿 해시
+// 참고: a.phash() == a.phashOf(PHashSize.BITS_64)[0]
+
+// 가변 비트폭 — LongArray
+val p256 = a.phashOf(PHashSize.BITS_256)              // LongArray(4)
+val p1024 = b.phashOf(PHashSize.BITS_1024)            // LongArray(16)
+val dist = HashDistance.hamming(a.phashOf(PHashSize.BITS_256), b.phashOf(PHashSize.BITS_256))
+```
+
+| 해시  | 알고리즘                | 특징                         |
+|-------|---------------------|------------------------------|
+| aHash | 평균 밝기              | 빠르고 단순                    |
+| dHash | 인접 픽셀 그래디언트     | 약한 밝기 변화에 견고             |
+| wHash | Haar DWT LL subband | pHash보다 빠르고 정확도 유사       |
+| pHash | DCT 저주파 성분        | JPEG·리사이즈에 가장 견고           |
+
+### 색상 히스토그램 유사도
+
+채널별 색상 분포로 이미지를 비교합니다.
+
+```kotlin
+import io.bluetape4k.images.similarity.*
+
+val a = immutableImageOf(File("a.jpg"))
+val b = immutableImageOf(File("b.jpg"))
+
+// ChiSquare (가장 변별력 높음, [0, 1])
+val sim = a.histogramSimilarityTo(b)                                   // ChiSquare, RGB, 32 bins
+val sim = a.histogramSimilarityTo(b, HistogramSimilarity.chiSquare())
+
+// Bhattacharyya 계수 ([0, 1])
+val sim = a.histogramSimilarityTo(b, HistogramSimilarity.bhattacharyya())
+
+// Earth Mover's Distance 정규화 ([0, 1])
+val sim = a.histogramSimilarityTo(b, HistogramSimilarity.earthMover())
+
+// HSV 색공간, 채널당 64 bins
+val measure = HistogramSimilarity.ChiSquare(colorSpace = ColorSpace.HSV, binsPerChannel = 64)
+val sim = a.histogramSimilarityTo(b, measure)
+```
+
+### Block-Mean Descriptor (키포인트 없는 매칭)
+
+그리드 기반 휘도 descriptor로 회전 대응 유사도를 계산합니다.
+
+```kotlin
+import io.bluetape4k.images.similarity.*
+
+val a = immutableImageOf(File("a.jpg"))
+val b = immutableImageOf(File("b.jpg"))
+
+// 그리드 유사도 (L2 정규화, [0, 1])
+val sim = a.blockMeanSimilarityTo(b)                        // 8×8 그리드
+val sim = a.blockMeanSimilarityTo(b, gridRows = 16, gridCols = 16)
+
+// 회전 대응: 0°/90°/180°/270° 중 최대 유사도 반환
+val sim = a.bestRotationSimilarityTo(b)
+
+// Raw descriptor
+val desc = a.blockMeanDescriptor()   // DoubleArray(64) 정규화된 셀별 휘도
+```
 
 ### 애니메이션 GIF → WebP 변환
 
