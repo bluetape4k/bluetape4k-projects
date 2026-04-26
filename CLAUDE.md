@@ -88,7 +88,7 @@ All tools installed at `/opt/homebrew/bin/`.
 | `infra/`         | `lettuce`, `redisson`, `kafka`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`, `elasticsearch`       |
 | `spring-boot3/`  | WebFlux+Coroutines, Exposed JDBC/R2DBC repos, Hibernate Lettuce cache, Spring Batch                                         |
 | `spring-boot4/`  | Same as boot3 — use `implementation(platform(Libs.spring_boot4_dependencies))` (not `dependencyManagement`)                 |
-| `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `lingua`, `states`, `workflow`, `measured`, `money`                     |
+| `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `lingua`, `states`, `workflow`, `measured`, `money`, `text-search`      |
 | `testing/`       | `junit5`, `testcontainers`, `mock-web-server` (Spring Boot 3 MVC), `mock-webflux-server` (Spring Boot 4 WebFlux, port 9999) |
 | `virtualthread/` | `api`, `jdk21`, `jdk25` — always update both jdk21 AND jdk25 together                                                       |
 
@@ -116,6 +116,8 @@ All tools installed at `/opt/homebrew/bin/`.
 **Auditable pattern** (3 layers): `exposed-core` → `AuditableIdTable` + `UserContext`; `exposed-dao` → `AuditableEntity` auto-sets createdBy/updatedBy; `exposed-jdbc` → `auditedUpdateById()` / `auditedUpdateAll()` auto-sets updatedAt/updatedBy. **Always use `auditedUpdate*` for UPDATE operations.**
 
 **NetCDF pipeline** (`utils/science`): three Exposed tables — `NetCdfFileTable` (`AuditableLongIdTable`, file metadata) · `NetCdfGridValueTable` (plain `LongIdTable`, grid cells with nullable PostGIS `location`, partial expression unique indexes via `MD5(ST_AsBinary(location))`) · `NetCdfImportProgressTable` (plain `LongIdTable`, system-only state with `lastSliceIdx` linear cursor + heartbeat `leaseExpiresAt`; user context not needed). Slice insert uses raw `INSERT ... ON CONFLICT DO NOTHING` (Exposed `upsert` cannot match expression unique indexes).
+
+**AwsEmulatorServer** (`testing/testcontainers`): Common interface for local AWS emulators. `awsEndpoint`/`awsAccessKey`/`awsSecretKey` property names use `aws` prefix to avoid JVM getter collision with `LocalStackContainer.getEndpoint()`. `getCredentialProvider()` lives in `AwsEmulatorServerExtensions.kt` (requires `aws2-auth` on classpath). Switch emulators at test runtime: `-Dbluetape4k.aws.emulator=floci|localstack`. `LocalStackServer` and `MinIOServer` are `@Deprecated(WARNING)`.
 
 **High-perf**: LZ4/Zstd compression · Kryo/Fory serialization · Custom Redis codecs.
 

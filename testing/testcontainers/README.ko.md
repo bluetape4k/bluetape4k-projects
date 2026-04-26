@@ -65,9 +65,32 @@ classDiagram
     class KafkaServer {
         +bootstrapServers: String
     }
+    class AwsEmulatorServer {
+        <<interface>>
+        +awsEndpoint: URI
+        +awsAccessKey: String
+        +awsSecretKey: String
+        +regionName: String
+        +withServices(vararg services) AwsEmulatorServer
+    }
     class LocalStackServer {
-        +endpointOverride: URI
-        +getCredentialsProvider() AwsCredentialsProvider
+        +awsEndpoint: URI
+        @Deprecated
+    }
+    class FlociServer {
+        +awsEndpoint: URI
+        +withServices() FlociServer (no-op)
+        @Deprecated
+    }
+    class ElasticMqServer {
+        +sqsEndpoint: URI
+        +host: String
+        +port: Int
+    }
+    class MailpitServer {
+        +smtpPort: Int
+        +uiPort: Int
+        +uiUrl: String
     }
     class BluetapeHttpServer {
         +url: String
@@ -89,19 +112,27 @@ classDiagram
     GenericServer <|-- RedisServer
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
+    GenericServer <|-- FlociServer
+    GenericServer <|-- MailpitServer
     GenericServer <|-- BluetapeHttpServer
     GenericServer <|-- BluetapeWebfluxServer
     PostgreSQLServer <|-- PostgisServer
     PostgreSQLServer <|-- PgvectorServer
+    AwsEmulatorServer <|.. LocalStackServer
+    AwsEmulatorServer <|.. FlociServer
 
     style GenericServer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    style AwsEmulatorServer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     style PostgreSQLServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style PostgisServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style PgvectorServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style MySQL8Server fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style RedisServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style KafkaServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LocalStackServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    style LocalStackServer fill:#FFF8E1,stroke:#FFCC80,color:#E65100
+    style FlociServer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style ElasticMqServer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style MailpitServer fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style BluetapeHttpServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
     style BluetapeWebfluxServer fill:#FFF9C4,stroke:#F9A825,color:#F57F17
 ```
@@ -168,7 +199,13 @@ flowchart TD
     end
 
     subgraph AWS
-        LS["LocalStackServer\n(S3, DynamoDB 등)"]
+        LS["LocalStackServer\n(deprecated)"]
+        FC["FlociServer\n(S3, DynamoDB, SQS 등)"]
+        EMQ["ElasticMqServer\n(임베디드 SQS, JVM)"]
+    end
+
+    subgraph 메일
+        MP["MailpitServer\n(SMTP + Web UI)"]
     end
 
     GS --> 데이터베이스
@@ -179,6 +216,7 @@ flowchart TD
     GS --> 분산쿼리
     GS --> HTTPMock
     GS --> AWS
+    GS --> 메일
 
     classDef baseStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0,font-weight:bold
     classDef dbStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -189,6 +227,8 @@ flowchart TD
     classDef sqlStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     classDef mockStyle fill:#F57F17,stroke:#E65100,color:#000000
     classDef awsStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    classDef deprecatedStyle fill:#FFF8E1,stroke:#FFCC80,color:#E65100
+    classDef mailStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
     class GS baseStyle
     class MY5,MY8,MA,PG,PGS,PGV,CR,CH dbStyle
@@ -198,7 +238,9 @@ flowchart TD
     class CN,VT,PR,ZK,TX,KC infraStyle
     class TR sqlStyle
     class WM,BHS,BWS mockStyle
-    class LS awsStyle
+    class LS deprecatedStyle
+    class FC,EMQ awsStyle
+    class MP mailStyle
 ```
 
 ## 주요 기능
@@ -210,7 +252,9 @@ flowchart TD
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper, Toxiproxy, Keycloak
 - **분산 SQL 엔진**: Trino
 - **HTTP Mock 지원**: WireMock
-- **AWS LocalStack 지원**: S3, DynamoDB 등 로컬 테스트 환경 구성
+- **AWS 에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `FlociServer`(GraalVM Native, 권장), `LocalStackServer`(@Deprecated)
+- **임베디드 SQS**: `ElasticMqServer` — Docker 없이 JVM 내 SQS 서버 실행
+- **메일 테스트**: `MailpitServer` — SMTP + Web UI로 이메일 통합 테스트 지원
 - **고정 포트 매핑 옵션**: `useDefaultPort=true` 설정 시 기본 포트로 바인딩
 - **시스템 프로퍼티 자동 등록**: 컨테이너 시작 시 연결 정보 자동 등록
 - **Spring Boot 설정 단순화**: `${testcontainers...}` placeholder로 연결 정보 주입
@@ -247,7 +291,10 @@ flowchart TD
 | NatsServer          | `nats`          | `host`, `port`, `url`, `cluster-port`, `monitor-port`                               |
 | PulsarServer        | `pulsar`        | `host`, `port`, `url`, `broker-url`, `broker-port`, `broker-http-port`              |
 | RabbitMQServer      | `rabbitmq`      | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url`      |
-| LocalStackServer    | `localstack`    | `host`, `port`, `url`                                                               |
+| LocalStackServer    | `localstack`    | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
+| FlociServer         | `floci`         | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
+| ElasticMqServer     | `elasticmq`     | `host`, `port`, `url`, `sqsEndpoint`                                                |
+| MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
@@ -291,6 +338,7 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 |------------------------|--------------------------|------------------------|-----------|-------------|
 | `Neo4jServer`          | `neo4j`                  | `5.26.24`              | Bolt/HTTP | 7687 / 7474 |
 | `MemgraphServer`       | `memgraph/memgraph`      | `3.9.0`                | Bolt      | 7687        |
+| `FalkorDBServer`       | `falkordb/falkordb`      | `v4.18.1`              | Redis     | 6379        |
 | `PostgreSQLAgeServer`  | `apache/age`             | `release_PG17_1.6.0`  | JDBC      | 5432        |
 
 ```kotlin
@@ -480,6 +528,33 @@ sequenceDiagram
 - `ToxiproxyClient`는 Control API에 붙어서 프록시를 만들고 toxic을 추가/삭제하는 관리용 클라이언트입니다.
 - `DOWNSTREAM latency`는 Upstream 응답이 클라이언트로 돌아오는 구간을 늦춥니다.
 
+### AWS 에뮬레이터
+
+`AwsEmulatorServer`는 로컬 AWS 에뮬레이터 공통 인터페이스입니다. `bluetape4k.aws.emulator` 시스템 프로퍼티(`localstack` | `floci`)로 에뮬레이터를 선택합니다.
+
+```kotlin
+// FlociServer — GraalVM Native, 권장
+val floci = FlociServer.Launcher.floci
+val s3Client = S3Client.builder()
+    .endpointOverride(floci.awsEndpoint)
+    .credentialsProvider(floci.getCredentialProvider())
+    .region(Region.of(floci.regionName))
+    .build()
+
+// ElasticMqServer — 임베디드 JVM SQS, Docker 불필요
+val elasticMq = ElasticMqServer.Launcher.elasticMq
+val sqsClient = SqsClient.builder()
+    .endpointOverride(elasticMq.sqsEndpoint)
+    .region(Region.of("us-east-1"))
+    .credentialsProvider(AnonymousCredentialsProvider.create())
+    .build()
+
+// MailpitServer — SMTP + Web UI
+val mailpit = MailpitServer.Launcher.mailpit
+println("SMTP 포트: ${mailpit.smtpPort}")
+println("Web UI: ${mailpit.uiUrl}")
+```
+
 ### 분산 SQL 쿼리 엔진
 
 ```kotlin
@@ -566,7 +641,10 @@ dependencies {
 ## 참고
 
 - [Testcontainers](https://www.testcontainers.org/)
-- [LocalStack](https://www.localstack.cloud/)
+- [Floci](https://github.com/atlassian-labs/floci) — GraalVM Native AWS 에뮬레이터 (권장)
+- [ElasticMQ](https://github.com/softwaremill/elasticmq) — 임베디드 SQS 서버
+- [Mailpit](https://github.com/axllent/mailpit) — SMTP 이메일 테스트 도구
+- [LocalStack](https://www.localstack.cloud/) — @Deprecated: Community edition 2026-03-23 archived
 
 ## Colima + LocalStack 문제해결
 

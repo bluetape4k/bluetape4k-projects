@@ -642,6 +642,11 @@ object Libs {
     // deprecated
     // val aws_kotlin_testing = awsKotlin("testing")
 
+    // ElasticMQ - embedded SQS server (AWS emulator, no Docker required)
+    // https://github.com/softwaremill/elasticmq
+    // https://mvnrepository.com/artifact/org.elasticmq/elasticmq-rest-sqs_2.13
+    const val elasticmq_rest_sqs_2_13 = "org.elasticmq:elasticmq-rest-sqs_2.13:1.6.12"
+
     // Aws Smithy Kotlin
     // https://mvnrepository.com/artifact/aws.smithy.kotlin
     fun awsSmithyKotlin(module:String, version:String = Versions.aws_smithy_kotlin) = "aws.smithy.kotlin:$module:$version"
@@ -1217,6 +1222,9 @@ object Libs {
 
     // Neo4j
     const val neo4j_java_driver = "org.neo4j.driver:neo4j-java-driver:5.28.4"  // https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver
+
+    // FalkorDB
+    const val jfalkordb = "com.falkordb:jfalkordb:0.7.0"  // https://mvnrepository.com/artifact/com.falkordb/jfalkordb
 
     // Trino
     const val trino_jdbc = "io.trino:trino-jdbc:475"  // https://mvnrepository.com/artifact/io.trino/trino-jdbc

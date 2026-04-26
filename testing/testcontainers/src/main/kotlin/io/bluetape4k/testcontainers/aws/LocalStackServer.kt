@@ -9,8 +9,7 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
+import java.net.URI
 
 /**
  * LocalStackServer : 'a fully funcational local AWS cloud stack'
@@ -29,11 +28,16 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
  *
  * [Locakstack docker image](https://hub.docker.com/r/localstack/localstack/tags)
  */
+@Deprecated(
+    message = "LocalStack Community edition은 2026-03-23에 archived 되었습니다. FlociServer 또는 유료 LocalStack Pro 사용을 검토하세요.",
+    replaceWith = ReplaceWith("FlociServer", "io.bluetape4k.testcontainers.aws.FlociServer"),
+    level = DeprecationLevel.WARNING
+)
 class LocalStackServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
     reuse: Boolean,
-): LocalStackContainer(imageName), GenericServer, PropertyExportingServer {
+): LocalStackContainer(imageName), GenericServer, PropertyExportingServer, AwsEmulatorServer {
 
     companion object: KLogging() {
         const val IMAGE = "localstack/localstack"
@@ -83,14 +87,26 @@ class LocalStackServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "http://$host:$port"
 
+    // AwsEmulatorServer 프로퍼티 구현
+    // 프로퍼티 이름에 `aws` 접두어를 붙여 LocalStackContainer 의 Java getter 와의 JVM 시그니처 충돌을 방지한다.
+    override val awsEndpoint: URI get() = this.getEndpoint()
+    override val awsAccessKey: String get() = this.getAccessKey()
+    override val awsSecretKey: String get() = this.getSecretKey()
+    override val regionName: String get() = this.getRegion()
+
     override val propertyNamespace: String = NAME
 
-    override fun propertyKeys(): Set<String> = setOf("host", "port", "url")
+    override fun propertyKeys(): Set<String> =
+        setOf("host", "port", "url", "aws-endpoint", "aws-access-key", "aws-secret-key", "region")
 
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
         "port" to port.toString(),
         "url" to url,
+        "aws-endpoint" to awsEndpoint.toString(),
+        "aws-access-key" to awsAccessKey,
+        "aws-secret-key" to awsSecretKey,
+        "region" to regionName,
     )
 
     init {
@@ -112,22 +128,6 @@ class LocalStackServer private constructor(
     override fun start() {
         super.start()
         writeToSystemProperties()
-    }
-
-    /**
-     * 현재 컨테이너의 access key/secret key로 AWS SDK 자격 증명 제공자를 생성합니다.
-     *
-     * ## 동작/계약
-     * - 컨테이너가 제공하는 `accessKey`, `secretKey`를 그대로 사용합니다.
-     * - 새로운 [StaticCredentialsProvider] 인스턴스를 반환하며 서버 상태는 변경하지 않습니다.
-     *
-     * ```kotlin
-     * val provider = server.getCredentialProvider()
-     * // provider.resolveCredentials().accessKeyId().isNotBlank() == true
-     * ```
-     */
-    fun getCredentialProvider(): StaticCredentialsProvider {
-        return StaticCredentialsProvider.create(AwsBasicCredentials.create(this.accessKey, this.secretKey))
     }
 
     /**
