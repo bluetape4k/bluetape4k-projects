@@ -95,27 +95,25 @@ Spec §2 / §4 / §8 의 핵심 제약을 한 곳에 모은다. 각 Task 는 이
 
 ## 3. Phase 0 — Prerequisites
 
-### T0 — `Libs.aws2_regions` 상수 확인/추가 [low]
+### T0 — Libs.kt `aws2_auth`/`aws2_bom` 존재 확인 [low]
 
-**대상 파일**:
-- 수정(필요 시): `buildSrc/src/main/kotlin/Libs.kt`
+> **확인 완료 (2026-04-26)**: `aws2_bom` (line 584), `aws2_auth` (line 587) 모두 존재.
+> `aws2_regions` 는 존재하지 않으나 **T1a 에서 `Region` extension을 제거**하였으므로 불필요.
+> T0 는 검증 태스크로만 남으며 신규 상수 추가 없음.
+
+**대상 파일**: `buildSrc/src/main/kotlin/Libs.kt` (확인 전용, 변경 없음)
 
 **구현 사항**:
-- 현재 `buildSrc/src/main/kotlin/Libs.kt` 에 `aws2_regions` 상수가 존재하지 않음을 확인했음. T1a / T7 이 컴파일되려면 본 상수가 필요하다.
-- 다음 라인을 `aws2_*` 그룹의 `aws2_auth` 인접 위치에 추가한다 (`awsSdkV2(...)` 헬퍼 사용 패턴 일관 유지):
-  ```kotlin
-  val aws2_regions = awsSdkV2("regions")
-  ```
-- 이미 정의되어 있다면 변경 없음 (`rg "aws2_regions" buildSrc/src/main/kotlin/Libs.kt` 로 사전 확인).
+- `rg "aws2_bom|aws2_auth" buildSrc/src/main/kotlin/Libs.kt` 로 두 상수 존재 확인
+- 변경 사항 없음 (이미 존재)
 
-**종속**: 없음 (가장 첫 Task)
+**종속**: 없음
 
 **Acceptance**:
-- [ ] `rg "aws2_regions" buildSrc/src/main/kotlin/Libs.kt` 결과 1건 이상 출력
-- [ ] `./gradlew :buildSrc:compileKotlin` 통과 (또는 `./gradlew help` 가 정상 동작)
-- [ ] bluetape4k-patterns 체크: 신규 상수가 `awsSdkV2("regions")` 헬퍼 패턴을 따름
+- [ ] `rg "aws2_bom\|aws2_auth" buildSrc/src/main/kotlin/Libs.kt` 결과 2건 출력
+- [ ] 변경 없음 (`git diff buildSrc/` 클린)
 
-**복잡도 사유**: 단순 상수 추가지만 T1a/T7 의 컴파일 prerequisite 이므로 첫 단계에서 격리 처리.
+**복잡도 사유**: 사전 확인으로 T1a/T7 컴파일 전 dependency 존재를 보장.
 
 ---
 
@@ -154,18 +152,19 @@ Spec §2 / §4 / §8 의 핵심 제약을 한 곳에 모은다. 각 Task 는 이
 - 신규: `testing/testcontainers/src/main/kotlin/io/bluetape4k/testcontainers/aws/AwsEmulatorServerExtensions.kt`
 
 **구현 사항**:
+> **확인 완료 (2026-04-26)**: `aws2_regions` Libs.kt 미존재. `Region` 반환 extension 제외.
+> `aws2_auth` (Libs.kt line 587) 는 존재 → `getCredentialProvider()` 만 제공.
+
 ```kotlin
 fun AwsEmulatorServer.getCredentialProvider(): StaticCredentialsProvider =
     StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
-
-fun AwsEmulatorServer.getRegion(): Region = Region.of(regionName)
+// getRegion(): Region 은 제외 — aws2_regions 미존재. 호출부에서 Region.of(server.regionName) 직접 사용.
 ```
-- import: `software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}`,
-  `software.amazon.awssdk.regions.Region`
-- KDoc: "본 파일은 `compileOnly(Libs.aws2_auth)` + `compileOnly(Libs.aws2_regions)` 를 요구한다.
+- import: `software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}` 만 필요
+- KDoc: "본 파일은 `compileOnly(Libs.aws2_auth)` 를 요구한다.
   AWS SDK 가 classpath 에 없는 모듈은 본 extension 호출 시 `NoClassDefFoundError` 가 발생한다."
 
-**종속**: T0 (Libs.aws2_regions 필요), T1 (인터페이스), T7 (build.gradle.kts 에 compileOnly 등록)
+**종속**: T0 (aws2_auth 존재 확인), T1 (인터페이스), T7 (build.gradle.kts compileOnly 등록)
 
 **Acceptance**:
 - [ ] T1 인터페이스에서 SDK 타입 0건 유지 + 본 파일에서만 SDK import
@@ -284,34 +283,27 @@ fun AwsEmulatorServer.getRegion(): Region = Region.of(regionName)
 override fun withServices(vararg services: String): LocalStackServer =
     apply { super.withServices(*services.map { it.lowercase() }.toTypedArray()) }
 ```
-이 코드는 `LocalStackContainer` 부모의 `vararg String` 오버로드를 가정한다. 본 PR 에서 이 메서드를 **REPLACE** 하여 `AwsEmulatorServer` 인터페이스 시그니처와 일치시키고, 동시에 String → `LocalStackContainer.Service` enum 어댑터로 안전하게 변환한다.
+**확인 완료 (2026-04-26)**: `LocalStackContainer.withServices(vararg String)` 시그니처를 javap 로 실측 확인.
+기존 `super.withServices(*services.map { it.lowercase() }.toTypedArray())` 는 실제로 동작하는 String 오버로드임.
+**enum 어댑터 불필요** — 기존 `withServices` 바디 그대로 유지, `AwsEmulatorServer` 구현 추가만 수행.
 
 - 클래스 선언에 `, AwsEmulatorServer` 추가
-- **모든 인터페이스 프로퍼티를 명시 override 위임** (R7):
+- **모든 인터페이스 프로퍼티를 명시 override 위임** (R7 — Java getter 충돌 해소):
   ```kotlin
   override val endpoint: URI get() = this.getEndpoint()
   override val accessKey: String get() = this.getAccessKey()
   override val secretKey: String get() = this.getSecretKey()
   override val regionName: String get() = this.getRegion()
   ```
-- **기존 `withServices(vararg services: String)` (line 107-110) 를 REPLACE** — String→Enum 어댑터로 교체:
+- **기존 `withServices(vararg services: String)` (line 107-110) 바디 유지** — return type 을 `LocalStackServer` → `LocalStackServer` 그대로 유지 (covariant, 컴파일 통과):
   ```kotlin
-  override fun withServices(vararg services: String): LocalStackServer = apply {
-      services.forEach { name ->
-          val svc = LocalStackContainer.Service.valueOf(
-              name.uppercase().replace('-', '_')
-          )
-          super.withServices(svc)
-      }
-  }
+  override fun withServices(vararg services: String): LocalStackServer =
+      apply { super.withServices(*services.map { it.lowercase() }.toTypedArray()) }
   ```
-  - **주의**: 기존 구현 `super.withServices(*services.map { it.lowercase() }.toTypedArray())` 는
-    `LocalStackContainer` 의 `vararg String` 오버로드가 실제 존재해야 동작하나, 상위 testcontainers 버전에서
-    제거되었을 가능성이 있음. 본 교체로 enum API (`vararg EnabledService`) 만 사용하므로 안전성이 향상됨.
-  - 변환 규칙: `"s3"` → `S3`, `"dynamodb"` → `DYNAMODB`, `"api-gateway"` → `API_GATEWAY` 등.
+  String→Enum 변환 불필요. 기존 String 오버로드(`vararg String`)가 실측 확인됨.
 - 클래스 상단에 `@Deprecated(message=..., replaceWith=ReplaceWith("FlociServer", "io.bluetape4k.testcontainers.aws.FlociServer"), level=DeprecationLevel.WARNING)`
 - Deprecation message: "LocalStack 프로젝트가 archived(2026-03-23). 신규 코드는 FlociServer 사용 권장.
-  한 릴리스 사이클(다음 minor) 후 삭제 예정."
+  한 릴리스 사이클(다음 minor, v1.8.0 예정) 후 삭제 예정."
 - 기존 `getCredentialProvider()` / `Launcher.localStack` 등 외부 API 시그니처 **변경 금지** (외부 호환)
 
 **종속**: T1
@@ -324,8 +316,8 @@ override fun withServices(vararg services: String): LocalStackServer =
 - [ ] 신규 `withServices` 가 `LocalStackContainer.Service.valueOf(...)` 를 호출하여 enum 변환을 수행하는지 코드 리뷰로 확인
 - [ ] **bluetape4k-patterns 체크**: 기존 `companion object : KLogging()` 유지, factory 검증 유지, 모든 신규/변경 public API 에 한국어 KDoc, deprecation message 한글 명시
 
-**복잡도 사유**: Java 부모와 Kotlin 인터페이스 간 시그니처 충돌 해소 + Service enum 어댑터 + deprecation
-정책의 정확한 적용이 필요. 외부 API 호환을 깨면 다운스트림 모듈 빌드가 모두 깨짐.
+**복잡도 사유**: Java 부모와 Kotlin 인터페이스 간 시그니처 충돌 해소 + deprecation 정책의 정확한 적용이 필요.
+외부 API 호환을 깨면 다운스트림 모듈 빌드가 모두 깨짐. (enum 어댑터는 제거됨 — String 오버로드 실측 확인)
 
 ---
 
@@ -404,19 +396,17 @@ testRuntimeOnly(Libs.elasticmq)
   ```
 - 기존 10개 서비스 리스트 (`services`) 유지
 
-**Gradle system property 전달 검증 노트**:
-- `aws/aws/build.gradle.kts` 의 `tasks.test {}` (또는 `tasks.named<Test>("test")`) 블록에서 `bluetape4k.aws.emulator` system property 가 자동 전달되는지 확인한다.
-- Gradle 의 기본 `Test` task 는 부모 JVM 의 `-D` 플래그를 자식 테스트 JVM 으로 자동 전달하지 않는다. 따라서 다음 구문이 필요할 수 있다:
+**Gradle system property 전달 — 확인 완료 (2026-04-26)**:
+- 루트 `build.gradle.kts` 의 전역 `test {}` 블록에 `systemProperty` 전달 설정 **없음** (`rg "systemProperty" build.gradle.kts` 결과 0건).
+- `aws/aws/build.gradle.kts` / `aws/aws-kotlin/build.gradle.kts` 양쪽 모두 `test {}` 블록 **없음**.
+- **결론**: `-Dbluetape4k.aws.emulator=floci` 는 Gradle JVM 에만 설정되고 forked test JVM 에는 전달 안 됨.
+- **필수 추가**: `aws/aws/build.gradle.kts` 와 `aws/aws-kotlin/build.gradle.kts` 양쪽에:
   ```kotlin
   tasks.test {
-      systemProperty(
-          "bluetape4k.aws.emulator",
-          System.getProperty("bluetape4k.aws.emulator", "localstack")
-      )
+      systemProperty("bluetape4k.aws.emulator",
+          System.getProperty("bluetape4k.aws.emulator", "localstack"))
   }
   ```
-- 만약 루트 `build.gradle.kts` 의 `subprojects { tasks.withType<Test> { ... } }` 에서 이미 `systemProperties = System.getProperties()` 와 같은 전체 전달 설정이 있다면 추가 작업 불필요. 본 Task 첫 단계에서 `rg "systemPropert" build.gradle.kts buildSrc/` 로 확인 후 결정한다.
-- 전달 안 될 경우 `aws/aws/build.gradle.kts` + `aws/aws-kotlin/build.gradle.kts` 양쪽에 추가한다.
 
 **종속**: T1, T2, T4
 
@@ -797,24 +787,19 @@ AWS job 없음 — nightly-tests.yml 의 test-aws 만 변경" 명시).
 
 ---
 
-## 13. Open Implementation Questions
+## 13. Open Implementation Questions — 전체 해소 완료 (2026-04-26)
 
-본 plan 작성 시점에 아직 결정되지 않은 항목 (구현 단계에서 확정한다).
+모든 항목이 구현 시작 전 해소되었다. 미결 사항 없음.
 
-1. **floci `/_localstack/health` 지원 여부 실측** — Spec §4.3 의 TODO 와 동일.
-   `Wait.forListeningPort()` 로 충분한지 / 컨테이너 부팅이 너무 빨라 race 발생 시 sleep fallback 필요한지
-   T8 단계에서 측정.
-2. **`Libs.aws2_bom` / `Libs.aws2_auth` 상수 존재 여부** — T0 에서 `aws2_regions` 만 추가 확인.
-   `aws2_bom` / `aws2_auth` 도 동일하게 확인하고 누락 시 본 PR 에서 함께 추가 (Spec §4.8 정의 따름).
-3. **floci profile smoke test 의 최소 통과 기준** — T12 acceptance 가 "SQS/SNS/S3 1건 이상" 이지만,
-   실측 결과 통과 항목이 더 적으면 기준을 "S3 1건" 으로 완화하고 회귀 이슈를 두텁게 분리할지 판단.
-4. **`AbstractAwsTest.localStackServer` alias 의 향후 삭제 일정** — 본 PR 은 한 릴리스 호환을 위해
-   alias 만 deprecated. 다음 minor 릴리스에서 삭제할 별도 이슈를 T14/T15 단계에서 등록할지 여부.
-5. **Gradle test task 의 system property 전달 정책** — T9 노트 참조.
-   루트 `subprojects { tasks.withType<Test> { ... } }` 에 일괄 전달 설정이 있는지 확인 후
-   모듈별 `systemProperty(...)` 추가 여부 결정.
-
-> **이전 v1 의 Open Question #4 (`MailpitServer.wireToFloci()` helper)**: T6 에서 "메서드 시그니처 + KDoc + `TODO(...)` body" 로 본 PR 에 포함하기로 결정 완료. (페어링 패턴을 API 표면에서 미리 노출, 실제 wiring 본문은 후속 이슈)
+| # | 질문 | 해소 결과 | 결정 |
+|---|------|----------|------|
+| 1 | floci `/_localstack/health` 지원 여부 | README 확인: 미문서화 | `Wait.forListeningPort()` 유지. T4 TODO 주석으로 후속 교체 기록 |
+| 2 | `aws2_bom`/`aws2_auth`/`aws2_regions` 존재 여부 | bom(584), auth(587) 존재. regions **없음** | T1a 에서 `getRegion()` extension 제외. T0 는 확인 전용 |
+| 3 | floci smoke test 최소 통과 기준 | 설계 결정 | S3 1건 baseline. SQS/SNS 추가 시도, 실패 시 후속 이슈로 분리 |
+| 4 | `localStackServer` alias 삭제 일정 | 설계 결정 | v1.8.0 릴리스 시 삭제 이슈 등록 (T14 단계에서 이슈 draft) |
+| 5 | Gradle systemProperty 전달 정책 | 루트 `test {}` 전달 설정 없음 확인 | `aws/aws` + `aws/aws-kotlin` `build.gradle.kts` 양쪽에 직접 추가 (T9/T10 필수 작업) |
+| 6 | `LocalStackContainer.withServices` 시그니처 | javap 실측: `withServices(vararg String)` | T2 enum 어댑터 불필요. 기존 String 바디 유지 |
+| v1-Q4 | `MailpitServer.wireToFloci()` helper | 설계 결정 | T6 에서 시그니처+KDoc+`TODO(...)` body 포함. 구현 본문은 후속 이슈 |
 
 ---
 
