@@ -4,21 +4,80 @@ English | [한국어](./README.ko.md)
 
 [NATS.io](https://nats.io/) is a simple, secure, and high-performance open-source messaging system for cloud-native applications, IoT messaging, and microservices architectures.
 
-This module provides extension functions and DSLs to make working with NATS more idiomatic in Kotlin.
+This module provides Kotlin-idiomatic extension functions and DSLs for the NATS Java client (`io.nats:jnats`), with first-class Coroutines support.
+
+## Architecture
+
+```mermaid
+classDiagram
+    class AbstractNatsTest {
+        +connection: Connection
+        +NatsServer Testcontainer
+    }
+    class ConnectionExtensions {
+        +publish(subject, body)
+        +request(subject, body, timeout)
+        +requestAsync(subject, body)
+        +requestSuspending(subject, body)
+        +drainSuspending(timeout)
+        +createStream(name, subjects)
+    }
+    class JetStreamExtensions {
+        +publish(subject, body)
+        +publishAsync(subject, body)
+        +publishSuspending(subject, body)
+    }
+    class JetStreamManagementExtensions {
+        +createStream(name, subjects)
+        +createOrReplaceStream(name, subjects)
+        +streamExists(name)
+        +forcedDeleteStream(name)
+        +forcedPurgeStream(name)
+        +consumerExists(stream, consumer)
+        +forcedDeleteConsumer(stream, consumer)
+    }
+    class NatsServiceExtensions {
+        +natsServiceOf(nc, name, version, endpoints)
+        +natsService(block)
+        +serviceEndpointOf(name, subject, handler)
+    }
+    class DSLBuilders {
+        +streamConfiguration(block)
+        +consumerConfiguration(block)
+        +keyValueConfiguration(name, block)
+        +objectStoreConfiguration(block)
+    }
+
+    AbstractNatsTest --> ConnectionExtensions : uses
+    ConnectionExtensions --> JetStreamExtensions
+    ConnectionExtensions --> JetStreamManagementExtensions
+    ConnectionExtensions --> NatsServiceExtensions
+    JetStreamExtensions --> DSLBuilders
+```
 
 ## Features
 
-- **Kotlin extension functions**: Use the NATS Java client in an idiomatic Kotlin style
-- **Coroutines support**: Handle async operations via `suspend` functions
-- **JetStream support**: Stream creation, message publish/subscribe, and consumer management
-- **NATS Service**: Build microservice endpoints
-- **DSL support**: Fluent DSLs for configuring Streams, Consumers, Key-Value stores, and Object Stores
+- **Kotlin extension functions** — NATS Java client in idiomatic Kotlin style
+- **Coroutines support** — `suspend` functions for async operations (`requestSuspending`, `publishSuspending`, `drainSuspending`)
+- **JetStream support** — stream creation, publish/subscribe, consumer management
+- **NATS Service** — build microservice endpoints with DSL
+- **DSL builders** — fluent configuration for Streams, Consumers, Key-Value stores, and Object Stores
+- **Spring Boot integration** — optional `nats-spring` support (consumer's classpath, `compileOnly`)
 
 ## Dependency
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-nats:${bluetape4kVersion}")
+}
+```
+
+For Spring Boot integration, add `nats-spring` explicitly:
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-nats:${bluetape4kVersion}")
+    implementation("io.nats:nats-spring:0.6.2+3.5")
 }
 ```
 
@@ -31,7 +90,6 @@ import io.bluetape4k.nats.client.*
 import io.nats.client.Nats
 import kotlin.time.Duration.Companion.seconds
 
-// Create a NATS connection
 val connection = Nats.connect("nats://localhost:4222")
 
 // Publish a message
@@ -40,15 +98,12 @@ connection.publish("subject", "Hello, NATS!")
 // Request-Reply pattern
 val response = connection.request("subject", "request body", timeout = 5.seconds)
 
-// Async request
-val future = connection.requestAsync("subject", "body")
-
 // Coroutines support
 suspend fun coroutineExample() {
     val response = connection.requestSuspending("subject", "body".toUtf8Bytes())
 }
 
-// Drain and close connection
+// Drain and close
 connection.drainSuspending(10.seconds)
 ```
 
@@ -58,13 +113,12 @@ connection.drainSuspending(10.seconds)
 import io.bluetape4k.nats.client.*
 import io.nats.client.api.StorageType
 
-// Get JetStream context
 val jetStream = connection.jetStream()
 
-// Publish a message
+// Publish
 val ack = jetStream.publish("stream.subject", "message body")
 
-// Async publish
+// Async publish (CompletableFuture)
 val future = jetStream.publishAsync("stream.subject", "message body")
 
 // Coroutines support
@@ -87,16 +141,16 @@ import io.bluetape4k.nats.client.*
 
 val management = connection.jetStreamManagement()
 
-// Stream management
+// Stream lifecycle — idempotent create/update
 management.createStream("my-stream", subjects = arrayOf("orders.*"))
 management.createOrReplaceStream("my-stream", subjects = arrayOf("orders.*"))
 management.createStreamOrUpdateSubjects("my-stream", subjects = arrayOf("orders.*", "payments.*"))
 
-// Query streams
+// Queries
 val exists = management.streamExists("my-stream")
 val info = management.getStreamInfoOrNull("my-stream")
 
-// Delete streams
+// Deletion — treats "not found" as success, propagates all other errors
 management.forcedDeleteStream("my-stream")
 management.forcedPurgeStream("my-stream")
 
@@ -104,8 +158,6 @@ management.forcedPurgeStream("my-stream")
 val consumerExists = management.consumerExists("my-stream", "my-consumer")
 management.forcedDeleteConsumer("my-stream", "my-consumer")
 ```
-
-The `forcedDelete*`, `forcedPurgeStream`, and `tryDelete` variants treat "target not found" as the normal case and propagate all other JetStream exceptions. This ensures that permission errors or server failures during operation are never silently swallowed.
 
 ### 4. Subscription Extensions
 
@@ -123,21 +175,17 @@ val message = subscription.nextMessage(5.seconds)
 import io.bluetape4k.nats.service.*
 import io.nats.service.ServiceEndpoint
 
-// Create a service endpoint
-val endpoint = ServiceEndpoint.builder()
-    .endpoint(Endpoint.builder().name("echo").subject("service.echo").build())
-    .handler { msg -> msg.respond(connection, msg.data) }
-    .build()
-
-// Create a service (factory function)
+// Factory function
 val service = natsServiceOf(
     nc = connection,
     name = "my-service",
     version = "1.0.0",
-    endpoint
+    serviceEndpointOf(name = "echo", subject = "service.echo") { msg ->
+        msg.respond(connection, msg.data)
+    }
 )
 
-// DSL-style creation
+// DSL-style
 val service = natsService {
     connection(connection)
     name("my-service")
@@ -157,8 +205,8 @@ val config = streamConfiguration {
     subjects("events.*", "logs.*")
     storageType(StorageType.File)
     retentionPolicy(RetentionPolicy.Limits)
-    maxMessages(100000)
-    maxBytes(1024 * 1024 * 100)  // 100MB
+    maxMessages(100_000)
+    maxBytes(100 * 1024 * 1024)  // 100MB
     maxAge(Duration.ofDays(7))
 }
 ```
@@ -185,28 +233,24 @@ import io.bluetape4k.nats.client.*
 
 val kvManagement = connection.keyValueManagement()
 
-// Create a bucket
 val config = keyValueConfiguration {
     name("my-bucket")
     maxHistoryPerKey(5)
-    ttl(3600)  // 1 hour
+    ttl(3600)  // 1 hour in seconds
 }
 kvManagement.create(config)
 
-// Key-Value operations
+// Operations
 val kv = connection.keyValue("my-bucket")
 kv.put("key", "value")
 val value = kv.get("key")
 kv.delete("key")
-```
 
-To update an existing bucket's configuration or create it if it doesn't exist:
-
-```kotlin
-val config = keyValueConfiguration("my-bucket") {
+// Create or update existing bucket
+val config2 = keyValueConfiguration("my-bucket") {
     maxHistoryPerKey(10)
 }
-kvManagement.createOrUpdate(config)
+kvManagement.createOrUpdate(config2)
 ```
 
 ### 9. Object Store
@@ -217,14 +261,13 @@ import io.bluetape4k.nats.client.api.*
 
 val objManagement = connection.objectStoreManagement()
 
-// Create a bucket
 val config = objectStoreConfiguration {
     name("my-objects")
-    maxBytes(1024 * 1024 * 1000)  // 1GB
+    maxBytes(1_000 * 1024 * 1024)  // 1GB
 }
 objManagement.create(config)
 
-// Object store operations
+// Operations
 val store = connection.objectStore("my-objects")
 store.put("file.txt", inputStream)
 val obj = store.get("file.txt")
@@ -233,10 +276,10 @@ store.delete("file.txt")
 
 ## Test Support
 
-Extend `AbstractNatsTest` to write tests:
+Extend `AbstractNatsTest` to get a pre-connected NATS server via Testcontainers:
 
 ```kotlin
-class MyNatsTest: AbstractNatsTest() {
+class MyNatsTest : AbstractNatsTest() {
 
     @Test
     fun `publish and receive a message`() {
@@ -252,20 +295,17 @@ class MyNatsTest: AbstractNatsTest() {
 }
 ```
 
-For rapid regression validation, management API contracts (not-found tolerance, exception propagation, idempotent subject updates) can be verified directly using MockK-based unit tests.
-
 ## Examples
 
-More examples are available in the `src/test/kotlin/io/nats/examples` and `src/test/kotlin/io/bluetape4k/nats` packages.
+Test examples are located in `src/test/kotlin/io/bluetape4k/nats/`:
 
-### Key Examples
-
-- `PubSubExample.kt`: Basic publish/subscribe
-- `RequestReplyExample.kt`: Request-Reply pattern
-- `jetstream/`: JetStream examples
-- `service/`: NATS Service examples
-- `KeyValueIntroExamples.kt`: Key-Value store examples
-- `ObjectStoreExample.kt`: Object Store examples
+| Package | Description |
+|---------|-------------|
+| `client.examples` | Core pub/sub, request-reply, encoding, JetStream basics |
+| `client.examples.jetstream` | JetStream async publishing, stream management |
+| `client.examples.jetstream.simple` | Simple consumer API (fetch, iterable, message consumer) |
+| `client.examples.chainOfCommand` | Chain-of-command microservice pattern |
+| `service.examples` | NATS Service API endpoint registration |
 
 ## References
 

@@ -2,23 +2,82 @@
 
 [English](./README.md) | 한국어
 
-[Nats.io](https://nats.io/)는 클라우드 네이티브 애플리케이션, IoT 메시징, 마이크로서비스 아키텍처를 위한 단순하고 안전하며 고성능의 오픈소스 메시징 시스템입니다.
+[NATS.io](https://nats.io/)는 클라우드 네이티브 애플리케이션, IoT 메시징, 마이크로서비스 아키텍처를 위한 단순하고 안전하며 고성능의 오픈소스 메시징 시스템입니다.
 
-이 모듈은 NATS를 Kotlin에서 더욱 편리하게 사용할 수 있도록 하는 확장 함수와 DSL을 제공합니다.
+이 모듈은 NATS Java 클라이언트(`io.nats:jnats`)에 Kotlin 관용구 확장 함수와 DSL, 코루틴 퍼스트 비동기 지원을 추가합니다.
+
+## 아키텍처
+
+```mermaid
+classDiagram
+    class AbstractNatsTest {
+        +connection: Connection
+        +NatsServer Testcontainer
+    }
+    class ConnectionExtensions {
+        +publish(subject, body)
+        +request(subject, body, timeout)
+        +requestAsync(subject, body)
+        +requestSuspending(subject, body)
+        +drainSuspending(timeout)
+        +createStream(name, subjects)
+    }
+    class JetStreamExtensions {
+        +publish(subject, body)
+        +publishAsync(subject, body)
+        +publishSuspending(subject, body)
+    }
+    class JetStreamManagementExtensions {
+        +createStream(name, subjects)
+        +createOrReplaceStream(name, subjects)
+        +streamExists(name)
+        +forcedDeleteStream(name)
+        +forcedPurgeStream(name)
+        +consumerExists(stream, consumer)
+        +forcedDeleteConsumer(stream, consumer)
+    }
+    class NatsServiceExtensions {
+        +natsServiceOf(nc, name, version, endpoints)
+        +natsService(block)
+        +serviceEndpointOf(name, subject, handler)
+    }
+    class DSLBuilders {
+        +streamConfiguration(block)
+        +consumerConfiguration(block)
+        +keyValueConfiguration(name, block)
+        +objectStoreConfiguration(block)
+    }
+
+    AbstractNatsTest --> ConnectionExtensions : 사용
+    ConnectionExtensions --> JetStreamExtensions
+    ConnectionExtensions --> JetStreamManagementExtensions
+    ConnectionExtensions --> NatsServiceExtensions
+    JetStreamExtensions --> DSLBuilders
+```
 
 ## 특징
 
-- **Kotlin 확장 함수**: NATS Java 클라이언트를 코틀린스럽게 사용
-- **Coroutines 지원**: `suspend` 함수를 통한 비동기 작업 처리
-- **JetStream 지원**: 스트림 생성, 메시지 발행/구독, 소비자 관리
-- **NATS Service**: 마이크로서비스 엔드포인트 구축 지원
-- **DSL 제공**: Stream, Consumer, Key-Value, Object Store 설정을 위한 DSL
+- **Kotlin 확장 함수** — NATS Java 클라이언트를 코틀린 스타일로 사용
+- **코루틴 지원** — `suspend` 함수로 비동기 처리 (`requestSuspending`, `publishSuspending`, `drainSuspending`)
+- **JetStream 지원** — 스트림 생성, 메시지 발행/구독, 소비자 관리
+- **NATS Service** — DSL 기반 마이크로서비스 엔드포인트 구축
+- **DSL 빌더** — Stream, Consumer, Key-Value, Object Store 설정을 위한 유창한 DSL
+- **Spring Boot 통합** — 선택적 `nats-spring` 지원 (사용자 클래스패스에서 선언, `compileOnly`)
 
 ## 의존성
 
 ```kotlin
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-nats:${bluetape4kVersion}")
+}
+```
+
+Spring Boot 통합이 필요하다면 `nats-spring`을 명시적으로 추가합니다:
+
+```kotlin
+dependencies {
+    implementation("io.github.bluetape4k:bluetape4k-nats:${bluetape4kVersion}")
+    implementation("io.nats:nats-spring:0.6.2+3.5")
 }
 ```
 
@@ -31,7 +90,6 @@ import io.bluetape4k.nats.client.*
 import io.nats.client.Nats
 import kotlin.time.Duration.Companion.seconds
 
-// NATS 연결 생성
 val connection = Nats.connect("nats://localhost:4222")
 
 // 메시지 발행
@@ -40,15 +98,12 @@ connection.publish("subject", "Hello, NATS!")
 // Request-Reply 패턴
 val response = connection.request("subject", "request body", timeout = 5.seconds)
 
-// 비동기 Request
-val future = connection.requestAsync("subject", "body")
-
-// Coroutines 지원
+// 코루틴 지원
 suspend fun coroutineExample() {
     val response = connection.requestSuspending("subject", "body".toUtf8Bytes())
 }
 
-// 연결 종료
+// Drain + 연결 종료
 connection.drainSuspending(10.seconds)
 ```
 
@@ -58,21 +113,20 @@ connection.drainSuspending(10.seconds)
 import io.bluetape4k.nats.client.*
 import io.nats.client.api.StorageType
 
-// JetStream 생성
 val jetStream = connection.jetStream()
 
-// 메시지 발행
+// 동기 발행
 val ack = jetStream.publish("stream.subject", "message body")
 
-// 비동기 발행
+// 비동기 발행 (CompletableFuture)
 val future = jetStream.publishAsync("stream.subject", "message body")
 
-// Coroutines 지원
+// 코루틴 발행
 suspend fun publishAsync() {
     val ack = jetStream.publishSuspending("stream.subject", "message body")
 }
 
-// Stream 생성
+// 스트림 생성
 val streamInfo = connection.createStream(
     streamName = "my-stream",
     storageType = StorageType.Memory,
@@ -87,26 +141,23 @@ import io.bluetape4k.nats.client.*
 
 val management = connection.jetStreamManagement()
 
-// Stream 관리
+// 스트림 생명주기 — 멱등성 생성/업데이트
 management.createStream("my-stream", subjects = arrayOf("orders.*"))
 management.createOrReplaceStream("my-stream", subjects = arrayOf("orders.*"))
 management.createStreamOrUpdateSubjects("my-stream", subjects = arrayOf("orders.*", "payments.*"))
 
-// Stream 조회
+// 조회
 val exists = management.streamExists("my-stream")
 val info = management.getStreamInfoOrNull("my-stream")
 
-// Stream 삭제
+// 삭제 — "대상 없음"은 성공으로 처리, 나머지 예외는 전파
 management.forcedDeleteStream("my-stream")
 management.forcedPurgeStream("my-stream")
 
-// Consumer 관리
+// 소비자 관리
 val consumerExists = management.consumerExists("my-stream", "my-consumer")
 management.forcedDeleteConsumer("my-stream", "my-consumer")
 ```
-
-`forcedDelete*`, `forcedPurgeStream`, `tryDelete` 계열은 "대상이 이미 없는 경우"만 정상 흐름으로 처리하고,
-그 외 JetStream 예외는 그대로 전파합니다. 운영 중 권한 문제나 서버 오류를 실수로 숨기지 않도록 설계되어 있습니다.
 
 ### 4. Subscription 확장
 
@@ -124,21 +175,17 @@ val message = subscription.nextMessage(5.seconds)
 import io.bluetape4k.nats.service.*
 import io.nats.service.ServiceEndpoint
 
-// 서비스 엔드포인트 생성
-val endpoint = ServiceEndpoint.builder()
-    .endpoint(Endpoint.builder().name("echo").subject("service.echo").build())
-    .handler { msg -> msg.respond(connection, msg.data) }
-    .build()
-
-// 서비스 생성
+// 팩토리 함수
 val service = natsServiceOf(
     nc = connection,
     name = "my-service",
     version = "1.0.0",
-    endpoint
+    serviceEndpointOf(name = "echo", subject = "service.echo") { msg ->
+        msg.respond(connection, msg.data)
+    }
 )
 
-// DSL 방식
+// DSL 스타일
 val service = natsService {
     connection(connection)
     name("my-service")
@@ -147,7 +194,7 @@ val service = natsService {
 }
 ```
 
-### 6. Stream Configuration DSL
+### 6. 스트림 설정 DSL
 
 ```kotlin
 import io.bluetape4k.nats.client.api.*
@@ -158,13 +205,13 @@ val config = streamConfiguration {
     subjects("events.*", "logs.*")
     storageType(StorageType.File)
     retentionPolicy(RetentionPolicy.Limits)
-    maxMessages(100000)
-    maxBytes(1024 * 1024 * 100)  // 100MB
+    maxMessages(100_000)
+    maxBytes(100 * 1024 * 1024)  // 100MB
     maxAge(Duration.ofDays(7))
 }
 ```
 
-### 7. Consumer Configuration DSL
+### 7. 소비자 설정 DSL
 
 ```kotlin
 import io.bluetape4k.nats.client.api.*
@@ -186,28 +233,24 @@ import io.bluetape4k.nats.client.*
 
 val kvManagement = connection.keyValueManagement()
 
-// Bucket 생성
 val config = keyValueConfiguration {
     name("my-bucket")
     maxHistoryPerKey(5)
-    ttl(3600)  // 1시간
+    ttl(3600)  // 초 단위 1시간
 }
 kvManagement.create(config)
 
-// Key-Value 작업
+// 연산
 val kv = connection.keyValue("my-bucket")
 kv.put("key", "value")
 val value = kv.get("key")
 kv.delete("key")
-```
 
-기존 버킷이 있으면 설정을 갱신하고, 없으면 생성하려면 다음과 같이 사용할 수 있습니다.
-
-```kotlin
-val config = keyValueConfiguration("my-bucket") {
+// 기존 버킷 업데이트 또는 생성
+val config2 = keyValueConfiguration("my-bucket") {
     maxHistoryPerKey(10)
 }
-kvManagement.createOrUpdate(config)
+kvManagement.createOrUpdate(config2)
 ```
 
 ### 9. Object Store
@@ -218,14 +261,13 @@ import io.bluetape4k.nats.client.api.*
 
 val objManagement = connection.objectStoreManagement()
 
-// Bucket 생성
 val config = objectStoreConfiguration {
     name("my-objects")
-    maxBytes(1024 * 1024 * 1000)  // 1GB
+    maxBytes(1_000 * 1024 * 1024)  // 1GB
 }
 objManagement.create(config)
 
-// 객체 작업
+// 연산
 val store = connection.objectStore("my-objects")
 store.put("file.txt", inputStream)
 val obj = store.get("file.txt")
@@ -234,49 +276,41 @@ store.delete("file.txt")
 
 ## 테스트 지원
 
-`AbstractNatsTest`를 상속하여 테스트를 작성할 수 있습니다:
+`AbstractNatsTest`를 상속하면 Testcontainers 기반 NATS 서버에 자동으로 연결됩니다:
 
 ```kotlin
-class MyNatsTest: AbstractNatsTest() {
+class MyNatsTest : AbstractNatsTest() {
 
     @Test
     fun `메시지 발행 및 수신`() {
         val subject = "test.subject"
         val message = "Hello, NATS!"
 
-        // 구독
         val subscription = connection.subscribe(subject)
-
-        // 발행
         connection.publish(subject, message)
 
-        // 수신 확인
         val received = subscription.nextMessage(5.seconds)
         received.data.toUtf8String() shouldBeEqualTo message
     }
 }
 ```
 
-빠른 회귀 검증이 필요할 때는 MockK 기반의 단위 테스트로 확장 함수를 직접 검증할 수도 있습니다.
-이번 모듈은 관리 API의 not-found 허용/예외 전파/idempotent subject update 계약을 단위 테스트로 보강하고 있습니다.
-
 ## 예제
 
-더 많은 예제는 `src/test/kotlin/io/nats/examples` 및 `src/test/kotlin/io/bluetape4k/nats` 패키지에서 확인할 수 있습니다.
+테스트 예제는 `src/test/kotlin/io/bluetape4k/nats/` 하위에 위치합니다:
 
-### 주요 예제 목록
-
-- `PubSubExample.kt`: 기본 발행/구독 예제
-- `RequestReplyExample.kt`: Request-Reply 패턴 예제
-- `jetstream/`: JetStream 관련 예제
-- `service/`: NATS Service 예제
-- `KeyValueIntroExamples.kt`: Key-Value 스토어 예제
-- `ObjectStoreExample.kt`: Object Store 예제
+| 패키지 | 설명 |
+|--------|------|
+| `client.examples` | 기본 pub/sub, request-reply, 인코딩, JetStream 기초 |
+| `client.examples.jetstream` | JetStream 비동기 발행, 스트림 관리 |
+| `client.examples.jetstream.simple` | 단순 소비자 API (fetch, iterable, message consumer) |
+| `client.examples.chainOfCommand` | 책임 연쇄(Chain of Command) 마이크로서비스 패턴 |
+| `service.examples` | NATS Service API 엔드포인트 등록 |
 
 ## 참고 자료
 
 - [NATS 공식 문서](https://docs.nats.io/)
-- [NATS Java 클라이언트](https://github.com/nats-io/nats.java)
+- [NATS Java Client](https://github.com/nats-io/nats.java)
 - [JetStream 문서](https://docs.nats.io/nats-concepts/jetstream)
 - [NATS Service API](https://docs.nats.io/nats-concepts/service)
 
