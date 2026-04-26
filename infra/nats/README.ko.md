@@ -272,6 +272,42 @@ val store = connection.objectStore("my-objects")
 store.put("file.txt", inputStream)
 val obj = store.get("file.txt")
 store.delete("file.txt")
+
+// ObjectLink 팩토리 헬퍼
+val bucketLink = objectLinkOf("my-objects")                   // 버킷 레벨 링크
+val objectLink = objectLinkOf("my-objects", "file.txt")      // 객체 레벨 링크
+```
+
+### 10. ConsumerContext 팩토리
+
+```kotlin
+import io.bluetape4k.nats.client.*
+
+// durable 소비자 이름으로 ConsumerContext 생성
+val consumerCtx = consumerContextOf(connection, "my-stream", "my-consumer")
+
+// ConsumerConfiguration으로 ConsumerContext 생성
+val consumerCtx2 = consumerContextOf(connection, "my-stream", consumerConfiguration {
+    durable("my-consumer")
+    deliverPolicy(DeliverPolicy.All)
+})
+```
+
+### 11. StreamInfoOptions
+
+```kotlin
+import io.bluetape4k.nats.client.api.*
+
+// DSL 빌더
+val opts = streamInfoOptions { /* StreamInfoOptions.Builder DSL */ }
+
+// subject 필터 적용
+val filteredOpts = streamInfoOptionsOfFilterSubject("events.>")
+
+// 모든 subject 포함
+val allOpts = streamInfoOptionsOfAllSubjects()
+
+val info = management.getStreamInfo("my-stream", filteredOpts)
 ```
 
 ## 테스트 지원

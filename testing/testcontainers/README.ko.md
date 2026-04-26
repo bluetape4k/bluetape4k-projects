@@ -160,14 +160,19 @@ flowchart TD
         MGO["MongoDBServer"]
         CS["CassandraServer"]
         ES["ElasticsearchServer"]
+        ESO["ElasticsearchOssServer\n(7.x OSS)"]
         OS["OpenSearchServer"]
         MN["MinIOServer"]
         IFL["InfluxDBServer"]
+        HZ["HazelcastServer"]
+        IG2["Ignite2Server"]
+        IG3["Ignite3Server"]
     end
 
     subgraph 그래프DB
         NJ["Neo4jServer"]
         MG["MemgraphServer"]
+        FK["FalkorDBServer\n(Redis 프로토콜)"]
         PA["PostgreSQLAgeServer"]
     end
 
@@ -186,6 +191,7 @@ flowchart TD
         ZK["ZooKeeperServer"]
         TX["ToxiproxyServer"]
         KC["KeycloakServer"]
+        ZP["ZipkinServer"]
     end
 
     subgraph 분산쿼리
@@ -194,8 +200,14 @@ flowchart TD
 
     subgraph HTTPMock
         WM["WireMockServer"]
+        NG["NginxServer"]
         BHS["BluetapeHttpServer\n(httpbin+jsonplaceholder+web)"]
         BWS["BluetapeWebfluxServer\n(WebFlux+Coroutines)"]
+    end
+
+    subgraph LLM
+        CDB["ChromaDBServer\n(벡터 DB, 포트 8000)"]
+        OL["OllamaServer\n(로컬 LLM, 포트 11434)"]
     end
 
     subgraph AWS
@@ -217,6 +229,7 @@ flowchart TD
     GS --> HTTPMock
     GS --> AWS
     GS --> 메일
+    GS --> LLM
 
     classDef baseStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0,font-weight:bold
     classDef dbStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -229,32 +242,37 @@ flowchart TD
     classDef awsStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     classDef deprecatedStyle fill:#FFF8E1,stroke:#FFCC80,color:#E65100
     classDef mailStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef llmStyle fill:#E8EAF6,stroke:#9FA8DA,color:#283593
 
     class GS baseStyle
     class MY5,MY8,MA,PG,PGS,PGV,CR,CH dbStyle
-    class RD,RDC,MGO,CS,ES,OS,MN,IFL storageStyle
-    class NJ,MG,PA graphStyle
+    class RD,RDC,MGO,CS,ES,ESO,OS,MN,IFL,HZ,IG2,IG3 storageStyle
+    class NJ,MG,FK,PA graphStyle
     class KF,RB,PL,NT,RP mqStyle
-    class CN,VT,PR,ZK,TX,KC infraStyle
+    class CN,VT,PR,ZK,TX,KC,ZP infraStyle
     class TR sqlStyle
-    class WM,BHS,BWS mockStyle
+    class WM,NG,BHS,BWS mockStyle
     class LS deprecatedStyle
     class FC,EMQ awsStyle
     class MP mailStyle
+    class CDB,OL llmStyle
 ```
 
 ## 주요 기능
 
 - **DB 서버 지원**: MySQL, MariaDB, PostgreSQL, PostGIS, pgvector, Cockroach, ClickHouse
-- **Graph DB 서버 지원**: Neo4j, Memgraph, PostgreSQL + Apache AGE
-- **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elastic/OpenSearch, MinIO, InfluxDB
+- **Graph DB 서버 지원**: Neo4j, Memgraph, FalkorDB, PostgreSQL + Apache AGE
+- **Storage 서버 지원**: Redis/Redis Cluster, MongoDB, Cassandra, Elasticsearch/OSS/OpenSearch, MinIO, InfluxDB
+- **분산 캐시/그리드**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (클러스터 자동 초기화)
 - **MQ 서버 지원**: Kafka, RabbitMQ, Pulsar, Nats, Redpanda
 - **Infra 서버 지원**: Consul, Vault, Prometheus, Jaeger, Zipkin, ZooKeeper, Toxiproxy, Keycloak
 - **분산 SQL 엔진**: Trino
-- **HTTP Mock 지원**: WireMock
+- **HTTP Mock 지원**: WireMock, NginxServer
+- **LLM 지원**: `ChromaDBServer` (벡터 DB, 포트 8000), `OllamaServer` (로컬 LLM 추론, 포트 11434)
 - **AWS 에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `FlociServer`(GraalVM Native, 권장), `LocalStackServer`(@Deprecated)
 - **임베디드 SQS**: `ElasticMqServer` — Docker 없이 JVM 내 SQS 서버 실행
 - **메일 테스트**: `MailpitServer` — SMTP + Web UI로 이메일 통합 테스트 지원
+- **관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`)
 - **고정 포트 매핑 옵션**: `useDefaultPort=true` 설정 시 기본 포트로 바인딩
 - **시스템 프로퍼티 자동 등록**: 컨테이너 시작 시 연결 정보 자동 등록
 - **Spring Boot 설정 단순화**: `${testcontainers...}` placeholder로 연결 정보 주입
@@ -297,7 +315,15 @@ flowchart TD
 | MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
-| JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+| JaegerServer          | `jaeger`           | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+| ElasticsearchOssServer| `elasticsearch-oss`| `host`, `port`, `url`                                                               |
+| HazelcastServer       | `hazelcast`        | `host`, `port`, `url`                                                               |
+| Ignite2Server         | `ignite2`          | `host`, `port`, `url`                                                               |
+| Ignite3Server         | `ignite3`          | `host`, `port`, `url`, `rest-port`                                                  |
+| ZipkinServer          | `zipkin`           | `host`, `port`, `url`                                                               |
+| NginxServer           | `nginx`            | `host`, `port`, `url`                                                               |
+| ChromaDBServer        | `chromadb`         | `host`, `port`, `url`                                                               |
+| OllamaServer          | `ollama`           | `host`, `port`, `url`                                                               |
 | BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 | BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
@@ -527,6 +553,40 @@ sequenceDiagram
 - `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트(`8474`)와 프록시 포트 범위(`8666~8697`)를 노출합니다.
 - `ToxiproxyClient`는 Control API에 붙어서 프록시를 만들고 toxic을 추가/삭제하는 관리용 클라이언트입니다.
 - `DOWNSTREAM latency`는 Upstream 응답이 클라이언트로 돌아오는 구간을 늦춥니다.
+
+### LLM (ChromaDB + Ollama)
+
+```kotlin
+// ChromaDB — 임베딩 검색용 벡터 저장소
+val chromaDb = ChromaDBServer.Launcher.chromaDb
+println("ChromaDB URL: ${chromaDb.url}")   // http://host:8000
+
+// Ollama — 로컬 LLM 추론 (소형 모델은 GPU 불필요)
+val ollama = OllamaServer.Launcher.ollama
+println("Ollama URL: ${ollama.url}")       // http://host:11434
+```
+
+### 분산 캐시 / 그리드
+
+```kotlin
+// Hazelcast 5.x
+val hazelcast = HazelcastServer.Launcher.hazelcast
+val client = HazelcastClient.newHazelcastClient(
+    ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
+)
+
+// Apache Ignite 2.x — 씬 클라이언트 포트 10800
+val ignite2 = Ignite2Server.Launcher.ignite2
+val client = IgniteClient.start(ClientConfiguration().apply {
+    setAddresses("${ignite2.host}:${ignite2.port}")
+})
+
+// Apache Ignite 3.x — 클러스터 자동 초기화, 씬 클라이언트 포트 10800
+val ignite3 = Ignite3Server.Launcher.ignite3
+val client = IgniteClient.builder()
+    .addresses("${ignite3.host}:${ignite3.port}")
+    .build()
+```
 
 ### AWS 에뮬레이터
 

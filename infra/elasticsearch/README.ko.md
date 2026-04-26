@@ -153,7 +153,7 @@ client.use { c ->
 ```kotlin
 import io.bluetape4k.elasticsearch.ElasticsearchClients
 
-// 기본 HTTP 연결
+// 명시적 HTTP (ES 9.x 기본은 HTTPS — 레거시 클러스터에서만 scheme = "http" 지정)
 val client = ElasticsearchClients.asyncClientOf(
     host = "localhost",
     port = 9200,
@@ -347,6 +347,8 @@ io.bluetape4k.elasticsearch
 ## 설정 예시
 
 ### 개발 환경 (HTTP, 인증 없음)
+
+> **참고:** ES 9.x 기본은 HTTPS입니다. SSL 없이 로컬 개발 클러스터를 사용할 때는 `scheme = "http"` 를 명시적으로 지정하세요.
 
 ```kotlin
 val client = elasticsearchAsyncClient {

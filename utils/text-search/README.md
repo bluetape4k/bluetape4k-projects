@@ -260,8 +260,8 @@ val result = automaton.parseText("아름다운 나라")
 |--------|-------------|
 | `parseText(text)` | Returns all matches in the text |
 | `firstMatch(text)` | Returns leftmost-longest match (R5 rule) |
-| `containsMatch(text)` | Returns `true` if any keyword matches |
-| `tokenize(text)` | Splits into `Match` and `Fragment` tokens |
+| `containsMatch(text)` | Returns `true` if any keyword matches (short-circuits on first match — O(1) early exit) |
+| `tokenize(text)` | Splits into `Match` and `Fragment` tokens; always returns non-overlapping sequence regardless of `allowOverlaps` setting |
 | `replaceAll(text) { }` | Replaces all matches via transform lambda |
 
 ### `SearchOptions`

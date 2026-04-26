@@ -153,7 +153,7 @@ client.use { c ->
 ```kotlin
 import io.bluetape4k.elasticsearch.ElasticsearchClients
 
-// Basic HTTP connection
+// Explicit HTTP (ES 9.x defaults to HTTPS — set scheme = "http" only for legacy clusters)
 val client = ElasticsearchClients.asyncClientOf(
     host = "localhost",
     port = 9200,
@@ -347,6 +347,8 @@ io.bluetape4k.elasticsearch
 ## Configuration Examples
 
 ### Development (HTTP, No Auth)
+
+> **Note:** ES 9.x defaults to HTTPS. Specify `scheme = "http"` explicitly for local dev clusters without SSL.
 
 ```kotlin
 val client = elasticsearchAsyncClient {

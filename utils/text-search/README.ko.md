@@ -261,8 +261,8 @@ val result = automaton.parseText("아름다운 나라")
 |--------|------|
 | `parseText(text)` | 텍스트에서 모든 매치 반환 |
 | `firstMatch(text)` | leftmost-longest 매치 1건 반환 (R5 규칙) |
-| `containsMatch(text)` | 매치 존재 여부 반환 |
-| `tokenize(text)` | `Match`/`Fragment` 토큰으로 분해 |
+| `containsMatch(text)` | 매치 존재 여부 반환 (첫 매치 즉시 반환 — O(1) 조기 종료) |
+| `tokenize(text)` | `Match`/`Fragment` 토큰으로 분해; `allowOverlaps` 설정과 무관하게 항상 비겹침 시퀀스 반환 |
 | `replaceAll(text) { }` | 변환 람다로 모든 매치 치환 |
 
 ### `SearchOptions`

@@ -272,6 +272,42 @@ val store = connection.objectStore("my-objects")
 store.put("file.txt", inputStream)
 val obj = store.get("file.txt")
 store.delete("file.txt")
+
+// ObjectLink factory helpers
+val bucketLink = objectLinkOf("my-objects")                   // bucket-level link
+val objectLink = objectLinkOf("my-objects", "file.txt")      // object-level link
+```
+
+### 10. ConsumerContext Factory
+
+```kotlin
+import io.bluetape4k.nats.client.*
+
+// Create ConsumerContext from durable consumer name
+val consumerCtx = consumerContextOf(connection, "my-stream", "my-consumer")
+
+// Create ConsumerContext from ConsumerConfiguration
+val consumerCtx2 = consumerContextOf(connection, "my-stream", consumerConfiguration {
+    durable("my-consumer")
+    deliverPolicy(DeliverPolicy.All)
+})
+```
+
+### 11. StreamInfoOptions
+
+```kotlin
+import io.bluetape4k.nats.client.api.*
+
+// DSL builder
+val opts = streamInfoOptions { /* StreamInfoOptions.Builder DSL */ }
+
+// Subject-filtered stream info
+val filteredOpts = streamInfoOptionsOfFilterSubject("events.>")
+
+// All subjects
+val allOpts = streamInfoOptionsOfAllSubjects()
+
+val info = management.getStreamInfo("my-stream", filteredOpts)
 ```
 
 ## Test Support

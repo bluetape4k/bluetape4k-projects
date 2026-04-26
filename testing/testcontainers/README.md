@@ -160,14 +160,19 @@ flowchart TD
         MGO["MongoDBServer"]
         CS["CassandraServer"]
         ES["ElasticsearchServer"]
+        ESO["ElasticsearchOssServer\n(7.x OSS)"]
         OS["OpenSearchServer"]
         MN["MinIOServer"]
         IFL["InfluxDBServer"]
+        HZ["HazelcastServer"]
+        IG2["Ignite2Server"]
+        IG3["Ignite3Server"]
     end
 
     subgraph GraphDB
         NJ["Neo4jServer"]
         MG["MemgraphServer"]
+        FK["FalkorDBServer\n(Redis protocol)"]
         PA["PostgreSQLAgeServer"]
     end
 
@@ -186,6 +191,7 @@ flowchart TD
         ZK["ZooKeeperServer"]
         TX["ToxiproxyServer"]
         KC["KeycloakServer"]
+        ZP["ZipkinServer"]
     end
 
     subgraph DistributedSQL
@@ -194,8 +200,14 @@ flowchart TD
 
     subgraph HTTPMock
         WM["WireMockServer"]
+        NG["NginxServer"]
         BHS["BluetapeHttpServer\n(httpbin+jsonplaceholder+web)"]
         BWS["BluetapeWebfluxServer\n(WebFlux+Coroutines)"]
+    end
+
+    subgraph LLM
+        CDB["ChromaDBServer\n(vector DB, port 8000)"]
+        OL["OllamaServer\n(local LLM, port 11434)"]
     end
 
     subgraph AWS
@@ -217,6 +229,7 @@ flowchart TD
     GS --> HTTPMock
     GS --> AWS
     GS --> Mail
+    GS --> LLM
 
     classDef baseStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0,font-weight:bold
     classDef dbStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -229,27 +242,32 @@ flowchart TD
     classDef awsStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
     classDef deprecatedStyle fill:#FFF8E1,stroke:#FFCC80,color:#E65100
     classDef mailStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef llmStyle fill:#E8EAF6,stroke:#9FA8DA,color:#283593
 
     class GS baseStyle
     class MY5,MY8,MA,PG,PGS,PGV,CR,CH dbStyle
-    class RD,RDC,MGO,CS,ES,OS,MN,IFL storageStyle
-    class NJ,MG,PA graphStyle
+    class RD,RDC,MGO,CS,ES,ESO,OS,MN,IFL,HZ,IG2,IG3 storageStyle
+    class NJ,MG,FK,PA graphStyle
     class KF,RB,PL,NT,RP mqStyle
-    class CN,VT,PR,ZK,TX,KC infraStyle
+    class CN,VT,PR,ZK,TX,KC,ZP infraStyle
     class TR sqlStyle
-    class WM,BHS,BWS mockStyle
+    class WM,NG,BHS,BWS mockStyle
     class LS deprecatedStyle
     class FC,EMQ awsStyle
     class MP mailStyle
+    class CDB,OL llmStyle
 ```
 
 ## Key Features
 
-- Wrappers for database, graph DB, storage, messaging, infrastructure, and distributed SQL services
-- HTTP mocking through WireMock
+- Wrappers for database, graph DB, storage, messaging, infrastructure, distributed SQL, and LLM services
+- HTTP mocking through WireMock and NginxServer
 - **AWS Emulator support**: `AwsEmulatorServer` common interface; `FlociServer` (GraalVM Native image, recommended), `LocalStackServer` (@Deprecated)
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
+- **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
+- **Distributed cache/grid**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (auto cluster-init)
+- **Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`)
 - Shared `GenericServer` / `GenericContainer` utilities
 - Automatic PostgreSQL extension activation for PostGIS and pgvector
 - Declarative activation of extra PostgreSQL extensions through `withExtensions()`
@@ -293,6 +311,14 @@ Every server implements
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
+| ElasticsearchOssServer| `elasticsearch-oss`| `host`, `port`, `url`                                                               |
+| HazelcastServer       | `hazelcast`        | `host`, `port`, `url`                                                               |
+| Ignite2Server         | `ignite2`          | `host`, `port`, `url`                                                               |
+| Ignite3Server         | `ignite3`          | `host`, `port`, `url`, `rest-port`                                                  |
+| ZipkinServer          | `zipkin`           | `host`, `port`, `url`                                                               |
+| NginxServer           | `nginx`            | `host`, `port`, `url`                                                               |
+| ChromaDBServer        | `chromadb`         | `host`, `port`, `url`                                                               |
+| OllamaServer          | `ollama`           | `host`, `port`, `url`                                                               |
 | BluetapeHttpServer    | `bluetape-http`    | `host`, `port`, `url`, `httpbinUrl`, `jsonplaceholderUrl`, `webUrl`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 | BluetapeWebfluxServer | `bluetape-webflux` | `host`, `port`, `url`, `httpbin-url`, `jsonplaceholder-url`, `web-url`, `https-port`, `https-url`, `https-httpbin-url`, `https-jsonplaceholder-url`, `https-web-url` |
 
@@ -540,6 +566,40 @@ val sqsClient = SqsClient.builder()
 val mailpit = MailpitServer.Launcher.mailpit
 println("SMTP port: ${mailpit.smtpPort}")
 println("Web UI: ${mailpit.uiUrl}")
+```
+
+### LLM (ChromaDB + Ollama)
+
+```kotlin
+// ChromaDB — vector store for embedding search
+val chromaDb = ChromaDBServer.Launcher.chromaDb
+println("ChromaDB URL: ${chromaDb.url}")   // http://host:8000
+
+// Ollama — local LLM inference (no GPU required for small models)
+val ollama = OllamaServer.Launcher.ollama
+println("Ollama URL: ${ollama.url}")       // http://host:11434
+```
+
+### Distributed Cache / Grid
+
+```kotlin
+// Hazelcast 5.x
+val hazelcast = HazelcastServer.Launcher.hazelcast
+val client = HazelcastClient.newHazelcastClient(
+    ClientConfig().apply { networkConfig.addAddress("${hazelcast.host}:${hazelcast.port}") }
+)
+
+// Apache Ignite 2.x — thin client port 10800
+val ignite2 = Ignite2Server.Launcher.ignite2
+val client = IgniteClient.start(ClientConfiguration().apply {
+    setAddresses("${ignite2.host}:${ignite2.port}")
+})
+
+// Apache Ignite 3.x — auto cluster-init, thin client port 10800
+val ignite3 = Ignite3Server.Launcher.ignite3
+val client = IgniteClient.builder()
+    .addresses("${ignite3.host}:${ignite3.port}")
+    .build()
 ```
 
 ### Distributed SQL
