@@ -460,11 +460,47 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Infra 모듈 테스트 (Testcontainers) ───────────────────────────────────
+  # ── Infra 모듈 테스트 (Testcontainers) — Matrix 병렬 ─────────────────────
+  # 3 groups run in parallel on separate runners
   test-infra:
-    name: Test / Infra
+    name: Test / Infra (${{ matrix.group }})
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: redis
+            test_tasks: >-
+              :bluetape4k-redis:test
+              :bluetape4k-redisson:test
+              :bluetape4k-lettuce:test
+              :bluetape4k-cache-lettuce:test
+              :bluetape4k-cache-redisson:test
+            kover_tasks: >-
+              :bluetape4k-redis:koverXmlReport
+              :bluetape4k-redisson:koverXmlReport
+              :bluetape4k-lettuce:koverXmlReport
+              :bluetape4k-cache-lettuce:koverXmlReport
+              :bluetape4k-cache-redisson:koverXmlReport
+          - group: kafka-resilience
+            test_tasks: >-
+              :bluetape4k-kafka:test
+              :bluetape4k-resilience4j:test
+              :bluetape4k-bucket4j:test
+            kover_tasks: >-
+              :bluetape4k-kafka:koverXmlReport
+              :bluetape4k-resilience4j:koverXmlReport
+              :bluetape4k-bucket4j:koverXmlReport
+          - group: cache-misc
+            test_tasks: >-
+              :bluetape4k-micrometer:test
+              :bluetape4k-cache:test
+              :bluetape4k-cache-hazelcast:test
+            kover_tasks: >-
+              :bluetape4k-micrometer:koverXmlReport
+              :bluetape4k-cache:koverXmlReport
+              :bluetape4k-cache-hazelcast:koverXmlReport
     steps:
       - uses: actions/checkout@v4
 
@@ -478,51 +514,28 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Build mock-web-server Docker image
-        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+      - name: Test infra modules (${{ matrix.group }})
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-
-      - name: Test infra modules (Testcontainers)
+          TEST_TASKS: ${{ matrix.test_tasks }}
         run: |
-          ./gradlew \
-            :bluetape4k-redis:test \
-            :bluetape4k-redisson:test \
-            :bluetape4k-lettuce:test \
-            :bluetape4k-resilience4j:test \
-            :bluetape4k-bucket4j:test \
-            :bluetape4k-micrometer:test \
-            :bluetape4k-kafka:test \
-            :bluetape4k-cache:test \
-            :bluetape4k-cache-lettuce:test \
-            :bluetape4k-cache-redisson:test \
-            :bluetape4k-cache-hazelcast:test
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          read -ra tasks <<< "$TEST_TASKS"
+          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
+        env:
+          KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
-          ./gradlew \
-            :bluetape4k-redis:koverXmlReport \
-            :bluetape4k-redisson:koverXmlReport \
-            :bluetape4k-lettuce:koverXmlReport \
-            :bluetape4k-resilience4j:koverXmlReport \
-            :bluetape4k-bucket4j:koverXmlReport \
-            :bluetape4k-micrometer:koverXmlReport \
-            :bluetape4k-kafka:koverXmlReport \
-            :bluetape4k-cache:koverXmlReport \
-            :bluetape4k-cache-lettuce:koverXmlReport \
-            :bluetape4k-cache-redisson:koverXmlReport \
-            :bluetape4k-cache-hazelcast:koverXmlReport \
-            --parallel
+          read -ra tasks <<< "$KOVER_TASKS"
+          ./gradlew "${tasks[@]}" --parallel
         continue-on-error: true
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-infra
+          name: nightly-test-results-infra-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
@@ -530,7 +543,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-infra
+          name: nightly-coverage-infra-${{ matrix.group }}
           path: '**/build/reports/kover/'
           retention-days: 14
 
@@ -559,7 +572,8 @@ jobs:
             :bluetape4k-exposed-jdbc:test \
             :bluetape4k-exposed-jdbc-caffeine:test \
             :bluetape4k-exposed-jdbc-lettuce:test \
-            :bluetape4k-exposed-jdbc-redisson:test
+            :bluetape4k-exposed-jdbc-redisson:test \
+            --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -648,11 +662,38 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Data 모듈 테스트 ──────────────────────────────────────────────────────
+  # ── Data 모듈 테스트 (Testcontainers) — Matrix 병렬 ──────────────────────
+  # 2 groups run in parallel on separate runners
   test-data:
-    name: Test / Data (RDB · NoSQL)
+    name: Test / Data (${{ matrix.group }})
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: rdb
+            test_tasks: >-
+              :bluetape4k-exposed-postgresql:test
+              :bluetape4k-exposed-mysql8:test
+              :bluetape4k-jdbc:test
+              :bluetape4k-hibernate:test
+              :bluetape4k-hibernate-cache-lettuce:test
+              :bluetape4k-hibernate-reactive:test
+            kover_tasks: >-
+              :bluetape4k-exposed-postgresql:koverXmlReport
+              :bluetape4k-exposed-mysql8:koverXmlReport
+              :bluetape4k-jdbc:koverXmlReport
+              :bluetape4k-hibernate:koverXmlReport
+              :bluetape4k-hibernate-cache-lettuce:koverXmlReport
+              :bluetape4k-hibernate-reactive:koverXmlReport
+          - group: nosql
+            test_tasks: >-
+              :bluetape4k-mongodb:test
+              :bluetape4k-cassandra:test
+            kover_tasks: >-
+              :bluetape4k-mongodb:koverXmlReport
+              :bluetape4k-cassandra:koverXmlReport
     steps:
       - uses: actions/checkout@v4
 
@@ -666,40 +707,28 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Test data modules (Testcontainers DB)
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-postgresql:test \
-            :bluetape4k-exposed-mysql8:test \
-            :bluetape4k-jdbc:test \
-            :bluetape4k-mongodb:test \
-            :bluetape4k-cassandra:test \
-            :bluetape4k-hibernate:test \
-            :bluetape4k-hibernate-cache-lettuce:test \
-            :bluetape4k-hibernate-reactive:test
+      - name: Test data modules (${{ matrix.group }})
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_TASKS: ${{ matrix.test_tasks }}
+        run: |
+          read -ra tasks <<< "$TEST_TASKS"
+          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
+        env:
+          KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
-          ./gradlew \
-            :bluetape4k-exposed-postgresql:koverXmlReport \
-            :bluetape4k-exposed-mysql8:koverXmlReport \
-            :bluetape4k-jdbc:koverXmlReport \
-            :bluetape4k-mongodb:koverXmlReport \
-            :bluetape4k-cassandra:koverXmlReport \
-            :bluetape4k-hibernate:koverXmlReport \
-            :bluetape4k-hibernate-cache-lettuce:koverXmlReport \
-            :bluetape4k-hibernate-reactive:koverXmlReport \
-            --parallel
+          read -ra tasks <<< "$KOVER_TASKS"
+          ./gradlew "${tasks[@]}" --parallel
         continue-on-error: true
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-data
+          name: nightly-test-results-data-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
@@ -707,15 +736,42 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-data
+          name: nightly-coverage-data-${{ matrix.group }}
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Spring Boot 3 Docker 테스트 ──────────────────────────────────────────
+  # ── Spring Boot 3 Docker 테스트 — Matrix 병렬 ───────────────────────────
+  # 2 groups run in parallel on separate runners
   test-spring3-docker:
-    name: Test / Spring Boot 3 (Docker)
+    name: Test / Spring Boot 3 (${{ matrix.group }})
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: core-redis-r2dbc
+            test_tasks: >-
+              :bluetape4k-spring-boot3-core:test
+              :bluetape4k-spring-boot3-redis:test
+              :bluetape4k-spring-boot3-r2dbc:test
+              :bluetape4k-spring-boot3-exposed-r2dbc:test
+            kover_tasks: >-
+              :bluetape4k-spring-boot3-core:koverXmlReport
+              :bluetape4k-spring-boot3-redis:koverXmlReport
+              :bluetape4k-spring-boot3-r2dbc:koverXmlReport
+              :bluetape4k-spring-boot3-exposed-r2dbc:koverXmlReport
+          - group: batch-nosql
+            test_tasks: >-
+              :bluetape4k-spring-boot3-batch-exposed:test
+              :bluetape4k-spring-boot3-mongodb:test
+              :bluetape4k-spring-boot3-cassandra:test
+              :bluetape4k-spring-boot3-hibernate-lettuce:test
+            kover_tasks: >-
+              :bluetape4k-spring-boot3-batch-exposed:koverXmlReport
+              :bluetape4k-spring-boot3-mongodb:koverXmlReport
+              :bluetape4k-spring-boot3-cassandra:koverXmlReport
+              :bluetape4k-spring-boot3-hibernate-lettuce:koverXmlReport
     steps:
       - uses: actions/checkout@v4
 
@@ -734,40 +790,28 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-      - name: Test spring-boot3 modules (Docker)
-        run: |
-          ./gradlew \
-            :bluetape4k-spring-boot3-core:test \
-            :bluetape4k-spring-boot3-redis:test \
-            :bluetape4k-spring-boot3-r2dbc:test \
-            :bluetape4k-spring-boot3-exposed-r2dbc:test \
-            :bluetape4k-spring-boot3-batch-exposed:test \
-            :bluetape4k-spring-boot3-mongodb:test \
-            :bluetape4k-spring-boot3-cassandra:test \
-            :bluetape4k-spring-boot3-hibernate-lettuce:test
+      - name: Test spring-boot3 modules (${{ matrix.group }})
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_TASKS: ${{ matrix.test_tasks }}
+        run: |
+          read -ra tasks <<< "$TEST_TASKS"
+          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
+        env:
+          KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
-          ./gradlew \
-            :bluetape4k-spring-boot3-core:koverXmlReport \
-            :bluetape4k-spring-boot3-redis:koverXmlReport \
-            :bluetape4k-spring-boot3-r2dbc:koverXmlReport \
-            :bluetape4k-spring-boot3-exposed-r2dbc:koverXmlReport \
-            :bluetape4k-spring-boot3-batch-exposed:koverXmlReport \
-            :bluetape4k-spring-boot3-mongodb:koverXmlReport \
-            :bluetape4k-spring-boot3-cassandra:koverXmlReport \
-            :bluetape4k-spring-boot3-hibernate-lettuce:koverXmlReport \
-            --parallel
+          read -ra tasks <<< "$KOVER_TASKS"
+          ./gradlew "${tasks[@]}" --parallel
         continue-on-error: true
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-spring3-docker
+          name: nightly-test-results-spring3-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
@@ -775,15 +819,42 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-spring3-docker
+          name: nightly-coverage-spring3-${{ matrix.group }}
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Spring Boot 4 Docker 테스트 ──────────────────────────────────────────
+  # ── Spring Boot 4 Docker 테스트 — Matrix 병렬 ───────────────────────────
+  # 2 groups run in parallel on separate runners
   test-spring4-docker:
-    name: Test / Spring Boot 4 (Docker)
+    name: Test / Spring Boot 4 (${{ matrix.group }})
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: core-redis-r2dbc
+            test_tasks: >-
+              :bluetape4k-spring-boot4-core:test
+              :bluetape4k-spring-boot4-redis:test
+              :bluetape4k-spring-boot4-r2dbc:test
+              :bluetape4k-spring-boot4-exposed-r2dbc:test
+            kover_tasks: >-
+              :bluetape4k-spring-boot4-core:koverXmlReport
+              :bluetape4k-spring-boot4-redis:koverXmlReport
+              :bluetape4k-spring-boot4-r2dbc:koverXmlReport
+              :bluetape4k-spring-boot4-exposed-r2dbc:koverXmlReport
+          - group: batch-nosql
+            test_tasks: >-
+              :bluetape4k-spring-boot4-batch-exposed:test
+              :bluetape4k-spring-boot4-mongodb:test
+              :bluetape4k-spring-boot4-cassandra:test
+              :bluetape4k-spring-boot4-hibernate-lettuce:test
+            kover_tasks: >-
+              :bluetape4k-spring-boot4-batch-exposed:koverXmlReport
+              :bluetape4k-spring-boot4-mongodb:koverXmlReport
+              :bluetape4k-spring-boot4-cassandra:koverXmlReport
+              :bluetape4k-spring-boot4-hibernate-lettuce:koverXmlReport
     steps:
       - uses: actions/checkout@v4
 
@@ -807,40 +878,28 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-      - name: Test spring-boot4 modules (Docker)
-        run: |
-          ./gradlew \
-            :bluetape4k-spring-boot4-core:test \
-            :bluetape4k-spring-boot4-redis:test \
-            :bluetape4k-spring-boot4-r2dbc:test \
-            :bluetape4k-spring-boot4-exposed-r2dbc:test \
-            :bluetape4k-spring-boot4-batch-exposed:test \
-            :bluetape4k-spring-boot4-mongodb:test \
-            :bluetape4k-spring-boot4-cassandra:test \
-            :bluetape4k-spring-boot4-hibernate-lettuce:test
+      - name: Test spring-boot4 modules (${{ matrix.group }})
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_TASKS: ${{ matrix.test_tasks }}
+        run: |
+          read -ra tasks <<< "$TEST_TASKS"
+          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
+        env:
+          KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
-          ./gradlew \
-            :bluetape4k-spring-boot4-core:koverXmlReport \
-            :bluetape4k-spring-boot4-redis:koverXmlReport \
-            :bluetape4k-spring-boot4-r2dbc:koverXmlReport \
-            :bluetape4k-spring-boot4-exposed-r2dbc:koverXmlReport \
-            :bluetape4k-spring-boot4-batch-exposed:koverXmlReport \
-            :bluetape4k-spring-boot4-mongodb:koverXmlReport \
-            :bluetape4k-spring-boot4-cassandra:koverXmlReport \
-            :bluetape4k-spring-boot4-hibernate-lettuce:koverXmlReport \
-            --parallel
+          read -ra tasks <<< "$KOVER_TASKS"
+          ./gradlew "${tasks[@]}" --parallel
         continue-on-error: true
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-spring4-docker
+          name: nightly-test-results-spring4-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
@@ -848,7 +907,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-spring4-docker
+          name: nightly-coverage-spring4-${{ matrix.group }}
           path: '**/build/reports/kover/'
           retention-days: 14
 
@@ -968,7 +1027,23 @@ jobs:
   coverage-report:
     name: Coverage Report
     runs-on: ubuntu-latest
-    needs: [build, detekt, test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2, test-infra, test-exposed-jdbc-docker, test-exposed-r2dbc-docker, test-data, test-spring3-docker, test-spring4-docker, test-testcontainers, test-aws]
+    needs:
+      - build
+      - detekt
+      - test-core
+      - test-io
+      - test-utils
+      - test-misc
+      - test-exposed-core
+      - test-spring-h2
+      - test-infra
+      - test-exposed-jdbc-docker
+      - test-exposed-r2dbc-docker
+      - test-data
+      - test-spring3-docker
+      - test-spring4-docker
+      - test-testcontainers
+      - test-aws
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -997,7 +1072,24 @@ jobs:
   nightly-status:
     name: Nightly Status
     runs-on: ubuntu-latest
-    needs: [build, detekt, test-core, test-io, test-utils, test-misc, test-exposed-core, test-spring-h2, test-infra, test-exposed-jdbc-docker, test-exposed-r2dbc-docker, test-data, test-spring3-docker, test-spring4-docker, test-testcontainers, test-aws, coverage-report]
+    needs:
+      - build
+      - detekt
+      - test-core
+      - test-io
+      - test-utils
+      - test-misc
+      - test-exposed-core
+      - test-spring-h2
+      - test-infra
+      - test-exposed-jdbc-docker
+      - test-exposed-r2dbc-docker
+      - test-data
+      - test-spring3-docker
+      - test-spring4-docker
+      - test-testcontainers
+      - test-aws
+      - coverage-report
     if: always()
     steps:
       - name: Check all jobs
