@@ -28,7 +28,7 @@ internal val log = KotlinLogging.logger {}
  */
 fun <T> PulsarClient.producer(
     schema: Schema<T>,
-    setup: ProducerBuilder<T>.() -> Unit,
+    setup: ProducerBuilder<T>.() -> Unit = {},
 ): Producer<T> = newProducer(schema).apply(setup).create()
 
 /**

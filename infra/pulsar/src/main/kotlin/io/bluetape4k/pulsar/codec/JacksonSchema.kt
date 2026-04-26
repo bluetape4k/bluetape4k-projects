@@ -41,10 +41,12 @@ inline fun <reified T> jacksonSchema(
 private class JacksonSchemaImpl<T>(
     private val type: Class<T>,
     private val mapper: ObjectMapper,
+    cachedInfo: SchemaInfo? = null,
 ) : Schema<T> {
 
-    // Schema.JSON(type)에서 브로커 호환성 검증용 schema bytes를 가져오고, name은 type에서 직접 설정
-    private val info: SchemaInfo = Schema.JSON(type).schemaInfo.let { base ->
+    // Schema.JSON(type)에서 브로커 호환성 검증용 schema bytes를 가져오고, name은 type에서 직접 설정.
+    // clone() 시 재계산을 피하기 위해 생성된 SchemaInfo를 재사용한다.
+    private val info: SchemaInfo = cachedInfo ?: Schema.JSON(type).schemaInfo.let { base ->
         val name = type.simpleName?.takeIf { it.isNotBlank() } ?: type.name
         SchemaInfo.builder()
             .name(name)
@@ -60,5 +62,5 @@ private class JacksonSchemaImpl<T>(
 
     override fun getSchemaInfo(): SchemaInfo = info
 
-    override fun clone(): Schema<T> = JacksonSchemaImpl(type, mapper)
+    override fun clone(): Schema<T> = JacksonSchemaImpl(type, mapper, info)
 }

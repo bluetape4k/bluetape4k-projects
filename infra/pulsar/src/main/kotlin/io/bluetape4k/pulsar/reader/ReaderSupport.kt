@@ -29,7 +29,7 @@ internal val log = KotlinLogging.logger {}
  */
 fun <T> PulsarClient.reader(
     schema: Schema<T>,
-    setup: ReaderBuilder<T>.() -> Unit,
+    setup: ReaderBuilder<T>.() -> Unit = {},
 ): Reader<T> = newReader(schema).apply(setup).create()
 
 /**

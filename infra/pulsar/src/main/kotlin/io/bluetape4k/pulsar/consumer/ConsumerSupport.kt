@@ -28,7 +28,7 @@ internal val log = KotlinLogging.logger {}
  */
 fun <T> PulsarClient.consumer(
     schema: Schema<T>,
-    setup: ConsumerBuilder<T>.() -> Unit,
+    setup: ConsumerBuilder<T>.() -> Unit = {},
 ): Consumer<T> = newConsumer(schema).apply(setup).subscribe()
 
 /**

@@ -12,10 +12,18 @@ internal val log = KotlinLogging.logger {}
 /**
  * Apache Pulsar 클라이언트를 DSL 방식으로 생성합니다.
  *
+ * `serviceUrl`이 비어 있으면 [setup] 블록에서 `serviceUrl()`을 반드시 설정해야 합니다.
+ * 둘 다 지정하지 않으면 `build()` 시 Pulsar 예외가 발생합니다.
+ *
  * ```kotlin
  * val client = pulsarClient("pulsar://localhost:6650") {
  *     connectionTimeout(5, TimeUnit.SECONDS)
- *     operationTimeout(30, TimeUnit.SECONDS)
+ * }
+ *
+ * // setup-only 모드 (TLS/인증 등 빌더로 완전 설정)
+ * val client = pulsarClient {
+ *     serviceUrl("pulsar+ssl://broker:6651")
+ *     tlsTrustCertsFilePath("/path/to/ca.cert.pem")
  * }
  * ```
  *
@@ -63,3 +71,26 @@ suspend inline fun <T> withPulsarClient(
             .onFailure { log.warn(it) { "PulsarClient close 실패" } }
     }
 }
+
+/**
+ * setup 블록만으로 Pulsar 클라이언트를 생성하고 생명주기를 자동 관리합니다.
+ *
+ * TLS, 인증 등 [ClientBuilder]에서 직접 URL을 설정하는 경우 사용합니다.
+ *
+ * ```kotlin
+ * withPulsarClient({
+ *     serviceUrl("pulsar+ssl://broker:6651")
+ *     tlsTrustCertsFilePath("/path/to/ca.cert.pem")
+ * }) {
+ *     // PulsarClient 사용
+ * }
+ * ```
+ *
+ * @param setup [ClientBuilder] 설정 블록 (serviceUrl 포함)
+ * @param block [PulsarClient]를 receiver로 받는 suspend 블록
+ * @return 블록의 반환값
+ */
+suspend inline fun <T> withPulsarClient(
+    noinline setup: ClientBuilder.() -> Unit,
+    crossinline block: suspend PulsarClient.() -> T,
+): T = withPulsarClient(serviceUrl = "", setup = setup, block = block)
