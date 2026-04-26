@@ -53,6 +53,37 @@ T1 ─┬─ T2 ─┐
 
 ---
 
+### T1-S. prepareForSimilarity 유틸리티
+- **complexity**: low
+- **파일**: `utils/images/src/main/kotlin/io/bluetape4k/images/similarity/SimilarityInternals.kt` (T1에서 생성)에 `internal fun scaleToMaxSide(maxSide: Int)` 추가 후, 공개 API는 별도 top-level 파일 `SimilarityScaleUtils.kt`.
+- **내용**:
+  - `internal fun ImmutableImage.scaleToMaxSide(maxSide: Int): ImmutableImage`
+    - `val longSide = maxOf(width, height)` → `if (longSide <= maxSide) return this`
+    - 비율 유지: `val scale = maxSide.toDouble() / longSide` → `scaleTo((width*scale).roundToInt(), (height*scale).roundToInt(), HASH_SCALE_METHOD)`
+  - `fun ImmutableImage.prepareForSimilarity(maxSide: Int = 512): ImmutableImage`
+    - 공개 API. `scaleToMaxSide(maxSide)` 위임.
+    - KDoc (§6.5 선택 가이드 포함):
+      ```
+      * 유사도 계산 전 이미지를 최대 [maxSide]px로 비율 유지 축소합니다.
+      *
+      * ## 크기별 권장 설정
+      * | 이미지 크기 | 알고리즘 | 권장 maxSide |
+      * |---|---|---|
+      * | ≤ 256px | mssimTo 직접 호출 | — |
+      * | ≤ 800px | mssimTo | 800 |
+      * | ≤ 2MP | histogram / blockMean | 512 |
+      * | 4K+ | hash 계열만 (내부 리사이즈) | — |
+      *
+      * 이미 [maxSide] 이하이면 원본 반환(복사 없음).
+      ```
+- **검증**:
+  - 원본보다 큰 `maxSide` → 원본 반환.
+  - 1024×768, maxSide=512 → 512×384.
+  - 3840×2160 (4K), maxSide=800 → 800×450.
+- **의존**: T1 (HASH_SCALE_METHOD 상수).
+
+---
+
 ### T2. aHash 구현
 - **complexity**: high
 - **파일**:
@@ -98,17 +129,18 @@ T1 ─┬─ T2 ─┐
 - **complexity**: high
 - **파일**: `utils/images/src/main/kotlin/io/bluetape4k/images/similarity/HashSimilarity.kt` (수정/추가).
 - **내용**:
-  - `fun ImmutableImage.whashOf(size: HashSize = HashSize.BITS_64): LongArray`
-    - `HashSize.gridSide`는 8/16/32 모두 2^n → `scaleTo(size.gridSide, size.gridSide, HASH_SCALE_METHOD)` → grayscale 매트릭스.
-    - `haarTransform2d(matrix, levels = 1)` 적용 (단일 레벨 고정).
-    - 좌상단 `(gridSide/2) × (gridSide/2)` 저주파 블록 추출 → 평균 기준 비트화. BITS_64 → 4×4 블록 16bit... 아니, gridSide=8 → 8×8=64bit 전체 사용.
-    - 결과: `LongArray(ceil(bits/64))`.
-  - `fun ImmutableImage.whash(): Long = whashOf(HashSize.BITS_64)[0]`.
-  - `HashSize.gridSide`가 항상 2^n임은 enum 정의로 보장 (별도 require 불필요). KDoc 한 줄로 명시.
+  - `fun ImmutableImage.whashOf(size: PHashSize = PHashSize.BITS_64): LongArray`
+    - **OQ-1 확정**: wHash는 `PHashSize` 재사용 (DCT pHash와 동일 구조).
+    - `scaleTo(size.resize, size.resize, HASH_SCALE_METHOD)` → BITS_64 = 32×32.
+    - grayscale 매트릭스 → `haarTransform2d(matrix, levels = 3)` (3-level → BITS_64에서 LL = 8×8 = 64 coeff).
+    - `size.lowSide × size.lowSide` LL subband 추출 → 평균 기준 비트화.
+    - 결과: `LongArray(ceil(bits/64))`. BITS_64 → LongArray(1).
+  - `fun ImmutableImage.whash(): Long = whashOf(PHashSize.BITS_64)[0]`.
+  - `PHashSize.resize`가 항상 2^n(32/64/128)임은 enum 정의로 보장.
 - **검증**:
-  - 비-2^n 입력(임의 사진) → 강제 리사이즈 후 정상 동작.
+  - 비-2^n 입력(임의 사진) → `scaleTo(32, 32)` 강제 → 정상 동작.
   - JPEG 90% → distance ≤ 6.
-- **의존**: T1 (haarTransform2d), T2 (HashSize enum).
+- **의존**: T1 (haarTransform2d), T2 (PHashSize enum은 T5에서 정의 → T4는 T5 이후 또는 동일 파일).
 
 ---
 

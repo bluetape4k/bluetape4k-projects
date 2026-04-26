@@ -307,8 +307,12 @@ fun ImmutableImage.ahashOf(size: HashSize = HashSize.BITS_64): LongArray
 /** (gridSide+1)×gridSide 그레이스케일 → 인접 픽셀 차이. 그래디언트 기반, JPEG에 견고. */
 fun ImmutableImage.dhashOf(size: HashSize = HashSize.BITS_64): LongArray
 
-/** Haar wavelet: gridSide 크기로 강제 리사이즈(wHash에서 gridSide는 2^n 보장) → DWT → 저주파 블록. */
-fun ImmutableImage.whashOf(size: HashSize = HashSize.BITS_64): LongArray
+/**
+ * Haar wavelet 해시. [PHashSize] 재사용 (resize/lowSide 구조 동일).
+ * BITS_64: scaleTo(32,32) → 3-level DWT → 8×8 LL = 64bit.
+ * ⚠️ 성능: 내부적으로 resize 이미지 크기만 처리하므로 매우 빠름 (~0.5ms).
+ */
+fun ImmutableImage.whashOf(size: PHashSize = PHashSize.BITS_64): LongArray
 
 /**
  * DCT pHash 비트폭 옵션 버전. [PHashSize] 사용 (aHash/dHash/wHash의 [HashSize]와 별도 enum).
@@ -322,7 +326,7 @@ fun ImmutableImage.phashOf(size: PHashSize = PHashSize.BITS_64): LongArray
 /** 편의 단축형 (64bit 하위 호환) */
 fun ImmutableImage.ahash(): Long = ahashOf(HashSize.BITS_64)[0]
 fun ImmutableImage.dhash(): Long = dhashOf(HashSize.BITS_64)[0]
-fun ImmutableImage.whash(): Long = whashOf(HashSize.BITS_64)[0]
+fun ImmutableImage.whash(): Long = whashOf(PHashSize.BITS_64)[0]
 
 /** 두 가변 길이 해시의 Hamming distance. */
 object HashDistance {
@@ -447,7 +451,61 @@ fun ImmutableImage.bestRotationSimilarityTo(
 ): Double
 ```
 
-### 6.5 Internals (`SimilarityInternals.kt`)
+### 6.5 크기별 전처리 유틸리티 (`SimilarityInternals.kt` 또는 별도 top-level)
+
+#### 성능 특성
+
+| 알고리즘 | 1024×768 기준 | 병목 원인 |
+|---|---|---|
+| aHash / dHash / whash | < 1ms | 내부 리사이즈 후 소규모 연산 |
+| phash BITS_64 | ~1ms | O(N³) DCT, N=32 |
+| phash BITS_1024 | ~80ms | O(N³) DCT, N=128 — **배치 전용** |
+| mssimTo | ~2–5초 | O(W×H×K²) K=11 — **⚠️ 실시간 불가** |
+| Histogram | ~5ms | O(W×H) 1회 스캔 |
+| blockMeanSimilarityTo | ~5ms | O(W×H) 1회 스캔 |
+| bestRotationSimilarityTo | ~20ms | 4× blockMean + 3× 픽셀 복사 |
+
+`mssimTo`는 4K 이미지에서 30–60초 소요. 대형 이미지는 **호출 전 다운스케일 필수**.
+
+#### 전처리 래퍼
+
+```kotlin
+/**
+ * 유사도 계산 전 이미지를 최대 [maxSide]px로 비율 유지 축소합니다.
+ *
+ * 사용 시나리오:
+ * - MSSIM: 800px 이하 권장 (1024×768 → ~2-5초, 4K → 30-60초)
+ * - Histogram / BlockMean: 512px 이하면 충분
+ * - Hash 계열: 내부 리사이즈가 있으므로 전처리 불필요
+ *
+ * ```kotlin
+ * // MSSIM 전 다운스케일
+ * val score = img.prepareForSimilarity(800).mssimTo(other.prepareForSimilarity(800))
+ *
+ * // 히스토그램은 크기 무관이지만 속도 향상을 원할 때
+ * val sim = img.prepareForSimilarity(512).histogramSimilarityTo(other.prepareForSimilarity(512))
+ * ```
+ *
+ * 이미 [maxSide] 이하이면 원본 이미지를 그대로 반환합니다(복사 없음).
+ *
+ * @param maxSide 긴 변 최대 픽셀 수. 기본 512.
+ * @return 축소된 이미지 또는 원본(크기가 이미 충분히 작은 경우)
+ */
+fun ImmutableImage.prepareForSimilarity(maxSide: Int = 512): ImmutableImage
+```
+
+#### 선택 가이드 (KDoc + README에 포함)
+
+```
+이미지 크기 → 알고리즘 선택
+────────────────────────────
+작은 이미지 (≤ 256px):  mssimTo 직접 호출 가능
+중간 이미지 (≤ 800px):  prepareForSimilarity(800) 후 mssimTo
+대형 이미지 (> 800px):  prepareForSimilarity(512) 후 hash 또는 histogram 권장
+4K+ 이미지:             hash 계열만 (내부 32px/128px 리사이즈로 빠름)
+```
+
+### 6.6 Internals (`SimilarityInternals.kt`)
 
 ```kotlin
 internal const val PIXEL_MAX = 255.0
@@ -468,6 +526,9 @@ internal fun haarTransform2d(matrix: Array<DoubleArray>, levels: Int = 1)
 
 /** AWT Color.RGBtoHSB 호출 → Triple(H, S, V) ∈ [0,1]. */
 internal fun hsvComponents(p: Pixel): Triple<Float, Float, Float>
+
+/** 긴 변이 [maxSide] 초과 시 비율 유지 축소. 이미 작으면 원본 반환(복사 없음). */
+internal fun ImmutableImage.scaleToMaxSide(maxSide: Int): ImmutableImage
 ```
 
 ---
