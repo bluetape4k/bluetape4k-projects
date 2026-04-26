@@ -1,12 +1,8 @@
 package io.bluetape4k.images.similarity
 
 import com.sksamuel.scrimage.ImmutableImage
-import com.sksamuel.scrimage.pixels.Pixel
-import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.math.log10
-import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
@@ -196,7 +192,7 @@ fun ImmutableImage.ssimTo(other: ImmutableImage): Double {
  * @return 64bit perceptual hash
  */
 fun ImmutableImage.phash(): Long {
-    val scaled = scaleTo(PHASH_SIZE, PHASH_SIZE)
+    val scaled = scaleTo(PHASH_SIZE, PHASH_SIZE, HASH_SCALE_METHOD)
     val gray = Array(PHASH_SIZE) { y -> DoubleArray(PHASH_SIZE) { x -> luminance(scaled.pixel(x, y)) } }
     val dct = dct2d(gray, PHASH_SIZE)
 
@@ -240,56 +236,8 @@ fun ImmutableImage.phashDistanceTo(other: ImmutableImage): Int =
  * @param b 두 번째 해시
  * @return 서로 다른 비트 수 (0 ~ 64)
  */
+@Deprecated(
+    message = "HashDistance.hamming(a, b) 사용",
+    replaceWith = ReplaceWith("HashDistance.hamming(a, b)", "io.bluetape4k.images.similarity.HashDistance")
+)
 fun hammingDistance(a: Long, b: Long): Int = (a xor b).countOneBits()
-
-// region Internal helpers
-
-private const val PIXEL_MAX = 255.0
-
-// SSIM 상수: c1 = (k1*L)^2, c2 = (k2*L)^2, L=255, k1=0.01, k2=0.03
-private val SSIM_C1 = (0.01 * PIXEL_MAX).pow(2)
-private val SSIM_C2 = (0.03 * PIXEL_MAX).pow(2)
-
-// pHash 구성: 32×32로 리사이즈 후 DCT의 저주파 8×8을 64bit로 인코딩
-private const val PHASH_SIZE = 32
-private const val PHASH_LOW_SIZE = 8
-private const val PHASH_BITS = PHASH_LOW_SIZE * PHASH_LOW_SIZE // 64
-
-private fun ImmutableImage.requireSameSize(other: ImmutableImage) {
-    require(width == other.width && height == other.height) {
-        "이미지 크기가 달라야 합니다: (${width}x${height}) vs (${other.width}x${other.height})"
-    }
-}
-
-// ITU-R BT.601 휘도 변환
-private fun luminance(p: Pixel): Double =
-    0.299 * p.red() + 0.587 * p.green() + 0.114 * p.blue()
-
-/**
- * 2D DCT-II를 O(N^3)로 직접 계산합니다. pHash처럼 N이 작을 때(≤ 32)에만 사용하세요.
- * 더 큰 N에서는 FFT 기반 DCT로 대체 필요.
- */
-private fun dct2d(input: Array<DoubleArray>, n: Int): Array<DoubleArray> {
-    val cosTable = Array(n) { k -> DoubleArray(n) { i -> cos(PI * (i + 0.5) * k / n) } }
-    val temp = Array(n) { DoubleArray(n) }
-    val out = Array(n) { DoubleArray(n) }
-    // 행 방향 1D DCT
-    for (i in 0 until n) {
-        for (k in 0 until n) {
-            var s = 0.0
-            for (j in 0 until n) s += input[i][j] * cosTable[k][j]
-            temp[i][k] = s
-        }
-    }
-    // 열 방향 1D DCT
-    for (j in 0 until n) {
-        for (k in 0 until n) {
-            var s = 0.0
-            for (i in 0 until n) s += temp[i][j] * cosTable[k][i]
-            out[k][j] = s
-        }
-    }
-    return out
-}
-
-// endregion
