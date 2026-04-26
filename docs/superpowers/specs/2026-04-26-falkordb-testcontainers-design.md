@@ -205,13 +205,10 @@ import java.time.Duration
  * ```kotlin
  * val falkordb = FalkorDBServer().apply { start() }
  *
- * // jfalkordb 사용 예시 — driver.graph() 사용 (selectGraph() 없음)
+ * // jfalkordb 사용 예시 (FalkorDB 는 Jedis 기반 — driver.graph() 사용)
  * val driver = FalkorDB.driver(falkordb.host, falkordb.port)
  * val graph = driver.graph("social")
  * graph.query("CREATE (:Person {name: 'Alice'})")
- *
- * // Lettuce 사용 예시
- * val redis = RedisClient.create("redis://${falkordb.host}:${falkordb.port}")
  * ```
  *
  * @param imageName      Docker 이미지 이름 ([DockerImageName])
@@ -282,15 +279,7 @@ class FalkorDBServer private constructor(
         "url" to url,
     )
 
-    /**
-     * Lettuce / Jedis 등 표준 Redis 클라이언트가 사용할 수 있는 Redis 접속 URL.
-     * [url] 과 동일한 값이지만 Redis 클라이언트 전용임을 명시하기 위한 alias.
-     *
-     * ```kotlin
-     * val client = RedisClient.create(falkordb.url)
-     * ```
-     */
-    val redisUrl: String get() = url
+    // redisUrl 제거 — url 과 동일값이므로 YAGNI (Jedis 는 host/port 직접 사용)
 
     init {
         addExposedPorts(REDIS_PORT)
@@ -384,8 +373,8 @@ class FalkorDBServerTest: AbstractContainerTest() {
     }
 
     @Test
-    fun `redisUrl 은 redis 스킴을 사용해야 한다`() {
-        falkordb.redisUrl shouldContain "redis://"
+    fun `url 은 redis 스킴을 사용해야 한다`() {
+        falkordb.url shouldContain "redis://"
     }
 
     @Test
@@ -453,12 +442,14 @@ class FalkorDBServerTest: AbstractContainerTest() {
 
 ### 4.4 `Libs.kt` 변경
 
-`buildSrc/src/main/kotlin/Libs.kt` 의 Graph DB / Redis 관련 영역에 추가:
+`buildSrc/src/main/kotlin/Libs.kt` 의 Neo4j 항목 아래 Graph DB 섹션에 추가:
 
 ```kotlin
-// FalkorDB (Redis-protocol Graph DB)
-const val jfalkordbVersion = "0.7.0"
-const val jfalkordb = "com.falkordb:jfalkordb:$jfalkordbVersion"
+// Neo4j
+const val neo4j_java_driver = "org.neo4j.driver:neo4j-java-driver:5.28.4"
+
+// FalkorDB
+const val jfalkordb = "com.falkordb:jfalkordb:0.7.0"  // https://mvnrepository.com/artifact/com.falkordb/jfalkordb
 ```
 
 > **검증 포인트**: 위 좌표가 Maven Central 에 실재하는지 본 spec 승인 후 plan 단계에서 재확인한다.
