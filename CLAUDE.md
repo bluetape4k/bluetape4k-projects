@@ -73,7 +73,6 @@ All tools installed at `/opt/homebrew/bin/`.
 
 - [ ] Run compile + tests
 - [ ] When changing a module: sync-update both `README.md` **and** `README.ko.md`
-- [ ] After superpowers work: add entry to `docs/superpowers/index/YYYY-MM.md` → update count in `docs/superpowers/INDEX.md`
 - [ ] When creating a new spec/plan: run `/wiki-update`
 
 ## Module Groups
@@ -150,7 +149,6 @@ Verify every item before running `gh pr create`:
   `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
 - [ ] `testing/mock-webflux-server` changed → rebuild Docker image:
   `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`
-- [ ] superpowers work → `docs/superpowers/index/YYYY-MM.md` updated
 - [ ] `virtualthread/api` change → both `jdk21` and `jdk25` updated
 - [ ] Run OMC Code Review via `/oh-my-claudecode:code-reviewer` skill before merging
 
