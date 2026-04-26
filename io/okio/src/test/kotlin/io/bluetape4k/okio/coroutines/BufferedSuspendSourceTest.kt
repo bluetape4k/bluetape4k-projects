@@ -136,9 +136,7 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     fun `skip throws EOFException when not enough bytes`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("hi")
         val source = FakeSuspendedSource(buffer).buffered()
-        assertFailsWith<EOFException> {
-            runSuspendIO { source.skip(10L) }
-        }
+        assertFailsWith<EOFException> { source.skip(10L) }
     }
 
     @Test
@@ -202,8 +200,8 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val source = FakeSuspendedSource(buffer).buffered()
         val sink = ByteArray(4)
         val read = source.read(sink)
-        read shouldBeGreaterOrEqualTo 1
-        sink[0] shouldBeEqualTo 10.toByte()
+        read shouldBeEqualTo 4
+        sink shouldBeEqualTo bytes
     }
 
     @Test
@@ -213,8 +211,8 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val source = FakeSuspendedSource(buffer).buffered()
         val sink = ByteArray(6)
         val read = source.read(sink, 1, 4)
-        read shouldBeGreaterOrEqualTo 1
-        sink[1] shouldBeEqualTo 10.toByte()
+        read shouldBeEqualTo 4
+        sink.copyOfRange(1, 5) shouldBeEqualTo bytes
     }
 
     @Test
@@ -259,9 +257,7 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val buffer = Buffer().writeByte(1)
         val source = FakeSuspendedSource(buffer).buffered()
         val sink = ByteArray(4)
-        assertFailsWith<EOFException> {
-            runSuspendIO { source.readFully(sink) }
-        }
+        assertFailsWith<EOFException> { source.readFully(sink) }
     }
 
     @Test
@@ -280,9 +276,7 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val buffer = Buffer().writeByte(1)
         val source = FakeSuspendedSource(buffer).buffered()
         val sink = Buffer()
-        assertFailsWith<EOFException> {
-            runSuspendIO { source.readFully(sink, 4L) }
-        }
+        assertFailsWith<EOFException> { source.readFully(sink, 4L) }
     }
 
     @Test
@@ -291,10 +285,20 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val buffer = Buffer().write(bytes)
         val source = FakeSuspendedSource(buffer).buffered()
         val sinkBuffer = Buffer()
-        val fakeSink = FakeSuspendedSink(sinkBuffer)
-        val total = source.readAll(fakeSink)
+        val total = source.readAll(FakeSuspendedSink(sinkBuffer))
         total shouldBeEqualTo 5L
         sinkBuffer.readByteArray() shouldBeEqualTo bytes
+    }
+
+    @Test
+    fun `readAll handles data spanning multiple segments`() = runSuspendIO {
+        val largeBytes = ByteArray(16_384) { (it % 256).toByte() }
+        val buffer = Buffer().write(largeBytes)
+        val source = FakeSuspendedSource(buffer).buffered()
+        val sinkBuffer = Buffer()
+        val total = source.readAll(FakeSuspendedSink(sinkBuffer))
+        total shouldBeEqualTo 16_384L
+        sinkBuffer.size shouldBeEqualTo 16_384L
     }
 
     @Test
@@ -326,6 +330,7 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val source = FakeSuspendedSource(buffer).buffered()
         source.readUtf8Line() shouldBeEqualTo "hello"
         source.readUtf8Line() shouldBeEqualTo "world"
+        source.readUtf8Line().shouldBeNull()
     }
 
     @Test
@@ -339,18 +344,14 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     fun `readUtf8LineStrict throws EOFException when no newline`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("no newline here")
         val source = FakeSuspendedSource(buffer).buffered()
-        assertFailsWith<EOFException> {
-            runSuspendIO { source.readUtf8LineStrict() }
-        }
+        assertFailsWith<EOFException> { source.readUtf8LineStrict() }
     }
 
     @Test
     fun `readUtf8LineStrict with limit throws EOFException when line exceeds limit`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("toolongline\n")
         val source = FakeSuspendedSource(buffer).buffered()
-        assertFailsWith<EOFException> {
-            runSuspendIO { source.readUtf8LineStrict(5L) }
-        }
+        assertFailsWith<EOFException> { source.readUtf8LineStrict(5L) }
     }
 
     @Test
@@ -378,9 +379,7 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     fun `require throws EOFException if not enough bytes`() = runSuspendIO {
         val buffer = Buffer().writeByte(1)
         val source = FakeSuspendedSource(buffer).buffered()
-        assertFailsWith<EOFException> {
-            runSuspendIO { source.require(2) }
-        }
+        assertFailsWith<EOFException> { source.require(2) }
     }
 
     @Test
