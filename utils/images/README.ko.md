@@ -74,6 +74,46 @@ classDiagram
     class WatermarkFilter {
         +apply(image) ImmutableImage
     }
+    class ImageFilterChain {
+        +brightness(factor)
+        +contrast(factor)
+        +saturation(factor)
+        +hue(deltaDegrees)
+        +colorTemperature(kelvin)
+        +gaussianBlur(radius)
+        +medianBlur(radius, boundary)
+        +sepia()
+        +vignette()
+        +roundedCorners(radius)
+        +raw(filter)
+        +pixel(block)
+    }
+    class ColorSpaceConverter {
+        +rgbToHsv(r, g, b) FloatArray
+        +hsvToRgb(h, s, v) IntArray
+        +kelvinToRgb(kelvin) IntArray
+    }
+    class SaturationAdjustFilter {
+        +factor: Float
+        +apply(image) ImmutableImage
+    }
+    class HueAdjustFilter {
+        +deltaDegrees: Float
+        +apply(image) ImmutableImage
+    }
+    class ColorTemperatureFilter {
+        +kelvin: Int
+        +apply(image) ImmutableImage
+    }
+    class MedianBlurFilter {
+        +radius: Int
+        +boundary: MedianBoundaryMode
+        +apply(image) ImmutableImage
+    }
+    class RoundedCornerFilter {
+        +radius: Int
+        +apply(image) ImmutableImage
+    }
     class SuspendJpegWriter {
         +writeImage(image) ByteArray
     }
@@ -90,15 +130,31 @@ classDiagram
     ImmutableImage --> ImageScaler : uses
     ImmutableImage --> ImageSplitter : uses
     ImmutableImage --> WatermarkFilter : uses
+    ImmutableImage --> ImageFilterChain : applyFilters
     ImmutableImage --> SuspendJpegWriter : output
     ImmutableImage --> SuspendPngWriter : output
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
+    ImageFilterChain --> SaturationAdjustFilter
+    ImageFilterChain --> HueAdjustFilter
+    ImageFilterChain --> ColorTemperatureFilter
+    ImageFilterChain --> MedianBlurFilter
+    ImageFilterChain --> RoundedCornerFilter
+    ColorSpaceConverter <-- SaturationAdjustFilter : uses
+    ColorSpaceConverter <-- HueAdjustFilter : uses
+    ColorSpaceConverter <-- ColorTemperatureFilter : uses
 
     style ImmutableImage fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ImageScaler fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     style ImageSplitter fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     style WatermarkFilter fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style ImageFilterChain fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style ColorSpaceConverter fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style SaturationAdjustFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style HueAdjustFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style ColorTemperatureFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style MedianBlurFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style RoundedCornerFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
     style SuspendJpegWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style SuspendPngWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style SuspendWebpWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
@@ -141,6 +197,14 @@ classDiagram
 | `similarity/KeypointSimilarity.kt`                   | Block-Mean descriptor, bestRotationSimilarityTo  |
 | `similarity/SimilarityScaleUtils.kt`                 | prepareForSimilarity — MSSIM 전 다운스케일 유틸리티  |
 | `fonts/FontSupport.kt`                               | 폰트 유틸리티                       |
+| `filters/dsl/ImageFilterChain.kt`                    | 필터/색보정 DSL (`applyFilters`, `suspendApplyFilters`) |
+| `filters/dsl/ImageFilterChainDsl.kt`                 | DSL 멤버 함수 (40+ 필터)            |
+| `filters/SaturationAdjustFilter.kt`                  | HSV 채도 조절 필터                  |
+| `filters/HueAdjustFilter.kt`                         | HSV 색조 회전 필터                  |
+| `filters/ColorTemperatureFilter.kt`                  | 켈빈 색온도 조절 필터                 |
+| `filters/MedianBlurFilter.kt`                        | 미디언 블러 노이즈 제거 필터             |
+| `filters/RoundedCornerFilter.kt`                     | 모서리 둥글게 알파 마스크 필터            |
+| `filters/ColorSpaceConverter.kt`                     | RGB/HSV/YCbCr/켈빈 색 공간 변환     |
 | `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
 | `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
 | `coroutines/SuspendImageWriter.kt`                   | 비동기 이미지 Writer 인터페이스          |
@@ -557,6 +621,72 @@ SuspendWebpWriter(
     lossless = false,
     noAlpha = false
 )
+```
+
+## 필터 / 색보정 DSL (Issue #131)
+
+패키지: `io.bluetape4k.images.filters.dsl`
+
+### `ImageFilterChain` DSL
+
+`applyFilters { ... }` 및 `suspendApplyFilters { ... }` 확장 함수는 이미지 필터를 체이닝하는 플루언트 DSL을 제공합니다. 주요 설계 특징:
+
+- `source.copy()` 방어 복사로 원본 이미지 보호
+- 인접한 scrimage 네이티브 필터는 자동으로 `PipelineFilter`로 묶어 성능 최적화
+- 색상/톤, 스타일, 블러, 효과, 텍스트를 포함한 40+ DSL 멤버 함수 제공
+
+```kotlin
+import io.bluetape4k.images.filters.dsl.*
+
+// 동기 필터 체인
+val result = image.applyFilters {
+    brightness(1.2f)
+    contrast(1.1)
+    saturation(1.15f)
+    sepia()
+}
+
+// 비동기(코루틴) 필터 체인
+val result2 = image.suspendApplyFilters {
+    gaussianBlur(3)
+    colorTemperature(3000)
+    vignette()
+}
+
+// 이스케이프 해치: 커스텀 필터 직접 주입
+val result3 = image.applyFilters {
+    raw(MyCustomFilter())
+    pixel { img -> img.flipX() }
+}
+```
+
+### 신규 필터 5종
+
+| 필터 | DSL 함수 | 설명 |
+|------|----------|------|
+| `SaturationAdjustFilter` | `saturation(factor)` | HSV 채도 배수 조정 (1.0=원본, 0=흑백) |
+| `HueAdjustFilter` | `hue(deltaDegrees)` | HSV 색조 회전 (도 단위) |
+| `ColorTemperatureFilter` | `colorTemperature(kelvin)` | 켈빈 색온도 조정 (1000–40000 K) |
+| `RoundedCornerFilter` | `roundedCorners(radius)` | 모서리 둥글게 (알파 마스크) |
+| `MedianBlurFilter` | `medianBlur(radius, boundary)` | 미디언 블러 노이즈 제거 (`MedianBoundaryMode`: REPLICATE/REFLECT) |
+
+### `ColorSpaceConverter`
+
+신규 필터들이 내부적으로 사용하는 색 공간 변환 유틸리티 객체입니다.
+
+```kotlin
+import io.bluetape4k.images.filters.ColorSpaceConverter
+
+// RGB ↔ HSV
+val (h, s, v) = ColorSpaceConverter.rgbToHsv(255, 128, 0)
+val (r, g, b) = ColorSpaceConverter.hsvToRgb(30f, 1f, 1f)
+
+// 켈빈 → RGB
+val (r, g, b) = ColorSpaceConverter.kelvinToRgb(6500)
+
+// 픽셀 배열 일괄 변환
+val hsvArray = image.toHsvArray()     // FloatArray [h0,s0,v0, h1,s1,v1, ...]
+val ycbcrArray = image.toYCbCrArray() // FloatArray [y0,cb0,cr0, ...]
 ```
 
 ## 의존성 추가
