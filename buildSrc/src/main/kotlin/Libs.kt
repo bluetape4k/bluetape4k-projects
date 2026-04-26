@@ -5,28 +5,28 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 object Plugins {
 
     object Versions {
-        const val dokka = "2.1.0"      // https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-gradle-plugin
+        const val dokka = "2.2.0"      // https://mvnrepository.com/artifact/org.jetbrains.dokka/dokka-gradle-plugin
         const val detekt = "1.23.8"     // https://mvnrepository.com/artifact/io.gitlab.arturbosch.detekt/detekt-gradle-plugin
         const val dependency_management = "1.1.7"  // https://mvnrepository.com/artifact/io.spring.gradle/dependency-management-plugin
         const val protobuf = "0.9.6"    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
         const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro/com.github.davidmc24.gradle.plugin.avro.gradle.plugin
 
         const val jacoco = "0.8.14"   // https://www.eclemma.org/jacoco/
-        const val kover = "0.9.1"     // https://github.com/Kotlin/kotlinx-kover/releases
+        const val kover = "0.9.8"     // https://github.com/Kotlin/kotlinx-kover/releases
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"  // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
         const val kotlinx_benchmark = "0.4.15" // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-plugin
 
-        const val spring_boot3 = "3.5.13"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
-        const val spring_boot4 = "4.0.5"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val spring_boot3 = "3.5.14"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
+        const val spring_boot4 = "4.0.6"   // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies
 
         const val docker_compose = "0.17.21"  // https://plugins.gradle.org/plugin/com.avast.gradle.docker-compose
 
         // 참고: https://docs.gatling.io/reference/integrations/build-tools/gradle-plugin/
         const val gatling = "3.15.0.1"  // https://plugins.gradle.org/plugin/io.gatling.gradle
 
-        const val graalvm_native = "1.0.0" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
+        const val graalvm_native = "1.1.0" // https://mvnrepository.com/artifact/org.graalvm.buildtools.native/org.graalvm.buildtools.native.gradle.plugin
 
         const val nmcp = "1.4.4" // https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
         const val dependency_check = "12.1.9" // https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
