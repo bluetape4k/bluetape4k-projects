@@ -108,9 +108,9 @@
 
 ### Phase B: 코드 정리 (`@Deprecated` 제거)
 
-#### Task 4. `coPublish` 전수 grep + 제거
+#### Task 4. `coPublish` 전수 grep + 제거 _(Task 5와 병렬 실행 가능)_
 - **complexity**: low
-- **dependency**: Task 1
+- **dependency**: Task 1 (Task 5와 독립적 — 동시 실행 가능)
 - **action**:
   - `rg "coPublish" --type kt` 전체 worktree 실행
   - `infra/nats/src/main/kotlin/io/bluetape4k/nats/client/JetStream.kt` `@Deprecated coPublish` 함수 제거
@@ -120,9 +120,10 @@
 
 ### Phase C: 패키지 리네이밍 (25개 파일)
 
-#### Task 5. `io.nats.examples` → `io.bluetape4k.nats.client.examples` 디렉토리 이동
+#### Task 5. `io.nats.examples` → `io.bluetape4k.nats.client.examples` 디렉토리 이동 _(Task 4와 병렬 실행 가능)_
 - **complexity**: medium
-- **dependency**: Task 1
+- **dependency**: Task 1 (Task 4와 독립적 — 동시 실행 가능)
+- **참고**: `io/bluetape4k/nats/SimplePublishExample.kt`는 이미 `io.bluetape4k.nats` 패키지를 사용하므로 **리네이밍 대상 아님** — `git mv infra/nats` 시 자동 이동만 수행
 - **action**:
   - `git mv` 로 순서대로 이동 (하위 → 상위 순):
     1. `src/test/kotlin/io/nats/examples/jetstream/simple/` → `src/test/kotlin/io/bluetape4k/nats/client/examples/jetstream/simple/` (6개)
@@ -297,8 +298,8 @@
 | 1 | `git mv x-obsoleted/nats infra/nats` | low | - |
 | 2 | `build.gradle.kts` 재작성 | medium | 1 |
 | 3 | Spring transitive 의존성 검증 | low | 2 |
-| 4 | `coPublish` 전수 grep + 제거 | low | 1 |
-| 5 | 25개 파일 디렉토리 이동 (`git mv`, ServiceExample.kt 별도 step) | medium | 1 |
+| 4 | `coPublish` 전수 grep + 제거 (**Task 5와 병렬**) | low | 1 |
+| 5 | 25개 파일 디렉토리 이동 (`git mv`, ServiceExample.kt 별도 step) (**Task 4와 병렬**) | medium | 1 |
 | 6 | 25개 파일 `package` 선언 치환 | medium | 5 |
 | 7 | 7개 헬퍼 파일 구조 확인 | low | 6 |
 | 8 | import 일괄 치환 | medium | 6 |

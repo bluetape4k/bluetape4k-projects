@@ -174,12 +174,11 @@ dependencies {
     compileOnly(Libs.kotlinx_coroutines_reactor)
     testImplementation(Libs.kotlinx_coroutines_test)
 
-    // Json (테스트에서만)
+    // Json (테스트에서만) — jackson_module_blackbird만 compileOnly로 노출 (jackson2 모듈이 나머지 전이 포함)
     testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(Libs.jackson_databind)
     testImplementation(Libs.jackson_module_kotlin)
-    testImplementation(Libs.jackson_module_parameter_names)
-    testImplementation(Libs.jackson_module_blackbird)
+    compileOnly(Libs.jackson_module_blackbird)
 
     // Compressors / Serializers (테스트 페이로드용)
     testImplementation(Libs.lz4_java)
