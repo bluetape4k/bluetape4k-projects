@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -58,7 +59,7 @@ class FalkorDBServerTest : AbstractContainerTest() {
         falkordb.propertyKeys().forEach { key ->
             val value = props[key]
             value.shouldNotBeNull()
-            (value.isNotBlank()).shouldBeTrue()
+            value.shouldNotBeBlank()
         }
     }
 
