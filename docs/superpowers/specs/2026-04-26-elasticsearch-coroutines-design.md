@@ -369,7 +369,7 @@ object ElasticsearchClients : KLogging() {
      *
      * 핵심 체인 outline:
      * ```
-     * RestClient.builder(HttpHost(host, port, scheme))                    // HC5 HttpHost
+     * RestClient.builder(HttpHost(scheme, host, port))                    // HC5 HttpHost (scheme 첫 번째 — HC4와 순서 다름)
      *     .setHttpClientConfigCallback { http ->
      *         credentials?.let { http.setDefaultCredentialsProvider(it) }
      *         sslContext?.let { http.setSSLContext(it) }
