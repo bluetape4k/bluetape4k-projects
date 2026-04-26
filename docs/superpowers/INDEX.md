@@ -33,7 +33,7 @@ docs/superpowers/plans/{YYYY-MM-DD}-{기능명}-plan.md     ← Plan
 | ✅ 완료    | 52 |
 | 🔄 진행 중 | 0  |
 | ⏳ 구현 대기 | 1  |
-| 합계      | 51 |
+| 합계      | 52 |
 
 ---
 
