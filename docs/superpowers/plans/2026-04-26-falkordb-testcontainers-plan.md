@@ -263,7 +263,7 @@ import kotlin.test.assertFailsWith
 ```
 
 **주의사항**:
-- Lettuce / Jedis 직접 연결 테스트 추가 금지 (spec 결정: jfalkordb only).
+- **jfalkordb 로만 테스트** — jfalkordb 가 Jedis 를 내부 driver 로 사용하므로, `FalkorDB.driver(host, port)` 로 연결. Lettuce 의존성은 추가하지 않음.
 - `@BeforeEach` / `@AfterEach` 에서 graph 정리하지 않음 — 각 테스트는 독립적이며 #8 만 graph 를 사용하고 finally 로 정리.
 - `runTest` 사용하지 않음 — 모든 테스트가 동기.
 
