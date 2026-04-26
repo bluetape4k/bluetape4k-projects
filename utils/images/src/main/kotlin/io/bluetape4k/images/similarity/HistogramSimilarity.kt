@@ -26,7 +26,6 @@ internal fun buildHistogram(
     colorSpace: ColorSpace,
     binsPerChannel: Int,
 ): Array<DoubleArray> {
-    require(binsPerChannel in 2..256) { "binsPerChannel 범위: 2..256, 입력: $binsPerChannel" }
     val channelCount = 3
     val hist = Array(channelCount) { DoubleArray(binsPerChannel) }
 
@@ -103,6 +102,10 @@ sealed interface HistogramSimilarity {
         val colorSpace: ColorSpace = ColorSpace.RGB,
         val binsPerChannel: Int = 32,
     ): HistogramSimilarity {
+        init {
+            require(binsPerChannel in 2..256) { "binsPerChannel 범위: 2..256, 입력: $binsPerChannel" }
+        }
+
         override fun measure(a: ImmutableImage, b: ImmutableImage): Double {
             val ha = buildHistogram(a, colorSpace, binsPerChannel)
             val hb = buildHistogram(b, colorSpace, binsPerChannel)
@@ -133,6 +136,10 @@ sealed interface HistogramSimilarity {
         val colorSpace: ColorSpace = ColorSpace.RGB,
         val binsPerChannel: Int = 32,
     ): HistogramSimilarity {
+        init {
+            require(binsPerChannel in 2..256) { "binsPerChannel 범위: 2..256, 입력: $binsPerChannel" }
+        }
+
         override fun measure(a: ImmutableImage, b: ImmutableImage): Double {
             val ha = buildHistogram(a, colorSpace, binsPerChannel)
             val hb = buildHistogram(b, colorSpace, binsPerChannel)
@@ -161,6 +168,10 @@ sealed interface HistogramSimilarity {
         val colorSpace: ColorSpace = ColorSpace.RGB,
         val binsPerChannel: Int = 32,
     ): HistogramSimilarity {
+        init {
+            require(binsPerChannel in 2..256) { "binsPerChannel 범위: 2..256, 입력: $binsPerChannel" }
+        }
+
         override fun measure(a: ImmutableImage, b: ImmutableImage): Double {
             val ha = buildHistogram(a, colorSpace, binsPerChannel)
             val hb = buildHistogram(b, colorSpace, binsPerChannel)

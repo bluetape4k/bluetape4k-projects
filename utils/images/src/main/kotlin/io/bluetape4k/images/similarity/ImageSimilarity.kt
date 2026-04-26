@@ -192,7 +192,7 @@ fun ImmutableImage.ssimTo(other: ImmutableImage): Double {
  * @return 64bit perceptual hash
  */
 fun ImmutableImage.phash(): Long {
-    val scaled = scaleTo(PHASH_SIZE, PHASH_SIZE)
+    val scaled = scaleTo(PHASH_SIZE, PHASH_SIZE, HASH_SCALE_METHOD)
     val gray = Array(PHASH_SIZE) { y -> DoubleArray(PHASH_SIZE) { x -> luminance(scaled.pixel(x, y)) } }
     val dct = dct2d(gray, PHASH_SIZE)
 

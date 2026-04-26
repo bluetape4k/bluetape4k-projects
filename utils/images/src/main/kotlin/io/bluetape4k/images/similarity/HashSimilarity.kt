@@ -66,6 +66,13 @@ enum class PHashSize(val bits: Int, internal val resize: Int, internal val lowSi
     /** 1024bit 해시 (resize 128×128 → low 32×32). */
     BITS_1024(1024, 128, 32);
 
+    init {
+        // resize/lowSide 는 2의 거듭제곱이어야 DWT levels = log2(resize/lowSide) 가 정확히 계산됩니다.
+        require(resize % lowSide == 0 && Integer.bitCount(resize / lowSide) == 1) {
+            "resize/lowSide 는 2의 거듭제곱이어야 합니다: $resize/$lowSide"
+        }
+    }
+
     /** 비트를 담는 데 필요한 [Long] 슬롯 개수. */
     internal val longCount: Int get() = (bits + 63) / 64
 }

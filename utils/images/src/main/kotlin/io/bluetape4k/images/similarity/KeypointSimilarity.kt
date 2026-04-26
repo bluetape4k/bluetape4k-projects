@@ -72,6 +72,7 @@ fun ImmutableImage.blockMeanSimilarityTo(
  * `other` 이미지를 4방향으로 회전하여 가장 높은 유사도를 찾습니다.
  * 비정사각 이미지도 지원하나, 종횡비가 바뀌므로 90°/270° 회전 시 크기가 달라집니다.
  * 내부적으로 `other`를 64×64로 축소 후 회전하여 성능을 최적화합니다.
+ * `this`는 원본 해상도를 유지합니다 — block-mean descriptor는 크기에 정규화되므로 비대칭 스케일도 비교 가능합니다.
  *
  * @param other 비교 대상 이미지
  * @param gridRows 행 그리드 수. 기본 8.

@@ -123,5 +123,5 @@ fun ImmutableImage.mssimTo(
             count++
         }
     }
-    return if (count == 0) 1.0 else ssimSum / count
+    return ssimSum / count
 }

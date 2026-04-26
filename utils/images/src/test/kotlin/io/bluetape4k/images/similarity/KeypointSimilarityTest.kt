@@ -6,9 +6,11 @@ import io.bluetape4k.images.AbstractImageTest
 import io.bluetape4k.images.immutableImageOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Resourcex
+import org.amshove.kluent.invoking
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessThan
+import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 
 /**
@@ -24,14 +26,11 @@ class KeypointSimilarityTest : AbstractImageTest() {
     private fun loadImage(path: String): ImmutableImage =
         immutableImageOf(Resourcex.getInputStream(path)!!)
 
-    /**
-     * 이미지를 JPEG 90% 품질로 재저장한 후 [ImmutableImage]로 반환합니다.
-     */
     private fun ImmutableImage.toJpeg90(): ImmutableImage =
         immutableImageOf(bytes(JpegWriter(90, false)))
 
     @Test
-    fun `동일 이미지의 blockMeanSimilarityTo는 1에 가까워야 한다`() {
+    fun `identical image block-mean similarity is near 1`() {
         val homer = loadImage(HOMER_JPG)
         val score = homer.blockMeanSimilarityTo(homer)
 
@@ -40,7 +39,7 @@ class KeypointSimilarityTest : AbstractImageTest() {
     }
 
     @Test
-    fun `JPEG 90 percent 재저장 이미지의 blockMeanSimilarityTo는 0_9 초과여야 한다`() {
+    fun `jpeg 90 percent re-encoding keeps block-mean similarity high`() {
         val original = loadImage(HOMER_JPG)
         val reencoded = original.toJpeg90()
         val score = original.blockMeanSimilarityTo(reencoded)
@@ -50,7 +49,7 @@ class KeypointSimilarityTest : AbstractImageTest() {
     }
 
     @Test
-    fun `다른 이미지의 blockMeanSimilarityTo는 0_5 미만이어야 한다`() {
+    fun `different images have low block-mean similarity`() {
         val homer = loadImage(HOMER_JPG)
         val landscape = loadImage(LANDSCAPE_JPG)
         val score = homer.blockMeanSimilarityTo(landscape)
@@ -60,7 +59,7 @@ class KeypointSimilarityTest : AbstractImageTest() {
     }
 
     @Test
-    fun `90도 회전 이미지는 blockMeanSimilarityTo 낮고 bestRotationSimilarityTo 높아야 한다`() {
+    fun `90-degree rotation has low straight similarity but high bestRotation similarity`() {
         val homer = loadImage(HOMER_JPG)
         val rotated = homer.rotateLeft()
 
@@ -73,7 +72,7 @@ class KeypointSimilarityTest : AbstractImageTest() {
     }
 
     @Test
-    fun `blockMeanDescriptor 길이는 gridRows x gridCols 이어야 한다`() {
+    fun `blockMeanDescriptor length equals gridRows times gridCols`() {
         val homer = loadImage(HOMER_JPG)
         val desc = homer.blockMeanDescriptor(gridRows = 8, gridCols = 8)
 
@@ -81,26 +80,16 @@ class KeypointSimilarityTest : AbstractImageTest() {
     }
 
     @Test
-    fun `gridRows가 1 미만이면 IllegalArgumentException이 발생해야 한다`() {
+    fun `gridRows less than 1 throws IllegalArgumentException`() {
         val homer = loadImage(HOMER_JPG)
 
-        try {
-            homer.blockMeanDescriptor(gridRows = 0, gridCols = 8)
-            throw AssertionError("IllegalArgumentException이 발생해야 합니다")
-        } catch (e: IllegalArgumentException) {
-            log.debug("Expected exception: ${e.message}")
-        }
+        invoking { homer.blockMeanDescriptor(gridRows = 0, gridCols = 8) } shouldThrow IllegalArgumentException::class
     }
 
     @Test
-    fun `gridCols가 1 미만이면 IllegalArgumentException이 발생해야 한다`() {
+    fun `gridCols less than 1 throws IllegalArgumentException`() {
         val homer = loadImage(HOMER_JPG)
 
-        try {
-            homer.blockMeanDescriptor(gridRows = 8, gridCols = 0)
-            throw AssertionError("IllegalArgumentException이 발생해야 합니다")
-        } catch (e: IllegalArgumentException) {
-            log.debug("Expected exception: ${e.message}")
-        }
+        invoking { homer.blockMeanDescriptor(gridRows = 8, gridCols = 0) } shouldThrow IllegalArgumentException::class
     }
 }
