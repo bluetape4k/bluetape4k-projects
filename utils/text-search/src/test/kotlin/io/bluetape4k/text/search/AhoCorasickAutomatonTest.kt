@@ -217,6 +217,25 @@ class AhoCorasickAutomatonTest : AbstractAhoCorasickTest() {
     }
 
     @Test
+    fun `SearchToken Fragment Serializable round-trip`() {
+        // Arrange
+        val original = SearchToken.Fragment("some text fragment")
+
+        // Act
+        val baos = ByteArrayOutputStream()
+        ObjectOutputStream(baos).use { it.writeObject(original) }
+        val restored = ObjectInputStream(ByteArrayInputStream(baos.toByteArray())).use { it.readObject() }
+
+        // Assert
+        restored.shouldNotBeNull()
+        restored.shouldBeInstanceOf<SearchToken.Fragment>()
+        restored as SearchToken.Fragment
+        restored.text shouldBeEqualTo original.text
+        restored shouldBeEqualTo original
+        log.debug { "SearchToken.Fragment 직렬화 round-trip 성공: $restored" }
+    }
+
+    @Test
     fun `SearchOptions Serializable round-trip`() {
         // Arrange
         val original = SearchOptions(
