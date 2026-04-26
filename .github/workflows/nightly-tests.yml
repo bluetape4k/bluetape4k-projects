@@ -37,6 +37,15 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
+      - name: Resolve mock server runtime dependencies (pre-cache for Jib)
+        run: >
+          ./gradlew
+          :bluetape4k-mock-web-server:dependencies
+          :bluetape4k-mock-webflux-server:dependencies
+          --configuration runtimeClasspath
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
   # ── Detekt 정적 분석 ──────────────────────────────────────────────────────
   detekt:
     name: Detekt
