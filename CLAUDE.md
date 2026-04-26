@@ -117,6 +117,8 @@ All tools installed at `/opt/homebrew/bin/`.
 
 **NetCDF pipeline** (`utils/science`): three Exposed tables — `NetCdfFileTable` (`AuditableLongIdTable`, file metadata) · `NetCdfGridValueTable` (plain `LongIdTable`, grid cells with nullable PostGIS `location`, partial expression unique indexes via `MD5(ST_AsBinary(location))`) · `NetCdfImportProgressTable` (plain `LongIdTable`, system-only state with `lastSliceIdx` linear cursor + heartbeat `leaseExpiresAt`; user context not needed). Slice insert uses raw `INSERT ... ON CONFLICT DO NOTHING` (Exposed `upsert` cannot match expression unique indexes).
 
+**AwsEmulatorServer** (`testing/testcontainers`): Common interface for local AWS emulators. `awsEndpoint`/`awsAccessKey`/`awsSecretKey` property names use `aws` prefix to avoid JVM getter collision with `LocalStackContainer.getEndpoint()`. `getCredentialProvider()` lives in `AwsEmulatorServerExtensions.kt` (requires `aws2-auth` on classpath). Switch emulators at test runtime: `-Dbluetape4k.aws.emulator=floci|localstack`. `LocalStackServer` and `MinIOServer` are `@Deprecated(WARNING)`.
+
 **High-perf**: LZ4/Zstd compression · Kryo/Fory serialization · Custom Redis codecs.
 
 ## Build Configuration

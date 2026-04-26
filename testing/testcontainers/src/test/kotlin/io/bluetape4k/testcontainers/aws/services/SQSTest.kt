@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
+import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll

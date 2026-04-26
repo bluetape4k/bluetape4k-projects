@@ -131,6 +131,9 @@ dependencies {
     // LocalStack for AWS
     compileOnly(Libs.testcontainers_localstack)
 
+    // ElasticMQ - embedded SQS emulator (no Docker)
+    compileOnly(Libs.elasticmq_rest_sqs_2_13)
+
     // Amazon SDK V2
     compileOnly(Libs.aws2_auth)
     testImplementation(Libs.aws2_aws_core)

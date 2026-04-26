@@ -641,6 +641,11 @@ object Libs {
     // deprecated
     // val aws_kotlin_testing = awsKotlin("testing")
 
+    // ElasticMQ - embedded SQS server (AWS emulator, no Docker required)
+    // https://github.com/softwaremill/elasticmq
+    // https://mvnrepository.com/artifact/org.elasticmq/elasticmq-rest-sqs_2.13
+    const val elasticmq_rest_sqs_2_13 = "org.elasticmq:elasticmq-rest-sqs_2.13:1.6.12"
+
     // Aws Smithy Kotlin
     // https://mvnrepository.com/artifact/aws.smithy.kotlin
     fun awsSmithyKotlin(module:String, version:String = Versions.aws_smithy_kotlin) = "aws.smithy.kotlin:$module:$version"

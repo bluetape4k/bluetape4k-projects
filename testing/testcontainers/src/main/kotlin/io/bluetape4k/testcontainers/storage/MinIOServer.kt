@@ -19,6 +19,11 @@ import org.testcontainers.utility.DockerImageName
  * @param useDefaultPort Default port 를 사용할지 여부
  * @param reuse          재사용 여부
  */
+@Deprecated(
+    message = "MinIO core는 2026-04-25에 archived 되었습니다. S3 호환 에뮬레이터가 필요한 경우 FlociServer 또는 LocalStackServer를 사용하세요.",
+    replaceWith = ReplaceWith("FlociServer", "io.bluetape4k.testcontainers.aws.FlociServer"),
+    level = DeprecationLevel.WARNING
+)
 class MinIOServer private constructor(
     imageName: DockerImageName,
     useDefaultPort: Boolean,
