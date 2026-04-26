@@ -223,17 +223,32 @@ suspend fun putRecord(client: KinesisAsyncClient, streamName: String, data: Byte
 
 ## Test Environment
 
-Integration testing with LocalStack is supported:
+Integration tests use `AwsEmulatorServer` — the common interface for local AWS emulators. Select the emulator via `-Dbluetape4k.aws.emulator=localstack|floci` (default: `localstack`).
 
 ```kotlin
-@Testcontainers
-class DynamoDbTest {
+abstract class AbstractAwsTest {
     companion object {
-        @Container
-        val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack"))
-            .withServices(LocalStackContainer.Service.DYNAMODB)
+        // Automatically selects emulator based on system property
+        val awsEmulator: AwsEmulatorServer by lazy {
+            when (System.getProperty("bluetape4k.aws.emulator", "localstack")) {
+                "floci" -> FlociServer.Launcher.floci
+                else -> LocalStackServer.Launcher.getLocalStack("s3", "sqs", "dynamodb")
+            }
+        }
     }
+
+    fun buildS3Client(): S3Client = S3Client.builder()
+        .endpointOverride(awsEmulator.awsEndpoint)
+        .credentialsProvider(awsEmulator.getCredentialProvider())
+        .region(Region.of(awsEmulator.regionName))
+        .build()
 }
+```
+
+Run tests with Floci emulator:
+
+```bash
+./gradlew :bluetape4k-aws:test -Dbluetape4k.aws.emulator=floci
 ```
 
 ## Adding the Dependency

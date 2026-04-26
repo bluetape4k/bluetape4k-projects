@@ -82,6 +82,9 @@ dependencies {
     compileOnly(Libs.testcontainers_neo4j)
     compileOnly(Libs.neo4j_java_driver)
 
+    // Graph DB (FalkorDB)
+    compileOnly(Libs.jfalkordb)
+
     // ElasticSearch
     compileOnly(Libs.testcontainers_elasticsearch)
     compileOnly(Libs.elasticsearch_rest_client)
@@ -130,6 +133,9 @@ dependencies {
 
     // LocalStack for AWS
     compileOnly(Libs.testcontainers_localstack)
+
+    // ElasticMQ - embedded SQS emulator (no Docker)
+    compileOnly(Libs.elasticmq_rest_sqs_2_13)
 
     // Amazon SDK V2
     compileOnly(Libs.aws2_auth)

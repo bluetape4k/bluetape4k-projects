@@ -5,8 +5,9 @@ import aws.smithy.kotlin.runtime.auth.awscredentials.CredentialsProvider
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.testcontainers.aws.AwsEmulatorServer
+import io.bluetape4k.testcontainers.aws.FlociServer
 import io.bluetape4k.testcontainers.aws.LocalStackServer
-import org.testcontainers.localstack.LocalStackContainer
 
 abstract class AbstractAwsTest {
 
@@ -25,29 +26,47 @@ abstract class AbstractAwsTest {
             "sts"
         )
 
+        /**
+         * AWS 에뮬레이터 서버 인스턴스.
+         *
+         * `bluetape4k.aws.emulator` 시스템 프로퍼티 값에 따라 선택됩니다:
+         * - `"floci"` → [FlociServer]
+         * - 그 외 (기본 `"localstack"`) → [LocalStackServer]
+         */
         @JvmStatic
+        val awsEmulator: AwsEmulatorServer by lazy {
+            val name = System.getProperty("bluetape4k.aws.emulator", "localstack").lowercase()
+            when (name) {
+                "floci" -> FlociServer.Launcher.floci
+                "localstack" -> LocalStackServer.Launcher.getLocalStack(*services.toTypedArray())
+                else -> error("Unknown bluetape4k.aws.emulator='$name'. Allowed: localstack, floci")
+            }
+        }
+
+        @JvmStatic
+        @Deprecated("awsEmulator로 대체됩니다.", ReplaceWith("awsEmulator"))
         val localStackServer by lazy {
             LocalStackServer.Launcher.getLocalStack(*services.toTypedArray())
         }
 
         /**
-         * [LocalStackContainer]의 endpoint를 AWS Kotlin SDK의 [Url]로 변환합니다.
+         * [AwsEmulatorServer]의 endpoint를 AWS Kotlin SDK의 [Url]로 변환합니다.
          *
          * @return AWS Kotlin SDK [Url] 인스턴스
          */
-        val LocalStackContainer.endpointUrl: Url
-            get() = Url.parse(this.endpoint.toString())
+        val AwsEmulatorServer.endpointUrl: Url
+            get() = Url.parse(this.awsEndpoint.toString())
 
         /**
-         * [LocalStackContainer]를 사용하기 위한 [CredentialsProvider]를 반환합니다.
+         * [AwsEmulatorServer]를 사용하기 위한 [CredentialsProvider]를 반환합니다.
          *
          * @return [StaticCredentialsProvider] 인스턴스
          */
-        val LocalStackContainer.credentialsProvider: StaticCredentialsProvider
+        val AwsEmulatorServer.credentialsProvider: StaticCredentialsProvider
             get() =
                 StaticCredentialsProvider {
-                    accessKeyId = this@credentialsProvider.accessKey
-                    secretAccessKey = this@credentialsProvider.secretKey
+                    accessKeyId = this@credentialsProvider.awsAccessKey
+                    secretAccessKey = this@credentialsProvider.awsSecretKey
                 }
 
 
