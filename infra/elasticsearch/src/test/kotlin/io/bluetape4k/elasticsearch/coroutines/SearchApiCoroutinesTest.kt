@@ -83,11 +83,13 @@ class SearchApiCoroutinesTest : AbstractElasticsearchTest() {
 
         // 검색 가능 상태로 만들기 위한 refresh
         asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        Unit
     }
 
     @AfterAll
     fun tearDownAll() = runBlocking {
         runCatching { asyncClient.deleteTestIndex(indexName).await() }
+        Unit
     }
 
     // -------------------------------------------------------------------------
@@ -205,7 +207,7 @@ class SearchApiCoroutinesTest : AbstractElasticsearchTest() {
             hits.forEach { hit ->
                 val source = hit.source()
                 source.shouldNotBeNull()
-                source.category shouldBe targetCategory
+                source.category shouldBeEqualTo targetCategory
             }
         }
 }

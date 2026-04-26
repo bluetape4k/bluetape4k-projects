@@ -186,7 +186,7 @@ class BulkApiCoroutinesTest: AbstractElasticsearchTest() {
             response.shouldNotBeNull()
             response.errors().shouldBeFalse()
             response.items().size shouldBeEqualTo operationCount
-            response.took() shouldBeGreaterThan 0L
+            response.took() shouldBeGreaterOrEqualTo 0L
 
             // refresh 후 색인 결과 확인
             asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()

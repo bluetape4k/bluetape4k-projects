@@ -2,6 +2,7 @@ package io.bluetape4k.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch.ElasticsearchClient
+import io.bluetape4k.elasticsearch.support.jacksonJsonpMapper
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.ElasticsearchServer
 
@@ -50,6 +51,7 @@ abstract class AbstractElasticsearchTest {
                 username = ElasticsearchDefaults.DEFAULT_USERNAME,
                 password = elasticsearch.password,
                 sslContext = elasticsearch.createSslContextFromCa(),
+                mapper = jacksonJsonpMapper(),
             )
         }
 
@@ -68,6 +70,7 @@ abstract class AbstractElasticsearchTest {
                 username = ElasticsearchDefaults.DEFAULT_USERNAME,
                 password = elasticsearch.password,
                 sslContext = elasticsearch.createSslContextFromCa(),
+                mapper = jacksonJsonpMapper(),
             )
         }
     }

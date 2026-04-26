@@ -40,7 +40,9 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
 
     /**
      * 업데이트 시 부분 변경에 사용하는 타입.
+     * null 필드는 직렬화 제외 (@JsonInclude(NON_NULL)) — 기존 ES 필드를 덮어쓰지 않음.
      */
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
     data class TestDocumentPartial(
         val title: String? = null,
         val score: Double? = null,
@@ -121,7 +123,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
         retrieved.title shouldBeEqualTo doc.title
         retrieved.content shouldBeEqualTo doc.content
         retrieved.tags shouldBeEqualTo doc.tags
-        retrieved.score shouldBe doc.score
+        retrieved.score shouldBeEqualTo doc.score
     }
 
     @Test
@@ -157,7 +159,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
         val updated = getResponse.source()
         updated.shouldNotBeNull()
         updated.title shouldBeEqualTo original.title      // 변경하지 않은 필드
-        updated.score shouldBe updatedScore               // 변경한 필드
+        updated.score shouldBeEqualTo updatedScore               // 변경한 필드
     }
 
     @Test

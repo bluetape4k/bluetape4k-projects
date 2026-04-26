@@ -139,7 +139,7 @@ inline fun <reified T : Any> ElasticsearchAsyncClient.searchAsFlow(
                 val request = SearchRequest.Builder()
                     .apply(queryBlock)
                     .pit { p -> p.id(pitId).keepAlive { t -> t.time(keepAlive) } }
-                    .searchAfter(searchAfter)
+                    .apply { if (searchAfter.isNotEmpty()) searchAfter(searchAfter) }
                     .size(batchSize)
                     .build()
 
