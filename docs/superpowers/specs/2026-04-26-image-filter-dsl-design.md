@@ -484,7 +484,24 @@ scrimage 필터 생성자가 받는 타입을 그대로 따른다 — 파라미�
 | `HueAdjustFilter` | `hue(deltaDegrees: Float)` | 픽셀별 RGB→HSV, H = (H + delta) mod 360, HSV→RGB. |
 | `ColorTemperatureFilter` | `colorTemperature(kelvin: Int)` | Kelvin→RGB 변환 (Tanner Helland 알고리즘) 후 채널 곱. kelvin ∈ [1000, 40000]. |
 | `RoundedCornerFilter` | `roundedCorners(radius: Int)` | 알파 마스크 합성. 코너 반경 픽셀 영역에서 거리 기반 알파 페이드. |
-| `MedianBlurFilter` | `medianBlur(radius: Int)` | 픽셀 주변 (2r+1)² 윈도우에서 R/G/B 채널별 중앙값 계산. jhlabs는 internal이므로 직접 구현. ★ 1차 포함. |
+| `MedianBlurFilter` | `medianBlur(radius: Int, boundary: MedianBoundaryMode)` | 픽셀 주변 (2r+1)² 윈도우에서 R/G/B 채널별 중앙값 계산. 경계 처리 방식은 `MedianBoundaryMode` 로 설정. jhlabs는 internal이므로 직접 구현. ★ 1차 포함. |
+
+**`MedianBoundaryMode` enum**:
+
+```kotlin
+/**
+ * [MedianBlurFilter] 경계 픽셀 처리 방식.
+ * 향후 추가 모드를 위해 enum 으로 분리.
+ */
+enum class MedianBoundaryMode {
+    /** 경계 밖은 가장 가까운 경계 픽셀 값을 복제. */
+    REPLICATE,
+    /** 경계 밖은 경계를 축으로 반사된 픽셀 값을 사용. */
+    REFLECT,
+}
+```
+
+기본값은 `REPLICATE` (가장 자연스럽고 예상 가능한 동작).
 
 **표준 구현 골격 — scrimage `Filter` 인터페이스 구현**:
 
@@ -524,10 +541,20 @@ Issue #131에서 `ColorSpaceConverter`를 **공개 유틸리티**로 요구하�
  * ```
  */
 object ColorSpaceConverter {
+    /** Tanner Helland 알고리즘 적용 최소 켈빈 값. 변경 가능하도록 상수로 정의. */
+    const val KELVIN_MIN: Int = 1000
+    /** Tanner Helland 알고리즘 적용 최대 켈빈 값. 변경 가능하도록 상수로 정의. */
+    const val KELVIN_MAX: Int = 40000
+
     fun rgbToHsv(r: Int, g: Int, b: Int): Triple<Float, Float, Float>
     fun hsvToRgb(h: Float, s: Float, v: Float): Triple<Int, Int, Int>
     fun rgbToYCbCr(r: Int, g: Int, b: Int): Triple<Float, Float, Float>
     fun yCbCrToRgb(y: Float, cb: Float, cr: Float): Triple<Int, Int, Int>
+    /**
+     * 켈빈 색온도를 RGB 채널 배율로 변환합니다 (Tanner Helland 알고리즘).
+     * 입력이 [KELVIN_MIN, KELVIN_MAX] 범위를 벗어나면 자동으로 clamp합니다.
+     * 필터 레벨에서 require 가드를 두는 것과 달리, 변환 유틸리티 자체는 상수 정의로 동작 범위를 명시하되 silently clamp합니다.
+     */
     fun kelvinToRgb(kelvin: Int): Triple<Int, Int, Int>
     // LAB 변환은 1차 범위 제외 (Risk-2)
 
@@ -671,8 +698,9 @@ fun roundedCornerFilterOf(radius: Int): Filter
  * 픽셀 주변 윈도우의 채널별 중앙값으로 노이즈를 제거하는 [Filter] 를 생성합니다.
  *
  * @param radius 윈도우 반경. 0 이상이어야 함. 윈도우 크기 = (2r+1)².
+ * @param boundary 경계 픽셀 처리 방식. 기본값 [MedianBoundaryMode.REPLICATE].
  */
-fun medianBlurFilterOf(radius: Int): Filter
+fun medianBlurFilterOf(radius: Int, boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE): Filter
 ```
 
 ### 6.3 ImageFilterChain 멤버 함수 시그니처 (대표)
@@ -722,7 +750,7 @@ class ImageFilterChain {
     fun oil(range: Int = 3, levels: Int = 256)
     fun crystallize()
     fun pixelate(blockSize: Int = 8)
-    fun medianBlur(radius: Int = 1)             // 신규 직접 구현
+    fun medianBlur(radius: Int = 1, boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE)  // 신규 직접 구현
     fun border(thickness: Int = 1, color: java.awt.Color = java.awt.Color.BLACK)
     fun vignette(start: Float = 0.85f, end: Float = 0.95f, blur: Float = 0.3f, color: java.awt.Color = java.awt.Color.BLACK)
     fun glow(amount: Float = 0.5f)

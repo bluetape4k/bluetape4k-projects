@@ -142,17 +142,20 @@
     - `fun hsvToRgb(h: Float, s: Float, v: Float): Triple<Int, Int, Int>` (java.awt.Color.HSBtoRGB → ARGB 분해)
     - `fun rgbToYCbCr(r: Int, g: Int, b: Int): Triple<Float, Float, Float>` (BT.601)
     - `fun yCbCrToRgb(y: Float, cb: Float, cr: Float): Triple<Int, Int, Int>` (역변환 + clamp 0..255)
-    - `fun kelvinToRgb(kelvin: Int): Triple<Int, Int, Int>` (Tanner Helland 알고리즘, kelvin in 1000..40000 권장)
+    - `fun kelvinToRgb(kelvin: Int): Triple<Int, Int, Int>` (Tanner Helland 알고리즘)
+      - 입력이 `KELVIN_MIN..KELVIN_MAX` 범위를 벗어나면 **silently clamp** (예외 아님)
+      - `companion object` 에 `const val KELVIN_MIN = 1000`, `const val KELVIN_MAX = 40000` 정의 (향후 범위 변경 시 단일 지점 수정)
     - `@JvmSynthetic internal fun rgbToHsvInto(r, g, b, out: FloatArray)` (out.size >= 3)
     - `@JvmSynthetic internal fun hsvToRgbInto(h, s, v, out: IntArray)` (out.size >= 3)
-    - `@JvmSynthetic internal fun kelvinToRgbInto(kelvin, out: IntArray)`
+    - `@JvmSynthetic internal fun kelvinToRgbInto(kelvin, out: IntArray)` (clamp 동일 적용)
   - `fun ImmutableImage.toHsvArray(): FloatArray` — width × height × 3, row-major
   - `fun ImmutableImage.toYCbCrArray(): FloatArray` — 동일
   - 테스트:
     - 라운드트립 fuzz: 랜덤 RGB 1000회 → HSV → RGB, 채널당 ±2 허용
     - 라운드트립 fuzz: YCbCr 동일
-    - kelvinToRgb 경계: 1000K (붉은색), 5500K (중성 근사), 6500K, 10000K
-    - require 가드: `kelvinToRgb(500)` → IllegalArgumentException? — spec 은 1000..40000을 "권장"이라 표현하나, ColorTemperatureFilter 에서는 require. ColorSpaceConverter.kelvinToRgb 자체는 1000 미만/40000 초과를 clamp 또는 그대로 계산 (명시: clamp 적용 권장 — 알고리즘 안정성)
+    - kelvinToRgb: `KELVIN_MIN`(붉은색), 5500K(중성 근사), 6500K, `KELVIN_MAX`(푸른색)
+    - clamp 동작: `kelvinToRgb(500)` → `kelvinToRgb(KELVIN_MIN)` 과 동일 결과 (예외 없음)
+    - clamp 동작: `kelvinToRgb(50000)` → `kelvinToRgb(KELVIN_MAX)` 과 동일 결과
 - **완료 기준**:
   - public API 시그니처가 spec §4.9 / §5.3 과 일치
   - 라운드트립 fuzz 테스트 통과 (1000회, 채널당 ±2)
@@ -276,23 +279,30 @@
   - `utils/images/src/test/kotlin/io/bluetape4k/images/filters/MedianBlurFilterTest.kt`
   - `utils/images/src/test/resources/filters/dsl/expected_median_2.png`
 - **내용**:
-  - `class MedianBlurFilter(private val radius: Int) : Filter`
+  - `enum class MedianBoundaryMode { REPLICATE, REFLECT }` (파일: `MedianBlurFilter.kt` 내 또는 별도 파일)
+    - `REPLICATE`: 경계 밖은 가장 가까운 경계 픽셀 값을 복제
+    - `REFLECT`: 경계 밖은 경계를 축으로 반사된 픽셀 값 사용
+  - `class MedianBlurFilter(private val radius: Int, private val boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE) : Filter`
     - `init { require(radius >= 0) { "radius must be >= 0, but was $radius" } }`
     - `apply`: 픽셀별 (2r+1)² 윈도우의 R/G/B 채널별 중앙값 계산
       - radius=0 → identity (윈도우 = 단일 픽셀)
-      - 경계는 clamp (반사/복제 — 구현 선택, 단일화)
+      - 경계 처리: `boundary` 파라미터에 따라 좌표 clamp(REPLICATE) 또는 반사(REFLECT)
       - in-place 가 아닌 (median 은 이웃 의존) — 임시 픽셀 배열 사용
       - IntArray 윈도우 + Arrays.sort → 중앙값
-  - `fun medianBlurFilterOf(radius: Int): Filter`
+  - `fun medianBlurFilterOf(radius: Int, boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE): Filter`
+  - DSL 멤버 (T12 에서 연동): `fun medianBlur(radius: Int = 1, boundary: MedianBoundaryMode = MedianBoundaryMode.REPLICATE)`
   - 테스트:
     - `radius = 0` → identity (tolerance = 0)
     - `radius = -1` → IllegalArgumentException
-    - `radius = 2` → 골든 이미지 비교
+    - `radius = 2, boundary = REPLICATE` → 골든 이미지 비교
+    - `radius = 2, boundary = REFLECT` → REPLICATE 결과와 중심 영역은 동일, 경계 1px 행/열 비교
     - 임펄스 노이즈 제거 검증: salt-and-pepper 노이즈 추가한 이미지에 적용 → 노이즈 픽셀 수 감소
 - **완료 기준**:
+  - `MedianBoundaryMode` enum 정의 + KDoc
   - require 가드 동작
   - radius=0 identity 검증
   - 골든 이미지 1장 저장 + 테스트 통과
+  - boundary 모드 전환 테스트 통과
   - 노이즈 제거 효과 검증 (정성적, 노이즈 픽셀 비율 감소)
 - **의존**: T5 (source.png 공유)
 
