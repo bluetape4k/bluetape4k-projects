@@ -147,7 +147,7 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      -   name: Test io modules
+      - name: Test io modules
         run: |
           ./gradlew \
             :bluetape4k-io:test \
@@ -275,7 +275,7 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      -   name: Test utils modules
+      - name: Test utils modules
         run: |
           ./gradlew \
             :bluetape4k-idgenerators:test \
