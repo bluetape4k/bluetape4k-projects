@@ -12,7 +12,7 @@ object Plugins {
         const val avro = "1.9.1"  // https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin.avro/com.github.davidmc24.gradle.plugin.avro.gradle.plugin
 
         const val jacoco = "0.8.14"   // https://www.eclemma.org/jacoco/
-        const val kover = "0.9.1"     // https://github.com/Kotlin/kotlinx-kover/releases
+        const val kover = "0.9.8"     // https://github.com/Kotlin/kotlinx-kover/releases
         const val jarTest = "1.0.1"
         const val testLogger = "4.0.0"  // https://mvnrepository.com/artifact/com.adarshr/gradle-test-logger-plugin
         const val shadow = "9.3.1"      // https://plugins.gradle.org/plugin/com.gradleup.shadow
