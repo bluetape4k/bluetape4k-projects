@@ -95,7 +95,7 @@ dependencies {
 ```kotlin
 withPulsarClient("pulsar://localhost:6650") {
     // PulsarClient가 this로 제공됨
-    withProducer(Schema.STRING) { topic("orders") } {
+    withProducer(Schema.STRING, { topic("orders") }) {
         sendSuspend("order-1")
     }
 }
