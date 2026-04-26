@@ -229,6 +229,11 @@ jobs:
                   gradle-version: wrapper
                   cache-read-only: true
 
+          -   name: Build mock-web-server Docker image
+              run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+              env:
+                  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
           -   name: Test io http client modules
               uses: nick-fields/retry@v3
               with:
