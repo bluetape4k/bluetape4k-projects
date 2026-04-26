@@ -3,7 +3,9 @@ package io.bluetape4k.text.search
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.text.search.internal.InternalTrieConfig
+import io.bluetape4k.text.search.internal.OffsetMapping
 import io.bluetape4k.text.search.internal.TrieCore
+import io.bluetape4k.text.search.internal.applyPipeline
 import java.util.Locale
 
 /**
@@ -60,10 +62,14 @@ class AhoCorasickAutomaton<V> internal constructor(
             return emptyList()
         }
 
+        // 1. 유니코드 정규화 + offset mapping 구축 (NONE이면 mapping은 null)
+        val (normalizedText, mapping) = OffsetMapping.build(text, options.normalization)
+
+        // 2. ignoreCase 적용 — Locale.ROOT 기준 소문자 변환
         val processedText: CharSequence = if (options.ignoreCase) {
-            text.toString().lowercase(Locale.ROOT)
+            normalizedText.lowercase(Locale.ROOT)
         } else {
-            text
+            normalizedText
         }
 
         val emits = core.parseText(processedText)
@@ -75,10 +81,13 @@ class AhoCorasickAutomaton<V> internal constructor(
         for (emit in emits) {
             val keyword = emit.keyword ?: continue
             val value = values[keyword] ?: continue
+            // 정규화된 offset → 원본 offset 복원
+            val origStart = mapping?.toOriginal(emit.start) ?: emit.start
+            val origEnd = mapping?.toOriginalEndInclusive(emit.end) ?: emit.end
             matches.add(
                 AhoCorasickMatch(
-                    start = emit.start,
-                    end = emit.end,
+                    start = origStart,
+                    end = origEnd,
                     keyword = keyword,
                     value = value,
                 )
@@ -269,9 +278,11 @@ class AhoCorasickAutomaton<V> internal constructor(
          * @return 불변 상태의 [AhoCorasickAutomaton]
          */
         fun build(): AhoCorasickAutomaton<V> {
+            // 검색 시점과 동일한 파이프라인(NFC/NFKC 정규화 + ignoreCase)을 키워드에도 적용해야
+            // 매치 일관성이 보장된다.
             val normalizedValues = HashMap<String, V>(entries.size)
             entries.forEach { (keyword, value) ->
-                val normalized = if (opts.ignoreCase) keyword.lowercase(Locale.ROOT) else keyword
+                val normalized = applyPipeline(keyword, opts)
                 normalizedValues[normalized] = value
             }
 
