@@ -73,6 +73,46 @@ classDiagram
     class WatermarkFilter {
         +apply(image) ImmutableImage
     }
+    class ImageFilterChain {
+        +brightness(factor)
+        +contrast(factor)
+        +saturation(factor)
+        +hue(deltaDegrees)
+        +colorTemperature(kelvin)
+        +gaussianBlur(radius)
+        +medianBlur(radius, boundary)
+        +sepia()
+        +vignette()
+        +roundedCorners(radius)
+        +raw(filter)
+        +pixel(block)
+    }
+    class ColorSpaceConverter {
+        +rgbToHsv(r, g, b) FloatArray
+        +hsvToRgb(h, s, v) IntArray
+        +kelvinToRgb(kelvin) IntArray
+    }
+    class SaturationAdjustFilter {
+        +factor: Float
+        +apply(image) ImmutableImage
+    }
+    class HueAdjustFilter {
+        +deltaDegrees: Float
+        +apply(image) ImmutableImage
+    }
+    class ColorTemperatureFilter {
+        +kelvin: Int
+        +apply(image) ImmutableImage
+    }
+    class MedianBlurFilter {
+        +radius: Int
+        +boundary: MedianBoundaryMode
+        +apply(image) ImmutableImage
+    }
+    class RoundedCornerFilter {
+        +radius: Int
+        +apply(image) ImmutableImage
+    }
     class SuspendJpegWriter {
         +writeImage(image) ByteArray
     }
@@ -89,15 +129,31 @@ classDiagram
     ImmutableImage --> ImageScaler : uses
     ImmutableImage --> ImageSplitter : uses
     ImmutableImage --> WatermarkFilter : uses
+    ImmutableImage --> ImageFilterChain : applyFilters
     ImmutableImage --> SuspendJpegWriter : output
     ImmutableImage --> SuspendPngWriter : output
     ImmutableImage --> SuspendWebpWriter : output
     ImmutableImage --> SuspendGif2WebpWriter : output
+    ImageFilterChain --> SaturationAdjustFilter
+    ImageFilterChain --> HueAdjustFilter
+    ImageFilterChain --> ColorTemperatureFilter
+    ImageFilterChain --> MedianBlurFilter
+    ImageFilterChain --> RoundedCornerFilter
+    ColorSpaceConverter <-- SaturationAdjustFilter : uses
+    ColorSpaceConverter <-- HueAdjustFilter : uses
+    ColorSpaceConverter <-- ColorTemperatureFilter : uses
 
     style ImmutableImage fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ImageScaler fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     style ImageSplitter fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     style WatermarkFilter fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+    style ImageFilterChain fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style ColorSpaceConverter fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
+    style SaturationAdjustFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style HueAdjustFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style ColorTemperatureFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style MedianBlurFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
+    style RoundedCornerFilter fill:#FFF8E1,stroke:#FFD54F,color:#E65100
     style SuspendJpegWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style SuspendPngWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style SuspendWebpWriter fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
@@ -140,6 +196,14 @@ classDiagram
 | `similarity/KeypointSimilarity.kt`             | Block-Mean descriptor, bestRotationSimilarityTo         |
 | `similarity/SimilarityScaleUtils.kt`           | prepareForSimilarity — downscale before MSSIM           |
 | `fonts/FontSupport.kt`                         | Font utilities                           |
+| `filters/dsl/ImageFilterChain.kt`              | Filter/color correction DSL (`applyFilters`, `suspendApplyFilters`) |
+| `filters/dsl/ImageFilterChainDsl.kt`           | DSL member functions (40+ filters)       |
+| `filters/SaturationAdjustFilter.kt`            | HSV saturation adjustment filter        |
+| `filters/HueAdjustFilter.kt`                   | HSV hue rotation filter                  |
+| `filters/ColorTemperatureFilter.kt`            | Kelvin color temperature filter          |
+| `filters/MedianBlurFilter.kt`                  | Median blur noise reduction filter       |
+| `filters/RoundedCornerFilter.kt`               | Rounded corner alpha mask filter         |
+| `filters/ColorSpaceConverter.kt`               | RGB/HSV/YCbCr/Kelvin color space conversion |
 | `coroutines/SuspendImageWriter.kt`             | Async image writer interface             |
 | `coroutines/SuspendJpegWriter.kt`              | Async JPEG writer                        |
 | `coroutines/SuspendPngWriter.kt`               | Async PNG writer                         |
@@ -531,6 +595,72 @@ SuspendWebpWriter(
     lossless = false,
     noAlpha = false
 )
+```
+
+## Filter / Color Correction DSL (Issue #131)
+
+Package: `io.bluetape4k.images.filters.dsl`
+
+### `ImageFilterChain` DSL
+
+The `applyFilters { ... }` and `suspendApplyFilters { ... }` extension functions provide a fluent DSL for chaining image filters. Key design points:
+
+- `source.copy()` defensive copy ensures the original image is never mutated
+- Adjacent scrimage native filters are automatically batched into a `PipelineFilter` for performance
+- 40+ DSL member functions covering color/tone, style, blur, effects, and text
+
+```kotlin
+import io.bluetape4k.images.filters.dsl.*
+
+// Synchronous filter chain
+val result = image.applyFilters {
+    brightness(1.2f)
+    contrast(1.1)
+    saturation(1.15f)
+    sepia()
+}
+
+// Suspending (coroutine) filter chain
+val result2 = image.suspendApplyFilters {
+    gaussianBlur(3)
+    colorTemperature(3000)
+    vignette()
+}
+
+// Escape hatch: inject any custom filter
+val result3 = image.applyFilters {
+    raw(MyCustomFilter())
+    pixel { img -> img.flipX() }
+}
+```
+
+### New Filters (5 types)
+
+| Filter | DSL Function | Description |
+|--------|-------------|-------------|
+| `SaturationAdjustFilter` | `saturation(factor)` | HSV saturation multiplier (1.0=original, 0=grayscale) |
+| `HueAdjustFilter` | `hue(deltaDegrees)` | HSV hue rotation in degrees |
+| `ColorTemperatureFilter` | `colorTemperature(kelvin)` | Kelvin color temperature adjustment (1000–40000 K) |
+| `RoundedCornerFilter` | `roundedCorners(radius)` | Rounded corners with alpha mask |
+| `MedianBlurFilter` | `medianBlur(radius, boundary)` | Median blur noise reduction (`MedianBoundaryMode`: REPLICATE/REFLECT) |
+
+### `ColorSpaceConverter`
+
+Utility object for color space conversions used internally by the new filters.
+
+```kotlin
+import io.bluetape4k.images.filters.ColorSpaceConverter
+
+// RGB ↔ HSV
+val (h, s, v) = ColorSpaceConverter.rgbToHsv(255, 128, 0)
+val (r, g, b) = ColorSpaceConverter.hsvToRgb(30f, 1f, 1f)
+
+// Kelvin → RGB
+val (r, g, b) = ColorSpaceConverter.kelvinToRgb(6500)
+
+// Pixel array conversions (per-pixel bulk)
+val hsvArray = image.toHsvArray()     // FloatArray [h0,s0,v0, h1,s1,v1, ...]
+val ycbcrArray = image.toYCbCrArray() // FloatArray [y0,cb0,cr0, ...]
 ```
 
 ## Dependency
