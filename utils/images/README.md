@@ -27,6 +27,7 @@ flowchart LR
         WM["Watermark<br/>(WatermarkFilter)"]
         CP["Caption<br/>(CaptionFilter)"]
         PD["Padding<br/>(PaddingSupport)"]
+        TR["Transform<br/>(AutoCrop/SmartCrop/Rotate/Perspective/CLAHE)"]
     end
 
     subgraph Output["Async Output (Coroutines)"]
@@ -661,6 +662,142 @@ val (r, g, b) = ColorSpaceConverter.kelvinToRgb(6500)
 // Pixel array conversions (per-pixel bulk)
 val hsvArray = image.toHsvArray()     // FloatArray [h0,s0,v0, h1,s1,v1, ...]
 val ycbcrArray = image.toYCbCrArray() // FloatArray [y0,cb0,cr0, ...]
+```
+
+## Image Transforms
+
+Advanced image transformation operations backed by pure JVM (Java2D) with suspend variants.
+
+### Transform Architecture
+
+```mermaid
+flowchart TD
+    subgraph Transforms["transforms package"]
+        AC["AutoCrop\nautoCrop()"]
+        SC["SmartCrop\nsmartCrop(AspectRatio)"]
+        RT["Rotation\nrotateDegrees / flipH / flipV"]
+        PT["PerspectiveTransform\nperspectiveTransform(4pts)"]
+        HE["HistogramEqualization\nclahe / globalEqualize"]
+    end
+
+    subgraph DSL["applyFilters { } DSL"]
+        DO["ImageFilterChainTransformOps\nautoCrop / smartCrop / rotateDegrees\nrotateLeft / rotateRight\nflipH / flipV / perspective / clahe"]
+    end
+
+    ImmutableImage --> Transforms
+    Transforms --> ImmutableImage
+    DSL --> Transforms
+
+    classDef opStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    class AC,SC,RT,PT,HE opStyle
+    class DO dslStyle
+```
+
+### AutoCrop
+
+Remove background margins automatically.
+
+```kotlin
+// Auto-detect background from 4 corners
+val cropped = image.autoCrop(tolerance = 10, padding = 2)
+
+// Explicit background color
+val cropped2 = image.autoCrop(tolerance = 5, backgroundColor = Color.WHITE)
+
+// Suspend variant
+val cropped3 = image.suspendAutoCrop()
+```
+
+### SmartCrop
+
+Saliency-based crop (Sobel edge energy — not ML).
+
+```kotlin
+// Crop to 16:9 widescreen, keeping the most "interesting" region
+val wide = image.smartCrop(AspectRatio.WIDESCREEN)
+
+// Crop and resize to exact output dimensions
+val thumb = image.smartCropTo(400, 300)
+
+// Suspend variant
+val wide2 = image.suspendSmartCrop(AspectRatio.SQUARE)
+```
+
+`AspectRatio` presets: `SQUARE (1:1)`, `WIDESCREEN (16:9)`, `PORTRAIT (9:16)`, `STANDARD (4:3)`.
+
+### Rotation & Flip
+
+```kotlin
+// Arbitrary angle (transparent background, canvas auto-expanded)
+val rotated = image.rotateDegrees(45.0)
+val rotatedRed = image.rotateDegrees(30.0, background = Color.RED)
+
+// 90-degree multiples (native scrimage, lossless)
+val cw90  = image.rotateRight()
+val ccw90 = image.rotateLeft()
+
+// Flip
+val hFlip = image.flipHorizontal()
+val vFlip = image.flipVertical()
+
+// Suspend
+val async = image.suspendRotateDegrees(45.0)
+```
+
+### Perspective Transform
+
+4-point homography for document de-skewing and perspective correction.
+
+```kotlin
+val src = listOf(
+    ImagePoint(10.0, 10.0), ImagePoint(490.0, 0.0),
+    ImagePoint(500.0, 490.0), ImagePoint(0.0, 500.0),
+)
+val dst = listOf(
+    ImagePoint(0.0, 0.0), ImagePoint(499.0, 0.0),
+    ImagePoint(499.0, 499.0), ImagePoint(0.0, 499.0),
+)
+val corrected = image.perspectiveTransform(src, dst, outputWidth = 500, outputHeight = 500)
+
+// Suspend variant
+val async = image.suspendPerspectiveTransform(src, dst, 500, 500)
+```
+
+### CLAHE (Histogram Equalization)
+
+Contrast Limited Adaptive Histogram Equalization via YCbCr colour space.
+
+```kotlin
+// CLAHE with default tile/clip settings
+val enhanced = image.clahe()
+
+// Custom tile size and clip limit
+val enhanced2 = image.clahe(tileSize = 16, clipLimit = 3.0)
+
+// Global (single-tile) equalization
+val global = image.globalEqualize()
+
+// Suspend variant
+val async = image.suspendClahe(tileSize = 8, clipLimit = 2.0)
+```
+
+### DSL Integration
+
+All transforms are available inside `applyFilters { }` / `suspendApplyFilters { }` DSL.
+
+```kotlin
+val result = image.applyFilters {
+    autoCrop(tolerance = 10, backgroundColor = Color.WHITE)
+    rotateDegrees(15.0)
+    clahe()
+}
+
+// Suspend DSL
+val asyncResult = image.suspendApplyFilters {
+    smartCrop(AspectRatio.WIDESCREEN)
+    flipHorizontal()
+}
 ```
 
 ## Dependency
