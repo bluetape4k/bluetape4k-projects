@@ -483,6 +483,7 @@ jobs:
               :bluetape4k-lettuce:koverXmlReport
               :bluetape4k-cache-lettuce:koverXmlReport
               :bluetape4k-cache-redisson:koverXmlReport
+            needs_mock_server: false
           - group: kafka-resilience
             test_tasks: >-
               :bluetape4k-kafka:test
@@ -492,6 +493,7 @@ jobs:
               :bluetape4k-kafka:koverXmlReport
               :bluetape4k-resilience4j:koverXmlReport
               :bluetape4k-bucket4j:koverXmlReport
+            needs_mock_server: false
           - group: cache-misc
             test_tasks: >-
               :bluetape4k-micrometer:test
@@ -501,6 +503,7 @@ jobs:
               :bluetape4k-micrometer:koverXmlReport
               :bluetape4k-cache:koverXmlReport
               :bluetape4k-cache-hazelcast:koverXmlReport
+            needs_mock_server: true
     steps:
       - uses: actions/checkout@v4
 
@@ -513,6 +516,12 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Build mock-web-server Docker image
+        if: ${{ matrix.needs_mock_server }}
+        run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test infra modules (${{ matrix.group }})
         env:
