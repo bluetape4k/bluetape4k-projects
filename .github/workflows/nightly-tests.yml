@@ -147,7 +147,7 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Test io modules (pure JVM)
+      -   name: Test io modules
         run: |
           ./gradlew \
             :bluetape4k-io:test \
@@ -156,9 +156,12 @@ jobs:
             :bluetape4k-avro:test \
             :bluetape4k-json:test \
             :bluetape4k-fastjson2:test \
+              :bluetape4k-jackson2:test \
             :bluetape4k-jackson3:test \
             :bluetape4k-netty:test \
             :bluetape4k-grpc:test \
+              :bluetape4k-protobuf:test \
+              :bluetape4k-tink:test \
             --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -173,9 +176,12 @@ jobs:
             :bluetape4k-avro:koverXmlReport \
             :bluetape4k-json:koverXmlReport \
             :bluetape4k-fastjson2:koverXmlReport \
+              :bluetape4k-jackson2:koverXmlReport \
             :bluetape4k-jackson3:koverXmlReport \
             :bluetape4k-netty:koverXmlReport \
             :bluetape4k-grpc:koverXmlReport \
+              :bluetape4k-protobuf:koverXmlReport \
+              :bluetape4k-tink:koverXmlReport \
             --parallel
         continue-on-error: true
 
@@ -195,6 +201,62 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
+    # ── IO HTTP 클라이언트 모듈 테스트 (Testcontainers) ──────────────────────
+  test-io-http:
+      name: Test / IO HTTP
+      runs-on: ubuntu-latest
+      needs: build
+      steps:
+          -   uses: actions/checkout@v4
+
+          -   uses: actions/setup-java@v4
+              with:
+                  java-version: ${{ env.JAVA_VERSION }}
+                  distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+          -   uses: gradle/actions/setup-gradle@v4
+              with:
+                  gradle-version: wrapper
+                  cache-read-only: true
+
+          -   name: Test io http client modules
+              run: |
+                  ./gradlew \
+                    :bluetape4k-feign:test \
+                    :bluetape4k-http:test \
+                    :bluetape4k-retrofit2:test \
+                    :bluetape4k-vertx:test \
+                    --parallel
+              env:
+                  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+          -   name: Generate Kover XML report
+              if: always()
+              run: |
+                  ./gradlew \
+                    :bluetape4k-feign:koverXmlReport \
+                    :bluetape4k-http:koverXmlReport \
+                    :bluetape4k-retrofit2:koverXmlReport \
+                    :bluetape4k-vertx:koverXmlReport \
+                    --parallel
+              continue-on-error: true
+
+          -   name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: nightly-test-results-io-http
+                  path: '**/build/test-results/test/*.xml'
+                  retention-days: 14
+
+          -   name: Upload coverage report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: nightly-coverage-io-http
+                  path: '**/build/reports/kover/'
+                  retention-days: 14
+
   # ── Utils 모듈 테스트 ─────────────────────────────────────────────────────
   test-utils:
     name: Test / Utils
@@ -213,7 +275,7 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Test utils modules (pure JVM)
+      -   name: Test utils modules
         run: |
           ./gradlew \
             :bluetape4k-idgenerators:test \
@@ -230,6 +292,9 @@ jobs:
             :bluetape4k-geo:test \
             :bluetape4k-images:test \
             :bluetape4k-science:test \
+              :bluetape4k-lingua:test \
+              :bluetape4k-text-search:test \
+              :bluetape4k-batch:test \
             -PincludeTags=slow-netcdf \
             --parallel
         env:
@@ -255,6 +320,9 @@ jobs:
             :bluetape4k-geo:koverXmlReport \
             :bluetape4k-images:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
+              :bluetape4k-lingua:koverXmlReport \
+              :bluetape4k-text-search:koverXmlReport \
+              :bluetape4k-batch:koverXmlReport \
             --parallel
         continue-on-error: true
 
@@ -504,6 +572,14 @@ jobs:
               :bluetape4k-cache:koverXmlReport
               :bluetape4k-cache-hazelcast:koverXmlReport
             needs_mock_server: true
+          -   group: search-messaging
+              test_tasks: >-
+                  :bluetape4k-elasticsearch:test
+                  :bluetape4k-nats:test
+              kover_tasks: >-
+                  :bluetape4k-elasticsearch:koverXmlReport
+                  :bluetape4k-nats:koverXmlReport
+              needs_mock_server: false
     steps:
       - uses: actions/checkout@v4
 
@@ -700,9 +776,18 @@ jobs:
             test_tasks: >-
               :bluetape4k-mongodb:test
               :bluetape4k-cassandra:test
+                :bluetape4k-jwt:test
             kover_tasks: >-
               :bluetape4k-mongodb:koverXmlReport
               :bluetape4k-cassandra:koverXmlReport
+                :bluetape4k-jwt:koverXmlReport
+          -   group: ext
+              test_tasks: >-
+                  :bluetape4k-exposed-clickhouse:test
+                  :bluetape4k-exposed-bigquery:test
+              kover_tasks: >-
+                  :bluetape4k-exposed-clickhouse:koverXmlReport
+                  :bluetape4k-exposed-bigquery:koverXmlReport
     steps:
       - uses: actions/checkout@v4
 
@@ -1075,6 +1160,7 @@ jobs:
       - detekt
       - test-core
       - test-io
+      - test-io-http
       - test-utils
       - test-misc
       - test-exposed-core
@@ -1120,6 +1206,7 @@ jobs:
       - detekt
       - test-core
       - test-io
+      - test-io-http
       - test-utils
       - test-misc
       - test-exposed-core
