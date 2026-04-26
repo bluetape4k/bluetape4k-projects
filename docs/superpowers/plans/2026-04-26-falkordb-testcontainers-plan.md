@@ -222,24 +222,27 @@ compileOnly(Libs.jfalkordb)
    | 9 | ``blank image 는 허용하지 않는다`` | `assertFailsWith<IllegalArgumentException> { FalkorDBServer(image = " ") }` |
    | 10 | ``blank tag 는 허용하지 않는다`` | `assertFailsWith<IllegalArgumentException> { FalkorDBServer(tag = " ") }` |
 
-5. **테스트 #8 (jfalkordb 통합)** — spec §4.3 의 패턴:
+5. **테스트 #8 (jfalkordb 통합)** — 검증된 jfalkordb 0.7.0 API 기반:
    ```kotlin
+   // Driver extends Closeable, Graph(GraphContextGenerator) extends Closeable → .use {} 중첩
    FalkorDB.driver(falkordb.host, falkordb.port).use { driver ->
-       val graph = driver.graph(GRAPH_NAME)
-       try {
-           graph.query("CREATE (:Person {name: 'Alice'})")
-           val rows = graph.query("MATCH (p:Person) RETURN p.name AS name").toList()
-           rows.shouldNotBeEmpty()
-           rows.first().getValue("name").toString() shouldBeEqualTo "Alice"
-       } finally {
-           graph.deleteGraph()
+       driver.graph(GRAPH_NAME).use { graph ->
+           try {
+               graph.query("CREATE (:Person {name: 'Alice'})")
+               // ResultSet extends Iterable<Record> → toList() 사용
+               val rows = graph.query("MATCH (p:Person) RETURN p.name AS name").toList()
+               rows.shouldNotBeEmpty()
+               // Record.getString(key) 존재 (getValue(key) 도 가능)
+               rows.first().getString("name") shouldBeEqualTo "Alice"
+           } finally {
+               runCatching { graph.deleteGraph() }
+           }
        }
    }
    ```
-   - `import com.falkordb.FalkorDB`
-   - `driver.graph(name)` — `selectGraph()` 가 아님 (jfalkordb API).
-   - `record.getValue(key)` — `getString(key)` 가 아님.
-   - **`deleteGraph()` cleanup 필수** — 다른 테스트 클래스 격리.
+   - `driver.graph(name)` → `GraphContextGenerator` (extends `Graph extends Closeable`)
+   - `Record.getString(key)` — jfalkordb 0.7.0 에 실재 확인 (javap 검증 완료)
+   - **`deleteGraph()` + `runCatching`** — assert 실패해도 graph 정리 보장.
 
 6. **Kluent matcher 규칙** (CRITICAL — `feedback_kluent_comparison_matchers`):
    - `> < >= <=` 비교는 `shouldBeGreaterThan` / `shouldBeLessThan` / `shouldBeGreaterOrEqualTo` 등 사용. `(x > y).shouldBeTrue()` 금지.

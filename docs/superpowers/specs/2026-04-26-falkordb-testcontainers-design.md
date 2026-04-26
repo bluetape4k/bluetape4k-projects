@@ -412,18 +412,19 @@ class FalkorDBServerTest: AbstractContainerTest() {
 
     @Test
     fun `jfalkordb 클라이언트로 그래프 쿼리를 실행할 수 있어야 한다`() {
-        // driver.graph() — jfalkordb API (selectGraph() 없음)
+        // Driver, Graph 모두 Closeable → .use {} 중첩 사용
+        // ResultSet 은 Iterable<Record> → toList() 사용
+        // Record.getString(key) 존재 — getValue(key) 도 가능
         FalkorDB.driver(falkordb.host, falkordb.port).use { driver ->
-            val graph = driver.graph(GRAPH_NAME)
-            try {
-                graph.query("CREATE (:Person {name: 'Alice'})")
-                // ResultSet 은 Iterable<Record> — hasNext()/next() 직접 호출 불가, toList() 사용
-                val rows = graph.query("MATCH (p:Person) RETURN p.name AS name").toList()
-                rows.shouldNotBeEmpty()
-                // record.getValue() — jfalkordb API (getString() 없음)
-                rows.first().getValue("name").toString() shouldBeEqualTo "Alice"
-            } finally {
-                graph.deleteGraph()
+            driver.graph(GRAPH_NAME).use { graph ->
+                try {
+                    graph.query("CREATE (:Person {name: 'Alice'})")
+                    val rows = graph.query("MATCH (p:Person) RETURN p.name AS name").toList()
+                    rows.shouldNotBeEmpty()
+                    rows.first().getString("name") shouldBeEqualTo "Alice"
+                } finally {
+                    runCatching { graph.deleteGraph() }
+                }
             }
         }
     }
