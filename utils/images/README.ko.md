@@ -28,6 +28,7 @@ flowchart LR
         WM["워터마크<br/>(WatermarkFilter)"]
         CP["캡션<br/>(CaptionFilter)"]
         PD["패딩<br/>(PaddingSupport)"]
+        TR["변환<br/>(AutoCrop/SmartCrop/회전/원근/CLAHE)"]
     end
 
     subgraph 출력["비동기 저장 (Coroutines)"]
@@ -687,6 +688,142 @@ val (r, g, b) = ColorSpaceConverter.kelvinToRgb(6500)
 // 픽셀 배열 일괄 변환
 val hsvArray = image.toHsvArray()     // FloatArray [h0,s0,v0, h1,s1,v1, ...]
 val ycbcrArray = image.toYCbCrArray() // FloatArray [y0,cb0,cr0, ...]
+```
+
+## 이미지 변환 (Issue #132)
+
+순수 JVM(Java2D) 기반 고급 이미지 변환 연산. 모든 연산은 suspend 변형을 제공합니다.
+
+### 변환 아키텍처
+
+```mermaid
+flowchart TD
+    subgraph Transforms["transforms 패키지"]
+        AC["AutoCrop\nautoCrop()"]
+        SC["SmartCrop\nsmartCrop(AspectRatio)"]
+        RT["Rotation\nrotateDegrees / flipH / flipV"]
+        PT["PerspectiveTransform\nperspectiveTransform(4pts)"]
+        HE["HistogramEqualization\nclahe / globalEqualize"]
+    end
+
+    subgraph DSL["applyFilters { } DSL"]
+        DO["ImageFilterChainTransformOps\nautoCrop / smartCrop / rotateDegrees\nrotateLeft / rotateRight\nflipH / flipV / perspective / clahe"]
+    end
+
+    ImmutableImage --> Transforms
+    Transforms --> ImmutableImage
+    DSL --> Transforms
+
+    classDef opStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
+    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    class AC,SC,RT,PT,HE opStyle
+    class DO dslStyle
+```
+
+### AutoCrop — 자동 여백 제거
+
+배경색을 자동으로 감지하여 불필요한 여백을 제거합니다.
+
+```kotlin
+// 4개 모서리 평균으로 배경색 자동 감지
+val cropped = image.autoCrop(tolerance = 10, padding = 2)
+
+// 배경색 명시
+val cropped2 = image.autoCrop(tolerance = 5, backgroundColor = Color.WHITE)
+
+// Suspend 변형
+val cropped3 = image.suspendAutoCrop()
+```
+
+### SmartCrop — 중요 영역 자동 크롭
+
+Sobel 엣지 에너지 기반 휴리스틱 saliency (ML 없음).
+
+```kotlin
+// 16:9 와이드스크린 비율로 가장 흥미로운 영역 크롭
+val wide = image.smartCrop(AspectRatio.WIDESCREEN)
+
+// 크롭 후 정확한 출력 크기로 리사이즈
+val thumb = image.smartCropTo(400, 300)
+
+// Suspend 변형
+val wide2 = image.suspendSmartCrop(AspectRatio.SQUARE)
+```
+
+`AspectRatio` 프리셋: `SQUARE (1:1)`, `WIDESCREEN (16:9)`, `PORTRAIT (9:16)`, `STANDARD (4:3)`.
+
+### Rotation & Flip — 회전 및 반전
+
+```kotlin
+// 임의 각도 회전 (투명 배경, 캔버스 자동 확장)
+val rotated = image.rotateDegrees(45.0)
+val rotatedRed = image.rotateDegrees(30.0, background = Color.RED)
+
+// 90도 단위 (scrimage 네이티브, 무손실)
+val cw90  = image.rotateRight()
+val ccw90 = image.rotateLeft()
+
+// 반전
+val hFlip = image.flipHorizontal()
+val vFlip = image.flipVertical()
+
+// Suspend
+val async = image.suspendRotateDegrees(45.0)
+```
+
+### Perspective Transform — 원근 변환
+
+4점 호모그래피를 이용한 문서 왜곡 보정 및 원근 교정.
+
+```kotlin
+val src = listOf(
+    ImagePoint(10.0, 10.0), ImagePoint(490.0, 0.0),
+    ImagePoint(500.0, 490.0), ImagePoint(0.0, 500.0),
+)
+val dst = listOf(
+    ImagePoint(0.0, 0.0), ImagePoint(499.0, 0.0),
+    ImagePoint(499.0, 499.0), ImagePoint(0.0, 499.0),
+)
+val corrected = image.perspectiveTransform(src, dst, outputWidth = 500, outputHeight = 500)
+
+// Suspend 변형
+val async = image.suspendPerspectiveTransform(src, dst, 500, 500)
+```
+
+### CLAHE — 히스토그램 균일화
+
+YCbCr 색공간(BT.601) 기반 CLAHE(Contrast Limited Adaptive Histogram Equalization).
+
+```kotlin
+// 기본 설정 (tileSize=8, clipLimit=2.0)
+val enhanced = image.clahe()
+
+// 타일/클립 직접 지정
+val enhanced2 = image.clahe(tileSize = 16, clipLimit = 3.0)
+
+// 전역(단일 타일) 균일화
+val global = image.globalEqualize()
+
+// Suspend 변형
+val async = image.suspendClahe(tileSize = 8, clipLimit = 2.0)
+```
+
+### DSL 통합
+
+모든 변환은 `applyFilters { }` / `suspendApplyFilters { }` DSL에서 사용 가능합니다.
+
+```kotlin
+val result = image.applyFilters {
+    autoCrop(tolerance = 10, backgroundColor = Color.WHITE)
+    rotateDegrees(15.0)
+    clahe()
+}
+
+// Suspend DSL
+val asyncResult = image.suspendApplyFilters {
+    smartCrop(AspectRatio.WIDESCREEN)
+    flipHorizontal()
+}
 ```
 
 ## 의존성 추가
