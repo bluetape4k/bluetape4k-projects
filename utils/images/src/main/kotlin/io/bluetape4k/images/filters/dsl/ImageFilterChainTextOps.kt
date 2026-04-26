@@ -63,6 +63,8 @@ fun ImageFilterChain.watermarkAt(
  * @param textAlpha 텍스트 투명도 (기본값: 0.5)
  * @param captionAlpha 캡션 배경 투명도 (기본값: 0.1)
  * @param padding 캡션 패딩 (기본값: Padding(20))
+ * @param antiAlias 안티앨리어싱 여부 (기본값: true)
+ * @param fullWidth 전체 너비 사용 여부 (기본값: false)
  */
 fun ImageFilterChain.caption(
     text: String,
@@ -72,6 +74,8 @@ fun ImageFilterChain.caption(
     textAlpha: Double = 0.5,
     captionAlpha: Double = 0.1,
     padding: Padding = Padding(20),
+    antiAlias: Boolean = true,
+    fullWidth: Boolean = false,
 ) {
-    addNative(captionFilterOf(text, position, font, textAlpha, false, false, color, captionAlpha, padding))
+    addNative(captionFilterOf(text, position, font, textAlpha, antiAlias, fullWidth, color, captionAlpha, padding))
 }

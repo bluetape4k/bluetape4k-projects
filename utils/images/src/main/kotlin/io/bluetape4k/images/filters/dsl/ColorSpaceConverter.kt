@@ -141,6 +141,22 @@ object ColorSpaceConverter {
      * @param kelvin 색온도 (켈빈 단위)
      * @param out 결과를 저장할 IntArray (크기 >= 3). out[0]=R, out[1]=G, out[2]=B
      */
+    /**
+     * RGB를 YCbCr(BT.601)로 변환한 결과를 [out] 배열에 직접 씁니다. (박싱 회피용)
+     *
+     * @param r Red 채널 값 (0..255)
+     * @param g Green 채널 값 (0..255)
+     * @param b Blue 채널 값 (0..255)
+     * @param out 결과를 저장할 FloatArray (크기 >= 3). out[0]=Y, out[1]=Cb, out[2]=Cr
+     */
+    @JvmSynthetic
+    internal fun rgbToYCbCrInto(r: Int, g: Int, b: Int, out: FloatArray) {
+        val rf = r.toFloat(); val gf = g.toFloat(); val bf = b.toFloat()
+        out[0] = 0.257f * rf + 0.504f * gf + 0.098f * bf + 16f
+        out[1] = -0.148f * rf - 0.291f * gf + 0.439f * bf + 128f
+        out[2] = 0.439f * rf - 0.368f * gf - 0.071f * bf + 128f
+    }
+
     @JvmSynthetic
     internal fun kelvinToRgbInto(kelvin: Int, out: IntArray) {
         val k = kelvin.coerceIn(KELVIN_MIN, KELVIN_MAX)

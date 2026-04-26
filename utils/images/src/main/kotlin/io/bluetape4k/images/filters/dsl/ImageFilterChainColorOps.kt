@@ -72,15 +72,17 @@ fun ImageFilterChain.hue(deltaDegrees: Float) {
 /**
  * 각 RGB 채널에 개별 배율을 적용합니다.
  *
- * @param r Red 채널 배율 (기본값 1.0)
- * @param g Green 채널 배율 (기본값 1.0)
- * @param b Blue 채널 배율 (기본값 1.0)
+ * @param r Red 채널 배율 (기본값 1.0). 0 이상이어야 합니다.
+ * @param g Green 채널 배율 (기본값 1.0). 0 이상이어야 합니다.
+ * @param b Blue 채널 배율 (기본값 1.0). 0 이상이어야 합니다.
  */
 fun ImageFilterChain.rgb(r: Float = 1f, g: Float = 1f, b: Float = 1f) {
+    require(r >= 0f && g >= 0f && b >= 0f) { "rgb factors must be >= 0, but were ($r, $g, $b)" }
     addPixel { image ->
-        val raster = image.awt().raster
-        val width = image.width
-        val height = image.height
+        val target = image.copy()
+        val raster = target.awt().raster
+        val width = target.width
+        val height = target.height
         val pixel = IntArray(raster.numBands.coerceAtLeast(3))
         for (y in 0 until height) {
             for (x in 0 until width) {
@@ -91,7 +93,7 @@ fun ImageFilterChain.rgb(r: Float = 1f, g: Float = 1f, b: Float = 1f) {
                 raster.setPixel(x, y, pixel)
             }
         }
-        image
+        target
     }
 }
 

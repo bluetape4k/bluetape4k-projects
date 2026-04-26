@@ -25,6 +25,9 @@ class ColorTemperatureFilter(private val kelvin: Int) : Filter {
 
     override fun apply(image: ImmutableImage) {
         val (tr, tg, tb) = ColorSpaceConverter.kelvinToRgb(kelvin)
+        val rf = tr / 255f
+        val gf = tg / 255f
+        val bf = tb / 255f
         val raster = image.awt().raster
         val width = image.width
         val height = image.height
@@ -33,9 +36,9 @@ class ColorTemperatureFilter(private val kelvin: Int) : Filter {
         for (y in 0 until height) {
             for (x in 0 until width) {
                 raster.getPixel(x, y, pixel)
-                pixel[0] = (pixel[0] * tr / 255).coerceIn(0, 255)
-                pixel[1] = (pixel[1] * tg / 255).coerceIn(0, 255)
-                pixel[2] = (pixel[2] * tb / 255).coerceIn(0, 255)
+                pixel[0] = (pixel[0] * rf).toInt().coerceIn(0, 255)
+                pixel[1] = (pixel[1] * gf).toInt().coerceIn(0, 255)
+                pixel[2] = (pixel[2] * bf).toInt().coerceIn(0, 255)
                 raster.setPixel(x, y, pixel)
             }
         }

@@ -27,12 +27,13 @@ fun ImmutableImage.toHsvArray(): FloatArray {
 fun ImmutableImage.toYCbCrArray(): FloatArray {
     val pixels = this.pixels()
     val result = FloatArray(pixels.size * 3)
+    val out = FloatArray(3)
     for (i in pixels.indices) {
         val p = pixels[i]
-        val (y, cb, cr) = ColorSpaceConverter.rgbToYCbCr(p.red(), p.green(), p.blue())
-        result[i * 3] = y
-        result[i * 3 + 1] = cb
-        result[i * 3 + 2] = cr
+        ColorSpaceConverter.rgbToYCbCrInto(p.red(), p.green(), p.blue(), out)
+        result[i * 3] = out[0]
+        result[i * 3 + 1] = out[1]
+        result[i * 3 + 2] = out[2]
     }
     return result
 }

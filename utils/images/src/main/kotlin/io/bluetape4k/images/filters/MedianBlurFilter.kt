@@ -81,12 +81,10 @@ class MedianBlurFilter(
     private fun clampOrReflect(pos: Int, size: Int): Int = when (boundary) {
         MedianBoundaryMode.REPLICATE -> pos.coerceIn(0, size - 1)
         MedianBoundaryMode.REFLECT -> {
-            val reflected = when {
-                pos < 0 -> -pos - 1            // 경계 반사 (좌/상단)
-                pos >= size -> 2 * size - pos - 1  // 경계 반사 (우/하단)
-                else -> pos
-            }
-            reflected.coerceIn(0, size - 1)    // 반사 범위 초과 시 안전 clamp
+            // 주기 2*size 기반 iterative reflection — radius >= size 인 경우에도 올바른 결과
+            val period = 2 * size
+            val p = ((pos % period) + period) % period
+            if (p >= size) period - 1 - p else p
         }
     }
 }

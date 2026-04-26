@@ -28,8 +28,8 @@ fun ImageFilterChain.gaussianBlur(radius: Int = 2) {
  * @param distance 블러 거리
  * @param angle 블러 각도 (라디안)
  */
-fun ImageFilterChain.motionBlur(distance: Float, angle: Float) {
-    addNative(MotionBlurFilter(distance.toDouble(), angle.toDouble()))
+fun ImageFilterChain.motionBlur(distance: Double, angle: Double) {
+    addNative(MotionBlurFilter(distance, angle))
 }
 
 /** 선명도를 높입니다. */
@@ -42,11 +42,7 @@ fun ImageFilterChain.unsharp() {
     addNative(UnsharpFilter())
 }
 
-/**
- * 노이즈를 감소시킵니다.
- *
- * @param threshold 노이즈 임계값 (기본값 8)
- */
-fun ImageFilterChain.noiseReduction(threshold: Int = 8) {
+/** 노이즈를 감소시킵니다. (scrimage [NoiseReductionFilter] — 매개변수 없음) */
+fun ImageFilterChain.noiseReduction() {
     addNative(NoiseReductionFilter())
 }
