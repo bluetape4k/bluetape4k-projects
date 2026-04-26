@@ -85,7 +85,7 @@ All tools installed at `/opt/homebrew/bin/`.
 | `aws/`           | Java SDK v2, 3-tier API (sync→async→coroutines)                                                                             |
 | `aws-kotlin/`    | Kotlin SDK, native suspend                                                                                                  |
 | `data/`          | `exposed-*` (core/dao/jdbc/r2dbc/cache/db-specific), `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra`                   |
-| `infra/`         | `lettuce`, `redisson`, `kafka`, `nats`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`                |
+| `infra/`         | `lettuce`, `redisson`, `kafka`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`, `elasticsearch`       |
 | `spring-boot3/`  | WebFlux+Coroutines, Exposed JDBC/R2DBC repos, Hibernate Lettuce cache, Spring Batch                                         |
 | `spring-boot4/`  | Same as boot3 — use `implementation(platform(Libs.spring_boot4_dependencies))` (not `dependencyManagement`)                 |
 | `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `lingua`, `states`, `workflow`, `measured`, `money`, `text-search`      |

@@ -174,6 +174,7 @@ object Versions {
 
     const val cassandra = "4.19.2"          // https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
     const val elasticsearch = "9.2.4"       // https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
+    const val elasticsearch_java = "9.3.3"  // https://mvnrepository.com/artifact/co.elastic.clients/elasticsearch-java
 
     const val kafka = "3.8.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
     const val spring_kafka = "3.3.13"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
@@ -1040,6 +1041,7 @@ object Libs {
     fun elasticsearch(module: String) = "org.elasticsearch.client:elasticsearch-$module:${Versions.elasticsearch}"
     val elasticsearch_rest_client = elasticsearch("rest-client")
     val elasticsearch_rest_client_sniffer = elasticsearch("rest-client-sniffer")
+    const val elasticsearch_java = "co.elastic.clients:elasticsearch-java:${Versions.elasticsearch_java}"
 
     // InfluxDB
     const val influxdb_java = "org.influxdb:influxdb-java:2.25"    // https://mvnrepository.com/artifact/org.influxdb/influxdb-java

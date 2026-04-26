@@ -109,3 +109,4 @@ out/
 # Apache Ignite embedded mode runtime data
 **/cache-ignite2/ignite/
 .worktrees/
+.claude/lib-sources/
