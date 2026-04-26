@@ -1,6 +1,5 @@
 package io.bluetape4k.text.search
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
 
 /**
@@ -29,8 +28,6 @@ annotation class AhoCorasickDsl
  */
 @AhoCorasickDsl
 class AhoCorasickBuilder<V> internal constructor() {
-
-    companion object : KLogging()
 
     /** 대소문자를 무시할지 여부 (기본값: `false`) */
     var ignoreCase: Boolean = false

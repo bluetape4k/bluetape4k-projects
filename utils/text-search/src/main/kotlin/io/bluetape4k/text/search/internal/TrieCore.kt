@@ -340,7 +340,7 @@ internal class TrieCore(private val config: InternalTrieConfig = InternalTrieCon
         var thisState = currentState
         var nextState = thisState.nextState(ch)
         while (nextState == null) {
-            thisState = thisState.failure!!
+            thisState = requireNotNull(thisState.failure) { "failure state must be set after constructFailureStates()" }
             nextState = thisState.nextState(ch)
         }
         return nextState
@@ -368,12 +368,12 @@ internal class TrieCore(private val config: InternalTrieConfig = InternalTrieCon
                 }
                 queue.add(targetState)
 
-                var traceFailureState = currentState.failure!!
+                var traceFailureState = requireNotNull(currentState.failure) { "failure state must be set" }
                 while (traceFailureState.nextState(transition) == null) {
-                    traceFailureState = traceFailureState.failure!!
+                    traceFailureState = requireNotNull(traceFailureState.failure) { "failure state must be set" }
                 }
 
-                val newFailureState = traceFailureState.nextState(transition)!!
+                val newFailureState = requireNotNull(traceFailureState.nextState(transition)) { "nextState must exist after failure traversal" }
                 targetState.failure = newFailureState
                 targetState.addEmits(newFailureState.emit())
             }

@@ -122,10 +122,22 @@ class AhoCorasickAutomaton<V> internal constructor(
     /**
      * 입력 텍스트에 등록된 키워드 중 하나라도 매치되면 `true`를 반환한다.
      *
+     * `parseText()`와 달리 전체 매치 목록을 생성하지 않고 첫 번째 매치 발견 시 즉시 반환하므로
+     * 존재 여부만 확인할 때 더 효율적이다.
+     *
      * @param text 검색할 입력 텍스트
      * @return 매치 존재 여부
      */
-    fun containsMatch(text: CharSequence): Boolean = parseText(text).isNotEmpty()
+    fun containsMatch(text: CharSequence): Boolean {
+        if (text.isEmpty() || values.isEmpty()) return false
+        val (normalizedText, _) = OffsetMapping.build(text, options.normalization)
+        val processedText: CharSequence = if (options.ignoreCase) {
+            normalizedText.lowercase(Locale.ROOT)
+        } else {
+            normalizedText
+        }
+        return core.containsMatch(processedText)
+    }
 
     /**
      * 입력 텍스트를 매치([SearchToken.Match])와 비매치([SearchToken.Fragment]) 토큰으로 분해한다.
@@ -151,7 +163,14 @@ class AhoCorasickAutomaton<V> internal constructor(
         val tokens = ArrayList<SearchToken<V>>(matches.size * 2 + 1)
         var lastEnd = 0  // exclusive cursor in `original`
 
-        for (match in matches) {
+        // allowOverlaps=true일 때도 tokenize는 비겹침 시퀀스를 생성해야 하므로
+        // replaceAll과 동일하게 start ASC, length DESC 정렬 후 겹침 skip
+        val sorted = matches.sortedWith(
+            compareBy<AhoCorasickMatch<V>> { it.start }.thenByDescending { it.length }
+        )
+
+        for (match in sorted) {
+            if (match.start < lastEnd) continue  // 앞 매치와 겹치는 경우 skip
             // 비매치 구간 (lastEnd ~ match.start)
             if (match.start > lastEnd) {
                 tokens.add(SearchToken.Fragment(original.substring(lastEnd, match.start)))
