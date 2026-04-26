@@ -72,4 +72,37 @@ class RoundedCornerFilterTest : AbstractFilterTest() {
         val centerAlpha = (result.awt().getRGB(128, 128) ushr 24) and 0xFF
         centerAlpha shouldBeEqualTo 255
     }
+
+    /**
+     * 256×256 컬러 타일 이미지를 생성합니다 (골든 이미지 비교용).
+     */
+    private fun createColorTestImage(): ImmutableImage {
+        val buffered = BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB)
+        val g = buffered.createGraphics()
+        try {
+            val colors = listOf(
+                java.awt.Color.RED, java.awt.Color.GREEN, java.awt.Color.BLUE, java.awt.Color.YELLOW,
+                java.awt.Color.CYAN, java.awt.Color.MAGENTA, java.awt.Color.ORANGE, java.awt.Color.PINK,
+            )
+            var idx = 0
+            for (row in 0 until 4) {
+                for (col in 0 until 4) {
+                    g.color = colors[idx % colors.size]; idx++
+                    g.fillRect(col * 64, row * 64, 64, 64)
+                }
+            }
+        } finally {
+            g.dispose()
+        }
+        return ImmutableImage.fromAwt(buffered)
+    }
+
+    /**
+     * radius=32 적용 결과가 골든 이미지와 일치해야 합니다 (회귀 검증).
+     */
+    @Test
+    fun `radius=32 결과는 골든 이미지와 일치한다`() {
+        val result = createColorTestImage().filter(roundedCornerFilterOf(32))
+        assertSimilarToResource(result, "expected_rounded_32.png", tolerance = 3)
+    }
 }

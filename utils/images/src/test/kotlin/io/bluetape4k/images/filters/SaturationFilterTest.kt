@@ -78,6 +78,15 @@ class SaturationFilterTest : AbstractFilterTest() {
     }
 
     /**
+     * factor=1.5 적용 결과가 골든 이미지와 일치해야 합니다 (회귀 검증).
+     */
+    @Test
+    fun `factor=1_5 결과는 골든 이미지와 일치한다`() {
+        val result = createTestImage().copy().filter(saturationFilterOf(1.5f))
+        assertSimilarToResource(result, "expected_saturation_1_5.png", tolerance = 3)
+    }
+
+    /**
      * factor=1.5 일 때 원본보다 평균 채도(HSV S 채널)가 높아야 합니다.
      */
     @Test

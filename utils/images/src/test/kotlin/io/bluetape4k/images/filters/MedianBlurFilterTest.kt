@@ -146,4 +146,13 @@ class MedianBlurFilterTest: AbstractFilterTest() {
         // median 필터는 임펄스 노이즈를 효과적으로 제거해야 함
         noiseAfter shouldBeLessThan noiseBefore
     }
+
+    /**
+     * radius=2 REPLICATE 결과가 골든 이미지와 일치해야 합니다 (회귀 검증).
+     */
+    @Test
+    fun `radius=2 REPLICATE 결과는 골든 이미지와 일치한다`() {
+        val result = createColoredImage().filter(medianBlurFilterOf(2, MedianBoundaryMode.REPLICATE))
+        assertSimilarToResource(result, "expected_median_2.png", tolerance = 3)
+    }
 }

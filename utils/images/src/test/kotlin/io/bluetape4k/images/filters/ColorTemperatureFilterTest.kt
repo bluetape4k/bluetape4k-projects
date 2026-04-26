@@ -101,4 +101,13 @@ class ColorTemperatureFilterTest : AbstractFilterTest() {
 
         resultBMean.toLong() shouldBeGreaterOrEqualTo sourceBMean.toLong()
     }
+
+    /**
+     * kelvin=3000 적용 결과가 골든 이미지와 일치해야 합니다 (회귀 검증).
+     */
+    @Test
+    fun `kelvin=3000 결과는 골든 이미지와 일치한다`() {
+        val result = createTestImage().copy().filter(colorTemperatureFilterOf(3000))
+        assertSimilarToResource(result, "expected_temperature_3000.png", tolerance = 3)
+    }
 }

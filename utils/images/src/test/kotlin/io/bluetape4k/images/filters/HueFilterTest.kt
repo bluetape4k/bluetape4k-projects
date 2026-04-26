@@ -74,4 +74,13 @@ class HueFilterTest : AbstractFilterTest() {
         val result = source.copy().filter(hueFilterOf(180f))
         assertNotSimilarToImage(result, source, threshold = 5)
     }
+
+    /**
+     * delta=60 적용 결과가 골든 이미지와 일치해야 합니다 (회귀 검증).
+     */
+    @Test
+    fun `delta=60 결과는 골든 이미지와 일치한다`() {
+        val result = createTestImage().copy().filter(hueFilterOf(60f))
+        assertSimilarToResource(result, "expected_hue_60.png", tolerance = 3)
+    }
 }
