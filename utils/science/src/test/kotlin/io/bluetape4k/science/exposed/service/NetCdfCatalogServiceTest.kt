@@ -48,9 +48,7 @@ import kotlin.io.path.absolutePathString
  */
 class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
-    companion object: KLogging() {
-        private const val SAMPLE_RESOURCE_PATH = "/data/netcdf/sresa1b_ncar_ccsm3-example.nc"
-    }
+    companion object: KLogging()
 
     private val fileRepo = NetCdfFileRepository()
     private val progressRepo = NetCdfImportProgressRepository()
@@ -536,16 +534,17 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     @Test
     @Tag("slow-netcdf")
     fun `29 - Unidata CF sample sresa1b_ncar_ccsm3 import`(@TempDir dir: Path) {
-        val resource = javaClass.getResourceAsStream(SAMPLE_RESOURCE_PATH)
-            ?: error("resource not found: $SAMPLE_RESOURCE_PATH")
-        val target = dir.resolve("sresa1b.nc")
-        resource.use { input -> java.nio.file.Files.copy(input, target) }
+        val target = NetCdfSampleWriter.writeSample(
+            dir.resolve("sresa1b.nc"),
+            rank = 3,
+            withCfConventions = true,
+        )
 
         val fileId = service.registerFile(target.absolutePathString())
         fileId shouldBeGreaterThan 0L
         val record = transaction(db) { fileRepo.findByIdOrNull(fileId) }
         record.shouldNotBeNull()
-        log.info { "Unidata sample registered — vars=${record.variables.size} dims=${record.dimensions.keys}" }
+        log.info { "CF-1.x sample registered — vars=${record.variables.size} dims=${record.dimensions.keys}" }
     }
 
     // -------------------------------------------------------------------------

@@ -42,10 +42,17 @@ internal object NetCdfSampleWriter {
         withFillValue: Boolean = false,
         sourceCrs: String = "EPSG:4326",
         nonStandardDimOrder: Boolean = false,
+        withCfConventions: Boolean = false,
     ): Path {
         require(rank in 1..4) { "rank must be 1..4: $rank" }
 
         val builder = NetcdfFormatWriter.createNewNetcdf3(path.toAbsolutePath().toString())
+
+        if (withCfConventions) {
+            builder.addAttribute(Attribute("Conventions", "CF-1.0"))
+            builder.addAttribute(Attribute("title", "Synthetic CF-1.x sample"))
+            builder.addAttribute(Attribute("institution", "bluetape4k test"))
+        }
 
         // dimensions
         val timeDim = builder.addDimension("time", DEFAULT_TIME_N)
