@@ -87,7 +87,8 @@ class BulkIngesterCoroutinesTest : AbstractElasticsearchTest() {
 
     @Test
     fun `bulkProgressListener 를 통해 After 이벤트를 수신한다`() = runTest(timeout = 60.seconds) {
-        val (listener, events) = bulkProgressListener<Void>()
+        val handle = bulkProgressListener<Void>()
+        val (listener, events) = handle
 
         val ingester = bulkIngesterOf<Void>(
             client = asyncClient,
@@ -117,5 +118,7 @@ class BulkIngesterCoroutinesTest : AbstractElasticsearchTest() {
 
         // ingester.close() 가 호출된 후 이벤트 Job이 완료될 때까지 대기
         afterEventDeferred.join()
+        // 채널 정리 — 메모리 누수 방지
+        handle.close()
     }
 }

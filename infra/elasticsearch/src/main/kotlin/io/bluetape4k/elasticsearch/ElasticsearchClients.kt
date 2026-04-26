@@ -49,8 +49,8 @@ object ElasticsearchClients : KLogging() {
     /** 기본 Elasticsearch 포트 */
     const val DEFAULT_PORT: Int = ElasticsearchDefaults.DEFAULT_PORT
 
-    /** 기본 연결 스킴 (https) */
-    const val DEFAULT_SCHEME: String = "https"
+    /** 기본 연결 스킴 */
+    const val DEFAULT_SCHEME: String = ElasticsearchDefaults.DEFAULT_SCHEME
 
     /** 기본 사용자명 */
     const val DEFAULT_USERNAME: String = ElasticsearchDefaults.DEFAULT_USERNAME

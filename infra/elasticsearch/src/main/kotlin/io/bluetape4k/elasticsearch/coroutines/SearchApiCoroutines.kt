@@ -8,6 +8,7 @@ import co.elastic.clients.elasticsearch.core.SearchRequest
 import io.bluetape4k.elasticsearch.ElasticsearchDefaults
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
@@ -154,9 +155,15 @@ inline fun <reified T : Any> ElasticsearchAsyncClient.searchAsFlow(
                 searchAfter = lastSort
             }
         } finally {
-            // CancellationException 포함 모든 종료 경로에서 PIT close 보장.
-            // close 자체가 실패해도 swallow — leak 만 막으면 충분.
-            runCatching { client.closePointInTimeSuspending(pitId) }
+            // 정상/예외/취소 모든 종료 경로에서 PIT close 보장.
+            // CancellationException 은 재던짐, 그 외 close 실패는 swallow — leak 방지가 목적.
+            try {
+                client.closePointInTimeSuspending(pitId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Throwable) {
+                // PIT close 실패 — swallow
+            }
         }
     }
 }

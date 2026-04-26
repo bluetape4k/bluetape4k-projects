@@ -10,14 +10,15 @@ import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
 import co.elastic.clients.util.ObjectBuilder
 import io.bluetape4k.elasticsearch.ElasticsearchDefaults
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
+import java.io.Closeable
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.function.Function
-import kotlinx.coroutines.Dispatchers
 
 // ---------------------------------------------------------------------------
 // BulkIngester 팩토리 함수
@@ -127,7 +128,7 @@ fun <Context> bulkIngesterOf(
 suspend fun <Context> BulkIngester<Context>.addSuspend(
     operation: BulkOperation,
     context: Context? = null,
-) = withContext(Dispatchers.IO) {
+) = runInterruptible(Dispatchers.IO) {
     add(operation, context)
 }
 
@@ -152,7 +153,7 @@ suspend fun <Context> BulkIngester<Context>.addSuspend(
 suspend fun <Context> BulkIngester<Context>.addSuspend(
     block: Function<BulkOperation.Builder, ObjectBuilder<BulkOperation>>,
     context: Context? = null,
-) = withContext(Dispatchers.IO) {
+) = runInterruptible(Dispatchers.IO) {
     add(block, context)
 }
 
@@ -179,7 +180,7 @@ sealed interface BulkProgressEvent<Context> {
     data class Before<Context>(
         val executionId: Long,
         val request: BulkRequest,
-        val contexts: List<Context?>,
+        val contexts: List<Context>,
     ) : BulkProgressEvent<Context>
 
     /**
@@ -196,7 +197,7 @@ sealed interface BulkProgressEvent<Context> {
         val executionId: Long,
         val request: BulkRequest,
         val response: BulkResponse,
-        val contexts: List<Context?>,
+        val contexts: List<Context>,
     ) : BulkProgressEvent<Context>
 
     /**
@@ -211,8 +212,25 @@ sealed interface BulkProgressEvent<Context> {
         val executionId: Long,
         val request: BulkRequest,
         val exception: Throwable,
-        val contexts: List<Context?>,
+        val contexts: List<Context>,
     ) : BulkProgressEvent<Context>
+}
+
+/**
+ * [bulkProgressListener] 의 반환값입니다.
+ *
+ * - [listener]: [BulkIngester] 에 등록할 [BulkListener]
+ * - [events]: 이벤트 [Flow] (collect 하지 않으면 채널에 쌓입니다)
+ * - [close]: 채널을 닫아 메모리 누수를 방지합니다 — 사용 완료 후 반드시 호출하세요
+ *
+ * 구조 분해 (`val (listener, events) = bulkProgressListener<Void>()`) 도 지원합니다.
+ */
+data class BulkListenerHandle<Context>(
+    val listener: BulkListener<Context>,
+    val events: Flow<BulkProgressEvent<Context>>,
+    private val closeAction: () -> Unit,
+) : Closeable {
+    override fun close() = closeAction()
 }
 
 /**
@@ -248,9 +266,9 @@ sealed interface BulkProgressEvent<Context> {
  * ```
  *
  * @param Context 각 Bulk 작업에 연결할 애플리케이션 컨텍스트 타입
- * @return [BulkListener] 와 이벤트 [Flow] 의 쌍 ([Pair])
+ * @return [BulkListenerHandle] — listener, events Flow, 그리고 close() 를 포함합니다
  */
-fun <Context> bulkProgressListener(): Pair<BulkListener<Context>, Flow<BulkProgressEvent<Context>>> {
+fun <Context> bulkProgressListener(): BulkListenerHandle<Context> {
     val channel = Channel<BulkProgressEvent<Context>>(Channel.UNLIMITED)
 
     val listener = object : BulkListener<Context> {
@@ -259,12 +277,11 @@ fun <Context> bulkProgressListener(): Pair<BulkListener<Context>, Flow<BulkProgr
             request: BulkRequest,
             contexts: List<Context>,
         ) {
-            @Suppress("UNCHECKED_CAST")
             channel.trySend(
                 BulkProgressEvent.Before(
                     executionId = executionId,
                     request = request,
-                    contexts = contexts as List<Context?>,
+                    contexts = contexts,
                 )
             )
         }
@@ -275,13 +292,12 @@ fun <Context> bulkProgressListener(): Pair<BulkListener<Context>, Flow<BulkProgr
             contexts: List<Context>,
             response: BulkResponse,
         ) {
-            @Suppress("UNCHECKED_CAST")
             channel.trySend(
                 BulkProgressEvent.After(
                     executionId = executionId,
                     request = request,
                     response = response,
-                    contexts = contexts as List<Context?>,
+                    contexts = contexts,
                 )
             )
         }
@@ -292,17 +308,20 @@ fun <Context> bulkProgressListener(): Pair<BulkListener<Context>, Flow<BulkProgr
             contexts: List<Context>,
             failure: Throwable,
         ) {
-            @Suppress("UNCHECKED_CAST")
             channel.trySend(
                 BulkProgressEvent.Error(
                     executionId = executionId,
                     request = request,
                     exception = failure,
-                    contexts = contexts as List<Context?>,
+                    contexts = contexts,
                 )
             )
         }
     }
 
-    return listener to channel.receiveAsFlow()
+    return BulkListenerHandle(
+        listener = listener,
+        events = channel.receiveAsFlow(),
+        closeAction = channel::close,
+    )
 }

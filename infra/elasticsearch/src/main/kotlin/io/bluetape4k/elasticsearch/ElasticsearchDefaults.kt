@@ -13,8 +13,8 @@ object ElasticsearchDefaults {
     /** 기본 포트 */
     const val DEFAULT_PORT: Int = 9200
 
-    /** 기본 스킴 */
-    const val DEFAULT_SCHEME: String = "http"
+    /** 기본 스킴 (ES 9.x 는 HTTPS 기본) */
+    const val DEFAULT_SCHEME: String = "https"
 
     /** 기본 사용자명 */
     const val DEFAULT_USERNAME: String = "elastic"
