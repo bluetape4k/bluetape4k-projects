@@ -77,8 +77,8 @@ Redis 와이어 프로토콜을 통해 접속한다. bluetape4k 에서는 다음
 - `WaitAllStrategy(WaitAllStrategy.Mode.WITH_OUTER_TIMEOUT)` 로 두 전략을 결합:
   1. `Wait.forLogMessage(".*Ready to accept connections.*", 1)` — Redis 부팅 완료 신호
   2. `Wait.forListeningPort()` — TCP 리스닝 확인
-- `WITH_OUTER_TIMEOUT` 모드: 각 내부 전략이 **각각** 60초 제한을 가짐 (글로벌 합산이 아님). 최대 대기 = 60s × 전략 수 (~120s).
-- 글로벌 하드 캡이 필요하면 `WITH_MAXIMUM_OUTER_TIMEOUT` 으로 변경하되, 현재는 2개 전략이므로 `WITH_OUTER_TIMEOUT` 유지.
+- `WITH_OUTER_TIMEOUT` 모드: 각 내부 전략 타임아웃을 outer 값으로 덮어쓰고, 전체 실행도 동일 outer 값으로 감쌈 → **글로벌 상한 = START_TIMEOUT (단일 cap, 합산 아님)**. 두 전략이 순차 실행되므로 실제 허용 시간은 60s (additive 아님).
+- CI 콜드 스타트 대비 `START_TIMEOUT = 120s` 로 설정.
 - 향후 FalkorDB 가 자체 ready 로그를 추가하면 그 패턴으로 교체.
 
 ### 2.3 R3 — 새 의존성 `Libs.jfalkordb` 미정의
@@ -234,8 +234,8 @@ class FalkorDBServer private constructor(
         /** Redis 와이어 프로토콜 기본 포트 */
         const val REDIS_PORT = 6379
 
-        /** Wait strategy timeout (콜드 스타트 + 모듈 로드 시간 고려) */
-        private val START_TIMEOUT: Duration = Duration.ofSeconds(60)
+        /** Wait strategy timeout — WITH_OUTER_TIMEOUT 은 글로벌 단일 cap. CI 콜드 스타트 대비 120s */
+        private val START_TIMEOUT: Duration = Duration.ofSeconds(120)
 
         /** Redis Ready 로그 패턴 */
         private const val READY_LOG_REGEX = ".*Ready to accept connections.*"
