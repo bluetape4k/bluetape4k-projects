@@ -71,6 +71,12 @@ suspend fun <T> Consumer<T>.acknowledgeSuspend(message: Message<T>) {
  * **주의**: Exclusive/Failover subscription에서만 유효합니다.
  * Shared subscription에서 호출하면 [org.apache.pulsar.client.api.PulsarClientException]이 발생합니다.
  *
+ * ```kotlin
+ * val msgs = (1..10).map { consumer.receiveSuspend() }
+ * // 마지막 메시지 ID까지 일괄 ack — 이전 메시지 모두 포함
+ * consumer.acknowledgeCumulativeSuspend(msgs.last())
+ * ```
+ *
  * @param message 누적 ack 기준 메시지
  * @throws org.apache.pulsar.client.api.PulsarClientException Shared 구독에서 호출 시, 또는 ack 전송 실패 시
  */
