@@ -946,10 +946,9 @@ jobs:
               io.bluetape4k.testcontainers.infra
               io.bluetape4k.testcontainers.http
             needs_mock_servers: true
-          - group: graphdb-llm-misc
+          - group: graphdb-misc
             test_packages: >-
               io.bluetape4k.testcontainers.graphdb
-              io.bluetape4k.testcontainers.llm
               io.bluetape4k.testcontainers
             needs_mock_servers: false
     steps:
