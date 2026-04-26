@@ -188,9 +188,11 @@ class ImageFilterChainTransformOpsTest : AbstractImageTest() {
     @Test
     fun `transformOp logs warning when op throws exception`() {
         // logback ListAppender로 warn 로그 캡처
+        // KLoggerNameResolver: "Kt$..." → substringBefore("Kt$") → no "Kt" suffix
         val logger = LoggerFactory.getLogger(
-            "io.bluetape4k.images.transforms.dsl.ImageFilterChainTransformOpsKt"
+            "io.bluetape4k.images.transforms.dsl.ImageFilterChainTransformOps"
         ) as Logger
+        logger.level = Level.WARN
         val listAppender = ListAppender<ILoggingEvent>()
         listAppender.start()
         logger.addAppender(listAppender)
@@ -201,17 +203,17 @@ class ImageFilterChainTransformOpsTest : AbstractImageTest() {
                 // tolerance 범위 초과 → autoCrop require() → IllegalArgumentException
                 autoCrop(tolerance = -1)
             }
-        } catch (_: IllegalArgumentException) {
-            // 예외가 전파되어야 함
+            throw AssertionError("Expected IllegalArgumentException to be rethrown by transformOp")
+        } catch (e: IllegalArgumentException) {
+            // 예외가 전파되어야 함 — 정상
+        } finally {
+            logger.detachAppender(listAppender)
         }
 
-        logger.detachAppender(listAppender)
-
         val warnLogs = listAppender.list.filter { it.level == Level.WARN }
-        warnLogs.any { it.message.contains("[autoCrop]") || it.formattedMessage.contains("[autoCrop]") }
-            .let { found ->
-                // transformOp이 warn 로그를 남겼거나, 예외가 전파됐으면 OK
-                // (warn 로그가 없어도 예외 전파가 올바른 동작)
-            }
+        warnLogs.shouldNotBeNull()
+        warnLogs.size shouldBeGreaterThan 0
+        val hasAutoCropWarn = warnLogs.any { it.formattedMessage.contains("[autoCrop]") }
+        hasAutoCropWarn shouldBeEqualTo true
     }
 }

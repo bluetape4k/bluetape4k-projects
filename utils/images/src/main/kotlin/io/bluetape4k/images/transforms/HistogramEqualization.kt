@@ -62,10 +62,10 @@ fun ImmutableImage.clahe(tileSize: Int = 8, clipLimit: Double = 2.0): ImmutableI
         crPlane[i] = (0.5 * r - 0.419 * g - 0.081 * b + 128).toInt().coerceIn(0, 255)
     }
 
-    // Step 3: Tile fallback
-    val effectiveTileSize = if (tileSize > minOf(w, h)) {
-        log.debug { "clahe tile fallback: tile=$tileSize > min(w=$w, h=$h), using single tile" }
-        minOf(w, h)
+    // Step 3: Tile fallback — clamp to maxOf(w,h) so globalEqualize (tileSize=max) yields a 1×1 grid
+    val effectiveTileSize = if (tileSize >= maxOf(w, h)) {
+        log.debug { "clahe tile fallback: tile=$tileSize >= max(w=$w, h=$h), collapsing to single tile" }
+        maxOf(w, h)
     } else {
         tileSize
     }

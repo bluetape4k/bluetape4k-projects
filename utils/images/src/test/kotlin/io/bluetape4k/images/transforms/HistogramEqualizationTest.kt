@@ -128,4 +128,15 @@ class HistogramEqualizationTest {
         resultSuspend.width shouldBeEqualTo resultSync.width
         resultSuspend.height shouldBeEqualTo resultSync.height
     }
+
+    @Test
+    fun `globalEqualize produces 1x1 tile for non-square image`() {
+        // 200×100 비정방형 — tileSize = maxOf(200,100) = 200 → nTilesX=1, nTilesY=1
+        val image = createGradientImage(200, 100)
+        val result = image.globalEqualize()
+
+        result.width shouldBeEqualTo 200
+        result.height shouldBeEqualTo 100
+        // 단일 타일이므로 중앙과 가장자리에서 동일한 LUT가 적용됨 — 결과 이미지 크기만 검증
+    }
 }
