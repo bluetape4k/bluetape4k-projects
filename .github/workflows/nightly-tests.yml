@@ -911,11 +911,38 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Testcontainers (nightly 전용) ─────────────────────────────────────────
+  # ── Testcontainers (nightly 전용) — Matrix 병렬 ──────────────────────────
+  # 5 groups run in parallel; test packages filtered via --tests per group
   test-testcontainers:
-    name: Test / Testcontainers
+    name: Test / Testcontainers (${{ matrix.group }})
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: database
+            test_packages: io.bluetape4k.testcontainers.database
+            needs_mock_servers: false
+          - group: storage
+            test_packages: io.bluetape4k.testcontainers.storage
+            needs_mock_servers: false
+          - group: mq-aws
+            test_packages: >-
+              io.bluetape4k.testcontainers.mq
+              io.bluetape4k.testcontainers.aws
+            needs_mock_servers: false
+          - group: infra-http
+            test_packages: >-
+              io.bluetape4k.testcontainers.infra
+              io.bluetape4k.testcontainers.http
+            needs_mock_servers: true
+          - group: graphdb-llm-misc
+            test_packages: >-
+              io.bluetape4k.testcontainers.graphdb
+              io.bluetape4k.testcontainers.llm
+              io.bluetape4k.testcontainers
+            needs_mock_servers: false
     steps:
       - uses: actions/checkout@v4
 
@@ -930,36 +957,39 @@ jobs:
           cache-read-only: true
 
       - name: Build mock-web-server Docker image
+        if: ${{ matrix.needs_mock_servers }}
         run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Build mock-webflux-server Docker image
+        if: ${{ matrix.needs_mock_servers }}
         run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-      - name: Test testcontainers module
-        run: |
-          ./gradlew \
-            :bluetape4k-testcontainers:test \
-            --parallel
+      - name: Test testcontainers (${{ matrix.group }})
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          TEST_PACKAGES: ${{ matrix.test_packages }}
+        run: |
+          read -ra pkgs <<< "$TEST_PACKAGES"
+          tests_args=()
+          for pkg in "${pkgs[@]}"; do
+            tests_args+=(--tests "${pkg}.*")
+          done
+          ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
 
       - name: Generate Kover XML report
         if: always()
-        run: |
-          ./gradlew \
-            :bluetape4k-testcontainers:koverXmlReport \
-            --parallel
+        run: ./gradlew :bluetape4k-testcontainers:koverXmlReport
         continue-on-error: true
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-testcontainers
+          name: nightly-test-results-testcontainers-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
@@ -967,7 +997,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-testcontainers
+          name: nightly-coverage-testcontainers-${{ matrix.group }}
           path: '**/build/reports/kover/'
           retention-days: 14
 
