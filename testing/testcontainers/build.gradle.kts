@@ -82,6 +82,9 @@ dependencies {
     compileOnly(Libs.testcontainers_neo4j)
     compileOnly(Libs.neo4j_java_driver)
 
+    // Graph DB (FalkorDB)
+    compileOnly(Libs.jfalkordb)
+
     // ElasticSearch
     compileOnly(Libs.testcontainers_elasticsearch)
     compileOnly(Libs.elasticsearch_rest_client)

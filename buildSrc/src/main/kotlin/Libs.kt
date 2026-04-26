@@ -1216,6 +1216,9 @@ object Libs {
     // Neo4j
     const val neo4j_java_driver = "org.neo4j.driver:neo4j-java-driver:5.28.4"  // https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver
 
+    // FalkorDB
+    const val jfalkordb = "com.falkordb:jfalkordb:0.7.0"  // https://mvnrepository.com/artifact/com.falkordb/jfalkordb
+
     // Trino
     const val trino_jdbc = "io.trino:trino-jdbc:475"  // https://mvnrepository.com/artifact/io.trino/trino-jdbc
 
