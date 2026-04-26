@@ -223,17 +223,32 @@ suspend fun putRecord(client: KinesisAsyncClient, streamName: String, data: Byte
 
 ## 테스트 환경
 
-LocalStack을 사용한 통합 테스트를 지원합니다:
+`AwsEmulatorServer` 공통 인터페이스를 통해 로컬 AWS 에뮬레이터와 통합 테스트를 지원합니다. `-Dbluetape4k.aws.emulator=localstack|floci` 시스템 프로퍼티로 에뮬레이터를 선택합니다 (기본값: `localstack`).
 
 ```kotlin
-@Testcontainers
-class DynamoDbTest {
+abstract class AbstractAwsTest {
     companion object {
-        @Container
-        val localstack = LocalStackContainer(DockerImageName.parse("localstack/localstack"))
-            .withServices(LocalStackContainer.Service.DYNAMODB)
+        // 시스템 프로퍼티에 따라 에뮬레이터 자동 선택
+        val awsEmulator: AwsEmulatorServer by lazy {
+            when (System.getProperty("bluetape4k.aws.emulator", "localstack")) {
+                "floci" -> FlociServer.Launcher.floci
+                else -> LocalStackServer.Launcher.getLocalStack("s3", "sqs", "dynamodb")
+            }
+        }
     }
+
+    fun buildS3Client(): S3Client = S3Client.builder()
+        .endpointOverride(awsEmulator.awsEndpoint)
+        .credentialsProvider(awsEmulator.getCredentialProvider())
+        .region(Region.of(awsEmulator.regionName))
+        .build()
 }
+```
+
+Floci 에뮬레이터로 테스트 실행:
+
+```bash
+./gradlew :bluetape4k-aws:test -Dbluetape4k.aws.emulator=floci
 ```
 
 ## 설치

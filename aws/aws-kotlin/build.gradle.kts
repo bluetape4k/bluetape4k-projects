@@ -50,3 +50,7 @@ dependencies {
     testImplementation(Libs.testcontainers_localstack)
     testImplementation(Libs.mockk)
 }
+
+tasks.test {
+    systemProperty("bluetape4k.aws.emulator", System.getProperty("bluetape4k.aws.emulator", "localstack"))
+}

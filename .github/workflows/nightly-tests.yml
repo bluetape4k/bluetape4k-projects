@@ -1009,11 +1009,15 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── AWS (LocalStack) — nightly 전용 ──────────────────────────────────────
+  # ── AWS (LocalStack / Floci) — nightly 전용 ─────────────────────────────
   test-aws:
-    name: Test / AWS (LocalStack)
+    name: Test / AWS (${{ matrix.emulator }})
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      matrix:
+        emulator: [localstack, floci]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
 
@@ -1027,12 +1031,13 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Test aws modules
+      - name: Test aws modules (${{ matrix.emulator }})
         run: |
           ./gradlew \
             :bluetape4k-aws:test \
             :bluetape4k-aws-kotlin:test \
-            --parallel
+            --parallel \
+            -Dbluetape4k.aws.emulator=${{ matrix.emulator }}
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -1049,7 +1054,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-aws
+          name: nightly-test-results-aws-${{ matrix.emulator }}
           path: '**/build/test-results/test/*.xml'
           retention-days: 14
 
@@ -1057,7 +1062,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-aws
+          name: nightly-coverage-aws-${{ matrix.emulator }}
           path: '**/build/reports/kover/'
           retention-days: 14
 
