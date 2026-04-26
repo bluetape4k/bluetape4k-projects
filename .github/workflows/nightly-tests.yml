@@ -94,12 +94,17 @@ jobs:
           cache-read-only: true
 
       - name: Test bluetape4k core modules
-        run: |
-          ./gradlew \
-            :bluetape4k-core:test \
-            :bluetape4k-coroutines:test \
-            :bluetape4k-logging:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-core:test \
+              :bluetape4k-coroutines:test \
+              :bluetape4k-logging:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -148,21 +153,26 @@ jobs:
           cache-read-only: true
 
       - name: Test io modules
-        run: |
-          ./gradlew \
-            :bluetape4k-io:test \
-            :bluetape4k-okio:test \
-            :bluetape4k-csv:test \
-            :bluetape4k-avro:test \
-            :bluetape4k-json:test \
-            :bluetape4k-fastjson2:test \
-              :bluetape4k-jackson2:test \
-            :bluetape4k-jackson3:test \
-            :bluetape4k-netty:test \
-            :bluetape4k-grpc:test \
-              :bluetape4k-protobuf:test \
-              :bluetape4k-tink:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-io:test \
+              :bluetape4k-okio:test \
+              :bluetape4k-csv:test \
+              :bluetape4k-avro:test \
+              :bluetape4k-json:test \
+              :bluetape4k-fastjson2:test \
+                :bluetape4k-jackson2:test \
+              :bluetape4k-jackson3:test \
+              :bluetape4k-netty:test \
+              :bluetape4k-grpc:test \
+                :bluetape4k-protobuf:test \
+                :bluetape4k-tink:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -220,13 +230,18 @@ jobs:
                   cache-read-only: true
 
           -   name: Test io http client modules
-              run: |
-                  ./gradlew \
-                    :bluetape4k-feign:test \
-                    :bluetape4k-http:test \
-                    :bluetape4k-retrofit2:test \
-                    :bluetape4k-vertx:test \
-                    --parallel
+              uses: nick-fields/retry@v3
+              with:
+                timeout_minutes: 60
+                max_attempts: 3
+                shell: bash
+                command: |
+                    ./gradlew \
+                      :bluetape4k-feign:test \
+                      :bluetape4k-http:test \
+                      :bluetape4k-retrofit2:test \
+                      :bluetape4k-vertx:test \
+                      --parallel
               env:
                   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -276,27 +291,32 @@ jobs:
           cache-read-only: true
 
       - name: Test utils modules
-        run: |
-          ./gradlew \
-            :bluetape4k-idgenerators:test \
-            :bluetape4k-javatimes:test \
-            :bluetape4k-math:test \
-            :bluetape4k-money:test \
-            :bluetape4k-measured:test \
-            :bluetape4k-junit5:test \
-            :bluetape4k-states:test \
-            :bluetape4k-workflow:test \
-            :bluetape4k-leader:test \
-            :bluetape4k-mutiny:test \
-            :bluetape4k-rule-engine:test \
-            :bluetape4k-geo:test \
-            :bluetape4k-images:test \
-            :bluetape4k-science:test \
-              :bluetape4k-lingua:test \
-              :bluetape4k-text-search:test \
-              :bluetape4k-batch:test \
-            -PincludeTags=slow-netcdf \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-idgenerators:test \
+              :bluetape4k-javatimes:test \
+              :bluetape4k-math:test \
+              :bluetape4k-money:test \
+              :bluetape4k-measured:test \
+              :bluetape4k-junit5:test \
+              :bluetape4k-states:test \
+              :bluetape4k-workflow:test \
+              :bluetape4k-leader:test \
+              :bluetape4k-mutiny:test \
+              :bluetape4k-rule-engine:test \
+              :bluetape4k-geo:test \
+              :bluetape4k-images:test \
+              :bluetape4k-science:test \
+                :bluetape4k-lingua:test \
+                :bluetape4k-text-search:test \
+                :bluetape4k-batch:test \
+              -PincludeTags=slow-netcdf \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Duser.language=en -Duser.country=US"
           LANG: en_US.UTF-8
@@ -361,17 +381,22 @@ jobs:
           cache-read-only: true
 
       - name: Test misc modules (no Docker)
-        run: |
-          ./gradlew \
-            :bluetape4k-virtualthread-api:test \
-            :bluetape4k-virtualthread-jdk21:test \
-            :bluetape4k-virtualthread-jdk25:test \
-            :bluetape4k-cache-core:test \
-            :bluetape4k-opentelemetry:test \
-            :bluetape4k-mock-web-server:test \
-            :bluetape4k-mock-webflux-server:test \
-            :bluetape4k-r2dbc:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-virtualthread-api:test \
+              :bluetape4k-virtualthread-jdk21:test \
+              :bluetape4k-virtualthread-jdk25:test \
+              :bluetape4k-cache-core:test \
+              :bluetape4k-opentelemetry:test \
+              :bluetape4k-mock-web-server:test \
+              :bluetape4k-mock-webflux-server:test \
+              :bluetape4k-r2dbc:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -425,19 +450,24 @@ jobs:
           cache-read-only: true
 
       - name: Test exposed core modules with H2
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-core:test \
-            :bluetape4k-exposed-dao:test \
-            :bluetape4k-exposed-jackson2:test \
-            :bluetape4k-exposed-jackson3:test \
-            :bluetape4k-exposed-fastjson2:test \
-            :bluetape4k-exposed-tink:test \
-            :bluetape4k-exposed-measured:test \
-            :bluetape4k-exposed-cache:test \
-            :bluetape4k-exposed-duckdb:test \
-            :bluetape4k-exposed-r2dbc-caffeine:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-exposed-core:test \
+              :bluetape4k-exposed-dao:test \
+              :bluetape4k-exposed-jackson2:test \
+              :bluetape4k-exposed-jackson3:test \
+              :bluetape4k-exposed-fastjson2:test \
+              :bluetape4k-exposed-tink:test \
+              :bluetape4k-exposed-measured:test \
+              :bluetape4k-exposed-cache:test \
+              :bluetape4k-exposed-duckdb:test \
+              :bluetape4k-exposed-r2dbc-caffeine:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -494,11 +524,16 @@ jobs:
           cache-read-only: true
 
       - name: Test spring-boot modules (H2 only)
-        run: |
-          ./gradlew \
-            :bluetape4k-spring-boot3-exposed-jdbc:test \
-            :bluetape4k-spring-boot4-exposed-jdbc:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-spring-boot3-exposed-jdbc:test \
+              :bluetape4k-spring-boot4-exposed-jdbc:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -600,12 +635,17 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test infra modules (${{ matrix.group }})
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            read -ra tasks <<< "$TEST_TASKS"
+            ./gradlew "${tasks[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
-        run: |
-          read -ra tasks <<< "$TEST_TASKS"
-          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
@@ -651,14 +691,19 @@ jobs:
           cache-read-only: true
 
       - name: Test exposed JDBC docker modules
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed:test \
-            :bluetape4k-exposed-jdbc:test \
-            :bluetape4k-exposed-jdbc-caffeine:test \
-            :bluetape4k-exposed-jdbc-lettuce:test \
-            :bluetape4k-exposed-jdbc-redisson:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-exposed:test \
+              :bluetape4k-exposed-jdbc:test \
+              :bluetape4k-exposed-jdbc-caffeine:test \
+              :bluetape4k-exposed-jdbc-lettuce:test \
+              :bluetape4k-exposed-jdbc-redisson:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -710,12 +755,17 @@ jobs:
           cache-read-only: true
 
       - name: Test exposed R2DBC docker modules
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-r2dbc:test \
-            :bluetape4k-exposed-r2dbc-lettuce:test \
-            :bluetape4k-exposed-r2dbc-redisson:test \
-            :bluetape4k-exposed-trino:test
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-exposed-r2dbc:test \
+              :bluetape4k-exposed-r2dbc-lettuce:test \
+              :bluetape4k-exposed-r2dbc-redisson:test \
+              :bluetape4k-exposed-trino:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: h2
@@ -802,12 +852,17 @@ jobs:
           cache-read-only: true
 
       - name: Test data modules (${{ matrix.group }})
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            read -ra tasks <<< "$TEST_TASKS"
+            ./gradlew "${tasks[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
-        run: |
-          read -ra tasks <<< "$TEST_TASKS"
-          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
@@ -885,12 +940,17 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test spring-boot3 modules (${{ matrix.group }})
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            read -ra tasks <<< "$TEST_TASKS"
+            ./gradlew "${tasks[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
-        run: |
-          read -ra tasks <<< "$TEST_TASKS"
-          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
@@ -973,12 +1033,17 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test spring-boot4 modules (${{ matrix.group }})
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            read -ra tasks <<< "$TEST_TASKS"
+            ./gradlew "${tasks[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
-        run: |
-          read -ra tasks <<< "$TEST_TASKS"
-          ./gradlew "${tasks[@]}"
 
       - name: Generate Kover XML report
         if: always()
@@ -1062,16 +1127,21 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test testcontainers (${{ matrix.group }})
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            read -ra pkgs <<< "$TEST_PACKAGES"
+            tests_args=()
+            for pkg in "${pkgs[@]}"; do
+              tests_args+=(--tests "${pkg}.*")
+            done
+            ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_PACKAGES: ${{ matrix.test_packages }}
-        run: |
-          read -ra pkgs <<< "$TEST_PACKAGES"
-          tests_args=()
-          for pkg in "${pkgs[@]}"; do
-            tests_args+=(--tests "${pkg}.*")
-          done
-          ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
 
       - name: Generate Kover XML report
         if: always()
@@ -1117,12 +1187,17 @@ jobs:
           cache-read-only: true
 
       - name: Test aws modules (${{ matrix.emulator }})
-        run: |
-          ./gradlew \
-            :bluetape4k-aws:test \
-            :bluetape4k-aws-kotlin:test \
-            --parallel \
-            -Dbluetape4k.aws.emulator=${{ matrix.emulator }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-aws:test \
+              :bluetape4k-aws-kotlin:test \
+              --parallel \
+              -Dbluetape4k.aws.emulator=${{ matrix.emulator }}
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 

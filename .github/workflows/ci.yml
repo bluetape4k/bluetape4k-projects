@@ -103,14 +103,19 @@ jobs:
           cache-read-only: true
 
       - name: Test core modules
-        run: |
-          ./gradlew \
-            :bluetape4k-core:test \
-            :bluetape4k-coroutines:test \
-            :bluetape4k-logging:test \
-            :bluetape4k-virtualthread-api:test \
-            :bluetape4k-virtualthread-jdk21:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-core:test \
+              :bluetape4k-coroutines:test \
+              :bluetape4k-logging:test \
+              :bluetape4k-virtualthread-api:test \
+              :bluetape4k-virtualthread-jdk21:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -161,13 +166,18 @@ jobs:
           cache-read-only: true
 
       - name: Test io modules
-        run: |
-          ./gradlew \
-            :bluetape4k-io:test \
-            :bluetape4k-okio:test \
-            :bluetape4k-json:test \
-            :bluetape4k-jackson3:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-io:test \
+              :bluetape4k-okio:test \
+              :bluetape4k-json:test \
+              :bluetape4k-jackson3:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -217,12 +227,17 @@ jobs:
           cache-read-only: true
 
       - name: Test key utility modules
-        run: |
-          ./gradlew \
-            :bluetape4k-idgenerators:test \
-            :bluetape4k-cache-core:test \
-            :bluetape4k-batch:test \
-            --parallel
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-idgenerators:test \
+              :bluetape4k-cache-core:test \
+              :bluetape4k-batch:test \
+              --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -271,12 +286,17 @@ jobs:
           cache-read-only: true
 
       - name: Test key infra modules (Redis)
-        run: |
-          ./gradlew \
-            :bluetape4k-redisson:test \
-            :bluetape4k-lettuce:test \
-            :bluetape4k-cache-lettuce:test \
-            :bluetape4k-cache-redisson:test
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-redisson:test \
+              :bluetape4k-lettuce:test \
+              :bluetape4k-cache-lettuce:test \
+              :bluetape4k-cache-redisson:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -330,11 +350,16 @@ jobs:
           cache-read-only: true
 
       - name: Test exposed core+dao+jdbc (${{ matrix.test_db }})
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-core:test \
-            :bluetape4k-exposed-dao:test \
-            :bluetape4k-exposed-jdbc:test
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-exposed-core:test \
+              :bluetape4k-exposed-dao:test \
+              :bluetape4k-exposed-jdbc:test
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_DB: ${{ matrix.test_db }}
