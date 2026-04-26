@@ -281,37 +281,45 @@ enum class PHashSize(val bits: Int, internal val resize: Int, internal val lowSi
 }
 
 /**
- * `PHashSize` 와 동일하게 비트폭 옵션 제공 (issue #130: 모든 4종 해시에 공통 적용).
- * 비트폭이 클수록 정밀하지만 비교 비용 증가.
+ * aHash / dHash / wHash 비트폭 옵션.
+ * [gridSide] = NxN 그리드 한 변 크기. 비트 수 = gridSide².
  */
-enum class HashSize(val bits: Int, internal val resize: Int, internal val lowSide: Int) {
-    BITS_64(64, 8, 8),       // aHash/dHash: 8x8, wHash: 32x32→8x8 저주파
-    BITS_256(256, 16, 16),   // 더 세밀한 표현
-    BITS_1024(1024, 32, 32); // 대규모 코퍼스 중복 탐지용
+enum class HashSize(val bits: Int, internal val gridSide: Int) {
+    BITS_64(64, 8),       // 8×8 그리드 → 64bit
+    BITS_256(256, 16),    // 16×16 그리드 → 256bit
+    BITS_1024(1024, 32);  // 32×32 그리드 → 1024bit
 }
 
-// PHashSize 는 HashSize 의 alias (DCT pHash 전용 문서 목적)
-typealias PHashSize = HashSize
+/**
+ * DCT pHash 비트폭 옵션.
+ * [resize] = DCT 입력 이미지 크기, [lowSide] = 저주파 블록 한 변 크기.
+ * 비트 수 = lowSide².
+ */
+enum class PHashSize(val bits: Int, internal val resize: Int, internal val lowSide: Int) {
+    BITS_64(64, 32, 8),       // 32×32 → DCT 8×8 → 64bit (기존 phash() 호환)
+    BITS_256(256, 64, 16),    // 64×64 → DCT 16×16 → 256bit
+    BITS_1024(1024, 128, 32); // 128×128 → DCT 32×32 → 1024bit
+}
 
-/** 8x8 평균 해시 — 가장 단순, 작은 변형에 약하지만 빠름. BITS_64 → Long, 상위 폭 → LongArray */
+/** 8×8(또는 옵션 크기) 평균 해시. size.gridSide × size.gridSide 리사이즈. */
 fun ImmutableImage.ahashOf(size: HashSize = HashSize.BITS_64): LongArray
 
-/** 9x8 (또는 크기 기반) grayscale → 인접 픽셀 차이 비교. 그래디언트 기반, JPEG 압축에 견고. */
+/** (gridSide+1)×gridSide 그레이스케일 → 인접 픽셀 차이. 그래디언트 기반, JPEG에 견고. */
 fun ImmutableImage.dhashOf(size: HashSize = HashSize.BITS_64): LongArray
 
-/** 2^n 강제 리사이즈 → Haar wavelet → 저주파 블록 추출 → 비트화. */
+/** Haar wavelet: gridSide 크기로 강제 리사이즈(wHash에서 gridSide는 2^n 보장) → DWT → 저주파 블록. */
 fun ImmutableImage.whashOf(size: HashSize = HashSize.BITS_64): LongArray
 
 /**
- * DCT pHash 비트 폭 옵션 버전.
+ * DCT pHash 비트폭 옵션 버전. [PHashSize] 사용 (aHash/dHash/wHash의 [HashSize]와 별도 enum).
  *
- * [HashSize.BITS_64] 시 `LongArray(1)` 반환, `phashOf(BITS_64)[0] == phash()` 동일.
+ * `phashOf(PHashSize.BITS_64)[0] == phash()` 동일.
  * **비트 순서**: row-major, LSB = first bit, DC 성분(`low[0]`)은 평균에서 제외.
  * **스케일 메서드**: `HASH_SCALE_METHOD = ScaleMethod.Bicubic` 고정 (기존 `phash()` 와 동일).
  */
-fun ImmutableImage.phashOf(size: HashSize = HashSize.BITS_64): LongArray
+fun ImmutableImage.phashOf(size: PHashSize = PHashSize.BITS_64): LongArray
 
-/** 편의 단축형 (64bit 전용 하위 호환) */
+/** 편의 단축형 (64bit 하위 호환) */
 fun ImmutableImage.ahash(): Long = ahashOf(HashSize.BITS_64)[0]
 fun ImmutableImage.dhash(): Long = dhashOf(HashSize.BITS_64)[0]
 fun ImmutableImage.whash(): Long = whashOf(HashSize.BITS_64)[0]
@@ -322,12 +330,12 @@ object HashDistance {
     fun hamming(a: LongArray, b: LongArray): Int   // require(a.size == b.size)
 }
 
-// ImageSimilarity.kt 의 기존 top-level 함수는 HashDistance.hamming 으로 위임 후 Deprecated 처리
+// ImageSimilarity.kt 의 기존 top-level 함수 → Deprecated, HashDistance.hamming 으로 위임
 @Deprecated("HashDistance.hamming(a, b) 사용", ReplaceWith("HashDistance.hamming(a, b)"))
 fun hammingDistance(a: Long, b: Long): Int = HashDistance.hamming(a, b)
 
 /** [phashOf] 결과의 거리. */
-fun ImmutableImage.phashOfDistanceTo(other: ImmutableImage, size: HashSize): Int
+fun ImmutableImage.phashOfDistanceTo(other: ImmutableImage, size: PHashSize): Int
 ```
 
 ### 6.3 Histogram (`HistogramSimilarity.kt`)
