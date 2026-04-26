@@ -291,6 +291,7 @@ val server = PostgreSQLServer.Launcher.withExtensions("uuid-ossp", "hstore")
 |------------------------|--------------------------|------------------------|-----------|-------------|
 | `Neo4jServer`          | `neo4j`                  | `5.26.24`              | Bolt/HTTP | 7687 / 7474 |
 | `MemgraphServer`       | `memgraph/memgraph`      | `3.9.0`                | Bolt      | 7687        |
+| `FalkorDBServer`       | `falkordb/falkordb`      | `v4.18.1`              | Redis     | 6379        |
 | `PostgreSQLAgeServer`  | `apache/age`             | `release_PG17_1.6.0`  | JDBC      | 5432        |
 
 ```kotlin
