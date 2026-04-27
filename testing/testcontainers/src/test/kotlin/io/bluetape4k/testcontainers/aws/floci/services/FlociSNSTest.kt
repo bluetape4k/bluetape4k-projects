@@ -2,14 +2,12 @@ package io.bluetape4k.testcontainers.aws.floci.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.FlociServer
+import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -18,20 +16,17 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sns.SnsClient
 
 /**
- * [FlociServer]를 사용한 SNS 서비스 통합 테스트.
+ * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 SNS 서비스 통합 테스트.
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.SNSTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociSNSTest: AbstractContainerTest() {
+class FlociSNSTest : AbstractFlociServiceTest() {
 
-    companion object: KLogging() {
+    companion object : KLogging() {
         private val TOPIC_NAME = "test-topic-${System.currentTimeMillis()}"
     }
-
-    private val floci: FlociServer
-        get() = FlociServer.Launcher.floci
 
     private val snsClient: SnsClient by lazy {
         SnsClient.builder()
@@ -45,16 +40,13 @@ class FlociSNSTest: AbstractContainerTest() {
     private lateinit var topicArn: String
     private lateinit var subscriptionArn: String
 
-    @BeforeAll
-    fun setup() {
-        floci.isRunning.shouldBeTrue()
-    }
-
     @Test
     @Order(1)
     fun `create topic`() {
         val response = snsClient.createTopic { it.name(TOPIC_NAME) }
-        topicArn = response.topicArn()
+        topicArn = requireNotNull(response.topicArn()) {
+            "createTopic response returned a null topicArn — Floci createTopic failed"
+        }
         log.debug { "Created topic ARN: $topicArn" }
         topicArn.shouldNotBeNull()
     }

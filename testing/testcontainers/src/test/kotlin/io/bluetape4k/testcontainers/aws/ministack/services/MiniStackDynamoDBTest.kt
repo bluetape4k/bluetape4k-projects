@@ -2,9 +2,8 @@ package io.bluetape4k.testcontainers.aws.ministack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.MiniStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
@@ -34,13 +33,11 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
  * MiniStack DynamoDB 서비스 통합 테스트.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackDynamoDBTest: AbstractContainerTest() {
+class MiniStackDynamoDBTest : AbstractMiniStackServiceTest() {
 
-    companion object: KLogging() {
+    companion object : KLogging() {
         private val TABLE_NAME = "ministack-test-table-${System.currentTimeMillis()}"
     }
-
-    private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
 
     private val client by lazy {
         DynamoDbClient.builder()

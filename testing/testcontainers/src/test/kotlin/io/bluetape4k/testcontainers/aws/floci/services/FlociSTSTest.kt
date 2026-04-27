@@ -2,14 +2,12 @@ package io.bluetape4k.testcontainers.aws.floci.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.FlociServer
+import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -18,18 +16,15 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sts.StsClient
 
 /**
- * [FlociServer]를 사용한 STS 서비스 통합 테스트.
+ * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 STS 서비스 통합 테스트.
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.STSTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociSTSTest: AbstractContainerTest() {
+class FlociSTSTest : AbstractFlociServiceTest() {
 
-    companion object: KLogging()
-
-    private val floci: FlociServer
-        get() = FlociServer.Launcher.floci
+    companion object : KLogging()
 
     private val stsClient: StsClient by lazy {
         StsClient.builder()
@@ -42,19 +37,16 @@ class FlociSTSTest: AbstractContainerTest() {
 
     private lateinit var accountId: String
 
-    @BeforeAll
-    fun setup() {
-        floci.isRunning.shouldBeTrue()
-    }
-
     @Test
     @Order(1)
     fun `get caller identity`() {
         val identity = stsClient.getCallerIdentity { }
         log.debug { "Account: ${identity.account()}, UserId: ${identity.userId()}, ARN: ${identity.arn()}" }
 
-        accountId = identity.account()
-        identity.account().shouldNotBeBlank()
+        accountId = requireNotNull(identity.account()) {
+            "getCallerIdentity response returned a null account — Floci STS failed"
+        }
+        accountId.shouldNotBeBlank()
         identity.userId().shouldNotBeBlank()
         identity.arn().shouldNotBeBlank()
     }

@@ -3,9 +3,8 @@ package io.bluetape4k.testcontainers.aws.ministack.services
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.MiniStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.regions.Region
@@ -36,13 +34,10 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
  * - `CreateGrant`, `ListGrants`, `RevokeGrant` 미지원 (Unknown action 400 오류 반환)
  * - 해당 테스트는 `@Disabled`로 표시되어 있으며, 향후 MiniStack 업그레이드 시 재활성화 가능
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackKMSTest: AbstractContainerTest() {
+class MiniStackKMSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging()
-
-    private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
 
     private val kmsClient: KmsClient by lazy {
         KmsClient.builder()

@@ -3,8 +3,7 @@ package io.bluetape4k.testcontainers.aws.floci.services
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.FlociServer
+import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
@@ -12,7 +11,6 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -31,7 +29,7 @@ import software.amazon.awssdk.services.kms.model.KeySpec
 import software.amazon.awssdk.services.kms.model.KeyUsageType
 
 /**
- * [FlociServer]를 사용한 KMS 서비스 통합 테스트.
+ * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 KMS 서비스 통합 테스트.
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.KMSTest]에 대응합니다.
  *
@@ -42,12 +40,9 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociKMSTest: AbstractContainerTest() {
+class FlociKMSTest : AbstractFlociServiceTest() {
 
-    companion object: KLogging()
-
-    private val floci: FlociServer
-        get() = FlociServer.Launcher.floci
+    companion object : KLogging()
 
     private val kmsClient: KmsClient by lazy {
         KmsClient.builder()
@@ -64,15 +59,10 @@ class FlociKMSTest: AbstractContainerTest() {
     private val data = "동해물과 백두산이"
     private lateinit var encryptedData: SdkBytes
 
-    private val granteePrincipal = ""
+    private val granteePrincipal = "arn:aws:iam::000000000000:user/test-grantee"
     private lateinit var grantId: String
 
-    private val aliasName = "alias/ExampleName"
-
-    @BeforeAll
-    fun setup() {
-        floci.isRunning.shouldBeTrue()
-    }
+    private val aliasName = "alias/ExampleName-${System.currentTimeMillis()}"
 
     @Test
     @Order(1)
@@ -188,6 +178,7 @@ class FlociKMSTest: AbstractContainerTest() {
         val keyMetadata = response.keyMetadata()
         log.debug { "key description=${keyMetadata.description()}" }
         log.debug { "key arn=${keyMetadata.arn()}" }
+        keyMetadata.shouldNotBeNull()
     }
 
     @Test
@@ -199,6 +190,7 @@ class FlociKMSTest: AbstractContainerTest() {
 
         val metadata = response.responseMetadata()
         log.debug { "metadata=$metadata" }
+        response.sdkHttpResponse().isSuccessful.shouldBeTrue()
     }
 
     @Test

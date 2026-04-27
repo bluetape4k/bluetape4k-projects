@@ -2,15 +2,13 @@ package io.bluetape4k.testcontainers.aws.floci.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.FlociServer
+import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -25,22 +23,19 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent
 import java.time.Instant
 
 /**
- * [FlociServer]를 사용한 CloudWatch 서비스 통합 테스트.
+ * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 CloudWatch 서비스 통합 테스트.
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.CloudWatchTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociCloudWatchTest: AbstractContainerTest() {
+class FlociCloudWatchTest : AbstractFlociServiceTest() {
 
-    companion object: KLogging() {
+    companion object : KLogging() {
         private val NAMESPACE = "Bluetape4k/Test-${System.currentTimeMillis()}"
         private val LOG_GROUP_NAME = "/bluetape4k/test-${System.currentTimeMillis()}"
         private const val LOG_STREAM_NAME = "app-stream"
     }
-
-    private val floci: FlociServer
-        get() = FlociServer.Launcher.floci
 
     private val cloudWatchClient: CloudWatchClient by lazy {
         CloudWatchClient.builder()
@@ -60,11 +55,6 @@ class FlociCloudWatchTest: AbstractContainerTest() {
             .httpClient(ApacheHttpClient.create())
             .build()
             .apply { ShutdownQueue.register(this) }
-    }
-
-    @BeforeAll
-    fun setup() {
-        floci.isRunning.shouldBeTrue()
     }
 
     @Test
