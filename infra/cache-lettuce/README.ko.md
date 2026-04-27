@@ -562,6 +562,23 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
   - Redisson 기반: `bluetape4k-cache-redisson`
   - Hazelcast 기반: `bluetape4k-cache-hazelcast`
 
+## 성능 벤치마크
+
+`LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) JMH 벤치마크 결과 (Apple M4 Pro / GraalVM 21 / 2026-04-27):
+
+| 벤치마크 | payloadSize=512 | payloadSize=4096 | payloadSize=16384 |
+|---------|:--------------:|:----------------:|:-----------------:|
+| **l1Hit** | **65,560 ops/ms** | **63,458 ops/ms** | **64,580 ops/ms** |
+| l2Hit (clearLocal 포함) | 4.07 ops/ms | 4.13 ops/ms | 3.93 ops/ms |
+| l2Miss | 3.96 ops/ms | 3.92 ops/ms | 4.21 ops/ms |
+| putSingle | 2.12 ops/ms | 2.08 ops/ms | 2.01 ops/ms |
+| putAll (×100) | 1.04 ops/ms | 0.93 ops/ms | 0.41 ops/ms |
+| removeSingle | 4.21 ops/ms | 4.24 ops/ms | 4.16 ops/ms |
+
+> L1 캐시 적중은 L2(Redis) 연산 대비 **~16,000배 빠름**.
+> 전체 결과 및 분석: [Benchmark.md](./Benchmark.md) · [한국어](./Benchmark.ko.md)
+> 실행: `./gradlew :bluetape4k-cache-lettuce:benchmark` (Docker 필요)
+
 ## 성능 · 안정성 계약 (Performance / Stability Notes)
 
 아래 계약은 `LettuceNearCache`, `LettuceSuspendNearCache`, `LettuceAsyncMemoizer`, `LettuceJCache` 모든 구현에 공통 적용됩니다.
