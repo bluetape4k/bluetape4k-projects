@@ -104,6 +104,162 @@ Fury `SCHEMA_CONSISTENT` + `refTracking=false` 모드 기반 고처리량 직렬
 
 ---
 
+#### io/images — TIFF/SVG/AVIF·HEIC 포맷 확장 ([#199](https://github.com/bluetape4k/bluetape4k-projects/pull/199), [#134](https://github.com/bluetape4k/bluetape4k-projects/issues/134))
+
+`bluetape4k-images` 모듈에 TIFF 다중 페이지, SVG 래스터화, AVIF/HEIC incubating 인터페이스를 추가했습니다.
+
+**TIFF 지원 (TwelveMonkeys ImageIO)**
+
+- `SuspendTiffWriter` — 단일 페이지 TIFF 비동기 저장 (`runInterruptible(Dispatchers.IO)` 적용, 취소 신호 정상 전파)
+- `SuspendTiffMultiPageWriter` — 다중 페이지 TIFF 저장 (실패 시 부분 오염 방지: 내부 버퍼에 완성 후 복사)
+
+**SVG 래스터화 (Apache Batik)**
+
+- `BatikSvgRasterizer` / `SuspendSvgRasterizer` — SVG → PNG/JPEG 래스터화
+- 보안: `KEY_EXECUTE_ONLOAD=false`, `KEY_ALLOWED_SCRIPT_TYPES=''`, `KEY_CONSTRAIN_SCRIPT_ORIGIN=true` (스크립트 실행 비활성화)
+- `withTimeout(options.timeoutMillis)` 적용 (기본 10초), `KEY_MAX_WIDTH/HEIGHT` 항상 적용
+
+**AVIF/HEIC Incubating 인터페이스**
+
+- `AvifWriter` / `HeicReader` — `@IncubatingImageApi` (`@RequiresOptIn`) 어노테이션으로 안정성 경고 부착
+- `AvifEncodeOptions.quality` 범위 검증 (`0.0f..1.0f`), `HeicReadOptions.pageIndex ≥ 0` 검증
+
+**ImageFormat enum 확장**
+
+- `TIFF`, `SVG`, `AVIF`, `HEIC` 항목 추가 (테스트 337 passing)
+
+---
+
+#### utils/images — 이미지 분석 기능 (DominantColor/BlurDetector/ExifData) ([#193](https://github.com/bluetape4k/bluetape4k-projects/pull/193), [#133](https://github.com/bluetape4k/bluetape4k-projects/issues/133))
+
+`bluetape4k-images` 모듈에 이미지 분석 기능 3종을 추가했습니다.
+
+- `DominantColor` — k-means 클러스터링 기반 지배 색상 추출 (Top-N 색상 + 비율 반환)
+- `BlurDetector` — 라플라시안 분산 알고리즘 기반 흐림 감지 (임계값 조정 가능)
+- `ExifData` — Apache Commons Imaging 기반 EXIF 메타데이터 추출 (GPS, Camera, Image 정보)
+
+---
+
+#### utils/images — 이미지 유사도 확장 ([#163](https://github.com/bluetape4k/bluetape4k-projects/pull/163), [#130](https://github.com/bluetape4k/bluetape4k-projects/issues/130))
+
+`bluetape4k-images` 모듈에 4가지 유사도 알고리즘을 추가했습니다.
+
+- `MssimSimilarity` — SSIM/MS-SSIM 구조적 유사도 (휘도·대비·구조 3요소 결합)
+- `HashSimilarity` — 퍼셉추얼 해시 (aHash/dHash/pHash/wHash, 64~1024비트 정밀도 조정)
+- `HistogramSimilarity` — 히스토그램 비교 (Bhattacharyya/Chi-Square/Correlation/Intersection 4가지 메트릭)
+- `KeypointSimilarity` — ORB 특징점 매칭 기반 변환 불변 유사도 (FLANN/BF 매처)
+
+---
+
+#### utils/images — 필터·색보정 DSL ([#166](https://github.com/bluetape4k/bluetape4k-projects/pull/166), [#131](https://github.com/bluetape4k/bluetape4k-projects/issues/131))
+
+`bluetape4k-images` 모듈에 필터·색보정 DSL과 신규 필터 5종을 추가했습니다.
+
+**신규 필터**
+
+- `MedianBlurFilter` — 중앙값 블러 (노이즈 제거)
+- `RoundedCornerFilter` — 둥근 모서리 마스킹
+- `ColorTemperatureFilter` — 색온도 조정 (웜/쿨 톤)
+- `HueAdjustFilter` — 색상(Hue) 회전
+- `SaturationAdjustFilter` — 채도 조정
+
+**DSL 체이닝 (`imageFilter {}` 블록)**
+
+- `ImageFilterChain` — 필터 파이프라인 빌더 (`blur {}`, `color {}`, `effect {}`, `style {}`, `transform {}` 섹션)
+- `ColorSpaceConverter` — HSV/LAB/YCbCr 색공간 변환 유틸리티
+
+---
+
+#### utils/images — 변환 API ([#172](https://github.com/bluetape4k/bluetape4k-projects/pull/172), [#132](https://github.com/bluetape4k/bluetape4k-projects/issues/132))
+
+`bluetape4k-images` 모듈에 이미지 변환 API 5종을 추가했습니다.
+
+- `AutoCrop` — 여백 자동 감지·제거 (임계값 + 패딩 옵션)
+- `SmartCrop` — 관심 영역 기반 지능형 크롭 (엔트로피/에지/안면 가중치)
+- `Rotation` — 임의 각도 회전 + 자동 캔버스 확장 옵션
+- `PerspectiveTransform` — 4점 호모그래피 기반 원근 보정
+- `HistogramEqualization` (CLAHE) — 제한 대비 적응형 히스토그램 평활화
+- `ImageFilterChainTransformOps` — 위 변환을 `imageFilter {}` DSL에 `transform {}` 블록으로 통합
+
+---
+
+#### infra/elasticsearch — Kotlin Coroutines 모듈 신규 구현 ([#167](https://github.com/bluetape4k/bluetape4k-projects/pull/167), [#146](https://github.com/bluetape4k/bluetape4k-projects/issues/146))
+
+`bluetape4k-elasticsearch` 신규 모듈로 Elasticsearch Java Client 8.x를 Kotlin Coroutines로 래핑했습니다.
+
+- `ElasticsearchClients` — `elasticsearchClientOf()` / `asyncElasticsearchClientOf()` 팩토리 (TLS/HTTPS/Basic Auth 지원)
+- `ElasticsearchClientDsl` — `withElasticsearchClient {}` / `withAsyncElasticsearchClient {}` 스코프 함수
+- `ElasticsearchCoroutines` — `indexAsync()` / `searchAsync()` / `deleteAsync()` 등 suspend 확장 함수
+- `BulkApiCoroutines` — `bulkAsync()` / `bulkIndexAsync()` bulk 작업 suspend 래퍼
+- `BulkIngesterCoroutines` — `BulkIngester` 기반 자동 플러시 bulk 인제스터 (suspend)
+
+---
+
+#### infra/pulsar — bluetape4k-pulsar 신규 모듈 ([#168](https://github.com/bluetape4k/bluetape4k-projects/pull/168), [#147](https://github.com/bluetape4k/bluetape4k-projects/issues/147))
+
+Apache Pulsar 클라이언트를 Kotlin 관용구로 래핑한 `bluetape4k-pulsar` 신규 모듈을 추가했습니다.
+
+- `PulsarClientSupport` — `pulsarClientOf()` / `withPulsarClient {}` 팩토리 + 스코프 함수
+- `ProducerSupport` / `ProducerExtensions` — `producerOf()`, `withProducer {}`, `sendSuspend()`, `sendAsyncSuspend()`
+- `ConsumerSupport` / `ConsumerExtensions` — `consumerOf()`, `withConsumer {}`, `receiveSuspend()`, `acknowledgeSuspend()`
+- `ReaderSupport` / `ReaderExtensions` — `readerOf()`, `withReader {}`, `readNextSuspend()`
+- `JacksonSchema` / `Jackson3Schema` — Jackson 기반 Pulsar 스키마 (ObjectMapper 주입)
+
+---
+
+#### testing/testcontainers — FalkorDB 컨테이너 추가 ([#161](https://github.com/bluetape4k/bluetape4k-projects/pull/161), [#160](https://github.com/bluetape4k/bluetape4k-projects/issues/160))
+
+Redis 호환 그래프 데이터베이스 FalkorDB용 Testcontainers 래퍼를 추가했습니다.
+
+- `FalkorDBServer` — `GenericContainer` 기반, `falkordb/falkordb:latest` 이미지, 포트 6379/3000
+- `FalkorDBServerExtensions.kt` — `falkorDbClientOf()` / `falkorDbGraphClientOf()` 팩토리 확장 함수
+- `FalkorDBServerTest` — 컨테이너 기동·그래프 CRUD 통합 테스트
+
+---
+
+#### testing/testcontainers — AwsEmulatorServer 공통 인터페이스 + FlociServer/ElasticMqServer/MailpitServer 추가 ([#164](https://github.com/bluetape4k/bluetape4k-projects/pull/164), [#155](https://github.com/bluetape4k/bluetape4k-projects/issues/155))
+
+AWS 에뮬레이터 컨테이너를 위한 공통 인터페이스와 신규 서버 3종을 추가했습니다.
+
+**공통 인터페이스**
+
+- `AwsEmulatorServer` — `awsEndpoint`, `awsAccessKey`, `awsSecretKey` 프로퍼티 + `getCredentialProvider()` 확장 함수 계약 통일
+- 런타임 에뮬레이터 전환: `-Dbluetape4k.aws.emulator=floci|localstack` JVM 속성
+
+**신규 서버**
+
+- `FlociServer` — AWS 에뮬레이터 (S3/DynamoDB/SQS/SNS/Lambda, 경량 Alpine 기반)
+- `ElasticMqServer` — SQS/SNS 에뮬레이터 (elasticmq-native)
+- `MailpitServer` — SES SMTP 에뮬레이터 (포트 1025/8025)
+
+**기존 서버 마이그레이션**
+
+- `LocalStackServer`, `MinIOServer` — `@Deprecated(WARNING)` 지정, FlociServer 마이그레이션 안내
+
+---
+
+#### data/hibernate — ORM 7.2.7.Final + Reactive 3.2.0.Final 업그레이드 ([#188](https://github.com/bluetape4k/bluetape4k-projects/pull/188), [#179](https://github.com/bluetape4k/bluetape4k-projects/issues/179))
+
+Hibernate ORM 6.6.x → 7.2.7.Final, Hibernate Reactive 2.4.x → 3.2.0.Final로 업그레이드했습니다.
+
+**핵심 API 변경**
+
+- `SessionFactory.openStatelessSession()` → `SessionFactory.openSession()` (Reactive 3.x API)
+- `Mutiny.SessionFactory` / `Stage.SessionFactory` suspend 래퍼 업데이트
+- `persistence.xml` `hibernate.dialect` 명시 및 `hibernate.hbm2ddl.auto` 검증 강화
+
+**호환성 처리**
+
+- `@DisabledWithHibernate7AndSpringBoot3` 어노테이션 신설 — Spring Boot 3 + Hibernate 7 조합 미지원 테스트 조건부 비활성화
+- `spring-boot3/hibernate-lettuce`: Hibernate 7 호환 `build.gradle.kts` 조정
+
+**의존성 버전**
+
+- `hibernate.version`: `6.6.44.Final` → `7.2.7.Final`
+- `hibernate_reactive.version`: `2.4.11.Final` → `3.2.0.Final`
+
+---
+
 ### Fixed
 
 #### infra/cache + CI — Caffeine `estimatedSize()` 간헐적 실패 및 워크플로우 개선 ([#123](https://github.com/bluetape4k/bluetape4k-projects/pull/123))
@@ -113,6 +269,27 @@ Fury `SCHEMA_CONSISTENT` + `refTracking=false` 모드 기반 고처리량 직렬
 - `opentelemetry` 테스트 JVM에 `-Dreactor.netty.native=false` 추가 (io_uring 레이스 컨디션)
 - `ci.yml` `paths-ignore` 추가 — `**.md`, `docs/**` 등 문서 변경 시 CI 빌드 스킵
 - `security.yml` `gitleaks-action@v2` → CLI 직접 설치로 교체 (유료 라이선스 요구 문제 해결)
+
+#### 코드 리뷰 HIGH 이슈 6건 수정 ([#201](https://github.com/bluetape4k/bluetape4k-projects/pull/201))
+
+- `DisabledWithHibernate7AndSpringBoot3`: 무조건 비활성화 의미를 KDoc/TODO로 명시
+- `ExifData.readExif`: `IOException` → warn, 파싱 예외 → debug로 로그 레벨 분리
+- `ExifData.toExifData`: `runCatching.getOrNull()` → `runCatchingDebug()` 헬퍼 적용 (15개 필드)
+- `DominantColor.dominantColors`: `extractor.extract()` 예외 처리 + `KLogging` 추가
+- `MatrixSupport.toRealVector/toRealMatrix`: 최대 차원 상한 적용 (벡터 10M, 행렬 10K) + `StreamCorruptedException`/`EOFException` 컨텍스트 포함 래핑
+- `SessionSupportStandaloneTest`: `executed.shouldNotBeNull()` → `executed.shouldBeTrue()`
+
+#### utils/math — MatrixSupport 직렬화 버그 수정 ([#192](https://github.com/bluetape4k/bluetape4k-projects/pull/192), [#187](https://github.com/bluetape4k/bluetape4k-projects/issues/187))
+
+- `MatrixSupport.toRealVector/toRealMatrix`: Java 직렬화 `defaultWriteObject()/defaultReadObject()` 호출 제거 — `Externalizable` 미구현 시 `StreamCorruptedException` 발생하던 버그 수정
+
+#### CI — nightly-tests.yml: test-io-http job에 mock-web-server Docker 빌드 step 추가 ([#171](https://github.com/bluetape4k/bluetape4k-projects/pull/171))
+
+- `nightly-tests.yml` `test-io-http` job에 `jibDockerBuild` 빌드 step 누락으로 발생하던 mock-web-server 컨테이너 기동 실패 수정
+
+#### CI — nightly 테스트 타임아웃 완화 ([#174](https://github.com/bluetape4k/bluetape4k-projects/pull/174))
+
+- `nightly-tests.yml` 일부 job의 `timeout-minutes` 상향 조정 — CI 환경 부하 시 간헐적 타임아웃 방지
 
 ---
 
@@ -132,6 +309,39 @@ Fury `SCHEMA_CONSISTENT` + `refTracking=false` 모드 기반 고처리량 직렬
 - `ReadableExtensionsTest` 등 누락 테스트 추가로 `exposed-jdbc` / `exposed-r2dbc` 라인 커버리지 70% 초과 달성
 
 #### spring-boot3/hibernate-lettuce + spring-boot4/hibernate-lettuce — 테스트 커버리지 95.4% 달성 ([#125](https://github.com/bluetape4k/bluetape4k-projects/pull/125))
+
+#### data/exposed-r2dbc — 테스트 커버리지 47.60% → 89.11% 달성 ([#180](https://github.com/bluetape4k/bluetape4k-projects/pull/180), [#176](https://github.com/bluetape4k/bluetape4k-projects/issues/176))
+
+- R2DBC 전용 테스트 (`ReadableExtensionsTest`, `UpdatableExtensionsTest`, Repository 통합 테스트 등) 대거 추가로 라인 커버리지 89.11% 달성
+
+#### io/http — 테스트 커버리지 32% → 72% 달성 ([#186](https://github.com/bluetape4k/bluetape4k-projects/pull/186), [#178](https://github.com/bluetape4k/bluetape4k-projects/issues/178))
+
+- `AsyncHttpClient`(HC5) / `MinimalHttpAsyncClient` 테스트 22종 추가 (T1~T22), 독립 `ConnectionManager` 패턴으로 테스트 격리 문제 수정
+
+#### utils/math — 테스트 커버리지 65.4% → 70.7% 달성 ([#183](https://github.com/bluetape4k/bluetape4k-projects/pull/183), [#181](https://github.com/bluetape4k/bluetape4k-projects/issues/181))
+
+- `MatrixSupport` / `VectorSupport` / `StatisticsSupport` 엣지 케이스 테스트 추가
+
+#### infra/nats — 테스트 커버리지 49% → 79.45% 달성 ([#182](https://github.com/bluetape4k/bluetape4k-projects/pull/182), [#177](https://github.com/bluetape4k/bluetape4k-projects/issues/177))
+
+- NATS JetStream 구독/발행 / KV Store / Object Store 통합 테스트 추가, 코드 리뷰 HIGH 3건 수정
+
+#### io/okio + infra/cache-core — 테스트 커버리지 80% 달성 ([#169](https://github.com/bluetape4k/bluetape4k-projects/pull/169))
+
+- `io/okio`: `BufferedSuspendSourceTest` 대규모 보강 (스트림 길이 경계/인코딩/예외 케이스)
+- `infra/cache-core`: JCache + Caffeine 통합 테스트 추가로 라인 커버리지 80% 초과
+
+#### data/hibernate — LINE 커버리지 70.4% 달성 ([#194](https://github.com/bluetape4k/bluetape4k-projects/pull/194), [#179](https://github.com/bluetape4k/bluetape4k-projects/issues/179))
+
+- `EntityManagerSupport`, `converters/**`, `criteria/**`, `listeners/**`, `model/**`, `querydsl/**` 유닛·통합 테스트 추가, Hibernate 7 호환성 수정
+
+#### data/hibernate-reactive — 테스트 커버리지 37.8% → 85.7% 달성 ([#195](https://github.com/bluetape4k/bluetape4k-projects/pull/195), [#179](https://github.com/bluetape4k/bluetape4k-projects/issues/179))
+
+- Mutiny API / Stage API 세션 CRUD 통합 테스트 추가 (`MutinySessionSupportTest`, `StageSessionSupportTest`)
+
+#### infra/pulsar — DSL 라이프사이클 테스트 추가 ([#173](https://github.com/bluetape4k/bluetape4k-projects/pull/173))
+
+- `PulsarClientSupportTest`, `ProducerSupportTest`, `ConsumerSupportTest`, `ReaderSupportTest` — Testcontainers Pulsar 기반 통합 테스트
 
 ---
 
@@ -175,6 +385,23 @@ Fury `SCHEMA_CONSISTENT` + `refTracking=false` 모드 기반 고처리량 직렬
 - `CacheMode` / `CacheWriteMode` / `LocalCacheConfig` — enum 항목별 KDoc + 제약 조건 설명
 - `NearCacheOperations` / `SuspendNearCacheOperations` — checkpoint 시맨틱, 사용 순서 명시
 - `BatchReader` / `BatchProcessor` / `BatchWriter` / `BatchJob` — 사용 패턴 + 예외 조건 문서화
+
+#### infra/lettuce + infra/redisson + infra/cache-lettuce — JMH 벤치마크 결과 공개 ([#200](https://github.com/bluetape4k/bluetape4k-projects/pull/200), [#184](https://github.com/bluetape4k/bluetape4k-projects/issues/184))
+
+`infra/lettuce`, `infra/redisson`, `infra/cache-lettuce` 모듈의 JMH 실측 벤치마크 결과를 문서화했습니다.
+
+**NearCache JMH 벤치마크 인프라 추가 (infra/cache-lettuce)**
+
+- `src/benchmark` 소스셋 신설 (`kotlinx_benchmark` 플러그인 + `allOpen` 설정)
+- `NearCacheBenchmark` — `l1Hit` / `l2Hit` / `l2Miss` / `putSingle` / `putAll` 측정 (`@Param payloadSize: 512/4096/16384`, `batchSize: 100`)
+- `NearCacheRemoveBenchmark` — `@Setup(Level.Invocation)` 격리 패턴
+- Testcontainers Redis 7+ + RESP3 `RedisClient`, `LettuceNearCacheConfig(recordStats=true)` 사용
+
+**벤치마크 결과 문서 (Benchmark.md + Benchmark.ko.md)**
+
+- `infra/lettuce`: `LettuceCodecBenchmark` — Kryo/Fory/FastFory/LZ4/Zstd/Snappy 실측값 (Apple M4 Pro 기준)
+- `infra/redisson`: `RedissonCodecBenchmark` — FastFory +26% vs Fory 수치 포함
+- `infra/cache-lettuce`: NearCache L1/L2 히트율별 레이턴시 테이블
 
 ---
 
