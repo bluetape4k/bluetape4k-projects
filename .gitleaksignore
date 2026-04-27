@@ -1,0 +1,21 @@
+# .gitleaksignore — gitleaks false-positive 억제 목록
+#
+# 형식: <commit>:<file>:<ruleID>:<line>
+# 생성: 2026-04-27 (Issue #205)
+#
+# 아래 항목은 모두 테스트/예제용 값으로, 실제 운영 시크릿이 아님.
+
+# utils/geo — 지오코딩 예제 API 키 (테스트용, 현재 파일 삭제됨)
+84553efe3b218b2b9c6959850ec5f387d461c601:utils/geo/src/main/resources/GoogleGeocodeApi.key:gcp-api-key:1
+
+# utils/geocode — 지오코딩 예제 API 키 (테스트용, 현재 파일 삭제됨)
+88accf70aaf8059bba83cd3ab3bdf16361b703b4:utils/geocode/src/main/resources/GoogleGeocodeApi.key:gcp-api-key:1
+
+# io/jackson — JsonEncrypt 암호화 예제 코드의 테스트 키 (현재 파일 삭제됨)
+00272253ee762275b770faa612166470edc09969:io/jackson/src/main/kotlin/io/bluetape4k/jackson/crypto/JsonEncrypt.kt:generic-api-key:27
+
+# io/jackson3 — JsonEncrypt 암호화 예제 코드의 테스트 키 (현재 파일 삭제됨)
+688eb52bf358a8d72d0544bacf11ae6ccd29567a:io/jackson3/src/main/kotlin/io/bluetape4k/jackson3/crypto/JsonEncrypt.kt:generic-api-key:27
+
+# data/exposed — EncryptedColumnType 테스트 암호화 키 (테스트 전용)
+a489ad4bed756613658e50fad005e6b95f8882bb:data/exposed/src/test/kotlin/io/bluetape4k/exposed/sql/encrypt/EncryptedColumnTypeTest.kt:generic-api-key:91
