@@ -8,6 +8,7 @@ import org.amshove.kluent.invoking
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldHaveSize
@@ -136,21 +137,21 @@ class DominantColorExtractorTest {
 
     @Test
     fun `fromRgb parses RGB integer correctly`() {
-        val rgb = 0xFF8000 // orange
+        val rgb = 0xFF8000 // orange: R=255 G=128 B=0
         val color = DominantColor.fromRgb(rgb, population = 42)
-        color.r shouldBeLessOrEqualTo 255
-        color.g shouldBeLessOrEqualTo 255
-        color.b shouldBeLessOrEqualTo 255
-        color.population shouldBeGreaterOrEqualTo 0
+        color.r shouldBeEqualTo 0xFF
+        color.g shouldBeEqualTo 0x80
+        color.b shouldBeEqualTo 0x00
+        color.population shouldBeEqualTo 42
     }
 
     @Test
     fun `toAwtColor returns correct color`() {
         val dominant = DominantColor(100, 150, 200, 50)
         val awt = dominant.toAwtColor()
-        awt.red shouldBeLessOrEqualTo 255
-        awt.green shouldBeLessOrEqualTo 255
-        awt.blue shouldBeLessOrEqualTo 255
+        awt.red shouldBeEqualTo 100
+        awt.green shouldBeEqualTo 150
+        awt.blue shouldBeEqualTo 200
     }
 
     @Test
@@ -193,14 +194,15 @@ class DominantColorExtractorTest {
     }
 
     @Test
-    fun `medianCut with quality=1 uses all pixels`() {
+    fun `medianCut quality=1 samples more pixels than quality=10`() {
         val image = loadImage(HOMER_JPG)
         val fast = image.dominantColors(3, DominantColorExtractor.medianCut(quality = 10))
         val precise = image.dominantColors(3, DominantColorExtractor.medianCut(quality = 1))
         log.debug { "fast: $fast, precise: $precise" }
-        // 두 결과 모두 non-empty이고 색상 값이 유효해야 한다
         fast.shouldNotBeEmpty()
         precise.shouldNotBeEmpty()
+        // quality=1은 모든 픽셀 샘플링 → 첫 번째 색상의 population이 더 큼
+        precise.first().population shouldBeGreaterThan fast.first().population
     }
 
     @Test

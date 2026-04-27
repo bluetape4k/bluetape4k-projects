@@ -1,8 +1,6 @@
 package io.bluetape4k.images.analysis
 
 import com.sksamuel.scrimage.ImmutableImage
-import io.bluetape4k.logging.KotlinLogging
-
 /**
  * Median Cut quantization 알고리즘으로 이미지의 대표 색상을 추출한다.
  *
@@ -10,8 +8,6 @@ import io.bluetape4k.logging.KotlinLogging
  * 5-bit/channel (32 levels) RGB 색공간을 사용하여 메모리를 절약한다.
  */
 internal object MedianCutQuantizer {
-
-    private val log = KotlinLogging.logger {}
 
     private const val SIGNAL_BITS = 5
     private const val RIGHT_SHIFT = 8 - SIGNAL_BITS  // = 3
@@ -52,6 +48,7 @@ internal object MedianCutQuantizer {
 
         return boxes
             .map { averageColor(it, histogram) }
+            .filter { it.population > 0 }
             .sortedByDescending { it.population }
     }
 

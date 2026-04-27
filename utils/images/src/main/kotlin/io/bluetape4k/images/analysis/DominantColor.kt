@@ -22,8 +22,8 @@ data class DominantColor(
 ) {
     init {
         require(r in 0..255) { "r은 0..255 범위여야 합니다. 입력: $r" }
-        require(g in 0..255) { "g은 0..255 범위여야 합니다. 입력: $g" }
-        require(b in 0..255) { "b은 0..255 범위여야 합니다. 입력: $b" }
+        require(g in 0..255) { "g는 0..255 범위여야 합니다. 입력: $g" }
+        require(b in 0..255) { "b는 0..255 범위여야 합니다. 입력: $b" }
         require(population >= 0) { "population은 0 이상이어야 합니다. 입력: $population" }
     }
 

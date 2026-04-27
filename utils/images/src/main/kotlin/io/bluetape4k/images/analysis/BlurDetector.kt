@@ -78,21 +78,21 @@ internal fun computeLaplacianVariance(image: ImmutableImage): Double {
         0.299 * p.red() + 0.587 * p.green() + 0.114 * p.blue()
     }
 
-    // Laplacian convolution — boundary 1px 제외
-    val laplacian = mutableListOf<Double>()
+    // Laplacian convolution + Welford's online variance — boundary 1px 제외
+    // mutableList<Double> 대신 single-pass로 heap 할당 없이 분산 계산
+    var count = 0L
+    var mean = 0.0
+    var m2 = 0.0
     for (y in 1 until h - 1) {
         for (x in 1 until w - 1) {
             val center = gray[y * w + x]
-            val top    = gray[(y - 1) * w + x]
-            val bottom = gray[(y + 1) * w + x]
-            val left   = gray[y * w + (x - 1)]
-            val right  = gray[y * w + (x + 1)]
-            laplacian.add(top + bottom + left + right - 4.0 * center)
+            val v = gray[(y - 1) * w + x] + gray[(y + 1) * w + x] +
+                    gray[y * w + (x - 1)] + gray[y * w + (x + 1)] - 4.0 * center
+            count++
+            val delta = v - mean
+            mean += delta / count
+            m2 += delta * (v - mean)
         }
     }
-
-    if (laplacian.isEmpty()) return 0.0
-
-    val mean = laplacian.average()
-    return laplacian.sumOf { (it - mean) * (it - mean) } / laplacian.size
+    return if (count > 0) m2 / count else 0.0
 }
