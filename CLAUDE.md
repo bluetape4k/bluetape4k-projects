@@ -87,7 +87,8 @@ All tools installed at `/opt/homebrew/bin/`.
 | `infra/`         | `lettuce`, `redisson`, `kafka`, `pulsar`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`, `elasticsearch` |
 | `spring-boot3/`  | WebFlux+Coroutines, Exposed JDBC/R2DBC repos, Hibernate Lettuce cache, Spring Batch                                         |
 | `spring-boot4/`  | Same as boot3 — use `implementation(platform(Libs.spring_boot4_dependencies))` (not `dependencyManagement`)                 |
-| `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `lingua`, `states`, `workflow`, `measured`, `money`, `text-search`      |
+| `texts/`         | `tokenizer-core`, `tokenizer-korean`, `tokenizer-japanese`, `lingua`, `text-search`                                         |
+| `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `states`, `workflow`, `measured`, `money`                               |
 | `testing/`       | `junit5`, `testcontainers`, `mock-web-server` (Spring Boot 3 MVC), `mock-webflux-server` (Spring Boot 4 WebFlux, port 9999) |
 | `virtualthread/` | `api`, `jdk21`, `jdk25` — always update both jdk21 AND jdk25 together                                                       |
 

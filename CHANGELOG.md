@@ -14,6 +14,25 @@
 
 ### Added
 
+#### texts/** — 신규 모듈 그룹 (tokenizer/lingua/text-search 승격) ([#170](https://github.com/bluetape4k/bluetape4k-projects/issues/170))
+
+`x-obsoleted/tokenizer` 및 `utils/` 하위 텍스트 처리 모듈을 `texts/**` 그룹으로 승격하였습니다.
+
+**신규 모듈 그룹**
+
+- `bluetape4k-tokenizer-core` — 토크나이저 공통 인터페이스 (`TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`)
+- `bluetape4k-tokenizer-korean` — 한국어 형태소 분석기 (Open Korean Text 기반). **twitter-text 의존성 제거** — `TwitterCompatPatterns.kt` 인라인 정규식으로 대체
+- `bluetape4k-tokenizer-japanese` — 일본어 형태소 분석기 (Kuromoji IPAdic 0.9.0)
+- `bluetape4k-lingua` — 75+ 언어 감지 (Lingua 라이브러리 래퍼)
+- `bluetape4k-text-search` — Aho-Corasick 다중 키워드 검색 (금칙어 필터/하이라이팅/Flow API)
+
+**의존성 변경**
+
+- `bluetape4k-tokenizer-korean`: `com.twitter.twittertext:twitter-text:3.1.0` 제거
+- `TwitterCompatPatterns` 내부 구현: `VALID_URL` / `VALID_HASHTAG` / `VALID_MENTION_OR_LIST` / `VALID_CASHTAG` 4개 패턴
+
+---
+
 #### utils/science — NetCDF 지원 완성 (UCAR netCDF-Java 5.9.1) ([#127](https://github.com/bluetape4k/bluetape4k-projects/pull/127), [#107](https://github.com/bluetape4k/bluetape4k-projects/issues/107))
 
 `bluetape4k-science` 모듈에 NetCDF 파일 임포트 파이프라인이 완성되었습니다.

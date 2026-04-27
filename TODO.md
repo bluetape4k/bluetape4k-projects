@@ -120,12 +120,11 @@
   - 이미 구현 성숙도 높음 (client/stream/consumer/kv/objectstore)
   - TODO 6.2 infra/nats 항목과 통합 검토
 
-- [x] **lingua → utils/lingua** (3 kt 파일, 높은 ROI)
+- [x] **lingua → texts/lingua** (3 kt 파일, 높은 ROI) — PR #170 승격 완료
   - 75+ 언어 자동 감지 — 콘텐츠 분류, 다국어 라우팅, 검색 인덱싱 필수
   - 코드는 작지만 가치 높음 (Lingua 라이브러리 얇은 래퍼)
-  - `utils/ai` 신설 시 전처리 도구로 자연스럽게 포함 가능
 
-- [ ] **ahocorasick → utils/text-search** (11 kt 파일)
+- [x] **ahocorasick → texts/text-search** (11 kt 파일) — PR #170 승격 완료
   - 다중 키워드 검색 O(n) — 금칙어 필터, 태그 추출, 치환, 검색 하이라이팅
   - Trie DSL + case-insensitive/whole-word/overlapping 옵션 지원
   - 수요 꾸준함 (커뮤니티/메신저 서비스 필수)
@@ -167,13 +166,13 @@
 
 - [ ] **mapstruct** (1 kt) — 예제만, Kotlin data class copy로 충분, 삭제
 - [ ] **mutiny-examples** (0 kt) — `utils/mutiny`로 통합 완료, 삭제
-- [ ] **tokenizer** (0 kt) — 구현 없음, 삭제
+- [x] **tokenizer** — PR #170으로 `texts/tokenizer-core`, `texts/tokenizer-korean`, `texts/tokenizer-japanese` 로 승격 완료
 - [ ] **vertx-coroutines / vertx-sqlclient / vertx-webclient** (0~2 kt) — `infra/vertx` umbrella 이미 존재, 삭제
 - [ ] **naivebayes** (2 kt) — Naive Bayes classifier, LLM/transformer가 대체, 수요 낮음, 삭제 (또는 `utils/ml` 신설 시 포함)
 
 ### 4.4 실행 계획
 
-- [ ] Phase 1: 🔴 3개 모듈 승격 (nats, lingua, ahocorasick) — 독립 PR
+- [x] Phase 1: 🔴 5개 모듈 승격 (tokenizer-core/korean/japanese, lingua, text-search) — PR #170 완료
 - [ ] Phase 2: 🟡 조건부 3개 처리 — bloomfilter 부분 흡수, captcha/logback-kafka 승격
 - [ ] Phase 3: 🟢 7개 모듈 완전 제거 — `settings.gradle.kts` 정리
 - [ ] Phase 4: `x-obsoleted/` 디렉토리 최종 삭제
