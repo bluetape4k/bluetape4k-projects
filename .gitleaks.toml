@@ -24,6 +24,8 @@ paths = [
     '''CLAUDE\.md''',
     # 빌드 스크립트 — GPR 환경변수 이름(bluetape4kGprPublishKey 등) false positive
     '''build\.gradle\.kts''',
+    # JMH 벤치마크 소스 — 벤치마크 식별자("bench-warm", "bench-l2warm" 등) false positive
+    '''src/benchmark/''',
 ]
 
 regexes = [

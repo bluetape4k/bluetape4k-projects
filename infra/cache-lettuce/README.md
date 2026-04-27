@@ -182,6 +182,23 @@ Redis keys are namespaced through the configured cache name and key prefix so mu
 - Use `LettuceNearCache` / `LettuceSuspendNearCache` when richer stats and resilience features matter.
 - RESP3 `CLIENT TRACKING` is the basis for automatic invalidation.
 
+## Performance Benchmark
+
+`LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) JMH benchmark results (Apple M4 Pro / GraalVM 21 / 2026-04-27):
+
+| Benchmark | payloadSize=512 | payloadSize=4096 | payloadSize=16384 |
+|-----------|:--------------:|:----------------:|:-----------------:|
+| **l1Hit** | **65,560 ops/ms** | **63,458 ops/ms** | **64,580 ops/ms** |
+| l2Hit (incl. clearLocal) | 4.07 ops/ms | 4.13 ops/ms | 3.93 ops/ms |
+| l2Miss | 3.96 ops/ms | 3.92 ops/ms | 4.21 ops/ms |
+| putSingle | 2.12 ops/ms | 2.08 ops/ms | 2.01 ops/ms |
+| putAll (×100) | 1.04 ops/ms | 0.93 ops/ms | 0.41 ops/ms |
+| removeSingle | 4.21 ops/ms | 4.24 ops/ms | 4.16 ops/ms |
+
+> L1 cache hit is **~16,000× faster** than any L2 (Redis) operation.
+> Full results & analysis: [Benchmark.md](./Benchmark.md) · [벤치마크 결과 (한국어)](./Benchmark.ko.md)
+> Run: `./gradlew :bluetape4k-cache-lettuce:benchmark` (requires Docker)
+
 ## Performance / Stability Notes
 
 These contracts are guaranteed across the `LettuceNearCache`, `LettuceSuspendNearCache`, `LettuceAsyncMemoizer`, and `LettuceJCache` implementations.

@@ -57,24 +57,25 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 
 ### Codec Benchmark Results
 
-Based on `LettuceCodecBenchmark` (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+Based on `LettuceCodecBenchmark` (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s / Measurement 5×3s / Fork 1 / 2026-04-27):
 
-| Codec | ops/ms | vs Fory |
+| Codec | ops/ms | ± Error |
 |-------|-------:|--------:|
-| **FastFory** | **3,300** | **+27%** |
-| Fory | 2,596 | 기준 |
-| Kryo | 1,061 | -59% |
-| LZ4FastFory | 922 | — |
-| LZ4Fory | 854 | — |
-| LZ4Kryo | 545 | — |
-| ZstdFastFory | 208 | — |
-| ZstdFory | 202 | — |
-| ZstdKryo | 137 | — |
-| JDK | 135 | -95% |
-| GzipFastFory | 111 | — |
-| Jackson3 | 868 | — |
+| **fastjson2** | **6,379** | ± 1,358 |
+| **FastFory** | **3,286** | ± 142 |
+| Fory | 2,551 | ± 2,001 |
+| Kryo | 963 | ± 474 |
+| LZ4FastFory | 906 | ± 66 |
+| LZ4Fory | 852 | ± 39 |
+| Jackson3 | 834 | ± 25 |
+| LZ4Kryo | 535 | ± 16 |
+| ZstdFastFory | 206 | ± 17 |
+| ZstdFory | 203 | ± 5 |
+| ZstdKryo | 136 | ± 3 |
+| JDK | 132 | ± 13 |
+| GzipFastFory | 110 | ± 2 |
 
-> Full results: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> Full results & analysis: [Benchmark.md](./Benchmark.md) · [벤치마크 결과 (한국어)](./Benchmark.ko.md)
 > Run: `./gradlew :bluetape4k-lettuce:benchmark`
 
 ### Connection Benchmark Results
@@ -114,7 +115,7 @@ getFutures.awaitAll()
 
 - Disables `autoFlushCommands` while issuing commands, then issues a **single `flushCommands()`** for the entire batch
 - Merge SET and GET into **one block** to eliminate the inter-phase barrier (single TCP burst vs two sequential bursts)
-- `restores `autoFlushCommands(true)` in `finally` for safety
+- Restores `autoFlushCommands(true)` in `finally` for safety
 
 #### 4. `Collection<RedisFuture>.awaitAll()` — Bulk Await
 

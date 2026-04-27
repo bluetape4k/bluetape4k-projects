@@ -1,6 +1,49 @@
+plugins {
+    kotlin("plugin.allopen")
+    id(Plugins.kotlinx_benchmark)
+}
+
+allOpen {
+    // https://github.com/Kotlin/kotlinx-benchmark
+    annotation("org.openjdk.jmh.annotations.State")
+}
+
+sourceSets {
+    create("benchmark")
+}
+
+kotlin {
+    target {
+        compilations.getByName("benchmark").associateWith(compilations.getByName("main"))
+    }
+}
+
+// https://github.com/Kotlin/kotlinx-benchmark
+benchmark {
+    targets {
+        register("benchmark") {
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
+            jmhVersion = Versions.jmh
+        }
+    }
+}
+
 configurations {
     // compileOnly 나 runtimeOnly로 지정된 Dependency를 testImplementation 으로도 지정하도록 합니다.
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+    named("benchmarkImplementation") {
+        extendsFrom(
+            configurations.getByName("implementation"),
+            configurations.getByName("compileOnly"),
+            configurations.getByName("testImplementation"),
+        )
+    }
+    named("benchmarkRuntimeOnly") {
+        extendsFrom(
+            configurations.getByName("runtimeOnly"),
+            configurations.getByName("testRuntimeOnly"),
+        )
+    }
 }
 
 dependencies {
@@ -34,4 +77,9 @@ dependencies {
     testRuntimeOnly(Libs.lz4_java)
     testRuntimeOnly(Libs.snappy_java)
     testRuntimeOnly(Libs.zstd_jni)
+
+    // Benchmark
+    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
+    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
+    add("benchmarkImplementation", Libs.jmh_core)
 }
