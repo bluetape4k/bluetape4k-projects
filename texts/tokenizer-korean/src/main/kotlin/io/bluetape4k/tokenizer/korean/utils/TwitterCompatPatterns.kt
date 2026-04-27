@@ -7,10 +7,11 @@ import java.util.regex.Pattern
  * 인라인 정규식으로 대체한 내부 유틸리티.
  *
  * ## 매치 범위 계약
- * - [VALID_URL]: lookbehind 사용 — 매치 범위에 선행 문자 미포함. `(https://...` 입력 시 `(` 미포함.
+ * - [VALID_URL]: `\(?` 로 선행 `(` 를 매치 범위에 포함. `(https://example.com)` 입력 시 `(https://example.com` 매치 (`(` 포함, `)` 미포함).
  * - [VALID_HASHTAG], [VALID_MENTION_OR_LIST], [VALID_CASHTAG]:
- *   group(1) = 선행 공백/문자열 시작, group(2) = 실제 토큰.
- *   `KoreanChunker`는 group(2) offset을 사용해야 한다.
+ *   group(1) = 선행 문자 (공백 또는 비단어 문자, 문자열 시작 시 빈 문자열), group(2) = 실제 토큰.
+ *   `KoreanChunker.splitChunks` 는 `splitBySpaceKeepingSpace` 후 세그먼트에서 실행되므로
+ *   group(1) 이 항상 비어 있어 group(0) == group(2) 가 성립한다.
  */
 internal object TwitterCompatPatterns {
 
