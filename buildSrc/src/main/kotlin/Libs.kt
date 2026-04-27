@@ -208,6 +208,8 @@ object Versions {
 
     const val scrimage = "4.3.10"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
     const val metadata_extractor = "2.19.0"  // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+    const val twelvemonkeys_imageio = "3.12.0"  // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff
+    const val batik = "1.18"  // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-transcoder
 
     // Gatling
     const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
@@ -1515,6 +1517,17 @@ object Libs {
 
     // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
     val metadata_extractor = "com.drewnoakes:metadata-extractor:${Versions.metadata_extractor}"
+
+    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff
+    fun twelvemonkeys(module: String) = "com.twelvemonkeys.imageio:imageio-$module:${Versions.twelvemonkeys_imageio}"
+    val twelvemonkeys_imageio_tiff = twelvemonkeys("tiff")
+    val twelvemonkeys_imageio_metadata = twelvemonkeys("metadata")
+    val twelvemonkeys_imageio_core = twelvemonkeys("core")
+
+    // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-transcoder
+    fun batik(module: String) = "org.apache.xmlgraphics:batik-$module:${Versions.batik}"
+    val batik_transcoder = batik("transcoder")
+    val batik_codec = batik("codec")
 
     // NLP / Language Detection
     const val lingua = "com.github.pemistahl:lingua:${Versions.lingua}"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua

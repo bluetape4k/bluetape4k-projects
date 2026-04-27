@@ -13,6 +13,24 @@ object IIORegistryUtils {
     private val registry by lazy { IIORegistry.getDefaultInstance() }
 
     /**
+     * 현재 애플리케이션 클래스패스에 등록된 모든 ImageIO SPI를 [IIORegistry]에 강제 등록합니다.
+     *
+     * ## 동작/계약
+     * - 기본 JVM 클래스로더가 SPI를 자동 감지하지 못하는 경우(예: 테스트 환경, 커스텀 클래스로더)에 유용합니다.
+     * - TwelveMonkeys ImageIO TIFF reader/writer가 올바르게 등록되도록 [SuspendTiffWriter] 초기화 시 호출됩니다.
+     * - 멱등성: 이미 등록된 SPI는 중복 등록되지 않습니다.
+     *
+     * ```kotlin
+     * IIORegistryUtils.registerApplicationClasspathSpis()
+     * val formatNames = IIORegistryUtils.imageWriterFormatNames
+     * // formatNames.any { it.equals("tiff", ignoreCase = true) } == true
+     * ```
+     */
+    fun registerApplicationClasspathSpis() {
+        registry.registerApplicationClasspathSpis()
+    }
+
+    /**
      * Read를 지원하는 Image Format Names
      *
      * ```kotlin
@@ -49,7 +67,7 @@ object IIORegistryUtils {
      * @return [ImageReaderSpi] 목록
      */
     fun getImageReaderSpis(): List<ImageReaderSpi> {
-        return getServiceProviders<ImageReaderSpi>().toList()
+        return getServiceProviders<ImageReaderSpi>()
     }
 
     /**
@@ -63,7 +81,7 @@ object IIORegistryUtils {
      * @return [ImageWriterSpi] 목록
      */
     fun getImageWriterSpis(): List<ImageWriterSpi> {
-        return getServiceProviders<ImageWriterSpi>().toList()
+        return getServiceProviders<ImageWriterSpi>()
     }
 
     /**
