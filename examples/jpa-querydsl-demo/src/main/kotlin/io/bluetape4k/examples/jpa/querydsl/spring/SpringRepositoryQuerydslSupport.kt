@@ -49,7 +49,7 @@ class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
     protected fun getQueryFactory(): JPAQueryFactory = queryFactory!!
 
     @Suppress("DEPRECATION")
-    protected fun <T> withPaging(pageable: Pageable, queryAction: (JPAQueryFactory) -> JPAQuery<T>): Page<T> {
+    protected fun <T: Any> withPaging(pageable: Pageable, queryAction: (JPAQueryFactory) -> JPAQuery<T>): Page<T> {
         val contentQuery = queryAction(getQueryFactory())
         val content = getQuerydsl().applyPagination(pageable, contentQuery).fetch()
 
@@ -60,7 +60,7 @@ class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
     }
 
     @Suppress("DEPRECATION")
-    protected fun <T> withPaging(
+    protected fun <T: Any> withPaging(
         pageable: Pageable,
         contentQueryAction: (JPAQueryFactory) -> JPAQuery<T>,
         countQueryAction: (JPAQueryFactory) -> JPAQuery<T>,

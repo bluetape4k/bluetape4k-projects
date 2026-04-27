@@ -1,9 +1,9 @@
 package io.bluetape4k.hibernate
 
 import org.hibernate.SessionFactory
+import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.event.service.spi.EventListenerRegistry
 import org.hibernate.event.spi.EventType
-import org.hibernate.internal.SessionFactoryImpl
 
 /**
  * Hibernate [SessionFactory]에 Event listener를 등록합니다.
@@ -20,13 +20,13 @@ import org.hibernate.internal.SessionFactoryImpl
  * @param listener Event listener입니다.
  * @param eventTypes 대상 이벤트 타입 컬렉션입니다.
  */
-@Suppress("UNCHECKED_CAST")
 fun <T> SessionFactory.registerEventListener(
     listener: T,
     eventTypes: Collection<EventType<*>>,
 ) {
     getEventListenerRegistry()?.let { registry ->
         eventTypes.forEach { eventType ->
+            @Suppress("UNCHECKED_CAST")
             registry.getEventListenerGroup(eventType as EventType<T>).appendListener(listener)
         }
     }
@@ -50,7 +50,7 @@ fun <T> SessionFactory.registEventListener(
  * Hibernate [SessionFactory]의 [EventListenerRegistry]를 가져옵니다.
  *
  * ## 동작/계약
- * - `SessionFactoryImpl`로 캐스팅 가능한 경우에만 service registry에서 반환합니다.
+ * - [SessionFactoryImplementor]로 unwrap 가능한 경우 직접 반환합니다.
  * - Hibernate 구현체가 아니면 `null`을 반환합니다.
  *
  * ```kotlin
@@ -59,7 +59,13 @@ fun <T> SessionFactory.registEventListener(
  * ```
  */
 fun SessionFactory.getEventListenerRegistry(): EventListenerRegistry? {
-    return (this as? SessionFactoryImpl)?.serviceRegistry?.getService(EventListenerRegistry::class.java)
+    // WHY: Spring wraps SessionFactory in a proxy, so direct cast to SessionFactoryImpl fails.
+    // unwrap(SessionFactoryImplementor) bypasses the proxy and is the JPA-standard way in Hibernate 7.
+    return try {
+        this.unwrap(SessionFactoryImplementor::class.java)?.getEventListenerRegistry()
+    } catch (_: Exception) {
+        null
+    }
 }
 
 /**

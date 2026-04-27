@@ -40,17 +40,30 @@ kapt {
     }
 }
 
-// Hibernate ORM 7.x requires Jakarta Persistence 3.2.0 (needed at compile + runtime).
-// Spring Boot 3.x BOM constrains jakarta.persistence to 3.1.0; override it here.
-configurations.all {
+// 전역 dependencyManagement가 spring_boot3_dependencies BOM을 임포트하여 SB4/SF7/H7 아티팩트를
+// 구버전으로 다운그레이드한다. 테스트 설정에서 SB4 호환 버전을 강제한다.
+configurations.matching { it.name.startsWith("test") }.configureEach {
     resolutionStrategy.eachDependency {
-        if (requested.group == "jakarta.persistence") {
-            useVersion("3.2.0")
-            because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
+        when (requested.group) {
+            "org.springframework.boot" -> {
+                useVersion("4.0.6")
+                because("SB4 테스트: global SB3 BOM 다운그레이드 방지")
+            }
+            "org.springframework" -> {
+                useVersion("7.0.7")
+                because("Spring Framework 7.0.7: SB4 4.0.6 호환 버전 강제")
+            }
+            "org.hibernate.orm" -> {
+                useVersion("7.2.7.Final")
+                because("Hibernate 7.2.7.Final: SB4 4.0.6 호환 버전 강제")
+            }
+            "jakarta.persistence" -> {
+                useVersion("3.2.0")
+                because("Jakarta Persistence 3.2: Hibernate 7 / SB4 호환 버전 강제")
+            }
         }
     }
 }
-
 
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
@@ -70,7 +83,7 @@ artifacts {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(Libs.spring_boot4_dependencies))
     testImplementation(platform(Libs.junit_bom))
 
     api(project(":bluetape4k-core"))
@@ -125,6 +138,8 @@ dependencies {
     // kaptTest(Libs.querydsl_kotlin_codegen)
 
     compileOnly(Libs.springBootStarter("data-jpa"))
+    compileOnly(Libs.springBoot("autoconfigure"))
+    compileOnly(Libs.springBoot("hibernate"))  // SB4: HibernatePropertiesCustomizer 이동된 모듈
     testImplementation(Libs.springBoot("autoconfigure"))
     testImplementation(Libs.springBootStarter("test")) {
         exclude(group = "junit", module = "junit")

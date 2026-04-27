@@ -8,6 +8,7 @@ import jakarta.persistence.Access
 import jakarta.persistence.AccessType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.Inheritance
@@ -79,7 +80,7 @@ class TablePerClassInheritanceTest: AbstractHibernateTest() {
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 abstract class AbstractUuidBilling(
     @Id
-    @GeneratedValue(generator = "uuid")
+    @GeneratedValue(strategy = GenerationType.UUID)
     override var id: UUID? = null,
     val owner: String = "",
     var swift: String? = null,

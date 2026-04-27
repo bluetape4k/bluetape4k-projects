@@ -5,26 +5,23 @@ import io.bluetape4k.logging.KLogging
 import jakarta.persistence.EntityManager
 import jakarta.persistence.EntityManagerFactory
 import net.datafaker.Faker
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 
 /**
- * `@DataJpaTest`를 사용하려면 SprinBootApplication 이 정의되어 있어야 합니다 (see [HibernateApplication])
+ * `@SpringBootTest`를 사용하려면 SpringBootApplication 이 정의되어 있어야 합니다 (see [HibernateApplication])
  *
- * 참고: [Hibernate Configuration](https://docs.jboss.org/hibernate/orm/5.6/userguide/html_single/Hibernate_User_Guide.html#configurations)
+ * 참고: [Hibernate Configuration](https://docs.jboss.org/hibernate/orm/7/userguide/html_single/Hibernate_User_Guide.html#configurations)
  */
-// NOTE: H7 requires Spring Boot 4 / Spring Framework 7 for Spring ORM integration.
-// @ExtendWith is @Inherited, so DisabledWithHibernate7AndSpringBoot3 propagates to all subclasses.
-@ExtendWith(DisabledWithHibernate7AndSpringBoot3::class)
-// NOTE: @DataJpaTest에서는 무조건 H2 를 사용하므로, SpringBootTest를 이용할 때에는 MySQL 모드로 사용하도록 해야 한다.
-@DataJpaTest(
+@SpringBootTest(
+    classes = [HibernateApplication::class],
+    webEnvironment = SpringBootTest.WebEnvironment.NONE,
     properties = [
-        // @DataJpaTest는 H2를 사용합니다. MODE=MySQL 로 지정하면 H2 DB를 MySQL 호환 모드로 실행됩니다.
         "spring.datasource.url=jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
         "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.show-sql=true",
+        "spring.flyway.enabled=false",
 
         // DML 작업
         "spring.jpa.properties.hibernate.hbm2ddl.auto=update",
@@ -34,50 +31,35 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
         "spring.jpa.properties.hibernate.highlight_sql=true",
         // 성능 측정 정보 제공
         "spring.jpa.properties.hibernate.generate_statistics=true",
-        // "spring.jpa.properties.hibernate.use_sql_comments=true",
         //
         // NOTE: literal 을 parameter 로 binding 시킵니다
         // 참고 : https://vladmihalcea.com/how-does-hibernate-handle-jpa-criteria-api-literals/
         "spring.jpa.properties.hibernate.criteria.literal_handling_mode=bind",
 
         // NOTE: slow query 지정
-        // logging 설정에 다음과 같이 추가해야 함
-        // <logger name="org.hibernate.SQL_SLOW" level="INFO"/>
         "spring.jpa.properties.hibernate.session.events.log.LOG_QUERIES_SLOWER_THAN_MS=10",
 
-        // Seond Cache
-        "spring.jpa.properties.hibernate.cache.use_secoond_level_cache=false",
+        // Second Level Cache
+        "spring.jpa.properties.hibernate.cache.use_second_level_cache=false",
 
-        // Query Cache
-        "spring.jpa.properties.hibernate.cache.use_query_cache=true",
+        // Query Cache - WHY: disabled to avoid Caffeine JCache singleton being closed by a concurrent
+        // Spring context teardown, which causes IllegalStateException in other running test contexts.
+        "spring.jpa.properties.hibernate.cache.use_query_cache=false",
 
         // https://vladmihalcea.com/improve-statement-caching-efficiency-in-clause-parameter-padding/
         "spring.jpa.properties.hibernate.query.in_clause_parameter_padding=true",
         "spring.jpa.properties.hibernate.query.plan_cache_max_size=2048",
         "spring.jpa.properties.hibernate.query.plan_parameter_metadata_max_size=128",
 
-        // Caching Providers (hibernate-jcache 와 caffeine-jcache 를 참조해야 합니다)
-        "spring.jpa.properties.hibernate.cache.region.factory_class=jcache",
-        "spring.jpa.properties.hibernate.javax.cache.provider=com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider",
-
-        // JPA Batch Insert (https://cheese10yun.github.io/jpa-batch-insert/)
-        // MySQL인 경우 jdbc url에 `rewriteBatchedStatements=true` 추가해야 함
+        // JPA Batch Insert
         "spring.jpa.properties.hibernate.jdbc.batch_size=30",
         "spring.jpa.properties.hibernate.order_inserts=true",
         "spring.jpa.properties.hibernate.order_updates=true"
-    ],
-    showSql = true,
-    excludeAutoConfiguration = [FlywayAutoConfiguration::class]
+    ]
 )
+@Transactional
 abstract class AbstractHibernateTest {
     companion object: KLogging() {
-        // @DataJpaTest 는 H2 를 사용합니다. @SprintBootTest 로 직접적으로 사용하려면 MySQLServer를 생성해야 합니다.
-        //        val mysql: MySQLServer by lazy {
-        //            MySQLServer(useDefaultPort = true).apply {
-        //                start()
-        //                ShutdownQueue.register(this)
-        //            }
-        //        }
         @JvmStatic
         val faker: Faker = Fakers.faker
     }
