@@ -55,24 +55,25 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 
 ### Codec 벤치마크 결과
 
-`LettuceCodecBenchmark` 기준 (JMH, Apple M4 Pro / Java 21 / Warmup 3×2s / Measurement 5×3s / Fork 1):
+`LettuceCodecBenchmark` 기준 (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s / Measurement 5×3s / Fork 1 / 2026-04-27):
 
-| Codec | ops/ms | Fory 대비 |
-|-------|-------:|----------:|
-| **FastFory** | **3,300** | **+27%** |
-| Fory | 2,596 | 기준 |
-| Kryo | 1,061 | -59% |
-| LZ4FastFory | 922 | — |
-| LZ4Fory | 854 | — |
-| LZ4Kryo | 545 | — |
-| ZstdFastFory | 208 | — |
-| ZstdFory | 202 | — |
-| ZstdKryo | 137 | — |
-| JDK | 135 | -95% |
-| GzipFastFory | 111 | — |
-| Jackson3 | 868 | — |
+| Codec | ops/ms | ± 오차 |
+|-------|-------:|-------:|
+| **fastjson2** | **6,379** | ± 1,358 |
+| **FastFory** | **3,286** | ± 142 |
+| Fory | 2,551 | ± 2,001 |
+| Kryo | 963 | ± 474 |
+| LZ4FastFory | 906 | ± 66 |
+| LZ4Fory | 852 | ± 39 |
+| Jackson3 | 834 | ± 25 |
+| LZ4Kryo | 535 | ± 16 |
+| ZstdFastFory | 206 | ± 17 |
+| ZstdFory | 203 | ± 5 |
+| ZstdKryo | 136 | ± 3 |
+| JDK | 132 | ± 13 |
+| GzipFastFory | 110 | ± 2 |
 
-> 전체 결과: [`docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md`](../../docs/benchmarks/2026-04-25-fory-fast-codec-benchmark.md)
+> 전체 결과 및 분석: [Benchmark.md](./Benchmark.md) · [한국어](./Benchmark.ko.md)
 > 실행: `./gradlew :bluetape4k-lettuce:benchmark`
 
 ### 커넥션 벤치마크 결과
