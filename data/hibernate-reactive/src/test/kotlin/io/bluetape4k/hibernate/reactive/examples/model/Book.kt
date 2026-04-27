@@ -11,10 +11,14 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.NamedAttributeNode
+import jakarta.persistence.NamedEntityGraph
+import jakarta.persistence.NamedQuery
 import jakarta.persistence.Table
 import jakarta.validation.constraints.Past
 import org.hibernate.annotations.FetchMode
 import org.hibernate.annotations.FetchProfile
+import org.hibernate.annotations.NaturalId
 import java.time.LocalDate
 
 
@@ -29,10 +33,16 @@ import java.time.LocalDate
         ) // 현재는 FetchMode.JOIN 만 지원한다
     ]
 )
+@NamedEntityGraph(
+    name = "Book.withAuthor",
+    attributeNodes = [NamedAttributeNode("author")]
+)
+@NamedQuery(name = "Book.findAll", query = "SELECT b FROM Book b")
 @Entity
 @Table(name = "books")
 @Access(AccessType.FIELD)
 class Book private constructor(
+    @NaturalId
     val isbn: String,
     val title: String,
     @field:Past

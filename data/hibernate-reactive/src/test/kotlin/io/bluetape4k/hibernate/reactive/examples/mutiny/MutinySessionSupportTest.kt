@@ -2,10 +2,13 @@ package io.bluetape4k.hibernate.reactive.examples.mutiny
 
 import io.bluetape4k.hibernate.reactive.examples.model.Author
 import io.bluetape4k.hibernate.reactive.examples.model.Book
+import io.bluetape4k.hibernate.reactive.mutiny.createEntityGraphAs
+import io.bluetape4k.hibernate.reactive.mutiny.createNamedQueryAs
 import io.bluetape4k.hibernate.reactive.mutiny.createNativeQueryAs
 import io.bluetape4k.hibernate.reactive.mutiny.createQueryAs
 import io.bluetape4k.hibernate.reactive.mutiny.findAs
 import io.bluetape4k.hibernate.reactive.mutiny.getAs
+import io.bluetape4k.hibernate.reactive.mutiny.getEntityGraphAs
 import io.bluetape4k.hibernate.reactive.mutiny.getReferenceAs
 import io.bluetape4k.hibernate.reactive.mutiny.withSessionSuspending
 import io.bluetape4k.hibernate.reactive.mutiny.withStatelessSessionSuspending
@@ -16,6 +19,7 @@ import io.smallrye.mutiny.coroutines.awaitSuspending
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldNotBeNull
+import org.amshove.kluent.shouldNotBeEmpty
 import org.hibernate.LockMode
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -130,5 +134,103 @@ class MutinySessionSupportTest: AbstractMutinyTest() {
                 .awaitSuspending()
         }
         count shouldBeGreaterOrEqualTo 1L
+    }
+
+    /**
+     * [createEntityGraphAs] 로 이름 있는 EntityGraph를 생성합니다.
+     */
+    @Test
+    fun `session 에서 createEntityGraphAs 로 이름 있는 EntityGraph 를 생성한다`() = runSuspendIO {
+        sf.withSessionSuspending { session ->
+            val graph = session.createEntityGraphAs<Book>("Book.withAuthor")
+            graph.shouldNotBeNull()
+            graph.attributeNodes.shouldNotBeEmpty()
+        }
+    }
+
+    /**
+     * [getEntityGraphAs] 로 @NamedEntityGraph 를 이름으로 조회합니다.
+     */
+    @Test
+    fun `session 에서 getEntityGraphAs 로 NamedEntityGraph 를 조회한다`() = runSuspendIO {
+        sf.withSessionSuspending { session ->
+            val graph = session.getEntityGraphAs<Book>("Book.withAuthor")
+            graph.shouldNotBeNull()
+            graph.attributeNodes.shouldNotBeEmpty()
+        }
+    }
+
+    /**
+     * [findAs] graphName 오버로드로 @NamedEntityGraph 를 fetch plan 으로 엔티티를 조회합니다.
+     */
+    @Test
+    fun `session 에서 findAs graphName 오버로드로 엔티티를 조회한다`() = runSuspendIO {
+        val book = sf.withSessionSuspending { session ->
+            session.findAs<Book>("Book.withAuthor", book1.id).awaitSuspending()
+        }
+        book.shouldNotBeNull()
+        book.id shouldBeEqualTo book1.id
+    }
+
+    /**
+     * [createNamedQueryAs] 로 @NamedQuery 를 실행합니다.
+     */
+    @Test
+    fun `session 에서 createNamedQueryAs 로 NamedQuery 를 실행한다`() = runSuspendIO {
+        val books = sf.withSessionSuspending { session ->
+            session.createNamedQueryAs<Book>("Book.findAll")
+                .resultList
+                .awaitSuspending()
+        }
+        books.size shouldBeGreaterOrEqualTo 1
+    }
+
+    /**
+     * StatelessSession 에서 [getAs] graphName 오버로드로 EntityGraph 를 사용해 조회합니다.
+     */
+    @Test
+    fun `statelessSession 에서 getAs graphName 오버로드로 엔티티를 조회한다`() = runSuspendIO {
+        val book = sf.withStatelessSessionSuspending { session ->
+            session.getAs<Book>("Book.withAuthor", book1.id).awaitSuspending()
+        }
+        book.shouldNotBeNull()
+        book.id shouldBeEqualTo book1.id
+    }
+
+    /**
+     * StatelessSession 에서 [getEntityGraphAs] 로 @NamedEntityGraph 를 조회합니다.
+     */
+    @Test
+    fun `statelessSession 에서 getEntityGraphAs 로 NamedEntityGraph 를 조회한다`() = runSuspendIO {
+        sf.withStatelessSessionSuspending { session ->
+            val graph = session.getEntityGraphAs<Book>("Book.withAuthor")
+            graph.shouldNotBeNull()
+            graph.attributeNodes.shouldNotBeEmpty()
+        }
+    }
+
+    /**
+     * StatelessSession 에서 [createEntityGraphAs] 로 이름 있는 EntityGraph 를 생성합니다.
+     */
+    @Test
+    fun `statelessSession 에서 createEntityGraphAs 로 이름 있는 EntityGraph 를 생성한다`() = runSuspendIO {
+        sf.withStatelessSessionSuspending { session ->
+            val graph = session.createEntityGraphAs<Book>("Book.withAuthor")
+            graph.shouldNotBeNull()
+            graph.attributeNodes.shouldNotBeEmpty()
+        }
+    }
+
+    /**
+     * StatelessSession 에서 [createNamedQueryAs] 로 @NamedQuery 를 실행합니다.
+     */
+    @Test
+    fun `statelessSession 에서 createNamedQueryAs 로 NamedQuery 를 실행한다`() = runSuspendIO {
+        val books = sf.withStatelessSessionSuspending { session ->
+            session.createNamedQueryAs<Book>("Book.findAll")
+                .resultList
+                .awaitSuspending()
+        }
+        books.size shouldBeGreaterOrEqualTo 1
     }
 }
