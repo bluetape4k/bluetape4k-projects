@@ -1,7 +1,7 @@
 # bluetape4k TODO
 
 > 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 125개 (examples 제외)
-> 최종 업데이트: 2026-04-27 (이슈 반영: #179 #181 #185 #187 #191 #190 #189 #38 #25)
+> 최종 업데이트: 2026-04-27 (이슈 반영: #179 #181 #185 #187 #191 #190 #189 #38 #25 #203 #204 #205)
 
 ---
 
@@ -39,7 +39,18 @@
 - [ ] `CsvRecordReader` / `SuspendCsvRecordReader` 반환 타입에서 직접 호출 가능하도록 검증
 - [ ] `bluetape4k-graph` graph-io/csv 의 workaround 제거 후 재검증
 
-### 1.3 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
+### 1.3 Hibernate 6 → 7 마이그레이션 적용 🔴
+
+- Issue: [#204](https://github.com/bluetape4k/bluetape4k-projects/issues/204)
+- [ ] `examples/jpa-querydsl-demo` — Hibernate 6 기반 설정 점검
+- [ ] `data/hibernate` 하위 모듈 전체 API 변경사항 반영 확인
+- [ ] `@DisabledWithHibernate7AndSpringBoot3` 적용 대상 재검토
+- [ ] Hibernate 7 breaking change 체크 (SessionFactory, HQL/Criteria, DDL 변화)
+
+#### 참고 자료
+- [Hibernate ORM 7 마이그레이션 가이드](https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html)
+
+### 1.4 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
 
 - Issue: [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108)
 - [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
@@ -428,6 +439,12 @@ Shopify 프로덕션 사용 검증됨.
 ## 9. 보안 🔴
 
 - [x] `io/crypto/` deprecated 암호화 → `tink` 완전 대체 완료 (2026-04-17)
+- [ ] **lz4java 보안 패치 업그레이드** — Issue: [#203](https://github.com/bluetape4k/bluetape4k-projects/issues/203)
+  - `buildSrc/Libs.kt` 버전 확인 → 최신 릴리스 업그레이드
+  - infra/lettuce, cache-core 등 lz4 사용 모듈 빌드·테스트 검증
+- [ ] **보안 스캔 workflow 항상 실패 — 점검 및 수정** — Issue: [#205](https://github.com/bluetape4k/bluetape4k-projects/issues/205)
+  - 실패 workflow 파일 특정 (gitleaks / dependencyCheck / trivy)
+  - 오탐 vs 실제 설정 오류 구분 후 수정
 - [ ] `gitleaks detect` — 시크릿 스캔 CI 연동
 - [ ] 의존성 취약점 스캔 — `./gradlew dependencyCheckAnalyze` 주기 실행
 
