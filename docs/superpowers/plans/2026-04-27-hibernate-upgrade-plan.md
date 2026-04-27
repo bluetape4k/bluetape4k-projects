@@ -92,7 +92,8 @@ T11/T12/T13 병렬 가능.
 
 #### T0 출력 — 시그니처 diff 표 (T0 완료 후 채움)
 
-> ⚠️ T0 작업 완료 시 아래 표를 실제 값으로 채운다. 현재는 placeholder.
+> ⚠️ **⛔ GATE**: T0 완료 기준 = **아래 표의 TBD가 0건**. TBD가 남아 있으면 T1/T2/T3/T4 진행 불가.
+> T0 완료 후 이 plan 파일을 실제 값으로 갱신하고 commit한 뒤 다음 태스크를 시작한다.
 
 | API | H6.6.44.Final | H7.2.4.Final | 영향 모듈 |
 |-----|---------------|--------------|-----------|
@@ -103,14 +104,16 @@ T11/T12/T13 병렬 가능.
 | `Mutiny.SessionFactory.withSession` | TBD | TBD | hibernate-reactive |
 | `Stage.SessionFactory.withTransaction` | TBD | TBD | hibernate-reactive |
 | Reactive 3.x 정확한 버전 | — | TBD | Libs.kt |
+| H2 권장 최소 버전 | TBD | TBD | test scope (모든 모듈) |
+| `AvailableSettings` 주요 키 변경 | TBD | TBD | hibernate.properties |
 
 ---
 
-### T1. Libs.kt 버전 갱신
+### T1. Libs.kt 버전 갱신 + H2/dialect 점검
 
 - **complexity**: low
-- **예상 소요**: 15min
-- **의존**: T0 (Reactive 정확한 버전 확정)
+- **예상 소요**: 30min
+- **의존**: T0 (diff 표 TBD 0건 확인 후)
 
 #### 작업 항목
 
@@ -119,6 +122,14 @@ T11/T12/T13 병렬 가능.
    - `hibernate_reactive = "2.4.11.Final"` → `hibernate_reactive = "{T0 결과}"`
 2. 변경 전 버전을 `// previous: 6.6.44.Final` 주석으로 보존 (롤백 대비, Spec §8-R)
 3. `hibernate_validator = "9.1.0.Final"` 유지 확인 (변경 없음)
+4. **H2 버전 점검** (Spec §4.1 위험 3 완화)
+   - H7은 H2 2.2.x 권장. 테스트 scope의 H2 버전 확인: `rg "h2" buildSrc/src/main/kotlin/Libs.kt`
+   - `2.2.224` 이상이 아니면 갱신
+5. **dialect 명시 여부 점검** (Spec §6.1)
+   - `data/hibernate/src/test/resources/` 의 `hibernate.properties` 또는 `persistence.xml` 에 dialect 설정 확인
+   - H7에서 `H2Dialect` 클래스 위치/이름 변경 여부를 T0 diff 결과 반영
+6. **`AvailableSettings` 키 매핑 점검** (Spec §6.1, R10)
+   - T0 diff 표 결과에서 deprecated 키가 있으면 모든 `hibernate.properties` / Spring `@Configuration` 에서 갱신
 
 #### 대상 파일
 
@@ -173,9 +184,12 @@ T11/T12/T13 병렬 가능.
 #### 검증 방법
 
 - `./gradlew :bluetape4k-hibernate:compileKotlin` 통과
+- `./gradlew :bluetape4k-hibernate:compileTestKotlin` 통과 (test source 포함)
 - `./gradlew :bluetape4k-hibernate:build -x test` (CP2)
 - `lsp_diagnostics_directory data/hibernate/src/main/kotlin` — error/deprecated 0건
-- 직접 `org.hibernate.engine.spi.*` 임포트는 `HibernateInternals.kt` 한 파일에만 존재함을 `rg "org.hibernate.engine.spi"` 로 확인
+- `lsp_diagnostics_directory data/hibernate/src/test/kotlin` — error/deprecated 0건
+- 직접 `org.hibernate.engine.spi.*` 임포트는 `HibernateInternals.kt` 한 파일에만 존재함을 `rg "org.hibernate.engine.spi"` 로 확인 (main + test 양쪽)
+- `companion object : KLogging()` 또는 `KLoggingChannel()` — `HibernateInternals.kt` 포함 신규 파일에 적용 확인
 
 ---
 
@@ -209,8 +223,10 @@ T11/T12/T13 병렬 가능.
 #### 검증 방법
 
 - `./gradlew :bluetape4k-hibernate-cache-lettuce:compileKotlin` 통과
+- `./gradlew :bluetape4k-hibernate-cache-lettuce:compileTestKotlin` 통과
 - `./gradlew :bluetape4k-hibernate-cache-lettuce:build -x test` (CP3)
 - `rg "org.hibernate.cache.internal" data/hibernate-cache-lettuce/src/main/kotlin` — 모든 임포트가 H7 패키지로 매핑됐는지 확인
+- `rg "org.hibernate.cache.internal" data/hibernate-cache-lettuce/src/test/kotlin` — test source도 동기화 확인
 
 ---
 
@@ -327,15 +343,22 @@ T11/T12/T13 병렬 가능.
      }
      ```
    - `./gradlew :bluetape4k-spring-boot3-hibernate-lettuce:test`
+   - **Spring Data JPA Repository 통합 검증** (Spec R9 완화):
+     - CRUD 기본 동작 (`save`, `findById`, `delete`) 통과 확인
+     - `@EntityGraph`, `Specification` 기반 쿼리 통과 확인
+     - 테스트 실패 시 원인을 Spring Data JPA 버전 비호환으로 분류하고 보고
 2. **`spring-boot4/hibernate-lettuce`** (이미 H7 force 있음)
-   - BOM 정합 확인 — force 제거 가능성 검토
+   - BOM 정합 확인 — force 제거 가능/불가 여부 결정 후 반영
+     - **가능**: `force` block 제거 + 이유 주석
+     - **불가**: 사유를 `build.gradle.kts` 주석에 기록 (`// force 유지 이유: Spring Boot 4 BOM이 H7.x를 포함하나 minor 버전이 다름`)
    - `./gradlew :bluetape4k-spring-boot4-hibernate-lettuce:test`
 3. **`examples/jpa-querydsl-demo`**
    - `./gradlew :jpa-querydsl-demo:build` 시도
    - 실패 시:
-     - 단기: build 에서 모듈 skip 주석 + README 에 "QueryDSL 5.1.0 + H7 비호환, 6.0+ 마이그레이션 필요" 주석
+     - 단기: build 에서 모듈 skip 주석 + README 에 "QueryDSL 5.1.0 + H7 비호환, 6.0+ 마이그레이션 필요" 명시
      - 장기: 별도 spec (`Phase 3` Out of Scope, Spec §4.3)
-4. 결과 보고: 각 모듈의 passing/skipped/failed + duration
+4. **`examples/spring-data-jpa*` 모듈 (해당 시)** — 빌드 검증만 (Spec §2.2)
+5. 결과 보고: 각 모듈의 passing/skipped/failed + duration
 
 #### 대상 파일
 
@@ -416,16 +439,19 @@ T11/T12/T13 병렬 가능.
 
 ### Phase 1 완료 체크리스트 (Spec §9-A 정합)
 
-- [ ] T0 시그니처 diff 표 채움
-- [ ] T1 Libs.kt 갱신 + buildSrc 재컴파일
-- [ ] T2/T3/T4 컴파일 통과 (CP2/CP3/CP4)
-- [ ] T5 기존 테스트 전수 통과 (CP5)
+- [ ] **⛔ GATE**: T0 diff 표 TBD 0건 확인 후 T1~T4 시작
+- [ ] T1 Libs.kt 갱신 + H2 버전 + dialect + AvailableSettings 점검
+- [ ] T2 main + **test source** 컴파일 통과 (compileKotlin + compileTestKotlin)
+- [ ] T3 main + **test source** 컴파일 통과
+- [ ] T4 main + **test source** 컴파일 통과 (CP4)
+- [ ] T5 기존 테스트 전수 통과 (Testcontainers 포함, CP5)
 - [ ] T6 Micrometer Statistics 카운터 증가 검증
-- [ ] T7 의존 모듈 (spring-boot3/4 + examples) 통과
-- [ ] T8 보안 감사 결과 보고
-- [ ] T9 README/BREAKING_CHANGES + wiki 갱신
+- [ ] T7 의존 모듈 통과 + Spring Data JPA 통합 검증 + SB4 force 결정 반영
+- [ ] T8 보안 감사 결과 보고 (PII 엔티티 + allowlist)
+- [ ] T9 README.md + README.ko.md + BREAKING_CHANGES + wiki 갱신
+- [ ] 신규 파일 `HibernateInternals.kt` 에 `companion object : KLogging()` 적용 확인
 - [ ] `oh-my-claudecode:code-reviewer` HIGH/CRITICAL 0건
-- [ ] PR description: 변경 요약, 마이그레이션 노트, 테스트 결과, 검증 명령
+- [ ] PR description: 이슈 내용 + 작업 내역 + DoD 체크리스트 + 커밋 목록
 
 ---
 
