@@ -184,44 +184,77 @@ fun FieldMatrix<BigFraction>.toRealMatrix(): Array2DRowRealMatrix =
     MatrixUtils.bigFractionMatrixToRealMatrix(this)
 
 
+/**
+ * [RealVector]를 바이트 배열로 직렬화합니다.
+ *
+ * ```kotlin
+ * val v = realVectorOf(doubleArrayOf(1.0, 2.0, 3.0))
+ * val bytes = v.toByteArray()
+ * val restored = bytes.toRealVector()
+ * ```
+ */
 fun RealVector.toByteArray(): ByteArray {
     return ByteArrayOutputStream().use { bos ->
         ObjectOutputStream(bos).use { oos ->
-            oos.defaultWriteObject()
             MatrixUtils.serializeRealVector(this, oos)
             oos.flush()
-            bos.toByteArray()
         }
+        bos.toByteArray()
     }
 }
 
-fun ByteArray.toRealVector(fieldName: String): RealVector {
+/**
+ * 바이트 배열을 [RealVector]로 역직렬화합니다.
+ *
+ * ```kotlin
+ * val v = realVectorOf(doubleArrayOf(1.0, 2.0, 3.0))
+ * val restored = v.toByteArray().toRealVector()
+ * ```
+ */
+fun ByteArray.toRealVector(): RealVector {
     return ByteArrayInputStream(this).use { bis ->
         ObjectInputStream(bis).use { ois ->
-            ois.defaultReadObject()
-            MatrixUtils.deserializeRealVector(this, fieldName, ois)
-            ois.readObject() as RealVector
+            val n = ois.readInt()
+            val data = DoubleArray(n) { ois.readDouble() }
+            MatrixUtils.createRealVector(data)
         }
     }
 }
 
+/**
+ * [RealMatrix]를 바이트 배열로 직렬화합니다.
+ *
+ * ```kotlin
+ * val m = realMatrixOf(2, 2)
+ * val bytes = m.toByteArray()
+ * val restored = bytes.toRealMatrix()
+ * ```
+ */
 fun RealMatrix.toByteArray(): ByteArray {
     return ByteArrayOutputStream().use { bos ->
         ObjectOutputStream(bos).use { oos ->
-            oos.defaultWriteObject()
             MatrixUtils.serializeRealMatrix(this, oos)
             oos.flush()
-            bos.toByteArray()
         }
+        bos.toByteArray()
     }
 }
 
-fun ByteArray.toRealMatrix(fieldName: String): RealMatrix {
+/**
+ * 바이트 배열을 [RealMatrix]로 역직렬화합니다.
+ *
+ * ```kotlin
+ * val m = realMatrixOf(2, 2)
+ * val restored = m.toByteArray().toRealMatrix()
+ * ```
+ */
+fun ByteArray.toRealMatrix(): RealMatrix {
     return ByteArrayInputStream(this).use { bis ->
         ObjectInputStream(bis).use { ois ->
-            ois.defaultReadObject()
-            MatrixUtils.deserializeRealMatrix(this, fieldName, ois)
-            ois.readObject() as RealMatrix
+            val n = ois.readInt()
+            val m = ois.readInt()
+            val data = Array(n) { DoubleArray(m) { ois.readDouble() } }
+            MatrixUtils.createRealMatrix(data)
         }
     }
 }

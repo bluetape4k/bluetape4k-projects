@@ -245,4 +245,45 @@ class MatrixSupportTest {
         rm.getEntry(0, 0).shouldBeNear(5.0, 1e-10)
         rm.getEntry(1, 1).shouldBeNear(6.0, 1e-10)
     }
+
+    @Test
+    fun `RealVector를 바이트 배열로 직렬화 후 복원할 수 있다`() {
+        val original = realVectorOf(doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0))
+        val bytes = original.toByteArray()
+        val restored = bytes.toRealVector()
+
+        restored.dimension.shouldBeEqualTo(original.dimension)
+        for (i in 0 until original.dimension) {
+            restored.getEntry(i).shouldBeNear(original.getEntry(i), 1e-10)
+        }
+    }
+
+    @Test
+    fun `RealMatrix를 바이트 배열로 직렬화 후 복원할 수 있다`() {
+        val original = Array2DRowRealMatrix(
+            arrayOf(
+                doubleArrayOf(1.0, 2.0, 3.0),
+                doubleArrayOf(4.0, 5.0, 6.0),
+                doubleArrayOf(7.0, 8.0, 9.0)
+            )
+        )
+        val bytes = original.toByteArray()
+        val restored = bytes.toRealMatrix()
+
+        restored.rowDimension.shouldBeEqualTo(original.rowDimension)
+        restored.columnDimension.shouldBeEqualTo(original.columnDimension)
+        for (i in 0 until original.rowDimension) {
+            for (j in 0 until original.columnDimension) {
+                restored.getEntry(i, j).shouldBeNear(original.getEntry(i, j), 1e-10)
+            }
+        }
+    }
+
+    @Test
+    fun `빈 RealVector도 직렬화 후 복원할 수 있다`() {
+        val original = realVectorOf(DoubleArray(0))
+        val bytes = original.toByteArray()
+        val restored = bytes.toRealVector()
+        restored.dimension.shouldBeEqualTo(0)
+    }
 }
