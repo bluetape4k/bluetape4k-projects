@@ -18,7 +18,6 @@ import jakarta.persistence.Table
 import jakarta.validation.constraints.Past
 import org.hibernate.annotations.FetchMode
 import org.hibernate.annotations.FetchProfile
-import org.hibernate.annotations.NaturalId
 import java.time.LocalDate
 
 
@@ -42,7 +41,6 @@ import java.time.LocalDate
 @Table(name = "books")
 @Access(AccessType.FIELD)
 class Book private constructor(
-    @NaturalId
     val isbn: String,
     val title: String,
     @field:Past
