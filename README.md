@@ -121,6 +121,7 @@ flowchart TB
         JUNIT["testing/junit5"]
         TC["testing/testcontainers"]
         UTILS["utils/*"]
+        TEXTS["texts/*"]
         AWS["aws/*"]
     end
 
@@ -147,7 +148,7 @@ flowchart TB
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
     class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
     class SB3,SB4 intLayer
-    class JUNIT,TC,UTILS,AWS crossLayer
+    class JUNIT,TC,UTILS,TEXTS,AWS crossLayer
 ```
 
 ### Core Modules (`bluetape4k/`)
@@ -311,6 +312,14 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 - **[mongodb](./spring-boot4/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot4/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 
+### Text Processing Modules (`texts/`)
+
+- **[tokenizer-core](./texts/tokenizer-core/README.md)**: Tokenizer common interfaces — `TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`
+- **[tokenizer-korean](./texts/tokenizer-korean/README.md)**: Korean morphological analyzer (Open Korean Text) — twitter-text dependency replaced with `TwitterCompatPatterns`
+- **[tokenizer-japanese](./texts/tokenizer-japanese/README.md)**: Japanese morphological analyzer (Kuromoji IPAdic 0.9.0)
+- **[lingua](./texts/lingua/README.md)**: Language detection — Kotlin DSL wrapper over Lingua (75+ languages)
+- **[text-search](./texts/text-search/README.md)**: Aho-Corasick multi-keyword search — blockword filter, highlight, Flow API
+
 ### Utility Modules (`utils/`)
 
 - **[geo](./utils/geo/README.md)
@@ -382,9 +391,9 @@ No longer maintained. Excluded from the build and scheduled for removal.
 - ~~**logback-kafka**~~: Logback Kafka Appender — dropped, low usage
 - ~~**nats**~~: NATS messaging — dropped, low usage
 - ~~**javers**~~: JaVers audit log — dropped, low usage
-- ~~**tokenizer**~~: Korean/Japanese morphological analyzer — dropped, low usage
-- ~~**ahocorasick**~~: Aho-Corasick string search — dropped, low usage
-- **[lingua](./utils/lingua/README.md)**: Language detection — Kotlin DSL wrapper over Lingua with mixed-language `Set<Language>` detection
+- ~~**tokenizer**~~: Promoted to `texts/tokenizer-core`, `texts/tokenizer-korean`, `texts/tokenizer-japanese`
+- ~~**ahocorasick**~~: Promoted to `texts/text-search` — Aho-Corasick string search
+- ~~**lingua**~~: Promoted to `texts/lingua` — Language detection (Lingua wrapper)
 - ~~**naivebayes**~~: Naive Bayes classifier — dropped, low usage
 - ~~**mutiny-examples**~~: Mutiny usage examples — dropped
 
