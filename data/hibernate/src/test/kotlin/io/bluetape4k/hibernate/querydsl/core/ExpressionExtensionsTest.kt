@@ -1,5 +1,8 @@
 package io.bluetape4k.hibernate.querydsl.core
 
+import com.querydsl.core.types.Expression
+import com.querydsl.core.types.ExpressionUtils
+import com.querydsl.core.types.Ops
 import com.querydsl.core.types.dsl.Expressions
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
@@ -51,6 +54,32 @@ class ExpressionExtensionsTest {
         val ch = str[1]
         ch.shouldNotBeNull()
         ch.type shouldBeEqualTo Character::class.java
+    }
+
+    @Test
+    fun `Expression Boolean not and or on non-BooleanExpression receiver`() {
+        // ConstantImpl<Boolean>은 BooleanExpression 이 아니므로 extension이 호출됨
+        val boolConst: Expression<Boolean> = Expressions.constant(true)
+        (!boolConst).toString().shouldNotBeEmpty()
+        (boolConst and boolConst).toString().shouldNotBeEmpty()
+        (boolConst or boolConst).toString().shouldNotBeEmpty()
+    }
+
+    @Test
+    fun `Expression div with generic Expression receiver uses generic overload`() {
+        // Expression<Int> 로 ascription 하면 NumberExpression 오버로드 대신 generic 오버로드 호출
+        val numExpr: Expression<Int> = num
+        (numExpr / num).toString().shouldNotBeEmpty()
+        (numExpr / 2).toString().shouldNotBeEmpty()
+    }
+
+    @Test
+    fun `Expression String operators on raw Operation receiver`() {
+        // OperationImpl 은 StringExpression 이 아니므로 extension 이 호출됨
+        val strOp: Expression<String> = ExpressionUtils.operation(String::class.java, Ops.TRIM, str)
+        (strOp + str).toString().shouldNotBeEmpty()
+        (strOp + "hello").toString().shouldNotBeEmpty()
+        strOp[Expressions.constant(0)].shouldNotBeNull()
     }
 
     @Test

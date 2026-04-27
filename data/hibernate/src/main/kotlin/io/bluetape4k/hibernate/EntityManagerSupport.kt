@@ -217,7 +217,9 @@ fun <T: JpaEntity<*>> EntityManager.delete(entity: T) {
  * - reference 조회 실패 시 예외를 삼키고 삭제를 건너뜁니다.
  */
 inline fun <reified T> EntityManager.deleteById(id: Serializable) {
-    tryGetReference<T>(id).getOrNull()?.let { remove(it) }
+    runCatching {
+        tryGetReference<T>(id).getOrNull()?.let { remove(it) }
+    }
 }
 
 /**

@@ -1,0 +1,52 @@
+package io.bluetape4k.hibernate.standalone
+
+import io.bluetape4k.hibernate.withNewEntityManager
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+
+class EntityManagerFactorySupportStandaloneTest : AbstractStandaloneHibernateTest() {
+
+    override fun entityClasses() = listOf(StandaloneEntity::class.java)
+
+    @BeforeEach
+    fun clearData() {
+        inTransaction {
+            createQuery("DELETE FROM StandaloneEntity").executeUpdate()
+        }
+    }
+
+    @Test
+    fun `withNewEntityManager는 트랜잭션 내에서 작업을 수행한다`() {
+        val entity = emf.withNewEntityManager { em ->
+            val e = StandaloneEntity("emf-test")
+            em.persist(e)
+            e
+        }
+        entity.id.shouldNotBeNull()
+
+        readOnly {
+            val count = createQuery("SELECT COUNT(e) FROM StandaloneEntity e", Long::class.java)
+                .singleResult
+            count shouldBeEqualTo 1L
+        }
+    }
+
+    @Test
+    fun `withNewEntityManager는 예외 발생 시 롤백한다`() {
+        assertThrows<RuntimeException> {
+            emf.withNewEntityManager { em ->
+                em.persist(StandaloneEntity("rollback-emf"))
+                throw RuntimeException("rollback trigger")
+            }
+        }
+
+        readOnly {
+            val count = createQuery("SELECT COUNT(e) FROM StandaloneEntity e", Long::class.java)
+                .singleResult
+            count shouldBeEqualTo 0L
+        }
+    }
+}
