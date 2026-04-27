@@ -312,6 +312,9 @@ jobs:
               :bluetape4k-geo:test \
               :bluetape4k-images:test \
               :bluetape4k-science:test \
+                :bluetape4k-tokenizer-core:test \
+                :bluetape4k-tokenizer-korean:test \
+                :bluetape4k-tokenizer-japanese:test \
                 :bluetape4k-lingua:test \
                 :bluetape4k-text-search:test \
                 :bluetape4k-batch:test \
@@ -340,6 +343,9 @@ jobs:
             :bluetape4k-geo:koverXmlReport \
             :bluetape4k-images:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
+              :bluetape4k-tokenizer-core:koverXmlReport \
+              :bluetape4k-tokenizer-korean:koverXmlReport \
+              :bluetape4k-tokenizer-japanese:koverXmlReport \
               :bluetape4k-lingua:koverXmlReport \
               :bluetape4k-text-search:koverXmlReport \
               :bluetape4k-batch:koverXmlReport \
