@@ -58,15 +58,14 @@ class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `virtual thread transaction은 기본 VirtualThreadExecutor를 사용한다`(testDB: TestDB) = runTest {
         withTables(testDB, VirtualThreadTable) {
-            val threadName = virtualThreadTransaction(
+            val isVirtual = virtualThreadTransaction(
                 executor = VirtualThreadExecutor,
                 db = this.db,
             ) {
-                Thread.currentThread().name
+                Thread.currentThread().isVirtual
             }
 
-            // 가상 스레드 이름 패턴 확인 (일반적으로 "VirtualThread" 포함)
-            threadName.shouldNotBeEmpty()
+            isVirtual shouldBeEqualTo true
         }
     }
 
