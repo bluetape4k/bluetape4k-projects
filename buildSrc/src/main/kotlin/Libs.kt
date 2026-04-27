@@ -207,6 +207,7 @@ object Versions {
     const val sentry_logback = "8.33.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
     const val scrimage = "4.3.10"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
+    const val metadata_extractor = "2.19.0"  // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
 
     // Gatling
     const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
@@ -1509,6 +1510,9 @@ object Libs {
     val scrimage_core = scrimage("core")
     val scrimage_filters = scrimage("filters")
     val scrimage_webp = scrimage("webp")
+
+    // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+    val metadata_extractor = "com.drewnoakes:metadata-extractor:${Versions.metadata_extractor}"
 
     // NLP / Language Detection
     const val lingua = "com.github.pemistahl:lingua:${Versions.lingua}"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
