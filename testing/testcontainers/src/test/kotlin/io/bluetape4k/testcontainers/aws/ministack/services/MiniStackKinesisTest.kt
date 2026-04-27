@@ -13,7 +13,6 @@ import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -45,11 +44,6 @@ class MiniStackKinesisTest: AbstractContainerTest() {
             .credentialsProvider(miniStack.getCredentialProvider())
             .build()
             .apply { ShutdownQueue.register(this) }
-    }
-
-    @BeforeAll
-    fun setup() {
-        miniStack.start()
     }
 
     @Test

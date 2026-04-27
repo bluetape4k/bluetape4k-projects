@@ -8,7 +8,6 @@ import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -37,19 +36,16 @@ class MiniStackSTSTest: AbstractContainerTest() {
 
     private lateinit var accountId: String
 
-    @BeforeAll
-    fun setup() {
-        miniStack.start()
-    }
-
     @Test
     @Order(1)
     fun `get caller identity`() {
         val identity = stsClient.getCallerIdentity { }
         log.debug { "Account: ${identity.account()}, UserId: ${identity.userId()}, ARN: ${identity.arn()}" }
 
-        accountId = identity.account()
-        identity.account().shouldNotBeBlank()
+        accountId = requireNotNull(identity.account()) {
+            "getCallerIdentity response returned a null account — MiniStack STS failed"
+        }
+        accountId.shouldNotBeBlank()
         identity.userId().shouldNotBeBlank()
         identity.arn().shouldNotBeBlank()
     }

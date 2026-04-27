@@ -9,7 +9,6 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -40,18 +39,14 @@ class MiniStackSNSTest: AbstractContainerTest() {
 
     private lateinit var topicArn: String
 
-    @BeforeAll
-    fun setup() {
-        miniStack.start()
-    }
-
     @Test
     @Order(1)
     fun `create topic`() {
         val response = snsClient.createTopic { it.name(TOPIC_NAME) }
-        topicArn = response.topicArn()
+        topicArn = requireNotNull(response.topicArn()) {
+            "createTopic response returned a null topicArn — MiniStack createTopic failed"
+        }
         log.debug { "Created topic ARN: $topicArn" }
-        topicArn.shouldNotBeNull()
     }
 
     @Test

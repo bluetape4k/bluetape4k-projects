@@ -12,7 +12,6 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -56,14 +55,9 @@ class MiniStackKMSTest: AbstractContainerTest() {
     private lateinit var keyId: String
     private val data = "동해물과 백두산이"
     private lateinit var encryptedData: SdkBytes
-    private val granteePrincipal = ""
+    private val granteePrincipal = "arn:aws:iam::000000000000:user/test-grantee"
     private lateinit var grantId: String
-    private val aliasName = "alias/MiniStackExampleName"
-
-    @BeforeAll
-    fun setup() {
-        miniStack.start()
-    }
+    private val aliasName = "alias/MiniStackExampleName-${System.currentTimeMillis()}"
 
     @Test
     @Order(1)

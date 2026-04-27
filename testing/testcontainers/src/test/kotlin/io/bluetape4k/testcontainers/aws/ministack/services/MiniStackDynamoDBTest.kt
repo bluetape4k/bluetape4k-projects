@@ -37,7 +37,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 class MiniStackDynamoDBTest: AbstractContainerTest() {
 
     companion object: KLogging() {
-        private const val TABLE_NAME = "ministack-test-table"
+        private val TABLE_NAME = "ministack-test-table-${System.currentTimeMillis()}"
     }
 
     private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
@@ -53,8 +53,6 @@ class MiniStackDynamoDBTest: AbstractContainerTest() {
 
     @BeforeAll
     fun setup() {
-        miniStack.start()
-
         val createTableRequest = CreateTableRequest.builder()
             .tableName(TABLE_NAME)
             .attributeDefinitions(

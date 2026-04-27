@@ -8,9 +8,9 @@ import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -56,11 +56,6 @@ class MiniStackCloudWatchTest: AbstractContainerTest() {
             .httpClient(ApacheHttpClient.create())
             .build()
             .apply { ShutdownQueue.register(this) }
-    }
-
-    @BeforeAll
-    fun setup() {
-        miniStack.start()
     }
 
     @Test
@@ -142,7 +137,7 @@ class MiniStackCloudWatchTest: AbstractContainerTest() {
     fun `describe log groups`() {
         val groups = cloudWatchLogsClient.describeLogGroups { }.logGroups()
         log.debug { "Log groups: ${groups.map { it.logGroupName() }}" }
-        groups.shouldNotBeEmpty()
+        groups.map { it.logGroupName() }.shouldContain(LOG_GROUP_NAME)
     }
 
     @Test

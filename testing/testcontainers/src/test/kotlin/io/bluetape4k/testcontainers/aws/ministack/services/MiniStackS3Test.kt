@@ -11,7 +11,6 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -49,14 +48,9 @@ class MiniStackS3Test: AbstractContainerTest() {
             .apply { ShutdownQueue.register(this) }
     }
 
-    private val bucketName = "ministack-test-bucket"
+    private val bucketName = "ministack-test-bucket-${System.currentTimeMillis()}"
     private val keyName = "test-object"
     private val content = "hello-ministack-s3"
-
-    @BeforeAll
-    fun setup() {
-        miniStack.start()
-    }
 
     @Test
     @Order(1)
@@ -74,10 +68,13 @@ class MiniStackS3Test: AbstractContainerTest() {
         val waiterResponse = waiter.waitUntilBucketExists(
             HeadBucketRequest.builder().bucket(bucketName).build()
         )
-        waiterResponse.matched().response().ifPresent {
-            log.debug { "Bucket created: ${it.sdkHttpResponse()}" }
-            it.sdkHttpResponse().isSuccessful.shouldBeTrue()
+        waiterResponse.matched().exception().ifPresent { ex ->
+            throw AssertionError("Bucket creation waiter failed via exception branch", ex)
         }
+        val response = waiterResponse.matched().response()
+            .orElseThrow { AssertionError("Waiter returned neither response nor exception") }
+        log.debug { "Bucket created: ${response.sdkHttpResponse()}" }
+        response.sdkHttpResponse().isSuccessful.shouldBeTrue()
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.aws
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
@@ -85,6 +86,8 @@ class MiniStackServer private constructor(
          * @param image          Docker 이미지 이름. blank이면 [IllegalArgumentException]이 발생합니다.
          * @param tag            Docker 이미지 태그. blank이면 [IllegalArgumentException]이 발생합니다.
          * @param useDefaultPort `true`면 4566 포트를 고정 바인딩합니다.
+         *                       ⚠️ CI 환경에서 여러 테스트를 병렬 실행하는 경우 포트 충돌이 발생할 수 있습니다.
+         *                       병렬 테스트에서는 `false`(기본값)를 사용하여 랜덤 포트를 할당받으세요.
          * @param reuse          컨테이너 재사용 여부
          */
         @JvmStatic
@@ -199,7 +202,7 @@ class MiniStackServer private constructor(
      * @return 메서드 체이닝을 위한 현재 [MiniStackServer] 인스턴스
      */
     override fun withServices(vararg services: String): MiniStackServer {
-        log.debug { "MiniStack enables all services by default. withServices(${services.toList()}) is a no-op." }
+        log.warn { "withServices(${services.toList()}) is a no-op: MiniStack enables all AWS services by default. Service selection is ignored." }
         return this
     }
 
