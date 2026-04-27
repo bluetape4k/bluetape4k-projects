@@ -77,12 +77,12 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 | Operation | ops/ms (512B) | Throughput |
 |-----------|:------------:|-----------|
-| ⚡ l1Hit | **65,560** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🔄 removeSingle | 4.2 | <span style="background-color: #10B981; color: white; padding: 2px 4px">░</span> |
-| 🔄 l2Hit | 4.1 | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">░</span> |
-| 🔍 l2Miss | 4.0 | <span style="background-color: #F97316; color: white; padding: 2px 4px">░</span> |
-| ✍️ putSingle | 2.1 | <span style="background-color: #EF4444; color: white; padding: 2px 4px">░</span> |
-| 📦 putAll×100 | 1.0 | <span style="background-color: #EAB308; color: black; padding: 2px 4px">░</span> |
+| ⚡ l1Hit | **65,560** | `████████████████████████████████████████` |
+| 🔄 removeSingle | 4.2 | `░` |
+| 🔄 l2Hit | 4.1 | `░` |
+| 🔍 l2Miss | 4.0 | `░` |
+| ✍️ putSingle | 2.1 | `░` |
+| 📦 putAll×100 | 1.0 | `░` |
 
 > **16,000× gap** between L1 hit (65,560 ops/ms) and L2 operations (~4 ops/ms).
 
@@ -92,7 +92,7 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 ### 1. L1 Hit — Extreme Speed, Payload-Independent
 
-- **65,000–64,580 ops/ms** across all payload sizes (512B → 16KB)
+- **63,458–65,560 ops/ms** across all payload sizes (512B → 16KB)
 - Caffeine's lock-free read path shows near-zero payload sensitivity
 - This represents the theoretical maximum for NearCache — all hot-path reads should serve from L1
 
@@ -118,7 +118,7 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 ### 5. putAll — Batch Write, Payload-Sensitive
 
 - **512B: 1.038 ops/ms → 16KB: 0.407 ops/ms** — **2.5× degradation** with 32× larger payload
-- 100 entries per batch, each with a GET for CLIENT TRACKING → 200 Redis operations per call
+- Each `putAll` call issues 1× MSET (write all entries) + 1× MGET (CLIENT TRACKING registration) = 2 Redis round-trips, but carries `batchSize × payloadSize` bytes per call
 - Large payloads saturate Redis write bandwidth
 
 ### 6. removeSingle — Clean L1+L2 Delete

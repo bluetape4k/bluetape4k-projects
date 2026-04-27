@@ -1,6 +1,6 @@
 # Redisson 코덱 벤치마크
 
-[English](./Benchmark.md) | [한국어](./Benchmark.ko.md)
+[English](./Benchmark.md) | 한국어
 
 kotlinx-benchmark(JMH)를 이용한 Redisson Redis 코덱 직렬화/역직렬화 성능 측정 결과입니다.
 

@@ -1,6 +1,6 @@
 # LettuceNearCache 벤치마크
 
-[English](./Benchmark.md) | [한국어](./Benchmark.ko.md)
+[English](./Benchmark.md) | 한국어
 
 kotlinx-benchmark(JMH)를 이용한 `LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) 성능 측정 결과입니다.
 
@@ -77,12 +77,12 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 | 연산 | ops/ms (512B) | 처리량 |
 |-----|:------------:|-------|
-| ⚡ l1Hit | **65,560** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🔄 removeSingle | 4.2 | <span style="background-color: #10B981; color: white; padding: 2px 4px">░</span> |
-| 🔄 l2Hit | 4.1 | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">░</span> |
-| 🔍 l2Miss | 4.0 | <span style="background-color: #F97316; color: white; padding: 2px 4px">░</span> |
-| ✍️ putSingle | 2.1 | <span style="background-color: #EF4444; color: white; padding: 2px 4px">░</span> |
-| 📦 putAll×100 | 1.0 | <span style="background-color: #EAB308; color: black; padding: 2px 4px">░</span> |
+| ⚡ l1Hit | **65,560** | `████████████████████████████████████████` |
+| 🔄 removeSingle | 4.2 | `░` |
+| 🔄 l2Hit | 4.1 | `░` |
+| 🔍 l2Miss | 4.0 | `░` |
+| ✍️ putSingle | 2.1 | `░` |
+| 📦 putAll×100 | 1.0 | `░` |
 
 > L1 적중(65,560 ops/ms)과 L2 연산(~4 ops/ms) 사이 **16,000배 격차**.
 
@@ -92,7 +92,7 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 ### 1. L1 적중 — 극한의 속도, 페이로드 무관
 
-- **65,000–64,580 ops/ms** — 모든 페이로드 크기에서 동일 (512B → 16KB)
+- **63,458–65,560 ops/ms** — 모든 페이로드 크기에서 동일 (512B → 16KB)
 - Caffeine의 lock-free 읽기 경로는 페이로드 크기에 거의 영향받지 않음
 - NearCache의 이론적 최대치 — 핫 경로 읽기는 반드시 L1에서 서비스해야 함
 
@@ -118,7 +118,7 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 ### 5. putAll — 배치 쓰기, 페이로드 민감
 
 - **512B: 1.038 ops/ms → 16KB: 0.407 ops/ms** — 페이로드 32배 증가에 **2.5배 성능 저하**
-- 배치당 100건, 각각 CLIENT TRACKING GET → 호출당 200 Redis 연산
+- `putAll` 호출당 1× MSET (전체 쓰기) + 1× MGET (CLIENT TRACKING 등록) = Redis 왕복 2회, 단 `batchSize × payloadSize` 바이트를 한 번에 전송
 - 대용량 페이로드가 Redis 쓰기 대역폭 포화
 
 ### 6. removeSingle — 깔끔한 L1+L2 삭제

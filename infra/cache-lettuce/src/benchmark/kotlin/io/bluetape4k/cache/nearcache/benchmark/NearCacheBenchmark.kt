@@ -74,8 +74,8 @@ open class NearCacheBenchmark {
     private lateinit var redisClient: RedisClient
     private lateinit var cache: LettuceNearCache<String>
 
-    val counter = AtomicLong()
-    lateinit var warmValue: String
+    private val counter = AtomicLong()
+    private lateinit var warmValue: String
 
     /** l1Hit 전용 — Trial 동안 L1+L2 에 안정적으로 존재하는 키 */
     private val warmKey = "bench-warm"
@@ -129,7 +129,11 @@ open class NearCacheBenchmark {
 
     @TearDown(Level.Trial)
     fun tearDown() {
-        cache.close()
+        if (::cache.isInitialized) {
+            runCatching { cache.clearAll() }
+            runCatching { cache.close() }
+        }
+        runCatching { redisClient.shutdown() }
     }
 
     // -------------------------------------------------------------------------
@@ -239,12 +243,17 @@ open class NearCacheRemoveBenchmark {
 
     @TearDown(Level.Trial)
     fun tearDown() {
-        cache.close()
+        if (::cache.isInitialized) {
+            runCatching { cache.clearAll() }
+            runCatching { cache.close() }
+        }
+        runCatching { redisClient.shutdown() }
     }
 
     /**
      * remove 단건 — L1 + L2(Redis DEL) 경로 처리량.
-     * `@Setup(Level.Invocation)` 의 pre-put 비용은 측정값에서 JMH 가 자동 제외.
+     * `@Setup(Level.Invocation)` 의 pre-put 비용을 JMH 가 타임스탬프 차감으로 제외를 시도하지만,
+     * sub-millisecond 연산에서는 타임스탬프 획득 비용 자체가 측정에 영향을 줄 수 있다.
      */
     @Benchmark
     fun removeSingle() = cache.remove(currentRemoveKey)

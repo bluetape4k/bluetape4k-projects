@@ -115,7 +115,7 @@ getFutures.awaitAll()
 
 - Disables `autoFlushCommands` while issuing commands, then issues a **single `flushCommands()`** for the entire batch
 - Merge SET and GET into **one block** to eliminate the inter-phase barrier (single TCP burst vs two sequential bursts)
-- `restores `autoFlushCommands(true)` in `finally` for safety
+- Restores `autoFlushCommands(true)` in `finally` for safety
 
 #### 4. `Collection<RedisFuture>.awaitAll()` — Bulk Await
 
