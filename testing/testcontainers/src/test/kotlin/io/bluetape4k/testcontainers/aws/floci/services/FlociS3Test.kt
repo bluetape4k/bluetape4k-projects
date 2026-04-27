@@ -19,6 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest
@@ -43,6 +44,8 @@ class FlociS3Test: AbstractContainerTest() {
             .endpointOverride(floci.awsEndpoint)
             .region(Region.of(floci.regionName))
             .credentialsProvider(floci.getCredentialProvider())
+            // Floci는 virtual-hosted-style URL을 지원하지 않으므로 path-style 필수
+            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
             .build()
             .apply { ShutdownQueue.register(this) }
     }

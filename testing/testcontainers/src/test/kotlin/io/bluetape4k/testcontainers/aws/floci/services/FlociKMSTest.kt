@@ -13,6 +13,7 @@ import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -34,8 +35,10 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.KMSTest]에 대응합니다.
  *
- * > **알려진 제한사항**: Floci #586 — 비대칭 키(asymmetric key)의 `GetKeyRotationStatus` 동작 불가.
+ * > **알려진 제한사항 1**: Floci #586 — 비대칭 키(asymmetric key)의 `GetKeyRotationStatus` 동작 불가.
  * > 비대칭 키 관련 테스트는 포함하지 않습니다.
+ * > **알려진 제한사항 2**: `DisableKey`, `EnableKey`, `CreateGrant`, `ListGrants`, `RevokeGrant` 미지원 (Status 400).
+ * > 해당 테스트는 `@Disabled`로 표시합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
@@ -125,6 +128,7 @@ class FlociKMSTest: AbstractContainerTest() {
 
     @Test
     @Order(5)
+    @Disabled("Floci KMS: DisableKey 미지원 (Operation not supported, Status 400)")
     fun `disable customer key`() {
         val disableKeyRequest = DisableKeyRequest.builder().keyId(keyId).build()
 
@@ -134,6 +138,7 @@ class FlociKMSTest: AbstractContainerTest() {
 
     @Test
     @Order(6)
+    @Disabled("Floci KMS: EnableKey 미지원 (Operation not supported, Status 400)")
     fun `enable customer key`() {
         val response = kmsClient.enableKey { it.keyId(keyId) }
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()
@@ -141,6 +146,7 @@ class FlociKMSTest: AbstractContainerTest() {
 
     @Test
     @Order(7)
+    @Disabled("Floci KMS: CreateGrant 미지원 (Operation not supported, Status 400)")
     fun `create grant`() {
         val response = kmsClient.createGrant {
             it.keyId(keyId)
@@ -153,6 +159,7 @@ class FlociKMSTest: AbstractContainerTest() {
 
     @Test
     @Order(8)
+    @Disabled("Floci KMS: ListGrants 미지원 (Operation not supported, Status 400)")
     fun `list grants`() {
         val response = kmsClient.listGrants {
             it.keyId(keyId)
@@ -167,6 +174,7 @@ class FlociKMSTest: AbstractContainerTest() {
 
     @Test
     @Order(9)
+    @Disabled("Floci KMS: RevokeGrant 미지원 (CreateGrant 선행 필요, 동일 제약)")
     fun `revoke grant`() {
         val response = kmsClient.revokeGrant { it.keyId(keyId).grantId(grantId) }
         response.sdkHttpResponse().isSuccessful.shouldBeTrue()
