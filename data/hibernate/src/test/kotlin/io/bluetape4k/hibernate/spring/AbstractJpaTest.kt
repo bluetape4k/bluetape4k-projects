@@ -1,10 +1,12 @@
 package io.bluetape4k.hibernate.spring
 
+import io.bluetape4k.hibernate.DisabledWithHibernate7AndSpringBoot3
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import jakarta.persistence.EntityManager
 import jakarta.persistence.EntityManagerFactory
 import net.datafaker.Faker
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -13,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 /**
  * `@DataJpaTest`를 사용하려면 SpringBootApplication 이 정의되어 있어야 합니다 (see [SpringDataJpaTestApplication])
  */
+// NOTE: H7 requires Spring Boot 4 / Spring Framework 7 for Spring ORM integration.
+// @ExtendWith is @Inherited, so DisabledWithHibernate7AndSpringBoot3 propagates to all subclasses.
+@ExtendWith(DisabledWithHibernate7AndSpringBoot3::class)
 // NOTE: @DataJpaTest에서는 무조건 H2 를 사용하므로, SpringBootTest를 이용할 때에는 MySQL 모드로 사용하도록 해야 한다.
 @DataJpaTest(
     properties = [

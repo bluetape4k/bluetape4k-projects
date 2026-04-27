@@ -10,6 +10,16 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
+// Hibernate ORM 7.x requires Jakarta Persistence 3.2.0
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "jakarta.persistence") {
+            useVersion("3.2.0")
+            because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
+        }
+    }
+}
+
 dependencies {
     // 기존 near cache 모듈 재사용
     api(project(":bluetape4k-cache-lettuce"))

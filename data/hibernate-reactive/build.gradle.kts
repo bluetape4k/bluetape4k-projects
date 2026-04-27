@@ -21,6 +21,16 @@ kapt {
     showProcessorStats = true
 }
 
+// Hibernate ORM 7.x / Reactive 3.x requires Jakarta Persistence 3.2.0
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "jakarta.persistence") {
+            useVersion("3.2.0")
+            because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
+        }
+    }
+}
+
 // NOTE: implementation 로 지정된 Dependency를 testImplementation 으로도 지정하도록 합니다.
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
@@ -43,6 +53,7 @@ dependencies {
 
     api(Libs.jakarta_validation_api)
     implementation(Libs.hibernate_validator)
+    testImplementation(Libs.glassfish_expressly)  // Jakarta EL implementation for Hibernate Validator
 
     api(Libs.mutiny_kotlin)
     api(Libs.kotlinx_coroutines_core)

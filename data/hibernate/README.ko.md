@@ -17,7 +17,7 @@ Hibernate ORM/JPA 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브�
 - **Querydsl 확장**: BooleanExpression 결합, 연산자 보조
 - **Converter 지원**: Locale/암복호화(Google Tink)/압축/직렬화 기반 converter
 - **StatelessSession 지원**: 트랜잭션 처리와 reified 헬퍼 제공
-- **Hibernate 6.6 기능 예시**: `@ConcreteProxy`와 embeddable inheritance 매핑 회귀 테스트 포함
+- **Hibernate 7.x 기능 지원**: Jakarta Persistence 3.2.0과 함께 Hibernate 7.2+ 전면 지원
 - **NaturalId 예시 포함**: `@NaturalId`와 `Session.bySimpleNaturalId(...)` 조회 패턴 제공
 
 ## 의존성 추가
@@ -26,8 +26,8 @@ Hibernate ORM/JPA 사용 시 반복 코드를 줄이는 Kotlin 확장 라이브�
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-hibernate:${version}")
 
-    // Hibernate (필요한 버전 선택)
-    implementation("org.hibernate.orm:hibernate-core:6.6.41")
+    // Hibernate 7.x (Jakarta Persistence 3.2.0+ 필수)
+    implementation("org.hibernate.orm:hibernate-core:7.2.7.Final")
 
     // Querydsl (선택)
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
@@ -43,6 +43,8 @@ dependencies {
     compileOnly("org.apache.fury:fury-kotlin:0.10.0")
 }
 ```
+
+> **Spring Boot 3 통합 주의사항**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하는 통합 테스트는 현재 비활성화되어 있습니다. Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하고 있어 호환성 문제가 발생합니다. Spring Boot 4 / Spring Framework 7로 업그레이드할 때 해결될 예정입니다. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3`를 참고하세요.
 
 ## 기본 사용법
 
@@ -238,9 +240,9 @@ em.withStateless { stateless ->
 }
 ```
 
-### 6. Hibernate 6.6 신규 매핑 예시
+### 6. 고급 매핑 예시
 
-Hibernate 6.6 라인에서 유용한 기능인 `@ConcreteProxy`와 embeddable inheritance 예시를 테스트 자산으로 포함합니다.
+Hibernate 7에서 유용한 기능인 `@ConcreteProxy`와 embeddable inheritance 예시를 테스트 자산으로 포함합니다.
 
 ```kotlin
 @Entity
@@ -649,7 +651,7 @@ flowchart LR
 ## 참고
 
 - [Hibernate ORM](https://hibernate.org/orm/)
-- [Hibernate ORM Documentation](https://docs.jboss.org/hibernate/orm/6.6/userguide/html_single/Hibernate_User_Guide.html)
-- [Jakarta Persistence](https://jakarta.ee/specifications/persistence/)
+- [Hibernate ORM 7.2 문서](https://docs.jboss.org/hibernate/orm/7.2/userguide/html_single/Hibernate_User_Guide.html)
+- [Jakarta Persistence 3.2 명세](https://jakarta.ee/specifications/persistence/)
 - [Querydsl](http://querydsl.com/)
 - [Google Tink](https://github.com/google/tink)

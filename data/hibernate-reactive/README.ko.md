@@ -196,7 +196,41 @@ classDiagram
     style StageSession fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
+## 버전 요구사항
+
+**Hibernate Reactive 3.2.0.Final** 필수 환경:
+- Hibernate ORM 7.2.7.Final (ORM 7.2.x 대상)
+- Jakarta Persistence 3.0 namespace in `persistence.xml`
+- Java 11+ / Kotlin 1.5+
+
+### JPA 영속성 설정 업데이트
+
+Hibernate Reactive 2.x에서 3.x로 업그레이드 시:
+
+1. **namespace 변경** in `src/main/resources/META-INF/persistence.xml`:
+   ```xml
+   <!-- 기존 (JPA 2.0) -->
+   <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+   <!-- 신규 (Jakarta Persistence 3.0) -->
+   <persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+   ```
+
+2. **엔티티 명시적 등록** (jar-file 경로 방식 대체):
+   ```xml
+   <!-- 기존 방식 (지원 중단) -->
+   <jar-file>jar:file:///path/to/entities.jar!/</jar-file>
+
+   <!-- 신규 방식 (필수) -->
+   <class>io.bluetape4k.example.Author</class>
+   <class>io.bluetape4k.example.Book</class>
+   ```
+
+3. **Validator 설정** Jakarta EL 구현체(GlassFish Expressly 6.0.0) 필요
+
 ## 참고
 
 - [Hibernate Reactive](https://hibernate.org/reactive/)
+- [Hibernate ORM 7.2 Release Notes](https://hibernate.org/orm/)
+- [Jakarta Persistence 3.0](https://jakarta.ee/specifications/persistence/3.0/)
 - [Mutiny](https://smallrye.io/smallrye-mutiny/)
