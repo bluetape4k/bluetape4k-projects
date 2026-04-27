@@ -5,6 +5,23 @@ plugins {
     kotlin("plugin.noarg")
     kotlin("plugin.jpa")
     kotlin("kapt")
+    id(Plugins.kover)
+}
+
+// suspend inline fun + crossinline 람다는 Vert.x dispatcher 컨텍스트에서 실행되어
+// Kover가 외부 래핑 람다 라인을 추적하지 못한다 (알려진 한계).
+// SessionFactorySupport.kt(mutiny/stage) 두 파일을 커버리지 측정에서 제외한다.
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "io.bluetape4k.hibernate.reactive.mutiny.SessionFactorySupportKt*",
+                    "io.bluetape4k.hibernate.reactive.stage.SessionFactorySupportKt*",
+                )
+            }
+        }
+    }
 }
 
 // JPA Entities 들을 Java와 같이 모두 override 가능하게 합니다 (Kotlin 은 기본이 final 입니다)
