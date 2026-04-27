@@ -1427,6 +1427,11 @@ object Libs {
 
     // the Atlassian's LocalStack, 'a fully functional local AWS cloud stack'.
     val testcontainers_localstack = testcontainersModule("localstack")
+
+    // MiniStack — free MIT-licensed AWS emulator (ministack.org), 31+ services, ~270MB image
+    // https://mvnrepository.com/artifact/org.ministack/testcontainers-ministack
+    const val testcontainers_ministack = "org.ministack:testcontainers-ministack:0.1.4"
+
     val testcontainers_mockserver = testcontainersModule("mockserver")
 
     val testcontainers_nginx = testcontainersModule("nginx")

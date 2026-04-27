@@ -82,6 +82,10 @@ classDiagram
         +withServices() FlociServer (no-op)
         @Deprecated
     }
+    class MiniStackServer {
+        +awsEndpoint: URI
+        +withServices() MiniStackServer (no-op)
+    }
     class ElasticMqServer {
         +sqsEndpoint: URI
         +host: String
@@ -113,6 +117,7 @@ classDiagram
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
     GenericServer <|-- FlociServer
+    GenericServer <|-- MiniStackServer
     GenericServer <|-- MailpitServer
     GenericServer <|-- BluetapeHttpServer
     GenericServer <|-- BluetapeWebfluxServer
@@ -120,6 +125,7 @@ classDiagram
     PostgreSQLServer <|-- PgvectorServer
     AwsEmulatorServer <|.. LocalStackServer
     AwsEmulatorServer <|.. FlociServer
+    AwsEmulatorServer <|.. MiniStackServer
 
     style GenericServer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style AwsEmulatorServer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
@@ -213,6 +219,7 @@ flowchart TD
     subgraph AWS
         LS["LocalStackServer\n(deprecated)"]
         FC["FlociServer\n(S3, DynamoDB, SQS, etc.)"]
+        MS["MiniStackServer\n(31+ services, recommended)"]
         EMQ["ElasticMqServer\n(embedded SQS, JVM)"]
     end
 
@@ -253,7 +260,8 @@ flowchart TD
     class TR sqlStyle
     class WM,NG,BHS,BWS mockStyle
     class LS deprecatedStyle
-    class FC,EMQ awsStyle
+    class FC deprecatedStyle
+    class MS,EMQ awsStyle
     class MP mailStyle
     class CDB,OL llmStyle
 ```
@@ -262,7 +270,7 @@ flowchart TD
 
 - Wrappers for database, graph DB, storage, messaging, infrastructure, distributed SQL, and LLM services
 - HTTP mocking through WireMock and NginxServer
-- **AWS Emulator support**: `AwsEmulatorServer` common interface; `FlociServer` (GraalVM Native image, recommended), `LocalStackServer` (@Deprecated)
+- **AWS Emulator support**: `AwsEmulatorServer` common interface; `MiniStackServer` (31+ services, MIT license, recommended), `FlociServer` (@Deprecated), `LocalStackServer` (@Deprecated)
 - **Embedded SQS**: `ElasticMqServer` runs an in-process SQS server — no Docker needed
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
 - **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
@@ -306,6 +314,7 @@ Every server implements
 | RabbitMQServer      | `rabbitmq`      | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url`      |
 | LocalStackServer    | `localstack`    | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
 | FlociServer         | `floci`         | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
+| MiniStackServer     | `ministack`     | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
 | ElasticMqServer     | `elasticmq`     | `host`, `port`, `url`, `sqsEndpoint`                                                |
 | MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
@@ -543,12 +552,28 @@ sequenceDiagram
 
 ### AWS Emulators
 
-`AwsEmulatorServer` is the common interface for local AWS emulators. Select the emulator via the `bluetape4k.aws.emulator` system property (`localstack` | `floci`).
+`AwsEmulatorServer` is the common interface for local AWS emulators.
 
 ```kotlin
-// FlociServer — GraalVM Native image, recommended
-val floci = FlociServer.Launcher.floci
+// MiniStackServer — MIT license, 31+ services, recommended
+val miniStack = MiniStackServer.Launcher.miniStack
 val s3Client = S3Client.builder()
+    .endpointOverride(miniStack.awsEndpoint)
+    .credentialsProvider(miniStack.getCredentialProvider())
+    .region(Region.of(miniStack.regionName))
+    .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+    .build()
+
+// MiniStack supports all services by default — no withServices() needed
+val kmsClient = KmsClient.builder()
+    .endpointOverride(miniStack.awsEndpoint)
+    .credentialsProvider(miniStack.getCredentialProvider())
+    .region(Region.of(miniStack.regionName))
+    .build()
+
+// FlociServer — GraalVM Native image (@Deprecated)
+val floci = FlociServer.Launcher.floci
+val sqsClient = SqsClient.builder()
     .endpointOverride(floci.awsEndpoint)
     .credentialsProvider(floci.getCredentialProvider())
     .region(Region.of(floci.regionName))

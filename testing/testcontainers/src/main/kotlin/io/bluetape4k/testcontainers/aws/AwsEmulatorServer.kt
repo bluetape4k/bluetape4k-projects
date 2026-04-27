@@ -7,7 +7,7 @@ import java.net.URI
 /**
  * AWS 에뮬레이터 서버 공통 인터페이스.
  *
- * LocalStack, Floci 등 다양한 AWS 에뮬레이터를 동일한 방식으로 사용할 수 있도록
+ * LocalStack, Floci, MiniStack 등 다양한 AWS 에뮬레이터를 동일한 방식으로 사용할 수 있도록
  * 공통 계약을 정의합니다.
  *
  * > ⚠️ **주의 (R7)**: 이 인터페이스는 AWS SDK 타입을 포함하지 않습니다.
@@ -17,10 +17,16 @@ import java.net.URI
  * > ⚠️ **주의 (R8)**: [withServices]는 구현체마다 동작이 다릅니다.
  * > - LocalStack: 활성화할 서비스를 지정합니다.
  * > - Floci: 모든 서비스가 항상 활성화되므로 이 메서드는 no-op입니다.
+ * > - MiniStack: 모든 서비스가 항상 활성화되므로 이 메서드는 no-op입니다.
  *
  * ```kotlin
+ * // LocalStack (서비스 선택 가능)
  * val server: AwsEmulatorServer = LocalStackServer()
  *     .withServices("s3", "sqs")
+ * server.start()
+ *
+ * // MiniStack (모든 서비스 항상 활성화)
+ * val server: AwsEmulatorServer = MiniStackServer()
  * server.start()
  *
  * // 에뮬레이터 엔드포인트와 자격 증명 정보를 SDK 타입에 의존하지 않고 사용
@@ -76,6 +82,8 @@ interface AwsEmulatorServer: GenericServer, PropertyExportingServer {
      * 구현체마다 동작이 다릅니다:
      * - **LocalStack**: 인자로 전달된 서비스만 활성화합니다.
      * - **Floci**: 모든 서비스가 항상 활성화되므로 이 메서드는 no-op이며,
+     *   동일한 인스턴스를 그대로 반환합니다.
+     * - **MiniStack**: 모든 서비스가 항상 활성화되므로 이 메서드는 no-op이며,
      *   동일한 인스턴스를 그대로 반환합니다.
      *
      * @param services 활성화할 AWS 서비스 이름 (예: `"s3"`, `"sqs"`, `"dynamodb"`)
