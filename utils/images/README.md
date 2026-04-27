@@ -190,6 +190,9 @@ classDiagram
 | `filters/CaptionFilterSupport.kt`              | Caption filter                           |
 | `filters/PaddingSupport.kt`                    | Padding filter                           |
 | `filters/WatermarkFilterType.kt`               | Watermark type (COVER/STAMP)             |
+| `analysis/DominantColor.kt`                    | Dominant color extraction (MedianCut) — `dominantColor()`, `dominantColors()` |
+| `analysis/BlurDetector.kt`                     | Blur detection via Laplacian variance — `blurScore()`, `isBlurry()` |
+| `analysis/ExifData.kt`                         | EXIF metadata parsing — `readExif()`, GPS PII removal |
 | `similarity/ImageSimilarity.kt`                | Core similarity: pixel Δ, MSE, PSNR, global SSIM, pHash |
 | `similarity/MssimSimilarity.kt`                | MSSIM — sliding-window Gaussian SSIM                    |
 | `similarity/HashSimilarity.kt`                 | aHash/dHash/wHash/phashOf (64/256/1024bit), HashDistance |
@@ -799,6 +802,134 @@ val asyncResult = image.suspendApplyFilters {
     flipHorizontal()
 }
 ```
+
+### Image Analysis
+
+Dominant color extraction, blur detection, and EXIF metadata parsing — all pure JVM, no native dependencies.
+
+```mermaid
+classDiagram
+    class DominantColor {
+        +r: Int
+        +g: Int
+        +b: Int
+        +population: Int
+        +hex: String
+        +toAwtColor() Color
+        +fromRgb(rgb, population) DominantColor
+    }
+    class DominantColorExtractor {
+        <<sealed interface>>
+        +extract(image, count) List~DominantColor~
+    }
+    class MedianCut {
+        +quality: Int
+        +ignoreWhite: Boolean
+        +extract(image, count) List~DominantColor~
+    }
+    class BlurScore {
+        +score: Double
+        +threshold: Double
+        +isBlurry: Boolean
+    }
+    class ExifData {
+        +gpsLatitude: Double?
+        +gpsLongitude: Double?
+        +dateTimeOriginal: LocalDateTime?
+        +cameraMake: String?
+        +iso: Int?
+        +hasGps: Boolean
+        +withoutGps() ExifData
+    }
+
+    DominantColorExtractor <|.. MedianCut
+    DominantColor <-- MedianCut : produces
+    ImmutableImage --> DominantColor : dominantColors()
+    ImmutableImage --> BlurScore : blurScore()
+    ExifData <-- File : readExif()
+    ExifData <-- Path : readExif()
+    ExifData <-- InputStream : readExif()
+```
+
+#### Dominant Color Extraction (Median Cut)
+
+```kotlin
+import io.bluetape4k.images.analysis.*
+
+val image = ImmutableImage.loader().fromFile(File("photo.jpg"))
+
+// Extract top 5 dominant colors
+val colors: List<DominantColor> = image.dominantColors(5)
+colors.forEach { c ->
+    println("${c.hex} (population=${c.population})")
+}
+
+// Extract single dominant color (null if image is fully transparent)
+val primary: DominantColor? = image.dominantColor()
+
+// Custom extractor — exclude near-white pixels
+val extractor = DominantColorExtractor.medianCut(quality = 5, ignoreWhite = true)
+val filtered = image.dominantColors(3, extractor)
+
+// Suspend (CPU-bound → Dispatchers.Default)
+val asyncColors = image.suspendDominantColors(5)
+```
+
+#### Blur Detection (Laplacian Variance)
+
+```kotlin
+import io.bluetape4k.images.analysis.*
+
+val image = ImmutableImage.loader().fromFile(File("photo.jpg"))
+
+// Blur score — higher = sharper
+val result: BlurScore = image.blurScore(threshold = 100.0)
+println("score=${result.score}, isBlurry=${result.isBlurry}")
+
+// Boolean shorthand
+if (image.isBlurry()) {
+    println("Image is blurry — skip processing")
+}
+
+// Suspend
+val asyncScore: BlurScore = image.suspendBlurScore(threshold = 150.0)
+```
+
+#### EXIF Metadata
+
+```kotlin
+import io.bluetape4k.images.analysis.*
+
+// From File
+val exif: ExifData = File("photo.jpg").readExif()
+println("make=${exif.cameraMake}, model=${exif.cameraModel}")
+println("iso=${exif.iso}, aperture=f/${exif.aperture}")
+println("taken=${exif.dateTimeOriginal}")
+
+// GPS — with PII-removal helper
+if (exif.hasGps) {
+    val safe = exif.withoutGps()  // removes lat/lon/altitude
+    println("${safe.cameraMake}")
+}
+
+// From ByteArray (max 50 MB)
+val exifFromBytes: ExifData = readExif(bytes)
+
+// From Path (jar/zip-safe)
+val exifFromPath: ExifData = Paths.get("photo.jpg").readExif()
+
+// Suspend
+val asyncExif: ExifData = File("photo.jpg").suspendReadExif()
+```
+
+#### Key Files
+
+| File                                     | Description                                      |
+|------------------------------------------|--------------------------------------------------|
+| `analysis/DominantColor.kt`             | `DominantColor` data class + `DominantColorExtractor` sealed interface |
+| `analysis/MedianCutQuantizer.kt`        | Median Cut quantization engine (5-bit/channel)  |
+| `analysis/BlurDetector.kt`              | `BlurScore` + Laplacian variance computation     |
+| `analysis/ExifData.kt`                  | `ExifData` model + `readExif()` entry points     |
 
 ## Dependency
 

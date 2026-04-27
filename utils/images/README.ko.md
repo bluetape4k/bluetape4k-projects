@@ -191,6 +191,9 @@ classDiagram
 | `filters/CaptionFilterSupport.kt`                    | 캡션 필터                         |
 | `filters/PaddingSupport.kt`                          | 패딩 필터                         |
 | `filters/WatermarkFilterType.kt`                     | 워터마크 타입 (COVER/STAMP)         |
+| `analysis/DominantColor.kt`                          | 대표 색상 추출 — `dominantColor()`, `dominantColors()` |
+| `analysis/BlurDetector.kt`                           | 블러 감지 — `blurScore()`, `isBlurry()` |
+| `analysis/ExifData.kt`                               | EXIF 파싱 — `readExif()`, GPS PII 제거 |
 | `similarity/ImageSimilarity.kt`                      | 핵심 유사도: 픽셀 Δ, MSE, PSNR, 전역 SSIM, pHash |
 | `similarity/MssimSimilarity.kt`                      | MSSIM — 슬라이딩 윈도우 Gaussian SSIM            |
 | `similarity/HashSimilarity.kt`                       | aHash/dHash/wHash/phashOf (64/256/1024bit), HashDistance |
@@ -825,6 +828,90 @@ val asyncResult = image.suspendApplyFilters {
     flipHorizontal()
 }
 ```
+
+### 이미지 분석
+
+대표 색상 추출, 블러 감지, EXIF 메타데이터 파싱 — 순수 JVM, 네이티브 의존성 없음.
+
+#### 대표 색상 추출 (Median Cut)
+
+```kotlin
+import io.bluetape4k.images.analysis.*
+
+val image = ImmutableImage.loader().fromFile(File("photo.jpg"))
+
+// 상위 5개 대표 색상 추출
+val colors: List<DominantColor> = image.dominantColors(5)
+colors.forEach { c ->
+    println("${c.hex} (population=${c.population})")
+}
+
+// 단일 대표 색상 (완전 투명 이미지이면 null)
+val primary: DominantColor? = image.dominantColor()
+
+// 커스텀 추출기 — 흰색 픽셀 제외
+val extractor = DominantColorExtractor.medianCut(quality = 5, ignoreWhite = true)
+val filtered = image.dominantColors(3, extractor)
+
+// Suspend (CPU-bound → Dispatchers.Default)
+val asyncColors = image.suspendDominantColors(5)
+```
+
+#### 블러 감지 (Laplacian Variance)
+
+```kotlin
+import io.bluetape4k.images.analysis.*
+
+val image = ImmutableImage.loader().fromFile(File("photo.jpg"))
+
+// 블러 점수 — 높을수록 선명
+val result: BlurScore = image.blurScore(threshold = 100.0)
+println("score=${result.score}, isBlurry=${result.isBlurry}")
+
+// Boolean 단축형
+if (image.isBlurry()) {
+    println("이미지가 흐림 — 처리 건너뜀")
+}
+
+// Suspend
+val asyncScore: BlurScore = image.suspendBlurScore(threshold = 150.0)
+```
+
+#### EXIF 메타데이터
+
+```kotlin
+import io.bluetape4k.images.analysis.*
+
+// File에서 읽기
+val exif: ExifData = File("photo.jpg").readExif()
+println("제조사=${exif.cameraMake}, 모델=${exif.cameraModel}")
+println("ISO=${exif.iso}, 조리개=f/${exif.aperture}")
+println("촬영시각=${exif.dateTimeOriginal}")
+
+// GPS — PII 제거 헬퍼
+if (exif.hasGps) {
+    val safe = exif.withoutGps()  // lat/lon/altitude 제거
+    println("${safe.cameraMake}")
+}
+
+// ByteArray에서 읽기 (최대 50MB)
+val exifFromBytes: ExifData = readExif(bytes)
+
+// Path에서 읽기 (jar/zip 내부 경로 지원)
+val exifFromPath: ExifData = Paths.get("photo.jpg").readExif()
+
+// Suspend
+val asyncExif: ExifData = File("photo.jpg").suspendReadExif()
+```
+
+#### 주요 파일
+
+| 파일                                     | 설명                                              |
+|------------------------------------------|--------------------------------------------------|
+| `analysis/DominantColor.kt`             | `DominantColor` data class + `DominantColorExtractor` sealed interface |
+| `analysis/MedianCutQuantizer.kt`        | Median Cut quantization 엔진 (5-bit/channel)     |
+| `analysis/BlurDetector.kt`              | `BlurScore` + Laplacian variance 계산             |
+| `analysis/ExifData.kt`                  | `ExifData` 모델 + `readExif()` 진입점            |
 
 ## 의존성 추가
 

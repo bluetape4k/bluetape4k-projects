@@ -13,6 +13,9 @@ dependencies {
     api(Libs.scrimage_filters)
     implementation(Libs.scrimage_webp)
 
+    // EXIF metadata (required runtime dependency)
+    implementation(Libs.metadata_extractor)
+
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
