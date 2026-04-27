@@ -40,6 +40,18 @@ kapt {
     }
 }
 
+// Hibernate ORM 7.x requires Jakarta Persistence 3.2.0 (needed at compile + runtime).
+// Spring Boot 3.x BOM constrains jakarta.persistence to 3.1.0; override it here.
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "jakarta.persistence") {
+            useVersion("3.2.0")
+            because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
+        }
+    }
+}
+
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
     create("testJar")
@@ -65,8 +77,8 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jakarta_persistence_api)
-    kapt(Libs.jakarta_persistence_api)
+    api(Libs.jakarta_persistence_api_32)
+    kapt(Libs.jakarta_persistence_api_32)
     api(Libs.jakarta_transaction_api)
 
     api(Libs.hibernate_core)
@@ -87,6 +99,7 @@ dependencies {
     api(Libs.jakarta_el_api)
     api(Libs.jakarta_validation_api)
     api(Libs.hibernate_validator)
+    testImplementation(Libs.glassfish_expressly)  // Jakarta EL 6.0 implementation for Hibernate Validator 9.x
 
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
