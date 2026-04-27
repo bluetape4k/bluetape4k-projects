@@ -123,6 +123,7 @@ flowchart TB
         JUNIT["testing/junit5"]
         TC["testing/testcontainers"]
         UTILS["utils/*"]
+        TEXTS["texts/*"]
         AWS["aws/*"]
     end
 
@@ -149,7 +150,7 @@ flowchart TB
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
     class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
     class SB3,SB4 intLayer
-    class JUNIT,TC,UTILS,AWS crossLayer
+    class JUNIT,TC,UTILS,TEXTS,AWS crossLayer
 ```
 
 ### Core 모듈 (`bluetape4k/`)
@@ -310,6 +311,14 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 - **[mongodb](./spring-boot4/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot4/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
+### 텍스트 처리 모듈 (`texts/`)
+
+- **[tokenizer-core](./texts/tokenizer-core/README.ko.md)**: 토크나이저 공통 인터페이스 — `TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`
+- **[tokenizer-korean](./texts/tokenizer-korean/README.ko.md)**: 한국어 형태소 분석기 (Open Korean Text 기반) — twitter-text 의존성 제거 및 `TwitterCompatPatterns` 내부 구현
+- **[tokenizer-japanese](./texts/tokenizer-japanese/README.ko.md)**: 일본어 형태소 분석기 (Kuromoji IPAdic 0.9.0)
+- **[lingua](./texts/lingua/README.ko.md)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼 (75+ 언어)
+- **[text-search](./texts/text-search/README.ko.md)**: Aho-Corasick 다중 키워드 검색 — 금칙어 필터, 하이라이팅, Flow API
+
 ### 유틸리티 모듈 (`utils/`)
 
 - **[geo](./utils/geo/README.ko.md)**: 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구
@@ -378,9 +387,9 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 - ~~**logback-kafka**~~: Logback Kafka Appender — 사용 빈도 낮아 폐기
 - ~~**nats**~~: NATS 메시징 — 사용 빈도 낮아 폐기
 - ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
-- ~~**tokenizer**~~: 한국어/일본어 형태소 분석기 — 사용 빈도 낮아 폐기
-- ~~**ahocorasick**~~: 문자열 검색 (Aho-Corasick) — 사용 빈도 낮아 폐기
-- **[lingua](./utils/lingua/README.ko.md)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼와 혼합 언어 `Set<Language>` 검출 지원
+- ~~**tokenizer**~~: `texts/tokenizer-core`, `texts/tokenizer-korean`, `texts/tokenizer-japanese` 로 승격됨
+- ~~**ahocorasick**~~: `texts/text-search` 로 승격됨
+- ~~**lingua**~~: `texts/lingua` 로 승격됨
 - ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
 - ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
 
