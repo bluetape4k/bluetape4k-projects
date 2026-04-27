@@ -61,51 +61,44 @@ T11/T12/T13 병렬 가능.
 
 #### 작업 항목
 
-1. H7 ORM 7.2.4.Final source jar 추출
-   - 위치: `.claude/lib-sources/hibernate-7.2.4/`
-   - 대상 라이브러리:
-     - `org.hibernate.orm:hibernate-core:7.2.4.Final` (sources)
-     - `org.hibernate.orm:hibernate-jcache:7.2.4.Final` (sources)
-   - 추출 후 `org/hibernate/cache/`, `org/hibernate/engine/spi/`, `org/hibernate/cfg/` 디렉토리 위주로 확인
-2. Hibernate Reactive 3.x 최신 stable 버전 결정
-   - MVNRepository / Maven Central 에서 `org.hibernate.reactive:hibernate-reactive-core` 의 최신 stable 확인
-   - 현재 spec 기준 `3.2.x.Final` 추정 — 실제 버전 픽스 후 plan 본문에 기재
-3. SPI 시그니처 diff 표 작성 (아래 §1.T0.출력 영역에 inline 채움)
-   - `RegionFactoryTemplate.prepareForUse(SessionFactoryOptions, Map)` H6 → H7 시그니처 비교
-   - `org.hibernate.cache.internal.*` 클래스 재배치 현황 (특히 `BasicCacheKeyImplementation`, `DefaultCacheKeysFactory`)
-   - `SessionImplementor.getFactory()` deprecate/제거 여부
-   - `Type` 시스템 패키지 (`JavaType`/`JdbcType`) 이동 여부
-4. Hibernate Reactive 3.x — Mutiny/Stage 변경 사항 확인
-   - `Mutiny.SessionFactory.withSession(Function<Mutiny.Session, Uni<T>>)` 시그니처 유지 여부
-   - `Stage.SessionFactory.withTransaction(BiFunction<Stage.Session, Stage.Transaction, CompletionStage<T>>)` 변경 여부
+1. H7 ORM 7.2.7.Final source jar 추출 (**완료** — `.claude/lib-sources/hibernate-7.2.7/extracted/`)
+2. Hibernate Reactive 3.x 최신 stable 버전 결정 (**완료** — 3.0.0.Final 확정)
+3. SPI 시그니처 diff 표 작성 (**완료** — 아래 T0 출력 표 참조)
+4. H2 최소 버전 확인 (**완료** — H7 H2Dialect MINIMUM_VERSION = 2.1.214)
 
 #### 대상 파일
 
-- `.claude/lib-sources/hibernate-7.2.4/` (신규 디렉토리, jar 추출 결과)
-- 본 plan 파일의 §1.T0.출력 영역 inline 갱신
+- `.claude/lib-sources/hibernate-7.2.7/` (완료, jar 추출 결과)
+- 본 plan 파일의 §1.T0.출력 영역 inline 갱신 (**완료**)
 
 #### 검증 방법
 
-- jar 추출 후 `eza .claude/lib-sources/hibernate-7.2.4/` 로 디렉토리 트리 확인
-- Spec §6.1 의 영향 매트릭스와 실제 H7 시그니처 일치 여부 검증
-- diff 표가 T2/T3/T4 코드 변경의 사전 근거로 충분한지 셀프 체크
+- `.claude/lib-sources/hibernate-7.2.7/extracted/` 에 org/hibernate 소스 확인 완료
+- Spec §6.1 의 영향 매트릭스와 실제 H7 시그니처 일치 여부 검증 완료
+- diff 표 TBD 0건 확인 완료
 
-#### T0 출력 — 시그니처 diff 표 (T0 완료 후 채움)
+#### T0 출력 — 시그니처 diff 표 (T0 완료 2026-04-27)
 
-> ⚠️ **⛔ GATE**: T0 완료 기준 = **아래 표의 TBD가 0건**. TBD가 남아 있으면 T1/T2/T3/T4 진행 불가.
-> T0 완료 후 이 plan 파일을 실제 값으로 갱신하고 commit한 뒤 다음 태스크를 시작한다.
+> ✅ **GATE 통과**: TBD 0건. T1/T2/T3/T4 진행 가능.
 
-| API | H6.6.44.Final | H7.2.4.Final | 영향 모듈 |
-|-----|---------------|--------------|-----------|
-| `RegionFactoryTemplate.prepareForUse` | TBD | TBD | hibernate-cache-lettuce |
-| `org.hibernate.cache.internal.DefaultCacheKeysFactory` | TBD | TBD | hibernate-cache-lettuce |
-| `SessionImplementor.getFactory()` | TBD | TBD | data/hibernate |
-| `JavaType`/`JdbcType` 패키지 | TBD | TBD | data/hibernate Converter |
-| `Mutiny.SessionFactory.withSession` | TBD | TBD | hibernate-reactive |
-| `Stage.SessionFactory.withTransaction` | TBD | TBD | hibernate-reactive |
-| Reactive 3.x 정확한 버전 | — | TBD | Libs.kt |
-| H2 권장 최소 버전 | TBD | TBD | test scope (모든 모듈) |
-| `AvailableSettings` 주요 키 변경 | TBD | TBD | hibernate.properties |
+| API | H6.6.44.Final | H7.2.7.Final | 상태 | 영향 모듈 |
+|-----|---------------|--------------|------|-----------|
+| `AbstractRegionFactory.prepareForUse(SessionFactoryOptions, Map<String,Object>)` | abstract method | **동일** (변경 없음) | ✅ | hibernate-cache-lettuce |
+| `org.hibernate.cache.internal.DefaultCacheKeysFactory` | `cache.internal` 패키지 | **동일 패키지** (이동 없음) | ✅ | hibernate-cache-lettuce |
+| `org.hibernate.cache.internal.BasicCacheKeyImplementation` | `cache.internal` 패키지 | **동일 패키지** (이동 없음) | ✅ | hibernate-cache-lettuce |
+| `org.hibernate.cache.internal.NaturalIdCacheKey` | `cache.internal` 패키지 | **동일 패키지** (이동 없음) | ✅ | hibernate-cache-lettuce |
+| `SessionImplementor.getSessionFactory()` | `getSessionFactory()` | **동일** (변경 없음) | ✅ | data/hibernate |
+| `JavaType` 패키지 | `o.h.type.descriptor.java` | **동일** (이동 없음) | ✅ | data/hibernate Converter |
+| `JdbcType` 패키지 | `o.h.type.descriptor.jdbc` | **동일** (이동 없음) | ✅ | data/hibernate Converter |
+| `AvailableSettings.HBM2DDL_AUTO` | `AvailableSettings` | `SchemaToolingSettings` (AvailableSettings가 상속) | ✅ 코드 변경 불필요 | hibernate.properties |
+| `AvailableSettings.SHOW_SQL/FORMAT_SQL/POOL_SIZE` | `AvailableSettings` | `JdbcSettings` (AvailableSettings가 상속) | ✅ 코드 변경 불필요 | hibernate.properties |
+| `AvailableSettings.GENERATE_STATISTICS` | `AvailableSettings` | `StatisticsSettings` (AvailableSettings가 상속) | ✅ 코드 변경 불필요 | 통계 설정 |
+| `Mutiny.SessionFactory.withSession(Function<Session, Uni<T>>)` | `withSession(Function)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
+| `Mutiny.SessionFactory.withTransaction(BiFunction<Session, Transaction, Uni<T>>)` | `withTransaction(BiFunction)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
+| `Stage.SessionFactory.withSession(Function<Session, CompletionStage<T>>)` | `withSession(Function)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
+| `Stage.SessionFactory.withTransaction(BiFunction<Session, Transaction, CompletionStage<T>>)` | `withTransaction(BiFunction)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
+| Reactive 최신 stable 버전 | 2.4.11.Final | **3.0.0.Final** (H7 ORM 의존) | 확정 | Libs.kt |
+| H2 최소 버전 (H7 요구사항) | 1.4.197 (현재) | **2.1.214** (H7Dialect MINIMUM_VERSION) | ⚠️ **업그레이드 필요** | test scope |
 
 ---
 
@@ -118,8 +111,8 @@ T11/T12/T13 병렬 가능.
 #### 작업 항목
 
 1. `buildSrc/src/main/kotlin/Libs.kt` 에서 다음 상수 갱신
-   - `hibernate = "6.6.44.Final"` → `hibernate = "7.2.4.Final"`
-   - `hibernate_reactive = "2.4.11.Final"` → `hibernate_reactive = "{T0 결과}"`
+   - `hibernate = "6.6.44.Final"` → `hibernate = "7.2.7.Final"`
+   - `hibernate_reactive = "2.4.11.Final"` → `hibernate_reactive = "3.0.0.Final"`
 2. 변경 전 버전을 `// previous: 6.6.44.Final` 주석으로 보존 (롤백 대비, Spec §8-R)
 3. `hibernate_validator = "9.1.0.Final"` 유지 확인 (변경 없음)
 4. **H2 버전 점검** (Spec §4.1 위험 3 완화)
@@ -138,7 +131,7 @@ T11/T12/T13 병렬 가능.
 #### 검증 방법
 
 - `./gradlew --stop && ./gradlew help` — buildSrc 재컴파일 확인
-- `./gradlew :bluetape4k-hibernate:dependencies --configuration runtimeClasspath | rg hibernate-core` — 7.2.4 resolve 확인
+- `./gradlew :bluetape4k-hibernate:dependencies --configuration runtimeClasspath | rg hibernate-core` — 7.2.7 resolve 확인
 
 ---
 
@@ -334,11 +327,11 @@ T11/T12/T13 병렬 가능.
 #### 작업 항목
 
 1. **`spring-boot3/hibernate-lettuce`**
-   - `build.gradle.kts` 의 `force resolution` 을 H7.2.4 로 갱신 (Spec §7.1)
+   - `build.gradle.kts` 의 `force resolution` 을 H7.2.7 로 갱신 (Spec §7.1)
      ```kotlin
      configurations.all {
          resolutionStrategy {
-             force("org.hibernate.orm:hibernate-core:7.2.4.Final")
+             force("org.hibernate.orm:hibernate-core:7.2.7.Final")
          }
      }
      ```
