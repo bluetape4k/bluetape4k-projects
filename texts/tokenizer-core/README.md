@@ -1,289 +1,165 @@
-# Module bluetape4k-tokenizer-core
+[한국어](./README.ko.md) | English
 
-English | [한국어](./README.ko.md)
+# bluetape4k-tokenizer-core
 
-The `tokenizer/core` module provides the foundational infrastructure for morphological analysis and blocked-word (profanity) filtering.
+Core abstractions, domain models, and utilities for building text tokenizers and blockword processors in the bluetape4k ecosystem.
 
-## Overview
+## Architecture
 
-This module provides base classes and utilities for morphological analysis across various languages such as Korean and Japanese.
-
-### Key Features
-
-- **Communication models**: Request/response models for tokenization and blocked-word processing
-- **Dictionary management**: High-performance `CharArray`-based dictionary data structures
-- **Unicode support**: Utilities for working with Unicode code points
-- **Compression support**: Load GZIP-compressed dictionary files
-
-## Module Structure
-
-```
-tokenizer/core/
-├── model/          # API request/response models
-├── utils/          # Utility classes
-└── exceptions/     # Exception classes
-```
-
-## Key Components
-
-### 1. Model Package
-
-#### BlockwordOptions
-
-Configures options for blocked-word processing.
-
-```kotlin
-val options = blockwordOptionsOf(
-    mask = "*",                    // Masking character
-    locale = Locale.KOREAN,        // Locale
-    severity = Severity.MIDDLE,    // Severity level
-)
-```
-
-#### BlockwordRequest/Response
-
-```kotlin
-// Create a request
-val request = blockwordRequestOf(
-    text = "Text containing a blocked word",
-    options = options,
-)
-
-// Create a response
-val response = blockwordResponseOf(
-    original = request.text,
-    masked = "*** containing a blocked word",
-    words = listOf("blocked word"),
-)
-```
-
-#### TokenizeRequest/Response
-
-```kotlin
-// Tokenization request
-val request = tokenizeRequestOf(
-    text = "Text to tokenize",
-    options = tokenizeOptionsOf(Locale.KOREAN),
-)
-
-// Response
-val response = tokenizeResponseOf(
-    original = request.text,
-    tokens = listOf("Text", "to", "tokenize"),
-)
-```
-
-#### Severity
-
-Defines severity levels for blocked words.
-
-```kotlin
-enum class Severity(val level: Int) {
-    LOW(1),     // Low severity
-    MIDDLE(2),  // Medium severity
-    HIGH(3),    // High severity
-}
-```
-
-### 2. Utils Package
-
-#### CharArraySet
-
-A high-performance `Set` implementation backed by `CharArray`.
-
-```kotlin
-val set = CharArraySet(1000)
-
-// Add
-set.add("word")
-set.add(charArrayOf('w', 'o', 'r', 'd'))
-
-// Lookup
-if (set.contains("word")) {
-    // ...
-}
-
-// Remove (returns true only if actually removed)
-set.remove("word")
-set.removeAll(listOf("a", "b"))
-
-// Unmodifiable set
-val unmodifiable = CharArraySet.unmodifiableSet(set)
-```
-
-#### CharArrayMap
-
-A high-performance `Map` implementation with `CharArray` keys.
-
-```kotlin
-val map = CharArrayMap<String>(1000)
-
-// Put
-map["key"] = "value"
-map[charArrayOf('k', 'e', 'y')] = "value"
-
-// Get
-val value = map["key"]
-val value = map[charArrayOf('k', 'e', 'y')]
-val value = map.get("key")
-val value2 = map.get(charArrayOf('k', 'e', 'y'), 0, 3)
-
-// Unmodifiable map
-val unmodifiable = CharArrayMap.unmodifiableMap(map)
-```
-
-#### CharacterUtils
-
-Utility for working with Unicode characters.
-
-```kotlin
-val charUtils = CharacterUtils.getInstance()
-
-// Get code point
-val codePoint = charUtils.codePointAt("Text", 0)
-val codePoint = charUtils.codePointAt(charArray, offset, limit)
-
-// Count code points
-val count = charUtils.codePointCount("Hello text")
-
-// Case conversion
-val buffer = "HELLO".toCharArray()
-charUtils.toLowerCase(buffer, 0, buffer.size)
-
-// Convert to code points
-val src = "Hello".toCharArray()
-val dest = IntArray(src.size)
-val count = charUtils.toCodePoints(src, 0, src.size, dest, 0)
-
-// Character buffer
-val buffer = CharacterUtils.newCharacterBuffer(1024)
-val reader = StringReader("text")
-val filled = charUtils.fill(buffer, reader, 100)
-```
-
-#### DictionaryProvider
-
-Utility for loading dictionary files.
-
-```kotlin
-// Load a plain text file
-DictionaryProvider.readFileByLineFromResources("dictionary/noun/nouns.txt")
-    .forEach { line ->
-        // process
+```mermaid
+classDiagram
+    class AbstractMessage {
+        +timestamp: Long
     }
 
-// Load a GZIP-compressed file
-DictionaryProvider.readFileByLineFromResources("dictionary/noun/nouns.txt.gz")
-    .forEach { line ->
-        // process
+    class TokenizeRequest {
+        +text: String
+        +options: TokenizeOptions
     }
 
-// Load into a CharArraySet (suspend)
-val set = DictionaryProvider.readWords("dictionary/noun/nouns.txt")
+    class TokenizeResponse {
+        +text: String
+        +tokens: List~String~
+    }
 
-// Load a frequency map
-val freqMap = DictionaryProvider.readWordFreqs("dictionary/freq/freq.txt")
+    class TokenizeOptions {
+        +locale: Locale
+        +DEFAULT: TokenizeOptions$
+    }
+
+    class BlockwordRequest {
+        +text: String
+        +options: BlockwordOptions
+    }
+
+    class BlockwordResponse {
+        +request: BlockwordRequest
+        +maskedText: String
+        +blockWords: List~String~
+        +blockwordExists: Boolean
+    }
+
+    class BlockwordOptions {
+        +mask: String
+        +locale: Locale
+        +severity: Severity
+        +DEFAULT: BlockwordOptions$
+    }
+
+    class Severity {
+        <<enumeration>>
+        LOW
+        MIDDLE
+        HIGH
+        DEFAULT$
+    }
+
+    class DictionaryProvider {
+        <<object>>
+        +readStreamByLine(stream) Sequence~String~
+        +readFileByLineFromResources(path) Sequence~String~
+        +readWordFreqs(path) Map~CharSequence, Float~
+        +readWordMap(filename) Sequence~Pair~
+        +readWordsAsSequence(filename) Sequence~String~
+        +readWordsAsSet(paths) MutableSet~String~
+        +readWords(paths) CharArraySet
+    }
+
+    class TokenizerException {
+        +message: String
+        +cause: Throwable
+    }
+
+    AbstractMessage <|-- TokenizeRequest
+    AbstractMessage <|-- TokenizeResponse
+    AbstractMessage <|-- BlockwordRequest
+    AbstractMessage <|-- BlockwordResponse
+    TokenizeRequest --> TokenizeOptions
+    BlockwordRequest --> BlockwordOptions
+    BlockwordOptions --> Severity
+    BlockwordResponse --> BlockwordRequest
 ```
 
-### 3. Exceptions Package
+## Features
+
+- **Domain model layer** — `TokenizeRequest` / `TokenizeResponse` and `BlockwordRequest` / `BlockwordResponse` with automatic timestamp recording
+- **Configurable options** — `TokenizeOptions` (locale) and `BlockwordOptions` (mask character, locale, severity level)
+- **Severity enum** — `Severity.LOW` (slang/mild), `MIDDLE` (profanity), `HIGH` (hate speech / regional slurs) for fine-grained content policy
+- **Dictionary utilities** — `DictionaryProvider` loads classpath resource files (plain text or `.gz`) as lazy `Sequence`, word-frequency maps, or high-performance `CharArraySet`
+- **Parallel dictionary loading** — `readWordsAsSet` and `readWords` use `Flow.async` to load multiple dictionary files concurrently
+- **Efficient set/map structures** — `CharArraySet` and `CharArrayMap` optimised for high-throughput membership checks against large word lists
+- **Exception hierarchy** — `TokenizerException` and `InvalidTokenizeRequestException` extend `BluetapeException`
+- **Serializable models** — all options and message types implement `java.io.Serializable`
+
+## Usage
+
+### Tokenize request / response
 
 ```kotlin
-// Tokenizer-related exception
-try {
-    // tokenizer operation
-} catch (e: TokenizerException) {
-    // handle exception
-}
+import io.bluetape4k.tokenizer.model.*
+import java.util.Locale
 
-// Invalid request exception
-try {
-    // process request
-} catch (e: InvalidTokenizeRequestException) {
-    // handle exception
-}
+// Build a request with default options (Locale.KOREAN)
+val request = tokenizeRequestOf("코틀린 코루틴")
+println(request.text)       // 코틀린 코루틴
+println(request.timestamp)  // epoch millis
+
+// Build with custom locale
+val jpOptions = TokenizeOptions(locale = Locale.JAPANESE)
+val jpRequest = tokenizeRequestOf("日本語テスト", jpOptions)
+
+// Construct a response (tokenizer implementations populate this)
+val response = tokenizeResponseOf(request.text, listOf("코틀린", "코루틴"))
+println(response.tokens)    // [코틀린, 코루틴]
 ```
 
-## Usage Examples
-
-### Blocked-Word Processing
+### Blockword request / response
 
 ```kotlin
-fun processBlockword(text: String): BlockwordResponse {
-    val options = blockwordOptionsOf(
-        mask = "*",
-        severity = Severity.HIGH,
-    )
+import io.bluetape4k.tokenizer.model.*
 
-    val request = blockwordRequestOf(text, options)
+// Default: mask = "*", severity = LOW
+val req = blockwordRequestOf("나쁜 단어가 포함된 문장")
 
-    val detectedWords = detectBlockwords(request.text)
-    val maskedText = maskWords(request.text, detectedWords, request.options.mask)
+// Custom mask character and severity
+val opts = blockwordOptionsOf(mask = "#", severity = Severity.HIGH)
+val req2 = blockwordRequestOf("some text", opts)
 
-    return blockwordResponseOf(
-        original = request.text,
-        masked = maskedText,
-        words = detectedWords,
-    )
-}
+// Inspect a response built by a blockword processor
+val response = blockwordResponseOf(req, "나쁜 ***가 포함된 문장", listOf("단어"))
+println(response.blockwordExists)   // true
+println(response.maskedText)        // 나쁜 ***가 포함된 문장
 ```
 
-### Morphological Analysis
+### Loading a dictionary from classpath resources
 
 ```kotlin
-fun tokenize(text: String): TokenizeResponse {
-    val request = tokenizeRequestOf(text)
+import io.bluetape4k.tokenizer.utils.DictionaryProvider
+import kotlinx.coroutines.runBlocking
 
-    val tokens = performTokenization(request.text)
+// Lazy sequence — read line by line
+val words: Sequence<String> = DictionaryProvider.readWordsAsSequence("dict/stopwords.txt")
 
-    return tokenizeResponseOf(
-        original = request.text,
-        tokens = tokens,
-    )
+// Load multiple files in parallel into a CharArraySet
+val set = runBlocking {
+    DictionaryProvider.readWords("dict/a.txt", "dict/b.txt")
 }
+println(set.contains("foo"))  // true if "foo" is in either file
+
+// Read a word-frequency file (tab-separated: word\tfrequency)
+val freqMap: Map<CharSequence, Float> = DictionaryProvider.readWordFreqs("dict/freqs.txt")
 ```
 
-### Building a Dictionary
+## Dependencies
 
-```kotlin
-suspend fun buildDictionary(): CharArraySet {
-    val dictionary = CharArraySet(10_000)
-
-    DictionaryProvider.readWords("dictionary/noun/nouns.txt")
-        .forEach { dictionary.add(it) }
-
-    DictionaryProvider.readWords("dictionary/verb/verb.txt")
-        .forEach { dictionary.add(it) }
-
-    return dictionary
-}
-```
-
-## Dependency
+| Dependency | Purpose |
+|---|---|
+| `bluetape4k-io` | Base I/O utilities and `BluetapeException` |
+| `bluetape4k-coroutines` | `Flow.async` for parallel dictionary loading |
+| `kotlinx-coroutines-core` | Coroutines runtime |
 
 ```kotlin
 dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-tokenizer-core:$version")
+    implementation("io.bluetape4k:bluetape4k-tokenizer-core:1.7.0-SNAPSHOT")
 }
 ```
-
-### Transitive Dependencies
-
-- bluetape4k-logging
-- bluetape4k-core
-
-## Testing
-
-```bash
-# Run all tests
-./gradlew :bluetape4k-tokenizer-core:test
-
-# Run a specific test class
-./gradlew :bluetape4k-tokenizer-core:test \
-    --tests "io.bluetape4k.tokenizer.utils.CharArrayMapTest"
-```
-
-## Notes
-
-- All APIs support Kotlin coroutines (suspend functions)
-- Dictionary files must be placed under `src/main/resources/dictionary`
-- GZIP-compressed dictionary files must have a `.gz` extension to be recognized automatically

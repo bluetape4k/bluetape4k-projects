@@ -1,293 +1,165 @@
-# Module bluetape4k-tokenizer-core
+한국어 | [English](./README.md)
 
-[English](./README.md) | 한국어
+# bluetape4k-tokenizer-core
 
-tokenizer/core 모듈은 형태소 분석 및 금칙어 처리를 위한 기본 인프라를 제공합니다.
+bluetape4k 생태계에서 텍스트 토크나이저와 금칙어 처리기를 구축하기 위한 핵심 추상화, 도메인 모델, 유틸리티를 제공하는 모듈입니다.
 
-## 개요
+## 아키텍처
 
-이 모듈은 한국어/일본어 등 다양한 언어에 대한 형태소 분석을 위한 기반 클래스와 유틸리티를 제공합니다.
-
-### 주요 특징
-
-- **통신 모델**: 형태소 분석 및 금칙어 처리를 위한 요청/응답 모델
-- **사전 관리**: CharArray 기반의 고성능 사전 데이터 구조
-- **유니코드 지원**: Unicode code point 처리 유틸리티
-- **압축 지원**: GZIP 압축된 사전 파일 로드 지원
-
-## 모듈 구조
-
-```
-tokenizer/core/
-├── model/          # API 요청/응답 모델
-├── utils/          # 유틸리티 클래스
-└── exceptions/     # 예외 클래스
-```
-
-## 주요 컴포넌트
-
-### 1. Model 패키지
-
-#### BlockwordOptions
-
-금칙어 처리를 위한 옵션을 설정합니다.
-
-```kotlin
-val options = blockwordOptionsOf(
-    mask = "*",                    // 마스킹 문자
-    locale = Locale.KOREAN,        // 로케일
-    severity = Severity.MIDDLE,    // 심각도 수준
-)
-```
-
-#### BlockwordRequest/Response
-
-```kotlin
-// 요청 생성
-val request = blockwordRequestOf(
-    text = "금칙어가 포함된 텍스트",
-    options = options,
-)
-
-// 응답 생성
-val response = blockwordResponseOf(
-    original = request.text,
-    masked = "***가 포함된 텍스트",
-    words = listOf("금칙어"),
-)
-```
-
-#### TokenizeRequest/Response
-
-```kotlin
-// 형태소 분석 요청
-val request = tokenizeRequestOf(
-    text = "형태소 분석할 텍스트",
-    options = tokenizeOptionsOf(Locale.KOREAN),
-)
-
-// 응답
-val response = tokenizeResponseOf(
-    original = request.text,
-    tokens = listOf("형태소", "분석할", "텍스트"),
-)
-```
-
-#### Severity
-
-금칙어 심각도 수준을 정의합니다.
-
-```kotlin
-enum class Severity(val level: Int) {
-    LOW(1),     // 낮은 수준
-    MIDDLE(2),  // 중간 수준
-    HIGH(3),    // 높은 수준
-}
-```
-
-### 2. Utils 패키지
-
-#### CharArraySet
-
-CharArray 기반의 고성능 Set 구현체입니다.
-
-```kotlin
-val set = CharArraySet(1000)
-
-// 추가
-set.add("word")
-set.add(charArrayOf('w', 'o', 'r', 'd'))
-
-// 조회
-if (set.contains("word")) {
-    // ...
-}
-
-// 삭제 (실제로 제거된 경우에만 true)
-set.remove("word")
-set.removeAll(listOf("a", "b"))
-
-// 수정 불가능한 Set
-val unmodifiable = CharArraySet.unmodifiableSet(set)
-```
-
-#### CharArrayMap
-
-CharArray 키를 사용하는 고성능 Map 구현체입니다.
-
-```kotlin
-val map = CharArrayMap<String>(1000)
-
-// 추가
-map["key"] = "value"
-map[charArrayOf('k', 'e', 'y')] = "value"
-
-// 조회
-val value = map["key"]
-val value = map[charArrayOf('k', 'e', 'y')]
-val value = map.get("key")
-val value2 = map.get(charArrayOf('k', 'e', 'y'), 0, 3)
-
-// 수정 불가능한 Map
-val unmodifiable = CharArrayMap.unmodifiableMap(map)
-```
-
-#### CharacterUtils
-
-유니코드 문자 처리 유틸리티입니다.
-
-```kotlin
-val charUtils = CharacterUtils.getInstance()
-
-// Code point 조회
-val codePoint = charUtils.codePointAt("Text", 0)
-val codePoint = charUtils.codePointAt(charArray, offset, limit)
-
-// Code point 개수
-val count = charUtils.codePointCount("한글 텍스트")
-
-// 대소문자 변환
-val buffer = "HELLO".toCharArray()
-charUtils.toLowerCase(buffer, 0, buffer.size)
-
-// Code points 변환
-val src = "Hello".toCharArray()
-val dest = IntArray(src.size)
-val count = charUtils.toCodePoints(src, 0, src.size, dest, 0)
-
-// Character 버퍼
-val buffer = CharacterUtils.newCharacterBuffer(1024)
-val reader = StringReader("text")
-val filled = charUtils.fill(buffer, reader, 100)
-```
-
-#### DictionaryProvider
-
-사전 파일을 로드하는 유틸리티입니다.
-
-```kotlin
-// 일반 파일 로드
-DictionaryProvider.readFileByLineFromResources("dictionary/noun/nouns.txt")
-    .forEach { line ->
-        // 처리
+```mermaid
+classDiagram
+    class AbstractMessage {
+        +timestamp: Long
     }
 
-// GZIP 압축 파일 로드
-DictionaryProvider.readFileByLineFromResources("dictionary/noun/nouns.txt.gz")
-    .forEach { line ->
-        // 처리
+    class TokenizeRequest {
+        +text: String
+        +options: TokenizeOptions
     }
 
-// CharArraySet으로 로드 (suspend)
-val set = DictionaryProvider.readWords("dictionary/noun/nouns.txt")
+    class TokenizeResponse {
+        +text: String
+        +tokens: List~String~
+    }
 
-// 빈도수 맵 로드
-val freqMap = DictionaryProvider.readWordFreqs("dictionary/freq/freq.txt")
+    class TokenizeOptions {
+        +locale: Locale
+        +DEFAULT: TokenizeOptions$
+    }
+
+    class BlockwordRequest {
+        +text: String
+        +options: BlockwordOptions
+    }
+
+    class BlockwordResponse {
+        +request: BlockwordRequest
+        +maskedText: String
+        +blockWords: List~String~
+        +blockwordExists: Boolean
+    }
+
+    class BlockwordOptions {
+        +mask: String
+        +locale: Locale
+        +severity: Severity
+        +DEFAULT: BlockwordOptions$
+    }
+
+    class Severity {
+        <<enumeration>>
+        LOW
+        MIDDLE
+        HIGH
+        DEFAULT$
+    }
+
+    class DictionaryProvider {
+        <<object>>
+        +readStreamByLine(stream) Sequence~String~
+        +readFileByLineFromResources(path) Sequence~String~
+        +readWordFreqs(path) Map~CharSequence, Float~
+        +readWordMap(filename) Sequence~Pair~
+        +readWordsAsSequence(filename) Sequence~String~
+        +readWordsAsSet(paths) MutableSet~String~
+        +readWords(paths) CharArraySet
+    }
+
+    class TokenizerException {
+        +message: String
+        +cause: Throwable
+    }
+
+    AbstractMessage <|-- TokenizeRequest
+    AbstractMessage <|-- TokenizeResponse
+    AbstractMessage <|-- BlockwordRequest
+    AbstractMessage <|-- BlockwordResponse
+    TokenizeRequest --> TokenizeOptions
+    BlockwordRequest --> BlockwordOptions
+    BlockwordOptions --> Severity
+    BlockwordResponse --> BlockwordRequest
 ```
 
-### 3. Exceptions 패키지
+## 주요 기능
+
+- **도메인 모델 계층** — `TokenizeRequest` / `TokenizeResponse`와 `BlockwordRequest` / `BlockwordResponse` — 인스턴스 생성 시각 자동 기록
+- **설정 가능한 옵션** — `TokenizeOptions`(로캘)과 `BlockwordOptions`(마스크 문자, 로캘, 심각도 수준)
+- **심각도 열거형** — `Severity.LOW`(은어/속어), `MIDDLE`(욕설), `HIGH`(혐오 표현/지역 비하) 세 단계 콘텐츠 정책
+- **사전 유틸리티** — `DictionaryProvider`가 클래스패스 리소스 파일(일반 텍스트 또는 `.gz`)을 지연 `Sequence`, 단어 빈도 맵, 또는 고성능 `CharArraySet`으로 로드
+- **병렬 사전 로딩** — `readWordsAsSet`과 `readWords`가 `Flow.async`를 이용해 여러 사전 파일을 동시 적재
+- **고성능 집합/맵 구조** — 대용량 단어 목록 멤버십 검사에 최적화된 `CharArraySet`과 `CharArrayMap`
+- **예외 계층** — `TokenizerException`과 `InvalidTokenizeRequestException`이 `BluetapeException` 상속
+- **직렬화 가능 모델** — 모든 옵션 및 메시지 타입이 `java.io.Serializable` 구현
+
+## 사용법
+
+### 형태소 분석 요청 / 응답
 
 ```kotlin
-// 토크나이저 관련 예외
-try {
-    // tokenizer 작업
-} catch (e: TokenizerException) {
-    // 예외 처리
-}
+import io.bluetape4k.tokenizer.model.*
+import java.util.Locale
 
-// 잘못된 요청 예외
-try {
-    // 요청 처리
-} catch (e: InvalidTokenizeRequestException) {
-    // 예외 처리
-}
+// 기본 옵션(Locale.KOREAN)으로 요청 생성
+val request = tokenizeRequestOf("코틀린 코루틴")
+println(request.text)       // 코틀린 코루틴
+println(request.timestamp)  // 생성 시각 (epoch millis)
+
+// 로캘 지정
+val jpOptions = TokenizeOptions(locale = Locale.JAPANESE)
+val jpRequest = tokenizeRequestOf("日本語テスト", jpOptions)
+
+// 응답 생성 (실제 토크나이저 구현체가 채워 넣음)
+val response = tokenizeResponseOf(request.text, listOf("코틀린", "코루틴"))
+println(response.tokens)    // [코틀린, 코루틴]
 ```
 
-## 사용 예시
-
-### 금칙어 처리
+### 금칙어 요청 / 응답
 
 ```kotlin
-fun processBlockword(text: String): BlockwordResponse {
-    val options = blockwordOptionsOf(
-        mask = "*",
-        severity = Severity.HIGH,
-    )
+import io.bluetape4k.tokenizer.model.*
 
-    val request = blockwordRequestOf(text, options)
+// 기본값: mask = "*", severity = LOW
+val req = blockwordRequestOf("나쁜 단어가 포함된 문장")
 
-    // 금칙어 검출 및 마스킹 처리
-    val detectedWords = detectBlockwords(request.text)
-    val maskedText = maskWords(request.text, detectedWords, request.options.mask)
+// 마스크 문자와 심각도 커스터마이징
+val opts = blockwordOptionsOf(mask = "#", severity = Severity.HIGH)
+val req2 = blockwordRequestOf("some text", opts)
 
-    return blockwordResponseOf(
-        original = request.text,
-        masked = maskedText,
-        words = detectedWords,
-    )
-}
+// 금칙어 처리기가 반환한 응답 확인
+val response = blockwordResponseOf(req, "나쁜 ***가 포함된 문장", listOf("단어"))
+println(response.blockwordExists)   // true
+println(response.maskedText)        // 나쁜 ***가 포함된 문장
 ```
 
-### 형태소 분석
+### 클래스패스 리소스에서 사전 로드
 
 ```kotlin
-fun tokenize(text: String): TokenizeResponse {
-    val request = tokenizeRequestOf(text)
+import io.bluetape4k.tokenizer.utils.DictionaryProvider
+import kotlinx.coroutines.runBlocking
 
-    // 형태소 분석 수행
-    val tokens = performTokenization(request.text)
+// 지연 시퀀스 — 라인 단위 읽기
+val words: Sequence<String> = DictionaryProvider.readWordsAsSequence("dict/stopwords.txt")
 
-    return tokenizeResponseOf(
-        original = request.text,
-        tokens = tokens,
-    )
+// 여러 파일을 병렬로 읽어 CharArraySet에 적재
+val set = runBlocking {
+    DictionaryProvider.readWords("dict/a.txt", "dict/b.txt")
 }
-```
+println(set.contains("foo"))  // 두 파일 중 하나에 "foo"가 있으면 true
 
-### 사전 구축
-
-```kotlin
-suspend fun buildDictionary(): CharArraySet {
-    val dictionary = CharArraySet(10_000)
-
-    // 명사 사전 로드
-    DictionaryProvider.readWords("dictionary/noun/nouns.txt")
-        .forEach { dictionary.add(it) }
-
-    // 동사 사전 로드
-    DictionaryProvider.readWords("dictionary/verb/verb.txt")
-        .forEach { dictionary.add(it) }
-
-    return dictionary
-}
+// 탭 구분 단어-빈도 파일 읽기 (형식: 단어\t빈도)
+val freqMap: Map<CharSequence, Float> = DictionaryProvider.readWordFreqs("dict/freqs.txt")
 ```
 
 ## 의존성
 
+| 의존성 | 역할 |
+|---|---|
+| `bluetape4k-io` | I/O 기반 유틸리티 및 `BluetapeException` |
+| `bluetape4k-coroutines` | 병렬 사전 로딩을 위한 `Flow.async` |
+| `kotlinx-coroutines-core` | 코루틴 런타임 |
+
 ```kotlin
 dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-tokenizer-core:$version")
+    implementation("io.bluetape4k:bluetape4k-tokenizer-core:1.7.0-SNAPSHOT")
 }
 ```
-
-### 전이 의존성
-
-- bluetape4k-logging
-- bluetape4k-core
-
-## 테스트
-
-```bash
-# 모든 테스트 실행
-./gradlew :bluetape4k-tokenizer-core:test
-
-# 특정 테스트 클래스 실행
-./gradlew :bluetape4k-tokenizer-core:test \
-    --tests "io.bluetape4k.tokenizer.utils.CharArrayMapTest"
-```
-
-## 참고
-
-- 모든 API는 Kotlin 코루틴을 지원합니다 (suspend 함수)
-- 사전 파일은 `src/main/resources/dictionary` 경로에 위치해야 합니다
-- GZIP 압축 사전 파일은 `.gz` 확장자로 끝나야 자동으로 인식됩니다

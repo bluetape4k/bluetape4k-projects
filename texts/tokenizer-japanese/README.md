@@ -1,93 +1,166 @@
-# Module bluetape4k-tokenizer-japanese
+[한국어](./README.ko.md) | English
 
-English | [한국어](./README.ko.md)
+# bluetape4k-tokenizer-japanese
 
-A Japanese morphological analysis and blocked-word filtering library based on Kuromoji IPAdic.
+Japanese morphological analysis and blockword filtering library powered by Kuromoji IPAdic, built on top of `bluetape4k-tokenizer-core`.
 
-Uses the [Kuromoji](https://github.com/atilika/kuromoji) library for lightweight Japanese morphological analysis on the JVM.
+## Architecture
 
-## Dependency
+```mermaid
+classDiagram
+    class JapaneseProcessor {
+        <<object>>
+        +tokenize(text) List~Token~
+        +filter(tokens, predicate) List~Token~
+        +filterNoun(tokens) List~Token~
+        +findBlockwords(text) List~Token~
+        +maskBlockwords(request) BlockwordResponse
+        +addBlockwords(words)
+        +removeBlockwords(words)
+        +clearBlockwords()
+    }
 
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-tokenizer-japanese"))
-}
+    class JapaneseTokenizer {
+        <<object>>
+        -tokenizer: Tokenizer
+        +tokenize(text) List~Token~
+        +filter(tokens, predicate) List~Token~
+        +filterNoun(tokens) List~Token~
+    }
+
+    class JapaneseBlockwordProcessor {
+        <<object>>
+        +findBlockwords(text) List~Token~
+        +maskBlockwords(request) BlockwordResponse
+    }
+
+    class JapaneseDictionaryProvider {
+        <<object>>
+        +BASE_PATH: String
+        +blockWordDictionary: CharArraySet
+        +readWordsAsSet(paths) MutableSet~String~
+        +readWords(paths) CharArraySet
+        +addBlockwords(words)
+        +removeBlockwords(words)
+        +clearBlockwords()
+    }
+
+    class TokenBase {
+        <<Kuromoji>>
+        +surface: String
+        +position: Int
+        +allFeaturesArray: Array~String~
+    }
+
+    class TokenBaseSupport {
+        <<extensions>>
+        +isNoun() Boolean
+        +isVerb() Boolean
+        +isNounOrVerb() Boolean
+        +isAdjective() Boolean
+        +isJosa() Boolean
+        +isPunctuation() Boolean
+    }
+
+    JapaneseProcessor --> JapaneseTokenizer
+    JapaneseProcessor --> JapaneseBlockwordProcessor
+    JapaneseProcessor --> JapaneseDictionaryProvider
+    JapaneseBlockwordProcessor --> JapaneseTokenizer
+    JapaneseBlockwordProcessor --> JapaneseDictionaryProvider
+    JapaneseTokenizer --> TokenBase
+    TokenBase <.. TokenBaseSupport : extends via
 ```
 
-Internally uses [Kuromoji IPAdic](https://github.com/atilika/kuromoji) 0.9.0.
+## Features
 
-## Key Features
+- **Morphological analysis** — tokenizes Japanese text into morphemes using Kuromoji IPAdic dictionary
+- **Part-of-speech filtering** — built-in `filterNoun` plus a generic `filter` accepting any predicate
+- **POS extension functions** — `isNoun()`, `isVerb()`, `isNounOrVerb()`, `isAdjective()`, `isJosa()`, `isPunctuation()` on `TokenBase`
+- **Blockword detection** — finds blocked words from a pre-loaded `CharArraySet` dictionary; targets nouns and verbs only
+- **Compound word detection** — when no single-token match is found, checks adjacent noun + noun/verb pairs (e.g. 覚せい剤 → 覚せい + 剤)
+- **Blockword masking** — replaces each blocked token with the mask character repeated to match token length
+- **Dynamic dictionary management** — add, remove, or clear blockwords at runtime without restarting the application
+- **Lazy dictionary loading** — `blockWordDictionary` is loaded from `japanesetext/block/blocks.txt` on first access using `runBlocking(Dispatchers.IO)`
+- **Facade pattern** — `JapaneseProcessor` provides a single entry point delegating to all sub-components
 
-### Morphological Analysis
+## Usage
 
-Splits Japanese text into morphemes and provides part-of-speech information.
+### Morphological analysis
 
 ```kotlin
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
+
 val tokens = JapaneseProcessor.tokenize("お寿司が食べたい。")
-// お: 接頭詞, 寿司: 名詞, が: 助詞, 食べ: 動詞, たい: 助動詞, 。: 記号
+val surfaces = tokens.map { it.surface }
+// [お, 寿司, が, 食べ, たい, 。]
 ```
 
-### Filtering by Part of Speech
-
-Filter tokens by part of speech such as nouns, verbs, and adjectives.
+### Part-of-speech filtering
 
 ```kotlin
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
+import io.bluetape4k.tokenizer.japanese.tokenizer.isVerb
+
 val tokens = JapaneseProcessor.tokenize("私は、日本語の勉強をしています。")
-val nouns = JapaneseProcessor.filterNoun(tokens)  // [私, 日本語, 勉強]
 
-// Custom filtering
-val verbs = JapaneseProcessor.filter(tokens) { it.isVerb() }
+// Built-in noun filter
+val nouns = JapaneseProcessor.filterNoun(tokens).map { it.surface }
+// [私, 日本語, 勉強]
+
+// Custom predicate — verbs only
+val verbs = JapaneseProcessor.filter(tokens) { it.isVerb() }.map { it.surface }
+// [し]
 ```
 
-### Blocked-Word Detection
-
-Detects blocked words in text, including compound nouns (noun + verb combinations).
+### Blockword detection and masking
 
 ```kotlin
-val blockwords = JapaneseProcessor.findBlockwords("ホモの男性を理解できない")
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
+import io.bluetape4k.tokenizer.model.blockwordRequestOf
+import io.bluetape4k.tokenizer.model.BlockwordOptions
+import io.bluetape4k.tokenizer.model.Severity
+
+// Detect blockwords
+val found = JapaneseProcessor.findBlockwords("ホモの男性を理解できない").map { it.surface }
 // [ホモ]
-```
 
-### Blocked-Word Masking
-
-Replaces blocked words with a mask character.
-
-```kotlin
+// Mask blockwords with default options (mask = "*")
 val request = blockwordRequestOf("ホモの男性を理解できない")
 val response = JapaneseProcessor.maskBlockwords(request)
-println(response.maskedText) // **の男性を理解できない
+println(response.maskedText)        // **の男性を理解できない
+println(response.blockwordExists)   // true
+println(response.blockWords)        // [ホモ]
 ```
 
-### Dictionary Management
-
-Dynamically manage the blocked-word dictionary.
+### Dynamic dictionary management
 
 ```kotlin
-// Add blocked words
-JapaneseProcessor.addBlockwords(listOf("新禁止語"))
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
 
-// Remove blocked words
-JapaneseProcessor.removeBlockwords(listOf("新禁止語"))
+// Add custom blockwords at runtime
+JapaneseProcessor.addBlockwords(listOf("東京", "大阪"))
+val found = JapaneseProcessor.findBlockwords("これは東京です").map { it.surface }
+// [東京]
 
-// Clear all blocked words
+// Remove a word from the dictionary
+JapaneseProcessor.removeBlockwords(listOf("東京"))
+
+// Clear the entire in-memory dictionary
 JapaneseProcessor.clearBlockwords()
 ```
 
-## Package Structure
+## Dependencies
 
-| Package                                        | Description                                                     |
-|----------------------------------------------|------------------------------------------------------------------|
-| `io.bluetape4k.tokenizer.japanese`           | `JapaneseProcessor` — unified facade                             |
-| `io.bluetape4k.tokenizer.japanese.tokenizer` | `JapaneseTokenizer` — morphological analysis, POS extension fns  |
-| `io.bluetape4k.tokenizer.japanese.block`     | `JapaneseBlockwordProcessor` — blocked-word detection/masking    |
-| `io.bluetape4k.tokenizer.japanese.utils`     | `JapaneseDictionaryProvider` — dictionary loading/management     |
+| Dependency | Purpose |
+|---|---|
+| `bluetape4k-tokenizer-core` | Domain models, `DictionaryProvider`, `CharArraySet` |
+| `bluetape4k-coroutines` | Async dictionary loading |
+| `kuromoji-ipadic` | Kuromoji IPAdic morphological analyzer |
 
-## Testing
-
-```bash
-./gradlew :bluetape4k-tokenizer-japanese:test
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-tokenizer-japanese:1.7.0-SNAPSHOT")
+}
 ```
 
-## Resources
-
-* [kuromoji](https://www.atilika.org/) - Kuromoji is an open source Japanese morphological analyzer written in Java.
+> Internally uses [Kuromoji IPAdic](https://github.com/atilika/kuromoji) for Japanese morphological analysis.

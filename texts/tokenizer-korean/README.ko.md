@@ -1,258 +1,172 @@
-# Module bluetape4k-tokenizer-korean
+한국어 | [English](./README.md)
 
-[English](./README.md) | 한국어
+# bluetape4k-tokenizer-korean
 
-한글 형태소 분석 기능과 그를 활용한 Normalization, 금칙어 처리, 특수 기능 (Hashtag, Email 추출 등)을 제공하는 Kotlin 라이브러리입니다.
+한국어 형태소 분석, 정규화, 구문 추출, 어간 복원, 문장 분리, 금칙어 마스킹을 제공하는 NLP 라이브러리입니다. `twitter-text` 의존성 없이 동작하며, URL/Hashtag/Mention/CashTag 패턴은 `TwitterCompatPatterns.kt`에서 내부적으로 구현됩니다.
 
-## 개요
+## 아키텍처
 
-`bluetape4k-tokenizer-korean`은 Twitter에서 개발한 [open-korean-text](https://github.com/open-korean-text/open-korean-text) 라이브러리를 Kotlin으로 재작성하고 확장한 한글 형태소 분석기입니다.
+```mermaid
+classDiagram
+    class KoreanProcessor {
+        +normalize(text) CharSequence
+        +tokenize(text, profile) List~KoreanToken~
+        +tokenizeForNoun(text, profile) List~KoreanToken~
+        +tokenizeTopN(text, n, profile) List
+        +extractPhrases(tokens, filterSpam) List~KoreanPhrase~
+        +extractPhrasesForNoun(tokens) List~KoreanPhrase~
+        +stem(tokens) List~KoreanToken~
+        +splitSentences(text) Sequence~Sentence~
+        +detokenize(tokens) String
+        +tokensToStrings(tokens) List~String~
+        +addNounsToDictionary(words)
+        +addBlockwords(words, severity)
+        +removeBlockwords(words, severity)
+        +clearBlockwords(severity)
+        +maskBlockwords(request) BlockwordResponse
+    }
 
-### 주요 특징
+    class KoreanNormalizer {
+        +normalize(input) CharSequence
+        +correctTypo(chunk) CharSequence
+        +normalizeCodaN(chunk) CharSequence
+    }
 
-- **형태소 분석**: 한글 문장을 품사 태깅과 함께 형태소 단위로 분석
-- **텍스트 정규화**: 구어체/신조어/오타를 표준어로 변환
-- **구문 추출**: 명사 중심의 의미 있는 구문 추출
-- **금칙어 처리**: 비속어 및 부적절한 표현 마스킹
-- **비동기 지원**: Kotlin Coroutines 기반의 비동기 처리
-- **사용자 사전**: 동적인 단어 추가 및 관리
+    class KoreanTokenizer {
+        +tokenize(text, profile) List~KoreanToken~
+        +tokenizeTopN(text, n, profile) List
+    }
 
-## 설치
+    class KoreanChunker {
+        +chunk(input) List~KoreanToken~
+        +getChunks(input, keepSpace) List~String~
+        +getChunksByPos(input, pos) List~KoreanToken~
+        +POS_PATTERNS Map~KoreanPos, Pattern~
+    }
 
-### Gradle
+    class TwitterCompatPatterns {
+        <<internal>>
+        +VALID_URL Pattern
+        +VALID_HASHTAG Pattern
+        +VALID_MENTION_OR_LIST Pattern
+        +VALID_CASHTAG Pattern
+    }
 
-```kotlin
-dependencies {
-    implementation("io.github.bluetape4k:bluetape4k-tokenizer-korean:${bluetape4kVersion}")
-}
+    class KoreanToken {
+        +text String
+        +pos KoreanPos
+        +offset Int
+        +length Int
+        +stem String?
+        +unknown Boolean
+        +copyWithNewPos(pos) KoreanToken
+    }
+
+    class KoreanPos {
+        <<enumeration>>
+        Noun Verb Adjective Adverb
+        Josa Eomi PreEomi Suffix
+        Hashtag ScreenName URL Email
+        CashTag Number Korean Alpha
+        KoreanParticle Punctuation Space Foreign
+        Unknown ProperNoun
+    }
+
+    class KoreanBlockwordProcessor {
+        +findBlockwords(text) List~KoreanToken~
+        +maskBlockwords(request) BlockwordResponse
+    }
+
+    KoreanProcessor --> KoreanNormalizer
+    KoreanProcessor --> KoreanTokenizer
+    KoreanProcessor --> KoreanBlockwordProcessor
+    KoreanTokenizer --> KoreanChunker
+    KoreanChunker --> TwitterCompatPatterns
+    KoreanChunker --> KoreanToken
+    KoreanToken --> KoreanPos
 ```
 
-### Maven
+## 주요 기능
 
-```xml
-
-<dependency>
-    <groupId>io.github.bluetape4k</groupId>
-    <artifactId>bluetape4k-tokenizer-korean</artifactId>
-    <version>${bluetape4kVersion}</version>
-</dependency>
-```
+- **텍스트 정규화** — 구어체 반복 문자 축약 (`ㅋㅋㅋㅋ → ㅋㅋㅋ`), 오타 교정 (`가쟝 → 가장`), 받침 `ㄴ` 탈락 보정 (`버슨가 → 버스인가`)
+- **형태소 분석** — 1-best 및 상위 N개 형태소 분석, 26종 품사 태깅
+- **명사 중심 토크나이저** — 구문 추출에 최적화된 경량 토크나이저 경로
+- **구문 추출** — 전체 토큰 또는 명사 중심 토큰 스트림에서 명사 구문 추출, 해시태그 구문 지원
+- **어간 복원 (Stemming)** — 용언 활용형을 원형으로 복원 (`가느다란 → stem: 갈다`)
+- **문장 분리** — 텍스트를 `Sequence<Sentence>`로 분리
+- **역토크나이징** — 토큰 목록을 자연스러운 문장으로 복원
+- **금칙어 마스킹** — `LOW`/`MIDDLE`/`HIGH` 심각도 계층 사전 관리 및 `**` 마스킹
+- **청킹** — 전처리 품사 패턴 기반 청킹: URL, Email, Hashtag, ScreenName, CashTag, Number, Korean, Alpha, Punctuation
+- **twitter-text 의존성 제거** — URL/Hashtag/Mention/CashTag 정규식 패턴이 `TwitterCompatPatterns.kt`에 내부 구현
+- **런타임 사전 업데이트** — 재시작 없이 명사 또는 금칙어를 런타임에 추가
+- **스레드 안전** — `KoreanProcessor`의 모든 메서드는 동시 사용에 안전
 
 ## 사용법
 
-### 1. 형태소 분석 (Tokenization)
-
 ```kotlin
 import io.bluetape4k.tokenizer.korean.KoreanProcessor
-
-// 기본 형태소 분석
-val tokens = KoreanProcessor.tokenize("한국어를 처리하는 예시입니다")
-// 결과:
-// [한국어(Noun: 0, 3), 를(Josa: 3, 1),  (Space: 4, 1), 
-//  처리(Noun: 5, 2), 하는(Verb: 7, 2, stem=하다),  (Space: 9, 1),
-//  예시(Noun: 10, 2), 입니다(Adjective: 12, 3, stem=이다)]
-
-// 문자열 목록으로 변환
-val strings = KoreanProcessor.tokensToStrings(tokens)
-// ["한국어", "를", "처리", "하는", "예시", "입니다"]
-```
-
-### 2. 텍스트 정규화 (Normalization)
-
-구어처이나 SNS에서 자주 사용되는 비표준 표현을 표준어로 변환합니다.
-
-```kotlin
-// 과도한 감정 표현 정규화
-KoreanProcessor.normalize("안됔ㅋㅋㅋㅋㅋㅋ")  // "안돼ㅋㅋㅋ"
-KoreanProcessor.normalize("그랰ㅋㅋㅋ")       // "그래ㅋㅋㅋ"
-
-// 감정 표현 정규화
-KoreanProcessor.normalize("만나무ㅜㅜㅠ")     // "만남ㅜㅜㅠ"
-KoreanProcessor.normalize("예뿌ㅠㅠ")        // "예뻐ㅠㅠ"
-
-// 문자 반복 정규화
-KoreanProcessor.normalize("사브작사브작사브작사브작")  // "사브작사브작"
-
-// 철자 오류 교정
-KoreanProcessor.normalize("가쟝 좋아요")     // "가장 좋아요"
-KoreanProcessor.normalize("하겟다")         // "하겠다"
-```
-
-### 3. 문장 분리 (Sentence Splitting)
-
-```kotlin
-val text = "안녕하세요. 반갑습니다! 어떻게 지내세요?"
-val sentences = KoreanProcessor.splitSentences(text)
-
-sentences.forEach { sentence ->
-    println("${sentence.text} (${sentence.start}-${sentence.end})")
-}
-// 출력:
-// 안녕하세요. (0-6)
-// 반갑습니다! (7-13)
-// 어떻게 지내세요? (14-24)
-```
-
-### 4. 구문 추출 (Phrase Extraction)
-
-```kotlin
-val tokens = KoreanProcessor.tokenize("성탄절 쇼핑을 즐기세요")
-val phrases = KoreanProcessor.extractPhrases(tokens)
-
-phrases.forEach { phrase ->
-    println("${phrase.text} (${phrase.pos})")
-}
-// 출력:
-// 성탄절 (Noun)
-// 쇼핑 (Noun)
-// 성탄절 쇼핑 (Noun)
-```
-
-### 5. 용언 원형 복원 (Stemming)
-
-동사와 형용사를 원형(어간)으로 복원합니다.
-
-```kotlin
-val tokens = KoreanProcessor.tokenize("추천했습니다")
-val stemmed = KoreanProcessor.stem(tokens)
-
-stemmed.forEach { token ->
-    println("${token.text} -> ${token.stem}")
-}
-// 출력:
-// 추천 -> null
-// 했습니다 -> 하다
-```
-
-### 6. 금칙어 처리 (Blockword Processing)
-
-```kotlin
-import io.bluetape4k.tokenizer.model.BlockwordRequest
-
-// 기본 마스킹 (***)
-val request = BlockwordRequest("미니미와 니미")  // '니미'는 비속어
-val response = KoreanProcessor.maskBlockwords(request)
-println(response.maskedText)  // "미니미와 **"
-
-// 커스텀 마스크 문자
-val customRequest = BlockwordRequest(
-    "미니미와 니미",
-    BlockwordOptions(mask = "###")
-)
-val customResponse = KoreanProcessor.maskBlockwords(customRequest)
-println(customResponse.maskedText)  // "미니미와 ###"
-```
-
-### 7. 사용자 사전 등록
-
-```kotlin
-// 단일 단어 등록
-KoreanProcessor.addNounsToDictionary("블루테이프")
-
-// 여러 단어 등록
-KoreanProcessor.addNounsToDictionary("코틀린", "스프링", "마이크로서비스")
-KoreanProcessor.addNounsToDictionary(listOf("단어1", "단어2", "단어3"))
-
-// 금칙어 등록
-KoreanProcessor.addBlockwords(
-    listOf("금칙어1", "금칙어2"),
-    severity = Severity.HIGH
-)
-```
-
-### 8. 분석 프로필 설정
-
-```kotlin
 import io.bluetape4k.tokenizer.korean.tokenizer.TokenizerProfile
+import io.bluetape4k.tokenizer.model.BlockwordRequest
+import io.bluetape4k.tokenizer.model.Severity
 
-// 사용자 정의 프로필
-val customProfile = TokenizerProfile(
-    unknownPosCount = 1.0f,
-    allNoun = 10.0f,
-    preferredPattern = 4.0f
+// 1. 구어체 텍스트 정규화
+val normalized = KoreanProcessor.normalize("안됔ㅋㅋㅋㅋㅋ")
+// → "안돼ㅋㅋㅋ"
+
+// 2. 형태소 분석
+val tokens = KoreanProcessor.tokenize("주말특가 쇼핑몰")
+KoreanProcessor.tokensToStrings(tokens)
+// ["주말", "특가", "쇼핑몰"]
+
+// 3. 어간 복원
+val stemmed = KoreanProcessor.stem(KoreanProcessor.tokenize("가느다란"))
+println(stemmed.first().stem)  // → "갈다"
+
+// 4. 구문 추출
+val phrases = KoreanProcessor.extractPhrases(
+    KoreanProcessor.tokenize("성탄절 쇼핑"),
+    filterSpam = false
 )
+phrases.forEach { println(it.text) }
 
-val tokens = KoreanProcessor.tokenize("분석할 텍스트", profile = customProfile)
-```
+// 5. 문장 분리
+val sentences = KoreanProcessor.splitSentences("안녕? 세상아?").toList()
+// size == 2
 
-### 9. 다중 후보 분석
+// 6. 역토크나이징
+val text = KoreanProcessor.detokenize(listOf("뭐", "완벽", "하진", "않", "지만"))
+// → "뭐 완벽하진 않지만"
 
-```kotlin
-// 상위 3개 분석 후보 반환
-val candidates = KoreanProcessor.tokenizeTopN("대학", n = 3)
+// 7. 런타임 명사 사전 확장
+KoreanProcessor.addNounsToDictionary("블루테이프4K", "주말특가")
 
-candidates.forEachIndexed { index, candidate ->
-    println("후보 ${index + 1}: ${candidate.joinToString(", ")}")
-}
-// 출력 예시:
-// 후보 1: 대학(Noun)
-// 후보 2: 대(Modifier), 학(Noun)
-// 후보 3: 대(Verb), 학(Noun)
-```
+// 8. 금칙어 마스킹
+KoreanProcessor.addBlockwords(listOf("욕설"), Severity.HIGH)
+val response = KoreanProcessor.maskBlockwords(BlockwordRequest("이 욕설은 나쁜 말이야"))
+// response.text → "이 **은 나쁜 말이야"
 
-`tokenizeTopN`의 후보 개수(`n`)는 1 이상이어야 하며, 0 이하를 전달하면 `IllegalArgumentException`이 발생합니다.
+// 9. 상위 N개 분석 후보
+val topN = KoreanProcessor.tokenizeTopN("대학", n = 2)
 
-## 지원 품사 (Part-of-Speech)
-
-| 품사          | 설명     | 예시                  |
-|-------------|--------|---------------------|
-| Noun        | 명사     | 사과, 학교, 컴퓨터         |
-| Verb        | 동사     | 가다, 먹다, 하다          |
-| Adjective   | 형용사    | 크다, 작다, 예쁘다         |
-| Adverb      | 부사     | 매우, 빨리, 잘           |
-| Determiner  | 관형사    | 이, 그, 저, 새, 헌       |
-| Exclamation | 감탄사    | 헐, ㅋㅋㅋ, 어머나         |
-| Josa        | 조사     | 의, 에, 에서, 은, 는      |
-| Eomi        | 어말어미   | 다, 요, 여             |
-| PreEomi     | 선어말어미  | 었, 았, 겠             |
-| Suffix      | 접미사    | 적, 들                |
-| Modifier    | 관형사    | 초(대박), 완전           |
-| VerbPrefix  | 동사 접두어 | 쳐(먹어)               |
-| Space       | 공백     |                     |
-| Hashtag     | 해시태그   | #Korean             |
-| ScreenName  | 멘션     | @username           |
-| Email       | 이메일    | test@example.com    |
-| URL         | URL    | https://example.com |
-
-## 성능
-
-- 일반적인 문장(20~30자): 약 1~3ms
-- 긴 문장(100자 이상): 약 5~15ms
-- 동시 처리: Coroutines 기반으로 효율적인 동시 처리 가능
-
-## 스레드 안전성
-
-`KoreanProcessor`의 모든 메서드는 스레드 안전합니다. 병렬 환경에서 안전하게 사용할 수 있습니다.
-
-```kotlin
-// 병렬 처리 예시
-val texts = listOf("텍스트1", "텍스트2", "텍스트3", ...)
-
+// 10. 코루틴으로 병렬 토크나이징
 runBlocking(Dispatchers.Default) {
-    texts.map { text ->
-        async {
-            KoreanProcessor.tokenize(text)
-        }
+    listOf("텍스트1", "텍스트2", "텍스트3").map { text ->
+        async { KoreanProcessor.tokenize(text) }
     }.awaitAll()
 }
 ```
 
-## 테스트
+## 의존성
 
-```bash
-# 모든 테스트 실행
-./gradlew :bluetape4k-tokenizer-korean:test
+| 의존성 | 목적 |
+|---|---|
+| `bluetape4k-tokenizer-core` | `BlockwordRequest`, `Severity`, 토크나이저 계약 인터페이스 |
+| `bluetape4k-coroutines` | 코루틴 기반 청킹 파이프라인 |
+| `bluetape4k-io` | I/O 유틸리티 |
+| `eclipse-collections` | 사전 저장을 위한 고성능 컬렉션 |
+| `commons-collections4` | 컬렉션 유틸리티 |
 
-# 특정 테스트 클래스 실행
-./gradlew :bluetape4k-tokenizer-korean:test --tests "KoreanProcessorCoreTest"
+```kotlin
+// build.gradle.kts
+implementation("io.bluetape4k:bluetape4k-tokenizer-korean:1.7.0-SNAPSHOT")
 ```
-
-## 참고
-
-- 기본 기능은 [open-korean-text](https://github.com/open-korean-text/open-korean-text)를 참고하여 구현
-- Kotlin Coroutines 기반으로 Scala 버전 대비 향상된 성능 제공
-- Chat 서비스 및 SNS 텍스트 분석에 최적화
-
-## 라이선스
-
-Apache License 2.0

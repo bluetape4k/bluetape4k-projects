@@ -1,93 +1,164 @@
-# Module bluetape4k-tokenizer-japanese
+한국어 | [English](./README.md)
 
-[English](./README.md) | 한국어
+# bluetape4k-tokenizer-japanese
 
-Kuromoji IPAdic 기반 일본어 형태소 분석 및 금칙어(blockword) 처리 라이브러리입니다.
+`bluetape4k-tokenizer-core` 위에 구축된 Kuromoji IPAdic 기반 일본어 형태소 분석 및 금칙어 처리 라이브러리입니다.
 
-JVM 환경에서 가볍게 일본어 형태소 분석하기 위해 [Kuromoji](https://github.com/atilika/kuromoji) 라이브러리를 사용합니다.
+## 아키텍처
 
-## 의존성
+```mermaid
+classDiagram
+    class JapaneseProcessor {
+        <<object>>
+        +tokenize(text) List~Token~
+        +filter(tokens, predicate) List~Token~
+        +filterNoun(tokens) List~Token~
+        +findBlockwords(text) List~Token~
+        +maskBlockwords(request) BlockwordResponse
+        +addBlockwords(words)
+        +removeBlockwords(words)
+        +clearBlockwords()
+    }
 
-```kotlin
-dependencies {
-    implementation(project(":bluetape4k-tokenizer-japanese"))
-}
+    class JapaneseTokenizer {
+        <<object>>
+        -tokenizer: Tokenizer
+        +tokenize(text) List~Token~
+        +filter(tokens, predicate) List~Token~
+        +filterNoun(tokens) List~Token~
+    }
+
+    class JapaneseBlockwordProcessor {
+        <<object>>
+        +findBlockwords(text) List~Token~
+        +maskBlockwords(request) BlockwordResponse
+    }
+
+    class JapaneseDictionaryProvider {
+        <<object>>
+        +BASE_PATH: String
+        +blockWordDictionary: CharArraySet
+        +readWordsAsSet(paths) MutableSet~String~
+        +readWords(paths) CharArraySet
+        +addBlockwords(words)
+        +removeBlockwords(words)
+        +clearBlockwords()
+    }
+
+    class TokenBase {
+        <<Kuromoji>>
+        +surface: String
+        +position: Int
+        +allFeaturesArray: Array~String~
+    }
+
+    class TokenBaseSupport {
+        <<extensions>>
+        +isNoun() Boolean
+        +isVerb() Boolean
+        +isNounOrVerb() Boolean
+        +isAdjective() Boolean
+        +isJosa() Boolean
+        +isPunctuation() Boolean
+    }
+
+    JapaneseProcessor --> JapaneseTokenizer
+    JapaneseProcessor --> JapaneseBlockwordProcessor
+    JapaneseProcessor --> JapaneseDictionaryProvider
+    JapaneseBlockwordProcessor --> JapaneseTokenizer
+    JapaneseBlockwordProcessor --> JapaneseDictionaryProvider
+    JapaneseTokenizer --> TokenBase
+    TokenBase <.. TokenBaseSupport : extends via
 ```
-
-내부적으로 [Kuromoji IPAdic](https://github.com/atilika/kuromoji) 0.9.0을 사용합니다.
 
 ## 주요 기능
 
+- **형태소 분석** — Kuromoji IPAdic 사전을 사용해 일본어 텍스트를 형태소 단위로 분리
+- **품사별 필터링** — 내장 `filterNoun` 및 임의 조건식을 받는 범용 `filter` 제공
+- **품사 확장 함수** — `TokenBase`에 `isNoun()`, `isVerb()`, `isNounOrVerb()`, `isAdjective()`, `isJosa()`, `isPunctuation()` 추가
+- **금칙어 탐지** — 사전에 적재된 `CharArraySet` 기준으로 명사/동사 토큰만 대상으로 검사
+- **복합어 금칙어 탐지** — 단일 토큰 매칭 실패 시 인접 명사 + 명사/동사 조합 검사 (예: 覚せい剤 → 覚せい + 剤)
+- **금칙어 마스킹** — 탐지된 토큰을 마스크 문자로 토큰 길이만큼 반복 치환
+- **런타임 사전 관리** — 서비스 재시작 없이 금칙어 추가·삭제·초기화 가능
+- **지연 사전 로딩** — `blockWordDictionary`는 최초 접근 시 `runBlocking(Dispatchers.IO)`로 `japanesetext/block/blocks.txt` 적재
+- **파사드 패턴** — `JapaneseProcessor`가 하위 컴포넌트 전체를 단일 진입점으로 통합
+
+## 사용법
+
 ### 형태소 분석
 
-일본어 텍스트를 형태소 단위로 분리하고 품사 정보를 제공합니다.
-
 ```kotlin
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
+
 val tokens = JapaneseProcessor.tokenize("お寿司が食べたい。")
-// お: 接頭詞, 寿司: 名詞, が: 助詞, 食べ: 動詞, たい: 助動詞, 。: 記号
+val surfaces = tokens.map { it.surface }
+// [お, 寿司, が, 食べ, たい, 。]
 ```
 
 ### 품사별 필터링
 
-명사, 동사, 형용사 등 품사별로 토큰을 필터링할 수 있습니다.
-
 ```kotlin
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
+import io.bluetape4k.tokenizer.japanese.tokenizer.isVerb
+
 val tokens = JapaneseProcessor.tokenize("私は、日本語の勉強をしています。")
-val nouns = JapaneseProcessor.filterNoun(tokens)  // [私, 日本語, 勉強]
 
-// 커스텀 필터링
-val verbs = JapaneseProcessor.filter(tokens) { it.isVerb() }
+// 내장 명사 필터
+val nouns = JapaneseProcessor.filterNoun(tokens).map { it.surface }
+// [私, 日本語, 勉強]
+
+// 커스텀 조건식 — 동사만 추출
+val verbs = JapaneseProcessor.filter(tokens) { it.isVerb() }.map { it.surface }
+// [し]
 ```
 
-### 금칙어 감지
-
-텍스트에서 금칙어를 검출합니다. 단일 단어뿐 아니라 복합명사(명사+동사) 금칙어도 처리합니다.
+### 금칙어 탐지 및 마스킹
 
 ```kotlin
-val blockwords = JapaneseProcessor.findBlockwords("ホモの男性を理解できない")
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
+import io.bluetape4k.tokenizer.model.blockwordRequestOf
+
+// 금칙어 탐지
+val found = JapaneseProcessor.findBlockwords("ホモの男性を理解できない").map { it.surface }
 // [ホモ]
-```
 
-### 금칙어 마스킹
-
-금칙어를 마스크 문자로 치환합니다.
-
-```kotlin
+// 기본 옵션(mask = "*")으로 마스킹
 val request = blockwordRequestOf("ホモの男性を理解できない")
 val response = JapaneseProcessor.maskBlockwords(request)
-println(response.maskedText) // **の男性を理解できない
+println(response.maskedText)        // **の男性を理解できない
+println(response.blockwordExists)   // true
+println(response.blockWords)        // [ホモ]
 ```
 
-### 사전 관리
-
-금칙어 사전을 동적으로 관리할 수 있습니다.
+### 런타임 사전 관리
 
 ```kotlin
-// 금칙어 추가
-JapaneseProcessor.addBlockwords(listOf("新禁止語"))
+import io.bluetape4k.tokenizer.japanese.JapaneseProcessor
 
-// 금칙어 제거
-JapaneseProcessor.removeBlockwords(listOf("新禁止語"))
+// 런타임에 금칙어 추가
+JapaneseProcessor.addBlockwords(listOf("東京", "大阪"))
+val found = JapaneseProcessor.findBlockwords("これは東京です").map { it.surface }
+// [東京]
 
-// 전체 금칙어 삭제
+// 단어 제거
+JapaneseProcessor.removeBlockwords(listOf("東京"))
+
+// 인메모리 사전 전체 초기화
 JapaneseProcessor.clearBlockwords()
 ```
 
-## 패키지 구조
+## 의존성
 
-| 패키지                                          | 설명                                        |
-|----------------------------------------------|-------------------------------------------|
-| `io.bluetape4k.tokenizer.japanese`           | `JapaneseProcessor` - 통합 파사드              |
-| `io.bluetape4k.tokenizer.japanese.tokenizer` | `JapaneseTokenizer` - 형태소 분석, 품사 판별 확장 함수 |
-| `io.bluetape4k.tokenizer.japanese.block`     | `JapaneseBlockwordProcessor` - 금칙어 검출/마스킹 |
-| `io.bluetape4k.tokenizer.japanese.utils`     | `JapaneseDictionaryProvider` - 사전 로딩/관리   |
+| 의존성 | 역할 |
+|---|---|
+| `bluetape4k-tokenizer-core` | 도메인 모델, `DictionaryProvider`, `CharArraySet` |
+| `bluetape4k-coroutines` | 비동기 사전 로딩 |
+| `kuromoji-ipadic` | Kuromoji IPAdic 형태소 분석기 |
 
-## 테스트
-
-```bash
-./gradlew :bluetape4k-tokenizer-japanese:test
+```kotlin
+dependencies {
+    implementation("io.bluetape4k:bluetape4k-tokenizer-japanese:1.7.0-SNAPSHOT")
+}
 ```
 
-## Resources
-
-* [kuromoji](https://www.atilika.org/) - Kuromoji is an open source Japanese morphological analyzer written in Java.
+> 내부적으로 일본어 형태소 분석을 위해 [Kuromoji IPAdic](https://github.com/atilika/kuromoji)을 사용합니다.

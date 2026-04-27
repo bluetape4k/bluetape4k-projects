@@ -1,12 +1,10 @@
-# bluetape4k-text-search
-
 [한국어](./README.ko.md) | English
+
+# bluetape4k-text-search
 
 Aho-Corasick multi-keyword search library for Kotlin/JVM. Searches N keywords simultaneously in O(n+m+z) time, with full support for Unicode normalization, word boundaries, case-insensitive matching, and Kotlin coroutines Flow API.
 
 ## Architecture
-
-### Class Diagram
 
 ```mermaid
 classDiagram
@@ -118,7 +116,7 @@ flowchart LR
     LowerCase --> TrieSearch["Aho-Corasick\nTrieCore Search"]
     TrieSearch --> OffsetRestore["Offset Restore\n(OffsetMapping)"]
     OffsetRestore --> Filter["WordBoundary\n& Overlap Filter"]
-    Filter --> Output["List<AhoCorasickMatch<V>>"]
+    Filter --> Output["List&lt;AhoCorasickMatch&lt;V&gt;&gt;"]
 ```
 
 ## Features
@@ -225,21 +223,6 @@ val firstAlert = automaton.matchesAsFlow(logLine)
 // [AhoCorasickMatch(keyword="WARN", value="ALERT_WARN")]
 ```
 
-### URL Scheme Extraction
-
-```kotlin
-val automaton = AhoCorasickAutomaton.builder<String>()
-    .add("http://", "HTTP")
-    .add("https://", "HTTPS")
-    .add("ftp://", "FTP")
-    .options(SearchOptions(wordBoundary = WordBoundary.NONE))
-    .build()
-
-val text = "Visit http://example.com and https://secure.org"
-val schemes = automaton.parseText(text).map { it.value }
-// ["HTTP", "HTTPS"]
-```
-
 ### Unicode Korean Normalization
 
 ```kotlin
@@ -260,8 +243,8 @@ val result = automaton.parseText("아름다운 나라")
 |--------|-------------|
 | `parseText(text)` | Returns all matches in the text |
 | `firstMatch(text)` | Returns leftmost-longest match (R5 rule) |
-| `containsMatch(text)` | Returns `true` if any keyword matches (short-circuits on first match — O(1) early exit) |
-| `tokenize(text)` | Splits into `Match` and `Fragment` tokens; always returns non-overlapping sequence regardless of `allowOverlaps` setting |
+| `containsMatch(text)` | Returns `true` if any keyword matches (short-circuits on first match) |
+| `tokenize(text)` | Splits into `Match` and `Fragment` tokens; always returns non-overlapping sequence |
 | `replaceAll(text) { }` | Replaces all matches via transform lambda |
 
 ### `SearchOptions`
@@ -272,7 +255,7 @@ val result = automaton.parseText("아름다운 나라")
 | `allowOverlaps` | `true` | Allow overlapping matches |
 | `wordBoundary` | `NONE` | Word boundary detection mode |
 | `normalization` | `NONE` | Unicode normalization form |
-| `stopOnFirstMatch` | `false` | Stop after first match |
+| `stopOnFirstMatch` | `false` | Stop after first match (ignored in `matchesAsFlow`) |
 
 ### `WordBoundary`
 
@@ -309,23 +292,15 @@ Run benchmarks locally:
 
 ## Dependencies
 
+| Dependency | Purpose |
+|---|---|
+| `bluetape4k-core` | Core utilities |
+| `kotlinx-coroutines-core` | Flow API support (optional, `compileOnly`) |
+
 ```kotlin
 // build.gradle.kts
-implementation("io.bluetape4k:bluetape4k-text-search:$version")
+implementation("io.bluetape4k:bluetape4k-text-search:1.7.0-SNAPSHOT")
 
 // Optional: Coroutines Flow support
 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 ```
-
-## Migration from `x-obsoleted/ahocorasick`
-
-| Old API | New API |
-|---------|---------|
-| `Trie.builder().addKeyword(k)` | `AhoCorasickAutomaton.builder<V>().add(k, v)` |
-| `trie.parseText(text)` | `automaton.parseText(text)` |
-| `Emit.keyword` | `AhoCorasickMatch.keyword` |
-| `Emit.start` / `.end` | `AhoCorasickMatch.start` / `.end` |
-| `trie.containsMatch(text)` | `automaton.containsMatch(text)` |
-| `trie.firstMatch(text)` | `automaton.firstMatch(text)` (leftmost-longest) |
-
-**Key difference**: `firstMatch()` now follows the leftmost-longest (R5) rule, while the old implementation returned the first emit from the automaton state machine.
