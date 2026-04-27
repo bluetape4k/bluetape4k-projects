@@ -32,6 +32,12 @@ abstract class ClickHouseTable(
             .map { sql -> sanitizeForClickHouse(sql) + "\n${engine.toClause()}" }
 }
 
+private val CH_CONSTRAINT_PK_REGEX = Regex(",?\\s*CONSTRAINT\\s+\\S+\\s+PRIMARY\\s+KEY\\s*\\([^)]*\\)", RegexOption.IGNORE_CASE)
+private val CH_INLINE_PK_REGEX = Regex("\\s+PRIMARY\\s+KEY(?!\\s*\\()", RegexOption.IGNORE_CASE)
+private val CH_REFERENCES_REGEX = Regex("\\s+REFERENCES\\s+\\S+\\s*\\([^)]*\\)(\\s+ON\\s+\\w+\\s+\\w+)?", RegexOption.IGNORE_CASE)
+private val CH_NOT_NULL_REGEX = Regex("\\s+NOT\\s+NULL\\b", RegexOption.IGNORE_CASE)
+private val CH_NULL_REGEX = Regex("\\s+NULL\\b", RegexOption.IGNORE_CASE)
+
 /**
  * ClickHouse와 호환되도록 SQL DDL을 정제합니다.
  *
@@ -45,12 +51,12 @@ abstract class ClickHouseTable(
 internal fun sanitizeForClickHouse(sql: String): String =
     sql
         // CONSTRAINT pk_name PRIMARY KEY (...) 절 제거
-        .replace(Regex(",?\\s*CONSTRAINT\\s+\\S+\\s+PRIMARY\\s+KEY\\s*\\([^)]*\\)", RegexOption.IGNORE_CASE), "")
+        .replace(CH_CONSTRAINT_PK_REGEX, "")
         // 인라인 PRIMARY KEY 제거 (PRIMARY KEY ( ... ) 형태가 아닌 컬럼 인라인 키워드)
-        .replace(Regex("\\s+PRIMARY\\s+KEY(?!\\s*\\()", RegexOption.IGNORE_CASE), "")
+        .replace(CH_INLINE_PK_REGEX, "")
         // REFERENCES ... 절 제거 (FK 미지원)
-        .replace(Regex("\\s+REFERENCES\\s+\\S+\\s*\\([^)]*\\)(\\s+ON\\s+\\w+\\s+\\w+)?", RegexOption.IGNORE_CASE), "")
+        .replace(CH_REFERENCES_REGEX, "")
         // NOT NULL 토큰 제거 (NULL보다 먼저 처리)
-        .replace(Regex("\\s+NOT\\s+NULL\\b", RegexOption.IGNORE_CASE), "")
+        .replace(CH_NOT_NULL_REGEX, "")
         // NULL 토큰 제거
-        .replace(Regex("\\s+NULL\\b", RegexOption.IGNORE_CASE), "")
+        .replace(CH_NULL_REGEX, "")

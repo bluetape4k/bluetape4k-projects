@@ -87,6 +87,12 @@ class BigQueryContext(
     companion object: KLogging() {
         private const val DEFAULT_QUERY_TIMEOUT_MS = 30_000L
 
+        private val DB_NAME_SANITIZE_REGEX = Regex("[^A-Za-z0-9_]")
+        private val BIGINT_REGEX = Regex("\\bBIGINT\\b")
+        private val VARCHAR_REGEX = Regex("\\bVARCHAR\\(\\d+\\)")
+        private val DECIMAL_REGEX = Regex("\\bDECIMAL\\(\\d+,\\s*\\d+\\)")
+        private val STANDALONE_NULL_REGEX = Regex("(?<!NOT) NULL(?=[,)])")
+
         /**
          * H2(PostgreSQL 모드) sqlGenDb를 자동 생성하는 팩토리.
          * 별도 Database 설정 없이 바로 사용 가능합니다.
@@ -98,7 +104,7 @@ class BigQueryContext(
             dispatcher: CoroutineDispatcher = Dispatchers.IO,
         ): BigQueryContext {
             val dbName = "bq_sqlgen_${projectId}_${datasetId}"
-                .replace(Regex("[^A-Za-z0-9_]"), "_")
+                .replace(DB_NAME_SANITIZE_REGEX, "_")
             val sqlGenDb = Database.connect(
                 url = "jdbc:h2:mem:$dbName;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1",
                 driver = "org.h2.Driver",
@@ -254,10 +260,10 @@ class BigQueryContext(
     }
 
     private fun String.toBigQueryDdl(): String = this
-        .replace(Regex("\\bBIGINT\\b"), "INT64")
-        .replace(Regex("\\bVARCHAR\\(\\d+\\)"), "STRING")
-        .replace(Regex("\\bDECIMAL\\(\\d+,\\s*\\d+\\)"), "NUMERIC")
-        .replace(Regex("(?<!NOT) NULL(?=[,)])"), "")
+        .replace(BIGINT_REGEX, "INT64")
+        .replace(VARCHAR_REGEX, "STRING")
+        .replace(DECIMAL_REGEX, "NUMERIC")
+        .replace(STANDALONE_NULL_REGEX, "")
 
     /**
      * 테이블의 모든 행을 삭제합니다.
