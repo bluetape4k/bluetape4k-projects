@@ -310,6 +310,25 @@ val allOpts = streamInfoOptionsOfAllSubjects()
 val info = management.getStreamInfo("my-stream", filteredOpts)
 ```
 
+## 테스트 커버리지
+
+라인 커버리지: **79.45%** (259/326 라인) — Kover 측정.
+
+서버 없이 실행 가능한 단위 테스트:
+
+| 테스트 파일 | 대상 |
+|-----------|------|
+| `OptionsTest` | `natsOptions`, `natsOptionsOf` 빌더 |
+| `JetStreamOptionsTest` | `jetStreamOptionsOf`, `defaultJetStreamOptions` |
+| `PublishOptionsTest` | `publishOptions`, `publishOptionsOf` 빌더 |
+| `KeyValueOptionsTest` | `keyValueOptions` (3가지 오버로드) |
+| `PullSubscriptionOptionsTest` | `pullSubscriptionOptions`, `pullSubscriptionOptionsOf` |
+| `PushSubscriptionOptionsTest` | `pushSubscriptionOptions`, `pushSubscriptionOf` (2가지 오버로드) |
+| `NatsMessageTest` | `natsMessage`, `natsMessageOf` (3가지 오버로드) |
+| `ConnectionExtensionsTest` | `publish`, `request`, `requestAsync`, `requestSuspending`, `drainSuspending` (MockK) |
+| `ConsumerExtensionsTest` | `Consumer.drain`, `Consumer.drainSuspending` (MockK) |
+| `ServiceExtensionsTest` | `natsService`, `natsServiceOf` (MockK Connection) |
+
 ## 테스트 지원
 
 `AbstractNatsTest`를 상속하면 Testcontainers 기반 NATS 서버에 자동으로 연결됩니다:

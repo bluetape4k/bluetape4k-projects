@@ -31,7 +31,7 @@ class AsyncClientH2ServerPush: AbstractHc5Test() {
         val httpHost = HttpHost(baseUri.scheme, baseUri.host, baseUri.port)
 
         val client = minimalHttpAsyncClientOf(
-            h2config = h2Config { setPushEnabled(true) }
+            h2config = h2Config { setPushEnabled(true) },
         )
         client.start()
 

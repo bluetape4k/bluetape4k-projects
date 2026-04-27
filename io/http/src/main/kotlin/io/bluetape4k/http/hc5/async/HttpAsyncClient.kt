@@ -57,6 +57,8 @@ inline fun httpAsyncClientOf(
     builder: HttpAsyncClientBuilder.() -> Unit = {},
 ): CloseableHttpAsyncClient = httpAsyncClient {
     setConnectionManager(cm)
+    // HC5 공식 메커니즘: 외부에서 주입된 CM은 client.close() 시 닫지 않음
+    setConnectionManagerShared(true)
     builder()
 }
 
