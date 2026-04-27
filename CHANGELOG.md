@@ -150,6 +150,32 @@ Fury `SCHEMA_CONSISTENT` + `refTracking=false` 모드 기반 고처리량 직렬
 
 - `ForyBinarySerializer.forHighThroughput()` 팩토리 메서드 추가 및 KDoc 예제 강화
 
+#### docs — README Mermaid UML 다이어그램 / KDoc 커버리지 확대 ([#152](https://github.com/bluetape4k/bluetape4k-projects/issues/152))
+
+10개 모듈 README에 Mermaid UML 다이어그램 추가 및 공개 API KDoc 전수 작성 완료.
+
+**README Mermaid 다이어그램 추가 모듈 (10개)**
+
+| 모듈 | 다이어그램 |
+|------|-----------|
+| `data/exposed-cache` | `classDiagram`: JdbcCacheRepository / SuspendedJdbc* / R2dbc* 계층, `sequenceDiagram`: Read-Through / Write-Through / Write-Behind |
+| `data/exposed-jdbc-lettuce` | `classDiagram`: JdbcLettuceRepository 상속 구조 + NearCache 흐름도 |
+| `data/exposed-jdbc-redisson` | `classDiagram`: JdbcRedissonRepository 계층 + 9종 Mermaid 다이어그램 |
+| `data/exposed-jdbc-caffeine` | `classDiagram`: AbstractJdbcCaffeineRepository / AbstractSuspendedJdbcCaffeineRepository |
+| `data/exposed-r2dbc` | `classDiagram`: R2DBC 파이프라인 + 4종 다이어그램 |
+| `infra/cache-core` | `classDiagram`: NearCacheOperations / SuspendNearCacheOperations + `sequenceDiagram` NearCache get/put |
+| `infra/cache-lettuce` | `classDiagram`: LettuceNearCache 계층 + `sequenceDiagram`: RESP3 Pub/Sub 무효화 흐름 |
+| `infra/cache-redisson` | `classDiagram`: RedissonNearCache / Resp3 변형 + `sequenceDiagram`: RLocalCachedMap 흐름 |
+| `infra/cache-hazelcast` | `classDiagram`: HazelcastNearCache + EntryListener 계층 + `sequenceDiagram`: 2-tier 흐름 |
+| `utils/batch` | `classDiagram`: BatchJob/BatchStep/Chunk 파이프라인 + `sequenceDiagram`: 실행 흐름 |
+
+**KDoc 전수 작성 완료 (공개 API)**
+
+- `JdbcCacheRepository` / `SuspendedJdbcCacheRepository` / `R2dbcCacheRepository` — `@param`, `@return`, 사용 예제 포함
+- `CacheMode` / `CacheWriteMode` / `LocalCacheConfig` — enum 항목별 KDoc + 제약 조건 설명
+- `NearCacheOperations` / `SuspendNearCacheOperations` — checkpoint 시맨틱, 사용 순서 명시
+- `BatchReader` / `BatchProcessor` / `BatchWriter` / `BatchJob` — 사용 패턴 + 예외 조건 문서화
+
 ---
 
 ## [1.7.0] — 2026-04-24
