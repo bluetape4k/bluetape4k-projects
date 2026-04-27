@@ -213,6 +213,7 @@ object Versions {
 
     // NLP / Language Detection
     const val lingua = "1.2.2"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
+    const val kuromoji = "0.9.0" // https://mvnrepository.com/artifact/com.atilika.kuromoji/kuromoji-ipadic
 }
 
 object Libs {
@@ -1511,6 +1512,8 @@ object Libs {
 
     // NLP / Language Detection
     const val lingua = "com.github.pemistahl:lingua:${Versions.lingua}"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
+    const val kuromoji_ipadic = "com.atilika.kuromoji:kuromoji-ipadic:${Versions.kuromoji}"  // https://mvnrepository.com/artifact/com.atilika.kuromoji/kuromoji-ipadic
+    const val kuromoji_unidic = "com.atilika.kuromoji:kuromoji-unidic:${Versions.kuromoji}"  // https://mvnrepository.com/artifact/com.atilika.kuromoji/kuromoji-unidic
 }
 
 // @formatter:on
