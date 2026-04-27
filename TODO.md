@@ -23,7 +23,11 @@
 - [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
 - [ ] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
 
-<<<<<<< HEAD
+#### 참고 자료
+- [UCAR NetCDF-Java 공식 문서](https://docs.unidata.ucar.edu/netcdf-java/current/)
+- [unidata/netcdf-java GitHub](https://github.com/Unidata/netcdf-java)
+- [NetCDF 파일 포맷 명세](https://docs.unidata.ucar.edu/nug/current/)
+
 ### 1.2 io/csv — Record.toFieldMap() 복원 🟡
 
 - 배경: 1.7.0에서 Apache Commons CSV → 자체 `CsvLexer` 교체 시 `toFieldMap()` 메서드가 누락됨
@@ -37,14 +41,6 @@
 - [ ] `bluetape4k-graph` graph-io/csv 의 workaround 제거 후 재검증
 
 ### 1.3 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
-=======
-#### 참고 자료
-- [UCAR NetCDF-Java 공식 문서](https://docs.unidata.ucar.edu/netcdf-java/current/)
-- [unidata/netcdf-java GitHub](https://github.com/Unidata/netcdf-java)
-- [NetCDF 파일 포맷 명세](https://docs.unidata.ucar.edu/nug/current/)
-
-### 1.2 examples/jpa-querydsl-demo — QueryDSL 쿼리 완성 🟢
->>>>>>> 95b899fb6948c3dfe23002e6965172c7e28fbf54
 
 - Issue: [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108)
 - [ ] `MemberRepositoryImpl.kt` — `TODO("Not yet implemented")` 3개 구현
@@ -448,16 +444,25 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 10. 성능 / 품질 🟢
+## 10. 성능 / 품질
 
-- [ ] `utils/benchmark` 모듈 결과 문서화 (현재 결과 미공개)
-- [ ] `infra/lettuce` NearCache 성능 벤치마크 공개
-- [ ] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 제거
-- [ ] `StateFlow` / `SharedFlow` 사용 일관성 검토
+### 10.1 벤치마크 결과 공개 🟢
+
+- Issue: [#184](https://github.com/bluetape4k/bluetape4k-projects/issues/184)
+- [ ] `utils/benchmark` 모듈 JMH 벤치마크 결과 문서화 (현재 결과 미공개)
+- [ ] `infra/lettuce` NearCache 성능 벤치마크 결과 공개 (L1/L2 hit/miss 수치 포함)
 
 #### 참고 자료
 - [JMH (Java Microbenchmark Harness)](https://github.com/openjdk/jmh)
 - [Gradle JMH Plugin](https://github.com/melix/jmh-gradle-plugin)
+
+### 10.2 Coroutines 품질 개선 🟡
+
+- Issue: [#185](https://github.com/bluetape4k/bluetape4k-projects/issues/185)
+- [ ] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 전수 제거
+- [ ] `StateFlow` / `SharedFlow` 사용 일관성 검토 (노출 타입 읽기 전용 통일)
+
+#### 참고 자료
 - [Kotlin Coroutines 구조적 동시성 공식 문서](https://kotlinlang.org/docs/coroutines-and-channels.html)
 - [StateFlow vs SharedFlow 비교](https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/)
 
