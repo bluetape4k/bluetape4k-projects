@@ -286,4 +286,14 @@ class MatrixSupportTest {
         val restored = bytes.toRealVector()
         restored.dimension.shouldBeEqualTo(0)
     }
+
+    @Test
+    fun `1x1 RealMatrix를 직렬화 후 복원할 수 있다`() {
+        val original = Array2DRowRealMatrix(arrayOf(doubleArrayOf(42.0)))
+        val bytes = original.toByteArray()
+        val restored = bytes.toRealMatrix()
+        restored.rowDimension.shouldBeEqualTo(1)
+        restored.columnDimension.shouldBeEqualTo(1)
+        restored.getEntry(0, 0).shouldBeNear(42.0, 1e-10)
+    }
 }
