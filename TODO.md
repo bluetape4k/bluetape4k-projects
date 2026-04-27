@@ -116,7 +116,7 @@
   - 75+ 언어 자동 감지 — 콘텐츠 분류, 다국어 라우팅, 검색 인덱싱 필수
   - 코드는 작지만 가치 높음 (Lingua 라이브러리 얇은 래퍼)
 
-- [x] **ahocorasick → texts/text-search** (11 kt 파일) — PR #170 승격 완료
+- [x] **ahocorasick → texts/text-search** (11 kt 파일) — 이슈 [#140](https://github.com/bluetape4k/bluetape4k-projects/issues/140) / PR [#165](https://github.com/bluetape4k/bluetape4k-projects/pull/165) 승격 완료
   - 다중 키워드 검색 O(n) — 금칙어 필터, 태그 추출, 치환, 검색 하이라이팅
   - Trie DSL + case-insensitive/whole-word/overlapping 옵션 지원
   - 수요 꾸준함 (커뮤니티/메신저 서비스 필수)
