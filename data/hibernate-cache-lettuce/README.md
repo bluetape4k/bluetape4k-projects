@@ -2,11 +2,18 @@
 
 English | [한국어](./README.ko.md)
 
-Hibernate 7 **2nd Level Cache** implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure
+Hibernate 7.2 **2nd Level Cache** implementation backed by Lettuce Near Cache (Caffeine L1 + Redis L2). Simply configure
 `hibernate.cache.lettuce.*` properties and Near Cache is automatically applied to all regions.
 
 > The Near Cache core uses the `bluetape4k-cache-lettuce` module from `bluetape4k-projects`.
-> For Spring Boot 4 integration, see [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.md).
+> For Spring Boot 4 integration, see [`spring-boot4/hibernate-lettuce`](../../spring-boot4/hibernate-lettuce/README.md).
+
+## Requirements
+
+- **Hibernate ORM**: 7.2.7.Final or later
+- **Jakarta Persistence API**: 3.2.0 (enforced via `configurations.all` to override Spring Boot downgrades)
+- **Java**: JDK 21+ (aligned with bluetape4k project baseline)
+- **Redis**: 6+ when using RESP3 Client Tracking (set `use_resp3=false` for older Redis)
 
 ## Architecture
 
@@ -247,5 +254,8 @@ Redis 7+ is automatically started via Testcontainers; an H2 in-memory database i
 - **Disable TTL for the timestamps region**:
   Redis TTL is not applied to
   `default-update-timestamps-region` in order to preserve the query cache invalidation contract.
-- **H2 Version**: Hibernate 7 requires H2 v2 (`com.h2database:h2:2.x`).
+- **H2 Version**: Hibernate 7.2 requires H2 v2 (`com.h2database:h2:2.x`).
+- **Jakarta Persistence 3.2.0**: This module enforces Jakarta Persistence 3.2.0 via build configuration.
+  Spring Boot 3.5 BOM may default to an earlier version; the `configurations.all` block in `build.gradle.kts`
+  ensures the correct version is used for Hibernate 7.2 compatibility.
 - **Redis 6+**: Required when `use_resp3=true` (the default). For older Redis versions, set `use_resp3=false`.

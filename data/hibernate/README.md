@@ -17,7 +17,7 @@ A Kotlin extension library that eliminates boilerplate when working with Hiberna
 - **Querydsl Extensions**: BooleanExpression composition and operator helpers
 - **Converter Support**: Locale, encryption (Google Tink), compression, and serialization-based converters
 - **StatelessSession Support**: Transaction helpers and reified accessor functions
-- **Hibernate 6.6 Feature Examples**: Regression tests for `@ConcreteProxy` and embeddable inheritance mapping
+- **Hibernate 7.x Feature Support**: Full support for Hibernate 7.2+ with Jakarta Persistence 3.2.0
 - **NaturalId Examples**: `@NaturalId` and `Session.bySimpleNaturalId(...)` lookup patterns
 
 ## Dependency
@@ -26,8 +26,8 @@ A Kotlin extension library that eliminates boilerplate when working with Hiberna
 dependencies {
     implementation("io.github.bluetape4k:bluetape4k-hibernate:${version}")
 
-    // Hibernate (choose your version)
-    implementation("org.hibernate.orm:hibernate-core:6.6.41")
+    // Hibernate 7.x (requires Jakarta Persistence 3.2.0+)
+    implementation("org.hibernate.orm:hibernate-core:7.2.7.Final")
 
     // Querydsl (optional)
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
@@ -43,6 +43,8 @@ dependencies {
     compileOnly("org.apache.fury:fury-kotlin:0.10.0")
 }
 ```
+
+> **Note on Spring Boot 3 Integration**: Tests combining Hibernate 7.x with Spring Boot 3.x are currently disabled due to incompatibility in Spring Boot 3's `SpringBeanContainer` (which implements the Hibernate 5 API). This will be resolved when upgrading to Spring Boot 4 / Spring Framework 7. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for details.
 
 ## Basic Usage
 
@@ -238,10 +240,10 @@ em.withStateless { stateless ->
 }
 ```
 
-### 6. Hibernate 6.6 Mapping Examples
+### 6. Advanced Mapping Examples
 
 The library includes test assets demonstrating
-`@ConcreteProxy` and embeddable inheritance, both useful Hibernate 6.6 features.
+`@ConcreteProxy` and embeddable inheritance, both useful features in Hibernate 7.
 
 ```kotlin
 @Entity
@@ -652,7 +654,7 @@ flowchart LR
 ## References
 
 - [Hibernate ORM](https://hibernate.org/orm/)
-- [Hibernate ORM Documentation](https://docs.jboss.org/hibernate/orm/6.6/userguide/html_single/Hibernate_User_Guide.html)
-- [Jakarta Persistence](https://jakarta.ee/specifications/persistence/)
+- [Hibernate ORM 7.2 Documentation](https://docs.jboss.org/hibernate/orm/7.2/userguide/html_single/Hibernate_User_Guide.html)
+- [Jakarta Persistence 3.2 Specification](https://jakarta.ee/specifications/persistence/)
 - [Querydsl](http://querydsl.com/)
 - [Google Tink](https://github.com/google/tink)

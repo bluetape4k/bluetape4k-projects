@@ -196,7 +196,41 @@ classDiagram
     style StageSession fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
 ```
 
+## Version Requirements
+
+**Hibernate Reactive 3.2.0.Final** requires:
+- Hibernate ORM 7.2.7.Final (updated from 7.2.x)
+- Jakarta Persistence 3.0 namespace in `persistence.xml`
+- Java 11+ / Kotlin 1.5+
+
+### JPA Persistence Configuration Update
+
+When upgrading from Hibernate Reactive 2.x to 3.x:
+
+1. **Update namespace** in `src/main/resources/META-INF/persistence.xml`:
+   ```xml
+   <!-- Old (JPA 2.0) -->
+   <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+   <!-- New (Jakarta Persistence 3.0) -->
+   <persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
+   ```
+
+2. **Explicit entity registration** replaces jar-file scanning:
+   ```xml
+   <!-- Old approach (deprecated) -->
+   <jar-file>jar:file:///path/to/entities.jar!/</jar-file>
+
+   <!-- New approach (required) -->
+   <class>io.bluetape4k.example.Author</class>
+   <class>io.bluetape4k.example.Book</class>
+   ```
+
+3. **Validator configuration** requires GlassFish Expressly 6.0.0 for Jakarta EL
+
 ## References
 
 - [Hibernate Reactive](https://hibernate.org/reactive/)
+- [Hibernate ORM 7.2 Release Notes](https://hibernate.org/orm/)
+- [Jakarta Persistence 3.0](https://jakarta.ee/specifications/persistence/3.0/)
 - [Mutiny](https://smallrye.io/smallrye-mutiny/)
