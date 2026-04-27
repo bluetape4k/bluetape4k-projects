@@ -1,6 +1,7 @@
 package io.bluetape4k.nats.client
 
 import io.nats.client.KeyValueOptions
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -14,28 +15,30 @@ class KeyValueOptionsTest {
     }
 
     @Test
-    fun `keyValueOptions based on existing KeyValueOptions`() {
-        val base = keyValueOptions {}
+    fun `keyValueOptions based on existing KeyValueOptions preserves JetStreamOptions`() {
+        val jso = jetStreamOptionsOf(prefix = "base-prefix")
+        val base = keyValueOptions(jso) {}
         val kvo = keyValueOptions(base) {}
 
         kvo.shouldNotBeNull()
+        kvo.jetStreamOptions.prefix shouldBeEqualTo "base-prefix."
     }
 
     @Test
-    fun `keyValueOptions with JetStreamOptions`() {
-        val jso = jetStreamOptionsOf()
+    fun `keyValueOptions with JetStreamOptions propagates JetStreamOptions`() {
+        val jso = jetStreamOptionsOf(prefix = "kv-prefix")
         val kvo = keyValueOptions(jso) {}
 
         kvo.shouldNotBeNull()
+        kvo.jetStreamOptions.prefix shouldBeEqualTo "kv-prefix."
     }
 
     @Test
-    fun `keyValueOptions with JetStreamOptions and additional builder`() {
+    fun `keyValueOptions with JetStreamOptions and builder propagates options`() {
         val jso = jetStreamOptionsOf(publishNoAck = false)
-        val kvo = keyValueOptions(jso) {
-            // additional configuration
-        }
+        val kvo = keyValueOptions(jso) {}
 
         kvo.shouldNotBeNull()
+        kvo.jetStreamOptions.isPublishNoAck shouldBeEqualTo false
     }
 }

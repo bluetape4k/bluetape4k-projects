@@ -8,6 +8,7 @@ import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.ZERO
@@ -15,7 +16,12 @@ import kotlin.time.Duration.Companion.seconds
 
 class ConsumerExtensionsTest {
 
-    private val consumer = mockk<Consumer>()
+    private lateinit var consumer: Consumer
+
+    @BeforeEach
+    fun setUp() {
+        consumer = mockk<Consumer>()
+    }
 
     @Test
     fun `drain with positive millis calls underlying drain with java Duration`() {

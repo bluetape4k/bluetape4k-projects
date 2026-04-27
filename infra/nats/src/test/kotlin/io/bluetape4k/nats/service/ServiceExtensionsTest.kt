@@ -5,11 +5,17 @@ import io.nats.client.Connection
 import io.nats.service.ServiceMessageHandler
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ServiceExtensionsTest {
 
-    private val nc = mockk<Connection>(relaxed = true)
+    private lateinit var nc: Connection
+
+    @BeforeEach
+    fun setUp() {
+        nc = mockk<Connection>(relaxed = true)
+    }
 
     @Test
     fun `natsService with minimal config creates Service`() {

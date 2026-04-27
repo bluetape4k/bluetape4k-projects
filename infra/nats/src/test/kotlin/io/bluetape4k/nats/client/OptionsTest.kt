@@ -52,11 +52,10 @@ class OptionsTest {
 
     @Test
     fun `natsOptionsOf with custom parameters applies them`() {
-        val url = Options.DEFAULT_URL
-        val options = natsOptionsOf(url = url, maxReconnects = 5, bufferSize = 65536)
+        val options = natsOptionsOf(maxReconnects = 3, bufferSize = 32_768)
 
         options.shouldNotBeNull()
-        options.maxReconnect shouldBeEqualTo 5
-        options.bufferSize shouldBeEqualTo 65536
+        options.maxReconnect shouldBeEqualTo 3
+        options.bufferSize shouldBeEqualTo 32_768
     }
 }

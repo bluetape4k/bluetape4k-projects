@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.seconds
@@ -20,7 +21,12 @@ import kotlin.time.toJavaDuration
 
 class ConnectionExtensionsTest {
 
-    private val nc = mockk<Connection>(relaxed = true)
+    private lateinit var nc: Connection
+
+    @BeforeEach
+    fun setUp() {
+        nc = mockk<Connection>(relaxed = true)
+    }
 
     @Test
     fun `publish with subject and body calls underlying publish`() {
