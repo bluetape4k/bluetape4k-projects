@@ -62,7 +62,7 @@ T11/T12/T13 병렬 가능.
 #### 작업 항목
 
 1. H7 ORM 7.2.7.Final source jar 추출 (**완료** — `.claude/lib-sources/hibernate-7.2.7/extracted/`)
-2. Hibernate Reactive 3.x 최신 stable 버전 결정 (**완료** — 3.0.0.Final 확정)
+2. Hibernate Reactive 3.x 최신 stable 버전 결정 (**완료** — 3.2.0.Final 확정; 3.0.0은 ORM 7.0.x 대상, 3.2.0은 ORM 7.2.x 대상)
 3. SPI 시그니처 diff 표 작성 (**완료** — 아래 T0 출력 표 참조)
 4. H2 최소 버전 확인 (**완료** — H7 H2Dialect MINIMUM_VERSION = 2.1.214)
 
@@ -97,7 +97,7 @@ T11/T12/T13 병렬 가능.
 | `Mutiny.SessionFactory.withTransaction(BiFunction<Session, Transaction, Uni<T>>)` | `withTransaction(BiFunction)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
 | `Stage.SessionFactory.withSession(Function<Session, CompletionStage<T>>)` | `withSession(Function)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
 | `Stage.SessionFactory.withTransaction(BiFunction<Session, Transaction, CompletionStage<T>>)` | `withTransaction(BiFunction)` | **동일** (변경 없음) | ✅ | hibernate-reactive |
-| Reactive 최신 stable 버전 | 2.4.11.Final | **3.0.0.Final** (H7 ORM 의존) | 확정 | Libs.kt |
+| Reactive 최신 stable 버전 | 2.4.11.Final | **3.2.0.Final** (ORM 7.2.x 대상; 3.0.0은 ORM 7.0.x) | 확정 | Libs.kt |
 | H2 최소 버전 (H7 요구사항) | 1.4.197 (현재) | **2.1.214** (H7Dialect MINIMUM_VERSION) | ⚠️ **업그레이드 필요** | test scope |
 
 ---
@@ -112,7 +112,7 @@ T11/T12/T13 병렬 가능.
 
 1. `buildSrc/src/main/kotlin/Libs.kt` 에서 다음 상수 갱신
    - `hibernate = "6.6.44.Final"` → `hibernate = "7.2.7.Final"`
-   - `hibernate_reactive = "2.4.11.Final"` → `hibernate_reactive = "3.0.0.Final"`
+   - `hibernate_reactive = "2.4.11.Final"` → `hibernate_reactive = "3.2.0.Final"` (3.0.0은 ORM 7.0.x, 3.2.0은 ORM 7.2.x 대상)
 2. 변경 전 버전을 `// previous: 6.6.44.Final` 주석으로 보존 (롤백 대비, Spec §8-R)
 3. `hibernate_validator = "9.1.0.Final"` 유지 확인 (변경 없음)
 4. **H2 버전 점검** (Spec §4.1 위험 3 완화)

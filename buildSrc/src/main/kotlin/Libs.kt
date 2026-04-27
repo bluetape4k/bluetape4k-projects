@@ -137,7 +137,7 @@ object Versions {
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
 
     const val hibernate = "7.2.7.Final"            // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core  // previous: 6.6.44.Final
-    const val hibernate_reactive = "3.0.0.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core  // previous: 2.4.11.Final
+    const val hibernate_reactive = "3.2.0.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core  // previous: 2.4.11.Final; 3.2.0.Final targets ORM 7.2.x
     const val hibernate_validator = "9.1.0.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
@@ -322,12 +322,14 @@ object Libs {
     const val jakarta_activation_api = "jakarta.activation:jakarta.activation-api:2.1.4"  // https://mvnrepository.com/artifact/jakarta.activation/jakarta.activation-api
     const val jakarta_annotation_api = "jakarta.annotation:jakarta.annotation-api:3.0.0"  // https://mvnrepository.com/artifact/jakarta.annotation/jakarta.annotation-api
     const val jakarta_el_api = "jakarta.el:jakarta.el-api:6.0.1"    // https://mvnrepository.com/artifact/jakarta.el/jakarta.el-api
+    const val glassfish_expressly = "org.glassfish.expressly:expressly:6.0.0"  // Jakarta EL 6.0 implementation (https://mvnrepository.com/artifact/org.glassfish.expressly/expressly)
     const val jakarta_inject_api = "jakarta.inject:jakarta.inject-api:2.0.1"   // https://mvnrepository.com/artifact/jakarta.inject/jakarta.inject-api
     const val jakarta_interceptor_api = "jakarta.interceptor:jakarta.interceptor-api:2.2.0" // https://mvnrepository.com/artifact/jakarta.interceptor/jakarta.interceptor-api
     const val jakarta_jms_api = "jakarta.jms:jakarta.jms-api:3.1.0"  // https://mvnrepository.com/artifact/jakarta.jms/jakarta.jms-api
     const val jakarta_json_api = "jakarta.json:jakarta.json-api:2.1.3"  // https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api
     const val jakarta_json = "org.glassfish:jakarta.json:2.0.1"         // https://mvnrepository.com/artifact/org.glassfish/jakarta.json
     const val jakarta_persistence_api = "jakarta.persistence:jakarta.persistence-api:3.1.0"  // https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api
+    const val jakarta_persistence_api_32 = "jakarta.persistence:jakarta.persistence-api:3.2.0"  // Hibernate ORM 7.x / Jakarta EE 11 requires 3.2.0
     const val jakarta_servlet_api = "jakarta.servlet:jakarta.servlet-api:6.1.0"              // https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api
     const val jakarta_transaction_api = "jakarta.transaction:jakarta.transaction-api:2.0.1"  // https://mvnrepository.com/artifact/jakarta.transaction/jakarta.transaction-api
     const val jakarta_validation_api = "jakarta.validation:jakarta.validation-api:3.1.1"    // https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
