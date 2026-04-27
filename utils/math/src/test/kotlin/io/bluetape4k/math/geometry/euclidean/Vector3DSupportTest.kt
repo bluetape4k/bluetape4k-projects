@@ -3,6 +3,7 @@ package io.bluetape4k.math.geometry.euclidean
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeNear
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
+import kotlin.math.PI
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 
@@ -28,10 +29,23 @@ class Vector3DSupportTest {
 
     @Test
     fun `구면 좌표로 3차원 벡터를 생성할 수 있다`() {
-        val v = vector3DOf(alpha = 0.0, delta = 0.0)
-        v.x.shouldBeNear(1.0, 1e-10)
-        v.y.shouldBeNear(0.0, 1e-10)
-        v.z.shouldBeNear(0.0, 1e-10)
+        // alpha=0, delta=0 → (cos(0)*cos(0), cos(0)*sin(0), sin(0)) = (1, 0, 0)
+        val v0 = vector3DOf(alpha = 0.0, delta = 0.0)
+        v0.x.shouldBeNear(1.0, 1e-10)
+        v0.y.shouldBeNear(0.0, 1e-10)
+        v0.z.shouldBeNear(0.0, 1e-10)
+
+        // alpha=π/2, delta=0 → (0, 1, 0)
+        val v1 = vector3DOf(alpha = PI / 2, delta = 0.0)
+        v1.x.shouldBeNear(0.0, 1e-10)
+        v1.y.shouldBeNear(1.0, 1e-10)
+        v1.z.shouldBeNear(0.0, 1e-10)
+
+        // alpha=0, delta=π/2 → (0, 0, 1)
+        val v2 = vector3DOf(alpha = 0.0, delta = PI / 2)
+        v2.x.shouldBeNear(0.0, 1e-10)
+        v2.y.shouldBeNear(0.0, 1e-10)
+        v2.z.shouldBeNear(1.0, 1e-10)
     }
 
     @Test

@@ -4,7 +4,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.ml.clustering.doublePointOf
 import io.bluetape4k.math.ml.distance.DistanceMeasureMethod
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeNear
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
@@ -40,8 +42,9 @@ class DistanceMeasureMethodTest {
     fun `Canberra 거리를 계산할 수 있다`() {
         val a = doubleArrayOf(1.0, 2.0)
         val b = doubleArrayOf(3.0, 4.0)
+        // |1-3|/(1+3) + |2-4|/(2+4) = 0.5 + 1/3 = 5/6
         val dist = DistanceMeasureMethod.Canberra.compute(a, b)
-        dist > 0.0
+        dist.shouldBeNear(5.0 / 6.0, 1e-10)
     }
 
     @Test
@@ -49,7 +52,7 @@ class DistanceMeasureMethodTest {
         val a = doubleArrayOf(1.0, 2.0, 3.0)
         val b = doubleArrayOf(4.0, 5.0, 6.0)
         val dist = DistanceMeasureMethod.EarthMovers.compute(a, b)
-        dist > 0.0
+        dist shouldBeGreaterThan 0.0
     }
 
     @Test
@@ -77,7 +80,7 @@ class DistanceMeasureMethodTest {
     @Test
     fun `존재하지 않는 이름은 null을 반환한다`() {
         val method = DistanceMeasureMethod.parse("unknown")
-        method shouldBeEqualTo null
+        method.shouldBeNull()
     }
 
     @Test

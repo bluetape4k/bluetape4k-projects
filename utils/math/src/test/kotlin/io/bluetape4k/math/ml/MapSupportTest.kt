@@ -8,6 +8,7 @@ import io.bluetape4k.math.ml.neuralnet.computeU
 import io.bluetape4k.math.ml.neuralnet.findBest
 import io.bluetape4k.math.ml.neuralnet.findBestAndSecondBest
 import io.bluetape4k.math.ml.neuralnet.sort
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.commons.math3.ml.neuralnet.FeatureInitializerFactory
@@ -56,7 +57,13 @@ class MapSupportTest {
         val neurons = mesh.network.toList()
         val sorted = neurons.sort(features, distance)
         sorted.shouldNotBeNull()
-        sorted.size shouldBeGreaterOrEqualTo 1
+        // 모든 뉴런이 포함되어야 한다
+        sorted.size shouldBeEqualTo neurons.size
+        // 거리 비단조 증가 순서 검증
+        val distances = sorted.map { distance(it.features, features) }
+        for (i in 1 until distances.size) {
+            distances[i] shouldBeGreaterOrEqualTo distances[i - 1]
+        }
     }
 
     @Test
@@ -68,24 +75,30 @@ class MapSupportTest {
         )
         val neurons = mesh.network.toList()
         val error = neurons.computeQuantizationError(data, distance)
+        // 오차는 비음수: 뉴런이 데이터 범위 [0,1]^2 내에 있으므로 최대 대각 길이(√2) 미만
         error shouldBeGreaterOrEqualTo 0.0
     }
 
     @Test
-    fun `computeU는 U-Matrix를 반환한다`() {
+    fun `computeU는 3x3 mesh에서 3x3 U-Matrix를 반환한다`() {
         val uMatrix = mesh.computeU(distance)
         uMatrix.shouldNotBeNull()
-        uMatrix.size shouldBeGreaterOrEqualTo 1
+        // 3x3 NeuronSquareMesh2D → U-Matrix 차원도 3x3
+        uMatrix.size shouldBeEqualTo 3
+        uMatrix[0].size shouldBeEqualTo 3
     }
 
     @Test
-    fun `computeHitHistogram은 히트 히스토그램을 반환한다`() {
+    fun `computeHitHistogram은 히트 총합이 데이터 크기와 같다`() {
         val data = listOf(
             doubleArrayOf(0.1, 0.1),
             doubleArrayOf(0.9, 0.9)
         )
         val histogram = mesh.computeHitHistogram(data, distance)
         histogram.shouldNotBeNull()
-        histogram.size shouldBeGreaterOrEqualTo 1
+        histogram.size shouldBeEqualTo 3
+        // 각 데이터 포인트는 정확히 하나의 뉴런에 매핑되므로 합계 == data.size
+        val totalHits = histogram.sumOf { row -> row.sum() }
+        totalHits shouldBeEqualTo data.size
     }
 }
