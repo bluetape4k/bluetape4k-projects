@@ -2,9 +2,8 @@ package io.bluetape4k.testcontainers.aws.ministack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.MiniStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
@@ -19,11 +18,9 @@ import software.amazon.awssdk.services.sts.StsClient
  * MiniStack STS 서비스 통합 테스트.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackSTSTest: AbstractContainerTest() {
+class MiniStackSTSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging()
-
-    private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
 
     private val stsClient: StsClient by lazy {
         StsClient.builder()

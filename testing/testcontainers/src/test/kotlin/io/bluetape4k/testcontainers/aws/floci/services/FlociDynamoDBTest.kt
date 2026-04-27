@@ -2,8 +2,7 @@ package io.bluetape4k.testcontainers.aws.floci.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.FlociServer
+import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
@@ -31,7 +30,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 
 /**
- * [FlociServer]를 사용한 DynamoDB 서비스 통합 테스트.
+ * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 DynamoDB 서비스 통합 테스트.
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.DynamoDBTest]에 대응합니다.
  *
@@ -40,14 +39,11 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociDynamoDBTest: AbstractContainerTest() {
+class FlociDynamoDBTest : AbstractFlociServiceTest() {
 
-    companion object: KLogging() {
-        private const val TABLE_NAME = "test-table"
+    companion object : KLogging() {
+        private val TABLE_NAME = "test-table-${System.currentTimeMillis()}"
     }
-
-    private val floci: FlociServer
-        get() = FlociServer.Launcher.floci
 
     private val client: DynamoDbClient by lazy {
         DynamoDbClient.builder()
@@ -60,8 +56,6 @@ class FlociDynamoDBTest: AbstractContainerTest() {
 
     @BeforeAll
     fun setup() {
-        floci.isRunning.shouldBeTrue()
-
         val createTableRequest = CreateTableRequest.builder()
             .tableName(TABLE_NAME)
             .attributeDefinitions(

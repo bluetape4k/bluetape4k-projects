@@ -2,9 +2,8 @@ package io.bluetape4k.testcontainers.aws.ministack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.MiniStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -22,13 +21,11 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
  * MiniStack SQS 서비스 통합 테스트.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackSQSTest: AbstractContainerTest() {
+class MiniStackSQSTest: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
         private val QUEUE_NAME = "ministack-test-queue-${System.currentTimeMillis()}"
     }
-
-    private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
 
     private val sqsClient: SqsClient by lazy {
         SqsClient.builder()

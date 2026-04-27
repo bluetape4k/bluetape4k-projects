@@ -4,9 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.testcontainers.aws.MiniStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
@@ -14,7 +13,6 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
@@ -30,17 +28,14 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
  *
  * MiniStack은 virtual-hosted URL을 지원하지 않을 수 있으므로 path-style access를 사용합니다.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackS3Test: AbstractContainerTest() {
+class MiniStackS3Test: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
         private val BUCKET_NAME = "ministack-test-bucket-${System.currentTimeMillis()}"
         private const val KEY_NAME = "test-object"
         private const val CONTENT = "hello-ministack-s3"
     }
-
-    private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
 
     private val s3Client by lazy {
         S3Client.builder()
