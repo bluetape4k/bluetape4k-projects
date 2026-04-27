@@ -1,12 +1,10 @@
-# bluetape4k-text-search
-
 한국어 | [English](./README.md)
+
+# bluetape4k-text-search
 
 Kotlin/JVM용 Aho-Corasick 다중 키워드 검색 라이브러리입니다. N개의 키워드를 O(n+m+z) 시간 복잡도로 단일 패스에 동시 검색하며, 유니코드 정규화, 단어 경계 설정, 대소문자 무시, Kotlin 코루틴 Flow API를 완벽하게 지원합니다.
 
 ## 아키텍처
-
-### 클래스 다이어그램
 
 ```mermaid
 classDiagram
@@ -118,7 +116,7 @@ flowchart LR
     LowerCase --> TrieSearch["Aho-Corasick\nTrieCore 검색"]
     TrieSearch --> OffsetRestore["오프셋 복원\n(OffsetMapping)"]
     OffsetRestore --> Filter["단어경계 &\n겹침 필터"]
-    Filter --> Output["List<AhoCorasickMatch<V>>"]
+    Filter --> Output["List&lt;AhoCorasickMatch&lt;V&gt;&gt;"]
 ```
 
 ## 주요 기능
@@ -226,21 +224,6 @@ val firstAlert = automaton.matchesAsFlow(logLine)
 // [AhoCorasickMatch(keyword="WARN", value="ALERT_WARN")]
 ```
 
-### URL 스킴 추출
-
-```kotlin
-val automaton = AhoCorasickAutomaton.builder<String>()
-    .add("http://", "HTTP")
-    .add("https://", "HTTPS")
-    .add("ftp://", "FTP")
-    .options(SearchOptions(wordBoundary = WordBoundary.NONE))
-    .build()
-
-val text = "Visit http://example.com and https://secure.org"
-val schemes = automaton.parseText(text).map { it.value }
-// ["HTTP", "HTTPS"]
-```
-
 ### 한국어 유니코드 정규화
 
 ```kotlin
@@ -261,7 +244,7 @@ val result = automaton.parseText("아름다운 나라")
 |--------|------|
 | `parseText(text)` | 텍스트에서 모든 매치 반환 |
 | `firstMatch(text)` | leftmost-longest 매치 1건 반환 (R5 규칙) |
-| `containsMatch(text)` | 매치 존재 여부 반환 (첫 매치 즉시 반환 — O(1) 조기 종료) |
+| `containsMatch(text)` | 매치 존재 여부 반환 (첫 매치 즉시 반환) |
 | `tokenize(text)` | `Match`/`Fragment` 토큰으로 분해; `allowOverlaps` 설정과 무관하게 항상 비겹침 시퀀스 반환 |
 | `replaceAll(text) { }` | 변환 람다로 모든 매치 치환 |
 
@@ -273,7 +256,7 @@ val result = automaton.parseText("아름다운 나라")
 | `allowOverlaps` | `true` | 겹치는 매치 허용 |
 | `wordBoundary` | `NONE` | 단어 경계 탐지 방식 |
 | `normalization` | `NONE` | 유니코드 정규화 형식 |
-| `stopOnFirstMatch` | `false` | 첫 매치 후 중단 |
+| `stopOnFirstMatch` | `false` | 첫 매치 후 중단 (`matchesAsFlow`에서는 무시됨) |
 
 ### `WordBoundary`
 
@@ -308,25 +291,17 @@ fun <V> AhoCorasickAutomaton<V>.matchesAsFlow(text: CharSequence): Flow<AhoCoras
 ./gradlew :bluetape4k-text-search:benchmark
 ```
 
-## 의존성 설정
+## 의존성
+
+| 의존성 | 목적 |
+|---|---|
+| `bluetape4k-core` | 핵심 유틸리티 |
+| `kotlinx-coroutines-core` | Flow API 지원 (선택사항, `compileOnly`) |
 
 ```kotlin
 // build.gradle.kts
-implementation("io.bluetape4k:bluetape4k-text-search:$version")
+implementation("io.bluetape4k:bluetape4k-text-search:1.7.0-SNAPSHOT")
 
 // 선택사항: 코루틴 Flow 지원
 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 ```
-
-## 구버전 API 마이그레이션 (`x-obsoleted/ahocorasick`)
-
-| 구 API | 신 API |
-|--------|--------|
-| `Trie.builder().addKeyword(k)` | `AhoCorasickAutomaton.builder<V>().add(k, v)` |
-| `trie.parseText(text)` | `automaton.parseText(text)` |
-| `Emit.keyword` | `AhoCorasickMatch.keyword` |
-| `Emit.start` / `.end` | `AhoCorasickMatch.start` / `.end` |
-| `trie.containsMatch(text)` | `automaton.containsMatch(text)` |
-| `trie.firstMatch(text)` | `automaton.firstMatch(text)` (leftmost-longest) |
-
-**핵심 차이점**: `firstMatch()`는 이제 leftmost-longest (R5) 규칙을 따릅니다. 구 구현은 오토마톤 상태 머신에서 처음 emit된 결과를 반환했습니다.
