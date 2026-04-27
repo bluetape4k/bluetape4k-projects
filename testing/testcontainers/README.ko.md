@@ -82,6 +82,10 @@ classDiagram
         +withServices() FlociServer (no-op)
         @Deprecated
     }
+    class MiniStackServer {
+        +awsEndpoint: URI
+        +withServices() MiniStackServer (no-op)
+    }
     class ElasticMqServer {
         +sqsEndpoint: URI
         +host: String
@@ -113,6 +117,7 @@ classDiagram
     GenericServer <|-- KafkaServer
     GenericServer <|-- LocalStackServer
     GenericServer <|-- FlociServer
+    GenericServer <|-- MiniStackServer
     GenericServer <|-- MailpitServer
     GenericServer <|-- BluetapeHttpServer
     GenericServer <|-- BluetapeWebfluxServer
@@ -120,6 +125,7 @@ classDiagram
     PostgreSQLServer <|-- PgvectorServer
     AwsEmulatorServer <|.. LocalStackServer
     AwsEmulatorServer <|.. FlociServer
+    AwsEmulatorServer <|.. MiniStackServer
 
     style GenericServer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style AwsEmulatorServer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
@@ -213,6 +219,7 @@ flowchart TD
     subgraph AWS
         LS["LocalStackServer\n(deprecated)"]
         FC["FlociServer\n(S3, DynamoDB, SQS 등)"]
+        MS["MiniStackServer\n(31+ 서비스, 권장)"]
         EMQ["ElasticMqServer\n(임베디드 SQS, JVM)"]
     end
 
@@ -253,7 +260,8 @@ flowchart TD
     class TR sqlStyle
     class WM,NG,BHS,BWS mockStyle
     class LS deprecatedStyle
-    class FC,EMQ awsStyle
+    class FC deprecatedStyle
+    class MS,EMQ awsStyle
     class MP mailStyle
     class CDB,OL llmStyle
 ```
@@ -311,6 +319,7 @@ flowchart TD
 | RabbitMQServer      | `rabbitmq`      | `host`, `port`, `url`, `amqp-url`, `amqp-port`, `amqps-port`, `management-url`      |
 | LocalStackServer    | `localstack`    | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
 | FlociServer         | `floci`         | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
+| MiniStackServer     | `ministack`     | `host`, `port`, `url`, `awsEndpoint`, `awsAccessKey`, `awsSecretKey`, `regionName` |
 | ElasticMqServer     | `elasticmq`     | `host`, `port`, `url`, `sqsEndpoint`                                                |
 | MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
@@ -590,12 +599,28 @@ val client = IgniteClient.builder()
 
 ### AWS 에뮬레이터
 
-`AwsEmulatorServer`는 로컬 AWS 에뮬레이터 공통 인터페이스입니다. `bluetape4k.aws.emulator` 시스템 프로퍼티(`localstack` | `floci`)로 에뮬레이터를 선택합니다.
+`AwsEmulatorServer`는 로컬 AWS 에뮬레이터 공통 인터페이스입니다.
 
 ```kotlin
-// FlociServer — GraalVM Native, 권장
-val floci = FlociServer.Launcher.floci
+// MiniStackServer — MIT 라이선스, 31+ 서비스, 권장
+val miniStack = MiniStackServer.Launcher.miniStack
 val s3Client = S3Client.builder()
+    .endpointOverride(miniStack.awsEndpoint)
+    .credentialsProvider(miniStack.getCredentialProvider())
+    .region(Region.of(miniStack.regionName))
+    .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+    .build()
+
+// MiniStack은 모든 서비스가 항상 활성화 — withServices() 불필요
+val kmsClient = KmsClient.builder()
+    .endpointOverride(miniStack.awsEndpoint)
+    .credentialsProvider(miniStack.getCredentialProvider())
+    .region(Region.of(miniStack.regionName))
+    .build()
+
+// FlociServer — GraalVM Native (@Deprecated)
+val floci = FlociServer.Launcher.floci
+val sqsClient = SqsClient.builder()
     .endpointOverride(floci.awsEndpoint)
     .credentialsProvider(floci.getCredentialProvider())
     .region(Region.of(floci.regionName))
