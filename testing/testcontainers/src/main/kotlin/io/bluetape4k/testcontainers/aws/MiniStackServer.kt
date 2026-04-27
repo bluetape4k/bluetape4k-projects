@@ -164,7 +164,9 @@ class MiniStackServer private constructor(
     /**
      * 시스템 프로퍼티로 export할 key/value 맵을 반환합니다.
      *
-     * 컨테이너가 시작된 이후에 호출되어야 [host], [port]가 유효합니다.
+     * ⚠️ 컨테이너가 시작된 이후에만 호출해야 합니다.
+     * 시작 전 호출 시 [host]/[port] 평가 과정에서 `IllegalStateException`이 발생합니다.
+     * 시작 여부와 무관하게 키 목록만 필요한 경우 [propertyKeys]를 사용하세요.
      */
     override fun properties(): Map<String, String> = mapOf(
         "host" to host,
@@ -202,7 +204,9 @@ class MiniStackServer private constructor(
      * @return 메서드 체이닝을 위한 현재 [MiniStackServer] 인스턴스
      */
     override fun withServices(vararg services: String): MiniStackServer {
-        log.warn { "withServices(${services.toList()}) is a no-op: MiniStack enables all AWS services by default. Service selection is ignored." }
+        if (services.isNotEmpty()) {
+            log.warn { "withServices(${services.toList()}) is a no-op: MiniStack enables all AWS services by default. Service selection is ignored." }
+        }
         return this
     }
 
@@ -229,9 +233,11 @@ class MiniStackServer private constructor(
          * ```
          */
         val miniStack: MiniStackServer by lazy {
+            MiniStackServer.log.debug { "Starting MiniStack singleton container..." }
             MiniStackServer().apply {
                 start()
                 ShutdownQueue.register(this)
+                MiniStackServer.log.debug { "MiniStack singleton started. endpoint=$awsEndpoint" }
             }
         }
     }

@@ -14,6 +14,7 @@ import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
@@ -29,10 +30,15 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
  *
  * MiniStack은 virtual-hosted URL을 지원하지 않을 수 있으므로 path-style access를 사용합니다.
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MiniStackS3Test: AbstractContainerTest() {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private val BUCKET_NAME = "ministack-test-bucket-${System.currentTimeMillis()}"
+        private const val KEY_NAME = "test-object"
+        private const val CONTENT = "hello-ministack-s3"
+    }
 
     private val miniStack: MiniStackServer by lazy { MiniStackServer.Launcher.miniStack }
 
@@ -48,10 +54,6 @@ class MiniStackS3Test: AbstractContainerTest() {
             .apply { ShutdownQueue.register(this) }
     }
 
-    private val bucketName = "ministack-test-bucket-${System.currentTimeMillis()}"
-    private val keyName = "test-object"
-    private val content = "hello-ministack-s3"
-
     @Test
     @Order(1)
     fun `MiniStack S3 서버가 실행 중이어야 한다`() {
@@ -63,10 +65,10 @@ class MiniStackS3Test: AbstractContainerTest() {
     fun `create bucket`() {
         val waiter = s3Client.waiter()
 
-        s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build())
+        s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build())
 
         val waiterResponse = waiter.waitUntilBucketExists(
-            HeadBucketRequest.builder().bucket(bucketName).build()
+            HeadBucketRequest.builder().bucket(BUCKET_NAME).build()
         )
         waiterResponse.matched().exception().ifPresent { ex ->
             throw AssertionError("Bucket creation waiter failed via exception branch", ex)
@@ -81,8 +83,8 @@ class MiniStackS3Test: AbstractContainerTest() {
     @Order(3)
     fun `put object`() {
         val response = s3Client.putObject(
-            PutObjectRequest.builder().bucket(bucketName).key(keyName).build(),
-            RequestBody.fromBytes(content.toUtf8Bytes())
+            PutObjectRequest.builder().bucket(BUCKET_NAME).key(KEY_NAME).build(),
+            RequestBody.fromBytes(CONTENT.toUtf8Bytes())
         )
         log.debug { "eTag=${response.eTag()}" }
         response.eTag().shouldNotBeEmpty()
@@ -92,8 +94,8 @@ class MiniStackS3Test: AbstractContainerTest() {
     @Order(4)
     fun `get object`() {
         val bytes = s3Client.getObjectAsBytes(
-            GetObjectRequest.builder().bucket(bucketName).key(keyName).build()
+            GetObjectRequest.builder().bucket(BUCKET_NAME).key(KEY_NAME).build()
         ).asByteArray()
-        bytes.toUtf8String() shouldBeEqualTo content
+        bytes.toUtf8String() shouldBeEqualTo CONTENT
     }
 }

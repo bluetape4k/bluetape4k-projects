@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.regions.Region
@@ -35,6 +36,7 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
  * - `CreateGrant`, `ListGrants`, `RevokeGrant` 미지원 (Unknown action 400 오류 반환)
  * - 해당 테스트는 `@Disabled`로 표시되어 있으며, 향후 MiniStack 업그레이드 시 재활성화 가능
  */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class MiniStackKMSTest: AbstractContainerTest() {
 
@@ -163,6 +165,7 @@ class MiniStackKMSTest: AbstractContainerTest() {
     fun `create custom alias`() {
         val response = kmsClient.createAlias { it.aliasName(aliasName).targetKeyId(keyId) }
         log.debug { "CreateAlias metadata=${response.responseMetadata()}" }
+        response.sdkHttpResponse().isSuccessful.shouldBeTrue()
     }
 
     @Test

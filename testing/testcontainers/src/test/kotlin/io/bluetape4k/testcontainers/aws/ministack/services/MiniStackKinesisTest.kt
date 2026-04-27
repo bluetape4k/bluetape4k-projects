@@ -108,9 +108,10 @@ class MiniStackKinesisTest: AbstractContainerTest() {
         var currentIterator = shardIterator
         await atMost Duration.ofSeconds(15) until {
             val response = kinesisClient.getRecords { it.shardIterator(currentIterator).limit(10) }
-            currentIterator = response.nextShardIterator() ?: currentIterator
             receivedCount += response.records().size
-            response.records().isNotEmpty()
+            val next = response.nextShardIterator()
+            if (next != null) currentIterator = next
+            receivedCount >= 1 || next == null
         }
         log.debug { "Received $receivedCount records" }
         receivedCount shouldBeGreaterOrEqualTo 1
