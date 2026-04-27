@@ -14,6 +14,7 @@ import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Punctuation
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.ScreenName
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.Space
 import io.bluetape4k.tokenizer.korean.utils.KoreanPos.URL
+import io.bluetape4k.tokenizer.korean.utils.TwitterCompatPatterns
 import io.bluetape4k.tokenizer.korean.utils.isSpaceChar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -60,11 +61,11 @@ object KoreanChunker: KLogging() {
                 """(천|만|억|조)*(%|원|달러|위안|옌|엔|유로|등|년|월|일|회|시간|시|분|초)?)""").toRegex().toPattern(),
         KoreanParticle to """([ㄱ-ㅣ]+)""".toRegex().toPattern(),
         Punctuation to """([\p{Punct}·…’]+)""".toRegex().toPattern(),
-        URL to com.twitter.twittertext.Regex.VALID_URL,
+        URL to TwitterCompatPatterns.VALID_URL,
         Email to """([\p{Alnum}.\-_]+@[\p{Alnum}.]+)""".toRegex().toPattern(),
-        Hashtag to com.twitter.twittertext.Regex.VALID_HASHTAG,
-        ScreenName to com.twitter.twittertext.Regex.VALID_MENTION_OR_LIST,
-        CashTag to com.twitter.twittertext.Regex.VALID_CASHTAG,
+        Hashtag to TwitterCompatPatterns.VALID_HASHTAG,
+        ScreenName to TwitterCompatPatterns.VALID_MENTION_OR_LIST,
+        CashTag to TwitterCompatPatterns.VALID_CASHTAG,
         Space to """\s+""".toRegex().toPattern()
     )
 

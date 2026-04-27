@@ -8,9 +8,7 @@ dependencies {
     api(project(":bluetape4k-tokenizer-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // 한글 분석을 위한 기본적인 통계 정보를 Twitter에서 제공합니다
-    // https://mvnrepository.com/artifact/com.twitter.twittertext/twitter-text
-    api("com.twitter.twittertext:twitter-text:3.1.0")
+    // twitter-text 의존성 제거: VALID_URL/HASHTAG/MENTION/CASHTAG 패턴은 TwitterCompatPatterns.kt 에서 내부 구현
     // Benchmark 비교를 위해
     testImplementation("org.openkoreantext:open-korean-text:2.3.1")
 
@@ -20,7 +18,7 @@ dependencies {
 
     // Collections
     implementation(Libs.commons_collections4)
-    api(Libs.eclipse_collections)
+    implementation(Libs.eclipse_collections)
     implementation(Libs.eclipse_collections_forkjoin)
     testImplementation(Libs.eclipse_collections_testutils)
 }
