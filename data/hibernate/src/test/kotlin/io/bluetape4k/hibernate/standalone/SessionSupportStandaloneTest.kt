@@ -12,6 +12,7 @@ import io.bluetape4k.hibernate.save
 import io.bluetape4k.hibernate.withBatchSize
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -88,7 +89,7 @@ class SessionSupportStandaloneTest : AbstractStandaloneHibernateTest() {
                 save(StandaloneEntity("batch-1"))
                 save(StandaloneEntity("batch-2"))
             }
-            executed.shouldNotBeNull()
+            executed.shouldBeTrue()
         }
 
         inTransaction {

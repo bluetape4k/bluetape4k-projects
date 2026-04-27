@@ -14,8 +14,10 @@ import org.apache.commons.math3.linear.RealMatrix
 import org.apache.commons.math3.linear.RealVector
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.EOFException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.StreamCorruptedException
 
 /**
  * 지정한 차원의 대각행렬을 생성합니다.
@@ -207,6 +209,12 @@ fun RealVector.toByteArray(): ByteArray {
     }
 }
 
+/** 역직렬화 허용 최대 벡터 차원 — 이 초과 시 OOM 가능 */
+private const val MAX_VECTOR_DIMENSION = 10_000_000
+
+/** 역직렬화 허용 최대 행렬 행/열 수 — 이 초과 시 OOM 가능 */
+private const val MAX_MATRIX_DIMENSION = 10_000
+
 /**
  * 바이트 배열을 [RealVector]로 역직렬화합니다.
  * [toByteArray]로 직렬화된 바이트 배열만 지원합니다.
@@ -217,13 +225,21 @@ fun RealVector.toByteArray(): ByteArray {
  * ```
  */
 fun ByteArray.toRealVector(): RealVector {
-    return ByteArrayInputStream(this).use { bis ->
-        ObjectInputStream(bis).use { ois ->
-            val n = ois.readInt()
-            require(n >= 0) { "올바르지 않은 벡터 차원: $n" }
-            val data = DoubleArray(n) { ois.readDouble() }
-            MatrixUtils.createRealVector(data)
+    return try {
+        ByteArrayInputStream(this).use { bis ->
+            ObjectInputStream(bis).use { ois ->
+                val n = ois.readInt()
+                require(n in 0..MAX_VECTOR_DIMENSION) {
+                    "올바르지 않은 벡터 차원: $n (허용 범위: 0..$MAX_VECTOR_DIMENSION)"
+                }
+                val data = DoubleArray(n) { ois.readDouble() }
+                MatrixUtils.createRealVector(data)
+            }
         }
+    } catch (e: StreamCorruptedException) {
+        throw IllegalArgumentException("RealVector 역직렬화 실패: 올바르지 않은 ObjectStream 헤더 (크기: ${this.size})", e)
+    } catch (e: EOFException) {
+        throw IllegalArgumentException("RealVector 역직렬화 실패: 바이트 배열이 잘렸습니다 (크기: ${this.size})", e)
     }
 }
 
@@ -260,14 +276,22 @@ fun RealMatrix.toByteArray(): ByteArray {
  * ```
  */
 fun ByteArray.toRealMatrix(): RealMatrix {
-    return ByteArrayInputStream(this).use { bis ->
-        ObjectInputStream(bis).use { ois ->
-            val n = ois.readInt()
-            val m = ois.readInt()
-            require(n >= 0 && m >= 0) { "올바르지 않은 행렬 차원: ${n}x${m}" }
-            val data = Array(n) { DoubleArray(m) { ois.readDouble() } }
-            MatrixUtils.createRealMatrix(data)
+    return try {
+        ByteArrayInputStream(this).use { bis ->
+            ObjectInputStream(bis).use { ois ->
+                val n = ois.readInt()
+                val m = ois.readInt()
+                require(n in 0..MAX_MATRIX_DIMENSION && m in 0..MAX_MATRIX_DIMENSION) {
+                    "올바르지 않은 행렬 차원: ${n}x${m} (허용 범위: 0..$MAX_MATRIX_DIMENSION)"
+                }
+                val data = Array(n) { DoubleArray(m) { ois.readDouble() } }
+                MatrixUtils.createRealMatrix(data)
+            }
         }
+    } catch (e: StreamCorruptedException) {
+        throw IllegalArgumentException("RealMatrix 역직렬화 실패: 올바르지 않은 ObjectStream 헤더 (크기: ${this.size})", e)
+    } catch (e: EOFException) {
+        throw IllegalArgumentException("RealMatrix 역직렬화 실패: 바이트 배열이 잘렸습니다 (크기: ${this.size})", e)
     }
 }
 
