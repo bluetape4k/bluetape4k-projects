@@ -3,7 +3,6 @@ package io.bluetape4k.math.geometry.euclidean
 import io.bluetape4k.logging.KLogging
 import org.amshove.kluent.shouldBeNear
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
-import kotlin.math.PI
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 

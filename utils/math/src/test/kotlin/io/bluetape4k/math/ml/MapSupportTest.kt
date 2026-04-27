@@ -4,12 +4,14 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.ml.distance.DistanceMeasureMethod
 import io.bluetape4k.math.ml.neuralnet.computeHitHistogram
 import io.bluetape4k.math.ml.neuralnet.computeQuantizationError
+import io.bluetape4k.math.ml.neuralnet.computeTopographicError
 import io.bluetape4k.math.ml.neuralnet.computeU
 import io.bluetape4k.math.ml.neuralnet.findBest
 import io.bluetape4k.math.ml.neuralnet.findBestAndSecondBest
 import io.bluetape4k.math.ml.neuralnet.sort
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.commons.math3.ml.neuralnet.FeatureInitializerFactory
 import org.apache.commons.math3.ml.neuralnet.SquareNeighbourhood
@@ -100,5 +102,17 @@ class MapSupportTest {
         // 각 데이터 포인트는 정확히 하나의 뉴런에 매핑되므로 합계 == data.size
         val totalHits = histogram.sumOf { row -> row.sum() }
         totalHits shouldBeEqualTo data.size
+    }
+
+    @Test
+    fun `computeTopographicError는 위상 오차를 0과 1 사이 값으로 반환한다`() {
+        val data = listOf(
+            doubleArrayOf(0.1, 0.1),
+            doubleArrayOf(0.9, 0.9),
+            doubleArrayOf(0.5, 0.5),
+            doubleArrayOf(0.2, 0.8)
+        )
+        val error = mesh.network.computeTopographicError(data, distance)
+        error shouldBeInRange 0.0..1.0
     }
 }

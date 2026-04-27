@@ -84,6 +84,16 @@ class DistanceMeasureMethodTest {
     }
 
     @Test
+    fun `빈 문자열은 null을 반환한다`() {
+        DistanceMeasureMethod.parse("").shouldBeNull()
+    }
+
+    @Test
+    fun `공백 문자열은 null을 반환한다`() {
+        DistanceMeasureMethod.parse("   ").shouldBeNull()
+    }
+
+    @Test
     fun `동일한 점 사이의 거리는 0이다`() {
         val a = doubleArrayOf(1.0, 2.0, 3.0)
         DistanceMeasureMethod.Euclidean.compute(a, a).shouldBeNear(0.0, 1e-10)

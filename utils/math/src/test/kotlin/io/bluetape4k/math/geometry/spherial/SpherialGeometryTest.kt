@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.geometry.euclidean.vector3DOf
 import io.bluetape4k.math.geometry.spherial.oned.arcOf
 import io.bluetape4k.math.geometry.spherial.oned.arcsSetOf
+import io.bluetape4k.math.geometry.spherial.oned.buildArcsSet
 import io.bluetape4k.math.geometry.spherial.oned.toS1Point
 import io.bluetape4k.math.geometry.spherial.twod.circleOf
 import io.bluetape4k.math.geometry.spherial.twod.circlrOf
@@ -44,6 +45,15 @@ class SpherialGeometryTest {
         arcsSet.size.shouldBeNear(PI, 1e-10)
     }
 
+    @Test
+    fun `BSPTree로부터 ArcsSet을 생성할 수 있다`() {
+        val source = arcsSetOf(lower = 0.0, upper = PI, tolerance = 1e-10)
+        val tree = source.getTree(false)
+        val arcsSet = tree.buildArcsSet(tolerance = 1e-10)
+        arcsSet.shouldNotBeNull()
+        arcsSet.size.shouldBeNear(PI, 1e-10)
+    }
+
     // --- S1Point ---
 
     @Test
@@ -64,13 +74,17 @@ class SpherialGeometryTest {
     fun `theta, phi로 구면 2D 점을 생성할 수 있다`() {
         val point = s2PointOf(theta = 0.0, phi = PI / 2)
         point.shouldNotBeNull()
+        point.theta.shouldBeNear(0.0, 1e-10)
+        point.phi.shouldBeNear(PI / 2, 1e-10)
     }
 
     @Test
     fun `3D 벡터를 구면 2D 점으로 변환할 수 있다`() {
+        // (0, 0, 1) → north pole: phi = 0
         val v = Vector3D(0.0, 0.0, 1.0)
         val point = v.toS2Point()
         point.shouldNotBeNull()
+        point.phi.shouldBeNear(0.0, 1e-10)
     }
 
     // --- Circle (S2D) ---
