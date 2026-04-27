@@ -1,8 +1,12 @@
 package io.bluetape4k.images.analysis
 
 import com.sksamuel.scrimage.ImmutableImage
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+private val log = KotlinLogging.logger {}
 
 /**
  * 이미지에서 추출된 대표 색상.
@@ -101,7 +105,12 @@ fun ImmutableImage.dominantColors(
     extractor: DominantColorExtractor = DominantColorExtractor.medianCut(),
 ): List<DominantColor> {
     require(count >= 1) { "count는 1 이상이어야 합니다. 입력: $count" }
-    return extractor.extract(this, count)
+    return try {
+        extractor.extract(this, count)
+    } catch (e: Exception) {
+        log.warn(e) { "대표 색상 추출 실패 (size=${width}x${height}, count=$count)" }
+        emptyList()
+    }
 }
 
 /**

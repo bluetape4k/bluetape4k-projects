@@ -8,10 +8,12 @@ import com.drew.metadata.exif.GpsDirectory
 import com.drew.metadata.jpeg.JpegDirectory
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -98,9 +100,12 @@ fun readExif(bytes: ByteArray): ExifData {
     require(bytes.size <= 50 * 1024 * 1024) {
         "이미지 바이트 배열이 50MB를 초과합니다: ${bytes.size} bytes"
     }
-    return runCatching {
+    return try {
         ImageMetadataReader.readMetadata(ByteArrayInputStream(bytes)).toExifData()
-    }.getOrElse { e ->
+    } catch (e: IOException) {
+        log.warn(e) { "EXIF 읽기 I/O 오류 (ByteArray ${bytes.size} bytes)" }
+        ExifData.EMPTY
+    } catch (e: Exception) {
         log.debug(e) { "EXIF 파싱 실패 (ByteArray ${bytes.size} bytes)" }
         ExifData.EMPTY
     }
@@ -114,9 +119,12 @@ fun readExif(bytes: ByteArray): ExifData {
  * @return EXIF 데이터. EXIF 없거나 파싱 실패 시 [ExifData.EMPTY].
  */
 fun File.readExif(): ExifData =
-    runCatching {
+    try {
         ImageMetadataReader.readMetadata(this).toExifData()
-    }.getOrElse { e ->
+    } catch (e: IOException) {
+        log.warn(e) { "EXIF 읽기 I/O 오류: $absolutePath" }
+        ExifData.EMPTY
+    } catch (e: Exception) {
         log.debug(e) { "EXIF 파싱 실패: $absolutePath" }
         ExifData.EMPTY
     }
@@ -129,10 +137,10 @@ fun File.readExif(): ExifData =
  * @return EXIF 데이터. EXIF 없거나 파싱 실패 시 [ExifData.EMPTY].
  */
 fun Path.readExif(): ExifData =
-    runCatching {
+    try {
         Files.newInputStream(this).use { it.readExif() }
-    }.getOrElse { e ->
-        log.debug(e) { "EXIF 파싱 실패: $this" }
+    } catch (e: IOException) {
+        log.warn(e) { "EXIF 파일 열기 실패: $this" }
         ExifData.EMPTY
     }
 
@@ -144,9 +152,12 @@ fun Path.readExif(): ExifData =
  * @return EXIF 데이터. EXIF 없거나 파싱 실패 시 [ExifData.EMPTY].
  */
 fun InputStream.readExif(): ExifData =
-    runCatching {
+    try {
         ImageMetadataReader.readMetadata(this).toExifData()
-    }.getOrElse { e ->
+    } catch (e: IOException) {
+        log.warn(e) { "EXIF 읽기 I/O 오류 (InputStream)" }
+        ExifData.EMPTY
+    } catch (e: Exception) {
         log.debug(e) { "EXIF 파싱 실패 (InputStream)" }
         ExifData.EMPTY
     }
@@ -169,61 +180,67 @@ suspend fun Path.suspendReadExif(): ExifData =
 
 // ─── 내부 변환 ───────────────────────────────────────────────────────────────
 
+private inline fun <T> runCatchingDebug(tag: String, block: () -> T?): T? =
+    runCatching(block).getOrElse { e ->
+        log.debug(e) { "EXIF 필드 파싱 실패: $tag" }
+        null
+    }
+
 private fun Metadata.toExifData(): ExifData {
     val ifd0 = getFirstDirectoryOfType(ExifIFD0Directory::class.java)
     val subIfd = getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
     val gps = getFirstDirectoryOfType(GpsDirectory::class.java)
     val jpeg = getFirstDirectoryOfType(JpegDirectory::class.java)
 
-    val geoLocation = runCatching { gps?.geoLocation }.getOrNull()
+    val geoLocation = runCatchingDebug("gps.geoLocation") { gps?.geoLocation }
 
     return ExifData(
         gpsLatitude = geoLocation?.latitude,
         gpsLongitude = geoLocation?.longitude,
-        gpsAltitude = runCatching {
+        gpsAltitude = runCatchingDebug("gpsAltitude") {
             gps?.getRational(GpsDirectory.TAG_ALTITUDE)?.toDouble()
-        }.getOrNull(),
-        dateTimeOriginal = runCatching {
+        },
+        dateTimeOriginal = runCatchingDebug("dateTimeOriginal") {
             subIfd?.getString(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)
                 ?.let { LocalDateTime.parse(it.trim(), EXIF_DATE_FORMATTER) }
-        }.getOrNull(),
-        cameraMake = runCatching { ifd0?.getString(ExifIFD0Directory.TAG_MAKE)?.trim() }.getOrNull(),
-        cameraModel = runCatching { ifd0?.getString(ExifIFD0Directory.TAG_MODEL)?.trim() }.getOrNull(),
-        lensModel = runCatching {
+        },
+        cameraMake = runCatchingDebug("cameraMake") { ifd0?.getString(ExifIFD0Directory.TAG_MAKE)?.trim() },
+        cameraModel = runCatchingDebug("cameraModel") { ifd0?.getString(ExifIFD0Directory.TAG_MODEL)?.trim() },
+        lensModel = runCatchingDebug("lensModel") {
             subIfd?.getString(ExifSubIFDDirectory.TAG_LENS_MODEL)?.trim()
-        }.getOrNull(),
-        iso = runCatching {
+        },
+        iso = runCatchingDebug("iso") {
             subIfd?.getInteger(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT)
-        }.getOrNull(),
-        shutterSpeed = runCatching {
+        },
+        shutterSpeed = runCatchingDebug("shutterSpeed") {
             subIfd?.getRational(ExifSubIFDDirectory.TAG_EXPOSURE_TIME)
                 ?.let { "${it.numerator}/${it.denominator}" }
-        }.getOrNull(),
-        aperture = runCatching {
+        },
+        aperture = runCatchingDebug("aperture") {
             subIfd?.getRational(ExifSubIFDDirectory.TAG_FNUMBER)?.toDouble()
-        }.getOrNull(),
-        focalLength = runCatching {
+        },
+        focalLength = runCatchingDebug("focalLength") {
             subIfd?.getRational(ExifSubIFDDirectory.TAG_FOCAL_LENGTH)?.toDouble()
-        }.getOrNull(),
-        focalLength35mm = runCatching {
+        },
+        focalLength35mm = runCatchingDebug("focalLength35mm") {
             subIfd?.getInteger(ExifSubIFDDirectory.TAG_35MM_FILM_EQUIV_FOCAL_LENGTH)
-        }.getOrNull(),
-        orientation = runCatching {
+        },
+        orientation = runCatchingDebug("orientation") {
             ifd0?.getInteger(ExifIFD0Directory.TAG_ORIENTATION)
-        }.getOrNull(),
-        width = runCatching {
+        },
+        width = runCatchingDebug("width") {
             jpeg?.getInteger(JpegDirectory.TAG_IMAGE_WIDTH)
                 ?: subIfd?.getInteger(ExifSubIFDDirectory.TAG_EXIF_IMAGE_WIDTH)
-        }.getOrNull(),
-        height = runCatching {
+        },
+        height = runCatchingDebug("height") {
             jpeg?.getInteger(JpegDirectory.TAG_IMAGE_HEIGHT)
                 ?: subIfd?.getInteger(ExifSubIFDDirectory.TAG_EXIF_IMAGE_HEIGHT)
-        }.getOrNull(),
-        flashFired = runCatching {
+        },
+        flashFired = runCatchingDebug("flashFired") {
             subIfd?.getInteger(ExifSubIFDDirectory.TAG_FLASH)?.let { it and 0x1 == 1 }
-        }.getOrNull(),
-        whiteBalance = runCatching {
+        },
+        whiteBalance = runCatchingDebug("whiteBalance") {
             subIfd?.getDescription(ExifSubIFDDirectory.TAG_WHITE_BALANCE)?.trim()
-        }.getOrNull(),
+        },
     )
 }
