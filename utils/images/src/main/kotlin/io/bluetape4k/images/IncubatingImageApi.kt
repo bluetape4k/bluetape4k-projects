@@ -21,7 +21,12 @@ package io.bluetape4k.images
 @Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.CLASS,
+    AnnotationTarget.ANNOTATION_CLASS,
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.TYPEALIAS,
 )
 annotation class IncubatingImageApi

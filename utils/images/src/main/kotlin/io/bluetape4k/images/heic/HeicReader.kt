@@ -22,6 +22,10 @@ data class HeicReadOptions(
     val pageIndex: Int = 0,
     val applyOrientation: Boolean = true,
 ) {
+    init {
+        require(pageIndex >= 0) { "pageIndex must be non-negative: $pageIndex" }
+    }
+
     companion object {
         @JvmStatic
         val Default = HeicReadOptions()

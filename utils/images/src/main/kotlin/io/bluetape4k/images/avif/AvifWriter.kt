@@ -22,6 +22,10 @@ data class AvifEncodeOptions(
     val quality: Float = 0.85f,
     val lossless: Boolean = false,
 ) {
+    init {
+        require(quality in 0.0f..1.0f) { "quality must be in 0.0..1.0: $quality" }
+    }
+
     companion object {
         @JvmStatic
         val Default = AvifEncodeOptions()

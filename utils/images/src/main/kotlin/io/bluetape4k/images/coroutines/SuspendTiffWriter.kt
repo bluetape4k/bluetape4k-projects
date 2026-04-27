@@ -5,6 +5,9 @@ import com.sksamuel.scrimage.metadata.ImageMetadata
 import com.sksamuel.scrimage.nio.ImageWriter
 import io.bluetape4k.images.IIORegistryUtils
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
 import javax.imageio.IIOImage
 import javax.imageio.ImageIO
 import javax.imageio.ImageTypeSpecifier
@@ -22,7 +25,7 @@ import java.io.OutputStream
  * - `compression`은 [TiffCompression] 중 하나를 선택합니다. 기본값은 [TiffCompression.DEFLATE]입니다.
  * - `quality`는 0.0 ~ 1.0 범위의 Float로, [TiffCompression.JPEG] 압축 시에만 적용됩니다.
  * - 초기화 시 TwelveMonkeys TIFF SPI를 IIORegistry에 강제 등록합니다.
- * - [SuspendImageWriter.suspendWrite]는 [kotlinx.coroutines.Dispatchers.IO] 컨텍스트에서 실행됩니다.
+ * - [SuspendImageWriter.suspendWrite]는 [Dispatchers.IO] + [runInterruptible]로 실행되어 코루틴 취소를 전파합니다.
  *
  * ```kotlin
  * val writer = SuspendTiffWriter.Default
@@ -66,14 +69,23 @@ class SuspendTiffWriter(
     }
 
     /**
+     * Coroutines 방식으로 [image]를 TIFF 형식으로 [out]에 씁니다.
+     *
+     * [runInterruptible]로 래핑되어 코루틴 취소를 전파합니다.
+     */
+    override suspend fun suspendWrite(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
+        runInterruptible(Dispatchers.IO) { write(image, metadata, out) }
+    }
+
+    /**
      * [image]를 TIFF 형식으로 [out]에 씁니다. (블로킹 구현)
      *
      * ## 동작/계약
-     * - TwelveMonkeys ImageIO TIFF writer가 없는 경우 [NoSuchElementException]을 발생시킵니다.
+     * - TwelveMonkeys ImageIO TIFF writer가 없는 경우 [IllegalStateException]을 발생시킵니다.
      * - writer는 `finally` 블록에서 반드시 [javax.imageio.ImageWriter.dispose]됩니다.
      *
      * @throws java.io.IOException TIFF 쓰기 실패 시
-     * @throws NoSuchElementException TwelveMonkeys TIFF writer를 찾을 수 없는 경우
+     * @throws IllegalStateException TwelveMonkeys TIFF writer를 찾을 수 없는 경우
      */
     override fun write(image: AwtImage, metadata: ImageMetadata, out: OutputStream) {
         val type = ImageTypeSpecifier.createFromBufferedImageType(image.awt().type)
@@ -99,8 +111,16 @@ class SuspendTiffWriter(
             writer.write(null, IIOImage(image.awt(), null, null), param)
             ios.flush()
         } finally {
-            writer.dispose()
-            ios.close()
+            // dispose()가 예외를 던져도 ios.close()가 반드시 실행되도록 분리
+            // CancellationException은 반드시 재전파하여 코루틴 취소 계약을 보존
+            try { writer.dispose() } catch (e: Throwable) {
+                if (e is CancellationException) throw e
+                log.warn("TIFF writer.dispose() 실패", e)
+            }
+            try { ios.close() } catch (e: Throwable) {
+                if (e is CancellationException) throw e
+                log.warn("TIFF ios.close() 실패", e)
+            }
         }
     }
 }

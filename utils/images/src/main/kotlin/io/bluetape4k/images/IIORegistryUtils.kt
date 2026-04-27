@@ -27,7 +27,7 @@ object IIORegistryUtils {
      * ```
      */
     fun registerApplicationClasspathSpis() {
-        IIORegistry.getDefaultInstance().registerApplicationClasspathSpis()
+        registry.registerApplicationClasspathSpis()
     }
 
     /**
@@ -67,7 +67,7 @@ object IIORegistryUtils {
      * @return [ImageReaderSpi] 목록
      */
     fun getImageReaderSpis(): List<ImageReaderSpi> {
-        return getServiceProviders<ImageReaderSpi>().toList()
+        return getServiceProviders<ImageReaderSpi>()
     }
 
     /**
@@ -81,7 +81,7 @@ object IIORegistryUtils {
      * @return [ImageWriterSpi] 목록
      */
     fun getImageWriterSpis(): List<ImageWriterSpi> {
-        return getServiceProviders<ImageWriterSpi>().toList()
+        return getServiceProviders<ImageWriterSpi>()
     }
 
     /**
