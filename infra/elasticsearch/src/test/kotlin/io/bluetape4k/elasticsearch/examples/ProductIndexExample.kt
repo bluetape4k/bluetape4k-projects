@@ -68,13 +68,13 @@ class ProductIndexExample : AbstractElasticsearchTest() {
     private lateinit var indexName: String
 
     @BeforeEach
-    fun setUp() = runTest(timeout = 30.seconds) {
+    fun setUp() = runTest(timeout = 60.seconds) {
         indexName = ElasticsearchTestFixtures.randomIndexName("product-example")
         asyncClient.createTestIndex(indexName).await()
     }
 
     @AfterEach
-    fun tearDown() = runTest(timeout = 30.seconds) {
+    fun tearDown() = runTest(timeout = 60.seconds) {
         runCatching { asyncClient.deleteTestIndex(indexName).await() }
     }
 
