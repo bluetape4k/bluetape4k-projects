@@ -19,6 +19,8 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager
  * @return [MinimalHttpClient]
  */
 fun minimalHttpClientOf(
-    connManager: HttpClientConnectionManager = defaultHttpClientConnectionManager,
+    // MinimalHttpClient 은 setConnectionManagerShared() API 미지원 →
+    // 호출마다 독립 CM 생성하여 소유권(lifecycle)을 client 가 갖도록 함
+    connManager: HttpClientConnectionManager = httpClientConnectionManager {},
 ): MinimalHttpClient =
     HttpClients.createMinimal(connManager)

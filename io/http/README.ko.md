@@ -463,7 +463,28 @@ dependencies {
 ```bash
 # HTTP 모듈 테스트 실행
 ./gradlew :bluetape4k-http:test
+
+# 라인 커버리지 확인
+./gradlew :bluetape4k-http:koverLog
 ```
+
+### 테스트 커버리지
+
+라인 커버리지: **72%** (목표: ≥ 70%)
+
+| 패키지 | 커버리지 | 테스트 클래스 |
+|--------|----------|---------------|
+| `hc5/async` | ✅ | `AsyncHttpClientTest`, `AsyncHttpClientCoroutinesTest`, `MinimalHttpAsyncClientTest` |
+| `hc5/async/methods` | ✅ | `SimpleHttpRequestTest`, `SimpleHttpResponseTest`, `AsyncMethodsTest` |
+| `hc5/cache` | ✅ | `CachingHttpClientBuilderTest`, `CachingHttpAsyncClientBuilderTest` |
+| `hc5/classic` | ✅ | `ClassicHttpClientTest`, `MinimalAndVirtualThreadHttpClientTest` |
+| `hc5/fluent` | ✅ | `RequestTest` |
+| `hc5/http` | ✅ | `ContextBuilderTest`, `CookieSpecSupportTest`, `PoolingHttpClientConnectionManagerBuilderTest`, `BasicRequestProducerTest` |
+| `hc5/protocol` | ✅ | `HttpClientContextTest` |
+| `hc5/routing` | ✅ | `RoutingSupportTest` |
+| `hc5/ssl` | ✅ | `SslSupportTest` |
+| `jdk` | ✅ | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest` |
+| `okhttp3` | ✅ | 다수의 테스트 |
 
 ## 참고
 

@@ -442,7 +442,30 @@ dependencies {
 ```bash
 # Run HTTP module tests
 ./gradlew :bluetape4k-http:test
+
+# Check line coverage
+./gradlew :bluetape4k-http:koverLog
 ```
+
+### Test Coverage
+
+Line coverage: **72%** (target: ≥ 70%)
+
+Covered packages:
+
+| Package | Coverage | Tests |
+|---------|----------|-------|
+| `hc5/async` | ✅ | `AsyncHttpClientTest`, `AsyncHttpClientCoroutinesTest`, `MinimalHttpAsyncClientTest` |
+| `hc5/async/methods` | ✅ | `SimpleHttpRequestTest`, `SimpleHttpResponseTest`, `AsyncMethodsTest` |
+| `hc5/cache` | ✅ | `CachingHttpClientBuilderTest`, `CachingHttpAsyncClientBuilderTest` |
+| `hc5/classic` | ✅ | `ClassicHttpClientTest`, `MinimalAndVirtualThreadHttpClientTest` |
+| `hc5/fluent` | ✅ | `RequestTest` |
+| `hc5/http` | ✅ | `ContextBuilderTest`, `CookieSpecSupportTest`, `PoolingHttpClientConnectionManagerBuilderTest`, `BasicRequestProducerTest` |
+| `hc5/protocol` | ✅ | `HttpClientContextTest` |
+| `hc5/routing` | ✅ | `RoutingSupportTest` |
+| `hc5/ssl` | ✅ | `SslSupportTest` |
+| `jdk` | ✅ | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest` |
+| `okhttp3` | ✅ | Multiple tests |
 
 ## References
 

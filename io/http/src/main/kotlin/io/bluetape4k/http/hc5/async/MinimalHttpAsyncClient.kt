@@ -56,7 +56,9 @@ fun minimalHttpAsyncClientOf(
     h2config: H2Config = H2Config.DEFAULT,
     h1config: Http1Config = Http1Config.DEFAULT,
     ioReactorConfig: IOReactorConfig = IOReactorConfig.DEFAULT,
-    connMgr: AsyncClientConnectionManager = defaultAsyncClientConnectionManager,
+    // MinimalHttpAsyncClient 은 setConnectionManagerShared() API 미지원 →
+    // 호출마다 독립 CM 생성하여 소유권(lifecycle)을 client 가 갖도록 함
+    connMgr: AsyncClientConnectionManager = asyncClientConnectionManager {},
 ): MinimalHttpAsyncClient {
     return HttpAsyncClients.createMinimal(h2config, h1config, ioReactorConfig, connMgr)
 }
