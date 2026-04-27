@@ -13,7 +13,7 @@ import org.testcontainers.utility.DockerImageName
 import java.net.URI
 
 /**
- * [Floci](https://github.com/atlassian-labs/floci) AWS 에뮬레이터 서버.
+ * [Floci](https://github.com/floci-io/floci) AWS 에뮬레이터 서버.
  *
  * GraalVM Native Image로 빌드된 경량 AWS 에뮬레이터입니다.
  * LocalStack Community edition archived(2026-03-23) 이후의 대안으로 활용할 수 있습니다.
@@ -39,7 +39,7 @@ import java.net.URI
  * val region: String = server.regionName
  * ```
  *
- * 참고: [Floci Docker image](https://hub.docker.com/r/floci/floci/tags)
+ * 참고: [Floci GitHub](https://github.com/floci-io/floci) · [Docker image](https://hub.docker.com/r/floci/floci/tags)
  *
  * @param imageName      Docker 이미지 이름 ([DockerImageName])
  * @param useDefaultPort Default 포트(4566)를 고정 바인딩할지 여부
@@ -60,7 +60,7 @@ class FlociServer private constructor(
         const val IMAGE = "floci/floci"
 
         /** Floci Docker 이미지 기본 태그 */
-        const val TAG = "1.5.7"
+        const val TAG = "1.5.8"
 
         /** PropertyExportingServer 네임스페이스 및 컨테이너 식별자 */
         const val NAME = "floci"
