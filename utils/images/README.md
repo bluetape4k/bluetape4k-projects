@@ -2,7 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-A library for loading, converting, resizing, splitting, and applying filters to images in formats such as JPG, PNG, GIF, and WebP. Built on the [Scrimage](https://github.com/sksamuel/scrimage) library with asynchronous image processing via Coroutines.
+A library for loading, converting, resizing, splitting, and applying filters to images in formats such as JPG, PNG, GIF, WebP, and **TIFF/SVG** (Issue #134). Built on the [Scrimage](https://github.com/sksamuel/scrimage) library with asynchronous image processing via Coroutines. AVIF and HEIC are provided as incubating interfaces (implementations in `bluetape4k-images-vips`).
 
 ## Architecture
 
@@ -36,6 +36,9 @@ flowchart LR
         WEBP["SuspendWebpWriter<br/>(best compression)"]
         GIF["SuspendGifWriter<br/>(animated)"]
         ANIM["SuspendGif2WebpWriter<br/>(GIF→WebP)"]
+        TIFF["SuspendTiffWriter<br/>(single-page)"]
+        TIFFM["SuspendTiffMultiPageWriter<br/>(multi-page)"]
+        SVG["BatikSvgRasterizer<br/>(SVG→raster)"]
     end
 
     Input --> Processing
@@ -52,7 +55,7 @@ flowchart LR
     class BA,IS,FILE dataStyle
     class II,BI coreStyle
     class SC,SP,WM,CP,PD utilStyle
-    class JPG,PNG,WEBP,GIF,ANIM asyncStyle
+    class JPG,PNG,WEBP,GIF,ANIM,TIFF,TIFFM,SVG asyncStyle
 ```
 
 ### Class Diagram
@@ -165,15 +168,21 @@ classDiagram
 
 ### Supported Image Formats
 
-| Format | File Size (example) | Processing Time (example) | Notes                    |
-|--------|---------------------|---------------------------|--------------------------|
-| PNG    | 6.45 MB             | 569 ms                    | Lossless, transparency   |
-| GIF    | 1.21 MB             | 2,888 ms                  | Animation support        |
-| JPG    | 417 kB              | 157 ms                    | Fast, lossy              |
-| WEBP   | 181 kB              | 913 ms                    | Best compression, modern |
+| Format | Writer/Reader                    | Notes                                                         |
+|--------|----------------------------------|---------------------------------------------------------------|
+| PNG    | `SuspendPngWriter`               | Lossless, transparency                                        |
+| GIF    | `SuspendGifWriter`               | Animation support                                             |
+| JPG    | `SuspendJpegWriter`              | Fast, lossy                                                   |
+| WEBP   | `SuspendWebpWriter`              | Best compression, modern                                      |
+| TIFF   | `SuspendTiffWriter` / `SuspendTiffMultiPageWriter` | Multi-page, multiple compression modes (DEFLATE/LZW/NONE/JPEG) |
+| SVG    | `BatikSvgRasterizer`             | Rasterize to PNG/JPEG; XXE/SSRF-safe by default               |
+| AVIF   | `AvifWriter` *(incubating)*      | Interface only; implementation in `bluetape4k-images-vips`    |
+| HEIC   | `HeicReader` *(incubating)*      | Interface only; implementation in `bluetape4k-images-vips`    |
 
 - **Dynamic generation**: JPG is fastest (for real-time processing)
 - **Static files**: WebP is most efficient (saves storage)
+- **Document imaging**: TIFF multi-page support for archival workflows
+- **Vector graphics**: SVG rasterization via Batik (opt-in dependency)
 
 ### Key Files
 
@@ -209,12 +218,22 @@ classDiagram
 | `filters/RoundedCornerFilter.kt`               | Rounded corner alpha mask filter         |
 | `filters/ColorSpaceConverter.kt`               | RGB/HSV/YCbCr/Kelvin color space conversion |
 | `coroutines/SuspendImageWriter.kt`             | Async image writer interface             |
+| `coroutines/SuspendMultiPageImageWriter.kt`    | Async multi-page writer interface        |
 | `coroutines/SuspendJpegWriter.kt`              | Async JPEG writer                        |
 | `coroutines/SuspendPngWriter.kt`               | Async PNG writer                         |
 | `coroutines/SuspendGifWriter.kt`               | Async GIF writer                         |
 | `coroutines/SuspendWebpWriter.kt`              | Async WebP writer                        |
+| `coroutines/SuspendTiffWriter.kt`              | Async TIFF writer (single-page, TwelveMonkeys) |
+| `coroutines/SuspendTiffMultiPageWriter.kt`     | Async TIFF multi-page writer             |
+| `coroutines/TiffCompression.kt`                | TIFF compression modes (DEFLATE/LZW/NONE/PACKBITS/JPEG) |
 | `coroutines/animated/SuspendGif2WebpWriter.kt` | GIF → WebP conversion writer             |
 | `coroutines/animated/AnimatedGifExtensions.kt` | AnimatedGif extensions                   |
+| `svg/SuspendSvgRasterizer.kt`                  | SVG rasterizer interface                 |
+| `svg/BatikSvgRasterizer.kt`                    | SVG rasterizer (Apache Batik, XXE-safe)  |
+| `svg/SvgRasterizeOptions.kt`                   | SVG rasterization options                |
+| `avif/AvifWriter.kt`                           | AVIF writer interface *(incubating)*     |
+| `heic/HeicReader.kt`                           | HEIC reader interface *(incubating)*     |
+| `IncubatingImageApi.kt`                        | `@RequiresOptIn` marker for incubating APIs |
 
 ## Usage Examples
 
@@ -281,6 +300,57 @@ image.suspendWrite(SuspendWebpWriter.Default, Paths.get("output.webp"))
 // Convert to ByteArray
 val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
+```
+
+### TIFF Support (Issue #134)
+
+```kotlin
+import io.bluetape4k.images.coroutines.*
+import java.io.ByteArrayOutputStream
+
+val image = immutableImageOf(File("photo.jpg"))
+
+// Single-page TIFF (DEFLATE compression by default)
+val writer = SuspendTiffWriter.Default
+val bos = ByteArrayOutputStream()
+writer.suspendWrite(image, bos)
+
+// LZW compression
+val lzwWriter = SuspendTiffWriter.Lzw
+val bos2 = ByteArrayOutputStream()
+lzwWriter.suspendWrite(image, bos2)
+
+// Multi-page TIFF
+val pages = listOf(page1, page2, page3)
+val multiWriter = SuspendTiffMultiPageWriter.Default
+val bos3 = ByteArrayOutputStream()
+multiWriter.suspendWrite(pages, bos3)
+```
+
+### SVG Rasterization (Issue #134)
+
+```kotlin
+import io.bluetape4k.images.svg.*
+import com.sksamuel.scrimage.nio.PngWriter
+
+val rasterizer = BatikSvgRasterizer()
+
+// Basic rasterization (external resources blocked by default)
+File("diagram.svg").inputStream().use { svg ->
+    val image: ImmutableImage = rasterizer.rasterize(svg)
+    image.output(PngWriter.MaxCompression, File("diagram.png"))
+}
+
+// With custom options
+val opts = SvgRasterizeOptions(
+    width = 800,
+    height = 600,
+    dpi = 144,
+    allowExternalResources = false,  // SSRF/XXE guard (default)
+)
+File("diagram.svg").inputStream().use { svg ->
+    val image = rasterizer.rasterize(svg, opts)
+}
 ```
 
 ### Resizing Images

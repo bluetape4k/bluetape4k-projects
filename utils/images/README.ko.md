@@ -2,8 +2,9 @@
 
 [English](./README.md) | 한국어
 
-JPG, PNG, GIF, WebP 등의 이미지를 로드, 변환, 크기 조절, 분할, 필터 적용 등의 조작을 지원하는 라이브러리입니다.
+JPG, PNG, GIF, WebP, **TIFF/SVG** (Issue #134) 등의 이미지를 로드, 변환, 크기 조절, 분할, 필터 적용 등의 조작을 지원하는 라이브러리입니다.
 [Scrimage](https://github.com/sksamuel/scrimage) 라이브러리를 기반으로 하며, Coroutines를 활용한 비동기 이미지 처리를 제공합니다.
+AVIF·HEIC는 incubating 인터페이스로 제공되며, 구현체는 `bluetape4k-images-vips` 모듈에서 제공합니다.
 
 ## 아키텍처
 
@@ -37,6 +38,9 @@ flowchart LR
         WEBP["SuspendWebpWriter<br/>(최고 압축)"]
         GIF["SuspendGifWriter<br/>(애니메이션)"]
         ANIM["SuspendGif2WebpWriter<br/>(GIF→WebP 변환)"]
+        TIFF["SuspendTiffWriter<br/>(단일 페이지)"]
+        TIFFM["SuspendTiffMultiPageWriter<br/>(다중 페이지)"]
+        SVG["BatikSvgRasterizer<br/>(SVG→래스터)"]
     end
 
     입력 --> 이미지처리
@@ -53,7 +57,7 @@ flowchart LR
     class BA,IS,FILE dataStyle
     class II,BI coreStyle
     class SC,SP,WM,CP,PD utilStyle
-    class JPG,PNG,WEBP,GIF,ANIM asyncStyle
+    class JPG,PNG,WEBP,GIF,ANIM,TIFF,TIFFM,SVG asyncStyle
 ```
 
 ### 클래스 다이어그램
@@ -166,15 +170,21 @@ classDiagram
 
 ### 이미지 포맷 지원
 
-| 포맷   | 파일 사이즈 (예시) | 처리 시간 (예시) | 특징            |
-|------|-------------|------------|---------------|
-| PNG  | 6.45 MB     | 569 ms     | 무손실, 투명도 지원   |
-| GIF  | 1.21 MB     | 2,888 ms   | 애니메이션 지원      |
-| JPG  | 417 kB      | 157 ms     | 빠른 처리, 손실 압축  |
-| WEBP | 181 kB      | 913 ms     | 최고 압축률, 최신 포맷 |
+| 포맷   | Writer/Reader                    | 특징                                                              |
+|------|----------------------------------|------------------------------------------------------------------|
+| PNG  | `SuspendPngWriter`               | 무손실, 투명도 지원                                                     |
+| GIF  | `SuspendGifWriter`               | 애니메이션 지원                                                        |
+| JPG  | `SuspendJpegWriter`              | 빠른 처리, 손실 압축                                                     |
+| WEBP | `SuspendWebpWriter`              | 최고 압축률, 최신 포맷                                                    |
+| TIFF | `SuspendTiffWriter` / `SuspendTiffMultiPageWriter` | 다중 페이지, 다양한 압축 방식 (DEFLATE/LZW/NONE/JPEG) |
+| SVG  | `BatikSvgRasterizer`             | 래스터 변환; XXE/SSRF 방어 기본 적용                                        |
+| AVIF | `AvifWriter` *(incubating)*      | 인터페이스만 제공, 구현체는 `bluetape4k-images-vips`                         |
+| HEIC | `HeicReader` *(incubating)*      | 인터페이스만 제공, 구현체는 `bluetape4k-images-vips`                         |
 
 - **동적 생성**: JPG가 가장 빠름 (실시간 처리용)
 - **정적 파일**: WebP가 가장 효율적 (저장 공간 절약)
+- **문서 이미징**: TIFF 다중 페이지로 아카이브 워크플로우 지원
+- **벡터 그래픽**: Batik SVG 래스터화 (opt-in 의존성)
 
 ### 주요 파일
 
@@ -212,15 +222,25 @@ classDiagram
 | `io/ImageInputStreamSupport.kt`                      | 이미지 입력 스트림                    |
 | `io/ImageOuptputStreamSupport.kt`                    | 이미지 출력 스트림                    |
 | `coroutines/SuspendImageWriter.kt`                   | 비동기 이미지 Writer 인터페이스          |
+| `coroutines/SuspendMultiPageImageWriter.kt`          | 비동기 다중 페이지 Writer 인터페이스       |
 | `coroutines/SuspendJpegWriter.kt`                    | 비동기 JPEG Writer               |
 | `coroutines/SuspendPngWriter.kt`                     | 비동기 PNG Writer                |
 | `coroutines/SuspendGifWriter.kt`                     | 비동기 GIF Writer                |
 | `coroutines/SuspendWebpWriter.kt`                    | 비동기 WebP Writer               |
+| `coroutines/SuspendTiffWriter.kt`                    | 비동기 TIFF Writer (단일 페이지, TwelveMonkeys) |
+| `coroutines/SuspendTiffMultiPageWriter.kt`           | 비동기 TIFF 다중 페이지 Writer        |
+| `coroutines/TiffCompression.kt`                      | TIFF 압축 방식 (DEFLATE/LZW/NONE/PACKBITS/JPEG) |
 | `coroutines/SuspendWriteContext.kt`                  | 비동기 쓰기 컨텍스트                   |
 | `coroutines/animated/SuspendAnimatedImageWriter.kt`  | 비동기 애니메이션 Writer              |
 | `coroutines/animated/SuspendGif2WebpWriter.kt`       | GIF → WebP 변환 Writer          |
 | `coroutines/animated/AnimatedGifExtensions.kt`       | AnimatedGif 확장 함수             |
 | `coroutines/animated/SuspendAnimatedWriteContext.kt` | 애니메이션 쓰기 컨텍스트                 |
+| `svg/SuspendSvgRasterizer.kt`                        | SVG 래스터라이저 인터페이스              |
+| `svg/BatikSvgRasterizer.kt`                          | SVG 래스터라이저 (Apache Batik, XXE-안전) |
+| `svg/SvgRasterizeOptions.kt`                         | SVG 래스터화 옵션                   |
+| `avif/AvifWriter.kt`                                 | AVIF Writer 인터페이스 *(incubating)* |
+| `heic/HeicReader.kt`                                 | HEIC Reader 인터페이스 *(incubating)* |
+| `IncubatingImageApi.kt`                              | incubating API용 `@RequiresOptIn` 어노테이션 |
 
 ## 사용 예시
 
@@ -287,6 +307,57 @@ image.suspendWrite(SuspendWebpWriter.Default, Paths.get("output.webp"))
 // ByteArray로 변환
 val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
+```
+
+### TIFF 지원 (Issue #134)
+
+```kotlin
+import io.bluetape4k.images.coroutines.*
+import java.io.ByteArrayOutputStream
+
+val image = immutableImageOf(File("photo.jpg"))
+
+// 단일 페이지 TIFF (기본 DEFLATE 압축)
+val writer = SuspendTiffWriter.Default
+val bos = ByteArrayOutputStream()
+writer.suspendWrite(image, bos)
+
+// LZW 압축
+val lzwWriter = SuspendTiffWriter.Lzw
+val bos2 = ByteArrayOutputStream()
+lzwWriter.suspendWrite(image, bos2)
+
+// 다중 페이지 TIFF
+val pages = listOf(page1, page2, page3)
+val multiWriter = SuspendTiffMultiPageWriter.Default
+val bos3 = ByteArrayOutputStream()
+multiWriter.suspendWrite(pages, bos3)
+```
+
+### SVG 래스터화 (Issue #134)
+
+```kotlin
+import io.bluetape4k.images.svg.*
+import com.sksamuel.scrimage.nio.PngWriter
+
+val rasterizer = BatikSvgRasterizer()
+
+// 기본 래스터화 (외부 리소스 차단 기본값)
+File("diagram.svg").inputStream().use { svg ->
+    val image: ImmutableImage = rasterizer.rasterize(svg)
+    image.output(PngWriter.MaxCompression, File("diagram.png"))
+}
+
+// 옵션 지정
+val opts = SvgRasterizeOptions(
+    width = 800,
+    height = 600,
+    dpi = 144,
+    allowExternalResources = false,  // SSRF/XXE 방어 (기본값)
+)
+File("diagram.svg").inputStream().use { svg ->
+    val image = rasterizer.rasterize(svg, opts)
+}
 ```
 
 ### 이미지 크기 조절
