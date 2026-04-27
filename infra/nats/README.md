@@ -310,6 +310,25 @@ val allOpts = streamInfoOptionsOfAllSubjects()
 val info = management.getStreamInfo("my-stream", filteredOpts)
 ```
 
+## Test Coverage
+
+Line coverage: **79.45%** (259/326 lines) — measured with Kover.
+
+Unit tests (no server required):
+
+| Test File | Scope |
+|-----------|-------|
+| `OptionsTest` | `natsOptions`, `natsOptionsOf` builders |
+| `JetStreamOptionsTest` | `jetStreamOptionsOf`, `defaultJetStreamOptions` |
+| `PublishOptionsTest` | `publishOptions`, `publishOptionsOf` builders |
+| `KeyValueOptionsTest` | `keyValueOptions` (3 overloads) |
+| `PullSubscriptionOptionsTest` | `pullSubscriptionOptions`, `pullSubscriptionOptionsOf` |
+| `PushSubscriptionOptionsTest` | `pushSubscriptionOptions`, `pushSubscriptionOf` (2 overloads) |
+| `NatsMessageTest` | `natsMessage`, `natsMessageOf` (3 overloads) |
+| `ConnectionExtensionsTest` | `publish`, `request`, `requestAsync`, `requestSuspending`, `drainSuspending` (MockK) |
+| `ConsumerExtensionsTest` | `Consumer.drain`, `Consumer.drainSuspending` (MockK) |
+| `ServiceExtensionsTest` | `natsService`, `natsServiceOf` (MockK Connection) |
+
 ## Test Support
 
 Extend `AbstractNatsTest` to get a pre-connected NATS server via Testcontainers:
