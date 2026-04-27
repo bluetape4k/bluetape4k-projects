@@ -1,12 +1,14 @@
 package io.bluetape4k.http.hc5.async
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
+import io.bluetape4k.http.hc5.async.methods.toProducer
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldNotBeNull
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
+import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 
@@ -30,9 +32,14 @@ class AsyncHttpClientTest: AbstractHc5Test() {
 
     @Test
     fun `httpAsyncClientOf 로 비동기 GET 요청 상태코드 200`() {
-        httpAsyncClientOf().use { client ->
+        httpAsyncClient {}.use { client ->
             val request = SimpleRequestBuilder.get("$httpbinBaseUrl/get").build()
-            val future = client.execute(request, null)
+            val future = client.execute(
+                request.toProducer(),
+                SimpleResponseConsumer.create(),
+                HttpClientContext.create(),
+                null
+            )
             val response = future.get(10, TimeUnit.SECONDS)
             log.debug { "GET $httpbinBaseUrl/get status=${response.code}" }
             response.code shouldBeEqualTo 200

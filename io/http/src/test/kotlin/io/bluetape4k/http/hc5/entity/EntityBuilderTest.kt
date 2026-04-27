@@ -58,7 +58,9 @@ class EntityBuilderTest {
 
         entity.shouldNotBeNull()
         val content = entity.toByteArrayOrNull()
-        content shouldBeEqualTo bytes
+        content.shouldNotBeNull()
+        // ByteArray uses reference equality — compare decoded string
+        String(content, Charsets.UTF_8) shouldBeEqualTo String(bytes, Charsets.UTF_8)
     }
 
     @Test
@@ -69,7 +71,8 @@ class EntityBuilderTest {
         entity.shouldNotBeNull()
         val result = entity.toByteArrayOrNull()
         result.shouldNotBeNull()
-        result shouldBeEqualTo original
+        result.size shouldBeEqualTo original.size
+        result.toList() shouldBeEqualTo original.toList()
     }
 
     @Test
@@ -82,7 +85,9 @@ class EntityBuilderTest {
 
         entity.shouldNotBeNull()
         val content = entity.toByteArrayOrNull()
-        content shouldBeEqualTo bytes
+        content.shouldNotBeNull()
+        content.size shouldBeEqualTo bytes.size
+        content.toList() shouldBeEqualTo bytes.toList()
     }
 
     @Test

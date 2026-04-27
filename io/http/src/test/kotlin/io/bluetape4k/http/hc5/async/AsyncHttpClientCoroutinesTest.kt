@@ -18,7 +18,7 @@ class AsyncHttpClientCoroutinesTest: AbstractHc5Test() {
 
     @Test
     fun `httpAsyncClientOf 로 executeSuspending GET 요청`() = runTest(timeout = 30.seconds) {
-        httpAsyncClientOf().use { client ->
+        httpAsyncClient {}.use { client ->
             val request = SimpleRequestBuilder.get("$httpbinBaseUrl/get").build()
             val response = client.executeSuspending(request)
             log.debug { "GET $httpbinBaseUrl/get status=${response.code}" }
@@ -28,7 +28,7 @@ class AsyncHttpClientCoroutinesTest: AbstractHc5Test() {
 
     @Test
     fun `여러 URL 병렬 coroutine GET 요청 모두 200`() = runTest(timeout = 30.seconds) {
-        httpAsyncClientOf().use { client ->
+        httpAsyncClient {}.use { client ->
             val responses = coroutineScope {
                 urisToGet.map { uri ->
                     async {

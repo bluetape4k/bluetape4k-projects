@@ -44,6 +44,8 @@ class ConfigBuilderTest {
         val config = connectionConfigOf(
             connectTimeout = connectTimeout,
             socketTimeout = socketTimeout,
+            validateAfterInactivity = TimeValue.ofSeconds(30),
+            timeToLive = TimeValue.ofMinutes(10),
         )
 
         config.shouldNotBeNull()
@@ -55,7 +57,10 @@ class ConfigBuilderTest {
     fun `connectionConfigOf - validateAfterInactivity 설정 검증`() {
         val validateAfterInactivity = TimeValue.ofSeconds(60)
         val config = connectionConfigOf(
+            connectTimeout = Timeout.ofSeconds(5),
+            socketTimeout = Timeout.ofSeconds(15),
             validateAfterInactivity = validateAfterInactivity,
+            timeToLive = TimeValue.ofMinutes(1),
         )
 
         config.shouldNotBeNull()
@@ -66,6 +71,9 @@ class ConfigBuilderTest {
     fun `connectionConfigOf - timeToLive 설정 검증`() {
         val timeToLive = TimeValue.ofMinutes(5)
         val config = connectionConfigOf(
+            connectTimeout = Timeout.ofSeconds(5),
+            socketTimeout = Timeout.ofSeconds(15),
+            validateAfterInactivity = TimeValue.ofSeconds(30),
             timeToLive = timeToLive,
         )
 

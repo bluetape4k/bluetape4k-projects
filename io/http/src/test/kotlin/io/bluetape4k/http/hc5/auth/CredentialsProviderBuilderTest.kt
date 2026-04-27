@@ -14,10 +14,13 @@ class CredentialsProviderBuilderTest {
 
     companion object : KLogging()
 
+    // HC5 5.x has no AuthScope.ANY — use all-null/wildcard constructor instead
+    private val anyScope = AuthScope(null, null, -1, null, null)
+
     @Test
     fun `credentialsProvider DSL creates provider`() {
         val provider = credentialsProvider {
-            add(AuthScope.ANY, UsernamePasswordCredentials("user", "pass".toCharArray()))
+            add(anyScope, UsernamePasswordCredentials("user", "pass".toCharArray()))
         }
 
         provider.shouldNotBeNull()
@@ -28,7 +31,7 @@ class CredentialsProviderBuilderTest {
         val provider = emptyCredentialsProvider()
 
         provider.shouldNotBeNull()
-        val credentials = provider.getCredentials(AuthScope.ANY, BasicHttpContext())
+        val credentials = provider.getCredentials(anyScope, BasicHttpContext())
         credentials.shouldBeNull()
     }
 
@@ -47,13 +50,15 @@ class CredentialsProviderBuilderTest {
     }
 
     @Test
-    fun `credentialsProviderOf with AuthScope ANY retrieves credentials`() {
+    fun `credentialsProviderOf with specific AuthScope retrieves credentials`() {
+        val authScope = AuthScope("http", "localhost", 8080, null, null)
         val credentials = UsernamePasswordCredentials("testuser", "testpass".toCharArray())
 
-        val provider = credentialsProviderOf(AuthScope.ANY, credentials)
+        val provider = credentialsProviderOf(authScope, credentials)
 
         provider.shouldNotBeNull()
-        val retrieved = provider.getCredentials(AuthScope.ANY, BasicHttpContext())
+        // Query with same scope should match
+        val retrieved = provider.getCredentials(authScope, BasicHttpContext())
         retrieved.shouldNotBeNull()
         val upCreds = retrieved as UsernamePasswordCredentials
         upCreds.userName shouldBeEqualTo "testuser"
@@ -70,15 +75,30 @@ class CredentialsProviderBuilderTest {
     }
 
     @Test
+    fun `credentialsProviderOf with HttpHost retrieves credentials by host scope`() {
+        val host = HttpHost("example.com", 80)
+        val credentials = UsernamePasswordCredentials("hostuser", "hostpass".toCharArray())
+
+        val provider = credentialsProviderOf(host, credentials)
+
+        provider.shouldNotBeNull()
+        val hostScope = AuthScope(host)
+        val retrieved = provider.getCredentials(hostScope, BasicHttpContext())
+        retrieved.shouldNotBeNull()
+        val upCreds = retrieved as UsernamePasswordCredentials
+        upCreds.userName shouldBeEqualTo "hostuser"
+    }
+
+    @Test
     fun `credentialsProviderOf with AuthScope username and password creates provider`() {
-        val authScope = AuthScope.ANY
+        val authScope = AuthScope(null, null, -1, null, null)
         val username = "userA"
         val password = "passwordA".toCharArray()
 
         val provider = credentialsProviderOf(authScope, username, password)
 
         provider.shouldNotBeNull()
-        val retrieved = provider.getCredentials(AuthScope.ANY, BasicHttpContext())
+        val retrieved = provider.getCredentials(authScope, BasicHttpContext())
         retrieved.shouldNotBeNull()
         val upCreds = retrieved as UsernamePasswordCredentials
         upCreds.userName shouldBeEqualTo username
@@ -96,7 +116,7 @@ class CredentialsProviderBuilderTest {
     }
 
     @Test
-    fun `credentialsProvider DSL with multiple auth scopes`() {
+    fun `credentialsProvider DSL with multiple hosts`() {
         val host1 = HttpHost("host1.example.com", 80)
         val host2 = HttpHost("host2.example.com", 443)
 
@@ -106,5 +126,21 @@ class CredentialsProviderBuilderTest {
         }
 
         provider.shouldNotBeNull()
+    }
+
+    @Test
+    fun `credentialsProvider DSL retrieves correct credentials per host`() {
+        val host1 = HttpHost("http", "host1.example.com", 80)
+        val creds1 = UsernamePasswordCredentials("user1", "pass1".toCharArray())
+
+        val provider = credentialsProvider {
+            add(host1, creds1)
+        }
+
+        provider.shouldNotBeNull()
+        val scope1 = AuthScope(host1)
+        val retrieved = provider.getCredentials(scope1, BasicHttpContext())
+        retrieved.shouldNotBeNull()
+        (retrieved as UsernamePasswordCredentials).userName shouldBeEqualTo "user1"
     }
 }
