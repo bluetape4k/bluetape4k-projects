@@ -1,7 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
@@ -33,7 +32,6 @@ class AsyncClientH2ServerPush: AbstractHc5Test() {
 
         val client = minimalHttpAsyncClientOf(
             h2config = h2Config { setPushEnabled(true) },
-            connMgr = asyncClientConnectionManager { },
         )
         client.start()
 

@@ -1,7 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.methods.simpleHttpRequest
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
@@ -24,7 +23,7 @@ class AsyncClientH2Multiplexing: AbstractHc5Test() {
         val baseUri = URI(NGHTTP2_HTTPBIN_URL)
         val httpHost = HttpHost(baseUri.scheme, baseUri.host, baseUri.port)
 
-        val client = minimalHttpAsyncClientOf(connMgr = asyncClientConnectionManager { })
+        val client = minimalHttpAsyncClientOf()
         client.start()
 
         val requestUris = listOf("/ip", "/user-agent", "/headers")

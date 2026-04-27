@@ -2,7 +2,6 @@ package io.bluetape4k.http.hc5.examples
 
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.hc5.AbstractHc5Test
-import io.bluetape4k.http.hc5.async.asyncClientConnectionManager
 import io.bluetape4k.http.hc5.async.minimalHttpAsyncClientOf
 import io.bluetape4k.http.hc5.http.ContentTypes
 import io.bluetape4k.http.hc5.http.basicRequestProducerOf
@@ -30,7 +29,7 @@ class ReactiveClientFullDuplexExchange: AbstractHc5Test() {
 
     @Test
     fun `send reactive flux and receive reactive flux`() = runSuspendIO {
-        val client = minimalHttpAsyncClientOf(connMgr = asyncClientConnectionManager { })
+        val client = minimalHttpAsyncClientOf()
         client.start()
 
         val requestUri = URI("$httpbinBaseUrl/post")

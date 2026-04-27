@@ -13,6 +13,13 @@ class MinimalAndVirtualThreadHttpClientTest: AbstractHc5Test() {
     companion object: KLogging()
 
     @Test
+    fun `minimalHttpClientOf 기본 생성`() {
+        val client = minimalHttpClientOf()
+        client.shouldNotBeNull()
+        client.close()
+    }
+
+    @Test
     fun `minimalHttpClientOf 커넥션 매니저 포함 생성`() {
         val cm = httpClientConnectionManager { }
         val client = minimalHttpClientOf(cm)
@@ -22,8 +29,7 @@ class MinimalAndVirtualThreadHttpClientTest: AbstractHc5Test() {
 
     @Test
     fun `minimalHttpClientOf 로 GET 요청`() {
-        val cm = httpClientConnectionManager { }
-        minimalHttpClientOf(cm).use { client ->
+        minimalHttpClientOf().use { client ->
             val response = client.execute(HttpGet("$httpbinBaseUrl/get")) { it }
             log.debug { "GET $httpbinBaseUrl/get status=${response.code}" }
             response.code shouldBeEqualTo 200

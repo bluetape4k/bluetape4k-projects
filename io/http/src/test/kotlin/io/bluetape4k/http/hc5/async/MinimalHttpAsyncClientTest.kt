@@ -17,8 +17,7 @@ class MinimalHttpAsyncClientTest: AbstractHc5Test() {
 
     @Test
     fun `minimalHttpAsyncClientOf 기본 생성`() {
-        val cm = asyncClientConnectionManager { }
-        val client: MinimalHttpAsyncClient = minimalHttpAsyncClientOf(connMgr = cm)
+        val client: MinimalHttpAsyncClient = minimalHttpAsyncClientOf()
         client.shouldNotBeNull()
         client.close()
     }
