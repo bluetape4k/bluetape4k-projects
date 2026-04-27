@@ -44,7 +44,43 @@ dependencies {
 }
 ```
 
-> **Note on Spring Boot 3 Integration**: Tests combining Hibernate 7.x with Spring Boot 3.x are currently disabled due to incompatibility in Spring Boot 3's `SpringBeanContainer` (which implements the Hibernate 5 API). This will be resolved when upgrading to Spring Boot 4 / Spring Framework 7. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for details.
+> **Note on Spring Boot 3 Integration**: Tests combining Hibernate 7.x with Spring Boot 3.x are currently disabled due to incompatibility in Spring Boot 3's `SpringBeanContainer` (which implements the Hibernate 5 API). Use Spring Boot 4 / Spring Framework 7 for full Hibernate 7.x compatibility. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for details.
+
+## Spring Boot 4 Migration
+
+### TestEntityManager Shim
+
+Spring Boot 4 removes `@DataJpaTest` and the `TestEntityManager` bean that came with it. This module provides a drop-in replacement shim for `@SpringBootTest + @Transactional`-based integration tests.
+
+```kotlin
+// 1. Add to your Spring Boot application context
+@Component
+class TestEntityManager(@PersistenceContext val entityManager: EntityManager)
+
+// 2. Use in tests with @SpringBootTest + @Transactional
+@SpringBootTest(classes = [MyApplication::class])
+@Transactional
+class UserRepositoryTest {
+
+    @Autowired
+    private lateinit var tem: TestEntityManager
+
+    @Test
+    fun `entity saves and reloads correctly`() {
+        // persist → flush → detach → find (bypasses first-level cache)
+        val saved = tem.persistFlushFind(User(name = "debop"))
+        saved.id.shouldNotBeNull()
+        saved.name shouldBeEqualTo "debop"
+    }
+}
+```
+
+Key methods:
+- `persist(entity)` — save to persistence context
+- `persistAndFlush(entity)` — save + flush to DB
+- `persistFlushFind(entity)` — save + flush + detach + reload from DB (bypasses L1 cache, uses `Hibernate.getClass()` to resolve proxy types)
+- `find(clazz, id)` — find by ID (throws `IllegalArgumentException` if `id` is null)
+- `remove(entity)` — remove (auto-merges detached entities)
 
 ## Basic Usage
 

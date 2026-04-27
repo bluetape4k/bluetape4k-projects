@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate
 
+import jakarta.persistence.PersistenceException
 import org.hibernate.SessionFactory
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.event.service.spi.EventListenerRegistry
@@ -61,9 +62,11 @@ fun <T> SessionFactory.registEventListener(
 fun SessionFactory.getEventListenerRegistry(): EventListenerRegistry? {
     // WHY: Spring wraps SessionFactory in a proxy, so direct cast to SessionFactoryImpl fails.
     // unwrap(SessionFactoryImplementor) bypasses the proxy and is the JPA-standard way in Hibernate 7.
+    // Catch only PersistenceException (JPA spec: thrown when type cannot be unwrapped).
+    // Broader Exception would silently hide NPE/ISE from bugs or closed SessionFactory.
     return try {
         this.unwrap(SessionFactoryImplementor::class.java)?.getEventListenerRegistry()
-    } catch (_: Exception) {
+    } catch (_: PersistenceException) {
         null
     }
 }

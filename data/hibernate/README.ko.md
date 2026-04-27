@@ -44,7 +44,43 @@ dependencies {
 }
 ```
 
-> **Spring Boot 3 통합 주의사항**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하는 통합 테스트는 현재 비활성화되어 있습니다. Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하고 있어 호환성 문제가 발생합니다. Spring Boot 4 / Spring Framework 7로 업그레이드할 때 해결될 예정입니다. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3`를 참고하세요.
+> **Spring Boot 3 통합 주의사항**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하는 통합 테스트는 현재 비활성화되어 있습니다. Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하고 있어 호환성 문제가 발생합니다. Hibernate 7.x 완전 호환을 위해 Spring Boot 4 / Spring Framework 7을 사용하세요. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3`를 참고하세요.
+
+## Spring Boot 4 마이그레이션
+
+### TestEntityManager Shim
+
+Spring Boot 4에서는 `@DataJpaTest`와 함께 제공되던 `TestEntityManager` 빈이 제거되었습니다. 이 모듈은 `@SpringBootTest + @Transactional` 기반 통합 테스트를 위한 대체 shim을 제공합니다.
+
+```kotlin
+// 1. Spring Boot 애플리케이션 컨텍스트에 등록
+@Component
+class TestEntityManager(@PersistenceContext val entityManager: EntityManager)
+
+// 2. @SpringBootTest + @Transactional 테스트에서 사용
+@SpringBootTest(classes = [MyApplication::class])
+@Transactional
+class UserRepositoryTest {
+
+    @Autowired
+    private lateinit var tem: TestEntityManager
+
+    @Test
+    fun `엔티티가 올바르게 저장되고 로드된다`() {
+        // persist → flush → detach → find (1차 캐시 우회)
+        val saved = tem.persistFlushFind(User(name = "debop"))
+        saved.id.shouldNotBeNull()
+        saved.name shouldBeEqualTo "debop"
+    }
+}
+```
+
+주요 메서드:
+- `persist(entity)` — 영속성 컨텍스트에 저장
+- `persistAndFlush(entity)` — 저장 후 DB에 즉시 반영 (flush)
+- `persistFlushFind(entity)` — 저장 + flush + detach + DB 재로드 (1차 캐시 우회, `Hibernate.getClass()`로 프록시 타입 해석)
+- `find(clazz, id)` — ID로 엔티티 조회 (`id`가 null이면 `IllegalArgumentException` 발생)
+- `remove(entity)` — 엔티티 제거 (분리 상태인 경우 자동 merge)
 
 ## 기본 사용법
 
