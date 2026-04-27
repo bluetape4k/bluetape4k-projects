@@ -16,6 +16,16 @@ dependencies {
     // EXIF metadata (required runtime dependency)
     implementation(Libs.metadata_extractor)
 
+    // TIFF support via TwelveMonkeys ImageIO (auto-registers via SPI)
+    api(Libs.twelvemonkeys_imageio_tiff)
+    api(Libs.twelvemonkeys_imageio_metadata)
+
+    // SVG rasterization via Apache Batik (opt-in; add to your own dependencies if needed)
+    compileOnly(Libs.batik_transcoder)
+    compileOnly(Libs.batik_codec)
+    testImplementation(Libs.batik_transcoder)
+    testImplementation(Libs.batik_codec)
+
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
     implementation(Libs.kotlinx_coroutines_core)
