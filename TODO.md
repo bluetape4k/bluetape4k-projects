@@ -1,7 +1,7 @@
 # bluetape4k TODO
 
-> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 132개
-> 최종 업데이트: 2026-04-17
+> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 125개 (examples 제외)
+> 최종 업데이트: 2026-04-27 (이슈 반영: #179 #181 #185 #187 #191 #190 #189 #38 #25)
 
 ---
 
@@ -15,13 +15,12 @@
 
 ## 1. 미완성 기능
 
-### 1.1 utils/science — NetCdf 지원 완성 🟡
+### 1.1 utils/science — NetCdf 지원 완성 ✅
 
-- Issue: [#107](https://github.com/bluetape4k/bluetape4k-projects/issues/107)
-- [ ] `NetCdfCatalogService.kt` — `TODO("Phase 4 UCAR netcdfAll 완료 후 구현 예정")` 구현
-  - `listLayers()`, `getLayer()`, `createLayer()` 등 미구현 메서드 완성
-- [ ] `NetCdfTableTest.kt` — 테스트 케이스 완성
-- [ ] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
+- Issue: [#107](https://github.com/bluetape4k/bluetape4k-projects/issues/107) — **CLOSED COMPLETED (2026-04-25)**
+- [x] `NetCdfCatalogService.kt` — 구현 완료
+- [x] `NetCdfTableTest.kt` — 테스트 케이스 완성
+- [x] UCAR netcdfAll 의존성 추가 후 전체 파이프라인 검증
 
 #### 참고 자료
 - [UCAR NetCDF-Java 공식 문서](https://docs.unidata.ucar.edu/netcdf-java/current/)
@@ -55,13 +54,12 @@
 
 ## 2. Deprecated 코드 정리
 
-### 2.1 io 모듈 레거시 정리 🔴
+### 2.1 io 모듈 레거시 정리 ✅
 
-- Issue: [#109](https://github.com/bluetape4k/bluetape4k-projects/issues/109)
+- Issue: [#109](https://github.com/bluetape4k/bluetape4k-projects/issues/109) — **CLOSED COMPLETED (2026-04-24)**
 - [x] `io/crypto/` — jasypt 기반 암호화 모듈 전체 삭제, `tink` 모듈로 대체 완료 (2026-04-17)
-- [ ] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
-  - Retrofit2도 SB3/4 core에서 이미 제거됨 — io 모듈도 정리 대상 검토
-- [ ] `io/jackson2/`, `io/jackson3/` — deprecated 직렬화 API 정리
+- [x] `io/http/` — `AHC`(AsyncHttpClient), `OkHttp3`, `HC5` 레거시 HTTP 클라이언트 정리
+- [x] `io/jackson2/`, `io/jackson3/` — deprecated 직렬화 API 정리
 
 #### 참고 자료
 - [Apache HttpClient 5.x 마이그레이션](https://hc.apache.org/httpcomponents-client-5.2.x/migration-guide/index.html)
@@ -81,11 +79,11 @@
 
 ---
 
-## 3. testing/testcontainers — HazelcastServer 수정 🔴
+## 3. testing/testcontainers — HazelcastServer 수정 ✅
 
-- Issue: [#111](https://github.com/bluetape4k/bluetape4k-projects/issues/111)
-- [ ] `HazelcastServer.kt` — deprecated Hazelcast API 4개 수정
-  - `Config`, `NetworkConfig`, `JoinConfig`, `TcpIpConfig` 최신 API로 교체
+- Issue: [#111](https://github.com/bluetape4k/bluetape4k-projects/issues/111) — **CLOSED COMPLETED (2026-04-24)**
+- [x] `HazelcastServer.kt` — deprecated Hazelcast API 수정 완료 (`storage/` 패키지로 이동)
+  - `Config`, `NetworkConfig`, `JoinConfig`, `TcpIpConfig` 최신 API로 교체 완료
   - Hazelcast 5.x 호환성 확보
 
 #### 참고 자료
@@ -110,11 +108,9 @@
   - Kafka 백엔드 = Event Sourcing 기반 CQRS에 그대로 활용 가능
   - 상세 계획은 하단 §11 참조
 
-- [ ] **nats → infra/nats** (30 kt 파일, **최우선**)
-  - NATS JetStream + Kotlin Coroutines 통합 — Cloud Native 메시지 큐 수요 재부상
-  - Kafka 대안으로 경량 (50MB, JVM 없이 실행), 마이크로서비스/IoT에 적합
-  - 이미 구현 성숙도 높음 (client/stream/consumer/kv/objectstore)
-  - TODO 6.2 infra/nats 항목과 통합 검토
+- [x] **nats → infra/nats** (70 kt 파일) — **승격 완료** (`infra/nats/` 존재, x-obsoleted/nats 정리 필요)
+  - NATS JetStream + Kotlin Coroutines 통합 완료
+  - `x-obsoleted/nats/` 잔존 → Phase 3 삭제 대상
 
 - [x] **lingua → texts/lingua** (3 kt 파일, 높은 ROI) — PR #170 승격 완료
   - 75+ 언어 자동 감지 — 콘텐츠 분류, 다국어 라우팅, 검색 인덱싱 필수
@@ -160,11 +156,13 @@
 
 ### 4.3 🟢 삭제 — 구현 없음 또는 사용처 없음
 
-- [ ] **mapstruct** (1 kt) — 예제만, Kotlin data class copy로 충분, 삭제
-- [ ] **mutiny-examples** (0 kt) — `utils/mutiny`로 통합 완료, 삭제
+- [ ] **mapstruct** (1 kt) — 예제만, Kotlin data class copy로 충분, 삭제 (이슈 [#144](https://github.com/bluetape4k/bluetape4k-projects/issues/144))
+- [ ] **mutiny-examples** (0 kt) — `utils/mutiny`로 통합 완료, 삭제 (이슈 [#144](https://github.com/bluetape4k/bluetape4k-projects/issues/144))
 - [x] **tokenizer** — PR #170으로 `texts/tokenizer-core`, `texts/tokenizer-korean`, `texts/tokenizer-japanese` 로 승격 완료
-- [ ] **vertx-coroutines / vertx-sqlclient / vertx-webclient** (0~2 kt) — `infra/vertx` umbrella 이미 존재, 삭제
-- [ ] **naivebayes** (2 kt) — Naive Bayes classifier, LLM/transformer가 대체, 수요 낮음, 삭제 (또는 `utils/ml` 신설 시 포함)
+- [ ] **vertx-coroutines / vertx-sqlclient / vertx-webclient** (0~2 kt) — `infra/vertx` umbrella 이미 존재, 삭제 (이슈 [#144](https://github.com/bluetape4k/bluetape4k-projects/issues/144))
+- [ ] **naivebayes** (2 kt) — Naive Bayes classifier, LLM/transformer가 대체, 수요 낮음, 삭제 (이슈 [#144](https://github.com/bluetape4k/bluetape4k-projects/issues/144))
+- [ ] **x-obsoleted/nats/** 디렉토리 삭제 — `infra/nats` 승격 완료 (이슈 [#139](https://github.com/bluetape4k/bluetape4k-projects/issues/139) closed)
+- [ ] **x-obsoleted/lingua/** 디렉토리 삭제 — `texts/lingua` 승격 완료 (이슈 [#170](https://github.com/bluetape4k/bluetape4k-projects/issues/170) closed)
 
 ### 4.4 실행 계획
 
@@ -193,12 +191,9 @@
 > **참고**: Exposed는 Oracle, SQL Server, MariaDB를 공식 지원 (`OracleDialect`, `SQLServerDialect`, `MariaDBDialect` 내장).
 > bluetape4k에서 필요한 것은 **ClickHouse 전용 dialect** 구현임.
 
-- [ ] **exposed-clickhouse** — ClickHouse OLAP 분석 DB Exposed Dialect 구현
-  - Issue: [#145](https://github.com/bluetape4k/bluetape4k-projects/issues/145)
-  - MergeTree ENGINE DDL DSL, UInt/DateTime64/LowCardinality 타입
-  - `toYYYYMM()`, `uniq()`, `argMax()`, `quantile()` 등 ClickHouse 특화 함수
-  - PostgreSQL 대비 집계 쿼리 10~100× 속도 향상, 초당 수백만 행 수집 가능
-  - Trino 대비: 단일 컨테이너 운영, Kotlin DSL 직접 통합, 실시간 수집 지원
+- [x] **exposed-clickhouse** — ClickHouse OLAP 분석 DB Exposed Dialect 구현 완료
+  - Issue: [#145](https://github.com/bluetape4k/bluetape4k-projects/issues/145) — **CLOSED COMPLETED (2026-04-25)**
+  - `data/exposed-clickhouse/` 및 `examples/exposed-clickhouse-oltp-olap/` 구현 완료
 
 #### 참고 자료
 - [JetBrains Exposed GitHub](https://github.com/JetBrains/Exposed)
@@ -211,9 +206,9 @@
 
 ### 6.2 infra 계층
 
-- [ ] **infra/nats** — NATS JetStream + Kotlin Coroutines 통합 (x-obsoleted 승격)
-- [ ] **infra/elasticsearch** — Elasticsearch Kotlin Coroutines 클라이언트
-- [ ] **infra/pulsar** — Apache Pulsar 통합
+- [x] **infra/nats** — NATS JetStream + Kotlin Coroutines 통합 완료 (`infra/nats/` 존재)
+- [x] **infra/elasticsearch** — Elasticsearch Kotlin Coroutines 클라이언트 완료 (`infra/elasticsearch/` 존재)
+- [x] **infra/pulsar** — Apache Pulsar 통합 완료 (`infra/pulsar/` 존재)
 
 #### 참고 자료
 - [NATS.io 공식 문서](https://docs.nats.io/)
@@ -279,11 +274,12 @@
 
 분석:
 
-- [ ] **Dominant color extraction** — ColorThief 통합 (이미 scrimage에 포함됨 — 래퍼 필요)
-- [ ] **Blur/defocus detection** — Laplacian variance 기반 품질 판정
-- [ ] **EXIF 메타데이터** 읽기/쓰기 API (drew-noakes/metadata-extractor)
-- [ ] **OCR** — Tesseract (tess4j) 또는 PaddleOCR 통합 인터페이스
-- [ ] **얼굴/객체 탐지** — MediaPipe 또는 ONNX Runtime 연동 인터페이스
+- [x] **Dominant color extraction** — `DominantColor` scrimage 래퍼 구현 완료 (이슈 [#133](https://github.com/bluetape4k/bluetape4k-projects/issues/133), 2026-04-27)
+- [x] **Blur/defocus detection** — `BlurDetector` Laplacian variance 기반 구현 완료 (이슈 [#133](https://github.com/bluetape4k/bluetape4k-projects/issues/133), 2026-04-27)
+- [x] **EXIF 메타데이터** 읽기/쓰기 — `ExifData` drew-noakes/metadata-extractor 래퍼 구현 완료 (이슈 [#133](https://github.com/bluetape4k/bluetape4k-projects/issues/133), 2026-04-27)
+- [ ] **OCR** — Tesseract (tess4j) 또는 PaddleOCR 통합 인터페이스 (이슈 [#189](https://github.com/bluetape4k/bluetape4k-projects/issues/189))
+- [ ] **얼굴/객체 탐지** — MediaPipe 또는 ONNX Runtime 연동 인터페이스 (이슈 [#190](https://github.com/bluetape4k/bluetape4k-projects/issues/190))
+- [ ] **이미지 분류 ML 모델** — ONNX Runtime 기반 사전학습 분류기 통합 (이슈 [#191](https://github.com/bluetape4k/bluetape4k-projects/issues/191))
 
 #### 참고 자료 (분석 API)
 - [drewnoakes/metadata-extractor GitHub](https://github.com/drewnoakes/metadata-extractor) — EXIF/IPTC/XMP
@@ -411,11 +407,10 @@ Shopify 프로덕션 사용 검증됨.
 
 - [ ] **설정 캐시** `warn` → `on` 으로 전환 (현재 경고 해결 후)
 - [ ] **의존성 검증** `lenient` → `strict` 전환 검토
-- [ ] **Gradle 9.x 호환성** — deprecated API 사용 제거
-  - `settings.gradle.kts` `includeModules` 함수 Gradle 9 호환 확인
+- [x] **Gradle 9.x 호환성** — deprecated API 제거 완료 (이슈 [#153](https://github.com/bluetape4k/bluetape4k-projects/issues/153), 2026-04-26)
 - [ ] **Kotlin 2.3 컴파일러** 최신 기능 활용 검토
   - `-Xcontext-parameters` 전면 도입 검토
-- [ ] **kapt → KSP** 마이그레이션 검토 (kapt 사용 모듈 파악 필요)
+- [x] **kapt → KSP** 마이그레이션 완료 (이슈 [#153](https://github.com/bluetape4k/bluetape4k-projects/issues/153), 2026-04-26)
 - [x] GitHub Actions CI 파이프라인 구성 완료 (2026-04-17)
 
 #### 참고 자료
@@ -456,11 +451,11 @@ Shopify 프로덕션 사용 검증됨.
 - [JMH (Java Microbenchmark Harness)](https://github.com/openjdk/jmh)
 - [Gradle JMH Plugin](https://github.com/melix/jmh-gradle-plugin)
 
-### 10.2 Coroutines 품질 개선 🟡
+### 10.2 Coroutines 품질 개선 ✅
 
-- Issue: [#185](https://github.com/bluetape4k/bluetape4k-projects/issues/185)
-- [ ] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 전수 제거
-- [ ] `StateFlow` / `SharedFlow` 사용 일관성 검토 (노출 타입 읽기 전용 통일)
+- Issue: [#185](https://github.com/bluetape4k/bluetape4k-projects/issues/185) — **CLOSED COMPLETED (2026-04-27)**
+- [x] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 전수 제거 완료
+- [x] `StateFlow` / `SharedFlow` 사용 일관성 검토 완료
 
 #### 참고 자료
 - [Kotlin Coroutines 구조적 동시성 공식 문서](https://kotlinlang.org/docs/coroutines-and-channels.html)
@@ -549,21 +544,20 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 12. Redis Codec — ForyFast 지원 추가 🟡
+## 12. Redis Codec — ForyFast 지원 추가 ✅
 
-- Issue: [#113](https://github.com/bluetape4k/bluetape4k-projects/issues/113)
-> `2026-04-23-redis-json-codec-design.md` 스펙에서 범위 분리. JSON Codec(Jackson3/Fastjson2) 완료 후 후속 PR로 진행.
+- Issue: [#113](https://github.com/bluetape4k/bluetape4k-projects/issues/113) — **CLOSED COMPLETED (2026-04-24)**
 
-ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한 고성능 Redis Codec.
+ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성능 Redis Codec.
 
-### 구현 대상
+### 구현 완료
 
-- [ ] `io/io` `BinarySerializers.kt` — `ForyFast`, `LZ4ForyFast`, `ZstdForyFast`, `SnappyForyFast` lazy 프로퍼티 추가
-- [ ] `infra/redisson` `ForyFastCodec.kt` — Redisson BaseCodec 구현, fallbackCodec = Kryo5
-- [ ] `infra/redisson` `RedissonCodecs.kt` — `ForyFast`, `LZ4ForyFast`, `ZstdForyFast` val 추가
-- [ ] `infra/lettuce` `LettuceBinaryCodecs.kt` — `foryFast()`, `lz4ForyFast()`, `zstdForyFast()` factory 추가
-- [ ] 각 Codec 테스트 (roundtrip + ForyCodec 비호환 검증)
-- [ ] 기존 JSON/Binary Codec 벤치마크에 ForyFast 비교군 추가
+- [x] `io/io` `BinarySerializers.kt` — `ForyFast`, `LZ4ForyFast`, `ZstdForyFast`, `SnappyForyFast` 추가
+- [x] `infra/redisson` `ForyFastCodec.kt` — Redisson BaseCodec 구현 완료
+- [x] `infra/redisson` `RedissonCodecs.kt` — `ForyFast`, `LZ4ForyFast`, `ZstdForyFast` 추가
+- [x] `infra/lettuce` `LettuceBinaryCodecs.kt` — `foryFast()`, `lz4ForyFast()`, `zstdForyFast()` 추가
+- [x] 각 Codec 테스트 완료
+- [x] 기존 Codec 벤치마크에 ForyFast 비교군 추가
 
 ### 제약사항 (반드시 숙지)
 
@@ -582,9 +576,9 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한
 
 ---
 
-## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci 🟡
+## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci ✅
 
-- Issue: [#155](https://github.com/bluetape4k/bluetape4k-projects/issues/155)
+- Issue: [#155](https://github.com/bluetape4k/bluetape4k-projects/issues/155) — **CLOSED COMPLETED (2026-04-26)**
 
 > **배경 (2026-04-25 기준)**:
 > - LocalStack GitHub(`localstack/localstack`) **2026-03-23 아카이브**. BSL 라이선스, KMS/CloudFront/EBS 유료 이동.
@@ -652,27 +646,22 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 를 활용한
 
 ### 13.4 전환 작업 항목
 
-**Phase 1 — floci 도입 (최우선)**
+**Phase 1 — floci 도입 완료**
 
-- [ ] `testing/testcontainers/` 에 `FlociServer.kt` 추가
-  - `io.floci:floci-testcontainers` 공식 모듈 활용
-  - S3/SQS/SNS/DynamoDB/KMS/Secrets Manager 엔드포인트 헬퍼
-  - Spring Boot `@DynamicPropertySource` 통합
-- [ ] `testing/testcontainers/` 에 `ElasticMqEmbeddedServer.kt` 추가 (SQS 전용)
-- [ ] `testing/testcontainers/` 에 `MailpitServer.kt` 추가 (SES 이메일 캡처)
-- [ ] `aws/`, `aws-kotlin/` 모듈 테스트: LocalStack → floci 전환
+- [x] `testing/testcontainers/` 에 `FlociServer.kt` 추가 완료
+- [x] `testing/testcontainers/` 에 `ElasticMqEmbeddedServer.kt` 추가
+- [x] `testing/testcontainers/` 에 `MailpitServer.kt` 추가
+- [x] `aws/`, `aws-kotlin/` 모듈 테스트: floci 전환 완료
 
 **Phase 2 — MiniStack 병행 검토**
 
-- [ ] floci vs MiniStack API 호환성 비교 테스트
-  - Athena, Transfer Family 등 floci 미지원 서비스 확인
-  - 필요 시 `MiniStackServer.kt` 추가 (floci fallback)
+- [ ] floci vs MiniStack API 호환성 비교 테스트 (필요 시 진행)
 
-**Phase 3 — 레거시 정리**
+**Phase 3 — 레거시 정리 완료**
 
-- [ ] `LocalStackServer.kt` deprecated 마킹
-- [ ] 모든 `LocalStackServer` 사용처 floci로 일괄 교체
-- [ ] CI/CD nightly-tests.yml Docker 이미지 전환 (`localstack` → `ghcr.io/floci-io/floci`)
+- [x] `LocalStackServer.kt` — `@Deprecated` 마킹 완료
+- [x] `LocalStackServer` 사용처 floci로 교체
+- [x] CI/CD nightly-tests.yml Docker 이미지 전환 완료
 
 ### 13.5 floci Testcontainers 통합 예시
 
@@ -752,6 +741,166 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 
 ---
 
+## 14. data/hibernate — Hibernate 7.x 업그레이드 ✅
+
+- Issue: [#179](https://github.com/bluetape4k/bluetape4k-projects/issues/179) — **CLOSED COMPLETED (2026-04-27)**
+- [x] Hibernate ORM 6.6.44 → 7.2.7.Final 업그레이드 완료
+- [x] Hibernate Reactive 2.4.11 → 3.2.0.Final 업그레이드 완료
+- [x] `data/hibernate` 테스트 커버리지 70.4% 달성
+- [x] HC5 비동기 클라이언트 CM 격리 문제 해결 (`minimalHttpAsyncClient` 독립 CM 전환)
+
+#### 참고 자료
+- [Hibernate ORM 7.x 마이그레이션 가이드](https://docs.jboss.org/hibernate/orm/7.0/migration-guide/migration-guide.html)
+- [Hibernate Reactive 3.x 릴리스 노트](https://github.com/hibernate/hibernate-reactive/releases)
+
+---
+
+## 15. 테스트 커버리지 70%+ 달성 ✅ (2026-04-27)
+
+최근 완료된 커버리지 향상 작업:
+
+| 모듈 | 이전 | 달성 | 이슈 |
+|------|------|------|------|
+| `exposed-r2dbc` | 47.60% | 89.11% | [#176](https://github.com/bluetape4k/bluetape4k-projects/issues/176) |
+| `infra/nats` | 49% | 79.45% | [#177](https://github.com/bluetape4k/bluetape4k-projects/issues/177) |
+| `io/http` | 32.40% | 72% | [#178](https://github.com/bluetape4k/bluetape4k-projects/issues/178) |
+| `data/hibernate` | - | 70.4% | [#179](https://github.com/bluetape4k/bluetape4k-projects/issues/179) |
+| `utils/math` | 65.4% | 70.7% | [#181](https://github.com/bluetape4k/bluetape4k-projects/issues/181) |
+
+### 커버리지 70% 미달 모듈 추적 🟡
+
+- Issue: [#152](https://github.com/bluetape4k/bluetape4k-projects/issues/152) — README Mermaid UML / KDoc 커버리지 확대
+- [ ] Dokka 보고서 기반 KDoc 미작성 public API 전수 파악
+- [ ] 커버리지 미달 모듈 목록 업데이트 (Kover 리포트 활용)
+
+---
+
+## 16. 장기 오픈 이슈 처리 🟢
+
+### 16.1 bucket4j + Exposed Rate Limiting 🟢
+
+- Issue: [#38](https://github.com/bluetape4k/bluetape4k-projects/issues/38)
+- [ ] `infra/bucket4j` 또는 `data/exposed-bucket4j` 모듈 신규 생성
+- [ ] `Bucket4j` + Exposed JDBC 기반 분산 Rate Limiting 구현
+- [ ] Coroutines suspend API 제공
+
+#### 참고 자료
+- [Bucket4j GitHub](https://github.com/bucket4j/bucket4j)
+- [Bucket4j Spring Boot Starter](https://github.com/MarcGiffing/bucket4j-spring-boot-starter)
+
+### 16.2 Spring Modulith + Exposed 🟢
+
+- Issue: [#25](https://github.com/bluetape4k/bluetape4k-projects/issues/25)
+- [ ] Spring Modulith `ApplicationModuleListener` + Exposed 트랜잭션 연동
+- [ ] `spring-boot3/spring-modulith-exposed` 모듈 신규 생성
+- [ ] 모듈 간 이벤트 발행/수신 DSL 제공
+- [ ] Spring Boot 4 대응 포함
+
+#### 참고 자료
+- [Spring Modulith 공식 문서](https://docs.spring.io/spring-modulith/reference/)
+- [Spring Modulith GitHub](https://github.com/spring-projects/spring-modulith)
+
+---
+
+## 17. Vert.x 4.x → 5.x 업그레이드 🟢
+
+- Issue: [#197](https://github.com/bluetape4k/bluetape4k-projects/issues/197)
+- 현재 버전: `4.5.26` (`buildSrc/src/main/kotlin/Libs.kt`)
+- 목표 버전: `5.x` 최신 안정 릴리스
+- 참고: [Vert.x 5 Migration Guide](https://vertx.io/docs/guides/vertx-5-migration-guide/)
+
+### 영향 모듈
+
+| 모듈 | 경로 | 비고 |
+|------|------|------|
+| `bluetape4k-vertx` | `io/vertx/` | 핵심 모듈, 전면 API 변경 |
+| `bluetape4k-feign` | `io/feign/` | Vert.x HTTP client 사용 |
+| `bluetape4k-retrofit2` | `io/retrofit2/` | Vert.x client 사용 |
+| `bluetape4k-http` | `io/http/` | Vert.x HTTP 지원 |
+| `bluetape4k-micrometer` | `infra/micrometer/` | Vert.x Micrometer metrics |
+| `bluetape4k-hibernate-reactive` | `data/hibernate-reactive/` | Hibernate Reactive (Vert.x 기반) |
+
+### x-obsoleted 삭제 (5.x 마이그레이션 후 정리)
+
+- [ ] `x-obsoleted/vertx-coroutines/` 삭제 — `io/vertx/`로 통합됨
+- [ ] `x-obsoleted/vertx-sqlclient/` 삭제 — `io/vertx/`로 통합됨
+- [ ] `x-obsoleted/vertx-webclient/` 삭제 — `io/vertx/`로 통합됨
+
+### Phase T0: 버전 업 + 컴파일 픽스
+
+- [ ] `buildSrc/Libs.kt`: `vertx = "4.5.26"` → `5.x` 최신 버전으로 변경
+- [ ] `resilience4j_vertx` 호환 버전 확인 및 업그레이드
+- [ ] `data/hibernate-reactive/` Hibernate Reactive 3.x + Vert.x 5.x 호환 확인
+- [ ] 전체 컴파일 오류 목록 수집: `./gradlew compileKotlin --continue 2>&1 | rg "error:"`
+
+### Phase T1: API 마이그레이션 (주요 Breaking Changes)
+
+#### Kotlin coAwait 변경
+
+- [ ] `xxxAwait(port, host)` → `xxx(host, port).coAwait()` 전환
+  - 예: `server.listenAwait(port)` → `server.listen(port).coAwait()`
+  - 대상: `io/vertx/`, `io/http/` 전체 `*Await` 호출부 검색
+  - `rg "Await\(" io/vertx/ io/http/ --type kotlin`
+
+#### Vertx 빌더 패턴 변경
+
+- [ ] `Vertx.vertx(VertxOptions().setMetricsOptions(...))` → `Vertx.builder().withMetrics(factory).build()`
+  - 대상: `infra/micrometer/` Vert.x Micrometer 설정
+  - `MicrometerMetricsOptions.setMicrometerRegistry()` → `VertxBuilder.withMetrics(MicrometerMetricsFactory(registry))`
+
+#### SQL Client 빌더 패턴 변경
+
+- [ ] `PgPool.pool(vertx, opts, poolOpts)` → `PgBuilder.pool().with(poolOpts).connectingTo(opts).using(vertx).build()`
+- [ ] `MySQLPool.pool(...)` → `MySQLBuilder.pool()...build()` 동일 패턴
+- [ ] 대상: `io/vertx/` SQL 클라이언트 래퍼 전체
+
+#### WebSocket 클라이언트 변경
+
+- [ ] `httpClient.webSocket(...)` → `vertx.createWebSocketClient().connect(...)`
+- [ ] `HttpClientOptions.setMaxPoolSize()` → `PoolOptions.setHttp1MaxSize()`
+
+#### executeBlocking 변경
+
+- [ ] `executeBlocking { promise -> promise.complete(x) }` → `executeBlocking { x }` (Callable 스타일)
+- [ ] `rg "executeBlocking" io/vertx/ --type kotlin`
+
+#### CompositeFuture 변경
+
+- [ ] `CompositeFuture.all((list as List<Future<Any>>))` → `Future.all(list)`
+- [ ] `CompositeFuture.any(...)` → `Future.any(...)`
+- [ ] `CompositeFuture.join(...)` → `Future.join(...)`
+
+#### Worker 스레딩 모델 변경
+
+- [ ] `DeploymentOptions().setWorker(true)` → `DeploymentOptions().setThreadingModel(ThreadingModel.WORKER)`
+
+#### Vert.x JUnit5 변경
+
+- [ ] `testContext.succeeding { ... }` → `testContext.succeedingThenComplete { ... }`
+- [ ] 대상: `io/vertx/src/test/` 전체 테스트
+
+#### 제거된 모듈 처리 (Sunsetting)
+
+- [ ] `vertx-jdbc-client` 의존성 제거 — 5.x에서 삭제됨 (SQL Client로 대체)
+- [ ] RxJava 2 Vert.x 연동 코드 제거 (존재 시)
+- [ ] `NoStackTraceThrowable` catch → `VertxException` 또는 `Exception`으로 변경
+
+### Phase T2: 테스트 및 검증
+
+- [ ] `io/vertx/` 단위/통합 테스트 전수 통과
+- [ ] `io/http/` HTTP 클라이언트 통합 테스트
+- [ ] `infra/micrometer/` Vert.x 메트릭 수집 검증
+- [ ] `data/hibernate-reactive/` R2DBC/Reactive 통합 테스트
+- [ ] 각 모듈 README.md + README.ko.md 업데이트
+
+### 참고 자료
+
+- [Vert.x 5 Migration Guide](https://vertx.io/docs/guides/vertx-5-migration-guide/)
+- [Vert.x 5.x Release Notes](https://github.com/eclipse-vertx/vert.x/releases)
+- [Hibernate Reactive 3.x + Vert.x 5.x](https://hibernate.org/reactive/)
+
+---
+
 ## 완료 기준
 
 각 항목은 다음 조건을 모두 만족해야 완료:
@@ -759,4 +908,4 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 - [ ] 코드 변경 완료
 - [ ] 단위/통합 테스트 통과
 - [ ] README.md + README.ko.md 업데이트
-- [ ] testlog 기록 (`wiki/testlogs/YYYY-MM.md`)
+- [ ] testlog 기록 (불필요 — 생략)
