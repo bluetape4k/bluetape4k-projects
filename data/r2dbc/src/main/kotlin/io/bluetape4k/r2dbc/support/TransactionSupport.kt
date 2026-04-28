@@ -1,11 +1,31 @@
 package io.bluetape4k.r2dbc.support
 
+import io.r2dbc.spi.ConnectionFactory
 import org.springframework.r2dbc.connection.R2dbcTransactionManager
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.transaction.ReactiveTransaction
 import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
+import java.util.WeakHashMap
+
+/**
+ * [ConnectionFactory] 별 [R2dbcTransactionManager] 캐시.
+ *
+ * 동일한 [ConnectionFactory]에 대해 매 호출마다 새로운 [R2dbcTransactionManager]를 생성하지 않도록
+ * [WeakHashMap]으로 캐싱합니다. [WeakHashMap]을 사용하므로 [ConnectionFactory]가 GC 대상이 되면
+ * 자동으로 캐시에서 제거됩니다.
+ */
+internal val transactionManagerCache = WeakHashMap<ConnectionFactory, R2dbcTransactionManager>()
+
+/**
+ * [ConnectionFactory]에 대응하는 [R2dbcTransactionManager]를 캐시에서 조회하거나 새로 생성합니다.
+ */
+@PublishedApi
+internal fun ConnectionFactory.getOrCreateTransactionManager(): R2dbcTransactionManager =
+    synchronized(transactionManagerCache) {
+        transactionManagerCache.getOrPut(this) { R2dbcTransactionManager(this) }
+    }
 
 /**
  * R2DBC 트랜잭션 환경 하에서 suspend 함수를 실행합니다.
@@ -42,7 +62,7 @@ suspend inline fun <T: Any> DatabaseClient.withTransactionSuspend(
     transactionDefinition: TransactionDefinition = TransactionDefinition.withDefaults(),
     crossinline block: suspend (tx: ReactiveTransaction) -> T?,
 ): T? {
-    val tm = R2dbcTransactionManager(this.connectionFactory)
+    val tm = this.connectionFactory.getOrCreateTransactionManager()
 
     return TransactionalOperator
         .create(tm, transactionDefinition)

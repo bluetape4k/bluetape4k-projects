@@ -103,6 +103,10 @@ private class DeleteValueSpecImpl(
 ): DeleteValueSpec {
     companion object: KLogging()
 
+    init {
+        requireValidIdentifier(table)
+    }
+
     override fun matching(
         where: String?,
         whereParameters: Map<String, Any?>?,

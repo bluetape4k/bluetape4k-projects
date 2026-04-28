@@ -57,6 +57,24 @@ fun ExposedConnection<*>.registerVectorType() {
 }
 
 /**
+ * 벡터 거리 연산자를 나타내는 enum 클래스.
+ *
+ * SQL injection을 방지하기 위해 operator를 String 대신 sealed type으로 표현합니다.
+ *
+ * @property sql SQL 연산자 문자열
+ */
+enum class VectorDistanceOperator(val sql: String) {
+    /** 코사인 거리 연산자 */
+    COSINE("<=>"),
+
+    /** L2 유클리드 거리 연산자 */
+    L2("<->"),
+
+    /** 내적(Inner Product) 연산자 */
+    INNER_PRODUCT("<#>"),
+}
+
+/**
  * 코사인 거리 연산자 (`<=>`).
  * PostgreSQL dialect 전용.
  *
@@ -74,7 +92,7 @@ fun ExposedConnection<*>.registerVectorType() {
  */
 fun Column<FloatArray>.cosineDistance(other: Expression<FloatArray>): VectorDistanceOp {
     check(currentDialect is PostgreSQLDialect) { "cosineDistance (<=>) 는 PostgreSQL dialect 에서만 지원됩니다." }
-    return VectorDistanceOp(this, other, "<=>")
+    return VectorDistanceOp(this, other, VectorDistanceOperator.COSINE)
 }
 
 /**
@@ -95,7 +113,7 @@ fun Column<FloatArray>.cosineDistance(other: Expression<FloatArray>): VectorDist
  */
 fun Column<FloatArray>.l2Distance(other: Expression<FloatArray>): VectorDistanceOp {
     check(currentDialect is PostgreSQLDialect) { "l2Distance (<->) 는 PostgreSQL dialect 에서만 지원됩니다." }
-    return VectorDistanceOp(this, other, "<->")
+    return VectorDistanceOp(this, other, VectorDistanceOperator.L2)
 }
 
 /**
@@ -116,7 +134,7 @@ fun Column<FloatArray>.l2Distance(other: Expression<FloatArray>): VectorDistance
  */
 fun Column<FloatArray>.innerProduct(other: Expression<FloatArray>): VectorDistanceOp {
     check(currentDialect is PostgreSQLDialect) { "innerProduct (<#>) 는 PostgreSQL dialect 에서만 지원됩니다." }
-    return VectorDistanceOp(this, other, "<#>")
+    return VectorDistanceOp(this, other, VectorDistanceOperator.INNER_PRODUCT)
 }
 
 /**
@@ -124,18 +142,18 @@ fun Column<FloatArray>.innerProduct(other: Expression<FloatArray>): VectorDistan
  *
  * @property left 왼쪽 벡터 표현식
  * @property right 오른쪽 벡터 표현식
- * @property operator 거리 연산자 문자열 (`<=>`, `<->`, `<#>`)
+ * @property operator 거리 연산자 ([VectorDistanceOperator])
  */
 class VectorDistanceOp(
     private val left: Expression<FloatArray>,
     private val right: Expression<FloatArray>,
-    private val operator: String,
+    private val operator: VectorDistanceOperator,
 ): ExpressionWithColumnType<Double>() {
     override val columnType = DoubleColumnType()
 
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append(left)
-        queryBuilder.append(" $operator ")
+        queryBuilder.append(" ${operator.sql} ")
         queryBuilder.append(right)
     }
 }

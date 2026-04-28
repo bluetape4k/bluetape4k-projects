@@ -86,7 +86,12 @@ class R2dbcConnectionConfig {
     /** 접속 비밀번호 */
     var password: String? = null
 
-    /** SSL 사용 여부 (기본값: false) */
+    /**
+     * SSL 사용 여부 (기본값: false).
+     *
+     * **주의**: 운영 환경에서는 반드시 `ssl = true`로 설정하세요.
+     * `false`는 개발/로컬 환경 전용이며, 운영 환경에서 `false`를 사용하면 네트워크 구간 데이터가 평문으로 전송됩니다.
+     */
     var ssl: Boolean = false
 
     /** 커넥션 생성 타임아웃 */
