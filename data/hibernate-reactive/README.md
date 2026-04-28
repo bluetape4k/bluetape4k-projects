@@ -198,8 +198,8 @@ classDiagram
 
 ## Version Requirements
 
-**Hibernate Reactive 3.2.0.Final** requires:
-- Hibernate ORM 7.2.7.Final (updated from 7.2.x)
+**Hibernate Reactive 4.3.3.Final** requires:
+- Hibernate ORM 7.3.2.Final (updated from 7.2.x)
 - Jakarta Persistence 3.0 namespace in `persistence.xml`
 - Java 11+ / Kotlin 1.5+
 

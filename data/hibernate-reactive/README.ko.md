@@ -198,8 +198,8 @@ classDiagram
 
 ## 버전 요구사항
 
-**Hibernate Reactive 3.2.0.Final** 필수 환경:
-- Hibernate ORM 7.2.7.Final (ORM 7.2.x 대상)
+**Hibernate Reactive 4.3.3.Final** 필수 환경:
+- Hibernate ORM 7.3.2.Final (ORM 7.2.x 대상)
 - Jakarta Persistence 3.0 namespace in `persistence.xml`
 - Java 11+ / Kotlin 1.5+
 

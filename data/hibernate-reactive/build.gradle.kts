@@ -38,12 +38,17 @@ kapt {
     showProcessorStats = true
 }
 
-// Hibernate ORM 7.x / Reactive 3.x requires Jakarta Persistence 3.2.0
+// Hibernate ORM 7.x / Reactive 4.x requires Jakarta Persistence 3.2.0
+// Spring Boot 3 BOM manages Netty 4.1.x but Vert.x 5 requires Netty 4.2.12.Final
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "jakarta.persistence") {
             useVersion("3.2.0")
             because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
+        }
+        if (requested.group == "io.netty") {
+            useVersion("4.2.12.Final")
+            because("Vert.x 5.0.11 requires Netty 4.2.12.Final; Spring Boot 3 BOM would downgrade to 4.1.x")
         }
     }
 }

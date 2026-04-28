@@ -88,7 +88,7 @@ object Versions {
     const val blockhound = "1.0.16.RELEASE" // https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
 
     const val mutiny = "3.1.1"               // https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
-    const val vertx = "4.5.26"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    const val vertx = "5.0.11"               // https://mvnrepository.com/artifact/io.vertx/vertx-core
 
     const val swagger = "2.2.43"              // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
     const val springdoc_openapi = "2.8.15"    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
@@ -136,8 +136,8 @@ object Versions {
     // NOTE: 이 경우 기존 javax 를 사용하는 버전과 충돌이 생길 수 있으니 조심하세요
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
 
-    const val hibernate = "7.2.7.Final"            // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core  // previous: 6.6.44.Final
-    const val hibernate_reactive = "3.2.0.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core  // previous: 2.4.11.Final; 3.2.0.Final targets ORM 7.2.x
+    const val hibernate = "7.3.2.Final"            // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core  // previous: 7.2.7.Final
+    const val hibernate_reactive = "4.3.3.Final"  // https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core  // previous: 3.2.0.Final; 4.3.3.Final targets Vertx 5.0 + ORM 7.3.2.Final
     const val hibernate_validator = "9.1.0.Final" // https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
     const val querydsl = "5.1.0"                  // https://mvnrepository.com/artifact/com.querydsl/querydsl-jpa
 
@@ -494,7 +494,6 @@ object Libs {
     val resilience4j_spring_boot3 = resilience4j("spring-boot3")
     val resilience4j_spring_cloud2 = resilience4j("spring-cloud2")
     val resilience4j_timelimiter = resilience4j("timelimiter")
-    val resilience4j_vertx = resilience4j("vertx")
 
     // Bucket4j
     fun bucket4j(module: String) = "com.bucket4j:bucket4j_jdk17-$module:${Versions.bucket4j}"
