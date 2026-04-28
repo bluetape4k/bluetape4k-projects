@@ -4,9 +4,11 @@ import io.bluetape4k.coroutines.flow.extensions.ResumableCollector
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.CancellationException
 
 /**
  * 구독 시점 이후에 emit된 값만 전달하는 Publish Subject 구현입니다.
@@ -115,7 +117,8 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
             try {
                 collector.next(value)
             } catch (e: CancellationException) {
-                remove(collector)
+                currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
+                remove(collector) // 이 collector만 개별 취소됨
             }
         }
     }

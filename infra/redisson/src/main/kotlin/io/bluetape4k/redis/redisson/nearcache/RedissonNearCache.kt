@@ -46,10 +46,18 @@ class RedissonNearCache<K: Any, V: Any> private constructor(
         @JvmStatic
         val DefaultCodec = RedissonCodecs.LZ4Fory
 
-        /** Near cache 에 사용할 기본 로컬 캐시 옵션입니다. */
+        /**
+         * 캐시 이름을 지정한 기본 로컬 캐시 옵션을 생성합니다.
+         *
+         * 공유 싱글톤 대신 팩토리 함수를 사용하여 캐시마다 고유한 Redis 키가 보장됩니다.
+         *
+         * @param name 캐시 고유 이름 (Redis 키 충돌 방지용)
+         * @return 기본 설정이 적용된 [LocalCachedMapOptions] 인스턴스
+         */
         @JvmStatic
-        val DefaultLocalCacheMapOptions: LocalCachedMapOptions<String, Any> by lazy {
-            LocalCachedMapOptions.name<String, Any>("default")
+        fun defaultLocalCacheOptions(name: String): LocalCachedMapOptions<String, Any> {
+            name.requireNotBlank("name")
+            return LocalCachedMapOptions.name<String, Any>(name)
                 .cacheSize(100_000)
                 .evictionPolicy(LocalCachedMapOptions.EvictionPolicy.LFU)
                 .timeToLive(60.seconds.toJavaDuration())

@@ -23,6 +23,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.withTimeout
 import java.io.Closeable
 
 /**
@@ -106,12 +107,17 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      * // 값이 없으면 null
      * ```
      *
+     * **주의:** 동일 키에 대한 동시 캐시 미스 시 [SuspendedMapLoader.load]가 여러 번 호출될 수 있습니다
+     * (cache stampede). 호출자가 필요하다면 키별 Mutex나 SingleFlight 패턴으로 추가 보호하세요.
+     *
      * @param key 조회할 키
      * @return 값 (없으면 null)
      */
     suspend fun get(key: K): V? {
         val redisKey = redisKey(key)
-        val cached = runCatching { asyncCommands.get(redisKey).await() }.getOrNull()
+        val cached = runCatching { asyncCommands.get(redisKey).await() }
+            .onFailure { log.warn(it) { "Redis GET 실패, loader fallback: $redisKey" } }
+            .getOrNull()
         if (cached != null) return cached
         val loader = loader ?: return null
         val value = loader.load(key) ?: return null
@@ -298,39 +304,34 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                     }
                 } else {
                     runCatching {
-                        // 개선: 기존엔 키만 LPUSH 해 실패 복구가 불가능했습니다.
-                        //       이제 키 리스트(모니터링용)와 해시(키→값, 복구용)를 함께 저장합니다.
+                        // 개선: HSET(복구용 값)을 먼저 저장한 후 LPUSH(모니터링용 키 목록)를 저장합니다.
+                        //       두 명령은 서로 다른 codec connection을 사용하므로 MULTI/EXEC 불가.
+                        //       HSET 실패 시 LPUSH를 건너뛰어 복구 불가 상태(모니터링 오탐)를 방지합니다.
                         val deadLetterKey = "${config.keyPrefix}:dead-letter"
                         val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+                        // HSET 먼저: 실패 시 LPUSH 건너뜀 (복구 데이터 우선)
+                        asyncCommands.hset(deadLetterValuesKey, valueMap).await()
                         val serializedKeys = batch.keys.map { keySerializer(it) }
                         strAsyncCommands
                             .lpush(deadLetterKey, *serializedKeys.toTypedArray())
                             .await()
-                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
-                        asyncCommands.hset(deadLetterValuesKey, valueMap).await()
                     }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
                 }
             }
     }
 
     override fun close() {
-        writeBehindJob?.cancel()
-        writeBehindChannel?.let { channel ->
-            // 남은 항목 flush (shutdown 시)
-            val deadline = System.currentTimeMillis() + config.writeBehindShutdownTimeout.toMillis()
-            while (!channel.isEmpty && System.currentTimeMillis() < deadline) {
-                val batch = mutableListOf<Triple<K, V, Int>>()
-                while (batch.size < config.writeBehindBatchSize) {
-                    val item = channel.tryReceive().getOrNull() ?: break
-                    batch.add(item)
+        // 1. 채널을 먼저 닫아 새 write 차단 (producer가 IllegalStateException을 던짐)
+        writeBehindChannel?.close()
+        // 2. writeBehindJob이 채널을 drain하고 자연스럽게 종료될 때까지 대기
+        //    취소 전에 join해야 남은 배치가 손실 없이 flush됨
+        writeBehindJob?.let { job ->
+            runBlocking(Dispatchers.IO) {
+                withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
+                    job.join()
                 }
-                if (batch.isEmpty()) break
-                runBlocking { flushBatch(batch) }
             }
-            if (!channel.isEmpty) {
-                log.warn { "Write-behind shutdown 타임아웃: 일부 항목 유실" }
-            }
-            channel.close()
         }
         scope.cancel()
         if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()

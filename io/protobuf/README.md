@@ -142,7 +142,35 @@ sequenceDiagram
 - **DateTime conversion**: `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf `Date`/`TimeOfDay`/`DateTime`
 - **Money conversion**: JavaMoney ↔ Protobuf `Money`
 - **Message utilities**: pack/unpack based on `Any`
-- **Protobuf serializer**: `BinarySerializer` implementation (`ProtobufSerializer`)
+- **Protobuf serializer**: `BinarySerializer` implementation (`ProtobufSerializer`) with allowlist-based security
+
+### Security: ProtobufSerializer Allowlist
+
+`ProtobufSerializer` checks the `typeUrl` of each `Any` message against an allowlist before deserializing.
+Classes whose prefix is not in the allowlist throw `SecurityException` (wrapped as `BinarySerializationException`).
+
+**Default allowed prefixes** (`DEFAULT_ALLOWED_PREFIXES`):
+
+| Prefix | Description |
+|---|---|
+| `io.bluetape4k.` | All bluetape4k domain messages |
+| `com.google.protobuf.` | Standard Protobuf well-known types |
+
+**Custom allowlist example:**
+
+```kotlin
+// Narrow: only allow specific packages
+val narrowSerializer = ProtobufSerializer(
+    allowedClassPrefixes = setOf("io.bluetape4k.", "com.mycompany.proto.")
+)
+
+// Expand: add extra packages alongside defaults
+val expandedSerializer = ProtobufSerializer(
+    allowedClassPrefixes = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES + setOf("com.example.")
+)
+```
+
+The fallback serializer for non-Protobuf objects was also changed from `Jdk` to `Kryo` to avoid JDK deserialization RCE risks.
 
 ## Usage Examples
 

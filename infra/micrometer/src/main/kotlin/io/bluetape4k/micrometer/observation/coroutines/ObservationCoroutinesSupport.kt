@@ -7,6 +7,7 @@ import io.bluetape4k.support.requireNotBlank
 import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.reactor.asCoroutineContext
@@ -192,11 +193,13 @@ suspend fun <T: Any> withObservationContextSuspending(
         withContext(observation.asCoroutineObservationContext()) {
             block()
         }
+    } catch (e: CancellationException) {
+        observation.stop()
+        throw e
     } catch (e: Throwable) {
         observation.error(e)
-        throw e
-    } finally {
         observation.stop()
+        throw e
     }
 }
 
@@ -229,10 +232,12 @@ suspend fun <T: Any> Observation.withObservationContextSuspending(
         withContext(observation.asCoroutineObservationContext()) {
             block(observation.context)
         }
+    } catch (e: CancellationException) {
+        observation.stop()
+        throw e
     } catch (e: Throwable) {
         observation.error(e)
-        throw e
-    } finally {
         observation.stop()
+        throw e
     }
 }

@@ -13,12 +13,20 @@ import kotlin.time.Duration
  * - [transform] 내부에서 `shared`를 재구독하면 과거 값이 replay 됩니다.
  * - 수신 Flow를 변경하지 않고 새 cold Flow를 반환합니다.
  *
+ * > **경고**: 무제한 버퍼를 사용하므로 장기 실행 스트림에서는 메모리 누수가 발생할 수 있습니다.
+ * > 크기 제한이 있는 [replay(maxSize, transform)][replay] 또는
+ * > 시간 제한이 있는 [replay(maxTimeout, transform)][replay] 사용을 권장합니다.
+ *
  * ```kotlin
  * val out = flowRangeOf(1, 5).replay { shared -> shared.filter { it % 2 == 0 } }.toList()
  * // out == [2, 4]
  * ```
  * @param transform replay 공유 Flow를 이용해 최종 Flow를 구성하는 함수입니다.
  */
+@Deprecated(
+    message = "무제한 버퍼 replay는 장기 실행 스트림에서 메모리 누수를 유발할 수 있습니다. replay(maxSize, transform) 또는 replay(maxTimeout, transform) 사용을 권장합니다.",
+    replaceWith = ReplaceWith("replay(64, transform)"),
+)
 fun <T, R> Flow<T>.replay(transform: suspend (Flow<T>) -> Flow<R>): Flow<R> =
     replay({ ReplaySubject() }, transform)
 

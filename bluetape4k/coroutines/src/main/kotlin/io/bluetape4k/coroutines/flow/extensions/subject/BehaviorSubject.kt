@@ -6,6 +6,7 @@ import io.bluetape4k.logging.error
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
@@ -51,6 +52,8 @@ class BehaviorSubject<T> private constructor(
          * ```
          * @param initialValue 초기 최신값입니다. 생략 시 초기값 없음으로 시작합니다.
          */
+        // 안전: NONE은 Any 타입 sentinel이므로 실제 T 값이 아님. invoke() 호출 시 인자가 없으면
+        // NONE이 전달되어 초기값 없음을 나타내며, T=Any? 조건에서 런타임 타입 소거로 안전함.
         @Suppress("UNCHECKED_CAST")
         operator fun <T: Any> invoke(initialValue: T = NONE as T): BehaviorSubject<T> {
             return BehaviorSubject(Node(initialValue))
@@ -154,7 +157,8 @@ class BehaviorSubject<T> private constructor(
                 innerCollector.consumeReady.await()
                 innerCollector.resume()
             } catch (e: CancellationException) {
-                remove(innerCollector)
+                currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
+                remove(innerCollector) // 이 collector만 개별 취소됨
             }
         }
     }
@@ -174,6 +178,8 @@ class BehaviorSubject<T> private constructor(
      * ```
      * @param ex 종료 원인 예외입니다.
      */
+    // 안전: DONE은 Node<Any> 타입 sentinel이며, 실제 값을 가리키지 않으므로
+    // Node<T>로 캐스팅해도 런타임에서 값에 접근하지 않는 한 ClassCastException이 발생하지 않음.
     @Suppress("UNCHECKED_CAST")
     override suspend fun emitError(ex: Throwable?) {
         if (current == DONE)
@@ -187,6 +193,9 @@ class BehaviorSubject<T> private constructor(
             runCatching {
                 innerCollector.consumeReady.await()
                 innerCollector.resume()
+            }.onFailure { e ->
+                if (e is CancellationException) throw e
+                log.error(e) { "BehaviorSubject.emitError 알림 실패. innerCollector=$innerCollector" }
             }
         }
     }
@@ -205,6 +214,7 @@ class BehaviorSubject<T> private constructor(
      * // collector는 1 이후 정상 완료
      * ```
      */
+    // 안전: DONE sentinel을 Node<T>로 캐스팅. sentinel의 value에 접근하지 않으므로 ClassCastException 없음.
     @Suppress("UNCHECKED_CAST")
     override suspend fun complete() {
         if (current == DONE)
@@ -288,6 +298,8 @@ class BehaviorSubject<T> private constructor(
         error?.let { throw it }
     }
 
+    // 안전: TERMINATED sentinel(Array<InnerCollector>)과 실제 배열은 동일 타입이므로
+    // copyOf/compareAndSet에서 런타임 타입 소거로 안전하게 캐스팅됨.
     @Suppress("UNCHECKED_CAST")
     private fun add(inner: InnerCollector): Boolean {
         while (true) {

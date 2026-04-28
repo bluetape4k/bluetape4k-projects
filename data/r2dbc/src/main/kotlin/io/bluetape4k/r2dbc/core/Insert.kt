@@ -184,6 +184,10 @@ internal class InsertValuesSpecImpl(
 ): InsertValuesSpec {
     companion object: KLogging()
 
+    init {
+        requireValidIdentifier(table)
+    }
+
     override val values = mutableMapOf<String, Any?>()
 
     override fun value(
@@ -339,6 +343,11 @@ internal class InsertValuesKeySpecImpl(
     private val idColumn: String,
 ): InsertValuesKeySpec {
     companion object: KLogging()
+
+    init {
+        requireValidIdentifier(table)
+        requireValidIdentifier(idColumn)
+    }
 
     override val values = mutableMapOf<String, Any?>()
 

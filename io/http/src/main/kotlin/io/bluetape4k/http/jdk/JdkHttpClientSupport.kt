@@ -23,8 +23,16 @@ object JdkHttpClients: KLogging() {
 /**
  * JDK [HttpClient] 를 생성합니다.
  *
+ * ## 타임아웃 주의사항
+ * - [connectTimeout]은 TCP 연결 수립 타임아웃만 제어합니다.
+ * - **요청별 응답 타임아웃**은 이 함수에서 설정할 수 없습니다.
+ *   요청별 타임아웃은 반드시 `HttpRequest.Builder.timeout(Duration)` 으로 지정하세요.
+ *
  * ```kotlin
  * val client = jdkHttpClientOf(connectTimeout = Duration.ofSeconds(10))
+ * val request = HttpRequest.newBuilder(URI.create("https://example.com"))
+ *     .timeout(Duration.ofSeconds(30))  // 요청별 타임아웃
+ *     .build()
  * ```
  *
  * @param connectTimeout 연결 타임아웃 (기본 5초)

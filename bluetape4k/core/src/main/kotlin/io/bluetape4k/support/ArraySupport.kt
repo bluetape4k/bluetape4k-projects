@@ -1,5 +1,7 @@
 package io.bluetape4k.support
 
+import kotlinx.coroutines.CancellationException
+
 /**
  * 길이가 0인 [BooleanArray] 상수입니다.
  *
@@ -396,7 +398,7 @@ fun <T> Array<T>.setLast(value: T) {
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <T, R> Array<T>.mapCatching(transform: (T) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -409,7 +411,7 @@ inline fun <T, R> Array<T>.mapCatching(transform: (T) -> R): List<Result<R>> {
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> CharArray.mapCatching(transform: (Char) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -422,7 +424,7 @@ inline fun <R> CharArray.mapCatching(transform: (Char) -> R): List<Result<R>> {
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> ByteArray.mapCatching(transform: (Byte) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -435,7 +437,7 @@ inline fun <R> ByteArray.mapCatching(transform: (Byte) -> R): List<Result<R>> {
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> ShortArray.mapCatching(transform: (Short) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -448,7 +450,7 @@ inline fun <R> ShortArray.mapCatching(transform: (Short) -> R): List<Result<R>> 
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> IntArray.mapCatching(transform: (Int) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -461,7 +463,7 @@ inline fun <R> IntArray.mapCatching(transform: (Int) -> R): List<Result<R>> {
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> LongArray.mapCatching(transform: (Long) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -474,7 +476,7 @@ inline fun <R> LongArray.mapCatching(transform: (Long) -> R): List<Result<R>> {
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> FloatArray.mapCatching(transform: (Float) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -487,7 +489,7 @@ inline fun <R> FloatArray.mapCatching(transform: (Float) -> R): List<Result<R>> 
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <R> DoubleArray.mapCatching(transform: (Double) -> R): List<Result<R>> {
-    return map { runCatching { transform(it) } }
+    return map { runCatching { transform(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -501,7 +503,7 @@ inline fun <R> DoubleArray.mapCatching(transform: (Double) -> R): List<Result<R>
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun <T> Array<T>.forEachCatching(action: (T) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -514,7 +516,7 @@ inline fun <T> Array<T>.forEachCatching(action: (T) -> Unit): List<Result<Unit>>
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun CharArray.forEachCatching(action: (Char) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -527,7 +529,7 @@ inline fun CharArray.forEachCatching(action: (Char) -> Unit): List<Result<Unit>>
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun ByteArray.forEachCatching(action: (Byte) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -540,7 +542,7 @@ inline fun ByteArray.forEachCatching(action: (Byte) -> Unit): List<Result<Unit>>
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun ShortArray.forEachCatching(action: (Short) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -553,7 +555,7 @@ inline fun ShortArray.forEachCatching(action: (Short) -> Unit): List<Result<Unit
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun IntArray.forEachCatching(action: (Int) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -566,7 +568,7 @@ inline fun IntArray.forEachCatching(action: (Int) -> Unit): List<Result<Unit>> =
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun LongArray.forEachCatching(action: (Long) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -579,7 +581,7 @@ inline fun LongArray.forEachCatching(action: (Long) -> Unit): List<Result<Unit>>
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun FloatArray.forEachCatching(action: (Float) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 각 요소에 [action] 을 수행하며,
@@ -592,7 +594,7 @@ inline fun FloatArray.forEachCatching(action: (Float) -> Unit): List<Result<Unit
  * @return 각 요소 처리 결과를 담은 [Result] 리스트
  */
 inline fun DoubleArray.forEachCatching(action: (Double) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * 배열의 시작 부분부터 연속으로 등장하는 0 값의 개수를 반환합니다.

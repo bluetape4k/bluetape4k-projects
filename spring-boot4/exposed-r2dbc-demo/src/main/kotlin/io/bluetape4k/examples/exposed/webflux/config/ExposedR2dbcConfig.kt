@@ -12,14 +12,50 @@ import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
 
 /**
+ * R2DBC 커넥션 풀 설정입니다.
+ *
+ * `application.yml` / `application.properties`에서 `bluetape4k.r2dbc.pool.*` 프로퍼티로 재정의할 수 있습니다.
+ *
+ * ```yaml
+ * bluetape4k:
+ *   r2dbc:
+ *     pool:
+ *       max-idle-time: 10m
+ *       max-life-time: 30m
+ *       max-create-connection-time: 10s
+ *       max-size: 64
+ *       initial-size: 8
+ *       min-idle: 8
+ *       acquire-retry: 3
+ *       background-eviction-interval: 1m
+ *       max-acquire-time: 10s
+ * ```
+ */
+@ConfigurationProperties(prefix = "bluetape4k.r2dbc.pool")
+data class R2dbcPoolProperties(
+    val maxIdleTime: Duration = Duration.ofMinutes(10),
+    val maxLifeTime: Duration = Duration.ofMinutes(30),
+    val maxCreateConnectionTime: Duration = Duration.ofSeconds(10),
+    val maxSize: Int = maxOf(Runtimex.availableProcessors * 8, 64),
+    val initialSize: Int = 8,
+    val minIdle: Int = 8,
+    val acquireRetry: Int = 3,
+    val backgroundEvictionInterval: Duration = Duration.ofMinutes(1),
+    val maxAcquireTime: Duration = Duration.ofSeconds(10),
+)
+
+/**
  * WebFlux 데모에서 사용할 Exposed R2DBC 데이터베이스를 구성합니다.
  */
 @Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(R2dbcPoolProperties::class)
 class ExposedR2dbcConfig {
 
     companion object: KLoggingChannel()
@@ -48,17 +84,20 @@ class ExposedR2dbcConfig {
     }
 
     @Bean
-    fun connectionPool(connectionFactoryOptions: ConnectionFactoryOptions): ConnectionPool {
+    fun connectionPool(
+        connectionFactoryOptions: ConnectionFactoryOptions,
+        poolProperties: R2dbcPoolProperties,
+    ): ConnectionPool {
         return connectionPoolOf(connectionFactoryOptions) {
-            maxIdleTime = Duration.ofMinutes(10)
-            maxLifeTime = Duration.ofMinutes(30)
-            maxCreateConnectionTime = Duration.ofSeconds(10)
-            maxSize = maxOf(Runtimex.availableProcessors * 8, 64)
-            initialSize = 8
-            minIdle = 8
-            acquireRetry = 3
-            backgroundEvictionInterval = Duration.ofMinutes(1)
-            maxAcquireTime = Duration.ofSeconds(10)
+            maxIdleTime = poolProperties.maxIdleTime
+            maxLifeTime = poolProperties.maxLifeTime
+            maxCreateConnectionTime = poolProperties.maxCreateConnectionTime
+            maxSize = poolProperties.maxSize
+            initialSize = poolProperties.initialSize
+            minIdle = poolProperties.minIdle
+            acquireRetry = poolProperties.acquireRetry
+            backgroundEvictionInterval = poolProperties.backgroundEvictionInterval
+            maxAcquireTime = poolProperties.maxAcquireTime
         }
     }
 

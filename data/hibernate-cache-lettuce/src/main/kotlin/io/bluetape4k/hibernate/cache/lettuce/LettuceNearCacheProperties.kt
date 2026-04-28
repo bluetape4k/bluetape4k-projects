@@ -23,6 +23,12 @@ import java.time.Duration
  * hibernate.lettuce.redis_ttl.{regionName}=300s  # region별 TTL 오버라이드
  * hibernate.lettuce.use_resp3=true
  * ```
+ *
+ * **보안 주의 (Kryo/Fory 코덱):**
+ * `kryo`, `fory`, `lz4kryo`, `lz4fory` 등 Kryo/Fory 기반 코덱을 사용할 경우,
+ * Redis 데이터를 역직렬화할 때 임의 클래스가 인스턴스화될 수 있어 gadget chain 공격에 취약합니다.
+ * 반드시 Redis 접근 경로를 신뢰할 수 있는 환경(네트워크 격리, 인증 적용)에서만 사용하세요.
+ * 신뢰할 수 없는 Redis 접근 경로가 있다면 allowlist 기반 Jackson(`jdk`) 직렬화 사용을 권장합니다.
  */
 data class LettuceNearCacheProperties(
     val redisUri: String = "redis://localhost:6379",

@@ -28,8 +28,12 @@ class HttpsConfiguration {
     /**
      * Tomcat에 HTTPS 커넥터를 추가하는 [WebServerFactoryCustomizer] 빈.
      *
+     * keystore 비밀번호는 `bluetape4k.https.key-store-password` 프로퍼티 또는
+     * 환경변수 `BLUETAPE4K_HTTPS_KEY_STORE_PASSWORD`로 지정한다.
+     * **운영 배포 시에는 반드시 환경변수(또는 외부 설정)로 기본값 `"changeit"`을 변경해야 한다.**
+     *
      * @param httpsPort HTTPS 포트 번호 (기본값 443)
-     * @param keyStorePassword PKCS12 keystore 비밀번호
+     * @param keyStorePassword PKCS12 keystore 비밀번호 (기본값 `"changeit"` — 운영 환경에서는 변경 필수)
      */
     @Bean
     fun httpsConnectorCustomizer(

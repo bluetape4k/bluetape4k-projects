@@ -13,6 +13,7 @@ import io.lettuce.core.api.sync.RedisCommands
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.LockSupport
 
 /**
  * Lettuce Redis 클라이언트를 이용한 분산 세마포어(Distributed Semaphore) 구현체입니다.
@@ -44,6 +45,7 @@ class LettuceSemaphore(
 ) {
     companion object: KLogging() {
         private const val RETRY_DELAY_MS = 50L
+        private const val RETRY_DELAY_NANOS = RETRY_DELAY_MS * 1_000_000L
 
         // 개선: 상수 String → RedisScript 로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
 
@@ -169,7 +171,8 @@ return v"""
         val deadline = System.currentTimeMillis() + waitTime.toMillis()
         while (System.currentTimeMillis() < deadline) {
             if (tryAcquire(permits)) return
-            Thread.sleep(RETRY_DELAY_MS)
+            // LockSupport.parkNanos: Thread.sleep 과 달리 Virtual Thread carrier thread 를 핀닝하지 않음
+            LockSupport.parkNanos(RETRY_DELAY_NANOS)
         }
         throw IllegalStateException("세마포어 획득 시간 초과: semaphoreKey=$semaphoreKey, permits=${permits}")
     }

@@ -91,7 +91,7 @@ class RedissonJwtProvider private constructor(
                     if (reader.expiration != null) reader.expiration.time - System.currentTimeMillis()
                     else Long.MAX_VALUE
 
-                cache.fastPut(jwtString, reader.toDto(), minOf(ttl, readerTtl), TimeUnit.MILLISECONDS)
+                cache.fastPut(jwtString, reader.toDto(jwtString), minOf(ttl, readerTtl), TimeUnit.MILLISECONDS)
             }
             reader
         }

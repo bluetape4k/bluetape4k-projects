@@ -1,7 +1,9 @@
 package io.bluetape4k.spring.rest
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.spring.AbstractSpringTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
@@ -9,13 +11,15 @@ import org.springframework.http.HttpStatus
 
 class ApiErrorBodyTest: AbstractSpringTest() {
 
+    // classpath의 Jackson 모듈을 자동 등록하는 ObjectMapper (JavaTimeModule 포함)
+    private val objectMapper = ObjectMapper().findAndRegisterModules()
+
     @Test
     fun `ApiErrorBody 기본 생성`() {
         val body = ApiErrorBody(message = "invalid input")
         body.message shouldBeEqualTo "invalid input"
         body.errorCode.shouldBeNull()
         body.timestamp.shouldNotBeNull()
-        body.stackTraces.isEmpty() shouldBeEqualTo true
     }
 
     @Test
@@ -45,14 +49,36 @@ class ApiErrorBodyTest: AbstractSpringTest() {
     }
 
     @Test
-    fun `apiErrorResponseEntityOf stackTraces 포함`() {
-        val traces = RuntimeException("test").stackTrace.toList()
+    fun `apiErrorResponseEntityOf 500 응답`() {
         val response = apiErrorResponseEntityOf(
             statusCode = 500,
             message = "server error",
-            stackTraces = traces
         )
         response.body.shouldNotBeNull()
-        response.body!!.stackTraces.isNotEmpty() shouldBeEqualTo true
+        response.body!!.message shouldBeEqualTo "server error"
+    }
+
+    @Test
+    fun `ApiErrorBody JSON 직렬화에 stackTraces 필드가 포함되지 않는다`() {
+        val body = ApiErrorBody(errorCode = "ERR-001", message = "error occurred")
+        val json = objectMapper.writeValueAsString(body)
+
+        json.contains("stackTraces").shouldBeFalse()
+        json.contains("stackTrace").shouldBeFalse()
+    }
+
+    @Test
+    fun `apiErrorResponseEntityOf 응답 본문 JSON에 stackTraces 필드가 포함되지 않는다`() {
+        val response = apiErrorResponseEntityOf(
+            statusCode = 500,
+            errorCode = "INTERNAL_ERROR",
+            message = "server error",
+        )
+        val body = response.body
+        body.shouldNotBeNull()
+
+        val json = objectMapper.writeValueAsString(body)
+        json.contains("stackTraces").shouldBeFalse()
+        json.contains("stackTrace").shouldBeFalse()
     }
 }

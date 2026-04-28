@@ -1,13 +1,23 @@
 package io.bluetape4k.idgenerators.ulid.internal
 
 import io.bluetape4k.idgenerators.ulid.ULID
+import java.security.SecureRandom
 import kotlin.random.Random
+import kotlin.random.asKotlinRandom
 
+/**
+ * ULID 생성 팩토리입니다.
+ *
+ * ## 보안 주의
+ * - 기본값은 [SecureRandom] 기반의 Kotlin Random을 사용합니다.
+ * - 세션 ID, 보안 토큰 등 예측 불가능성이 필요한 경우 반드시 [SecureRandom] 기반의 인스턴스를 사용하세요.
+ * - 성능이 중요한 비보안 컨텍스트에서만 `kotlin.random.Random.Default`를 직접 전달하세요.
+ */
 internal class ULIDFactory(
-    private val random: Random = Random,
+    private val random: Random = SecureRandom().asKotlinRandom(),
 ): ULID.Factory {
     companion object {
-        val Default = ULIDFactory()
+        val Default by lazy { ULIDFactory() }
     }
 
     override fun randomULID(timestamp: Long): String {

@@ -2,6 +2,7 @@ package io.bluetape4k.mockwebflux.web
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.http.MediaType
@@ -51,13 +52,20 @@ class WebContentController(private val loader: WebContentLoader) {
     /**
      * 지정된 이름의 HTML 페이지를 반환한다.
      *
+     * allowlist에 없는 이름이면 404, [CancellationException]은 재발생, 그 외 오류는 상위로 전파한다.
+     *
      * @param name 페이지 이름 (home/naver/google/login/article)
      * @return HTML 페이지 또는 404
      */
     @GetMapping("/{name}", produces = [MediaType.TEXT_HTML_VALUE])
     suspend fun byName(@PathVariable name: String): ResponseEntity<String> {
         name.requireNotBlank("name")
-        return runCatching { ResponseEntity.ok(withContext(Dispatchers.IO) { loader.load(name) }) }
-            .getOrElse { ResponseEntity.notFound().build() }
+        return try {
+            ResponseEntity.ok(withContext(Dispatchers.IO) { loader.load(name) })
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
+        }
     }
 }

@@ -2,6 +2,7 @@ package io.bluetape4k.redis.redisson.coroutines
 
 import io.bluetape4k.idgenerators.snowflake.Snowflakers
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
 import org.redisson.api.BatchOptions
 import org.redisson.api.BatchResult
@@ -66,6 +67,7 @@ suspend inline fun RedissonClient.withSuspendedTransaction(
         tx.commitAsync().await()
     } catch (e: Throwable) {
         runCatching { tx.rollbackAsync().await() }
+            .onFailure { if (it is CancellationException) throw it }
         throw e
     }
 }

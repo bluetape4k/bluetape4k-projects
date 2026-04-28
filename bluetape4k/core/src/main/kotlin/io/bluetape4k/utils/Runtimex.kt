@@ -99,8 +99,6 @@ object Runtimex: KLogging() {
     val usedMemory: Long
         get() = totalMemory - freeMemory
 
-    private const val TWO_GIGA = 2_000_000_000
-
     /**
      * 가비지 컬렉션을 유도하여 메모리를 정리합니다.
      *
@@ -109,14 +107,6 @@ object Runtimex: KLogging() {
      * ```
      */
     fun compactMemory() {
-        try {
-            val unused = arrayListOf<ByteArray>()
-            repeat(128) {
-                unused.add(ByteArray(TWO_GIGA))
-            }
-        } catch (ignored: OutOfMemoryError) {
-            // NOP
-        }
         log.info { "Start Compact memory..." }
         System.gc()
     }

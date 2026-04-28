@@ -3,6 +3,7 @@ package io.bluetape4k.rule.core
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.Rule
 import io.bluetape4k.rule.api.RuleEngine
@@ -198,12 +199,14 @@ open class DefaultRuleEngine(
     private fun onBeforeRules(rules: RuleSet, facts: Facts) {
         _ruleEngineListeners.forEach { listener ->
             runCatching { listener.beforeEvaluate(rules, facts) }
+                .onFailure { e -> log.warn(e) { "RuleEngineListener threw during beforeEvaluate: ${listener.javaClass.name}" } }
         }
     }
 
     private fun onAfterRules(rules: RuleSet, facts: Facts) {
         _ruleEngineListeners.forEach { listener ->
             runCatching { listener.afterExecute(rules, facts) }
+                .onFailure { e -> log.warn(e) { "RuleEngineListener threw during afterExecute: ${listener.javaClass.name}" } }
         }
     }
 

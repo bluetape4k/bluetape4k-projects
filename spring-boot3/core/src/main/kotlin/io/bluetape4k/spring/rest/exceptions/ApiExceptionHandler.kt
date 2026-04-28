@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
  *
  * ## 동작/계약
  * - 매핑된 예외를 [ApiErrorResponseEntity]로 변환하고 상태 코드를 예외 유형에 맞춰 설정합니다.
- * - 응답 생성 시 예외 메시지와 스택 트레이스를 본문에 담고 로그를 기록합니다.
+ * - 응답 생성 시 예외 메시지를 본문에 담고 스택 트레이스는 서버 로그에만 기록합니다.
  *
  * ```kotlin
  * val handler = ApiExceptionHandler()
@@ -36,7 +36,6 @@ class ApiExceptionHandler {
                 statusCode = status.value(),
                 errorCode = errorCode,
                 message = exception.message,
-                stackTraces = exception.stackTrace.asList()
             ).apply {
                 logApiError(exception, this)
             }
@@ -59,7 +58,7 @@ class ApiExceptionHandler {
      *
      * ## 동작/계약
      * - 상태 코드를 [HttpStatus.BAD_REQUEST]로 고정합니다.
-     * - 예외 메시지와 스택 트레이스를 오류 본문에 포함합니다.
+     * - 예외 메시지를 오류 본문에 포함하고, 스택 트레이스는 서버 로그에만 기록합니다.
      *
      * ```kotlin
      * val ex = HttpMessageNotReadableException("invalid body")

@@ -1,9 +1,11 @@
 package io.bluetape4k.support
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.time.Duration
 
 /**
@@ -99,10 +101,16 @@ inline fun <T> asyncRunWithTimeout(timeout: Duration, crossinline action: () -> 
  * @param action 실행할 block
  * @return [action]의 실행 결과, [timeoutMillis] 시간 내에 종료되지 않으면 null
  */
-inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: () -> T): T? =
-    runCatching {
+inline fun <T: Any> withTimeoutOrNull(timeoutMillis: Long, crossinline action: () -> T): T? {
+    return try {
         asyncRunWithTimeout(timeoutMillis, action = action).get()
-    }.getOrNull()
+    } catch (e: ExecutionException) {
+        val cause = e.cause
+        if (cause is TimeoutException) null else throw e
+    } catch (e: TimeoutException) {
+        null
+    }
+}
 
 /**
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeout] 시간 내에 종료되지 않으면 null 을 반환합니다.

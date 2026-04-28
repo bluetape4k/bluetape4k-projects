@@ -131,7 +131,7 @@ interface JwtProvider {
      * ```
      */
     fun parse(jwtString: String): JwtReader {
-        return tryParse(jwtString) ?: throw JwtException("Invalid jwt string: $jwtString")
+        return tryParse(jwtString) ?: throw JwtException("Invalid jwt string: ${jwtString.take(20)}...")
     }
 
     /**

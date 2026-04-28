@@ -3,7 +3,6 @@ package io.bluetape4k.vertx.resilience4j
 import io.github.resilience4j.retry.Retry
 import io.vertx.core.Future
 import io.vertx.core.Promise
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 /**
@@ -19,7 +18,7 @@ import java.util.concurrent.ScheduledExecutorService
  * @param supplier Vert.x [Future]를 생성하는 함수
  */
 inline fun <T> Retry.executeVertxFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService = defaultRetryScheduler,
     crossinline supplier: () -> Future<T>,
 ): Future<T> {
     return decorateVertxFuture(scheduler, supplier).invoke()
@@ -40,7 +39,7 @@ inline fun <T> Retry.executeVertxFuture(
  * @return [supplier] 를 [Retry]로 decorate 한 함수
  */
 inline fun <T> Retry.decorateVertxFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService = defaultRetryScheduler,
     crossinline supplier: () -> Future<T>,
 ): () -> Future<T> = {
     val promise = Promise.promise<T>()

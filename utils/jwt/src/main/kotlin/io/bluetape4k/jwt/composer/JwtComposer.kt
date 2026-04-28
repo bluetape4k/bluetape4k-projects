@@ -9,7 +9,6 @@ import io.bluetape4k.jwt.utils.epochSeconds
 import io.bluetape4k.jwt.utils.millisToSeconds
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
 import io.bluetape4k.support.requireNotBlank
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwtBuilder
@@ -290,12 +289,12 @@ class JwtComposer(
 
             headers.forEach { (key, value) ->
                 if (key !in JwtComposer.RESERVED_HEADER_NAMES) {
-                    log.trace { "set jwt header. key=$key, value=$value" }
+                    log.debug { "set jwt header. key=$key" }
                     header().add(key, value)
                 }
             }
             claims.forEach { (name, value) ->
-                log.trace { "set claim. name=$name, value=$value" }
+                log.debug { "set claim. name=$name" }
                 claim(name, value)
             }
             if (claims[Claims.ISSUED_AT] == null) issuedAt(Date())
