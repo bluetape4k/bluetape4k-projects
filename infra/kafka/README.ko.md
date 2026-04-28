@@ -508,6 +508,31 @@ io.bluetape4k.kafka
 └── TopicPartitionSupport.kt  # TopicPartition 유틸리티
 ```
 
+## 보안: LZ4 마이그레이션 (CVE-2025-12183, CVE-2025-66566)
+
+`org.lz4:lz4-java` 는 2025년 12월에 아카이브되었으며, 두 개의 미해결 CVE 가 있습니다:
+
+- **CVE-2025-12183** (CVSS 8.8) — 범위 초과 읽기(OOB read)
+- **CVE-2025-66566** (CVSS 8.2) — 미초기화 버퍼 정보 유출
+
+본 모듈은 유지보수가 활발한 포크 **`at.yawk.lz4:lz4-java:1.11.0`** 으로 마이그레이션했습니다.
+패키지 네임스페이스 `net.jpountz.lz4.*` 가 동일하므로 **바이너리 호환** — 소스 코드 변경 불필요.
+
+Kafka 계열 라이브러리 (`kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`) 가
+여전히 `org.lz4:lz4-java` 를 추이적 의존성으로 선언하므로, 다음과 같이 제거합니다:
+
+```kotlin
+configurations.all {
+    exclude(group = "org.lz4", module = "lz4-java")
+}
+```
+
+### 다운스트림 사용자
+
+`bluetape4k-kafka` 를 거치지 않고 `kafka-clients` 등을 직접 의존하는 경우,
+취약 JAR 가 classpath 에 포함되지 않도록 동일한 `configurations.all { exclude(...) }` 블록을
+빌드 스크립트에 추가하시기 바랍니다.
+
 ## 참고 자료
 
 - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)

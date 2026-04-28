@@ -5,6 +5,12 @@ plugins {
 
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+    all {
+        // CVE-2025-12183 (CVSS 8.8) + CVE-2025-66566 (CVSS 8.2):
+        // kafka-clients/spring-kafka/reactor-kafka 가 org.lz4:lz4-java 를 transitively 가져온다.
+        // at.yawk.lz4:lz4-java:1.11.0 (net.jpountz.lz4.* 동일 namespace) 로 대체한다.
+        exclude(group = "org.lz4", module = "lz4-java")
+    }
 }
 
 dependencies {
