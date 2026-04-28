@@ -1,16 +1,38 @@
 package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.model.JpaEntity
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
 import jakarta.persistence.EntityManager
+import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.TypedQuery
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.internal.SessionImpl
+import org.slf4j.Logger
 import java.io.Serializable
 import java.sql.Connection
 import kotlin.reflect.KClass
+
+private val emLog: Logger by lazy { KotlinLogging.logger { } }
+
+/**
+ * [id]로 엔티티 삭제 시 발생한 예외를 처리합니다.
+ *
+ * - [EntityNotFoundException]: 엔티티가 존재하지 않는 경우이므로 삭제 건너뜀 처리 (로그만 남김)
+ * - 그 외: 실제 DB 오류이므로 재던집니다 ([jakarta.persistence.OptimisticLockException] 등)
+ */
+@PublishedApi
+internal fun handleDeleteByIdFailure(id: Serializable, e: Throwable) {
+    if (e is EntityNotFoundException) {
+        // entity not found — proxy 초기화 시 발생하는 정상적인 "없는 엔티티" 케이스, 건너뜀
+        return
+    }
+    emLog.error(e) { "deleteById failed for id=$id" }
+    throw e
+}
 
 /**
  * 현 [EntityManager] 가 사용하는 Hibernate [Session] 을 가져옵니다.
@@ -214,11 +236,14 @@ fun <T: JpaEntity<*>> EntityManager.delete(entity: T) {
  * id에 해당하는 엔티티를 삭제합니다.
  *
  * ## 동작/계약
- * - reference 조회 실패 시 예외를 삼키고 삭제를 건너뜁니다.
+ * - reference 조회 실패 또는 [jakarta.persistence.EntityNotFoundException] 발생 시 삭제를 건너뜁니다.
+ * - `remove` 호출 중 실제 DB 오류([jakarta.persistence.OptimisticLockException] 등)가 발생하면
+ *   로그를 남기고 그대로 재던집니다. 삭제 실패가 성공으로 오인되지 않습니다.
  */
 inline fun <reified T> EntityManager.deleteById(id: Serializable) {
-    runCatching {
-        tryGetReference<T>(id).getOrNull()?.let { remove(it) }
+    tryGetReference<T>(id).getOrNull()?.let { entity ->
+        runCatching { remove(entity) }
+            .onFailure { e -> handleDeleteByIdFailure(id, e) }
     }
 }
 
@@ -326,12 +351,27 @@ inline fun <reified T> EntityManager.exists(id: Serializable): Boolean = findOne
  *
  * ## 동작/계약
  * - 조건 없는 criteria 기반 전체 조회를 수행합니다.
+ * - [firstResult], [maxResults]로 페이지네이션을 지정할 수 있습니다.
+ *
+ * > **운영 환경 주의**: [maxResults] 기본값은 [Int.MAX_VALUE]로 전체 테이블을 메모리에 적재합니다.
+ * > 운영 환경에서는 반드시 적절한 [maxResults] 값을 지정하세요.
  *
  * ```kotlin
+ * // 전체 조회 (소규모 테이블 또는 테스트 환경에서만 사용)
  * val users: List<User> = entityManager.findAll(User::class.java)
+ *
+ * // 페이지네이션 적용 (운영 환경 권장)
+ * val page: List<User> = entityManager.findAll(User::class.java, firstResult = 0, maxResults = 50)
  * ```
+ *
+ * @param firstResult 조회를 시작할 오프셋 (기본값: 0)
+ * @param maxResults 최대 조회 건수 (기본값: [Int.MAX_VALUE] — 운영 환경에서는 반드시 지정)
  */
-fun <T> EntityManager.findAll(clazz: Class<T>): List<T> = newQuery(clazz).resultList
+fun <T> EntityManager.findAll(
+    clazz: Class<T>,
+    firstResult: Int = 0,
+    maxResults: Int = Int.MAX_VALUE,
+): List<T> = newQuery(clazz).setPaging(firstResult, maxResults).resultList
 
 /**
  * [T] 수형의 엔티티 전체 개수를 반환합니다.

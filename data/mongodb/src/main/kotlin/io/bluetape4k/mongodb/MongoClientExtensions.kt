@@ -3,8 +3,13 @@ package io.bluetape4k.mongodb
 import com.mongodb.TransactionOptions
 import com.mongodb.kotlin.client.coroutine.ClientSession
 import com.mongodb.kotlin.client.coroutine.MongoClient
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.error
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.toList
+import org.slf4j.Logger
+
+private val log: Logger by lazy { KotlinLogging.logger { } }
 
 // ====================================================
 // MongoClient 코루틴 확장 함수
@@ -97,8 +102,9 @@ suspend fun <T> MongoClient.inTransaction(
         //   concurrency)이 깨지기 때문에, 반드시 abort 후 즉시 재전파(rethrow)해야 한다.
         try {
             session.abortTransaction()
-        } catch (_: Exception) {
-            // abort 실패는 무시합니다 — 이미 취소 중이므로 abort 오류까지 전파할 필요가 없습니다.
+        } catch (abortEx: Exception) {
+            e.addSuppressed(abortEx)
+            log.error(abortEx) { "Transaction abort failed after CancellationException" }
         }
         throw e
     } catch (e: Exception) {
@@ -107,8 +113,9 @@ suspend fun <T> MongoClient.inTransaction(
         //   않으므로, 예외 경로에서 직접 abortTransaction()을 호출해 서버 측 리소스를 즉시 해제한다.
         try {
             session.abortTransaction()
-        } catch (_: Exception) {
-            // abort 자체가 실패해도 원래 예외를 감추지 않기 위해 무시합니다.
+        } catch (abortEx: Exception) {
+            e.addSuppressed(abortEx)
+            log.error(abortEx) { "Transaction abort failed" }
         }
         throw e
     }
