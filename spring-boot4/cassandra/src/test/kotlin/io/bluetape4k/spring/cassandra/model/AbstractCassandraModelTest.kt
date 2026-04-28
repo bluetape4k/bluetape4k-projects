@@ -65,13 +65,13 @@ class AbstractCassandraModelTest {
     @Test
     fun `null과 동등하지 않음`() {
         val entity = StringEntity("id-1")
-        (entity == null).shouldBeFalse()
+        entity.shouldNotBeNull()
     }
 
     @Test
     fun `동일 참조는 동등`() {
         val entity = StringEntity("id-1")
-        (entity == entity).shouldBeTrue()
+        entity shouldBeEqualTo entity
     }
 
     @Test

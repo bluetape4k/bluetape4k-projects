@@ -127,7 +127,7 @@ class ReactiveSelectOperationsTest(
             .asFlow()
             .toList()
 
-        result.all { it is Jedi }.shouldBeTrue()
+        result.forEach { it shouldBeInstanceOf Jedi::class }
         result shouldHaveSize 2
         result.map { it.firstName } shouldContainSame listOf(han.firstName, luke.firstName)
     }
@@ -141,7 +141,7 @@ class ReactiveSelectOperationsTest(
             .asFlow()
             .toList()
 
-        result.all { it is PersonProjection }.shouldBeTrue()
+        result.forEach { it shouldBeInstanceOf PersonProjection::class }
         result shouldHaveSize 2
         result.map { it.firstName } shouldContainSame listOf(han.firstName, luke.firstName)
     }

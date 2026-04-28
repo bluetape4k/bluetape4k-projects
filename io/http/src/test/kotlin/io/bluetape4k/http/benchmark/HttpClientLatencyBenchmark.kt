@@ -21,7 +21,6 @@ import kotlinx.benchmark.Warmup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import okhttp3.ConnectionPool
-import okhttp3.Dispatcher as OkHttpDispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.coroutines.executeAsync
@@ -40,6 +39,7 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import okhttp3.Dispatcher as OkHttpDispatcher
 
 /**
  * 고지연(~50 ms) 환경에서 동기 vs 비동기 HTTP 클라이언트 처리량 비교.
@@ -138,10 +138,11 @@ open class HttpClientLatencyBenchmark {
         vertxWebClient = WebClient.create(
             vertx,
             WebClientOptions()
-                .setMaxPoolSize(connPerHost)
+                // .setMaxPoolSize(connPerHost)  // 5.x 에서 없어졌다.
                 .setKeepAlive(true)
                 .setConnectTimeout(5_000)
                 .setIdleTimeout(10)
+                .setDecompressionSupported(true)
         )
     }
 
