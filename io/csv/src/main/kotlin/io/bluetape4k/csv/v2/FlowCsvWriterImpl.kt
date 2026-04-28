@@ -2,9 +2,12 @@ package io.bluetape4k.csv.v2
 
 import io.bluetape4k.csv.internal.DelimitedWriter
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
@@ -34,13 +37,13 @@ internal class FlowCsvWriterImpl(
 
     override suspend fun writeHeaders(headers: Iterable<String>) {
         mutex.withLock {
-            writeRowTo(writer, headers)
+            withContext(Dispatchers.IO) { writeRowTo(writer, headers) }
         }
     }
 
     override suspend fun writeRow(row: Iterable<*>) {
         mutex.withLock {
-            writeRowTo(writer, row)
+            withContext(Dispatchers.IO) { writeRowTo(writer, row) }
         }
     }
 
@@ -56,19 +59,21 @@ internal class FlowCsvWriterImpl(
         headers: List<String>,
         rows: Flow<Iterable<*>>,
     ): Long {
-        var count = 0L
-        OutputStreamWriter(FileOutputStream(path.toFile(), append), encoding).use { fw ->
-            // 행마다 DelimitedWriter 재생성을 피하기 위해 파일 전용 인스턴스 1개 생성
-            val fileWriter = DelimitedWriter(fw, delimiter, quote, settings.quoteEscape, lineSeparator)
-            if (!skipHeaders && headers.isNotEmpty()) {
-                writeRowToDelimited(fileWriter, fw, headers)
+        return withContext(Dispatchers.IO) {
+            var count = 0L
+            OutputStreamWriter(FileOutputStream(path.toFile(), append), encoding).use { fw ->
+                // 행마다 DelimitedWriter 재생성을 피하기 위해 파일 전용 인스턴스 1개 생성
+                val fileWriter = DelimitedWriter(fw, delimiter, quote, settings.quoteEscape, lineSeparator)
+                if (!skipHeaders && headers.isNotEmpty()) {
+                    writeRowToDelimited(fileWriter, fw, headers)
+                }
+                rows.collect { row ->
+                    writeRowToDelimited(fileWriter, fw, row)
+                    count++
+                }
             }
-            rows.collect { row ->
-                writeRowToDelimited(fileWriter, fw, row)
-                count++
-            }
+            count
         }
-        return count
     }
 
     override fun close() {
@@ -76,7 +81,7 @@ internal class FlowCsvWriterImpl(
             writer.flush()
             delimitedWriter.close()
             writer.close()
-        }
+        }.onFailure { e -> log.warn(e) { "Failed to close CSV writer" } }
     }
 
     private fun writeRowTo(w: Writer, fields: Iterable<*>) {

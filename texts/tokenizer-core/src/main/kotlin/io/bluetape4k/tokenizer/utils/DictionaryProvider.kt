@@ -3,7 +3,9 @@ package io.bluetape4k.tokenizer.utils
 import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.zip.GZIPInputStream
@@ -30,7 +32,8 @@ object DictionaryProvider: KLogging() {
      * 입력 스트림을 라인 시퀀스로 읽어 공백 제거된 문자열을 반환한다.
      *
      * ## 동작/계약
-     * - UTF-8 디코딩 후 `lineSequence()`로 지연 평가 시퀀스를 생성한다.
+     * - UTF-8 디코딩 후 모든 라인을 즉시 읽어 메모리에 적재한다.
+     * - Reader를 `use {}` 블록으로 안전하게 닫아 InputStream 누수를 방지한다.
      * - 각 라인은 `trim()`을 적용한 값으로 변환된다.
      *
      * ```kotlin
@@ -39,12 +42,10 @@ object DictionaryProvider: KLogging() {
      * // lines == listOf("a", "b")
      * ```
      */
-    fun readStreamByLine(stream: InputStream): Sequence<String> {
-        return InputStreamReader(stream, Charsets.UTF_8)
-            .buffered()
-            .lineSequence()
-            .map { it.trim() }
-    }
+    fun readStreamByLine(stream: InputStream): Sequence<String> =
+        InputStreamReader(stream, Charsets.UTF_8).buffered().use { reader ->
+            reader.lineSequence().map { it.trim() }.toList()
+        }.asSequence()
 
     /**
      * 클래스패스 리소스를 열어 라인 시퀀스로 반환한다.
@@ -134,7 +135,7 @@ object DictionaryProvider: KLogging() {
      *
      * ## 동작/계약
      * - 내부적으로 `readFileByLineFromResources`를 그대로 위임 호출한다.
-     * - 지연 시퀀스이므로 소비 시점에 실제 읽기가 수행된다.
+     * - 시퀀스는 메모리에 적재된 목록을 래핑하므로 파일 핸들 누수가 없다.
      *
      * ```kotlin
      * val first = DictionaryProvider.readWordsAsSequence("dict/words.txt").first()
@@ -152,6 +153,7 @@ object DictionaryProvider: KLogging() {
      * - `paths`를 Flow로 순회하며 각 경로를 `async` 확장으로 비동기 변환한다.
      * - 수집된 라인을 `destination`에 `addAll`로 합친다.
      * - 반환값은 누적 결과가 반영된 동일 `destination` 인스턴스다.
+     * - 블로킹 I/O는 [Dispatchers.IO]에서 수행한다.
      *
      * ```kotlin
      * val words = DictionaryProvider.readWordsAsSet("dict/a.txt", "dict/b.txt")
@@ -161,7 +163,7 @@ object DictionaryProvider: KLogging() {
     suspend fun readWordsAsSet(
         vararg paths: String,
         destination: MutableSet<String> = mutableSetOf(),
-    ): MutableSet<String> {
+    ): MutableSet<String> = withContext(Dispatchers.IO) {
         paths.asFlow()
             .async { path ->
                 readFileByLineFromResources(path)
@@ -170,7 +172,7 @@ object DictionaryProvider: KLogging() {
                 destination.addAll(words)
             }
 
-        return destination
+        destination
     }
 
     /**
@@ -180,6 +182,7 @@ object DictionaryProvider: KLogging() {
      * - 각 경로의 라인 시퀀스를 비동기 Flow로 수집한다.
      * - 수집 결과를 `destination.addAll`로 합치며 중복 단어는 집합 특성상 하나만 유지된다.
      * - 반환값은 입력 `destination` 자체다.
+     * - 블로킹 I/O는 [Dispatchers.IO]에서 수행한다.
      *
      * ```kotlin
      * val set = DictionaryProvider.readWords("dict/stopwords.txt")
@@ -189,7 +192,7 @@ object DictionaryProvider: KLogging() {
     suspend fun readWords(
         vararg paths: String,
         destination: CharArraySet = newCharArraySet(),
-    ): CharArraySet {
+    ): CharArraySet = withContext(Dispatchers.IO) {
         paths.asFlow()
             .async { path ->
                 readFileByLineFromResources(path)
@@ -198,7 +201,7 @@ object DictionaryProvider: KLogging() {
                 destination.addAll(words)
             }
 
-        return destination
+        destination
     }
 
     /**
