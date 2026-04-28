@@ -1,7 +1,7 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
@@ -134,8 +134,8 @@ open class ByteBufferOutputStream private constructor(
      * @param len 쓸 바이트 수
      */
     override fun write(b: ByteArray, off: Int, len: Int) {
-        off.assertZeroOrPositiveNumber("off")
-        len.assertZeroOrPositiveNumber("len")
+        off.requireZeroOrPositiveNumber("off")
+        len.requireZeroOrPositiveNumber("len")
         require(off + len <= b.size) { "off+len must be <= b.size (off=$off, len=$len, size=${b.size})" }
 
         ensureCapacity(len)

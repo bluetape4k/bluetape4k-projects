@@ -42,7 +42,7 @@ fun longCombination(n: Int, k: Int): Long {
     if (k <= 0) {
         return 1L
     }
-    assert(k <= 17) { "k [$k] is two large number than 17." }
+    require(k <= 17) { "k [$k] is two large number than 17." }
 
     val a = LongArray(17)
 
@@ -54,7 +54,7 @@ fun longCombination(n: Int, k: Int): Long {
     if (m == 0) return 1L
     if (m == 1) return n.toLong()
 
-    assert(k <= 17) { "k [$k] is two large number than 17." }
+    require(k <= 17) { "k [$k] is two large number than 17." }
 
     for (i in 1..m) {
         a[i] = i.toLong() + 2L

@@ -19,14 +19,14 @@ class CoordConvertersTest {
         val degree = 37.5665
         val dm = degree.toDM()
         dm.degree shouldBeEqualTo 37
-        (abs(dm.minute - 33.99) < 0.01).let { assert(it) { "minute 오차: ${dm.minute}" } }
+        (abs(dm.minute - 33.99) < 0.01).let { require(it) { "minute 오차: ${dm.minute}" } }
     }
 
     @Test
     fun `DM을 십진도로 변환한다`() {
         val dm = DM(degree = 37, minute = 33.99)
         val result = dm.toDegree()
-        (abs(result - 37.5665) < EPSILON).let { assert(it) { "변환 오차: $result" } }
+        (abs(result - 37.5665) < EPSILON).let { require(it) { "변환 오차: $result" } }
     }
 
     @Test
@@ -43,7 +43,7 @@ class CoordConvertersTest {
     fun `DMS를 십진도로 변환한다`() {
         val dms = DMS(degree = 126, minute = 58, second = 40.8)
         val result = dms.toDegree()
-        (abs(result - 126.9780) < EPSILON).let { assert(it) { "변환 오차: $result" } }
+        (abs(result - 126.9780) < EPSILON).let { require(it) { "변환 오차: $result" } }
     }
 
     @Test
@@ -51,7 +51,7 @@ class CoordConvertersTest {
         val original = 37.5665
         val dm = original.toDM()
         val restored = dm.toDegree()
-        (abs(restored - original) < EPSILON).let { assert(it) { "왕복 오차: ${abs(restored - original)}" } }
+        (abs(restored - original) < EPSILON).let { require(it) { "왕복 오차: ${abs(restored - original)}" } }
     }
 
     @Test
@@ -59,7 +59,7 @@ class CoordConvertersTest {
         val original = 126.9780
         val dms = original.toDMS()
         val restored = dms.toDegree()
-        (abs(restored - original) < EPSILON).let { assert(it) { "왕복 오차: ${abs(restored - original)}" } }
+        (abs(restored - original) < EPSILON).let { require(it) { "왕복 오차: ${abs(restored - original)}" } }
     }
 
     @Test
@@ -68,10 +68,10 @@ class CoordConvertersTest {
         val dm = degree.toDM()
         dm.degree shouldBeEqualTo -33
         // 음수 좌표에서 minute은 음수로 표현됨 (-52.128 ≈ -0.8688 * 60)
-        (abs(dm.minute) > 0.0).let { assert(it) { "분의 절대값이 0보다 커야 합니다: ${dm.minute}" } }
+        (abs(dm.minute) > 0.0).let { require(it) { "분의 절대값이 0보다 커야 합니다: ${dm.minute}" } }
         // 왕복 변환 정확도 검증
         val restored = dm.toDegree()
-        (abs(restored - degree) < EPSILON).let { assert(it) { "왕복 오차: ${abs(restored - degree)}" } }
+        (abs(restored - degree) < EPSILON).let { require(it) { "왕복 오차: ${abs(restored - degree)}" } }
     }
 
     @Test

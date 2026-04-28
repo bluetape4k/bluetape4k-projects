@@ -31,7 +31,7 @@ class CombinationTest {
         longCombination(10, 2) shouldBeEqualTo 45L
         longCombination(10, 5) shouldBeEqualTo 252L
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             longCombination(1, 18)
         }
     }

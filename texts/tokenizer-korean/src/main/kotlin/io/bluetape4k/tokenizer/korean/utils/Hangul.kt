@@ -127,7 +127,7 @@ object Hangul: KLogging() {
      * ```
      */
     fun decomposeHangul(c: Char): HangulChar {
-        assert(!(ONSET_MAP.containsKey(c) || VOWEL_MAP.containsKey(c) || CODA_MAP.containsKey(c))) {
+        require(!(ONSET_MAP.containsKey(c) || VOWEL_MAP.containsKey(c) || CODA_MAP.containsKey(c))) {
             "Input character is not a valid Korean character"
         }
         val u = (c - HANGUL_BASE).code
@@ -164,7 +164,7 @@ object Hangul: KLogging() {
      * ```
      */
     fun composeHangul(onset: Char, vowel: Char, coda: Char = ' '): Char {
-        assert(onset != ' ' && vowel != ' ') { "Input characters are not valid" }
+        require(onset != ' ' && vowel != ' ') { "Input characters are not valid" }
 
         return (HANGUL_BASE +
                 ((ONSET_MAP[onset] ?: 0) * ONSET_BASE) +

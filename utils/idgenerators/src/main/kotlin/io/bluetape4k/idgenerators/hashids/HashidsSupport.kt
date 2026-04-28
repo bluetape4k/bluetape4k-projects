@@ -1,6 +1,6 @@
 package io.bluetape4k.idgenerators.hashids
 
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.toLongArray
 import io.bluetape4k.support.toUUID
 import java.util.*
@@ -35,6 +35,6 @@ fun Hashids.encodeUUID(uuid: UUID): String = encode(*uuid.toLongArray())
  * @return 디코딩된 UUID
  */
 fun Hashids.decodeUUID(hash: String): UUID {
-    hash.assertNotBlank("hash")
+    hash.requireNotBlank("hash")
     return decode(hash).toUUID()
 }

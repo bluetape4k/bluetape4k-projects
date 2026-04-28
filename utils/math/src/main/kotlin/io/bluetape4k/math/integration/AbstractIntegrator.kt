@@ -43,7 +43,7 @@ abstract class AbstractIntegrator: Integrator {
      * @return 적분 값
      */
     override fun integrate(lower: Double, upper: Double, evaluator: (Double) -> Double): Double {
-        assert(lower <= upper) { "lower[$lower] <= upper[$upper] 이어야 합니다." }
+        require(lower <= upper) { "lower[$lower] <= upper[$upper] 이어야 합니다." }
         log.trace { "lower=$lower, upper=$upper 범위의 적분을 수행합니다." }
 
         val result = apacheIntegrator.integrate(DEFAULT_MAXEVAL, evaluator, lower, upper)

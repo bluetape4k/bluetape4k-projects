@@ -4,6 +4,17 @@ plugins {
     kotlin("plugin.allopen")
 }
 
+// Hibernate ORM 7.x requires Jakarta Persistence 3.2.0.
+// Spring Boot 3.x BOM constrains jakarta.persistence to 3.1.0; override it here.
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "jakarta.persistence") {
+            useVersion("3.2.0")
+            because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
+        }
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }

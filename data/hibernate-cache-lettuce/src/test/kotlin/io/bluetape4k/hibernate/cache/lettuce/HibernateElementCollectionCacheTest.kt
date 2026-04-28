@@ -158,6 +158,6 @@ class HibernateElementCollectionCacheTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.cache
             .containsEntity(Article::class.java, articleId)
-            .let { assert(!it) { "삭제된 Article이 캐시에 남아있음" } }
+            .let { require(!it) { "삭제된 Article이 캐시에 남아있음" } }
     }
 }

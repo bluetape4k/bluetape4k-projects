@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration
 import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import javax.cache.Cache
 import javax.cache.CacheManager
 import javax.cache.Caching
@@ -26,7 +26,7 @@ object CaffeineJCacheProvider: KLogging() {
         keyClass: KClass<K>,
         valueClass: KClass<V>,
     ): Cache<K, V> {
-        name.assertNotBlank("name")
+        name.requireNotBlank("name")
 
         return if (cacheManager.cacheNames.contains(name)) {
             log.info { "Get exist cache. name=$name" }

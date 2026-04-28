@@ -61,9 +61,9 @@ class SaturationFilterTest : AbstractFilterTest() {
             val r = pixel.red()
             val g = pixel.green()
             val b = pixel.blue()
-            assert(abs(r - g) <= 2) { "픽셀 R=$r, G=$g 값이 tolerance=2를 초과: ${abs(r - g)}" }
-            assert(abs(r - b) <= 2) { "픽셀 R=$r, B=$b 값이 tolerance=2를 초과: ${abs(r - b)}" }
-            assert(abs(g - b) <= 2) { "픽셀 G=$g, B=$b 값이 tolerance=2를 초과: ${abs(g - b)}" }
+            require(abs(r - g) <= 2) { "픽셀 R=$r, G=$g 값이 tolerance=2를 초과: ${abs(r - g)}" }
+            require(abs(r - b) <= 2) { "픽셀 R=$r, B=$b 값이 tolerance=2를 초과: ${abs(r - b)}" }
+            require(abs(g - b) <= 2) { "픽셀 G=$g, B=$b 값이 tolerance=2를 초과: ${abs(g - b)}" }
         }
     }
 
@@ -115,7 +115,7 @@ class SaturationFilterTest : AbstractFilterTest() {
         val sourceMean = sourceSatSum / sourcePixels.size
         val resultMean = resultSatSum / resultPixels.size
 
-        assert(resultMean >= sourceMean) {
+        require(resultMean >= sourceMean) {
             "결과 이미지의 평균 채도($resultMean)가 원본($sourceMean)보다 작습니다."
         }
     }

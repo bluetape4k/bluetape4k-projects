@@ -1,6 +1,6 @@
 package io.bluetape4k.idgenerators
 
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 
 /**
  * `Long` 식별자를 36진수 문자열로도 제공하는 생성기 계약입니다.
@@ -22,7 +22,7 @@ interface LongIdGenerator: IdGenerator<Long> {
     override fun nextIdAsString(): String = nextId().toString(ALPHA_NUMERIC_BASE)
 
     override fun nextIdsAsString(size: Int): Sequence<String> {
-        size.assertPositiveNumber("size")
+        size.requirePositiveNumber("size")
         return nextIds(size).map { it.toString(ALPHA_NUMERIC_BASE) }
     }
 }

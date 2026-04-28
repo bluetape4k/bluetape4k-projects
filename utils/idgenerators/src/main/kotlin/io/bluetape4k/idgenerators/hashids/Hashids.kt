@@ -268,7 +268,7 @@ class Hashids(
 
     private fun calculateAlphabetAndSeparators(userAlphabet: String): AlphabetAndSeparators {
         val uniqueAlphabet = userAlphabet.unique()
-        assert(uniqueAlphabet.length >= MIN_ALPHABET_LEN) {
+        require(uniqueAlphabet.length >= MIN_ALPHABET_LEN) {
             "alphabet must contain at least $MIN_ALPHABET_LEN unique characters"
         }
         require(!uniqueAlphabet.contains(SPACE)) { "alphabet cannot contains spaces" }

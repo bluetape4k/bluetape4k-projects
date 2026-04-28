@@ -37,7 +37,7 @@ class FactorialsTest {
 
     @Test
     fun `factorial 음수 입력에서 예외를 던진다`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             factorial(-1)
         }
     }

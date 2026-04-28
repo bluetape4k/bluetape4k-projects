@@ -42,7 +42,7 @@ class CompressorNullableApiTest {
         val input = "hello compressOrNull".toByteArray()
         val result = compressor.compressOrNull(input)
         result.shouldNotBeNull()
-        assert(result.isNotEmpty()) { "compressOrNull result should not be empty" }
+        require(result.isNotEmpty()) { "compressOrNull result should not be empty" }
     }
 
     // ────────────────────────────────────────────────────────────────────────────

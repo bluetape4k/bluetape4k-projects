@@ -119,7 +119,7 @@ class JacksonColumnTypeUnitTest {
         val ex = assertThrows<IllegalArgumentException> {
             nullDeserializeType.valueFromDB("{}")
         }
-        assert(ex.message?.contains("SamplePayload") == true) {
+        require(ex.message?.contains("SamplePayload") == true) {
             "예외 메시지에 타입명이 포함되어야 합니다. 실제: ${ex.message}"
         }
     }
@@ -134,7 +134,7 @@ class JacksonColumnTypeUnitTest {
         // SamplePayload 는 T이므로 역직렬화 없이 반환돼야 함
         val result = columnType.valueFromDB(source)
         // valueFromDB 의 else 분기: T 캐스팅 시도 → as? T 성공
-        assert(result === source || result == source) {
+        require(result === source || result == source) {
             "이미 T 타입인 경우 동일 인스턴스(또는 동등 값)를 반환해야 합니다"
         }
     }

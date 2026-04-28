@@ -1,6 +1,6 @@
 package io.bluetape4k.opentelemetry
 
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.metrics.Meter
@@ -146,7 +146,7 @@ inline fun OpenTelemetry.tracer(
     tracerName: String,
     builder: TracerBuilder.() -> Unit,
 ): Tracer {
-    tracerName.assertNotBlank("tracerName")
+    tracerName.requireNotBlank("tracerName")
     return tracerProvider.tracerBuilder(tracerName).apply(builder).build()
 }
 
@@ -169,6 +169,6 @@ inline fun OpenTelemetry.meter(
     meterName: String,
     builder: MeterBuilder.() -> Unit,
 ): Meter {
-    meterName.assertNotBlank("meterName")
+    meterName.requireNotBlank("meterName")
     return meterProvider.meterBuilder(meterName).apply(builder).build()
 }

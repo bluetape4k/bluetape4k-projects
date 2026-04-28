@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.beans
 
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.KotlinDelegates
 import org.springframework.beans.BeanInstantiationException
 import org.springframework.beans.BeanUtils
@@ -79,7 +79,7 @@ fun <T> Class<*>.instantiateClass(assignableTo: Class<T>): T =
  * ```
  */
 fun Class<*>.findMethod(methodName: String, vararg paramTypes: Class<*>): Method? {
-    methodName.assertNotBlank("methodName")
+    methodName.requireNotBlank("methodName")
     return BeanUtils.findMethod(this, methodName, *paramTypes)
 }
 
@@ -96,7 +96,7 @@ fun Class<*>.findMethod(methodName: String, vararg paramTypes: Class<*>): Method
  * ```
  */
 fun Class<*>.findDeclaredMethod(methodName: String, vararg paramTypes: Class<*>): Method? {
-    methodName.assertNotBlank("methodName")
+    methodName.requireNotBlank("methodName")
     return BeanUtils.findDeclaredMethod(this, methodName, *paramTypes)
 }
 
@@ -113,7 +113,7 @@ fun Class<*>.findDeclaredMethod(methodName: String, vararg paramTypes: Class<*>)
  * ```
  */
 fun Class<*>.findMethodWithMinimalParameters(methodName: String): Method? {
-    methodName.assertNotBlank("methodName")
+    methodName.requireNotBlank("methodName")
     return BeanUtils.findMethodWithMinimalParameters(this, methodName)
 }
 
@@ -130,7 +130,7 @@ fun Class<*>.findMethodWithMinimalParameters(methodName: String): Method? {
  * ```
  */
 fun Class<*>.findDeclaredMethodWithMinimalParameters(methodName: String): Method? {
-    methodName.assertNotBlank("methodName")
+    methodName.requireNotBlank("methodName")
     return BeanUtils.findDeclaredMethodWithMinimalParameters(this, methodName)
 }
 
@@ -147,7 +147,7 @@ fun Class<*>.findDeclaredMethodWithMinimalParameters(methodName: String): Method
  * ```
  */
 fun Array<out Method>.findMethodWithMinimalParameters(methodName: String): Method? {
-    methodName.assertNotBlank("methodName")
+    methodName.requireNotBlank("methodName")
     return BeanUtils.findMethodWithMinimalParameters(this, methodName)
 }
 
@@ -194,7 +194,7 @@ fun Class<*>.getPropertyDescriptors(): Array<PropertyDescriptor> =
  * ```
  */
 fun Class<*>.getPropertyDescriptor(propertyName: String): PropertyDescriptor? {
-    propertyName.assertNotBlank("requireName")
+    propertyName.requireNotBlank("requireName")
     return BeanUtils.getPropertyDescriptor(this, propertyName)
 }
 

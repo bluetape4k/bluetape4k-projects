@@ -1,6 +1,6 @@
 package io.bluetape4k.jwt.reader
 
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import java.io.Serializable
@@ -90,7 +90,7 @@ class JwtReader(
      */
     @JvmName("getHeader")
     fun header(key: String): Any? {
-        key.assertNotBlank("key")
+        key.requireNotBlank("key")
         return jws.header[key]
     }
 
@@ -132,7 +132,7 @@ class JwtReader(
      */
     @JvmName("getClaim")
     fun claim(name: String): Any? {
-        name.assertNotBlank("name")
+        name.requireNotBlank("name")
         return jws.payload[name]
     }
 

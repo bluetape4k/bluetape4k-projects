@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.amshove.kluent.withMessage
@@ -75,8 +76,10 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
     @ParameterizedTest
     @ValueSource(strings = ["", "   "])
     fun `빈 문자열은 예외 발생`(input: String) {
-        val exception = { input.toTopicPartition() }
-        exception shouldThrow AssertionError::class
+
+        assertFailsWith<IllegalArgumentException> {
+            input.toTopicPartition()
+        }
     }
 
     @Test

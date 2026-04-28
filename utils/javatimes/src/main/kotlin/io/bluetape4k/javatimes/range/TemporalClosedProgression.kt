@@ -56,9 +56,9 @@ open class TemporalClosedProgression<T> protected constructor(
             endInclusive: T,
             step: TemporalAmount,
         ): TemporalClosedProgression<T> where T: Temporal, T: Comparable<T> {
-            assert(!step.isZero) { "step must be non-zero." }
+            require(!step.isZero) { "step must be non-zero." }
             if (start != endInclusive) {
-                assert((start <= endInclusive) == (step.isPositive)) {
+                require((start <= endInclusive) == (step.isPositive)) {
                     "start[$start]..endInclusive[$endInclusive]와 step[$step]이 잘못되었습니다."
                 }
             }
@@ -67,9 +67,9 @@ open class TemporalClosedProgression<T> protected constructor(
     }
 
     init {
-        assert(!step.isZero) { "step must be non-zero." }
+        require(!step.isZero) { "step must be non-zero." }
         if (start != endInclusive) {
-            assert((start <= endInclusive) == (step.isPositive)) {
+            require((start <= endInclusive) == (step.isPositive)) {
                 "start[$start]..endInclusive[$endInclusive]와 step[$step]이 잘못되었습니다."
             }
         }

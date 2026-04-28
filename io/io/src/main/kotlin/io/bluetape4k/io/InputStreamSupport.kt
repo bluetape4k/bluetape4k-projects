@@ -1,7 +1,7 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.support.assertPositiveNumber
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import io.bluetape4k.support.toUtf8String
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -67,7 +67,7 @@ fun InputStream.copyTo(out: Writer, cs: Charset = UTF_8, bufferSize: Int = DEFAU
  * @return 복사한 데이터의 Byte 크기
  */
 fun InputStream.copyTo(out: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): Long {
-    bufferSize.assertPositiveNumber("bufferSize")
+    bufferSize.requirePositiveNumber("bufferSize")
 
     var readBytes = 0L
     val buffer = ByteArray(bufferSize)
@@ -97,7 +97,7 @@ fun InputStream.copyTo(out: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE)
  * @return 복사한 데이터의 Byte 크기
  */
 fun ReadableByteChannel.copyTo(out: WritableByteChannel, bufferSize: Int = DEFAULT_BUFFER_SIZE): Long {
-    bufferSize.assertPositiveNumber("bufferSize")
+    bufferSize.requirePositiveNumber("bufferSize")
 
     var readBytes = 0L
     val buffer = ByteBuffer.allocateDirect(bufferSize)
@@ -135,7 +135,7 @@ fun ReadableByteChannel.copyTo(out: WritableByteChannel, bufferSize: Int = DEFAU
  * @return 복사한 데이터의 Byte 크기
  */
 fun Reader.copyTo(out: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE, cs: Charset = UTF_8): Long {
-    bufferSize.assertPositiveNumber("bufferSize")
+    bufferSize.requirePositiveNumber("bufferSize")
 
     OutputStreamWriter(out, cs).buffered().use { writer ->
         val count = copyTo(writer, bufferSize)
@@ -433,7 +433,7 @@ fun ByteArray.toUtf8LineSequence(blockSize: Int = DEFAULT_BLOCK_SIZE): Sequence<
  * @return 쓴 데이터의 크기
  */
 fun InputStream.putTo(dst: ByteBuffer, limit: Int = dst.remaining()): Int {
-    limit.assertZeroOrPositiveNumber("limit")
+    limit.requireZeroOrPositiveNumber("limit")
 
     val size = minOf(limit, dst.remaining())
     if (size == 0) {

@@ -103,7 +103,7 @@ inline fun <T: Any, C: Comparable<C>, G: Any> Iterable<T>.binByComparable(
     rangeStart: C? = null,
     endExclusive: Boolean = false,
 ): BinModel<G, C> {
-    assert(count() > 0) { "Collection must not be empty." }
+    require(count() > 0) { "Collection must not be empty." }
 
     val groupByC: MutableMap<C, MutableList<T>> = mutableMapOf()
     this.groupByTo(groupByC, valueMapper)

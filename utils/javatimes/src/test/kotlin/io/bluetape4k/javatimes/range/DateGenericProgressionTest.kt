@@ -51,21 +51,21 @@ class DateGenericProgressionTest {
 
     @Test
     fun `STEP은 0이면 안됩니다`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             dateProgressionOf(today, tomorrow, Duration.ZERO)
         }
     }
 
     @Test
     fun `start less than end 일 경우 step은 positive 여야 합니다`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             dateProgressionOf(today, tomorrow, 1.hours().negated())
         }
     }
 
     @Test
     fun `start greater than end 일 경우 step은 negative 여야 합니다`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             dateProgressionOf(today, yesterday, 1.hours())
         }
     }

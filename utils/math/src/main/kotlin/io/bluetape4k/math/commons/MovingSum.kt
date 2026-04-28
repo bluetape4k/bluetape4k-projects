@@ -17,7 +17,7 @@ import io.bluetape4k.math.MathConsts.BLOCK_SIZE
  * @return Moving Sum
  */
 fun Sequence<Double>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
-    assert(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
+    require(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
 
     return sequence {
         var sum = 0.0
@@ -120,7 +120,7 @@ fun DoubleArray.movingSum(blockSize: Int = BLOCK_SIZE): DoubleArray {
  */
 @JvmName("movingSumOfLong")
 fun Sequence<Long>.movingSum(blockSize: Int = BLOCK_SIZE): Sequence<Long> {
-    assert(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
+    require(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
 
     return sequence {
         var sum = 0L

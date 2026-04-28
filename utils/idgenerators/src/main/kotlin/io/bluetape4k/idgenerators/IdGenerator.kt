@@ -1,6 +1,6 @@
 package io.bluetape4k.idgenerators
 
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 
 /**
  * 식별자를 생성하는 공통 계약입니다.
@@ -63,7 +63,7 @@ interface IdGenerator<ID> {
      * ```
      */
     fun nextIds(size: Int): Sequence<ID> {
-        size.assertPositiveNumber("size")
+        size.requirePositiveNumber("size")
         return generateSequence { nextId() }.take(size)
     }
 
@@ -83,7 +83,7 @@ interface IdGenerator<ID> {
      * ```
      */
     fun nextIdsAsString(size: Int): Sequence<String> {
-        size.assertPositiveNumber("size")
+        size.requirePositiveNumber("size")
         return generateSequence { nextIdAsString() }.take(size)
     }
 }

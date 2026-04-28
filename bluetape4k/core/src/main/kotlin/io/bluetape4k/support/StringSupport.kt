@@ -785,7 +785,7 @@ fun CharSequence.uniqueChars(): String =
  * ```
  */
 fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
-    size.assertPositiveNumber("size")
+    size.requirePositiveNumber("size")
     val self = this@sliding
     return (0..self.length - size).asSequence().map { i -> self.subSequence(i, i + size) }
 }
@@ -803,7 +803,7 @@ fun CharSequence.sliding(size: Int): Sequence<CharSequence> {
  * ```
  */
 fun String.sliding(size: Int): Sequence<String> {
-    size.assertPositiveNumber("size")
+    size.requirePositiveNumber("size")
     val self = this@sliding
     return (0..self.length - size).asSequence().map { i -> self.substring(i, i + size) }
 }

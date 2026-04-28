@@ -4,7 +4,7 @@ import com.fasterxml.uuid.Generators
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.idgenerators.uuid.Uuid.namebased
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import java.util.*
 
 /**
@@ -75,7 +75,7 @@ object Uuid {
          * ```
          */
         fun nextBase62s(size: Int): Sequence<String> {
-            size.assertPositiveNumber("size")
+            size.requirePositiveNumber("size")
             return generateSequence { nextBase62() }.take(size)
         }
     }

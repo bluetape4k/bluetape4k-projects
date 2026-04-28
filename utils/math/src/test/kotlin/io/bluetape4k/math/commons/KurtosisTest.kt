@@ -14,21 +14,21 @@ class KurtosisTest {
         val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
         val result = data.kurtosis()
         // 균등분포의 초과 첨도는 음수
-        assert(!result.isNaN()) { "kurtosis 가 NaN 이어선 안 됩니다" }
+        require(!result.isNaN()) { "kurtosis 가 NaN 이어선 안 됩니다" }
     }
 
     @Test
     fun `Sequence kurtosis 가 동작한다`() {
         val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
         val result = data.kurtosis()
-        assert(!result.isNaN()) { "kurtosis 가 NaN 이어선 안 됩니다" }
+        require(!result.isNaN()) { "kurtosis 가 NaN 이어선 안 됩니다" }
     }
 
     @Test
     fun `Int Iterable kurtosis 가 동작한다`() {
         val data = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         val result = data.kurtosis()
-        assert(!result.isNaN()) { "kurtosis 가 NaN 이어선 안 됩니다" }
+        require(!result.isNaN()) { "kurtosis 가 NaN 이어선 안 됩니다" }
     }
 
     @Test

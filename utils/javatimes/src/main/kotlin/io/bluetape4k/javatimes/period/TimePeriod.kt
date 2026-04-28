@@ -7,8 +7,8 @@ import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.javatimes.max
 import io.bluetape4k.javatimes.min
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.assertGe
-import io.bluetape4k.support.assertLe
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.hashOf
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -55,7 +55,7 @@ open class TimePeriod(
         get() = _start
         set(value) {
             assertMutable()
-            value.assertLe(end, "start")
+            value.requireLe(end, "start")
             _start = value
         }
 
@@ -63,7 +63,7 @@ open class TimePeriod(
         get() = _end
         set(value) {
             assertMutable()
-            value.assertGe(start, "end")
+            value.requireGe(start, "end")
             _end = value
         }
 

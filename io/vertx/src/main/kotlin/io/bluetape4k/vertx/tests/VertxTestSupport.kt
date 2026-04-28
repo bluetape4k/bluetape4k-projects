@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
  * @Test
  * fun `test something`(testContext: VertxTestContext) = withTestContext(testContext) {
  *    // 테스트 코드
- *    assert(1 + 1 == 2)
+ *    require(1 + 1 == 2)
  * }
  * ```
  *

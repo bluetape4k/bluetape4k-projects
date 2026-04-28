@@ -124,6 +124,6 @@ open class TimeBlock(
     }
 
     private fun assertValidDuration(duration: Duration) {
-        assert(!duration.isNegative) { "duration은 0 이상의 값을 가져야 합니다." }
+        require(!duration.isNegative) { "duration은 0 이상의 값을 가져야 합니다." }
     }
 }

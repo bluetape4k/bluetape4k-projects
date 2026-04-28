@@ -93,7 +93,7 @@ class HttpbinContractTest {
             .andExpect(status().isOk)
         val elapsed = System.currentTimeMillis() - start
         log.info { "GET /httpbin/delay/1 elapsed=${elapsed}ms" }
-        assert(elapsed >= 1000L) { "Expected delay >= 1000ms, but got ${elapsed}ms" }
+        require(elapsed >= 1000L) { "Expected delay >= 1000ms, but got ${elapsed}ms" }
     }
 
     /**
@@ -218,6 +218,6 @@ class HttpbinContractTest {
             .andExpect(status().isOk)
             .andReturn()
         val body = result.response.contentAsByteArray
-        assert(body.size == 100) { "Expected 100 bytes, got ${body.size}" }
+        require(body.size == 100) { "Expected 100 bytes, got ${body.size}" }
     }
 }

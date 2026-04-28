@@ -3,7 +3,7 @@ package io.bluetape4k.idgenerators.snowflake
 import io.bluetape4k.idgenerators.ALPHA_NUMERIC_BASE
 import io.bluetape4k.idgenerators.IdGenerator
 import io.bluetape4k.idgenerators.parseAsLong
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 
 
 /**
@@ -53,7 +53,7 @@ interface Snowflake: IdGenerator<Long> {
      * ```
      */
     fun parse(idString: String): SnowflakeId {
-        idString.assertNotBlank("idString")
+        idString.requireNotBlank("idString")
 
         val id = idString.parseAsLong()
         return parseSnowflakeId(id)

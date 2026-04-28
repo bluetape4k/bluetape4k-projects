@@ -128,7 +128,7 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
             argMaxExpr.toQueryBuilder(queryBuilder)
             queryBuilder.toString()
         }
-        assert(sql.contains("argMax")) { "Expected SQL to contain 'argMax', but was: $sql" }
+        require(sql.contains("argMax")) { "Expected SQL to contain 'argMax', but was: $sql" }
     }
 
     @Test
@@ -139,7 +139,7 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
             argMinExpr.toQueryBuilder(queryBuilder)
             queryBuilder.toString()
         }
-        assert(sql.contains("argMin")) { "Expected SQL to contain 'argMin', but was: $sql" }
+        require(sql.contains("argMin")) { "Expected SQL to contain 'argMin', but was: $sql" }
     }
 
     @Test
@@ -150,7 +150,7 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
             quantileExpr.toQueryBuilder(queryBuilder)
             queryBuilder.toString()
         }
-        assert(sql.contains("quantile(0.95)")) { "Expected SQL to contain 'quantile(0.95)', but was: $sql" }
+        require(sql.contains("quantile(0.95)")) { "Expected SQL to contain 'quantile(0.95)', but was: $sql" }
     }
 
     @Test
@@ -161,7 +161,7 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
             uniqExpr.toQueryBuilder(queryBuilder)
             queryBuilder.toString()
         }
-        assert(sql.contains("uniq(")) { "Expected SQL to contain 'uniq(', but was: $sql" }
+        require(sql.contains("uniq(")) { "Expected SQL to contain 'uniq(', but was: $sql" }
     }
 
     @Test
@@ -172,6 +172,6 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
             uniqExactExpr.toQueryBuilder(queryBuilder)
             queryBuilder.toString()
         }
-        assert(sql.contains("uniqExact(")) { "Expected SQL to contain 'uniqExact(', but was: $sql" }
+        require(sql.contains("uniqExact(")) { "Expected SQL to contain 'uniqExact(', but was: $sql" }
     }
 }

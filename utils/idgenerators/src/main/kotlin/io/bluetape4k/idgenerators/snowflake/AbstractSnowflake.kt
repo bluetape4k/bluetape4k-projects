@@ -1,7 +1,7 @@
 package io.bluetape4k.idgenerators.snowflake
 
 import io.bluetape4k.idgenerators.snowflake.sequencer.Sequencer
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 
 
 /**
@@ -42,7 +42,7 @@ abstract class AbstractSnowflake(val sequencer: Sequencer): Snowflake {
      * @param size 생성할 ID 수
      */
     override fun nextIds(size: Int): Sequence<Long> {
-        size.assertPositiveNumber("size")
+        size.requirePositiveNumber("size")
         return sequencer.nextSequences(size).map { it.value }
     }
 }

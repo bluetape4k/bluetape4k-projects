@@ -45,14 +45,14 @@ class TemporalOpenedRange<T>(start: T, endExclusive: T):
             start: T,
             endExclusive: T,
         ): TemporalOpenedRange<T> where T: Temporal, T: Comparable<T> {
-            assert(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
-            assert(start < endExclusive) { "start[$start] < endInclusive[$endExclusive]" }
+            require(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
+            require(start < endExclusive) { "start[$start] < endInclusive[$endExclusive]" }
             return TemporalOpenedRange(start, endExclusive)
         }
     }
 
     init {
-        assert(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
+        require(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
     }
 
     val start: T get() = first

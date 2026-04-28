@@ -133,14 +133,14 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
 
     @Test
     fun `findMethodWithMinimalParameters - 빈 이름은 AssertionError`() {
-        assertThrows<AssertionError> {
+        assertThrows<IllegalArgumentException> {
             BaseBean::class.java.findMethodWithMinimalParameters("")
         }
     }
 
     @Test
     fun `findMethod - 빈 이름은 AssertionError`() {
-        assertThrows<AssertionError> {
+        assertThrows<IllegalArgumentException> {
             BaseBean::class.java.findMethod("")
         }
     }

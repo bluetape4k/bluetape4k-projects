@@ -72,8 +72,8 @@ class SimpleRegressionTest {
     fun `simpleRegression 통계량 속성들이 유효한 값을 가진다`() {
         val reg = linearData.simpleRegression()
 
-        assert(!reg.r.isNaN()) { "r 은 NaN 이어선 안 됩니다" }
-        assert(!reg.meanSquareError.isNaN()) { "meanSquareError 는 NaN 이어선 안 됩니다" }
-        assert(!reg.slopeStdErr.isNaN()) { "slopeStdErr 는 NaN 이어선 안 됩니다" }
+        require(!reg.r.isNaN()) { "r 은 NaN 이어선 안 됩니다" }
+        require(!reg.meanSquareError.isNaN()) { "meanSquareError 는 NaN 이어선 안 됩니다" }
+        require(!reg.slopeStdErr.isNaN()) { "slopeStdErr 는 NaN 이어선 안 됩니다" }
     }
 }

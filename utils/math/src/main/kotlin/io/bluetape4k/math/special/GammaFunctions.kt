@@ -1,7 +1,7 @@
 package io.bluetape4k.math.special
 
 import io.bluetape4k.math.commons.approximateEqual
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.apache.commons.math3.special.Gamma.gamma
 import org.apache.commons.math3.special.Gamma.logGamma
 import kotlin.math.abs
@@ -160,8 +160,8 @@ private const val BigNumberInverse = 2.22044604925031308085e-16
  * @return The lower incomplete gamma function.
  */
 fun gammaLowerRegularized(a: Double, x: Double): Double {
-    a.assertZeroOrPositiveNumber("a")
-    x.assertZeroOrPositiveNumber("x")
+    a.requireZeroOrPositiveNumber("a")
+    x.requireZeroOrPositiveNumber("x")
 
     if (a.approximateEqual(0.0, Epsilon)) {
         if (x.approximateEqual(0.0, Epsilon)) {

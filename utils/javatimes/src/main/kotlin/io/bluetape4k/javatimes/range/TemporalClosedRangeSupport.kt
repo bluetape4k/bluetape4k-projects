@@ -2,7 +2,7 @@ package io.bluetape4k.javatimes.range
 
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
@@ -23,8 +23,8 @@ import java.time.temporal.Temporal
  * ```
  */
 fun <T> temporalClosedRangeOf(start: T, endInclusive: T): TemporalClosedRange<T> where T: Temporal, T: Comparable<T> {
-    assert(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
-    assert(endInclusive !is LocalDate) { "LocalDate는 지원하지 않습니다." }
+    require(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
+    require(endInclusive !is LocalDate) { "LocalDate는 지원하지 않습니다." }
 
     return TemporalClosedRange.fromClosedRange(start, endInclusive)
 }
@@ -77,9 +77,9 @@ fun <T> TemporalClosedRange<T>.windowed(
     step: Int = 1,
     unit: ChronoUnit = ChronoUnit.YEARS,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    size.assertPositiveNumber("size")
-    step.assertPositiveNumber("step")
-    assert(SupportChronoUnits.contains(unit)) { "Not supoorted ChronoUnit. unit=$unit" }
+    size.requirePositiveNumber("size")
+    step.requirePositiveNumber("step")
+    require(SupportChronoUnits.contains(unit)) { "Not supoorted ChronoUnit. unit=$unit" }
 
     return sequence {
         var current: T = start.startOf(unit)
@@ -325,7 +325,7 @@ fun <T> TemporalClosedRange<T>.chunkedMillis(chunkSize: Int): Sequence<List<T>> 
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalClosedRange<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> {
-    assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
+    require(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return sequence {
         var current: T = start.startOf(unit)

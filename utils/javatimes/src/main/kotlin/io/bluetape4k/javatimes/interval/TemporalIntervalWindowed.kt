@@ -2,7 +2,7 @@ package io.bluetape4k.javatimes.interval
 
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 
@@ -146,9 +146,9 @@ fun <T> ReadableTemporalInterval<T>.windowed(
     step: Int = 1,
     unit: ChronoUnit = ChronoUnit.YEARS,
 ): Sequence<List<T>> where T: Temporal, T: Comparable<T> {
-    size.assertPositiveNumber("size")
-    step.assertPositiveNumber("step")
-    assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
+    size.requirePositiveNumber("size")
+    step.requirePositiveNumber("step")
+    require(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return sequence {
         var current: T = startInclusive.startOf(unit)
@@ -322,7 +322,7 @@ fun <T> ReadableTemporalInterval<T>.windowedMillis(
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> ReadableTemporalInterval<T>.zipWithNext(unit: ChronoUnit): Sequence<Pair<T, T>> where T: Temporal, T: Comparable<T> {
-    assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
+    require(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return sequence {
         var current: T = startInclusive.startOf(unit)

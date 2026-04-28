@@ -47,8 +47,8 @@ class GeometryOperationsTest {
         val p4 = point(2.0, 0.0)
         val intersect = getIntersectPoint(p1, p2, p3, p4)
         intersect.shouldNotBeNull()
-        (abs(intersect.x - 1.0) < 1e-9).let { assert(it) { "x 오차: ${intersect.x}" } }
-        (abs(intersect.y - 1.0) < 1e-9).let { assert(it) { "y 오차: ${intersect.y}" } }
+        (abs(intersect.x - 1.0) < 1e-9).let { require(it) { "x 오차: ${intersect.x}" } }
+        (abs(intersect.y - 1.0) < 1e-9).let { require(it) { "y 오차: ${intersect.y}" } }
     }
 
     @Test
@@ -58,32 +58,32 @@ class GeometryOperationsTest {
         val p3 = point(0.0, 1.0)
         val p4 = point(1.0, 1.0)
         val intersect = getIntersectPoint(p1, p2, p3, p4)
-        assert(intersect == null) { "평행선은 교차점이 없어야 합니다" }
+        require(intersect == null) { "평행선은 교차점이 없어야 합니다" }
     }
 
     @Test
     fun `isValidLatitude - 유효한 범위`() {
-        assert(37.5665.isValidLatitude())
-        assert((-90.0).isValidLatitude())
-        assert(90.0.isValidLatitude())
+        require(37.5665.isValidLatitude())
+        require((-90.0).isValidLatitude())
+        require(90.0.isValidLatitude())
     }
 
     @Test
     fun `isValidLatitude - 유효하지 않은 범위`() {
-        assert(!91.0.isValidLatitude())
-        assert(!(-91.0).isValidLatitude())
+        require(!91.0.isValidLatitude())
+        require(!(-91.0).isValidLatitude())
     }
 
     @Test
     fun `isValidLongitude - 유효한 범위`() {
-        assert(126.9780.isValidLongitude())
-        assert((-180.0).isValidLongitude())
-        assert(180.0.isValidLongitude())
+        require(126.9780.isValidLongitude())
+        require((-180.0).isValidLongitude())
+        require(180.0.isValidLongitude())
     }
 
     @Test
     fun `isValidLongitude - 유효하지 않은 범위`() {
-        assert(!181.0.isValidLongitude())
-        assert(!(-181.0).isValidLongitude())
+        require(!181.0.isValidLongitude())
+        require(!(-181.0).isValidLongitude())
     }
 }

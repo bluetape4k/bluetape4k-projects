@@ -12,13 +12,13 @@ class MovingAverageTest {
 
     @Test
     fun `standard moving average with small blockSize`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             sequenceOf(0.0, 1.0).standardMovingAverage(0)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             sequenceOf(0.0, 1.0).standardMovingAverage(1)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             listOf(0.0, 1.0).standardMovingAverage(1)
         }
     }
@@ -46,13 +46,13 @@ class MovingAverageTest {
 
     @Test
     fun `exponential moving average with small blockSize`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             sequenceOf(0.0, 1.0).exponentialMovingAverage(0)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             sequenceOf(0.0, 1.0).exponentialMovingAverage(1)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             listOf(0.0, 1.0).exponentialMovingAverage(1)
         }
     }
@@ -100,13 +100,13 @@ class MovingAverageTest {
 
     @Test
     fun `weighted moving average with small blockSize`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             sequenceOf(0.0, 1.0).weightedMovingAverage(0) { it.toDouble() }
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             sequenceOf(0.0, 1.0).weightedMovingAverage(1) { it.toDouble() }
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             listOf(0.0, 1.0).weightedMovingAverage(1) { it.toDouble() }
         }
     }

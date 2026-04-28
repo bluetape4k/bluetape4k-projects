@@ -5,7 +5,7 @@ import io.bluetape4k.javatimes.range.TemporalClosedProgression
 import io.bluetape4k.javatimes.range.TemporalClosedRange
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -60,9 +60,9 @@ fun <T> TemporalClosedRange<T>.windowedFlow(
     unit: ChronoUnit = ChronoUnit.YEARS,
 ): Flow<List<T>>
         where T: Temporal, T: Comparable<T> {
-    size.assertPositiveNumber("size")
-    step.assertPositiveNumber("step")
-    assert(unit in SupportChronoUnits) { "Not supoorted ChronoUnit. unit=$unit" }
+    size.requirePositiveNumber("size")
+    step.requirePositiveNumber("step")
+    require(unit in SupportChronoUnits) { "Not supoorted ChronoUnit. unit=$unit" }
 
     return flow {
         var current: T = start.startOf(unit)
@@ -202,7 +202,7 @@ fun <T> TemporalClosedRange<T>.chunkedFlowMillis(size: Int): Flow<List<T>> where
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalClosedRange<T>.zipWithNextFlow(unit: ChronoUnit): Flow<Pair<T, T>> where T: Temporal, T: Comparable<T> {
-    assert(unit in SupportChronoUnits) { "Not supoorted ChronoUnit. unit=$unit" }
+    require(unit in SupportChronoUnits) { "Not supoorted ChronoUnit. unit=$unit" }
 
     return flow {
         var current: T = start.startOf(unit)

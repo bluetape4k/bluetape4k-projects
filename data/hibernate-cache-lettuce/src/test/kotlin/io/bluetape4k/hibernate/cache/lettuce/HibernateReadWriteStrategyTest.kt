@@ -113,7 +113,7 @@ class HibernateReadWriteStrategyTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.cache
             .containsEntity(VersionedItem::class.java, itemId)
-            .let { assert(!it) { "삭제된 엔티티가 캐시에 남아있음" } }
+            .let { require(!it) { "삭제된 엔티티가 캐시에 남아있음" } }
     }
 
     @Test

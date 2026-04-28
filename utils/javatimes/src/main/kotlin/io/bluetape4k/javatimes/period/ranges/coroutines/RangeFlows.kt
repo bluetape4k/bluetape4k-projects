@@ -8,7 +8,7 @@ import io.bluetape4k.javatimes.period.ranges.MinuteRange
 import io.bluetape4k.javatimes.period.ranges.MonthRange
 import io.bluetape4k.javatimes.period.ranges.WeekRange
 import io.bluetape4k.javatimes.period.ranges.YearRange
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.ZonedDateTime
@@ -33,7 +33,7 @@ fun flowOfYearRange(
     yearCount: Int,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Flow<YearRange> = flow {
-    yearCount.assertPositiveNumber("yearCount")
+    yearCount.requirePositiveNumber("yearCount")
 
     val start = YearRange(startTime, calendar)
     var years = 0
@@ -63,7 +63,7 @@ fun flowOfMonthRange(
     monthCount: Int,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Flow<MonthRange> = flow {
-    monthCount.assertPositiveNumber("monthCount")
+    monthCount.requirePositiveNumber("monthCount")
 
     val start = MonthRange(startTime, calendar)
     var months = 0
@@ -93,7 +93,7 @@ fun flowOfWeekRange(
     weekCount: Int,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Flow<WeekRange> = flow {
-    weekCount.assertPositiveNumber("weekCount")
+    weekCount.requirePositiveNumber("weekCount")
 
     val start = WeekRange(startTime, calendar)
     var weeks = 0
@@ -123,7 +123,7 @@ fun flowOfDayRange(
     dayCount: Int,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Flow<DayRange> = flow {
-    dayCount.assertPositiveNumber("dayCount")
+    dayCount.requirePositiveNumber("dayCount")
 
     val start = DayRange(startTime, calendar)
     var days = 0
@@ -153,7 +153,7 @@ fun flowOfHourRange(
     hourCount: Int,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Flow<HourRange> = flow {
-    hourCount.assertPositiveNumber("hourCount")
+    hourCount.requirePositiveNumber("hourCount")
     val start = HourRange(startTime, calendar)
     var hours = 0
     while (hours < hourCount) {
@@ -182,7 +182,7 @@ fun flowOfMinuteRange(
     minuteCount: Int,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Flow<MinuteRange> = flow {
-    minuteCount.assertPositiveNumber("minuteCount")
+    minuteCount.requirePositiveNumber("minuteCount")
 
     val start = MinuteRange(startTime, calendar)
     var minutes = 0

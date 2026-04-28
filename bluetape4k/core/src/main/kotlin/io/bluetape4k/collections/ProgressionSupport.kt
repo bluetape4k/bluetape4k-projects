@@ -1,6 +1,6 @@
 package io.bluetape4k.collections
 
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import java.util.stream.IntStream
 import java.util.stream.LongStream
 
@@ -67,7 +67,7 @@ fun IntProgression.asStream(): IntStream = when {
  * @return chunk된 [IntProgression]의 [Sequence]
  */
 fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> =
-    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.assertPositiveNumber("chunk") }))
+    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.requirePositiveNumber("chunk") }))
 
 /**
  * [IntProgression]을 partitioning 하여 [Sequence]로 반환합니다.
@@ -88,7 +88,7 @@ fun IntProgression.chunked(chunk: Int): Sequence<IntProgression> =
  * @return partitioned [IntProgression]의 [Sequence]
  */
 fun IntProgression.partitioning(partitionCount: Int = 1): Sequence<IntProgression> = sequence {
-    partitionCount.assertPositiveNumber("partitionCount")
+    partitionCount.requirePositiveNumber("partitionCount")
     val self = this@partitioning
 
     if (partitionCount == 1) {
@@ -166,7 +166,7 @@ fun LongProgression.asStream(): LongStream = when {
  * @return chunk된 [IntProgression]의 [Sequence]
  */
 fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> =
-    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.assertPositiveNumber("chunk") }))
+    partitioning(partitionCount = calculatePartitionCount(count(), chunk.also { it.requirePositiveNumber("chunk") }))
 
 /**
  * [LongProgression]을 [partitionCount] 갯수로 분할합니다.
@@ -187,7 +187,7 @@ fun LongProgression.chunked(chunk: Int): Sequence<LongProgression> =
  * @return 분할된 [LongProgression]의 [Sequence]
  */
 fun LongProgression.partitioning(partitionCount: Int = 1): Sequence<LongProgression> = sequence {
-    partitionCount.assertPositiveNumber("partitionCount")
+    partitionCount.requirePositiveNumber("partitionCount")
     val self = this@partitioning
 
     if (partitionCount == 1) {

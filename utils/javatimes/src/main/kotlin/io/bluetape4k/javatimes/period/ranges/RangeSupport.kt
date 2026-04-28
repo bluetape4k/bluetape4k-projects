@@ -7,7 +7,7 @@ import io.bluetape4k.javatimes.monthPeriod
 import io.bluetape4k.javatimes.period.ITimeCalendar
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.weeks
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import java.time.ZonedDateTime
 
 /**
@@ -22,7 +22,7 @@ fun yearRanges(
     yearCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<YearRange> = sequence {
-    yearCount.assertPositiveNumber("yearCount")
+    yearCount.requirePositiveNumber("yearCount")
     var currentYear = year
     repeat(yearCount) {
         yield(YearRange(currentYear, calendar))
@@ -38,7 +38,7 @@ fun yearRanges(
     yearCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<YearRange> = sequence {
-    yearCount.assertPositiveNumber("yearCount")
+    yearCount.requirePositiveNumber("yearCount")
     var current = YearRange(startTime, calendar)
     repeat(yearCount) {
         yield(current)
@@ -58,7 +58,7 @@ fun quarterRanges(
     quarterCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<QuarterRange> = sequence {
-    quarterCount.assertPositiveNumber("quarterCount")
+    quarterCount.requirePositiveNumber("quarterCount")
     var current = QuarterRange(startTime, calendar)
     repeat(quarterCount) {
         yield(current)
@@ -78,7 +78,7 @@ fun monthRanges(
     monthCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<MonthRange> {
-    monthCount.assertPositiveNumber("monthCount")
+    monthCount.requirePositiveNumber("monthCount")
     return monthRanges(startTime, startTime + monthCount.monthPeriod(), calendar)
 }
 
@@ -113,7 +113,7 @@ fun weekRanges(
     weekCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<WeekRange> {
-    weekCount.assertPositiveNumber("weekCount")
+    weekCount.requirePositiveNumber("weekCount")
     return weekRanges(start, start + weekCount.weeks(), calendar)
 }
 
@@ -148,7 +148,7 @@ fun dayRanges(
     dayCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<DayRange> {
-    dayCount.assertPositiveNumber("dayCount")
+    dayCount.requirePositiveNumber("dayCount")
     return dayRanges(start, start + dayCount.days(), calendar)
 }
 
@@ -183,7 +183,7 @@ fun hourRanges(
     hourCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<HourRange> {
-    hourCount.assertPositiveNumber("hourCount")
+    hourCount.requirePositiveNumber("hourCount")
     return hourRanges(start, start + hourCount.hours(), calendar)
 }
 
@@ -218,7 +218,7 @@ fun minuteRanges(
     minuteCount: Int = 1,
     calendar: ITimeCalendar = TimeCalendar.Default,
 ): Sequence<MinuteRange> {
-    minuteCount.assertPositiveNumber("minuteCount")
+    minuteCount.requirePositiveNumber("minuteCount")
     return minuteRanges(start, start + minuteCount.minutes(), calendar)
 }
 

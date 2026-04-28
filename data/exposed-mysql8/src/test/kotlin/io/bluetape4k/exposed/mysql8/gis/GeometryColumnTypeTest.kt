@@ -44,7 +44,7 @@ class GeometryColumnTypeTest: AbstractMySqlGisTest() {
     }
 
     private fun Double.shouldBeNear(expected: Double, delta: Double = 0.0001) {
-        assert(abs(this - expected) <= delta) {
+        require(abs(this - expected) <= delta) {
             "Expected $this to be near $expected (delta=$delta)"
         }
     }

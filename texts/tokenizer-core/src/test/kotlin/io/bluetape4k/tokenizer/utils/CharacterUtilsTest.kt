@@ -160,7 +160,7 @@ class CharacterUtilsTest {
 
     @Test
     fun `newCharacterBuffer minimum size`() {
-        assertThrows<AssertionError> {
+        assertThrows<IllegalArgumentException> {
             CharacterUtils.newCharacterBuffer(1)
         }
     }

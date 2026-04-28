@@ -118,7 +118,7 @@ class UuidTest {
 
         @Test
         fun `nextBase62s의 size는 1 이상이어야 한다`() {
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 Uuid.V7.nextBase62s(0).toList()
             }
         }

@@ -69,6 +69,6 @@ class LettuceBloomFilterTest: AbstractLettuceTest() {
         (1..count).forEach { bloomFilter.contains("element-$it").shouldBeTrue() }
 
         val falsePositives = (count + 1..count + 1000).count { bloomFilter.contains("element-$it") }
-        assert(falsePositives < 50) { "false positive rate too high: $falsePositives/1000" }
+        require(falsePositives < 50) { "false positive rate too high: $falsePositives/1000" }
     }
 }

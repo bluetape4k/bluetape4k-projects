@@ -1,6 +1,6 @@
 package io.bluetape4k.io
 
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.apache.commons.codec.binary.Hex
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
@@ -98,7 +98,7 @@ fun ByteBuffer.erase(value: Byte = 0) {
  */
 @Deprecated("use moveTo", replaceWith = ReplaceWith("moveTo(dst, limit)"))
 fun ByteBuffer.putTo(dst: ByteBuffer, limit: Int = Int.MAX_VALUE): Int {
-    limit.assertZeroOrPositiveNumber("limit")
+    limit.requireZeroOrPositiveNumber("limit")
 
     val size = minOf(limit, remaining(), dst.remaining())
     if (size == remaining()) {
@@ -126,7 +126,7 @@ fun ByteBuffer.putTo(dst: ByteBuffer, limit: Int = Int.MAX_VALUE): Int {
  * @return 쓴 바이트 수
  */
 fun ByteBuffer.moveTo(dst: ByteBuffer, limit: Int = Int.MAX_VALUE): Int {
-    limit.assertZeroOrPositiveNumber("limit")
+    limit.requireZeroOrPositiveNumber("limit")
 
     val size = minOf(limit, remaining(), dst.remaining())
     if (size == remaining()) {

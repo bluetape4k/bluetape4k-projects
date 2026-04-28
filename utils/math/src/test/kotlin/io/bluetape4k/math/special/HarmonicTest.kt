@@ -49,12 +49,12 @@ class HarmonicTest {
     fun `logit 범위 밖 입력에서 예외를 던진다`() {
         try {
             logit(-0.1)
-            assert(false) { "예외가 발생해야 합니다" }
+            require(false) { "예외가 발생해야 합니다" }
         } catch (_: IllegalArgumentException) {
         }
         try {
             logit(1.1)
-            assert(false) { "예외가 발생해야 합니다" }
+            require(false) { "예외가 발생해야 합니다" }
         } catch (_: IllegalArgumentException) {
         }
     }

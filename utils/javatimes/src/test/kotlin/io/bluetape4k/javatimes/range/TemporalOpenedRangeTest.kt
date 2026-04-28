@@ -43,7 +43,7 @@ abstract class TemporalOpenedRangeTest<T> where T: Temporal, T: Comparable<T> {
 
     @Test
     fun `start gerater than endExclusive`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             endExclusive until start
         }
     }

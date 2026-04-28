@@ -21,13 +21,13 @@ class MomentTest {
     @Test
     fun `DoubleArray moment 분산이 양수이다`() {
         val m = data.moment()
-        assert(m.variance > 0.0) { "분산은 양수여야 합니다" }
+        require(m.variance > 0.0) { "분산은 양수여야 합니다" }
     }
 
     @Test
     fun `DoubleArray moment 평균편차가 양수이다`() {
         val m = data.moment()
-        assert(m.avgDev >= 0.0) { "평균편차는 0 이상이어야 합니다" }
+        require(m.avgDev >= 0.0) { "평균편차는 0 이상이어야 합니다" }
     }
 
     @Test

@@ -29,7 +29,7 @@ class CalendarTimeRangeTest: AbstractPeriodTest() {
     fun `construct with moment`() {
         val today = nowZonedDateTime()
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             CalendarTimeRange(today, today)
         }
     }

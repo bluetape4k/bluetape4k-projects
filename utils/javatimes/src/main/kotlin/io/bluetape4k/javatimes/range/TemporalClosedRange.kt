@@ -39,14 +39,14 @@ class TemporalClosedRange<T>(
             start: T,
             endInclusive: T,
         ): TemporalClosedRange<T> where T: Temporal, T: Comparable<T> {
-            assert(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
-            assert(start <= endInclusive) { "start[$start] <= endInclusive[$endInclusive]" }
+            require(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
+            require(start <= endInclusive) { "start[$start] <= endInclusive[$endInclusive]" }
             return TemporalClosedRange(start, endInclusive)
         }
     }
 
     init {
-        assert(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
+        require(start !is LocalDate) { "LocalDate는 지원하지 않습니다." }
     }
 
     override val start: T get() = first

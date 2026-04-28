@@ -17,7 +17,7 @@ import java.util.concurrent.ArrayBlockingQueue
  * @return 이동평균
  */
 fun Sequence<Double>.standardMovingAverage(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
-    assert(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
+    require(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
 
     return sequence {
         var sum = 0.0
@@ -116,7 +116,7 @@ fun DoubleArray.standardMovingAverage(blockSize: Int = BLOCK_SIZE): DoubleArray 
  * @return 지수 이동평균 시퀀스
  */
 fun Sequence<Double>.exponentialMovingAverage(blockSize: Int = BLOCK_SIZE): Sequence<Double> {
-    assert(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
+    require(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
 
     return sequence {
         var sum = 0.0
@@ -271,7 +271,7 @@ inline fun Sequence<Double>.weightedMovingAverage(
     blockSize: Int = BLOCK_SIZE,
     crossinline weightingFunc: (Int) -> Double,
 ): Sequence<Double> {
-    assert(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
+    require(blockSize > 1) { "blockSize[$blockSize]는 2 이상이어야 합니다." }
 
     return sequence {
         val queue = ArrayBlockingQueue<Double>(blockSize)

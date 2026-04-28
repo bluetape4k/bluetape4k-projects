@@ -1,7 +1,7 @@
 package io.bluetape4k.tokenizer.utils
 
-import io.bluetape4k.support.assertGe
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import io.bluetape4k.support.requireInRange
 import java.io.Reader
 import java.io.Serializable
@@ -59,7 +59,7 @@ abstract class CharacterUtils: Serializable {
          * ```
          */
         fun newCharacterBuffer(bufferSize: Int): CharacterBuffer {
-            assert(bufferSize >= 2) { "buffer size must be >= 2" }
+            require(bufferSize >= 2) { "buffer size must be >= 2" }
             return CharacterBuffer(CharArray(bufferSize), 0, 0)
         }
 
@@ -150,7 +150,7 @@ abstract class CharacterUtils: Serializable {
      * ```
      */
     fun toLowerCase(buffer: CharArray, offset: Int, limit: Int) {
-        buffer.size.assertGe(limit, "buffer size")
+        buffer.size.requireGe(limit, "buffer size")
         offset.requireInRange(0, buffer.size, "offset")
 
         var i = offset
@@ -173,7 +173,7 @@ abstract class CharacterUtils: Serializable {
      * ```
      */
     fun toUpperCase(buffer: CharArray, offset: Int, limit: Int) {
-        buffer.size.assertGe(limit, "buffer size")
+        buffer.size.requireGe(limit, "buffer size")
         offset.requireInRange(0, buffer.size, "offset")
 
         var i = offset
@@ -198,7 +198,7 @@ abstract class CharacterUtils: Serializable {
      * ```
      */
     fun toCodePoints(src: CharArray, srcOff: Int, srcLen: Int, dest: IntArray, destOff: Int): Int {
-        srcLen.assertZeroOrPositiveNumber("srcLen")
+        srcLen.requireZeroOrPositiveNumber("srcLen")
 
         var codePointCount = 0
         var i = 0
@@ -227,7 +227,7 @@ abstract class CharacterUtils: Serializable {
      * ```
      */
     fun toChars(src: IntArray, srcOff: Int, srcLen: Int, dest: CharArray, destOff: Int): Int {
-        srcLen.assertZeroOrPositiveNumber("srcLen")
+        srcLen.requireZeroOrPositiveNumber("srcLen")
 
         var written = 0
         for (i in 0 until srcLen) {
@@ -278,9 +278,9 @@ abstract class CharacterUtils: Serializable {
         }
 
         override fun fill(buffer: CharacterBuffer, reader: Reader, numChars: Int): Boolean {
-            buffer.buffer.size.assertGe(2, "buffer size")
+            buffer.buffer.size.requireGe(2, "buffer size")
             numChars.requireInRange(2, buffer.buffer.size, "numChars")
-            // assert(numChars in 2..buffer.buffer.size) { "numCharrs must be 2 .. buffer size" }
+            // require(numChars in 2..buffer.buffer.size) { "numCharrs must be 2 .. buffer size" }
 
             val charBuffer = buffer.buffer
             buffer.offset = 0
@@ -332,7 +332,7 @@ abstract class CharacterUtils: Serializable {
         }
 
         override fun fill(buffer: CharacterBuffer, reader: Reader, numChars: Int): Boolean {
-            assert(buffer.buffer.size >= 1)
+            require(buffer.buffer.size >= 1)
             require(numChars in 1..buffer.buffer.size) {
                 "numChars must be 1 .. the buffer size[${buffer.buffer.size}]"
             }

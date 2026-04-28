@@ -43,11 +43,11 @@ class TemporalIntervalWindowedTest {
             chunks.first().size shouldBeEqualTo 4
             chunks.last().size shouldBeEqualTo 1
 
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 interval.chunked(0, chronoUnit)
             }
 
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 interval.chunked(-1, chronoUnit)
             }
         }
@@ -98,16 +98,16 @@ class TemporalIntervalWindowedTest {
             }
             windowed.count() shouldBeEqualTo 3
 
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 interval.windowed(-1, 2, unit)
             }
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 interval.windowed(1, -2, unit)
             }
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 interval.windowed(0, 2, unit)
             }
-            assertFailsWith<AssertionError> {
+            assertFailsWith<IllegalArgumentException> {
                 interval.windowed(1, 0, unit)
             }
         }

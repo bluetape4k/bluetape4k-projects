@@ -58,9 +58,9 @@ open class TemporalOpenedProgression<T> protected constructor(
             endExclusive: T,
             step: TemporalAmount,
         ): TemporalOpenedProgression<T> where T: Temporal, T: Comparable<T> {
-            assert(!step.isZero) { "step must be non-zero." }
+            require(!step.isZero) { "step must be non-zero." }
             if (start != endExclusive) {
-                assert((start < endExclusive) == (step.isPositive)) {
+                require((start < endExclusive) == (step.isPositive)) {
                     "start[$start]..endInclusive[$endExclusive]와 step[$step]이 잘못되었습니다."
                 }
             }

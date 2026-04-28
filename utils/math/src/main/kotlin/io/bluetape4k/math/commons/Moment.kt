@@ -38,7 +38,7 @@ data class Moment(
  * @return [Moment] 인스턴스
  */
 fun Sequence<Double>.moment(): Moment {
-    assert(this.count() > 1) { "변량의 수는 2개 이상이어야 합니다." }
+    require(this.count() > 1) { "변량의 수는 2개 이상이어야 합니다." }
 
     val n = this.count()
     val sum = this.sum()

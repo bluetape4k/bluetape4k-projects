@@ -350,7 +350,7 @@ open class CharArrayMap<V>(startSize: Int): AbstractMutableMap<Any, V>(), Serial
     }
 
     private fun rehash() {
-        assert(_keys.size == _values.size) {
+        require(_keys.size == _values.size) {
             "keys size [${_keys.size}] must equals to _values size[${_values.size}"
         }
 

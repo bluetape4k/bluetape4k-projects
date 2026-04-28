@@ -22,8 +22,8 @@ class ProjectionsTest {
     fun `서울 WGS84를 UTM으로 변환한다`() {
         val (easting, northing) = wgs84ToUtm(SEOUL)
         // 서울 UTM Zone 52S 기준 easting은 약 313,000~320,000m, northing은 약 4,160,000m 근방
-        assert(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
-        assert(northing > 4_000_000.0 && northing < 4_300_000.0) { "northing 범위 오류: $northing" }
+        require(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
+        require(northing > 4_000_000.0 && northing < 4_300_000.0) { "northing 범위 오류: $northing" }
     }
 
     @Test
@@ -32,10 +32,10 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(SEOUL)
         val restored = utmToWgs84(easting, northing, zone)
 
-        assert(abs(restored.latitude - SEOUL.latitude) < EPSILON) {
+        require(abs(restored.latitude - SEOUL.latitude) < EPSILON) {
             "위도 오차: ${abs(restored.latitude - SEOUL.latitude)}"
         }
-        assert(abs(restored.longitude - SEOUL.longitude) < EPSILON) {
+        require(abs(restored.longitude - SEOUL.longitude) < EPSILON) {
             "경도 오차: ${abs(restored.longitude - SEOUL.longitude)}"
         }
     }
@@ -46,10 +46,10 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(NEW_YORK)
         val restored = utmToWgs84(easting, northing, zone)
 
-        assert(abs(restored.latitude - NEW_YORK.latitude) < EPSILON) {
+        require(abs(restored.latitude - NEW_YORK.latitude) < EPSILON) {
             "위도 오차: ${abs(restored.latitude - NEW_YORK.latitude)}"
         }
-        assert(abs(restored.longitude - NEW_YORK.longitude) < EPSILON) {
+        require(abs(restored.longitude - NEW_YORK.longitude) < EPSILON) {
             "경도 오차: ${abs(restored.longitude - NEW_YORK.longitude)}"
         }
     }
@@ -58,8 +58,8 @@ class ProjectionsTest {
     fun `transform으로 WGS84에서 UTM Zone 52N으로 변환한다`() {
         // EPSG:32652 = UTM Zone 52N (WGS84)
         val (x, y) = transform("EPSG:4326", "EPSG:32652", SEOUL.longitude, SEOUL.latitude)
-        assert(x > 300_000.0 && x < 400_000.0) { "x(easting) 범위 오류: $x" }
-        assert(y > 4_000_000.0 && y < 4_300_000.0) { "y(northing) 범위 오류: $y" }
+        require(x > 300_000.0 && x < 400_000.0) { "x(easting) 범위 오류: $x" }
+        require(y > 4_000_000.0 && y < 4_300_000.0) { "y(northing) 범위 오류: $y" }
     }
 
     @Test
@@ -69,14 +69,14 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(SYDNEY)
 
         // 남반구 UTM northing은 10,000,000m 기준 음수 방향: 약 6,250,000m 근방
-        assert(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
-        assert(northing > 6_000_000.0 && northing < 6_500_000.0) { "northing 범위 오류 (남반구): $northing" }
+        require(easting > 300_000.0 && easting < 400_000.0) { "easting 범위 오류: $easting" }
+        require(northing > 6_000_000.0 && northing < 6_500_000.0) { "northing 범위 오류 (남반구): $northing" }
 
         val restored = utmToWgs84(easting, northing, zone)
-        assert(abs(restored.latitude - SYDNEY.latitude) < EPSILON) {
+        require(abs(restored.latitude - SYDNEY.latitude) < EPSILON) {
             "위도 오차: ${abs(restored.latitude - SYDNEY.latitude)}"
         }
-        assert(abs(restored.longitude - SYDNEY.longitude) < EPSILON) {
+        require(abs(restored.longitude - SYDNEY.longitude) < EPSILON) {
             "경도 오차: ${abs(restored.longitude - SYDNEY.longitude)}"
         }
     }
@@ -87,10 +87,10 @@ class ProjectionsTest {
         val (easting, northing) = wgs84ToUtm(SAO_PAULO)
         val restored = utmToWgs84(easting, northing, zone)
 
-        assert(abs(restored.latitude - SAO_PAULO.latitude) < EPSILON) {
+        require(abs(restored.latitude - SAO_PAULO.latitude) < EPSILON) {
             "위도 오차: ${abs(restored.latitude - SAO_PAULO.latitude)}"
         }
-        assert(abs(restored.longitude - SAO_PAULO.longitude) < EPSILON) {
+        require(abs(restored.longitude - SAO_PAULO.longitude) < EPSILON) {
             "경도 오차: ${abs(restored.longitude - SAO_PAULO.longitude)}"
         }
     }
@@ -99,7 +99,7 @@ class ProjectionsTest {
     fun `CrsRegistry 캐시가 동일 EPSG 코드에 대해 같은 객체를 반환한다`() {
         val crs1 = CrsRegistry.getCrs("EPSG:4326")
         val crs2 = CrsRegistry.getCrs("EPSG:4326")
-        assert(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
+        require(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
     }
 
     @Test
@@ -107,7 +107,7 @@ class ProjectionsTest {
         val proj4 = "+proj=utm +zone=52 +datum=WGS84 +units=m +no_defs"
         val crs1 = CrsRegistry.getCrsFromProj4(proj4)
         val crs2 = CrsRegistry.getCrsFromProj4(proj4)
-        assert(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
+        require(crs1 === crs2) { "캐시에서 같은 인스턴스를 반환해야 합니다" }
     }
 
     @Test
@@ -117,6 +117,6 @@ class ProjectionsTest {
         CrsRegistry.clearCache()
         val after = CrsRegistry.getCrs(epsg)
         // clearCache 후에는 새 인스턴스가 생성되어야 함
-        assert(before !== after) { "clearCache 후 새 인스턴스를 반환해야 합니다" }
+        require(before !== after) { "clearCache 후 새 인스턴스를 반환해야 합니다" }
     }
 }

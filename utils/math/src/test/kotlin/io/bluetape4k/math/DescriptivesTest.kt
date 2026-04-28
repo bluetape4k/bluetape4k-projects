@@ -39,13 +39,13 @@ class DescriptivesTest {
     @Test
     fun `descriptiveStatistics 분산이 양수이다`() {
         val ds = data.descriptiveStatistics()
-        assert(ds.variance > 0.0) { "분산은 양수여야 합니다" }
+        require(ds.variance > 0.0) { "분산은 양수여야 합니다" }
     }
 
     @Test
     fun `descriptiveStatistics 표준편차가 양수이다`() {
         val ds = data.descriptiveStatistics()
-        assert(ds.standardDeviation > 0.0) { "표준편차는 양수여야 합니다" }
+        require(ds.standardDeviation > 0.0) { "표준편차는 양수여야 합니다" }
     }
 
     @Test

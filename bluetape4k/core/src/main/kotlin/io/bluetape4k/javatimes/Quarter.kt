@@ -1,6 +1,6 @@
 package io.bluetape4k.javatimes
 
-import io.bluetape4k.support.assertInRange
+import io.bluetape4k.support.requireInRange
 
 /**
  * 분기(Quarter) 를 나타내는 enum class 입니다.
@@ -120,7 +120,7 @@ enum class Quarter(val number: Int) {
          */
         @JvmStatic
         fun of(numberOfQuarter: Int): Quarter {
-            numberOfQuarter.assertInRange(1, 4, "numberOfQuarter")
+            numberOfQuarter.requireInRange(1, 4, "numberOfQuarter")
             return entries[numberOfQuarter - 1]
         }
 
@@ -132,7 +132,7 @@ enum class Quarter(val number: Int) {
          */
         @JvmStatic
         fun ofMonth(monthOfYear: Int): Quarter {
-            monthOfYear.assertInRange(1, 12, "monthOfYear")
+            monthOfYear.requireInRange(1, 12, "monthOfYear")
             return entries[(monthOfYear - 1) / MonthsPerQuarter]
         }
     }

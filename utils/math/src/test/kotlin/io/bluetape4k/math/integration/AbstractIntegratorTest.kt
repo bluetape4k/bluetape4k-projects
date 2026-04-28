@@ -93,7 +93,7 @@ abstract class AbstractIntegratorTest {
     fun `integration with empty collection`() {
         val vars = emptyList<Pair<Double, Double>>()
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             integrator.integrate(vars)
         }
     }
@@ -103,7 +103,7 @@ abstract class AbstractIntegratorTest {
         val xs = DoubleArray(10) { it.toDouble() }
         val ys = DoubleArray(42) { it.toDouble() }
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             integrator.integrate(xs, ys)
         }
     }

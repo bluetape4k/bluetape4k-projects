@@ -2,7 +2,7 @@ package io.bluetape4k.concurrent
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 
 import java.util.concurrent.Callable
 import java.util.concurrent.CompletableFuture
@@ -52,7 +52,7 @@ fun <T> withWorkStealingPool(
     parallelism: Int = Runtime.getRuntime().availableProcessors() * 2,
     task: () -> T,
 ): CompletableFuture<T> {
-    parallelism.assertPositiveNumber("parallelism")
+    parallelism.requirePositiveNumber("parallelism")
     return CompletableFuture.supplyAsync({ task() }, ForkJoinExecutor)
 }
 
@@ -72,7 +72,7 @@ fun <T> withWorkStealingPool(
     parallelism: Int = Runtime.getRuntime().availableProcessors() * 2,
     tasks: Collection<() -> T>,
 ): CompletableFuture<List<T>> {
-    parallelism.assertPositiveNumber("parallelism")
+    parallelism.requirePositiveNumber("parallelism")
     val executor = Executors.newWorkStealingPool(parallelism)
 
     return try {

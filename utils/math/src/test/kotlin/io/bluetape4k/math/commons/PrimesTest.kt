@@ -41,7 +41,7 @@ class PrimesTest {
     fun `Int 큰 소수 목록을 올바르게 판별한다`() {
         val primes = listOf(101, 103, 107, 109, 113)
         primes.forEach { n ->
-            assert(n.isPrime()) { "$n 은 소수여야 합니다" }
+            require(n.isPrime()) { "$n 은 소수여야 합니다" }
         }
     }
 
@@ -49,7 +49,7 @@ class PrimesTest {
     fun `Int 2의 배수 합성수를 올바르게 판별한다`() {
         val composites = listOf(10, 12, 14, 16, 18, 20, 50, 100)
         composites.forEach { n ->
-            assert(!n.isPrime()) { "$n 은 합성수여야 합니다" }
+            require(!n.isPrime()) { "$n 은 합성수여야 합니다" }
         }
     }
 

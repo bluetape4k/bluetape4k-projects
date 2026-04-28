@@ -44,7 +44,7 @@ class MemgraphServerTest: AbstractContainerTest() {
                 val record = result.single()
                 val value = record["n"].asInt()
                 log.debug { "RETURN 1 AS n => $value" }
-                assert(value == 1) { "예상 결과는 1이지만 실제 값은 $value 입니다." }
+                require(value == 1) { "예상 결과는 1이지만 실제 값은 $value 입니다." }
             }
         }
     }

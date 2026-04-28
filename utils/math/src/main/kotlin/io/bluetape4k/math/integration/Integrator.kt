@@ -3,7 +3,7 @@ package io.bluetape4k.math.integration
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.interpolation.Interpolator
 import io.bluetape4k.math.interpolation.LinearInterpolator
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 
 /**
  * 적분 (Integrator) 을 수행합니다.
@@ -57,9 +57,9 @@ interface Integrator {
         ys: DoubleArray,
         interpolator: Interpolator = DefaultInterpolator,
     ): Double {
-        assert(xs.isNotEmpty()) { "xs must not be empty." }
-        assert(ys.isNotEmpty()) { "ys must not be empty." }
-        assert(xs.count() == ys.count()) { "xs size must same with ys size" }
+        require(xs.isNotEmpty()) { "xs must not be empty." }
+        require(ys.isNotEmpty()) { "ys must not be empty." }
+        require(xs.count() == ys.count()) { "xs size must same with ys size" }
 
         val evaluator = interpolator.interpolate(xs, ys)
         return integrate(xs.first(), xs.last(), evaluator)
@@ -81,7 +81,7 @@ interface Integrator {
         interpolator: Interpolator = DefaultInterpolator,
     ): Double {
         val count = xy.count()
-        count.assertPositiveNumber("collection must have elements.")
+        count.requirePositiveNumber("collection must have elements.")
 
         val xs = DoubleArray(count)
         val ys = DoubleArray(count)

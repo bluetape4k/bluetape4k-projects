@@ -44,8 +44,8 @@ class UtmZoneSupportTest {
 
     @Test
     fun `UTM_LATITUDE_BANDS에 I와 O가 없다`() {
-        UTM_LATITUDE_BANDS.containsKey('I').let { assert(!it) { "I가 포함되어 있으면 안됩니다" } }
-        UTM_LATITUDE_BANDS.containsKey('O').let { assert(!it) { "O가 포함되어 있으면 안됩니다" } }
+        UTM_LATITUDE_BANDS.containsKey('I').let { require(!it) { "I가 포함되어 있으면 안됩니다" } }
+        UTM_LATITUDE_BANDS.containsKey('O').let { require(!it) { "O가 포함되어 있으면 안됩니다" } }
     }
 
     @Test
@@ -81,14 +81,14 @@ class UtmZoneSupportTest {
         val bbox = zone.boundingBox()
         // Band X: 72°N ~ 84°N → 높이 12도
         val height = bbox.maxLat - bbox.minLat
-        assert(height == 12.0) { "Band X 높이는 12도여야 합니다. 실제: $height" }
+        require(height == 12.0) { "Band X 높이는 12도여야 합니다. 실제: $height" }
     }
 
     @Test
     fun `Band X의 BoundingBox가 84도 북위를 포함한다`() {
         val zone = UtmZone(32, 'X')
         val bbox = zone.boundingBox()
-        assert(bbox.maxLat == 84.0) { "Band X maxLat은 84°N이어야 합니다. 실제: ${bbox.maxLat}" }
+        require(bbox.maxLat == 84.0) { "Band X maxLat은 84°N이어야 합니다. 실제: ${bbox.maxLat}" }
     }
 
     @Test
@@ -96,7 +96,7 @@ class UtmZoneSupportTest {
         val zone = UtmZone(52, 'S')
         val bbox = zone.boundingBox()
         val height = bbox.maxLat - bbox.minLat
-        assert(height == 8.0) { "일반 Band 높이는 8도여야 합니다. 실제: $height" }
+        require(height == 8.0) { "일반 Band 높이는 8도여야 합니다. 실제: $height" }
     }
 
     @Test
@@ -124,7 +124,7 @@ class UtmZoneSupportTest {
         val cellBbox = zone.cellBoundingBox(size = 1.0, row = 0, col = 0)
         val utmBbox = zone.boundingBox()
         // 첫 번째 셀은 UTM Zone의 북서쪽 모서리에 위치해야 함
-        (cellBbox.maxLat <= utmBbox.maxLat).let { assert(it) }
-        (cellBbox.minLon >= utmBbox.minLon).let { assert(it) }
+        (cellBbox.maxLat <= utmBbox.maxLat).let { require(it) }
+        (cellBbox.minLon >= utmBbox.minLon).let { require(it) }
     }
 }

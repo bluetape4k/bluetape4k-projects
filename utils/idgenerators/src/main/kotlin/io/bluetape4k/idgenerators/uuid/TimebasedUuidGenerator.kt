@@ -4,7 +4,7 @@ import com.fasterxml.uuid.Generators
 import com.fasterxml.uuid.impl.TimeBasedReorderedGenerator
 import io.bluetape4k.codec.Url62
 import io.bluetape4k.idgenerators.IdGenerator
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import java.util.*
 
 /**
@@ -63,7 +63,7 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      * @param size 생성할 UUID 개수
      */
     fun nextUUIDs(size: Int): Sequence<UUID> {
-        size.assertPositiveNumber("size")
+        size.requirePositiveNumber("size")
         return generateSequence { nextUUID() }.take(size)
     }
 
@@ -93,7 +93,7 @@ class TimebasedUuidGenerator: IdGenerator<UUID> {
      * ```
      */
     fun nextBase62Strings(size: Int): Sequence<String> {
-        size.assertPositiveNumber("size")
+        size.requirePositiveNumber("size")
         return generateSequence { nextBase62String() }.take(size)
     }
 }

@@ -1,7 +1,7 @@
 package io.bluetape4k.io
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.io.InputStream
 import java.nio.ByteBuffer
 
@@ -126,8 +126,8 @@ open class ByteBufferInputStream private constructor(
      * @return 실제로 읽은 바이트 수, 버퍼 소진 시 -1
      */
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        off.assertZeroOrPositiveNumber("off")
-        len.assertZeroOrPositiveNumber("len")
+        off.requireZeroOrPositiveNumber("off")
+        len.requireZeroOrPositiveNumber("len")
         require(off + len <= b.size) { "off+len must be <= b.size (off=$off, len=$len, size=${b.size})" }
 
         if (len == 0) {

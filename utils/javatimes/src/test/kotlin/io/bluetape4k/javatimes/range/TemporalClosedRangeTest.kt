@@ -52,7 +52,7 @@ abstract class TemporalClosedRangeTest<T> where T: Temporal, T: Comparable<T> {
 
     @Test
     fun `start greater than endInclusive`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             temporalClosedRangeOf(endInclusive, start)
         }
     }

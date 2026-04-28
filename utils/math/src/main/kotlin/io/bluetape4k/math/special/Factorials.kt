@@ -1,7 +1,7 @@
 package io.bluetape4k.math.special
 
 import io.bluetape4k.cache.memoizer.inmemory.InMemoryMemoizer
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import org.apache.commons.math3.special.Gamma.logGamma
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.exp
@@ -50,8 +50,8 @@ private val factorialProvider = FactorialProvider()
  * ```
  */
 fun factorial(x: Int): Double {
-    x.assertZeroOrPositiveNumber("x")
-    assert(x < MAX_FACTORIAL_NUMBER) { "x[$x] must less than max factorial number [$MAX_FACTORIAL_NUMBER]" }
+    x.requireZeroOrPositiveNumber("x")
+    require(x < MAX_FACTORIAL_NUMBER) { "x[$x] must less than max factorial number [$MAX_FACTORIAL_NUMBER]" }
 
     if (x > MAX_FACTORIAL_NUMBER) {
         return Double.POSITIVE_INFINITY
@@ -68,7 +68,7 @@ fun factorial(x: Int): Double {
  * ```
  */
 fun factorialLn(x: Int): Double {
-    assert(x >= 0) { "x[$x] must be positive or zero." }
+    require(x >= 0) { "x[$x] must be positive or zero." }
 
     return when {
         x <= 1                   -> 0.0
@@ -127,8 +127,8 @@ fun binomialLn(n: Int, k: Int): Double {
  * @return Multinomial coefficient
  */
 fun multinomial(n: Int, ni: IntArray): Double {
-    n.assertZeroOrPositiveNumber("n")
-    assert(ni.isNotEmpty()) { "ni must not be empty." }
+    n.requireZeroOrPositiveNumber("n")
+    require(ni.isNotEmpty()) { "ni must not be empty." }
 
     var sum = 0
     var ret = factorialLn(n)
@@ -149,7 +149,7 @@ fun multinomial(n: Int, ni: IntArray): Double {
  * @return Multinomial coefficient
  */
 fun IntArray.multinomial(n: Int): Double {
-    n.assertZeroOrPositiveNumber("n")
+    n.requireZeroOrPositiveNumber("n")
     return multinomial(n, this)
 }
 
@@ -161,8 +161,8 @@ fun IntArray.multinomial(n: Int): Double {
  * @return Multinomial coefficient
  */
 fun multinomial(n: Int, ni: List<Int>): Double {
-    n.assertZeroOrPositiveNumber("n")
-    assert(ni.isNotEmpty()) { "ni must not be empty." }
+    n.requireZeroOrPositiveNumber("n")
+    require(ni.isNotEmpty()) { "ni must not be empty." }
 
     var sum = 0
     var ret = factorialLn(n)

@@ -17,13 +17,13 @@ class MovingSumTest {
 
     @Test
     fun `moving sum of double values with invalid block size`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             doubleValues.movingSum(-1)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             doubleValues.movingSum(0)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             doubleValues.movingSum(1)
         }
     }
@@ -50,13 +50,13 @@ class MovingSumTest {
 
     @Test
     fun `moving sum of long values with invalid block size`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             longValues.movingSum(-1)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             longValues.movingSum(0)
         }
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             longValues.movingSum(1)
         }
     }

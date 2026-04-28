@@ -16,7 +16,7 @@ import io.bluetape4k.javatimes.startOfSecond
 import io.bluetape4k.javatimes.startOfWeek
 import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.yearPeriod
-import io.bluetape4k.support.assertZeroOrPositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.time.temporal.Temporal
@@ -70,7 +70,7 @@ fun assertValidPeriod(
     end: ZonedDateTime?,
 ) {
     if (start != null && end != null) {
-        assert(start <= end) { "시작시각이 완료시각 이전이어야 합니다. start=$start, end=$end" }
+        require(start <= end) { "시작시각이 완료시각 이전이어야 합니다. start=$start, end=$end" }
     }
 }
 
@@ -208,7 +208,7 @@ fun relativeYearPeriodOf(
     year: Int,
     yearCount: Int = 1,
 ): ITimeRange {
-    yearCount.assertZeroOrPositiveNumber("yearCount")
+    yearCount.requireZeroOrPositiveNumber("yearCount")
 
     val start = startOfYear(year)
     return TimeRange(start, start + yearCount.yearPeriod())
@@ -224,7 +224,7 @@ fun relativeYearPeriodOf(
  * ```
  */
 fun ZonedDateTime.relativeYearPeriod(yearCount: Int): ITimeRange {
-    yearCount.assertZeroOrPositiveNumber("yearCount")
+    yearCount.requireZeroOrPositiveNumber("yearCount")
 
     val start = this.startOfYear()
     return TimeRange(start, start + yearCount.yearPeriod())
@@ -240,7 +240,7 @@ fun ZonedDateTime.relativeYearPeriod(yearCount: Int): ITimeRange {
  * ```
  */
 fun ZonedDateTime.relativeQuarterPeriod(quarterCount: Int = 1): ITimeRange {
-    quarterCount.assertZeroOrPositiveNumber("quarterCount")
+    quarterCount.requireZeroOrPositiveNumber("quarterCount")
 
     val start = this.startOfQuarter()
     val months = quarterCount * MonthsPerQuarter
@@ -256,7 +256,7 @@ fun ZonedDateTime.relativeQuarterPeriod(quarterCount: Int = 1): ITimeRange {
  * ```
  */
 fun ZonedDateTime.relativeMonthPeriod(monthCount: Int): ITimeRange {
-    monthCount.assertZeroOrPositiveNumber("monthCount")
+    monthCount.requireZeroOrPositiveNumber("monthCount")
 
     val start = this.startOfMonth()
     return TimeRange(start, start + monthCount.monthPeriod())
@@ -270,7 +270,7 @@ fun ZonedDateTime.relativeMonthPeriod(monthCount: Int): ITimeRange {
  * val nowAndWeekRange = now.relativeWeekPeriod(3)  // 현재 주부터 3주 후까지의 기간
  */
 fun ZonedDateTime.relativeWeekPeriod(weekCount: Int = 1): ITimeRange {
-    weekCount.assertZeroOrPositiveNumber("weekCount")
+    weekCount.requireZeroOrPositiveNumber("weekCount")
 
     val start = this.startOfWeek()
     return TimeRange(start, start.plusDays(weekCount.toLong() * DaysPerWeek))
@@ -285,7 +285,7 @@ fun ZonedDateTime.relativeWeekPeriod(weekCount: Int = 1): ITimeRange {
  * ```
  */
 fun ZonedDateTime.relativeDayPeriod(dayCount: Int = 1): TimeRange {
-    dayCount.assertZeroOrPositiveNumber("dayCount")
+    dayCount.requireZeroOrPositiveNumber("dayCount")
 
     val start = this.startOfDay()
     return TimeRange(start, start.plusDays(dayCount.toLong()))
@@ -300,7 +300,7 @@ fun ZonedDateTime.relativeDayPeriod(dayCount: Int = 1): TimeRange {
  * ```
  */
 fun ZonedDateTime.relativeHourPeriod(hourCount: Int = 1): TimeRange {
-    hourCount.assertZeroOrPositiveNumber("hourCount")
+    hourCount.requireZeroOrPositiveNumber("hourCount")
 
     val start = this.startOfHour()
     return TimeRange(start, start.plusHours(hourCount.toLong()))
@@ -315,7 +315,7 @@ fun ZonedDateTime.relativeHourPeriod(hourCount: Int = 1): TimeRange {
  * ```
  */
 fun ZonedDateTime.relativeMinutePeriod(minuteCount: Int = 1): TimeRange {
-    minuteCount.assertZeroOrPositiveNumber("minuteCount")
+    minuteCount.requireZeroOrPositiveNumber("minuteCount")
 
     val start = this.startOfMinute()
     return TimeRange(start, start.plusMinutes(minuteCount.toLong()))
@@ -330,7 +330,7 @@ fun ZonedDateTime.relativeMinutePeriod(minuteCount: Int = 1): TimeRange {
  * ```
  */
 fun ZonedDateTime.relativeSecondPeriod(secondCount: Int = 1): TimeRange {
-    secondCount.assertZeroOrPositiveNumber("secondCount")
+    secondCount.requireZeroOrPositiveNumber("secondCount")
 
     val start = this.startOfSecond()
     return TimeRange(start, start.plusSeconds(secondCount.toLong()))

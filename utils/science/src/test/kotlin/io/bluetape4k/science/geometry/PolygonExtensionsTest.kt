@@ -46,16 +46,16 @@ class PolygonExtensionsTest {
         val polygon = makeSquare(0.0, 0.0, 4.0, 4.0)
         val c = polygon.centroid()
         c.shouldNotBeNull()
-        (abs(c.x - 2.0) < 1e-9).let { assert(it) { "x 중심 오차: ${c.x}" } }
-        (abs(c.y - 2.0) < 1e-9).let { assert(it) { "y 중심 오차: ${c.y}" } }
+        (abs(c.x - 2.0) < 1e-9).let { require(it) { "x 중심 오차: ${c.x}" } }
+        (abs(c.y - 2.0) < 1e-9).let { require(it) { "y 중심 오차: ${c.y}" } }
     }
 
     @Test
     fun `centroid - 이동한 사각형의 중심이 올바르다`() {
         val polygon = makeSquare(10.0, 20.0, 14.0, 24.0)
         val c = polygon.centroid()
-        (abs(c.x - 12.0) < 1e-9).let { assert(it) { "x 중심 오차: ${c.x}" } }
-        (abs(c.y - 22.0) < 1e-9).let { assert(it) { "y 중심 오차: ${c.y}" } }
+        (abs(c.x - 12.0) < 1e-9).let { require(it) { "x 중심 오차: ${c.x}" } }
+        (abs(c.y - 22.0) < 1e-9).let { require(it) { "y 중심 오차: ${c.y}" } }
     }
 
     @Test
@@ -88,8 +88,8 @@ class PolygonExtensionsTest {
     fun `toBoundingBox - width와 height가 올바르다`() {
         val polygon = makeSquare(124.0, 33.0, 131.0, 38.9)
         val bbox = polygon.toBoundingBox()
-        (abs(bbox.width - 7.0) < 1e-9).let { assert(it) { "width 오차: ${bbox.width}" } }
-        (abs(bbox.height - 5.9) < 1e-9).let { assert(it) { "height 오차: ${bbox.height}" } }
+        (abs(bbox.width - 7.0) < 1e-9).let { require(it) { "width 오차: ${bbox.width}" } }
+        (abs(bbox.height - 5.9) < 1e-9).let { require(it) { "height 오차: ${bbox.height}" } }
     }
 
     @Test
@@ -98,6 +98,6 @@ class PolygonExtensionsTest {
         val c = polygon.centroid()
         c.shouldNotBeNull()
         // JTS Point 타입임을 확인
-        (c is org.locationtech.jts.geom.Point).let { assert(it) { "centroid는 Point 타입이어야 합니다" } }
+        (c is org.locationtech.jts.geom.Point).let { require(it) { "centroid는 Point 타입이어야 합니다" } }
     }
 }

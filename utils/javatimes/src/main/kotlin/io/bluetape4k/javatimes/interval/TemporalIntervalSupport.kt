@@ -3,7 +3,7 @@ package io.bluetape4k.javatimes.interval
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
 import io.bluetape4k.javatimes.toEpochDay
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.Duration
@@ -282,7 +282,7 @@ fun <T> ReadableTemporalInterval<T>.sequence(
     step: Int,
     unit: ChronoUnit,
 ): Sequence<T> where T: Temporal, T: Comparable<T> {
-    step.assertPositiveNumber("step")
+    step.requirePositiveNumber("step")
 
     return sequence {
         var current = startInclusive.startOf(unit)
@@ -315,7 +315,7 @@ fun <T> ReadableTemporalInterval<T>.flow(
     step: Int,
     unit: ChronoUnit,
 ): Flow<T> where T: Temporal, T: Comparable<T> {
-    step.assertPositiveNumber("step")
+    step.requirePositiveNumber("step")
 
     return flow {
         var current = startInclusive.startOf(unit)

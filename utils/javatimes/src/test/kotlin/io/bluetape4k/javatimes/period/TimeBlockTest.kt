@@ -236,7 +236,7 @@ class TimeBlockTest: AbstractPeriodTest() {
 
     @Test
     fun `set duration with out of range`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             val block = TimeBlock(start, duration)
             block.duration = (-1).millis()
         }

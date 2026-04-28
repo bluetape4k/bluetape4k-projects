@@ -1,6 +1,6 @@
 package io.bluetape4k.kafka
 
-import io.bluetape4k.support.assertNotBlank
+import io.bluetape4k.support.requireNotBlank
 import org.apache.kafka.common.TopicPartition
 
 /**
@@ -34,7 +34,7 @@ fun String.toTopicPartition(): TopicPartition = topicPartitionOf(this)
  * ```
  */
 fun topicPartitionOf(tp: String): TopicPartition {
-    tp.assertNotBlank("tp")
+    tp.requireNotBlank("tp")
 
     val index = tp.lastIndexOf('-')
     if (index < 0) {

@@ -74,7 +74,7 @@ class ZipBombProtectionTest {
         // 예외 없이 완료해야 한다
         unzip(zipFile, destDir)
 
-        assert(destDir.list()?.isNotEmpty() == true) { "추출 결과가 존재해야 한다" }
+        require(destDir.list()?.isNotEmpty() == true) { "추출 결과가 존재해야 한다" }
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ class ZipBombProtectionTest {
     fun `ZIP_MAX_UNCOMPRESSED_SIZE 는 ZIP_MAX_ENTRIES 파일을 수용할 만큼 충분히 크다`() {
         // 1GB 한도 / 10_000 엔트리 = 파일당 평균 100KB 허용
         val avgBytesPerEntry = ZIP_MAX_UNCOMPRESSED_SIZE / ZIP_MAX_ENTRIES
-        assert(avgBytesPerEntry > 0L) { "엔트리당 평균 허용 크기가 양수여야 한다" }
+        require(avgBytesPerEntry > 0L) { "엔트리당 평균 허용 크기가 양수여야 한다" }
     }
 
     // ────────────────────────────────────────────────────────────────────────────

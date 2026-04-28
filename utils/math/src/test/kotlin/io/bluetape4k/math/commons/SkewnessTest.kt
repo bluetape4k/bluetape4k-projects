@@ -21,7 +21,7 @@ class SkewnessTest {
         val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 20.0)
         val result = data.skewness()
         // 오른쪽으로 치우친 분포는 양의 skewness
-        assert(result > 0.0) { "오른쪽 치우침 분포는 양의 skewness 이어야 합니다" }
+        require(result > 0.0) { "오른쪽 치우침 분포는 양의 skewness 이어야 합니다" }
     }
 
     @Test

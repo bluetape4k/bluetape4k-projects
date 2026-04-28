@@ -26,9 +26,9 @@ fun <T: Date> dateProgressionOf(
     endInclusive: T,
     step: Duration = Duration.ofMillis(1),
 ): DateGenericProgression<T> {
-    assert(!step.isZero) { "step must be non-zero" }
+    require(!step.isZero) { "step must be non-zero" }
     if (start != endInclusive) {
-        assert((start < endInclusive) == step.isPositive) {
+        require((start < endInclusive) == step.isPositive) {
             "step의 증감이 반대가 되면 안됩니다. start=$start, endInclusive=$endInclusive, step=$step"
         }
     }
@@ -57,9 +57,9 @@ open class DateGenericProgression<out T: Date> internal constructor(
 ): Iterable<T> {
 
     init {
-        assert(!step.isZero) { "step must be non-zero" }
+        require(!step.isZero) { "step must be non-zero" }
         if (start != endInclusive) {
-            assert((start <= endInclusive) == step.isPositive) {
+            require((start <= endInclusive) == step.isPositive) {
                 "step의 증감이 반대가 되면 안됩니다. start=$start, endInclusive=$endInclusive, step=$step"
             }
         }

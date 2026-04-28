@@ -1,6 +1,6 @@
 package io.bluetape4k.collections
 
-import io.bluetape4k.support.assertInRange
+import io.bluetape4k.support.requireInRange
 
 /**
  * 수신 객체(this)를 리스트의 **첫 번째 요소**로 추가하고, [tail]을 그대로 반환합니다.
@@ -81,8 +81,8 @@ fun <T> MutableList<T>.append(vararg elements: T): MutableList<T> = apply {
 fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
     if (index1 == index2) return
 
-    index1.assertInRange(0, this.size - 1, "index1")
-    index2.assertInRange(0, this.size - 1, "index2")
+    index1.requireInRange(0, this.size - 1, "index1")
+    index2.requireInRange(0, this.size - 1, "index2")
 
     val tmp = this[index1]
     this[index1] = this[index2]

@@ -5,7 +5,7 @@ import io.bluetape4k.javatimes.range.TemporalOpenedProgression
 import io.bluetape4k.javatimes.range.TemporalOpenedRange
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.temporal.ChronoUnit
@@ -57,9 +57,9 @@ fun <T> TemporalOpenedRange<T>.windowedFlow(
     unit: ChronoUnit = ChronoUnit.YEARS,
 ): Flow<List<T>> where T: Temporal, T: Comparable<T> {
 
-    size.assertPositiveNumber("size")
-    step.assertPositiveNumber("step")
-    assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
+    size.requirePositiveNumber("size")
+    step.requirePositiveNumber("step")
+    require(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return flow {
         var current: T = start.startOf(unit)
@@ -222,7 +222,7 @@ fun <T> TemporalOpenedRange<T>.chunkedFlowMillis(size: Int): Flow<List<T>> where
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> TemporalOpenedRange<T>.zipWithNextFlow(unit: ChronoUnit): Flow<Pair<T, T>> where T: Temporal, T: Comparable<T> {
-    assert(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
+    require(unit in SupportChronoUnits) { "Not supported ChronoUnit. unit=$unit" }
 
     return flow {
         var current: T = start.startOf(unit)

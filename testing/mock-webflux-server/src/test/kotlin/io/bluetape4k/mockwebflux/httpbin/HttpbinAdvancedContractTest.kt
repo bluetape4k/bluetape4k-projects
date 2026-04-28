@@ -81,7 +81,7 @@ class HttpbinAdvancedContractTest: AbstractMockWebfluxServerTest() {
             .expectBody()
             .returnResult()
         val cacheControl = result.responseHeaders.getFirst("Cache-Control") ?: ""
-        assert(cacheControl.isNotBlank()) { "Cache-Control header must be present, got: $cacheControl" }
+        require(cacheControl.isNotBlank()) { "Cache-Control header must be present, got: $cacheControl" }
     }
 
     @Test
@@ -121,7 +121,7 @@ class HttpbinAdvancedContractTest: AbstractMockWebfluxServerTest() {
             .expectBody()
             .returnResult()
         val lastModified = result.responseHeaders.getFirst("Last-Modified")
-        assert(!lastModified.isNullOrBlank()) { "Last-Modified header must be present" }
+        require(!lastModified.isNullOrBlank()) { "Last-Modified header must be present" }
     }
 
     @Test
@@ -132,7 +132,7 @@ class HttpbinAdvancedContractTest: AbstractMockWebfluxServerTest() {
             .expectBody()
             .returnResult()
         val etag = result.responseHeaders.getFirst("ETag")
-        assert(etag == "\"myetag\"") { "ETag header must be \"myetag\", got: $etag" }
+        require(etag == "\"myetag\"") { "ETag header must be \"myetag\", got: $etag" }
     }
 
     @Test

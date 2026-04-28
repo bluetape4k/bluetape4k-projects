@@ -4,7 +4,7 @@ import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.assertNotNull
+import io.bluetape4k.support.requireNotNull
 import jakarta.annotation.PostConstruct
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
@@ -14,10 +14,8 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformationSuppo
 import org.springframework.data.jpa.repository.support.Querydsl
 import org.springframework.data.querydsl.SimpleEntityPathResolver
 import org.springframework.data.support.PageableExecutionUtils
-import org.springframework.stereotype.Repository
 
-@Repository
-class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
+abstract class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
 
     companion object: KLogging()
 
@@ -27,7 +25,7 @@ class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
 
     @PersistenceContext
     fun setEntityManager(entityManager: EntityManager) {
-        entityManager.assertNotNull("entityManager")
+        entityManager.requireNotNull("entityManager")
 
         val entityInfo = JpaEntityInformationSupport.getEntityInformation(entityClass, entityManager)
         val resolver = SimpleEntityPathResolver.INSTANCE
@@ -39,9 +37,9 @@ class SpringRepositoryQuerydslSupport(private val entityClass: Class<*>) {
 
     @PostConstruct
     fun assertProperProperty() {
-        entityManager.assertNotNull("entityManager")
-        querydsl.assertNotNull("querydsl")
-        queryFactory.assertNotNull("queryFactory")
+        entityManager.requireNotNull("entityManager")
+        querydsl.requireNotNull("querydsl")
+        queryFactory.requireNotNull("queryFactory")
     }
 
     protected fun getEntityManager(): EntityManager = entityManager!!

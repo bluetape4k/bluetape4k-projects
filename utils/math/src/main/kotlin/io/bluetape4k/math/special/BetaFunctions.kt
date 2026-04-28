@@ -1,6 +1,6 @@
 package io.bluetape4k.math.special
 
-import io.bluetape4k.support.assertPositiveNumber
+import io.bluetape4k.support.requirePositiveNumber
 import org.apache.commons.math3.special.Gamma.logGamma
 import kotlin.math.exp
 
@@ -12,8 +12,8 @@ import kotlin.math.exp
  * ```
  */
 fun betaLn(x: Double, y: Double): Double {
-    x.assertPositiveNumber("x")
-    y.assertPositiveNumber("y")
+    x.requirePositiveNumber("x")
+    y.requirePositiveNumber("y")
 
     return logGamma(x) + logGamma(y) - logGamma(x + y)
 }

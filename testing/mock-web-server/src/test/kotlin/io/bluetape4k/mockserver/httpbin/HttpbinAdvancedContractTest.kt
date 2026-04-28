@@ -311,7 +311,7 @@ class HttpbinAdvancedContractTest {
         mockMvc.perform(get("/httpbin/delay/1"))
             .andExpect(status().isOk)
         val elapsed = System.currentTimeMillis() - start
-        assert(elapsed >= 1000L) { "Expected delay >= 1000ms, but got ${elapsed}ms" }
+        require(elapsed >= 1000L) { "Expected delay >= 1000ms, but got ${elapsed}ms" }
     }
 
     /** E20: /httpbin/redirect/{n} → 302 리다이렉트 체인 */
