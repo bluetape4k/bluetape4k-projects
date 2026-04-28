@@ -8,28 +8,39 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 /**
+ * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.base` 모듈, `kotlin.**` 패키지만 허용하고
+ * 그 외 모든 클래스의 역직렬화를 차단합니다 (JEP 290 참고).
+ *
+ * 추가 클래스가 필요한 경우 [JdkBinarySerializer] 생성 시 별도 필터를 지정하세요.
+ */
+val JDK_DEFAULT_OBJECT_INPUT_FILTER: ObjectInputFilter = ObjectInputFilter.Config.createFilter(
+    "io.bluetape4k.**;java.base/**;kotlin.**;!*"
+)
+
+/**
  * JDK의 [ObjectOutputStream], [ObjectInputStream] 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
  *
  * > **보안 경고**: JDK 직렬화는 신뢰할 수 없는 데이터 소스에서 사용 시 역직렬화 공격(RCE) 취약점이 발생할 수 있습니다.
  * > 신뢰된 환경에서만 사용하거나, [objectInputFilter]를 설정해 허용할 클래스를 제한하세요. (JEP 290 참고)
+ * > 기본값으로 [JDK_DEFAULT_OBJECT_INPUT_FILTER]가 적용됩니다.
  *
- * ```
- * // 신뢰된 환경에서 사용
+ * ```kotlin
+ * // 기본 필터 적용 (권장) — JDK_DEFAULT_OBJECT_INPUT_FILTER 사용
  * val serializer = JdkBinarySerializer()
  * val bytes = serializer.serialize("Hello, World!")
  * val text = serializer.deserialize<String>(bytes)  // text="Hello, World!"
  *
- * // 필터 적용 예시
- * val filter = ObjectInputFilter.Config.createFilter("java.*;kotlin.*;!*")
- * val safeSerializer = JdkBinarySerializer(objectInputFilter = filter)
+ * // 추가 패키지 허용: JEP 290 필터 패턴 지정
+ * val customFilter = ObjectInputFilter.Config.createFilter("com.example.**;io.bluetape4k.**;kotlin.**;!*")
+ * val safeSerializer = JdkBinarySerializer(objectInputFilter = customFilter)
  * ```
  *
  * @param bufferSize 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
- * @param objectInputFilter 역직렬화 시 적용할 [ObjectInputFilter]. null이면 시스템 전역 필터를 사용합니다.
+ * @param objectInputFilter 역직렬화 시 적용할 [ObjectInputFilter]. 기본값: [JDK_DEFAULT_OBJECT_INPUT_FILTER]
  */
 class JdkBinarySerializer(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
-    private val objectInputFilter: ObjectInputFilter? = null,
+    private val objectInputFilter: ObjectInputFilter? = JDK_DEFAULT_OBJECT_INPUT_FILTER,
 ): AbstractBinarySerializer() {
 
     companion object: KLogging()

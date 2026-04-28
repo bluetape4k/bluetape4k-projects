@@ -24,6 +24,12 @@ private object ZipFileSupportLogger: KLogging()
 
 private val log = ZipFileSupportLogger.log
 
+/** ZIP 압축 해제 시 허용하는 최대 엔트리 수 (zip bomb 방지) */
+const val ZIP_MAX_ENTRIES = 10_000
+
+/** ZIP 압축 해제 시 허용하는 최대 비압축 크기 (1 GB, zip bomb 방지) */
+const val ZIP_MAX_UNCOMPRESSED_SIZE = 1L * 1024 * 1024 * 1024
+
 /** ZIP 파일 확장자 */
 const val ZIP_EXT = ".zip"
 
@@ -291,9 +297,26 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
             emptyList()
         }
 
+        var entryCount = 0
+        var totalUncompressedSize = 0L
+
         while (entries.hasMoreElements()) {
             val entry = entries.nextElement()
             val entryName = entry.name
+
+            // zip bomb 방어: 엔트리 수 제한
+            entryCount++
+            require(entryCount <= ZIP_MAX_ENTRIES) {
+                "ZIP 엔트리 수가 허용 한도를 초과했습니다: $entryCount > $ZIP_MAX_ENTRIES"
+            }
+
+            // zip bomb 방어: 비압축 크기 제한 (엔트리 헤더의 크기 정보 기준)
+            if (entry.size > 0) {
+                totalUncompressedSize += entry.size
+                require(totalUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
+                    "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $totalUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+                }
+            }
 
             // 패턴 필터링
             if (matchers.isNotEmpty()) {
