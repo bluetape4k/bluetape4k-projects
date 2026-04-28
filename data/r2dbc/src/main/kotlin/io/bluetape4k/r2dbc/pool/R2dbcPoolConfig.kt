@@ -1,6 +1,7 @@
 package io.bluetape4k.r2dbc.pool
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requireNotBlank
@@ -40,7 +41,7 @@ import java.time.Duration
  * @property acquireRetry 커넥션 획득 재시도 횟수 (기본값: 3)
  * @property backgroundEvictionInterval 백그라운드 만료 검사 주기 (기본값: 1분)
  * @property maxAcquireTime 커넥션 획득 최대 대기 시간 (기본값: 3초)
- * @property maxPendingAcquire 풀 한도 도달 시 대기 큐에 둘 커넥션 획득 요청 수 (기본값: -1, 무제한)
+ * @property maxPendingAcquire 풀 한도 도달 시 대기 큐에 둘 커넥션 획득 요청 수 (기본값: 1000). -1로 설정하면 무제한이 되어 OOM이 발생할 수 있으므로 운영 환경에서는 적절한 값을 지정하세요.
  * @property maxValidationTime 커넥션 검증 최대 대기 시간 (기본값: 2초)
  * @property validationDepth 커넥션 검증 깊이 (기본값: [ValidationDepth.LOCAL])
  * @property validationQuery 커넥션 검증 쿼리. 지정하면 검증마다 DB 왕복이 발생하므로 고처리량 경로에서는 기본값(null)을 권장합니다.
@@ -66,6 +67,11 @@ data class R2dbcPoolConfig(
 ) {
     init {
         validate()
+        if (maxPendingAcquire < 0) {
+            log.warn {
+                "maxPendingAcquire=$maxPendingAcquire (무제한). 고부하 환경에서 OOM이 발생할 수 있습니다. 운영 환경에서는 적절한 양수 값을 설정하세요."
+            }
+        }
     }
 
     /**
@@ -117,8 +123,12 @@ data class R2dbcPoolConfig(
         /** 커넥션 획득 최대 대기 시간 기본값 */
         val DEFAULT_MAX_ACQUIRE_TIME: Duration = Duration.ofSeconds(3)
 
-        /** 풀 한도 도달 시 커넥션 획득 대기 큐 크기 기본값 (-1: 무제한) */
-        const val DEFAULT_MAX_PENDING_ACQUIRE: Int = -1
+        /**
+         * 풀 한도 도달 시 커넥션 획득 대기 큐 크기 기본값 (1000).
+         *
+         * -1로 설정하면 무제한 대기 큐가 생성되어 고부하 환경에서 OOM이 발생할 수 있습니다.
+         */
+        const val DEFAULT_MAX_PENDING_ACQUIRE: Int = 1000
 
         /** 커넥션 검증 최대 대기 시간 기본값 */
         val DEFAULT_MAX_VALIDATION_TIME: Duration = Duration.ofSeconds(2)

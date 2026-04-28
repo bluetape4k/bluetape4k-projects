@@ -237,6 +237,10 @@ class StDWithinOp(
     private val right: Expression<Point>,
     private val distance: Double,
 ): Op<Boolean>() {
+    init {
+        require(distance.isFinite()) { "distance는 유한한 값이어야 합니다. 현재 값: $distance" }
+    }
+
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_DWithin(")
         queryBuilder.append(left)
@@ -477,6 +481,10 @@ class GeoDWithinOp(
     private val right: Expression<Geometry>,
     private val distance: Double,
 ): Op<Boolean>() {
+    init {
+        require(distance.isFinite()) { "distance는 유한한 값이어야 합니다. 현재 값: $distance" }
+    }
+
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         queryBuilder.append("ST_DWithin(")
         queryBuilder.append(left)

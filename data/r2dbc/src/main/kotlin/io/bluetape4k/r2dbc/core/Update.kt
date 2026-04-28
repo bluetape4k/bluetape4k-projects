@@ -234,6 +234,10 @@ internal class UpdateValuesSpecImpl(
 ): UpdateValuesSpec {
     companion object: KLogging()
 
+    init {
+        requireValidIdentifier(table)
+    }
+
     override val values = mutableMapOf<String, Any?>()
     override val Update: SetterSpec get() = this
 
