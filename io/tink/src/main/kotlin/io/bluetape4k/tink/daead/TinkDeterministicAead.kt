@@ -3,6 +3,7 @@ package io.bluetape4k.tink.daead
 import com.google.crypto.tink.DeterministicAead
 import com.google.crypto.tink.KeysetHandle
 import com.google.crypto.tink.RegistryConfiguration
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.daeadKeysetHandle
 import java.util.*
@@ -27,6 +28,8 @@ import java.util.*
  * @param keysetHandle Tink [KeysetHandle] — `daeadKeysetHandle()` 팩토리 함수로 생성
  */
 class TinkDeterministicAead(keysetHandle: KeysetHandle = daeadKeysetHandle()) {
+
+    companion object : KLogging()
 
     private val daead: DeterministicAead by lazy {
         keysetHandle.getPrimitive(RegistryConfiguration.get(), DeterministicAead::class.java)

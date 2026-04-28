@@ -1,5 +1,6 @@
 package io.bluetape4k.tink.encrypt
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 
 /**
@@ -21,6 +22,8 @@ import io.bluetape4k.tink.daead.TinkDeterministicAead
  * @param daead 사용할 [TinkDeterministicAead] 인스턴스
  */
 class TinkDaeadEncryptor(private val daead: TinkDeterministicAead): TinkEncryptor {
+
+    companion object : KLogging()
 
     override fun encrypt(plaintext: ByteArray): ByteArray = daead.encryptDeterministically(plaintext)
 
