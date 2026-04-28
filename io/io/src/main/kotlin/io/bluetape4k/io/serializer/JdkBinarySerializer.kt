@@ -8,13 +8,19 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 /**
- * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.base` 모듈, `kotlin.**` 패키지만 허용하고
+ * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.lang.**`, `java.util.**`,
+ * `java.io.*`, `java.math.**`, `java.time.**`, `kotlin.**` 패키지만 허용하고
  * 그 외 모든 클래스의 역직렬화를 차단합니다 (JEP 290 참고).
+ *
+ * 참고: java.base 모듈 패턴은 일부 JVM 구성에서 제대로 동작하지 않으므로
+ * 명시적 패키지 패턴을 사용합니다.
  *
  * 추가 클래스가 필요한 경우 [JdkBinarySerializer] 생성 시 별도 필터를 지정하세요.
  */
 val JDK_DEFAULT_OBJECT_INPUT_FILTER: ObjectInputFilter = ObjectInputFilter.Config.createFilter(
-    "io.bluetape4k.**;java.base/**;kotlin.**;!*"
+    "io.bluetape4k.**;java.lang.*;java.lang.**;java.util.*;java.util.**;" +
+        "java.io.*;java.math.*;java.math.**;java.time.*;java.time.**;" +
+        "java.net.*;java.sql.*;kotlin.*;kotlin.**;!*"
 )
 
 /**
@@ -88,7 +94,8 @@ class JdkBinarySerializer(
     override fun <T: Any> doDeserialize(bytes: ByteArray): T? {
         return ByteArrayInputStream(bytes).use { bis ->
             ObjectInputStream(bis).apply {
-                val filter = objectInputFilter ?: ObjectInputFilter.Config.getSerialFilter()
+                val filter = this@JdkBinarySerializer.objectInputFilter
+                    ?: ObjectInputFilter.Config.getSerialFilter()
                 filter?.let { setObjectInputFilter(it) }
             }.use { ois ->
                 ois.readObject() as? T

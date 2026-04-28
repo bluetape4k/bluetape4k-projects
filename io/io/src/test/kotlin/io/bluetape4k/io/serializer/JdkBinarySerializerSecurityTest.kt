@@ -5,7 +5,10 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import untrusted.payload.UntrustedPayload
+import java.io.InvalidClassException
 import java.io.ObjectInputFilter
+import kotlin.test.assertFailsWith
 
 /**
  * [JdkBinarySerializer]의 보안 기능 — [ObjectInputFilter] 적용 — 검증 테스트.
@@ -121,5 +124,80 @@ class JdkBinarySerializerSecurityTest {
 
         default.deserialize<String>(bytesSmall) shouldBeEqualTo value
         small.deserialize<String>(bytesDefault) shouldBeEqualTo value
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // 거부 경로: 허용 목록 외 패키지 클래스 역직렬화 차단
+    // ────────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun `JDK_DEFAULT_OBJECT_INPUT_FILTER 직접 호출시 UntrustedPayload 를 REJECTED 로 판정한다`() {
+        val info = object : ObjectInputFilter.FilterInfo {
+            override fun serialClass() = UntrustedPayload::class.java
+            override fun arrayLength() = -1L
+            override fun depth() = 1L
+            override fun references() = 1L
+            override fun streamBytes() = 100L
+        }
+        val status = JDK_DEFAULT_OBJECT_INPUT_FILTER.checkInput(info)
+        status shouldBeEqualTo ObjectInputFilter.Status.REJECTED
+    }
+
+    @Test
+    fun `setObjectInputFilter 로 REJECT 필터 적용 시 readObject 가 예외를 발생시킨다`() {
+        // raw ObjectInputStream 으로 필터 wiring 자체 검증
+        val payload = UntrustedPayload(data = "raw-test")
+        val bytes = java.io.ByteArrayOutputStream().also { bos ->
+            java.io.ObjectOutputStream(bos).use { it.writeObject(payload) }
+        }.toByteArray()
+
+        val ois = java.io.ObjectInputStream(java.io.ByteArrayInputStream(bytes))
+        ois.setObjectInputFilter(JDK_DEFAULT_OBJECT_INPUT_FILTER)
+
+        assertFailsWith<java.io.InvalidClassException>("setObjectInputFilter 로 적용한 필터가 readObject 에서 거부해야 한다") {
+            ois.readObject()
+        }
+    }
+
+    @Test
+    fun `doDeserialize 내 apply_use 패턴이 필터를 유지하는지 검증한다`() {
+        // 필터 wiring 을 doDeserialize 와 동일한 apply+use 패턴으로 재현
+        val payload = UntrustedPayload(data = "apply-use-test")
+        val bytes = java.io.ByteArrayOutputStream().also { bos ->
+            java.io.ObjectOutputStream(bos).use { it.writeObject(payload) }
+        }.toByteArray()
+
+        assertFailsWith<java.io.InvalidClassException>("apply+use 패턴에서도 필터가 readObject 에서 거부해야 한다") {
+            java.io.ByteArrayInputStream(bytes).use { bis ->
+                java.io.ObjectInputStream(bis).apply {
+                    setObjectInputFilter(JDK_DEFAULT_OBJECT_INPUT_FILTER)
+                }.use { ois ->
+                    ois.readObject()
+                }
+            }
+        }
+    }
+
+
+    @Test
+    fun `JDK_DEFAULT_OBJECT_INPUT_FILTER 는 허용 목록 외 패키지 클래스를 거부한다`() {
+        // untrusted.payload.UntrustedPayload 는 io.bluetape4k.**, java.lang.**, kotlin.** 외 패키지
+        val payload = UntrustedPayload(data = "malicious-payload")
+
+        // 필터 없이 직렬화 (직렬화는 허용)
+        val noFilterSerializer = JdkBinarySerializer(objectInputFilter = null)
+        val bytes = noFilterSerializer.serialize(payload)
+
+        // JDK_DEFAULT_OBJECT_INPUT_FILTER 적용 역직렬화 — 차단되어야 함
+        val filteredSerializer = JdkBinarySerializer()
+
+        val ex = assertFailsWith<BinarySerializationException>(
+            "허용 목록 외 패키지 클래스는 역직렬화 시 예외가 발생해야 한다"
+        ) {
+            filteredSerializer.deserialize<UntrustedPayload>(bytes)
+        }
+        // cause chain 에 InvalidClassException 이 있어야 한다
+        val causeChain = generateSequence(ex.cause) { it.cause }
+        causeChain.any { it is InvalidClassException }.shouldBeTrue()
     }
 }
