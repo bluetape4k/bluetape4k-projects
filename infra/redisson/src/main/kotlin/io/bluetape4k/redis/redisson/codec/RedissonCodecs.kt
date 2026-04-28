@@ -79,6 +79,10 @@ object RedissonCodecs: KLogging() {
     /**
      * JDK 기본 직렬화 Codec.
      * 범용 호환성이 높으나 성능이 낮습니다. 레거시 시스템과의 연동에 사용하세요.
+     *
+     * ⚠️ **보안 경고**: JDK 직렬화는 역직렬화 가젯(deserialization gadget) 체인을 통한 원격 코드 실행(RCE) 취약점에
+     * 노출될 수 있습니다. **신뢰된 내부 Redis 환경에서만 사용**하십시오.
+     * 외부에 노출된 Redis에서는 [Kryo5] 또는 [Fory] 등 타입 안전 Codec을 사용하십시오.
      */
     val Jdk: Codec by lazy { SerializationCodec() }
 

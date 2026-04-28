@@ -8,6 +8,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
@@ -172,6 +173,7 @@ class RedissonSuspendLeaderGroupElection private constructor(
                         log.debug { "작업이 완료되어 슬롯을 반납했습니다. lockName=$lockName" }
                     }
                     .onFailure { error ->
+                        if (error is CancellationException) throw error
                         log.warn(error) { "Fail to release semaphore slot. lockName=$lockName" }
                     }
             }

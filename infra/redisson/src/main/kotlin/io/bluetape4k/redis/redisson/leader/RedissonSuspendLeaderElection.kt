@@ -7,6 +7,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.coroutines.getLockId
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
@@ -147,6 +148,7 @@ class RedissonSuspendLeaderElection private constructor(
                                     log.debug { "작업이 완료되어 Leader 권한을 반납했습니다. lock=$lockName, lockId=$lockId" }
                                 }
                                 .onFailure { error ->
+                                    if (error is CancellationException) throw error
                                     log.warn(error) { "Fail to release lock. lock=$lockName, lockId=$lockId" }
                                 }
                         }
