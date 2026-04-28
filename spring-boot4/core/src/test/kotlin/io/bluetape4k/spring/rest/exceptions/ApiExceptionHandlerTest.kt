@@ -73,10 +73,11 @@ class ApiExceptionHandlerTest: AbstractSpringTest() {
     }
 
     @Test
-    fun `응답 body에 stackTraces 포함`() {
+    fun `예외 원인 메시지가 응답 body에 포함`() {
         val cause = RuntimeException("root cause")
         val ex = ApiInternalServerErrorException(cause)
         val response = handler.handle(ex)
         response.body.shouldNotBeNull()
+        response.statusCode.value() shouldBeEqualTo HttpStatus.INTERNAL_SERVER_ERROR.value()
     }
 }

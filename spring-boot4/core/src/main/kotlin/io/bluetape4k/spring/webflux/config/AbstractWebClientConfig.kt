@@ -7,6 +7,8 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import javax.net.ssl.TrustManagerFactory
+import java.security.KeyStore
 import org.springframework.context.annotation.Bean
 import org.springframework.http.client.ReactorResourceFactory
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -45,8 +47,18 @@ abstract class AbstractWebClientConfig {
 
     /**
      * 응답 타임아웃.
+     *
+     * `bluetape4k.webclient.response-timeout` 프로퍼티로 재정의할 수 있습니다.
+     * 기본값은 30초이며, 운영 환경에서는 실제 SLA에 맞게 조정하세요.
+     *
+     * ```yaml
+     * bluetape4k:
+     *   webclient:
+     *     response-timeout: 30s
+     * ```
      */
-    protected open val responseTimeout: Duration = Duration.ofSeconds(3)
+    @org.springframework.beans.factory.annotation.Value("\${bluetape4k.webclient.response-timeout:PT30S}")
+    protected open var responseTimeout: Duration = Duration.ofSeconds(30)
 
     /**
      * 루프 리소스 종료 대기 시간.
@@ -60,9 +72,34 @@ abstract class AbstractWebClientConfig {
 
     /**
      * SSL 컨텍스트를 생성합니다.
-     * 필요하면 재정의해서 보안 정책을 변경하세요.
+     *
+     * ## 동작/계약
+     * - 시스템 기본 trust store(JDK cacerts)를 사용해 서버 인증서를 검증합니다.
+     * - 개발/테스트 환경에서 모든 인증서를 신뢰하려면 [insecureSslContext]를 명시적으로 사용하세요.
+     * - 필요하면 재정의해서 커스텀 trust store를 지정할 수 있습니다.
      */
-    protected open fun sslContext(): SslContext =
+    protected open fun sslContext(): SslContext {
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        trustManagerFactory.init(null as KeyStore?)
+        return SslContextBuilder
+            .forClient()
+            .trustManager(trustManagerFactory)
+            .build()
+    }
+
+    /**
+     * 모든 서버 인증서를 신뢰하는 InsecureSslContext를 생성합니다.
+     *
+     * ## 경고
+     * - 이 메서드는 **개발/테스트 전용**입니다. 운영 환경에서 절대 사용하지 마세요.
+     * - MITM(Man-in-the-Middle) 공격에 취약합니다.
+     * - 사용 시 [sslContext]를 재정의해 이 메서드를 호출하세요.
+     *
+     * ```kotlin
+     * override fun sslContext() = insecureSslContext()
+     * ```
+     */
+    protected fun insecureSslContext(): SslContext =
         SslContextBuilder
             .forClient()
             .trustManager(InsecureTrustManagerFactory.INSTANCE)
