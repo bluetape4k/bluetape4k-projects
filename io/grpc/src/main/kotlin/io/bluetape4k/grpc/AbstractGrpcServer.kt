@@ -4,7 +4,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.ifTrue
 import io.bluetape4k.utils.ShutdownQueue
 import io.grpc.BindableService
 import io.grpc.Server
@@ -92,11 +91,14 @@ abstract class AbstractGrpcServer(
                 log.debug { "Shutdown gRPC server..." }
                 running.value = false
                 runCatching { server.shutdown() }
-                runCatching { server.awaitTermination(5, TimeUnit.SECONDS) }
-                    .isFailure
-                    .ifTrue {
-                        log.warn { "Timed out waiting for server shutdown" }
-                    }
+                // awaitTermination은 타임아웃 시 false를 반환하며, 예외가 아닌 반환값으로 판별해야 합니다.
+                // false(타임아웃) 또는 InterruptedException 발생 시 shutdownNow()를 호출해
+                // 스레드가 무기한 잔류하는 것을 방지합니다.
+                val terminated = runCatching { server.awaitTermination(5, TimeUnit.SECONDS) }.getOrDefault(false)
+                if (!terminated) {
+                    log.warn { "gRPC server did not terminate within 5 seconds. Forcing shutdownNow()." }
+                    runCatching { server.shutdownNow() }
+                }
             }
         }
     }
