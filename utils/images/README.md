@@ -306,36 +306,42 @@ val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
 ```
 
-### Batch Image Flow (Issue #135)
+### Batch Image Processing (Issue #135)
+
+`ImageBatchFlow` provides a Coroutine Flow pipeline for applying uniform transforms to a large set of
+images with concurrency control and per-pixel memory limits.
 
 ```kotlin
 import io.bluetape4k.images.batch.*
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import java.nio.file.Path
 
+// Configure batch options
 val options = ImageProcessingOptions(
     parallelism = defaultImageBatchParallelism(),
     maxPixels = DEFAULT_MAX_PIXELS,
     maxInFlightPixels = DEFAULT_MAX_IN_FLIGHT_PIXELS,
-    skipFailures = true,
-    onFailure = { failure ->
-        // observe source/stage/cause without stopping the whole batch
-    }
+    skipFailures = true,                        // skip failing images, don't abort
 )
 
-listOf(Path.of("a.jpg"), Path.of("b.jpg"))
+// Process and write results
+val writtenPaths: List<Path> = listOf(Path.of("a.jpg"), Path.of("b.jpg"))
     .asFlow()
     .processImages(options) {
-        resize(width = 320, height = 240)
-        watermark("© bluetape4k")
-        toJpeg(quality = 85)
+        resize(width = 1280, height = 720)      // resize first
+        watermark("© bluetape4k")               // overlay watermark
+        toJpeg(quality = 85)                    // encode as JPEG
     }
-    .writeImagesTo(Path.of("out"), options)
+    .writeImagesTo(Path.of("output"), options)  // write to output directory
+    .toList()
 ```
 
-`ImageProcessingDsl` runs transforms on `transformDispatcher` and writes through the caller-provided `ioDispatcher`.
-The batch defaults are named constants such as `DEFAULT_MAX_PIXELS`, `DEFAULT_MAX_IN_FLIGHT_PIXELS`,
-`JPEG_QUALITY_MIN`, `JPEG_QUALITY_MAX`, and `PERFORMANCE_SAMPLE_IMAGE_COUNT`.
+`ImageProcessingDsl` runs transforms on `transformDispatcher` and writes through the caller-provided
+`ioDispatcher`. The batch defaults are named constants such as `DEFAULT_MAX_PIXELS`,
+`DEFAULT_MAX_IN_FLIGHT_PIXELS`, `JPEG_QUALITY_MIN`, `JPEG_QUALITY_MAX`, and
+`PERFORMANCE_SAMPLE_IMAGE_COUNT`.
+
 For larger image sets, use `ImageProcessingOptions.largeJobs()` or pass explicit
 `maxPixels` / `maxInFlightPixels` values:
 
@@ -349,32 +355,84 @@ val largeOptions = ImageProcessingOptions.largeJobs(
 
 ### Thumbnail Pipeline
 
+`ThumbnailPipeline` generates multiple thumbnail sizes for each source image in a single pass.
+Use `ThumbnailPipeline.builder()` to configure sizes, crop strategy, format, and error handling, then
+call `process(Flow<Path>)` to start streaming results.
+
 ```kotlin
 import io.bluetape4k.images.batch.ImageProcessingOptions
 import io.bluetape4k.images.coroutines.SuspendJpegWriter
 import io.bluetape4k.images.thumbnail.*
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 import java.nio.file.Path
 
+// Build a pipeline that produces three thumbnail sizes per image
 val pipeline = ThumbnailPipeline.builder()
-    .outputDirectory(Path.of("thumbs"))
-    .size(width = 320, height = 240, suffix = "small")
+    .outputDirectory(Path.of("output/thumbs"))
+    .size(width = 1280, height = 720, suffix = "hd")
+    .size(width = 640,  height = 360, suffix = "md")
+    .size(width = 320,  height = 180, suffix = "sm")
     .format(ThumbnailFormat(SuspendJpegWriter.Default.withCompression(85), "jpg"))
-    .crop(ThumbnailCrop.Smart())
-    .options(ImageProcessingOptions(skipFailures = true))
-    .onFailure { failure ->
-        // failure.stage identifies validation/load/transform/write
+    .crop(ThumbnailCrop.Smart())                // saliency-based crop
+    .options(ImageProcessingOptions(parallelism = 4, skipFailures = true))
+    .onFailure { result ->
+        // result.status contains the failed stage and cause
+        println("Thumbnail failed: ${result.source} → ${result.status}")
     }
     .build()
 
-pipeline.process(listOf(Path.of("photo.jpg")).asFlow())
+// Stream source images and collect results
+pipeline
+    .process(listOf(Path.of("photos/photo.jpg"), Path.of("photos/banner.png")).asFlow())
+    .collect { result ->
+        when (val status = result.status) {
+            is ThumbnailStatus.Success ->
+                println("OK  ${result.output.fileName} — ${status.bytes} bytes")
+            is ThumbnailStatus.Failure ->
+                println("ERR ${result.source.fileName} at ${status.stage}")
+        }
+    }
 ```
+
+`ThumbnailCrop` variants:
+- `ThumbnailCrop.Fit` — scale to fit within the bounding box (default)
+- `ThumbnailCrop.Smart()` — saliency-based crop then resize to exact dimensions
 
 ### Tile Processing
 
-```kotlin
-import io.bluetape4k.images.tiles.*
+`TileProcessor` splits large images into a grid of tiles, applies parallel transforms to each tile,
+and reassembles them into a single output image. Useful for applying localised filters to images that
+are too large to process as a whole.
 
+```kotlin
+import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.filter.GrayscaleFilter
+import io.bluetape4k.images.tiles.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
+
+val image: ImmutableImage = ImmutableImage.loader().fromFile(File("large.jpg"))
+val processor = TileProcessor(maxTileCount = 256, parallelism = 4)
+
+// 1. Split into 512×512 tiles
+val tiles: List<ImageTile> = processor.split(image, TileSize(width = 512, height = 512))
+
+// 2. Apply a per-tile transform in parallel
+val processedTiles: List<ImageTile> = processor
+    .processTiles(tiles.asFlow()) { tile ->
+        tile.copy(image = tile.image.filter(GrayscaleFilter()))
+    }
+    .toList()
+
+// 3. Reassemble into the original dimensions
+val result: ImmutableImage = processor.merge(processedTiles, image.width, image.height)
+result.output(JpegWriter.Default, File("output.jpg"))
+```
+
+Simple split-and-merge (no per-tile transform):
+
+```kotlin
 val processor = TileProcessor()
 val tiles = processor.split(image, TileSize(width = 512, height = 512))
 val merged = processor.merge(tiles, image.width, image.height)

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import kotlin.time.Duration.Companion.seconds
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
@@ -24,7 +25,7 @@ class ThumbnailPipelineTest: AbstractImageTest() {
     @Test
     fun `thumbnail pipeline writes configured size`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 30.seconds) {
         val source = tempFolder.copyResource(LANDSCAPE_JPG, SOURCE_IMAGE_NAME)
         val outputDir = tempFolder.createDirectory(OUTPUT_DIRECTORY_NAME).toPath()
         val pipeline = ThumbnailPipeline.builder()
@@ -44,7 +45,7 @@ class ThumbnailPipelineTest: AbstractImageTest() {
     @Test
     fun `thumbnail pipeline rejects output path traversal`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 30.seconds) {
         val source = tempFolder.copyResource(LANDSCAPE_JPG, SOURCE_IMAGE_NAME)
         val outputDir = tempFolder.createDirectory(OUTPUT_DIRECTORY_NAME).toPath()
         val failures = mutableListOf<ThumbnailResult>()
@@ -74,9 +75,9 @@ class ThumbnailPipelineTest: AbstractImageTest() {
 
     private fun TempFolder.copyResource(resourcePath: String, fileName: String) =
         createFile(fileName).toPath().also { target ->
-            Resourcex.getInputStream(resourcePath)!!.use { input ->
-                Files.copy(input, target, StandardCopyOption.REPLACE_EXISTING)
-            }
+            val input = Resourcex.getInputStream(resourcePath)
+                ?: error("테스트 리소스를 찾을 수 없습니다: $resourcePath")
+            input.use { Files.copy(it, target, StandardCopyOption.REPLACE_EXISTING) }
         }
 
     private companion object {

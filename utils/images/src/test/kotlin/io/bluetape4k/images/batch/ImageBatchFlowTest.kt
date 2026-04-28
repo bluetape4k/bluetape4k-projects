@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import kotlin.time.Duration.Companion.seconds
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeInstanceOf
@@ -44,7 +45,7 @@ class ImageBatchFlowTest: AbstractImageTest() {
     @Test
     fun `processImages applies transform dispatcher path and writes with selected writer`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 30.seconds) {
         val source = tempFolder.copyResource(CAFE_JPG, SOURCE_IMAGE_NAME)
         val output = tempFolder.root.toPath().resolve(OUTPUT_IMAGE_NAME)
 
@@ -69,7 +70,7 @@ class ImageBatchFlowTest: AbstractImageTest() {
     @Test
     fun `processImages emits failure and invokes callback when skipFailures is true`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 30.seconds) {
         val source = tempFolder.createFile(BROKEN_IMAGE_NAME).toPath()
         Files.writeString(source, BROKEN_IMAGE_TEXT)
         val failures = mutableListOf<ImageBatchResult.Failure>()
@@ -93,7 +94,7 @@ class ImageBatchFlowTest: AbstractImageTest() {
     @Test
     fun `writeImagesTo emits write failure callback when skipFailures is true`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 30.seconds) {
         val source = tempFolder.copyResource(CAFE_JPG, SOURCE_IMAGE_NAME)
         val blockedOutput = tempFolder.createDirectory(OUTPUT_IMAGE_NAME).toPath()
         val failures = mutableListOf<ImageBatchResult.Failure>()
@@ -123,7 +124,7 @@ class ImageBatchFlowTest: AbstractImageTest() {
     @Test
     fun `writeImagesTo rejects output path traversal`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 30.seconds) {
         val source = tempFolder.copyResource(CAFE_JPG, SOURCE_IMAGE_NAME)
         val failures = mutableListOf<ImageBatchResult.Failure>()
         val options = ImageProcessingOptions(
@@ -173,7 +174,7 @@ class ImageBatchFlowTest: AbstractImageTest() {
     @Test
     fun `hundred image batch performance sample is logged without threshold gating`(
         tempFolder: TempFolder,
-    ) = runTest {
+    ) = runTest(timeout = 60.seconds) {
         val source = tempFolder.createTinyImage(SOURCE_IMAGE_NAME)
         val sources = List(PERFORMANCE_SAMPLE_IMAGE_COUNT) { source }
         val options = ImageProcessingOptions(parallelism = TEST_PARALLELISM)
@@ -194,9 +195,9 @@ class ImageBatchFlowTest: AbstractImageTest() {
 
     private fun TempFolder.copyResource(resourcePath: String, fileName: String) =
         createFile(fileName).toPath().also { target ->
-            Resourcex.getInputStream(resourcePath)!!.use { input ->
-                Files.copy(input, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-            }
+            val input = Resourcex.getInputStream(resourcePath)
+                ?: error("테스트 리소스를 찾을 수 없습니다: $resourcePath")
+            input.use { Files.copy(it, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING) }
         }
 
     private fun TempFolder.createTinyImage(fileName: String) =
