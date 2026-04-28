@@ -6,6 +6,7 @@ import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.sqlclient.Pool
 import io.vertx.sqlclient.SqlConnection
+import kotlinx.coroutines.CancellationException
 
 /**
  * Vertx Sql Client 작업 테스트를 [testContext]하에서 Transactional 하게 수행합니다.
@@ -34,6 +35,8 @@ suspend inline fun Vertx.testWithSuspendTransaction(
     try {
         pool.withSuspendTransaction(block)
         testContext.completeNow()
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Throwable) {
         testContext.failNow(e)
     }
@@ -66,6 +69,8 @@ suspend inline fun Vertx.testWithSuspendRollback(
     try {
         pool.withSuspendRollback(block)
         testContext.completeNow()
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Throwable) {
         testContext.failNow(e)
     }

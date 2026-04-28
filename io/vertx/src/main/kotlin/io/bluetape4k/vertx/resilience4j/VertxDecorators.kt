@@ -7,7 +7,6 @@ import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.timelimiter.TimeLimiter
 import io.vertx.core.Future
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 /**
@@ -80,7 +79,7 @@ object VertxDecorators: KLoggingChannel() {
         /** [Retry]를 적용합니다. */
         fun withRetry(
             retry: Retry,
-            scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+            scheduler: ScheduledExecutorService = defaultRetryScheduler,
         ) = apply {
             supplier = retry.decorateVertxFuture(scheduler, supplier)
         }
@@ -88,7 +87,7 @@ object VertxDecorators: KLoggingChannel() {
         /** [TimeLimiter]를 적용합니다. */
         fun withTimeLimiter(
             timeLimiter: TimeLimiter,
-            scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+            scheduler: ScheduledExecutorService = defaultTimeLimiterScheduler,
         ) = apply {
             supplier = timeLimiter.decorateVertxFuture(scheduler, supplier)
         }
