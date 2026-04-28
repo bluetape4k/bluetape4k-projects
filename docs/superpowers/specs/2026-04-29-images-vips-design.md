@@ -270,7 +270,8 @@ suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
 
 ### 4.3.1 Factory Security Controls (MANDATORY — implemented in T2.4 / T3.3)
 
-모든 factory 함수는 native decode 전에 다음 검사를 순서대로 수행해야 합니다.
+모든 factory 함수는 **full pixel allocation 전에** 다음 검사를 순서대로 수행해야 합니다.
+(format allowlist와 크기 제한은 native decode 개시 전, maxPixels 검사는 header parse 후 pixel 데이터 할당 전.)
 
 #### 1. 입력 형식 허용 목록 (Format Allowlist)
 
@@ -290,19 +291,21 @@ suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
 - 기본 제한: 50 MB (`50 * 1024 * 1024L`)
 - **제한 초과 시 예외 발생 필수** — silent EOF 절단 금지:
   ```kotlin
-  BoundedInputStream.builder()
+  // 정확한 API명: setOnMaxCount (setOnMaxLength 없음 — Commons IO Javadoc 기준)
+  val bounded = BoundedInputStream.builder()
       .setInputStream(stream)
-      .setMaxCount(50 * 1024 * 1024L)
-      .setPropagateClose(true)
-      .setOnMaxLength { throw VipsDecodeException("Input stream exceeds 50 MB limit") }
+      .setMaxCount(50L * 1024 * 1024)   // 50 MB ceiling
+      .setPropagateClose(false)
+      .setOnMaxCount { throw VipsDecodeException("Input stream exceeds 50 MB limit") }
       .get()
   ```
-  Commons IO 2.16+ builder API 사용. `setOnMaxLength` 콜백이 없는 구버전은 `.isPropagateClose(true)` 후
-  제한 초과 여부를 read 후 직접 체크합니다.
+  Commons IO 2.16+ builder API 사용. `setOnMaxCount` 콜백은 `maxCount+1` 번째 바이트를 읽으려 할 때 발화 —
+  정확히 50 MB인 정상 입력은 거부하지 않음. `bounded.count >= MAX_BYTES` 패턴 **절대 사용 금지**:
+  정확히 50 MB 입력을 잘못 거부하고 실제 초과도 확정하지 못함.
 
 #### 3. Pixel 폭탄 방어 (maxPixels check)
 
-native decode 후 즉시 픽셀 수를 검사합니다. 공식:
+native header parse 후 즉시 픽셀 수를 검사합니다 (**full pixel allocation 전**). 공식:
 
 ```
 width × height × bands > maxPixels → VipsDecodeException
@@ -760,11 +763,13 @@ brew install vips
 `bluetape4k-images-vips-*` modules are designed for **trusted-input** scenarios (internal batch jobs, build pipelines). For **user-uploaded images** (untrusted input), additional hardening is required at the application layer.
 
 ### Image Bomb / Pixel Flood Defense
-- The spec mandates a `maxPixels` limit enforced at the factory boundary before native decode:
-  - Default: 150 MP (150,000,000 pixels)
+- The spec mandates a `maxPixels` limit enforced at the factory boundary **before full pixel allocation**:
+  - Format allowlist + BoundedInputStream: checked before any native call
+  - maxPixels check: checked after native header parse (lightweight), before full pixel data allocation
+  - Default: 150 MP (150,000,000 pixel × band units)
   - Configurable via `VipsRuntime.init(maxPixels = ...)` or env var `VIPS_MAX_PIXELS`
-- InputStream variant: MUST wrap with a `BoundedInputStream` capped at 50 MB default.
-- These limits are checked BEFORE any native decode is attempted.
+- InputStream variant: MUST wrap with a `BoundedInputStream` using `setOnMaxCount` callback (throws on overflow — NOT silent EOF truncation).
+- These limits block image bombs before expensive pixel decode is triggered.
 
 ### Path Traversal
 - `vipsImageOf(file/path)` and `writeTo(path)` do NOT canonicalize or confine paths.

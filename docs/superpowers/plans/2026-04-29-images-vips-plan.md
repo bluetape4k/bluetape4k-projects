@@ -208,19 +208,44 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
 ### T2.2 — JVipsRuntime implementation
 - **complexity**: high
 - **deps**: T1.5, T0.3
-- **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/JVipsRuntime.kt`
+- **files**:
+  - `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/JVipsRuntime.kt`
+  - `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/internal/JVipsNativeRuntime.kt`
 - **details**: Object implementing `VipsRuntime`. Thread safety via `AtomicReference<RuntimeState>` — a single atomic field encodes the full lifecycle (replaces dual-AtomicBoolean which has TOCTOU window). ⚠️ Do NOT use `@Synchronized` (blocked on Virtual Threads). Use `AtomicReference` at class-property level only (not method-local, per project atomicfu rule). State machine:
   ```kotlin
   private enum class RuntimeState { UNINITIALIZED, INITIALIZING, INITIALIZED, SHUTDOWN }
   private val state = AtomicReference(RuntimeState.UNINITIALIZED)
 
   override fun init(concurrency: Int, maxPixels: Long) {
-      check(state.get() != RuntimeState.SHUTDOWN) {
-          "libvips has been shut down — restart the process"
+      // Fast path
+      when (state.get()) {
+          RuntimeState.INITIALIZED -> return
+          RuntimeState.SHUTDOWN -> throw VipsInitializationException(
+              "libvips has been shut down — restart the process"
+          )
+          else -> {}
       }
-      if (!state.compareAndSet(RuntimeState.UNINITIALIZED, RuntimeState.INITIALIZING)) return
+      if (!state.compareAndSet(RuntimeState.UNINITIALIZED, RuntimeState.INITIALIZING)) {
+          // Another thread won the CAS. Spin until it finishes (INITIALIZING → INITIALIZED or UNINITIALIZED).
+          // ⚠️ Do NOT just return here — the caller must not proceed before init is complete.
+          while (state.get() == RuntimeState.INITIALIZING) {
+              Thread.onSpinWait()  // CPU hint; no blocking, no @Synchronized
+          }
+          when (state.get()) {
+              RuntimeState.INITIALIZED -> return
+              RuntimeState.SHUTDOWN -> throw VipsInitializationException(
+                  "libvips was shut down during concurrent init"
+              )
+              RuntimeState.UNINITIALIZED -> throw VipsInitializationException(
+                  "Concurrent init attempt failed — retry"
+              )
+              else -> {} // unreachable: INITIALIZING loop above exited
+          }
+          return
+      }
+      // This thread owns INITIALIZING slot
       try {
-          Vips.init(concurrency)
+          nativeRuntime.nativeInit(concurrency)  // calls Vips.init() via adapter seam (see M2)
           // configure maxPixels...
           state.set(RuntimeState.INITIALIZED)
       } catch (e: Exception) {
@@ -231,13 +256,16 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
 
   override fun shutdown() {
       if (state.getAndSet(RuntimeState.SHUTDOWN) == RuntimeState.INITIALIZED) {
-          Vips.shutdown()
+          nativeRuntime.nativeShutdown()  // calls Vips.shutdown() via adapter seam
       }
   }
   ```
   `isInitialized` returns `state.get() == RuntimeState.INITIALIZED`.
-  `isShutdown` (add to `VipsRuntime` interface — T1.5 update) returns `state.get() == RuntimeState.SHUTDOWN`.
-- **DoD**: `init()` is exactly-once under concurrency; retry possible after pre-shutdown failure; `init()` after `shutdown()` throws `VipsInitializationException`; no `@Synchronized`.
+  `isShutdown` returns `state.get() == RuntimeState.SHUTDOWN`.
+
+  **M2 adapter seam** (required for T4.10 testability): Define an `internal interface JVipsNativeRuntime` with `nativeInit(concurrency: Int)` and `nativeShutdown()`. The production impl (`DefaultJVipsNativeRuntime`) delegates to `Vips.init()`/`Vips.shutdown()`. `JVipsRuntime` holds `internal var nativeRuntime: JVipsNativeRuntime = DefaultJVipsNativeRuntime` — `var` allows test injection without PowerMock/bytecode manipulation. File: `internal/JVipsNativeRuntime.kt`.
+
+- **DoD**: `init()` exactly-once under concurrency; second caller spins until first finishes; retry after pre-shutdown failure; `init()` after `shutdown()` throws `VipsInitializationException`; no `@Synchronized`; adapter seam in place.
 
 ### T2.3 — JVipsImage implementation
 - **complexity**: high
@@ -252,7 +280,16 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
 - **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/JVipsImageSupport.kt`
 - **details**: (Implement ONLY after T2.0 spike is complete.) Top-level `vipsImageOf(File|Path|ByteArray|InputStream): VipsImage` and `suspendVipsImageOf(File|Path|ByteArray): VipsImage` per spec §4.3. Security controls:
   1. **Format allowlist**: sniff first 12 bytes against `VipsImageFormat` magic bytes (JPEG: `FF D8 FF`, PNG: `89 50 4E 47`, WebP: `52 49 46 46..57 45 42 50`). Throw `VipsDecodeException("Unsupported format")` for anything else. Alternatively, enable `VIPS_BLOCK_UNTRUSTED=1` in `JVipsRuntime.init()` to block high-risk loaders at libvips level — document which approach is used.
-  2. **InputStream 50MB cap**: use `BoundedInputStream.builder().setInputStream(stream).setMaxCount(50L * 1024 * 1024).get()`. **MUST detect overflow and throw** — do NOT rely on silent EOF truncation. After reading, if `bounded.count >= MAX_BYTES`, throw `VipsDecodeException("Input exceeds 50 MB limit")`.
+  2. **InputStream 50MB cap**: wrap with `BoundedInputStream` using **`setOnMaxCount` callback** (Commons IO 2.16+ API — method is `setOnMaxCount`, NOT `setOnMaxLength`). The callback fires when byte `maxCount+1` would be read — i.e., only on genuine overflow, never on exactly-50MB input:
+     ```kotlin
+     val bounded = BoundedInputStream.builder()
+         .setInputStream(stream)
+         .setMaxCount(50L * 1024 * 1024)   // 50 MB ceiling
+         .setPropagateClose(false)
+         .setOnMaxCount { throw VipsDecodeException("Input stream exceeds 50 MB limit") }
+         .get()
+     ```
+     Do NOT use `bounded.count >= MAX_BYTES` check: that incorrectly rejects exactly-50MB inputs AND fails to confirm overflow if callback is absent. The callback approach is the only correct pattern.
   3. **maxPixels check**: read header dimensions (confirmed method from T2.0 spike). Compute `width * height * bands` (not just `width * height` — high-depth RGBA is 4× larger). If over limit, throw `VipsDecodeException`. Header parse uses native parser but avoids full pixel allocation.
   4. **Exception safety**: `try/finally` to release stream + partial native handle on decode failure.
   5. Korean KDoc: document path traversal risk on File/Path variants; document format allowlist behavior.
@@ -466,8 +503,21 @@ Goal: Cover spec §6.2 assertions for both implementations + the `use {}` leak g
 - **complexity**: medium
 - **deps**: T2.2
 - **files**: `utils/images-vips-java21/src/test/kotlin/io/bluetape4k/images/vips/java21/JVipsRuntimeConcurrencyTest.kt`
-- **details**: Verifies the `AtomicReference<State>` CAS pattern from T2.2 is race-free. Test: launch 10 coroutines (or threads) simultaneously calling `JVipsRuntime.init()`. Assert that `Vips.init(...)` is called exactly once (use a mock counter or a `AtomicInteger` in a test-double). Assert `JVipsRuntime.isInitialized == true` after all coroutines complete. NOT `@Tag("vips-required")` — use a test-double `VipsRuntime` implementation or mock out `Vips.init()` via subclass.
-- **DoD**: Exactly-once init confirmed under 10-way concurrency; no double-init error.
+- **details**: Verifies the `AtomicReference<State>` CAS + spin/wait pattern from T2.2 is race-free. Uses the `JVipsNativeRuntime` adapter seam (T2.2 internal interface) — substitute `DefaultJVipsNativeRuntime` with a counting test-double:
+  ```kotlin
+  val initCount = AtomicInteger(0)
+  val testAdapter = object : JVipsNativeRuntime {
+      override fun nativeInit(concurrency: Int) { initCount.incrementAndGet() }
+      override fun nativeShutdown() {}
+  }
+  JVipsRuntime.nativeRuntime = testAdapter  // inject before concurrent calls
+  ```
+  Test: launch 10 coroutines simultaneously calling `JVipsRuntime.init()`. After all complete:
+  - `initCount.get() shouldBeEqualTo 1` — called exactly once
+  - `JVipsRuntime.isInitialized shouldBeEqualTo true`
+  NOT `@Tag("vips-required")` — no real libvips needed.
+  ⚠️ Restore `DefaultJVipsNativeRuntime` in `@AfterEach` (or use `@BeforeEach` reset) to prevent state bleed between tests.
+- **DoD**: Exactly-once init confirmed under 10-way concurrency; adapter seam used (not real `Vips.init()`); state reset after test.
 
 **T4 parallelism**: T4.1, T4.6, T4.10 are independent of impl modules; T4.3–T4.5 parallel with T4.7–T4.9 (separate modules).
 
