@@ -219,4 +219,32 @@ class SpanSupportTest: AbstractOtelTest() {
         finished[0].name shouldBeEqualTo "dsl-span"
         finished[0].attributes[AttributeKey.stringKey("dsl-key")] shouldBeEqualTo "dsl-value"
     }
+
+    /**
+     * [Task 1.5 회귀] message=null 예외 발생 시 `recordFailure` 가 클래스명 대신 "unspecified error" 를 사용하는지 검증합니다.
+     * 이전에는 `error::class.java.simpleName` 을 사용하여 내부 클래스명("RuntimeException")이 노출됐습니다.
+     */
+    @Test
+    fun `recordFailure with null message should use unspecified error fallback not class name`() = runSuspendIO {
+        spanExporter.reset()
+
+        val ex = kotlin.runCatching {
+            tracer.spanBuilder("null-msg-span").startSpan().use {
+                throw RuntimeException(null as String?)
+            }
+        }.exceptionOrNull()
+
+        ex.shouldNotBeNull()
+
+        flush()
+
+        val finished = spanExporter.finishedSpanItems
+        finished shouldHaveSize 1
+
+        val span = finished[0]
+        span.status.statusCode shouldBeEqualTo StatusCode.ERROR
+        span.status.description shouldBeEqualTo "unspecified error"
+        // 내부 클래스명이 누출되지 않음을 검증
+        span.status.description.contains("RuntimeException").shouldBeFalse()
+    }
 }

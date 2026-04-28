@@ -994,6 +994,9 @@ object Libs {
 
     val opentelemetry_spring_boot_starter = opentelemetryInstrumentation("spring-boot-starter")
 
+    // https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-spring-webflux-5.3
+    val opentelemetry_spring_webflux = opentelemetryInstrumentation("spring-webflux-5.3")
+
     const val reflectasm = "com.esotericsoftware:reflectasm:${Versions.reflectasm}"
 
     // mongodb 5.x

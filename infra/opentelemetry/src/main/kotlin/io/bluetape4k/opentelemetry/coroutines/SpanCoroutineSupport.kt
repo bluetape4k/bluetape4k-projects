@@ -3,8 +3,10 @@ package io.bluetape4k.opentelemetry.coroutines
 import io.bluetape4k.coroutines.support.getOrCurrent
 import io.bluetape4k.opentelemetry.trace.endSafely
 import io.bluetape4k.opentelemetry.trace.recordFailure
+import io.bluetape4k.support.requireNotBlank
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
+import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 import io.opentelemetry.extension.kotlin.asContextElement
 import kotlinx.coroutines.CancellationException
@@ -141,6 +143,42 @@ suspend inline fun <T> SpanBuilder.useSuspendSpan(
     coroutineContext,
     block,
 )
+
+/**
+ * suspend 코루틴 환경에서 새로운 [Span]을 생성하고 [block]을 실행한 뒤 Span을 자동으로 종료합니다.
+ *
+ * ## 동작/계약
+ * - 내부적으로 [SpanBuilder.useSpanSuspending]에 위임합니다.
+ * - [CancellationException]은 상태 변경 없이 그대로 전파합니다 (UNSET 유지, 구조적 동시성 보존).
+ * - 일반 예외는 span에 기록하고 [io.opentelemetry.api.trace.StatusCode.ERROR] 상태로 바꾼 뒤 재던집니다.
+ *
+ * ## 보안 경고
+ * - [configure] 람다에서 PII, Authorization 토큰, 민감 헤더를 attribute로 설정하지 마세요.
+ * - [configure] 람다에서 `.startSpan()`을 직접 호출하면 이중 Span이 생성됩니다 (footgun).
+ * - [configure] 람다에서 `async { }` / `launch { }` 호출 시 OTel Context가 자식 코루틴에 전파되지 않을 수 있습니다.
+ *
+ * ```kotlin
+ * val result = tracer.withSpan("my-op") { span ->
+ *     span.setAttribute("key", "value")
+ *     fetchData()
+ * }
+ * ```
+ *
+ * @param spanName Span 이름 (공백 불가)
+ * @param configure [SpanBuilder] 설정 람다 — attribute, kind, parent 등
+ * @param coroutineContext 추가할 [CoroutineContext] (기본값: [EmptyCoroutineContext])
+ * @param block Span을 인자로 받는 suspend 실행 블록
+ * @return [block]의 실행 결과
+ */
+public suspend fun <T> Tracer.withSpan(
+    spanName: String,
+    configure: SpanBuilder.() -> Unit = {},
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    block: suspend (Span) -> T,
+): T {
+    spanName.requireNotBlank("spanName")
+    return spanBuilder(spanName).apply(configure).useSpanSuspending(coroutineContext, block)
+}
 
 /**
  * Coroutines 환경에서 [span]을 명시적으로 전파합니다.

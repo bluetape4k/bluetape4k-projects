@@ -65,6 +65,10 @@ dependencies {
     // Opentelemetry instrumentation for spring boot starter
     implementation(Libs.opentelemetry_spring_boot_starter)
 
+    // Spring WebFlux tracing support (compileOnly — classpath 미존재 시 다른 기능에 영향 없도록)
+    compileOnly(Libs.opentelemetry_spring_webflux)
+    compileOnly(Libs.springBootStarter("webflux"))
+
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(Libs.kotlinx_coroutines_core)

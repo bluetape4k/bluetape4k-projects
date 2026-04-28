@@ -8,9 +8,12 @@
 
 - **Kotlin 확장 함수**: OpenTelemetry Java SDK를 코틀린스럽게 사용
 - **Coroutines 지원**: `suspend` 함수와 코루틴 컨텍스트 전파
+- **`Tracer.withSpan()`**: 한 번 호출로 Span을 시작·종료하는 suspend/blocking DSL
+- **Flow 트레이싱**: `Flow.traced()` / `Flow.tracedCollect()` — 1 collect = 1 Span
 - **Span 관리**: 자동 리소스 관리를 위한 `use` 패턴
 - **DSL 제공**: Attributes, TracerProvider, MeterProvider 설정을 위한 DSL
-- **Spring Boot 통합**: Spring Boot Starter 지원
+- **Spring Boot 3 WebFlux 통합**: `createTracingWebFilter()` 헬퍼 (Spring Boot 3 전용 — 아래 참고)
+- **Spring Boot Starter 지원**: 자동 설정 OpenTelemetry SDK
 
 ## 의존성
 
@@ -131,6 +134,81 @@ tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
 }
 ```
 
+### 3-A. Tracer.withSpan() — 단일 호출 DSL
+
+`Tracer.withSpan()`은 블록을 단일 Span으로 감싸 시작·상태 설정·종료를 자동으로 처리합니다.
+suspend/blocking 두 가지 변형을 제공합니다.
+
+```kotlin
+import io.bluetape4k.opentelemetry.trace.withSpan
+import io.bluetape4k.opentelemetry.coroutines.withSpan
+
+// suspend 변형 (코루틴 내부)
+val result: String = tracer.withSpan("my-op") { span ->
+  span.setAttribute(AttributeKey.stringKey("key"), "value")
+  "done"
+}
+
+// 시작 전 attribute 설정
+tracer.withSpan("my-op", configure = {
+  setAttribute(AttributeKey.stringKey("env"), "prod")
+  setSpanKind(SpanKind.SERVER)
+}) { span ->
+  doWork()
+}
+
+// 중첩 호출 → parent-child 트레이스 생성
+tracer.withSpan("parent") {
+  tracer.withSpan("child") { doWork() }
+}
+
+// CancellationException → StatusCode.UNSET (ERROR 미기록)
+// 그 외 Throwable     → StatusCode.ERROR + recordException + 재던짐
+```
+
+**Span 생명주기 계약:**
+- 정상 완료 → `StatusCode.OK`, Span 종료
+- `CancellationException` → `StatusCode.UNSET`, Span 종료, 예외 재던짐
+- 그 외 `Throwable` → `StatusCode.ERROR` + `recordException`, Span 종료, 예외 재던짐
+- 예외 메시지 `null` → `"unspecified error"` (내부 클래스명 절대 노출 안 함)
+
+### 3-B. Flow 트레이싱 — `traced()` / `tracedCollect()`
+
+**1 collect = 1 Span** (emit 횟수와 무관).
+
+```kotlin
+import io.bluetape4k.opentelemetry.coroutines.traced
+import io.bluetape4k.opentelemetry.coroutines.tracedCollect
+
+// traced() — collect 전체를 단일 Span으로 감쌈
+flowOf(1, 2, 3)
+    .traced(tracer, "my-flow") {
+        setAttribute(AttributeKey.stringKey("source"), "db")
+    }
+    .collect { item -> process(item) }
+
+// 다른 연산자와 조합 가능 — Span은 전체 collect 기간 동안 유지
+flowOf(1, 2, 3, 4)
+    .traced(tracer, "take-flow")
+    .take(2)
+    .collect { }
+
+// tracedCollect — action이 Span의 OTel Context 안에서 실행
+// action 내부에서 Span.current()는 tracedCollect가 생성한 Span 반환
+flowOf(42).tracedCollect(tracer, "collect-span") { item ->
+    val span = Span.current()  // tracedCollect가 생성한 동일 Span
+    process(item)
+}
+```
+
+**계약:**
+- 정상 완료 → `StatusCode.OK`
+- `CancellationException` (timeout, `take()`, 취소) → `StatusCode.UNSET`
+- 그 외 예외 → `StatusCode.ERROR` + `recordException`, 예외 재던짐
+- `traced()` vs `tracedCollect()` 선택 기준:
+  - `traced()` — 새 Flow 반환. OTel Context는 **producer** 코루틴에만 활성화
+  - `tracedCollect()` — 터미널 연산자. OTel Context는 **producer + consumer(action)** 코루틴 양쪽에 활성화
+
 ### 4. Attributes 관리
 
 ```kotlin
@@ -247,6 +325,30 @@ val compositeExporter = spanExporterOf(
   OtlpGrpcSpanExporter.builder().build()
 )
 ```
+
+### 9. Spring WebFlux 트레이싱 (Spring Boot 3 전용)
+
+> **Spring Boot 버전 제약:**
+> `createTracingWebFilter()`는 `opentelemetry-spring-webflux-5.3` 아티팩트를 사용하며, Spring WebFlux 5.3 / 6.x (Spring Boot 3) 대상입니다.
+> **Spring Boot 4 (Spring Framework 7.x)는 아직 미지원** — OTel instrumentation BOM에서 대응 아티팩트 출시 후 지원 예정입니다.
+
+```kotlin
+import io.bluetape4k.opentelemetry.webflux.createTracingWebFilter
+import io.bluetape4k.opentelemetry.webflux.webfluxServerTelemetry
+
+// @Bean으로 ApplicationContext당 1회만 호출하세요
+@Configuration
+class TracingConfig(private val openTelemetry: OpenTelemetry) {
+
+    @Bean
+    fun tracingWebFilter(): WebFilter = openTelemetry.createTracingWebFilter()
+}
+```
+
+**운영 주의사항:**
+- `createTracingWebFilter()`는 `ApplicationContext`당 1회만 호출하세요. 내부적으로 Reactor `Hooks.onEachOperator`를 전역 등록합니다. 중복 호출 시 훅이 중첩되어 예측 불가능한 동작이 발생합니다.
+- 테스트에서는 `@AfterAll`에서 `Hooks.resetOnEachOperator()`를 호출하여 훅 누수를 방지하세요.
+- `Authorization` 등 민감 헤더는 기본적으로 캡처되지 않습니다. 특정 헤더를 허용하려면 환경변수 `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`를 설정하세요. **PII를 포함하는 헤더는 절대 추가하지 마세요.**
 
 ## 아키텍처 다이어그램
 
