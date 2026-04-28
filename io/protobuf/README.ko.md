@@ -141,7 +141,35 @@ sequenceDiagram
 - **DateTime 변환**: `LocalDate`/`LocalTime`/`LocalDateTime` ↔ Protobuf `Date`/`TimeOfDay`/`DateTime`
 - **Money 변환**: JavaMoney ↔ Protobuf `Money`
 - **메시지 유틸리티**: `Any` 기반 pack/unpack
-- **Protobuf 직렬화기**: `BinarySerializer` 구현체 (`ProtobufSerializer`)
+- **Protobuf 직렬화기**: 허용 목록 기반 보안이 적용된 `BinarySerializer` 구현체 (`ProtobufSerializer`)
+
+### 보안: ProtobufSerializer 허용 목록
+
+`ProtobufSerializer`는 역직렬화 전에 각 `Any` 메시지의 `typeUrl`을 허용 목록과 대조합니다.
+허용 목록에 없는 접두사를 가진 클래스는 `SecurityException`을 발생시킵니다 (`BinarySerializationException`으로 래핑).
+
+**기본 허용 접두사** (`DEFAULT_ALLOWED_PREFIXES`):
+
+| 접두사 | 설명 |
+|---|---|
+| `io.bluetape4k.` | 모든 bluetape4k 도메인 메시지 |
+| `com.google.protobuf.` | 표준 Protobuf 잘 알려진 타입 |
+
+**커스텀 허용 목록 예시:**
+
+```kotlin
+// 좁힘: 특정 패키지만 허용
+val narrowSerializer = ProtobufSerializer(
+    allowedClassPrefixes = setOf("io.bluetape4k.", "com.mycompany.proto.")
+)
+
+// 확장: 기본값에 추가 패키지 포함
+val expandedSerializer = ProtobufSerializer(
+    allowedClassPrefixes = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES + setOf("com.example.")
+)
+```
+
+비 Protobuf 객체에 대한 폴백 직렬화기도 JDK 역직렬화 RCE 위험을 피하기 위해 `Jdk`에서 `Kryo`로 변경되었습니다.
 
 ## 사용 예시
 

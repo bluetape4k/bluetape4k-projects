@@ -272,6 +272,51 @@ A safe file API that returns `Result<T>` instead of throwing exceptions. Functio
 
 Supports lightweight async processing using Virtual Threads.
 
+### 6. Security Features
+
+#### JDK Serialization Filter (JEP 290)
+
+`JdkBinarySerializer` now applies `JDK_DEFAULT_OBJECT_INPUT_FILTER` by default, which only allows
+the following packages for deserialization (all others are rejected):
+
+- `io.bluetape4k.**`
+- `java.lang.*`, `java.util.**`, `java.io.*`, `java.math.**`, `java.time.**`, `java.net.*`, `java.sql.*`
+- `kotlin.**`
+
+> **Breaking change**: `BinarySerializers.Default` is now `Kryo` (was `Jdk`).
+> `BinarySerializers.Jdk` is deprecated with a security warning. Use `Kryo` or `Fory` instead.
+
+Provide a custom filter to expand or narrow the allowed list:
+
+```kotlin
+val customFilter = ObjectInputFilter.Config.createFilter("com.mycompany.**;io.bluetape4k.**;kotlin.**;!*")
+val serializer = JdkBinarySerializer(objectInputFilter = customFilter)
+```
+
+#### ZIP Bomb Protection
+
+`unzip()` now enforces two hard limits:
+
+| Constant | Value | Description |
+|---|---|---|
+| `ZIP_MAX_ENTRIES` | 10,000 | Maximum number of ZIP entries |
+| `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB | Maximum total uncompressed bytes |
+
+Exceeding either limit throws `IllegalArgumentException`.
+
+#### Nullable Compressor API
+
+`AbstractCompressor` provides safe nullable variants that return `null` instead of throwing or
+returning `emptyByteArray` on failure:
+
+```kotlin
+val compressed = compressor.compressOrNull(input)   // null if input null/empty
+val restored = compressor.decompressOrNull(compressed) // null if corrupt/null/empty
+```
+
+This allows callers to distinguish "corrupt input" (returns `null`) from "empty input"
+(`compress()` returns `emptyByteArray`).
+
 ## Usage Examples
 
 ### Compression
