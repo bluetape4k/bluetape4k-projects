@@ -61,6 +61,11 @@ interface KafkaCodec<T>:
  * val deserialized = codec.deserialize("my-topic", serialized)
  * // deserialized is a Map with key -> value
  * ```
+ *
+ * **보안 경고**: 이 코덱은 Kafka 헤더의 `bluetape4k.kafka.codec.value.type` 값을 기반으로
+ * 클래스를 동적으로 로드합니다. 신뢰할 수 없는 Kafka 브로커 또는 외부 네트워크에서
+ * 수신된 메시지에 이 코덱을 사용하면 임의 클래스 로딩 취약점이 발생할 수 있습니다.
+ * 반드시 신뢰할 수 있는 내부 Kafka 브로커 환경에서만 사용하십시오.
  */
 abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
     companion object: KLogging() {
@@ -100,7 +105,7 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         try {
             data?.run { doDeserialize(topic, headers, this) }
         } catch (e: Throwable) {
-            log.warn(e) { "Fail to deserialize data. topic=$topic, headers=$headers, data=$data" }
+            log.warn(e) { "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, data=$data. Returning null (poison pill skipped)." }
             null
         }
 
@@ -119,7 +124,7 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         return try {
             when {
                 classIsPresent(clazzName) -> {
-                    Class.forName(clazzName, true, Thread.currentThread().contextClassLoader)
+                    Class.forName(clazzName, false, Thread.currentThread().contextClassLoader)
                 }
                 else -> {
                     Any::class.java
