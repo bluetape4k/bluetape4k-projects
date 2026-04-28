@@ -843,7 +843,7 @@ object Libs {
 
     // Compression
     const val snappy_java = "org.xerial.snappy:snappy-java:1.1.10.8"  // https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java
-    // CVE-2025-12183 (CVSS 8.8) + CVE-2025-66566 (CVSS 8.2) 대응 — archived org.lz4 fork 에서 yawkat fork 로 마이그레이션.
+    // SECURITY: CVE-2025-12183 (CVSS 8.8) + CVE-2025-66566 (CVSS 8.2) — archived org.lz4/lz4-java 에서 유지보수 중인 yawkat fork 로 마이그레이션.
     // net.jpountz.lz4.* namespace 동일 (binary-compatible). 소스 코드 변경 불필요.
     const val lz4_java = "at.yawk.lz4:lz4-java:1.11.0"                // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 

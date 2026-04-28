@@ -530,8 +530,22 @@ configurations.all {
 ### Downstream consumers
 
 If your application directly depends on `kafka-clients` (or any of its siblings) **without** going
-through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block to your build
-to prevent the vulnerable JAR from appearing on your classpath.
+through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block **and** declare
+the replacement explicitly:
+
+```kotlin
+configurations.all {
+    exclude(group = "org.lz4", module = "lz4-java")
+}
+
+dependencies {
+    // Provides net.jpountz.lz4.* at runtime — required for Kafka LZ4 compression codec
+    implementation("at.yawk.lz4:lz4-java:1.11.0")
+}
+```
+
+`bluetape4k-kafka` already exposes `at.yawk.lz4:lz4-java:1.11.0` as an `api` dependency,
+so direct users of this module do not need to add it manually.
 
 ## References
 

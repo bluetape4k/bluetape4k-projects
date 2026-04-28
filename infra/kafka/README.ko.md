@@ -530,8 +530,21 @@ configurations.all {
 ### 다운스트림 사용자
 
 `bluetape4k-kafka` 를 거치지 않고 `kafka-clients` 등을 직접 의존하는 경우,
-취약 JAR 가 classpath 에 포함되지 않도록 동일한 `configurations.all { exclude(...) }` 블록을
-빌드 스크립트에 추가하시기 바랍니다.
+exclude 블록과 함께 대체 아티팩트를 명시적으로 선언해야 합니다:
+
+```kotlin
+configurations.all {
+    exclude(group = "org.lz4", module = "lz4-java")
+}
+
+dependencies {
+    // runtime 에 net.jpountz.lz4.* 를 제공 — Kafka LZ4 압축 codec 에 필요
+    implementation("at.yawk.lz4:lz4-java:1.11.0")
+}
+```
+
+`bluetape4k-kafka` 를 사용하는 경우 `at.yawk.lz4:lz4-java:1.11.0` 이 `api` 의존성으로
+자동 제공되므로 별도 선언이 불필요합니다.
 
 ## 참고 자료
 
