@@ -42,7 +42,29 @@ The existing `utils/images` module wraps **scrimage** (Java2D / BufferedImage). 
 - Building libvips from source.
 - Animated WebP / GIF encoding (Phase 3+).
 
+## 1.4 Choosing a Module
+
+| Consumer JDK | Module to use | Binding | Notes |
+|---|---|---|---|
+| Java 21–24 | `bluetape4k-images-vips-java21` | JVips (JNI) | Default choice; Linux bundle included |
+| Java 25+ | `bluetape4k-images-vips-java25` | vips-ffm (FFM) | Requires `--enable-native-access=ALL-UNNAMED` |
+
+Both modules expose identical API via `bluetape4k-images-vips-api`. Switching is a one-line Gradle change.
+
+> **Note on naming**: `java21` / `java25` names mirror `virtualthread/jdk21` / `jdk25` convention, not a minimum Java version requirement for JVips (which is Java 8+). The JVips module chooses Java 21 toolchain to match the bluetape4k baseline.
+
 ---
+
+## 2.0 Considered Alternatives (binding selection)
+
+| Option | Description | Rejected because |
+|---|---|---|
+| **JVips (adopted for java21)** | JNI wrapper, Java 8+, Linux `.so` bundle | Adopted |
+| **vips-ffm (adopted for java25)** | Java FFM API, JDK 23+, Maven Central | Adopted |
+| **libvips-java (deftrue)** | Alternative JNI wrapper | Maven coordinates unverified; lower adoption than JVips |
+| **sharp-java / subprocess** | Run Node.js sharp via ProcessBuilder | Cross-runtime overhead; lifecycle complexity; unnecessary dependency |
+| **GraalVM native image** | Ahead-of-time native compilation | Not in bluetape4k JVM-only baseline; increases build complexity |
+| **Hand-rolled JNI** | Write own JNI glue | High maintenance; security exposure; defeats purpose of adopting proven library |
 
 ## 2. Architecture Decisions
 
@@ -88,7 +110,7 @@ utils/images-vips-api/
 ├── build.gradle.kts
 └── src/main/kotlin/io/bluetape4k/images/vips/
     ├── VipsImage.kt              # interface, AutoCloseable
-    ├── VipsRuntime.kt            # interface: init(), shutdown(), concurrency
+    ├── VipsRuntime.kt            # interface: init(concurrency, maxPixels), shutdown(), isInitialized
     ├── VipsEncodeOptions.kt      # data class : Serializable (quality, lossless, effort)
     ├── VipsImageFormat.kt        # enum (JPEG, PNG, WEBP, @IncubatingImageApi AVIF★, HEIC★)
     └── coroutines/
@@ -177,6 +199,7 @@ interface VipsImage : AutoCloseable {
 
     fun toBytes(format: VipsImageFormat, options: VipsEncodeOptions = VipsEncodeOptions.Default): ByteArray
     fun writeTo(path: Path, options: VipsEncodeOptions = VipsEncodeOptions.Default)
+    fun writeTo(out: OutputStream, format: VipsImageFormat, options: VipsEncodeOptions = VipsEncodeOptions.Default)
 }
 ```
 
@@ -187,17 +210,10 @@ interface VipsImage : AutoCloseable {
  * libvips 런타임 초기화/종료 및 전역 설정을 관리하는 인터페이스입니다.
  */
 interface VipsRuntime {
-    /**
-     * libvips를 초기화합니다.
-     * JVM 프로세스당 1회만 호출해야 합니다.
-     */
-    fun init(concurrency: Int = 4)
-
-    /**
-     * libvips를 종료하고 캐시를 해제합니다.
-     */
+    // init() must be internally thread-safe (AtomicBoolean or synchronized).
+    // Calling init() when isInitialized == true is a no-op.
+    fun init(concurrency: Int = 4, maxPixels: Long = 150_000_000L)
     fun shutdown()
-
     val isInitialized: Boolean
 }
 ```
@@ -218,16 +234,22 @@ fun vipsImageOf(bytes: ByteArray): VipsImage
 
 fun vipsImageOf(stream: InputStream): VipsImage
 
-// Suspend variants — wrap blocking factory with withContext(Dispatchers.IO)
-suspend fun suspendVipsImageOf(file: File): VipsImage =
-    withContext(Dispatchers.IO) { vipsImageOf(file) }
+// Preferred: same name, suspend modifier
+suspend fun vipsImageOf(file: File): VipsImage =
+    withContext(Dispatchers.IO) { /* blocking load */ }
 
-suspend fun suspendVipsImageOf(path: Path): VipsImage =
-    withContext(Dispatchers.IO) { vipsImageOf(path) }
+suspend fun vipsImageOf(path: Path): VipsImage =
+    withContext(Dispatchers.IO) { /* blocking load */ }
 
-suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
-    withContext(Dispatchers.IO) { vipsImageOf(bytes) }
+suspend fun vipsImageOf(bytes: ByteArray): VipsImage =
+    withContext(Dispatchers.IO) { /* blocking load */ }
+
+// Deprecated aliases (Phase 2 only, removed in Phase 3)
+@Deprecated("Use suspend fun vipsImageOf()", ReplaceWith("vipsImageOf(file)"))
+suspend fun suspendVipsImageOf(file: File): VipsImage = vipsImageOf(file)
 ```
+
+> **Naming decision**: All suspend factory variants use `suspend fun vipsImageOf(...)` overload naming — same name as the blocking variant but `suspend` modifier makes the distinction at the call site. The `suspendVipsImageOf` form is DEPRECATED in favor of `suspend fun vipsImageOf`. Implementations must provide both during Phase 2, with `suspendVipsImageOf` calling through.
 
 ### 4.4 VipsEncodeOptions
 
@@ -247,6 +269,13 @@ data class VipsEncodeOptions(
     init {
         require(quality in 0..100) { "quality must be 0..100, was $quality" }
         require(effort in 1..9) { "effort must be 1..9, was $effort" }
+    }
+
+    @Suppress("unused")
+    private fun readResolve(): Any {
+        require(quality in 0..100) { "quality must be 0..100, was $quality" }
+        require(effort in 1..9) { "effort must be 1..9, was $effort" }
+        return this
     }
 
     companion object : KLogging() {
@@ -278,7 +307,102 @@ suspend fun VipsImage.suspendWriteTo(
     path: Path,
     options: VipsEncodeOptions = VipsEncodeOptions.Default,
 ) = withContext(Dispatchers.IO) { writeTo(path, options) }
+
+suspend fun VipsImage.suspendWriteTo(
+    out: OutputStream,
+    format: VipsImageFormat,
+    options: VipsEncodeOptions = VipsEncodeOptions.Default,
+) = withContext(Dispatchers.IO) { writeTo(out, format, options) }
 ```
+
+---
+
+## 4.6 Resource Lifecycle
+
+### Native Handle Cleanup
+- `JVipsImage` / `FfmVipsImage` MUST register their native handle with `java.lang.ref.Cleaner`
+  as a safety net. If `close()` is not called, the Cleaner logs a warning and releases the handle.
+- Callers MUST use `use { }` blocks. Relying on Cleaner for normal cleanup is prohibited.
+
+### Coroutine Cancellation Safety
+- Suspend factories (`suspendVipsImageOf`) MUST guarantee handle release on `CancellationException`:
+  ```kotlin
+  suspend fun suspendVipsImageOf(file: File): VipsImage {
+      val img = withContext(Dispatchers.IO) { vipsImageOf(file) }
+      // handle: if coroutine is cancelled after allocation, Cleaner will reclaim
+      return img
+  }
+  ```
+- Long-running operations (`resize`, `toBytes`) inside `use {}` are safe because `close()` runs
+  in the `finally` block regardless of cancellation.
+
+### VipsRuntime Shutdown Lifecycle
+- `VipsRuntime.shutdown()` is NOT registered as a JVM shutdown hook by default (multi-tenant JVM safety).
+- Spring Boot consumers: register via `@PreDestroy` or `DisposableBean.destroy()`.
+- Standalone JVM consumers: call `Runtime.getRuntime().addShutdownHook(Thread { runtime.shutdown() })`.
+- Failing to call `shutdown()` is safe (no data loss) but may delay JVM exit by up to 5 s due to libvips worker threads.
+
+---
+
+## 4.7 Exception Hierarchy
+
+All binding-specific exceptions MUST be translated to bluetape4k types before crossing the API boundary.
+
+```kotlin
+/**
+ * libvips 작업 중 발생한 예외를 나타냅니다.
+ */
+open class VipsException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+
+/**
+ * 이미지 디코딩 실패 시 발생합니다.
+ */
+class VipsDecodeException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+
+/**
+ * 이미지 인코딩 실패 시 발생합니다.
+ */
+class VipsEncodeException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+
+/**
+ * VipsRuntime 초기화 실패 시 발생합니다.
+ */
+class VipsInitializationException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+```
+
+Implementations:
+- JVips: catch `com.criteo.vips.VipsException` → wrap as `VipsDecodeException` / `VipsEncodeException`
+- vips-ffm: catch `app.photofox.vips_ffm.*` errors → wrap as appropriate
+- All factory functions declare `@throws VipsDecodeException` in KDoc.
+- All encode operations declare `@throws VipsEncodeException` in KDoc.
+
+---
+
+## 4.8 Concurrency Policy
+
+### Thread Count Math
+- `Dispatchers.IO` default: 64 threads
+- `VIPS_CONCURRENCY` default: 4 workers per operation
+- Under sustained load: up to 64 × 4 = **256 native threads**
+- Native stack: ~512 KB each = **128 MB native memory** (outside JVM heap)
+
+### Recommended Pattern
+```kotlin
+// Create a bounded dispatcher for vips operations
+val Dispatchers.Vips: CoroutineDispatcher
+    get() = Dispatchers.IO.limitedParallelism(8)
+
+// In VipsRuntime.init():
+init(concurrency = 2)  // 8 IO threads × 2 vips workers = 16 native threads max
+```
+
+### VipsRuntime Fallback
+- If libvips is unavailable at runtime, `VipsRuntime.init()` throws `VipsInitializationException`.
+- Application-level pattern for graceful fallback to scrimage:
+  ```kotlin
+  val processor: ImageProcessor = runCatching { JVipsRuntime.init(); VipsImageProcessor }
+      .getOrElse { ScrimageImageProcessor }
+  ```
 
 ---
 
@@ -435,6 +559,14 @@ Both `java21` and `java25` modules use `@Tag("vips-required")`. Default `./gradl
 excludes Vips tests. CI activates them with `-PincludeTags=vips-required`.
 
 ```kotlin
+// In build.gradle.kts — vips tests must run in isolated JVM forks
+tasks.withType<Test>().configureEach {
+    forkEvery = 1  // each test class in its own JVM fork (prevents init() TOCTOU)
+    // ...
+}
+```
+
+```kotlin
 // AbstractJVipsTest.kt (java21) / AbstractFfmVipsTest.kt (java25)
 @Tag("vips-required")
 abstract class AbstractVipsTest {
@@ -478,10 +610,15 @@ abstract class AbstractVipsTest {
 ```yaml
 test-images-vips:
   name: Test images-vips modules
-  runs-on: ubuntu-latest
+  runs-on: ubuntu-24.04  # pin Ubuntu version — libvips42 package stable on 24.04
   needs: build
   steps:
     - uses: actions/checkout@v4
+    - name: Set up Java 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
     - name: Set up Java 25
       uses: actions/setup-java@v4
       with:
@@ -490,7 +627,7 @@ test-images-vips:
     - name: Install libvips
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y libvips42 libvips-tools
+        sudo apt-get install -y libvips libvips-tools  # unversioned — works across Ubuntu releases
     - name: Test images-vips-java21
       run: ./gradlew :bluetape4k-images-vips-java21:test -PincludeTags=vips-required --no-daemon
     - name: Test images-vips-java25
@@ -515,10 +652,40 @@ brew install vips
 | libvips not installed → `UnsatisfiedLinkError` | High (dev env) | `@BeforeAll` probe + `assumeTrue(false)` skip |
 | JVips native handle leak | Medium | `NativeHandle` ref-count guard + `use { }` enforced |
 | vips-ffm requiring Java 25 breaks consumers | Low | Separate module — consumers opt in explicitly |
-| JVips libvips 8.12.2 missing a codec needed by test | Low | Test against common formats (JPEG/PNG/WebP) only in Phase 2 |
-| `VIPS_CONCURRENCY` thread explosion | Low | Default to 4; document `VipsRuntime.init(concurrency=N)` |
+| JVips libvips 8.10.2 missing a codec needed by test | Low | Test against common formats (JPEG/PNG/WebP) only in Phase 2 |
+| `VIPS_CONCURRENCY` thread explosion | Medium | Default to 4; document `VipsRuntime.init(concurrency=N)` |
 | JVips Linux bundle missing transitive codec libs | Medium | CI job installs `libvips42 libvips-tools` from apt for integration tests |
 | vips-ffm GH Packages only (not Maven Central) | Medium | Verify Maven Central availability before plan phase; fallback to JitPack |
+| Malformed image → JVM crash via native code | High | Sandbox/subprocess for untrusted input |
+| Image bomb / pixel flood via crafted file | High | maxPixels cap in VipsRuntime.init() |
+| Path traversal via vipsImageOf(path) | Medium | Caller responsibility — document in KDoc |
+
+## 8.5 Security Boundaries
+
+### Trust Model
+`bluetape4k-images-vips-*` modules are designed for **trusted-input** scenarios (internal batch jobs, build pipelines). For **user-uploaded images** (untrusted input), additional hardening is required at the application layer.
+
+### Image Bomb / Pixel Flood Defense
+- The spec mandates a `maxPixels` limit enforced at the factory boundary before native decode:
+  - Default: 150 MP (150,000,000 pixels)
+  - Configurable via `VipsRuntime.init(maxPixels = ...)` or env var `VIPS_MAX_PIXELS`
+- InputStream variant: MUST wrap with a `BoundedInputStream` capped at 50 MB default.
+- These limits are checked BEFORE any native decode is attempted.
+
+### Path Traversal
+- `vipsImageOf(file/path)` and `writeTo(path)` do NOT canonicalize or confine paths.
+- **Callers are responsible** for validating paths before passing to these APIs.
+- KDoc on all path-accepting functions MUST state: "Caller must ensure path is within an allowed directory. This function does not prevent path traversal."
+
+### Malformed Image / Native Crash
+- JNI (java21) and FFM (java25) both call native C code. A crafted malformed image can crash the JVM.
+- **Recommendation for untrusted input**: Run image processing in an isolated subprocess.
+- Risk: documented in §8 risk matrix as HIGH (see Risk row update below).
+
+### `--enable-native-access` Scope
+- `ALL-UNNAMED` is required for vips-ffm until it ships as a named module.
+- Consumers MUST add `--enable-native-access=ALL-UNNAMED` (or the module name if vips-ffm becomes modular) to their JVM startup args.
+- This must be documented prominently in the java25 module README.
 
 ---
 
@@ -567,13 +734,17 @@ brew install vips
 - [ ] Spec + Plan committed to feature branch before implementation
 - [ ] Code review (Step 6-R all Tiers) passed
 - [ ] PR created with DoD checklist in body
+- [ ] BOM 모듈 업데이트 (bluetape4k-bom에 3개 신규 모듈 추가)
+- [ ] /wiki-update 실행
+- [ ] README Mermaid UML 다이어그램 포함
+- [ ] 코드 리뷰 실행 (oh-my-claudecode:code-reviewer, HIGH/CRITICAL 0 확인)
 
 ---
 
 ## 11. Open Questions
 
-1. **vips-ffm Maven Central status**: Latest `1.9.6` is listed on mvnrepository — confirm no GitHub Packages dependency required.
-2. **JVips bundled codec completeness**: Does `com.criteo:jvips:8.12.2-69bf715` include libheif/libaom in the Linux bundle for potential Phase 3 AVIF? Needs jar inspection.
+1. **vips-ffm Maven Central status**: RESOLVED: confirmed on mvnrepository. Latest `1.9.6` is available on Maven Central — no GitHub Packages dependency required.
+2. **JVips bundled codec completeness**: Does `com.criteo:jvips:8.10.2-38fe1f6` include libheif/libaom in the Linux bundle for potential Phase 3 AVIF? Needs jar inspection.
 3. **java21 module name prefix**: Does `JVips` prefix (e.g. `JVipsImage`) or `Vips21` prefix read better? Confirm during plan.
 4. **Common test fixtures**: Shared test image files (JPEG/PNG/WebP samples) — place in `images-vips-api/src/test/resources/` as `testFixtures`, or duplicate per module?
 
