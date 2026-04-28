@@ -322,6 +322,9 @@ suspend inline fun <T> Stage.SessionFactory.withStatelessTransactionSuspending(
             try {
                 work(stateless, transaction)
             } catch (e: CancellationException) {
+                // async 블록은 Stage CompletionStage 콜백 내부에서 실행된다.
+                // CompletableFuture로 변환되는 경계에서 CancellationException이 일반 예외로
+                // 변환될 수 있으므로, 코루틴 취소 협력을 위해 명시적으로 재전파한다.
                 throw e
             }
         }.asCompletableFuture()
