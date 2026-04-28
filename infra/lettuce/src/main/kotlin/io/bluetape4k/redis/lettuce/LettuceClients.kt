@@ -54,11 +54,18 @@ object LettuceClients: KLogging() {
     @JvmField
     val DEFAULT_REDIS_URI: RedisURI = getRedisURI()
 
+    // 개선: connectTimeout 하드코딩 제거 → 시스템 프로퍼티로 SRE 튜닝 가능.
+    //       -Dbluetape4k.lettuce.connectTimeoutMs=5000 (기본값 5000ms)
+    private val DEFAULT_CONNECT_TIMEOUT: Duration =
+        Duration.ofMillis(
+            System.getProperty("bluetape4k.lettuce.connectTimeoutMs", "5000").toLong()
+        )
+
     private fun buildTunedClientOptions(): ClientOptions {
         val socketOptions = SocketOptions.builder()
             .keepAlive(true)
             .tcpNoDelay(true)
-            .connectTimeout(Duration.ofSeconds(5))
+            .connectTimeout(DEFAULT_CONNECT_TIMEOUT)
             .build()
         return ClientOptions.builder()
             .socketOptions(socketOptions)

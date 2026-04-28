@@ -14,6 +14,7 @@ import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.LockSupport
 
 
 /**
@@ -45,6 +46,7 @@ class LettuceLock(
 ) {
     companion object: KLogging() {
         private const val RETRY_DELAY_MS = 50L
+        private const val RETRY_DELAY_NANOS = RETRY_DELAY_MS * 1_000_000L
 
         // 개선: 상수 String → RedisScript 로 감싸 SHA1 을 1 회만 계산하고 EVALSHA 재사용합니다.
         private val UNLOCK_SCRIPT = RedisScript(
@@ -109,7 +111,8 @@ class LettuceLock(
                 return true
             }
             if (System.currentTimeMillis() < deadline) {
-                Thread.sleep(RETRY_DELAY_MS)
+                // LockSupport.parkNanos: Thread.sleep 과 달리 Virtual Thread carrier thread 를 핀닝하지 않음
+                LockSupport.parkNanos(RETRY_DELAY_NANOS)
             }
         } while (System.currentTimeMillis() < deadline)
 
@@ -127,12 +130,14 @@ class LettuceLock(
      * ```
      *
      * @param leaseTime 락 유지 시간 (기본값: defaultLeaseTime)
-     * @throws InterruptedException 대기 중 인터럽트 발생 시
+     * @param maxWaitTime 최대 대기 시간 (기본값: 5분). 이 시간을 초과하면 예외 발생.
+     * @throws IllegalStateException maxWaitTime 초과 시
      */
-    fun lock(leaseTime: Duration = defaultLeaseTime) {
+    fun lock(leaseTime: Duration = defaultLeaseTime, maxWaitTime: Duration = Duration.ofMinutes(5)) {
         val token = UUID.randomUUID().toString()
         val leaseMs = leaseTime.toMillis()
         val args = SetArgs().nx().px(leaseMs)
+        val deadline = System.nanoTime() + maxWaitTime.toNanos()
 
         while (true) {
             val result = syncCommands.set(lockKey, token, args)
@@ -141,7 +146,11 @@ class LettuceLock(
                 log.debug { "Lock 획득 성공: lockKey=$lockKey" }
                 return
             }
-            Thread.sleep(RETRY_DELAY_MS)
+            if (System.nanoTime() > deadline) {
+                throw IllegalStateException("Lock 획득 시간 초과: lockKey=$lockKey, maxWaitTime=$maxWaitTime")
+            }
+            // LockSupport.parkNanos: Thread.sleep 과 달리 Virtual Thread carrier thread 를 핀닝하지 않음
+            LockSupport.parkNanos(RETRY_DELAY_NANOS)
         }
     }
 
