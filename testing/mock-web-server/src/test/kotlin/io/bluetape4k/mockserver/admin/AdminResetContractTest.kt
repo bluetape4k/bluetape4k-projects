@@ -21,10 +21,11 @@ class AdminResetContractTest: MockServerTestBase() {
         val delete = Request.Builder().url("$baseUrl/jsonplaceholder/posts/1").delete().build()
         client.newCall(delete).execute().close()
 
-        // 2) /admin/reset → fixture 재적재
+        // 2) /admin/reset → fixture 재적재 (X-Admin-Token 헤더 필수)
         val req = Request.Builder()
             .url("$baseUrl/admin/reset")
             .post("".toRequestBody())
+            .header("X-Admin-Token", "dev-only-token")
             .build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200

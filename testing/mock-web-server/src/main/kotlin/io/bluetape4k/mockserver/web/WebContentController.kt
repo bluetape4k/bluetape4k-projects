@@ -31,11 +31,16 @@ class WebContentController(private val loader: WebContentLoader) {
     /**
      * 지정된 이름의 HTML 페이지를 반환한다.
      *
+     * allowlist에 없는 이름이면 404, 그 외 오류는 상위로 전파한다.
+     *
      * @param name 페이지 이름 (home/naver/google/login/article)
      * @return HTML 페이지 또는 404
      */
     @GetMapping("/{name}", produces = [MediaType.TEXT_HTML_VALUE])
     fun byName(@PathVariable name: String): ResponseEntity<String> =
-        runCatching { ResponseEntity.ok(loader.load(name)) }
-            .getOrElse { ResponseEntity.notFound().build() }
+        try {
+            ResponseEntity.ok(loader.load(name))
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.notFound().build()
+        }
 }
