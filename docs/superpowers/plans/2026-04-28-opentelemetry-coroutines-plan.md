@@ -29,13 +29,51 @@
 - **수행 내용**:
   - `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanSupport.kt` Read.
   - `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/coroutines/SpanCoroutineSupport.kt` Read.
-  - `ContextCoroutineSupport.kt`, `TracerSupport.kt`, `OpenTelemetryCoroutineSupport.kt`(있을 시) Read.
+  - `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/coroutines/ContextCoroutineSupport.kt` Read — `withOtelContext` 등 OTel 컨텍스트 전파 헬퍼 위치.
+  - `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/coroutines/CompletableResultCodeSupport.kt` Read — `await` + Span 완료 헬퍼 위치.
+  - `TracerSupport.kt` Read.
   - `Tracer.withSpan` 이름의 함수가 이미 존재하는지 `ide_find_references` 또는 `ast-grep` 로 확인.
   - 현존 `useSuspending`, `useSpanSuspending`, `withSpanContext` 시그니처를 plan 본문에 기록 (paramName + default + return).
 - **DoD**:
   - [ ] 두 파일의 public API 표 작성 완료
   - [ ] 충돌 0 또는 충돌이 있다면 spec 미세 조정안 명시
 - **산출물**: 본 plan 의 `## 정찰 결과` 섹션에 추가 (Task 1 완료 후).
+
+---
+
+### Task 1.5 — `SpanSupport.recordFailure` 보안 수정 (Option A)
+
+- **complexity**: medium
+- **위치**: `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanSupport.kt`
+- **목표**: 기존 `recordFailure` 함수의 fallback 메시지가 `error::class.java.simpleName` 을 사용하여 내부 클래스명을 OTLP 백엔드에 노출하는 보안 결함을 수정한다.
+- **수정 내용**:
+  ```kotlin
+  // 수정 전
+  private const val UNSPECIFIED_ERROR = "unspecified error"
+
+  fun Span.recordFailure(error: Throwable, message: String? = null) {
+      recordException(error)
+      setStatus(StatusCode.ERROR, message ?: error.message ?: error::class.java.simpleName)
+  //                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 제거
+  }
+
+  // 수정 후
+  fun Span.recordFailure(error: Throwable, message: String? = null) {
+      recordException(error)
+      setStatus(StatusCode.ERROR, message ?: error.message ?: UNSPECIFIED_ERROR)
+  }
+  ```
+  - `private const val UNSPECIFIED_ERROR = "unspecified error"` 상수 파일 최상단에 정의 (Task 3, 4 에서도 재사용).
+  - 기존 API 시그니처 유지 — binary + source compatible.
+- **회귀 테스트**:
+  - `src/test/kotlin/io/bluetape4k/opentelemetry/trace/SpanSupportTest.kt` (신규 또는 기존 확장)
+  - `throw RuntimeException(null)` → `recordFailure()` 호출 → Span status description 이 `"unspecified error"` 임을 검증 (`.javaClass.simpleName` 누출 안 됨).
+- **DoD**:
+  - [ ] `SpanSupport.kt` 에 `UNSPECIFIED_ERROR` 상수 추가
+  - [ ] `recordFailure` fallback 수정 (`error::class.java.simpleName` 제거)
+  - [ ] 회귀 테스트 추가 + `null` message 케이스 통과
+  - [ ] `ide_diagnostics` 0 error
+  - [ ] 컴파일 통과
 
 ---
 
@@ -54,12 +92,15 @@
   ): T
   ```
 - **구현 노트**:
+  - 진입 즉시 `requireNotBlank(spanName) { "spanName must not be blank" }` 검사.
   - 내부적으로 `spanBuilder(spanName).apply(configure).useSpanSuspending(coroutineContext, block)` 위임.
   - 파라미터 순서: `(spanName, configure, coroutineContext, block)` — configure 가 coroutineContext 앞.
+  - `suspend fun` 이므로 `inline` 불가; `block` 파라미터는 `crossinline` 불가 (`useSpanSuspending` 내부에서 다른 suspend 컨텍스트로 호출될 수 있음). `noinline`으로 선언하거나 일반 suspend 람다로 유지.
   - `configure` 람다 안에서 `.startSpan()` 직접 호출은 이중 Span 생성 — KDoc 경고만 (코드로 강제 불가).
   - CancellationException 처리는 `useSpanSuspending` 의 기존 규약에 위임.
 - **DoD**:
   - [ ] 파일에 함수 추가, KDoc(Korean) 포함 (보안 경고 + cancellation 계약 + configure footgun)
+  - [ ] `requireNotBlank(spanName)` 진입 검사 포함
   - [ ] `ide_diagnostics` 0 error / 0 import warning
   - [ ] 컴파일 통과: `./gradlew :bluetape4k-opentelemetry:compileKotlin`
 
@@ -79,14 +120,17 @@
   ): T
   ```
 - **구현 노트**:
+  - 진입 즉시 `requireNotBlank(spanName) { "spanName must not be blank" }` 검사.
   - `val span = spanBuilder(spanName).apply(configure).startSpan()`
   - `span.makeCurrent().use { block(span) }` 패턴.
   - 정상 종료: `span.setStatus(StatusCode.OK)` → `span.end()` (finally 안에서 보장).
-  - 예외: `span.recordException(t)` + `span.setStatus(StatusCode.ERROR, t.message ?: "unspecified error")` → 재던짐.
-    - **fallback 메시지는 `"unspecified error"` 고정** — `t.javaClass.simpleName` 절대 금지 (내부 클래스명 외부 노출 방지).
-  - `inline` 적용 — 람다 호출 비용 제거. `inline` 함수 내부에서 `recordException` 등 비-public-API 호출이 필요하면 `@PublishedApi internal` 헬퍼로 분리.
+  - 예외: `span.recordException(t)` + `span.setStatus(StatusCode.ERROR, t.message ?: UNSPECIFIED_ERROR)` → 재던짐.
+    - **`UNSPECIFIED_ERROR` 상수 사용** — `SpanSupport.kt` 파일 최상단에 `private const val UNSPECIFIED_ERROR = "unspecified error"` 정의 (Task 1.5에서 추가). `t.javaClass.simpleName` 절대 금지 (내부 클래스명 외부 노출 방지).
+  - `inline` 적용 — 람다 호출 비용 제거. `inline` 함수 내부에서 비-public-API 호출이 필요하면 `@PublishedApi internal` 헬퍼로 분리.
 - **DoD**:
   - [ ] 함수 추가, KDoc(Korean) 포함 (보안 경고 + 코루틴 사용 주의 — Dispatcher 전환 시 ThreadLocal 유실)
+  - [ ] `requireNotBlank(spanName)` 진입 검사 포함
+  - [ ] `UNSPECIFIED_ERROR` 상수 사용 (리터럴 `"unspecified error"` 직접 기재 금지)
   - [ ] `ide_diagnostics` 0 error
   - [ ] 컴파일 통과
 
@@ -117,6 +161,8 @@
       action: suspend (T) -> Unit,
   )
   ```
+- **진입 검사**: `traced`/`tracedCollect` 모두 `requireNotBlank(spanName)` 호출.
+- **`UNSPECIFIED_ERROR` 상수**: `SpanSupport.kt` 에 정의된 상수를 재사용하거나, 이 파일에 `internal const val` 로 별도 정의 (`"unspecified error"` 리터럴 직접 기재 금지).
 - **구현 골격** (spec §2 구현 스케치 그대로):
   ```kotlin
   channelFlow {
@@ -156,7 +202,7 @@
 - **목표**: spec §3. `OpenTelemetry.webfluxServerTelemetry()` + `createTracingWebFilter()`.
 - **build.gradle.kts 변경**:
   - `compileOnly(Libs.spring_webflux)` 추가 (현재 `testRuntimeOnly` 라면 승격, 신규라면 추가)
-  - `compileOnly(Libs.opentelemetry_spring_webflux)` 추가 — `buildSrc/Libs.kt` 에 상수가 없으면 추가 (`opentelemetry-spring-webflux-5.3` 좌표 확인 → context7 또는 공식 instrumentation BOM 확인)
+  - `compileOnly(Libs.opentelemetry_spring_webflux)` 추가 — `buildSrc/Libs.kt` 에 상수가 없으면 추가. 검증된 Maven 좌표: `io.opentelemetry.instrumentation:opentelemetry-spring-webflux-5.3` (OTel instrumentation BOM 버전 관리). **주의**: `opentelemetry-spring-boot-starter`가 아닌 raw `spring-webflux-5.3` 아티팩트 사용.
   - `testImplementation(Libs.spring_webflux)` 추가 — 테스트가 webflux 환경 필요시
   - `testImplementation(Libs.opentelemetry_spring_webflux)` — 테스트용
 - **API**:
@@ -186,6 +232,7 @@
 - **위치**: `infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/coroutines/TracerWithSpanTest.kt` (신규)
   - blocking 테스트는 `infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/trace/TracerWithSpanBlockingTest.kt` (또는 같은 클래스 내 nested)
 - **공통 픽스처**: `InMemorySpanExporter` + `SdkTracerProvider` (기존 모듈 패턴 재사용)
+  - `@BeforeEach fun setup() { inMemoryExporter.reset() }` — 테스트 간 Span 데이터 격리 필수.
 - **suspend 케이스** (spec §5.1):
   - [ ] 정상 완료 → name 일치, status OK, parent context 검증
   - [ ] `withContext(Dispatchers.IO)` 내부 호출 → IO 디스패처에서 current 유지, finished span 1개
@@ -194,10 +241,12 @@
   - [ ] `CancellationException` → status UNSET, end() 호출, 재던짐 (ERROR 미기록)
   - [ ] `configure` 로 attribute 추가 → 종료 Span attribute 검증
   - [ ] **negative**: `configure` 안에서 `.startSpan()` 직접 호출 → 이중 Span 생성 확인 (footgun 문서화)
+  - [ ] **negative**: 빈 문자열 `spanName` → `IllegalArgumentException` 발생 검증 (`requireNotBlank`)
 - **blocking 케이스** (spec §5.2):
   - [ ] 정상 완료 → OK + end()
   - [ ] 예외 → ERROR + recordException + `message ?: "unspecified error"` 검증 + 재던짐
   - [ ] **negative**: `throw RuntimeException(null)` 처럼 message=null 인 경우 → fallback `"unspecified error"` 검증 (javaClass.simpleName 누출 안 됨)
+  - [ ] **negative**: 빈 문자열 `spanName` → `IllegalArgumentException` 발생 검증 (`requireNotBlank`)
   - [ ] 동일 스레드 nested 호출 → parent-child 관계 검증
 - **테스트 도구**: JUnit 5 + MockK + Kluent + `kotlinx-coroutines-test` (`runTest`)
 - **Kluent matcher**: 비교는 `shouldBeEqualTo`, `shouldNotBeNull`, `shouldBeGreaterThan` 등 사용 (`(x == y).shouldBeTrue()` 금지).
@@ -210,6 +259,7 @@
 
 - **complexity**: medium
 - **위치**: `infra/opentelemetry/src/test/kotlin/io/bluetape4k/opentelemetry/coroutines/FlowSpanSupportTest.kt` (신규)
+- **픽스처**: `@BeforeEach fun setup() { inMemoryExporter.reset() }` — 테스트 간 Span 데이터 격리 필수.
 - **케이스** (spec §5.3):
   - [ ] Flow 정상 완료 → finished Span **1개**, status OK
   - [ ] emit 3회 `.toList()` → finished Span **1개** (아이템별 아님)
@@ -219,6 +269,7 @@
   - [ ] `flowOn(Dispatchers.IO)` 결합 → Span 정상 전파, finished Span 1개
   - [ ] `tracedCollect` action 안에서 `Span.current()` == traced Span 검증
   - [ ] **negative**: `Authorization: Bearer xxx` 가 Span attribute 에 없음 검증 (민감 attribute 가이드 강제)
+  - [ ] **negative**: 빈 문자열 `spanName` → `IllegalArgumentException` 발생 검증 (`requireNotBlank`)
 - **runTest 사용 시 주의**:
   - `runTest(timeout = 30.seconds)` — coroutines-test 패턴
   - `@BeforeEach`/`@AfterEach` 도 `runTest { ... }` 로 감싸기
@@ -253,6 +304,24 @@
 - **DoD**:
   - [ ] 전수 통과 (passing count 기록)
   - [ ] `./gradlew :bluetape4k-opentelemetry:detekt` 통과
+
+---
+
+### Task 9.5 — bluetape4k-patterns 체크리스트 검증
+
+- **complexity**: low
+- **목표**: 코드 완성 후 bluetape4k 공통 패턴 준수 여부를 체계적으로 점검한다.
+- **수행 내용**:
+  - [ ] **KLogging**: 신규 파일에 `companion object : KLogging()` 포함 여부 (또는 top-level 파일이면 파일 레벨 logger 사용)
+  - [ ] **requireNotBlank**: 모든 `spanName` 파라미터 진입부 검사 적용 확인
+  - [ ] **Kluent matchers**: 테스트에서 `(x == y).shouldBeTrue()` 패턴 0건 확인 — `shouldBeEqualTo` / `shouldBeGreaterThan` 등 사용
+  - [ ] **불변성**: 신규 data class 없음 (extension function 전용 파일), 확인 후 pass
+  - [ ] **`@Deprecated` 없음**: `ide_diagnostics` 에서 deprecated API 사용 0건
+  - [ ] **import 정리**: `ide_optimize_imports` 실행 후 불필요 import 0건
+  - [ ] **atomicfu scope**: 메서드 로컬에 `kotlinx.atomicfu.atomic()` 사용 없음 (클래스 프로퍼티만 허용)
+  - [ ] **테스트 resources**: `src/test/resources/junit-platform.properties` + `logback-test.xml` 존재 확인 (신규 모듈이 아니므로 기존 파일 재사용)
+- **DoD**:
+  - [ ] 위 체크리스트 항목 전수 통과 기록
 
 ---
 
@@ -354,10 +423,12 @@
 
 ```
 1 (정찰)
+ → 1.5 (recordFailure 보안 수정 — SpanSupport.kt 변경 + 회귀 테스트)
  → 2, 3, 4 (병렬 가능 — 서로 다른 파일, 다른 함수)
  → 5 (WebFlux helper, 빌드 의존성 변경 필요)
  → 6, 7, 8 (테스트, 병렬 가능)
  → 9 (회귀 테스트)
+ → 9.5 (bluetape4k-patterns 체크리스트 검증)
  → 10 (KDoc 보강 — 1~5 산출물 대상)
  → 11 (README) → 12 (CLAUDE.md 검토) → 13 (wiki-update)
  → 14 (commit + code review + PR)
