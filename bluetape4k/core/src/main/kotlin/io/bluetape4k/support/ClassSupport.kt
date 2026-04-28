@@ -85,9 +85,15 @@ fun <T: Any> KClass<T>.newInstanceOrNull(): T? = java.newInstanceOrNull()
 /**
  * 지정한 수형의 인스턴스를 새로 생성합니다. 실패 시에는 null을 반환합니다.
  *
+ * **보안 경고**: [qualifiedName]은 신뢰할 수 없는 외부 입력(사용자 입력, API 파라미터 등)으로부터
+ * 받아서는 안 됩니다. 임의 클래스 인스턴스화는 원격 코드 실행(RCE) 등의 보안 취약점으로 이어질 수 있습니다.
+ * 반드시 허용된 클래스 이름 목록(allowlist) 검증 후 호출하세요.
+ *
  * ```
  * val instance = newInstanceOrNull("java.lang.String") // ""
  * ```
+ *
+ * @throws SecurityException 보안 관리자가 클래스 로딩을 허용하지 않는 경우
  */
 @Suppress("UNCHECKED_CAST")
 fun <T: Any> newInstanceOrNull(

@@ -182,4 +182,16 @@ class TimeoutSupportTest: AbstractCoreTest() {
         log.debug { "작업 진행 중: ${isWorking.get()}" }
         isWorking.get().shouldBeFalse()
     }
+
+    @Test
+    fun `withTimeoutOrNull은 timeout 외 예외를 null로 삼키지 않고 전파한다`() {
+        // H1 수정 검증: TimeoutException 이외의 예외는 rethrow 되어야 함
+        assertFailsWith<ExecutionException> {
+            withTimeoutOrNull(1000) {
+                throw IllegalStateException("비즈니스 오류")
+                @Suppress("UNREACHABLE_CODE")
+                "result"
+            }
+        }
+    }
 }

@@ -8,6 +8,7 @@ import io.bluetape4k.support.asFloat
 import io.bluetape4k.support.asInt
 import io.bluetape4k.support.asLong
 import io.bluetape4k.support.asString
+import kotlinx.coroutines.CancellationException
 import java.util.*
 
 /**
@@ -328,7 +329,7 @@ inline fun <reified T: Any> Iterable<*>.asArray(): Array<T?> =
  * @see tryMap
  */
 inline fun <T, R> Iterable<T>.mapCatching(mapper: (T) -> R): List<Result<R>> =
-    map { runCatching { mapper(it) } }
+    map { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * forEach 구문 실행 시 `runCatching` 구문으로 [action] 실행합니다. 예외를 무시합니다.
@@ -342,7 +343,7 @@ inline fun <T, R> Iterable<T>.mapCatching(mapper: (T) -> R): List<Result<R>> =
  * @see forEachCatching
  */
 inline fun <T> Iterable<T>.tryForEach(action: (T) -> Unit) {
-    forEach { runCatching { action(it) } }
+    forEach { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -363,7 +364,7 @@ inline fun <T> Iterable<T>.tryForEach(action: (T) -> Unit) {
  * @see tryForEach
  */
 inline fun <T> Iterable<T>.forEachCatching(action: (T) -> Unit): List<Result<Unit>> =
-    map { runCatching { action(it) } }
+    map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * [mapper] 실행이 성공한 결과만 추출합니다.
@@ -378,7 +379,7 @@ inline fun <T> Iterable<T>.forEachCatching(action: (T) -> Unit): List<Result<Uni
  * @return 성공한 결과 리스트
  */
 inline fun <T, R: Any> Iterable<T>.mapIfSuccess(mapper: (T) -> R): List<R> =
-    mapNotNull { runCatching { mapper(it) }.getOrNull() }
+    mapNotNull { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e }.getOrNull() }
 
 
 /**

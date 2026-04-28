@@ -31,7 +31,7 @@ class ExecutorSupportTest {
 
     @Test
     fun `withWorkStealingPool 은 parallelism 0이면 예외`() {
-        assertThrows<AssertionError> {
+        assertThrows<IllegalArgumentException> {
             withWorkStealingPool(parallelism = 0) { 1 }.get()
         }
     }

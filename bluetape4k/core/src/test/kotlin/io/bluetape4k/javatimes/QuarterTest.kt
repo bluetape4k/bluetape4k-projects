@@ -29,15 +29,15 @@ class QuarterTest {
             Quarter.ofMonth(monthOfYear) shouldBeEqualTo Quarter.of((monthOfYear - 1) / 3 + 1)
         }
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Quarter.ofMonth(0)
         }
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Quarter.ofMonth(-1)
         }
 
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Quarter.ofMonth(13)
         }
     }
