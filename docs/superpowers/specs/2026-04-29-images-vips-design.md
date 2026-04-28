@@ -110,7 +110,7 @@ utils/images-vips-api/
 ├── build.gradle.kts
 └── src/main/kotlin/io/bluetape4k/images/vips/
     ├── VipsImage.kt              # interface, AutoCloseable
-    ├── VipsRuntime.kt            # interface: init(concurrency, maxPixels), shutdown(), isInitialized
+    ├── VipsRuntime.kt            # interface: init(concurrency, maxPixels), shutdown(), isInitialized, isShutdown
     ├── VipsEncodeOptions.kt      # data class : Serializable (quality, lossless, effort)
     ├── VipsImageFormat.kt        # enum (JPEG, PNG, WEBP, @IncubatingImageApi AVIF★, HEIC★)
     └── coroutines/
@@ -214,13 +214,28 @@ interface VipsImage : AutoCloseable {
 ```kotlin
 /**
  * libvips 런타임 초기화/종료 및 전역 설정을 관리하는 인터페이스입니다.
+ *
+ * ## 종료 계약 (Terminal Contract)
+ * [shutdown]은 **비가역적(terminal)**입니다. `vips_shutdown()` 호출 후
+ * `VIPS_INIT()`를 재호출하면 정의되지 않은 동작(UB)이 발생합니다.
+ * [shutdown] 후 [init]을 호출하면 [VipsInitializationException]이 발생합니다.
+ *
+ * ## 스레드 안전성
+ * 구현체는 `AtomicReference<RuntimeState>` CAS 상태 머신으로 thread-safety를 보장합니다.
+ * `@Synchronized` / `synchronized {}` 사용 금지 — Virtual Thread와 호환되지 않습니다.
  */
 interface VipsRuntime {
-    // init() must be internally thread-safe (AtomicBoolean or synchronized).
+    // init() is thread-safe via AtomicReference<RuntimeState> CAS (no @Synchronized).
     // Calling init() when isInitialized == true is a no-op.
     fun init(concurrency: Int = 4, maxPixels: Long = 150_000_000L)
     fun shutdown()
     val isInitialized: Boolean
+
+    /**
+     * [shutdown] 이후 `true`를 반환합니다. 이 상태에서 [init]을 호출하면 예외가 발생합니다.
+     * 종료 계약은 공개 API의 일부입니다 — 구현 세부사항이 아닙니다.
+     */
+    val isShutdown: Boolean
 }
 ```
 
@@ -252,6 +267,56 @@ suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
 ```
 
 > **Naming decision**: Kotlin cannot overload on the `suspend` modifier alone. Suspend factory variants therefore use distinct names: `suspendVipsImageOf(...)`. Both blocking and suspend variants are first-class API; neither is deprecated.
+
+### 4.3.1 Factory Security Controls (MANDATORY — implemented in T2.4 / T3.3)
+
+모든 factory 함수는 native decode 전에 다음 검사를 순서대로 수행해야 합니다.
+
+#### 1. 입력 형식 허용 목록 (Format Allowlist)
+
+파일/bytes/stream의 처음 12 바이트를 읽어 magic number를 확인합니다.
+허용 형식 이외의 입력은 `VipsDecodeException`으로 즉시 거부합니다.
+
+| 형식 | Magic bytes (hex) |
+|---|---|
+| JPEG | `FF D8 FF` (first 3 bytes) |
+| PNG | `89 50 4E 47` (first 4 bytes) |
+| WebP | `52 49 46 46 ?? ?? ?? ?? 57 45 42 50` (`RIFF....WEBP`, bytes 0–3 + 8–11) |
+
+#### 2. InputStream 크기 제한 (BoundedInputStream)
+
+`vipsImageOf(stream)` 은 반드시 **Commons IO `BoundedInputStream`** 으로 래핑합니다.
+
+- 기본 제한: 50 MB (`50 * 1024 * 1024L`)
+- **제한 초과 시 예외 발생 필수** — silent EOF 절단 금지:
+  ```kotlin
+  BoundedInputStream.builder()
+      .setInputStream(stream)
+      .setMaxCount(50 * 1024 * 1024L)
+      .setPropagateClose(true)
+      .setOnMaxLength { throw VipsDecodeException("Input stream exceeds 50 MB limit") }
+      .get()
+  ```
+  Commons IO 2.16+ builder API 사용. `setOnMaxLength` 콜백이 없는 구버전은 `.isPropagateClose(true)` 후
+  제한 초과 여부를 read 후 직접 체크합니다.
+
+#### 3. Pixel 폭탄 방어 (maxPixels check)
+
+native decode 후 즉시 픽셀 수를 검사합니다. 공식:
+
+```
+width × height × bands > maxPixels → VipsDecodeException
+```
+
+> ⚠️ `width × height` 만으로는 불충분합니다. 16-bit RGBA 이미지는 동일 해상도에서 메모리가
+> 4× 더 많이 필요하므로 반드시 **`bands`** 를 곱해야 합니다.
+
+기본 `maxPixels`: `150_000_000L` (VipsRuntime.init 의 기본값과 동일).
+
+#### 4. 예외 안전성 (Exception Safety)
+
+factory 함수 내부에서 열린 모든 native handle은 예외 발생 시 `try/finally` 로 반드시 닫아야 합니다.
+`BoundedInputStream` 역시 finally 블록에서 close 해야 합니다.
 
 ### 4.4 VipsEncodeOptions
 
@@ -355,6 +420,19 @@ All binding-specific exceptions MUST be translated to bluetape4k types before cr
 ```kotlin
 /**
  * libvips 작업 중 발생한 예외를 나타냅니다.
+ *
+ * ## 메시지 보안 정책
+ * `message`는 API 응답에 안전한 정보만 포함해야 합니다 — 경로, libvips 내부 오류 버퍼,
+ * 시스템 정보를 노출하지 않습니다. `cause`에 원본 binding 예외(libvips 오류 버퍼 포함)를
+ * 보존하여 서버 로그에서 원인 추적이 가능하도록 합니다.
+ *
+ * ```kotlin
+ * // BAD — libvips 내부 경로 + 오류 버퍼 노출
+ * throw VipsDecodeException(jvipsException.message ?: "decode failed", jvipsException)
+ *
+ * // GOOD — 안전한 메시지, cause에 원본 보존
+ * throw VipsDecodeException("Image decode failed: unsupported format or corrupted input", jvipsException)
+ * ```
  */
 open class VipsException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
@@ -379,6 +457,7 @@ Implementations:
 - vips-ffm: catch `app.photofox.vipsffm.*` errors → wrap as appropriate
 - All factory functions declare `@throws VipsDecodeException` in KDoc.
 - All encode operations declare `@throws VipsEncodeException` in KDoc.
+- **메시지 정책**: `message`는 형식/연산 유형만 포함. libvips 오류 버퍼는 `cause.message`에만 존재.
 
 ---
 
@@ -476,7 +555,9 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // JVips — bundles libvips.so on Linux; macOS requires `brew install vips`
-    api(Libs.jvips)
+    // implementation() NOT api(): D8 — all binding types (com.criteo.vips.*) are internal.
+    // Leaking binding types to consumer compile classpath violates the encapsulation contract.
+    implementation(Libs.jvips)
 
     implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
@@ -533,7 +614,8 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // vips-ffm — Java 25 FFM API; requires system libvips on all platforms
-    api(Libs.vips_ffm)
+    // implementation() NOT api(): D8 — all binding types (app.photofox.vipsffm.*) are internal.
+    implementation(Libs.vips_ffm)
 
     implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
@@ -593,16 +675,25 @@ abstract class AbstractVipsTest {
 
 ### 6.2 Test Coverage Requirements (Phase 1 + 2)
 
-| Test | Assertion |
-|---|---|
-| `vipsImageOf(file)` | width/height match known fixture |
-| `resize(800, 600)` | output dimensions exactly 800×600 |
-| `thumbnail(300)` | longest side ≤ 300 |
-| `toBytes(JPEG)` | non-empty, valid JPEG header `FF D8 FF` |
-| `toBytes(PNG)` | non-empty, valid PNG header `89 50 4E 47` |
-| `toBytes(WEBP)` | non-empty, `RIFF...WEBP` header |
-| `suspendToBytes(JPEG)` | same via coroutine, runs on IO dispatcher |
-| `use { }` not leaking | VipsImage closed → subsequent call throws |
+15 assertions per impl module (java21 + java25). Total: 30 assertions in CI.
+
+| # | Test | Assertion |
+|---|---|---|
+| 1 | `vipsImageOf(file)` | width/height match known fixture |
+| 2 | `resize(800, 600)` | output dimensions 800×600 (verify semantics from T2.0 spike — libvips may preserve aspect ratio) |
+| 3 | `thumbnail(300)` | longest side ≤ 300; boundary: thumbnail(0) or thumbnail(-1) throws |
+| 4 | `toBytes(JPEG)` | non-empty, valid JPEG header `FF D8 FF` |
+| 5 | `toBytes(PNG)` | non-empty, valid PNG header `89 50 4E 47` |
+| 6 | `toBytes(WEBP)` | non-empty, `RIFF....WEBP` header (bytes 0–3 + 8–11) |
+| 7 | `suspendToBytes(JPEG)` | outcome only: non-empty, valid JPEG header (dispatcher NOT asserted — `runTest` does not replace `Dispatchers.IO`) |
+| 8 | `use { }` not leaking | after `close()`, subsequent method call throws `IllegalStateException` or `VipsException` |
+| 9 | `close()` idempotent | second `close()` does not throw |
+| 10 | `crop(0, 0, 100, 100)` | output is exactly 100×100 |
+| 11 | `writeTo(Path)` | file exists at path + valid JPEG magic |
+| 12 | `writeTo(OutputStream)` | stream content has valid JPEG magic |
+| 13 | invalid resize params | `resize(0, 600)` or `resize(-1, 600)` throws `IllegalArgumentException` or `VipsException` |
+| 14 | crop out-of-bounds | `crop` exceeding image bounds throws `VipsException` |
+| 15 | corrupt input | `vipsImageOf(ByteArray(10) { 0 })` throws `VipsDecodeException` |
 
 ---
 
