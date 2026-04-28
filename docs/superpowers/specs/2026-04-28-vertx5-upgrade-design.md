@@ -228,10 +228,10 @@ T0 에서 발견된 컴파일 에러를 항목별로 처리합니다. 사전에 
 PR 머지 전 다음 모두 만족해야 합니다.
 
 - [ ] `Libs.kt` 의 `Versions.vertx = "5.0.11"` 적용
-- [ ] `Libs.vertx_jdbc_client` val 삭제 + 모든 build.gradle.kts 에서 미참조
-- [ ] `Libs.resilience4j_vertx` val 삭제 + 미참조 확인
-- [ ] `Libs.hibernate_reactive` 4.3.x 적용 (Vert.x 5.0 호환 patch)
-- [ ] `Versions.hibernate` 7.3.x 적용 (HR 4.3 매트릭스 충족)
+- [ ] `Libs.vertx_jdbc_client` **유지** (vertx-jdbc-client:5.0.11 GA 존재, production 코드 사용 — 제거 불가)
+- [ ] `Libs.resilience4j_vertx` val 삭제 (build.gradle.kts 미참조 잔여물)
+- [ ] `Libs.hibernate_reactive` **4.3.3.Final** 적용 (Maven Central POM 확인)
+- [ ] `Versions.hibernate` **7.3.2.Final** 적용 (HR 4.3.3.Final POM hard-dep — 프로젝트 전역 적용)
 - [ ] `io/vertx`, `data/hibernate-reactive`, `infra/micrometer`, `io/feign`, `io/retrofit2`, `io/http` 모두 Vert.x 5.0.11 클래스패스 위에서 컴파일 통과
 - [ ] 위 모든 모듈에서 기존 테스트 전수 통과 (regression gate)
 - [ ] `x-obsoleted/vertx-coroutines/`, `vertx-sqlclient/`, `vertx-webclient/` 디렉토리 삭제
