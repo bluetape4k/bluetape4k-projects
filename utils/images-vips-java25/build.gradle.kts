@@ -30,6 +30,12 @@ tasks.withType<Test>().configureEach {
     maxParallelForks = 1
     // Skip libvips-dependent tests when native library is unavailable
     systemProperty("vips.enabled", System.getProperty("vips.enabled", "false"))
+    // macOS (Homebrew): libvips lives in /opt/homebrew/lib which dlopen doesn't find by default.
+    // FFM SymbolLookup.libraryLookup uses dlopen, not java.library.path — need DYLD_LIBRARY_PATH.
+    val homebrewLib = "/opt/homebrew/lib"
+    if (file(homebrewLib).exists()) {
+        environment("DYLD_LIBRARY_PATH", homebrewLib)
+    }
 }
 
 dependencies {
