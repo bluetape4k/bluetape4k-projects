@@ -341,15 +341,19 @@ data class VipsEncodeOptions(
         require(effort in 1..9) { "effort must be 1..9, was $effort" }
     }
 
+    // InvalidObjectException (not require() → IAE): ObjectInputStream wraps it per serialization spec.
     @Suppress("unused")
     private fun readResolve(): Any {
-        require(quality in 0..100) { "quality must be 0..100, was $quality" }
-        require(effort in 1..9) { "effort must be 1..9, was $effort" }
+        if (quality !in 0..100) throw InvalidObjectException("quality out of range: $quality")
+        if (effort !in 1..9) throw InvalidObjectException("effort out of range: $effort")
         return this
     }
 
     companion object : KLogging() {
-        private const val serialVersionUID = 1L
+        // @JvmStatic REQUIRED: without it, Kotlin puts serialVersionUID in companion bytecode,
+        // not the outer class. Java serialization cannot find it → generates UID from bytecode hash
+        // → version drift across recompiles even without field changes.
+        @JvmStatic private val serialVersionUID: Long = 1L
         val Default = VipsEncodeOptions()
         val HighQuality = VipsEncodeOptions(quality = 95, effort = 6)
         val LowBandwidth = VipsEncodeOptions(quality = 60, effort = 3)
@@ -410,7 +414,8 @@ suspend fun VipsImage.suspendWriteTo(
 
 ### VipsRuntime Shutdown Lifecycle
 - `VipsRuntime.shutdown()` is NOT registered as a JVM shutdown hook by default (multi-tenant JVM safety).
-- Spring Boot consumers: register via `@PreDestroy` or `DisposableBean.destroy()`.
+- ⚠️ **Spring Boot devtools WARNING**: Do NOT register `shutdown()` via `@PreDestroy` or `DisposableBean`. Spring Boot devtools restarts the `LaunchedClassLoader` (ApplicationContext) but keeps the native `.so` in the JVM's `SystemClassLoader`. Calling `shutdown()` via `@PreDestroy` makes the next devtools restart call `init()` on a permanently SHUTDOWN runtime → `VipsInitializationException("restart the process")` every time. **Use JVM shutdown hook only.**
+- Spring Boot consumers (non-devtools): use a `@Component` wrapper bean for `@PreDestroy` if no devtools; OR use JVM shutdown hook exclusively.
 - Standalone JVM consumers: call `Runtime.getRuntime().addShutdownHook(Thread { runtime.shutdown() })`.
 - Failing to call `shutdown()` is safe (no data loss) but may delay JVM exit by up to 5 s due to libvips worker threads.
 

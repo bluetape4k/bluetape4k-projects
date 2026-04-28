@@ -75,7 +75,8 @@ Goal: Create the three module directories with `build.gradle.kts`, package skele
   - `utils/images-vips-java21/src/test/kotlin/io/bluetape4k/images/vips/java21/.gitkeep`
   - `utils/images-vips-java21/src/test/resources/{junit-platform.properties,logback-test.xml}`
 - **details**: Per spec §5.2. Java 21 toolchain, `kotlin { jvmToolchain(21) }`, `options.release.set(21)`, JUnit Platform `vips-required` exclude/include logic, `forkEvery = 1`, `maxParallelForks = 1` (prevents concurrent libvips JVMs on same host — forkEvery=1 alone does not prevent parallel forks), `implementation(Libs.jvips)` (**NOT** `api()` — D8: binding types are `internal`, must not leak to consumer compile classpath), `implementation(Libs.commons_io)`.
-- **DoD**: `./gradlew :bluetape4k-images-vips-java21:build -x test` succeeds; default `:test` skips vips-required tests.
+- **Pre-flight gate (MUST pass before T0.3 starts)**: Verify `com.criteo:jvips:8.10.2-38fe1f6` resolves from `mavenCentral()`. Run `./gradlew :bluetape4k-images-vips-java21:dependencies --configuration runtimeClasspath` and confirm `com.criteo:jvips:8.10.2-38fe1f6` appears in the output. If it fails to resolve: (a) check JitPack (`com.github.criteo:JVips:<commit>`) or GitHub Packages as fallback, (b) add the required repository to `buildSrc/` or root `build.gradle.kts`, (c) document the actual source in T0.1. **Do NOT proceed if resolution fails — the entire build depends on it.**
+- **DoD**: `./gradlew :bluetape4k-images-vips-java21:build -x test` succeeds; default `:test` skips vips-required tests; JVips artifact resolution confirmed in pre-flight output.
 
 ### T0.4 — Create images-vips-java25 module skeleton + build.gradle.kts
 - **complexity**: medium
@@ -121,8 +122,26 @@ Goal: Define binding-neutral interfaces, value types, factory signatures, except
 - **complexity**: medium
 - **deps**: T0.2
 - **files**: `utils/images-vips-api/src/main/kotlin/io/bluetape4k/images/vips/VipsEncodeOptions.kt`
-- **details**: Per spec §4.4. `Serializable`, `serialVersionUID = 1L`, `companion object : KLogging()`, `init` validates `quality in 0..100` and `effort in 1..9`, `readResolve()` re-validates, presets `Default/HighQuality/LowBandwidth`. Use `requireXxx()` (NOT `assertXxx()`) per project rule.
-- **DoD**: KDoc with `@param` for each field; serialization round-trip test in T4.1.
+- **details**: Per spec §4.4. `Serializable`, `companion object : KLogging()`, `init` validates `quality in 0..100` and `effort in 1..9`, presets `Default/HighQuality/LowBandwidth`. Use `requireXxx()` (NOT `assertXxx()`) per project rule.
+  - **`serialVersionUID` placement (CRITICAL)**: must be declared with `@JvmStatic` inside `companion object`, otherwise Kotlin compiles it into the companion's bytecode and Java serialization cannot find it → JVM uses a generated UID → version drift across rebuilds:
+    ```kotlin
+    companion object : KLogging() {
+        @JvmStatic private val serialVersionUID: Long = 1L
+        val Default = VipsEncodeOptions()
+        val HighQuality = VipsEncodeOptions(quality = 95, effort = 6)
+        val LowBandwidth = VipsEncodeOptions(quality = 60, effort = 3)
+    }
+    ```
+  - **`readResolve()` exception type**: use `InvalidObjectException` (not `require()` → `IllegalArgumentException`) so `ObjectInputStream` wraps it correctly per Java serialization spec:
+    ```kotlin
+    @Suppress("unused")
+    private fun readResolve(): Any {
+        if (quality !in 0..100) throw InvalidObjectException("quality out of range: $quality")
+        if (effort !in 1..9) throw InvalidObjectException("effort out of range: $effort")
+        return this
+    }
+    ```
+- **DoD**: KDoc with `@param` for each field; `@JvmStatic serialVersionUID` confirmed; serialization round-trip test in T4.1 including tampered-stream `InvalidObjectException` assertion.
 
 ### T1.3 — Exception hierarchy
 - **complexity**: low
@@ -196,14 +215,37 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
   1. Does a header-only read API exist? (e.g., `VipsImage.getWidth()` without triggering pixel decode). Record the exact method name.
   2. If no header-only API exists, document the fallback: perform a full open + dimension check + `close()` if over limit. This is less efficient but acceptable.
   3. What exceptions can `VipsImage.newFromFile/newFromByteArray` throw? Document the mapping to `VipsDecodeException`.
-- **DoD**: Confirmed JVips API surface documented in T2.4 details; fallback strategy specified if header-only read is unavailable. ⛔ T2.4 MUST NOT start before this task is complete.
+  4. **[P3-R1] Streaming source API**: Does JVips 8.10.2 expose `VipsSource` / `VipsSourceCustom` or equivalent (analogous to `vips_source_new_from_descriptor`)? If yes, `vipsImageOf(stream)` MUST use the streaming path instead of reading the full stream to a `ByteArray` (50 MB × N concurrent = N×50 MB heap). Document the exact API if found.
+  5. **[P3-R5] Lazy decode verification**: For `VipsImage.newFromByteArray(bytes)` with JPEG/PNG/WebP, use `-Dvips.leak=1` (or equivalent VIPS_LEAK env) + JVM heap snapshot before/after to confirm libvips performs header-only parse (lazy decode) rather than full pixel allocation at construction. If full decode occurs immediately, the maxPixels check window in T2.4 must move to use `VipsImage.getWidth()` on a probe object + immediate close.
+- **DoD**: Confirmed JVips API surface documented in T2.4 details; streaming source API decision recorded (use or skip with reason); lazy decode behavior confirmed with evidence. ⛔ T2.4 MUST NOT start before this task is complete.
 
 ### T2.1 — NativeHandle reference-count guard
 - **complexity**: high
 - **deps**: T0.3
 - **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/internal/NativeHandle.kt`
 - **details**: Internal class wrapping JVips native pointer with `AtomicInteger` ref count + `java.lang.ref.Cleaner` registration. `acquire()/release()` semantics. `Cleaner` callback logs warning if released via cleaner (i.e., user forgot `close()`). Used by `JVipsImage`.
-- **DoD**: Unit-testable independent of libvips (mock the underlying release lambda); KDoc documents leak-detection contract.
+
+  **[P3-R4] CRITICAL — Cleaner lambda MUST NOT capture `this`**: If the cleanup lambda captures `this` (the `NativeHandle` instance) or any object holding a strong reference to it, the Cleaner can never fire and native handles will leak permanently. The correct pattern captures only the raw native pointer (`Long`):
+  ```kotlin
+  internal class NativeHandle(private val ptr: Long, private val release: (Long) -> Unit) {
+      companion object {
+          private val CLEANER: Cleaner = Cleaner.create()  // shared, NOT per-instance
+      }
+
+      private val cleanable: Cleaner.Cleanable
+
+      init {
+          val capturedPtr = ptr         // capture primitive, not 'this'
+          val capturedRelease = release // capture lambda, not 'this'
+          cleanable = CLEANER.register(this) {
+              capturedRelease(capturedPtr)  // no reference to NativeHandle
+          }
+      }
+  }
+  ```
+  - `CLEANER` must be `companion object` (static) — per-instance `Cleaner.create()` creates a new daemon thread each time.
+  - `release` lambda must be a top-level or companion function, NOT an instance method reference (`this::releaseNative` captures `this`).
+- **DoD**: Unit-testable independent of libvips (mock the underlying release lambda); KDoc documents leak-detection contract; Cleaner lambda does NOT capture `this` (verified by T4.6 WeakReference GC test — must FAIL the build, not just warn, if capture detected).
 
 ### T2.2 — JVipsRuntime implementation
 - **complexity**: high
@@ -265,7 +307,20 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
 
   **M2 adapter seam** (required for T4.10 testability): Define an `internal interface JVipsNativeRuntime` with `nativeInit(concurrency: Int)` and `nativeShutdown()`. The production impl (`DefaultJVipsNativeRuntime`) delegates to `Vips.init()`/`Vips.shutdown()`. `JVipsRuntime` holds `internal var nativeRuntime: JVipsNativeRuntime = DefaultJVipsNativeRuntime` — `var` allows test injection without PowerMock/bytecode manipulation. File: `internal/JVipsNativeRuntime.kt`.
 
-- **DoD**: `init()` exactly-once under concurrency; second caller spins until first finishes; retry after pre-shutdown failure; `init()` after `shutdown()` throws `VipsInitializationException`; no `@Synchronized`; adapter seam in place.
+  **[P3-R2] `resetForTest()` REQUIRED for test isolation**: `JVipsRuntime` is a Kotlin `object` (JVM singleton). Without a reset method, once `state` reaches `INITIALIZED` or `SHUTDOWN`, it cannot be reset between tests — causing test bleed across classes in the same JVM fork. Provide:
+  ```kotlin
+  /** Test-only. Resets state to UNINITIALIZED and restores default nativeRuntime. */
+  @VisibleForTesting
+  internal fun resetForTest() {
+      state.set(RuntimeState.UNINITIALIZED)
+      nativeRuntime = DefaultJVipsNativeRuntime
+  }
+  ```
+  T4.10 MUST call this in `@AfterEach`. All other test classes that depend on `JVipsRuntime` state should call it in `@BeforeEach` as defensive cleanup.
+
+  **[P3-R2] Spring devtools WARNING**: Do NOT register `JVipsRuntime.shutdown()` as a Spring `@PreDestroy` bean method. Spring Boot devtools restarts the `LaunchedClassLoader` (ApplicationContext) but keeps the native `.so` in the JVM's `SystemClassLoader`. If `shutdown()` is called via `@PreDestroy`, the next devtools restart calls `init()` on a permanently SHUTDOWN runtime → `VipsInitializationException("restart the process")`. Only use `Runtime.getRuntime().addShutdownHook(...)` for auto-cleanup. This warning MUST appear prominently in `README.md` §Lifecycle.
+
+- **DoD**: `init()` exactly-once under concurrency; second caller spins until first finishes; retry after pre-shutdown failure; `init()` after `shutdown()` throws `VipsInitializationException`; no `@Synchronized`; adapter seam in place; `resetForTest()` present and used in T4.10.
 
 ### T2.3 — JVipsImage implementation
 - **complexity**: high
@@ -344,8 +399,10 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `app.photofox.vips-ffm`. S
   3. How is `Arena` lifecycle managed? Per-image, per-session, or global?
   4. What is the header-only read path for dimension pre-checks?
   5. What exceptions does the library throw? Document the mapping.
-  Record confirmed class names, initialization sequence, and Arena ownership in a comment block prepended to T3.1 before starting implementation.
-- **DoD**: Confirmed vips-ffm API surface; VVips existence verified or refuted; initialization sequence documented. ⛔ T3.1 MUST NOT start before this task is complete.
+  6. **[P3-R1] Streaming source API**: Does vips-ffm expose `VSource` / `VipsForeign.findLoadSource` or equivalent that avoids reading the entire stream to a `ByteArray`? If yes, `vipsImageOf(stream)` MUST use it (50 MB × N concurrent = N×50 MB heap otherwise). Document the API if found; document "ByteArray fallback required" if not found.
+  7. **[P3-R5] Lazy decode verification**: Does `VImage(bytes, ...)` or equivalent perform header-only parse or full pixel allocation immediately? Test with `-Dvips.leak=1` env and heap snapshot to confirm.
+  Record confirmed class names, initialization sequence, Arena ownership, streaming API, and lazy decode behavior in a comment block prepended to T3.1 before starting implementation.
+- **DoD**: Confirmed vips-ffm API surface; VVips existence verified or refuted; initialization sequence documented; streaming source API decision recorded; lazy decode behavior confirmed. ⛔ T3.1 MUST NOT start before this task is complete.
 
 ### T3.1 — FfmVipsRuntime implementation
 - **complexity**: high
