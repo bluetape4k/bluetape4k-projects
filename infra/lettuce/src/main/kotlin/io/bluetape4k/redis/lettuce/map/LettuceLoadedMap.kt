@@ -114,7 +114,9 @@ class LettuceLoadedMap<K: Any, V: Any>(
      */
     operator fun get(key: K): V? {
         val redisKey = redisKey(key)
-        val cached = runCatching { commands.get(redisKey) }.getOrNull()
+        val cached = runCatching { commands.get(redisKey) }
+            .onFailure { log.warn(it) { "Redis GET 실패, loader fallback: $redisKey" } }
+            .getOrNull()
         if (cached != null) return cached
         val loader = loader ?: return null
         val value = loader.load(key) ?: return null
@@ -165,7 +167,9 @@ class LettuceLoadedMap<K: Any, V: Any>(
         val keyList = keys.toList()
         val redisKeys = keyList.map { redisKey(it) }.toTypedArray()
 
-        val values = runCatching { commands.mget(*redisKeys) }.getOrNull() ?: emptyList()
+        val values = runCatching { commands.mget(*redisKeys) }
+            .onFailure { log.warn(it) { "Redis MGET 실패, loader fallback: ${redisKeys.take(5)}..." } }
+            .getOrNull() ?: emptyList()
 
         val result = mutableMapOf<K, V>()
         val missedKeys = mutableListOf<K>()
@@ -304,19 +308,42 @@ class LettuceLoadedMap<K: Any, V: Any>(
                 val retryCount = entries.first().third + 1
                 log.error(e) { "Write-behind flush 실패 (attempt $retryCount): ${batch.keys}" }
                 if (retryCount < MAX_DEAD_LETTER_RETRY) {
+                    // 개선: offerFirst 반환값 확인 — 큐가 가득 찬 경우 재시도 항목이 유실될 수 있음.
+                    //       유실 항목은 dead-letter로 즉시 처리합니다.
+                    val failed = mutableListOf<Triple<K, V, Int>>()
                     entries.forEach { (k, v, _) ->
-                        queue.offerFirst(Triple(k, v, retryCount))
+                        val offered = queue.offerFirst(Triple(k, v, retryCount))
+                        if (!offered) {
+                            log.warn { "재시도 큐 포화 — dead-letter 전송: key=$k (attempt=$retryCount)" }
+                            failed.add(Triple(k, v, retryCount))
+                        }
+                    }
+                    if (failed.isNotEmpty()) {
+                        // 큐 포화로 재시도 불가한 항목은 dead-letter에 기록
+                        runCatching {
+                            val deadLetterKey = "${config.keyPrefix}:dead-letter"
+                            val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+                            val failedBatch = failed.associate { it.first to it.second }
+                            val valueMap = failedBatch.entries.associate { (k, v) -> keySerializer(k) to v }
+                            // HSET 먼저 (복구 데이터 우선), 실패 시 LPUSH 건너뜀
+                            commands.hset(deadLetterValuesKey, valueMap)
+                            val serializedKeys = failedBatch.keys.map { keySerializer(it) }
+                            strCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray())
+                        }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패 (큐 포화 fallback)" } }
                     }
                 } else {
                     runCatching {
                         // 개선: 기존엔 키만 LPUSH 했기 때문에 실패한 엔트리 복구가 불가능했습니다.
-                        //       이제 키 리스트(순서/모니터링용)와 해시(키→값, 복구용)를 동시에 저장합니다.
+                        //       이제 HSET(복구용 값)을 먼저 저장 후 LPUSH(모니터링용 키 목록)를 저장합니다.
+                        //       두 명령은 서로 다른 codec connection 사용으로 MULTI/EXEC 불가.
+                        //       HSET 실패 시 LPUSH를 건너뛰어 복구 불가 상태(모니터링 오탐)를 방지합니다.
                         val deadLetterKey = "${config.keyPrefix}:dead-letter"
                         val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+                        // HSET 먼저: 실패 시 LPUSH 건너뜀 (복구 데이터 우선)
+                        commands.hset(deadLetterValuesKey, valueMap)
                         val serializedKeys = batch.keys.map { keySerializer(it) }
                         strCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray())
-                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
-                        commands.hset(deadLetterValuesKey, valueMap)
                     }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
                 }
             }
