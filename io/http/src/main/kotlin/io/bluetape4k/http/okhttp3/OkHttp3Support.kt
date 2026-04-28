@@ -9,6 +9,18 @@ import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+/** [okhttp3ClientBuilderOf] 기본 connect timeout. 빌더에서 재설정 가능합니다. */
+@PublishedApi
+internal val DEFAULT_CONNECT_TIMEOUT: Duration = Duration.ofSeconds(10)
+
+/** [okhttp3ClientBuilderOf] 기본 read timeout. 빌더에서 재설정 가능합니다. */
+@PublishedApi
+internal val DEFAULT_READ_TIMEOUT: Duration = Duration.ofSeconds(10)
+
+/** [okhttp3ClientBuilderOf] 기본 write timeout. 빌더에서 재설정 가능합니다. */
+@PublishedApi
+internal val DEFAULT_WRITE_TIMEOUT: Duration = Duration.ofSeconds(30)
+
 /**
  * [OkHttpClient]의 Connection Pool을 생성합니다.
  *
@@ -46,6 +58,13 @@ fun okHttp3ConnectionPool(
  * val client = clientBuilder.build()
  * ```
  *
+ * ## 기본 타임아웃
+ * - connect: 10초 ([DEFAULT_CONNECT_TIMEOUT])
+ * - read:    10초 ([DEFAULT_READ_TIMEOUT])
+ * - write:   30초 ([DEFAULT_WRITE_TIMEOUT])
+ *
+ * builder 람다에서 `connectTimeout` / `readTimeout` / `writeTimeout` 을 호출해 재설정할 수 있습니다.
+ *
  * @param connectionPool [ConnectionPool] 인스턴스
  * @param builder [OkHttpClient.Builder] 초기화 람다
  * @return [OkHttpClient.Builder] 인스턴스
@@ -59,9 +78,9 @@ inline fun okhttp3ClientBuilderOf(
         .apply {
             connectionPool(connectionPool)
             dispatcher(dispatcher)
-            connectTimeout(Duration.ofSeconds(10))
-            readTimeout(Duration.ofSeconds(10))
-            writeTimeout(Duration.ofSeconds(30))
+            connectTimeout(DEFAULT_CONNECT_TIMEOUT)
+            readTimeout(DEFAULT_READ_TIMEOUT)
+            writeTimeout(DEFAULT_WRITE_TIMEOUT)
 
             builder()
         }

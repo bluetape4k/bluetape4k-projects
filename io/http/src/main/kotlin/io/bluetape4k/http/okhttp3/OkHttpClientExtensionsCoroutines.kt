@@ -53,9 +53,13 @@ suspend inline fun Call.executeSuspending(): Response = suspendCancellableCorout
 
     val responseCallback = object: Callback {
         override fun onResponse(call: Call, response: Response) {
-            if (cont.isActive) {
-                cont.resume(response) { _, _, _ -> call.cancel() }
+            if (!cont.isActive) {
+                // 코루틴이 이미 취소된 경우 응답 바디를 닫아 커넥션 풀 누수를 방지합니다.
+                response.close()
+                return
             }
+            // resume이 전달되지 않을 경우(취소 경쟁 상황)에도 response.close()로 바디를 해제합니다.
+            cont.resume(response) { _, _, _ -> response.close() }
         }
 
         override fun onFailure(call: Call, e: IOException) {
