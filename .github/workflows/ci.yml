@@ -267,6 +267,76 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 30
 
+  # ── 5-b. images-vips 모듈 테스트 (libvips 설치 필요) ────────────────────────
+  test-images-vips:
+    name: Test / Images Vips
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install libvips
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libvips-tools
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test images-vips-api
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          shell: bash
+          command: |
+            ./gradlew :bluetape4k-images-vips-api:test --no-daemon
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Test images-vips-java21
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 20
+          max_attempts: 2
+          shell: bash
+          command: |
+            ./gradlew :bluetape4k-images-vips-java21:test -PincludeTags=vips-required -Dvips.enabled=true --no-daemon
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Test images-vips-java25
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 20
+          max_attempts: 2
+          shell: bash
+          command: |
+            ./gradlew :bluetape4k-images-vips-java25:test -PincludeTags=vips-required -Dvips.enabled=true --no-daemon
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          JDK_JAVA_OPTIONS: "--enable-native-access=ALL-UNNAMED"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-images-vips
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
   # ── 6-a. Texts 모듈 테스트 (tokenizer/lingua/text-search) ─────────────────
   test-texts:
     name: Test / Texts

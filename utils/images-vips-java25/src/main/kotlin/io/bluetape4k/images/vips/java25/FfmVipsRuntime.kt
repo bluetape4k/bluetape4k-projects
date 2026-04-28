@@ -1,0 +1,111 @@
+package io.bluetape4k.images.vips.java25
+
+import io.bluetape4k.images.vips.VipsInitializationException
+import io.bluetape4k.images.vips.VipsRuntime
+import io.bluetape4k.images.vips.java25.internal.DefaultFfmVipsNativeRuntime
+import io.bluetape4k.images.vips.java25.internal.FfmVipsNativeRuntime
+import io.bluetape4k.logging.KLogging
+import org.jetbrains.annotations.VisibleForTesting
+import java.util.concurrent.atomic.AtomicReference
+
+/**
+ * vips-ffm(FFM API) 기반 libvips 런타임 싱글턴.
+ *
+ * Java 23+ FFM API를 사용합니다. JVM 시작 시 `--enable-native-access=ALL-UNNAMED` 옵션이 필요합니다.
+ * 누락 시 [init] 호출에서 경고를 기록합니다.
+ *
+ * **종료 계약(Terminal Contract)**: [shutdown] 이후 [init]을 호출하면 [VipsInitializationException]이 발생합니다.
+ * `Vips.shutdown()` 이후 `Vips.init()` 재호출을 지원하지 않으므로, 프로세스를 재시작해야 합니다.
+ *
+ * **스레드 안전성**: `AtomicReference<RuntimeState>` CAS로 스레드 안전성을 보장합니다.
+ * `@Synchronized`를 사용하지 않습니다 (Virtual Thread 핀닝 방지).
+ *
+ * **Spring devtools 경고**: [shutdown]을 `@PreDestroy` 빈 메서드로 등록하지 마십시오.
+ */
+object FfmVipsRuntime : VipsRuntime, KLogging() {
+
+    private enum class RuntimeState { UNINITIALIZED, INITIALIZING, INITIALIZED, SHUTDOWN }
+
+    private val state = AtomicReference(RuntimeState.UNINITIALIZED)
+
+    @VisibleForTesting
+    internal var nativeRuntime: FfmVipsNativeRuntime = DefaultFfmVipsNativeRuntime
+
+    @Volatile
+    private var _maxPixels: Long = 150_000_000L
+
+    /** 허용할 최대 픽셀 수 `width × height × bands` */
+    val maxPixels: Long get() = _maxPixels
+
+    override fun init(concurrency: Int, maxPixels: Long) {
+        when (state.get()) {
+            RuntimeState.INITIALIZED -> return
+            RuntimeState.SHUTDOWN -> throw VipsInitializationException(
+                "libvips has been shut down — restart the process to re-initialize"
+            )
+            else -> {}
+        }
+
+        if (!state.compareAndSet(RuntimeState.UNINITIALIZED, RuntimeState.INITIALIZING)) {
+            while (state.get() == RuntimeState.INITIALIZING) {
+                Thread.onSpinWait()
+            }
+            when (state.get()) {
+                RuntimeState.INITIALIZED -> return
+                RuntimeState.SHUTDOWN -> throw VipsInitializationException(
+                    "libvips was shut down during concurrent initialization"
+                )
+                RuntimeState.UNINITIALIZED -> throw VipsInitializationException(
+                    "Concurrent initialization attempt failed — retry"
+                )
+                else -> {}
+            }
+            return
+        }
+
+        try {
+            checkNativeAccessEnabled()
+            nativeRuntime.nativeInit()
+            _maxPixels = maxPixels
+            state.set(RuntimeState.INITIALIZED)
+            log.debug("FfmVipsRuntime initialized: maxPixels=$maxPixels")
+        } catch (e: Exception) {
+            state.set(RuntimeState.UNINITIALIZED)
+            throw VipsInitializationException("libvips (vips-ffm) initialization failed", e)
+        }
+    }
+
+    override fun shutdown() {
+        if (state.getAndSet(RuntimeState.SHUTDOWN) == RuntimeState.INITIALIZED) {
+            nativeRuntime.nativeShutdown()
+            log.debug("FfmVipsRuntime shut down")
+        }
+    }
+
+    override val isInitialized: Boolean
+        get() = state.get() == RuntimeState.INITIALIZED
+
+    override val isShutdown: Boolean
+        get() = state.get() == RuntimeState.SHUTDOWN
+
+    @VisibleForTesting
+    internal fun resetForTest() {
+        state.set(RuntimeState.UNINITIALIZED)
+        nativeRuntime = DefaultFfmVipsNativeRuntime
+        _maxPixels = 150_000_000L
+    }
+
+    private fun checkNativeAccessEnabled() {
+        // 런타임에 --enable-native-access 누락 여부를 경고로만 기록합니다.
+        // FFM API는 JDK 버전에 따라 경고만 출력하거나 예외를 던질 수 있습니다.
+        val processHandle = ProcessHandle.current()
+        val cmdLine = processHandle.info().commandLine().orElse("")
+        if (!cmdLine.contains("--enable-native-access") && !cmdLine.contains("ALL-UNNAMED")) {
+            log.warn(
+                "JVM was started without --enable-native-access=ALL-UNNAMED. " +
+                "vips-ffm uses FFM API which may fail without this flag. " +
+                "Add --enable-native-access=ALL-UNNAMED to JVM arguments."
+            )
+        }
+    }
+}

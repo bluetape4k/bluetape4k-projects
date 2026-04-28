@@ -211,6 +211,10 @@ object Versions {
     const val twelvemonkeys_imageio = "3.12.0"  // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff
     const val batik = "1.18"  // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-transcoder
 
+    // libvips JNI bindings
+    const val jvips = "8.10.2-38fe1f6"     // https://mvnrepository.com/artifact/com.criteo/jvips
+    const val vips_ffm = "1.9.6"           // https://mvnrepository.com/artifact/app.photofox.vips-ffm/vips-ffm-core
+
     // Gatling
     const val gatling = "3.15.0" // https://mvnrepository.com/artifact/io.gatling/gatling-core
 
@@ -1535,6 +1539,12 @@ object Libs {
     fun batik(module: String) = "org.apache.xmlgraphics:batik-$module:${Versions.batik}"
     val batik_transcoder = batik("transcoder")
     val batik_codec = batik("codec")
+
+    // libvips JNI/FFM bindings
+    // https://mvnrepository.com/artifact/com.criteo/jvips — JNI, Java 8+, Linux bundled / macOS system libvips
+    val jvips = "com.criteo:jvips:${Versions.jvips}"
+    // https://mvnrepository.com/artifact/app.photofox.vips-ffm/vips-ffm-core — FFM API, JDK 23+, system libvips required
+    val vips_ffm = "app.photofox.vips-ffm:vips-ffm-core:${Versions.vips_ffm}"
 
     // NLP / Language Detection
     const val lingua = "com.github.pemistahl:lingua:${Versions.lingua}"  // https://mvnrepository.com/artifact/com.github.pemistahl/lingua
