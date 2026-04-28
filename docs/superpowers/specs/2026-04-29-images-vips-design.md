@@ -31,7 +31,7 @@ The existing `utils/images` module wraps **scrimage** (Java2D / BufferedImage). 
   - `bluetape4k-images-vips-api` — common interfaces and types (binding-neutral)
   - `bluetape4k-images-vips-java21` — JVips (Java 21+) implementation
   - `bluetape4k-images-vips-java25` — vips-ffm (Java 25, FFM API) implementation
-- Hide underlying binding types (`com.criteo.vips.*`, `app.photofox.vips_ffm.*`) behind bluetape4k API types.
+- Hide underlying binding types (`com.criteo.vips.*`, `app.photofox.vipsffm.*`) behind bluetape4k API types.
 - Implement the AVIF/HEIC interfaces from `utils/images` (deferred to Phase 3).
 - Skip Vips tests cleanly when `libvips` is not installed — never fail with native loader errors.
 
@@ -71,7 +71,7 @@ Both modules expose identical API via `bluetape4k-images-vips-api`. Switching is
 | # | Decision | Choice | Rationale |
 |---|---|---|---|
 | **D1** | Module structure | **3 sibling modules** (api + java21 + java25) | Mirrors `virtualthread/api` + `jdk21` + `jdk25` pattern. `settings.gradle.kts` auto-registers sibling dirs under `utils/` without changes. |
-| **D2** | java21 binding | **JVips** `com.criteo:jvips:8.10.2-38fe1f6` | Java 8+, ships Linux native `.so` bundle (no `apt-get` for pure-JNI use), Criteo production-proven. Module named `java21` for naming parity with `virtualthread/jdk21` pattern, NOT because JVips requires Java 21. |
+| **D2** | java21 binding | **JVips** `com.criteo:jvips:8.10.2-38fe1f6` | Java 8+, ships Linux native `.so` bundle (no `apt-get` for pure-JNI use), Criteo production-proven. Module named `java21` for naming parity with `virtualthread/jdk21` pattern, NOT because JVips requires Java 21. **Version pinned to `8.10.2-38fe1f6`** (latest verified on Maven Central as of 2026-04-29; `8.12.x` builds with hash suffixes exist on GitHub but are not yet published to a public Maven repo — will upgrade when available). |
 | **D3** | java25 binding | **vips-ffm** `app.photofox.vips-ffm:vips-ffm-core:1.9.6` | JDK 23+ required (FFM finalized in Java 22, but vips-ffm 1.9.x targets JDK 23+). Java 25 toolchain per `virtualthread/jdk25` precedent. Requires `--enable-native-access=ALL-UNNAMED` JVM flag. Confirmed on Maven Central. |
 | **D4** | PR scope | **Phase 1 + Phase 2** | Phase 3 (AVIF/HEIC impl, DZI) deferred to follow-up issue. Keeps this PR reviewable. |
 | **D5** | Test isolation | `@Tag("vips-required")` + `excludeTags` | Mirrors `utils/science` `slow-netcdf` pattern. Default build skips; CI opts in via `-PincludeTags=vips-required`. |
@@ -133,7 +133,7 @@ utils/images-vips-java21/
     │   │   ├── JVipsResize.kt    # resize extension on JVipsImage
     │   │   └── JVipsThumbnail.kt # thumbnail (most efficient path)
     │   ├── writer/
-    │   │   ├── JVipsJpegWriter.kt  # implements SuspendImageWriter
+    │   │   ├── JVipsJpegWriter.kt  # Vips-native writer (VipsImage → ByteArray/Path)
     │   │   ├── JVipsPngWriter.kt
     │   │   └── JVipsWebpWriter.kt
     │   └── internal/
@@ -152,14 +152,14 @@ utils/images-vips-java25/
 ├── build.gradle.kts              # toolchain 25, vips-ffm dep
 └── src/
     ├── main/kotlin/io/bluetape4k/images/vips/java25/
-    │   ├── FfmVipsImage.kt       # implements VipsImage via app.photofox.vips_ffm
+    │   ├── FfmVipsImage.kt       # implements VipsImage via app.photofox.vipsffm
     │   ├── FfmVipsRuntime.kt     # implements VipsRuntime
     │   ├── FfmVipsImageSupport.kt
     │   ├── ops/
     │   │   ├── FfmVipsResize.kt
     │   │   └── FfmVipsThumbnail.kt
     │   └── writer/
-    │       ├── FfmVipsJpegWriter.kt
+    │       ├── FfmVipsJpegWriter.kt  # Vips-native writer (VipsImage → ByteArray/Path)
     │       ├── FfmVipsPngWriter.kt
     │       └── FfmVipsWebpWriter.kt
     └── test/kotlin/io/bluetape4k/images/vips/java25/
@@ -168,6 +168,12 @@ utils/images-vips-java25/
         └── ops/
             └── FfmVipsResizeTest.kt
 ```
+
+> **Writer design note**: The `writer/` classes are **Vips-native** — they operate on `VipsImage`, not on `ImmutableImage`/`AwtImage`. They do **not** implement `SuspendImageWriter` from `bluetape4k-images` (that interface is scrimage-coupled). Each writer exposes a single suspend function, e.g.:
+> ```kotlin
+> suspend fun JVipsJpegWriter.write(image: VipsImage, dest: Path, options: VipsEncodeOptions = VipsEncodeOptions.Default)
+> ```
+> Scrimage bridge adapters (wrapping a `VipsImage` behind `SuspendImageWriter`) are out of scope for this PR.
 
 ---
 
@@ -234,22 +240,18 @@ fun vipsImageOf(bytes: ByteArray): VipsImage
 
 fun vipsImageOf(stream: InputStream): VipsImage
 
-// Preferred: same name, suspend modifier
-suspend fun vipsImageOf(file: File): VipsImage =
-    withContext(Dispatchers.IO) { /* blocking load */ }
+// Suspend variants — distinct names required (Kotlin cannot overload on suspend modifier alone)
+suspend fun suspendVipsImageOf(file: File): VipsImage =
+    withContext(Dispatchers.IO) { vipsImageOf(file) }
 
-suspend fun vipsImageOf(path: Path): VipsImage =
-    withContext(Dispatchers.IO) { /* blocking load */ }
+suspend fun suspendVipsImageOf(path: Path): VipsImage =
+    withContext(Dispatchers.IO) { vipsImageOf(path) }
 
-suspend fun vipsImageOf(bytes: ByteArray): VipsImage =
-    withContext(Dispatchers.IO) { /* blocking load */ }
-
-// Deprecated aliases (Phase 2 only, removed in Phase 3)
-@Deprecated("Use suspend fun vipsImageOf()", ReplaceWith("vipsImageOf(file)"))
-suspend fun suspendVipsImageOf(file: File): VipsImage = vipsImageOf(file)
+suspend fun suspendVipsImageOf(bytes: ByteArray): VipsImage =
+    withContext(Dispatchers.IO) { vipsImageOf(bytes) }
 ```
 
-> **Naming decision**: All suspend factory variants use `suspend fun vipsImageOf(...)` overload naming — same name as the blocking variant but `suspend` modifier makes the distinction at the call site. The `suspendVipsImageOf` form is DEPRECATED in favor of `suspend fun vipsImageOf`. Implementations must provide both during Phase 2, with `suspendVipsImageOf` calling through.
+> **Naming decision**: Kotlin cannot overload on the `suspend` modifier alone. Suspend factory variants therefore use distinct names: `suspendVipsImageOf(...)`. Both blocking and suspend variants are first-class API; neither is deprecated.
 
 ### 4.4 VipsEncodeOptions
 
@@ -325,14 +327,16 @@ suspend fun VipsImage.suspendWriteTo(
 - Callers MUST use `use { }` blocks. Relying on Cleaner for normal cleanup is prohibited.
 
 ### Coroutine Cancellation Safety
-- Suspend factories (`suspendVipsImageOf`) MUST guarantee handle release on `CancellationException`:
+- Deterministic cleanup on `CancellationException` is NOT guaranteed. Relying on Cleaner is the
+  safety net, not a contract. The only guaranteed cleanup path is `use { }`.
+- Callers in coroutine contexts MUST use `use {}`:
   ```kotlin
-  suspend fun suspendVipsImageOf(file: File): VipsImage {
-      val img = withContext(Dispatchers.IO) { vipsImageOf(file) }
-      // handle: if coroutine is cancelled after allocation, Cleaner will reclaim
-      return img
+  suspendVipsImageOf(file).use { img ->
+      img.resize(800, 600).suspendToBytes(VipsImageFormat.WEBP)
   }
   ```
+- If the coroutine is cancelled after `suspendVipsImageOf` returns but before `close()` is called,
+  the `Cleaner` will eventually reclaim the native handle (non-deterministic, logged as warning).
 - Long-running operations (`resize`, `toBytes`) inside `use {}` are safe because `close()` runs
   in the `finally` block regardless of cancellation.
 
@@ -372,7 +376,7 @@ class VipsInitializationException(message: String, cause: Throwable? = null) : V
 
 Implementations:
 - JVips: catch `com.criteo.vips.VipsException` → wrap as `VipsDecodeException` / `VipsEncodeException`
-- vips-ffm: catch `app.photofox.vips_ffm.*` errors → wrap as appropriate
+- vips-ffm: catch `app.photofox.vipsffm.*` errors → wrap as appropriate
 - All factory functions declare `@throws VipsDecodeException` in KDoc.
 - All encode operations declare `@throws VipsEncodeException` in KDoc.
 
@@ -416,13 +420,12 @@ configurations {
 }
 
 dependencies {
-    // bluetape4k-images is compileOnly here — Phase 1+2 api module has no runtime need for scrimage.
-    // Phase 3 (AVIF/HEIC impl) will promote this to api() when AvifWriter/HeicReader are implemented.
-    compileOnly(project(":bluetape4k-images"))
+    // api() required: @IncubatingImageApi and SuspendImageWriter are public types from bluetape4k-images
+    // that this module's API surface exposes. Consumers need them transitively.
+    api(project(":bluetape4k-images"))
     api(project(":bluetape4k-coroutines"))
     implementation(project(":bluetape4k-logging"))
     testImplementation(project(":bluetape4k-junit5"))
-    testImplementation(project(":bluetape4k-images"))
 
     implementation(Libs.kotlinx_coroutines_core)
     testImplementation(Libs.kotlinx_coroutines_test)
@@ -627,7 +630,7 @@ test-images-vips:
     - name: Install libvips
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -y libvips libvips-tools  # unversioned — works across Ubuntu releases
+        sudo apt-get install -y libvips-tools  # libvips-tools depends on runtime; Ubuntu 24.04 ships libvips42t64
     - name: Test images-vips-java21
       run: ./gradlew :bluetape4k-images-vips-java21:test -PincludeTags=vips-required --no-daemon
     - name: Test images-vips-java25
