@@ -11,12 +11,20 @@ import java.nio.charset.Charset
  * Feign 기본 요청 옵션입니다.
  *
  * ## 동작/계약
- * - [Options] 기본 생성자로 만든 singleton 인스턴스입니다.
+ * - [Options] 기본 생성자로 만든 공유 singleton 인스턴스입니다.
  * - connect/read timeout 등은 Feign 기본값을 따릅니다.
  *
+ * ## 주의사항 (스레드 안전성)
+ * - 이 인스턴스는 **읽기 전용으로만 사용**해야 합니다. 직접 변경하면 race condition이 발생할 수 있습니다.
+ * - timeout, redirect 정책 등을 변경해야 하는 경우 [requestOptions] 팩토리를 사용해 매 호출마다
+ *   새 [Options] 인스턴스를 생성하십시오.
+ *
  * ```kotlin
+ * // 기본값 그대로 읽기 전용 사용 — safe
  * val options = defaultRequestOptions
- * // options != null
+ *
+ * // 커스텀 옵션이 필요한 경우 — requestOptions 팩토리 사용
+ * val options = requestOptions { readTimeout(1000); connectTimeout(1000) }
  * ```
  */
 @JvmField
