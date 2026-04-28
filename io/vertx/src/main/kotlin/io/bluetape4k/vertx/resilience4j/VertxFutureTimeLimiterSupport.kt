@@ -3,7 +3,6 @@ package io.bluetape4k.vertx.resilience4j
 import io.github.resilience4j.timelimiter.TimeLimiter
 import io.vertx.core.Future
 import io.vertx.core.Promise
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 /**
@@ -20,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService
  * @return [Future] 객체
  */
 inline fun <T, F: Future<T>> TimeLimiter.executeVertxFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService = defaultTimeLimiterScheduler,
     crossinline supplier: () -> F,
 ): Future<T> = decorateVertxFuture(scheduler, supplier).invoke()
 
@@ -39,7 +38,7 @@ inline fun <T, F: Future<T>> TimeLimiter.executeVertxFuture(
  * @return [supplier] 를 [TimeLimiter]로 decorate 한 함수
  */
 inline fun <T, F: Future<T>> TimeLimiter.decorateVertxFuture(
-    scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(),
+    scheduler: ScheduledExecutorService = defaultTimeLimiterScheduler,
     crossinline supplier: () -> F,
 ): () -> Future<T> =
     {

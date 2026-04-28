@@ -15,7 +15,7 @@ import io.vertx.core.Promise
 inline fun <T> Future<T>.recover(
     crossinline exceptionHandler: (Throwable?) -> T,
 ): Future<T> {
-    return this.andThen { exceptionHandler(it.cause()) }
+    return this.otherwise { cause -> exceptionHandler(cause) }
 }
 
 /**

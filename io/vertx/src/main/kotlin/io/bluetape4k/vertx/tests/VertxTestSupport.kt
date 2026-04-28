@@ -3,6 +3,7 @@ package io.bluetape4k.vertx.tests
 import io.bluetape4k.vertx.withVertxDispatcher
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -60,6 +61,8 @@ suspend inline fun <T: Any> Vertx.withSuspendTestContext(
         val result = block()
         testContext.completeNow()
         result
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Throwable) {
         testContext.failNow(e)
         null
