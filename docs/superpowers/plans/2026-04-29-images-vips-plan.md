@@ -183,8 +183,8 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
 - **complexity**: high
 - **deps**: T1.5, T0.3
 - **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/JVipsRuntime.kt`
-- **details**: Object implementing `VipsRuntime`. Use `AtomicBoolean` for `isInitialized` (not method-local atomicfu — class property only per project rule). Wrap `Vips.init(...)` from `com.criteo.vips`; on failure throw `VipsInitializationException`. Configure `concurrency` and `maxPixels` via JVips API. `shutdown()` calls `Vips.shutdown()` and resets the flag. **Init failure semantics**: if `init()` throws, `isInitialized` must remain `false` so subsequent calls can retry (do NOT set the flag before the native call succeeds).
-- **DoD**: Idempotent init; init under contention does not call `Vips.init()` twice; throws translated exception on failure; `isInitialized` stays `false` on failure so retry is possible.
+- **details**: Object implementing `VipsRuntime`. Use `AtomicBoolean` for `isInitialized` (not method-local atomicfu — class property only per project rule). Wrap `Vips.init(...)` from `com.criteo.vips`; on failure throw `VipsInitializationException`. Configure `concurrency` and `maxPixels` via JVips API. `shutdown()` calls `Vips.shutdown()`. **CRITICAL — shutdown is terminal**: per libvips docs (`vips_shutdown` page), `VIPS_INIT()` MUST NOT be called after `vips_shutdown()`. Therefore `shutdown()` sets `isInitialized = false` but also sets a separate `isShutdown: AtomicBoolean = true`; any subsequent `init()` call after shutdown throws `VipsInitializationException("libvips has been shut down — restart the process")`. **Init failure semantics** (before shutdown): if `init()` throws before native call completes, `isInitialized` remains `false` (retry allowed). Once shutdown, retry is permanently forbidden.
+- **DoD**: Idempotent init; init under contention does not call `Vips.init()` twice; `init()` after `shutdown()` throws `VipsInitializationException`; `isInitialized` stays `false` on init failure (pre-shutdown only).
 
 ### T2.3 — JVipsImage implementation
 - **complexity**: high
@@ -197,22 +197,17 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `com.criteo:jvips`, hide a
 - **complexity**: high
 - **deps**: T2.3
 - **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/JVipsImageSupport.kt`
-- **details**: Top-level `vipsImageOf(File|Path|ByteArray|InputStream): VipsImage` and `suspendVipsImageOf(File|Path|ByteArray): VipsImage` per spec §4.3. Each enforces `maxPixels` cap before native decode (read header first via JVips). InputStream variant wraps with `BoundedInputStream(50MB)` per spec §8.5. Catch JVips exceptions → `VipsDecodeException`. Korean KDoc with security note on path traversal. **Exception safety**: use `try/finally` or `runCatching` to ensure stream and any partial native handle are released on decode failure.
-- **DoD**: All four blocking + three suspend factories compile; security caps enforced; KDoc warns about path traversal; InputStream exception path cleans up resources.
+- **details**: Top-level `vipsImageOf(File|Path|ByteArray|InputStream): VipsImage` and `suspendVipsImageOf(File|Path|ByteArray): VipsImage` per spec §4.3. Each enforces `maxPixels` cap: use JVips header-read API to get image dimensions before **full pixel evaluation/render** — note this still invokes the native parser for metadata, which is acceptable; the guard prevents memory exhaustion from full pixel decoding. InputStream variant wraps with `BoundedInputStream(50MB)` per spec §8.5. Catch JVips exceptions → `VipsDecodeException`. Korean KDoc with security note on path traversal. **Exception safety**: use `try/finally` or `runCatching` to ensure stream and any partial native handle are released on decode failure.
+- **DoD**: All four blocking + three suspend factories compile; `maxPixels` check throws before full pixel decode; KDoc warns about path traversal; InputStream exception path cleans up resources.
 
-### T2.5 — JVipsResize op
+### T2.5 — JVipsResize / JVipsThumbnail internal helpers
 - **complexity**: medium
 - **deps**: T2.3
-- **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/ops/JVipsResize.kt`
-- **details**: Extension implementation. Single-arg `Pair<Int,Int>` or two-int form. Implements via JVips `resize()` operator. Returns new `JVipsImage`.
-- **DoD**: Output dimensions match requested values exactly (asserted in T4.4).
-
-### T2.6 — JVipsThumbnail op
-- **complexity**: medium
-- **deps**: T2.3
-- **files**: `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/ops/JVipsThumbnail.kt`
-- **details**: Use JVips `thumbnail` (most efficient — demand-driven decode). `maxDimension` → preserve aspect ratio, longest side ≤ N.
-- **DoD**: Longest side ≤ maxDimension; aspect ratio preserved.
+- **files**:
+  - `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/ops/JVipsResize.kt`
+  - `utils/images-vips-java21/src/main/kotlin/io/bluetape4k/images/vips/java21/ops/JVipsThumbnail.kt`
+- **details**: ⚠️ **Kotlin extensions cannot satisfy interface methods.** `resize()` and `thumbnail()` on `VipsImage` are interface methods, so they MUST be implemented directly in `JVipsImage` (T2.3). These `ops/` files contain **internal helper functions** (not extensions, not interface impls) — e.g., `internal fun resizeWithJVips(image: JVipsHandle, width: Int, height: Int): JVipsHandle` — called by `JVipsImage.resize()`/`thumbnail()`. Separating the JVips API call logic improves testability without violating Kotlin's dispatch model.
+- **DoD**: `JVipsImage.resize()` and `thumbnail()` delegate to helpers in ops files; ops files have no `implements VipsImage` annotation; unit-testable independently.
 
 ### T2.7 — JVipsJpegWriter
 - **complexity**: medium
@@ -247,36 +242,31 @@ Goal: Implement `VipsImage` and `VipsRuntime` against `app.photofox.vips-ffm`. S
 - **complexity**: high
 - **deps**: T1.5, T0.4
 - **files**: `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/FfmVipsRuntime.kt`
-- **details**: Object implementing `VipsRuntime` via vips-ffm `VVips`/`Arena` lifecycle. `AtomicBoolean isInitialized`. Configure concurrency/maxPixels via vips-ffm config API. JVM args check (warn if `--enable-native-access=ALL-UNNAMED` missing). Wrap init failures → `VipsInitializationException`. **Init failure semantics**: set `isInitialized = false` on failure (same contract as T2.2 — retry must be possible after transient failure).
-- **DoD**: Idempotent init; thread-safe; `isInitialized` stays `false` on failure; throws translated exception on failure.
+- **details**: Object implementing `VipsRuntime` via vips-ffm API. ⚠️ **API spike required before implementing**: current vips-ffm docs (https://vipsffm.photofox.app/) show libvips is **auto-initialized** by `VImage`, `VipsHelper`, or `VipsInvoker` — no manual `Vips.init()` call is documented. `VVips` may not exist in public API; `VImage` is the primary class. Executor must read vips-ffm 1.9.6 sources/docs before writing code and adjust `init()/shutdown()` to wrap whatever lifecycle the library actually exposes. **CRITICAL — shutdown is terminal**: same as T2.2 — libvips `vips_shutdown` cannot be followed by re-init; add `isShutdown: AtomicBoolean` guard, `init()` after shutdown throws `VipsInitializationException`. Init failure (pre-shutdown) keeps `isInitialized = false` for retry. JVM args check: warn if `--enable-native-access=ALL-UNNAMED` missing.
+- **DoD**: Idempotent init; shutdown is terminal (`init()` after shutdown throws); JVM args warning in place; thread-safe.
 
 ### T3.2 — FfmVipsImage implementation
 - **complexity**: high
 - **deps**: T1.4, T0.4
 - **files**: `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/FfmVipsImage.kt`
-- **details**: `internal class FfmVipsImage` wrapping vips-ffm `VImage` and an `Arena`. Register `Cleaner` for `Arena.close()` safety net. `width/height/bands` immutable. `resize(width, height)`, `thumbnail(maxDimension)`, and `crop(left, top, width, height)` produce new instances — **`crop` is implemented directly in this file** (no separate `FfmVipsCrop.kt`). Operations return new instances. Wrap `app.photofox.vipsffm.*` exceptions → `VipsDecodeException`/`VipsEncodeException`.
-- **DoD**: All `VipsImage` methods implemented including `crop`; `Arena` closed on `close()`; binding types `internal`.
+- **details**: `internal class FfmVipsImage` wrapping vips-ffm `VImage` (confirmed public class per docs) and a memory `Arena`. ⚠️ **Implement only after T3.1 API spike** — confirm whether `Arena` is needed per-image or globally, and whether libvips auto-init means no explicit Runtime call is required before constructing `VImage`. Register `Cleaner` for `Arena.close()` safety net. `width/height/bands` immutable. `resize(width, height)`, `thumbnail(maxDimension)`, and `crop(left, top, width, height)` produce new instances — `crop` is implemented **directly in this class** (no separate file); `resize`/`thumbnail` delegate to T3.4 internal helpers. Wrap `app.photofox.vipsffm.*` exceptions → `VipsDecodeException`/`VipsEncodeException`.
+- **DoD**: All `VipsImage` methods implemented including `crop`; `Arena` (or equivalent) closed on `close()`; binding types `internal`; no `VVips` reference (use confirmed vips-ffm API).
 
 ### T3.3 — FfmVipsImageSupport factory functions
 - **complexity**: high
 - **deps**: T3.2
 - **files**: `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/FfmVipsImageSupport.kt`
-- **details**: Same factory signatures as T2.4 (`vipsImageOf`/`suspendVipsImageOf`). Enforce `maxPixels` and `BoundedInputStream(50MB)`. Catch FFM exceptions → `VipsDecodeException`. **Exception safety**: use `try/finally` to ensure `Arena` and stream are closed on decode failure.
-- **DoD**: All blocking + suspend factories compile; security caps enforced; InputStream exception path cleans up Arena + stream.
+- **details**: Same factory signatures as T2.4. Enforce `maxPixels` cap before **full pixel evaluation/render** (header-only read via vips-ffm — confirm API from T3.1 spike). `BoundedInputStream(50MB)`. Catch FFM exceptions → `VipsDecodeException`. **Exception safety**: use `try/finally` to ensure `Arena` and stream are closed on decode failure.
+- **DoD**: All blocking + suspend factories compile; `maxPixels` check throws before full pixel decode; InputStream exception path cleans up Arena + stream.
 
-### T3.4 — FfmVipsResize op
+### T3.4 — FfmVipsResize / FfmVipsThumbnail internal helpers
 - **complexity**: medium
 - **deps**: T3.2
-- **files**: `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/ops/FfmVipsResize.kt`
-- **details**: Mirror T2.5 against vips-ffm.
-- **DoD**: Output dimensions match requested values exactly.
-
-### T3.5 — FfmVipsThumbnail op
-- **complexity**: medium
-- **deps**: T3.2
-- **files**: `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/ops/FfmVipsThumbnail.kt`
-- **details**: Mirror T2.6.
-- **DoD**: Longest side ≤ maxDimension.
+- **files**:
+  - `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/ops/FfmVipsResize.kt`
+  - `utils/images-vips-java25/src/main/kotlin/io/bluetape4k/images/vips/java25/ops/FfmVipsThumbnail.kt`
+- **details**: Mirror T2.5 pattern — **internal helpers only**, not extension impls of interface methods. `resize()` and `thumbnail()` are implemented in `FfmVipsImage` (T3.2); these files hold the vips-ffm API call logic as `internal fun` helpers. ⚠️ Confirm actual vips-ffm API for resize/thumbnail from spike in T3.1 before implementing.
+- **DoD**: `FfmVipsImage.resize()` and `thumbnail()` delegate to helpers; output dimensions correct.
 
 ### T3.6 — FfmVipsJpegWriter
 - **complexity**: medium
@@ -316,13 +306,15 @@ Goal: Cover spec §6.2 assertions for both implementations + the `use {}` leak g
 
 ### T4.2 — Test fixtures and AbstractVipsTest harness (api module)
 - **complexity**: medium
-- **deps**: T0.2
+- **deps**: T0.2, T0.3, T0.4
 - **files**:
   - `utils/images-vips-api/src/testFixtures/kotlin/io/bluetape4k/images/vips/testfixtures/VipsTestFixtures.kt`
   - `utils/images-vips-api/src/testFixtures/resources/fixtures/{sample.jpg,sample.png,sample.webp}`
   - Update `utils/images-vips-api/build.gradle.kts` to enable `java-test-fixtures` plugin.
-- **details**: Resolves Open Question #4 — shared fixtures via `testFixtures`. Provides `loadFixture(name): ByteArray` and known dimensions for assertions. Sample images small (~50–200 KB) and license-clean (generate with ImageMagick or check in pre-existing public-domain images). **Publishing safety**: after adding `java-test-fixtures` plugin, verify no test-fixtures jar is accidentally published — check the publishing config in the module and add `disableTestFixturesPublication()` if needed; run `./gradlew :bluetape4k-images-vips-api:publishToMavenLocal --dry-run` to confirm.
-- **DoD**: `testFixtures(project(":bluetape4k-images-vips-api"))` resolvable from java21/java25 modules; fixtures load successfully; test-fixtures jar NOT in published artifact list.
+  - Update `utils/images-vips-java21/build.gradle.kts`: add `testImplementation(testFixtures(project(":bluetape4k-images-vips-api")))`.
+  - Update `utils/images-vips-java25/build.gradle.kts`: add `testImplementation(testFixtures(project(":bluetape4k-images-vips-api")))`.
+- **details**: Resolves Open Question #4 — shared fixtures via `testFixtures`. Provides `loadFixture(name): ByteArray` and known dimensions for assertions. Sample images small (~50–200 KB) and license-clean. ⚠️ **Both impl modules must add the `testFixtures` dep** or T4.4/T4.8 will fail to compile. **Publishing safety**: add `disableTestFixturesPublication()` if needed; verify with `./gradlew :bluetape4k-images-vips-api:publishToMavenLocal --dry-run`.
+- **DoD**: `testFixtures(project(":bluetape4k-images-vips-api"))` declared in java21 AND java25 build files; fixtures compile in T4.4/T4.8; test-fixtures jar NOT in published artifact list.
 
 ### T4.3 — AbstractJVipsTest base class (java21)
 - **complexity**: medium
@@ -502,7 +494,7 @@ Per spec §9, the following are NOT in this PR:
 - [ ] All 38 tasks complete with their per-task DoD checked.
 - [ ] `./gradlew :bluetape4k-images-vips-{api,java21,java25}:build` — green.
 - [ ] Default `:test` skips vips tests cleanly (no native loader errors).
-- [ ] `-PincludeTags=vips-required` passes all 8 assertions per impl in CI.
+- [ ] `-PincludeTags=vips-required` passes all 10 assertions per impl in CI (spec §6.2 base 8 + crop + writeTo(OutputStream) added in plan).
 - [ ] `ci.yml` + `nightly-tests.yml` both updated with `test-images-vips` job.
 - [ ] All 6 README files (3 modules × 2 languages) complete with Mermaid diagrams.
 - [ ] Korean KDoc on every public symbol.
