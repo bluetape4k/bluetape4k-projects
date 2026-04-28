@@ -132,8 +132,10 @@ class OutputCapturer {
         }
 
         override fun close() {
-            runCatching { origin.close() }
-            runCatching { copy.close() }
+            // origin(System.out/err)은 절대 닫지 않습니다.
+            // origin을 닫으면 fd 1(stdout)이 영구히 닫혀 JVM 전체에서 출력이 불가능해집니다.
+            // in-memory 버퍼(copy)만 flush합니다.
+            runCatching { copy.flush() }
         }
     }
 }

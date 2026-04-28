@@ -58,6 +58,9 @@ class FieldArgumentsProvider: ArgumentsProvider, AnnotationConsumer<FieldSource>
     }
 
     private fun getFieldValue(field: Field, context: ExtensionContext): Any {
+        // JDK 모듈 시스템(JPMS) 환경에서 비공개 필드 접근 시 InaccessibleObjectException이 발생할 수 있습니다.
+        // 테스트 클래스는 unnamed module에 속하므로 JDK 17+/21+에서는 일반적으로 동작하지만,
+        // 향후 강화된 캡슐화 정책 적용 시 --add-opens 옵션이 필요할 수 있습니다.
         field.isAccessible = true
         val receiver = when {
             Modifier.isStatic(field.modifiers) -> null
