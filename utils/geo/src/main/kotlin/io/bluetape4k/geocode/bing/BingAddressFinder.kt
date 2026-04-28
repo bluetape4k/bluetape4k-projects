@@ -5,6 +5,7 @@ import io.bluetape4k.geocode.GeocodeAddressFinder
 import io.bluetape4k.geocode.bing.BingMapModel.toBingAddress
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 
 /**
  * Bing Maps API를 통해 위경도로 주소 정보를 찾습니다.
@@ -53,6 +54,8 @@ class BingAddressFinder: GeocodeAddressFinder {
             )
             log.debug { "location=$location" }
             location.toBingAddress()
+        }.onFailure { e ->
+            log.warn(e) { "Bing reverse geocode failed for $geocode" }
         }.getOrNull()
     }
 
