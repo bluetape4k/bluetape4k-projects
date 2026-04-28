@@ -63,8 +63,8 @@ class CollectionSupportTest {
         list.swap(1, 1)
         list shouldContainSame listOf(3, 2, 1)
 
-        assertThrows<AssertionError> { list.swap(-1, 1) }
-        assertThrows<AssertionError> { list.swap(0, 3) }
+        assertThrows<IllegalArgumentException> { list.swap(-1, 1) }
+        assertThrows<IllegalArgumentException> { list.swap(0, 3) }
     }
 
     @Test

@@ -205,7 +205,11 @@ object Networkx: KLogging() {
     fun ipToIpBlock(ip: String, prefixLen: Int?): Pair<Int, Int> {
         val arr: List<String> = ip.split('.')
 
-        val pLen = if (arr.size != 4 && prefixLen == null) arr.size * 8 else prefixLen!!
+        val pLen = when {
+            prefixLen != null -> prefixLen
+            arr.size == 4    -> 32
+            else             -> arr.size * 8
+        }
         pLen.requireInRange(0, 32, "prefixLen")
 
         val netIp = ipToInt(arr.padTo(4, "0").joinToString(separator = "."))

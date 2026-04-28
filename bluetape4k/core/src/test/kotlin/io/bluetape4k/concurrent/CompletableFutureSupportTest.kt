@@ -157,4 +157,46 @@ class CompletableFutureSupportTest {
         futureOf { completableFutureOf(42) }.dereference().get() shouldBeEqualTo 42
         futureOf { failedCompletableFutureOf<Int>(RuntimeException("boom")) }.dereference().shouldCauseBe<RuntimeException>()
     }
+
+    @Test
+    fun `join with defaultValue returns result when completed in time`() {
+        // H2 수정 검증: timeout 내 완료 시 정상 결과 반환
+        val future = futureOf { Thread.sleep(50); 42 }
+        future.join(500.milliseconds, 0) shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `join with defaultValue returns default on timeout`() {
+        // H2 수정 검증: timeout 시 defaultValue 반환
+        val future = futureOf { Thread.sleep(2000); 42 }
+        future.join(100.milliseconds, -1) shouldBeEqualTo -1
+    }
+
+    @Test
+    fun `join with defaultValue propagates non-timeout exceptions`() {
+        // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
+        val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
+        assertFails { future.join(500.milliseconds, 0) }
+    }
+
+    @Test
+    fun `joinOrNull returns result when completed in time`() {
+        // H2 수정 검증: timeout 내 완료 시 정상 결과 반환
+        val future = futureOf { Thread.sleep(50); 42 }
+        future.joinOrNull(500.milliseconds) shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `joinOrNull returns null on timeout`() {
+        // H2 수정 검증: timeout 시 null 반환
+        val future = futureOf { Thread.sleep(2000); 42 }
+        future.joinOrNull(100.milliseconds) shouldBeEqualTo null
+    }
+
+    @Test
+    fun `joinOrNull propagates non-timeout exceptions`() {
+        // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
+        val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
+        assertFails { future.joinOrNull(500.milliseconds) }
+    }
 }

@@ -97,4 +97,19 @@ class NetworkxTest {
             Networkx.ipToIpBlock("10.0.0.0", 33)
         }
     }
+
+    @Test
+    fun `ipToIpBlock은 4-octet IP에서 prefixLen null이면 32를 기본값으로 사용한다`() {
+        // C1 수정 검증: arr.size==4 && prefixLen==null 이면 NPE 대신 32를 기본값으로 사용
+        val (netIp, mask) = Networkx.ipToIpBlock("192.168.0.1", null)
+        netIp shouldBeEqualTo Networkx.ipToInt("192.168.0.1")
+        mask shouldBeEqualTo -1  // /32 mask = 0xFFFFFFFF = -1 (Int)
+    }
+
+    @Test
+    fun `ipToIpBlock은 부분 IP에서 prefixLen null이면 octet수 기반 prefix를 사용한다`() {
+        // 2-octet IP: arr.size==2, prefixLen==null → pLen = 16
+        val (_, mask) = Networkx.ipToIpBlock("10.0", null)
+        mask shouldBeEqualTo (-1 shl 16)  // /16 mask
+    }
 }

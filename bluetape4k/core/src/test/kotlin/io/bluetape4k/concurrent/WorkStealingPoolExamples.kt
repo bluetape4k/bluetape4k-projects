@@ -14,7 +14,7 @@ class WorkStealingPoolExamples {
 
     @Test
     fun `invlid parallelism value`() {
-        assertFailsWith<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             withWorkStealingPool(0) { 42L }.join()
         }
     }

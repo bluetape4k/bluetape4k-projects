@@ -8,6 +8,7 @@ import io.bluetape4k.support.asInt
 import io.bluetape4k.support.asLong
 import io.bluetape4k.support.asString
 import io.bluetape4k.support.requireLe
+import kotlinx.coroutines.CancellationException
 
 
 /**
@@ -298,7 +299,7 @@ inline fun <reified T: Any> Sequence<*>.asArray(): Array<T?> = mapTo(ArrayList()
  * @return 변환된 결과를 담은 `Sequence<R>` 객체
  */
 inline fun <T, R: Any> Sequence<T>.mapIfSuccess(crossinline mapper: (T) -> R): Sequence<R> =
-    mapNotNull { runCatching { mapper(it) }.getOrNull() }
+    mapNotNull { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e }.getOrNull() }
 
 /**
  * [action] 실행을 [runCatching]으로 감싸서 수행합니다. 예외가 발생해도 다음 요소를 계속 수행합니다.
@@ -309,7 +310,7 @@ inline fun <T, R: Any> Sequence<T>.mapIfSuccess(crossinline mapper: (T) -> R): S
  * ```
  */
 inline fun <T> Sequence<T>.tryForEach(action: (T) -> Unit) {
-    forEach { runCatching { action(it) } }
+    forEach { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 /**
@@ -327,7 +328,7 @@ inline fun <T> Sequence<T>.tryForEach(action: (T) -> Unit) {
  * @see forEachCatching
  */
 inline fun <T, R> Sequence<T>.mapCatching(crossinline mapper: (T) -> R): Sequence<Result<R>> =
-    map { runCatching { mapper(it) } }
+    map { runCatching { mapper(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 
 /**
  * [action] 실행을 [runCatching]으로 감싸서 수행합니다. 예외가 발생해도 다음 요소를 계속 수행합니다.
@@ -343,7 +344,7 @@ inline fun <T, R> Sequence<T>.mapCatching(crossinline mapper: (T) -> R): Sequenc
  * @see mapCatching
  */
 inline fun <T> Sequence<T>.forEachCatching(crossinline action: (T) -> Unit): Sequence<Result<Unit>> {
-    return map { runCatching { action(it) } }
+    return map { runCatching { action(it) }.onFailure { e -> if (e is CancellationException) throw e } }
 }
 
 
