@@ -117,7 +117,7 @@ class PostsContractTest: AbstractJsonplaceholderContractTest() {
     @Test
     @Order(7)
     fun `POST admin reset restores fixtures and posts are non-empty`() {
-        mockMvc.perform(post("/admin/reset"))
+        mockMvc.perform(post("/admin/reset").header("X-Admin-Token", "dev-only-token"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value("ok"))
             .andDo { log.info { "POST /admin/reset → 200" } }

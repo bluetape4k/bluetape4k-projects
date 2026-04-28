@@ -18,9 +18,10 @@ class AdminResetContractTest: AbstractMockWebfluxServerTest() {
             .exchange()
             .expectStatus().is2xxSuccessful
 
-        // 관리자 리셋 호출
+        // 관리자 리셋 호출 (X-Admin-Token 헤더 필수)
         client.post().uri("/admin/reset")
             .contentType(MediaType.APPLICATION_JSON)
+            .header("X-Admin-Token", "dev-only-token")
             .exchange()
             .expectStatus().isOk
 
