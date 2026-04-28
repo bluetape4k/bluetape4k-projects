@@ -275,6 +275,50 @@ FastFory 성능에 압축을 결합하여 휘발성 캐시에서 최대 저장 �
 
 Virtual Threads를 활용한 경량 스레드 기반 비동기 처리를 지원합니다.
 
+### 6. 보안 기능
+
+#### JDK 직렬화 필터 (JEP 290)
+
+`JdkBinarySerializer`는 이제 기본적으로 `JDK_DEFAULT_OBJECT_INPUT_FILTER`를 적용합니다.
+다음 패키지만 역직렬화를 허용하며, 그 외는 모두 차단합니다:
+
+- `io.bluetape4k.**`
+- `java.lang.*`, `java.util.**`, `java.io.*`, `java.math.**`, `java.time.**`, `java.net.*`, `java.sql.*`
+- `kotlin.**`
+
+> **브레이킹 변경**: `BinarySerializers.Default`가 `Kryo`로 변경되었습니다 (이전: `Jdk`).
+> `BinarySerializers.Jdk`는 보안 경고와 함께 `@Deprecated` 처리되었습니다. `Kryo` 또는 `Fory`를 사용하세요.
+
+허용 목록을 확장하거나 좁히려면 커스텀 필터를 제공하세요:
+
+```kotlin
+val customFilter = ObjectInputFilter.Config.createFilter("com.mycompany.**;io.bluetape4k.**;kotlin.**;!*")
+val serializer = JdkBinarySerializer(objectInputFilter = customFilter)
+```
+
+#### ZIP Bomb 방어
+
+`unzip()`은 이제 두 가지 하드 한도를 적용합니다:
+
+| 상수 | 값 | 설명 |
+|---|---|---|
+| `ZIP_MAX_ENTRIES` | 10,000 | 최대 ZIP 엔트리 수 |
+| `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB | 최대 비압축 총 바이트 |
+
+어느 한도라도 초과하면 `IllegalArgumentException`이 발생합니다.
+
+#### Nullable 압축기 API
+
+`AbstractCompressor`는 실패 시 예외나 `emptyByteArray` 대신 `null`을 반환하는 안전한 nullable 변형을 제공합니다:
+
+```kotlin
+val compressed = compressor.compressOrNull(input)      // null 입력/empty 시 null 반환
+val restored = compressor.decompressOrNull(compressed) // 손상/null/empty 시 null 반환
+```
+
+이를 통해 "손상된 입력"(`null` 반환)과 "빈 입력"(`compress()`가 `emptyByteArray` 반환)을
+호출자가 구별할 수 있습니다.
+
 ## 사용 예제
 
 ### 압축

@@ -1,7 +1,6 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.io.compressor.Compressors
-import io.bluetape4k.io.serializer.BinarySerializers.Jdk
 
 /**
  * 다양한 [BinarySerializer]를 제공합니다.
@@ -15,12 +14,7 @@ import io.bluetape4k.io.serializer.BinarySerializers.Jdk
  *
  * val user = User(1L, "debop")
  *
- * // JDK 기본 직렬화
- * val jdkBytes = BinarySerializers.Jdk.serialize(user)
- * val jdkRestored = BinarySerializers.Jdk.deserialize<User>(jdkBytes)
- * // jdkRestored == user
- *
- * // Kryo 직렬화 (빠름, 권장)
+ * // Kryo 직렬화 (권장)
  * val kryoBytes = BinarySerializers.Kryo.serialize(user)
  * val kryoRestored = BinarySerializers.Kryo.deserialize<User>(kryoBytes)
  * // kryoRestored == user
@@ -39,7 +33,10 @@ import io.bluetape4k.io.serializer.BinarySerializers.Jdk
 object BinarySerializers {
 
     /**
-     * 기본 [BinarySerializer]. 현재 [Jdk]를 사용합니다.
+     * 기본 [BinarySerializer]. [Kryo]를 사용합니다.
+     *
+     * > **보안 변경**: 이전 버전에서는 [Jdk]를 기본값으로 사용했으나, JDK 역직렬화 RCE 위험으로 인해
+     * > [Kryo]로 변경되었습니다. JDK 직렬화가 필요한 경우 [Jdk]를 직접 사용하세요.
      *
      * 예제:
      * ```kotlin
@@ -47,12 +44,16 @@ object BinarySerializers {
      * val restored = BinarySerializers.Default.deserialize<MyClass>(bytes)
      * ```
      */
-    val Default: BinarySerializer by lazy { Jdk }
+    val Default: BinarySerializer by lazy { Kryo }
 
     /**
      * JDK 표준 직렬화를 사용하는 [BinarySerializer].
      *
      * [java.io.Serializable]을 구현한 모든 객체를 직렬화할 수 있습니다.
+     *
+     * > **보안 경고**: JDK 역직렬화는 gadget chain을 이용한 RCE 취약점이 있습니다.
+     * > 신뢰할 수 없는 데이터 소스에서 사용 금지. [Kryo] 또는 [Fory] 사용을 권장합니다.
+     * > 부득이하게 사용해야 한다면 [JdkBinarySerializer]에 [java.io.ObjectInputFilter]를 설정하세요.
      *
      * 예제:
      * ```kotlin
@@ -64,6 +65,10 @@ object BinarySerializers {
      * // restored == item
      * ```
      */
+    @Deprecated(
+        message = "JDK 역직렬화는 RCE 취약점이 있습니다. BinarySerializers.Kryo 또는 BinarySerializers.Fory 사용을 권장합니다.",
+        ReplaceWith("BinarySerializers.Kryo")
+    )
     val Jdk: JdkBinarySerializer by lazy { JdkBinarySerializer() }
 
     /**
@@ -110,6 +115,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.BZip2Jdk.deserialize<MyClass>(bytes)
      * ```
      */
+    @Suppress("DEPRECATION")
     val BZip2Jdk: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(Jdk, Compressors.BZip2)
     }
@@ -123,6 +129,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.DeflateJdk.deserialize<MyClass>(bytes)
      * ```
      */
+    @Suppress("DEPRECATION")
     val DeflateJdk: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(Jdk, Compressors.Deflate)
     }
@@ -136,6 +143,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.GZipJdk.deserialize<MyClass>(bytes)
      * ```
      */
+    @Suppress("DEPRECATION")
     val GZipJdk: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(Jdk, Compressors.GZip)
     }
@@ -151,6 +159,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.LZ4Jdk.deserialize<MyClass>(bytes)
      * ```
      */
+    @Suppress("DEPRECATION")
     val LZ4Jdk: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(Jdk, Compressors.LZ4)
     }
@@ -164,6 +173,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.SnappyJdk.deserialize<MyClass>(bytes)
      * ```
      */
+    @Suppress("DEPRECATION")
     val SnappyJdk: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(Jdk, Compressors.Snappy)
     }
@@ -179,6 +189,7 @@ object BinarySerializers {
      * val restored = BinarySerializers.ZstdJdk.deserialize<MyClass>(bytes)
      * ```
      */
+    @Suppress("DEPRECATION")
     val ZstdJdk: CompressableBinarySerializer by lazy {
         CompressableBinarySerializer(Jdk, Compressors.Zstd)
     }
