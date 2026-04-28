@@ -1,6 +1,7 @@
 package io.bluetape4k.coroutines
 
 import io.bluetape4k.support.requirePositiveNumber
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
@@ -36,6 +37,7 @@ class ThreadPoolCoroutineScope(
 
     private val job: CompletableJob = SupervisorJob()
     private val dispatcher: ExecutorCoroutineDispatcher = newFixedThreadPoolContext(poolSize, name)
+    private val dispatcherClosed = atomic(false)
 
     /**
      * 이 스코프가 사용하는 코루틴 컨텍스트입니다.
@@ -55,8 +57,10 @@ class ThreadPoolCoroutineScope(
      * - 중복 호출 시 취소는 idempotent이고 dispatcher의 중복 close는 구현체 정책을 따릅니다.
      */
     override fun close() {
-        clearJobs()
-        dispatcher.close()
+        super.close() // clearJobs()를 포함하며 CAS guard로 idempotent 보장
+        if (dispatcherClosed.compareAndSet(false, true)) {
+            dispatcher.close()
+        }
     }
 
     override fun toString(): String =

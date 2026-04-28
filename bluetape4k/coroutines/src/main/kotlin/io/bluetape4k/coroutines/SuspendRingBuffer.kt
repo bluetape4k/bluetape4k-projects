@@ -24,6 +24,8 @@ import kotlinx.coroutines.sync.withLock
  * // snapshot == [2, 3, 4]
  * ```
  */
+// 안전: 내부 버퍼는 MutableList<T?> 타입이며, boxing() 팩토리에서 null로 초기화한 후
+// push()에서만 실제 T 값을 저장함. get() 호출 시 인덱스 범위 검증 후 캐스팅하므로 안전함.
 @Suppress("UNCHECKED_CAST")
 class SuspendRingBuffer<T: Any>(
     private val buffer: MutableList<T?>,

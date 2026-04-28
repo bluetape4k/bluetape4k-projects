@@ -17,12 +17,23 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
  */
 sealed interface FlowEvent<out T> {
 
-    /** 값을 가진 이벤트입니다. */
+    /**
+     * 값을 가진 이벤트입니다.
+     *
+     * > **성능 개선 TODO**: Kotlin 2.x에서 `@JvmInline value class Value<out T>(val value: T): FlowEvent<T>`로
+     * > 변환하면 hot-path per-event 객체 할당을 제거할 수 있습니다. 단, `componentN()` 소거와
+     * > 구조 분해 호환성을 사전에 확인해야 합니다.
+     */
     data class Value<out T>(val value: T): FlowEvent<T> {
         override fun toString(): String = "FlowEvent.Value($value)"
     }
 
-    /** 오류를 가진 이벤트입니다. */
+    /**
+     * 오류를 가진 이벤트입니다.
+     *
+     * > **성능 개선 TODO**: Kotlin 2.x에서 `@JvmInline value class Error(val error: Throwable): FlowEvent<Nothing>`으로
+     * > 변환하면 per-event 객체 할당을 줄일 수 있습니다.
+     */
     data class Error(val error: Throwable): FlowEvent<Nothing> {
         override fun toString(): String = "FlowEvent.Error($error)"
     }

@@ -433,7 +433,9 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                     return@coroutineScope
                 }
                 if (!empty) {
-                    consumer.consumer.emit(next.value!!)
+                    consumer.consumer.emit(
+                        requireNotNull(next.value) { "SizeBoundReplayBuffer Node.value는 sentinel 노드가 아닌 경우 null이어서는 안 됩니다." }
+                    )
                     consumer.node = next
                     continue
                 }
@@ -547,7 +549,9 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
                     return@coroutineScope
                 }
                 if (!empty) {
-                    consumer.consumer.emit(next.value!!)
+                    consumer.consumer.emit(
+                        requireNotNull(next.value) { "TimeAndSizeBoundReplayBuffer Node.value는 sentinel 노드가 아닌 경우 null이어서는 안 됩니다." }
+                    )
                     consumer.node = next
                     continue
                 }

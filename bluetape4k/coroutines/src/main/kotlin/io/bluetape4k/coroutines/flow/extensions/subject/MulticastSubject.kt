@@ -7,6 +7,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 
@@ -94,7 +96,8 @@ class MulticastSubject<T> private constructor(
             try {
                 collector.next(value)
             } catch (e: CancellationException) {
-                remove(collector)
+                currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
+                remove(collector) // 이 collector만 개별 취소됨
             }
         }
     }
@@ -116,8 +119,9 @@ class MulticastSubject<T> private constructor(
             .forEach { collector ->
                 try {
                     collector.error(ex)
-                } catch (_: CancellationException) {
-                    // ignored at this point
+                } catch (e: CancellationException) {
+                    currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
+                    log.debug { "$collector 는 개별 취소됨." } // 이 collector만 취소된 경우
                 }
             }
     }
@@ -136,8 +140,9 @@ class MulticastSubject<T> private constructor(
             .forEach { collector ->
                 try {
                     collector.complete()
-                } catch (_: CancellationException) {
-                    log.debug { "$collector is cancelled." }
+                } catch (e: CancellationException) {
+                    currentCoroutineContext().ensureActive() // 부모 취소 시 rethrow
+                    log.debug { "$collector 는 개별 취소됨." } // 이 collector만 취소된 경우
                 }
             }
     }
