@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
@@ -51,6 +52,7 @@ class FlociServerTest: AbstractContainerTest() {
                 .endpointOverride(server.awsEndpoint)
                 .region(Region.of(server.regionName))
                 .credentialsProvider(credentialProvider)
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build()
                 .apply { ShutdownQueue.register(this) }
 
