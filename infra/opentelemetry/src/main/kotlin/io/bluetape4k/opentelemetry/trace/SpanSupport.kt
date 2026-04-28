@@ -1,11 +1,15 @@
 package io.bluetape4k.opentelemetry.trace
 
+import io.bluetape4k.support.requireNotBlank
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanBuilder
 import io.opentelemetry.api.trace.SpanContext
 import io.opentelemetry.api.trace.StatusCode
+import io.opentelemetry.api.trace.Tracer
 import kotlinx.coroutines.CancellationException
 import java.time.Duration
+
+private const val UNSPECIFIED_ERROR = "unspecified error"
 
 
 /**
@@ -102,7 +106,56 @@ internal fun Span.recordFailure(error: Throwable) {
     }
 
     recordException(error)
-    setStatus(StatusCode.ERROR, error.message ?: error::class.java.simpleName)
+    setStatus(StatusCode.ERROR, error.message ?: UNSPECIFIED_ERROR)
+}
+
+/**
+ * blocking 환경에서 새로운 [Span]을 생성하고 [block]을 실행한 뒤 Span을 자동으로 종료합니다.
+ *
+ * ## 동작/계약
+ * - 정상 종료 시 [StatusCode.OK]를 설정하고 Span을 종료합니다.
+ * - 일반 예외 발생 시 `recordException` + [StatusCode.ERROR] 설정 후 재던집니다.
+ *   fallback 메시지는 `"unspecified error"` — 내부 클래스명은 절대 노출하지 않습니다.
+ * - [CancellationException]은 상태 변경 없이 그대로 전파합니다 (UNSET 유지).
+ *
+ * ## 보안 경고
+ * - [configure] 람다에서 PII, Authorization 토큰, 민감 헤더를 attribute로 설정하지 마세요.
+ * - [configure] 람다에서 `.startSpan()`을 직접 호출하면 이중 Span이 생성됩니다 (footgun).
+ *
+ * ## 코루틴 사용 주의
+ * - 이 함수는 blocking 전용입니다. suspend 환경에서는 `SpanCoroutineSupport.kt`의
+ *   `suspend Tracer.withSpan(...)` 을 사용하세요.
+ * - Dispatcher 전환 시 ThreadLocal 기반 OTel Context가 유실될 수 있습니다.
+ *
+ * ```kotlin
+ * val result = tracer.withSpan("my-operation") { span ->
+ *     span.setAttribute("key", "value")
+ *     "done"
+ * }
+ * ```
+ *
+ * @param spanName Span 이름 (공백 불가)
+ * @param configure [SpanBuilder] 설정 람다 — attribute, kind, parent 등
+ * @param block Span을 인자로 받는 실행 블록
+ * @return [block]의 실행 결과
+ */
+public inline fun <T> Tracer.withSpan(
+    spanName: String,
+    configure: SpanBuilder.() -> Unit = {},
+    block: (Span) -> T,
+): T {
+    spanName.requireNotBlank("spanName")
+    val span = spanBuilder(spanName).apply(configure).startSpan()
+    return span.makeCurrent().use {
+        try {
+            block(span).also { span.setStatus(StatusCode.OK) }
+        } catch (e: Throwable) {
+            span.recordFailure(e)
+            throw e
+        } finally {
+            span.end()
+        }
+    }
 }
 
 @PublishedApi

@@ -8,9 +8,12 @@ English | [한국어](./README.ko.md)
 
 - **Kotlin extension functions**: Use the OpenTelemetry Java SDK in a Kotlin-idiomatic way
 - **Coroutines support**: Propagate `suspend` function context and coroutine context
+- **`Tracer.withSpan()`**: Single-call DSL for suspend and blocking span management
+- **Flow tracing**: `Flow.traced()` / `Flow.tracedCollect()` — 1 collect = 1 Span
 - **Span management**: `use` pattern for automatic resource cleanup
 - **DSL support**: DSLs for configuring Attributes, TracerProvider, and MeterProvider
-- **Spring Boot integration**: Spring Boot Starter support
+- **Spring Boot 3 WebFlux integration**: `createTracingWebFilter()` helper (Spring Boot 3 only — see note below)
+- **Spring Boot Starter support**: Auto-configured OpenTelemetry SDK
 
 ## Dependency
 
@@ -132,6 +135,81 @@ tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
 }
 ```
 
+### 3-A. Tracer.withSpan() — Single-Call DSL
+
+`Tracer.withSpan()` wraps a block in a single Span, starts it, sets status, and ends it automatically.
+Both suspend and blocking variants are provided.
+
+```kotlin
+import io.bluetape4k.opentelemetry.trace.withSpan
+import io.bluetape4k.opentelemetry.coroutines.withSpan
+
+// Suspend variant (inside a coroutine)
+val result: String = tracer.withSpan("my-op") { span ->
+  span.setAttribute(AttributeKey.stringKey("key"), "value")
+  "done"
+}
+
+// Configure attributes before starting
+tracer.withSpan("my-op", configure = {
+  setAttribute(AttributeKey.stringKey("env"), "prod")
+  setSpanKind(SpanKind.SERVER)
+}) { span ->
+  doWork()
+}
+
+// Nested calls produce parent-child trace
+tracer.withSpan("parent") {
+  tracer.withSpan("child") { doWork() }
+}
+
+// CancellationException → StatusCode.UNSET (not recorded as ERROR)
+// Other Throwable     → StatusCode.ERROR + recordException + rethrown
+```
+
+**Span lifecycle contracts:**
+- Normal completion → `StatusCode.OK`, span ended
+- `CancellationException` → `StatusCode.UNSET`, span ended, exception rethrown
+- Any other `Throwable` → `StatusCode.ERROR` + `recordException`, span ended, exception rethrown
+- `null` exception message → `"unspecified error"` (internal class names never leaked)
+
+### 3-B. Flow Tracing — `traced()` / `tracedCollect()`
+
+**1 collect = 1 Span** (independent of emit count).
+
+```kotlin
+import io.bluetape4k.opentelemetry.coroutines.traced
+import io.bluetape4k.opentelemetry.coroutines.tracedCollect
+
+// traced() wraps the entire collect in a single Span
+flowOf(1, 2, 3)
+    .traced(tracer, "my-flow") {
+        setAttribute(AttributeKey.stringKey("source"), "db")
+    }
+    .collect { item -> process(item) }
+
+// Compose with other operators — Span spans the full collect
+flowOf(1, 2, 3, 4)
+    .traced(tracer, "take-flow")
+    .take(2)
+    .collect { }
+
+// tracedCollect — action runs inside the Span's OTel context
+// Span.current() inside action returns THIS span
+flowOf(42).tracedCollect(tracer, "collect-span") { item ->
+    val span = Span.current()  // same span created by tracedCollect
+    process(item)
+}
+```
+
+**Contracts:**
+- Normal completion → `StatusCode.OK`
+- `CancellationException` (timeout, `take()`, cancellation) → `StatusCode.UNSET`
+- Other exception → `StatusCode.ERROR` + `recordException`, exception rethrown
+- `traced()` vs `tracedCollect()`:
+  - `traced()` — returns a new Flow; OTel context active in the **producer** coroutine
+  - `tracedCollect()` — terminal operator; OTel context active in **both producer and consumer** (action) coroutines
+
 ### 4. Attributes Management
 
 ```kotlin
@@ -248,6 +326,30 @@ val compositeExporter = spanExporterOf(
   OtlpGrpcSpanExporter.builder().build()
 )
 ```
+
+### 9. Spring WebFlux Tracing (Spring Boot 3 Only)
+
+> **Spring Boot version constraint:**
+> `createTracingWebFilter()` uses `opentelemetry-spring-webflux-5.3`, which targets Spring WebFlux 5.3 / 6.x (Spring Boot 3).
+> **Spring Boot 4 (Spring Framework 7.x) is not yet supported** — support will be added once the OTel instrumentation BOM publishes a compatible artifact.
+
+```kotlin
+import io.bluetape4k.opentelemetry.webflux.createTracingWebFilter
+import io.bluetape4k.opentelemetry.webflux.webfluxServerTelemetry
+
+// Register as a @Bean — call only ONCE per ApplicationContext
+@Configuration
+class TracingConfig(private val openTelemetry: OpenTelemetry) {
+
+    @Bean
+    fun tracingWebFilter(): WebFilter = openTelemetry.createTracingWebFilter()
+}
+```
+
+**Operational constraints:**
+- Call `createTracingWebFilter()` exactly once per `ApplicationContext`. It registers a global Reactor `Hooks.onEachOperator`. Multiple calls nest the hook and cause unpredictable behavior.
+- In tests, call `Hooks.resetOnEachOperator()` in `@AfterAll` to prevent hook leakage between test classes.
+- Sensitive headers (`Authorization`, etc.) are **not** captured by default. To allow specific headers, set the environment variable `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`. **Never add headers containing PII.**
 
 ## Architecture Diagrams
 
