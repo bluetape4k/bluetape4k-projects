@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.exposed.webflux.config
 
 import io.bluetape4k.examples.exposed.webflux.domain.Products
+import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -69,6 +70,7 @@ class DataInitializer(
         }
     }
 
+    @PreDestroy
     override fun close() {
         scope.cancel()
     }

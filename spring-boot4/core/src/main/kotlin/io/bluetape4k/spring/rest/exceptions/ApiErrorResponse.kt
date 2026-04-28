@@ -25,7 +25,8 @@ typealias ApiErrorResponseEntity = ResponseEntity<ApiErrorBody>
  *
  * ## 동작/계약
  * - `timestamp` 기본값은 인스턴스 생성 시점의 [Instant.now]입니다.
- * - `errorCode`, `message`, `stackTraces`는 생성 인자로 전달한 값을 그대로 보관합니다.
+ * - `errorCode`, `message`는 생성 인자로 전달한 값을 그대로 보관합니다.
+ * - 스택 트레이스는 보안상 REST 응답에 포함하지 않으며, 서버 로그에만 기록합니다.
  *
  * ```kotlin
  * val body = ApiErrorBody(message = "invalid input")
@@ -35,13 +36,11 @@ typealias ApiErrorResponseEntity = ResponseEntity<ApiErrorBody>
  * @property errorCode 도메인 오류 코드
  * @property timestamp 오류 응답 생성 시각
  * @property message 오류 메시지
- * @property stackTraces 오류 스택 트레이스 목록
  */
 data class ApiErrorBody(
     val errorCode: String? = null,
     val timestamp: Instant = Instant.now(),
     val message: String? = null,
-    val stackTraces: List<StackTraceElement> = emptyList(),
 ): Serializable
 
 /**
@@ -49,7 +48,7 @@ data class ApiErrorBody(
  *
  * ## 동작/계약
  * - [statusCode]로 응답 상태를 설정하고, [ApiErrorBody]를 본문으로 담아 반환합니다.
- * - [stackTraces]를 전달하지 않으면 빈 리스트를 사용합니다.
+ * - 스택 트레이스는 보안상 REST 응답에 포함하지 않으며, 서버 로그에만 기록합니다.
  *
  * ```kotlin
  * val response = apiErrorResponseEntityOf(statusCode = 404, message = "not found")
@@ -60,13 +59,11 @@ fun apiErrorResponseEntityOf(
     statusCode: Int = HttpStatus.INTERNAL_SERVER_ERROR.value(),
     errorCode: String? = null,
     message: String? = null,
-    stackTraces: List<StackTraceElement> = emptyList(),
 ): ApiErrorResponseEntity {
     val body =
         ApiErrorBody(
             errorCode = errorCode,
             message = message,
-            stackTraces = stackTraces
         )
     return ResponseEntity.status(statusCode).body(body)
 }

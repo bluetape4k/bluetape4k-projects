@@ -15,7 +15,6 @@ class ApiErrorBodyTest: AbstractSpringTest() {
         body.message shouldBeEqualTo "invalid input"
         body.errorCode.shouldBeNull()
         body.timestamp.shouldNotBeNull()
-        body.stackTraces.isEmpty() shouldBeEqualTo true
     }
 
     @Test
@@ -45,14 +44,12 @@ class ApiErrorBodyTest: AbstractSpringTest() {
     }
 
     @Test
-    fun `apiErrorResponseEntityOf stackTraces 포함`() {
-        val traces = RuntimeException("test").stackTrace.toList()
+    fun `apiErrorResponseEntityOf 500 응답`() {
         val response = apiErrorResponseEntityOf(
             statusCode = 500,
             message = "server error",
-            stackTraces = traces
         )
         response.body.shouldNotBeNull()
-        response.body!!.stackTraces.isNotEmpty() shouldBeEqualTo true
+        response.body!!.message shouldBeEqualTo "server error"
     }
 }
