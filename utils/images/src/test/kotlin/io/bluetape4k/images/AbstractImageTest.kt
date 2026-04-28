@@ -31,7 +31,8 @@ abstract class AbstractImageTest {
         "homer", "labor"
     )
 
-    protected fun getImage(path: String): InputStream = Resourcex.getInputStream(path)!!
+    protected fun getImage(path: String): InputStream =
+        Resourcex.getInputStream(path) ?: error("테스트 리소스를 찾을 수 없습니다: $path")
 
     protected fun writeToFile(bytes: ByteArray, filename: String, format: ImageFormat = ImageFormat.JPG) {
         val path = Paths.get("$BASE_PATH/$filename.${format.name}")

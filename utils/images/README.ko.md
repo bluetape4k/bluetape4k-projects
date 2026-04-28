@@ -313,37 +313,42 @@ val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
 ```
 
-### 배치 이미지 Flow (Issue #135)
+### 배치 이미지 처리 (Issue #135)
+
+`ImageBatchFlow`는 대량 이미지에 동일한 변환을 적용하는 코루틴 Flow 파이프라인입니다.
+동시성 제어와 픽셀 단위 메모리 한도를 통해 안전하게 대규모 배치 작업을 처리합니다.
 
 ```kotlin
 import io.bluetape4k.images.batch.*
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import java.nio.file.Path
 
+// 배치 옵션 설정
 val options = ImageProcessingOptions(
     parallelism = defaultImageBatchParallelism(),
     maxPixels = DEFAULT_MAX_PIXELS,
     maxInFlightPixels = DEFAULT_MAX_IN_FLIGHT_PIXELS,
-    skipFailures = true,
-    onFailure = { failure ->
-        // 전체 배치를 중단하지 않고 source/stage/cause를 관측
-    }
+    skipFailures = true,                        // 실패 항목 건너뜀, 전체 중단 없음
 )
 
-listOf(Path.of("a.jpg"), Path.of("b.jpg"))
+// 처리 후 결과 경로 수집
+val writtenPaths: List<Path> = listOf(Path.of("a.jpg"), Path.of("b.jpg"))
     .asFlow()
     .processImages(options) {
-        resize(width = 320, height = 240)
-        watermark("© bluetape4k")
-        toJpeg(quality = 85)
+        resize(width = 1280, height = 720)      // 먼저 크기 조절
+        watermark("© bluetape4k")               // 워터마크 오버레이
+        toJpeg(quality = 85)                    // JPEG로 인코딩
     }
-    .writeImagesTo(Path.of("out"), options)
+    .writeImagesTo(Path.of("output"), options)  // 출력 디렉터리에 저장
+    .toList()
 ```
 
-`ImageProcessingDsl`의 변환은 `transformDispatcher`에서 실행되고, 저장 편의 함수는 호출자가 넘긴
-`ioDispatcher`에서 writer를 직접 호출합니다. 배치 기본값은 `DEFAULT_MAX_PIXELS`,
+`ImageProcessingDsl`의 변환은 `transformDispatcher`에서 실행되고, 저장은 호출자가 넘긴
+`ioDispatcher`에서 실행됩니다. 배치 기본값은 `DEFAULT_MAX_PIXELS`,
 `DEFAULT_MAX_IN_FLIGHT_PIXELS`, `JPEG_QUALITY_MIN`, `JPEG_QUALITY_MAX`,
 `PERFORMANCE_SAMPLE_IMAGE_COUNT`처럼 이름 있는 상수로 제공합니다.
+
 더 큰 이미지 세트는 `ImageProcessingOptions.largeJobs()`를 사용하거나
 `maxPixels` / `maxInFlightPixels`를 명시적으로 높여 처리할 수 있습니다.
 
@@ -357,32 +362,83 @@ val largeOptions = ImageProcessingOptions.largeJobs(
 
 ### 썸네일 파이프라인
 
+`ThumbnailPipeline`은 소스 이미지마다 여러 크기의 썸네일을 한 번의 패스로 생성합니다.
+`ThumbnailPipeline.builder()`로 크기·크롭 전략·포맷·오류 처리를 설정하고,
+`process(Flow<Path>)`를 호출하면 결과가 스트리밍됩니다.
+
 ```kotlin
 import io.bluetape4k.images.batch.ImageProcessingOptions
 import io.bluetape4k.images.coroutines.SuspendJpegWriter
 import io.bluetape4k.images.thumbnail.*
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 import java.nio.file.Path
 
+// 이미지당 세 가지 크기의 썸네일을 생성하는 파이프라인 구성
 val pipeline = ThumbnailPipeline.builder()
-    .outputDirectory(Path.of("thumbs"))
-    .size(width = 320, height = 240, suffix = "small")
+    .outputDirectory(Path.of("output/thumbs"))
+    .size(width = 1280, height = 720, suffix = "hd")
+    .size(width = 640,  height = 360, suffix = "md")
+    .size(width = 320,  height = 180, suffix = "sm")
     .format(ThumbnailFormat(SuspendJpegWriter.Default.withCompression(85), "jpg"))
-    .crop(ThumbnailCrop.Smart())
-    .options(ImageProcessingOptions(skipFailures = true))
-    .onFailure { failure ->
-        // failure.stage로 validation/load/transform/write 단계를 구분
+    .crop(ThumbnailCrop.Smart())                // 중요 영역 자동 크롭
+    .options(ImageProcessingOptions(parallelism = 4, skipFailures = true))
+    .onFailure { result ->
+        // result.status에 실패 단계와 원인 포함
+        println("썸네일 실패: ${result.source} → ${result.status}")
     }
     .build()
 
-pipeline.process(listOf(Path.of("photo.jpg")).asFlow())
+// 소스 이미지 스트림을 처리하고 결과 수집
+pipeline
+    .process(listOf(Path.of("photos/photo.jpg"), Path.of("photos/banner.png")).asFlow())
+    .collect { result ->
+        when (val status = result.status) {
+            is ThumbnailStatus.Success ->
+                println("OK  ${result.output.fileName} — ${status.bytes} bytes")
+            is ThumbnailStatus.Failure ->
+                println("ERR ${result.source.fileName} at ${status.stage}")
+        }
+    }
 ```
+
+`ThumbnailCrop` 종류:
+- `ThumbnailCrop.Fit` — 비율을 유지하면서 지정 크기에 맞게 축소 (기본값)
+- `ThumbnailCrop.Smart()` — Sobel 엣지 기반 saliency 크롭 후 정확한 크기로 리사이즈
 
 ### 타일 처리
 
-```kotlin
-import io.bluetape4k.images.tiles.*
+`TileProcessor`는 큰 이미지를 격자 타일로 분할하고, 각 타일을 병렬로 변환한 다음,
+하나의 출력 이미지로 재조립합니다. 이미지 전체를 한 번에 처리하기 어려울 때 유용합니다.
 
+```kotlin
+import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.filter.GrayscaleFilter
+import io.bluetape4k.images.tiles.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
+
+val image: ImmutableImage = ImmutableImage.loader().fromFile(File("large.jpg"))
+val processor = TileProcessor(maxTileCount = 256, parallelism = 4)
+
+// 1. 512×512 타일로 분할
+val tiles: List<ImageTile> = processor.split(image, TileSize(width = 512, height = 512))
+
+// 2. 각 타일에 병렬로 변환 적용
+val processedTiles: List<ImageTile> = processor
+    .processTiles(tiles.asFlow()) { tile ->
+        tile.copy(image = tile.image.filter(GrayscaleFilter()))
+    }
+    .toList()
+
+// 3. 원래 크기로 재조립
+val result: ImmutableImage = processor.merge(processedTiles, image.width, image.height)
+result.output(JpegWriter.Default, File("output.jpg"))
+```
+
+단순 분할·병합 (타일별 변환 없음):
+
+```kotlin
 val processor = TileProcessor()
 val tiles = processor.split(image, TileSize(width = 512, height = 512))
 val merged = processor.merge(tiles, image.width, image.height)

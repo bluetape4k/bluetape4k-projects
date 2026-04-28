@@ -68,6 +68,32 @@ sealed interface ImageBatchResult {
 /**
  * 이미지 배치 처리 옵션입니다.
  *
+ * [processImages] / [processImageFiles] / [writeImagesTo]의 동작을 제어합니다.
+ * 기본값으로 간단히 생성하거나, 특수 상황에 맞게 각 파라미터를 조정하세요.
+ *
+ * ```kotlin
+ * // 기본 옵션 — 대부분의 경우에 적합
+ * val defaultOptions = ImageProcessingOptions()
+ *
+ * // 커스텀 옵션 — 병렬도 4, 실패 시 건너뜀, 실패 로그 기록
+ * val options = ImageProcessingOptions(
+ *     parallelism = 4,
+ *     maxPixels = 4_000L * 3_000L,           // 12 MP 제한
+ *     maxInFlightPixels = 100_000_000L,       // 동시 픽셀 1억
+ *     skipFailures = true,
+ *     onFailure = { failure ->
+ *         println("처리 실패: ${failure.source} — ${failure.cause.message}")
+ *     },
+ * )
+ *
+ * flowOf(imagePath)
+ *     .processImages(options) {
+ *         resize(800, 600)
+ *         toJpeg(quality = 85)
+ *     }
+ *     .writeImagesTo(outputDir)
+ * ```
+ *
  * @property ioDispatcher 이미지 읽기/쓰기 작업에 사용할 컨텍스트
  * @property transformDispatcher 이미지 변환 작업에 사용할 컨텍스트
  * @property parallelism 동시에 처리할 이미지 수
@@ -97,6 +123,27 @@ data class ImageProcessingOptions(
          *
          * 기본 [ImageProcessingOptions]보다 픽셀 한도를 크게 잡되, 호출자가 명시적으로
          * `maxPixels`와 `maxInFlightPixels`를 더 조정할 수 있도록 열어둡니다.
+         *
+         * 고해상도 RAW 사진이나 의료·위성 이미지처럼 단일 파일이 수천만 픽셀에 달하는
+         * 워크로드에 적합합니다.
+         *
+         * ```kotlin
+         * // 대용량 배치: 픽셀 한도를 확장하고 실패를 건너뜀
+         * val options = ImageProcessingOptions.largeJobs(
+         *     parallelism = 2,
+         *     skipFailures = true,
+         *     onFailure = { failure ->
+         *         logger.warn { "대용량 이미지 처리 실패: ${failure.source}" }
+         *     },
+         * )
+         *
+         * flowOf(highResImagePath)
+         *     .processImages(options) {
+         *         resize(3840, 2160)   // 4K 다운스케일
+         *         toJpeg(quality = 92)
+         *     }
+         *     .writeImagesTo(outputDir)
+         * ```
          */
         fun largeJobs(
             ioDispatcher: CoroutineContext = Dispatchers.IO,

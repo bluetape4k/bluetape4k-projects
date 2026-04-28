@@ -21,6 +21,26 @@ private val log = KotlinLogging.logger {}
 
 /**
  * [Path] 스트림을 이미지 배치 처리 결과 스트림으로 변환합니다.
+ *
+ * DSL 블록으로 변환 파이프라인을 선언하고, [ImageProcessingOptions]로 병렬도·픽셀 한도·
+ * 실패 처리 방침을 제어합니다. 처리 결과는 [ImageBatchResult]의 sealed 계층으로 반환됩니다.
+ *
+ * ```kotlin
+ * val outputDir = Path.of("/tmp/output")
+ * val options = ImageProcessingOptions(parallelism = 4, skipFailures = true)
+ *
+ * val writtenPaths: List<Path> = flowOf(Path.of("/images/photo.png"))
+ *     .processImages(options) {
+ *         resize(1280, 720)
+ *         toJpeg(quality = 85)
+ *     }
+ *     .writeImagesTo(outputDir)
+ *     .toList()
+ * ```
+ *
+ * @param options 배치 처리 옵션 (병렬도, 픽셀 한도, 실패 정책 등)
+ * @param block 이미지 변환 단계를 선언하는 DSL 람다
+ * @return 처리 결과([ImageBatchResult]) 스트림
  */
 fun Flow<Path>.processImages(
     options: ImageProcessingOptions = ImageProcessingOptions(),
@@ -36,6 +56,26 @@ fun Flow<Path>.processImages(
 
 /**
  * [File] 스트림을 이미지 배치 처리 결과 스트림으로 변환합니다.
+ *
+ * 내부적으로 [File.toPath]를 통해 [processImages]에 위임합니다.
+ * [java.io.File] 기반 파일 목록에서 바로 배치 처리를 시작할 때 사용합니다.
+ *
+ * ```kotlin
+ * val inputFiles = listOf(File("/images/a.jpg"), File("/images/b.png"))
+ * val outputDir = Path.of("/tmp/output")
+ *
+ * val writtenPaths: List<Path> = inputFiles.asFlow()
+ *     .processImageFiles {
+ *         fit(800, 600)
+ *         toJpeg(quality = 90)
+ *     }
+ *     .writeImagesTo(outputDir)
+ *     .toList()
+ * ```
+ *
+ * @param options 배치 처리 옵션 (병렬도, 픽셀 한도, 실패 정책 등)
+ * @param block 이미지 변환 단계를 선언하는 DSL 람다
+ * @return 처리 결과([ImageBatchResult]) 스트림
  */
 fun Flow<File>.processImageFiles(
     options: ImageProcessingOptions = ImageProcessingOptions(),
@@ -44,7 +84,31 @@ fun Flow<File>.processImageFiles(
     map { file -> file.toPath() }.processImages(options, block)
 
 /**
- * 성공적으로 writer가 선택된 이미지 결과만 저장합니다.
+ * 성공적으로 writer가 선택된 이미지 결과만 [outputDirectory]에 저장합니다.
+ *
+ * [ImageBatchResult.WritableImage] 타입만 필터링하여 저장하므로, writer를 지정하지 않은
+ * [ImageBatchResult.Image] 결과와 실패([ImageBatchResult.Failure]) 결과는 조용히 건너뜁니다.
+ * 저장 성공 시 출력 파일의 [Path]를 반환합니다.
+ *
+ * ```kotlin
+ * val outputDir = Path.of("/tmp/thumbnails")
+ *
+ * val savedPaths: List<Path> = flowOf(Path.of("/images/photo.jpg"))
+ *     .processImages {
+ *         resize(320, 240)
+ *         toJpeg(quality = 75)
+ *     }
+ *     .writeImagesTo(outputDir) { source ->
+ *         // 출력 파일명을 원본 이름에서 파생
+ *         "thumb_${source.fileName}"
+ *     }
+ *     .toList()
+ * ```
+ *
+ * @param outputDirectory 이미지를 저장할 출력 디렉터리 (없으면 자동 생성)
+ * @param options 병렬도·IO 디스패처 설정에 사용하는 처리 옵션
+ * @param outputName 원본 [Path]를 받아 출력 파일명(디렉터리 제외)을 반환하는 함수
+ * @return 저장 완료된 파일 경로 스트림
  */
 fun Flow<ImageBatchResult>.writeImagesTo(
     outputDirectory: Path,
