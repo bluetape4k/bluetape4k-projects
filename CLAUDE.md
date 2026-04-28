@@ -105,6 +105,12 @@ All tools installed at `/opt/homebrew/bin/`.
 
 ## Key Design Patterns
 
+**Assert vs Require (CRITICAL — do NOT change exception types)**: Two distinct validation utilities with different exception contracts.
+- `assertXxx()` (`AssertSupport.kt`) → throws **`AssertionError`** — for internal invariants, never for parameter validation
+- `requireXxx()` (`RequireSupport.kt`) → throws **`IllegalArgumentException`** — for caller contract (parameter validation)
+- Production code MUST use `requireXxx()`. `assertXxx()` is `@Deprecated(WARNING)` with `ReplaceWith` guidance.
+- ⚠️ Changing `assertXxx()` to throw `IllegalArgumentException` breaks cross-module tests in 30+ files. `AssertSupportTest` explicitly guards this contract.
+
 **Coroutines-First**: All async work uses Coroutines. Wrap blocking APIs with `withContext(Dispatchers.IO)`.
 
 **Record/Model data class**: Must implement `Serializable` + `companion object : KLogging()` + `serialVersionUID = 1L`. Place in `exposed.model` package.

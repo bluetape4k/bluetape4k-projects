@@ -2,6 +2,7 @@ package io.bluetape4k.support
 
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 @Suppress("DEPRECATION")
 class AssertSupportTest {
@@ -121,10 +122,25 @@ class AssertSupportTest {
         shouldFailAssert { mapOf("a" to 1).assertContains("a", 99, "x") }
     }
 
+    /**
+     * 이 테스트가 실패하면 AssertSupport.kt의 예외 타입이 잘못 변경된 것입니다.
+     * assertXxx() = AssertionError, requireXxx() = IllegalArgumentException — 절대 혼용 금지.
+     */
     @Test
     fun `assertXxx는 AssertionError를 발생시킨다`() {
         shouldFailAssert { (null as String?).assertNotNull("x") }
         shouldFailAssert { "".assertNotEmpty("x") }
         shouldFailAssert { "  ".assertNotBlank("x") }
+    }
+
+    @Test
+    fun `assertXxx는 IllegalArgumentException이 아닌 AssertionError를 던진다 - 예외 타입 계약 고정`() {
+        // 이 테스트는 AssertSupport.kt의 예외 타입 계약을 고정합니다.
+        // require()로 바꾸면 즉시 실패 → cross-module 회귀 전에 여기서 먼저 감지됩니다.
+        assertFailsWith<AssertionError> { (null as String?).assertNotNull("x") }
+        assertFailsWith<AssertionError> { "".assertNotBlank("x") }
+        assertFailsWith<AssertionError> { (-1).assertPositiveNumber("x") }
+        assertFailsWith<AssertionError> { 0.assertPositiveNumber("x") }
+        assertFailsWith<AssertionError> { 11.assertInRange(1, 10, "x") }
     }
 }
