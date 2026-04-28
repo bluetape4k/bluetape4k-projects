@@ -195,6 +195,10 @@ classDiagram
 | `ImageFormat.kt`                                     | 지원 이미지 포맷 열거형                 |
 | `WriteContextExtensions.kt`                          | 쓰기 컨텍스트 확장 함수                 |
 | `IIORegistryUtils.kt`                                | ImageIO 레지스트리 유틸리티            |
+| `batch/ImageBatchFlow.kt`                            | Coroutine Flow 기반 배치 이미지 처리   |
+| `batch/ImageProcessingDsl.kt`                        | 이름 있는 기본값을 쓰는 배치 변환 DSL   |
+| `thumbnail/ThumbnailPipeline.kt`                     | 여러 크기 썸네일 생성 파이프라인        |
+| `tiles/TileProcessor.kt`                             | 타일 분할/병합과 병렬 타일 처리         |
 | `scaler/ImageScaler.kt`                              | 이미지 크기 조절                     |
 | `splitter/ImageSplitter.kt`                          | 이미지 분할                        |
 | `filters/WatermarkFilterSupport.kt`                  | 워터마크 필터                       |
@@ -307,6 +311,81 @@ image.suspendWrite(SuspendWebpWriter.Default, Paths.get("output.webp"))
 // ByteArray로 변환
 val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
+```
+
+### 배치 이미지 Flow (Issue #135)
+
+```kotlin
+import io.bluetape4k.images.batch.*
+import kotlinx.coroutines.flow.asFlow
+import java.nio.file.Path
+
+val options = ImageProcessingOptions(
+    parallelism = defaultImageBatchParallelism(),
+    maxPixels = DEFAULT_MAX_PIXELS,
+    maxInFlightPixels = DEFAULT_MAX_IN_FLIGHT_PIXELS,
+    skipFailures = true,
+    onFailure = { failure ->
+        // 전체 배치를 중단하지 않고 source/stage/cause를 관측
+    }
+)
+
+listOf(Path.of("a.jpg"), Path.of("b.jpg"))
+    .asFlow()
+    .processImages(options) {
+        resize(width = 320, height = 240)
+        watermark("© bluetape4k")
+        toJpeg(quality = 85)
+    }
+    .writeImagesTo(Path.of("out"), options)
+```
+
+`ImageProcessingDsl`의 변환은 `transformDispatcher`에서 실행되고, 저장 편의 함수는 호출자가 넘긴
+`ioDispatcher`에서 writer를 직접 호출합니다. 배치 기본값은 `DEFAULT_MAX_PIXELS`,
+`DEFAULT_MAX_IN_FLIGHT_PIXELS`, `JPEG_QUALITY_MIN`, `JPEG_QUALITY_MAX`,
+`PERFORMANCE_SAMPLE_IMAGE_COUNT`처럼 이름 있는 상수로 제공합니다.
+더 큰 이미지 세트는 `ImageProcessingOptions.largeJobs()`를 사용하거나
+`maxPixels` / `maxInFlightPixels`를 명시적으로 높여 처리할 수 있습니다.
+
+```kotlin
+val largeOptions = ImageProcessingOptions.largeJobs(
+    parallelism = defaultImageBatchParallelism(),
+    maxPixels = LARGE_JOB_MAX_PIXELS,
+    maxInFlightPixels = LARGE_JOB_MAX_IN_FLIGHT_PIXELS,
+)
+```
+
+### 썸네일 파이프라인
+
+```kotlin
+import io.bluetape4k.images.batch.ImageProcessingOptions
+import io.bluetape4k.images.coroutines.SuspendJpegWriter
+import io.bluetape4k.images.thumbnail.*
+import kotlinx.coroutines.flow.asFlow
+import java.nio.file.Path
+
+val pipeline = ThumbnailPipeline.builder()
+    .outputDirectory(Path.of("thumbs"))
+    .size(width = 320, height = 240, suffix = "small")
+    .format(ThumbnailFormat(SuspendJpegWriter.Default.withCompression(85), "jpg"))
+    .crop(ThumbnailCrop.Smart())
+    .options(ImageProcessingOptions(skipFailures = true))
+    .onFailure { failure ->
+        // failure.stage로 validation/load/transform/write 단계를 구분
+    }
+    .build()
+
+pipeline.process(listOf(Path.of("photo.jpg")).asFlow())
+```
+
+### 타일 처리
+
+```kotlin
+import io.bluetape4k.images.tiles.*
+
+val processor = TileProcessor()
+val tiles = processor.split(image, TileSize(width = 512, height = 512))
+val merged = processor.merge(tiles, image.width, image.height)
 ```
 
 ### TIFF 지원 (Issue #134)

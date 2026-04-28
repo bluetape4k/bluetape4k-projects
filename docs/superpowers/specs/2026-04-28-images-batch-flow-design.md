@@ -505,7 +505,7 @@ docs/superpowers/INDEX.md
 - `skipFailures = true`에서 기본 warn logging과 `onFailure` callback이 failure마다 실행된다.
 - `skipFailures = false`에서는 `ImageBatchException`이 전파되고 `CancellationException`은 그대로 전파된다.
 - output name collision이 없어야 한다.
-- `ThumbnailFormat(extension = "")`와 `ThumbnailSize(width <= 0)`는 거부된다.
+- `ThumbnailFormat(SuspendJpegWriter.Default, "")`와 `ThumbnailSize(width <= 0)`는 거부된다.
 - output name이 `../evil.jpg`, absolute path, path separator, Windows drive prefix를 포함하면 거부된다.
 
 ### 7.3 TileProcessor
