@@ -1,10 +1,10 @@
 package io.bluetape4k.images.vips.java21
 
-import io.bluetape4k.images.vips.VipsDecodeException
 import io.bluetape4k.images.vips.VipsEncodeException
 import io.bluetape4k.images.vips.VipsEncodeOptions
 import io.bluetape4k.images.vips.VipsImage
 import io.bluetape4k.images.vips.VipsImageFormat
+import io.bluetape4k.images.vips.VipsOperationException
 import io.bluetape4k.images.vips.java21.internal.NativeHandle
 import io.bluetape4k.images.vips.java21.ops.resizeWithJVips
 import io.bluetape4k.images.vips.java21.ops.thumbnailWithJVips
@@ -15,6 +15,7 @@ import com.criteo.vips.VipsException
 import java.awt.Rectangle
 import java.io.OutputStream
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * JVips JNI 바인딩 기반 [VipsImage] 구현체.
@@ -26,42 +27,52 @@ import java.nio.file.Path
  */
 internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
 
+    private val closed = AtomicBoolean(false)
+
     // 불변 프로퍼티: 생성 시점에 한 번만 읽어 캐싱합니다.
     override val width: Int = handle.vipsImage.width
     override val height: Int = handle.vipsImage.height
     override val bands: Int = handle.vipsImage.bands
 
+    private fun checkOpen() {
+        if (closed.get()) throw IllegalStateException("VipsImage has been closed")
+    }
+
     override fun resize(width: Int, height: Int): VipsImage {
+        checkOpen()
         return try {
             val cloned = handle.vipsImage.clone()
             resizeWithJVips(cloned, width, height)
             JVipsImage(NativeHandle(cloned))
         } catch (e: VipsException) {
-            throw VipsDecodeException("Image resize failed", e)
+            throw VipsOperationException("Image resize failed", e)
         }
     }
 
     override fun thumbnail(maxDimension: Int): VipsImage {
+        checkOpen()
         return try {
             val cloned = handle.vipsImage.clone()
             thumbnailWithJVips(cloned, maxDimension)
             JVipsImage(NativeHandle(cloned))
         } catch (e: VipsException) {
-            throw VipsDecodeException("Image thumbnail failed", e)
+            throw VipsOperationException("Image thumbnail failed", e)
         }
     }
 
     override fun crop(left: Int, top: Int, width: Int, height: Int): VipsImage {
+        checkOpen()
         return try {
             val cloned = handle.vipsImage.clone()
             cloned.crop(Rectangle(left, top, width, height))
             JVipsImage(NativeHandle(cloned))
         } catch (e: VipsException) {
-            throw VipsDecodeException("Image crop failed", e)
+            throw VipsOperationException("Image crop failed", e)
         }
     }
 
     override fun toBytes(format: VipsImageFormat, options: VipsEncodeOptions): ByteArray {
+        checkOpen()
         return try {
             when (format) {
                 VipsImageFormat.JPEG -> JVipsJpegWriter.writeToBytes(handle.vipsImage, options)
@@ -69,15 +80,17 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
                 VipsImageFormat.WEBP -> JVipsWebpWriter.writeToBytes(handle.vipsImage, options)
                 else                 -> throw VipsEncodeException("Unsupported format for encoding: $format")
             }
+        } catch (e: VipsEncodeException) {
+            throw e
         } catch (e: VipsException) {
             throw VipsEncodeException("Image encoding failed: $format", e)
         }
     }
 
     override fun writeTo(path: Path, format: VipsImageFormat, options: VipsEncodeOptions) {
+        checkOpen()
         try {
-            val bytes = toBytes(format, options)
-            path.toFile().writeBytes(bytes)
+            path.toFile().writeBytes(toBytes(format, options))
         } catch (e: VipsEncodeException) {
             throw e
         } catch (e: Exception) {
@@ -86,9 +99,9 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
     }
 
     override fun writeTo(out: OutputStream, format: VipsImageFormat, options: VipsEncodeOptions) {
+        checkOpen()
         try {
-            val bytes = toBytes(format, options)
-            out.write(bytes)
+            out.write(toBytes(format, options))
         } catch (e: VipsEncodeException) {
             throw e
         } catch (e: Exception) {
@@ -97,6 +110,8 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
     }
 
     override fun close() {
-        handle.close()
+        if (closed.compareAndSet(false, true)) {
+            handle.close()
+        }
     }
 }

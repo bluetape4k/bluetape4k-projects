@@ -1,6 +1,7 @@
 package io.bluetape4k.images.vips.java25
 
 import io.bluetape4k.images.vips.VipsInitializationException
+import io.bluetape4k.images.vips.VipsLimits
 import io.bluetape4k.images.vips.VipsRuntime
 import io.bluetape4k.images.vips.java25.internal.DefaultFfmVipsNativeRuntime
 import io.bluetape4k.images.vips.java25.internal.FfmVipsNativeRuntime
@@ -32,7 +33,7 @@ object FfmVipsRuntime : VipsRuntime, KLogging() {
     internal var nativeRuntime: FfmVipsNativeRuntime = DefaultFfmVipsNativeRuntime
 
     @Volatile
-    private var _maxPixels: Long = 150_000_000L
+    private var _maxPixels: Long = VipsLimits.DEFAULT_MAX_PIXELS
 
     /** 허용할 최대 픽셀 수 `width × height × bands` */
     val maxPixels: Long get() = _maxPixels
@@ -47,8 +48,14 @@ object FfmVipsRuntime : VipsRuntime, KLogging() {
         }
 
         if (!state.compareAndSet(RuntimeState.UNINITIALIZED, RuntimeState.INITIALIZING)) {
+            var spinCount = 0
             while (state.get() == RuntimeState.INITIALIZING) {
-                Thread.onSpinWait()
+                if (++spinCount > 10_000) {
+                    java.util.concurrent.locks.LockSupport.parkNanos(1_000_000L) // 1ms backoff
+                    spinCount = 0
+                } else {
+                    Thread.onSpinWait()
+                }
             }
             when (state.get()) {
                 RuntimeState.INITIALIZED -> return
@@ -96,11 +103,13 @@ object FfmVipsRuntime : VipsRuntime, KLogging() {
     }
 
     private fun checkNativeAccessEnabled() {
-        // 런타임에 --enable-native-access 누락 여부를 경고로만 기록합니다.
-        // FFM API는 JDK 버전에 따라 경고만 출력하거나 예외를 던질 수 있습니다.
-        val processHandle = ProcessHandle.current()
-        val cmdLine = processHandle.info().commandLine().orElse("")
-        if (!cmdLine.contains("--enable-native-access") && !cmdLine.contains("ALL-UNNAMED")) {
+        // ManagementFactory.inputArguments is canonical: covers -javaagent, JDK_JAVA_OPTIONS, _JAVA_OPTIONS.
+        // ProcessHandle.commandLine() is fragile (truncation, env var args invisible).
+        val jvmArgs = java.lang.management.ManagementFactory.getRuntimeMXBean().inputArguments
+        val hasNativeAccess = jvmArgs.any {
+            it.startsWith("--enable-native-access") || it.contains("ALL-UNNAMED")
+        }
+        if (!hasNativeAccess) {
             log.warn(
                 "JVM was started without --enable-native-access=ALL-UNNAMED. " +
                 "vips-ffm uses FFM API which may fail without this flag. " +

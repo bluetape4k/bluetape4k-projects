@@ -4,6 +4,7 @@ import com.criteo.vips.VipsImage
 import com.criteo.vips.VipsException
 import io.bluetape4k.images.vips.VipsDecodeException
 import io.bluetape4k.images.vips.VipsImage as VipsImageApi
+import io.bluetape4k.images.vips.VipsLimits
 import io.bluetape4k.images.vips.java21.internal.NativeHandle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,7 +13,7 @@ import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
 
-private const val MAX_INPUT_BYTES = 50L * 1024 * 1024  // 50 MB
+private val MAX_INPUT_BYTES = VipsLimits.MAX_INPUT_BYTES
 
 // JPEG: FF D8 FF, PNG: 89 50 4E 47, WebP: 52 49 46 46 .. 57 45 42 50
 private val JPEG_MAGIC = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte())
@@ -52,9 +53,13 @@ fun vipsImageOf(file: File): VipsImageApi =
  * @throws VipsDecodeException 지원하지 않는 포맷, 파일 읽기 실패, maxPixels 초과 시
  */
 fun vipsImageOf(path: Path): VipsImageApi {
-    val bytes = path.toFile().readBytes()
-    checkFormatAllowlist(bytes)
-    return decodeAndCheckPixels(bytes)
+    val header = path.toFile().inputStream().use { it.readNBytes(12) }
+    checkFormatAllowlist(header)
+    val size = path.toFile().length()
+    if (size > MAX_INPUT_BYTES) {
+        throw VipsDecodeException("File exceeds ${MAX_INPUT_BYTES / (1024 * 1024)} MB limit")
+    }
+    return decodeAndCheckPixels(path.toFile().readBytes())
 }
 
 /**

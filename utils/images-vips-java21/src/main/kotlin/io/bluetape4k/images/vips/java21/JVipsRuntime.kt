@@ -1,6 +1,7 @@
 package io.bluetape4k.images.vips.java21
 
 import io.bluetape4k.images.vips.VipsInitializationException
+import io.bluetape4k.images.vips.VipsLimits
 import io.bluetape4k.images.vips.VipsRuntime
 import io.bluetape4k.images.vips.java21.internal.DefaultJVipsNativeRuntime
 import io.bluetape4k.images.vips.java21.internal.JVipsNativeRuntime
@@ -32,7 +33,7 @@ object JVipsRuntime : VipsRuntime, KLogging() {
 
     /** maxPixels 설정값 (init 시 저장) */
     @Volatile
-    private var _maxPixels: Long = 150_000_000L
+    private var _maxPixels: Long = VipsLimits.DEFAULT_MAX_PIXELS
 
     /** 허용할 최대 픽셀 수 `width × height × bands` */
     val maxPixels: Long get() = _maxPixels
@@ -50,8 +51,14 @@ object JVipsRuntime : VipsRuntime, KLogging() {
         if (!state.compareAndSet(RuntimeState.UNINITIALIZED, RuntimeState.INITIALIZING)) {
             // 다른 스레드가 CAS에서 이겼습니다. 초기화가 완료될 때까지 스핀 대기합니다.
             // ⚠️ 여기서 그냥 return 하면 호출자가 초기화 완료 전에 진행하게 됩니다.
+            var spinCount = 0
             while (state.get() == RuntimeState.INITIALIZING) {
-                Thread.onSpinWait()  // CPU 힌트; 블로킹 없음, @Synchronized 없음
+                if (++spinCount > 10_000) {
+                    java.util.concurrent.locks.LockSupport.parkNanos(1_000_000L) // 1ms backoff
+                    spinCount = 0
+                } else {
+                    Thread.onSpinWait()
+                }
             }
             when (state.get()) {
                 RuntimeState.INITIALIZED -> return

@@ -36,7 +36,7 @@ interface VipsImage : AutoCloseable {
      * @param width 목표 너비 (픽셀, 양수)
      * @param height 목표 높이 (픽셀, 양수)
      * @return 리사이즈된 새 [VipsImage] 인스턴스
-     * @throws VipsDecodeException 연산 실패 시
+     * @throws VipsOperationException 연산 실패 시
      */
     fun resize(width: Int, height: Int): VipsImage
 
@@ -45,7 +45,7 @@ interface VipsImage : AutoCloseable {
      *
      * @param maxDimension 긴 변의 최대 크기 (픽셀, 양수)
      * @return 썸네일 [VipsImage] 인스턴스
-     * @throws VipsDecodeException 연산 실패 시
+     * @throws VipsOperationException 연산 실패 시
      */
     fun thumbnail(maxDimension: Int): VipsImage
 
@@ -57,7 +57,7 @@ interface VipsImage : AutoCloseable {
      * @param width 잘라낼 너비 (픽셀, 양수)
      * @param height 잘라낼 높이 (픽셀, 양수)
      * @return 크롭된 새 [VipsImage] 인스턴스
-     * @throws VipsDecodeException 연산 실패 시
+     * @throws VipsOperationException 연산 실패 시
      */
     fun crop(left: Int, top: Int, width: Int, height: Int): VipsImage
 

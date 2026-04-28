@@ -32,6 +32,13 @@ class VipsDecodeException(message: String, cause: Throwable? = null) : VipsExcep
 class VipsEncodeException(message: String, cause: Throwable? = null) : VipsException(message, cause)
 
 /**
+ * 이미지 연산(resize/thumbnail/crop) 실패 시 발생하는 예외.
+ *
+ * 잘못된 연산 파라미터, 이미지 범위 초과, 연산 중 libvips 오류 등의 경우에 발생합니다.
+ */
+class VipsOperationException(message: String, cause: Throwable? = null) : VipsException(message, cause)
+
+/**
  * libvips 런타임 초기화 실패 시 발생하는 예외.
  *
  * `VipsRuntime.init()` 호출 실패 또는 이미 종료된 런타임에 대해 `init()`을 재호출하는 경우에 발생합니다.

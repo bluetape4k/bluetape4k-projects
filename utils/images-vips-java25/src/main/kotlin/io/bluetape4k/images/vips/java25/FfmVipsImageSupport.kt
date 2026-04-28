@@ -4,6 +4,7 @@ import app.photofox.vipsffm.VImage
 import app.photofox.vipsffm.VipsError
 import io.bluetape4k.images.vips.VipsDecodeException
 import io.bluetape4k.images.vips.VipsImage
+import io.bluetape4k.images.vips.VipsLimits
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.input.BoundedInputStream
@@ -12,7 +13,7 @@ import java.io.InputStream
 import java.lang.foreign.Arena
 import java.nio.file.Path
 
-private const val MAX_INPUT_BYTES = 50L * 1024 * 1024  // 50 MB
+private val MAX_INPUT_BYTES = VipsLimits.MAX_INPUT_BYTES
 
 private val JPEG_MAGIC = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte())
 private val PNG_MAGIC = byteArrayOf(0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte())
@@ -122,7 +123,10 @@ private fun decodeAndCheckPixels(bytes: ByteArray): VipsImage {
 }
 
 private fun checkPixelCount(vImage: VImage, arena: Arena) {
-    val bands = vImage.getInt("bands") ?: 3
+    val bands = vImage.getInt("bands") ?: run {
+        arena.close()
+        throw VipsDecodeException("Failed to read bands count from decoded image")
+    }
     val pixelCount = vImage.width.toLong() * vImage.height * bands
     val maxPixels = FfmVipsRuntime.maxPixels
     if (pixelCount > maxPixels) {

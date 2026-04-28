@@ -120,6 +120,17 @@ class JVipsImageTest : AbstractJVipsTest() {
         img.close() // must not throw
     }
 
+    // ─── 9: use-after-close throws ────────────────────────────────────────
+
+    @Test
+    fun `operation after close throws`() {
+        val bytes = VipsTestFixtures.loadFixture(VipsTestFixtures.SAMPLE_JPEG)
+        val img = vipsImageOf(bytes)
+        img.close()
+        val action = { img.toBytes(VipsImageFormat.JPEG) }
+        action shouldThrow Exception::class
+    }
+
     // ─── 10: crop exact dimensions ────────────────────────────────────────
 
     @Test
