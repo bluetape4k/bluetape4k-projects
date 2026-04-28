@@ -3,9 +3,12 @@ package io.bluetape4k.csv.coroutines
 import io.bluetape4k.csv.CsvSettings
 import io.bluetape4k.csv.internal.CsvLineWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.warn
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.Writer
 
 /**
@@ -41,6 +44,7 @@ class SuspendCsvRecordWriter(
      * ## 동작/계약
      * - [Mutex]로 동시 접근을 직렬화합니다.
      * - [headers]를 CSV 형식으로 한 행 기록합니다.
+     * - 실제 I/O는 [Dispatchers.IO]에서 수행합니다.
      *
      * ```kotlin
      * writer.writeHeaders(listOf("id", "name"))
@@ -48,7 +52,9 @@ class SuspendCsvRecordWriter(
      * ```
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
-        mutex.withLock { lineWriter.writeRow(headers) }
+        mutex.withLock {
+            withContext(Dispatchers.IO) { lineWriter.writeRow(headers) }
+        }
     }
 
     /**
@@ -57,6 +63,7 @@ class SuspendCsvRecordWriter(
      * ## 동작/계약
      * - [Mutex]로 동시 접근을 직렬화합니다.
      * - [row]를 CSV 형식으로 기록합니다.
+     * - 실제 I/O는 [Dispatchers.IO]에서 수행합니다.
      *
      * ```kotlin
      * writer.writeRow(listOf("Alice", 20))
@@ -64,7 +71,9 @@ class SuspendCsvRecordWriter(
      * ```
      */
     override suspend fun writeRow(row: Iterable<*>) {
-        mutex.withLock { lineWriter.writeRow(row) }
+        mutex.withLock {
+            withContext(Dispatchers.IO) { lineWriter.writeRow(row) }
+        }
     }
 
     /**
@@ -101,7 +110,7 @@ class SuspendCsvRecordWriter(
      * 내부 [CsvLineWriter]를 닫습니다 (flush 포함).
      *
      * ## 동작/계약
-     * - 종료 중 예외는 무시됩니다.
+     * - 종료 중 예외는 경고 로그로 기록됩니다.
      *
      * ```kotlin
      * val writer = SuspendCsvRecordWriter(output)
@@ -111,5 +120,6 @@ class SuspendCsvRecordWriter(
      */
     override fun close() {
         runCatching { lineWriter.close() }
+            .onFailure { e -> log.warn(e) { "Failed to close CSV writer" } }
     }
 }
