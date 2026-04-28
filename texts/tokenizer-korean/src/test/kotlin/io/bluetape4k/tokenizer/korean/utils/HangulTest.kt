@@ -3,11 +3,11 @@ package io.bluetape4k.tokenizer.korean.utils
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tokenizer.korean.TestBase
 import io.bluetape4k.tokenizer.korean.utils.Hangul.HangulChar
+import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 
 class HangulTest: TestBase() {
@@ -30,15 +30,15 @@ class HangulTest: TestBase() {
 
     @Test
     fun `decomposeHangul with invalid char`() {
-        assertThrows<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Hangul.decomposeHangul('ㅋ')
         }
 
-        assertThrows<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Hangul.decomposeHangul('ㅏ')
         }
 
-        assertThrows<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Hangul.decomposeHangul('ㅀ')
         }
     }
@@ -74,15 +74,15 @@ class HangulTest: TestBase() {
 
     @Test
     fun `compose only vowel`() {
-        assertThrows<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Hangul.composeHangul(' ', 'ㅏ', ' ')
         }
 
-        assertThrows<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Hangul.composeHangul('ㄲ', ' ', ' ')
         }
 
-        assertThrows<AssertionError> {
+        assertFailsWith<IllegalArgumentException> {
             Hangul.composeHangul(' ', ' ', 'ㄴ')
         }
     }
