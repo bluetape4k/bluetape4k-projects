@@ -193,6 +193,10 @@ classDiagram
 | `ImageFormat.kt`                               | Supported image format enum              |
 | `WriteContextExtensions.kt`                    | Write context extensions                 |
 | `IIORegistryUtils.kt`                          | ImageIO registry utilities               |
+| `batch/ImageBatchFlow.kt`                      | Coroutine Flow batch image processing    |
+| `batch/ImageProcessingDsl.kt`                  | Batch transform DSL with named defaults  |
+| `thumbnail/ThumbnailPipeline.kt`               | Multi-size thumbnail pipeline            |
+| `tiles/TileProcessor.kt`                       | Tile split/merge and parallel tile processing |
 | `scaler/ImageScaler.kt`                        | Image resizing                           |
 | `splitter/ImageSplitter.kt`                    | Image splitting                          |
 | `filters/WatermarkFilterSupport.kt`            | Watermark filter                         |
@@ -300,6 +304,80 @@ image.suspendWrite(SuspendWebpWriter.Default, Paths.get("output.webp"))
 // Convert to ByteArray
 val jpegBytes = image.suspendBytes(SuspendJpegWriter.Default)
 val webpBytes = image.suspendBytes(SuspendWebpWriter.Default)
+```
+
+### Batch Image Flow (Issue #135)
+
+```kotlin
+import io.bluetape4k.images.batch.*
+import kotlinx.coroutines.flow.asFlow
+import java.nio.file.Path
+
+val options = ImageProcessingOptions(
+    parallelism = defaultImageBatchParallelism(),
+    maxPixels = DEFAULT_MAX_PIXELS,
+    maxInFlightPixels = DEFAULT_MAX_IN_FLIGHT_PIXELS,
+    skipFailures = true,
+    onFailure = { failure ->
+        // observe source/stage/cause without stopping the whole batch
+    }
+)
+
+listOf(Path.of("a.jpg"), Path.of("b.jpg"))
+    .asFlow()
+    .processImages(options) {
+        resize(width = 320, height = 240)
+        watermark("© bluetape4k")
+        toJpeg(quality = 85)
+    }
+    .writeImagesTo(Path.of("out"), options)
+```
+
+`ImageProcessingDsl` runs transforms on `transformDispatcher` and writes through the caller-provided `ioDispatcher`.
+The batch defaults are named constants such as `DEFAULT_MAX_PIXELS`, `DEFAULT_MAX_IN_FLIGHT_PIXELS`,
+`JPEG_QUALITY_MIN`, `JPEG_QUALITY_MAX`, and `PERFORMANCE_SAMPLE_IMAGE_COUNT`.
+For larger image sets, use `ImageProcessingOptions.largeJobs()` or pass explicit
+`maxPixels` / `maxInFlightPixels` values:
+
+```kotlin
+val largeOptions = ImageProcessingOptions.largeJobs(
+    parallelism = defaultImageBatchParallelism(),
+    maxPixels = LARGE_JOB_MAX_PIXELS,
+    maxInFlightPixels = LARGE_JOB_MAX_IN_FLIGHT_PIXELS,
+)
+```
+
+### Thumbnail Pipeline
+
+```kotlin
+import io.bluetape4k.images.batch.ImageProcessingOptions
+import io.bluetape4k.images.coroutines.SuspendJpegWriter
+import io.bluetape4k.images.thumbnail.*
+import kotlinx.coroutines.flow.asFlow
+import java.nio.file.Path
+
+val pipeline = ThumbnailPipeline.builder()
+    .outputDirectory(Path.of("thumbs"))
+    .size(width = 320, height = 240, suffix = "small")
+    .format(ThumbnailFormat(SuspendJpegWriter.Default.withCompression(85), "jpg"))
+    .crop(ThumbnailCrop.Smart())
+    .options(ImageProcessingOptions(skipFailures = true))
+    .onFailure { failure ->
+        // failure.stage identifies validation/load/transform/write
+    }
+    .build()
+
+pipeline.process(listOf(Path.of("photo.jpg")).asFlow())
+```
+
+### Tile Processing
+
+```kotlin
+import io.bluetape4k.images.tiles.*
+
+val processor = TileProcessor()
+val tiles = processor.split(image, TileSize(width = 512, height = 512))
+val merged = processor.merge(tiles, image.width, image.height)
 ```
 
 ### TIFF Support (Issue #134)
