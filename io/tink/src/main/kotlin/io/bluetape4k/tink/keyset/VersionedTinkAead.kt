@@ -1,5 +1,6 @@
 package io.bluetape4k.tink.keyset
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.aead.TinkAead
 import java.time.Duration
@@ -14,6 +15,8 @@ import java.util.*
 class VersionedTinkAead(
     private val keysetStore: VersionedKeysetStore,
 ) {
+
+    companion object : KLogging()
 
     fun currentVersion(): Long = keysetStore.current().version
 

@@ -6,12 +6,17 @@ import co.elastic.clients.elasticsearch.core.ClosePointInTimeRequest
 import co.elastic.clients.elasticsearch.core.OpenPointInTimeRequest
 import co.elastic.clients.elasticsearch.core.SearchRequest
 import io.bluetape4k.elasticsearch.ElasticsearchDefaults
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
+
+@PublishedApi
+internal val log = KotlinLogging.logger {}
 
 // ---------------------------------------------------------------------------
 // Point-In-Time(PIT) suspend 확장함수
@@ -156,13 +161,13 @@ inline fun <reified T : Any> ElasticsearchAsyncClient.searchAsFlow(
             }
         } finally {
             // 정상/예외/취소 모든 종료 경로에서 PIT close 보장.
-            // CancellationException 은 재던짐, 그 외 close 실패는 swallow — leak 방지가 목적.
+            // CancellationException 은 재던짐, 그 외 close 실패는 warn 로그 후 swallow — leak 방지가 목적.
             try {
                 client.closePointInTimeSuspending(pitId)
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Throwable) {
-                // PIT close 실패 — swallow
+            } catch (e: Throwable) {
+                log.warn(e) { "Failed to close ES PIT: pitId=$pitId" }
             }
         }
     }

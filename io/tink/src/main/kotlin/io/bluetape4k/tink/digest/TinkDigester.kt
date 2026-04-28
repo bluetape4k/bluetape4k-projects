@@ -1,5 +1,6 @@
 package io.bluetape4k.tink.digest
 
+import io.bluetape4k.logging.KLogging
 import java.security.MessageDigest
 import java.util.*
 
@@ -22,6 +23,8 @@ import java.util.*
 class TinkDigester(
     val algorithmName: String,
 ) {
+
+    companion object : KLogging()
     /**
      * 바이트 배열의 해시 다이제스트를 계산합니다.
      *

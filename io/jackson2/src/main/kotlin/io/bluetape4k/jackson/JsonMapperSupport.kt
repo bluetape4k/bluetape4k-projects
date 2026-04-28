@@ -6,7 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.warn
 import java.io.File
 import java.io.InputStream
 import java.io.Reader
@@ -14,7 +15,8 @@ import java.io.StringWriter
 import java.net.URL
 import kotlin.use
 
-private object JsonMapperSupportLogger: KLogging()
+@PublishedApi
+internal val log = KotlinLogging.logger {}
 
 /**
  * [JsonMapper.Builder] DSL로 [JsonMapper]를 생성합니다.
@@ -57,7 +59,9 @@ inline fun <reified T> jacksonTypeRef(): TypeReference<T> = object: TypeReferenc
  * ```
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(content: String): T? =
-    runCatching { readValue(content, jacksonTypeRef<T>()) }.getOrNull()
+    runCatching { readValue(content, jacksonTypeRef<T>()) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * [Reader]에서 JSON 데이터를 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -68,7 +72,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(content: String): T? =
  * ```
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: Reader): T? =
-    runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
+    runCatching { readValue(input, jacksonTypeRef<T>()) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * [InputStream]에서 JSON 데이터를 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -79,7 +85,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(input: Reader): T? =
  * ```
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: InputStream): T? =
-    runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
+    runCatching { readValue(input, jacksonTypeRef<T>()) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * JSON [ByteArray]를 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -93,7 +101,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(
     input: ByteArray,
     offset: Int = 0,
     length: Int = input.size,
-): T? = runCatching { readValue(input, offset, length, jacksonTypeRef<T>()) }.getOrNull()
+): T? = runCatching { readValue(input, offset, length, jacksonTypeRef<T>()) }
+    .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+    .getOrNull()
 
 /**
  * [File]에서 JSON 데이터를 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -104,7 +114,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(
  * ```
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(input: File): T? =
-    runCatching { readValue(input, jacksonTypeRef<T>()) }.getOrNull()
+    runCatching { readValue(input, jacksonTypeRef<T>()) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * [URL]에서 JSON 데이터를 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -117,7 +129,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(input: File): T? =
 inline fun <reified T> ObjectMapper.readValueOrNull(input: URL): T? =
     runCatching {
         input.openStream().use { stream -> readValue(stream, jacksonTypeRef<T>()) }
-    }.getOrNull()
+    }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * [JsonParser]에서 토큰을 읽어 reified 타입 [T]로 역직렬화합니다. 실패 시 null을 반환합니다.
@@ -129,7 +143,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(input: URL): T? =
  * ```
  */
 inline fun <reified T> ObjectMapper.readValueOrNull(parser: JsonParser): T? =
-    runCatching { readValue(parser, jacksonTypeRef<T>()) }.getOrNull()
+    runCatching { readValue(parser, jacksonTypeRef<T>()) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * 임의 객체를 reified 타입 [T]로 변환합니다. 실패 시 null을 반환합니다.
@@ -142,7 +158,9 @@ inline fun <reified T> ObjectMapper.readValueOrNull(parser: JsonParser): T? =
  * ```
  */
 inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
-    runCatching { convertValue(from, jacksonTypeRef<T>()) }.getOrNull()
+    runCatching { convertValue(from, jacksonTypeRef<T>()) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * [TreeNode]를 reified 타입 [T]로 변환합니다. 실패 시 null을 반환합니다.
@@ -155,7 +173,9 @@ inline fun <reified T> ObjectMapper.convertValueOrNull(from: Any): T? =
  * ```
  */
 inline fun <reified T> ObjectMapper.treeToValueOrNull(node: TreeNode): T? =
-    runCatching { treeToValue(node, T::class.java) }.getOrNull()
+    runCatching { treeToValue(node, T::class.java) }
+        .onFailure { e -> log.warn(e) { "JSON parsing failed" } }
+        .getOrNull()
 
 /**
  * 객체를 JSON 문자열로 직렬화합니다.

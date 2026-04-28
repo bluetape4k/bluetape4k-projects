@@ -1,5 +1,6 @@
 package io.bluetape4k.tink.encrypt
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.tink.aead.TinkAead
 
 /**
@@ -18,6 +19,8 @@ import io.bluetape4k.tink.aead.TinkAead
  * @param aead 사용할 [TinkAead] 인스턴스
  */
 class TinkAeadEncryptor(private val aead: TinkAead): TinkEncryptor {
+
+    companion object : KLogging()
 
     override fun encrypt(plaintext: ByteArray): ByteArray = aead.encrypt(plaintext)
 
