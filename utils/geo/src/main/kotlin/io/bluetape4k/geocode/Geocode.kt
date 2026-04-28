@@ -64,6 +64,9 @@ data class Geocode(
         fun parse(geocode: String, delimiter: String = ","): Geocode {
             geocode.requireNotBlank("geocode")
             val splits = geocode.split(delimiter, ignoreCase = true, limit = 2)
+            require(splits.size == 2) {
+                "Geocode must be 'lat${delimiter}lon' format: '$geocode'"
+            }
             return Geocode(
                 latitude = splits[0].toBigDecimal(DefaultMathContext),
                 longitude = splits[1].toBigDecimal(DefaultMathContext)

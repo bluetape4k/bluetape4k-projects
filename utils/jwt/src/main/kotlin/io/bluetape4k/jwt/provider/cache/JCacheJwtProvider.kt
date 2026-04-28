@@ -41,7 +41,7 @@ class JCacheJwtProvider(
             }
             ?: delegate.tryParse(jwtString)?.apply {
                 if (!isExpired) {
-                    cache.put(jwtString, toDto())
+                    cache.put(jwtString, toDto(jwtString))
                 }
             }
     }

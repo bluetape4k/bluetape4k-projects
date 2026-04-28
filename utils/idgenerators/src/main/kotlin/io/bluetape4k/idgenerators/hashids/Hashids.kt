@@ -11,6 +11,12 @@ import kotlin.math.sign
 /**
  * YouTube 처럼 단축 URL을 만드는데 사용하는 Hashids 알고리즘을 구현한 클래스
  *
+ * ## 보안 주의
+ * - Hashids는 **암호화 알고리즘이 아닙니다**. 난독화(obfuscation) 용도로만 사용하세요.
+ * - 기본 salt(`DEFAULT_SALT = ""`)는 공개 Hashids 참조 구성과 동일하여 trivially reversible합니다.
+ * - **보안 토큰, 인증 ID, 민감한 식별자에 절대 사용하지 마세요.**
+ * - 실제 사용 시에는 반드시 충분히 복잡한 고유 salt 값을 지정하세요.
+ *
  * ```kotlin
  * val hashids = Hashids("great korea")
  *
@@ -30,6 +36,12 @@ class Hashids(
         /** 기본 알고리즘에서 변환을 지원하는 최대 값 */
         const val MAX_NUMBER = 9007199254740992L
 
+        /**
+         * 기본 salt 값입니다.
+         *
+         * **경고**: 빈 문자열 salt는 공개 Hashids 참조 구성과 동일하므로 보안 목적으로 사용하지 마세요.
+         * 실제 사용 시 반드시 고유하고 복잡한 salt 값을 제공하세요.
+         */
         private const val DEFAULT_SALT = ""
         private const val DEFAULT_MIN_HASH_LEN = 0
         private const val DEFAULT_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
