@@ -27,7 +27,7 @@ import net.jpountz.lz4.LZ4Factory
  * val decompressed = compressor.decompress(compressed)
  * ```
  *
- * @see [lz4-java](https://github.com/lz4/lz4-java)
+ * @see [lz4-java yawkat fork](https://github.com/yawkat/lz4-java) — CVE-2025-12183/CVE-2025-66566 패치 포함 유지보수 버전
  */
 class LZ4Compressor: AbstractCompressor() {
 

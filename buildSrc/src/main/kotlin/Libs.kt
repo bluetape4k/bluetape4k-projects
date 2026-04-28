@@ -842,9 +842,9 @@ object Libs {
 
     // Compression
     const val snappy_java = "org.xerial.snappy:snappy-java:1.1.10.8"  // https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java
-    const val lz4_java = "org.lz4:lz4-java:1.8.0"                     // https://mvnrepository.com/artifact/org.lz4/lz4-java
-    // kafka clients 내부에 기존 lz4-java 를 사용한다.
-    // const val lz4_java = "at.yawk.lz4:lz4-java:1.8.1"                     // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
+    // SECURITY: CVE-2025-12183 (CVSS 8.8) + CVE-2025-66566 (CVSS 8.2) — archived org.lz4/lz4-java 에서 유지보수 중인 yawkat fork 로 마이그레이션.
+    // net.jpountz.lz4.* namespace 동일 (binary-compatible). 소스 코드 변경 불필요.
+    const val lz4_java = "at.yawk.lz4:lz4-java:1.11.0"                // https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 
     // https://github.com/hyperxpro/Brotli4j
     const val brotli4j = "com.aayushatharva.brotli4j:brotli4j:1.20.0" // https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j

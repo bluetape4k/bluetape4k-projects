@@ -508,6 +508,45 @@ io.bluetape4k.kafka
 └── TopicPartitionSupport.kt  # TopicPartition utilities
 ```
 
+## Security: LZ4 Migration (CVE-2025-12183, CVE-2025-66566)
+
+`org.lz4:lz4-java` was archived in December 2025 and has two unpatched CVEs:
+
+- **CVE-2025-12183** (CVSS 8.8) — out-of-bounds read
+- **CVE-2025-66566** (CVSS 8.2) — uninitialized buffer info leak
+
+This module migrates to the maintained fork **`at.yawk.lz4:lz4-java:1.11.0`**, which keeps the
+`net.jpountz.lz4.*` package namespace (binary-compatible — no source changes required).
+
+Because Kafka clients (`kafka-clients`, `spring-kafka`, `reactor-kafka`, `kafka-streams`) still
+declare a transitive dependency on `org.lz4:lz4-java`, this module evicts it via:
+
+```kotlin
+configurations.all {
+    exclude(group = "org.lz4", module = "lz4-java")
+}
+```
+
+### Downstream consumers
+
+If your application directly depends on `kafka-clients` (or any of its siblings) **without** going
+through `bluetape4k-kafka`, add the same `configurations.all { exclude(...) }` block **and** declare
+the replacement explicitly:
+
+```kotlin
+configurations.all {
+    exclude(group = "org.lz4", module = "lz4-java")
+}
+
+dependencies {
+    // Provides net.jpountz.lz4.* at runtime — required for Kafka LZ4 compression codec
+    implementation("at.yawk.lz4:lz4-java:1.11.0")
+}
+```
+
+`bluetape4k-kafka` already exposes `at.yawk.lz4:lz4-java:1.11.0` as an `api` dependency,
+so direct users of this module do not need to add it manually.
+
 ## References
 
 - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
