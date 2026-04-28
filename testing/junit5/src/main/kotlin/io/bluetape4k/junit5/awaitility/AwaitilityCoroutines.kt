@@ -1,5 +1,6 @@
 package io.bluetape4k.junit5.awaitility
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -99,7 +100,15 @@ suspend infix fun ConditionFactory.untilSuspending(
         }
 
         val satisfied = try {
-            val pollDeferred = async { runCatching { block() } }
+            val pollDeferred = async {
+                try {
+                    Result.success(block())
+                } catch (e: CancellationException) {
+                    throw e  // 부모 취소는 반드시 전파 — Result.failure로 포장하지 않음
+                } catch (e: Throwable) {
+                    Result.failure(e)
+                }
+            }
             val pollResult = select<Any?> {
                 pollDeferred.onAwait { result ->
                     result
@@ -119,6 +128,9 @@ suspend infix fun ConditionFactory.untilSuspending(
                 lastThrowable = null
             }
         } catch (e: Throwable) {
+            if (e is CancellationException) {
+                throw e  // CancellationException은 exceptionIgnorer에 전달하지 않고 반드시 전파
+            }
             if (e is ConditionTimeoutException) {
                 throw e
             }

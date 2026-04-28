@@ -13,9 +13,10 @@ import kotlin.reflect.KClass
  *
  * ## 동작/계약
  * - 생성 시 즉시 `start()` 후 대상 logger에 attach됩니다.
- * - 이벤트 목록은 `ConcurrentLinkedDeque`로 저장되어 lock-free 동시 추가 및 O(1) 마지막 요소 접근에 안전합니다.
+ * - 이벤트 목록은 `ConcurrentLinkedDeque`로 저장되며, [maxEvents] 초과 시 가장 오래된 이벤트를 제거합니다.
  * - [stop] 호출 시 logger에서 detach되고 내부 이벤트를 비웁니다.
- * - SLF4J substitute logger 상태에서는 logger 획득 대기를 반복할 수 있습니다.
+ * - [AutoCloseable]을 구현하므로 `use {}` 블록 또는 `@AfterEach`에서 안전하게 닫을 수 있습니다.
+ * - SLF4J 바인딩이 Logback이 아니면 생성 시 즉시 [IllegalStateException]이 발생합니다.
  *
  * ```kotlin
  * val appender = InMemoryLogbackAppender("root")
@@ -23,8 +24,13 @@ import kotlin.reflect.KClass
  * appender.stop()
  * // appender.size == 0
  * ```
+ *
+ * @param maxEvents 보관할 최대 이벤트 수. 초과 시 가장 오래된 이벤트가 제거됩니다. 기본값은 1000.
  */
-class InMemoryLogbackAppender private constructor(name: String): AppenderBase<ILoggingEvent>() {
+class InMemoryLogbackAppender private constructor(
+    name: String,
+    private val maxEvents: Int = 1000,
+): AppenderBase<ILoggingEvent>(), AutoCloseable {
 
     companion object: KLogging() {
         /**
@@ -33,9 +39,13 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
          * ## 동작/계약
          * - 생성 즉시 대상 logger에 attach됩니다.
          * - 기본 이름은 `"root"`입니다.
+         *
+         * @param name 대상 logger 이름. 기본값은 `"root"`.
+         * @param maxEvents 보관할 최대 이벤트 수. 기본값은 1000.
          */
         @JvmStatic
-        operator fun invoke(name: String = "root"): InMemoryLogbackAppender = InMemoryLogbackAppender(name)
+        operator fun invoke(name: String = "root", maxEvents: Int = 1000): InMemoryLogbackAppender =
+            InMemoryLogbackAppender(name, maxEvents)
 
         /**
          * 클래스 이름 기반으로 appender를 생성합니다.
@@ -43,9 +53,13 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
          * ## 동작/계약
          * - `canonicalName`이 없으면 `name`을 사용합니다.
          * - 내부적으로 [invoke]를 재사용합니다.
+         *
+         * @param clazz 대상 logger로 사용할 Java 클래스.
+         * @param maxEvents 보관할 최대 이벤트 수. 기본값은 1000.
          */
         @JvmStatic
-        operator fun invoke(clazz: Class<*>): InMemoryLogbackAppender = invoke(clazz.canonicalName ?: clazz.name)
+        operator fun invoke(clazz: Class<*>, maxEvents: Int = 1000): InMemoryLogbackAppender =
+            invoke(clazz.canonicalName ?: clazz.name, maxEvents)
 
         /**
          * Kotlin 클래스 기반으로 appender를 생성합니다.
@@ -53,27 +67,24 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
          * ## 동작/계약
          * - `qualifiedName`이 없으면 Java 클래스 이름을 사용합니다.
          * - 내부적으로 [invoke]를 재사용합니다.
+         *
+         * @param kclazz 대상 logger로 사용할 Kotlin 클래스.
+         * @param maxEvents 보관할 최대 이벤트 수. 기본값은 1000.
          */
         @JvmStatic
-        operator fun invoke(kclazz: KClass<*>): InMemoryLogbackAppender =
-            invoke(kclazz.qualifiedName ?: kclazz.java.name)
+        operator fun invoke(kclazz: KClass<*>, maxEvents: Int = 1000): InMemoryLogbackAppender =
+            invoke(kclazz.qualifiedName ?: kclazz.java.name, maxEvents)
     }
 
     private val logger: ch.qos.logback.classic.Logger by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val maxAttempts = 1000
-        var attempts = 0
-        var logger: org.slf4j.Logger = LoggerFactory.getLogger(name)
-        while (logger !is ch.qos.logback.classic.Logger) {
-            if (++attempts >= maxAttempts) {
-                throw IllegalStateException(
-                    "SLF4J 바인딩이 Logback이 아닙니다. InMemoryLogbackAppender는 Logback 환경에서만 사용할 수 있습니다. " +
-                            "현재 바인딩: ${logger.javaClass.name}"
-                )
-            }
-            Thread.sleep(1)
-            logger = LoggerFactory.getLogger(name)
+        val slf4jLogger: org.slf4j.Logger = LoggerFactory.getLogger(name)
+        if (slf4jLogger !is ch.qos.logback.classic.Logger) {
+            throw IllegalStateException(
+                "SLF4J 바인딩이 Logback이 아닙니다. InMemoryLogbackAppender는 Logback 환경에서만 사용할 수 있습니다. " +
+                        "현재 바인딩: ${slf4jLogger.javaClass.name}"
+            )
         }
-        LoggerFactory.getLogger(name) as ch.qos.logback.classic.Logger
+        slf4jLogger
     }
 
     // 멀티스레드 환경에서 add+peekLast 모두 O(1)인 lock-free deque 사용
@@ -99,9 +110,15 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
      * ## 동작/계약
      * - null 이벤트는 무시합니다.
      * - 이벤트 객체는 복사하지 않고 참조를 그대로 저장합니다.
+     * - [maxEvents] 초과 시 가장 오래된 이벤트를 제거해 메모리 누수를 방지합니다.
      */
     override fun append(event: ILoggingEvent?) {
-        event?.let { events.add(it) }
+        event?.let {
+            events.addLast(it)
+            while (events.size > maxEvents) {
+                events.pollFirst()
+            }
+        }
     }
 
     /**
@@ -115,6 +132,17 @@ class InMemoryLogbackAppender private constructor(name: String): AppenderBase<IL
         logger.detachAppender(this)
         clear()
         super.stop()
+    }
+
+    /**
+     * [AutoCloseable] 구현. [stop]을 호출해 logger에서 detach하고 이벤트를 정리합니다.
+     *
+     * ## 동작/계약
+     * - `use {}` 블록 또는 `@AfterEach`에서 호출합니다.
+     * - 이미 중지된 상태에서 호출해도 안전합니다.
+     */
+    override fun close() {
+        stop()
     }
 
     /**
