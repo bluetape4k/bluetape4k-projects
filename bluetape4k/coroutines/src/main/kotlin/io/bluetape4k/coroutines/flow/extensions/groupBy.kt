@@ -4,10 +4,12 @@ import io.bluetape4k.collections.tryForEach
 import io.bluetape4k.coroutines.flow.exceptions.FlowOperationException
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import org.eclipse.collections.api.multimap.list.ListMultimap
@@ -268,6 +270,9 @@ internal fun <T, K: Any, V> groupByInternal(
     }
 }
 
+/** 미수집 그룹 consumer 대기 타임아웃 (밀리초). 이 시간 안에 collect가 시작되지 않으면 해당 그룹을 포기합니다. */
+private const val GROUP_CONSUMER_READY_TIMEOUT_MS = 5_000L
+
 private class GroupByState {
     val mainStopped = atomic(false)
 }
@@ -332,7 +337,16 @@ private class FlowGroup<K: Any, V>(
     suspend fun next(value: V) {
         if (cancelled.value) return
 
-        consumerReady.await()
+        try {
+            withTimeout(GROUP_CONSUMER_READY_TIMEOUT_MS) {
+                consumerReady.await()
+            }
+        } catch (e: TimeoutCancellationException) {
+            // 그룹이 타임아웃 내에 수집되지 않음 — upstream에 전파하지 않고 해당 그룹만 포기
+            map.remove(this.key)
+            cancelled.value = true
+            return
+        }
         this.value = value
         this.hasValue.value = true
         valueReady.resume()

@@ -15,6 +15,11 @@ import kotlinx.coroutines.runBlocking
  * - `await()`는 suspend 방식으로 결과를 기다리며 예외/취소를 그대로 전파합니다.
  * - 완료된 값이 있으면 equals/hashCode는 값 기준, 미완료면 Deferred 참조 기준으로 동작합니다.
  *
+ * > **라이프사이클 주의**: [DeferredValue]는 자체 `DefaultCoroutineScope`를 소유하므로
+ * > caller가 포기해도 내부 비동기 작업이 계속 실행될 수 있습니다.
+ * > caller scope와 라이프사이클을 연동해야 하는 경우 `close()`를 명시적으로 호출하거나,
+ * > caller의 `CoroutineScope`에서 `async { valueSupplier() }`를 직접 사용하는 것을 고려하세요.
+ *
  * ```kotlin
  * val deferred = deferredValueOf { 21 * 2 }
  * val value = deferred.value

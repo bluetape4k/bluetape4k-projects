@@ -98,10 +98,6 @@ class DeferredValueTest {
     @Test
     fun `equals hashCode toString은 완료 전 계산을 블로킹하지 않는다`() = runTest {
         val gate = CompletableDeferred<Unit>()
-        Thread {
-            Thread.sleep(1_500)
-            gate.complete(Unit)
-        }.start()
 
         val dv1 = deferredValueOf {
             gate.await()
@@ -122,6 +118,7 @@ class DeferredValueTest {
         dv1.isCompleted.shouldBeFalse()
         dv2.isCompleted.shouldBeFalse()
 
+        // gate를 완료시켜 deferred가 정리될 수 있도록 함
         gate.complete(Unit)
     }
 
