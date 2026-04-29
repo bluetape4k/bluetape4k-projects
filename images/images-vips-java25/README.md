@@ -480,20 +480,30 @@ class ImageController(
 
 Both modules implement the same `VipsImage` interface and are interchangeable at the API level.
 
-### Performance vs scrimage (macOS, GraalVM 25.0.3, vips-ffm 1.9.6)
+### Performance vs scrimage
 
 ```mermaid
 xychart-beta horizontal
-    title "scrimage vs vips-ffm (ms/op, lower is better)"
-    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage encode JPEG", "vips encode JPEG", "scrimage encode PNG", "vips encode PNG"]
-    y-axis "ms/op" 0 --> 100
-    bar [71.16, 0.20, 52.49, 15.67, 94.87, 49.88]
+    title "scrimage vs vips-ffm — Linux CI, java25 (ms/op, lower is better)"
+    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage JPEG", "vips JPEG", "scrimage PNG", "vips PNG"]
+    y-axis "ms/op" 0 --> 270
+    bar [187.29, 0.59, 171.16, 37.20, 249.01, 137.95]
 ```
+
+**CI Linux (Ubuntu 24.04, GraalVM 25, libvips 8.15.1)**
+
+| Operation | scrimage (ms/op) | vips-ffm (ms/op) | Speedup |
+|-----------|-----------------|------------------|---------|
+| resize 4K→1920×1080 | 187.29 | **0.591** | **317×** |
+| resize 4K→1280×720  | 119.45 | **0.626** | **191×** |
+| encode JPEG         | 171.16 | **37.20** | **4.6×** |
+| encode PNG          | 249.01 | **137.95** | **1.8×** |
+
+**macOS (Apple Silicon, GraalVM 25.0.3, libvips 8.18.2)**
 
 | Operation | scrimage (ms/op) | vips-ffm (ms/op) | Speedup |
 |-----------|-----------------|------------------|---------|
 | resize 4K→1920×1080 | 71.16 | **0.202** | **352×** |
-| resize 4K→1280×720  | 47.85 | **0.207** | **231×** |
 | encode JPEG         | 52.49 | **15.67** | **3.3×** |
 | encode PNG          | 94.87 | **49.88** | **1.9×** |
 

@@ -479,20 +479,30 @@ class ImageController(
 
 두 모듈 모두 동일한 `VipsImage` 인터페이스를 구현하며 API 수준에서 상호교환 가능합니다.
 
-### scrimage 대비 성능 (macOS, GraalVM 25.0.3, vips-ffm 1.9.6)
+### scrimage 대비 성능
 
 ```mermaid
 xychart-beta horizontal
-    title "scrimage vs vips-ffm (ms/op, 낮을수록 빠름)"
-    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage encode JPEG", "vips encode JPEG", "scrimage encode PNG", "vips encode PNG"]
-    y-axis "ms/op" 0 --> 100
-    bar [71.16, 0.20, 52.49, 15.67, 94.87, 49.88]
+    title "scrimage vs vips-ffm — Linux CI, java25 (ms/op, 낮을수록 빠름)"
+    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage JPEG", "vips JPEG", "scrimage PNG", "vips PNG"]
+    y-axis "ms/op" 0 --> 270
+    bar [187.29, 0.59, 171.16, 37.20, 249.01, 137.95]
 ```
+
+**CI Linux (Ubuntu 24.04, GraalVM 25, libvips 8.15.1)**
+
+| 연산 | scrimage (ms/op) | vips-ffm (ms/op) | 속도 향상 |
+|------|-----------------|------------------|----------|
+| resize 4K→1920×1080 | 187.29 | **0.591** | **317배** |
+| resize 4K→1280×720  | 119.45 | **0.626** | **191배** |
+| encode JPEG         | 171.16 | **37.20** | **4.6배** |
+| encode PNG          | 249.01 | **137.95** | **1.8배** |
+
+**macOS (Apple Silicon, GraalVM 25.0.3, libvips 8.18.2)**
 
 | 연산 | scrimage (ms/op) | vips-ffm (ms/op) | 속도 향상 |
 |------|-----------------|------------------|----------|
 | resize 4K→1920×1080 | 71.16 | **0.202** | **352배** |
-| resize 4K→1280×720  | 47.85 | **0.207** | **231배** |
 | encode JPEG         | 52.49 | **15.67** | **3.3배** |
 | encode PNG          | 94.87 | **49.88** | **1.9배** |
 

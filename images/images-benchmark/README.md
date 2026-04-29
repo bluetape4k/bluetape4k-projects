@@ -43,55 +43,60 @@ flowchart TD
 
 ## Benchmark Results
 
-> Environment: macOS Apple Silicon, GraalVM JDK 25.0.3, vips-ffm 1.9.6 (libvips 8.18.2), AverageTime ms/op
+> AverageTime ms/op. Full raw data: [`docs/benchmark-results-2026-04-29.md`](docs/benchmark-results-2026-04-29.md)
 
-### Resize (4K 3840×2160 → target)
+### Resize (4K 3840×2160 → 1920×1080)
 
 ```mermaid
 xychart-beta horizontal
-    title "Resize: scrimage vs vips (ms/op, lower is better)"
-    x-axis ["scrimage 1920×1080", "vips 1920×1080", "scrimage 1280×720", "vips 1280×720"]
-    y-axis "ms/op" 0 --> 80
-    bar [71.16, 0.20, 47.85, 0.21]
+    title "Resize 1920×1080: scrimage vs vips (ms/op, lower is better)"
+    x-axis ["scrimage macOS", "vips macOS", "scrimage Linux java25", "vips Linux java25", "scrimage Linux java21", "vips Linux java21"]
+    y-axis "ms/op" 0 --> 210
+    bar [71.16, 0.20, 187.29, 0.59, 195.63, 0.50]
 ```
 
-| Target | scrimage (ms/op) | vips (ms/op) | Speedup |
-|--------|-----------------|--------------|---------|
-| 1920×1080 | 71.16 ± 2.02 | 0.202 ± 0.006 | **352×** |
-| 1280×720  | 47.85 ± 1.72 | 0.207 ± 0.011 | **231×** |
+| Environment | scrimage (ms/op) | vips (ms/op) | Speedup |
+|-------------|-----------------|--------------|---------|
+| macOS, vips-ffm  | 71.16 ± 2.02  | 0.202 ± 0.006 | **352×** |
+| CI Linux, java25 | 187.29 ± 9.07 | 0.591 ± 0.046 | **317×** |
+| CI Linux, java21 | 195.63 ± 7.39 | 0.495 ± 0.062 | **395×** |
 
 ### Encode (1240×1754 document image)
 
 ```mermaid
 xychart-beta horizontal
     title "Encode: scrimage vs vips (ms/op, lower is better)"
-    x-axis ["scrimage JPEG", "vips JPEG", "scrimage PNG", "vips PNG"]
-    y-axis "ms/op" 0 --> 110
-    bar [52.49, 15.67, 94.87, 49.88]
+    x-axis ["scrimage JPEG macOS", "vips JPEG macOS", "scrimage JPEG Linux", "vips JPEG Linux", "scrimage PNG macOS", "vips PNG macOS", "scrimage PNG Linux", "vips PNG Linux"]
+    y-axis "ms/op" 0 --> 270
+    bar [52.49, 15.67, 171.16, 37.20, 94.87, 49.88, 249.01, 137.95]
 ```
 
-| Format | scrimage (ms/op) | vips (ms/op) | Speedup |
-|--------|-----------------|--------------|---------|
-| JPEG   | 52.49 ± 0.44    | 15.67 ± 0.27  | **3.3×** |
-| PNG    | 94.87 ± 4.65    | 49.88 ± 1.02  | **1.9×** |
+| Format | Environment | scrimage (ms/op) | vips (ms/op) | Speedup |
+|--------|-------------|-----------------|--------------|---------|
+| JPEG | macOS, vips-ffm  | 52.49 ± 0.44   | 15.67 ± 0.27  | **3.3×** |
+| JPEG | CI Linux, java25 | 171.16 ± 121.3 | 37.20 ± 0.99  | **4.6×** |
+| JPEG | CI Linux, java21 | 161.09 ± 38.9  | 37.22 ± 1.50  | **4.3×** |
+| PNG  | macOS, vips-ffm  | 94.87 ± 4.65   | 49.88 ± 1.02  | **1.9×** |
+| PNG  | CI Linux, java25 | 249.01 ± 2.14  | 137.95 ± 2.93 | **1.8×** |
+| PNG  | CI Linux, java21 | 246.44 ± 2.14  | 255.90 ± 10.2 | −1.04× ⚠️ |
+
+> ⚠️ **java21 (JNI) PNG**: JNI boundary overhead exceeds compression gain vs scrimage. Use java25 (FFM) for PNG encoding on Linux.
 
 ### Filter (scrimage only, 1240×1754)
 
 ```mermaid
 xychart-beta horizontal
-    title "scrimage Filters (ms/op, lower is better)"
-    x-axis ["Sepia", "Grayscale", "Blur"]
-    y-axis "ms/op" 0 --> 35
-    bar [13.19, 22.51, 29.80]
+    title "scrimage Filters: macOS vs Linux (ms/op, lower is better)"
+    x-axis ["Sepia macOS", "Sepia Linux", "Grayscale macOS", "Grayscale Linux", "Blur macOS", "Blur Linux"]
+    y-axis "ms/op" 0 --> 110
+    bar [13.19, 60.83, 22.51, 99.72, 29.80, 73.64]
 ```
 
-| Filter    | scrimage (ms/op) |
-|-----------|-----------------|
-| Sepia     | 13.19 ± 0.49    |
-| Grayscale | 22.51 ± 9.19    |
-| Blur      | 29.80 ± 1.23    |
-
-Full raw data: [`docs/benchmark-results-2026-04-29.md`](docs/benchmark-results-2026-04-29.md)
+| Filter    | macOS (ms/op) | CI Linux java25 (ms/op) |
+|-----------|--------------|------------------------|
+| Sepia     | 13.19 ± 0.49 | 60.83 ± 0.42 |
+| Grayscale | 22.51 ± 9.19 | 99.72 ± 23.9 |
+| Blur      | 29.80 ± 1.23 | 73.64 ± 1.28 |
 
 ---
 
