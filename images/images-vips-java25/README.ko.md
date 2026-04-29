@@ -474,10 +474,29 @@ class ImageController(
 | **Java 버전** | 23+ | 21+ |
 | **JVM 플래그** | `--enable-native-access=ALL-UNNAMED` | 없음 |
 | **메모리 모델** | Arena 기반 자동 정리 | JNI 참조 계수 |
-| **성능** | 최신 Java 환경에 최적 | 검증된 안정성 |
+| **플랫폼** | macOS + Linux | Linux 전용 (macOS native binary 없음) |
 | **API** | 동일 VipsImage 인터페이스 | 동일 VipsImage 인터페이스 |
 
 두 모듈 모두 동일한 `VipsImage` 인터페이스를 구현하며 API 수준에서 상호교환 가능합니다.
+
+### scrimage 대비 성능 (macOS, GraalVM 25.0.3, vips-ffm 1.9.6)
+
+```mermaid
+xychart-beta horizontal
+    title "scrimage vs vips-ffm (ms/op, 낮을수록 빠름)"
+    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage encode JPEG", "vips encode JPEG", "scrimage encode PNG", "vips encode PNG"]
+    y-axis "ms/op" 0 --> 100
+    bar [71.16, 0.20, 52.49, 15.67, 94.87, 49.88]
+```
+
+| 연산 | scrimage (ms/op) | vips-ffm (ms/op) | 속도 향상 |
+|------|-----------------|------------------|----------|
+| resize 4K→1920×1080 | 71.16 | **0.202** | **352배** |
+| resize 4K→1280×720  | 47.85 | **0.207** | **231배** |
+| encode JPEG         | 52.49 | **15.67** | **3.3배** |
+| encode PNG          | 94.87 | **49.88** | **1.9배** |
+
+전체 상세 결과: [`images-benchmark/docs/benchmark-results-2026-04-29.md`](../images-benchmark/docs/benchmark-results-2026-04-29.md)
 
 ## 테스트
 

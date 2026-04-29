@@ -1149,7 +1149,28 @@ Pixel-level regression testing via [`GoldenImageAssert`](src/test/kotlin/io/blue
 
 ### Property-Based Testing (PBT)
 
-[`ImagePropertyTest`](src/test/kotlin/io/bluetape4k/images/property/ImagePropertyTest.kt) verifies 10 invariants across 6 deterministic image inputs.
+[`ImagePropertyTest`](src/test/kotlin/io/bluetape4k/images/property/ImagePropertyTest.kt) verifies 10 invariants across 6 deterministic image inputs (320×240, 640×480, 1280×720, 3840×2160 solid/gradient/noise).
+
+| # | Invariant | Description |
+|---|-----------|-------------|
+| 1 | scaleTo dimensions | `scaleTo(w, h)` output is exactly `w×h` |
+| 2 | fit bounds | `fit(w, h)` output is within `w×h` |
+| 3 | grayscale R==G==B | Every pixel has R, G, B equal after grayscale |
+| 4 | resize round-trip | decode→encode→decode yields same dimensions |
+| 5 | PNG bytes > 0 | PNG encoding always produces non-empty bytes |
+| 6 | sepia ≠ grayscale | sepia and grayscale produce distinct results |
+| 7 | scaleTo idempotent | `scaleTo` twice with same target is identical |
+| 8 | resize shrinks bytes | Downscaled JPEG ≤ original JPEG in bytes |
+| 9 | solid JPEG round-trip | Solid-color JPEG survives encode→decode |
+| 10 | filter preserves size | `filter()` keeps original width and height |
+
+```bash
+# Run PBT + golden tests
+./gradlew :bluetape4k-images:test
+
+# Regenerate golden images
+./gradlew :bluetape4k-images:test -Dbluetape4k.images.golden.update=true
+```
 
 ## Dependency
 

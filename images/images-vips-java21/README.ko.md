@@ -411,3 +411,5 @@ sudo apt-get install libvips-tools
 
 - [bluetape4k-images](../images/) — Scrimage 기반 이미지 처리 (코루틴 비동기)
 - [bluetape4k-images-vips-api](../images-vips-api/) — VipsRuntime 및 VipsImage 계약
+- [bluetape4k-images-vips-java25](../images-vips-java25/) — Panama FFM 백엔드 (macOS + Linux, 권장)
+- [bluetape4k-images-benchmark](../images-benchmark/) — JMH 벤치마크: scrimage vs vips 성능 비교

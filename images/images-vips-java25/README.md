@@ -475,10 +475,29 @@ class ImageController(
 | **Java Version** | 23+ | 21+ |
 | **JVM Flag** | `--enable-native-access=ALL-UNNAMED` | None |
 | **Memory Model** | Arena-based auto-cleanup | JNI reference counting |
-| **Performance** | Best with modern Java | Proven stable |
+| **Platform** | macOS + Linux | Linux only (no macOS native binary) |
 | **API** | Same VipsImage interface | Same VipsImage interface |
 
 Both modules implement the same `VipsImage` interface and are interchangeable at the API level.
+
+### Performance vs scrimage (macOS, GraalVM 25.0.3, vips-ffm 1.9.6)
+
+```mermaid
+xychart-beta horizontal
+    title "scrimage vs vips-ffm (ms/op, lower is better)"
+    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage encode JPEG", "vips encode JPEG", "scrimage encode PNG", "vips encode PNG"]
+    y-axis "ms/op" 0 --> 100
+    bar [71.16, 0.20, 52.49, 15.67, 94.87, 49.88]
+```
+
+| Operation | scrimage (ms/op) | vips-ffm (ms/op) | Speedup |
+|-----------|-----------------|------------------|---------|
+| resize 4K→1920×1080 | 71.16 | **0.202** | **352×** |
+| resize 4K→1280×720  | 47.85 | **0.207** | **231×** |
+| encode JPEG         | 52.49 | **15.67** | **3.3×** |
+| encode PNG          | 94.87 | **49.88** | **1.9×** |
+
+Full details: [`images-benchmark/docs/benchmark-results-2026-04-29.md`](../images-benchmark/docs/benchmark-results-2026-04-29.md)
 
 ## Testing
 
