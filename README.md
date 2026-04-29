@@ -320,13 +320,19 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 - **[lingua](./texts/lingua/README.md)**: Language detection — Kotlin DSL wrapper over Lingua (75+ languages)
 - **[text-search](./texts/text-search/README.md)**: Aho-Corasick multi-keyword search — blockword filter, highlight, Flow API
 
+### Image Processing Modules (`images/`)
+
+- **[images](./images/images/README.md)**: Image processing utilities (scrimage-based — resize, crop, thumbnail, format conversion)
+- **[images-vips-api](./images/images-vips-api/README.md)**: libvips binding-neutral API — `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`, exceptions
+- **[images-vips-java21](./images/images-vips-java21/README.md)**: Java 21 JVips/JNI binding implementation — `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
+- **[images-vips-java25](./images/images-vips-java25/README.md)**: Java 25 vips-ffm/FFM API binding implementation — `FfmVipsRuntime`, `FfmVipsImage`, `Arena` lifecycle
+
 ### Utility Modules (`utils/`)
 
 - **[geo](./utils/geo/README.md)
   **: Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former
   `utils/geocode`, `utils/geohash`, `utils/geoip2`)
 - **[idgenerators](./utils/idgenerators/README.md)**: ID generators — `Uuid` (V1–V7 unified API), `ULID`, `Ksuid` (Seconds/Millis), `Snowflakers` unified factory, `Flake`, `Hashids`, and more
-- **[images](./utils/images/README.md)**: Image processing utilities
 - **[javatimes](./utils/javatimes/README.md)**: Date/time utilities
 - **[jwt](./utils/jwt/README.md)**: JWT processing
 - **[leader](./utils/leader/README.md)**: Leader election

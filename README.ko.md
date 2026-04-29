@@ -319,12 +319,18 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 - **[lingua](./texts/lingua/README.ko.md)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼 (75+ 언어)
 - **[text-search](./texts/text-search/README.ko.md)**: Aho-Corasick 다중 키워드 검색 — 금칙어 필터, 하이라이팅, Flow API
 
+### 이미지 처리 모듈 (`images/`)
+
+- **[images](./images/images/README.ko.md)**: 이미지 처리 유틸리티 (scrimage 기반 — 리사이즈, 크롭, 썸네일, 포맷 변환)
+- **[images-vips-api](./images/images-vips-api/README.ko.md)**: libvips 바인딩 중립 API — `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`, 예외 계층
+- **[images-vips-java21](./images/images-vips-java21/README.ko.md)**: Java 21 JVips/JNI 바인딩 구현체 — `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
+- **[images-vips-java25](./images/images-vips-java25/README.ko.md)**: Java 25 vips-ffm/FFM API 바인딩 구현체 — `FfmVipsRuntime`, `FfmVipsImage`, `Arena` 라이프사이클 관리
+
 ### 유틸리티 모듈 (`utils/`)
 
 - **[geo](./utils/geo/README.ko.md)**: 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구
   `utils/geocode`, `utils/geohash`, `utils/geoip2` 통합됨)
 - **[idgenerators](./utils/idgenerators/README.ko.md)**: ID 생성기 — `Uuid`(V1~V7 통일 API), `ULID`, `Ksuid`(Seconds/Millis), `Snowflakers` 통일 팩토리, `Flake`, `Hashids` 등 다양한 ID 생성 알고리즘 제공
-- **[images](./utils/images/README.ko.md)**: 이미지 처리
 - **[javatimes](./utils/javatimes/README.ko.md)**: 날짜/시간 유틸리티
 - **[jwt](./utils/jwt/README.ko.md)**: JWT 처리
 - **[leader](./utils/leader/README.ko.md)**: Leader 선출
