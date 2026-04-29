@@ -12,65 +12,64 @@ Issue #142는 `x-obsoleted/bloomfilter`에 남아 있는 JVM 인메모리 Bloom 
 - 패키지 루트: `io.bluetape4k.probabilistic`
 - 1차 범위: Bloom Filter API와 인메모리 구현
 - 제외 범위: Redis Lua/Redisson/Lettuce 구현, Cuckoo Filter 구현
+- Guava, Eclipse Collections 등 신규 컬렉션/확률 자료구조 의존성을 추가하지 않는다.
 - 공개 API는 한국어 KDoc을 제공한다.
 - README.md / README.ko.md에 사용 예시와 제약을 기록한다.
 - 기존 `x-obsoleted/bloomfilter`는 삭제하지 않고 참조 구현으로 둔다.
-- Guava가 제공하는 `writeTo/readFrom` 직렬화 API는 1차 공개 API 범위에서 제외한다.
 
 ## Step 1-R 연구 요약
 
-- Guava 공식 `BloomFilter` API는 `create(funnel, expectedInsertions, fpp)`, `put`, `mightContain`, `expectedFpp`, `approximateElementCount`, `writeTo/readFrom`을 제공한다.
-- Guava 문서는 예상 삽입 수보다 훨씬 많은 원소를 넣으면 필터 포화로 FPP가 급격히 악화될 수 있음을 명시한다.
-- repo에는 `Libs.guava`가 이미 `buildSrc/src/main/kotlin/Libs.kt`에 정의되어 있고 root dependency management에도 포함되어 있다.
+- `x-obsoleted/bloomfilter`는 직접 Murmur3/BitSet 기반 구현을 제공한다. 다만 `zero-allocation-hashing`, serializer 의존이 있고 mutable 구현은 `String` 전용이라 그대로 승격하지 않는다.
 - `infra/lettuce`의 `BloomFilterOptions`는 `expectedInsertions > 0`, `falseProbability in (0, 1)` 입력 검증 계약을 이미 사용한다.
-- `x-obsoleted/bloomfilter`는 직접 Murmur3/BitSet 구현을 제공하지만 serializer/zero-allocation-hashing 의존과 자체 해시 offset 수식을 갖고 있어 신규 모듈의 1차 안정 구현으로는 리스크가 더 크다.
+- repo에는 `Libs.guava`, `Libs.eclipse_collections`가 이미 있으나, 사용자 결정에 따라 이번 모듈에는 사용하지 않는다.
+- Eclipse Collections는 primitive collections를 제공하지만 Bloom Filter 자체나 JVM `BitSet`보다 이 작업에 더 적합한 bit-level 저장소를 제공하지 않는다.
+- JDK/Kotlin만으로도 `LongArray` 기반 bitset과 SHA-256 double hashing을 사용해 안정적인 Bloom Filter를 구현할 수 있다.
 
 ## 설계 옵션
 
-### 옵션 A: Guava BloomFilter 래퍼
+### 옵션 A: JDK/Kotlin 직접 구현
 
-Guava의 검증된 BloomFilter를 내부 구현으로 사용하고 bluetape4k용 인터페이스/DSL/suspend wrapper를 제공한다.
+`LongArray` bitset, SHA-256 기반 double hashing, Bloom Filter 수식으로 `m`/`k`를 계산하는 구현을 신규 모듈에 작성한다.
 
 장점:
-- 해시 전략, bit size 계산, 직렬화 형식이 검증된 구현에 위임된다.
-- 신규 모듈 구현량과 유지보수 리스크가 낮다.
-- Issue의 "Guava BloomFilter 래퍼 또는 직접 구현" 중 1차 구현 의도와 맞다.
+- 신규 외부 의존성이 없다.
+- 공개 API가 Guava/Eclipse Collections 타입에 묶이지 않는다.
+- 기존 `x-obsoleted`의 직접 구현 의도를 유지하면서 serializer/hash 라이브러리 의존을 제거한다.
 
 단점:
-- Guava `Funnel`을 공개 생성 API에 노출해야 한다.
-- `expectedInsertions`/`fpp`는 생성 시점 계약이며 실제 삽입 수 강제는 하지 않는다.
+- Guava처럼 battle-tested 구현을 위임하지 않으므로 수식/bitset/hash 테스트가 중요하다.
+- SHA-256은 Murmur3보다 느릴 수 있다.
 
 ### 옵션 B: x-obsoleted 직접 구현 패키지 승격
 
 기존 `Hasher`, `BitSet`, `LongArray` 기반 구현을 새 패키지로 옮긴다.
 
 장점:
-- 외부 Guava API 노출 없이 완전한 bluetape4k 구현을 제공할 수 있다.
-- 기존 테스트 일부를 거의 그대로 이전할 수 있다.
+- 기존 코드와 테스트 일부를 거의 그대로 이전할 수 있다.
 
 단점:
-- 기존 mutable 구현은 `String` 전용이고 bucket/lock 로직의 정확성 검증 비용이 크다.
-- serializer와 zero-allocation-hashing 의존이 필요해 신규 유틸 모듈의 표면이 넓어진다.
-- Guava가 이미 제공하는 검증된 기능을 다시 유지보수해야 한다.
+- `zero-allocation-hashing`과 serialization 의존이 남는다.
+- 기존 mutable 구현은 `String` 전용이고 bucket/lock 로직 검증 비용이 크다.
+- 기존 해시 offset 수식은 double hashing 표준 형태보다 검토하기 어렵다.
 
-### 옵션 C: Guava 래퍼 + 직접 구현 내부 백업
+### 옵션 C: Eclipse Collections 내부 저장소 사용
 
-공개 API는 Guava 래퍼로 제공하고, 향후 최적화를 위해 내부 해시/비트셋 유틸을 함께 둔다.
+Eclipse Collections primitive collections를 내부 bit/index 저장소로 사용한다.
 
 장점:
-- 향후 Guava 제거나 성능 최적화 여지가 생긴다.
+- 이미 repo dependency catalog에 존재한다.
 
 단점:
-- 당장 쓰지 않는 코드가 추가되어 테스트/문서/검토 비용이 증가한다.
-- 직접 구현과 Guava 구현의 동작 차이를 계속 맞춰야 한다.
+- Bloom Filter에 필요한 compact bitset에는 `LongArray`가 더 직접적이고 메모리 효율적이다.
+- 신규 모듈 공개/내부 의존성을 늘리는 이점이 없다.
 
 ## 결정
 
-옵션 A를 채택한다. 신규 `utils/probabilistic`는 Guava 기반 1차 구현으로 시작하고, 기존 직접 구현의 수식/테스트 관점만 차용한다.
+옵션 A를 채택한다. `utils/probabilistic`는 Guava/Eclipse Collections 없이 직접 구현한다. 기존 `x-obsoleted` 구현에서는 API 의도, 테스트 관점, Bloom Filter 수식만 차용하고 의존성/해시 구현은 새로 단순화한다.
 
 Rejected:
-- 옵션 B: 검증된 Guava 구현을 대체할 만큼의 성능/의존성 이점이 현재 요구사항에 없다.
-- 옵션 C: 사용하지 않는 내부 구현을 같이 승격하면 신규 모듈의 유지보수 표면이 불필요하게 커진다.
+- 옵션 B: 기존 구현 전체 승격은 불필요한 외부 의존과 String 전용 mutable 구현을 함께 승격한다.
+- 옵션 C: Eclipse Collections는 이 작업의 핵심인 bit-level Bloom Filter 저장소 문제를 더 단순하게 만들지 않는다.
 
 ## API 설계
 
@@ -78,10 +77,13 @@ Rejected:
 interface BloomFilter<T: Any> {
     val expectedInsertions: Long
     val falsePositiveProbability: Double
+    val bitSize: Long
+    val hashFunctionCount: Int
     fun mightContain(element: T): Boolean
     fun put(element: T): Boolean
     fun approximateElementCount(): Long
     fun expectedFpp(): Double
+    fun clear()
 }
 
 interface MutableBloomFilter<T: Any>: BloomFilter<T> {
@@ -91,42 +93,49 @@ interface MutableBloomFilter<T: Any>: BloomFilter<T> {
 interface SuspendBloomFilter<T: Any> {
     val expectedInsertions: Long
     val falsePositiveProbability: Double
+    val bitSize: Long
+    val hashFunctionCount: Int
     suspend fun mightContain(element: T): Boolean
     suspend fun put(element: T): Boolean
     suspend fun approximateElementCount(): Long
     suspend fun expectedFpp(): Double
+    suspend fun clear()
 }
 ```
 
 생성 DSL:
 
 ```kotlin
-val filter = bloomFilter(
+val filter = bloomFilter<String>(
     expectedInsertions = 1_000_000L,
     fpp = 0.01,
-) {
-    Funnels.stringFunnel(Charsets.UTF_8)
-}
+)
 ```
 
 구현 클래스:
 
-- `GuavaBloomFilter<T>`: Guava `com.google.common.hash.BloomFilter<T>` 래퍼
-- `GuavaSuspendBloomFilter<T>`: `GuavaBloomFilter<T>`에 suspend 계약을 입히는 메모리 연산 wrapper
-- `BloomFilterConfig`: `expectedInsertions`, `falsePositiveProbability` 입력 검증을 한 곳에 모은 value/data class
-- `putAll`은 동일한 Guava strategy/bit size/funnel 기반 필터끼리만 허용하고, 호환되지 않으면 `IllegalArgumentException`으로 실패한다.
+- `InMemoryBloomFilter<T>`: `LongArray` bitset 기반 Bloom Filter
+- `InMemoryMutableBloomFilter<T>`: `putAll` 병합이 가능한 동일 구현 alias/클래스
+- `InMemorySuspendBloomFilter<T>`: `InMemoryBloomFilter<T>`에 suspend 계약을 입히는 메모리 연산 wrapper
+- `BloomFilterConfig`: `expectedInsertions`, `falsePositiveProbability` 입력 검증과 `bitSize`, `hashFunctionCount` 계산
+- `BloomHasher<T>`: element를 hash bytes로 변환하는 전략
+- `DefaultBloomHasher`: `String`, `Int`, `Long`, `ByteArray`, `Serializable`, fallback `toString()`을 지원하는 기본 hasher
 
-호환 alias:
+## 내부 구현
 
-- Issue 명시 이름과 discoverability를 위해 `InMemoryBloomFilter<T>` / `InMemorySuspendBloomFilter<T>` typealias 또는 얇은 클래스를 제공한다.
-- `InMemoryMutableBloomFilter`는 "삭제 가능한 mutable"이 아니라 Guava의 `putAll` 가능한 mutable 의미로 제공한다. 삭제는 Bloom Filter 특성상 1차 범위에서 지원하지 않는다.
+- `bitSize = ceil(-n * ln(p) / ln(2)^2)`
+- `hashFunctionCount = max(1, round((bitSize / n) * ln(2)))`
+- SHA-256 digest에서 두 개의 64-bit 값을 뽑고 `hash1 + i * hash2` double hashing으로 offset을 생성한다.
+- bitset은 `LongArray((bitSize + 63) / 64)`로 저장한다.
+- `put`은 하나 이상의 bit가 새로 켜졌으면 `true`, 모두 이미 켜져 있으면 `false`를 반환한다. `false`는 "이미 존재 확정"이 아니라 Bloom Filter 특성상 "이미 존재할 가능성"이다.
+- `putAll`은 `bitSize`, `hashFunctionCount`, `expectedInsertions`, `falsePositiveProbability`가 같은 직접 구현끼리만 허용한다.
+- 기본 구현은 thread-safe를 보장하지 않는다. 동시 접근이 필요하면 호출자가 외부 동기화를 제공해야 한다.
 
 ## 모듈/의존성
 
 `utils/probabilistic/build.gradle.kts`
 
 - `api(project(":bluetape4k-core"))`
-- `api(Libs.guava)`
 - `compileOnly(Libs.kotlinx_coroutines_core)`
 - `testImplementation(project(":bluetape4k-junit5"))`
 - `testImplementation(Libs.kotlinx_coroutines_test)`
@@ -135,17 +144,18 @@ val filter = bloomFilter(
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Guava `Funnel` 직렬화/동등성 계약을 사용자가 잘못 이해 | compatible merge/serialization 실패 | README와 KDoc에 동일 Funnel 필요성을 명시 |
-| `put` 반환값이 "신규 원소 확정"으로 오해됨 | 호출자가 중복 검출을 과신 | `put`은 bit 변경 여부이며 false면 이미 존재 확정이 아님을 KDoc에 기록 |
-| 예상 삽입 수 초과로 FPP 악화 | 운영 오탐률 상승 | `expectedFpp()`/README로 모니터링 가능성을 안내하고 테스트로 설정 FPP 근방 검증 |
-| suspend API가 I/O 비동기 처리로 오해됨 | 불필요한 dispatcher 전환 기대 | KDoc에 현재 구현은 비블로킹 메모리 연산이라고 명시 |
-| `InMemoryMutableBloomFilter` 이름이 삭제 지원처럼 보임 | API 오용 | 삭제 API를 노출하지 않고 `putAll` 의미의 mutable로 제한, README에 Counting Bloom Filter 아님을 기록 |
-| Guava 직렬화 API를 노출하면 Funnel 직렬화 호환성이 공개 계약이 됨 | 장기 호환성 부담 | 1차 구현에서는 직렬화 API를 공개하지 않고 내부 래퍼의 멤버십 계약만 제공 |
+| 직접 구현 수식 오류 | FPP/메모리 사용량 오류 | `BloomFilterConfig` 단위 테스트로 bit size/hash count 범위 검증 |
+| hash offset 편향 | FPP 악화 | SHA-256 double hashing과 deterministic FPP 회귀 테스트 사용 |
+| `put` 반환값 오해 | 호출자가 중복 검출을 과신 | KDoc/README에 bit 변경 여부라고 명시 |
+| 예상 삽입 수 초과로 FPP 악화 | 운영 오탐률 상승 | `expectedFpp()`와 README 제약 문서화 |
+| suspend API가 I/O 비동기 처리로 오해됨 | 불필요한 dispatcher 전환 기대 | 현재 구현은 비블로킹 메모리 연산이라고 명시 |
+| 동시 접근 오해 | 데이터 경합 | thread-safe 비보장과 외부 동기화 필요성을 KDoc/README에 기록 |
 
 ## Acceptance Criteria
 
 - `:probabilistic` 모듈이 Gradle에 자동 포함되고 컴파일된다.
-- `BloomFilter`, `MutableBloomFilter`, `SuspendBloomFilter` 공개 계약과 Guava 기반 인메모리 구현이 제공된다.
+- Guava/Eclipse Collections 신규 의존성 없이 Bloom Filter 직접 구현이 제공된다.
+- `BloomFilter`, `MutableBloomFilter`, `SuspendBloomFilter` 공개 계약과 인메모리 구현이 제공된다.
 - `bloomFilter` / `suspendBloomFilter` DSL 생성 함수가 동작한다.
 - 입력 검증은 `expectedInsertions > 0`, `fpp in (0, 1)`을 보장한다.
 - 삽입한 원소는 `mightContain == true`를 만족한다.
@@ -166,7 +176,7 @@ val filter = bloomFilter(
 ## Draft Task List
 
 1. 신규 모듈 골격과 Gradle 의존성 추가
-2. Bloom Filter 공개 API/DSL/Guava 래퍼 구현
-3. 입력 검증, FPP, suspend wrapper 테스트 작성
+2. Bloom Filter 공개 API/DSL/직접 구현 작성
+3. 입력 검증, bitset/hash/FPP, suspend wrapper 테스트 작성
 4. README.md / README.ko.md 작성
 5. targeted compile/test 및 리뷰 게이트 수행
