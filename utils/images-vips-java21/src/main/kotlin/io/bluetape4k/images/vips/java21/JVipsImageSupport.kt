@@ -6,6 +6,7 @@ import io.bluetape4k.images.vips.VipsDecodeException
 import io.bluetape4k.images.vips.VipsImage as VipsImageApi
 import io.bluetape4k.images.vips.VipsLimits
 import io.bluetape4k.images.vips.java21.internal.NativeHandle
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.input.BoundedInputStream
@@ -25,12 +26,16 @@ private val WEBP_MARKER = byteArrayOf(0x57.toByte(), 0x45.toByte(), 0x42.toByte(
  * 바이트 배열에서 [VipsImageApi]를 생성합니다.
  *
  * 보안 검사 순서:
- * 1. 포맷 허용 목록 (매직 바이트 검사) — JPEG, PNG, WebP만 허용
- * 2. maxPixels 초과 검사 (`width × height × bands`)
+ * 1. 입력 크기 제한 — 최대 50 MB
+ * 2. 포맷 허용 목록 (매직 바이트 검사) — JPEG, PNG, WebP만 허용
+ * 3. maxPixels 초과 검사 (`width × height × bands`)
  *
- * @throws VipsDecodeException 지원하지 않는 포맷, 손상된 입력, maxPixels 초과 시
+ * @throws VipsDecodeException 지원하지 않는 포맷, 손상된 입력, 50 MB 초과, maxPixels 초과 시
  */
 fun vipsImageOf(bytes: ByteArray): VipsImageApi {
+    if (bytes.size.toLong() > MAX_INPUT_BYTES) {
+        throw VipsDecodeException("Input bytes exceed ${MAX_INPUT_BYTES / (1024 * 1024)} MB limit")
+    }
     checkFormatAllowlist(bytes)
     return decodeAndCheckPixels(bytes)
 }
@@ -126,19 +131,23 @@ private fun decodeAndCheckPixels(bytes: ByteArray): VipsImageApi {
     } catch (e: VipsException) {
         throw VipsDecodeException("Image decode failed: unsupported format or corrupted input", e)
     }
+    // NativeHandle 등록 전 픽셀 검사: 초과 시 nativeImage 해제 후 예외 (Cleaner 없음)
+    val pixelCount = nativeImage.width.toLong() * nativeImage.height.toLong() * nativeImage.bands.toLong()
+    val maxPixels = JVipsRuntime.maxPixels
+    if (pixelCount < 0 || pixelCount > maxPixels) {
+        nativeImage.release()
+        throw VipsDecodeException(
+            "Image exceeds maximum pixel count: $pixelCount > $maxPixels " +
+                "(width=${nativeImage.width}, height=${nativeImage.height}, bands=${nativeImage.bands})"
+        )
+    }
     return try {
-        val pixelCount = nativeImage.width.toLong() * nativeImage.height * nativeImage.bands
-        val maxPixels = JVipsRuntime.maxPixels
-        if (pixelCount > maxPixels) {
-            nativeImage.release()
-            throw VipsDecodeException(
-                "Image exceeds maximum pixel count: ${pixelCount} > ${maxPixels} (width=${nativeImage.width}, height=${nativeImage.height}, bands=${nativeImage.bands})"
-            )
-        }
         JVipsImage(NativeHandle(nativeImage))
-    } catch (e: VipsDecodeException) {
+    } catch (e: CancellationException) {
+        nativeImage.release()
         throw e
     } catch (e: Exception) {
+        // NativeHandle 생성 중 예외 — Cleaner 미등록 상태이므로 직접 해제
         nativeImage.release()
         throw VipsDecodeException("Image validation failed", e)
     }

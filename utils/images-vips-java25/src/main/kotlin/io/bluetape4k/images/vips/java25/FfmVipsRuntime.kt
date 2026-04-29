@@ -72,10 +72,14 @@ object FfmVipsRuntime : VipsRuntime, KLogging() {
 
         try {
             checkNativeAccessEnabled()
-            nativeRuntime.nativeInit()
+            nativeRuntime.nativeInit(concurrency)
             _maxPixels = maxPixels
             state.set(RuntimeState.INITIALIZED)
-            log.debug("FfmVipsRuntime initialized: maxPixels=$maxPixels")
+            log.debug("FfmVipsRuntime initialized: concurrency=$concurrency, maxPixels=$maxPixels")
+        } catch (e: Error) {
+            // UnsatisfiedLinkError, NoClassDefFoundError 등 — 상태 복구 후 원본 Error 재던짐
+            state.set(RuntimeState.UNINITIALIZED)
+            throw e
         } catch (e: Exception) {
             state.set(RuntimeState.UNINITIALIZED)
             throw VipsInitializationException("libvips (vips-ffm) initialization failed", e)
@@ -83,7 +87,9 @@ object FfmVipsRuntime : VipsRuntime, KLogging() {
     }
 
     override fun shutdown() {
-        if (state.getAndSet(RuntimeState.SHUTDOWN) == RuntimeState.INITIALIZED) {
+        // CAS 사용: INITIALIZED → SHUTDOWN 전이만 허용.
+        // UNINITIALIZED 상태에서 shutdown() 호출 시 상태를 변경하지 않습니다.
+        if (state.compareAndSet(RuntimeState.INITIALIZED, RuntimeState.SHUTDOWN)) {
             nativeRuntime.nativeShutdown()
             log.debug("FfmVipsRuntime shut down")
         }
@@ -99,15 +105,16 @@ object FfmVipsRuntime : VipsRuntime, KLogging() {
     internal fun resetForTest() {
         state.set(RuntimeState.UNINITIALIZED)
         nativeRuntime = DefaultFfmVipsNativeRuntime
-        _maxPixels = 150_000_000L
+        _maxPixels = VipsLimits.DEFAULT_MAX_PIXELS
     }
 
     private fun checkNativeAccessEnabled() {
         // ManagementFactory.inputArguments is canonical: covers -javaagent, JDK_JAVA_OPTIONS, _JAVA_OPTIONS.
         // ProcessHandle.commandLine() is fragile (truncation, env var args invisible).
         val jvmArgs = java.lang.management.ManagementFactory.getRuntimeMXBean().inputArguments
-        val hasNativeAccess = jvmArgs.any {
-            it.startsWith("--enable-native-access") || it.contains("ALL-UNNAMED")
+        // 두 조건 모두 같은 arg에서 확인: --add-opens=...=ALL-UNNAMED 같은 arg가 두 번째 절만 일치하는 오탐 방지
+        val hasNativeAccess = jvmArgs.any { arg ->
+            arg.startsWith("--enable-native-access=") && arg.contains("ALL-UNNAMED")
         }
         if (!hasNativeAccess) {
             log.warn(

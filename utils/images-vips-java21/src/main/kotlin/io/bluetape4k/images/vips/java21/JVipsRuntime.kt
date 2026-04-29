@@ -79,6 +79,10 @@ object JVipsRuntime : VipsRuntime, KLogging() {
             _maxPixels = maxPixels
             state.set(RuntimeState.INITIALIZED)
             log.debug("JVipsRuntime initialized: concurrency=$concurrency, maxPixels=$maxPixels")
+        } catch (e: Error) {
+            // UnsatisfiedLinkError, NoClassDefFoundError 등 — 상태 복구 후 원본 Error 재던짐
+            state.set(RuntimeState.UNINITIALIZED)
+            throw e
         } catch (e: Exception) {
             state.set(RuntimeState.UNINITIALIZED)  // 재시도 허용
             throw VipsInitializationException("libvips initialization failed", e)
@@ -86,7 +90,10 @@ object JVipsRuntime : VipsRuntime, KLogging() {
     }
 
     override fun shutdown() {
-        if (state.getAndSet(RuntimeState.SHUTDOWN) == RuntimeState.INITIALIZED) {
+        // CAS 사용: INITIALIZED → SHUTDOWN 전이만 허용.
+        // UNINITIALIZED 상태에서 shutdown() 호출 시 상태를 변경하지 않습니다.
+        // getAndSet(SHUTDOWN)은 미초기화 상태에서도 SHUTDOWN으로 전이시켜 싱글턴을 영구 브릭할 수 있습니다.
+        if (state.compareAndSet(RuntimeState.INITIALIZED, RuntimeState.SHUTDOWN)) {
             nativeRuntime.nativeShutdown()
             log.debug("JVipsRuntime shut down")
         }
@@ -108,6 +115,6 @@ object JVipsRuntime : VipsRuntime, KLogging() {
     internal fun resetForTest() {
         state.set(RuntimeState.UNINITIALIZED)
         nativeRuntime = DefaultJVipsNativeRuntime
-        _maxPixels = 150_000_000L
+        _maxPixels = VipsLimits.DEFAULT_MAX_PIXELS
     }
 }

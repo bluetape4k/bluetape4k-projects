@@ -5,12 +5,14 @@ import app.photofox.vipsffm.VipsError
 import io.bluetape4k.images.vips.VipsDecodeException
 import io.bluetape4k.images.vips.VipsImage
 import io.bluetape4k.images.vips.VipsLimits
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.input.BoundedInputStream
 import java.io.File
 import java.io.InputStream
 import java.lang.foreign.Arena
+import java.nio.file.Files
 import java.nio.file.Path
 
 private val MAX_INPUT_BYTES = VipsLimits.MAX_INPUT_BYTES
@@ -24,12 +26,16 @@ private val WEBP_MARKER = byteArrayOf(0x57.toByte(), 0x45.toByte(), 0x42.toByte(
  * 바이트 배열에서 [VipsImage]를 생성합니다.
  *
  * 보안 검사 순서:
- * 1. 포맷 허용 목록 (매직 바이트) — JPEG, PNG, WebP만 허용
- * 2. maxPixels 초과 검사 (`width × height × bands`)
+ * 1. 입력 크기 제한 — 최대 50 MB
+ * 2. 포맷 허용 목록 (매직 바이트) — JPEG, PNG, WebP만 허용
+ * 3. maxPixels 초과 검사 (`width × height × bands`)
  *
- * @throws VipsDecodeException 지원하지 않는 포맷, 손상된 입력, maxPixels 초과 시
+ * @throws VipsDecodeException 지원하지 않는 포맷, 손상된 입력, 50 MB 초과, maxPixels 초과 시
  */
 fun ffmVipsImageOf(bytes: ByteArray): VipsImage {
+    if (bytes.size.toLong() > MAX_INPUT_BYTES) {
+        throw VipsDecodeException("Input bytes exceed ${MAX_INPUT_BYTES / (1024 * 1024)} MB limit")
+    }
     checkFormatAllowlist(bytes)
     return decodeAndCheckPixels(bytes)
 }
@@ -47,13 +53,20 @@ fun ffmVipsImageOf(file: File): VipsImage = ffmVipsImageOf(file.toPath())
  * **경로 탐색(Path Traversal) 주의**: 호출자는 경로가 허용된 디렉토리 내에 있음을 사전에 검증해야 합니다.
  */
 fun ffmVipsImageOf(path: Path): VipsImage {
+    val fileSize = Files.size(path)
+    if (fileSize > MAX_INPUT_BYTES) {
+        throw VipsDecodeException("File exceeds ${MAX_INPUT_BYTES / (1024 * 1024)} MB limit")
+    }
     val header = path.toFile().inputStream().use { it.readNBytes(12) }
     checkFormatAllowlist(header)
     val arena = Arena.ofShared()
     return try {
         val vImage = VImage.newFromFile(arena, path.toAbsolutePath().toString())
-        checkPixelCount(vImage, arena)
+        checkPixelCount(vImage)
         FfmVipsImage(arena, vImage)
+    } catch (e: CancellationException) {
+        arena.close()
+        throw e
     } catch (e: VipsDecodeException) {
         arena.close()
         throw e
@@ -111,8 +124,11 @@ private fun decodeAndCheckPixels(bytes: ByteArray): VipsImage {
     val arena = Arena.ofShared()
     return try {
         val vImage = VImage.newFromBytes(arena, bytes)
-        checkPixelCount(vImage, arena)
+        checkPixelCount(vImage)
         FfmVipsImage(arena, vImage)
+    } catch (e: CancellationException) {
+        arena.close()
+        throw e
     } catch (e: VipsDecodeException) {
         arena.close()
         throw e
@@ -122,15 +138,13 @@ private fun decodeAndCheckPixels(bytes: ByteArray): VipsImage {
     }
 }
 
-private fun checkPixelCount(vImage: VImage, arena: Arena) {
-    val bands = vImage.getInt("bands") ?: run {
-        arena.close()
-        throw VipsDecodeException("Failed to read bands count from decoded image")
-    }
-    val pixelCount = vImage.width.toLong() * vImage.height * bands
+// arena를 받지 않음: 호출자(decodeAndCheckPixels/ffmVipsImageOf)가 arena 정리 책임을 단일하게 가짐
+private fun checkPixelCount(vImage: VImage) {
+    val bands = vImage.getInt("bands")
+        ?: throw VipsDecodeException("Failed to read bands count from decoded image")
+    val pixelCount = vImage.width.toLong() * vImage.height.toLong() * bands.toLong()
     val maxPixels = FfmVipsRuntime.maxPixels
-    if (pixelCount > maxPixels) {
-        arena.close()
+    if (pixelCount < 0 || pixelCount > maxPixels) {
         throw VipsDecodeException(
             "Image exceeds maximum pixel count: $pixelCount > $maxPixels " +
                 "(width=${vImage.width}, height=${vImage.height}, bands=$bands)"

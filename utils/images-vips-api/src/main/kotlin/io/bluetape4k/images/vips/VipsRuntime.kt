@@ -27,7 +27,7 @@ interface VipsRuntime {
      * @param maxPixels 허용할 최대 픽셀 수 `width × height × bands` (기본값: 1억 5천만)
      * @throws VipsInitializationException 초기화 실패 또는 [shutdown] 이후 재호출 시
      */
-    fun init(concurrency: Int = 4, maxPixels: Long = 150_000_000L)
+    fun init(concurrency: Int = 4, maxPixels: Long = VipsLimits.DEFAULT_MAX_PIXELS)
 
     /**
      * libvips 런타임을 종료합니다.

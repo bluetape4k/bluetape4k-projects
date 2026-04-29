@@ -12,6 +12,7 @@ import io.bluetape4k.images.vips.java21.writer.JVipsJpegWriter
 import io.bluetape4k.images.vips.java21.writer.JVipsPngWriter
 import io.bluetape4k.images.vips.java21.writer.JVipsWebpWriter
 import com.criteo.vips.VipsException
+import kotlinx.coroutines.CancellationException
 import java.awt.Rectangle
 import java.io.OutputStream
 import java.nio.file.Path
@@ -40,34 +41,47 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
 
     override fun resize(width: Int, height: Int): VipsImage {
         checkOpen()
+        val cloned = handle.vipsImage.clone()
         return try {
-            val cloned = handle.vipsImage.clone()
             resizeWithJVips(cloned, width, height)
             JVipsImage(NativeHandle(cloned))
-        } catch (e: VipsException) {
-            throw VipsOperationException("Image resize failed", e)
+        } catch (e: Exception) {
+            // NativeHandle 등록 전 cloned 리소스 해제: VipsException + IllegalArgumentException 모두 처리
+            cloned.release()
+            when (e) {
+                is VipsException -> throw VipsOperationException("Image resize failed", e)
+                else -> throw e
+            }
         }
     }
 
     override fun thumbnail(maxDimension: Int): VipsImage {
         checkOpen()
+        val cloned = handle.vipsImage.clone()
         return try {
-            val cloned = handle.vipsImage.clone()
             thumbnailWithJVips(cloned, maxDimension)
             JVipsImage(NativeHandle(cloned))
-        } catch (e: VipsException) {
-            throw VipsOperationException("Image thumbnail failed", e)
+        } catch (e: Exception) {
+            cloned.release()
+            when (e) {
+                is VipsException -> throw VipsOperationException("Image thumbnail failed", e)
+                else -> throw e
+            }
         }
     }
 
     override fun crop(left: Int, top: Int, width: Int, height: Int): VipsImage {
         checkOpen()
+        val cloned = handle.vipsImage.clone()
         return try {
-            val cloned = handle.vipsImage.clone()
             cloned.crop(Rectangle(left, top, width, height))
             JVipsImage(NativeHandle(cloned))
-        } catch (e: VipsException) {
-            throw VipsOperationException("Image crop failed", e)
+        } catch (e: Exception) {
+            cloned.release()
+            when (e) {
+                is VipsException -> throw VipsOperationException("Image crop failed", e)
+                else -> throw e
+            }
         }
     }
 
@@ -91,10 +105,12 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
         checkOpen()
         try {
             path.toFile().writeBytes(toBytes(format, options))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: VipsEncodeException) {
             throw e
         } catch (e: Exception) {
-            throw VipsEncodeException("Failed to write image to path", e)
+            throw VipsEncodeException("Failed to write image to path: ${path.toAbsolutePath()}", e)
         }
     }
 
@@ -102,6 +118,8 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
         checkOpen()
         try {
             out.write(toBytes(format, options))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: VipsEncodeException) {
             throw e
         } catch (e: Exception) {

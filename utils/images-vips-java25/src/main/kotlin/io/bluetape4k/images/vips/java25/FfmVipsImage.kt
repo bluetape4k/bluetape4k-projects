@@ -13,6 +13,7 @@ import io.bluetape4k.images.vips.java25.ops.thumbnailWithFfm
 import io.bluetape4k.images.vips.java25.writer.FfmVipsJpegWriter
 import io.bluetape4k.images.vips.java25.writer.FfmVipsPngWriter
 import io.bluetape4k.images.vips.java25.writer.FfmVipsWebpWriter
+import kotlinx.coroutines.CancellationException
 import java.io.OutputStream
 import java.lang.foreign.Arena
 import java.nio.file.Path
@@ -118,10 +119,12 @@ internal class FfmVipsImage(
         checkOpen()
         try {
             path.toFile().writeBytes(toBytes(format, options))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: VipsEncodeException) {
             throw e
         } catch (e: Exception) {
-            throw VipsEncodeException("Failed to write image to path", e)
+            throw VipsEncodeException("Failed to write image to path: ${path.toAbsolutePath()}", e)
         }
     }
 
@@ -129,6 +132,8 @@ internal class FfmVipsImage(
         checkOpen()
         try {
             out.write(toBytes(format, options))
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: VipsEncodeException) {
             throw e
         } catch (e: Exception) {
