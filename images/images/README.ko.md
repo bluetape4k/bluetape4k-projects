@@ -1119,6 +1119,20 @@ val asyncExif: ExifData = File("photo.jpg").suspendReadExif()
 | `analysis/BlurDetector.kt`              | `BlurScore` + Laplacian variance 계산             |
 | `analysis/ExifData.kt`                  | `ExifData` 모델 + `readExif()` 진입점            |
 
+## 테스트 & 품질
+
+### 골든 이미지 테스트
+
+[`GoldenImageAssert`](src/test/kotlin/io/bluetape4k/images/golden/GoldenImageAssert.kt)를 통한 픽셀 단위 회귀 테스트.
+
+- **비교 모드** (기본): 저장된 골든 PNG와 허용 오차 범위 내 비교
+- **갱신 모드**: `-Dbluetape4k.images.golden.update=true` 로 골든 이미지 재생성
+- **CI 가드**: CI 환경에서 갱신 모드 실행 차단
+
+### 속성 기반 테스트 (PBT)
+
+[`ImagePropertyTest`](src/test/kotlin/io/bluetape4k/images/property/ImagePropertyTest.kt)가 6개 결정론적 입력에 대해 10개 불변식을 검증합니다.
+
 ## 의존성 추가
 
 ```kotlin

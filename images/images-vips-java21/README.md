@@ -361,6 +361,26 @@ Tests require libvips to be installed. Run with:
 
 Test classes are tagged with `@Tag("vips-required")` and skipped unless explicitly enabled.
 
+### Golden Image Tests
+
+Compares vips operation results against golden images stored in `images-vips-api` testFixtures (`src/testFixtures/resources/golden/vips/`).
+
+- Run with `-Dvips.enabled=true` on Linux with libvips installed
+- Golden images are generated exclusively by the java25 module (`@EnabledForJreRange(min = JRE.JAVA_25)` guard prevents regeneration here)
+- Comparison uses configurable per-channel pixel delta tolerance
+
+### Property-Based Tests
+
+5 invariants × 3 formats (JPEG/PNG/WebP) verified via `@ParameterizedTest`.
+
+| Invariant | Description |
+|-----------|-------------|
+| Dimensions preserved | Resize output matches requested width/height |
+| Output is non-empty | Encoded bytes are always produced |
+| Format round-trip | Decode → encode → decode yields same dimensions |
+| Crop bounds | Cropped region never exceeds original bounds |
+| Thumbnail proportionality | Thumbnail longest side fits the requested max dimension |
+
 ## Troubleshooting
 
 ### "UnsatisfiedLinkError: Can't load library: libvips"

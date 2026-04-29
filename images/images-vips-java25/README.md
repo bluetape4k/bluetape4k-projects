@@ -480,6 +480,45 @@ class ImageController(
 
 Both modules implement the same `VipsImage` interface and are interchangeable at the API level.
 
+## Testing
+
+Tests are skipped automatically if libvips is unavailable:
+
+```bash
+./gradlew :bluetape4k-images-vips-java25:test
+# Tests skipped if System.getProperty("vips.enabled") != "true"
+
+# Force test execution (requires system libvips installed)
+./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true
+```
+
+### Golden Image Tests (Master Source)
+
+java25 is the **authoritative source** for vips golden images stored in `images-vips-api/src/testFixtures/resources/golden/vips/`.
+
+- Update mode enabled only on Java 25+ — guarded by `@EnabledForJreRange(min = JRE.JAVA_25)`
+- Regenerate goldens: `-Dbluetape4k.images.golden.update=true -Dvips.enabled=true`
+- CI guard prevents accidental regeneration in CI environments
+
+```bash
+# Regenerate golden images (must run on Java 25+)
+./gradlew :bluetape4k-images-vips-java25:test \
+    -Dvips.enabled=true \
+    -Dbluetape4k.images.golden.update=true
+```
+
+### Property-Based Tests
+
+5 invariants × 3 formats (JPEG/PNG/WebP) verified via `@ParameterizedTest`.
+
+| Invariant | Description |
+|-----------|-------------|
+| Dimensions preserved | Resize output matches requested width/height |
+| Output is non-empty | Encoded bytes are always produced |
+| Format round-trip | Decode → encode → decode yields same dimensions |
+| Crop bounds | Cropped region never exceeds original bounds |
+| Thumbnail proportionality | Thumbnail longest side fits the requested max dimension |
+
 ## Troubleshooting
 
 ### "FFM API requires --enable-native-access"
@@ -529,18 +568,6 @@ convert input.gif output.jpg
 if (width * height > SAFE_LIMIT) {
     throw BadRequestException("Image too large")
 }
-```
-
-### Test Suite Requires libvips
-
-Tests are skipped automatically if libvips is unavailable:
-
-```bash
-./gradlew :bluetape4k-images-vips-java25:test
-# Tests skipped if System.getProperty("vips.enabled") != "true"
-
-# Force test execution (requires system libvips installed)
-./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true
 ```
 
 ## References

@@ -479,6 +479,45 @@ class ImageController(
 
 두 모듈 모두 동일한 `VipsImage` 인터페이스를 구현하며 API 수준에서 상호교환 가능합니다.
 
+## 테스트
+
+libvips가 없으면 테스트가 자동으로 스킵됩니다:
+
+```bash
+./gradlew :bluetape4k-images-vips-java25:test
+# System.getProperty("vips.enabled") != "true"이면 스킵
+
+# 테스트 강제 실행 (시스템 libvips 필수)
+./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true
+```
+
+### 골든 이미지 테스트 (마스터 소스)
+
+java25 모듈은 `images-vips-api/src/testFixtures/resources/golden/vips/`에 저장된 vips 골든 이미지의 **공식 소스**입니다.
+
+- 갱신 모드는 Java 25+ 환경에서만 활성화 — `@EnabledForJreRange(min = JRE.JAVA_25)` 가드 적용
+- 골든 이미지 재생성: `-Dbluetape4k.images.golden.update=true -Dvips.enabled=true`
+- CI 가드: CI 환경에서 골든 이미지 재생성을 방지합니다
+
+```bash
+# 골든 이미지 재생성 (Java 25+에서 실행해야 함)
+./gradlew :bluetape4k-images-vips-java25:test \
+    -Dvips.enabled=true \
+    -Dbluetape4k.images.golden.update=true
+```
+
+### 속성 기반 테스트
+
+5가지 불변식 × 3가지 포맷(JPEG/PNG/WebP)을 `@ParameterizedTest`로 검증합니다.
+
+| 불변식 | 설명 |
+|--------|------|
+| 치수 보존 | 리사이즈 출력이 요청한 너비/높이와 일치 |
+| 출력 비어있지 않음 | 인코딩된 바이트가 항상 생성됨 |
+| 포맷 왕복 | 디코드 → 인코드 → 디코드 시 동일한 치수 반환 |
+| 자르기 경계 | 자른 영역이 원본 경계를 초과하지 않음 |
+| 썸네일 비율 | 썸네일 긴 변이 요청한 최대 치수에 맞음 |
+
 ## 문제 해결
 
 ### "FFM API requires --enable-native-access" 오류
@@ -528,18 +567,6 @@ convert input.gif output.jpg
 if (width * height > SAFE_LIMIT) {
     throw BadRequestException("이미지가 너무 큼")
 }
-```
-
-### 테스트 실행 시 libvips 필요
-
-libvips가 없으면 테스트가 자동으로 스킵됩니다:
-
-```bash
-./gradlew :bluetape4k-images-vips-java25:test
-# System.getProperty("vips.enabled") != "true"이면 스킵
-
-# 테스트 강제 실행 (시스템 libvips 필수)
-./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true
 ```
 
 ## 참고 자료

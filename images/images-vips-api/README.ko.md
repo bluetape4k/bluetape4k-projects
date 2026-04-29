@@ -389,6 +389,22 @@ dependencies {
 }
 ```
 
+## testFixtures
+
+### VipsGoldenAssert
+
+`testFixtures`는 vips 연산에 대한 픽셀 단위 골든 이미지 비교를 위한 `VipsGoldenAssert`를 제공합니다.
+
+- **갱신 모드**: Java 25+ 가드 적용 (`@EnabledForJreRange(min = JRE.JAVA_25)`) — java25 모듈만이 공식 골든 이미지를 생성합니다
+- **CI 가드**: CI 환경에서 골든 이미지 재생성을 방지하기 위해 갱신 모드를 차단합니다
+- **비교 허용 오차**: 채널당 픽셀 차이 허용 오차 설정 가능 (기본값: 2.0)
+
+```kotlin
+// testFixtures에 의존하는 테스트에서
+VipsGoldenAssert(goldenDir = Path.of("src/testFixtures/resources/golden/vips"))
+    .assertMatchesGolden(resultImage, "resize_800x600.png")
+```
+
 ## 참고
 
 - `bluetape4k-images-vips-java21` — Java 21+ 용 JVips 바인딩
