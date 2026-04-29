@@ -610,6 +610,10 @@ jobs:
             ./gradlew \
               :bluetape4k-spring-boot3-exposed-jdbc:test \
               :bluetape4k-spring-boot4-exposed-jdbc:test \
+              :bluetape4k-spring-boot3-exposed-jdbc-demo:test \
+              :bluetape4k-spring-boot4-exposed-jdbc-demo:test \
+              :bluetape4k-spring-boot3-exposed-r2dbc-demo:test \
+              :bluetape4k-spring-boot4-exposed-r2dbc-demo:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -725,7 +729,7 @@ jobs:
           TEST_TASKS: ${{ matrix.test_tasks }}
 
       - name: Generate Kover XML report
-        if: always()
+        if: ${{ always() && matrix.kover_tasks != '' }}
         env:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
@@ -942,7 +946,7 @@ jobs:
           TEST_TASKS: ${{ matrix.test_tasks }}
 
       - name: Generate Kover XML report
-        if: always()
+        if: ${{ always() && matrix.kover_tasks != '' }}
         env:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
@@ -967,7 +971,7 @@ jobs:
           retention-days: 14
 
   # ── Spring Boot 3 Docker 테스트 — Matrix 병렬 ───────────────────────────
-  # 2 groups run in parallel on separate runners
+  # 3 groups run in parallel on separate runners
   test-spring3-docker:
     name: Test / Spring Boot 3 (${{ matrix.group }})
     runs-on: ubuntu-latest
@@ -998,6 +1002,11 @@ jobs:
               :bluetape4k-spring-boot3-mongodb:koverXmlReport
               :bluetape4k-spring-boot3-cassandra:koverXmlReport
               :bluetape4k-spring-boot3-hibernate-lettuce:koverXmlReport
+          - group: demos
+            test_tasks: >-
+              :bluetape4k-spring-boot3-cassandra-demo:test
+              :bluetape4k-spring-boot3-hibernate-lettuce-demo:test
+            kover_tasks: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -1030,7 +1039,7 @@ jobs:
           TEST_TASKS: ${{ matrix.test_tasks }}
 
       - name: Generate Kover XML report
-        if: always()
+        if: ${{ always() && matrix.kover_tasks != '' }}
         env:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
@@ -1055,7 +1064,7 @@ jobs:
           retention-days: 14
 
   # ── Spring Boot 4 Docker 테스트 — Matrix 병렬 ───────────────────────────
-  # 2 groups run in parallel on separate runners
+  # 3 groups run in parallel on separate runners
   test-spring4-docker:
     name: Test / Spring Boot 4 (${{ matrix.group }})
     runs-on: ubuntu-latest
@@ -1086,6 +1095,11 @@ jobs:
               :bluetape4k-spring-boot4-mongodb:koverXmlReport
               :bluetape4k-spring-boot4-cassandra:koverXmlReport
               :bluetape4k-spring-boot4-hibernate-lettuce:koverXmlReport
+          - group: demos
+            test_tasks: >-
+              :bluetape4k-spring-boot4-cassandra-demo:test
+              :bluetape4k-spring-boot4-hibernate-lettuce-demo:test
+            kover_tasks: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -1123,7 +1137,7 @@ jobs:
           TEST_TASKS: ${{ matrix.test_tasks }}
 
       - name: Generate Kover XML report
-        if: always()
+        if: ${{ always() && matrix.kover_tasks != '' }}
         env:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
