@@ -87,7 +87,7 @@ val streamingSource = source.asDecompressSource(Compressors.Streaming.Zstd)
 - `CompressableSink` finalizes compression at `close()`. Always use `close()` or `use {}`.
 - `StreamingCompressSink` also requires `close()` to write the footer/finalize bytes.
 
-### 5. Tink Encryption (Recommended)
+### 5. Tink Encryption
 
 Provides encryption Sink/Source based on Google Tink AEAD.
 
@@ -104,6 +104,38 @@ val decryptSource = source.asTinkDecryptSource(TinkEncryptors.AES256_GCM)
 val result = Buffer()
 decryptSource.read(result, Long.MAX_VALUE)
 ```
+
+The legacy `TinkEncryptSink` encrypts each `write()` call independently, while
+`TinkDecryptSource` expects a single ciphertext and decrypts it after reading the
+delegate source fully. Keep this adapter for existing single-ciphertext payloads.
+
+For large payloads or data written with multiple `write()` calls, use the DAEAD
+chunk adapter:
+
+```kotlin
+import io.bluetape4k.okio.tink.*
+import io.bluetape4k.tink.daead.TinkDaeads
+
+val encrypted = Buffer()
+encrypted.asDaeadChunkEncryptSink(TinkDaeads.AES256_SIV).use { encryptSink ->
+    encryptSink.write(buffer, buffer.size)
+}
+
+val decrypted = Buffer()
+encrypted.asDaeadChunkDecryptSource(TinkDaeads.AES256_SIV).use { decryptSource ->
+    decryptSource.read(decrypted, Long.MAX_VALUE)
+}
+```
+
+DAEAD chunk encryption writes each frame as an 8-byte big-endian ciphertext
+length followed by the DAEAD ciphertext. The default plaintext chunk size is
+64 KiB. Always close the encrypt sink, preferably with `use {}`, because the
+last partial chunk is finalized on `close()`.
+
+Deterministic AEAD produces the same ciphertext for the same key, plaintext, and
+associated data. This can reveal repeated plaintext chunks. Associated data is
+authenticated but not encrypted, and the same value must be supplied for
+decryption.
 
 **Encryption + Compression combined:**
 
@@ -227,9 +259,11 @@ io.bluetape4k.okio
 │   ├── SinkWithCompressor.kt   # Legacy-compatible compression Sink
 │   ├── SourceWithCompressor.kt # Legacy-compatible decompression Source
 │   └── Compressable.kt         # Compression interface
-├── tink/                       # Tink AEAD encryption (recommended)
+├── tink/                       # Tink AEAD and DAEAD chunk encryption
 │   ├── TinkEncryptSink.kt
-│   └── TinkDecryptSource.kt
+│   ├── TinkDecryptSource.kt
+│   ├── DaeadChunkEncryptSink.kt
+│   └── DaeadChunkDecryptSource.kt
 ├── base64/                     # Base64 encoding/decoding
 │   ├── ApacheBase64Sink.kt
 │   ├── ApacheBase64Source.kt
@@ -322,6 +356,19 @@ classDiagram
         -ensureDecrypted()
     }
 
+    class DaeadChunkEncryptSink {
+        -daead: TinkDeterministicAead
+        -plainBuffer: Buffer
+        +write(source: Buffer, byteCount: Long)
+        +close()
+    }
+
+    class DaeadChunkDecryptSource {
+        -daead: TinkDeterministicAead
+        -plainBuffer: Buffer
+        +read(sink: Buffer, byteCount: Long) Long
+    }
+
     class AbstractBase64Sink {
         <<abstract>>
         #getEncodedBuffer(ByteString) Buffer
@@ -345,6 +392,8 @@ classDiagram
 
     ForwardingSink <|-- TinkEncryptSink
     ForwardingSource <|-- TinkDecryptSource
+    ForwardingSink <|-- DaeadChunkEncryptSink
+    ForwardingSource <|-- DaeadChunkDecryptSource
 
     ForwardingSink <|-- AbstractBase64Sink
     AbstractBase64Sink <|-- ApacheBase64Sink
@@ -365,6 +414,8 @@ classDiagram
     style StreamingDecompressSource fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style TinkEncryptSink fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style TinkDecryptSource fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style DaeadChunkEncryptSink fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
+    style DaeadChunkDecryptSource fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
     style AbstractBase64Sink fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style AbstractBase64Source fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style ApacheBase64Sink fill:#E0F2F1,stroke:#80CBC4,color:#00695C
