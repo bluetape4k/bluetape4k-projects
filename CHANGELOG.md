@@ -14,6 +14,65 @@
 
 ### Added
 
+#### images/** — libvips 고성능 이미지 처리 신규 모듈 그룹 ([#236](https://github.com/bluetape4k/bluetape4k-projects/pull/236), [#136](https://github.com/bluetape4k/bluetape4k-projects/issues/136))
+
+scrimage(Java2D) 기반 `bluetape4k-images` 대비 메모리 1/10, 처리 속도 4~10× 향상. libvips demand-driven pipeline 기반.
+
+**신규 모듈 3종**
+
+- `bluetape4k-images-vips-api` — 바인딩 중립 인터페이스: `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`, 예외 계층 (`VipsDecodeException`/`VipsOperationException`/`VipsEncodeException`)
+- `bluetape4k-images-vips-java21` — JVips/JNI 바인딩 구현체 (Java 21+): `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
+- `bluetape4k-images-vips-java25` — vips-ffm/FFM API 바인딩 구현체 (Java 25+): `FfmVipsRuntime`, `FfmVipsImage`, `Arena.ofShared()` lifecycle
+
+**주요 기능**
+
+- `vipsImageOf(File|Path|ByteArray|InputStream)` / `suspendVipsImageOf(...)` 팩토리 함수
+- `resize()` / `thumbnail()` / `crop()` / `toBytes()` / `writeTo()` 완전 구현
+- JPEG/PNG/WebP 인코딩 (quality/lossless/effort 옵션)
+- 보안: 포맷 허용 목록(JPEG/PNG/WebP magic byte), 50MB 입력 상한, `maxPixels` 픽셀 수 제한
+- `VipsRuntime` 4-상태 CAS (`UNINITIALIZED→INITIALIZING→INITIALIZED→SHUTDOWN`), spin-wait 동시성 안전
+
+**의존성**
+
+- `com.criteo:jvips:8.12.2-69bf715` (java21 모듈)
+- `app.photofox.vips-ffm:vips-ffm-core:1.9.6` (java25 모듈)
+
+---
+
+#### utils/images — 이미지 배치 플로우 처리 경로 추가 ([#234](https://github.com/bluetape4k/bluetape4k-projects/pull/234))
+
+`bluetape4k-images` 모듈에 Flow 기반 배치 이미지 처리 파이프라인을 추가했습니다.
+
+- `ImageBatchProcessor` — `Flow<ByteArray>` 기반 병렬 이미지 처리 파이프라인
+- `ImageProcessingResult` — sealed (`Success`/`Failure`) 처리 결과 타입
+
+---
+
+#### infra/opentelemetry — Coroutines/Flow/WebFlux 트레이싱 API 추가 ([#214](https://github.com/bluetape4k/bluetape4k-projects/pull/214), [#150](https://github.com/bluetape4k/bluetape4k-projects/issues/150))
+
+OpenTelemetry Java SDK를 Kotlin Coroutines / Flow / Spring WebFlux에서 사용하기 위한 래퍼를 추가했습니다.
+
+- `withSpan {}` / `withSpanSuspend {}` — 코루틴 기반 span 생성 DSL
+- `Flow<T>.traced()` — Flow 각 요소에 자동 span 부착 확장 함수
+- WebFlux 요청 트레이싱 필터 및 Reactor Context 연동
+
+---
+
+#### testing/testcontainers — MiniStack AWS 에뮬레이터 서버 신규 ([#209](https://github.com/bluetape4k/bluetape4k-projects/pull/209))
+
+경량 AWS 에뮬레이터 `ministackorg/ministack:1.3.14` 기반 `MiniStackServer`를 추가했습니다.
+
+- `MiniStackServer` — S3/SQS/SNS/DynamoDB/Lambda 에뮬레이터 (단일 컨테이너)
+- `AbstractMiniStackServiceTest` — 공통 테스트 기반 클래스
+
+---
+
+#### testing/testcontainers — FlociServer 기반 AWS 서비스 통합 테스트 추가 ([#207](https://github.com/bluetape4k/bluetape4k-projects/pull/207), [#202](https://github.com/bluetape4k/bluetape4k-projects/issues/202))
+
+`FlociServer`를 활용한 S3/SQS/SNS/DynamoDB AWS 서비스 통합 테스트를 추가했습니다.
+
+---
+
 #### texts/** — 신규 모듈 그룹 (tokenizer/lingua/text-search 승격) ([#170](https://github.com/bluetape4k/bluetape4k-projects/issues/170))
 
 `x-obsoleted/tokenizer` 및 `utils/` 하위 텍스트 처리 모듈을 `texts/**` 그룹으로 승격하였습니다.
@@ -262,6 +321,53 @@ Hibernate ORM 6.6.x → 7.2.7.Final, Hibernate Reactive 2.4.x → 3.2.0.Final로
 
 ### Fixed
 
+#### io/io — org.lz4 → at.yawk.lz4:1.11.0 CVE 보안 마이그레이션 ([#233](https://github.com/bluetape4k/bluetape4k-projects/pull/233), [#203](https://github.com/bluetape4k/bluetape4k-projects/issues/203))
+
+- `org.lz4:lz4-java` → `at.yawk.lz4:lz4-java:1.11.0` 교체 — CVE-2025-12183 / CVE-2025-66566 취약점 수정
+- `LZ4Factory` / `LZ4FastDecompressor` API 호환 — 소스 코드 변경 없음
+
+---
+
+#### bluetape4k/core — AssertSupport AssertionError 계약 복구 ([`c6d0ca1da`](https://github.com/bluetape4k/bluetape4k-projects/commit/c6d0ca1da))
+
+- `assertXxx()` 함수가 `IllegalArgumentException` 대신 `AssertionError`를 던지도록 원복 (30+ 파일 테스트 계약 보호)
+- 전체 프로덕션 코드의 `assertXxx()` → `requireXxx()` 마이그레이션 완료
+- `AssertSupportTest` — 예외 타입 계약을 회귀 테스트로 고정
+
+---
+
+#### 전체 모듈 코드 리뷰 HIGH/CRITICAL 이슈 일괄 수정 (2026-04-28) ([#216](https://github.com/bluetape4k/bluetape4k-projects/pull/216)–[#232](https://github.com/bluetape4k/bluetape4k-projects/pull/232))
+
+전체 모듈 코드 리뷰 결과 발견된 HIGH/CRITICAL 이슈를 모듈 그룹별로 수정했습니다.
+
+| PR | 대상 모듈 | 주요 수정 내용 |
+|----|-----------|---------------|
+| [#216](https://github.com/bluetape4k/bluetape4k-projects/pull/216) | bluetape4k/core | `assertXxx` 예외 타입, `runCatching` 누수 패턴 |
+| [#217](https://github.com/bluetape4k/bluetape4k-projects/pull/217) | infra/lettuce | NearCache 이중 해제, CancellationException 전파 |
+| [#218](https://github.com/bluetape4k/bluetape4k-projects/pull/218) | infra/redisson, infra/micrometer | Dispatcher 누락, 타임아웃 처리 |
+| [#219](https://github.com/bluetape4k/bluetape4k-projects/pull/219) | bluetape4k/coroutines | Subject CancellationException 전파 검증 |
+| [#220](https://github.com/bluetape4k/bluetape4k-projects/pull/220) | data/hibernate, data/mongodb | Session 누수, 예외 래핑 |
+| [#221](https://github.com/bluetape4k/bluetape4k-projects/pull/221) | data/r2dbc, data/exposed-postgresql | SQL identifier allowlist |
+| [#222](https://github.com/bluetape4k/bluetape4k-projects/pull/222) | testing/junit5 | `@BeforeEach` suspend 패턴 |
+| [#223](https://github.com/bluetape4k/bluetape4k-projects/pull/223) | io/vertx | 응답 누수 방지, shutdownNow fallback |
+| [#224](https://github.com/bluetape4k/bluetape4k-projects/pull/224) | io/io, io/protobuf | `ObjectInputFilter` 보안 강화, 직렬화 거부 경로 |
+| [#225](https://github.com/bluetape4k/bluetape4k-projects/pull/225) | io/feign | 재시도 로직, null 안전성 |
+| [#226](https://github.com/bluetape4k/bluetape4k-projects/pull/226) | testing/mock-web-server, mock-webflux-server | `ApiErrorResponse.stackTraces` 제거 |
+| [#227](https://github.com/bluetape4k/bluetape4k-projects/pull/227) | infra/kafka | 프로듀서/컨슈머 리소스 누수 |
+| [#228](https://github.com/bluetape4k/bluetape4k-projects/pull/228) | spring-boot3/4 | 보안 헤더, 에러 응답 스택트레이스 노출 |
+| [#229](https://github.com/bluetape4k/bluetape4k-projects/pull/229) | utils/idgenerators, jwt, geo, rule-engine | 입력 검증 강화 |
+| [#230](https://github.com/bluetape4k/bluetape4k-projects/pull/230) | io/csv, texts/tokenizer-core | suspend 블로킹 I/O, InputStream 누수 |
+| [#231](https://github.com/bluetape4k/bluetape4k-projects/pull/231) | io/http, io/grpc | 응답 누수 방지, gRPC shutdownNow fallback |
+| [#232](https://github.com/bluetape4k/bluetape4k-projects/pull/232) | infra/elasticsearch, io/jackson, io/tink | PIT close 로그, Jackson silent 파싱 에러 |
+
+---
+
+#### CI — gitleaks 히스토리 스캔 false-positive 억제 ([#206](https://github.com/bluetape4k/bluetape4k-projects/pull/206), [#205](https://github.com/bluetape4k/bluetape4k-projects/issues/205))
+
+- `.gitleaksignore` 설정으로 히스토리 내 테스트 픽스처 / 설정 파일 false-positive 5건 억제
+
+---
+
 #### infra/cache + CI — Caffeine `estimatedSize()` 간헐적 실패 및 워크플로우 개선 ([#123](https://github.com/bluetape4k/bluetape4k-projects/pull/123))
 
 - `HazelcastLocalCache` / `LettuceCaffeineLocalCache` / `ResilientLocalJCache.estimatedSize()`: `cleanUp()` 후 호출로 CI 공유 2코어 환경 비동기 지연 문제 수정
@@ -294,6 +400,41 @@ Hibernate ORM 6.6.x → 7.2.7.Final, Hibernate Reactive 2.4.x → 3.2.0.Final로
 ---
 
 ### Changed
+
+#### images/ 그룹 디렉토리 신설 — utils/images* 이동 ([#237](https://github.com/bluetape4k/bluetape4k-projects/pull/237))
+
+`utils/images*` 4개 모듈을 `images/` 최상위 그룹으로 이동했습니다. 모듈 이름 불변(하위 호환성 유지).
+
+---
+
+#### io/vertx — Vert.x 4.5.26 → 5.0.11 업그레이드 ([#215](https://github.com/bluetape4k/bluetape4k-projects/pull/215), [#197](https://github.com/bluetape4k/bluetape4k-projects/issues/197))
+
+- Vert.x 5.x API 마이그레이션 (`Vertx.factory` 제거, `VertxOptions` 변경 사항 반영)
+- `bluetape4k-vertx`: Vert.x 5.0.11 기반 재빌드, 기존 코루틴 확장 함수 호환성 유지
+
+---
+
+#### data/hibernate — Hibernate 7 + Spring Boot 4 마이그레이션 ([#210](https://github.com/bluetape4k/bluetape4k-projects/pull/210))
+
+Hibernate ORM 7.x + Spring Boot 4 조합 호환성 이슈를 수정했습니다.
+
+- `data/hibernate` — `EntityManagerSupport`, JPA QueryDSL 6.x API 호환 수정
+- `spring-boot4/jpa-querydsl-demo` — Spring Boot 4 BOM + Hibernate 7 통합 데모 빌드 정상화
+
+---
+
+#### data/exposed-** — Regex 인스턴스 companion object / top-level val 상수화 ([#213](https://github.com/bluetape4k/bluetape4k-projects/pull/213))
+
+- 함수 로컬 `Regex(...)` 호출 → companion object/top-level `val` 상수로 이동 — 반복 컴파일 제거
+- 적용 모듈: `exposed-core`, `exposed-dao`, `exposed-jdbc`, `exposed-r2dbc`
+
+---
+
+#### testing/testcontainers — Floci/MiniStack 테스트 기반 클래스 도입 ([#211](https://github.com/bluetape4k/bluetape4k-projects/pull/211))
+
+- `AbstractFlociServiceTest` / `AbstractMiniStackServiceTest` — AWS 에뮬레이터 공통 초기화 추상화
+
+---
 
 #### chore — CodeRabbit 제거, OMC Code Review로 대체 ([`13e759d92`](https://github.com/bluetape4k/bluetape4k-projects/commit/13e759d92))
 
