@@ -8,12 +8,12 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 
 ## Development Guidelines
 
-- [ ] **README Diagrams**: Include Mermaid UML diagrams in every module README
-- [ ] **KDoc**: Required on all public classes, interfaces, and extension functions (Korean KDoc acceptable)
-- [ ] **Commit Messages**: Korean + prefix (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
-- [ ] **Kotlin**: 2.3+, maximize extensions and DSL
-- [ ] **Tests**: JUnit 5 + MockK + Kluent; examples must be runnable, production-quality
-- [ ] **Format**: IntelliJ IDEA formatter + `.editorconfig` — **no ktlint**
+- **README**: Mermaid UML diagrams in every module README; bilingual `README.md` (English) + `README.ko.md` (Korean)
+- **KDoc**: Required on all public classes, interfaces, and extension functions
+- **Commits**: Korean + prefix (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`)
+- **Kotlin**: 2.3+, maximize extensions and DSL; **no ktlint** (IntelliJ IDEA formatter + `.editorconfig`)
+- **Tests**: JUnit 5 + MockK + Kluent; production-quality runnable examples
+- **Worktree**: All feature work in `.worktrees/<branch>` — never on `develop` directly
 
 ## Build Commands
 
@@ -31,102 +31,43 @@ Bluetape4k is a shared Kotlin/JVM backend library collection. Maximizes Kotlin i
 ./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=  # RELEASE
 ```
 
-## Modern CLI Tools (MANDATORY)
-
-Use these tools in all Bash commands. Classic Unix alternatives are forbidden.
-
-| Task | Tool | Instead of |
-|------|------|------------|
-| File search | `fd` | `find` |
-| Text search | `rg` (ripgrep) | `grep` |
-| File reading | `bat` | `cat` |
-| Directory listing | `eza` | `ls` / `tree` |
-| Directory jump | `zoxide` | `cd` |
-| Fuzzy search | `fzf` | — |
-| Shell history | `atuin` | `history` |
-| JSON parsing | `jq` | — |
-| YAML parsing | `yq` | — |
-| HTTP requests | `httpie` | `curl` |
-| Code structure search/refactor | `ast-grep` (`sg`) | — |
-| Diff viewer | `difftastic` / `delta` | `diff` |
-| Shell linting | `shellcheck` | — |
-| Shell formatting | `shfmt` | — |
-| Python lint/format | `ruff` | `flake8` / `black` |
-| GitHub operations | `gh` | browser / `curl` |
-| Git TUI | `lazygit` | — |
-| File manager TUI | `yazi` | — |
-| Shell prompt | `starship` | — |
-
-All tools installed at `/opt/homebrew/bin/`.
-
-### Specific Rules
-
-- **`ast-grep`**: Use for structural code search and refactoring (pattern-based, not text-based).
-- **`jq` + `yq`**: Pipeline JSON/YAML — `curl ... | jq '.field'`, `yq '.key' file.yaml`.
-- **`gh` CLI**: GitHub operations must use non-interactive mode: `gh pr create --json`, `gh issue list --json`, etc.
-- **`ruff`**: Python linting and formatting — `ruff check .`, `ruff format .`.
-- **External CLI commands**: Always use non-interactive flags (`--yes`, `--quiet`, `--no-input`) and JSON output (`--format json`, `--output json`) where available.
-
-> **Subagent prompts**: still use `Grep`/`Glob`/`Read` tools (not Bash `rg`/`fd`) — those are for the main agent only.
-
-## After Code Changes
-
-- [ ] Run compile + tests
-- [ ] When changing a module: sync-update both `README.md` **and** `README.ko.md`
-- [ ] When creating a new spec/plan: run `/wiki-update`
-
-## Module Groups
-
-| Group            | Key modules                                                                                                                 |
-|------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `bluetape4k/`    | `core`, `coroutines`, `logging`, `bom`                                                                                      |
-| `io/`            | `io`, `okio`, `jackson`/`jackson3`, `feign`, `retrofit2`, `protobuf`, `grpc`, `tink`, `csv`, `vertx`                        |
-| `aws/`           | Java SDK v2, 3-tier API (sync→async→coroutines)                                                                             |
-| `aws-kotlin/`    | Kotlin SDK, native suspend                                                                                                  |
-| `data/`          | `exposed-*` (core/dao/jdbc/r2dbc/cache/db-specific), `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra`                   |
-| `infra/`         | `lettuce`, `redisson`, `kafka`, `pulsar`, `resilience4j`, `bucket4j`, `micrometer`, `opentelemetry`, `cache-*`, `elasticsearch` |
-| `spring-boot3/`  | WebFlux+Coroutines, Exposed JDBC/R2DBC repos, Hibernate Lettuce cache, Spring Batch                                         |
-| `spring-boot4/`  | Same as boot3 — use `implementation(platform(Libs.spring_boot4_dependencies))` (not `dependencyManagement`)                 |
-| `texts/`         | `tokenizer-core`, `tokenizer-korean`, `tokenizer-japanese`, `lingua`, `text-search`                                         |
-| `images/`        | `images` (scrimage), `images-vips-api`, `images-vips-java21` (JVips/JNI), `images-vips-java25` (vips-ffm/FFM)              |
-| `utils/`         | `geo`, `idgenerators`, `javatimes`, `jwt`, `batch`, `states`, `workflow`, `measured`, `money`                               |
-| `testing/`       | `junit5`, `testcontainers`, `mock-web-server` (Spring Boot 3 MVC), `mock-webflux-server` (Spring Boot 4 WebFlux, port 9999) |
-| `virtualthread/` | `api`, `jdk21`, `jdk25` — always update both jdk21 AND jdk25 together                                                       |
-
 ## Kotlin Edit Workflow (MANDATORY)
 
-### Before Modifying a Class
-- [ ] Use `ide_find_references` or `get_impact_radius_tool` to identify affected files
+Before modifying a class: use `ide_find_references` or `get_impact_radius_tool` to identify affected files.
 
-### After Every `.kt` Edit
-- [ ] `ide_diagnostics` — check import errors and `@Deprecated` warnings immediately
-- [ ] Import errors → fix with `ide_optimize_imports`
-- [ ] `@Deprecated` → apply Quick Fix via `lsp_code_actions` — never leave unresolved
-- [ ] Only run build/compile after passing the above steps
+After every `.kt` edit:
+
+1. `ide_diagnostics` — check import errors and `@Deprecated` warnings
+2. Import errors → fix with `ide_optimize_imports`
+3. `@Deprecated` → apply Quick Fix via `lsp_code_actions` — never leave unresolved
+4. Build/compile only after passing the above steps
 
 ## Key Design Patterns
 
-**Assert vs Require (CRITICAL — do NOT change exception types)**: Two distinct validation utilities with different exception contracts.
-- `assertXxx()` (`AssertSupport.kt`) → throws **`AssertionError`** — for internal invariants, never for parameter validation
-- `requireXxx()` (`RequireSupport.kt`) → throws **`IllegalArgumentException`** — for caller contract (parameter validation)
-- Production code MUST use `requireXxx()`. `assertXxx()` is `@Deprecated(WARNING)` with `ReplaceWith` guidance.
-- ⚠️ Changing `assertXxx()` to throw `IllegalArgumentException` breaks cross-module tests in 30+ files. `AssertSupportTest` explicitly guards this contract.
+> Full patterns reference: `.claude/references/design-patterns.md`
+
+**Assert vs Require (CRITICAL — do NOT change exception types)**
+
+- `assertXxx()` → `AssertionError` (internal invariants, `@Deprecated`)
+- `requireXxx()` → `IllegalArgumentException` (parameter validation — always use this)
 
 **Coroutines-First**: All async work uses Coroutines. Wrap blocking APIs with `withContext(Dispatchers.IO)`.
 
-**Record/Model data class**: Must implement `Serializable` + `companion object : KLogging()` + `serialVersionUID = 1L`. Place in `exposed.model` package.
+**Auditable**: Always use `auditedUpdate*` for UPDATE operations.
 
-**Repository generic**: `<ID: Any, E: Any>` — no table type generic. `SoftDeleted*` repos retain `T` for `table.isDeleted`.
+**Virtual Threads**: Never use `@Synchronized`/`synchronized {}` — use `reentrantLock()`.
 
-**NearCache**: `NearCacheOperations<V>` (blocking), `SuspendNearCacheOperations<V>` (suspend). Use `lettuceNearCacheOf<V>()` + `.withResilience {}`.
+## Module Groups
 
-**Auditable pattern** (3 layers): `exposed-core` → `AuditableIdTable` + `UserContext`; `exposed-dao` → `AuditableEntity` auto-sets createdBy/updatedBy; `exposed-jdbc` → `auditedUpdateById()` / `auditedUpdateAll()` auto-sets updatedAt/updatedBy. **Always use `auditedUpdate*` for UPDATE operations.**
+> Full list: `.claude/references/module-groups.md`
 
-**NetCDF pipeline** (`utils/science`): three Exposed tables — `NetCdfFileTable` (`AuditableLongIdTable`, file metadata) · `NetCdfGridValueTable` (plain `LongIdTable`, grid cells with nullable PostGIS `location`, partial expression unique indexes via `MD5(ST_AsBinary(location))`) · `NetCdfImportProgressTable` (plain `LongIdTable`, system-only state with `lastSliceIdx` linear cursor + heartbeat `leaseExpiresAt`; user context not needed). Slice insert uses raw `INSERT ... ON CONFLICT DO NOTHING` (Exposed `upsert` cannot match expression unique indexes).
-
-**AwsEmulatorServer** (`testing/testcontainers`): Common interface for local AWS emulators. `awsEndpoint`/`awsAccessKey`/`awsSecretKey` property names use `aws` prefix to avoid JVM getter collision with `LocalStackContainer.getEndpoint()`. `getCredentialProvider()` lives in `AwsEmulatorServerExtensions.kt` (requires `aws2-auth` on classpath). Switch emulators at test runtime: `-Dbluetape4k.aws.emulator=floci|localstack`. `LocalStackServer` and `MinIOServer` are `@Deprecated(WARNING)`.
-
-**High-perf**: LZ4/Zstd compression · Kryo/Fory serialization · Custom Redis codecs.
+| Group             | Description                                                         |
+|-------------------|---------------------------------------------------------------------|
+| `bluetape4k/`     | `core`, `coroutines`, `logging`, `bom`                              |
+| `data/`           | `exposed-*`, `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra`   |
+| `infra/`          | `lettuce`, `redisson`, `kafka`, `pulsar`, `resilience4j`, `cache-*` |
+| `spring-boot3/4/` | WebFlux+Coroutines, Exposed repos, Spring Batch                     |
+| `virtualthread/`  | `api`, `jdk21`, `jdk25` — always update both together               |
 
 ## Build Configuration
 
@@ -136,33 +77,34 @@ All tools installed at `/opt/homebrew/bin/`.
 
 ## Important Notes
 
-- [ ] **jar source extraction**: Use `.claude/lib-sources/<library-name>/` — never `/tmp/` or project source tree
-- [ ] **Publishing**: GitHub Packages Maven; exclude `workshop/` and `examples/`
-- [ ] **atomicfu**: Class property level only — never method-local variables
-- [ ] **Detekt**: Disabled in `exposed-jdbc-tests`
-- [ ] **virtualthread-api**: Changes to `virtualthread/api` → always update both `jdk21` and `jdk25`
+- **jar source extraction**: Use `.claude/lib-sources/<library-name>/` — never `/tmp/` or project source tree
+- **atomicfu**: Class property level only — never method-local variables
+- **Detekt**: Disabled in `exposed-jdbc-tests`
+- **virtualthread-api**: Changes to `virtualthread/api` → always update both `jdk21` and `jdk25`
+- **Publishing**: GitHub Packages Maven; exclude `workshop/` and `examples/`
+
+## After Code Changes
+
+- [ ] Run compile + tests for changed module
+- [ ] Update both `README.md` and `README.ko.md` for every changed module
+- [ ] When creating a new spec/plan: run `/wiki-update`
 
 ## Before Creating a PR (MANDATORY)
 
-Verify every item before running `gh pr create`:
-
-- [ ] **로컬 테스트 전수 통과**: `./gradlew :<module>:test` 실행 결과 전달 (passing count + duration)
-- [ ] **Code review 실행**: commit/push/PR 생성 전 `oh-my-claudecode:code-reviewer` (또는 `pr-review-toolkit:code-reviewer`) 에이전트 실행 → HIGH/CRITICAL 이슈 해소 확인
-- [ ] All tests pass for changed modules (CI verifies automatically)
-- [ ] PR description includes test results, fix rationale, and verification commands in detail
-- [ ] `README.md` **and** `README.ko.md` updated for every changed module
+- [ ] All module tests pass: `./gradlew :<module>:test` (report passing count + duration)
+- [ ] Code review: run `oh-my-claudecode:code-reviewer` — resolve all HIGH/CRITICAL issues before push
+- [ ] PR description includes test results, fix rationale, and verification commands
+- [ ] `README.md` and `README.ko.md` updated for every changed module
 - [ ] KDoc added/updated for all new or modified public APIs
-- [ ] Work was done inside a `git worktree` (`.worktrees/<branch>/`)
-- [ ] `testing/mock-web-server` changed → rebuild Docker image:
-  `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
-- [ ] `testing/mock-webflux-server` changed → rebuild Docker image:
-  `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`
+- [ ] Work was done inside a git worktree (`.worktrees/<branch>/`)
 - [ ] `virtualthread/api` change → both `jdk21` and `jdk25` updated
-- [ ] Run OMC Code Review via `/oh-my-claudecode:code-reviewer` skill before merging
+- [ ] `mock-web-server` changed → `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
+- [ ] `mock-webflux-server` changed →
+  `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`
 
 ## Git Workflow
 
-- Branch: `develop`
+- Base branch: `develop`
 - Commits: Korean + prefix (`feat: ...`, `fix: ...`)
-- All feature work in a worktree: `git worktree add .worktrees/<branch> -b <branch>`
-- After merging PR: run `./bin/clean-branches` to delete gone local branches
+- Worktree: `git worktree add .worktrees/<branch> -b <branch>`
+- After merging PR: `./bin/clean-branches`
