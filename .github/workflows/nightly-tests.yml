@@ -373,6 +373,72 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
+  # ── images-vips 모듈 테스트 (libvips 설치 필요) ────────────────────────────
+  test-images-vips:
+    name: Test / Images Vips (Nightly)
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install libvips
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libvips-dev
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test images-vips modules
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-images-vips-api:test \
+              :bluetape4k-images-vips-java21:test \
+              :bluetape4k-images-vips-java25:test \
+              -Dvips.enabled=true \
+              --no-daemon
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+          JDK_JAVA_OPTIONS: "--enable-native-access=ALL-UNNAMED"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-images-vips-api:koverXmlReport \
+            :bluetape4k-images-vips-java21:koverXmlReport \
+            :bluetape4k-images-vips-java25:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-test-results-images-vips
+          path: "**/build/test-results/test/*.xml"
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-images-vips
+          path: '**/build/reports/kover/'
+          retention-days: 14
+
   # ── Misc 모듈 테스트 ──────────────────────────────────────────────────────
   test-misc:
     name: Test / Misc
@@ -1248,6 +1314,7 @@ jobs:
       - test-io
       - test-io-http
       - test-utils
+      - test-images-vips
       - test-misc
       - test-exposed-core
       - test-spring-h2
@@ -1294,6 +1361,7 @@ jobs:
       - test-io
       - test-io-http
       - test-utils
+      - test-images-vips
       - test-misc
       - test-exposed-core
       - test-spring-h2
