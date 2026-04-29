@@ -73,7 +73,7 @@ allprojects {
 }
 
 subprojects {
-    if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo")) {
+    if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
         apply(plugin = Plugins.nmcp)
     }
 
@@ -113,8 +113,8 @@ subprojects {
         // Atomicfu
         plugin("org.jetbrains.kotlinx.atomicfu")
 
-        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo 는 별도 필터링)
-        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo")) {
+        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark 는 별도 필터링)
+        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
             plugin(Plugins.kover)
         }
 
@@ -204,6 +204,12 @@ subprojects {
             usesService(testMutex)
 
             useJUnitPlatform()
+
+            // bluetape4k.* 시스템 프로퍼티를 테스트 JVM에 전달 (골든 이미지 갱신 모드 등)
+            System.getProperties()
+                .entries
+                .filter { it.key.toString().startsWith("bluetape4k.") }
+                .forEach { systemProperty(it.key.toString(), it.value.toString()) }
 
             // 테스트 시 아래와 같은 예외 메시지를 제거하기 위해서
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
@@ -584,7 +590,7 @@ subprojects {
      */
     publishing {
         publications {
-            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo")) {
+            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo") && !project.path.endsWith("-benchmark")) {
                 create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
@@ -622,7 +628,8 @@ subprojects {
         publicationName = "Bluetape4k",
         enabled = !project.path.contains("workshop") &&
                 !project.path.contains("examples") &&
-                !project.path.contains("-demo"),
+                !project.path.contains("-demo") &&
+                !project.path.endsWith("-benchmark"),
     )
 
     tasks.withType<GenerateMavenPom>().configureEach {
@@ -643,7 +650,7 @@ subprojects {
 }
 
 val publishableProjects = subprojects.filterNot { project ->
-    project.path.contains("workshop") || project.path.contains("examples") || project.path.contains("-demo")
+    project.path.contains("workshop") || project.path.contains("examples") || project.path.contains("-demo") || project.path.endsWith("-benchmark")
 }
 
 extensions.configure<NmcpAggregationExtension>("nmcpAggregation") {
@@ -686,7 +693,8 @@ dependencies {
             sub.name != "bluetape4k-bom" &&
                     !sub.path.contains("workshop") &&
                     !sub.path.contains("examples") &&
-                    !sub.path.contains("-demo")
+                    !sub.path.contains("-demo") &&
+                    !sub.path.endsWith("-benchmark")
         }
         .forEach { sub -> kover(project(sub.path)) }
 }

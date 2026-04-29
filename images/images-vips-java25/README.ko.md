@@ -474,10 +474,78 @@ class ImageController(
 | **Java 버전** | 23+ | 21+ |
 | **JVM 플래그** | `--enable-native-access=ALL-UNNAMED` | 없음 |
 | **메모리 모델** | Arena 기반 자동 정리 | JNI 참조 계수 |
-| **성능** | 최신 Java 환경에 최적 | 검증된 안정성 |
+| **플랫폼** | macOS + Linux | Linux 전용 (macOS native binary 없음) |
 | **API** | 동일 VipsImage 인터페이스 | 동일 VipsImage 인터페이스 |
 
 두 모듈 모두 동일한 `VipsImage` 인터페이스를 구현하며 API 수준에서 상호교환 가능합니다.
+
+### scrimage 대비 성능
+
+```mermaid
+xychart-beta horizontal
+    title "scrimage vs vips-ffm — Linux CI, java25 (ms/op, 낮을수록 빠름)"
+    x-axis ["scrimage resize FHD", "vips resize FHD", "scrimage JPEG", "vips JPEG", "scrimage PNG", "vips PNG"]
+    y-axis "ms/op" 0 --> 270
+    bar [187.29, 0.59, 171.16, 37.20, 249.01, 137.95]
+```
+
+**CI Linux (Ubuntu 24.04, GraalVM 25, libvips 8.15.1)**
+
+| 연산 | scrimage (ms/op) | vips-ffm (ms/op) | 속도 향상 |
+|------|-----------------|------------------|----------|
+| resize 4K→1920×1080 | 187.29 | **0.591** | **317배** |
+| resize 4K→1280×720  | 119.45 | **0.626** | **191배** |
+| encode JPEG         | 171.16 | **37.20** | **4.6배** |
+| encode PNG          | 249.01 | **137.95** | **1.8배** |
+
+**macOS (Apple Silicon, GraalVM 25.0.3, libvips 8.18.2)**
+
+| 연산 | scrimage (ms/op) | vips-ffm (ms/op) | 속도 향상 |
+|------|-----------------|------------------|----------|
+| resize 4K→1920×1080 | 71.16 | **0.202** | **352배** |
+| encode JPEG         | 52.49 | **15.67** | **3.3배** |
+| encode PNG          | 94.87 | **49.88** | **1.9배** |
+
+전체 상세 결과: [`images-benchmark/docs/benchmark-results-2026-04-29.md`](../images-benchmark/docs/benchmark-results-2026-04-29.md)
+
+## 테스트
+
+libvips가 없으면 테스트가 자동으로 스킵됩니다:
+
+```bash
+./gradlew :bluetape4k-images-vips-java25:test
+# System.getProperty("vips.enabled") != "true"이면 스킵
+
+# 테스트 강제 실행 (시스템 libvips 필수)
+./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true
+```
+
+### 골든 이미지 테스트 (마스터 소스)
+
+java25 모듈은 `images-vips-api/src/testFixtures/resources/golden/vips/`에 저장된 vips 골든 이미지의 **공식 소스**입니다.
+
+- 갱신 모드는 Java 25+ 환경에서만 활성화 — `@EnabledForJreRange(min = JRE.JAVA_25)` 가드 적용
+- 골든 이미지 재생성: `-Dbluetape4k.images.golden.update=true -Dvips.enabled=true`
+- CI 가드: CI 환경에서 골든 이미지 재생성을 방지합니다
+
+```bash
+# 골든 이미지 재생성 (Java 25+에서 실행해야 함)
+./gradlew :bluetape4k-images-vips-java25:test \
+    -Dvips.enabled=true \
+    -Dbluetape4k.images.golden.update=true
+```
+
+### 속성 기반 테스트
+
+5가지 불변식 × 3가지 포맷(JPEG/PNG/WebP)을 `@ParameterizedTest`로 검증합니다.
+
+| 불변식 | 설명 |
+|--------|------|
+| 치수 보존 | 리사이즈 출력이 요청한 너비/높이와 일치 |
+| 출력 비어있지 않음 | 인코딩된 바이트가 항상 생성됨 |
+| 포맷 왕복 | 디코드 → 인코드 → 디코드 시 동일한 치수 반환 |
+| 자르기 경계 | 자른 영역이 원본 경계를 초과하지 않음 |
+| 썸네일 비율 | 썸네일 긴 변이 요청한 최대 치수에 맞음 |
 
 ## 문제 해결
 
@@ -528,18 +596,6 @@ convert input.gif output.jpg
 if (width * height > SAFE_LIMIT) {
     throw BadRequestException("이미지가 너무 큼")
 }
-```
-
-### 테스트 실행 시 libvips 필요
-
-libvips가 없으면 테스트가 자동으로 스킵됩니다:
-
-```bash
-./gradlew :bluetape4k-images-vips-java25:test
-# System.getProperty("vips.enabled") != "true"이면 스킵
-
-# 테스트 강제 실행 (시스템 libvips 필수)
-./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true
 ```
 
 ## 참고 자료

@@ -361,6 +361,26 @@ fun cropAndExportBytes(imagePath: String): ByteArray {
 
 테스트 클래스는 `@Tag("vips-required")`로 태그되며 명시적으로 활성화되지 않으면 건너뜁니다.
 
+### 골든 이미지 테스트
+
+`images-vips-api` testFixtures(`src/testFixtures/resources/golden/vips/`)에 저장된 골든 이미지와 vips 연산 결과를 비교합니다.
+
+- libvips가 설치된 Linux에서 `-Dvips.enabled=true`로 실행
+- 골든 이미지는 java25 모듈에서만 생성됩니다 (`@EnabledForJreRange(min = JRE.JAVA_25)` 가드로 이 모듈에서의 재생성 방지)
+- 채널당 픽셀 차이 허용 오차 설정 가능
+
+### 속성 기반 테스트
+
+5가지 불변식 × 3가지 포맷(JPEG/PNG/WebP)을 `@ParameterizedTest`로 검증합니다.
+
+| 불변식 | 설명 |
+|--------|------|
+| 치수 보존 | 리사이즈 출력이 요청한 너비/높이와 일치 |
+| 출력 비어있지 않음 | 인코딩된 바이트가 항상 생성됨 |
+| 포맷 왕복 | 디코드 → 인코드 → 디코드 시 동일한 치수 반환 |
+| 자르기 경계 | 자른 영역이 원본 경계를 초과하지 않음 |
+| 썸네일 비율 | 썸네일 긴 변이 요청한 최대 치수에 맞음 |
+
 ## 문제 해결
 
 ### "UnsatisfiedLinkError: Can't load library: libvips"
@@ -391,3 +411,5 @@ sudo apt-get install libvips-tools
 
 - [bluetape4k-images](../images/) — Scrimage 기반 이미지 처리 (코루틴 비동기)
 - [bluetape4k-images-vips-api](../images-vips-api/) — VipsRuntime 및 VipsImage 계약
+- [bluetape4k-images-vips-java25](../images-vips-java25/) — Panama FFM 백엔드 (macOS + Linux, 권장)
+- [bluetape4k-images-benchmark](../images-benchmark/) — JMH 벤치마크: scrimage vs vips 성능 비교

@@ -1119,6 +1119,41 @@ val asyncExif: ExifData = File("photo.jpg").suspendReadExif()
 | `analysis/BlurDetector.kt`              | `BlurScore` + Laplacian variance 계산             |
 | `analysis/ExifData.kt`                  | `ExifData` 모델 + `readExif()` 진입점            |
 
+## 테스트 & 품질
+
+### 골든 이미지 테스트
+
+[`GoldenImageAssert`](src/test/kotlin/io/bluetape4k/images/golden/GoldenImageAssert.kt)를 통한 픽셀 단위 회귀 테스트.
+
+- **비교 모드** (기본): 저장된 골든 PNG와 허용 오차 범위 내 비교
+- **갱신 모드**: `-Dbluetape4k.images.golden.update=true` 로 골든 이미지 재생성
+- **CI 가드**: CI 환경에서 갱신 모드 실행 차단
+
+### 속성 기반 테스트 (PBT)
+
+[`ImagePropertyTest`](src/test/kotlin/io/bluetape4k/images/property/ImagePropertyTest.kt)가 6개 결정론적 입력(320×240, 640×480, 1280×720, 3840×2160 단색/그라디언트/노이즈)에 대해 10개 불변식을 검증합니다.
+
+| # | 불변식 | 설명 |
+|---|--------|------|
+| 1 | scaleTo 크기 일치 | `scaleTo(w, h)` 결과가 정확히 `w×h` |
+| 2 | fit 경계 내 | `fit(w, h)` 결과가 `w×h` 이내 |
+| 3 | grayscale R==G==B | grayscale 후 모든 픽셀 R==G==B |
+| 4 | resize 라운드트립 | decode→encode→decode 시 크기 유지 |
+| 5 | PNG 바이트 > 0 | PNG 인코딩은 항상 비어 있지 않은 바이트 반환 |
+| 6 | sepia ≠ grayscale | sepia와 grayscale은 서로 다른 결과 |
+| 7 | scaleTo 멱등성 | 동일 타겟으로 `scaleTo` 두 번 호출 시 결과 동일 |
+| 8 | resize 바이트 감소 | 다운스케일 JPEG ≤ 원본 JPEG 바이트 |
+| 9 | 단색 JPEG 라운드트립 | 단색 이미지 encode→decode 가능 |
+| 10 | filter 크기 보존 | `filter()` 후 원본 width/height 유지 |
+
+```bash
+# PBT + 골든 테스트 실행
+./gradlew :bluetape4k-images:test
+
+# 골든 이미지 재생성
+./gradlew :bluetape4k-images:test -Dbluetape4k.images.golden.update=true
+```
+
 ## 의존성 추가
 
 ```kotlin

@@ -389,6 +389,22 @@ dependencies {
 }
 ```
 
+## testFixtures
+
+### VipsGoldenAssert
+
+`testFixtures` provides `VipsGoldenAssert` for pixel-level golden image comparison of vips operations.
+
+- **Update mode**: guarded by Java 25+ (`@EnabledForJreRange(min = JRE.JAVA_25)`) — only the java25 module generates authoritative golden images
+- **CI guard**: update mode is blocked in CI environments to prevent accidental golden regeneration
+- **Comparison tolerance**: configurable per-channel pixel delta tolerance (default: 2.0)
+
+```kotlin
+// In tests that depend on testFixtures
+VipsGoldenAssert(goldenDir = Path.of("src/testFixtures/resources/golden/vips"))
+    .assertMatchesGolden(resultImage, "resize_800x600.png")
+```
+
 ## See Also
 
 - `bluetape4k-images-vips-java21` — JVips binding for Java 21+
