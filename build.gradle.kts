@@ -205,6 +205,12 @@ subprojects {
 
             useJUnitPlatform()
 
+            // bluetape4k.* 시스템 프로퍼티를 테스트 JVM에 전달 (골든 이미지 갱신 모드 등)
+            System.getProperties()
+                .entries
+                .filter { it.key.toString().startsWith("bluetape4k.") }
+                .forEach { systemProperty(it.key.toString(), it.value.toString()) }
+
             // 테스트 시 아래와 같은 예외 메시지를 제거하기 위해서
             // OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
             jvmArgs(
