@@ -104,34 +104,47 @@ val result = Buffer()
 decryptSource.read(result, Long.MAX_VALUE)
 ```
 
-레거시 `TinkEncryptSink`는 `write()` 호출마다 독립적으로 암호화하고,
-`TinkDecryptSource`는 delegate source 전체를 읽은 뒤 단일 ciphertext로 복호화합니다.
-기존 단일 ciphertext payload 호환이 필요할 때 이 어댑터를 사용하세요.
+레거시 `TinkEncryptSink`/`TinkDecryptSource` 쌍은 스트림 전체를 **단일 ciphertext**로 취급합니다.
+`TinkEncryptSink`는 `close()` 시점에 암호화를 확정하고, `TinkDecryptSource`는 위임 Source를
+끝까지 읽은 뒤 단일 ciphertext로 복호화합니다. 복수의 `write()` 호출은 복수의 독립 ciphertext를
+생성하므로 `TinkDecryptSource`로 복호화할 수 없습니다. 기존 단일 ciphertext payload 호환이
+필요할 때만 이 어댑터를 사용하세요.
 
 대용량 payload 또는 여러 번의 `write()` 호출로 기록되는 데이터에는 DAEAD 청크 어댑터를 사용합니다.
+복호화는 한 번에 하나의 청크 ciphertext만 메모리에 적재하므로 페이로드 전체를 메모리에 올리지 않습니다:
 
 ```kotlin
 import io.bluetape4k.okio.tink.*
 import io.bluetape4k.tink.daead.TinkDaeads
 
+val daead = TinkDaeads.AES256_SIV
+val contextBytes = "my-context".toByteArray()
+
 val encrypted = Buffer()
-encrypted.asDaeadChunkEncryptSink(TinkDaeads.AES256_SIV).use { encryptSink ->
+encrypted.asDaeadChunkEncryptSink(
+    daead,
+    chunkSize = DEFAULT_DAEAD_CHUNK_SIZE,   // 기본 64 KiB; 필요 시 재정의
+    associatedData = contextBytes,
+).use { encryptSink ->
     encryptSink.write(buffer, buffer.size)
 }
 
 val decrypted = Buffer()
-encrypted.asDaeadChunkDecryptSource(TinkDaeads.AES256_SIV).use { decryptSource ->
+encrypted.asDaeadChunkDecryptSource(
+    daead,
+    associatedData = contextBytes,          // 암호화 시 사용한 값과 동일해야 함
+).use { decryptSource ->
     decryptSource.read(decrypted, Long.MAX_VALUE)
 }
 ```
 
-DAEAD 청크 암호화는 각 frame을 8-byte big-endian ciphertext 길이와 DAEAD ciphertext로 기록합니다.
-기본 평문 청크 크기는 64 KiB입니다. 마지막 partial chunk는 `close()`에서 확정되므로
+DAEAD 청크 암호화는 각 frame을 8-byte big-endian ciphertext 길이(`DEFAULT_DAEAD_CHUNK_SIZE` = 64 KiB)와
+DAEAD ciphertext로 기록합니다. 마지막 partial chunk는 `close()`에서 확정되므로
 암호화 Sink는 반드시 닫아야 하며, `use {}` 사용을 권장합니다.
 
 Deterministic AEAD는 같은 키, 평문, 연관 데이터에 대해 같은 암호문을 생성합니다.
 따라서 반복 평문 청크 패턴이 노출될 수 있습니다. 연관 데이터는 인증되지만 암호화되지 않으며,
-복호화할 때 암호화 시점과 같은 값을 전달해야 합니다.
+**복호화할 때 암호화 시점과 같은 값을 전달해야 합니다**.
 
 **암호화 + 압축 조합:**
 

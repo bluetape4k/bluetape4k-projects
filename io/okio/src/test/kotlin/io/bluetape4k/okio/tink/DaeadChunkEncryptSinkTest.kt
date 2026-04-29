@@ -3,7 +3,9 @@ package io.bluetape4k.okio.tink
 import io.bluetape4k.tink.daead.TinkDaeads
 import okio.Buffer
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
+import java.io.IOException
 import kotlin.test.assertFailsWith
 
 class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
@@ -68,7 +70,7 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
         encrypted.size shouldBeEqualTo 0L
 
         sink.close()
-        (encrypted.size > 0L) shouldBeEqualTo true
+        encrypted.size shouldBeGreaterThan 0L
     }
 
     @Test
@@ -103,6 +105,90 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
         encrypted.asDaeadChunkDecryptSource(daead, associatedData = byteArrayOf(1)).readAllTo(decrypted)
 
         decrypted.readUtf8() shouldBeEqualTo "secret"
+    }
+
+    @Test
+    fun `write after close throws IOException`() {
+        val sink = Buffer().asDaeadChunkEncryptSink(daead)
+        sink.close()
+
+        assertFailsWith<IOException> {
+            sink.write(Buffer().writeUtf8("x"), 1L)
+        }
+    }
+
+    @Test
+    fun `close is idempotent`() {
+        val encrypted = Buffer()
+        val sink = encrypted.asDaeadChunkEncryptSink(daead)
+        sink.write(Buffer().writeUtf8("hello"), 5L)
+
+        sink.close()
+        val sizeAfterFirstClose = encrypted.size
+        sink.close()
+
+        encrypted.size shouldBeEqualTo sizeAfterFirstClose
+    }
+
+    @Test
+    fun `flush after close is no-op`() {
+        val encrypted = Buffer()
+        val sink = encrypted.asDaeadChunkEncryptSink(daead)
+        sink.write(Buffer().writeUtf8("hello"), 5L)
+        sink.close()
+        val sizeAfterClose = encrypted.size
+
+        sink.flush()
+
+        encrypted.size shouldBeEqualTo sizeAfterClose
+    }
+
+    @Test
+    fun `write zero bytes is no-op`() {
+        val encrypted = Buffer()
+        val sink = encrypted.asDaeadChunkEncryptSink(daead, chunkSize = 4)
+
+        sink.write(Buffer(), 0L)
+        sink.flush()
+
+        encrypted.size shouldBeEqualTo 0L
+        sink.close()
+    }
+
+    @Test
+    fun `round-trip with payload size exact multiple of chunkSize`() {
+        val chunkSize = 16
+        listOf(1, 2, 4).forEach { multiple ->
+            val plaintext = ByteArray(chunkSize * multiple) { (it % 127).toByte() }
+            val encrypted = Buffer()
+
+            encrypted.asDaeadChunkEncryptSink(daead, chunkSize = chunkSize).use { sink ->
+                sink.write(Buffer().write(plaintext), plaintext.size.toLong())
+            }
+
+            val decrypted = Buffer()
+            encrypted.asDaeadChunkDecryptSource(daead).readAllTo(decrypted)
+
+            decrypted.readByteArray() shouldBeEqualTo plaintext
+        }
+    }
+
+    @Test
+    fun `round-trip with payload sizes around chunk boundaries`() {
+        val chunkSize = 16
+        listOf(chunkSize - 1, chunkSize, chunkSize + 1, 2 * chunkSize - 1, 2 * chunkSize, 2 * chunkSize + 1).forEach { size ->
+            val plaintext = ByteArray(size) { (it % 251).toByte() }
+            val encrypted = Buffer()
+
+            encrypted.asDaeadChunkEncryptSink(daead, chunkSize = chunkSize).use { sink ->
+                sink.write(Buffer().write(plaintext), plaintext.size.toLong())
+            }
+
+            val decrypted = Buffer()
+            encrypted.asDaeadChunkDecryptSource(daead).readAllTo(decrypted)
+
+            decrypted.readByteArray() shouldBeEqualTo plaintext
+        }
     }
 
     private fun DaeadChunkDecryptSource.readAllTo(sink: Buffer): Long {

@@ -105,37 +105,51 @@ val result = Buffer()
 decryptSource.read(result, Long.MAX_VALUE)
 ```
 
-The legacy `TinkEncryptSink` encrypts each `write()` call independently, while
-`TinkDecryptSource` expects a single ciphertext and decrypts it after reading the
-delegate source fully. Keep this adapter for existing single-ciphertext payloads.
+The legacy `TinkEncryptSink`/`TinkDecryptSource` pair treats the entire stream as a
+**single ciphertext**: `TinkEncryptSink` finalizes encryption on `close()`, and
+`TinkDecryptSource` reads the delegate source to completion before producing any
+plaintext. Use this adapter only with existing single-ciphertext payloads; using
+multiple `write()` calls produces multiple independent ciphertexts that
+`TinkDecryptSource` cannot decode.
 
 For large payloads or data written with multiple `write()` calls, use the DAEAD
-chunk adapter:
+chunk adapter instead. Decryption is incremental — only one chunk's ciphertext is
+held in memory at a time, regardless of total payload size:
 
 ```kotlin
 import io.bluetape4k.okio.tink.*
 import io.bluetape4k.tink.daead.TinkDaeads
 
+val daead = TinkDaeads.AES256_SIV
+val contextBytes = "my-context".toByteArray()
+
 val encrypted = Buffer()
-encrypted.asDaeadChunkEncryptSink(TinkDaeads.AES256_SIV).use { encryptSink ->
+encrypted.asDaeadChunkEncryptSink(
+    daead,
+    chunkSize = DEFAULT_DAEAD_CHUNK_SIZE,   // 64 KiB default; override as needed
+    associatedData = contextBytes,
+).use { encryptSink ->
     encryptSink.write(buffer, buffer.size)
 }
 
 val decrypted = Buffer()
-encrypted.asDaeadChunkDecryptSource(TinkDaeads.AES256_SIV).use { decryptSource ->
+encrypted.asDaeadChunkDecryptSource(
+    daead,
+    associatedData = contextBytes,          // must match encryption value
+).use { decryptSource ->
     decryptSource.read(decrypted, Long.MAX_VALUE)
 }
 ```
 
 DAEAD chunk encryption writes each frame as an 8-byte big-endian ciphertext
-length followed by the DAEAD ciphertext. The default plaintext chunk size is
-64 KiB. Always close the encrypt sink, preferably with `use {}`, because the
-last partial chunk is finalized on `close()`.
+length (`DEFAULT_DAEAD_CHUNK_SIZE = 64 KiB`) followed by the DAEAD ciphertext.
+Always close the encrypt sink, preferably with `use {}`, because the last partial
+chunk is finalized on `close()`.
 
 Deterministic AEAD produces the same ciphertext for the same key, plaintext, and
 associated data. This can reveal repeated plaintext chunks. Associated data is
-authenticated but not encrypted, and the same value must be supplied for
-decryption.
+authenticated but not encrypted, and the **same value must be supplied for
+decryption**.
 
 **Encryption + Compression combined:**
 

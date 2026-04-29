@@ -236,16 +236,17 @@ fun bufferedImageOf(w: Int, h: Int): BufferedImage {
 /**
  * [InputStream] 정보를 읽어 [BufferedImage]를 생성합니다.
  *
- * ## 동작/계약
- * - 읽기 실패 시 `ImageIO.read`가 `null` 또는 예외를 반환할 수 있습니다.
- *
  * ```kotlin
  * val image = bufferedImageOf(File("photo.jpg").inputStream())
  * // image.width > 0
  * // image.height > 0
  * ```
+ *
+ * @throws IllegalArgumentException 지원하지 않는 포맷이거나 손상된 스트림인 경우
  */
-fun bufferedImageOf(inputStream: InputStream): BufferedImage = ImageIO.read(inputStream)
+fun bufferedImageOf(inputStream: InputStream): BufferedImage =
+    ImageIO.read(inputStream)
+        ?: throw IllegalArgumentException("지원하지 않는 이미지 포맷이거나 손상된 스트림입니다.")
 
 /**
  * [ImageInputStream] 정보를 읽어 [BufferedImage]를 생성합니다.
@@ -255,8 +256,12 @@ fun bufferedImageOf(inputStream: InputStream): BufferedImage = ImageIO.read(inpu
  * val image = bufferedImageOf(iis)
  * // image.width > 0
  * ```
+ *
+ * @throws IllegalArgumentException 지원하지 않는 포맷이거나 손상된 스트림인 경우
  */
-fun bufferedImageOf(inputStream: ImageInputStream): BufferedImage = ImageIO.read(inputStream)
+fun bufferedImageOf(inputStream: ImageInputStream): BufferedImage =
+    ImageIO.read(inputStream)
+        ?: throw IllegalArgumentException("지원하지 않는 이미지 포맷이거나 손상된 ImageInputStream입니다.")
 
 /**
  * [File] 정보를 읽어 [BufferedImage]를 생성합니다.
@@ -266,8 +271,12 @@ fun bufferedImageOf(inputStream: ImageInputStream): BufferedImage = ImageIO.read
  * // image.width > 0
  * // image.height > 0
  * ```
+ *
+ * @throws IllegalArgumentException 지원하지 않는 포맷이거나 손상된 파일인 경우
  */
-fun bufferedImageOf(file: File): BufferedImage = ImageIO.read(file)
+fun bufferedImageOf(file: File): BufferedImage =
+    ImageIO.read(file)
+        ?: throw IllegalArgumentException("지원하지 않는 이미지 포맷이거나 손상된 파일입니다: ${file.path}")
 
 /**
  * [URL] 정보를 읽어 [BufferedImage]를 생성합니다.
@@ -277,8 +286,12 @@ fun bufferedImageOf(file: File): BufferedImage = ImageIO.read(file)
  * val image = bufferedImageOf(url)
  * // image.width > 0
  * ```
+ *
+ * @throws IllegalArgumentException 지원하지 않는 포맷이거나 읽기 실패인 경우
  */
-fun bufferedImageOf(url: URL): BufferedImage = ImageIO.read(url)
+fun bufferedImageOf(url: URL): BufferedImage =
+    ImageIO.read(url)
+        ?: throw IllegalArgumentException("지원하지 않는 이미지 포맷이거나 URL 읽기에 실패했습니다: $url")
 
 /**
  * 이미지 정보를 담은 [bytes]를 읽어 [BufferedImage] 를 생성합니다.
@@ -289,8 +302,12 @@ fun bufferedImageOf(url: URL): BufferedImage = ImageIO.read(url)
  * // image.width > 0
  * // image.height > 0
  * ```
+ *
+ * @throws IllegalArgumentException 지원하지 않는 포맷이거나 손상된 바이트 배열인 경우
  */
-fun bufferedImageOf(bytes: ByteArray): BufferedImage = ImageIO.read(bytes.toInputStream())
+fun bufferedImageOf(bytes: ByteArray): BufferedImage =
+    ImageIO.read(bytes.toInputStream())
+        ?: throw IllegalArgumentException("지원하지 않는 이미지 포맷이거나 손상된 바이트 배열입니다.")
 
 /**
  * [BufferedImage] 정보를 ByteArray 로 변환합니다.
