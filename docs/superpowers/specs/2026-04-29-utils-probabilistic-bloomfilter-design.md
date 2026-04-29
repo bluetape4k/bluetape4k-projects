@@ -8,7 +8,7 @@ Issue #142는 `x-obsoleted/bloomfilter`에 남아 있는 JVM 인메모리 Bloom 
 
 ## 요구사항
 
-- 신규 모듈: `utils/probabilistic` (`:probabilistic`)
+- 신규 모듈: `utils/probabilistic` (`:bluetape4k-probabilistic`)
 - 패키지 루트: `io.bluetape4k.probabilistic`
 - 1차 범위: Bloom Filter API와 인메모리 구현
 - 제외 범위: Redis Lua/Redisson/Lettuce 구현, Cuckoo Filter 구현
@@ -153,7 +153,7 @@ val filter = bloomFilter<String>(
 
 ## Acceptance Criteria
 
-- `:probabilistic` 모듈이 Gradle에 자동 포함되고 컴파일된다.
+- `:bluetape4k-probabilistic` 모듈이 Gradle에 자동 포함되고 컴파일된다.
 - Guava/Eclipse Collections 신규 의존성 없이 Bloom Filter 직접 구현이 제공된다.
 - `BloomFilter`, `MutableBloomFilter`, `SuspendBloomFilter` 공개 계약과 인메모리 구현이 제공된다.
 - `bloomFilter` / `suspendBloomFilter` DSL 생성 함수가 동작한다.
@@ -166,8 +166,8 @@ val filter = bloomFilter<String>(
 
 ## DoD
 
-- `./bin/repo-test-summary -- ./gradlew :probabilistic:test` 통과
-- `./bin/repo-test-summary -- ./gradlew :probabilistic:compileKotlin :probabilistic:compileTestKotlin` 통과
+- `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:test` 통과
+- `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:compileKotlin :bluetape4k-probabilistic:compileTestKotlin` 통과
 - 공개 API 한국어 KDoc 작성
 - Step 6-R 6개 리뷰 티어 수행
 - Lore commit trailer를 포함한 커밋 작성

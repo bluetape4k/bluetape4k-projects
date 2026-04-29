@@ -11,11 +11,11 @@ Issue: #142
   - `utils/probabilistic/src/main/kotlin/io/bluetape4k/probabilistic/...`
   - `utils/probabilistic/src/test/kotlin/io/bluetape4k/probabilistic/...`
 - work:
-  - `:probabilistic` 자동 include 구조에 맞춰 `utils/probabilistic` 생성
+  - `:bluetape4k-probabilistic` 자동 include 구조에 맞춰 `utils/probabilistic` 생성
   - core, coroutines compileOnly/test 의존성 추가
   - Guava/Eclipse Collections 의존성은 추가하지 않음
 - verification:
-  - `./bin/repo-test-summary -- ./gradlew :probabilistic:compileKotlin`
+  - `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:compileKotlin`
 - docs impact:
   - 신규 모듈 README 필요
   - 신규 durable convention은 기존 repo 규칙으로 충분해 AGENTS.md 추가는 불필요
@@ -36,7 +36,7 @@ Issue: #142
   - `expectedInsertions > 0`, `fpp in (0, 1)` 검증
   - 기본 hash 전략 작성
 - verification:
-  - `./bin/repo-test-summary -- ./gradlew :probabilistic:compileKotlin`
+  - `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:compileKotlin`
 - docs impact:
   - 공개 API KDoc 한국어 작성
 
@@ -54,7 +54,7 @@ Issue: #142
   - `putAll` 호환성 검증 후 bitset 병합
   - suspend wrapper는 dispatcher 전환 없이 메모리 연산만 위임
 - verification:
-  - `./bin/repo-test-summary -- ./gradlew :probabilistic:compileKotlin :probabilistic:compileTestKotlin`
+  - `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:compileKotlin :bluetape4k-probabilistic:compileTestKotlin`
 - docs impact:
   - README에 `put` 반환값, FPP, `putAll` compatibility, thread-safe 비보장, suspend 제약 기록
 
@@ -73,7 +73,7 @@ Issue: #142
   - `putAll` 성공/실패 계약 검증
   - `runTest` suspend API 검증
 - verification:
-  - `./bin/repo-test-summary -- ./gradlew :probabilistic:test`
+  - `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:test`
 - docs impact:
   - 테스트명은 한글/계약 중심으로 작성
 
@@ -105,8 +105,8 @@ Issue: #142
   - Step 6-R 6개 리뷰 티어 수행
   - Lore trailer 포함 커밋, push, PR 생성
 - verification:
-  - `./bin/repo-test-summary -- ./gradlew :probabilistic:test`
-  - `./bin/repo-test-summary -- ./gradlew :probabilistic:compileKotlin :probabilistic:compileTestKotlin`
+  - `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:test`
+  - `./bin/repo-test-summary -- ./gradlew :bluetape4k-probabilistic:compileKotlin :bluetape4k-probabilistic:compileTestKotlin`
 - docs impact:
   - `docs/superpowers/index`는 현 repo에 없음. superpowers index 업데이트는 N/A로 기록
 
