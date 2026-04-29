@@ -90,12 +90,20 @@ object JVipsRuntime : VipsRuntime, KLogging() {
     }
 
     override fun shutdown() {
-        // CAS 사용: INITIALIZED → SHUTDOWN 전이만 허용.
-        // UNINITIALIZED 상태에서 shutdown() 호출 시 상태를 변경하지 않습니다.
-        // getAndSet(SHUTDOWN)은 미초기화 상태에서도 SHUTDOWN으로 전이시켜 싱글턴을 영구 브릭할 수 있습니다.
-        if (state.compareAndSet(RuntimeState.INITIALIZED, RuntimeState.SHUTDOWN)) {
-            nativeRuntime.nativeShutdown()
-            log.debug("JVipsRuntime shut down")
+        // INITIALIZING 중 shutdown()이 호출되면 spin-wait 후 전이.
+        // UNINITIALIZED/SHUTDOWN 상태에서는 아무것도 하지 않음.
+        while (true) {
+            when (state.get()) {
+                RuntimeState.SHUTDOWN, RuntimeState.UNINITIALIZED -> return
+                RuntimeState.INITIALIZED -> {
+                    if (state.compareAndSet(RuntimeState.INITIALIZED, RuntimeState.SHUTDOWN)) {
+                        nativeRuntime.nativeShutdown()
+                        log.debug("JVipsRuntime shut down")
+                        return
+                    }
+                }
+                RuntimeState.INITIALIZING -> Thread.onSpinWait()
+            }
         }
     }
 

@@ -70,6 +70,8 @@ internal class FfmVipsImage(
             FfmVipsImage(arena, resized, ownsArena = false)
         } catch (e: VipsOperationException) {
             throw e
+        } catch (e: VipsDecodeException) {
+            throw VipsOperationException("Image resize failed", e)
         } catch (e: VipsError) {
             throw VipsOperationException("Image resize failed", e)
         }
@@ -82,6 +84,8 @@ internal class FfmVipsImage(
             FfmVipsImage(arena, thumb, ownsArena = false)
         } catch (e: VipsOperationException) {
             throw e
+        } catch (e: VipsDecodeException) {
+            throw VipsOperationException("Image thumbnail failed", e)
         } catch (e: VipsError) {
             throw VipsOperationException("Image thumbnail failed", e)
         }
@@ -94,6 +98,8 @@ internal class FfmVipsImage(
             FfmVipsImage(arena, cropped, ownsArena = false)
         } catch (e: VipsOperationException) {
             throw e
+        } catch (e: VipsDecodeException) {
+            throw VipsOperationException("Image crop failed", e)
         } catch (e: VipsError) {
             throw VipsOperationException("Image crop failed", e)
         }

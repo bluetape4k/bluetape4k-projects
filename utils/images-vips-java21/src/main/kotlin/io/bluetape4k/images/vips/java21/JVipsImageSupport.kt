@@ -141,15 +141,19 @@ private fun decodeAndCheckPixels(bytes: ByteArray): VipsImageApi {
                 "(width=${nativeImage.width}, height=${nativeImage.height}, bands=${nativeImage.bands})"
         )
     }
+    var handle: NativeHandle? = null
     return try {
-        JVipsImage(NativeHandle(nativeImage))
+        handle = NativeHandle(nativeImage)
+        JVipsImage(handle)
     } catch (e: CancellationException) {
-        nativeImage.release()
+        handle?.close() ?: nativeImage.release()
         throw e
     } catch (e: Exception) {
-        // NativeHandle 생성 중 예외 — Cleaner 미등록 상태이므로 직접 해제
-        nativeImage.release()
-        throw VipsDecodeException("Image validation failed", e)
+        handle?.close() ?: nativeImage.release()
+        when (e) {
+            is VipsDecodeException -> throw e
+            else -> throw VipsDecodeException("Image validation failed", e)
+        }
     }
 }
 

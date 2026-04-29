@@ -42,12 +42,16 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
     override fun resize(width: Int, height: Int): VipsImage {
         checkOpen()
         val cloned = handle.vipsImage.clone()
+        var nativeHandle: NativeHandle? = null
         return try {
             resizeWithJVips(cloned, width, height)
-            JVipsImage(NativeHandle(cloned))
+            nativeHandle = NativeHandle(cloned)
+            JVipsImage(nativeHandle)
         } catch (e: Exception) {
-            // NativeHandle 등록 전 cloned 리소스 해제: VipsException + IllegalArgumentException 모두 처리
-            cloned.release()
+            // NativeHandle 생성 여부에 따라 해제 방식 결정:
+            // - 생성됐으면 close() 사용 (Cleaner-aware, 이중 해제 방지)
+            // - 미생성이면 직접 release()
+            nativeHandle?.close() ?: cloned.release()
             when (e) {
                 is VipsException -> throw VipsOperationException("Image resize failed", e)
                 else -> throw e
@@ -58,11 +62,13 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
     override fun thumbnail(maxDimension: Int): VipsImage {
         checkOpen()
         val cloned = handle.vipsImage.clone()
+        var nativeHandle: NativeHandle? = null
         return try {
             thumbnailWithJVips(cloned, maxDimension)
-            JVipsImage(NativeHandle(cloned))
+            nativeHandle = NativeHandle(cloned)
+            JVipsImage(nativeHandle)
         } catch (e: Exception) {
-            cloned.release()
+            nativeHandle?.close() ?: cloned.release()
             when (e) {
                 is VipsException -> throw VipsOperationException("Image thumbnail failed", e)
                 else -> throw e
@@ -73,11 +79,13 @@ internal class JVipsImage(private val handle: NativeHandle) : VipsImage {
     override fun crop(left: Int, top: Int, width: Int, height: Int): VipsImage {
         checkOpen()
         val cloned = handle.vipsImage.clone()
+        var nativeHandle: NativeHandle? = null
         return try {
             cloned.crop(Rectangle(left, top, width, height))
-            JVipsImage(NativeHandle(cloned))
+            nativeHandle = NativeHandle(cloned)
+            JVipsImage(nativeHandle)
         } catch (e: Exception) {
-            cloned.release()
+            nativeHandle?.close() ?: cloned.release()
             when (e) {
                 is VipsException -> throw VipsOperationException("Image crop failed", e)
                 else -> throw e
