@@ -189,9 +189,9 @@
 - Issue: [#112](https://github.com/bluetape4k/bluetape4k-projects/issues/112)
 현재 13개 모듈 완벽 대칭 — 신규 모듈 추가 시 반드시 양쪽에 동시 구현:
 
-- [ ] 신규 모듈 추가 체크리스트 확립 (PR 템플릿에 반영)
-- [ ] Spring Boot 4 BOM 업데이트 추적 (Spring Framework 7.x 대응)
-- [ ] spring-boot4 모듈 독립 테스트 CI 구성 확인
+- [x] 신규 모듈 추가 체크리스트 확립 (PR 템플릿에 반영, 2026-04-29)
+- [x] Spring Boot 4 BOM 업데이트 추적 (Spring Framework 7.x 대응, `docs/spring-boot3-4-sync.md`)
+- [x] spring-boot4 모듈 독립 테스트 CI 구성 확인 (`Spring Boot 3/4 Parity` + nightly Spring Boot 4 job)
 
 ---
 
