@@ -12,7 +12,11 @@ sourceSets {
     create("benchmark")
 }
 
+val vipsImpl = project.findProperty("vips.impl")?.toString() ?: "java25"
+val javaVersion = if (vipsImpl == "java21") 21 else 25
+
 kotlin {
+    jvmToolchain(javaVersion)
     target {
         compilations.getByName("benchmark").associateWith(compilations.getByName("main"))
     }
@@ -55,7 +59,6 @@ dependencies {
 
     // vips — API 인터페이스는 컴파일 타임에 필요, 구현체는 런타임에만 필요
     add("benchmarkImplementation", project(":bluetape4k-images-vips-api"))
-    val vipsImpl = project.findProperty("vips.impl")?.toString() ?: "java25"
     if (vipsImpl == "java21") {
         add("benchmarkRuntimeOnly", project(":bluetape4k-images-vips-java21"))
     } else {

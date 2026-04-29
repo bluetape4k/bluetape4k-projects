@@ -5,12 +5,14 @@ import io.bluetape4k.images.vips.VipsImage
 import io.bluetape4k.images.vips.VipsRuntime
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
 import org.openjdk.jmh.annotations.Level
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
+import java.nio.file.Paths
 
 /**
  * JMH 벤치마크에서 vips 런타임 생명주기와 이미지 바이트를 관리하는 Thread-scope State.
@@ -35,6 +37,14 @@ class VipsBenchmarkState {
         private const val JNI_RUNTIME_CLASS = "io.bluetape4k.images.vips.java21.JVipsRuntime"
         private const val FFM_IMAGE_SUPPORT_CLASS = "io.bluetape4k.images.vips.java25.FfmVipsImageSupportKt"
         private const val JNI_IMAGE_SUPPORT_CLASS = "io.bluetape4k.images.vips.java21.JVipsImageSupportKt"
+
+        // vips-ffm이 사용하는 라이브러리 경로 override 프로퍼티 (VipsLibLookup.java 참고)
+        private const val PROP_VIPS_PATH = "vipsffm.libpath.vips.override"
+        private const val PROP_GLIB_PATH = "vipsffm.libpath.glib.override"
+        private const val PROP_GOBJECT_PATH = "vipsffm.libpath.gobject.override"
+
+        // Homebrew 기본 설치 경로
+        private const val HOMEBREW_LIB = "/opt/homebrew/lib"
     }
 
     /** vips 런타임이 성공적으로 초기화되었는지 여부. false 이면 vips 벤치마크를 skip해야 합니다. */
@@ -55,6 +65,9 @@ class VipsBenchmarkState {
         val jpegWriter = JpegWriter(80, false)
         photo4kJpegBytes = BenchmarkImageSets.photo4k.bytes(jpegWriter)
         thumbnailJpegBytes = BenchmarkImageSets.thumbnail.bytes(jpegWriter)
+
+        // macOS에서는 SIP가 DYLD_LIBRARY_PATH를 제거하므로 절대 경로를 시스템 프로퍼티로 설정
+        applyMacOsVipsLibraryPaths()
 
         // vips 런타임 초기화 (리플렉션으로 구현체 탐색)
         vipsAvailable = tryInitVipsRuntime()
@@ -85,6 +98,30 @@ class VipsBenchmarkState {
         return fn(bytes)
     }
 
+    /**
+     * macOS(Apple Silicon/x86)에서 vips-ffm이 libvips를 찾을 수 있도록
+     * Homebrew 설치 경로를 시스템 프로퍼티로 등록합니다.
+     *
+     * macOS SIP는 서명된 JVM에서 DYLD_LIBRARY_PATH를 제거하므로,
+     * [SymbolLookup.libraryLookup] 호출 시 절대 경로가 필요합니다.
+     * VipsLibLookup.java의 `vipsffm.libpath.*.override` 프로퍼티로 경로를 주입합니다.
+     */
+    private fun applyMacOsVipsLibraryPaths() {
+        val os = System.getProperty("os.name", "").lowercase()
+        if (!os.contains("mac")) return
+
+        listOf(
+            PROP_VIPS_PATH to "$HOMEBREW_LIB/libvips.dylib",
+            PROP_GLIB_PATH to "$HOMEBREW_LIB/libglib-2.0.dylib",
+            PROP_GOBJECT_PATH to "$HOMEBREW_LIB/libgobject-2.0.dylib",
+        ).forEach { (prop, path) ->
+            if (System.getProperty(prop) == null && Paths.get(path).toFile().exists()) {
+                System.setProperty(prop, path)
+                log.info { "macOS vips 경로 설정: $prop=$path" }
+            }
+        }
+    }
+
     private fun tryInitVipsRuntime(): Boolean {
         // java25 (FFM) 먼저 시도 → 실패하면 java21 (JNI) 시도
         return tryInitWithClass(FFM_RUNTIME_CLASS, FFM_IMAGE_SUPPORT_CLASS, "ffmVipsImageOf")
@@ -107,8 +144,9 @@ class VipsBenchmarkState {
             val method = supportKClass.getMethod(factoryMethodName, ByteArray::class.java)
             createImageFn = { bytes -> method.invoke(null, bytes) as VipsImage }
             true
-        } catch (_: Throwable) {
+        } catch (t: Throwable) {
             // UnsatisfiedLinkError, ClassNotFoundException, VipsInitializationException 등
+            log.warn(t) { "vips 런타임 초기화 실패 ($runtimeClass): ${t::class.simpleName}: ${t.message}" }
             false
         }
     }
