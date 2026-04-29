@@ -53,7 +53,8 @@ dependencies {
     // scrimage (images)
     implementation(project(":bluetape4k-images"))
 
-    // vips — 기본은 java25 (Mac + CI). CI에서 java21: -Pvips.impl=java21
+    // vips — API 인터페이스는 컴파일 타임에 필요, 구현체는 런타임에만 필요
+    add("benchmarkImplementation", project(":bluetape4k-images-vips-api"))
     val vipsImpl = project.findProperty("vips.impl")?.toString() ?: "java25"
     if (vipsImpl == "java21") {
         add("benchmarkRuntimeOnly", project(":bluetape4k-images-vips-java21"))
