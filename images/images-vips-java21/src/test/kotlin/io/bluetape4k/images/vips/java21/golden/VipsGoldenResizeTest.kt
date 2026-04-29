@@ -51,7 +51,7 @@ class VipsGoldenResizeTest : AbstractJVipsTest() {
         vipsImageOf(bytes).use { img ->
             img.resize(400, 300).use { resized ->
                 val resultBytes = resized.toBytes(VipsImageFormat.PNG)
-                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-400x300")
+                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-fit-400x300")
             }
         }
     }
@@ -93,7 +93,7 @@ class VipsGoldenResizeTest : AbstractJVipsTest() {
         vipsImageOf(bytes).use { img ->
             img.resize(400, 300).use { resized ->
                 val resultBytes = resized.toBytes(VipsImageFormat.PNG)
-                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-400x300")
+                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-fit-400x300")
             }
         }
     }

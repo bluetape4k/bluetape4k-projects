@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Mode
 import org.openjdk.jmh.annotations.OutputTimeUnit
 import org.openjdk.jmh.annotations.Param
 import org.openjdk.jmh.annotations.Scope
+import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.Warmup
 import org.openjdk.jmh.infra.Blackhole
@@ -36,11 +37,23 @@ class ImageResizeBenchmark {
 
     companion object : KLogging()
 
-    @Param("1920", "1280")
-    var targetWidth: Int = 1920
+    /**
+     * 리사이즈 대상 해상도 (WxH 형식, 16:9 비율만 포함).
+     *
+     * 크로스곱 방지를 위해 단일 파라미터로 WxH 쌍을 표현합니다.
+     */
+    @Param("1920x1080", "1280x720")
+    var resolution: String = "1920x1080"
 
-    @Param("1080", "720")
-    var targetHeight: Int = 1080
+    private var targetWidth: Int = 1920
+    private var targetHeight: Int = 1080
+
+    @Setup
+    fun parseResolution() {
+        val parts = resolution.split("x")
+        targetWidth = parts[0].toInt()
+        targetHeight = parts[1].toInt()
+    }
 
     /**
      * scrimage ImmutableImage.scaleTo() 리사이즈 성능 측정.

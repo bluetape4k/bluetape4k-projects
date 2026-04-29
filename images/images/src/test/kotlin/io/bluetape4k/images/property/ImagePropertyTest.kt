@@ -17,7 +17,6 @@ import kotlin.math.abs
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeLessOrEqualTo
-import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -149,7 +148,8 @@ class ImagePropertyTest {
         var i = 0
         while (i < pixels.size) {
             val p = pixels[i]
-            (p.red() == p.green() && p.green() == p.blue()).shouldBeTrue()
+            p.red() shouldBeEqualTo p.green()
+            p.green() shouldBeEqualTo p.blue()
             i += step
         }
     }
@@ -228,7 +228,6 @@ class ImagePropertyTest {
             totalDiff > 0.0,
             "이 이미지에서 sepia와 grayscale 결과가 동일합니다 (단색 또는 무채색): $label"
         )
-        (totalDiff > 0.0).shouldBeTrue()
     }
 
     /**
@@ -282,7 +281,7 @@ class ImagePropertyTest {
         val h = maxOf(image.height, 8)
         val blank = ImmutableImage.create(w, h)
         val bytes = blank.forWriter(JpegWriter(80, false)).bytes()
-        (bytes.size > 0).shouldBeTrue()
+        bytes.size shouldBeGreaterThan 0
         val reloaded = ImmutableImageLoader.create().fromBytes(bytes)
         reloaded.width shouldBeEqualTo w
         reloaded.height shouldBeEqualTo h

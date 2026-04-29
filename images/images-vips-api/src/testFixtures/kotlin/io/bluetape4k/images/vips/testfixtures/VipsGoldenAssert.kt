@@ -200,7 +200,8 @@ object VipsGoldenAssert : KLogging() {
      * @param expected 기대(골든) 이미지 (현재는 미사용, 향후 side-by-side 확장 예정)
      */
     private fun saveDiff(key: String, actual: ImmutableImage, expected: ImmutableImage) {
-        val diffDir = Paths.get("build", "reports", "golden-diffs", "vips")
+        val userDir = System.getProperty("user.dir")
+        val diffDir = Paths.get(userDir, "build", "reports", "golden-diffs", "vips")
         Files.createDirectories(diffDir)
         val diffPath = diffDir.resolve("$key-diff.png")
         actual.forWriter(PngWriter.MaxCompression).write(diffPath)

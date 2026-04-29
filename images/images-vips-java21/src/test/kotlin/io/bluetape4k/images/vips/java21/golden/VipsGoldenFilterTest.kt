@@ -33,7 +33,7 @@ class VipsGoldenFilterTest : AbstractJVipsTest() {
         val bytes = VipsTestFixtures.loadFixture(VipsTestFixtures.SAMPLE_PNG)
         vipsImageOf(bytes).use { img ->
             val resultBytes = img.toBytes(VipsImageFormat.JPEG, VipsEncodeOptions.Default)
-            VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-png-to-jpeg")
+            VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-encode-jpeg")
         }
     }
 
@@ -46,7 +46,7 @@ class VipsGoldenFilterTest : AbstractJVipsTest() {
         vipsImageOf(bytes).use { img ->
             img.thumbnail(128).use { thumb ->
                 val resultBytes = thumb.toBytes(VipsImageFormat.JPEG, VipsEncodeOptions.Default)
-                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-thumbnail-encode-jpeg")
+                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-thumbnail-jpeg")
             }
         }
     }
@@ -60,7 +60,7 @@ class VipsGoldenFilterTest : AbstractJVipsTest() {
         vipsImageOf(bytes).use { img ->
             img.resize(320, 240).use { resized ->
                 val resultBytes = resized.toBytes(VipsImageFormat.WEBP, VipsEncodeOptions.Default)
-                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-encode-webp")
+                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-webp")
             }
         }
     }
@@ -69,34 +69,34 @@ class VipsGoldenFilterTest : AbstractJVipsTest() {
 
     @Test
     @EnabledForJreRange(min = JRE.JAVA_25)
-    fun `골든 이미지 갱신 - PNG to JPEG`() {
+    fun `골든 이미지 갱신 - encode jpeg`() {
         val bytes = VipsTestFixtures.loadFixture(VipsTestFixtures.SAMPLE_PNG)
         vipsImageOf(bytes).use { img ->
             val resultBytes = img.toBytes(VipsImageFormat.JPEG, VipsEncodeOptions.Default)
-            VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-png-to-jpeg")
+            VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-encode-jpeg")
         }
     }
 
     @Test
     @EnabledForJreRange(min = JRE.JAVA_25)
-    fun `골든 이미지 갱신 - thumbnail encode jpeg`() {
+    fun `골든 이미지 갱신 - thumbnail jpeg`() {
         val bytes = VipsTestFixtures.loadFixture(VipsTestFixtures.SAMPLE_JPEG)
         vipsImageOf(bytes).use { img ->
             img.thumbnail(128).use { thumb ->
                 val resultBytes = thumb.toBytes(VipsImageFormat.JPEG, VipsEncodeOptions.Default)
-                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-thumbnail-encode-jpeg")
+                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-thumbnail-jpeg")
             }
         }
     }
 
     @Test
     @EnabledForJreRange(min = JRE.JAVA_25)
-    fun `골든 이미지 갱신 - resize encode webp`() {
+    fun `골든 이미지 갱신 - resize webp`() {
         val bytes = VipsTestFixtures.loadFixture(VipsTestFixtures.SAMPLE_JPEG)
         vipsImageOf(bytes).use { img ->
             img.resize(320, 240).use { resized ->
                 val resultBytes = resized.toBytes(VipsImageFormat.WEBP, VipsEncodeOptions.Default)
-                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-encode-webp")
+                VipsGoldenAssert.assertSimilarToGolden(resultBytes, "vips-resize-webp")
             }
         }
     }
