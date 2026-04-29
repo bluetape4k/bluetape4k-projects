@@ -211,28 +211,48 @@ fun ImmutableImage.forSuspendWriter(writer: SuspendImageWriter): SuspendWriteCon
 
 
 /**
- * [ImmutableImage]에 그리기 작업 ([action]) 을 수행합니다.
+ * [ImmutableImage]의 복사본에 그리기 작업 ([action])을 수행하고 새 [ImmutableImage]를 반환합니다.
  *
- * ## 동작/계약
- * - 내부 `Graphics2D`는 `finally`에서 항상 `dispose()`됩니다.
- * - 수신 이미지는 `action` 수행 결과에 따라 mutate 됩니다.
+ * 원본 이미지는 변경되지 않습니다. `Graphics2D`는 `finally`에서 항상 `dispose()`됩니다.
  *
  * ```kotlin
- * image.useGraphics { g ->
- *   g.drawRect(0, 0, 10, 10)
+ * val annotated = image.withGraphics { g ->
+ *     g.color = Color.RED
+ *     g.drawRect(0, 0, 10, 10)
  * }
- * // image.width > 0
+ * // image 는 변경되지 않고 annotated 에 사각형이 그려진 새 이미지가 반환된다.
  * ```
  *
- * @param action 그래픽 작업
+ * @param action 복사본에 적용할 그래픽 작업
+ * @return 그래픽 작업이 적용된 새 [ImmutableImage]
  */
-inline fun ImmutableImage.useGraphics(
+inline fun ImmutableImage.withGraphics(
     action: (graphics: Graphics2D) -> Unit,
-) {
-    val graphics: Graphics2D = this.awt().createGraphics()
+): ImmutableImage {
+    val copy = this.copy()
+    val graphics: Graphics2D = copy.awt().createGraphics()
     try {
         action(graphics)
     } finally {
         graphics.dispose()
     }
+    return copy
+}
+
+/**
+ * [ImmutableImage]에 그리기 작업 ([action])을 수행합니다.
+ *
+ * **주의**: 이 함수는 `ImmutableImage`의 내부 backing buffer를 직접 수정합니다.
+ * 불변 계약을 위반하므로 [withGraphics]를 사용하세요.
+ *
+ * @param action 그래픽 작업
+ */
+@Deprecated(
+    message = "ImmutableImage.useGraphics()는 내부 backing buffer를 변경하여 불변 계약을 위반합니다. withGraphics()를 사용하세요.",
+    replaceWith = ReplaceWith("withGraphics(action)"),
+)
+inline fun ImmutableImage.useGraphics(
+    action: (graphics: Graphics2D) -> Unit,
+) {
+    withGraphics(action)
 }

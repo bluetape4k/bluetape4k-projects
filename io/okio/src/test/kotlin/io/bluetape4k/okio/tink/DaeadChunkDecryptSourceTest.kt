@@ -6,6 +6,7 @@ import okio.EOFException
 import okio.ForwardingSource
 import okio.Source
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import kotlin.test.assertFailsWith
@@ -95,9 +96,26 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
     }
 
     @Test
-    fun `invalid ciphertext length throws io exception`() {
+    fun `invalid ciphertext length zero throws io exception`() {
         assertFailsWith<IOException> {
             Buffer().writeLong(0L).asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
+        }
+    }
+
+    @Test
+    fun `negative ciphertext length throws io exception`() {
+        assertFailsWith<IOException> {
+            Buffer().writeLong(-1L).asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
+        }
+    }
+
+    @Test
+    fun `ciphertext length exceeding maxCiphertextLength throws io exception`() {
+        val smallMax = 100L
+        val header = Buffer().writeLong(smallMax + 1L)
+
+        assertFailsWith<IOException> {
+            header.asDaeadChunkDecryptSource(daead, maxCiphertextLength = smallMax).read(Buffer(), 1L)
         }
     }
 
@@ -135,7 +153,65 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
 
         source.read(decrypted, 1L) shouldBeEqualTo 1L
 
-        (countingSource.bytesRead < encryptedSize) shouldBeEqualTo true
+        countingSource.bytesRead shouldBeLessThan encryptedSize
+    }
+
+    @Test
+    fun `read after close throws IOException`() {
+        val source = encrypt("hello".toByteArray(), chunkSize = 4).asDaeadChunkDecryptSource(daead)
+        source.close()
+
+        assertFailsWith<IOException> {
+            source.read(Buffer(), 1L)
+        }
+    }
+
+    @Test
+    fun `close is idempotent`() {
+        val closeCountingSource = CloseCountingSource(encrypt("hello".toByteArray(), chunkSize = 4))
+        val source = closeCountingSource.asDaeadChunkDecryptSource(daead)
+
+        source.close()
+        source.close()
+
+        closeCountingSource.closeCount shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `stalled source throws IOException after no progress`() {
+        val stalledSource = StalledSource()
+
+        assertFailsWith<IOException> {
+            stalledSource.asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
+        }
+    }
+
+    @Test
+    fun `round-trip with payload size exact multiple of chunkSize`() {
+        val chunkSize = 16
+        listOf(1, 2, 4).forEach { multiple ->
+            val plaintext = ByteArray(chunkSize * multiple) { (it % 127).toByte() }
+            val encrypted = encrypt(plaintext, chunkSize = chunkSize)
+
+            val decrypted = Buffer()
+            encrypted.asDaeadChunkDecryptSource(daead).readAllTo(decrypted)
+
+            decrypted.readByteArray() shouldBeEqualTo plaintext
+        }
+    }
+
+    @Test
+    fun `round-trip with payload sizes around chunk boundaries`() {
+        val chunkSize = 16
+        listOf(chunkSize - 1, chunkSize, chunkSize + 1, 2 * chunkSize - 1, 2 * chunkSize, 2 * chunkSize + 1).forEach { size ->
+            val plaintext = ByteArray(size) { (it % 251).toByte() }
+            val encrypted = encrypt(plaintext, chunkSize = chunkSize)
+
+            val decrypted = Buffer()
+            encrypted.asDaeadChunkDecryptSource(daead).readAllTo(decrypted)
+
+            decrypted.readByteArray() shouldBeEqualTo plaintext
+        }
     }
 
     private fun encrypt(
@@ -172,5 +248,22 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
             }
             return read
         }
+    }
+
+    private class CloseCountingSource(delegate: Source): ForwardingSource(delegate) {
+        var closeCount: Int = 0
+            private set
+
+        override fun close() {
+            closeCount++
+            super.close()
+        }
+    }
+
+    /** 항상 0L 을 반환하여 진행 없음(no progress) 상태를 시뮬레이션하는 [Source]. */
+    private class StalledSource: Source {
+        override fun read(sink: Buffer, byteCount: Long): Long = 0L
+        override fun timeout() = okio.Timeout.NONE
+        override fun close() = Unit
     }
 }
