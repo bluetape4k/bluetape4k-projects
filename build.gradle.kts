@@ -113,12 +113,8 @@ subprojects {
         // Atomicfu
         plugin("org.jetbrains.kotlinx.atomicfu")
 
-        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark/-vips-java* 는 제외)
-        // images-vips-java21/java25: 네이티브 libvips 필요 — CI에서 테스트 항상 skip → 집계 제외
-        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") &&
-            !path.endsWith("-benchmark") &&
-            name != "bluetape4k-images-vips-java21" && name != "bluetape4k-images-vips-java25"
-        ) {
+        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark 는 별도 필터링)
+        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
             plugin(Plugins.kover)
         }
 
@@ -740,10 +736,7 @@ dependencies {
                     !sub.path.contains("workshop") &&
                     !sub.path.contains("examples") &&
                     !sub.path.contains("-demo") &&
-                    !sub.path.endsWith("-benchmark") &&
-                    // 네이티브 libvips 필요 — CI에서 테스트 항상 skip되므로 집계 제외
-                    sub.name != "bluetape4k-images-vips-java21" &&
-                    sub.name != "bluetape4k-images-vips-java25"
+                    !sub.path.endsWith("-benchmark")
         }
         .forEach { sub -> kover(project(sub.path)) }
 }
