@@ -11,6 +11,9 @@ import java.io.File
 import java.io.InputStream
 import java.nio.file.Path
 
+@PublishedApi
+internal const val IMAGE_BUFFER_SIZE: Int = 128 * 1024
+
 /**
  * [ByteArray]를 읽어 [ImmutableImage]로 변환합니다.
  *
@@ -166,7 +169,7 @@ suspend fun suspendLoadImage(path: Path): ImmutableImage =
  * @return 이미지 정보를 담은 ByteArray
  */
 suspend inline fun ImmutableImage.suspendBytes(writer: SuspendImageWriter): ByteArray =
-    ByteArrayOutputStream(DEFAULT_BUFFER_SIZE).use { bos ->
+    ByteArrayOutputStream(IMAGE_BUFFER_SIZE).use { bos ->
         writer.suspendWrite(this, this.metadata, bos)
         bos.toByteArray()
     }

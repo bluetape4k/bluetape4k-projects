@@ -2,8 +2,11 @@ package io.bluetape4k.okio.tink
 
 import io.bluetape4k.tink.daead.TinkDaeads
 import okio.Buffer
+import okio.Sink
+import okio.Timeout
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
+import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import kotlin.test.assertFailsWith
@@ -188,6 +191,48 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
             encrypted.asDaeadChunkDecryptSource(daead).readAllTo(decrypted)
 
             decrypted.readByteArray() shouldBeEqualTo plaintext
+        }
+    }
+
+    @Test
+    fun `close propagates exception from delegate sink`() {
+        val throwingDelegate = ThrowingDelegateSink(throwOnWrite = true, throwOnClose = false)
+        val sink = throwingDelegate.asDaeadChunkEncryptSink(daead, chunkSize = 100)
+
+        sink.write(Buffer().writeUtf8("hello"), 5L)
+
+        val ex = assertFailsWith<IOException> {
+            sink.close()
+        }
+        ex.message shouldBeEqualTo "delegate write failed"
+    }
+
+    @Test
+    fun `close suppresses delegate close exception when emit also throws`() {
+        val throwingDelegate = ThrowingDelegateSink(throwOnWrite = true, throwOnClose = true)
+        val sink = throwingDelegate.asDaeadChunkEncryptSink(daead, chunkSize = 100)
+
+        sink.write(Buffer().writeUtf8("hello"), 5L)
+
+        val ex = assertFailsWith<IOException> {
+            sink.close()
+        }
+        ex.message shouldBeEqualTo "delegate write failed"
+        ex.suppressed.shouldNotBeEmpty()
+        ex.suppressed[0].message shouldBeEqualTo "delegate close failed"
+    }
+
+    private class ThrowingDelegateSink(
+        private val throwOnWrite: Boolean,
+        private val throwOnClose: Boolean,
+    ): Sink {
+        override fun write(source: Buffer, byteCount: Long) {
+            if (throwOnWrite) throw IOException("delegate write failed")
+        }
+        override fun flush() {}
+        override fun timeout(): Timeout = Timeout.NONE
+        override fun close() {
+            if (throwOnClose) throw IOException("delegate close failed")
         }
     }
 

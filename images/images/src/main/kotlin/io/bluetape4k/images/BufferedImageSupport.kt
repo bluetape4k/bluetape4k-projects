@@ -17,6 +17,9 @@ import javax.imageio.ImageIO
 import javax.imageio.stream.ImageInputStream
 import javax.imageio.stream.ImageOutputStream
 
+/** 이미지 인코딩용 [ByteArrayOutputStream] 초기 버퍼 크기 (128 KiB). */
+internal const val DEFAULT_IMAGE_BUFFER_SIZE: Int = 128 * 1024
+
 /**
  * [BufferedImage]를 [format] 형식으로 [path]에 저장합니다.
  *
@@ -209,7 +212,9 @@ inline fun BufferedImage.useGraphics(
  *
  * ## 동작/계약
  * - `w`, `h`는 양수여야 하며 위반 시 검증 예외가 발생합니다.
- * - headless 환경이면 `TYPE_INT_ARGB`, GUI 환경이면 디바이스 호환 이미지를 생성합니다.
+ * - headless 환경이면 `TYPE_INT_RGB`, GUI 환경이면 디바이스 호환 이미지를 생성합니다.
+ *   알파 채널이 필요하면 `BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)`를 직접 사용하세요.
+ *   단, JPEG는 알파 채널을 지원하지 않으므로 `TYPE_INT_ARGB` 이미지를 JPEG로 저장하면 실패합니다.
  *
  * ```kotlin
  * val image = bufferedImageOf(200, 100)
@@ -314,19 +319,21 @@ fun bufferedImageOf(bytes: ByteArray): BufferedImage =
  *
  * ## 동작/계약
  * - 메모리 버퍼([ByteArrayOutputStream])를 새로 할당해 인코딩 결과를 반환합니다.
- * - 지원되지 않는 `formatName`이면 빈 결과 또는 실패가 발생할 수 있습니다.
+ * - 지원되지 않는 `formatName`이면 [IllegalArgumentException]을 던집니다.
  *
  * ```kotlin
  * val bytes = image.toByteArray("png")
  * // bytes.isNotEmpty() == true
  * ```
  *
- * @param formatName 이미지 포맷 ([ImageFormat])
+ * @param formatName 이미지 포맷 이름 (예: "png", "jpg", "jpeg")
  * @return 이미지 정보를 담은 ByteArray
+ * @throws IllegalArgumentException 지원하지 않는 포맷이거나 인코딩에 실패한 경우
  */
 fun BufferedImage.toByteArray(formatName: String): ByteArray {
-    return ByteArrayOutputStream().use { bos ->
-        ImageIO.write(this, formatName, bos)
+    return ByteArrayOutputStream(DEFAULT_IMAGE_BUFFER_SIZE).use { bos ->
+        val written = ImageIO.write(this, formatName, bos)
+        require(written) { "지원하지 않는 이미지 포맷이거나 인코딩에 실패했습니다: $formatName" }
         bos.toByteArray()
     }
 }

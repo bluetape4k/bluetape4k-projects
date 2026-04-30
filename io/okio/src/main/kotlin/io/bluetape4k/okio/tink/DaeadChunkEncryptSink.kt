@@ -114,10 +114,21 @@ class DaeadChunkEncryptSink(
                     thrown.addSuppressed(closeException)
                 }
             }
-            plainBuffer.close()
+            try {
+                plainBuffer.close()
+            } catch (bufferException: Throwable) {
+                if (thrown == null) {
+                    thrown = bufferException
+                } else {
+                    thrown.addSuppressed(bufferException)
+                }
+            }
         }
 
-        thrown?.let { throw it }
+        if (thrown == null) {
+            return
+        }
+        throw thrown
     }
 
     private fun emitCompleteChunks() {
