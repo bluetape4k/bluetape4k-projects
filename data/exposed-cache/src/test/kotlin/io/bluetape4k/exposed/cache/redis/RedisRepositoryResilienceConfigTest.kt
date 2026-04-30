@@ -5,15 +5,15 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.Duration
 
 /**
  * [RedisRepositoryResilienceConfig] 단위 테스트.
  *
- * 기본값 생성, 커스텀 생성, data class 동등성 검증을 수행합니다.
+ * 기본값 생성, 커스텀 생성, data class 동등성, 입력 검증을 수행합니다.
  * Resilience 설정이 잘못 전달될 경우(예: 음수 retryMaxAttempts, 0ms timeout)
- * 실제 Resilience4j 사용 시 런타임 오류가 발생하므로, 추후 검증 로직 추가 시
- * 이 테스트 클래스를 확장하면 된다.
+ * 실제 Resilience4j 사용 시 런타임 오류가 발생하므로 생성 시점에서 차단합니다.
  */
 class RedisRepositoryResilienceConfigTest {
 
@@ -76,6 +76,52 @@ class RedisRepositoryResilienceConfigTest {
         copied.retryMaxAttempts shouldBeEqualTo original.retryMaxAttempts
         copied.retryWaitDuration shouldBeEqualTo original.retryWaitDuration
         copied.timeoutDuration shouldBeEqualTo original.timeoutDuration
+    }
+
+    // ----------------------------------------------------------------
+    // 입력 검증
+    // ----------------------------------------------------------------
+
+    @Test
+    fun `retryMaxAttempts가 0이면 IllegalArgumentException이 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            RedisRepositoryResilienceConfig(retryMaxAttempts = 0)
+        }
+    }
+
+    @Test
+    fun `retryMaxAttempts가 음수이면 IllegalArgumentException이 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            RedisRepositoryResilienceConfig(retryMaxAttempts = -1)
+        }
+    }
+
+    @Test
+    fun `retryWaitDuration이 0이면 IllegalArgumentException이 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            RedisRepositoryResilienceConfig(retryWaitDuration = Duration.ZERO)
+        }
+    }
+
+    @Test
+    fun `retryWaitDuration이 음수이면 IllegalArgumentException이 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            RedisRepositoryResilienceConfig(retryWaitDuration = Duration.ofMillis(-1))
+        }
+    }
+
+    @Test
+    fun `timeoutDuration이 0이면 IllegalArgumentException이 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            RedisRepositoryResilienceConfig(timeoutDuration = Duration.ZERO)
+        }
+    }
+
+    @Test
+    fun `timeoutDuration이 음수이면 IllegalArgumentException이 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            RedisRepositoryResilienceConfig(timeoutDuration = Duration.ofMillis(-1))
+        }
     }
 
     // ----------------------------------------------------------------

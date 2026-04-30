@@ -178,6 +178,8 @@ Redis 기반 저장소의 선택적 Resilience 설정입니다. `null`(기본값
 | `circuitBreakerEnabled` | `false` | Circuit Breaker 활성화 여부 |
 | `timeoutDuration` | `2초` | Redis 작업 타임아웃 |
 
+`retryMaxAttempts`는 1 이상이어야 하며, `retryWaitDuration`과 `timeoutDuration`은 양수여야 합니다.
+
 ## 쓰기 전략 패턴
 
 ```mermaid

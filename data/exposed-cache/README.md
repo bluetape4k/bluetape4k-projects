@@ -178,6 +178,8 @@ Optional resilience configuration for Redis-backed repositories. Pass `null` (th
 | `circuitBreakerEnabled` | `false` | Enable Circuit Breaker |
 | `timeoutDuration` | `2s` | Redis operation timeout |
 
+`retryMaxAttempts` must be at least 1. `retryWaitDuration` and `timeoutDuration` must be positive.
+
 ## Write Strategy Patterns
 
 ```mermaid
