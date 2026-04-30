@@ -90,7 +90,7 @@ Codex CLI uses these prefixes for custom commands:
 - `/skills` — browse available skills interactively
 
 Agent prompts (in `~/.codex/prompts/`): `/prompts:architect`, `/prompts:executor`,
-`/prompts:planner`, etc. Workflow skills (in `~/.agents/skills/`): `$ralph`, `$autopilot`, `$plan`, `$ralplan`,
+`/prompts:planner`, etc. Workflow skills (in `~/.codex/skills/`): `$ralph`, `$autopilot`, `$plan`, `$ralplan`,
 `$team`, etc.
 </invocation_conventions>
 
@@ -162,22 +162,23 @@ When the user's message contains a magic keyword, activate the corresponding ski
 
 | Keyword(s)                                                                                        | Skill              | Action                                                                                                                                                      |
 |---------------------------------------------------------------------------------------------------|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| "ralph", "don't stop", "must complete", "keep going"                                              | `$ralph`           | Read `~/.agents/skills/ralph/SKILL.md`, execute persistence loop                                                                                            |
-| "autopilot", "build me", "I want a"                                                               | `$autopilot`       | Read `~/.agents/skills/autopilot/SKILL.md`, execute autonomous pipeline                                                                                     |
-| "ultrawork", "ulw", "parallel"                                                                    | `$ultrawork`       | Read `~/.agents/skills/ultrawork/SKILL.md`, execute parallel agents                                                                                         |
-| "ultraqa"                                                                                         | `$ultraqa`         | Read `~/.agents/skills/ultraqa/SKILL.md`, run QA cycling workflow                                                                                           |
-| "analyze", "investigate"                                                                          | `$analyze`         | Read `~/.agents/skills/analyze/SKILL.md`, run deep analysis                                                                                                 |
-| "plan this", "plan the", "let's plan"                                                             | `$plan`            | Read `~/.agents/skills/plan/SKILL.md`, start planning workflow                                                                                              |
-| "interview", "deep interview", "gather requirements", "interview me", "don't assume", "ouroboros" | `$deep-interview`  | Read `~/.agents/skills/deep-interview/SKILL.md`, run Ouroboros-inspired Socratic ambiguity-gated interview workflow                                         |
-| "ralplan", "consensus plan"                                                                       | `$ralplan`         | Read `~/.agents/skills/ralplan/SKILL.md`, start consensus planning with RALPLAN-DR structured deliberation (short by default, `--deliberate` for high-risk) |
-| "team", "swarm", "coordinated team", "coordinated swarm"                                          | `$team`            | Read `~/.agents/skills/team/SKILL.md`, start team orchestration (swarm compatibility alias)                                                                 |
-| "ecomode", "eco", "budget"                                                                        | `$ecomode`         | Read `~/.agents/skills/ecomode/SKILL.md`, enable token-efficient mode                                                                                       |
-| "cancel", "stop", "abort"                                                                         | `$cancel`          | Read `~/.agents/skills/cancel/SKILL.md`, cancel active modes                                                                                                |
-| "tdd", "test first"                                                                               | `$tdd`             | Read `~/.agents/skills/tdd/SKILL.md`, start test-driven workflow                                                                                            |
-| "fix build", "type errors"                                                                        | `$build-fix`       | Read `~/.agents/skills/build-fix/SKILL.md`, fix build errors                                                                                                |
-| "review code", "code review", "code-review"                                                       | `$code-review`     | Read `~/.agents/skills/code-review/SKILL.md`, run code review                                                                                               |
-| "security review"                                                                                 | `$security-review` | Read `~/.agents/skills/security-review/SKILL.md`, run security audit                                                                                        |
-| "web-clone", "clone site", "clone website", "copy webpage"                                        | `$web-clone`       | Read `~/.agents/skills/web-clone/SKILL.md`, start website cloning pipeline                                                                                  |
+| "bluetape4k-workflow", "bluetape4k workflow"                                                      | `$bluetape4k-workflow` | Read `~/.codex/skills/bluetape4k-workflow/SKILL.md`, classify bluetape4k work and execute the selected lane                                             |
+| "ralph", "don't stop", "must complete", "keep going"                                              | `$ralph`           | Read `~/.codex/skills/ralph/SKILL.md`, execute persistence loop                                                                                             |
+| "autopilot", "build me", "I want a"                                                               | `$autopilot`       | Read `~/.codex/skills/autopilot/SKILL.md`, execute autonomous pipeline                                                                                      |
+| "ultrawork", "ulw", "parallel"                                                                    | `$ultrawork`       | Read `~/.codex/skills/ultrawork/SKILL.md`, execute parallel agents                                                                                          |
+| "ultraqa"                                                                                         | `$ultraqa`         | Read `~/.codex/skills/ralph/SKILL.md`, run QA cycling workflow                                                                                              |
+| "analyze", "investigate"                                                                          | `$analyze`         | Read `~/.codex/prompts/debugger.md`, run deep analysis                                                                                                      |
+| "plan this", "plan the", "let's plan"                                                             | `$plan`            | Read `~/.codex/skills/plan/SKILL.md`, start planning workflow                                                                                               |
+| "interview", "deep interview", "gather requirements", "interview me", "don't assume", "ouroboros" | `$deep-interview`  | Read `~/.codex/skills/deep-interview/SKILL.md`, run Ouroboros-inspired Socratic ambiguity-gated interview workflow                                          |
+| "ralplan", "consensus plan"                                                                       | `$ralplan`         | Read `~/.codex/skills/ralplan/SKILL.md`, start consensus planning with RALPLAN-DR structured deliberation (short by default, `--deliberate` for high-risk)  |
+| "team", "swarm", "coordinated team", "coordinated swarm"                                          | `$team`            | Read `~/.codex/skills/team/SKILL.md`, start team orchestration (swarm compatibility alias)                                                                  |
+| "ecomode", "eco", "budget"                                                                        | `$ecomode`         | Read `~/.codex/skills/ultrawork/SKILL.md`, enable token-efficient mode                                                                                      |
+| "cancel", "stop", "abort"                                                                         | `$cancel`          | Read `~/.codex/skills/cancel/SKILL.md`, cancel active modes                                                                                                 |
+| "tdd", "test first"                                                                               | `$tdd`             | Read `~/.codex/prompts/test-engineer.md`, start test-driven workflow                                                                                        |
+| "fix build", "type errors"                                                                        | `$build-fix`       | Read `~/.codex/prompts/build-fixer.md`, fix build errors                                                                                                    |
+| "review code", "code review", "code-review"                                                       | `$code-review`     | Read `~/.codex/skills/code-review/SKILL.md`, run code review                                                                                                |
+| "security review"                                                                                 | `$security-review` | Read `~/.codex/skills/security-review/SKILL.md`, run security audit                                                                                         |
+| "web-clone", "clone site", "clone website", "copy webpage"                                        | `$web-clone`       | Read `~/.codex/skills/web-clone/SKILL.md`, start website cloning pipeline                                                                                   |
 
 Detection rules:
 
@@ -205,6 +206,7 @@ Skills are workflow commands. Invoke via `$name` (e.g., `$ralph`) or browse with
 Workflow Skills:
 
 - `autopilot`: Full autonomous execution from idea to working code
+- `bluetape4k-workflow`: Adaptive bluetape4k workflow router. Use for bluetape4k tasks when the right lane is unclear; it classifies work as Full Design, Fast Track, Bug Fix, Code Review, or Maintenance.
 - `ralph`: Self-referential persistence loop with verification
 - `ultrawork`: Maximum parallelism with parallel agent orchestration
 - `visual-verdict`: Structured visual QA verdict loop for screenshot/reference comparisons
@@ -215,10 +217,7 @@ Workflow Skills:
 - `ultraqa`: QA cycling -- test, verify, fix, repeat
 - `plan`: Strategic planning with optional RALPLAN-DR consensus mode
 - `deep-interview`: Socratic deep interview with Ouroboros-inspired mathematical ambiguity gating before execution
--
-
-`ralplan`: Iterative consensus planning with RALPLAN-DR structured deliberation (planner + architect + critic); supports
-`--deliberate` for high-risk work
+- `ralplan`: Iterative consensus planning with RALPLAN-DR structured deliberation (planner + architect + critic); supports `--deliberate` for high-risk work
 
 Agent Shortcuts:
 
@@ -352,8 +351,10 @@ Run `omx setup` to install all components. Run `omx doctor` to verify installati
 **Bluetape4k** is a shared library suite for JVM backend development in Kotlin.
 
 - **Java 21** (JVM Toolchain), **Kotlin 2.3** (language & API), **Spring Boot 3.4+**
+- Kotlin-first wrappers and extensions around Java libraries, with coroutine-first async/non-blocking APIs.
 - Multi-module Gradle project: `bluetape4k/`, `io/`, `data/`, `infra/`, `spring-boot3/`, `aws/`, `utils/`, `testing/`,
   `virtualthread/`, `timefold/`, `examples/`
+- `settings.gradle.kts` auto-registers subdirectories as `bluetape4k-{dirname}` modules.
 - Deprecated modules: `x-obsoleted/` (excluded from builds)
 
 ## Build, Test, and Development Commands
@@ -370,6 +371,9 @@ Use the Gradle wrapper from the repository root.
 # Single module test
 ./gradlew :bluetape4k-coroutines:test
 
+# Single module build
+./gradlew :bluetape4k-coroutines:build
+
 # Single test class
 ./gradlew :bluetape4k-io:test --tests "io.bluetape4k.io.CompressorTest"
 
@@ -378,6 +382,10 @@ Use the Gradle wrapper from the repository root.
 
 # Build without tests
 ./gradlew build -x test
+
+# Publish
+./gradlew publishBluetape4kPublicationToBluetape4kRepository
+./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=
 ```
 
 Token-efficient summary commands (prefer these in Codex sessions):
@@ -391,12 +399,36 @@ Prefer targeted module tasks during development to reduce feedback time.
 ## Coding Guidelines
 
 - **Language**: Kotlin 2.3. Comments and commit messages should be in Korean.
-- **Commit prefixes**: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`
+- **Commit prefixes**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
+- **README**: module documentation is bilingual: `README.md` in English and `README.ko.md` in Korean. Include Mermaid UML diagrams in module READMEs when documenting behavior or architecture.
 - **Tests**: JUnit 5 + Kotest + MockK + Kluent
 - **Async**: prefer coroutines (`suspend`, `Flow`); wrap blocking APIs with `withContext(Dispatchers.IO)`
 - **Kotlin style**: prefer extension functions, DSLs, value classes, and sealed classes
+- **Formatting**: no ktlint; use IntelliJ IDEA formatter and `.editorconfig`
 - **KDoc**: required for public classes/interfaces/extensions, written in Korean
+- **Examples**: runnable examples should be production-quality and not toy-only
+- **Worktree**: feature work should happen in `.worktrees/<branch>` instead of directly on `develop`
 - After bug fixes, run unit and regression tests and require them to pass
+
+## Kotlin Edit Workflow
+
+Before modifying a Kotlin class, inspect affected references and impact radius with available code-intel/LSP/OMX tools or `rg` fallback. For simple isolated documentation edits this can be lightweight, but do not change public API behavior without checking callers.
+
+After every `.kt` edit:
+
+1. Run IDE/LSP diagnostics when available and fix import errors before Gradle verification.
+2. Optimize imports using the available IDE/LSP action or project formatter path.
+3. Resolve `@Deprecated` warnings intentionally; prefer the suggested replacement and do not leave new unresolved deprecation warnings.
+4. Run targeted compile/tests only after diagnostics are clean enough to make Gradle output meaningful.
+
+## Key Design Patterns
+
+Full references live under `.codex/references/`. The original Claude imports remain under `.claude/references/` as historical source material only.
+
+- **Assert vs Require**: do not change exception contracts. `assertXxx()` means `AssertionError` for internal invariants, often deprecated. `requireXxx()` means `IllegalArgumentException` for parameter validation and is the default for user input.
+- **Coroutines first**: use coroutines for async work; wrap blocking calls with `withContext(Dispatchers.IO)`.
+- **Auditable updates**: prefer `auditedUpdate*` for update operations where auditable entities are involved.
+- **Virtual threads**: do not use `@Synchronized` or `synchronized {}` in virtual-thread modules; use `reentrantLock()` or an established lock utility.
 
 ## Key Module Paths
 
@@ -416,9 +448,55 @@ Prefer targeted module tasks during development to reduce feedback time.
 | bluetape4k-aws           | `aws/aws`               | AWS Java SDK v2 integration                |
 | bluetape4k-aws-kotlin    | `aws/aws-kotlin`        | AWS Kotlin SDK integration                 |
 
+## Module Groups
+
+| Group             | Description                                                         |
+|-------------------|---------------------------------------------------------------------|
+| `bluetape4k/`     | `core`, `coroutines`, `logging`, `bom`                              |
+| `data/`           | `exposed-*`, `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra`   |
+| `infra/`          | `lettuce`, `redisson`, `kafka`, `pulsar`, `resilience4j`, `cache-*` |
+| `spring-boot3/4/` | WebFlux + Coroutines, Exposed repositories, Spring Batch            |
+| `virtualthread/`  | `api`, `jdk21`, `jdk25`; update related JDK implementations together |
+
+## Build Configuration Notes
+
+- JVM toolchain is Java 21; Kotlin language/API level is 2.3.
+- Gradle uses a ZGC daemon, 4-8 GB heap, and parallel build settings.
+- Key Kotlin flags include `-Xjsr305=strict`, `-jvm-default=enable`, `-Xinline-classes`, and `-Xcontext-parameters`.
+- Dependency versions are centralized in `buildSrc/Libs.kt`; project `baseVersion` is in `gradle.properties`.
+- For library source extraction, use `.codex/lib-sources/<library-name>/` when working from Codex; `.claude/lib-sources/<library-name>/` remains a historical cache. Do not place extracted jar sources under `/tmp/` or project source directories.
+- `atomicfu` state should be class-property-level only, not method-local variables.
+- Detekt is disabled in `exposed-jdbc-tests`.
+- Publishing targets GitHub Packages Maven; `workshop/` and `examples/` are excluded from publishing.
+
 ## Token-Efficient Codex Workflow
 
 - In Codex sessions, prefer `./bin/repo-status` over raw `git status`.
 - Prefer `./bin/repo-diff` before requesting full `git diff`; open a full patch only for the specific file under review.
 - Prefer `./bin/repo-test-summary -- ./gradlew ...` over pasting full Gradle output into context.
 - Follow a two-step inspection flow: summary first, targeted raw output second only when the summary indicates it is necessary.
+
+## After Code Changes
+
+- Run compile and tests for every changed module.
+- Update both `README.md` and `README.ko.md` for every changed module when behavior, configuration, or public interfaces change.
+- Add or update Korean KDoc for all new or modified public APIs.
+- When creating or changing specs/plans, run the wiki-update workflow.
+
+## Before Creating a PR
+
+- All targeted module tests pass and the report includes passing count plus duration.
+- Code review has no unresolved HIGH/CRITICAL findings.
+- PR description includes test results, rationale, and verification commands.
+- Changed-module `README.md` and `README.ko.md` are synced when applicable.
+- Work was done inside an appropriate git worktree unless the user explicitly chose the current branch.
+- `virtualthread/api` changes are reflected in both `virtualthread/jdk21` and `virtualthread/jdk25` as needed.
+- `mock-web-server` changes require `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`.
+- `mock-webflux-server` changes require `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`.
+
+## Git Workflow
+
+- Base branch is `develop`.
+- Commits should use a Korean message with an approved prefix and the Lore Commit Protocol.
+- Worktree format is `.worktrees/<branch>`, usually created with `git worktree add .worktrees/<branch> -b <branch>`.
+- After merging a PR, run `./bin/clean-branches`.
