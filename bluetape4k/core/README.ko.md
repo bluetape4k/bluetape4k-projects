@@ -186,7 +186,7 @@ sequenceDiagram
 - **Type Extensions**: 모든 기본 타입에 대한 Kotlin 스타일 확장 함수
 - **Ranges**: 다양한 Range 타입 (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
 - **Collections**: 컬렉션 유틸리티 (BoundedStack, RingBuffer, PaginatedList, Permutation 지연 평가 순열)
-- **Concurrent**: 동시성 처리 유틸리티
+- **Concurrent**: 동시성 처리 유틸리티. `ConcurrentReducer.close()`는 대기 작업을 취소하고 종료 이후 새 작업을 거부합니다.
 - **Utils**: Wildcard 패턴 매칭, XXHasher 고속 해시
 - **Functional**: 함수형 프로그래밍 지원
 - **Java Time DSL**: `java.time` 기초 확장 함수 (Duration/Period DSL, Temporal 유틸리티, Quarter 등)

@@ -6,6 +6,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.utils.Runtimex
+import kotlinx.atomicfu.atomic
 import java.io.Closeable
 import java.io.Serializable
 import java.util.concurrent.ArrayBlockingQueue
@@ -13,6 +14,7 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
@@ -55,6 +57,7 @@ class ConcurrentReducer<T> internal constructor(
     private val queue: BlockingQueue<Job<T>> = ArrayBlockingQueue(maxQueueSize)
     private val limit: Semaphore = Semaphore(maxConcurrency)
     private val pumpExecutor = Executors.newSingleThreadExecutor()
+    private val closed = atomic(false)
 
     val queuedCount: Int get() = queue.size
     val activeCount: Int get() = maxConcurrency - limit.availablePermits()
@@ -69,6 +72,10 @@ class ConcurrentReducer<T> internal constructor(
      * @return 작업 결과를 받아볼 [CompletableFuture] 인스턴스
      */
     fun add(task: () -> CompletionStage<T>?): CompletableFuture<T> {
+        if (closed.value) {
+            return failedCompletableFutureOf(RejectedExecutionException("ConcurrentReducer is already closed."))
+        }
+
         val promise = CompletableFuture<T>()
         val job = Job(task, promise)
 
@@ -144,7 +151,15 @@ class ConcurrentReducer<T> internal constructor(
             // 새로운 runnable로 pump() 실행 위임
             // (이유: CompletableFuture의 whenComplete()는 현재 스레드에서 실행됨)
             // pump()가 현재 스레드에서 실행되면 deadlock 발생 가능성 있음
-            CompletableFuture.runAsync({ pump() }, pumpExecutor)
+            if (!closed.value) {
+                try {
+                    CompletableFuture.runAsync({ pump() }, pumpExecutor)
+                } catch (e: RejectedExecutionException) {
+                    if (!closed.value) {
+                        log.warn(e) { "pump executor rejected pump task." }
+                    }
+                }
+            }
         }
     }
 
@@ -153,10 +168,13 @@ class ConcurrentReducer<T> internal constructor(
      * 큐에 남아있는 작업은 취소되고, pump executor를 종료합니다.
      */
     override fun close() {
-        runCatching {
-            queue.clear()
-            pumpExecutor.shutdown()
+        if (!closed.compareAndSet(false, true)) return
+
+        while (true) {
+            val job = queue.poll() ?: break
+            job.promise.cancel(false)
         }
+        pumpExecutor.shutdown()
     }
 
     private data class Job<T>(

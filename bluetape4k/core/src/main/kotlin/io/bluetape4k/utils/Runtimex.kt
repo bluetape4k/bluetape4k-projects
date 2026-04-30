@@ -226,7 +226,7 @@ object Runtimex: KLogging() {
                     if (!end) condition.await()
                 }
             } catch (ignored: InterruptedException) {
-                // Ignore exception.
+                Thread.currentThread().interrupt()
             }
         }
     }
