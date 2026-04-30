@@ -5,10 +5,12 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import io.restassured.module.kotlin.extensions.When
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Disabled("사용 빈도가 낮고, 파일 사이즈가 크다")
 class ChromaDBServerTest: AbstractContainerTest() {
 
     companion object: KLogging()

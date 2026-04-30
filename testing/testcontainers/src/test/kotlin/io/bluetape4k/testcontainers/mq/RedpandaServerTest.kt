@@ -6,10 +6,12 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Disabled("사용 빈도가 낮고, 파일 사이즈가 크다")
 class RedpandaServerTest: AbstractContainerTest() {
 
     companion object: KLogging() {
