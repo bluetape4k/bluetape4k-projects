@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.sns.SnsClient
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 SNS 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.SNSTest]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.SNSTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

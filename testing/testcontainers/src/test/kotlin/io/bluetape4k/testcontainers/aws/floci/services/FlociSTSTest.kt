@@ -5,7 +5,6 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
-import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
@@ -18,7 +17,7 @@ import software.amazon.awssdk.services.sts.StsClient
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 STS 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.STSTest]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.STSTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

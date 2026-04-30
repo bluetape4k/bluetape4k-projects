@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 S3 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.S3Test]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.S3Test]에 대응합니다.
  * Floci는 virtual-hosted-style URL을 지원하지 않으므로 path-style access를 사용합니다.
  */
 @Suppress("DEPRECATION")

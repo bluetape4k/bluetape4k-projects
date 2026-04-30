@@ -25,7 +25,7 @@ import java.time.Instant
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 CloudWatch 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.CloudWatchTest]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.CloudWatchTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

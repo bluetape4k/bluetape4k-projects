@@ -8,6 +8,8 @@ import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldNotBeNullOrBlank
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -28,7 +30,19 @@ class Neo4jServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val neo4j: Neo4jServer get() = Neo4jServer.Launcher.neo4j
+    private lateinit var neo4j: Neo4jServer
+
+    @BeforeAll
+    fun beforeAll() {
+        neo4j = Neo4jServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::neo4j.isInitialized && neo4j.isRunning) {
+            neo4j.close()
+        }
+    }
 
     @Test
     @Order(1)

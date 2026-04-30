@@ -6,18 +6,33 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.GraphDatabase
 import kotlin.test.assertFailsWith
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(Lifecycle.PER_CLASS)
 class MemgraphServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val memgraph = MemgraphServer.Launcher.memgraph
+    private lateinit var memgraph: MemgraphServer
+
+    @BeforeAll
+    fun beforeAll() {
+        memgraph = MemgraphServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::memgraph.isInitialized && memgraph.isRunning) {
+            memgraph.close()
+        }
+    }
 
     @Test
     fun `Memgraph 서버가 실행 중이어야 한다`() {

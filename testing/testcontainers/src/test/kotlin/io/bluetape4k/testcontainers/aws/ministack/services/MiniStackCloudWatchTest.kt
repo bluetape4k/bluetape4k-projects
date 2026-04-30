@@ -2,6 +2,7 @@ package io.bluetape4k.testcontainers.aws.ministack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.aws.MiniStackServer.Launcher.miniStack
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
@@ -27,9 +28,9 @@ import java.time.Instant
  * MiniStack CloudWatch / CloudWatchLogs 서비스 통합 테스트.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class MiniStackCloudWatchTest : AbstractMiniStackServiceTest() {
+class MiniStackCloudWatchTest: AbstractMiniStackServiceTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val NAMESPACE = "Bluetape4k/MiniStack-Test-${System.currentTimeMillis()}"
         private val LOG_GROUP_NAME = "/bluetape4k/ministack-test-${System.currentTimeMillis()}"
         private const val LOG_STREAM_NAME = "app-stream"

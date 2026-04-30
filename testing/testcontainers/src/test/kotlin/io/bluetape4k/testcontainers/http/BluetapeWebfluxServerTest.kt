@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -26,13 +27,6 @@ import org.testcontainers.DockerClientFactory
 class BluetapeWebfluxServerTest {
 
     companion object: KLogging() {
-        private val server: BluetapeWebfluxServer by lazy {
-            BluetapeWebfluxServer().apply {
-                start()
-                ShutdownQueue.register(this)
-            }
-        }
-
         private val httpClient by lazy { OkHttpClient() }
 
         /** mkcert CA cert를 신뢰하는 HTTPS 전용 클라이언트 */
@@ -41,13 +35,23 @@ class BluetapeWebfluxServerTest {
         }
     }
 
+    private lateinit var server: BluetapeWebfluxServer
+
     @BeforeAll
     fun checkDocker() {
         assumeTrue(
             DockerClientFactory.instance().isDockerAvailable,
             "Docker is not available — skipping BluetapeWebfluxServerTest"
         )
+        server = BluetapeWebfluxServer().apply { start() }
         log.info { "BluetapeWebfluxServer url=${server.url}" }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::server.isInitialized && server.isRunning) {
+            server.close()
+        }
     }
 
     /**

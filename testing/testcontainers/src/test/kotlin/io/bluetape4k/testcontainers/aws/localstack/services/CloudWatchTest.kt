@@ -1,17 +1,17 @@
-package io.bluetape4k.testcontainers.aws.services
+package io.bluetape4k.testcontainers.aws.localstack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -25,8 +25,8 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent
 import java.net.URI
 import java.time.Instant
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class CloudWatchTest: AbstractContainerTest() {
+@TestMethodOrder(OrderAnnotation::class)
+class CloudWatchTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging() {
         private val NAMESPACE = "Bluetape4k/Test-${System.currentTimeMillis()}"
@@ -35,8 +35,7 @@ class CloudWatchTest: AbstractContainerTest() {
     }
 
     private val cloudWatch: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack
-            .withServices("clowdwatch", "cloudwatchlogs")
+        localStack.withServices("clowdwatch", "cloudwatchlogs")
     }
 
     private val cloudWatchEndpoint: URI

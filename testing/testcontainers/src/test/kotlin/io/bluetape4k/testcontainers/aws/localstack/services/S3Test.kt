@@ -1,18 +1,18 @@
-package io.bluetape4k.testcontainers.aws.services
+package io.bluetape4k.testcontainers.aws.localstack.services
 
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
-import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -25,15 +25,15 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.net.URI
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class S3Test: AbstractContainerTest() {
+@TestMethodOrder(OrderAnnotation::class)
+class S3Test: AbstractLocalStackServiceTest() {
 
     companion object {
         private val log = KotlinLogging.logger { }
     }
 
     private val s3Server: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices("s3")
+        localStack.withServices("s3")
     }
     private val endpoint: URI get() = s3Server.endpoint
 

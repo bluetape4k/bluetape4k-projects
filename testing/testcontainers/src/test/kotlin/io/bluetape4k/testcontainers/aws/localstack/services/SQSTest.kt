@@ -1,14 +1,14 @@
-package io.bluetape4k.testcontainers.aws.services
+package io.bluetape4k.testcontainers.aws.localstack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -17,15 +17,15 @@ import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
 import java.net.URI
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class SQSTest: AbstractContainerTest() {
+@TestMethodOrder(OrderAnnotation::class)
+class SQSTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging() {
         private val QUEUE_NAME = "test-queue-${System.currentTimeMillis()}"
     }
 
     private val sqsServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices("sqs")
+        localStack.withServices("sqs")
     }
     private val endpoint: URI get() = sqsServer.endpoint
     private val region get() = Region.of(sqsServer.region)

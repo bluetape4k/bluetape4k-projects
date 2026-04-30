@@ -20,50 +20,55 @@ class InfluxDBServerTest: AbstractContainerTest() {
 
     @Test
     fun `influxdb server 실행`() {
-        val influxdb = InfluxDBServer.Launcher.influxDB
+        InfluxDBServer().use { influxdb ->
 
-        // 서버 상태 확인
-        influxdb.isRunning.shouldBeTrue()
-        influxdb.port.shouldBeGreaterThan(0)
+            influxdb.start()
 
-        // 시스템 프로퍼티 확인
-        System.getProperty("testcontainers.influxdb.host").shouldNotBeNullOrBlank()
-        System.getProperty("testcontainers.influxdb.port").shouldNotBeNullOrBlank()
-        System.getProperty("testcontainers.influxdb.url").shouldNotBeNullOrBlank()
-        System.getProperty("testcontainers.influxdb.organization").shouldNotBeNullOrBlank()
-        System.getProperty("testcontainers.influxdb.bucket").shouldNotBeNullOrBlank()
-        System.getProperty("testcontainers.influxdb.admin-token").shouldNotBeNullOrBlank()
+            // 서버 상태 확인
+            influxdb.isRunning.shouldBeTrue()
+            influxdb.port.shouldBeGreaterThan(0)
 
-        // InfluxDB ping 확인 (health check)
-        val client = HttpClient.newHttpClient()
-        val pingRequest = HttpRequest.newBuilder()
-            .uri(URI.create("${influxdb.url}/ping"))
-            .GET()
-            .build()
+            // 시스템 프로퍼티 확인
+            System.getProperty("testcontainers.influxdb.host").shouldNotBeNullOrBlank()
+            System.getProperty("testcontainers.influxdb.port").shouldNotBeNullOrBlank()
+            System.getProperty("testcontainers.influxdb.url").shouldNotBeNullOrBlank()
+            System.getProperty("testcontainers.influxdb.organization").shouldNotBeNullOrBlank()
+            System.getProperty("testcontainers.influxdb.bucket").shouldNotBeNullOrBlank()
+            System.getProperty("testcontainers.influxdb.admin-token").shouldNotBeNullOrBlank()
 
-        val response = client.send(pingRequest, java.net.http.HttpResponse.BodyHandlers.discarding())
-        response.statusCode() shouldBeEqualTo 204
+            // InfluxDB ping 확인 (health check)
+            val client = HttpClient.newHttpClient()
+            val pingRequest = HttpRequest.newBuilder()
+                .uri(URI.create("${influxdb.url}/ping"))
+                .GET()
+                .build()
 
-        // 관리자 토큰 확인
-        influxdb.adminToken.shouldNotBeNullOrBlank()
+            val response = client.send(pingRequest, java.net.http.HttpResponse.BodyHandlers.discarding())
+            response.statusCode() shouldBeEqualTo 204
 
-        // API 호출로 버킷 목록 조회 (Authorization 헤더 포함)
-        val bucketsRequest = HttpRequest.newBuilder()
-            .uri(URI.create("${influxdb.url}/api/v2/buckets"))
-            .header("Authorization", "Token ${influxdb.adminToken}")
-            .GET()
-            .build()
+            // 관리자 토큰 확인
+            influxdb.adminToken.shouldNotBeNullOrBlank()
 
-        val bucketsResponse = client.send(bucketsRequest, java.net.http.HttpResponse.BodyHandlers.discarding())
-        bucketsResponse.statusCode() shouldBeEqualTo 200
+            // API 호출로 버킷 목록 조회 (Authorization 헤더 포함)
+            val bucketsRequest = HttpRequest.newBuilder()
+                .uri(URI.create("${influxdb.url}/api/v2/buckets"))
+                .header("Authorization", "Token ${influxdb.adminToken}")
+                .GET()
+                .build()
+
+            val bucketsResponse = client.send(bucketsRequest, java.net.http.HttpResponse.BodyHandlers.discarding())
+            bucketsResponse.statusCode() shouldBeEqualTo 200
+        }
     }
 
     @Test
     fun `default 프로퍼티 확인`() {
-        InfluxDBServer.Launcher.influxDB.apply {
-            organization shouldBeEqualTo InfluxDBServer.DEFAULT_ORG
-            bucket shouldBeEqualTo InfluxDBServer.DEFAULT_BUCKET
-            adminToken.shouldNotBeNullOrBlank()
+        InfluxDBServer().use { influxdb ->
+            influxdb.start()
+            
+            influxdb.organization shouldBeEqualTo InfluxDBServer.DEFAULT_ORG
+            influxdb.bucket shouldBeEqualTo InfluxDBServer.DEFAULT_BUCKET
+            influxdb.adminToken.shouldNotBeNullOrBlank()
         }
     }
 }

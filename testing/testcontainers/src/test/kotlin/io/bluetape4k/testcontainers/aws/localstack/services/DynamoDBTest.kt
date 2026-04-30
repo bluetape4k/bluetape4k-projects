@@ -1,10 +1,10 @@
-package io.bluetape4k.testcontainers.aws.services
+package io.bluetape4k.testcontainers.aws.localstack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
@@ -12,7 +12,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -34,15 +34,15 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 import java.net.URI
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class DynamoDBTest: AbstractContainerTest() {
+@TestMethodOrder(OrderAnnotation::class)
+class DynamoDBTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging() {
         private const val TABLE_NAME = "test-table"
     }
 
     private val dynamodb: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices("dynamodb")
+        localStack.withServices("dynamodb")
     }
     private val endpoint: URI get() = dynamodb.endpoint
 

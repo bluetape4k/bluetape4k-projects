@@ -5,6 +5,8 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.sql.DriverManager
@@ -15,17 +17,30 @@ class TrinoServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val server: TrinoServer get() = TrinoServer.Launcher.trino
+
+    private lateinit var trinoServer: TrinoServer
+
+    @BeforeAll
+    fun beforeAll() {
+        trinoServer = TrinoServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::trinoServer.isInitialized && trinoServer.isRunning) {
+            trinoServer.close()
+        }
+    }
 
     @Test
     fun `Trino 서버가 정상적으로 실행된다`() {
-        server.isRunning.shouldBeTrue()
-        log.debug { "Trino URL: ${server.url}" }
+        trinoServer.isRunning.shouldBeTrue()
+        log.debug { "Trino URL: ${trinoServer.url}" }
     }
 
     @Test
     fun `SELECT 1 쿼리를 실행한다`() {
-        val jdbcUrl = "jdbc:trino://${server.host}:${server.port}/memory"
+        val jdbcUrl = "jdbc:trino://${trinoServer.host}:${trinoServer.port}/memory"
         DriverManager.getConnection(jdbcUrl, "test", null).use { conn ->
             conn.createStatement().use { stmt ->
                 stmt.executeQuery("SELECT 1").use { rs ->
@@ -38,7 +53,7 @@ class TrinoServerTest: AbstractContainerTest() {
 
     @Test
     fun `information_schema 테이블 목록을 조회한다`() {
-        val jdbcUrl = "jdbc:trino://${server.host}:${server.port}/memory"
+        val jdbcUrl = "jdbc:trino://${trinoServer.host}:${trinoServer.port}/memory"
         DriverManager.getConnection(jdbcUrl, "test", null).use { conn ->
             conn.createStatement().use { stmt ->
                 stmt.executeQuery("SELECT table_name FROM information_schema.tables LIMIT 5").use { rs ->

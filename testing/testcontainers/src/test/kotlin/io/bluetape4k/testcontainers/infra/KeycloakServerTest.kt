@@ -10,6 +10,8 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertFailsWith
@@ -19,7 +21,19 @@ class KeycloakServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val keycloak = KeycloakServer.Launcher.keycloak
+    private lateinit var keycloak: KeycloakServer
+
+    @BeforeAll
+    fun beforeAll() {
+        keycloak = KeycloakServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if (this::keycloak.isInitialized && keycloak.isRunning) {
+            keycloak.close()
+        }
+    }
 
     @Test
     fun `Keycloak 서버가 정상 실행 중이어야 한다`() {

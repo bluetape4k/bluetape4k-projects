@@ -11,6 +11,8 @@ import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertFailsWith
@@ -22,7 +24,19 @@ class FalkorDBServerTest : AbstractContainerTest() {
         private const val GRAPH_NAME = "social"
     }
 
-    private val falkordb = FalkorDBServer.Launcher.falkordb
+    private lateinit var falkordb:FalkorDBServer
+
+    @BeforeAll
+    fun beforeAll() {
+        falkordb = FalkorDBServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::falkordb.isInitialized && falkordb.isRunning) {
+            falkordb.close()
+        }
+    }
 
     @Test
     fun `FalkorDB 서버가 실행 중이어야 한다`() {

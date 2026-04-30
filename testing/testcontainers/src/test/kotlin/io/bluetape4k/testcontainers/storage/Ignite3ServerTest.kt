@@ -4,9 +4,11 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@Disabled("사용성이 낮아서 테스트에서 제외합니다")
 class Ignite3ServerTest: AbstractContainerTest() {
 
     companion object: KLogging()

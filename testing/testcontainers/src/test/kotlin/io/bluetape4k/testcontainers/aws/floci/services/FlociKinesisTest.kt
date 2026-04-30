@@ -27,7 +27,7 @@ import java.time.Duration
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 Kinesis 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.KinesisTest]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.KinesisTest]에 대응합니다.
  */
 @Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)

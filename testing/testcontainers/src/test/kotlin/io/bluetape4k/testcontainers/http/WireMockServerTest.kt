@@ -7,6 +7,8 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldContain
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -19,12 +21,24 @@ class WireMockServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val wireMock: WireMockServer get() = WireMockServer.Launcher.wireMock
+    private lateinit var wireMock: WireMockServer
+
+    @BeforeAll
+    fun beforeAll() {
+        wireMock = WireMockServer().apply { start() }
+    }
 
     @BeforeEach
     fun beforeEach() {
         // 각 테스트 전에 stub 상태 초기화 — 누수 방지
         wireMock.resetAll()
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::wireMock.isInitialized && wireMock.isRunning) {
+            wireMock.close()
+        }
     }
 
     @Test

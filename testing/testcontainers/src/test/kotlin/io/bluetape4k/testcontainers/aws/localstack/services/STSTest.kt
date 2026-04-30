@@ -1,15 +1,15 @@
-package io.bluetape4k.testcontainers.aws.services
+package io.bluetape4k.testcontainers.aws.localstack.services
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
+import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.MethodOrderer
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
@@ -17,13 +17,13 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sts.StsClient
 import java.net.URI
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class STSTest: AbstractContainerTest() {
+@TestMethodOrder(OrderAnnotation::class)
+class STSTest: AbstractLocalStackServiceTest() {
 
     companion object: KLogging()
 
     private val stsServer: LocalStackServer by lazy {
-        LocalStackServer.Launcher.localStack.withServices("sts")
+        localStack.withServices("sts")
     }
     private val endpoint: URI get() = stsServer.endpoint
 

@@ -13,7 +13,6 @@ import org.amshove.kluent.shouldNotBeNull
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -31,54 +30,50 @@ class RabbitMQServerTest: AbstractContainerTest() {
 
     @Nested
     inner class Docker {
-        private val rabbitMQ = RabbitMQServer.Launcher.rabbitMQ
-
-        @AfterAll
-        fun afterAll() {
-            rabbitMQ.close()
-        }
-
         @Test
         fun `connect to rabbitmq server`() {
-            rabbitMQ.isRunning.shouldBeTrue()
-            log.debug { "host=${rabbitMQ.host}, port=${rabbitMQ.port}" }
+            RabbitMQServer().use { rabbitMQ ->
+                rabbitMQ.start()
+                rabbitMQ.isRunning.shouldBeTrue()
+                log.debug { "host=${rabbitMQ.host}, port=${rabbitMQ.port}" }
 
-            val factory = ConnectionFactory().apply {
-                host = rabbitMQ.host
-                port = rabbitMQ.port
-            }
+                val factory = ConnectionFactory().apply {
+                    host = rabbitMQ.host
+                    port = rabbitMQ.port
+                }
 
-            factory.newConnection().use { connection ->
-                connection.shouldNotBeNull()
+                factory.newConnection().use { connection ->
+                    connection.shouldNotBeNull()
 
-                connection.createChannel().use { channel ->
-                    channel.shouldNotBeNull()
-                    channel.exchangeDeclare(RABBITMQ_TEST_EXCHANGE, "direct", true)
+                    connection.createChannel().use { channel ->
+                        channel.shouldNotBeNull()
+                        channel.exchangeDeclare(RABBITMQ_TEST_EXCHANGE, "direct", true)
 
-                    val queueName = channel.queueDeclare().queue
-                    channel.queueBind(queueName, RABBITMQ_TEST_EXCHANGE, RABBITMQ_TEST_ROUTING_KEY)
+                        val queueName = channel.queueDeclare().queue
+                        channel.queueBind(queueName, RABBITMQ_TEST_EXCHANGE, RABBITMQ_TEST_ROUTING_KEY)
 
-                    val messageWasReceived = AtomicBoolean(false)
-                    channel.basicConsume(queueName, true, object: DefaultConsumer(channel) {
-                        override fun handleDelivery(
-                            consumerTag: String?,
-                            envelope: Envelope?,
-                            properties: AMQP.BasicProperties?,
-                            body: ByteArray?,
-                        ) {
-                            messageWasReceived.set(Arrays.equals(body, RABBITMQ_TEST_MESSAGE.toByteArray()))
-                        }
-                    })
+                        val messageWasReceived = AtomicBoolean(false)
+                        channel.basicConsume(queueName, true, object: DefaultConsumer(channel) {
+                            override fun handleDelivery(
+                                consumerTag: String?,
+                                envelope: Envelope?,
+                                properties: AMQP.BasicProperties?,
+                                body: ByteArray?,
+                            ) {
+                                messageWasReceived.set(Arrays.equals(body, RABBITMQ_TEST_MESSAGE.toByteArray()))
+                            }
+                        })
 
-                    channel.basicPublish(
-                        RABBITMQ_TEST_EXCHANGE,
-                        RABBITMQ_TEST_ROUTING_KEY,
-                        null,
-                        RABBITMQ_TEST_MESSAGE.toByteArray()
-                    )
+                        channel.basicPublish(
+                            RABBITMQ_TEST_EXCHANGE,
+                            RABBITMQ_TEST_ROUTING_KEY,
+                            null,
+                            RABBITMQ_TEST_MESSAGE.toByteArray()
+                        )
 
-                    await atMost Duration.ofSeconds(5) until { messageWasReceived.get() }
-                    messageWasReceived.get().shouldBeTrue()
+                        await atMost Duration.ofSeconds(5) until { messageWasReceived.get() }
+                        messageWasReceived.get().shouldBeTrue()
+                    }
                 }
             }
         }

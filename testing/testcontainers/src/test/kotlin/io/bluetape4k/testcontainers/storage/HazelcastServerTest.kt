@@ -122,6 +122,9 @@ class HazelcastServerTest: AbstractContainerTest() {
         } finally {
             runCatching { client.shutdown() }
         }
+
+        hazelcast1.close()
+        hazelcast2.close()
     }
 
     @Test

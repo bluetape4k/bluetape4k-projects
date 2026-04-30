@@ -6,6 +6,8 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.sql.DriverManager
@@ -21,7 +23,19 @@ class PostgreSQLAgeServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val server: PostgreSQLAgeServer = PostgreSQLAgeServer.Launcher.postgresqlAge
+    private lateinit var server: PostgreSQLAgeServer
+
+    @BeforeAll
+    fun beforeAll() {
+        server = PostgreSQLAgeServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if (this::server.isInitialized && server.isRunning) {
+            server.close()
+        }
+    }
 
     @Test
     fun `AGE 서버가 정상적으로 실행된다`() {

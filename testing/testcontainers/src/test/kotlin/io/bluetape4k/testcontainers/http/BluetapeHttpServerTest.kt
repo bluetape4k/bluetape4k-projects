@@ -9,6 +9,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -24,12 +25,6 @@ import org.testcontainers.DockerClientFactory
 class BluetapeHttpServerTest {
 
     companion object : KLogging() {
-        private val server: BluetapeHttpServer by lazy {
-            BluetapeHttpServer().apply {
-                start()
-                ShutdownQueue.register(this)
-            }
-        }
 
         private val httpClient by lazy { OkHttpClient() }
 
@@ -39,14 +34,25 @@ class BluetapeHttpServerTest {
         }
     }
 
+    private lateinit var server: BluetapeHttpServer
+
     @BeforeAll
     fun checkDocker() {
         assumeTrue(
             DockerClientFactory.instance().isDockerAvailable,
             "Docker is not available — skipping BluetapeHttpServerTest"
         )
+
+        server = BluetapeHttpServer().apply {start() }
         // lazy 초기화 트리거 (Docker 가용성 확인 후 시작)
         log.info { "BluetapeHttpServer url=${server.url}" }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if(this::server.isInitialized && server.isRunning) {
+            server.close()
+        }
     }
 
     /**

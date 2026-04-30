@@ -31,7 +31,7 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 KMS 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.KMSTest]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.KMSTest]에 대응합니다.
  *
  * > **알려진 제한사항 1**: Floci #586 — 비대칭 키(asymmetric key)의 `GetKeyRotationStatus` 동작 불가.
  * > 비대칭 키 관련 테스트는 포함하지 않습니다.

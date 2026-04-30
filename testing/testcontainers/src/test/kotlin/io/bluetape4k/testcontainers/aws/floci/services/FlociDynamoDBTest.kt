@@ -32,7 +32,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 /**
  * [io.bluetape4k.testcontainers.aws.FlociServer]를 사용한 DynamoDB 서비스 통합 테스트.
  *
- * LocalStack 기반 [io.bluetape4k.testcontainers.aws.services.DynamoDBTest]에 대응합니다.
+ * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.DynamoDBTest]에 대응합니다.
  *
  * > **알려진 제한사항**: Floci #587 — GSI Query 페이지네이션 무한루프 버그로 인해
  * > GSI 관련 테스트는 포함하지 않습니다.
