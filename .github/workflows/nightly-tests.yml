@@ -371,9 +371,80 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── images-vips 모듈 테스트 (libvips 설치 필요) ────────────────────────────
-  test-images-vips:
-    name: Test / Images Vips (Nightly)
+  # ── images-vips-java21 테스트 (ubuntu-22.04 — jvips JNI ABI 호환) ─────────
+  test-images-vips-java21:
+    name: Test / Images Vips (Java21/JNI, Nightly)
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install libvips
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libvips-dev
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test images-vips-api and images-vips-java21
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-images-vips-api:test \
+              :bluetape4k-images-vips-java21:test \
+              -Dvips.enabled=true \
+              --no-daemon
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-images-vips-api:koverXmlReport \
+            :bluetape4k-images-vips-java21:koverXmlReport \
+            --parallel
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-test-results-images-vips-java21
+          path: "**/build/test-results/test/*.xml"
+          retention-days: 14
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-coverage-images-vips-java21
+          path: '**/build/reports/kover/'
+          retention-days: 14
+
+      - name: Upload golden diff report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-diffs-images-vips-java21
+          path: '**/build/reports/golden-diffs/vips/'
+          retention-days: 7
+
+  # ── images-vips-java25 테스트 (ubuntu-24.04 — FFM API, libvips 8.15+) ──────
+  test-images-vips-java25:
+    name: Test / Images Vips (Java25/FFM, Nightly)
     runs-on: ubuntu-24.04
     needs: build
     steps:
@@ -394,7 +465,7 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
-      - name: Test images-vips modules
+      - name: Test images-vips-java25
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 30
@@ -402,8 +473,6 @@ jobs:
           shell: bash
           command: |
             ./gradlew \
-              :bluetape4k-images-vips-api:test \
-              :bluetape4k-images-vips-java21:test \
               :bluetape4k-images-vips-java25:test \
               -Dvips.enabled=true \
               --no-daemon
@@ -415,17 +484,14 @@ jobs:
         if: always()
         run: |
           ./gradlew \
-            :bluetape4k-images-vips-api:koverXmlReport \
-            :bluetape4k-images-vips-java21:koverXmlReport \
-            :bluetape4k-images-vips-java25:koverXmlReport \
-            --parallel
+            :bluetape4k-images-vips-java25:koverXmlReport
         continue-on-error: true
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-test-results-images-vips
+          name: nightly-test-results-images-vips-java25
           path: "**/build/test-results/test/*.xml"
           retention-days: 14
 
@@ -433,7 +499,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-coverage-images-vips
+          name: nightly-coverage-images-vips-java25
           path: '**/build/reports/kover/'
           retention-days: 14
 
@@ -441,7 +507,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: golden-diffs-images-vips
+          name: golden-diffs-images-vips-java25
           path: '**/build/reports/golden-diffs/vips/'
           retention-days: 7
 
@@ -1432,7 +1498,8 @@ jobs:
       - test-io-http
       - test-utils
       - test-images
-      - test-images-vips
+      - test-images-vips-java21
+      - test-images-vips-java25
       - test-misc
       - test-exposed-core
       - test-spring-h2
@@ -1480,7 +1547,8 @@ jobs:
       - test-io-http
       - test-utils
       - test-images
-      - test-images-vips
+      - test-images-vips-java21
+      - test-images-vips-java25
       - test-misc
       - test-exposed-core
       - test-spring-h2

@@ -23,8 +23,9 @@ tasks.withType<Test>().configureEach {
     // JNI native library: isolate each test class in its own JVM fork
     forkEvery = 1
     maxParallelForks = 1
-    // Skip libvips-dependent tests when native library is unavailable
-    systemProperty("vips.enabled", System.getProperty("vips.enabled", "false"))
+    // 명시적으로 -Dvips.enabled=false/true 를 전달한 경우만 전파한다.
+    // 미설정 시 AbstractJVipsTest 가 JVipsRuntime.init() 결과로 자동 감지한다.
+    System.getProperty("vips.enabled")?.let { systemProperty("vips.enabled", it) }
 }
 
 dependencies {

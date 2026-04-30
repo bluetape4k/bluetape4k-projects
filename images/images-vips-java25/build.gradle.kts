@@ -28,8 +28,9 @@ tasks.withType<Test>().configureEach {
     jvmArgs("--enable-native-access=ALL-UNNAMED")
     forkEvery = 1
     maxParallelForks = 1
-    // Skip libvips-dependent tests when native library is unavailable
-    systemProperty("vips.enabled", System.getProperty("vips.enabled", "false"))
+    // 명시적으로 -Dvips.enabled=false/true 를 전달한 경우만 전파한다.
+    // 미설정 시 AbstractFfmVipsTest 가 FfmVipsRuntime.init() 결과로 자동 감지한다.
+    System.getProperty("vips.enabled")?.let { systemProperty("vips.enabled", it) }
     // macOS (Homebrew): libvips lives in /opt/homebrew/lib which dlopen doesn't find by default.
     // FFM SymbolLookup.libraryLookup uses dlopen, not java.library.path — need DYLD_LIBRARY_PATH.
     val homebrewLib = "/opt/homebrew/lib"
