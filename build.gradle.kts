@@ -113,8 +113,12 @@ subprojects {
         // Atomicfu
         plugin("org.jetbrains.kotlinx.atomicfu")
 
-        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark 는 별도 필터링)
-        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
+        // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark/-vips-java* 는 제외)
+        // images-vips-java21/java25: 네이티브 libvips 필요 — CI에서 테스트 항상 skip → 집계 제외
+        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") &&
+            !path.endsWith("-benchmark") &&
+            name != "bluetape4k-images-vips-java21" && name != "bluetape4k-images-vips-java25"
+        ) {
             plugin(Plugins.kover)
         }
 
@@ -160,6 +164,19 @@ subprojects {
         atomicfu {
             transformJvm = true
             jvmVariant = "VH"     //  FU, VH, BOTH
+        }
+    }
+
+    // testFixtures 소스셋은 테스트 유틸리티이므로 커버리지 측정에서 제외
+    pluginManager.withPlugin("java-test-fixtures") {
+        pluginManager.withPlugin(Plugins.kover) {
+            kover {
+                currentProject {
+                    sources {
+                        excludedSourceSets.add("testFixtures")
+                    }
+                }
+            }
         }
     }
 
@@ -694,7 +711,10 @@ dependencies {
                     !sub.path.contains("workshop") &&
                     !sub.path.contains("examples") &&
                     !sub.path.contains("-demo") &&
-                    !sub.path.endsWith("-benchmark")
+                    !sub.path.endsWith("-benchmark") &&
+                    // 네이티브 libvips 필요 — CI에서 테스트 항상 skip되므로 집계 제외
+                    sub.name != "bluetape4k-images-vips-java21" &&
+                    sub.name != "bluetape4k-images-vips-java25"
         }
         .forEach { sub -> kover(project(sub.path)) }
 }
