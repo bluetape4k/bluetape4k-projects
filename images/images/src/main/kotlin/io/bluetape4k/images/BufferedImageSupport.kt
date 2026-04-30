@@ -212,7 +212,9 @@ inline fun BufferedImage.useGraphics(
  *
  * ## 동작/계약
  * - `w`, `h`는 양수여야 하며 위반 시 검증 예외가 발생합니다.
- * - headless 환경이면 `TYPE_INT_ARGB`, GUI 환경이면 디바이스 호환 이미지를 생성합니다.
+ * - headless 환경이면 `TYPE_INT_RGB`, GUI 환경이면 디바이스 호환 이미지를 생성합니다.
+ *   알파 채널이 필요하면 `BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)`를 직접 사용하세요.
+ *   단, JPEG는 알파 채널을 지원하지 않으므로 `TYPE_INT_ARGB` 이미지를 JPEG로 저장하면 실패합니다.
  *
  * ```kotlin
  * val image = bufferedImageOf(200, 100)
@@ -227,7 +229,7 @@ fun bufferedImageOf(w: Int, h: Int): BufferedImage {
     h.requirePositiveNumber("h")
 
     if (GraphicsEnvironment.isHeadless()) {
-        return BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+        return BufferedImage(w, h, BufferedImage.TYPE_INT_RGB)
     }
 
     val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
