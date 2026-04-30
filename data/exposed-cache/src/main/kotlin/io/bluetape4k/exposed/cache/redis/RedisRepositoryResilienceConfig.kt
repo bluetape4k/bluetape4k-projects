@@ -22,6 +22,8 @@ import java.time.Duration
  * @property retryExponentialBackoff 지수 백오프 사용 여부 (기본값: true)
  * @property circuitBreakerEnabled Circuit Breaker 활성화 여부 (기본값: false)
  * @property timeoutDuration 타임아웃 시간 (기본값: 2초)
+ *
+ * @throws IllegalArgumentException 재시도 횟수나 시간 설정이 0 이하인 경우
  */
 data class RedisRepositoryResilienceConfig(
     val retryMaxAttempts: Int = 3,
@@ -32,5 +34,18 @@ data class RedisRepositoryResilienceConfig(
 ) : Serializable {
     companion object : KLogging() {
         private const val serialVersionUID = 1L
+    }
+
+    init {
+        // Resilience4j 설정으로 전달되기 전에 잘못된 값을 차단해 Redis 장애 경로의 런타임 실패를 방지합니다.
+        require(retryMaxAttempts >= 1) {
+            "retryMaxAttempts[$retryMaxAttempts] must be at least 1."
+        }
+        require(retryWaitDuration > Duration.ZERO) {
+            "retryWaitDuration[$retryWaitDuration] must be positive."
+        }
+        require(timeoutDuration > Duration.ZERO) {
+            "timeoutDuration[$timeoutDuration] must be positive."
+        }
     }
 }
