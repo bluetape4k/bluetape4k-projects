@@ -2,6 +2,7 @@ package io.bluetape4k.exposed.r2dbc
 
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
 import io.r2dbc.spi.IsolationLevel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -73,7 +74,9 @@ suspend fun <T> R2dbcTransaction.withVirtualThreadTransaction(
  *
  * ## 동작/계약
  * - [executor]에 맞는 dispatcher를 생성해 `async`로 트랜잭션을 실행합니다.
- * - 사용자 제공 executor를 dispatcher로 만든 경우 실행 완료 후 `close()`로 정리합니다.
+ * - `executor`가 null이면 [VirtualThreadExecutor] 공유 dispatcher를 사용합니다.
+ * - 사용자 제공 [ExecutorService]는 호출자가 소유하므로 이 함수가 종료하거나 닫지 않습니다.
+ * - 이미 종료된 [ExecutorService]를 넘기면 [IllegalArgumentException]을 던집니다.
  * - 반환값은 [Deferred]이며 호출자가 `await()`/`awaitAll()`로 완료를 제어합니다.
  *
  * ```kotlin
@@ -91,21 +94,15 @@ suspend fun <T> virtualThreadTransactionAsync(
     readOnly: Boolean = false,
     statement: suspend R2dbcTransaction.() -> T,
 ): Deferred<T> = coroutineScope {
-    val (dispatcher, shouldClose) = createDispatcher(executor)
+    val dispatcher = createDispatcher(executor)
 
     async(dispatcher) {
-        try {
-            suspendTransaction(
-                db = db,
-                transactionIsolation = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel,
-                readOnly = readOnly,
-            ) {
-                statement()
-            }
-        } finally {
-            if (shouldClose) {
-                dispatcher.close()
-            }
+        suspendTransaction(
+            db = db,
+            transactionIsolation = transactionIsolation ?: db?.transactionManager?.defaultIsolationLevel,
+            readOnly = readOnly,
+        ) {
+            statement()
         }
     }
 }
@@ -114,9 +111,13 @@ private val virtualThreadDispatcher: ExecutorCoroutineDispatcher by lazy {
     VirtualThreadExecutor.asCoroutineDispatcher()
 }
 
-private fun createDispatcher(executor: ExecutorService?): Pair<ExecutorCoroutineDispatcher, Boolean> {
+private fun createDispatcher(executor: ExecutorService?): CoroutineDispatcher {
     if (executor == null || executor === VirtualThreadExecutor) {
-        return virtualThreadDispatcher to false
+        return virtualThreadDispatcher
     }
-    return executor.asCoroutineDispatcher() to true
+    require(!executor.isShutdown && !executor.isTerminated) {
+        "ExecutorService is already shutdown."
+    }
+    // asCoroutineDispatcher().close()는 원본 ExecutorService를 shutdown하므로 호출자 소유 executor는 닫지 않습니다.
+    return executor.asCoroutineDispatcher()
 }

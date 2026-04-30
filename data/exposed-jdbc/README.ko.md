@@ -144,8 +144,8 @@ val allIds = UserTable
 ### 4. Virtual Thread 트랜잭션
 
 ```kotlin
-import io.bluetape4k.exposed.jdbc.transactions.newVirtualThreadJdbcTransaction
-import io.bluetape4k.exposed.jdbc.transactions.virtualThreadJdbcTransactionAsync
+import io.bluetape4k.exposed.jdbc.newVirtualThreadJdbcTransaction
+import io.bluetape4k.exposed.jdbc.virtualThreadJdbcTransactionAsync
 
 // JDK 21+ Virtual Thread에서 동기 트랜잭션 실행
 val count = newVirtualThreadJdbcTransaction {
@@ -161,6 +161,8 @@ val futures = List(10) { index ->
 }
 val results = futures.awaitAll()
 ```
+
+`executor = null`은 공유 `VirtualThreadExecutor`를 재사용합니다. 커스텀 Executor는 호출자가 소유하며 직접 종료해야 합니다.
 
 ### 5. ExposedPage — 페이징 결과
 
@@ -614,7 +616,7 @@ sequenceDiagram
 | `jdbc/repository/SoftDeletedJdbcRepository.kt`      | Soft Delete 지원 Repository          |
 | `repository/ExposedRepository.kt`                   | (Deprecated) 구 Repository 인터페이스    |
 | `core/SuspendedQuery.kt`                            | 커서 기반 배치 Flow 쿼리                   |
-| `jdbc/transactions/VirtualThreadJdbcTransaction.kt` | Virtual Thread 기반 JDBC 트랜잭션        |
+| `jdbc/VirtualThreadJdbcTransaction.kt`              | Virtual Thread 기반 JDBC 트랜잭션        |
 | `core/transactions/VirtualThreadTransaction.kt`     | (Deprecated) 구 Virtual Thread 트랜잭션 |
 | `core/ImplicitSelectAll.kt`                         | `SELECT *` 형태의 묵시적 전체 조회           |
 | `core/TableExtensions.kt`                           | 테이블 메타데이터 확장 함수                    |

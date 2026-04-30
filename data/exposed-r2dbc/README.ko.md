@@ -423,11 +423,17 @@ val count = virtualThreadTransaction(db = database) {
 
 // 커스텀 Executor 사용
 val executor = Executors.newSingleThreadExecutor()
-val result = virtualThreadTransaction(executor = executor, db = database) {
-    UserTable.insert { it[name] = "Alice" }
-    UserTable.selectAll().count()
+try {
+    val result = virtualThreadTransaction(executor = executor, db = database) {
+        UserTable.insert { it[name] = "Alice" }
+        UserTable.selectAll().count()
+    }
+} finally {
+    executor.shutdown()
 }
 ```
+
+커스텀 Executor는 호출자가 소유합니다. 트랜잭션 헬퍼는 활성 상태만 검증하고, 실행 후 자동으로 종료하지 않습니다.
 
 ## R2DBC Readable 컬럼 값 조회
 

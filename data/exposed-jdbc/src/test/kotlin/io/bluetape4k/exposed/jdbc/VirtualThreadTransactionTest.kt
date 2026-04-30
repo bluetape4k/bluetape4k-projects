@@ -223,6 +223,18 @@ class VirtualThreadTransactionTest: AbstractExposedTest() {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `null executor 는 공유 VirtualThreadExecutor 로 실행된다`(testDB: TestDB) {
+        withTables(testDB, VTester) {
+            val isVirtualThread = newVirtualThreadJdbcTransaction(executor = null) {
+                Thread.currentThread().isVirtual
+            }
+
+            isVirtualThread.shouldBeTrue()
+        }
+    }
+
     /**
      * 이미 종료된(shutdown) executor 를 virtualThreadJdbcTransactionAsync 에 전달하면
      * IllegalArgumentException 이 발생해야 합니다.

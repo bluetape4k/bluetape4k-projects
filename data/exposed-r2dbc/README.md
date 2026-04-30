@@ -425,11 +425,17 @@ val count = virtualThreadTransaction(db = database) {
 
 // Using a custom Executor
 val executor = Executors.newSingleThreadExecutor()
-val result = virtualThreadTransaction(executor = executor, db = database) {
-    UserTable.insert { it[name] = "Alice" }
-    UserTable.selectAll().count()
+try {
+    val result = virtualThreadTransaction(executor = executor, db = database) {
+        UserTable.insert { it[name] = "Alice" }
+        UserTable.selectAll().count()
+    }
+} finally {
+    executor.shutdown()
 }
 ```
+
+Custom executors are caller-owned. The transaction helper validates that they are active, but it does not shut them down after execution.
 
 ## R2DBC Readable Column Value Access
 
