@@ -180,6 +180,24 @@ subprojects {
         }
     }
 
+    // Kotlin 인터페이스 default 메서드 bridge 클래스는 컴파일러 생성 코드 — 커버리지 제외
+    pluginManager.withPlugin(Plugins.kover) {
+        kover {
+            currentProject {
+                instrumentation {
+                    excludedClasses.add("**\$DefaultImpls")
+                }
+            }
+            reports {
+                filters {
+                    excludes {
+                        classes("**\$DefaultImpls")
+                    }
+                }
+            }
+        }
+    }
+
     tasks {
         val signingUsesGpgCmd = resolvePublishingSigningConfig().useGpgCmd
 
@@ -704,6 +722,17 @@ dependencyCheck {
 // ─── Kover 집계 설정 ────────────────────────────────────────────────────
 // 루트 프로젝트에서 모든 측정 대상 서브모듈을 `kover` 의존성으로 등록하여
 // `./gradlew koverXmlReport` / `koverHtmlReport` 실행 시 집계된 리포트를 생성한다.
+kover {
+    reports {
+        filters {
+            excludes {
+                // Kotlin 컴파일러 생성 interface bridge 클래스 — 집계 리포트에서도 제외
+                classes("**\$DefaultImpls")
+            }
+        }
+    }
+}
+
 dependencies {
     subprojects
         .filter { sub ->
