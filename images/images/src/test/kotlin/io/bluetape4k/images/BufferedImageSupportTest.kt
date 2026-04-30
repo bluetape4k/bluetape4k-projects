@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import java.awt.Color
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
+import kotlin.test.assertFailsWith
 
 @TempFolderTest
 class BufferedImageSupportTest: AbstractImageTest() {
@@ -154,5 +155,27 @@ class BufferedImageSupportTest: AbstractImageTest() {
 
         val bytes = base.toByteArray("png")
         bytes.shouldNotBeEmpty()
+    }
+
+    @Test
+    fun `useGraphics는 action이 예외를 던져도 Graphics2D를 dispose한다`() {
+        val image = bufferedImageOf(10, 10)
+
+        assertFailsWith<RuntimeException> {
+            image.useGraphics { throw RuntimeException("test error") }
+        }
+
+        // 예외 발생 후에도 이미지가 정상 인코딩 가능 (Graphics2D dispose됨)
+        val bytes = image.toByteArray("png")
+        bytes.shouldNotBeEmpty()
+    }
+
+    @Test
+    fun `toByteArray는 지원하지 않는 포맷이면 예외를 던진다`() {
+        val image = bufferedImageOf(10, 10)
+
+        assertFailsWith<IllegalArgumentException> {
+            image.toByteArray("unsupported_format_xyz")
+        }
     }
 }

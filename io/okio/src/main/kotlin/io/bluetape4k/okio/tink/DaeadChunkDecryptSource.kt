@@ -96,10 +96,10 @@ class DaeadChunkDecryptSource(
         if (closed) {
             return
         }
-        closed = true
         try {
             super.close()
         } finally {
+            closed = true
             plainBuffer.close()
         }
     }
