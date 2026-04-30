@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -28,7 +29,19 @@ abstract class AbstractCoroutineScopeTest {
 
     abstract fun getCoroutineScope(): CloseableCoroutineScope
 
-    val scope: CloseableCoroutineScope by lazy { getCoroutineScope() }
+    // 테스트에서 실제로 scope를 사용한 경우에만 생성하고, AfterEach에서 닫아
+    // ThreadPoolCoroutineScope 같은 전용 dispatcher 리소스가 테스트 후 남지 않게 한다.
+    private val scopeLazy = lazy { getCoroutineScope() }
+
+    val scope: CloseableCoroutineScope
+        get() = scopeLazy.value
+
+    @AfterEach
+    fun closeCoroutineScope() {
+        if (scopeLazy.isInitialized()) {
+            scope.close()
+        }
+    }
 
     private suspend fun add(x: Int, y: Int): Int {
         delay(Random.nextLong(10).milliseconds)
