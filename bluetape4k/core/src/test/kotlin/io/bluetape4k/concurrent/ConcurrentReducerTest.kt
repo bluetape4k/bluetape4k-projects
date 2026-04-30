@@ -11,6 +11,7 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertFailsWith
@@ -234,11 +235,19 @@ class ConcurrentReducerTest {
     fun `close 호출 시 큐가 비워지고 더 이상 작업이 실행되지 않는다`() {
         val reducer = concurrentReducerOf<String>(1, 10)
         val request = CompletableFuture<String>()
+        val queued1Invoked = AtomicBoolean(false)
+        val queued2Invoked = AtomicBoolean(false)
 
         // 활성 작업 1개, 큐에 대기 작업 2개 추가
         reducer.add { request }
-        reducer.add { CompletableFuture() }
-        reducer.add { CompletableFuture() }
+        val queued1 = reducer.add {
+            queued1Invoked.set(true)
+            CompletableFuture()
+        }
+        val queued2 = reducer.add {
+            queued2Invoked.set(true)
+            CompletableFuture()
+        }
 
         reducer.activeCount shouldBeEqualTo 1
         reducer.queuedCount shouldBeEqualTo 2
@@ -248,6 +257,22 @@ class ConcurrentReducerTest {
 
         // 큐가 비워져야 한다
         reducer.queuedCount shouldBeEqualTo 0
+        queued1.isCancelled.shouldBeTrue()
+        queued2.isCancelled.shouldBeTrue()
+        queued1Invoked.get().shouldBeFalse()
+        queued2Invoked.get().shouldBeFalse()
+    }
+
+    @Test
+    fun `close 이후 작업 추가는 실패한 CompletableFuture를 반환한다`() {
+        val reducer = concurrentReducerOf<String>(1, 10)
+
+        reducer.close()
+
+        val promise = reducer.add { completableFutureOf("done") }
+
+        promise.isCompletedExceptionally.shouldBeTrue()
+        promise.getException() shouldBeInstanceOf RejectedExecutionException::class
     }
 
     @Test

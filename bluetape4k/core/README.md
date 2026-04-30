@@ -186,7 +186,7 @@ sequenceDiagram
 - **Type Extensions**: Kotlin-style extension functions for all primitive types
 - **Ranges**: Various range types (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
 - **Collections**: Collection utilities — BoundedStack, RingBuffer, PaginatedList, lazy Permutation sequences
-- **Concurrent**: Concurrency utilities
+- **Concurrent**: Concurrency utilities. `ConcurrentReducer.close()` cancels queued tasks and rejects new tasks after closure.
 - **Utils**: Wildcard pattern matching, XXHasher high-speed hashing
 - **Functional**: Functional programming support
 - **Java Time DSL**: Extension functions for `java.time` (Duration/Period DSL, Temporal utilities, Quarter support)
