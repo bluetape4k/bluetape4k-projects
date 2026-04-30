@@ -8,7 +8,6 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * 가상 스레드에서 JDBC 트랜잭션을 실행하고 결과를 동기적으로 반환합니다.
@@ -16,7 +15,7 @@ import java.util.concurrent.Executors
  * 내부적으로 [virtualThreadJdbcTransactionAsync]를 호출하고 결과를 블로킹 대기합니다.
  * 가상 스레드를 사용하므로 플랫폼 스레드 풀을 점유하지 않습니다.
  *
- * @param executor 사용할 [ExecutorService] (기본값: [VirtualThreadExecutor] 싱글톤)
+ * @param executor 사용할 [ExecutorService] (기본값: [VirtualThreadExecutor] 싱글톤, null이면 공유 싱글톤 사용)
  * @param db 사용할 [Database] (기본값: null — 현재 기본 데이터베이스 사용)
  * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null — 데이터베이스 기본값 사용)
  * @param readOnly 읽기 전용 트랜잭션 여부 (기본값: false)
@@ -61,7 +60,7 @@ fun <T> newVirtualThreadJdbcTransaction(
  * 현재 트랜잭션의 `readOnly` 설정을 그대로 이어받아 새 트랜잭션을 생성합니다.
  * 외부 트랜잭션과는 독립적인 커넥션을 사용하므로, 중첩 트랜잭션 격리가 필요한 경우에 유용합니다.
  *
- * @param executor 사용할 [ExecutorService] (기본값: [VirtualThreadExecutor] 싱글톤)
+ * @param executor 사용할 [ExecutorService] (기본값: [VirtualThreadExecutor] 싱글톤, null이면 공유 싱글톤 사용)
  * @param statement 트랜잭션 블록 내에서 실행할 람다
  * @return 트랜잭션 블록의 실행 결과 [T]
  *
@@ -94,7 +93,7 @@ fun <T> JdbcTransaction.withVirtualThreadJdbcTransaction(
  * 반환된 [VirtualFuture]에 대해 [VirtualFuture.await]를 호출하면 결과를 블로킹 대기합니다.
  * 여러 [VirtualFuture]를 `awaitAll()`로 한 번에 대기하면 병렬 실행 효과를 얻을 수 있습니다.
  *
- * @param executor 사용할 [ExecutorService] (기본값: [VirtualThreadExecutor] 싱글톤)
+ * @param executor 사용할 [ExecutorService] (기본값: [VirtualThreadExecutor] 싱글톤, null이면 공유 싱글톤 사용)
  * @param db 사용할 [Database] (기본값: null — 현재 기본 데이터베이스 사용)
  * @param transactionIsolation 트랜잭션 격리 수준 (기본값: null — 데이터베이스 기본값 사용)
  * @param readOnly 읽기 전용 트랜잭션 여부 (기본값: false)
@@ -133,7 +132,8 @@ fun <T> virtualThreadJdbcTransactionAsync(
     readOnly: Boolean = false,
     statement: JdbcTransaction.() -> T,
 ): VirtualFuture<T> {
-    val effectiveExecutor = executor ?: Executors.newVirtualThreadPerTaskExecutor()
+    // null은 "새 executor 생성"이 아니라 기본 공유 executor 사용으로 해석해 호출마다 executor가 누수되지 않게 합니다.
+    val effectiveExecutor = executor ?: VirtualThreadExecutor
     require(!effectiveExecutor.isShutdown && !effectiveExecutor.isTerminated) {
         "ExecutorService is already shutdown."
     }

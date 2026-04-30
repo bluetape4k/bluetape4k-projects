@@ -144,8 +144,8 @@ val allIds = UserTable
 ### 4. Virtual Thread transactions
 
 ```kotlin
-import io.bluetape4k.exposed.jdbc.transactions.newVirtualThreadJdbcTransaction
-import io.bluetape4k.exposed.jdbc.transactions.virtualThreadJdbcTransactionAsync
+import io.bluetape4k.exposed.jdbc.newVirtualThreadJdbcTransaction
+import io.bluetape4k.exposed.jdbc.virtualThreadJdbcTransactionAsync
 
 // Run a synchronous transaction on a JDK 21+ Virtual Thread
 val count = newVirtualThreadJdbcTransaction {
@@ -161,6 +161,8 @@ val futures = List(10) { index ->
 }
 val results = futures.awaitAll()
 ```
+
+Passing `executor = null` reuses the shared `VirtualThreadExecutor`. Custom executors remain caller-owned and must be shut down by the caller.
 
 ### 5. ExposedPage — paginated results
 
@@ -615,7 +617,7 @@ sequenceDiagram
 | `jdbc/repository/SoftDeletedJdbcRepository.kt`      | Soft Delete Repository                         |
 | `repository/ExposedRepository.kt`                   | (Deprecated) Legacy Repository interface       |
 | `core/SuspendedQuery.kt`                            | Cursor-based batch Flow query                  |
-| `jdbc/transactions/VirtualThreadJdbcTransaction.kt` | Virtual Thread-based JDBC transaction          |
+| `jdbc/VirtualThreadJdbcTransaction.kt`              | Virtual Thread-based JDBC transaction          |
 | `core/transactions/VirtualThreadTransaction.kt`     | (Deprecated) Legacy Virtual Thread transaction |
 | `core/ImplicitSelectAll.kt`                         | Implicit `SELECT *` query                      |
 | `core/TableExtensions.kt`                           | Table metadata extension functions             |

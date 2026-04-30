@@ -8,6 +8,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldNotBeEmpty
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
 
 class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
 
@@ -45,6 +47,16 @@ class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
                 }
 
                 threadName.shouldContain("vt-custom-executor")
+                executor.isShutdown.shouldBeFalse()
+
+                val secondThreadName = virtualThreadTransaction(
+                    executor = executor,
+                    db = this.db,
+                ) {
+                    Thread.currentThread().name
+                }
+
+                secondThreadName.shouldContain("vt-custom-executor")
             } finally {
                 runCatching {
                     executor.shutdown()
@@ -127,6 +139,22 @@ class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
             rows shouldHaveSize 2
             val names = rows.map { it[VirtualThreadTable.name] }.toSet()
             names shouldBeEqualTo setOf("outer-item", "inner-item")
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource(ENABLE_DIALECTS_METHOD)
+    fun `종료된 executor 로 트랜잭션 시작 시 IllegalArgumentException 이 발생한다`(testDB: TestDB) = runTest {
+        withTables(testDB, VirtualThreadTable) {
+            val executor = Executors.newSingleThreadExecutor()
+            executor.shutdown()
+            executor.awaitTermination(1, TimeUnit.SECONDS)
+
+            assertFailsWith<IllegalArgumentException> {
+                virtualThreadTransactionAsync(executor = executor, db = this.db) {
+                    VirtualThreadTable.selectAll().count()
+                }
+            }
         }
     }
 
