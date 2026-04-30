@@ -104,7 +104,8 @@ object Versions {
     const val aws_kotlin = "1.6.59"        // https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-http-jvm
     const val aws_smithy_kotlin = "1.6.11" // https://mvnrepository.com/artifact/aws.smithy.kotlin/http-client-engine-crt-jvm
 
-    const val aws_spring_cloud = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
+    const val aws_spring_cloud3 = "3.4.2"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
+    const val aws_spring_cloud4 = "4.0.1"  // https://mvnrepository.com/artifact/io.awspring.cloud/spring-cloud-aws-starter
 
     const val grpc = "1.80.0"       // https://mvnrepository.com/artifact/io.grpc/grpc-stub
     const val grpc_kotlin = "1.5.0" // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
@@ -112,7 +113,7 @@ object Versions {
     const val grpc_google_common_protos = "2.67.0" // https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos
     const val avro = "1.12.1"       // https://mvnrepository.com/artifact/org.apache.avro/avro
 
-    const val feign = "13.11"         // https://mvnrepository.com/artifact/io.github.openfeign/feign-core
+    const val feign = "13.12"         // https://mvnrepository.com/artifact/io.github.openfeign/feign-core
     const val httpclient5 = "5.5.2"   // https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
     const val httpcore5 = "5.3.6"     // https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5
     const val retrofit2 = "3.0.0"   // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
@@ -145,8 +146,8 @@ object Versions {
     const val r2dbc = "1.0.0.RELEASE"        // https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi
     const val agroal = "3.0"          // https://mvnrepository.com/artifact/io.agroal/agroal-api
 
-    const val blaze_persistence = "3.31.4"  // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
-    const val javers = "7.10.0"             // https://mvnrepository.com/artifact/org.javers/javers-core
+    const val blaze_persistence = "3.34.6"  // https://mvnrepository.com/artifact/io.quarkus.platform/quarkus-blaze-persistence-bom
+    const val javers = "7.11.0"             // https://mvnrepository.com/artifact/org.javers/javers-core
 
     const val slf4j = "2.0.17"       // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     const val logback = "1.5.32"     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
@@ -154,11 +155,11 @@ object Versions {
 
     const val prometheus = "0.16.0"     // https://mvnrepository.com/artifact/io.prometheus/simpleclient
 
-    const val micrometer = "1.16.4"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
-    const val micrometerTracing = "1.6.4"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
+    const val micrometer = "1.16.5"         // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
+    const val micrometerTracing = "1.6.5"   // https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing
     const val micrometerContextPropagation = "1.2.1" // https://mvnrepository.com/artifact/io.micrometer/context-propagation
 
-    const val opentelemetry = "1.60.1" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
+    const val opentelemetry = "1.61.0" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom
     const val opentelemetryAlpha = "$opentelemetry-alpha" // https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom-alpha
 
     const val opentelemetryJavaAgent = "2.26.1" // https://mvnrepository.com/artifact/io.opentelemetry.javaagent/opentelemetry-javaagent
@@ -179,7 +180,7 @@ object Versions {
     const val kafka = "3.8.1"           // https://mvnrepository.com/artifact/org.apache.kafka/kafka
     const val spring_kafka = "3.3.13"    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
-    const val timefold_solver = "1.31.0" // https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-core
+    const val timefold_solver = "1.33.0" // https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-core
 
     const val eclipse_collections = "13.0.0"  // https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
     const val jctools = "4.0.5"             // https://mvnrepository.com/artifact/org.jctools/jctools-core
@@ -194,7 +195,7 @@ object Versions {
     const val springmockk = "5.0.1"         // https://mvnrepository.com/artifact/com.ninja-squad/springmockk
     const val awaitility = "4.3.0"          // https://mvnrepository.com/artifact/org.awaitility/awaitility
     const val jmh = "1.37"                  // https://mvnrepository.com/artifact/org.openjdk.jmh/jmh-core
-    const val testcontainers = "2.0.4"      // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
+    const val testcontainers = "2.0.5"      // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
     const val jna = "5.18.1"                // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     const val archunit = "1.4.1"            // https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5
     const val rest_assured = "5.5.7"        // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
@@ -206,13 +207,13 @@ object Versions {
     const val logback_slack_appender = "1.6.1"  // https://mvnrepository.com/artifact/com.github.maricn/logback-slack-appender
     const val sentry_logback = "8.33.0"  // https://mvnrepository.com/artifact/io.sentry/sentry-logback
 
-    const val scrimage = "4.3.10"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
-    const val metadata_extractor = "2.19.0"  // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
-    const val twelvemonkeys_imageio = "3.12.0"  // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff
-    const val batik = "1.18"  // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-transcoder
+    const val scrimage = "4.4.2"  // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
+    const val metadata_extractor = "2.20.0"  // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+    const val twelvemonkeys_imageio = "3.13.1"  // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-tiff
+    const val batik = "1.19"  // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-transcoder
 
     // libvips JNI bindings
-    const val jvips = "8.10.2-38fe1f6"     // https://mvnrepository.com/artifact/com.criteo/jvips
+    const val jvips = "8.12.2-f9dc8c9"     // https://mvnrepository.com/artifact/com.criteo/jvips
     const val vips_ffm = "1.9.6"           // https://mvnrepository.com/artifact/app.photofox.vips-ffm/vips-ffm-core
 
     // Gatling
