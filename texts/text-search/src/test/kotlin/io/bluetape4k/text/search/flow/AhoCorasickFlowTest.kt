@@ -14,6 +14,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeEmpty
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -134,7 +135,7 @@ class AhoCorasickFlowTest {
         val matches = automaton.matchesAsFlow(text).toList()
 
         // Assert: 최소 1만 매치 (100 keywords × 100 repeats = 10_000)
-        matches.size shouldBeGreaterThan 0
+        matches.shouldNotBeEmpty()
         log.debug { "throughput micro-test 매치 개수: ${matches.size}" }
     }
 
