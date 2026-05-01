@@ -115,6 +115,27 @@ class Jdk21StructuredTaskScopeProviderTest {
     }
 
     @Test
+    fun `withAll joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
+        assertFailsWith<TimeoutException> {
+            provider.withAll { scope ->
+                scope.fork { Thread.sleep(10_000); 42 }
+                scope.joinUntil(Instant.now().plusMillis(100))
+                scope.throwIfFailed()
+            }
+        }
+    }
+
+    @Test
+    fun `withAll joinUntil 내 데드라인 이전에 완료되면 정상 결과를 반환해야 한다`() {
+        val result = provider.withAll { scope ->
+            val task = scope.fork { 42 }
+            scope.joinUntil(Instant.now().plusSeconds(5)).throwIfFailed()
+            task.get()
+        }
+        result shouldBeEqualTo 42
+    }
+
+    @Test
     fun `withAny should return first success`() {
         val result = provider.withAny { scope ->
             scope.fork {
@@ -128,6 +149,25 @@ class Jdk21StructuredTaskScopeProviderTest {
                 "fast"
             }
             scope.join().result { IllegalStateException(it) }
+        }
+        result shouldBeEqualTo "fast"
+    }
+
+    @Test
+    fun `withAny joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
+        assertFailsWith<TimeoutException> {
+            provider.withAny<String> { scope ->
+                scope.fork { Thread.sleep(10_000); "slow" }
+                scope.joinUntil(Instant.now().plusMillis(100)).result { RuntimeException(it) }
+            }
+        }
+    }
+
+    @Test
+    fun `withAny joinUntil 내 데드라인 이전에 완료되면 정상 결과를 반환해야 한다`() {
+        val result = provider.withAny<String> { scope ->
+            scope.fork { "fast" }
+            scope.joinUntil(Instant.now().plusSeconds(5)).result { RuntimeException(it) }
         }
         result shouldBeEqualTo "fast"
     }

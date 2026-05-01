@@ -238,6 +238,35 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
+        override fun joinUntil(deadline: Instant): StructuredTaskScopeAny<T> {
+            val remaining = Duration.between(Instant.now(), deadline)
+            if (remaining.isNegative || remaining.isZero) {
+                throw TimeoutException("Deadline already passed")
+            }
+            val ownerThread = Thread.currentThread()
+            val scheduler = ScheduledThreadPoolExecutor(1) { r ->
+                Thread(r, "jdk25-any-scope-timeout").apply { isDaemon = true }
+            }
+            val timeoutFuture = scheduler.schedule(
+                { ownerThread.interrupt() },
+                remaining.toMillis(),
+                TimeUnit.MILLISECONDS
+            )
+            try {
+                val joined = runCatching { delegate.join() }
+                if (joined.exceptionOrNull() is InterruptedException) {
+                    Thread.interrupted()
+                    throw TimeoutException("joinUntil deadline exceeded")
+                }
+                joinedResult = joined
+                Thread.interrupted()
+            } finally {
+                timeoutFuture.cancel(false)
+                scheduler.shutdownNow()
+            }
+            return this
+        }
+
         override fun result(mapper: (Throwable) -> RuntimeException): T {
             val result = joinedResult ?: runCatching { delegate.join() }
             return result.getOrElse { throwable ->

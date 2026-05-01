@@ -7,7 +7,9 @@ import io.bluetape4k.junit5.tester.StressTester.Companion.MAX_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MIN_ROUNDS_PER_WORKER
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
+import java.time.Instant
 import java.util.concurrent.ThreadFactory
+import kotlin.time.Duration
 
 /**
  * Java 21/25 StructuredTaskScope 기반으로 테스트 블록을 병렬 실행합니다.
@@ -35,6 +37,7 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
 
     private val testBlocks = mutableListOf<() -> Unit>()
     private var factory: ThreadFactory? = null
+    private var timeout: Duration? = null
 
     /**
      * 실행에 사용할 [ThreadFactory]를 지정합니다.
@@ -51,6 +54,25 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
      */
     fun withFactory(factory: ThreadFactory) = apply {
         this.factory = factory
+    }
+
+    /**
+     * 전체 실행에 적용할 타임아웃을 설정합니다.
+     *
+     * ## 동작/계약
+     * - 설정 시 [run]에서 [io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll.joinUntil]을 사용합니다.
+     * - 타임아웃 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
+     *
+     * ```kotlin
+     * StructuredTaskScopeTester()
+     *     .rounds(100)
+     *     .withTimeout(5.seconds)
+     *     .add { heavyWork() }
+     *     .run()
+     * ```
+     */
+    fun withTimeout(duration: Duration) = apply {
+        this.timeout = duration
     }
 
     /**
@@ -148,10 +170,12 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
             repeat(roundsPerWorker) {
                 testBlocks.forEach { block ->
                     scope.fork { block() }
-
                 }
             }
-            scope.join().throwIfFailed {
+            val joined = timeout
+                ?.let { scope.joinUntil(Instant.now().plusMillis(it.inWholeMilliseconds)) }
+                ?: scope.join()
+            joined.throwIfFailed {
                 log.error(it) { "Test blocks failed with exception." }
             }
         }

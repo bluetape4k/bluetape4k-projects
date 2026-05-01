@@ -119,41 +119,47 @@ class ParallelWorkFlow(
      */
     private fun executeAny(context: WorkContext): WorkReport {
         val factory = Thread.ofVirtual().name("$flowName-", 0).factory()
+        val deadline = Instant.now().plusMillis(timeout.inWholeMilliseconds)
         val failedReports = java.util.concurrent.ConcurrentLinkedQueue<WorkReport>()
 
-        return runCatching {
-            StructuredTaskScopes.firstSuccess<WorkReport>(name = flowName, factory = factory) { scope ->
-                works.forEach { work ->
-                    val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName
-                    scope.fork {
-                        log.debug { "$flowName: '$workName' 병렬 실행 시작 (ANY)" }
-                        val report = runCatching { work.execute(context) }
-                            .getOrElse { e ->
-                                log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
-                                WorkReport.Failure(context, e)
-                            }
-                        log.debug { "$flowName: '$workName' 실행 완료 - status=${report.status}" }
+        return try {
+            runCatching {
+                StructuredTaskScopes.firstSuccess<WorkReport>(name = flowName, factory = factory) { scope ->
+                    works.forEach { work ->
+                        val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName
+                        scope.fork {
+                            log.debug { "$flowName: '$workName' 병렬 실행 시작 (ANY)" }
+                            val report = runCatching { work.execute(context) }
+                                .getOrElse { e ->
+                                    log.debug { "$flowName: '$workName' 예외 발생 - ${e.message}" }
+                                    WorkReport.Failure(context, e)
+                                }
+                            log.debug { "$flowName: '$workName' 실행 완료 - status=${report.status}" }
 
-                        if (report.isSuccess) {
-                            log.debug { "$flowName: '$workName' 성공 — 나머지 취소 (ANY)" }
-                            report
-                        } else {
-                            failedReports.add(report)
-                            throw WorkNotSuccessException(report)
+                            if (report.isSuccess) {
+                                log.debug { "$flowName: '$workName' 성공 — 나머지 취소 (ANY)" }
+                                report
+                            } else {
+                                failedReports.add(report)
+                                throw WorkNotSuccessException(report)
+                            }
                         }
                     }
-                }
 
-                scope.join().result { e ->
-                    RuntimeException("$flowName: 모든 작업이 실패했습니다", e)
+                    scope.joinUntil(deadline).result { e ->
+                        RuntimeException("$flowName: 모든 작업이 실패했습니다", e)
+                    }
                 }
+            }.getOrElse {
+                // 모두 실패한 경우 failedReports에서 우선순위로 반환
+                failedReports.firstOrNull { it.isAborted }
+                    ?: failedReports.firstOrNull { it.isCancelled }
+                    ?: failedReports.firstOrNull { it.isFailure }
+                    ?: WorkReport.failure(context, RuntimeException("$flowName: 모든 작업이 실패했습니다"))
             }
-        }.getOrElse {
-            // 모두 실패한 경우 failedReports에서 우선순위로 반환
-            failedReports.firstOrNull { it.isAborted }
-                ?: failedReports.firstOrNull { it.isCancelled }
-                ?: failedReports.firstOrNull { it.isFailure }
-                ?: WorkReport.failure(context, RuntimeException("$flowName: 모든 작업이 실패했습니다"))
+        } catch (e: TimeoutException) {
+            log.debug { "$flowName: timeout 초과 ($timeout) - Cancelled 반환 (ANY)" }
+            WorkReport.Cancelled(context)
         }
     }
 
