@@ -302,6 +302,71 @@ val vtScope = VirtualThreadCoroutineScope()
 - `ThreadPoolCoroutineScope`: fixed-size pool with explicit `close()`
 - `VirtualThreadCoroutineScope`: virtual-thread dispatcher backed scope
 
+### Structured Concurrency — StructuredTaskScope Bridge
+
+`StructuredConcurrency.kt` bridges JDK `StructuredTaskScope` (virtual-thread structured concurrency) with Kotlin Coroutines, providing DSL-style suspend functions that run on `Dispatchers.VT`.
+
+#### Suspend entry points
+
+| Function | Behavior | Underlying |
+|---|---|---|
+| `taskScope { }` | Fail-fast: first failure cancels remaining tasks | `StructuredTaskScopes.failFast` |
+| `failFastTaskScope { }` | Alias for `taskScope` with explicit name | `StructuredTaskScopes.failFast` |
+| `firstSuccessTaskScope<T> { }` | First-success: returns earliest success, cancels rest | `StructuredTaskScopes.firstSuccess` |
+| `supervisedTaskScope<T, R> { }` | Supervised: all tasks run; partial failures allowed | `StructuredTaskScopes.supervised` |
+
+#### Async (non-blocking) entry points
+
+| Function | Returns | Usage |
+|---|---|---|
+| `CoroutineScope.asyncTaskScope { }` | `Deferred<T>` | Parallel fail-fast scopes via `awaitAll` |
+| `CoroutineScope.asyncSupervisedTaskScope<T, R> { }` | `Deferred<R>` | Parallel supervised scopes via `awaitAll` |
+
+Inside each block, `this` is the scope — call `fork { }`, `join()`, `throwIfFailed()`, `results()`, etc. directly.
+
+```kotlin
+import io.bluetape4k.coroutines.taskScope
+import io.bluetape4k.coroutines.firstSuccessTaskScope
+import io.bluetape4k.coroutines.supervisedTaskScope
+import io.bluetape4k.coroutines.asyncTaskScope
+
+// Fail-fast: all tasks must succeed
+val sum = taskScope {
+    val a = fork { fetchA() }
+    val b = fork { fetchB() }
+    join().throwIfFailed()
+    a.get() + b.get()
+}
+
+// First-success: fastest source wins
+val result = firstSuccessTaskScope<String> {
+    fork { fetchFromPrimary() }
+    fork { fetchFromFallback() }
+    join().result { IllegalStateException("all sources failed") }
+}
+
+// Supervised: partial failures tolerated
+val allResults = supervisedTaskScope<Int, List<Result<Int>>> {
+    fork { 1 }
+    fork { throw RuntimeException("subtask failed") }
+    fork { 3 }
+    join()
+    results()
+}
+// allResults.filter { it.isSuccess }.map { it.getOrThrow() } == [1, 3]
+
+// Async: parallel fail-fast scopes
+val d1 = asyncTaskScope { val t = fork { fetchA() }; join().throwIfFailed(); t.get() }
+val d2 = asyncTaskScope { val t = fork { fetchB() }; join().throwIfFailed(); t.get() }
+val (r1, r2) = awaitAll(d1, d2)
+```
+
+Behavior notes:
+
+- All suspend variants run inside `withContext(Dispatchers.VT)` — blocking `join()` is offloaded to virtual threads
+- `async` variants start immediately and return `Deferred<T>`; use `supervisorScope { }` in tests when expecting failures
+- `joinUntil(deadline)` triggers `TimeoutException` on deadline breach
+
 ### Reactor Context Helpers
 
 Reactor-specific helpers live in `io.bluetape4k.coroutines.reactor`.
