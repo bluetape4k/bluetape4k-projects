@@ -31,28 +31,77 @@ fun <T> runVirtualBlocking(
 ): T = runBlocking(context + Dispatchers.VT, block)
 
 /**
- * Virtual threads 를 사용하는 Dispatcher([Dispatchers.VT])를 이용하여 Coroutine 작업을 Non-Blocking 방식으로 수행합니다.
+ * Virtual Thread Dispatcher([Dispatchers.VT])에서 코루틴 블록을 실행합니다.
  *
  * ```kotlin
  * val result = runBlocking {
- *     val task = async {
- *         withVirtualContext {
- *             // Virtual Thread 에서 동기/비동기 코드를 실행됩니다.
- *             Thread.sleep(1000)
- *             42
- *         }
+ *     withVirtualDispatcher {
+ *         Thread.sleep(1000)
+ *         42
  *     }
- *     task.await() // 42
  * }
  * // result == 42
  * ```
  *
  * @param T 반환할 타입
  * @param context 추가 코루틴 컨텍스트 (기본값: [EmptyCoroutineContext])
- * @param block Virtual Thread Dispatcher 위에서 실행할 suspend 블록
+ * @param block [Dispatchers.VT] 위에서 실행할 suspend 블록
  * @return [block]의 실행 결과
  */
-suspend fun <T> withVirtualContext(
+suspend fun <T> withVirtualDispatcher(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> T,
 ): T = withContext(context + Dispatchers.VT, block)
+
+/**
+ * IO Dispatcher([Dispatchers.IO])에서 코루틴 블록을 실행합니다.
+ *
+ * ```kotlin
+ * val content = withIoDispatcher {
+ *     File("data.txt").readText()
+ * }
+ * ```
+ *
+ * @param T 반환할 타입
+ * @param context 추가 코루틴 컨텍스트 (기본값: [EmptyCoroutineContext])
+ * @param block [Dispatchers.IO] 위에서 실행할 suspend 블록
+ * @return [block]의 실행 결과
+ */
+suspend fun <T> withIoDispatcher(
+    context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> T,
+): T = withContext(context + Dispatchers.IO, block)
+
+/**
+ * Default Dispatcher([Dispatchers.Default])에서 코루틴 블록을 실행합니다.
+ *
+ * ```kotlin
+ * val sorted = withDefaultDispatcher {
+ *     largeList.sortedBy { it.score }
+ * }
+ * ```
+ *
+ * @param T 반환할 타입
+ * @param context 추가 코루틴 컨텍스트 (기본값: [EmptyCoroutineContext])
+ * @param block [Dispatchers.Default] 위에서 실행할 suspend 블록
+ * @return [block]의 실행 결과
+ */
+suspend fun <T> withDefaultDispatcher(
+    context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> T,
+): T = withContext(context + Dispatchers.Default, block)
+
+/**
+ * Virtual threads 를 사용하는 Dispatcher([Dispatchers.VT])를 이용하여 Coroutine 작업을 Non-Blocking 방식으로 수행합니다.
+ *
+ * @see withVirtualDispatcher
+ */
+@Deprecated(
+    message = "withVirtualDispatcher 로 교체되었습니다.",
+    replaceWith = ReplaceWith("withVirtualDispatcher(context, block)"),
+    level = DeprecationLevel.WARNING,
+)
+suspend fun <T> withVirtualContext(
+    context: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> T,
+): T = withVirtualDispatcher(context, block)
