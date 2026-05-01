@@ -6,11 +6,11 @@ import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeSupervised
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.concurrent.virtualthread.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.withVirtualDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
 import java.util.concurrent.ThreadFactory
 
 /**
@@ -41,7 +41,7 @@ suspend fun <T> taskScope(
     name: String? = null,
     factory: ThreadFactory = VirtualThreads.threadFactory(),
     block: StructuredTaskScopeAll.() -> T,
-): T = withContext(Dispatchers.VT) {
+): T = withVirtualDispatcher {
     StructuredTaskScopes.failFast(name, factory) { scope -> block(scope) }
 }
 
@@ -94,7 +94,7 @@ suspend fun <T> firstSuccessTaskScope(
     name: String? = null,
     factory: ThreadFactory = VirtualThreads.threadFactory(),
     block: StructuredTaskScopeAny<T>.() -> T,
-): T = withContext(Dispatchers.VT) {
+): T = withVirtualDispatcher {
     StructuredTaskScopes.firstSuccess(name, factory) { scope -> block(scope) }
 }
 
@@ -127,7 +127,7 @@ suspend fun <T, R> supervisedTaskScope(
     name: String? = null,
     factory: ThreadFactory = VirtualThreads.threadFactory(),
     block: StructuredTaskScopeSupervised<T>.() -> R,
-): R = withContext(Dispatchers.VT) {
+): R = withVirtualDispatcher {
     StructuredTaskScopes.supervised(name, factory) { scope -> block(scope) }
 }
 
