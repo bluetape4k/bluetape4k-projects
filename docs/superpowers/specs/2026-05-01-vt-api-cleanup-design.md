@@ -36,7 +36,7 @@
 |---|------|------|-----------------|
 | P1 | 명칭 | `StructuredTaskScopeAll` — "All"이 "모두 완료" 의미인지 "모두 성공" 의미인지 불명확. 실제 동작은 fail-fast (하나 실패 시 전체 중단) | `StructuredScopes.kt:56` |
 | P2 | 명칭 | `StructuredTaskScopeAny` — "Any"가 "아무 결과" vs "첫 성공 결과" 혼동 가능. 실제 동작은 first-success | `StructuredScopes.kt:93` |
-| P3 | 사용성 | `StructuredTaskScopes.all/any`에 `factory` 기본값 없음 → 매 호출마다 `factory = Thread.ofVirtual().factory()` boilerplate 필수 | `StructuredScopes.kt:252,277` (vs Provider 인터페이스 `StructuredScopes.kt:138`에는 기본값 있음) |
+| P3 | 사용성 | `StructuredTaskScopes.all/any`에 `factory` 기본값 없음 → 매 호출마다 `factory = Thread.ofVirtual().factory()` boilerplate 필수 | `StructuredScopes.kt:251,276` (vs Provider 인터페이스 `StructuredScopes.kt:138`에는 기본값 있음) |
 | P4 | 중복 | `structuredTaskScopeAll/Any` (core) ↔ `StructuredTaskScopes.all/any` (api) 동일 기능, 진입점 혼란 | `StructuredTaskScopeSupport.kt:34-40` vs `StructuredScopes.kt:251-255` |
 | P5 | 안정성 | `StructuredSubtask.get()` KDoc에 FAILED/CANCELLED/RUNNING 상태별 동작 미명시 | `StructuredScopes.kt:29` |
 | P6 | 안정성 | `getOrNull()` 미제공 — 실패/취소 subtask 결과를 안전하게 조회할 방법 없음 | `StructuredScopes.kt:27-36` |
@@ -134,24 +134,22 @@ interface StructuredTaskScopeFirstSuccess<T> : AutoCloseable {
 }
 ```
 
-**결정 변경: `typealias` 대신 독립 인터페이스 채택**
+> **[SUPERSEDED — 최종 채택 아님]** 아래 텍스트는 검토 과정의 중간 결론으로, 최종 결정과 다릅니다. 구현자는 이 섹션을 구현 지침으로 사용하지 마세요. 최종 결정은 바로 아래 **"최종 결정: typealias + 새 진입 함수"** 를 따르세요.
 
-`typealias`는 `@Deprecated` 어노테이션을 붙일 수 없고, 기존 인터페이스에 deprecated를 걸면 새 이름(typealias)도 함께 deprecated 처리되는 문제가 있다. 따라서:
-
-- 새 인터페이스를 canonical로 정의
-- 기존 인터페이스 `StructuredTaskScopeAll`/`StructuredTaskScopeAny`는 새 인터페이스를 상속하면서 `@Deprecated` 처리
-- jdk21/jdk25 구현체는 **새 인터페이스를 구현**하도록 변경 (기존 인터페이스 extends 새 인터페이스이므로 하위 호환)
+독립 인터페이스 채택 검토: `typealias`는 `@Deprecated` 어노테이션을 붙일 수 없다. 기존 인터페이스에 deprecated를 걸면 새 이름(typealias)도 함께 deprecated 처리되는 문제도 있다. 그래서 독립 인터페이스를 canonical로 두고, 기존 인터페이스를 상속 wrapper로 전환하는 방식을 검토했으나 — 반환 타입 불일치 문제로 기각됨:
 
 ```kotlin
-// 기존 인터페이스를 deprecated wrapper로 전환
+// [SUPERSEDED — 구현 금지] 아래 deprecated wrapper 방식은 반환 타입 불일치로 컴파일 오류 발생
+// interface StructuredTaskScopeAll : StructuredTaskScopeFailFast 형태로 바꾸면
+// join(): StructuredTaskScopeAll 반환 타입이 join(): StructuredTaskScopeFailFast 와 충돌
 @Deprecated(
     message = "StructuredTaskScopeAll → StructuredTaskScopeFailFast 로 이름이 변경되었습니다.",
     replaceWith = ReplaceWith("StructuredTaskScopeFailFast")
 )
-interface StructuredTaskScopeAll : StructuredTaskScopeFailFast
+interface StructuredTaskScopeAll : StructuredTaskScopeFailFast  // 컴파일 오류 발생
 ```
 
-**주의**: 이 접근은 기존 `StructuredTaskScopeAll`의 반환 타입이 `StructuredTaskScopeAll` → `StructuredTaskScopeFailFast`로 변경되므로 메서드 시그니처 불일치가 발생한다. 이를 해결하기 위해 **실질적으로는 기존 인터페이스를 유지하되, `typealias`로 새 이름을 제공하는 방식**이 가장 안전하다.
+반환 타입 충돌 이유: 기존 `StructuredTaskScopeAll.join(): StructuredTaskScopeAll`이 새 인터페이스 기준 `join(): StructuredTaskScopeFailFast`와 시그니처 불일치 → **독립 인터페이스 접근 최종 기각**.
 
 **최종 결정: typealias + 새 진입 함수**
 
@@ -297,6 +295,8 @@ fun <T> structuredTaskScopeFirstSuccess(
 ): T = StructuredTaskScopes.firstSuccess(name, factory, block)
 
 // 기존 함수 deprecated
+// 주의: 내부에서 deprecated API(StructuredTaskScopes.all/any)를 호출하므로 @Suppress("DEPRECATION") 필수
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "structuredTaskScopeFailFast()를 사용하세요.",
     replaceWith = ReplaceWith(
@@ -310,6 +310,7 @@ fun <T> structuredTaskScopeAll(
     block: (scope: StructuredTaskScopeAll) -> T,
 ): T = StructuredTaskScopes.all(name, factory, block)
 
+@Suppress("DEPRECATION")
 @Deprecated(
     message = "structuredTaskScopeFirstSuccess()를 사용하세요.",
     replaceWith = ReplaceWith(
@@ -370,13 +371,14 @@ interface StructuredSubtask<T> {
      * // a는 SUCCESS → 42, b는 FAILED → null
      * ```
      *
-     * > join 전 호출이 우려되면 `runCatching { get() }.getOrNull()`을 직접 사용하세요.
+     * > **구현 주의**: `state() == SUCCESS`이더라도 scope owner thread가 `join()` 이전에 호출하면
+     * > JDK 내부 `ensureJoinedIfOwner()` 검사로 인해 `get()`이 `IllegalStateException`을 던집니다.
+     * > 따라서 구현은 `get()` 호출을 try-catch로 감쌉니다.
      */
     fun getOrNull(): T? {
-        return when (state()) {
-            StructuredTaskScope.Subtask.State.SUCCESS -> get()
-            else -> null
-        }
+        return if (state() == StructuredTaskScope.Subtask.State.SUCCESS) {
+            try { get() } catch (_: IllegalStateException) { null }
+        } else null
     }
 
     fun state(): StructuredTaskScope.Subtask.State
@@ -495,8 +497,16 @@ interface StructuredTaskScopeAll : AutoCloseable {
 
 | 변경 | 설명 |
 |------|------|
-| `StructuredScopesTest` — `failFast`/`firstSuccess` 경로 테스트 추가 | 새 API 커버리지 |
-| `getOrNull()` 테스트 추가 | SUCCESS/FAILED/UNAVAILABLE 각 상태 |
+| `StructuredScopesTest` — `failFast` 정상 경로 테스트 추가 | 모든 subtask 성공 → 결과 수집 |
+| `StructuredScopesTest` — `failFast` 실패 전파 테스트 추가 | 하나 실패 시 나머지 취소 + 예외 전파 확인 |
+| `StructuredScopesTest` — `firstSuccess` 정상 경로 테스트 추가 | 첫 성공 반환 + 나머지 취소 확인 |
+| `StructuredScopesTest` — `firstSuccess` 전체 실패 테스트 추가 | 모든 subtask 실패 시 예외 전파 |
+| `StructuredScopesTest` — scope 리소스 해제 테스트 | `close()` 보장 (use{} 블록 정상 종료 확인) |
+| `StructuredScopesTest` — `joinUntil()` 타임아웃 테스트 | 데드라인 초과 시 동작 확인 |
+| `getOrNull()` SUCCESS 상태 테스트 | join() 이후 정상 결과 반환 |
+| `getOrNull()` FAILED 상태 테스트 | join() 이후 실패 subtask → null 반환 (ISE 아님) |
+| `getOrNull()` UNAVAILABLE 상태 테스트 | **방법**: `ShutdownOnFailure` scope에서 shutdown으로 취소된 subtask를 `join()` 이후에 확인 → null 반환. join() **이전** 호출로 테스트하지 말 것 (KDoc 전제 조건 위반) |
+| `getOrNull()` join 이전 호출 안전성 테스트 | `state() == SUCCESS`이나 join() 전 → try-catch로 null 반환 확인 |
 
 ### virtualthread/jdk21 (`Jdk21StructuredTaskScopeProvider.kt`)
 
@@ -538,8 +548,8 @@ interface StructuredTaskScopeAll : AutoCloseable {
 
 | # | 태스크 | 모듈 | 의존성 |
 |---|--------|------|--------|
-| T1 | `StructuredSubtask.getOrNull()` default 메서드 추가 + `get()` KDoc 보강 | `virtualthread/api` | — *(T2와 병렬 실행 가능)* |
-| T2 | `typealias` 추가 (`StructuredTaskScopeFailFast`, `StructuredTaskScopeFirstSuccess`) | `virtualthread/api` | — *(T1과 병렬 실행 가능)* |
+| T1 | `StructuredSubtask.getOrNull()` default 메서드 추가 + `get()` KDoc 보강 | `virtualthread/api` | — *(T2와 같은 파일 수정 — T1 완료 후 T2 시작)* |
+| T2 | `typealias` 추가 (`StructuredTaskScopeFailFast`, `StructuredTaskScopeFirstSuccess`) | `virtualthread/api` | T1 *(T1과 같은 파일: `StructuredScopes.kt` — 순차 실행)* |
 | T3 | `StructuredTaskScopeProvider`에 `withFailFast()`/`withFirstSuccess()` default 메서드 추가 + `withAll`/`withAny` KDoc `@see` 안내 추가 (deprecated 아님) | `virtualthread/api` | T2 |
 | T4 | `StructuredTaskScopes`에 `failFast()`/`firstSuccess()` 추가 (factory 기본값) + `all`/`any` `@Deprecated` | `virtualthread/api` | T3 |
 | T5 | `StructuredTaskScopeAll`/`StructuredTaskScopeAny` KDoc 보강 (`@see`, join 타임아웃 경고) | `virtualthread/api` | T2 |
@@ -568,9 +578,7 @@ interface StructuredTaskScopeAll : AutoCloseable {
 - [ ] 새 API 테스트 추가 (`failFast`, `firstSuccess`, `getOrNull`)
 - [ ] KDoc 갱신 (모든 public API — 새 추가 + 기존 보강)
 - [ ] README.md / README.ko.md 결정 트리 추가 및 API 예제 교체 (8개 파일: `virtualthread/api` ×2, `virtualthread/jdk21` ×2, `virtualthread/jdk25` ×2, `virtualthread/` root ×2)
-- [ ] `./gradlew :bluetape4k-virtualthread-api:test :bluetape4k-virtualthread-jdk21:test :bluetape4k-virtualthread-jdk25:test :bluetape4k-core:test` 통과
-- [ ] `./gradlew :bluetape4k-virtualthread-jdk21:test` 통과
-- [ ] `./gradlew :bluetape4k-core:test` 통과
+- [ ] `./gradlew :bluetape4k-virtualthread-api:test :bluetape4k-virtualthread-jdk21:test :bluetape4k-virtualthread-jdk25:test :bluetape4k-core:test` 통과 (4개 모듈 통합 검증)
 - [ ] 브레이킹 체인지 없음 확인 (`@Deprecated`만 추가, 삭제 없음)
 
 ---
