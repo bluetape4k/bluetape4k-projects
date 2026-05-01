@@ -186,7 +186,14 @@
         block: (scope: StructuredTaskScopeAny<T>) -> T,
     ): T = provider().withAny(name, factory, block)
     ```
-  - **[수정 #2] `ReplaceWith` import 경로 완성**: IDE quick-fix가 외부 호출 지점에서 `StructuredTaskScopes`를 자동 임포트할 수 있도록 두 번째 인자에 FQN 추가
+  - **[수정 #2 + LOW] `ReplaceWith` 표현식 + import 경로 완성**: IDE quick-fix가 외부 호출 지점에서 `StructuredTaskScopes`를 자동 임포트할 수 있도록 두 번째 인자에 FQN 추가. 또한 표현식 자체도 `StructuredTaskScopes.failFast(...)` 형태로 명시해야 IDE가 `StructuredTaskScopes` 컨텍스트를 정확히 인식:
+    ```kotlin
+    // 수정 전
+    replaceWith = ReplaceWith("failFast(name, factory, block)", "io...StructuredTaskScopes")
+    // 수정 후
+    replaceWith = ReplaceWith("StructuredTaskScopes.failFast(name, factory, block)", "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes")
+    ```
+    `any()` → `firstSuccess()`도 동일하게 `StructuredTaskScopes.firstSuccess(...)` 형태로 변경
   - 새 `failFast()`/`firstSuccess()` 함수에 KDoc 예제 포함 (fork → join → get 패턴)
 - **완료 기준**:
   - [ ] `failFast()` 추가 (factory 기본값: `VirtualThreads.threadFactory()`)
@@ -219,7 +226,19 @@
 ### T6: API 모듈 테스트 추가 (`getOrNull()`, `failFast()`, `firstSuccess()`)
 
 - **complexity**: medium
-- **파일**: `virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt`
+- **파일**:
+  - `virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt`
+  - `virtualthread/api/build.gradle.kts` ← **[수정 신규] testRuntimeOnly 추가 필수**
+- **[수정 HIGH] build.gradle.kts 선행 변경**: `StructuredTaskScopes.provider()`는 ServiceLoader 기반이므로 test runtime에 구현체가 없으면 `IllegalStateException` 발생. 테스트가 실행 가능하려면:
+  ```kotlin
+  // virtualthread/api/build.gradle.kts에 추가
+  dependencies {
+      ...
+      testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))  // ServiceLoader provider 등록
+  }
+  ```
+  - 기존 `StructuredScopesTest.kt`의 주석 "test 런타임에는 jdk21 provider가 등록되어 있으므로"도 이 변경으로 비로소 보장됨
+  - `testRuntimeOnly`이므로 컴파일 타임/배포 classpath에는 포함되지 않음 — 순환 의존성 없음
 - **변경 내용**:
   - `failFast` 정상 경로 테스트: 모든 subtask 성공 → 결과 수집
     ```kotlin
@@ -246,7 +265,19 @@
     @Test
     fun `firstSuccess scope 모든 subtask 실패 시 mapper 예외가 발생해야 한다`() { ... }
     ```
-    - **[수정 #4] 예외 타입 명시**: jdk21 `ShutdownOnSuccess.result()` 전체 실패 시 → `StructuredTaskScope.FailedException` 발생. jdk25 `Joiner.anySuccessfulResultOrThrow()` → 동일 예외. 테스트에서 `shouldThrow<StructuredTaskScope.FailedException>` (또는 상위 타입 `Exception`) assertion 필수
+    - **[수정 #4 재수정] 예외 타입 수정**: `StructuredTaskScopeAny.result(mapper)` 계약상 모든 subtask 실패 시 `mapper`가 반환하는 `RuntimeException`을 throw. `StructuredTaskScope.FailedException`이 아님. 기존 `any scope 모든 subtask 실패 시 mapper 예외가 발생해야 한다` 테스트(line 133)가 `assertFailsWith<IllegalStateException>`을 사용하는 것과 동일한 패턴 적용:
+      ```kotlin
+      // 잘못된 assertion (수정 전)
+      shouldThrow<StructuredTaskScope.FailedException> { ... }
+      // 올바른 assertion (수정 후)
+      assertFailsWith<IllegalStateException> {
+          StructuredTaskScopes.firstSuccess<String> { scope ->
+              scope.fork<String> { throw RuntimeException("task1 fail") }
+              scope.fork<String> { throw RuntimeException("task2 fail") }
+              scope.join().result { IllegalStateException("all failed: ${it.message}") }
+          }
+      }
+      ```
   - `getOrNull()` SUCCESS 상태 테스트: join() 이후 정상 결과 반환
     ```kotlin
     @Test
@@ -259,6 +290,7 @@
     ```
   - `getOrNull()` UNAVAILABLE 상태 테스트: `ShutdownOnFailure` scope에서 shutdown으로 취소된 subtask를 `join()` 이후 확인 → null 반환
     - **[수정 #1][CRITICAL] 결정론적 재현 패턴**: `CountDownLatch(2)`로 타이밍 제어
+    - **[수정 HIGH] 타입 불일치 수정**: `failFast<Int>` 블록의 마지막 표현식이 `cancelledTask!!.getOrNull()`이면 `Int?`를 반환 → 타입 불일치. `failFast<Unit>` + `try-catch` 구조로 수정:
       ```kotlin
       @Test
       fun `getOrNull 은 UNAVAILABLE 상태에서 null 을 반환해야 한다`() {
@@ -266,26 +298,28 @@
           val proceedToFail  = CountDownLatch(1)   // 실패 subtask에게 진행 허가
           var cancelledTask: StructuredSubtask<Int>? = null
 
-          StructuredTaskScopes.failFast<Int> { scope ->
-              // subtask1: 즉시 실패하여 scope shutdown 트리거
-              scope.fork { 
-                  subtaskStarted.countDown()        // subtask2가 실행 중임을 신호
-                  proceedToFail.await()             // 명시적으로 대기 후 실패
-                  throw RuntimeException("forced failure")
+          // failFast<Unit>으로 블록 반환 타입 문제 회피
+          runCatching {
+              StructuredTaskScopes.failFast<Unit> { scope ->
+                  // subtask1: 실패하여 scope shutdown 트리거
+                  scope.fork<Unit> { 
+                      subtaskStarted.countDown()        // subtask2가 준비됨을 신호
+                      proceedToFail.await()             // 실패 시점 제어
+                      throw RuntimeException("forced failure")
+                  }
+                  // subtask2: block 상태로 유지되다가 shutdown에 의해 취소됨
+                  cancelledTask = scope.fork { 
+                      subtaskStarted.await()            // subtask1이 시작한 후
+                      proceedToFail.countDown()         // subtask1에게 실패 신호
+                      Thread.sleep(10_000)              // scope shutdown 전까지 block
+                      42
+                  }
+                  scope.join().throwIfFailed()          // subtask1 실패 → 예외 전파
               }
-              // subtask2: block 상태로 유지되다가 shutdown에 의해 취소됨
-              cancelledTask = scope.fork { 
-                  subtaskStarted.await()            // subtask1이 시작했을 때
-                  proceedToFail.countDown()         // subtask1에게 실패 허가
-                  Thread.sleep(10_000)              // scope shutdown 전까지 block
-                  42
-              }
-              scope.join()
-              // join 이후 scope shutdown으로 취소된 subtask의 상태 확인
-              cancelledTask!!.getOrNull()           // UNAVAILABLE → null
-          } 
-          // 또는 try-catch로 예외를 잡고 cancelledTask의 getOrNull() 확인
-          cancelledTask!!.state() shouldBeEqualTo UNAVAILABLE
+          }
+          // join() 이후 scope shutdown으로 취소된 subtask의 상태 확인
+          cancelledTask.shouldNotBeNull()
+          cancelledTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.UNAVAILABLE
           cancelledTask!!.getOrNull().shouldBeNull()
       }
       ```
@@ -300,9 +334,10 @@
   - 기존 `all scope`/`any scope` 테스트는 그대로 유지 (회귀 방지)
   - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeNull`, `shouldNotBeNull`, `shouldBeInstanceOf`
 - **완료 기준**:
+  - [ ] `virtualthread/api/build.gradle.kts`에 `testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))` 추가
   - [ ] `failFast` 정상/실패/기본값 테스트 3건 추가
-  - [ ] `firstSuccess` 정상/전체실패 테스트 2건 추가 (전체실패 시 `StructuredTaskScope.FailedException` assertion 포함)
-  - [ ] `getOrNull` SUCCESS/FAILED/UNAVAILABLE(CountDownLatch)/join전(내부방어) 테스트 4건 추가
+  - [ ] `firstSuccess` 정상/전체실패 테스트 2건 추가 (전체실패 시 **mapper가 반환한 예외 타입** assertion — `assertFailsWith<IllegalStateException>` 패턴)
+  - [ ] `getOrNull` SUCCESS/FAILED/UNAVAILABLE(CountDownLatch + `failFast<Unit>` 구조)/join전(내부방어) 테스트 4건 추가
   - [ ] **[수정 #3] `joinUntil()` 타임아웃 테스트 1건 추가**: scope 내 subtask가 제한 시간 내 완료되지 않을 때 `TimeoutException` 발생 확인 (Spec 섹션 4 명시 요구사항)
   - [ ] 기존 테스트 전부 통과 (회귀 없음)
 - **의존성**: T1, T4 완료 후
@@ -418,6 +453,11 @@
     - `testing/junit5` 모듈: `VirtualFuture`/`structuredTaskScopeAll` 등 deprecated API 사용 여부 사전 확인
       → 사용 중이면 `@Suppress("DEPRECATION")` 추가 또는 새 API로 마이그레이션
     - `utils/workflow` 모듈: `virtualFuture {}`, `structuredTaskScopeAll` 등 사용 여부 확인 후 동일 처리
+  - **[수정 MEDIUM] deprecated 경고 정책 명시**:
+    - **프로덕션 소스 (`src/main`)**: 경고 없음 목표 — `@Suppress("DEPRECATION")` 필수 적용
+    - **테스트 소스 (`src/test`)**: 기존 deprecated API 동작 검증을 위해 `@Deprecated` 함수 직접 호출하는 경우 경고 허용 (`@Suppress` 선택 적용)
+    - **Downstream 모듈** (StructuredScopesTest, StructuredScopeSupportTest, utils/workflow, testing/junit5): 경고 허용 — 이번 PR 범위 내 마이그레이션 대상 아님. T9에서 컴파일 오류만 없으면 통과
+    - **Examples** (`examples/virtualthreads-demo`): 이번 PR 범위 외(out-of-scope). 후속 PR에서 처리
 - **완료 기준**:
   - [ ] `structuredTaskScopeFailFast` 테스트 2건 추가 (정상/실패)
   - [ ] `structuredTaskScopeFirstSuccess` 테스트 2건 추가 (정상/첫성공)
@@ -444,6 +484,7 @@
     ```
   - `testing/junit5`와 `utils/workflow` 모듈은 **테스트 실행 없이 컴파일만** 확인 (deprecated 경고 발생 여부 확인)
     - 경고 발생 시: 해당 파일에 `@Suppress("DEPRECATION")` 추가하거나 새 API로 마이그레이션 (T8에서 식별)
+  - **[수정 MEDIUM] examples out-of-scope 리스크 명시**: `examples/virtualthreads-demo`는 deprecated core helper(`structuredTaskScopeAll` 등)를 직접 사용할 가능성 있음. 이번 PR에서는 examples 컴파일을 검증 범위에 포함하지 않음 — 후속 PR에서 처리. 리스크: examples가 deprecated warning으로 인해 빌드 실패할 경우 별도 `@Suppress` 적용 필요
   - 실패 시 오류 메시지 분석 후 T1~T8 중 해당 태스크 재작업
   - jdk21/jdk25 구현체 변경 없음 확인 (기존 테스트 통과 확인)
   - 브레이킹 체인지 없음 확인 (`@Deprecated`만 추가, 삭제 없음)
@@ -523,6 +564,7 @@ T1 → T2 → T3 → T4 ─┬─ T5 (병렬)
 | 파일 | 태스크 | 변경 유형 |
 |------|--------|----------|
 | `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt` | T1, T2, T3, T4, T5 | 인터페이스 확장, KDoc 보강, deprecated 추가 |
+| `virtualthread/api/build.gradle.kts` | T6 | `testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))` 추가 |
 | `virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt` | T6 | 테스트 추가 |
 | `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredTaskScopeSupport.kt` | T7 | 편의 함수 추가, deprecated 추가 |
 | `bluetape4k/core/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopeSupportTest.kt` | T8 | 테스트 추가 |
@@ -586,8 +628,8 @@ T1 → T2 → T3 → T4 ─┬─ T5 (병렬)
 - [ ] `bluetape4k/core` — `structuredTaskScopeAll {}`/`structuredTaskScopeAny {}` `@Deprecated` 추가
 - [ ] `bluetape4k/core` — deprecated 함수에 `@Suppress("DEPRECATION")` 추가
 - [ ] 새 API 테스트 추가 (`failFast`, `firstSuccess`, `getOrNull`, `joinUntil`) — T6, T8
-- [ ] getOrNull() UNAVAILABLE 테스트: CountDownLatch 기반 결정론적 재현 사용
-- [ ] firstSuccess 전체 실패 테스트: `StructuredTaskScope.FailedException` assertion 포함
+- [ ] getOrNull() UNAVAILABLE 테스트: CountDownLatch + `failFast<Unit>` + try-catch 구조로 타입 불일치 없이 결정론적 재현
+- [ ] firstSuccess 전체 실패 테스트: `StructuredTaskScope.FailedException` 아닌 **mapper가 반환한 예외 타입** assertion (`assertFailsWith<IllegalStateException>`)
 - [ ] 기존 테스트 전부 통과 (회귀 없음)
 - [ ] KDoc 갱신 (모든 public API — 새 추가 + 기존 보강)
 - [ ] README.md / README.ko.md 결정 트리 추가 및 API 예제 교체 (8개 파일)
