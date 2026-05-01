@@ -4,10 +4,12 @@ import io.bluetape4k.concurrent.virtualthread.StructuredSubtask
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
+import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeSupervised
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import java.util.concurrent.Callable
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
 
@@ -178,5 +180,63 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         override fun close() {
             delegate.close()
         }
+    }
+
+    override fun <T, R> withSupervised(
+        name: String?,
+        factory: ThreadFactory,
+        block: (scope: StructuredTaskScopeSupervised<T>) -> R,
+    ): R {
+        log.debug { "부분 실패를 허용하는 supervised scope를 실행합니다..." }
+        return Jdk21SupervisedTaskScope<T>(name, factory).use { taskScope ->
+            block(Jdk21SupervisedScope(taskScope))
+        }
+    }
+
+    /**
+     * JDK21에서 부분 실패 허용 scope를 구현하기 위해 [StructuredTaskScope]를 직접 상속합니다.
+     * [handleComplete]에서 성공/실패 결과를 thread-safe하게 수집합니다.
+     */
+    private class Jdk21SupervisedTaskScope<T>(
+        name: String?,
+        factory: ThreadFactory,
+    ) : StructuredTaskScope<T>(name, factory) {
+        private val _successResults = CopyOnWriteArrayList<T>()
+        private val _failedExceptions = CopyOnWriteArrayList<Throwable>()
+
+        override fun handleComplete(subtask: StructuredTaskScope.Subtask<out T>) {
+            when (subtask.state()) {
+                StructuredTaskScope.Subtask.State.SUCCESS -> _successResults.add(subtask.get())
+                StructuredTaskScope.Subtask.State.FAILED  -> _failedExceptions.add(subtask.exception())
+                else                                      -> {} // UNAVAILABLE — 취소된 subtask, 무시
+            }
+        }
+
+        fun successfulResults(): List<T> = _successResults.toList()
+        fun failedExceptions(): List<Throwable> = _failedExceptions.toList()
+    }
+
+    private class Jdk21SupervisedScope<T>(
+        private val delegate: Jdk21SupervisedTaskScope<T>,
+    ) : StructuredTaskScopeSupervised<T> {
+        override fun fork(task: () -> T): StructuredSubtask<T> {
+            log.trace { "Add supervised sub task..." }
+            return Jdk21Subtask(delegate.fork(Callable { task() }))
+        }
+
+        override fun join(): StructuredTaskScopeSupervised<T> {
+            delegate.join()
+            return this
+        }
+
+        override fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeSupervised<T> {
+            delegate.joinUntil(deadline)
+            return this
+        }
+
+        override fun successfulResults(): List<T> = delegate.successfulResults()
+        override fun failedExceptions(): List<Throwable> = delegate.failedExceptions()
+
+        override fun close() = delegate.close()
     }
 }

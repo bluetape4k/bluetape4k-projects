@@ -356,4 +356,110 @@ class StructuredScopesTest {
             }
         }
     }
+
+    // ── supervised scope 테스트 ─────────────────────────────────────────────────
+
+    @Test
+    fun `supervised scope 일부 성공 일부 실패 시 결과를 분리해야 한다`() {
+        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+            scope.fork { 1 }
+            scope.fork { throw RuntimeException("fail2") }
+            scope.fork { 3 }
+            scope.join()
+            scope.successfulResults() to scope.failedExceptions()
+        }
+        successes.sorted() shouldBeEqualTo listOf(1, 3)
+        failures.size shouldBeEqualTo 1
+        failures[0].shouldBeInstanceOf<RuntimeException>()
+    }
+
+    @Test
+    fun `supervised scope 모두 성공 시 successfulResults 에 전부 포함되어야 한다`() {
+        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+            scope.fork { 10 }
+            scope.fork { 20 }
+            scope.fork { 30 }
+            scope.join()
+            scope.successfulResults() to scope.failedExceptions()
+        }
+        successes.sorted() shouldBeEqualTo listOf(10, 20, 30)
+        failures.size shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `supervised scope 모두 실패 시 failedExceptions 에 전부 포함되어야 한다`() {
+        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+            scope.fork { throw RuntimeException("fail1") }
+            scope.fork { throw IllegalStateException("fail2") }
+            scope.join()
+            scope.successfulResults() to scope.failedExceptions()
+        }
+        successes.size shouldBeEqualTo 0
+        failures.size shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `supervised scope 병렬 실행으로 thread-safe 하게 결과를 수집해야 한다`() {
+        val taskCount = 100
+        val failEvery = 10  // 10번째마다 실패
+        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+            repeat(taskCount) { i ->
+                if (i % failEvery == 0) {
+                    scope.fork { throw RuntimeException("fail $i") }
+                } else {
+                    scope.fork { i }
+                }
+            }
+            scope.join()
+            scope.successfulResults() to scope.failedExceptions()
+        }
+        val expectedSuccessCount = taskCount - taskCount / failEvery
+        val expectedFailCount = taskCount / failEvery
+        successes.size shouldBeEqualTo expectedSuccessCount
+        failures.size shouldBeEqualTo expectedFailCount
+    }
+
+    @Test
+    fun `supervised scope joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
+        assertFailsWith<TimeoutException> {
+            StructuredTaskScopes.supervised<Int, Unit> { scope ->
+                scope.fork {
+                    Thread.sleep(10_000)
+                    42
+                }
+                scope.joinUntil(Instant.now().plusMillis(100))
+            }
+        }
+    }
+
+    @Test
+    fun `supervised scope 빈 fork 시 빈 결과를 반환해야 한다`() {
+        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+            scope.join()
+            scope.successfulResults() to scope.failedExceptions()
+        }
+        successes.size shouldBeEqualTo 0
+        failures.size shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `supervised scope subtask 상태가 올바르게 반환되어야 한다`() {
+        var successTask: StructuredSubtask<Int>? = null
+        var failedTask: StructuredSubtask<Int>? = null
+
+        StructuredTaskScopes.supervised<Int, Unit> { scope ->
+            successTask = scope.fork { 42 }
+            failedTask = scope.fork { throw RuntimeException("fail") }
+            scope.join()
+        }
+
+        successTask.shouldNotBeNull()
+        successTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.SUCCESS
+        successTask!!.getOrNull() shouldBeEqualTo 42
+        successTask!!.exceptionOrNull().shouldBeNull()
+
+        failedTask.shouldNotBeNull()
+        failedTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
+        failedTask!!.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
+    }
 }
