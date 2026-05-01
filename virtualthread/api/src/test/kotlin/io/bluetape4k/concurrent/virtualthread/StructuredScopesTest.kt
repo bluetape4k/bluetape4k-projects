@@ -443,6 +443,20 @@ class StructuredScopesTest {
     }
 
     @Test
+    fun `supervised scope nullable T 타입에서 null 성공 결과도 수집되어야 한다`() {
+        val (successes, failures) = StructuredTaskScopes.supervised<Int?, Pair<List<Int?>, List<Throwable>>> { scope ->
+            scope.fork { 1 }
+            scope.fork { null }  // 성공적으로 null 반환
+            scope.fork { 3 }
+            scope.join()
+            scope.successfulResults() to scope.failedExceptions()
+        }
+        successes.size shouldBeEqualTo 3  // null 포함
+        successes.filterNotNull().sorted() shouldBeEqualTo listOf(1, 3)
+        failures.size shouldBeEqualTo 0
+    }
+
+    @Test
     fun `supervised scope subtask 상태가 올바르게 반환되어야 한다`() {
         var successTask: StructuredSubtask<Int>? = null
         var failedTask: StructuredSubtask<Int>? = null

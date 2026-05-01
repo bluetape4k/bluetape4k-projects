@@ -182,6 +182,25 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
     }
 
+    /**
+     * JDK21 `StructuredTaskScope` 서브클래스를 사용하여 부분 실패 허용 scope를 실행합니다.
+     *
+     * ## 동작/계약
+     * - `Jdk21SupervisedTaskScope`는 [StructuredTaskScope]를 직접 상속하고 [StructuredTaskScope.handleComplete]를
+     *   오버라이드하여 성공/실패 결과를 `CopyOnWriteArrayList`에 thread-safe하게 수집합니다.
+     * - 실패한 subtask가 있어도 scope를 종료하지 않고 모든 subtask가 완료될 때까지 기다립니다.
+     *
+     * ```kotlin
+     * val (successes, errors) = Jdk21StructuredTaskScopeProvider().withSupervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+     *     scope.fork { 1 }
+     *     scope.fork { throw RuntimeException("fail") }
+     *     scope.fork { 3 }
+     *     scope.join()
+     *     scope.successfulResults() to scope.failedExceptions()
+     * }
+     * // successes = [1, 3], errors.size = 1
+     * ```
+     */
     override fun <T, R> withSupervised(
         name: String?,
         factory: ThreadFactory,
@@ -237,6 +256,8 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         override fun successfulResults(): List<T> = delegate.successfulResults()
         override fun failedExceptions(): List<Throwable> = delegate.failedExceptions()
 
-        override fun close() = delegate.close()
+        override fun close() {
+            delegate.close()
+        }
     }
 }
