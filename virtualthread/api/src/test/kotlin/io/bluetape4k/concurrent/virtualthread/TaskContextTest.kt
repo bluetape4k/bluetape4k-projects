@@ -2,12 +2,15 @@ package io.bluetape4k.concurrent.virtualthread
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledForJreRange
+import org.junit.jupiter.api.condition.JRE
 import java.lang.ScopedValue
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -83,7 +86,7 @@ class TaskContextTest {
         val key = TaskContext.newKey<Int>()
 
         val result = TaskContext.run(key, 10) {
-            TaskContext.get(key)!! * 2
+            TaskContext.getOrDefault(key, 0) * 2
         }
 
         result shouldBeEqualTo 20
@@ -112,7 +115,7 @@ class TaskContextTest {
         val result = TaskContext.bind(key1, 10)
             .and(key2, 20)
             .call {
-                TaskContext.get(key1)!! + TaskContext.get(key2)!!
+                TaskContext.getOrDefault(key1, 0) + TaskContext.getOrDefault(key2, 0)
             }
 
         result shouldBeEqualTo 30
@@ -220,13 +223,42 @@ class TaskContextTest {
     // ── Nullable T ────────────────────────────────────────────────────────────
 
     @Test
-    fun `ScopedValue 에 null 바인딩 후 get 은 null 을 반환한다`() {
-        // JDK 21 에서는 ScopedValue.where(key, null) 이 허용되며 block 이 정상 실행됩니다.
-        // JDK 25 에서는 NPE 가 발생합니다 (스펙 강화).
+    @EnabledForJreRange(max = JRE.JAVA_24)
+    fun `ScopedValue 에 null 바인딩 후 get 은 null 을 반환한다 (JDK 21)`() {
+        // JDK 21 preview API: ScopedValue.where(key, null) 허용; JDK 25에서는 NPE (스펙 강화)
         val key = TaskContext.newKey<String?>()
         TaskContext.run(key, null) {
             TaskContext.get(key).shouldBeNull()
         }
+    }
+
+    // ── 예외 발생 시 바인딩 해제 ─────────────────────────────────────────────
+
+    @Test
+    fun `run 블록에서 예외 발생 시 바인딩이 해제된다`() {
+        val key = TaskContext.newKey<String>()
+        assertFailsWith<RuntimeException> {
+            TaskContext.run(key, "x") { throw RuntimeException("boom") }
+        }
+        TaskContext.get(key).shouldBeNull()
+    }
+
+    @Test
+    fun `TaskContextBindings call 블록에서 예외 발생 시 바인딩이 해제된다`() {
+        val key = TaskContext.newKey<String>()
+        assertFailsWith<RuntimeException> {
+            TaskContext.bind(key, "x").call { throw RuntimeException("boom") }
+        }
+        TaskContext.get(key).shouldBeNull()
+    }
+
+    @Test
+    fun `withTaskContext 블록에서 예외 발생 시 바인딩이 해제된다`() {
+        val key = TaskContext.newKey<String>()
+        assertFailsWith<RuntimeException> {
+            withTaskContext(key, "x") { throw RuntimeException("boom") }
+        }
+        TaskContext.get(key).shouldBeNull()
     }
 
     // ── 스코프 격리 ───────────────────────────────────────────────────────────
@@ -302,7 +334,7 @@ class TaskContextTest {
             .and(b, 2)
             .and(c, 3)
             .run {
-                sumInside = TaskContext.get(a)!! + TaskContext.get(b)!! + TaskContext.get(c)!!
+                sumInside = TaskContext.getOrDefault(a, 0) + TaskContext.getOrDefault(b, 0) + TaskContext.getOrDefault(c, 0)
             }
 
         sumInside shouldBeEqualTo 6

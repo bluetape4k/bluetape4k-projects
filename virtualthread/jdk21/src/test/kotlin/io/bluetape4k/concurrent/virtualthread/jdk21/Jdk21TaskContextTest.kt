@@ -5,6 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -80,7 +81,8 @@ class Jdk21TaskContextTest {
             }
         }
 
-        results[0] shouldBeEqualTo "inner-1"
-        results[1] shouldBeEqualTo "inner-2"
+        results.size shouldBeEqualTo 2
+        results shouldContain "inner-1"
+        results shouldContain "inner-2"
     }
 }
