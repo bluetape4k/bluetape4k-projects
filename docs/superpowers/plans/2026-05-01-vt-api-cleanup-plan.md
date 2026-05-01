@@ -1,0 +1,533 @@
+# [virtualthread] Issue #255 API 통합 — 구현 계획
+
+> **Spec**: docs/superpowers/specs/2026-05-01-vt-api-cleanup-design.md
+> **Branch**: feat/vt-api-cleanup
+> **Date**: 2026-05-01
+
+---
+
+## 현황 요약
+
+| 항목 | 현재 값 |
+|------|--------|
+| `StructuredSubtask.getOrNull()` | 미제공 — FAILED/UNAVAILABLE 상태에서 ISE 위험 |
+| `StructuredTaskScopes.all/any()` | factory 기본값 없음, 이름 모호 |
+| `structuredTaskScopeAll/Any()` | core 편의 함수, deprecated 대상 |
+| Provider SPI `withAll/withAny()` | 이름 모호하나 SPI 특성상 deprecated 제외 |
+
+---
+
+## 태스크 목록
+
+### T1: `StructuredSubtask.get()` KDoc 보강 + `getOrNull()` default 메서드 추가
+
+- **complexity**: high
+- **파일**: `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt`
+- **변경 내용**:
+  - `StructuredSubtask.get()` KDoc을 상태별 동작 명세로 교체:
+    - `SUCCESS`: 결과 반환
+    - `FAILED`: `IllegalStateException` throw (실패 원인 예외 자체를 던지지 않음 — 원인은 `exceptionOrNull()`로 조회)
+    - `UNAVAILABLE` (미완료/취소/join 이전): `IllegalStateException` throw
+    - `@see exceptionOrNull`, `@see getOrNull` 참조 추가
+  - `StructuredSubtask` 인터페이스에 `getOrNull(): T?` default 메서드 추가:
+    ```kotlin
+    fun getOrNull(): T? {
+        return if (state() == StructuredTaskScope.Subtask.State.SUCCESS) {
+            try { get() } catch (_: IllegalStateException) { null }
+        } else null
+    }
+    ```
+  - 구현 주의: `state() == SUCCESS`이더라도 scope owner thread의 `join()` 이전 호출 시 JDK `ensureJoinedIfOwner()` 검사로 ISE 발생 가능 → try-catch로 감쌈
+- **완료 기준**:
+  - [ ] `StructuredSubtask.get()` KDoc에 SUCCESS/FAILED/UNAVAILABLE 상태별 동작 명시
+  - [ ] `StructuredSubtask.getOrNull()` default 메서드 인터페이스에 추가
+  - [ ] `getOrNull()` KDoc에 전제 조건(join() 이후 호출), 상태별 동작, 코드 예제 포함
+  - [ ] jdk21/jdk25 구현체 변경 불필요 확인 (default 메서드이므로)
+- **의존성**: 없음 *(T2와 같은 파일 — T1 완료 후 T2 시작)*
+
+---
+
+### T2: `typealias` 추가 (`StructuredTaskScopeFailFast`, `StructuredTaskScopeFirstSuccess`)
+
+- **complexity**: medium
+- **파일**: `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt`
+- **변경 내용**:
+  - 파일 상단 또는 인터페이스 선언 이후에 typealias 두 개 추가:
+    ```kotlin
+    /** fail-fast 동작을 하는 [StructuredTaskScopeAll]의 의도 명확 별칭입니다. */
+    typealias StructuredTaskScopeFailFast = StructuredTaskScopeAll
+
+    /** first-success 동작을 하는 [StructuredTaskScopeAny]의 의도 명확 별칭입니다. */
+    typealias StructuredTaskScopeFirstSuccess<T> = StructuredTaskScopeAny<T>
+    ```
+  - `StructuredTaskScopeAll` KDoc에 `@see StructuredTaskScopeFailFast` 마이그레이션 안내 추가
+  - `StructuredTaskScopeAny` KDoc에 `@see StructuredTaskScopeFirstSuccess` 마이그레이션 안내 추가
+  - `StructuredTaskScopeAll.join()` KDoc에 타임아웃 경고 추가:
+    > **주의**: 타임아웃 없이 호출하면 subtask가 무한 차단될 수 있습니다. 프로덕션 코드에서는 [joinUntil]을 사용하세요.
+  - 주의: typealias에는 멤버 KDoc을 붙일 수 없으므로 모든 KDoc은 실제 인터페이스(`StructuredTaskScopeAll`, `StructuredTaskScopeAny`)에 추가
+- **완료 기준**:
+  - [ ] `typealias StructuredTaskScopeFailFast = StructuredTaskScopeAll` 추가
+  - [ ] `typealias StructuredTaskScopeFirstSuccess<T> = StructuredTaskScopeAny<T>` 추가
+  - [ ] `StructuredTaskScopeAll` KDoc에 `@see StructuredTaskScopeFailFast` 포함
+  - [ ] `StructuredTaskScopeAny` KDoc에 `@see StructuredTaskScopeFirstSuccess` 포함
+  - [ ] `StructuredTaskScopeAll.join()` KDoc에 타임아웃 경고 포함
+- **의존성**: T1 완료 후 *(동일 파일 순차 편집)*
+
+---
+
+### T3: `StructuredTaskScopeProvider`에 `withFailFast()`/`withFirstSuccess()` default 메서드 추가
+
+- **complexity**: medium
+- **파일**: `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt`
+- **변경 내용**:
+  - `StructuredTaskScopeProvider` 인터페이스에 default 메서드 두 개 추가:
+    ```kotlin
+    /**
+     * 실패 전파형(fail-fast) 블록을 실행합니다.
+     * 기본 구현은 [withAll]에 위임합니다.
+     * @see withAll
+     */
+    fun <T> withFailFast(
+        name: String? = null,
+        factory: ThreadFactory = Thread.ofVirtual().factory(),
+        block: (scope: StructuredTaskScopeFailFast) -> T,
+    ): T = withAll(name, factory, block)
+
+    /**
+     * 성공 우선형(first-success) 블록을 실행합니다.
+     * 기본 구현은 [withAny]에 위임합니다.
+     * @see withAny
+     */
+    fun <T> withFirstSuccess(
+        name: String? = null,
+        factory: ThreadFactory = Thread.ofVirtual().factory(),
+        block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
+    ): T = withAny(name, factory, block)
+    ```
+  - `withAll()` KDoc에 `@see withFailFast` 안내 추가 (deprecated 하지 않음 — SPI 안정성 유지)
+  - `withAny()` KDoc에 `@see withFirstSuccess` 안내 추가 (deprecated 하지 않음 — SPI 안정성 유지)
+  - **SPI 결정 재확인**: `withAll`/`withAny`는 jdk21/jdk25 구현체가 `override`하는 SPI 메서드이므로 deprecated 표시하지 않음
+- **완료 기준**:
+  - [ ] `withFailFast()` default 메서드 추가 (`withAll` 위임)
+  - [ ] `withFirstSuccess()` default 메서드 추가 (`withAny` 위임)
+  - [ ] `withAll()` KDoc에 `@see withFailFast` 포함
+  - [ ] `withAny()` KDoc에 `@see withFirstSuccess` 포함
+  - [ ] jdk21/jdk25 구현체 변경 없음 확인 (default 메서드이므로)
+- **의존성**: T2 완료 후 *(typealias가 먼저 정의되어야 `StructuredTaskScopeFailFast`를 파라미터 타입으로 사용 가능)*
+
+---
+
+### T4: `StructuredTaskScopes` object에 `failFast()`/`firstSuccess()` 추가 + `all()`/`any()` `@Deprecated`
+
+- **complexity**: medium
+- **파일**: `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt`
+- **변경 내용**:
+  - `StructuredTaskScopes` object에 새 진입 함수 두 개 추가 (factory 기본값 포함):
+    ```kotlin
+    /**
+     * 실패 전파형(fail-fast) scope 블록을 실행합니다.
+     * 하나의 subtask라도 실패하면 나머지를 즉시 중단하고 예외를 전파합니다.
+     *
+     * @param name scope 이름 (디버깅용)
+     * @param factory subtask 실행용 스레드 팩토리 (기본값: [VirtualThreads.threadFactory])
+     * @param block scope 실행 블록
+     */
+    fun <T> failFast(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory(),
+        block: (scope: StructuredTaskScopeFailFast) -> T,
+    ): T = provider().withFailFast(name, factory, block)
+
+    /**
+     * 성공 우선형(first-success) scope 블록을 실행합니다.
+     * 첫 번째 성공한 subtask 결과를 반환하고 나머지를 취소합니다.
+     *
+     * @param name scope 이름 (디버깅용)
+     * @param factory subtask 실행용 스레드 팩토리 (기본값: [VirtualThreads.threadFactory])
+     * @param block scope 실행 블록
+     */
+    fun <T> firstSuccess(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory(),
+        block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
+    ): T = provider().withFirstSuccess(name, factory, block)
+    ```
+  - 기존 `all()` 함수에 `@Deprecated` 추가 (기존 시그니처 유지 — factory 기본값 없음):
+    ```kotlin
+    @Deprecated(
+        message = "failFast()를 사용하세요.",
+        replaceWith = ReplaceWith("failFast(name, factory, block)")
+    )
+    fun <T> all(
+        name: String? = null,
+        factory: ThreadFactory,
+        block: (scope: StructuredTaskScopeAll) -> T,
+    ): T = provider().withAll(name, factory, block)
+    ```
+  - 기존 `any()` 함수에 `@Deprecated` 추가:
+    ```kotlin
+    @Deprecated(
+        message = "firstSuccess()를 사용하세요.",
+        replaceWith = ReplaceWith("firstSuccess(name, factory, block)")
+    )
+    fun <T> any(
+        name: String? = null,
+        factory: ThreadFactory,
+        block: (scope: StructuredTaskScopeAny<T>) -> T,
+    ): T = provider().withAny(name, factory, block)
+    ```
+  - 새 `failFast()`/`firstSuccess()` 함수에 KDoc 예제 포함 (fork → join → get 패턴)
+- **완료 기준**:
+  - [ ] `failFast()` 추가 (factory 기본값: `VirtualThreads.threadFactory()`)
+  - [ ] `firstSuccess()` 추가 (factory 기본값: `VirtualThreads.threadFactory()`)
+  - [ ] `all()`에 `@Deprecated(message, ReplaceWith)` 추가
+  - [ ] `any()`에 `@Deprecated(message, ReplaceWith)` 추가
+  - [ ] KDoc 예제 포함 (fork → join → throwIfFailed/result → get 패턴)
+- **의존성**: T3 완료 후
+
+---
+
+### T5: `StructuredTaskScopeAll`/`StructuredTaskScopeAny` KDoc 보강 (join 타임아웃 경고, @see 안내)
+
+- **complexity**: low
+- **파일**: `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt`
+- **변경 내용**:
+  - `StructuredTaskScopeAll` 인터페이스 KDoc 상단 개요에 `@see StructuredTaskScopeFailFast` 추가
+  - `StructuredTaskScopeAll.join()` 함수 KDoc에 타임아웃 경고 추가 (T2에서 이미 처리하므로 중복 체크)
+  - `StructuredTaskScopeAny` 인터페이스 KDoc 상단 개요에 `@see StructuredTaskScopeFirstSuccess` 추가
+  - 각 인터페이스 KDoc의 코드 예제를 새 API(`failFast`, `firstSuccess`)로 업데이트
+  - 주의: T2에서 이미 일부 KDoc 보강을 수행하므로 T5는 남은 보강 항목 처리
+- **완료 기준**:
+  - [ ] `StructuredTaskScopeAll` KDoc에 `@see StructuredTaskScopeFailFast` 및 `failFast {}` 사용 안내 포함
+  - [ ] `StructuredTaskScopeAny` KDoc에 `@see StructuredTaskScopeFirstSuccess` 및 `firstSuccess {}` 사용 안내 포함
+  - [ ] KDoc 예제에서 `factory = Thread.ofVirtual().factory()` 명시적 지정 제거 (기본값 사용 가이드)
+- **의존성**: T2 완료 후 *(T4와 병렬 가능)*
+
+---
+
+### T6: API 모듈 테스트 추가 (`getOrNull()`, `failFast()`, `firstSuccess()`)
+
+- **complexity**: medium
+- **파일**: `virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt`
+- **변경 내용**:
+  - `failFast` 정상 경로 테스트: 모든 subtask 성공 → 결과 수집
+    ```kotlin
+    @Test
+    fun `failFast scope 으로 두 subtask 를 합산해야 한다`() { ... }
+    ```
+  - `failFast` 실패 전파 테스트: 하나 실패 시 나머지 취소 + 예외 전파
+    ```kotlin
+    @Test
+    fun `failFast scope 내 subtask 실패 시 예외가 전파되어야 한다`() { ... }
+    ```
+  - `failFast` factory 기본값 테스트: `factory` 파라미터 생략 가능 확인 (P3 해결 검증)
+    ```kotlin
+    @Test
+    fun `failFast scope factory 기본값으로 실행되어야 한다`() { ... }
+    ```
+  - `firstSuccess` 정상 경로 테스트: 첫 성공 반환 + 나머지 취소
+    ```kotlin
+    @Test
+    fun `firstSuccess scope 가 가장 먼저 완료된 subtask 결과를 반환해야 한다`() { ... }
+    ```
+  - `firstSuccess` 전체 실패 테스트: 모든 subtask 실패 시 예외 전파
+    ```kotlin
+    @Test
+    fun `firstSuccess scope 모든 subtask 실패 시 mapper 예외가 발생해야 한다`() { ... }
+    ```
+  - `getOrNull()` SUCCESS 상태 테스트: join() 이후 정상 결과 반환
+    ```kotlin
+    @Test
+    fun `getOrNull 은 SUCCESS 상태에서 결과를 반환해야 한다`() { ... }
+    ```
+  - `getOrNull()` FAILED 상태 테스트: join() 이후 FAILED subtask → null 반환 (ISE 아님)
+    ```kotlin
+    @Test
+    fun `getOrNull 은 FAILED 상태에서 null 을 반환해야 한다`() { ... }
+    ```
+  - `getOrNull()` UNAVAILABLE 상태 테스트: `ShutdownOnFailure` scope에서 shutdown으로 취소된 subtask를 `join()` 이후 확인 → null 반환
+    - **주의**: join() **이전** 호출로 테스트하지 말 것 (KDoc 전제 조건 위반)
+    ```kotlin
+    @Test
+    fun `getOrNull 은 UNAVAILABLE 상태에서 null 을 반환해야 한다`() { ... }
+    ```
+  - `getOrNull()` join 이전 호출 안전성 테스트: `state() == SUCCESS`이나 join() 전 → try-catch로 null 반환
+    ```kotlin
+    @Test
+    fun `getOrNull 은 join 이전 호출에서도 null 을 안전하게 반환해야 한다`() { ... }
+    ```
+  - scope 리소스 해제 테스트: `close()` 보장 (use{} 블록 정상 종료 확인)
+  - 기존 `all scope`/`any scope` 테스트는 그대로 유지 (회귀 방지)
+  - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeNull`, `shouldNotBeNull`, `shouldBeInstanceOf`
+- **완료 기준**:
+  - [ ] `failFast` 정상/실패/기본값 테스트 3건 추가
+  - [ ] `firstSuccess` 정상/전체실패 테스트 2건 추가
+  - [ ] `getOrNull` SUCCESS/FAILED/UNAVAILABLE/join전 테스트 4건 추가
+  - [ ] 기존 테스트 전부 통과 (회귀 없음)
+- **의존성**: T1, T4 완료 후
+
+---
+
+### T7: `bluetape4k/core` — `structuredTaskScopeFailFast {}`/`structuredTaskScopeFirstSuccess {}` 추가 + 기존 deprecated
+
+- **complexity**: medium
+- **파일**: `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredTaskScopeSupport.kt`
+- **변경 내용**:
+  - 새 편의 함수 두 개 추가:
+    ```kotlin
+    /**
+     * 실패 전파형(fail-fast) 구조화된 동시성 블록을 실행합니다.
+     *
+     * @param name scope 이름 (디버깅용, 기본값: null)
+     * @param factory Virtual Thread 팩토리 (기본값: `VirtualThreads.threadFactory("sts-failfast-")`)
+     * @param block scope 실행 블록
+     * @return [block]의 실행 결과
+     */
+    fun <T> structuredTaskScopeFailFast(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory("sts-failfast-"),
+        block: (scope: StructuredTaskScopeFailFast) -> T,
+    ): T = StructuredTaskScopes.failFast(name, factory, block)
+
+    /**
+     * 성공 우선형(first-success) 구조화된 동시성 블록을 실행합니다.
+     *
+     * @param name scope 이름 (디버깅용, 기본값: null)
+     * @param factory Virtual Thread 팩토리 (기본값: `VirtualThreads.threadFactory("sts-first-")`)
+     * @param block scope 실행 블록
+     * @return 가장 먼저 성공한 서브 작업의 결과
+     */
+    fun <T> structuredTaskScopeFirstSuccess(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory("sts-first-"),
+        block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
+    ): T = StructuredTaskScopes.firstSuccess(name, factory, block)
+    ```
+  - 기존 `structuredTaskScopeAll()` 함수에 deprecated 처리:
+    ```kotlin
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "structuredTaskScopeFailFast()를 사용하세요.",
+        replaceWith = ReplaceWith(
+            "structuredTaskScopeFailFast(name, factory, block)",
+            "io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast"
+        )
+    )
+    fun <T> structuredTaskScopeAll(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory("sts-all-"),
+        block: (scope: StructuredTaskScopeAll) -> T,
+    ): T = StructuredTaskScopes.all(name, factory, block)
+    ```
+  - 기존 `structuredTaskScopeAny()` 함수에 deprecated 처리:
+    ```kotlin
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message = "structuredTaskScopeFirstSuccess()를 사용하세요.",
+        replaceWith = ReplaceWith(
+            "structuredTaskScopeFirstSuccess(name, factory, block)",
+            "io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFirstSuccess"
+        )
+    )
+    fun <T> structuredTaskScopeAny(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory("sts-any-"),
+        block: (scope: StructuredTaskScopeAny<T>) -> T,
+    ): T = StructuredTaskScopes.any(name, factory, block)
+    ```
+  - **주의**: deprecated 함수 내부에서 `StructuredTaskScopes.all()`/`StructuredTaskScopes.any()` 호출 시 해당 함수도 deprecated이므로 `@Suppress("DEPRECATION")`이 반드시 필요
+- **완료 기준**:
+  - [ ] `structuredTaskScopeFailFast {}` 추가 (KDoc 포함)
+  - [ ] `structuredTaskScopeFirstSuccess {}` 추가 (KDoc 포함)
+  - [ ] `structuredTaskScopeAll {}` `@Deprecated(message, ReplaceWith)` 추가
+  - [ ] `structuredTaskScopeAny {}` `@Deprecated(message, ReplaceWith)` 추가
+  - [ ] deprecated 함수에 `@Suppress("DEPRECATION")` 추가
+  - [ ] 컴파일 경고 없음 확인
+- **의존성**: T4 완료 후
+
+---
+
+### T8: `bluetape4k/core` 모듈 테스트 — 새 편의 함수 테스트 추가
+
+- **complexity**: medium
+- **파일**: `bluetape4k/core/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopeSupportTest.kt`
+- **변경 내용**:
+  - `WithAll` Nested 클래스 안에 `structuredTaskScopeFailFast {}` 기반 테스트 추가:
+    ```kotlin
+    @Test
+    fun `structuredTaskScopeFailFast 으로 모든 SubTask 들이 완료될 때 결과를 반환한다`() { ... }
+
+    @Test
+    fun `structuredTaskScopeFailFast 에서 Subtask 예외 발생 시 예외를 던진다`() { ... }
+    ```
+  - `WithAny` Nested 클래스 안에 `structuredTaskScopeFirstSuccess {}` 기반 테스트 추가:
+    ```kotlin
+    @Test
+    fun `structuredTaskScopeFirstSuccess 로 첫번째 완료된 작업의 결과를 얻는다`() { ... }
+
+    @Test
+    fun `structuredTaskScopeFirstSuccess 로 첫번째 성공한 결과를 반환한다`() { ... }
+    ```
+  - 기존 `structuredTaskScopeAll {}`/`structuredTaskScopeAny {}` 테스트는 그대로 유지 (회귀 방지 + deprecated API 동작 검증)
+  - `@EnabledForJreRange(min = JRE.JAVA_21)` 어노테이션 유지
+  - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeInstanceOf` 등
+- **완료 기준**:
+  - [ ] `structuredTaskScopeFailFast` 테스트 2건 추가 (정상/실패)
+  - [ ] `structuredTaskScopeFirstSuccess` 테스트 2건 추가 (정상/첫성공)
+  - [ ] 기존 `structuredTaskScopeAll`/`structuredTaskScopeAny` 테스트 전부 통과
+- **의존성**: T7 완료 후
+
+---
+
+### T9: 전체 빌드 검증
+
+- **complexity**: low
+- **파일**: 없음 (빌드 명령 실행)
+- **변경 내용**:
+  - 4개 모듈 통합 테스트 실행:
+    ```bash
+    ./gradlew :bluetape4k-virtualthread-api:test \
+              :bluetape4k-virtualthread-jdk21:test \
+              :bluetape4k-virtualthread-jdk25:test \
+              :bluetape4k-core:test
+    ```
+  - 실패 시 오류 메시지 분석 후 T1~T8 중 해당 태스크 재작업
+  - jdk21/jdk25 구현체 변경 없음 확인 (기존 테스트 통과 확인)
+  - 브레이킹 체인지 없음 확인 (`@Deprecated`만 추가, 삭제 없음)
+- **완료 기준**:
+  - [ ] `bluetape4k-virtualthread-api` 테스트 전부 통과
+  - [ ] `bluetape4k-virtualthread-jdk21` 테스트 전부 통과 (변경 없음)
+  - [ ] `bluetape4k-virtualthread-jdk25` 테스트 전부 통과 (변경 없음)
+  - [ ] `bluetape4k-core` 테스트 전부 통과
+  - [ ] deprecated 경고만 발생, 컴파일 오류 없음
+- **의존성**: T6, T8 완료 후
+
+---
+
+### T10: README 업데이트 — 결정 트리 추가 및 API 예제 교체 (8개 파일)
+
+- **complexity**: low
+- **파일**:
+  - `virtualthread/api/README.md`
+  - `virtualthread/api/README.ko.md`
+  - `virtualthread/jdk21/README.md`
+  - `virtualthread/jdk21/README.ko.md`
+  - `virtualthread/jdk25/README.md`
+  - `virtualthread/jdk25/README.ko.md`
+  - `virtualthread/README.md`
+  - `virtualthread/README.ko.md`
+- **변경 내용**:
+  - `virtualthread/api/README.md`, `README.ko.md`: 결정 트리(Decision Tree) 섹션 추가 (Spec 섹션 3.4.2 내용 그대로), API 레퍼런스에서 `all`/`any` → `failFast`/`firstSuccess` 교체
+  - `virtualthread/jdk21/README.md`, `README.ko.md`: 예제 코드 `StructuredTaskScopes.all(factory = ...)` → `StructuredTaskScopes.failFast {}` 교체 (각 line 187 / line 186)
+  - `virtualthread/jdk25/README.md`, `README.ko.md`: 예제 코드 `StructuredTaskScopes.all(factory = ...)` → `StructuredTaskScopes.failFast {}` 교체 (각 line 214 / line 212)
+  - `virtualthread/README.md`, `README.ko.md`: 상위 모듈 개요에서 새 API 이름(`failFast`, `firstSuccess`) 반영
+  - 결정 트리 Mermaid 다이어그램 또는 텍스트 형식으로 삽입 (Spec의 ASCII 트리 그대로 사용 가능)
+  - 모든 영문 README 수정 후 한국어 README 동일하게 적용
+- **완료 기준**:
+  - [ ] `virtualthread/api/README.md` — 결정 트리 추가 + `all`/`any` → `failFast`/`firstSuccess` 교체
+  - [ ] `virtualthread/api/README.ko.md` — 동일 (한국어)
+  - [ ] `virtualthread/jdk21/README.md` — 예제 코드 교체
+  - [ ] `virtualthread/jdk21/README.ko.md` — 예제 코드 교체 (한국어)
+  - [ ] `virtualthread/jdk25/README.md` — 예제 코드 교체
+  - [ ] `virtualthread/jdk25/README.ko.md` — 예제 코드 교체 (한국어)
+  - [ ] `virtualthread/README.md` — 새 API 이름 반영
+  - [ ] `virtualthread/README.ko.md` — 새 API 이름 반영 (한국어)
+- **의존성**: T4 완료 후 *(T6, T7, T8과 병렬 가능)*
+
+---
+
+## 실행 순서
+
+| 순서 | 태스크 | 설명 | 병렬 가능 여부 |
+|------|--------|------|---------------|
+| 1 | T1 | `getOrNull()` default 메서드 + `get()` KDoc 보강 | - (시작점) |
+| 2 | T2 | `typealias` 추가 + `join()` 타임아웃 경고 KDoc | T1 완료 후 (동일 파일 순차) |
+| 3 | T3 | `withFailFast()`/`withFirstSuccess()` default 메서드 추가 | T2 완료 후 |
+| 4 | T4 | `failFast()`/`firstSuccess()` 추가 + `all()`/`any()` deprecated | T3 완료 후 |
+| 5 | T5 | `StructuredTaskScopeAll`/`Any` KDoc 보강 | T4와 병렬 가능 (T2 완료 후) |
+| 5 | T10 | README 8개 파일 업데이트 | T4와 병렬 가능 |
+| 6 | T6 | API 모듈 테스트 추가 | T4 완료 후 (T5, T10과 병렬) |
+| 6 | T7 | core 모듈 편의 함수 추가 + deprecated | T4 완료 후 (T6, T10과 병렬) |
+| 7 | T8 | core 모듈 테스트 추가 | T7 완료 후 |
+| 8 | T9 | 전체 빌드 검증 (4개 모듈) | T6, T8 완료 후 |
+
+### 병렬 실행 가능 그룹
+
+```
+T1 → T2 → T3 → T4 ─┬─ T5 (병렬)
+                     ├─ T6 (병렬)
+                     ├─ T7 ─ T8 (순차)
+                     └─ T10 (병렬)
+                          └─ (T5, T6, T8 모두 완료) → T9
+```
+
+---
+
+## 수정 대상 파일 전체 목록
+
+| 파일 | 태스크 | 변경 유형 |
+|------|--------|----------|
+| `virtualthread/api/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopes.kt` | T1, T2, T3, T4, T5 | 인터페이스 확장, KDoc 보강, deprecated 추가 |
+| `virtualthread/api/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopesTest.kt` | T6 | 테스트 추가 |
+| `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredTaskScopeSupport.kt` | T7 | 편의 함수 추가, deprecated 추가 |
+| `bluetape4k/core/src/test/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredScopeSupportTest.kt` | T8 | 테스트 추가 |
+| `virtualthread/api/README.md` | T10 | 결정 트리, API 교체 |
+| `virtualthread/api/README.ko.md` | T10 | 결정 트리, API 교체 (한국어) |
+| `virtualthread/jdk21/README.md` | T10 | 예제 코드 교체 |
+| `virtualthread/jdk21/README.ko.md` | T10 | 예제 코드 교체 (한국어) |
+| `virtualthread/jdk25/README.md` | T10 | 예제 코드 교체 |
+| `virtualthread/jdk25/README.ko.md` | T10 | 예제 코드 교체 (한국어) |
+| `virtualthread/README.md` | T10 | 새 API 이름 반영 |
+| `virtualthread/README.ko.md` | T10 | 새 API 이름 반영 (한국어) |
+
+**변경하지 않는 파일**:
+- `virtualthread/jdk21/src/main/.../Jdk21StructuredTaskScopeProvider.kt` — default 메서드로 자동 상속
+- `virtualthread/jdk25/src/main/.../Jdk25StructuredTaskScopeProvider.kt` — default 메서드로 자동 상속
+
+---
+
+## 핵심 구현 제약 사항
+
+| 항목 | 결정 | 근거 |
+|------|------|------|
+| `typealias` vs 독립 인터페이스 | `typealias` 채택 | 반환 타입 불일치 문제로 독립 인터페이스 기각 (Spec 섹션 3.1.1) |
+| Provider SPI `withAll`/`withAny` deprecated | **하지 않음** | jdk21/jdk25 override SPI — deprecated 시 구현체에 경고 전파 (Spec 섹션 3.4.1) |
+| `getOrNull()` 구현 패턴 | `try { get() } catch (_: IllegalStateException) { null }` | join() 전 호출 시 JDK `ensureJoinedIfOwner()` 검사 우회 |
+| deprecated 함수 내 deprecated API 호출 | `@Suppress("DEPRECATION")` 필수 | `structuredTaskScopeAll` → `StructuredTaskScopes.all()` 호출 체인 |
+| `autoJoin` 파라미터 | **도입하지 않음** | YAGNI (Spec 섹션 3.3.3) |
+| join() warn 로그 | **추가하지 않음** | 노이즈 과다 → KDoc 경고로 대체 (Spec 섹션 3.3.2) |
+
+---
+
+## 빌드 검증 명령
+
+```bash
+./gradlew :bluetape4k-virtualthread-api:test \
+          :bluetape4k-virtualthread-jdk21:test \
+          :bluetape4k-virtualthread-jdk25:test \
+          :bluetape4k-core:test
+```
+
+---
+
+## DoD 체크리스트
+
+- [ ] `virtualthread/api` — `typealias StructuredTaskScopeFailFast`, `StructuredTaskScopeFirstSuccess` 추가
+- [ ] `virtualthread/api` — `StructuredSubtask.getOrNull()` default 메서드 구현 + KDoc
+- [ ] `virtualthread/api` — `StructuredSubtask.get()` KDoc 상태별 동작 명시
+- [ ] `virtualthread/api` — `StructuredTaskScopeProvider.withFailFast()`/`withFirstSuccess()` default 메서드 추가
+- [ ] `virtualthread/api` — `withAll()`/`withAny()` KDoc `@see` 안내 추가 (deprecated 아님)
+- [ ] `virtualthread/api` — `StructuredTaskScopes.failFast()`/`firstSuccess()` 추가 (factory 기본값 포함)
+- [ ] `virtualthread/api` — `all()`/`any()` `@Deprecated(message, ReplaceWith)` 추가
+- [ ] `virtualthread/api` — `StructuredTaskScopeAll.join()` KDoc 타임아웃 경고 추가
+- [ ] `virtualthread/jdk21` — 변경 없음 확인 (기존 테스트 그대로 통과)
+- [ ] `virtualthread/jdk25` — 변경 없음 확인 (기존 테스트 그대로 통과)
+- [ ] `bluetape4k/core` — `structuredTaskScopeFailFast {}`/`structuredTaskScopeFirstSuccess {}` 추가
+- [ ] `bluetape4k/core` — `structuredTaskScopeAll {}`/`structuredTaskScopeAny {}` `@Deprecated` 추가
+- [ ] `bluetape4k/core` — deprecated 함수에 `@Suppress("DEPRECATION")` 추가
+- [ ] 새 API 테스트 추가 (`failFast`, `firstSuccess`, `getOrNull`) — T6, T8
+- [ ] 기존 테스트 전부 통과 (회귀 없음)
+- [ ] KDoc 갱신 (모든 public API — 새 추가 + 기존 보강)
+- [ ] README.md / README.ko.md 결정 트리 추가 및 API 예제 교체 (8개 파일)
+- [ ] `./gradlew :bluetape4k-virtualthread-api:test :bluetape4k-virtualthread-jdk21:test :bluetape4k-virtualthread-jdk25:test :bluetape4k-core:test` 통과
+- [ ] 브레이킹 체인지 없음 확인 (`@Deprecated`만 추가, 삭제 없음)
