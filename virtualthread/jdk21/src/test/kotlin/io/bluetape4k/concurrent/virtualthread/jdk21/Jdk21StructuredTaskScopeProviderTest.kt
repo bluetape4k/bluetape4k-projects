@@ -5,6 +5,7 @@ import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -84,6 +85,33 @@ class Jdk21StructuredTaskScopeProviderTest {
                 scope.joinUntil(Instant.now().plusMillis(100))
             }
         }
+    }
+
+    @Test
+    fun `withSupervised results 일부 성공 일부 실패 시 Result 리스트를 반환해야 한다`() {
+        val allResults = provider.withSupervised<Int, List<Result<Int>>> { scope ->
+            scope.fork { 1 }
+            scope.fork { throw RuntimeException("fail") }
+            scope.fork { 3 }
+            scope.join()
+            scope.results()
+        }
+        allResults.size shouldBeEqualTo 3
+        allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted() shouldBeEqualTo listOf(1, 3)
+        allResults.mapNotNull { it.exceptionOrNull() }.size shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `withSupervised results nullable T null 성공도 Result success 로 포함되어야 한다`() {
+        val allResults = provider.withSupervised<Int?, List<Result<Int?>>> { scope ->
+            scope.fork { 1 }
+            scope.fork { null }
+            scope.fork { 3 }
+            scope.join()
+            scope.results()
+        }
+        allResults.size shouldBeEqualTo 3
+        allResults.all { it.isSuccess }.shouldBeTrue()
     }
 
     @Test

@@ -328,11 +328,10 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
-        override fun successfulResults(): List<T> =
-            subtasks.filter { it.isSuccess() }
-                .map { it.get() }
-
-        override fun failedExceptions(): List<Throwable> = subtasks.mapNotNull { it.exceptionOrNull() }
+        override fun results(): List<Result<T>> = subtasks.map { subtask ->
+            val exc = subtask.exceptionOrNull()
+            if (exc != null) Result.failure(exc) else Result.success(subtask.get())
+        }
 
         override fun close() {
             try {

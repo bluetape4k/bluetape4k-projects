@@ -476,4 +476,82 @@ class StructuredScopesTest {
         failedTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
         failedTask!!.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
     }
+
+    // ── results(): List<Result<T>> 테스트 ──────────────────────────────────────
+
+    @Test
+    fun `supervised scope results 일부 성공 일부 실패 시 Result 리스트를 반환해야 한다`() {
+        val allResults = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+            scope.fork { 1 }
+            scope.fork { throw RuntimeException("fail2") }
+            scope.fork { 3 }
+            scope.join()
+            scope.results()
+        }
+        allResults.size shouldBeEqualTo 3
+        val successes = allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted()
+        val failures = allResults.mapNotNull { it.exceptionOrNull() }
+        successes shouldBeEqualTo listOf(1, 3)
+        failures.size shouldBeEqualTo 1
+        failures[0].shouldBeInstanceOf<RuntimeException>()
+    }
+
+    @Test
+    fun `supervised scope results 모두 성공 시 모두 Result success 이어야 한다`() {
+        val allResults = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+            scope.fork { 10 }
+            scope.fork { 20 }
+            scope.join()
+            scope.results()
+        }
+        allResults.size shouldBeEqualTo 2
+        allResults.all { it.isSuccess }.shouldBeTrue()
+        allResults.map { it.getOrThrow() }.sorted() shouldBeEqualTo listOf(10, 20)
+    }
+
+    @Test
+    fun `supervised scope results 모두 실패 시 모두 Result failure 이어야 한다`() {
+        val allResults = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+            scope.fork { throw RuntimeException("fail1") }
+            scope.fork { throw IllegalStateException("fail2") }
+            scope.join()
+            scope.results()
+        }
+        allResults.size shouldBeEqualTo 2
+        allResults.all { it.isFailure }.shouldBeTrue()
+    }
+
+    @Test
+    fun `supervised scope results nullable T 에서 null 성공도 Result success 로 포함되어야 한다`() {
+        val allResults = StructuredTaskScopes.supervised<Int?, List<Result<Int?>>> { scope ->
+            scope.fork { 1 }
+            scope.fork { null }  // 성공적으로 null 반환
+            scope.fork { 3 }
+            scope.join()
+            scope.results()
+        }
+        allResults.size shouldBeEqualTo 3
+        allResults.all { it.isSuccess }.shouldBeTrue()
+        allResults.map { it.getOrThrow() }.filterNotNull().sorted() shouldBeEqualTo listOf(1, 3)
+    }
+
+    @Test
+    fun `supervised scope successfulResults 와 failedExceptions 는 results 에서 올바르게 파생되어야 한다`() {
+        var successes: List<Int> = emptyList()
+        var failures: List<Throwable> = emptyList()
+        var allResults: List<Result<Int>> = emptyList()
+
+        StructuredTaskScopes.supervised<Int, Unit> { scope ->
+            scope.fork { 1 }
+            scope.fork { throw RuntimeException("boom") }
+            scope.fork { 3 }
+            scope.join()
+            allResults = scope.results()
+            successes = scope.successfulResults()
+            failures = scope.failedExceptions()
+        }
+
+        successes.sorted() shouldBeEqualTo allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted()
+        failures.size shouldBeEqualTo allResults.mapNotNull { it.exceptionOrNull() }.size
+    }
 }

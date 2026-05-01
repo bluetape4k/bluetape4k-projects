@@ -214,25 +214,23 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
     /**
      * JDK21에서 부분 실패 허용 scope를 구현하기 위해 [StructuredTaskScope]를 직접 상속합니다.
-     * [handleComplete]에서 성공/실패 결과를 thread-safe하게 수집합니다.
+     * [handleComplete]에서 성공/실패 결과를 `Result<T>`로 통합해 thread-safe하게 수집합니다.
      */
     private class Jdk21SupervisedTaskScope<T>(
         name: String?,
         factory: ThreadFactory,
     ) : StructuredTaskScope<T>(name, factory) {
-        private val _successResults = CopyOnWriteArrayList<T>()
-        private val _failedExceptions = CopyOnWriteArrayList<Throwable>()
+        private val _results = CopyOnWriteArrayList<Result<T>>()
 
         override fun handleComplete(subtask: StructuredTaskScope.Subtask<out T>) {
             when (subtask.state()) {
-                StructuredTaskScope.Subtask.State.SUCCESS -> _successResults.add(subtask.get())
-                StructuredTaskScope.Subtask.State.FAILED  -> _failedExceptions.add(subtask.exception())
+                StructuredTaskScope.Subtask.State.SUCCESS -> _results.add(Result.success(subtask.get()))
+                StructuredTaskScope.Subtask.State.FAILED  -> _results.add(Result.failure(subtask.exception()))
                 else                                      -> {} // UNAVAILABLE — 취소된 subtask, 무시
             }
         }
 
-        fun successfulResults(): List<T> = _successResults.toList()
-        fun failedExceptions(): List<Throwable> = _failedExceptions.toList()
+        fun results(): List<Result<T>> = _results.toList()
     }
 
     private class Jdk21SupervisedScope<T>(
@@ -253,8 +251,7 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
-        override fun successfulResults(): List<T> = delegate.successfulResults()
-        override fun failedExceptions(): List<Throwable> = delegate.failedExceptions()
+        override fun results(): List<Result<T>> = delegate.results()
 
         override fun close() {
             delegate.close()
