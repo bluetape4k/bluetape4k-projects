@@ -50,47 +50,68 @@ interface VirtualThreadRuntime {
 
 Abstracts Java's `StructuredTaskScope` API so it can be used consistently across JDK versions.
 
-#### `ShutdownOnFailure` Pattern (`all`)
+#### Choosing the Right API
 
-All subtasks must succeed. If any subtask fails, the entire scope is cancelled.
+```
+Need all subtasks to succeed?
+  └─ Yes → failFast { }        (cancels others on first failure)
+Need the first success?
+  └─ Yes → firstSuccess { }    (cancels others on first success)
+```
+
+#### `failFast` — All Must Succeed
+
+All subtasks must succeed. If any subtask fails, the rest are cancelled immediately.
 
 ```kotlin
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
 
-val results = StructuredTaskScopes.all(
-    name = "fetch-all-data",
-    factory = VirtualThreads.threadFactory("data-")
-) { scope ->
+val results = StructuredTaskScopes.failFast { scope ->
     val task1 = scope.fork { fetchUserData() }
     val task2 = scope.fork { fetchOrderData() }
     val task3 = scope.fork { fetchInventoryData() }
 
-    scope.join()
-        .throwIfFailed { error ->
-            println("Failed: ${error.message}")
-        }
-
+    scope.join().throwIfFailed()
     Triple(task1.get(), task2.get(), task3.get())
 }
 ```
 
-#### `ShutdownOnSuccess` Pattern (`any`)
+#### `firstSuccess` — First Winner Takes All
 
-As soon as one of the subtasks succeeds, the remaining subtasks are cancelled.
+Returns the result of the first subtask to succeed. Remaining subtasks are cancelled.
 
 ```kotlin
-val fastestResult = StructuredTaskScopes.any<String>(
-    name = "race-apis",
-    factory = VirtualThreads.threadFactory("api-")
-) { scope ->
+val fastestResult = StructuredTaskScopes.firstSuccess<String> { scope ->
     scope.fork { fetchFromApi1() }
     scope.fork { fetchFromApi2() }
     scope.fork { fetchFromApi3() }
 
-    scope.join()
-        .result { error -> RuntimeException("All APIs failed", error) }
+    scope.join().result { error -> RuntimeException("All APIs failed", error) }
 }
 ```
+
+#### `getOrNull()` — Safe Result Access
+
+`StructuredSubtask.getOrNull()` returns `null` instead of throwing when called before `join()` or when the subtask failed/was cancelled.
+
+```kotlin
+val result: StructuredSubtask<Int>?
+StructuredTaskScopes.failFast { scope ->
+    val task = scope.fork { 42 }
+    scope.join().throwIfFailed()
+    task.getOrNull()   // 42 (SUCCESS state)
+    // or null if FAILED / UNAVAILABLE
+}
+```
+
+#### Deprecated APIs
+
+`all()` and `any()` are deprecated. Migrate as follows:
+
+| Before | After |
+|--------|-------|
+| `StructuredTaskScopes.all(...) { }` | `StructuredTaskScopes.failFast { }` |
+| `StructuredTaskScopes.any(...) { }` | `StructuredTaskScopes.firstSuccess { }` |
 
 ## `ServiceLoader` Mechanism
 
@@ -199,14 +220,18 @@ classDiagram
         +providerName: String
         +priority: Int
         +isSupported() Boolean
+        +withFailFast(name, factory, block) T
+        +withFirstSuccess(name, factory, block) T
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
     }
 
     class StructuredTaskScopes {
         <<object>>
-        +all(name, factory, block) T
-        +any(name, factory, block) T
+        +failFast(name, factory, block) T
+        +firstSuccess(name, factory, block) T
+        +all(name, factory, block) T ~~deprecated~~
+        +any(name, factory, block) T ~~deprecated~~
     }
 
     class Jdk21VirtualThreadRuntime {

@@ -49,47 +49,67 @@ interface VirtualThreadRuntime {
 
 Java의 StructuredTaskScope API를 추상화하여 JDK 버전에 관계없이 사용할 수 있습니다.
 
-#### ShutdownOnFailure 패턴 (All)
+#### API 선택 가이드
 
-모든 서브태스크가 성공해야 하며, 하나라도 실패하면 전체 스코프가 중단됩니다.
+```
+모든 서브태스크가 성공해야 하는가?
+  └─ Yes → failFast { }       (첫 번째 실패 시 나머지를 즉시 취소)
+첫 번째 성공 결과만 필요한가?
+  └─ Yes → firstSuccess { }   (첫 번째 성공 시 나머지를 취소)
+```
+
+#### `failFast` — 전체 성공 보장
+
+모든 서브태스크가 성공해야 하며, 하나라도 실패하면 나머지를 즉시 취소합니다.
 
 ```kotlin
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
 
-val results = StructuredTaskScopes.all(
-    name = "fetch-all-data",
-    factory = VirtualThreads.threadFactory("data-")
-) { scope ->
+val results = StructuredTaskScopes.failFast { scope ->
     val task1 = scope.fork { fetchUserData() }
     val task2 = scope.fork { fetchOrderData() }
     val task3 = scope.fork { fetchInventoryData() }
 
-    scope.join()
-        .throwIfFailed { error ->
-            println("Failed: ${error.message}")
-        }
-
+    scope.join().throwIfFailed()
     Triple(task1.get(), task2.get(), task3.get())
 }
 ```
 
-#### ShutdownOnSuccess 패턴 (Any)
+#### `firstSuccess` — 첫 번째 성공 반환
 
-여러 서브태스크 중 하나라도 성공하면 나머지는 중단됩니다.
+가장 먼저 성공한 서브태스크 결과를 반환하고, 나머지는 취소합니다.
 
 ```kotlin
-val fastestResult = StructuredTaskScopes.any<String>(
-    name = "race-apis",
-    factory = VirtualThreads.threadFactory("api-")
-) { scope ->
+val fastestResult = StructuredTaskScopes.firstSuccess<String> { scope ->
     scope.fork { fetchFromApi1() }
     scope.fork { fetchFromApi2() }
     scope.fork { fetchFromApi3() }
 
-    scope.join()
-        .result { error -> RuntimeException("All APIs failed", error) }
+    scope.join().result { error -> RuntimeException("All APIs failed", error) }
 }
 ```
+
+#### `getOrNull()` — 안전한 결과 접근
+
+`StructuredSubtask.getOrNull()`은 `join()` 이전 호출 또는 실패/취소 상태에서 예외 대신 `null`을 반환합니다.
+
+```kotlin
+StructuredTaskScopes.failFast { scope ->
+    val task = scope.fork { 42 }
+    scope.join().throwIfFailed()
+    task.getOrNull()   // 42 (SUCCESS 상태)
+    // FAILED / UNAVAILABLE 상태에서는 null 반환
+}
+```
+
+#### Deprecated API 마이그레이션
+
+`all()`과 `any()`는 deprecated되었습니다. 다음과 같이 마이그레이션하세요:
+
+| 기존 | 신규 |
+|------|------|
+| `StructuredTaskScopes.all(...) { }` | `StructuredTaskScopes.failFast { }` |
+| `StructuredTaskScopes.any(...) { }` | `StructuredTaskScopes.firstSuccess { }` |
 
 ## ServiceLoader 메커니즘
 
@@ -197,14 +217,18 @@ classDiagram
         +providerName: String
         +priority: Int
         +isSupported() Boolean
+        +withFailFast(name, factory, block) T
+        +withFirstSuccess(name, factory, block) T
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
     }
 
     class StructuredTaskScopes {
         <<object>>
-        +all(name, factory, block) T
-        +any(name, factory, block) T
+        +failFast(name, factory, block) T
+        +firstSuccess(name, factory, block) T
+        +all(name, factory, block) T ~~deprecated~~
+        +any(name, factory, block) T ~~deprecated~~
     }
 
     class Jdk21VirtualThreadRuntime {

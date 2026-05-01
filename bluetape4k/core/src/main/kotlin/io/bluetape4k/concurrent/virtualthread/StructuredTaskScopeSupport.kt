@@ -3,79 +3,94 @@ package io.bluetape4k.concurrent.virtualthread
 import java.util.concurrent.ThreadFactory
 
 /**
- * [StructuredTaskScope.ShutdownOnFailure] 를 사용하여 구조화된 작업을 수행합니다.
- *
- * 작업 범위 내에서 다수의 서브 작업을 실행하고, 모든 작업이 완료되도록 대기한 후 결과를 반환한다.
- * 만약 서브 작업 중 하나라도 실패한다면, 즉시 모든 서브 작업을 중단하고, 예외를 던진다.
- *
- * 참고: Kotlin Coroutines 의 [kotlinx.coroutines.coroutineScope]와 작업 방식은 같다.
+ * 실패 전파형(fail-fast) 구조화된 동시성 블록을 실행합니다.
+ * 하나의 subtask라도 실패하면 나머지를 즉시 중단하고 예외를 전파합니다.
  *
  * ```kotlin
  * data class Result(val a: Int, val b: String)
  *
- * val result = structuredTaskScopeAll { scope ->
+ * val result = structuredTaskScopeFailFast { scope ->
  *     val subtask1 = scope.fork { Thread.sleep(100); 42 }
  *     val subtask2 = scope.fork { Thread.sleep(200); "hello" }
- *
  *     scope.join().throwIfFailed()
- *
  *     Result(subtask1.get(), subtask2.get())
  * }
  * // result == Result(a=42, b="hello")
  * ```
  *
  * @param T 반환할 타입
- * @param name StructuredTaskScope 이름 (디버깅용, 기본값: null)
- * @param factory Virtual Thread 팩토리
- * @param block scope 를 인자로 받아 서브 작업을 fork하고 결과를 반환하는 블록
+ * @param name scope 이름 (디버깅용, 기본값: null)
+ * @param factory Virtual Thread 팩토리 (기본값: `VirtualThreads.threadFactory("sts-failfast-")`)
+ * @param block scope를 인자로 받아 서브 작업을 fork하고 결과를 반환하는 블록
  * @return [block]의 실행 결과
  * @throws Exception 서브 작업 중 하나라도 실패하면 해당 예외를 던진다
  */
-fun <T> structuredTaskScopeAll(
+fun <T> structuredTaskScopeFailFast(
     name: String? = null,
-    factory: ThreadFactory = VirtualThreads.threadFactory("sts-all-"),
-    block: (scope: StructuredTaskScopeAll) -> T,
-): T {
-    return StructuredTaskScopes.all(name, factory, block)
-}
-
+    factory: ThreadFactory = VirtualThreads.threadFactory("sts-failfast-"),
+    block: (scope: StructuredTaskScopeFailFast) -> T,
+): T = StructuredTaskScopes.failFast(name, factory, block)
 
 /**
- * [StructuredTaskScope.ShutdownOnSuccess] 를 사용하여 구조화된 작업을 수행합니다.
- *
- * 작업 범위 내에서 다수의 서브 작업을 실행하고, 첫번째 성공한 작업의 결과를 반환하고, 나머지 서브 작업은 중단하도록 한다.
- *
- * 병렬 프로그래밍의 투기적 실행 (여러개를 동시에 실행하고, 첫번째 결과를 취하고, 나머지 작업은 버린다) 또는 ML 의 앙상블 기법과 같다.
+ * 성공 우선형(first-success) 구조화된 동시성 블록을 실행합니다.
+ * 첫 번째 성공한 subtask 결과를 반환하고 나머지를 취소합니다.
  *
  * ```kotlin
- * val result = structuredTaskScopeAny<String> { scope ->
- *     scope.fork {
- *          Thread.sleep(100)
- *          "result1"
- *     }
- *     scope.fork {
- *          Thread.sleep(200)
- *          "result2"
- *     }
- *
- *     scope.join()
- *     scope.result { ExecutionException(it) }
+ * val result = structuredTaskScopeFirstSuccess<String> { scope ->
+ *     scope.fork { Thread.sleep(100); "result1" }
+ *     scope.fork { Thread.sleep(200); "result2" }
+ *     scope.join().result { IllegalStateException("all failed: ${it.message}") }
  * }
  * // 먼저 완료되는 작업의 결과를 반환한다.
  * // result == "result1"
  * ```
  *
  * @param T 반환할 타입
- * @param name StructuredTaskScope 이름 (디버깅용, 기본값: null)
- * @param factory Virtual Thread 팩토리
- * @param block scope 를 인자로 받아 서브 작업을 fork하고 첫 번째 성공 결과를 반환하는 블록
- * @return 가장 먼저 완료된 서브 작업의 결과
+ * @param name scope 이름 (디버깅용, 기본값: null)
+ * @param factory Virtual Thread 팩토리 (기본값: `VirtualThreads.threadFactory("sts-first-")`)
+ * @param block scope를 인자로 받아 서브 작업을 fork하고 첫 번째 성공 결과를 반환하는 블록
+ * @return 가장 먼저 성공한 서브 작업의 결과
  */
+fun <T> structuredTaskScopeFirstSuccess(
+    name: String? = null,
+    factory: ThreadFactory = VirtualThreads.threadFactory("sts-first-"),
+    block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
+): T = StructuredTaskScopes.firstSuccess(name, factory, block)
+
+/**
+ * [StructuredTaskScope.ShutdownOnFailure] 를 사용하여 구조화된 작업을 수행합니다.
+ *
+ * @deprecated [structuredTaskScopeFailFast]를 사용하세요. factory 기본값이 추가되고 이름이 의도를 더 명확히 표현합니다.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    message = "structuredTaskScopeFailFast()를 사용하세요.",
+    replaceWith = ReplaceWith(
+        "structuredTaskScopeFailFast(name, factory, block)",
+        "io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast"
+    )
+)
+fun <T> structuredTaskScopeAll(
+    name: String? = null,
+    factory: ThreadFactory = VirtualThreads.threadFactory("sts-all-"),
+    block: (scope: StructuredTaskScopeAll) -> T,
+): T = StructuredTaskScopes.all(name, factory, block)
+
+/**
+ * [StructuredTaskScope.ShutdownOnSuccess] 를 사용하여 구조화된 작업을 수행합니다.
+ *
+ * @deprecated [structuredTaskScopeFirstSuccess]를 사용하세요. factory 기본값이 추가되고 이름이 의도를 더 명확히 표현합니다.
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    message = "structuredTaskScopeFirstSuccess()를 사용하세요.",
+    replaceWith = ReplaceWith(
+        "structuredTaskScopeFirstSuccess(name, factory, block)",
+        "io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFirstSuccess"
+    )
+)
 fun <T> structuredTaskScopeAny(
     name: String? = null,
     factory: ThreadFactory = VirtualThreads.threadFactory("sts-any-"),
     block: (scope: StructuredTaskScopeAny<T>) -> T,
-): T {
-    return StructuredTaskScopes.any(name, factory, block)
-}
-
+): T = StructuredTaskScopes.any(name, factory, block)
