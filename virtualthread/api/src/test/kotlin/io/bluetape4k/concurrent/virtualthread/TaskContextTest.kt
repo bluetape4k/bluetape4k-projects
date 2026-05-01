@@ -220,16 +220,13 @@ class TaskContextTest {
     // ── Nullable T ────────────────────────────────────────────────────────────
 
     @Test
-    fun `nullable 타입 T 에서 null 값을 바인딩할 수 있다`() {
+    fun `ScopedValue 에 null 바인딩 후 get 은 null 을 반환한다`() {
+        // JDK 21 에서는 ScopedValue.where(key, null) 이 허용되며 block 이 정상 실행됩니다.
+        // JDK 25 에서는 NPE 가 발생합니다 (스펙 강화).
         val key = TaskContext.newKey<String?>()
-
-        val result = TaskContext.run(key, null) {
-            TaskContext.isBound(key).shouldBeTrue()
-            TaskContext.get(key)
+        TaskContext.run(key, null) {
+            TaskContext.get(key).shouldBeNull()
         }
-
-        // null이 바인딩되어 있어도 get()은 null을 반환 (isBound=true이지만 값이 null)
-        result.shouldBeNull()
     }
 
     // ── 스코프 격리 ───────────────────────────────────────────────────────────

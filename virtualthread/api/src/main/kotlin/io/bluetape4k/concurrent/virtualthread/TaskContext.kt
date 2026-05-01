@@ -114,20 +114,6 @@ object TaskContext {
 }
 
 /**
- * 여러 [ScopedValue] 바인딩을 체이닝하는 빌더입니다.
- *
- * [TaskContext.bind]로 시작하고 [and]로 추가한 뒤 [run] 또는 [call]로 실행합니다.
- *
- * ```kotlin
- * TaskContext.bind(A_KEY, "a")
- *     .and(B_KEY, 42)
- *     .run {
- *         println(TaskContext.get(A_KEY))  // "a"
- *         println(TaskContext.get(B_KEY))  // 42
- *     }
- * ```
- */
-/**
  * [key]=[value] 단일 바인딩 스코프를 실행하고 결과를 반환하는 top-level 함수입니다.
  *
  * [TaskContext.run]과 동일하지만 Kotlin `with*` 관용구(`withContext`, `withLock` 등)와 일관된 이름입니다.
@@ -151,6 +137,20 @@ object TaskContext {
 fun <T, R> withTaskContext(key: ScopedValue<T>, value: T, block: () -> R): R =
     TaskContext.run(key, value, block)
 
+/**
+ * 여러 [ScopedValue] 바인딩을 체이닝하는 빌더입니다.
+ *
+ * [TaskContext.bind]로 시작하고 [and]로 추가한 뒤 [run] 또는 [call]로 실행합니다.
+ *
+ * ```kotlin
+ * TaskContext.bind(A_KEY, "a")
+ *     .and(B_KEY, 42)
+ *     .run {
+ *         println(TaskContext.get(A_KEY))  // "a"
+ *         println(TaskContext.get(B_KEY))  // 42
+ *     }
+ * ```
+ */
 class TaskContextBindings internal constructor(
     private val carrier: ScopedValue.Carrier,
 ) {

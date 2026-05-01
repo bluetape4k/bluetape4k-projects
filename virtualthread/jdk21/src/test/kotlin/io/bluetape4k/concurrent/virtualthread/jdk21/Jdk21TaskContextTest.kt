@@ -8,7 +8,6 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * JDK 21 (`--enable-preview`) 환경에서 [TaskContext] ScopedValue 전파 통합 테스트
@@ -24,7 +23,6 @@ class Jdk21TaskContextTest {
     fun `jdk21 withSupervised fork 에서 ScopedValue 가 자동 전파된다`() {
         val requestId = TaskContext.newKey<String>()
         val tenantId = TaskContext.newKey<String>()
-        val collected = CopyOnWriteArrayList<String>()
 
         val results = TaskContext.bind(requestId, "req-jdk21")
             .and(tenantId, "tenant-21")
@@ -50,23 +48,23 @@ class Jdk21TaskContextTest {
     @Test
     fun `jdk21 withFailFast fork 에서 ScopedValue 가 자동 전파된다`() {
         val traceId = TaskContext.newKey<String>()
-        val collected = CopyOnWriteArrayList<String>()
 
-        TaskContext.run(traceId, "trace-jdk21") {
+        val values = TaskContext.run(traceId, "trace-jdk21") {
             provider.withFailFast { scope ->
-                repeat(4) { i ->
+                val subtasks = (1..4).map { i ->
                     scope.fork {
                         val value = TaskContext.get(traceId)
                         log.debug { "Subtask $i: traceId=$value" }
-                        value?.also { collected.add(it) }
+                        value ?: ""
                     }
                 }
                 scope.join().throwIfFailed()
+                subtasks.map { it.get() }
             }
         }
 
-        collected.size shouldBeEqualTo 4
-        collected.all { it == "trace-jdk21" }.shouldBeTrue()
+        values.size shouldBeEqualTo 4
+        values.all { it == "trace-jdk21" }.shouldBeTrue()
     }
 
     @Test
