@@ -1,7 +1,7 @@
 # bluetape4k TODO
 
-> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 125개 (examples 제외)
-> 최종 업데이트: 2026-04-27 (이슈 반영: #179 #181 #185 #187 #191 #190 #189 #38 #25 #203 #204 #205)
+> 현재 버전: 1.7.0-SNAPSHOT | 브랜치: `develop` | 모듈 수: 128개 (examples 제외)
+> 최종 업데이트: 2026-05-01 (이슈 반영: #179 #181 #185 #187 #191 #190 #189 #38 #25 #203 #204 #205 #257 #258 #259 #260 #261 #262 #263)
 
 ---
 
@@ -117,7 +117,7 @@
   - **이미 5종 백엔드 구현**: Caffeine, Cache2K, Lettuce, Redisson, Kafka
   - JPA/Hibernate 없이도 동작 — **Exposed와 결합 시 DDD 친화적**
   - Kafka 백엔드 = Event Sourcing 기반 CQRS에 그대로 활용 가능
-  - 상세 계획은 하단 §11 참조
+  - 상세 계획은 하단 §12 참조
 
 - [x] **nats → infra/nats** (70 kt 파일) — **승격 완료** (`infra/nats/` 존재, x-obsoleted/nats 정리 필요)
   - NATS JetStream + Kotlin Coroutines 통합 완료
@@ -184,14 +184,27 @@
 
 ---
 
-## 5. Spring Boot 3 / 4 동기화 유지 🔴
+## 5. Spring Boot 3 제거 / Spring Boot 4 단독 유지 🔴
 
-- Issue: [#112](https://github.com/bluetape4k/bluetape4k-projects/issues/112)
-현재 13개 모듈 완벽 대칭 — 신규 모듈 추가 시 반드시 양쪽에 동시 구현:
+- Issue (동기화): [#112](https://github.com/bluetape4k/bluetape4k-projects/issues/112)
+- Issue (제거): [#263](https://github.com/bluetape4k/bluetape4k-projects/issues/263)
 
-- [x] 신규 모듈 추가 체크리스트 확립 (PR 템플릿에 반영, 2026-04-29)
-- [x] Spring Boot 4 BOM 업데이트 추적 (Spring Framework 7.x 대응, `docs/spring-boot3-4-sync.md`)
-- [x] spring-boot4 모듈 독립 테스트 CI 구성 확인 (`Spring Boot 3/4 Parity` + nightly Spring Boot 4 job)
+> **결정 (2026-05-01)**: Spring Boot 3.5 EOL = 2026-06-30 (2개월 후). LTS 없음.
+> Spring Boot 4 단독 유지로 전환. spring-boot3 그룹 13개 모듈 전체 제거 예정.
+
+### 제거 작업 (#263)
+
+- [ ] `infra/kafka/build.gradle.kts` — `bluetape4k-spring-boot3-core` → `bluetape4k-spring-boot4-core` 교체
+- [ ] `spring-boot3/**` 디렉토리 13개 모듈 전체 삭제
+- [ ] `settings.gradle.kts` — `includeModules("spring-boot3", ...)` 제거
+- [ ] `buildSrc/Libs.kt` — `spring_boot3_*`, `resilience4j_spring_boot3` 등 상수 정리
+- [ ] CI yml spring-boot3 관련 설정 제거
+- [ ] 전체 빌드 통과 확인 (128 → 115개)
+
+### 외부 workshop 프로젝트 별도 대응
+
+- [ ] `exposed-r2dbc-workshop` — spring-boot3 참조 15개 파일 → Spring Boot 4 마이그레이션
+- [ ] `exposed-workshop` — spring-boot3 참조 5개 파일 → Spring Boot 4 마이그레이션
 
 ---
 
@@ -414,7 +427,67 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 8. 빌드 / CI 개선 🟡
+## 8. Monorepo 재편 — 도메인별 독립 Repository 전환 🟡
+
+- Epic: [#257](https://github.com/bluetape4k/bluetape4k-projects/issues/257)
+
+> 현재 128개 모듈 단일 monorepo → 도메인 경계 기준으로 독립 repo 분리.
+> `infra/**`, `io/**`, `spring-boot4` 기본 기능은 현 repo 유지.
+> 분리 후 core 의존성은 발행 아티팩트(`io.bluetape4k:...`) 참조로 전환.
+
+### Phase 0 — spring-boot3 제거 (→ §5 참조)
+
+- Issue: [#263](https://github.com/bluetape4k/bluetape4k-projects/issues/263)
+- 128개 → **115개** 예상
+
+### Phase 1 — 독립 repo 3개 분리 (병렬 진행 가능)
+
+| Phase | Repo | 대상 | 모듈 수 | Issue |
+|-------|------|------|---------|-------|
+| 1-A | `bluetape4k-aws` | `aws/**` | 2 | [#258](https://github.com/bluetape4k/bluetape4k-projects/issues/258) |
+| 1-B | `bluetape4k-images` | `images/**` | 5 | [#259](https://github.com/bluetape4k/bluetape4k-projects/issues/259) |
+| 1-C | `bluetape4k-texts` | `texts/**` | 5 | [#260](https://github.com/bluetape4k/bluetape4k-projects/issues/260) |
+
+모두 역방향 참조 0개, Spring 의존 없음 — `bluetape4k-leader` 구조 복사 후 project ref → artifact ref 전환.
+- 115개 → **103개** 예상
+
+공통 작업 (1-A/B/C 동일):
+- [ ] GitHub repo 생성
+- [ ] `buildSrc`, `settings.gradle.kts`, `build.gradle.kts` 구성 (bluetape4k-leader 기반)
+- [ ] 모듈 이동 + project 참조 → `io.bluetape4k:...:${Versions.bluetape4k}` 전환
+- [ ] GitHub Actions CI 구성 (build + test + publish)
+- [ ] 현 repo에서 해당 디렉토리 제거 + `settings.gradle.kts` 업데이트
+
+### Phase 2 — bluetape4k-exposed 분리
+
+- Issue: [#261](https://github.com/bluetape4k/bluetape4k-projects/issues/261)
+- 대상: `data/exposed-**` 25개 + `spring-boot4/exposed-jdbc`, `spring-boot4/exposed-r2dbc` 2개 = **27개**
+- Phase 1 publish pipeline 안정화 후 진행
+- 103개 → **76개** 예상
+
+핵심 결정 사항:
+- [ ] spring-boot4 exposed 모듈(2개)을 bluetape4k-exposed로 함께 이동 여부 확정
+- [ ] `exposed-jdbc-lettuce`, `exposed-r2dbc-lettuce` → `infra/lettuce` 발행 아티팩트 안정성 확인
+
+### Phase 3 — bluetape4k-data 분리 (보류)
+
+- Issue: [#262](https://github.com/bluetape4k/bluetape4k-projects/issues/262)
+- 대상: `data/hibernate`, `jdbc`, `r2dbc`, `mongodb`, `cassandra` (~7개)
+- Phase 2 완료 및 spring-boot4 의존 방향 확정 후 재평가
+
+### 목표 모듈 수
+
+```
+현재: 128개
+Phase 0 완료: 115개  (spring-boot3 제거)
+Phase 1 완료: 103개  (aws + images + texts 분리)
+Phase 2 완료:  76개  (exposed 분리)
+Phase 3 완료:  69개  (data 분리, 선택)
+```
+
+---
+
+## 9. 빌드 / CI 개선 🟡
 
 - [ ] **설정 캐시** `warn` → `on` 으로 전환 (현재 경고 해결 후)
 - [ ] **의존성 검증** `lenient` → `strict` 전환 검토
@@ -436,7 +509,7 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 9. 보안 🔴
+## 10. 보안 🔴
 
 - [x] `io/crypto/` deprecated 암호화 → `tink` 완전 대체 완료 (2026-04-17)
 - [ ] **lz4java 보안 패치 업그레이드** — Issue: [#203](https://github.com/bluetape4k/bluetape4k-projects/issues/203)
@@ -456,9 +529,9 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 10. 성능 / 품질
+## 11. 성능 / 품질
 
-### 10.1 벤치마크 결과 공개 🟢
+### 11.1 벤치마크 결과 공개 🟢
 
 - Issue: [#184](https://github.com/bluetape4k/bluetape4k-projects/issues/184)
 - [ ] `utils/benchmark` 모듈 JMH 벤치마크 결과 문서화 (현재 결과 미공개)
@@ -468,7 +541,7 @@ Shopify 프로덕션 사용 검증됨.
 - [JMH (Java Microbenchmark Harness)](https://github.com/openjdk/jmh)
 - [Gradle JMH Plugin](https://github.com/melix/jmh-gradle-plugin)
 
-### 10.2 Coroutines 품질 개선 ✅
+### 11.2 Coroutines 품질 개선 ✅
 
 - Issue: [#185](https://github.com/bluetape4k/bluetape4k-projects/issues/185) — **CLOSED COMPLETED (2026-04-27)**
 - [x] Coroutines structured concurrency 감사 — `GlobalScope` 사용처 전수 제거 완료
@@ -480,12 +553,12 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 11. Javers + Exposed = Event Sourcing / CQRS / DDD 🔴
+## 12. Javers + Exposed = Event Sourcing / CQRS / DDD 🔴
 
 - Epic: [#115](https://github.com/bluetape4k/bluetape4k-projects/issues/115)
 > x-obsoleted `javers/` 3개 서브모듈(74 kt 파일, Caffeine/Cache2K/Lettuce/Redisson/Kafka 백엔드)을 `data/` 트리로 승격하고, Exposed 생태계와 통합해 **JPA 대체 가능한 Event Sourcing 기반 DDD 스택**을 구축.
 
-### 11.1 전략적 가치
+### 12.1 전략적 가치
 
 | 측면 | JPA + Hibernate Envers | **Javers + Exposed** |
 |------|--------------------------|------------------------|
@@ -498,7 +571,7 @@ Shopify 프로덕션 사용 검증됨.
 | 비동기/코루틴 | 제한적 (EntityManager blocking) | Exposed R2DBC + 코루틴 |
 | 성능 | 프록시 오버헤드 | 예측 가능한 SQL |
 
-### 11.2 모듈 구조 제안
+### 12.2 모듈 구조 제안
 
 - [ ] **data/javers-core** — 공통 추상화 (`AbstractCdoSnapshotRepository`, JQL DSL, Snowflake CommitId)
 - [ ] **data/javers-exposed** — Exposed JDBC 기반 `ExposedCdoSnapshotRepository` 신규 구현 (snapshot 테이블 직접 관리)
@@ -507,7 +580,7 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] **data/javers-lettuce / javers-redisson** — Redis 분산 snapshot (다중 인스턴스 공유)
 - [ ] **data/javers-kafka** — Kafka commit 이벤트 스트림 (Event Sourcing)
 
-### 11.3 Phase 1 — 기반 이관 (🔴 최우선)
+### 12.3 Phase 1 — 기반 이관 (🔴 최우선)
 
 - [ ] `x-obsoleted/javers/*` → `data/javers-*` 이동, 패키지 네이밍 유지
 - [ ] `settings.gradle.kts` 등록
@@ -515,7 +588,7 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] 기존 74개 파일 컴파일 복구 + 테스트 재통과
 - [ ] Kotlin 2.3 / JVM 21 대응
 
-### 11.4 Phase 2 — Exposed 통합 (신규 구현)
+### 12.4 Phase 2 — Exposed 통합 (신규 구현)
 
 - [ ] **ExposedCdoSnapshotRepository** — snapshot/commit을 Exposed Table로 관리
   - `CdoSnapshotTable` — global_id, commit_id, version, type, state(JSON), changed_properties(JSON)
@@ -524,7 +597,7 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] 트랜잭션 통합 — 비즈니스 INSERT/UPDATE + Javers commit을 한 트랜잭션 내 커밋
 - [ ] Aggregate root 자동 감지 — Exposed Entity `@TypeName` / `@Id` 어노테이션 매핑
 
-### 11.5 Phase 3 — DDD 패턴 헬퍼
+### 12.5 Phase 3 — DDD 패턴 헬퍼
 
 - [ ] **AggregateRoot<ID>** — DDD Aggregate root 마커 interface
 - [ ] **DomainEvent** sealed class 패턴 + Javers commit properties 매핑
@@ -532,7 +605,7 @@ Shopify 프로덕션 사용 검증됨.
 - [ ] **EventPublisher** — commit 성공 시 Kafka/NATS 발행 (outbox 패턴 대체)
 - [ ] **Projection** 빌더 — Javers JQL 결과 → read model DTO
 
-### 11.6 Phase 4 — CQRS / Event Sourcing 데모
+### 12.6 Phase 4 — CQRS / Event Sourcing 데모
 
 - [ ] **examples/javers-exposed-ddd** — 주문/재고 도메인 샘플
   - Command side: Exposed write + Javers commit
@@ -541,7 +614,7 @@ Shopify 프로덕션 사용 검증됨.
   - `JaversBuilder` bean, `CdoSnapshotRepository` bean 자동 선택 (exposed/redis/kafka)
 - [ ] 성능 벤치마크 — JPA Envers vs Javers+Exposed (INSERT/UPDATE/audit query)
 
-### 11.7 리스크 / 고려사항
+### 12.7 리스크 / 고려사항
 
 - Javers는 GPL이 아닌 Apache-2.0 — OK
 - Javers gson 의존성 — Jackson/FastJson2 코덱 래퍼 추가 필요 (`codecs/JaversCodec`)
@@ -561,7 +634,7 @@ Shopify 프로덕션 사용 검증됨.
 
 ---
 
-## 12. Redis Codec — ForyFast 지원 추가 ✅
+## 13. Redis Codec — ForyFast 지원 추가 ✅
 
 - Issue: [#113](https://github.com/bluetape4k/bluetape4k-projects/issues/113) — **CLOSED COMPLETED (2026-04-24)**
 
@@ -593,7 +666,7 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성
 
 ---
 
-## 13. AWS 서비스 에뮬레이터 전환 — LocalStack → floci ✅
+## 14. AWS 서비스 에뮬레이터 전환 — LocalStack → floci ✅
 
 - Issue: [#155](https://github.com/bluetape4k/bluetape4k-projects/issues/155) — **CLOSED COMPLETED (2026-04-26)**
 
@@ -603,7 +676,7 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성
 > - **floci** (MIT, GraalVM Native, 24ms 시작, 13MiB 메모리, 33 서비스, 공식 Testcontainers 모듈) — **1순위 대안**.
 > - MiniStack/fakecloud는 floci 미지원 서비스 필요 시 fallback 검토.
 
-### 13.1 올인원 AWS 에뮬레이터 비교
+### 14.1 올인원 AWS 에뮬레이터 비교
 
 | 에뮬레이터 | 지원 서비스 | 라이선스 | 이미지 크기 | 메모리 | 시작 시간 | TC 공식 모듈 | 상태 |
 |-----------|------------|---------|------------|-------|---------|------------|------|
@@ -624,7 +697,7 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성
 - Athena (실제 DuckDB), Transfer Family, CloudFront, WAF v2 지원
 - `EDGE_PORT` 등 LocalStack 호환 환경변수로 드롭인 교체 가능
 
-### 13.2 서비스 전용 에뮬레이터
+### 14.2 서비스 전용 에뮬레이터
 
 | 에뮬레이터 | 서비스 | 언어 | 라이선스 | TC 통합 | Stars | 상태 |
 |-----------|-------|------|---------|---------|-------|------|
@@ -641,7 +714,7 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성
 | ~~MailHog~~ | SMTP | Go | MIT | - | 14.6k | ❌ 2020년 중단 |
 | ~~dynalite~~ | DynamoDB | JS | Apache 2.0 | - | 1k | ❌ 2020년 이후 중단 |
 
-### 13.3 서비스별 최적 에뮬레이터 선택 가이드
+### 14.3 서비스별 최적 에뮬레이터 선택 가이드
 
 | AWS 서비스 | 권장 (올인원) | 권장 (전용) | 비고 |
 |-----------|-------------|------------|------|
@@ -661,7 +734,7 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성
 | HTTP API mock | - | **WireMock** (TC 공식) | AWS API 형태만 흉내낼 때 |
 | 이메일 캡처 | - | **Mailpit** | REST API + Web UI 제공 |
 
-### 13.4 전환 작업 항목
+### 14.4 전환 작업 항목
 
 **Phase 1 — floci 도입 완료**
 
@@ -680,7 +753,7 @@ ForyBinarySerializer.fast() (SCHEMA_CONSISTENT, refTracking=false) 활용 고성
 - [x] `LocalStackServer` 사용처 floci로 교체
 - [x] CI/CD nightly-tests.yml Docker 이미지 전환 완료
 
-### 13.5 floci Testcontainers 통합 예시
+### 14.5 floci Testcontainers 통합 예시
 
 ```kotlin
 // floci 공식 Testcontainers 모듈 활용
@@ -729,7 +802,7 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 }
 ```
 
-### 13.6 리스크 / 고려사항
+### 14.6 리스크 / 고려사항
 
 - **floci**: 2026-02 출시 (약 3개월, 생태계 미성숙). 33 서비스 중 엣지 케이스 API 호환성 검증 필요
 - **MiniStack**: 드롭인 교체 가능하나 공식 TC 모듈 없음 (커뮤니티)
@@ -758,7 +831,7 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 
 ---
 
-## 14. data/hibernate — Hibernate 7.x 업그레이드 ✅
+## 15. data/hibernate — Hibernate 7.x 업그레이드 ✅
 
 - Issue: [#179](https://github.com/bluetape4k/bluetape4k-projects/issues/179) — **CLOSED COMPLETED (2026-04-27)**
 - [x] Hibernate ORM 6.6.44 → 7.2.7.Final 업그레이드 완료
@@ -772,7 +845,7 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 
 ---
 
-## 15. 테스트 커버리지 70%+ 달성 ✅ (2026-04-27)
+## 16. 테스트 커버리지 70%+ 달성 ✅ (2026-04-27)
 
 최근 완료된 커버리지 향상 작업:
 
@@ -792,9 +865,9 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 
 ---
 
-## 16. 장기 오픈 이슈 처리 🟢
+## 17. 장기 오픈 이슈 처리 🟢
 
-### 16.1 bucket4j + Exposed Rate Limiting 🟢
+### 17.1 bucket4j + Exposed Rate Limiting 🟢
 
 - Issue: [#38](https://github.com/bluetape4k/bluetape4k-projects/issues/38)
 - [ ] `infra/bucket4j` 또는 `data/exposed-bucket4j` 모듈 신규 생성
@@ -805,11 +878,11 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 - [Bucket4j GitHub](https://github.com/bucket4j/bucket4j)
 - [Bucket4j Spring Boot Starter](https://github.com/MarcGiffing/bucket4j-spring-boot-starter)
 
-### 16.2 Spring Modulith + Exposed 🟢
+### 17.2 Spring Modulith + Exposed 🟢
 
 - Issue: [#25](https://github.com/bluetape4k/bluetape4k-projects/issues/25)
 - [ ] Spring Modulith `ApplicationModuleListener` + Exposed 트랜잭션 연동
-- [ ] `spring-boot3/spring-modulith-exposed` 모듈 신규 생성
+- [ ] `spring-boot4/spring-modulith-exposed` 모듈 신규 생성
 - [ ] 모듈 간 이벤트 발행/수신 DSL 제공
 - [ ] Spring Boot 4 대응 포함
 
@@ -819,7 +892,7 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 
 ---
 
-## 17. Vert.x 4.x → 5.x 업그레이드 🟢
+## 18. Vert.x 4.x → 5.x 업그레이드 🟢
 
 - Issue: [#197](https://github.com/bluetape4k/bluetape4k-projects/issues/197)
 - 현재 버전: `4.5.26` (`buildSrc/src/main/kotlin/Libs.kt`)
