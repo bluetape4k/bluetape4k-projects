@@ -302,6 +302,71 @@ val vtScope = VirtualThreadCoroutineScope()
 - `ThreadPoolCoroutineScope`: 고정 크기 풀, 명시적 `close()` 필요
 - `VirtualThreadCoroutineScope`: 가상 스레드 디스패처 기반 스코프
 
+### 구조화된 동시성 — StructuredTaskScope 브릿지
+
+`StructuredConcurrency.kt`는 JDK `StructuredTaskScope`(가상 스레드 구조화된 동시성)와 Kotlin Coroutines를 연결하며, `Dispatchers.VT`에서 실행되는 DSL 스타일 suspend 함수를 제공합니다.
+
+#### suspend 진입점
+
+| 함수 | 동작 | 내부 구현 |
+|---|---|---|
+| `taskScope { }` | Fail-fast: 첫 실패 시 나머지 subtask 즉시 중단 | `StructuredTaskScopes.failFast` |
+| `failFastTaskScope { }` | `taskScope`의 의도 명확 별칭 | `StructuredTaskScopes.failFast` |
+| `firstSuccessTaskScope<T> { }` | First-success: 가장 빠른 성공 결과 반환, 나머지 취소 | `StructuredTaskScopes.firstSuccess` |
+| `supervisedTaskScope<T, R> { }` | Supervised: 모든 subtask 실행, 부분 실패 허용 | `StructuredTaskScopes.supervised` |
+
+#### async(비동기) 진입점
+
+| 함수 | 반환값 | 용도 |
+|---|---|---|
+| `CoroutineScope.asyncTaskScope { }` | `Deferred<T>` | `awaitAll`로 병렬 fail-fast scope |
+| `CoroutineScope.asyncSupervisedTaskScope<T, R> { }` | `Deferred<R>` | `awaitAll`로 병렬 supervised scope |
+
+블록 내부에서 `this`가 scope이므로 `fork { }`, `join()`, `throwIfFailed()`, `results()` 등을 직접 호출합니다.
+
+```kotlin
+import io.bluetape4k.coroutines.taskScope
+import io.bluetape4k.coroutines.firstSuccessTaskScope
+import io.bluetape4k.coroutines.supervisedTaskScope
+import io.bluetape4k.coroutines.asyncTaskScope
+
+// Fail-fast: 모든 subtask 성공 필요
+val sum = taskScope {
+    val a = fork { fetchA() }
+    val b = fork { fetchB() }
+    join().throwIfFailed()
+    a.get() + b.get()
+}
+
+// First-success: 가장 빠른 소스 선택
+val result = firstSuccessTaskScope<String> {
+    fork { fetchFromPrimary() }
+    fork { fetchFromFallback() }
+    join().result { IllegalStateException("모든 소스 실패") }
+}
+
+// Supervised: 부분 실패 허용
+val allResults = supervisedTaskScope<Int, List<Result<Int>>> {
+    fork { 1 }
+    fork { throw RuntimeException("subtask 실패") }
+    fork { 3 }
+    join()
+    results()
+}
+// allResults.filter { it.isSuccess }.map { it.getOrThrow() } == [1, 3]
+
+// Async: 병렬 fail-fast scope
+val d1 = asyncTaskScope { val t = fork { fetchA() }; join().throwIfFailed(); t.get() }
+val d2 = asyncTaskScope { val t = fork { fetchB() }; join().throwIfFailed(); t.get() }
+val (r1, r2) = awaitAll(d1, d2)
+```
+
+동작 특성:
+
+- 모든 suspend 변형은 `withContext(Dispatchers.VT)` 내에서 실행 — blocking `join()`이 가상 스레드로 오프로드됨
+- `async` 변형은 즉시 `Deferred<T>`를 반환하며 백그라운드에서 실행; 실패를 테스트할 때는 `supervisorScope { }`로 격리 필요
+- `joinUntil(deadline)` 데드라인 초과 시 `TimeoutException` 발생
+
 ### Reactor 컨텍스트 헬퍼
 
 Reactor 전용 헬퍼는 `io.bluetape4k.coroutines.reactor`에 있습니다.
