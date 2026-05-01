@@ -108,14 +108,31 @@ val (successes, errors) = StructuredTaskScopes.supervised<String, Pair<List<Stri
 println("결과 ${successes.size}개 수집, 실패 ${errors.size}건")
 ```
 
-`joinUntil` 데드라인 지정:
+`joinUntil` 데드라인 지정 — 모든 scope 타입(`All`, `Any`, `Supervised`) 지원:
 
 ```kotlin
+// Supervised scope — joinUntil로 데드라인 지정
 StructuredTaskScopes.supervised<String, Unit> { scope ->
     scope.fork { longRunningTask() }
     scope.joinUntil(Instant.now().plusSeconds(5))  // 초과 시 TimeoutException
     val results = scope.successfulResults()
     val failures = scope.failedExceptions()
+}
+
+// failFast (all-scope) — 데드라인 + 실패 전파
+StructuredTaskScopes.failFast { scope ->
+    scope.fork { processA() }
+    scope.fork { processB() }
+    scope.joinUntil(Instant.now().plusSeconds(10))
+        .throwIfFailed()
+}
+
+// firstSuccess (any-scope) — 가장 빠른 성공 + 데드라인
+StructuredTaskScopes.firstSuccess<String> { scope ->
+    scope.fork { slowTask() }
+    scope.fork { fastTask() }
+    scope.joinUntil(Instant.now().plusMillis(500))
+        .result { RuntimeException("모든 작업 실패 또는 타임아웃", it) }
 }
 ```
 
@@ -252,6 +269,24 @@ classDiagram
         +withSupervised(name, factory, block) R
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
+    }
+
+    class StructuredTaskScopeAll {
+        <<interface>>
+        +fork(task) StructuredSubtask~T~
+        +join() StructuredTaskScopeAll
+        +joinUntil(deadline) StructuredTaskScopeAll
+        +throwIfFailed(handler) StructuredTaskScopeAll
+        +close()
+    }
+
+    class StructuredTaskScopeAny~T~ {
+        <<interface>>
+        +fork(task) StructuredSubtask~T~
+        +join() StructuredTaskScopeAny~T~
+        +joinUntil(deadline) StructuredTaskScopeAny~T~
+        +result(mapper) T
+        +close()
     }
 
     class StructuredTaskScopeSupervised {
