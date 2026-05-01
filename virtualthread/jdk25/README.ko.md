@@ -209,7 +209,7 @@ fun main() {
     }
 
     // Structured Concurrency 사용
-    val results = StructuredTaskScopes.all(
+    val results = StructuredTaskScopes.failFast(
         name = "parallel-tasks",
         factory = VirtualThreads.threadFactory()
     ) { scope ->
