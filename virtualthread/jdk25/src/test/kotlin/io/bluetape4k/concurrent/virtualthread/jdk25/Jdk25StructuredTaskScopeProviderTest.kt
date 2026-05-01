@@ -10,7 +10,7 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.TimeoutException
-import kotlin.test.assertFailsWith
+import org.amshove.kluent.internal.assertFailsWith
 
 @EnabledOnJre(JRE.JAVA_25)
 class Jdk25StructuredTaskScopeProviderTest {

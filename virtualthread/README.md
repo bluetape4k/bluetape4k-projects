@@ -142,6 +142,66 @@ sequenceDiagram
 - **Platform thread fallback**: Gracefully degrades to platform threads on JDK 17 and below
 - **Unified API**: Application code depends only on the `api` module — no runtime-specific imports needed
 - **JDK 25 extras**: `joinUntil(Instant)` — wait for a virtual thread until a deadline (JDK 25 only)
+- **TaskContext**: `ScopedValue`-based context propagation across `StructuredTaskScope.fork()` subtasks
+
+## TaskContext — ScopedValue Context Propagation
+
+`TaskContext` wraps `ScopedValue` to provide safe, immutable context propagation across virtual threads.
+Unlike `ThreadLocal`, a `ScopedValue` binding is confined to its scope and never leaks.
+
+> **Note**: Bindings are automatically inherited by threads created via `StructuredTaskScope.fork()`.
+> Plain `Thread.ofVirtual().start {}` does **not** inherit bindings.
+
+```kotlin
+val REQUEST_ID: ScopedValue<String> = TaskContext.newKey()
+val TENANT_ID:  ScopedValue<String> = TaskContext.newKey()
+
+// Single binding — top-level style (preferred)
+withTaskContext(REQUEST_ID, "req-001") {
+    println(TaskContext.get(REQUEST_ID))  // "req-001"
+
+    // Automatically propagated to forked subtasks
+    StructuredTaskScopes.failFast { scope ->
+        val result = scope.fork { TaskContext.get(REQUEST_ID) }
+        scope.join().throwIfFailed()
+        result.get()  // "req-001"
+    }
+}
+
+// Single binding — member function style
+TaskContext.run(REQUEST_ID, "req-001") {
+    println(TaskContext.get(REQUEST_ID))  // "req-001"
+}
+
+// Multiple bindings
+TaskContext.bind(REQUEST_ID, "req-001")
+    .and(TENANT_ID, "tenant-42")
+    .run {
+        println(TaskContext.get(REQUEST_ID))  // "req-001"
+        println(TaskContext.get(TENANT_ID))   // "tenant-42"
+    }
+
+// With supervised scope — collect Result<T> per subtask
+val results: List<Result<String>> =
+    withTaskContext(REQUEST_ID, "req-001") {
+        StructuredTaskScopes.supervised<String, List<Result<String>>> { scope ->
+            scope.fork { TaskContext.get(REQUEST_ID) ?: "" }
+            scope.fork { TaskContext.get(REQUEST_ID) ?: "" }
+            scope.join()
+            scope.results()
+        }
+    }
+```
+
+| API | Description |
+|-----|-------------|
+| `TaskContext.newKey<T>()` | Create a new type-safe `ScopedValue` key |
+| `TaskContext.get(key)` | Get the bound value, or `null` if unbound |
+| `TaskContext.getOrDefault(key, default)` | Get the bound value with a fallback |
+| `TaskContext.isBound(key)` | Check if a key is bound in the current scope |
+| `TaskContext.run(key, value) {}` | Single-binding scope block |
+| `withTaskContext(key, value) {}` | Top-level alias for `TaskContext.run` |
+| `TaskContext.bind(key, value).and(...).run {}` | Multi-binding scope block |
 
 ## Usage
 

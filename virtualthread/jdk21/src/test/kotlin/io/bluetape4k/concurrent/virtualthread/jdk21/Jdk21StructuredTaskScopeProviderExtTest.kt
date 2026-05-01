@@ -14,7 +14,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.StructuredTaskScope
 import java.time.Instant
-import kotlin.test.assertFailsWith
+import org.amshove.kluent.internal.assertFailsWith
 
 /**
  * [Jdk21StructuredTaskScopeProvider] 추가 커버리지 테스트입니다.

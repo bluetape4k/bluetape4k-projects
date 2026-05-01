@@ -14,12 +14,20 @@ kotlin {
 
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
+    options.compilerArgs.add("--enable-preview")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjvm-enable-preview")
+    }
 }
 
 tasks.withType<Test>().configureEach {
     javaLauncher.set(javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(21))
     })
+    jvmArgs("--enable-preview")
 }
 
 dependencies {

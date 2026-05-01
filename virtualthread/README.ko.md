@@ -142,6 +142,66 @@ sequenceDiagram
 - **Platform Thread 폴백**: JDK 17 이하에서는 플랫폼 스레드로 자연스럽게 대체
 - **통합 API**: 애플리케이션 코드는 `api` 모듈에만 의존 — 런타임별 임포트 불필요
 - **JDK 25 추가 기능**: `joinUntil(Instant)` — 데드라인까지 가상 스레드를 대기 (JDK 25 전용)
+- **TaskContext**: `ScopedValue` 기반 컨텍스트 전파 — `StructuredTaskScope.fork()` subtask에 자동 상속
+
+## TaskContext — ScopedValue 기반 컨텍스트 전파
+
+`TaskContext`는 `ScopedValue`를 래핑하여 가상 스레드 간 안전하고 immutable한 컨텍스트 전파를 제공합니다.
+`ThreadLocal`과 달리, `ScopedValue` 바인딩은 스코프를 벗어나면 자동으로 해제되며 누출되지 않습니다.
+
+> **주의**: 바인딩은 `StructuredTaskScope.fork()`로 생성된 스레드에만 자동 전파됩니다.
+> 일반 `Thread.ofVirtual().start {}`로 생성된 스레드는 바인딩을 **상속하지 않습니다**.
+
+```kotlin
+val REQUEST_ID: ScopedValue<String> = TaskContext.newKey()
+val TENANT_ID:  ScopedValue<String> = TaskContext.newKey()
+
+// 단일 바인딩 — top-level 함수 스타일 (권장)
+withTaskContext(REQUEST_ID, "req-001") {
+    println(TaskContext.get(REQUEST_ID))  // "req-001"
+
+    // forked subtask에 자동 전파
+    StructuredTaskScopes.failFast { scope ->
+        val result = scope.fork { TaskContext.get(REQUEST_ID) }
+        scope.join().throwIfFailed()
+        result.get()  // "req-001"
+    }
+}
+
+// 단일 바인딩 — 멤버 함수 스타일
+TaskContext.run(REQUEST_ID, "req-001") {
+    println(TaskContext.get(REQUEST_ID))  // "req-001"
+}
+
+// 다중 바인딩
+TaskContext.bind(REQUEST_ID, "req-001")
+    .and(TENANT_ID, "tenant-42")
+    .run {
+        println(TaskContext.get(REQUEST_ID))  // "req-001"
+        println(TaskContext.get(TENANT_ID))   // "tenant-42"
+    }
+
+// supervised scope 에서 Result<T> 수집
+val results: List<Result<String>> =
+    withTaskContext(REQUEST_ID, "req-001") {
+        StructuredTaskScopes.supervised<String, List<Result<String>>> { scope ->
+            scope.fork { TaskContext.get(REQUEST_ID) ?: "" }
+            scope.fork { TaskContext.get(REQUEST_ID) ?: "" }
+            scope.join()
+            scope.results()
+        }
+    }
+```
+
+| API | 설명 |
+|-----|------|
+| `TaskContext.newKey<T>()` | 타입 안전 `ScopedValue` 키 생성 |
+| `TaskContext.get(key)` | 바인딩된 값 반환, 미바인딩 시 `null` |
+| `TaskContext.getOrDefault(key, default)` | 바인딩된 값 반환, 미바인딩 시 기본값 |
+| `TaskContext.isBound(key)` | 현재 스코프에서 키 바인딩 여부 확인 |
+| `TaskContext.run(key, value) {}` | 단일 바인딩 스코프 블록 |
+| `withTaskContext(key, value) {}` | `TaskContext.run`의 top-level 별칭 (권장) |
+| `TaskContext.bind(key, value).and(...).run {}` | 다중 바인딩 스코프 블록 |
 
 ## 사용 방식
 

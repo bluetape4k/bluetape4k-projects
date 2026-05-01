@@ -14,7 +14,7 @@ import org.junit.jupiter.api.condition.EnabledOnJre
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.StructuredTaskScope
-import kotlin.test.assertFailsWith
+import org.amshove.kluent.internal.assertFailsWith
 
 /**
  * [Jdk25StructuredTaskScopeProvider] 추가 커버리지 테스트입니다.

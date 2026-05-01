@@ -14,7 +14,7 @@ import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.TimeoutException
-import kotlin.test.assertFailsWith
+import org.amshove.kluent.internal.assertFailsWith
 
 /**
  * [StructuredTaskScopes], [StructuredTaskScopeProvider], [StructuredSubtask], [StructuredTaskScopeAll],

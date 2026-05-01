@@ -12,7 +12,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.TimeoutException
-import kotlin.test.assertFailsWith
+import org.amshove.kluent.internal.assertFailsWith
 
 @EnabledForJreRange(min = JRE.JAVA_21)
 class Jdk21StructuredTaskScopeProviderTest {
