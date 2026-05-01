@@ -3,14 +3,17 @@ package io.bluetape4k.concurrent.virtualthread
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.time.Instant
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.TimeoutException
 import kotlin.test.assertFailsWith
 
 /**
@@ -21,8 +24,7 @@ class StructuredScopesTest {
 
     companion object: KLogging()
 
-    // StructuredTaskScopes.provider() 는 jdk21/jdk25 provider 가 classpath 에 없을 때 ISE 를 던지지만,
-    // test 런타임에는 jdk21 provider 가 등록되어 있으므로 정상 반환됩니다.
+    // test runtime에는 jdk21 provider (testRuntimeOnly)가 classpath에 등록되어 있으므로 정상 반환됩니다.
     @Test
     fun `provider 반환 이름이 비어있지 않아야 한다`() {
         val provider = StructuredTaskScopes.provider()
@@ -44,9 +46,12 @@ class StructuredScopesTest {
     @Test
     fun `provider priority 가 양수여야 한다`() {
         val provider = StructuredTaskScopes.provider()
-        (provider.priority > 0).shouldBeTrue()
+        provider.priority.shouldBeGreaterThan(0)
     }
 
+    // ── 기존 all/any 회귀 테스트 (deprecated API 동작 검증) ─────────────────────
+
+    @Suppress("DEPRECATION")
     @Test
     fun `all scope 으로 두 subtask 를 합산해야 한다`() {
         val result = StructuredTaskScopes.all(factory = Thread.ofVirtual().factory()) { scope ->
@@ -58,6 +63,7 @@ class StructuredScopesTest {
         result shouldBeEqualTo 30
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `all scope 내 subtask 실패 시 예외가 전파되어야 한다`() {
         assertFailsWith<RuntimeException> {
@@ -70,6 +76,7 @@ class StructuredScopesTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `all scope throwIfFailed 핸들러가 호출되어야 한다`() {
         var handlerCalled = false
@@ -85,8 +92,6 @@ class StructuredScopesTest {
 
     @Test
     fun `all scope joinUntil 기본 구현이 join 을 호출해야 한다`() {
-        // StructuredTaskScopeAll.joinUntil 기본 구현 (interface default) 테스트
-        // 직접 mock 구현체를 만들어 joinUntil 이 join 위임을 검증
         var joinCalled = false
         val scope = object : StructuredTaskScopeAll {
             override fun <T> fork(task: () -> T): StructuredSubtask<T> {
@@ -107,11 +112,11 @@ class StructuredScopesTest {
             override fun close() {}
         }
 
-        // joinUntil 기본 구현은 join() 을 호출한다
-        scope.joinUntil(java.time.Instant.now().plusSeconds(5))
+        scope.joinUntil(Instant.now().plusSeconds(5))
         joinCalled.shouldBeTrue()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `any scope 가 가장 먼저 완료된 subtask 결과를 반환해야 한다`() {
         val result = StructuredTaskScopes.any<String>(factory = Thread.ofVirtual().factory()) { scope ->
@@ -128,6 +133,7 @@ class StructuredScopesTest {
         result shouldBeEqualTo "fast"
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `any scope 모든 subtask 실패 시 mapper 예외가 발생해야 한다`() {
         assertFailsWith<IllegalStateException> {
@@ -139,6 +145,7 @@ class StructuredScopesTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `all scope name 파라미터를 지정해도 정상 동작해야 한다`() {
         val result = StructuredTaskScopes.all(name = "test-scope", factory = Thread.ofVirtual().factory()) { scope ->
@@ -149,6 +156,7 @@ class StructuredScopesTest {
         result shouldBeEqualTo 42
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `subtask 성공 상태와 결과를 확인해야 한다`() {
         var capturedSubtask: StructuredSubtask<Int>? = null
@@ -163,6 +171,7 @@ class StructuredScopesTest {
         subtask.exceptionOrNull().shouldBeNull()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `subtask 실패 상태에서 exceptionOrNull 이 예외를 반환해야 한다`() {
         var capturedSubtask: StructuredSubtask<Int>? = null
@@ -176,5 +185,175 @@ class StructuredScopesTest {
         val subtask = capturedSubtask.shouldNotBeNull()
         subtask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
         subtask.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
+    }
+
+    // ── failFast 신규 API 테스트 ────────────────────────────────────────────────
+
+    @Test
+    fun `failFast scope 으로 두 subtask 를 합산해야 한다`() {
+        val result = StructuredTaskScopes.failFast { scope ->
+            val a = scope.fork { 10 }
+            val b = scope.fork { 20 }
+            scope.join().throwIfFailed()
+            a.get() + b.get()
+        }
+        result shouldBeEqualTo 30
+    }
+
+    @Test
+    fun `failFast scope 내 subtask 실패 시 예외가 전파되어야 한다`() {
+        assertFailsWith<RuntimeException> {
+            StructuredTaskScopes.failFast { scope ->
+                scope.fork { 1 }
+                scope.fork<Int> { throw IllegalStateException("subtask failed") }
+                scope.join().throwIfFailed()
+                0
+            }
+        }
+    }
+
+    @Test
+    fun `failFast scope factory 기본값으로 실행되어야 한다`() {
+        // factory 파라미터 생략 → VirtualThreads.threadFactory() 기본값 사용
+        val result = StructuredTaskScopes.failFast { scope ->
+            val task = scope.fork { 42 }
+            scope.join().throwIfFailed()
+            task.get()
+        }
+        result shouldBeEqualTo 42
+    }
+
+    // ── firstSuccess 신규 API 테스트 ────────────────────────────────────────────
+
+    @Test
+    fun `firstSuccess scope 가 가장 먼저 완료된 subtask 결과를 반환해야 한다`() {
+        val result = StructuredTaskScopes.firstSuccess<String> { scope ->
+            scope.fork {
+                Thread.sleep(50)
+                "slow"
+            }
+            scope.fork {
+                Thread.sleep(10)
+                "fast"
+            }
+            scope.join().result { IllegalStateException("all failed: ${it.message}") }
+        }
+        result shouldBeEqualTo "fast"
+    }
+
+    @Test
+    fun `firstSuccess scope 모든 subtask 실패 시 mapper 예외가 발생해야 한다`() {
+        // result(mapper)의 mapper가 만든 예외가 throw — StructuredTaskScope.FailedException 아님
+        assertFailsWith<IllegalStateException> {
+            StructuredTaskScopes.firstSuccess<String> { scope ->
+                scope.fork<String> { throw RuntimeException("task1 fail") }
+                scope.fork<String> { throw RuntimeException("task2 fail") }
+                scope.join().result { IllegalStateException("all failed: ${it.message}") }
+            }
+        }
+    }
+
+    // ── getOrNull 테스트 ─────────────────────────────────────────────────────────
+
+    @Test
+    fun `getOrNull 은 SUCCESS 상태에서 결과를 반환해야 한다`() {
+        var capturedSubtask: StructuredSubtask<Int>? = null
+        StructuredTaskScopes.failFast { scope ->
+            capturedSubtask = scope.fork { 42 }
+            scope.join().throwIfFailed()
+        }
+        capturedSubtask.shouldNotBeNull()
+        capturedSubtask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.SUCCESS
+        capturedSubtask!!.getOrNull() shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `getOrNull 은 FAILED 상태에서 null 을 반환해야 한다`() {
+        var capturedSubtask: StructuredSubtask<Int>? = null
+        runCatching {
+            StructuredTaskScopes.failFast { scope ->
+                capturedSubtask = scope.fork<Int> { throw RuntimeException("fail") }
+                scope.join().throwIfFailed()
+                0
+            }
+        }
+        capturedSubtask.shouldNotBeNull()
+        capturedSubtask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
+        capturedSubtask!!.getOrNull().shouldBeNull()
+    }
+
+    @Test
+    fun `getOrNull 은 UNAVAILABLE 상태에서 null 을 반환해야 한다`() {
+        val subtaskStarted = CountDownLatch(1)
+        val proceedToFail = CountDownLatch(1)
+        var cancelledTask: StructuredSubtask<Int>? = null
+
+        // failFast<Unit>: 블록 반환 타입을 Unit으로 지정해 타입 불일치 방지
+        runCatching {
+            StructuredTaskScopes.failFast<Unit> { scope ->
+                // subtask1: 실패하여 scope shutdown 트리거
+                scope.fork<Unit> {
+                    subtaskStarted.countDown()
+                    proceedToFail.await()
+                    throw RuntimeException("forced failure")
+                }
+                // subtask2: block 상태에서 shutdown에 의해 취소됨 (UNAVAILABLE)
+                // neverRelease 는 해제되지 않으므로 shutdown 시 반드시 UNAVAILABLE 상태가 됨
+                val neverRelease = CountDownLatch(1)
+                cancelledTask = scope.fork {
+                    subtaskStarted.await()
+                    proceedToFail.countDown()
+                    neverRelease.await()
+                    42
+                }
+                scope.join().throwIfFailed()
+            }
+        }
+
+        cancelledTask.shouldNotBeNull()
+        cancelledTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.UNAVAILABLE
+        cancelledTask!!.getOrNull().shouldBeNull()
+    }
+
+    @Test
+    fun `getOrNull 은 join 이전 호출에서도 null 을 안전하게 반환해야 한다 (내부 방어)`() {
+        // 이 테스트는 내부 방어(internal defense) 테스트입니다.
+        // getOrNull()의 KDoc 전제 조건은 "join() 이후 호출"이며, join() 이전 호출은 미정의 동작입니다.
+        // ISE-safe try-catch가 join() 이전 상황에서도 안전하게 null을 반환함을 검증합니다.
+        val ready = CountDownLatch(1)
+        val hold = CountDownLatch(1)
+        var earlySubtask: StructuredSubtask<Int>? = null
+
+        StructuredTaskScopes.failFast { scope ->
+            earlySubtask = scope.fork {
+                ready.countDown()
+                hold.await()
+                99
+            }
+            ready.await()
+            // join() 이전에 getOrNull() 호출 — ISE 가 아니라 null 반환이어야 한다
+            val result = earlySubtask!!.getOrNull()
+            result.shouldBeNull()
+            hold.countDown()
+            scope.join().throwIfFailed()
+            earlySubtask!!.getOrNull() shouldBeEqualTo 99
+        }
+    }
+
+    // ── joinUntil 타임아웃 테스트 ───────────────────────────────────────────────
+
+    @Test
+    fun `joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
+        assertFailsWith<TimeoutException> {
+            StructuredTaskScopes.failFast { scope ->
+                scope.fork {
+                    Thread.sleep(10_000)
+                    42
+                }
+                // 100ms 데드라인 — subtask보다 훨씬 짧음
+                scope.joinUntil(Instant.now().plusMillis(100)).throwIfFailed()
+                0
+            }
+        }
     }
 }
