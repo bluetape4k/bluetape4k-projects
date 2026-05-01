@@ -3,8 +3,8 @@ package io.bluetape4k.concurrent.virtualthread.jdk25
 import io.bluetape4k.concurrent.virtualthread.TaskContext
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.internal.assertFailsWith
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -90,11 +90,11 @@ class Jdk25TaskContextTest {
     }
 
     @Test
-    fun `jdk25 ScopedValue null 바인딩 시도는 NullPointerException 을 발생시킨다 (JDK 25)`() {
-        // JDK 25 stable API: ScopedValue.where(key, null) 은 NullPointerException 을 던집니다
+    fun `jdk25 ScopedValue null 바인딩이 허용된다 (JDK 25)`() {
+        // JDK 25 stable API: ScopedValue.where(key, null) 은 NPE 없이 성공하며 null 값이 바인딩된다
         val key = TaskContext.newKey<String?>()
-        assertFailsWith<NullPointerException> {
-            TaskContext.run(key, null) { }
+        TaskContext.run(key, null) {
+            TaskContext.get(key).shouldBeNull()
         }
     }
 }
