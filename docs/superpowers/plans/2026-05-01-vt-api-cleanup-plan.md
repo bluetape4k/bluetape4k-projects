@@ -89,7 +89,7 @@
      */
     fun <T> withFailFast(
         name: String? = null,
-        factory: ThreadFactory = Thread.ofVirtual().factory(),
+        factory: ThreadFactory = VirtualThreads.threadFactory(),
         block: (scope: StructuredTaskScopeFailFast) -> T,
     ): T = withAll(name, factory, block)
 
@@ -100,10 +100,14 @@
      */
     fun <T> withFirstSuccess(
         name: String? = null,
-        factory: ThreadFactory = Thread.ofVirtual().factory(),
+        factory: ThreadFactory = VirtualThreads.threadFactory(),
         block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
     ): T = withAny(name, factory, block)
     ```
+  - **[수정 #7] factory 기본값 통일**: `Thread.ofVirtual().factory()` → `VirtualThreads.threadFactory()` 사용
+    - `VirtualThreads.threadFactory()`는 fallback 환경에서 플랫폼 스레드 팩토리를 안전하게 반환
+    - `Thread.ofVirtual().factory()`는 가상 스레드 미지원 환경에서 throw할 수 있음
+    - `StructuredTaskScopes.failFast()`(T4)도 동일 이유로 `VirtualThreads.threadFactory()` 사용 — 두 진입점의 기본값 일관성 유지
   - `withAll()` KDoc에 `@see withFailFast` 안내 추가 (deprecated 하지 않음 — SPI 안정성 유지)
   - `withAny()` KDoc에 `@see withFirstSuccess` 안내 추가 (deprecated 하지 않음 — SPI 안정성 유지)
   - **SPI 결정 재확인**: `withAll`/`withAny`는 jdk21/jdk25 구현체가 `override`하는 SPI 메서드이므로 deprecated 표시하지 않음
@@ -156,7 +160,10 @@
     ```kotlin
     @Deprecated(
         message = "failFast()를 사용하세요.",
-        replaceWith = ReplaceWith("failFast(name, factory, block)")
+        replaceWith = ReplaceWith(
+            "failFast(name, factory, block)",
+            "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes"
+        )
     )
     fun <T> all(
         name: String? = null,
@@ -168,7 +175,10 @@
     ```kotlin
     @Deprecated(
         message = "firstSuccess()를 사용하세요.",
-        replaceWith = ReplaceWith("firstSuccess(name, factory, block)")
+        replaceWith = ReplaceWith(
+            "firstSuccess(name, factory, block)",
+            "io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes"
+        )
     )
     fun <T> any(
         name: String? = null,
@@ -176,6 +186,7 @@
         block: (scope: StructuredTaskScopeAny<T>) -> T,
     ): T = provider().withAny(name, factory, block)
     ```
+  - **[수정 #2] `ReplaceWith` import 경로 완성**: IDE quick-fix가 외부 호출 지점에서 `StructuredTaskScopes`를 자동 임포트할 수 있도록 두 번째 인자에 FQN 추가
   - 새 `failFast()`/`firstSuccess()` 함수에 KDoc 예제 포함 (fork → join → get 패턴)
 - **완료 기준**:
   - [ ] `failFast()` 추가 (factory 기본값: `VirtualThreads.threadFactory()`)
@@ -235,6 +246,7 @@
     @Test
     fun `firstSuccess scope 모든 subtask 실패 시 mapper 예외가 발생해야 한다`() { ... }
     ```
+    - **[수정 #4] 예외 타입 명시**: jdk21 `ShutdownOnSuccess.result()` 전체 실패 시 → `StructuredTaskScope.FailedException` 발생. jdk25 `Joiner.anySuccessfulResultOrThrow()` → 동일 예외. 테스트에서 `shouldThrow<StructuredTaskScope.FailedException>` (또는 상위 타입 `Exception`) assertion 필수
   - `getOrNull()` SUCCESS 상태 테스트: join() 이후 정상 결과 반환
     ```kotlin
     @Test
@@ -246,23 +258,52 @@
     fun `getOrNull 은 FAILED 상태에서 null 을 반환해야 한다`() { ... }
     ```
   - `getOrNull()` UNAVAILABLE 상태 테스트: `ShutdownOnFailure` scope에서 shutdown으로 취소된 subtask를 `join()` 이후 확인 → null 반환
-    - **주의**: join() **이전** 호출로 테스트하지 말 것 (KDoc 전제 조건 위반)
-    ```kotlin
-    @Test
-    fun `getOrNull 은 UNAVAILABLE 상태에서 null 을 반환해야 한다`() { ... }
-    ```
+    - **[수정 #1][CRITICAL] 결정론적 재현 패턴**: `CountDownLatch(2)`로 타이밍 제어
+      ```kotlin
+      @Test
+      fun `getOrNull 은 UNAVAILABLE 상태에서 null 을 반환해야 한다`() {
+          val subtaskStarted = CountDownLatch(1)   // subtask가 실행 시작했음을 신호
+          val proceedToFail  = CountDownLatch(1)   // 실패 subtask에게 진행 허가
+          var cancelledTask: StructuredSubtask<Int>? = null
+
+          StructuredTaskScopes.failFast<Int> { scope ->
+              // subtask1: 즉시 실패하여 scope shutdown 트리거
+              scope.fork { 
+                  subtaskStarted.countDown()        // subtask2가 실행 중임을 신호
+                  proceedToFail.await()             // 명시적으로 대기 후 실패
+                  throw RuntimeException("forced failure")
+              }
+              // subtask2: block 상태로 유지되다가 shutdown에 의해 취소됨
+              cancelledTask = scope.fork { 
+                  subtaskStarted.await()            // subtask1이 시작했을 때
+                  proceedToFail.countDown()         // subtask1에게 실패 허가
+                  Thread.sleep(10_000)              // scope shutdown 전까지 block
+                  42
+              }
+              scope.join()
+              // join 이후 scope shutdown으로 취소된 subtask의 상태 확인
+              cancelledTask!!.getOrNull()           // UNAVAILABLE → null
+          } 
+          // 또는 try-catch로 예외를 잡고 cancelledTask의 getOrNull() 확인
+          cancelledTask!!.state() shouldBeEqualTo UNAVAILABLE
+          cancelledTask!!.getOrNull().shouldBeNull()
+      }
+      ```
+    - **구현 주의**: `Jdk21AllScope.delegate`(private) 직접 접근 불가 → scope shutdown을 통해 간접 취소 유도. `CountDownLatch`로 실패 subtask와 block subtask 간 타이밍 결정론적 제어
   - `getOrNull()` join 이전 호출 안전성 테스트: `state() == SUCCESS`이나 join() 전 → try-catch로 null 반환
+    - **[수정 #5] 분류 주의**: 이 테스트는 **내부 방어(internal defense)** 테스트이며 공개 API 계약(public contract) 테스트가 아님. `getOrNull()`의 KDoc 전제 조건은 "join() 이후 호출"이고 join() 이전 호출은 미정의 동작. 테스트 이름에 `(내부 방어)` 명시
     ```kotlin
     @Test
-    fun `getOrNull 은 join 이전 호출에서도 null 을 안전하게 반환해야 한다`() { ... }
+    fun `getOrNull 은 join 이전 호출에서도 null 을 안전하게 반환해야 한다 (내부 방어)`() { ... }
     ```
   - scope 리소스 해제 테스트: `close()` 보장 (use{} 블록 정상 종료 확인)
   - 기존 `all scope`/`any scope` 테스트는 그대로 유지 (회귀 방지)
   - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeNull`, `shouldNotBeNull`, `shouldBeInstanceOf`
 - **완료 기준**:
   - [ ] `failFast` 정상/실패/기본값 테스트 3건 추가
-  - [ ] `firstSuccess` 정상/전체실패 테스트 2건 추가
-  - [ ] `getOrNull` SUCCESS/FAILED/UNAVAILABLE/join전 테스트 4건 추가
+  - [ ] `firstSuccess` 정상/전체실패 테스트 2건 추가 (전체실패 시 `StructuredTaskScope.FailedException` assertion 포함)
+  - [ ] `getOrNull` SUCCESS/FAILED/UNAVAILABLE(CountDownLatch)/join전(내부방어) 테스트 4건 추가
+  - [ ] **[수정 #3] `joinUntil()` 타임아웃 테스트 1건 추가**: scope 내 subtask가 제한 시간 내 완료되지 않을 때 `TimeoutException` 발생 확인 (Spec 섹션 4 명시 요구사항)
   - [ ] 기존 테스트 전부 통과 (회귀 없음)
 - **의존성**: T1, T4 완료 후
 
@@ -371,10 +412,17 @@
   - 기존 `structuredTaskScopeAll {}`/`structuredTaskScopeAny {}` 테스트는 그대로 유지 (회귀 방지 + deprecated API 동작 검증)
   - `@EnabledForJreRange(min = JRE.JAVA_21)` 어노테이션 유지
   - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeInstanceOf` 등
+  - **[수정 #8] `@Suppress("DEPRECATION")` 대상 파일 명시**:
+    - `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredTaskScopeSupport.kt`
+      → `structuredTaskScopeAll` 내부에서 `StructuredTaskScopes.all()` 호출 시 `@Suppress("DEPRECATION")` 필요
+    - `testing/junit5` 모듈: `VirtualFuture`/`structuredTaskScopeAll` 등 deprecated API 사용 여부 사전 확인
+      → 사용 중이면 `@Suppress("DEPRECATION")` 추가 또는 새 API로 마이그레이션
+    - `utils/workflow` 모듈: `virtualFuture {}`, `structuredTaskScopeAll` 등 사용 여부 확인 후 동일 처리
 - **완료 기준**:
   - [ ] `structuredTaskScopeFailFast` 테스트 2건 추가 (정상/실패)
   - [ ] `structuredTaskScopeFirstSuccess` 테스트 2건 추가 (정상/첫성공)
   - [ ] 기존 `structuredTaskScopeAll`/`structuredTaskScopeAny` 테스트 전부 통과
+  - [ ] T7 파일 `@Suppress("DEPRECATION")` 필요 위치 확인 + 적용
 - **의존성**: T7 완료 후
 
 ---
@@ -384,13 +432,18 @@
 - **complexity**: low
 - **파일**: 없음 (빌드 명령 실행)
 - **변경 내용**:
-  - 4개 모듈 통합 테스트 실행:
+  - **[수정 #6] 검증 범위 확장**: deprecated API를 사용 중인 downstream 모듈의 컴파일 경고 발생 여부 확인 필수
+  - 6개 모듈 통합 빌드/테스트 실행:
     ```bash
     ./gradlew :bluetape4k-virtualthread-api:test \
               :bluetape4k-virtualthread-jdk21:test \
               :bluetape4k-virtualthread-jdk25:test \
-              :bluetape4k-core:test
+              :bluetape4k-core:test \
+              :bluetape4k-junit5:compileTestKotlin \
+              :bluetape4k-workflow:compileTestKotlin
     ```
+  - `testing/junit5`와 `utils/workflow` 모듈은 **테스트 실행 없이 컴파일만** 확인 (deprecated 경고 발생 여부 확인)
+    - 경고 발생 시: 해당 파일에 `@Suppress("DEPRECATION")` 추가하거나 새 API로 마이그레이션 (T8에서 식별)
   - 실패 시 오류 메시지 분석 후 T1~T8 중 해당 태스크 재작업
   - jdk21/jdk25 구현체 변경 없음 확인 (기존 테스트 통과 확인)
   - 브레이킹 체인지 없음 확인 (`@Deprecated`만 추가, 삭제 없음)
@@ -399,6 +452,8 @@
   - [ ] `bluetape4k-virtualthread-jdk21` 테스트 전부 통과 (변경 없음)
   - [ ] `bluetape4k-virtualthread-jdk25` 테스트 전부 통과 (변경 없음)
   - [ ] `bluetape4k-core` 테스트 전부 통과
+  - [ ] `bluetape4k-junit5` 컴파일 성공 (deprecated 경고 처리 확인)
+  - [ ] `bluetape4k-workflow` 컴파일 성공 (deprecated 경고 처리 확인)
   - [ ] deprecated 경고만 발생, 컴파일 오류 없음
 - **의존성**: T6, T8 완료 후
 
@@ -502,10 +557,15 @@ T1 → T2 → T3 → T4 ─┬─ T5 (병렬)
 ## 빌드 검증 명령
 
 ```bash
+# 핵심 4개 모듈 전체 테스트
 ./gradlew :bluetape4k-virtualthread-api:test \
           :bluetape4k-virtualthread-jdk21:test \
           :bluetape4k-virtualthread-jdk25:test \
           :bluetape4k-core:test
+
+# downstream 모듈 컴파일 검증 (deprecated 경고 처리 확인)
+./gradlew :bluetape4k-junit5:compileTestKotlin \
+          :bluetape4k-workflow:compileTestKotlin
 ```
 
 ---
@@ -525,9 +585,14 @@ T1 → T2 → T3 → T4 ─┬─ T5 (병렬)
 - [ ] `bluetape4k/core` — `structuredTaskScopeFailFast {}`/`structuredTaskScopeFirstSuccess {}` 추가
 - [ ] `bluetape4k/core` — `structuredTaskScopeAll {}`/`structuredTaskScopeAny {}` `@Deprecated` 추가
 - [ ] `bluetape4k/core` — deprecated 함수에 `@Suppress("DEPRECATION")` 추가
-- [ ] 새 API 테스트 추가 (`failFast`, `firstSuccess`, `getOrNull`) — T6, T8
+- [ ] 새 API 테스트 추가 (`failFast`, `firstSuccess`, `getOrNull`, `joinUntil`) — T6, T8
+- [ ] getOrNull() UNAVAILABLE 테스트: CountDownLatch 기반 결정론적 재현 사용
+- [ ] firstSuccess 전체 실패 테스트: `StructuredTaskScope.FailedException` assertion 포함
 - [ ] 기존 테스트 전부 통과 (회귀 없음)
 - [ ] KDoc 갱신 (모든 public API — 새 추가 + 기존 보강)
 - [ ] README.md / README.ko.md 결정 트리 추가 및 API 예제 교체 (8개 파일)
+- [ ] `@Suppress("DEPRECATION")` 대상 파일 처리 완료 (`StructuredTaskScopeSupport.kt`, `junit5`, `workflow` 확인)
 - [ ] `./gradlew :bluetape4k-virtualthread-api:test :bluetape4k-virtualthread-jdk21:test :bluetape4k-virtualthread-jdk25:test :bluetape4k-core:test` 통과
+- [ ] `./gradlew :bluetape4k-junit5:compileTestKotlin :bluetape4k-workflow:compileTestKotlin` 오류 없음
 - [ ] 브레이킹 체인지 없음 확인 (`@Deprecated`만 추가, 삭제 없음)
+- [ ] `withFailFast()`/`failFast()` factory 기본값 통일 확인 (둘 다 `VirtualThreads.threadFactory()`)
