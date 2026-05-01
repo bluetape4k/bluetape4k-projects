@@ -57,6 +57,8 @@ Need all subtasks to succeed?
   └─ Yes → failFast { }        (cancels others on first failure)
 Need the first success?
   └─ Yes → firstSuccess { }    (cancels others on first success)
+Need partial failure tolerance (collect success + failure separately)?
+  └─ Yes → supervised { }      (all run to completion; results split)
 ```
 
 #### `failFast` — All Must Succeed
@@ -87,6 +89,34 @@ val fastestResult = StructuredTaskScopes.firstSuccess<String> { scope ->
     scope.fork { fetchFromApi3() }
 
     scope.join().result { error -> RuntimeException("All APIs failed", error) }
+}
+```
+
+#### `supervised` — Partial Failure Tolerance
+
+Runs all subtasks to completion regardless of individual failures. Results are split into successful results and failed exceptions.
+
+```kotlin
+val (successes, errors) = StructuredTaskScopes.supervised<String, Pair<List<String>, List<Throwable>>> { scope ->
+    scope.fork { fetchFromPrimaryDb() }   // may succeed
+    scope.fork { fetchFromReplicaDb() }   // may fail
+    scope.fork { fetchFromCacheDb() }     // may succeed
+    scope.join()
+    scope.successfulResults() to scope.failedExceptions()
+}
+// successes: results from tasks that completed normally
+// errors: exceptions from tasks that failed
+println("Got ${successes.size} results, ${errors.size} failures")
+```
+
+With `joinUntil` deadline:
+
+```kotlin
+StructuredTaskScopes.supervised<String, Unit> { scope ->
+    scope.fork { longRunningTask() }
+    scope.joinUntil(Instant.now().plusSeconds(5))  // TimeoutException if exceeded
+    val results = scope.successfulResults()
+    val failures = scope.failedExceptions()
 }
 ```
 
@@ -221,14 +251,26 @@ classDiagram
         +isSupported() Boolean
         +withFailFast(name, factory, block) T
         +withFirstSuccess(name, factory, block) T
+        +withSupervised(name, factory, block) R
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
+    }
+
+    class StructuredTaskScopeSupervised {
+        <<interface>>
+        +fork(task) StructuredSubtask~T~
+        +join() StructuredTaskScopeSupervised~T~
+        +joinUntil(deadline) StructuredTaskScopeSupervised~T~
+        +successfulResults() List~T~
+        +failedExceptions() List~Throwable~
+        +close()
     }
 
     class StructuredTaskScopes {
         <<object>>
         +failFast(name, factory, block) T
         +firstSuccess(name, factory, block) T
+        +supervised(name, factory, block) R
         +all(name, factory, block) T ~~deprecated~~
         +any(name, factory, block) T ~~deprecated~~
     }
@@ -253,6 +295,8 @@ classDiagram
     VirtualThreadRuntime <|-- PlatformThreadFallback
     VirtualThreads --> VirtualThreadRuntime : "selected via ServiceLoader"
     StructuredTaskScopes --> StructuredTaskScopeProvider : "selected via ServiceLoader"
+    StructuredTaskScopeProvider --> StructuredTaskScopeSupervised : creates
+    style StructuredTaskScopeSupervised fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
 
     style VirtualThreadRuntime fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style VirtualThreads fill:#FFF3E0,stroke:#FFCC80,color:#E65100

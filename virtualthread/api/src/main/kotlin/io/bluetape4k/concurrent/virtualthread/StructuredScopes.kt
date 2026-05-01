@@ -180,6 +180,93 @@ interface StructuredTaskScopeAny<T>: AutoCloseable {
 typealias StructuredTaskScopeFirstSuccess<T> = StructuredTaskScopeAny<T>
 
 /**
+ * 부분 실패를 허용하는 supervised scope 추상화입니다.
+ * 모든 subtask를 실행하고, 실패해도 나머지를 계속 진행합니다.
+ * [join] 이후 [results]로 각 subtask 결과를 `Result<T>`로 통합 조회하거나,
+ * [successfulResults] / [failedExceptions]로 분리해 사용합니다.
+ *
+ * ## 동작/계약
+ * - [fork]로 추가한 모든 subtask가 완료될 때까지 대기합니다.
+ * - subtask 하나가 실패해도 나머지 subtask는 계속 실행됩니다 (fail-fast 아님).
+ * - [join] 이후에 [results], [successfulResults], [failedExceptions]를 호출해야 합니다.
+ * - 타임아웃이 필요하면 [joinUntil]을 사용하세요. 데드라인 초과 시 `TimeoutException`이 발생합니다.
+ *
+ * ```kotlin
+ * // Result<T> 통합 조회
+ * val results = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+ *     scope.fork { 1 }
+ *     scope.fork { throw RuntimeException("subtask 2 failed") }
+ *     scope.fork { 3 }
+ *     scope.join()
+ *     scope.results()
+ * }
+ * // results[0] == Result.success(1)
+ * // results[1] == Result.failure(RuntimeException("subtask 2 failed"))
+ * // results[2] == Result.success(3)
+ *
+ * // 또는 기존 패턴으로 분리
+ * val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<...>> { scope ->
+ *     scope.fork { 1 }
+ *     scope.fork { throw RuntimeException("subtask 2 failed") }
+ *     scope.fork { 3 }
+ *     scope.join()
+ *     scope.successfulResults() to scope.failedExceptions()
+ * }
+ * // successes == [1, 3], failures.size == 1
+ * ```
+ *
+ * @param T 각 subtask의 결과 타입
+ * @see StructuredTaskScopes.supervised
+ */
+interface StructuredTaskScopeSupervised<T> : AutoCloseable {
+    /** 새 subtask를 scope에 등록합니다. */
+    fun fork(task: () -> T): StructuredSubtask<T>
+
+    /**
+     * 등록된 모든 subtask 완료를 대기합니다.
+     * subtask 실패 시에도 나머지 subtask를 계속 실행합니다.
+     */
+    fun join(): StructuredTaskScopeSupervised<T>
+
+    /**
+     * 지정한 데드라인까지 subtask 완료를 대기합니다.
+     * 데드라인 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
+     * 기본 구현은 타임아웃 없이 [join]을 호출합니다.
+     */
+    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeSupervised<T> = join()
+
+    /**
+     * [join] 이후 모든 subtask 결과를 `Result<T>` 리스트로 반환합니다.
+     * fork 순서와 결과 순서는 구현에 따라 다를 수 있습니다.
+     *
+     * - 성공한 subtask: `Result.success(value)`
+     * - 실패한 subtask: `Result.failure(exception)`
+     *
+     * **전제 조건**: [join] 또는 [joinUntil] 완료 이후에 호출하세요.
+     */
+    fun results(): List<Result<T>>
+
+    /**
+     * [join] 이후 성공한 subtask의 결과 리스트를 반환합니다.
+     * [results]에서 파생된 기본 구현입니다.
+     *
+     * **전제 조건**: [join] 또는 [joinUntil] 완료 이후에 호출하세요.
+     */
+    fun successfulResults(): List<T> = results().filter { it.isSuccess }.map { it.getOrThrow() }
+
+    /**
+     * [join] 이후 실패한 subtask의 예외 리스트를 반환합니다.
+     * [results]에서 파생된 기본 구현입니다.
+     *
+     * **전제 조건**: [join] 또는 [joinUntil] 완료 이후에 호출하세요.
+     */
+    fun failedExceptions(): List<Throwable> = results().mapNotNull { it.exceptionOrNull() }
+
+    /** scope 자원을 정리합니다. */
+    override fun close()
+}
+
+/**
  * JDK별 StructuredTaskScope 구현체를 제공하는 SPI 인터페이스입니다.
  *
  * ## 동작/계약
@@ -258,6 +345,22 @@ interface StructuredTaskScopeProvider {
         factory: ThreadFactory = VirtualThreads.threadFactory(),
         block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
     ): T = withAny(name, factory, block)
+
+    /**
+     * 부분 실패 허용형(supervised) 블록을 실행합니다.
+     * 모든 subtask를 실행하고, 실패 여부와 관계없이 완료를 대기합니다.
+     *
+     * @param name scope 이름
+     * @param factory subtask 실행용 스레드 팩토리 (기본값: [VirtualThreads.threadFactory])
+     * @param block 실행 블록 — [StructuredTaskScopeSupervised.join] 이후 [StructuredTaskScopeSupervised.results]로
+     *   `Result<T>` 통합 조회하거나 [StructuredTaskScopeSupervised.successfulResults] / [StructuredTaskScopeSupervised.failedExceptions]로 분리
+     * @see StructuredTaskScopes.supervised
+     */
+    fun <T, R> withSupervised(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory(),
+        block: (scope: StructuredTaskScopeSupervised<T>) -> R,
+    ): R
 }
 
 /**
@@ -391,6 +494,50 @@ object StructuredTaskScopes: KLogging() {
         factory: ThreadFactory = VirtualThreads.threadFactory(),
         block: (scope: StructuredTaskScopeFirstSuccess<T>) -> T,
     ): T = provider().withFirstSuccess(name, factory, block)
+
+    /**
+     * 부분 실패 허용형(supervised) scope 블록을 실행합니다.
+     * 하나의 subtask가 실패해도 나머지 subtask를 계속 실행합니다.
+     *
+     * ## 동작/계약
+     * - block 내부에서 [StructuredTaskScopeSupervised] API로 subtask를 등록·대기·결과 조회합니다.
+     * - [StructuredTaskScopeSupervised.join] 이후 [StructuredTaskScopeSupervised.results]로
+     *   각 subtask 결과를 `Result<T>`로 통합 조회하거나,
+     *   [StructuredTaskScopeSupervised.successfulResults] / [StructuredTaskScopeSupervised.failedExceptions]로 분리합니다.
+     * - 실제 scope 구현은 선택된 provider에 의해 결정됩니다.
+     *
+     * ```kotlin
+     * // Result<T> 통합 조회
+     * val allResults = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+     *     scope.fork { 1 }
+     *     scope.fork { throw RuntimeException("subtask 2 failed") }
+     *     scope.fork { 3 }
+     *     scope.join()
+     *     scope.results()
+     * }
+     * // allResults.filter { it.isSuccess }.map { it.getOrThrow() } == [1, 3]
+     *
+     * // 분리 패턴
+     * val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+     *     scope.fork { 1 }
+     *     scope.fork { throw RuntimeException("subtask 2 failed") }
+     *     scope.fork { 3 }
+     *     scope.join()
+     *     scope.successfulResults() to scope.failedExceptions()
+     * }
+     * // successes == [1, 3], failures.size == 1
+     * ```
+     *
+     * @param name scope 이름 (디버깅용, 기본값: null)
+     * @param factory subtask 실행용 스레드 팩토리 (기본값: [VirtualThreads.threadFactory])
+     * @param block scope 실행 블록
+     * @return [block]의 실행 결과
+     */
+    fun <T, R> supervised(
+        name: String? = null,
+        factory: ThreadFactory = VirtualThreads.threadFactory(),
+        block: (scope: StructuredTaskScopeSupervised<T>) -> R,
+    ): R = provider().withSupervised(name, factory, block)
 
     /**
      * 실패 전파형(all) scope 블록을 실행합니다.

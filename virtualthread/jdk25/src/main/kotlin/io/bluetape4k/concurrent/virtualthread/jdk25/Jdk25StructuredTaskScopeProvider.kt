@@ -4,12 +4,14 @@ import io.bluetape4k.concurrent.virtualthread.StructuredSubtask
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAll
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeAny
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeProvider
+import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopeSupervised
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Callable
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.ThreadFactory
@@ -157,7 +159,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
     private class Jdk25AllScope(
         private val delegate: StructuredTaskScope<Any?, Void>,
     ): StructuredTaskScopeAll {
-        private val subtasks = mutableListOf<Jdk25Subtask<*>>()
+        private val subtasks = CopyOnWriteArrayList<Jdk25Subtask<*>>()
 
         override fun <T> fork(task: () -> T): StructuredSubtask<T> {
             log.trace { "Add sub task..." }
@@ -177,14 +179,24 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
                 throw TimeoutException("Deadline already passed")
             }
             val ownerThread = Thread.currentThread()
-            val scheduler = ScheduledThreadPoolExecutor(1) { r -> Thread(r, "jdk25-scope-timeout") }
-            scheduler.schedule({ ownerThread.interrupt() }, remaining.toMillis(), TimeUnit.MILLISECONDS)
+            val scheduler = ScheduledThreadPoolExecutor(1) { r ->
+                Thread(r, "jdk25-scope-timeout").apply { isDaemon = true }
+            }
+            val timeoutFuture = scheduler.schedule(
+                { ownerThread.interrupt() },
+                remaining.toMillis(),
+                TimeUnit.MILLISECONDS
+            )
             try {
                 delegate.join()
+                // 성공적으로 join된 경우, 타이머가 이미 발동됐을 수 있는 spurious interrupt를 클리어
+                Thread.interrupted()
             } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt()
+                // 타이머가 발생시킨 interrupt — 소비하고 TimeoutException으로 변환
+                Thread.interrupted()
                 throw TimeoutException("joinUntil deadline exceeded")
             } finally {
+                timeoutFuture.cancel(false)
                 scheduler.shutdownNow()
             }
             return this
@@ -235,6 +247,98 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
         override fun close() {
             delegate.close()
+        }
+    }
+
+    /**
+     * JDK25 `Joiner.awaitAll()`을 사용하여 부분 실패 허용 scope를 실행합니다.
+     *
+     * ## 동작/계약
+     * - `StructuredTaskScope.open<T, Void>(Joiner.awaitAll(), ...)`로 scope를 생성합니다.
+     * - `awaitAll()`은 subtask 실패 시에도 나머지를 취소하지 않고 모두 완료까지 기다립니다.
+     * - join 후 [Jdk25SupervisedScope.successfulResults]와 [Jdk25SupervisedScope.failedExceptions]로 결과를 분리합니다.
+     *
+     * ```kotlin
+     * val (successes, errors) = Jdk25StructuredTaskScopeProvider().withSupervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+     *     scope.fork { 1 }
+     *     scope.fork { throw RuntimeException("fail") }
+     *     scope.fork { 3 }
+     *     scope.join()
+     *     scope.successfulResults() to scope.failedExceptions()
+     * }
+     * // successes = [1, 3], errors.size = 1
+     * ```
+     */
+    override fun <T, R> withSupervised(
+        name: String?,
+        factory: ThreadFactory,
+        block: (scope: StructuredTaskScopeSupervised<T>) -> R,
+    ): R {
+        log.debug { "부분 실패를 허용하는 supervised scope를 실행합니다..." }
+        val scope = StructuredTaskScope.open<T, Void>(
+            StructuredTaskScope.Joiner.awaitAll(),
+            configure(name, factory)
+        )
+        return scope.use { block(Jdk25SupervisedScope(it)) }
+    }
+
+    private class Jdk25SupervisedScope<T>(
+        private val delegate: StructuredTaskScope<T, Void>,
+    ) : StructuredTaskScopeSupervised<T> {
+        private val subtasks = CopyOnWriteArrayList<Jdk25Subtask<T>>()
+
+        override fun fork(task: () -> T): StructuredSubtask<T> {
+            log.trace { "Add supervised sub task..." }
+            val subtask = Jdk25Subtask(delegate.fork(Callable { task() }))
+            subtasks += subtask
+            return subtask
+        }
+
+        override fun join(): StructuredTaskScopeSupervised<T> {
+            delegate.join()
+            return this
+        }
+
+        override fun joinUntil(deadline: Instant): StructuredTaskScopeSupervised<T> {
+            val remaining = Duration.between(Instant.now(), deadline)
+            if (remaining.isNegative || remaining.isZero) {
+                throw TimeoutException("Deadline already passed")
+            }
+            val ownerThread = Thread.currentThread()
+            val scheduler = ScheduledThreadPoolExecutor(1) { r ->
+                Thread(r, "jdk25-supervised-timeout").apply { isDaemon = true }
+            }
+            val timeoutFuture = scheduler.schedule(
+                { ownerThread.interrupt() },
+                remaining.toMillis(),
+                TimeUnit.MILLISECONDS
+            )
+            try {
+                delegate.join()
+                // 성공적으로 join된 경우, 타이머가 이미 발동됐을 수 있는 spurious interrupt를 클리어
+                Thread.interrupted()
+            } catch (e: InterruptedException) {
+                // 타이머가 발생시킨 interrupt — 소비하고 TimeoutException으로 변환
+                Thread.interrupted()
+                throw TimeoutException("joinUntil deadline exceeded")
+            } finally {
+                timeoutFuture.cancel(false)
+                scheduler.shutdownNow()
+            }
+            return this
+        }
+
+        override fun results(): List<Result<T>> = subtasks.map { subtask ->
+            val exc = subtask.exceptionOrNull()
+            if (exc != null) Result.failure(exc) else Result.success(subtask.get())
+        }
+
+        override fun close() {
+            try {
+                delegate.close()
+            } finally {
+                subtasks.clear()
+            }
         }
     }
 }

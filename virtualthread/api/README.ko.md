@@ -56,6 +56,8 @@ Java의 StructuredTaskScope API를 추상화하여 JDK 버전에 관계없이 �
   └─ Yes → failFast { }       (첫 번째 실패 시 나머지를 즉시 취소)
 첫 번째 성공 결과만 필요한가?
   └─ Yes → firstSuccess { }   (첫 번째 성공 시 나머지를 취소)
+부분 실패를 허용하고 성공/실패를 나누어 수집해야 하는가?
+  └─ Yes → supervised { }     (모든 태스크 완료까지 기다린 후 결과를 분리)
 ```
 
 #### `failFast` — 전체 성공 보장
@@ -86,6 +88,34 @@ val fastestResult = StructuredTaskScopes.firstSuccess<String> { scope ->
     scope.fork { fetchFromApi3() }
 
     scope.join().result { error -> RuntimeException("All APIs failed", error) }
+}
+```
+
+#### `supervised` — 부분 실패 허용
+
+모든 서브태스크를 완료까지 실행하며, 성공 결과와 실패 예외를 별도로 수집합니다.
+
+```kotlin
+val (successes, errors) = StructuredTaskScopes.supervised<String, Pair<List<String>, List<Throwable>>> { scope ->
+    scope.fork { fetchFromPrimaryDb() }   // 성공 가능
+    scope.fork { fetchFromReplicaDb() }   // 실패 가능
+    scope.fork { fetchFromCacheDb() }     // 성공 가능
+    scope.join()
+    scope.successfulResults() to scope.failedExceptions()
+}
+// successes: 정상 완료된 태스크 결과 목록
+// errors: 실패한 태스크 예외 목록
+println("결과 ${successes.size}개 수집, 실패 ${errors.size}건")
+```
+
+`joinUntil` 데드라인 지정:
+
+```kotlin
+StructuredTaskScopes.supervised<String, Unit> { scope ->
+    scope.fork { longRunningTask() }
+    scope.joinUntil(Instant.now().plusSeconds(5))  // 초과 시 TimeoutException
+    val results = scope.successfulResults()
+    val failures = scope.failedExceptions()
 }
 ```
 
@@ -219,14 +249,26 @@ classDiagram
         +isSupported() Boolean
         +withFailFast(name, factory, block) T
         +withFirstSuccess(name, factory, block) T
+        +withSupervised(name, factory, block) R
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
+    }
+
+    class StructuredTaskScopeSupervised {
+        <<interface>>
+        +fork(task) StructuredSubtask~T~
+        +join() StructuredTaskScopeSupervised~T~
+        +joinUntil(deadline) StructuredTaskScopeSupervised~T~
+        +successfulResults() List~T~
+        +failedExceptions() List~Throwable~
+        +close()
     }
 
     class StructuredTaskScopes {
         <<object>>
         +failFast(name, factory, block) T
         +firstSuccess(name, factory, block) T
+        +supervised(name, factory, block) R
         +all(name, factory, block) T ~~deprecated~~
         +any(name, factory, block) T ~~deprecated~~
     }
@@ -251,6 +293,8 @@ classDiagram
     VirtualThreadRuntime <|-- PlatformThreadFallback
     VirtualThreads --> VirtualThreadRuntime : "ServiceLoader 선택"
     StructuredTaskScopes --> StructuredTaskScopeProvider : "ServiceLoader 선택"
+    StructuredTaskScopeProvider --> StructuredTaskScopeSupervised : creates
+    style StructuredTaskScopeSupervised fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
 
     style VirtualThreadRuntime fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style VirtualThreads fill:#FFF3E0,stroke:#FFCC80,color:#E65100
