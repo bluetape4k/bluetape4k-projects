@@ -10,7 +10,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeBlank
 import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledOnJre
+import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.StructuredTaskScope
@@ -22,7 +22,7 @@ import org.amshove.kluent.internal.assertFailsWith
  * - AllScope/AnyScope 추가 시나리오 (name, joinUntil, subtask 상태)
  * - Jdk25Subtask 상태 검증
  */
-@EnabledOnJre(JRE.JAVA_25)
+@EnabledForJreRange(min = JRE.JAVA_25)
 class Jdk25StructuredTaskScopeProviderExtTest {
 
     companion object: KLoggingChannel()

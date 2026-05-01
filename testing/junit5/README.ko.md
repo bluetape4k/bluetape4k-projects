@@ -110,6 +110,7 @@ classDiagram
     class StructuredTaskScopeTester {
         +rounds(n) StructuredTaskScopeTester
         +add(block) StructuredTaskScopeTester
+        +withTimeout(duration) StructuredTaskScopeTester
         +run()
     }
 
@@ -360,6 +361,13 @@ StructuredTaskScopeTester()
     .rounds(1000)
     .add { processRequest() }
     .add { handleResponse() }
+    .run()
+
+// withTimeout — 걸린 테스트를 TimeoutException으로 감지
+StructuredTaskScopeTester()
+    .rounds(100)
+    .withTimeout(5.seconds)   // 5초 초과 시 TimeoutException
+    .add { processRequest() }
     .run()
 ```
 

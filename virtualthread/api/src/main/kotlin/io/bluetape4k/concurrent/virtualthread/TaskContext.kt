@@ -95,8 +95,14 @@ object TaskContext {
      * }
      * ```
      */
-    fun <T, R> run(key: ScopedValue<T>, value: T, block: () -> R): R =
-        ScopedValue.where(key, value).call { block() }
+    fun <T, R> run(key: ScopedValue<T>, value: T, block: () -> R): R {
+        // ScopedValue.Carrier.call(Callable) — JDK21 preview API.
+        // JDK24+에서 call() 인자 타입이 CallableOp으로 변경되어 바이너리 불호환.
+        // run(Runnable)은 JDK21/25 모두 안정적이므로 capture 패턴 사용.
+        var captured: Result<R>? = null
+        ScopedValue.where(key, value).run { captured = runCatching { block() } }
+        return checkNotNull(captured) { "ScopedValue.Carrier.run did not execute block" }.getOrThrow()
+    }
 
     /**
      * [key]=[value] 첫 번째 바인딩으로 [TaskContextBindings] 빌더를 시작합니다.
@@ -168,5 +174,12 @@ class TaskContextBindings internal constructor(
     /**
      * 모든 바인딩을 적용하고 [block]을 실행한 뒤 결과를 반환합니다.
      */
-    fun <R> call(block: () -> R): R = carrier.call { block() }
+    fun <R> call(block: () -> R): R {
+        // carrier.call(Callable) — JDK21 preview API.
+        // JDK24+에서 call() 인자 타입이 CallableOp으로 변경되어 바이너리 불호환.
+        // run(Runnable)은 JDK21/25 모두 안정적이므로 capture 패턴 사용.
+        var captured: Result<R>? = null
+        carrier.run { captured = runCatching { block() } }
+        return checkNotNull(captured) { "ScopedValue.Carrier.run did not execute block" }.getOrThrow()
+    }
 }

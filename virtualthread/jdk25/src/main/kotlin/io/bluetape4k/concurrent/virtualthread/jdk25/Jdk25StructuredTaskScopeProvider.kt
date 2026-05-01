@@ -49,6 +49,48 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
         /** provider 우선순위 값입니다. */
         const val PRIORITY = JAVA_VERSION
+
+        /**
+         * JDK25 scope 구현체들에서 공유하는 interrupt 기반 타임아웃 패턴입니다.
+         *
+         * [joinAction]이 실행되는 동안 [deadline]이 초과되면 owner thread를 interrupt하여
+         * [InterruptedException]을 발생시키고, 이를 [TimeoutException]으로 변환합니다.
+         *
+         * ## 계약
+         * - [joinAction]은 [InterruptedException]을 catch하지 않고 전파해야 합니다.
+         * - JDK25 `StructuredTaskScope`는 `joinUntil(Instant)` API가 없으므로 이 패턴으로 대체합니다.
+         *
+         * @throws TimeoutException [deadline] 초과 시
+         */
+        internal fun interruptJoinUntil(
+            deadline: Instant,
+            threadName: String,
+            joinAction: () -> Unit,
+        ) {
+            val remaining = Duration.between(Instant.now(), deadline)
+            if (remaining.isNegative || remaining.isZero) {
+                throw TimeoutException("Deadline already passed")
+            }
+            val ownerThread = Thread.currentThread()
+            val scheduler = ScheduledThreadPoolExecutor(1) { r ->
+                Thread(r, threadName).apply { isDaemon = true }
+            }
+            val timeoutFuture = scheduler.schedule(
+                { ownerThread.interrupt() },
+                remaining.toNanos(),
+                TimeUnit.NANOSECONDS
+            )
+            try {
+                joinAction()
+                Thread.interrupted()
+            } catch (e: InterruptedException) {
+                Thread.interrupted()
+                throw TimeoutException("joinUntil deadline exceeded")
+            } finally {
+                timeoutFuture.cancel(false)
+                scheduler.shutdownNow()
+            }
+        }
     }
 
     override val providerName: String = PROVIDER_NAME
@@ -174,31 +216,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
 
         override fun joinUntil(deadline: Instant): StructuredTaskScopeAll {
-            val remaining = Duration.between(Instant.now(), deadline)
-            if (remaining.isNegative || remaining.isZero) {
-                throw TimeoutException("Deadline already passed")
-            }
-            val ownerThread = Thread.currentThread()
-            val scheduler = ScheduledThreadPoolExecutor(1) { r ->
-                Thread(r, "jdk25-scope-timeout").apply { isDaemon = true }
-            }
-            val timeoutFuture = scheduler.schedule(
-                { ownerThread.interrupt() },
-                remaining.toMillis(),
-                TimeUnit.MILLISECONDS
-            )
-            try {
-                delegate.join()
-                // 성공적으로 join된 경우, 타이머가 이미 발동됐을 수 있는 spurious interrupt를 클리어
-                Thread.interrupted()
-            } catch (e: InterruptedException) {
-                // 타이머가 발생시킨 interrupt — 소비하고 TimeoutException으로 변환
-                Thread.interrupted()
-                throw TimeoutException("joinUntil deadline exceeded")
-            } finally {
-                timeoutFuture.cancel(false)
-                scheduler.shutdownNow()
-            }
+            interruptJoinUntil(deadline, "jdk25-scope-timeout") { delegate.join() }
             return this
         }
 
@@ -235,6 +253,19 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
 
         override fun join(): StructuredTaskScopeAny<T> {
             joinedResult = runCatching { delegate.join() }
+            return this
+        }
+
+        override fun joinUntil(deadline: Instant): StructuredTaskScopeAny<T> {
+            interruptJoinUntil(deadline, "jdk25-any-scope-timeout") {
+                // InterruptedException은 interruptJoinUntil의 catch 블록으로 전파; 나머지는 capture
+                try {
+                    joinedResult = Result.success(delegate.join())
+                } catch (e: Exception) {
+                    if (e is InterruptedException) throw e
+                    joinedResult = Result.failure(e)
+                }
+            }
             return this
         }
 
@@ -300,31 +331,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         }
 
         override fun joinUntil(deadline: Instant): StructuredTaskScopeSupervised<T> {
-            val remaining = Duration.between(Instant.now(), deadline)
-            if (remaining.isNegative || remaining.isZero) {
-                throw TimeoutException("Deadline already passed")
-            }
-            val ownerThread = Thread.currentThread()
-            val scheduler = ScheduledThreadPoolExecutor(1) { r ->
-                Thread(r, "jdk25-supervised-timeout").apply { isDaemon = true }
-            }
-            val timeoutFuture = scheduler.schedule(
-                { ownerThread.interrupt() },
-                remaining.toMillis(),
-                TimeUnit.MILLISECONDS
-            )
-            try {
-                delegate.join()
-                // 성공적으로 join된 경우, 타이머가 이미 발동됐을 수 있는 spurious interrupt를 클리어
-                Thread.interrupted()
-            } catch (e: InterruptedException) {
-                // 타이머가 발생시킨 interrupt — 소비하고 TimeoutException으로 변환
-                Thread.interrupted()
-                throw TimeoutException("joinUntil deadline exceeded")
-            } finally {
-                timeoutFuture.cancel(false)
-                scheduler.shutdownNow()
-            }
+            interruptJoinUntil(deadline, "jdk25-supervised-timeout") { delegate.join() }
             return this
         }
 

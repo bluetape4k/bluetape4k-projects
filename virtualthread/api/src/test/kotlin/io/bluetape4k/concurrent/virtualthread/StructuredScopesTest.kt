@@ -91,8 +91,8 @@ class StructuredScopesTest {
     }
 
     @Test
-    fun `all scope joinUntil 기본 구현이 join 을 호출해야 한다`() {
-        var joinCalled = false
+    fun `all scope joinUntil 구현체가 deadline 을 위임할 수 있어야 한다`() {
+        var joinUntilCalled = false
         val scope = object : StructuredTaskScopeAll {
             override fun <T> fork(task: () -> T): StructuredSubtask<T> {
                 @Suppress("UNCHECKED_CAST")
@@ -103,8 +103,10 @@ class StructuredScopesTest {
                 }
             }
 
-            override fun join(): StructuredTaskScopeAll {
-                joinCalled = true
+            override fun join(): StructuredTaskScopeAll = this
+
+            override fun joinUntil(deadline: Instant): StructuredTaskScopeAll {
+                joinUntilCalled = true
                 return this
             }
 
@@ -113,7 +115,7 @@ class StructuredScopesTest {
         }
 
         scope.joinUntil(Instant.now().plusSeconds(5))
-        joinCalled.shouldBeTrue()
+        joinUntilCalled.shouldBeTrue()
     }
 
     @Suppress("DEPRECATION")

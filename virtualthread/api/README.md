@@ -112,11 +112,28 @@ println("Got ${successes.size} results, ${errors.size} failures")
 With `joinUntil` deadline:
 
 ```kotlin
+// Supervised scope — all 3 scope types support joinUntil
 StructuredTaskScopes.supervised<String, Unit> { scope ->
     scope.fork { longRunningTask() }
     scope.joinUntil(Instant.now().plusSeconds(5))  // TimeoutException if exceeded
     val results = scope.successfulResults()
     val failures = scope.failedExceptions()
+}
+
+// failFast (all-scope) with deadline
+StructuredTaskScopes.failFast { scope ->
+    scope.fork { processA() }
+    scope.fork { processB() }
+    scope.joinUntil(Instant.now().plusSeconds(10))
+        .throwIfFailed()
+}
+
+// firstSuccess (any-scope) with deadline
+StructuredTaskScopes.firstSuccess<String> { scope ->
+    scope.fork { slowTask() }
+    scope.fork { fastTask() }
+    scope.joinUntil(Instant.now().plusMillis(500))
+        .result { RuntimeException("All tasks failed or timed out", it) }
 }
 ```
 
@@ -254,6 +271,24 @@ classDiagram
         +withSupervised(name, factory, block) R
         +withAll(name, factory, block) T
         +withAny(name, factory, block) T
+    }
+
+    class StructuredTaskScopeAll {
+        <<interface>>
+        +fork(task) StructuredSubtask~T~
+        +join() StructuredTaskScopeAll
+        +joinUntil(deadline) StructuredTaskScopeAll
+        +throwIfFailed(handler) StructuredTaskScopeAll
+        +close()
+    }
+
+    class StructuredTaskScopeAny~T~ {
+        <<interface>>
+        +fork(task) StructuredSubtask~T~
+        +join() StructuredTaskScopeAny~T~
+        +joinUntil(deadline) StructuredTaskScopeAny~T~
+        +result(mapper) T
+        +close()
     }
 
     class StructuredTaskScopeSupervised {

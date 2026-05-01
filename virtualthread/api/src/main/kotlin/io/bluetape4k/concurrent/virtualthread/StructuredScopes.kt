@@ -116,9 +116,8 @@ interface StructuredTaskScopeAll: AutoCloseable {
     /**
      * 지정한 데드라인까지 subtask 완료를 대기합니다.
      * 데드라인 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
-     * 기본 구현은 타임아웃 없이 [join]을 호출합니다.
      */
-    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAll = join()
+    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAll
 
     /** 실패한 subtask가 있으면 [handler]를 호출한 뒤 예외를 전파합니다. */
     fun throwIfFailed(handler: (e: Throwable) -> Unit = {}): StructuredTaskScopeAll
@@ -163,6 +162,12 @@ interface StructuredTaskScopeAny<T>: AutoCloseable {
 
     /** 등록된 subtask 완료를 대기합니다. */
     fun join(): StructuredTaskScopeAny<T>
+
+    /**
+     * 지정한 데드라인까지 subtask 완료를 대기합니다.
+     * 데드라인 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
+     */
+    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAny<T>
 
     /** 첫 성공 결과를 반환하거나 실패 시 [mapper]로 예외를 변환해 던집니다. */
     fun result(mapper: (Throwable) -> RuntimeException): T
@@ -231,9 +236,8 @@ interface StructuredTaskScopeSupervised<T> : AutoCloseable {
     /**
      * 지정한 데드라인까지 subtask 완료를 대기합니다.
      * 데드라인 초과 시 [java.util.concurrent.TimeoutException]이 발생합니다.
-     * 기본 구현은 타임아웃 없이 [join]을 호출합니다.
      */
-    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeSupervised<T> = join()
+    fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeSupervised<T>
 
     /**
      * [join] 이후 모든 subtask 결과를 `Result<T>` 리스트로 반환합니다.

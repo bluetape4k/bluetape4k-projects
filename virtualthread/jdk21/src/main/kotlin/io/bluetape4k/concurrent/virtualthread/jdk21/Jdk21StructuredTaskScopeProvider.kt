@@ -174,6 +174,11 @@ class Jdk21StructuredTaskScopeProvider: StructuredTaskScopeProvider {
             return this
         }
 
+        override fun joinUntil(deadline: java.time.Instant): StructuredTaskScopeAny<T> {
+            delegate.joinUntil(deadline)
+            return this
+        }
+
         override fun result(mapper: (Throwable) -> RuntimeException): T =
             delegate.result(mapper)
 

@@ -110,6 +110,7 @@ classDiagram
     class StructuredTaskScopeTester {
         +rounds(n) StructuredTaskScopeTester
         +add(block) StructuredTaskScopeTester
+        +withTimeout(duration) StructuredTaskScopeTester
         +run()
     }
 
@@ -234,6 +235,13 @@ SuspendedJobTester()
 // Virtual Threads (Java 21+)
 StructuredTaskScopeTester()
     .rounds(1000)
+    .add { processRequest() }
+    .run()
+
+// With timeout — hangs are caught as TimeoutException
+StructuredTaskScopeTester()
+    .rounds(100)
+    .withTimeout(5.seconds)   // run() throws TimeoutException if not done in 5s
     .add { processRequest() }
     .run()
 ```
