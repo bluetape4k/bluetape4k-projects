@@ -3,7 +3,7 @@ package io.bluetape4k.concurrent.virtualthread
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeGreaterThan
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldBeTrue
@@ -46,7 +46,7 @@ class StructuredScopesTest {
     @Test
     fun `provider priority 가 양수여야 한다`() {
         val provider = StructuredTaskScopes.provider()
-        (provider.priority > 0).shouldBeTrue()
+        provider.priority.shouldBeGreaterThan(0)
     }
 
     // ── 기존 all/any 회귀 테스트 (deprecated API 동작 검증) ─────────────────────
