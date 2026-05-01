@@ -65,7 +65,7 @@ class ParallelWorkFlow(
     /**
      * ALL 정책: 모든 작업 완료를 대기합니다. 하나라도 실패 시 나머지를 취소합니다.
      *
-     * [StructuredTaskScopes.all] (ShutdownOnFailure)을 사용합니다.
+     * [StructuredTaskScopes.failFast] (ShutdownOnFailure)을 사용합니다.
      */
     private fun executeAll(context: WorkContext): WorkReport {
         val factory = Thread.ofVirtual().name("$flowName-", 0).factory()
@@ -114,7 +114,7 @@ class ParallelWorkFlow(
     /**
      * ANY 정책: 첫 번째 성공한 작업 결과를 즉시 반환하고 나머지를 취소합니다.
      *
-     * [StructuredTaskScopes.any] (ShutdownOnSuccess)를 사용합니다.
+     * [StructuredTaskScopes.firstSuccess] (ShutdownOnSuccess)를 사용합니다.
      * Success가 아닌 결과는 예외로 래핑하여 ShutdownOnSuccess가 "성공"으로 간주하지 않도록 합니다.
      */
     private fun executeAny(context: WorkContext): WorkReport {
@@ -175,4 +175,7 @@ class ParallelWorkFlow(
  * [java.util.concurrent.StructuredTaskScope.ShutdownOnSuccess]는 정상 반환만 "성공"으로 간주하므로,
  * 실패/중단/취소 결과를 예외로 전환하여 scope가 계속 다음 성공을 기다리도록 합니다.
  */
-internal class WorkNotSuccessException(val report: WorkReport): Exception("Work not successful: ${report.status}")
+internal class WorkNotSuccessException(val report: WorkReport): RuntimeException("Work not successful: ${report.status}") {
+    // 제어 흐름용 예외 — 스택 캡처 비용 없이 빠른 경로 처리
+    override fun fillInStackTrace(): Throwable = this
+}

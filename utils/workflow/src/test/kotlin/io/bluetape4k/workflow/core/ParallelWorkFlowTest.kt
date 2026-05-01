@@ -140,6 +140,21 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
     }
 
     @Test
+    fun `ANY 정책 - timeout 초과 시 Cancelled 반환`() {
+        val works = listOf(
+            delayedSuccessWork(500L, "slow-1"),
+            delayedSuccessWork(500L, "slow-2"),
+        )
+        val flow = ParallelWorkFlow(
+            works = works,
+            policy = ParallelPolicy.ANY,
+            timeout = 100.milliseconds,
+        )
+
+        flow.execute(context) shouldBeInstanceOf WorkReport.Cancelled::class
+    }
+
+    @Test
     fun `ALL vs ANY 정책 비교 - 동일 works에서 결과 타입이 다름`() {
         val works = listOf(
             successWork("work-1"),
