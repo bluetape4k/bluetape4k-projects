@@ -144,7 +144,7 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
         }
 
         val factory = this.factory ?: Thread.ofVirtual().factory()
-        StructuredTaskScopes.all("stressTester", factory) { scope ->
+        StructuredTaskScopes.failFast("stressTester", factory) { scope ->
             repeat(roundsPerWorker) {
                 testBlocks.forEach { block ->
                     scope.fork { block() }

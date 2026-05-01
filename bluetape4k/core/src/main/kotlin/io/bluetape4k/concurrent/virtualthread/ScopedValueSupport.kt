@@ -17,7 +17,7 @@ package io.bluetape4k.concurrent.virtualthread
  *     // 내부 범위를 벗어나면 원래 값으로 복원
  *     println(sv.get()) // "zero"
  *
- *     structuredTaskScopeAll { scope ->
+ *     structuredTaskScopeFailFast { scope ->
  *         scope.fork {
  *             println(sv.get()) // "zero" — Virtual Thread에서도 ScopedValue 상속
  *             -1

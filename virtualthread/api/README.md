@@ -95,7 +95,6 @@ val fastestResult = StructuredTaskScopes.firstSuccess<String> { scope ->
 `StructuredSubtask.getOrNull()` returns `null` instead of throwing when called before `join()` or when the subtask failed/was cancelled.
 
 ```kotlin
-val result: StructuredSubtask<Int>?
 StructuredTaskScopes.failFast { scope ->
     val task = scope.fork { 42 }
     scope.join().throwIfFailed()

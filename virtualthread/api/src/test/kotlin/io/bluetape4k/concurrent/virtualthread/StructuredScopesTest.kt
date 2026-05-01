@@ -298,10 +298,12 @@ class StructuredScopesTest {
                     throw RuntimeException("forced failure")
                 }
                 // subtask2: block 상태에서 shutdown에 의해 취소됨 (UNAVAILABLE)
+                // neverRelease 는 해제되지 않으므로 shutdown 시 반드시 UNAVAILABLE 상태가 됨
+                val neverRelease = CountDownLatch(1)
                 cancelledTask = scope.fork {
                     subtaskStarted.await()
                     proceedToFail.countDown()
-                    Thread.sleep(10_000)
+                    neverRelease.await()
                     42
                 }
                 scope.join().throwIfFailed()

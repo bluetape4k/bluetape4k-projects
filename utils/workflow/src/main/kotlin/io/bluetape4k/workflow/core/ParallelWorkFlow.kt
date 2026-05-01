@@ -72,7 +72,7 @@ class ParallelWorkFlow(
         val deadline = Instant.now().plusMillis(timeout.inWholeMilliseconds)
 
         return try {
-            StructuredTaskScopes.all(name = flowName, factory = factory) { scope ->
+            StructuredTaskScopes.failFast(name = flowName, factory = factory) { scope ->
                 val tasks = works.map { work ->
                     val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName
                     scope.fork {
@@ -122,7 +122,7 @@ class ParallelWorkFlow(
         val failedReports = java.util.concurrent.ConcurrentLinkedQueue<WorkReport>()
 
         return runCatching {
-            StructuredTaskScopes.any<WorkReport>(name = flowName, factory = factory) { scope ->
+            StructuredTaskScopes.firstSuccess<WorkReport>(name = flowName, factory = factory) { scope ->
                 works.forEach { work ->
                     val workName = (work as? NamedWork)?.name ?: work.javaClass.simpleName
                     scope.fork {
