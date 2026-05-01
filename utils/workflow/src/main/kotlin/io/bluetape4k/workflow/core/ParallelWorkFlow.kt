@@ -150,7 +150,9 @@ class ParallelWorkFlow(
                         RuntimeException("$flowName: 모든 작업이 실패했습니다", e)
                     }
                 }
-            }.getOrElse {
+            }.getOrElse { throwable ->
+                // TimeoutException은 outer catch로 전파 (runCatching이 삼킴 방지)
+                if (throwable is TimeoutException) throw throwable
                 // 모두 실패한 경우 failedReports에서 우선순위로 반환
                 failedReports.firstOrNull { it.isAborted }
                     ?: failedReports.firstOrNull { it.isCancelled }

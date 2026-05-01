@@ -166,15 +166,15 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
         }
 
         val factory = this.factory ?: Thread.ofVirtual().factory()
+        // deadline은 fork 루프 시작 전에 계산 — fork 자체 소요 시간이 timeout을 잠식하지 않도록
+        val deadline = timeout?.let { Instant.now().plusMillis(it.inWholeMilliseconds) }
         StructuredTaskScopes.failFast("stressTester", factory) { scope ->
             repeat(roundsPerWorker) {
                 testBlocks.forEach { block ->
                     scope.fork { block() }
                 }
             }
-            val joined = timeout
-                ?.let { scope.joinUntil(Instant.now().plusMillis(it.inWholeMilliseconds)) }
-                ?: scope.join()
+            val joined = deadline?.let { scope.joinUntil(it) } ?: scope.join()
             joined.throwIfFailed {
                 log.error(it) { "Test blocks failed with exception." }
             }

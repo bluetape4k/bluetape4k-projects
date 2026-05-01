@@ -101,7 +101,7 @@ object TaskContext {
         // run(Runnable)은 JDK21/25 모두 안정적이므로 capture 패턴 사용.
         var captured: Result<R>? = null
         ScopedValue.where(key, value).run { captured = runCatching { block() } }
-        return captured!!.getOrThrow()
+        return checkNotNull(captured) { "ScopedValue.Carrier.run did not execute block" }.getOrThrow()
     }
 
     /**
@@ -180,6 +180,6 @@ class TaskContextBindings internal constructor(
         // run(Runnable)은 JDK21/25 모두 안정적이므로 capture 패턴 사용.
         var captured: Result<R>? = null
         carrier.run { captured = runCatching { block() } }
-        return captured!!.getOrThrow()
+        return checkNotNull(captured) { "ScopedValue.Carrier.run did not execute block" }.getOrThrow()
     }
 }
