@@ -32,7 +32,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @SpringBootTest
-@EmbeddedKafka(topics = ["blc.2.1"], partitions = 1)
+@EmbeddedKafka(kraft = true, topics = ["blc.2.1"], partitions = 1)
 class BatchListenerConversion2Tests {
 
     companion object: KLoggingChannel() {

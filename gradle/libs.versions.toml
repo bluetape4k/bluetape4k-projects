@@ -96,7 +96,8 @@ cassandra = "4.19.2"
 elasticsearch = "9.2.4"
 elasticsearch-java = "9.3.3"
 
-kafka = "4.2.0"
+kafka3 = "3.9.2"    # Server-side: spring-kafka 3.x embedded test (EmbeddedKafkaKraftBroker)
+kafka4 = "4.2.0"    # Client-side: kafka-clients, kafka-streams (production)
 spring-kafka = "3.3.13"
 
 timefold-solver = "1.33.0"
@@ -771,17 +772,28 @@ influxdb-java = { module = "org.influxdb:influxdb-java", version = "2.25" }
 # RabbitMQ
 amqp-client = { module = "com.rabbitmq:amqp-client", version = "5.28.0" }
 
-# Kafka
-kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
-kafka-generator = { module = "org.apache.kafka:generator", version.ref = "kafka" }
-kafka-metadata = { module = "org.apache.kafka:kafka-metadata", version.ref = "kafka" }
-kafka-raft = { module = "org.apache.kafka:kafka-raft", version.ref = "kafka" }
-kafka-server-common = { module = "org.apache.kafka:kafka-server-common", version.ref = "kafka" }
-kafka-storage = { module = "org.apache.kafka:kafka-storage", version.ref = "kafka" }
-kafka-storage-api = { module = "org.apache.kafka:kafka-storage-api", version.ref = "kafka" }
-kafka-streams = { module = "org.apache.kafka:kafka-streams", version.ref = "kafka" }
-kafka-streams-test-utils = { module = "org.apache.kafka:kafka-streams-test-utils", version.ref = "kafka" }
-kafka-scala213 = { module = "org.apache.kafka:kafka_2.13", version.ref = "kafka" }
+# Kafka 3.x — infra/kafka (spring-kafka 3.x + EmbeddedKafka KRaft)
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka3" }
+kafka-generator = { module = "org.apache.kafka:generator", version.ref = "kafka3" }
+kafka-streams = { module = "org.apache.kafka:kafka-streams", version.ref = "kafka3" }
+kafka-streams-test-utils = { module = "org.apache.kafka:kafka-streams-test-utils", version.ref = "kafka3" }
+kafka-metadata = { module = "org.apache.kafka:kafka-metadata", version.ref = "kafka3" }
+kafka-raft = { module = "org.apache.kafka:kafka-raft", version.ref = "kafka3" }
+kafka-server-common = { module = "org.apache.kafka:kafka-server-common", version.ref = "kafka3" }
+kafka-storage = { module = "org.apache.kafka:kafka-storage", version.ref = "kafka3" }
+kafka-storage-api = { module = "org.apache.kafka:kafka-storage-api", version.ref = "kafka3" }
+kafka-scala213 = { module = "org.apache.kafka:kafka_2.13", version.ref = "kafka3" }
+# Kafka 4.x — infra/kafka4 (future: spring-kafka 4.x + Spring Boot 4.x)
+kafka4-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka4" }
+kafka4-generator = { module = "org.apache.kafka:generator", version.ref = "kafka4" }
+kafka4-streams = { module = "org.apache.kafka:kafka-streams", version.ref = "kafka4" }
+kafka4-streams-test-utils = { module = "org.apache.kafka:kafka-streams-test-utils", version.ref = "kafka4" }
+kafka4-metadata = { module = "org.apache.kafka:kafka-metadata", version.ref = "kafka4" }
+kafka4-raft = { module = "org.apache.kafka:kafka-raft", version.ref = "kafka4" }
+kafka4-server-common = { module = "org.apache.kafka:kafka-server-common", version.ref = "kafka4" }
+kafka4-storage = { module = "org.apache.kafka:kafka-storage", version.ref = "kafka4" }
+kafka4-storage-api = { module = "org.apache.kafka:kafka-storage-api", version.ref = "kafka4" }
+kafka4-scala213 = { module = "org.apache.kafka:kafka_2.13", version.ref = "kafka4" }
 spring-kafka = { module = "org.springframework.kafka:spring-kafka", version.ref = "spring-kafka" }
 spring-kafka-test = { module = "org.springframework.kafka:spring-kafka-test", version.ref = "spring-kafka" }
 

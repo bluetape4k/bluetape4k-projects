@@ -39,6 +39,7 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 
 @SpringBootTest
 @EmbeddedKafka(
+    kraft = true,
     partitions = 1,
     topics = [TRUE_TOPIC, FALSE_TOPIC, TRUE_FALSE_INPUT_TOPIC]
 )

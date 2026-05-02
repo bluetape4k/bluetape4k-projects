@@ -66,6 +66,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @SpringBootTest
 @TestPropertySource(properties = ["streaming.topic.two=streamingTopic2"])
 @EmbeddedKafka(
+    kraft = true,
     partitions = 1,
     topics = [STREAMING_TOPIC1, $$"${streaming.topic.two}", FOOS],
     brokerProperties = [

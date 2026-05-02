@@ -21,12 +21,11 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
-    // Kafka
+    // Kafka (kafka3: 3.9.x — spring-kafka 3.x compatible)
     api(libs.kafka.clients)
     compileOnly(libs.kafka.streams)
     compileOnly(libs.kafka.generator)
     testImplementation(libs.kafka.streams.test.utils)
-    testImplementation(libs.kafka.server.common)
     testImplementation(libs.testcontainers.kafka)
 
     // Spring Kafka

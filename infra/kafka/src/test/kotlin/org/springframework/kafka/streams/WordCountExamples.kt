@@ -50,6 +50,7 @@ import java.util.*
 @SpringBootTest
 @ActiveProfiles("test")
 @EmbeddedKafka(
+    kraft = true,
     partitions = 1,
     topics = [INPUT_TOPIC, OUTPUT_TOPIC],
     brokerProperties = [

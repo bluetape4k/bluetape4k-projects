@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 @RunWith(SpringRunner::class)
-@EmbeddedKafka(topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC])
+@EmbeddedKafka(kraft = true, topics = [INT_KEY_TOPIC, STRING_KEY_TOPIC])
 class KafkaTemplateTests {
 
     companion object: KLoggingChannel() {
