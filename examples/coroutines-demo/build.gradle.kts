@@ -5,19 +5,19 @@ configurations {
 dependencies {
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_slf4j)
-    testImplementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_debug)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.slf4j)
+    testImplementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.debug)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
     // 참고: https://github.com/cashapp/turbine/
-    testImplementation(Libs.turbine)
+    testImplementation(libs.turbine)
 
     // ID Generators
     testImplementation(project(":bluetape4k-idgenerators"))
-    testImplementation(Libs.java_uuid_generator)
+    testImplementation(libs.java.uuid.generator)
 
     testImplementation(project(":bluetape4k-junit5"))
 }

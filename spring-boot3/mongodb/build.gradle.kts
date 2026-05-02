@@ -13,33 +13,33 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-spring-boot3-core"))
     api(project(":bluetape4k-coroutines"))
     testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mongodb)
+    testImplementation(libs.testcontainers.mongodb)
 
     // Spring Data MongoDB Reactive
-    api(Libs.springBootStarter("data-mongodb-reactive"))
+    api("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBoot("configuration-processor"))
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-configuration-processor")
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
     // Coroutines
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    implementation(Libs.reactor_core)
-    implementation(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    implementation(libs.reactor.core)
+    implementation(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 }

@@ -20,15 +20,15 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     implementation(project(":bluetape4k-spring-boot3-hibernate-lettuce"))
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))
-    implementation(Libs.micrometer_core)
-    runtimeOnly(Libs.h2_v2)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation(libs.micrometer.core)
+    runtimeOnly(libs.h2.v2)
 
-    testImplementation(Libs.springBootStarter("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(project(":bluetape4k-testcontainers"))
 }
 

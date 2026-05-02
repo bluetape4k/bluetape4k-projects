@@ -3,7 +3,7 @@ import com.google.protobuf.gradle.id
 plugins {
     `java-library`
     idea
-    id(Plugins.protobuf) version Plugins.Versions.protobuf
+    alias(libs.plugins.protobuf.plugin)
 }
 
 idea {
@@ -17,14 +17,14 @@ idea {
 // 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
 protobuf {
     protoc {
-        artifact = Libs.protobuf_protoc
+        artifact = libs.protobuf.protoc.get().toString()
     }
     plugins {
         id("grpc") {
-            artifact = Libs.grpc_protoc_gen_grpc_java
+            artifact = libs.grpc.protoc.gen.grpc.java.get().toString()
         }
         id("grpcKt") {
-            artifact = Libs.grpc_protoc_gen_grpc_kotlin
+            artifact = libs.grpc.protoc.gen.grpc.kotlin.get().toString()
         }
     }
     generateProtoTasks {
@@ -56,31 +56,31 @@ dependencies {
     api(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // api(Libs.jakarta_annotation_api)
+    // api(libs.jakarta.annotation.api)
 
-    api(Libs.grpc_api)
-    api(Libs.grpc_alts)
-    api(Libs.grpc_netty)
-    api(Libs.grpc_protobuf)
-    api(Libs.grpc_stub)
-    api(Libs.grpc_auth)
-    api(Libs.grpc_grpclb)
-    api(Libs.grpc_services)
-    api(Libs.grpc_inprocess)
-    testImplementation(Libs.grpc_okhttp)
-    testImplementation(Libs.grpc_testing)
+    api(libs.grpc.api)
+    api(libs.grpc.alts)
+    api(libs.grpc.netty)
+    api(libs.grpc.protobuf)
+    api(libs.grpc.stub)
+    api(libs.grpc.auth)
+    api(libs.grpc.grpclb)
+    api(libs.grpc.services)
+    api(libs.grpc.inprocess)
+    testImplementation(libs.grpc.okhttp)
+    testImplementation(libs.grpc.testing)
 
     // grpc-kotlin
     // 참고: https://github.com/grpc/grpc-kotlin/blob/master/compiler/README.md
-    api(Libs.grpc_kotlin_stub)
+    api(libs.grpc.kotlin.stub)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Eclipse Collections
-    implementation(Libs.eclipse_collections)
+    implementation(libs.eclipse.collections)
 
-    testImplementation(Libs.assertj_core)
+    testImplementation(libs.assertj.core)
 }

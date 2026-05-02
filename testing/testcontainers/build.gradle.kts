@@ -16,196 +16,196 @@ tasks.test {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    testImplementation(Libs.netty_all)
+    testImplementation(libs.netty.all)
 
-    api(Libs.testcontainers)
-    api(Libs.testcontainers_junit_jupiter)
+    api(libs.testcontainers)
+    api(libs.testcontainers.junit.jupiter)
 
-    api(Libs.awaitility_kotlin)
+    api(libs.awaitility.kotlin)
 
     // Apple Silicon에서 testcontainers 를 사용하기 위해 참조해야 합니다.
-    api(Libs.jna)
-    api(Libs.jna_platform)
+    api(libs.jna)
+    api(libs.jna.platform)
 
-    compileOnly(Libs.hikaricp)
+    compileOnly(libs.hikaricp)
 
     // MySQL
-    compileOnly(Libs.testcontainers_mysql)
-    testRuntimeOnly(Libs.mysql_connector_j)
+    compileOnly(libs.testcontainers.mysql)
+    testRuntimeOnly(libs.mysql.connector.j)
 
     // MariaDB
-    compileOnly(Libs.testcontainers_mariadb)
-    testRuntimeOnly(Libs.mariadb_java_client)
+    compileOnly(libs.testcontainers.mariadb)
+    testRuntimeOnly(libs.mariadb.java.client)
 
     // Postgres
-    compileOnly(Libs.testcontainers_postgresql)
-    testRuntimeOnly(Libs.postgresql_driver)
+    compileOnly(libs.testcontainers.postgresql)
+    testRuntimeOnly(libs.postgresql.driver)
 
     // CockroachDB
-    compileOnly(Libs.testcontainers_cockroachdb)
+    compileOnly(libs.testcontainers.cockroachdb)
 
     // R2DBC
-    compileOnly(Libs.testcontainers_r2dbc)
-    compileOnly(Libs.springBootStarter("data-r2dbc"))
-    testRuntimeOnly(Libs.r2dbc_mariadb)
-    testRuntimeOnly(Libs.r2dbc_mysql)
-    testRuntimeOnly(Libs.r2dbc_postgresql)
+    compileOnly(libs.testcontainers.r2dbc)
+    compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    testRuntimeOnly(libs.r2dbc.mariadb)
+    testRuntimeOnly(libs.r2dbc.mysql)
+    testRuntimeOnly(libs.r2dbc.postgresql)
 
     // Redis
-    compileOnly(Libs.redisson)
-    compileOnly(Libs.lettuce_core)
+    compileOnly(libs.redisson)
+    compileOnly(libs.lettuce.core)
 
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.kryo)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(libs.kryo)
 
-    compileOnly(Libs.commons_compress)
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.commons.compress)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 
     // Hazelcast
-    compileOnly(Libs.hazelcast)
+    compileOnly(libs.hazelcast)
 
     // MongoDB
-    compileOnly(Libs.testcontainers_mongodb)
-    compileOnly(Libs.mongodb_driver_kotlin_sync)
-    compileOnly(Libs.mongodb_driver_kotlin_coroutine)
-    compileOnly(Libs.mongodb_driver_kotlin_extensions)
+    compileOnly(libs.testcontainers.mongodb)
+    compileOnly(libs.mongodb.driver.kotlin.sync)
+    compileOnly(libs.mongodb.driver.kotlin.coroutine)
+    compileOnly(libs.mongodb.driver.kotlin.extensions)
 
     // Cassandra
-    compileOnly(Libs.testcontainers_cassandra)
-    compileOnly(Libs.cassandra_java_driver_core)
-    compileOnly(Libs.cassandra_java_driver_query_builder)
+    compileOnly(libs.testcontainers.cassandra)
+    compileOnly(libs.cassandra.java.driver.core)
+    compileOnly(libs.cassandra.java.driver.query.builder)
 
     // Graph DB (Neo4j)
-    compileOnly(Libs.testcontainers_neo4j)
-    compileOnly(Libs.neo4j_java_driver)
+    compileOnly(libs.testcontainers.neo4j)
+    compileOnly(libs.neo4j.java.driver)
 
     // Graph DB (FalkorDB)
-    compileOnly(Libs.jfalkordb)
+    compileOnly(libs.jfalkordb)
 
     // ElasticSearch
-    compileOnly(Libs.testcontainers_elasticsearch)
-    compileOnly(Libs.elasticsearch_rest_client)
-    compileOnly(Libs.elasticsearch_rest_client_sniffer)
-    compileOnly(Libs.springData("elasticsearch"))
+    compileOnly(libs.testcontainers.elasticsearch)
+    compileOnly(libs.elasticsearch.rest.client)
+    compileOnly(libs.elasticsearch.rest.client.sniffer)
+    compileOnly("org.springframework.data:spring-data-elasticsearch")
 
     // Opensearch
-    compileOnly(Libs.testcontainers_opensearch)
+    compileOnly(libs.testcontainers.opensearch)
 
     // Kafka
-    compileOnly(Libs.testcontainers_kafka)
-    compileOnly(Libs.kafka_clients)
-    compileOnly(Libs.spring_kafka)
+    compileOnly(libs.testcontainers.kafka)
+    compileOnly(libs.kafka.clients)
+    compileOnly(libs.spring.kafka)
 
     // Pulsar
-    compileOnly(Libs.testcontainers_pulsar)
-    compileOnly(Libs.pulsar_client_api)
-    compileOnly(Libs.pulsar_client)
+    compileOnly(libs.testcontainers.pulsar)
+    compileOnly(libs.pulsar.client.api)
+    compileOnly(libs.pulsar.client)
 
     // Redpanda
-    compileOnly(Libs.testcontainers_redpanda)
+    compileOnly(libs.testcontainers.redpanda)
 
     // Chaos Testing (Toxiproxy)
-    compileOnly(Libs.testcontainers_toxiproxy)
+    compileOnly(libs.testcontainers.toxiproxy)
 
     // Distributed SQL (Trino)
-    compileOnly(Libs.testcontainers_trino)
-    testRuntimeOnly(Libs.trino_jdbc)
+    compileOnly(libs.testcontainers.trino)
+    testRuntimeOnly(libs.trino.jdbc)
 
     // NATS
-    compileOnly(Libs.jnats)
+    compileOnly(libs.jnats)
 
     // RabbitMQ
-    compileOnly(Libs.testcontainers_rabbitmq)
-    testImplementation(Libs.amqp_client)
+    compileOnly(libs.testcontainers.rabbitmq)
+    testImplementation(libs.amqp.client)
 
     // Zipkin
-    testImplementation(Libs.zipkin_brave)
+    testImplementation(libs.zipkin.brave)
 
     // HashiCorp Vault
-    compileOnly(Libs.testcontainers_vault)
-    compileOnly(Libs.vault_java_driver)
+    compileOnly(libs.testcontainers.vault)
+    compileOnly(libs.vault.java.driver)
 
     // OkHttp
-    testImplementation(Libs.okhttp3)
+    testImplementation(libs.okhttp3)
 
     // LocalStack for AWS
-    compileOnly(Libs.testcontainers_localstack)
+    compileOnly(libs.testcontainers.localstack)
 
     // MiniStack for AWS emulation
-    compileOnly(Libs.testcontainers_ministack)
+    compileOnly(libs.testcontainers.ministack)
 
     // ElasticMQ - embedded SQS emulator (no Docker)
-    compileOnly(Libs.elasticmq_rest_sqs_2_13)
+    compileOnly(libs.elasticmq.rest.sqs)
 
     // Amazon SDK V2
-    compileOnly(Libs.aws2_auth)
-    testImplementation(Libs.aws2_aws_core)
-    testImplementation(Libs.aws2_sdk_core)
-    testImplementation(Libs.aws2_apache_client)
-    testImplementation(Libs.aws2_cloudwatch)
-    testImplementation(Libs.aws2_cloudwatchevents)
-    testImplementation(Libs.aws2_cloudwatchlogs)
-    testImplementation(Libs.aws2_dynamodb_enhanced)
-    testImplementation(Libs.aws2_kafka)
-    testImplementation(Libs.aws2_kinesis)
-    testImplementation(Libs.aws2_kms)
-    testImplementation(Libs.aws2_s3)
-    testImplementation(Libs.aws2_ses)
-    testImplementation(Libs.aws2_sns)
-    testImplementation(Libs.aws2_sqs)
-    testImplementation(Libs.aws2_sts)
+    compileOnly(libs.aws2.auth)
+    testImplementation(libs.aws2.aws.core)
+    testImplementation(libs.aws2.sdk.core)
+    testImplementation(libs.aws2.apache.client)
+    testImplementation(libs.aws2.cloudwatch)
+    testImplementation(libs.aws2.cloudwatchevents)
+    testImplementation(libs.aws2.cloudwatchlogs)
+    testImplementation(libs.aws2.dynamodb.enhanced)
+    testImplementation(libs.aws2.kafka)
+    testImplementation(libs.aws2.kinesis)
+    testImplementation(libs.aws2.kms)
+    testImplementation(libs.aws2.s3)
+    testImplementation(libs.aws2.ses)
+    testImplementation(libs.aws2.sns)
+    testImplementation(libs.aws2.sqs)
+    testImplementation(libs.aws2.sts)
 
     // https://docs.aws.amazon.com/ko_kr/sdk-for-java/latest/developer-guide/http-configuration-crt.html
     // https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-    testImplementation(Libs.aws2_aws_crt)
+    testImplementation(libs.aws2.aws.crt)
 
     // Minio
-    compileOnly(Libs.testcontainers_minio)
-    compileOnly(Libs.minio)
+    compileOnly(libs.testcontainers.minio)
+    compileOnly(libs.minio)
 
     // Immudb
-    testRuntimeOnly(Libs.immudb4j)
+    testRuntimeOnly(libs.immudb4j)
 
     // Curator framework for ZooKeeper
-    compileOnly(Libs.curator_framework)
+    compileOnly(libs.curator.framework)
 
     // Ollama
-    compileOnly(Libs.testcontainers_ollama)
+    compileOnly(libs.testcontainers.ollama)
 
-    testImplementation(Libs.rest_assured)
-    testImplementation(Libs.rest_assured_kotlin)
+    testImplementation(libs.rest.assured)
+    testImplementation(libs.rest.assured.kotlin)
 
     // Nginx
-    compileOnly(Libs.testcontainers_nginx)
+    compileOnly(libs.testcontainers.nginx)
 
     // Wiremock
-    compileOnly(Libs.wiremock)
+    compileOnly(libs.wiremock)
 
     // Keycloak
-    compileOnly(Libs.keycloak_testcontainers)
+    compileOnly(libs.keycloak.testcontainers)
 
     // ClickHouse
-    compileOnly(Libs.testcontainers_clickhouse)
-    testRuntimeOnly(Libs.clickhouse_jdbc)
-    // testRuntimeOnly(Libs.httpclient5)
+    compileOnly(libs.testcontainers.clickhouse)
+    testRuntimeOnly(libs.clickhouse.jdbc)
+    // testRuntimeOnly(libs.httpclient5)
 
     // Weaviate
-    compileOnly(Libs.testcontainers_weaviate)
-    testRuntimeOnly(Libs.weaviate_client)
+    compileOnly(libs.testcontainers.weaviate)
+    testRuntimeOnly(libs.weaviate.client)
 
     // ChromaDB
-    compileOnly(Libs.testcontainers_chromadb)
+    compileOnly(libs.testcontainers.chromadb)
 
     // InfluxDB
-    compileOnly(Libs.testcontainers_influxdb)
+    compileOnly(libs.testcontainers.influxdb)
 
 }

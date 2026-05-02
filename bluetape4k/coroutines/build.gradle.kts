@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -13,7 +13,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
     configurations {
@@ -48,30 +48,30 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Coroutines
-    api(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_debug)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactive)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.debug)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Collections
-    compileOnly(Libs.commons_collections4)
-    compileOnly(Libs.eclipse_collections)
-    compileOnly(Libs.eclipse_collections_forkjoin)
-    testImplementation(Libs.eclipse_collections_testutils)
+    compileOnly(libs.commons.collections4)
+    compileOnly(libs.eclipse.collections)
+    compileOnly(libs.eclipse.collections.forkjoin)
+    testImplementation(libs.eclipse.collections.testutils)
 
     // Test Fixture
-    compileOnly(Libs.kluent)
-    compileOnly(Libs.kotlin_test_junit5)
+    compileOnly(libs.kluent)
+    compileOnly(libs.kotlin.test.junit5)
 
-    testImplementation(Libs.mockk)
+    testImplementation(libs.mockk)
 
     // Coroutines Flow를 Reactor처럼 테스트 할 수 있도록 해줍니다.
     // 참고: https://github.com/cashapp/turbine/
-    testImplementation(Libs.turbine)
+    testImplementation(libs.turbine)
 
     // Benchmark
-    testImplementation(Libs.kotlinx_benchmark_runtime)
-    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
-    testImplementation(Libs.jmh_core)
+    testImplementation(libs.kotlinx.benchmark.runtime)
+    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
+    testImplementation(libs.jmh.core)
 }

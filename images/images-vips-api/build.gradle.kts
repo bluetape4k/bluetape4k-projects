@@ -14,13 +14,13 @@ dependencies {
     api(project(":bluetape4k-coroutines"))
 
     // Coroutines
-    implementation(Libs.kotlinx_coroutines_core)
+    implementation(libs.kotlinx.coroutines.core)
 
     // Test Fixtures — VipsGoldenAssert needs scrimage pixel comparison + JUnit5
     testFixturesApi(project(":bluetape4k-images"))
     testFixturesImplementation(project(":bluetape4k-junit5"))
-    testFixturesImplementation(Libs.junit_jupiter_api)
+    testFixturesImplementation(libs.junit.jupiter.api)
 
     testImplementation(project(":bluetape4k-junit5"))
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

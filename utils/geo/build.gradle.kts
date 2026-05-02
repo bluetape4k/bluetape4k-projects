@@ -11,19 +11,19 @@ dependencies {
     compileOnly(project(":bluetape4k-jackson2"))
     compileOnly(project(":bluetape4k-resilience4j"))
     compileOnly(project(":bluetape4k-feign"))
-    compileOnly(Libs.feign_core)
-    compileOnly(Libs.feign_kotlin)
-    compileOnly(Libs.feign_slf4j)
-    compileOnly(Libs.feign_jackson)
+    compileOnly(libs.feign.core)
+    compileOnly(libs.feign.kotlin)
+    compileOnly(libs.feign.slf4j)
+    compileOnly(libs.feign.jackson)
     compileOnly("com.google.maps:google-maps-services:2.2.0")
-    compileOnly(Libs.httpclient5)
-    compileOnly(Libs.httpclient5_cache)
+    compileOnly(libs.httpclient5)
+    compileOnly(libs.httpclient5.cache)
 
     // geoip2: MaxMind GeoIP2
     compileOnly("com.maxmind.geoip2:geoip2:5.0.2")
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

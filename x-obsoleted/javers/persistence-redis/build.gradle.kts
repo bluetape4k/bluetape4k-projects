@@ -15,7 +15,7 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Javers
-    api(Libs.javers_core)
+    api("org.javers:javers-core:7.7.0")
     api(project(":bluetape4k-javers-core"))
     // bluetape4k-javers-core 의 테스트 코드를 재활용하기 위해 참조합니다.
     testImplementation(project(path = ":bluetape4k-javers-core", configuration = "testJar"))
@@ -25,11 +25,11 @@ dependencies {
     compileOnly(project(":bluetape4k-redisson"))
 
     // Codec
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 }

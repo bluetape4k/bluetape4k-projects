@@ -7,26 +7,26 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
 
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
 
     // Spring Data Redis
-    api(Libs.springBootStarter("data-redis"))
+    api("org.springframework.boot:spring-boot-starter-data-redis")
 
     // Codecs
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
-    compileOnly(Libs.snappy_java)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.zstd.jni)
+    compileOnly(libs.snappy.java)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")

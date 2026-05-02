@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -40,7 +40,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
     configurations {
@@ -71,15 +71,15 @@ dependencies {
     api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.java_uuid_generator)  // https://github.com/cowtowncoder/java-uuid-generator
+    api(libs.java.uuid.generator)  // https://github.com/cowtowncoder/java-uuid-generator
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
 }

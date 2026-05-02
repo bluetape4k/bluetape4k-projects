@@ -14,35 +14,35 @@ plugins {
     `maven-publish`
     signing
     // jacoco
-    kotlin("jvm") version Versions.kotlin
+    alias(libs.plugins.kotlin.jvm)
 
     // see: https://kotlinlang.org/docs/reference/compiler-plugins.html
-    kotlin("plugin.spring") version Versions.kotlin apply false
-    kotlin("plugin.allopen") version Versions.kotlin apply false
-    kotlin("plugin.noarg") version Versions.kotlin apply false
-    kotlin("plugin.jpa") version Versions.kotlin apply false
-    kotlin("plugin.serialization") version Versions.kotlin apply false
-    kotlin("kapt") version Versions.kotlin apply false
-    id("org.jetbrains.kotlinx.atomicfu") version Versions.kotlinx_atomicfu
-    id(Plugins.kotlinx_benchmark) version Plugins.Versions.kotlinx_benchmark apply false
+    alias(libs.plugins.kotlin.spring) apply false
+    alias(libs.plugins.kotlin.allopen) apply false
+    alias(libs.plugins.kotlin.noarg) apply false
+    alias(libs.plugins.kotlin.jpa) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.kotlinx.atomicfu)
+    alias(libs.plugins.kotlinx.benchmark) apply false
 
-    id(Plugins.detekt) version Plugins.Versions.detekt
+    alias(libs.plugins.detekt)
 
-    id(Plugins.dependency_management) version Plugins.Versions.dependency_management
-    id(Plugins.spring_boot) version Plugins.Versions.spring_boot3 apply false
+    alias(libs.plugins.dependency.management)
+    alias(libs.plugins.spring.boot3) apply false
 
-    id(Plugins.dokka) version Plugins.Versions.dokka
-    id(Plugins.testLogger) version Plugins.Versions.testLogger
-    id(Plugins.shadow) version Plugins.Versions.shadow apply false
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.test.logger)
+    alias(libs.plugins.shadow) apply false
 
-    id(Plugins.graalvm_native) version Plugins.Versions.graalvm_native apply false
-    id(Plugins.nmcp_aggregation) version Plugins.Versions.nmcp
-    id(Plugins.nmcp) version Plugins.Versions.nmcp apply false
+    alias(libs.plugins.graalvm.native) apply false
+    alias(libs.plugins.nmcp.aggregation)
+    alias(libs.plugins.nmcp) apply false
 
-    id(Plugins.dependency_check) version Plugins.Versions.dependency_check
+    alias(libs.plugins.dependency.check)
 
     // 테스트 커버리지 (Kotlin inline/suspend 정확 지원)
-    id(Plugins.kover) version Plugins.Versions.kover
+    alias(libs.plugins.kover)
 }
 
 val centralPublishing = resolveCentralPublishingConfig()
@@ -72,9 +72,13 @@ allprojects {
     }
 }
 
+// Capture root-project catalog reference once; used inside subprojects {} closures
+// where `libs` is not in scope (different receiver type in the lambda).
+val rootLibs = libs
+
 subprojects {
     if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
-        apply(plugin = Plugins.nmcp)
+        apply(plugin = "com.gradleup.nmcp")
     }
 
     configurations.matching { it.name.startsWith("nmcp") }.configureEach {
@@ -87,7 +91,7 @@ subprojects {
     }
 
 
-    plugins.withId(Plugins.nmcp) {
+    plugins.withId("com.gradleup.nmcp") {
         extensions.configure<NmcpExtension>("nmcp") {
             publishAllPublicationsToCentralPortal {
                 username.set(centralUser)
@@ -115,16 +119,16 @@ subprojects {
 
         // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark 는 별도 필터링)
         if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
-            plugin(Plugins.kover)
+            plugin("org.jetbrains.kotlinx.kover")
         }
 
         plugin("maven-publish")
         plugin("signing")
 
-        plugin(Plugins.dependency_management)
+        plugin("io.spring.dependency-management")
 
-        plugin(Plugins.dokka)
-        plugin(Plugins.testLogger)
+        plugin("org.jetbrains.dokka")
+        plugin("com.adarshr.test-logger")
     }
 
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
@@ -165,7 +169,7 @@ subprojects {
 
     // testFixtures 소스셋은 테스트 유틸리티이므로 커버리지 측정에서 제외
     pluginManager.withPlugin("java-test-fixtures") {
-        pluginManager.withPlugin(Plugins.kover) {
+        pluginManager.withPlugin("org.jetbrains.kotlinx.kover") {
             kover {
                 currentProject {
                     sources {
@@ -177,7 +181,7 @@ subprojects {
     }
 
     // Kotlin 인터페이스 default 메서드 bridge 클래스는 컴파일러 생성 코드 — 커버리지 제외
-    pluginManager.withPlugin(Plugins.kover) {
+    pluginManager.withPlugin("org.jetbrains.kotlinx.kover") {
         kover {
             currentProject {
                 instrumentation {
@@ -332,232 +336,232 @@ subprojects {
             // (spring-boot4/ 모듈과 mock-server 는 SB4 BOM을 사용)
 
             // Reactor BOM: SB BOM에서 분리됐으므로 전역 관리 유지
-            mavenBom(Libs.reactor_bom)
+            mavenBom(rootLibs.reactor.bom.get().toString())
 
-            mavenBom(Libs.feign_bom)
-            mavenBom(Libs.micrometer_bom)
-            mavenBom(Libs.micrometer_tracing_bom)
-            mavenBom(Libs.opentelemetry_bom)
-            mavenBom(Libs.opentelemetry_alpha_bom)
-            mavenBom(Libs.opentelemetry_instrumentation_bom_alpha)
-            mavenBom(Libs.log4j_bom)
-            mavenBom(Libs.testcontainers_bom)
-            mavenBom(Libs.junit_bom)
-            mavenBom(Libs.aws2_bom)
-            mavenBom(Libs.okhttp3_bom)
-            mavenBom(Libs.grpc_bom)
-            mavenBom(Libs.protobuf_bom)
-            mavenBom(Libs.fabric8_kubernetes_client_bom)
-            mavenBom(Libs.resilience4j_bom)
-            mavenBom(Libs.netty_bom)
-            mavenBom(Libs.jackson_bom)
+            mavenBom(rootLibs.feign.bom.get().toString())
+            mavenBom(rootLibs.micrometer.bom.get().toString())
+            mavenBom(rootLibs.micrometer.tracing.bom.get().toString())
+            mavenBom(rootLibs.opentelemetry.bom.get().toString())
+            mavenBom(rootLibs.opentelemetry.alpha.bom.get().toString())
+            mavenBom(rootLibs.opentelemetry.instrumentation.bom.alpha.get().toString())
+            mavenBom(rootLibs.log4j.bom.get().toString())
+            mavenBom(rootLibs.testcontainers.bom.get().toString())
+            mavenBom(rootLibs.junit.bom.get().toString())
+            mavenBom(rootLibs.aws2.bom.get().toString())
+            mavenBom(rootLibs.okhttp3.bom.get().toString())
+            mavenBom(rootLibs.grpc.bom.get().toString())
+            mavenBom(rootLibs.protobuf.bom.get().toString())
+            mavenBom(rootLibs.fabric8.kubernetes.client.bom.get().toString())
+            mavenBom(rootLibs.resilience4j.bom.get().toString())
+            mavenBom(rootLibs.netty.bom.get().toString())
+            mavenBom(rootLibs.jackson.bom.get().toString())
 
-            mavenBom(Libs.kotlinx_coroutines_bom)
-            mavenBom(Libs.kotlin_bom)
+            mavenBom(rootLibs.kotlinx.coroutines.bom.get().toString())
+            mavenBom(rootLibs.kotlin.bom.get().toString())
         }
         dependencies {
-            dependency(Libs.jetbrains_annotations)
+            dependency(rootLibs.jetbrains.annotations.get().toString())
 
             // Kotlinx Coroutines (mavenBom 이 적용이 안되어서 추가로 명시했습니다)
-            dependency(Libs.kotlinx_coroutines_bom)
-            dependency(Libs.kotlinx_coroutines_core)
-            dependency(Libs.kotlinx_coroutines_core_jvm)
-            dependency(Libs.kotlinx_coroutines_reactive)
-            dependency(Libs.kotlinx_coroutines_reactor)
-            dependency(Libs.kotlinx_coroutines_rx2)
-            dependency(Libs.kotlinx_coroutines_rx3)
-            dependency(Libs.kotlinx_coroutines_slf4j)
-            dependency(Libs.kotlinx_coroutines_debug)
-            dependency(Libs.kotlinx_coroutines_test)
-            dependency(Libs.kotlinx_coroutines_test_jvm)
+            dependency(rootLibs.kotlinx.coroutines.bom.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.core.asProvider().get().toString())
+            dependency(rootLibs.kotlinx.coroutines.core.jvm.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.reactive.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.reactor.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.rx2.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.rx3.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.slf4j.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.debug.get().toString())
+            dependency(rootLibs.kotlinx.coroutines.test.asProvider().get().toString())
+            dependency(rootLibs.kotlinx.coroutines.test.jvm.get().toString())
 
             // Apache Commons
-            dependency(Libs.commons_beanutils)
-            dependency(Libs.commons_collections4)
-            dependency(Libs.commons_compress)
-            dependency(Libs.commons_codec)
-            dependency(Libs.commons_csv)
-            dependency(Libs.commons_lang3)
-            dependency(Libs.commons_logging)
-            dependency(Libs.commons_math3)
-            dependency(Libs.commons_pool2)
-            dependency(Libs.commons_text)
-            dependency(Libs.commons_exec)
-            dependency(Libs.commons_io)
+            dependency(rootLibs.commons.beanutils.get().toString())
+            dependency(rootLibs.commons.collections4.get().toString())
+            dependency(rootLibs.commons.compress.get().toString())
+            dependency(rootLibs.commons.codec.get().toString())
+            dependency(rootLibs.commons.csv.get().toString())
+            dependency(rootLibs.commons.lang3.get().toString())
+            dependency(rootLibs.commons.logging.get().toString())
+            dependency(rootLibs.commons.math3.get().toString())
+            dependency(rootLibs.commons.pool2.get().toString())
+            dependency(rootLibs.commons.text.get().toString())
+            dependency(rootLibs.commons.exec.get().toString())
+            dependency(rootLibs.commons.io.get().toString())
 
-            dependency(Libs.slf4j_api)
-            dependency(Libs.jcl_over_slf4j)
-            dependency(Libs.jul_to_slf4j)
-            dependency(Libs.log4j_over_slf4j)
-            dependency(Libs.logback)
-            dependency(Libs.logback_core)
+            dependency(rootLibs.slf4j.api.get().toString())
+            dependency(rootLibs.jcl.over.slf4j.get().toString())
+            dependency(rootLibs.jul.to.slf4j.get().toString())
+            dependency(rootLibs.log4j.over.slf4j.get().toString())
+            dependency(rootLibs.logback.classic.get().toString())
+            dependency(rootLibs.logback.core.get().toString())
 
             // jakarta
-            dependency(Libs.jakarta_activation_api)
-            dependency(Libs.jakarta_annotation_api)
-            dependency(Libs.jakarta_el_api)
-            dependency(Libs.jakarta_inject_api)
-            dependency(Libs.jakarta_interceptor_api)
-            dependency(Libs.jakarta_jms_api)
-            dependency(Libs.jakarta_json_api)
-            dependency(Libs.jakarta_json)
-            dependency(Libs.jakarta_persistence_api)
-            dependency(Libs.jakarta_servlet_api)
-            dependency(Libs.jakarta_transaction_api)
-            dependency(Libs.jakarta_validation_api)
-            dependency(Libs.jakarta_ws_rs_api)
-            dependency(Libs.jakarta_xml_bind)
+            dependency(rootLibs.jakarta.activation.api.get().toString())
+            dependency(rootLibs.jakarta.annotation.api.get().toString())
+            dependency(rootLibs.jakarta.el.api.get().toString())
+            dependency(rootLibs.jakarta.inject.api.get().toString())
+            dependency(rootLibs.jakarta.interceptor.api.get().toString())
+            dependency(rootLibs.jakarta.jms.api.get().toString())
+            dependency(rootLibs.jakarta.json.api.get().toString())
+            dependency(rootLibs.jakarta.json.asProvider().get().toString())
+            dependency(rootLibs.jakarta.persistence.api.asProvider().get().toString())
+            dependency(rootLibs.jakarta.servlet.api.get().toString())
+            dependency(rootLibs.jakarta.transaction.api.get().toString())
+            dependency(rootLibs.jakarta.validation.api.get().toString())
+            dependency(rootLibs.jakarta.ws.rs.api.get().toString())
+            dependency(rootLibs.jakarta.xml.bind.get().toString())
 
             // Compressor
-            dependency(Libs.snappy_java)
-            dependency(Libs.lz4_java)
-            dependency(Libs.zstd_jni)
+            dependency(rootLibs.snappy.java.get().toString())
+            dependency(rootLibs.lz4.java.get().toString())
+            dependency(rootLibs.zstd.jni.get().toString())
 
             // Java Money
-            dependency(Libs.javax_money_api)
-            dependency(Libs.javamoney_moneta)
+            dependency(rootLibs.javax.money.api.get().toString())
+            dependency(rootLibs.javamoney.moneta.get().toString())
 
-            dependency(Libs.findbugs)
-            dependency(Libs.guava)
+            dependency(rootLibs.findbugs.get().toString())
+            dependency(rootLibs.guava.get().toString())
 
-            dependency(Libs.kryo)
+            dependency(rootLibs.kryo.get().toString())
 
             // HINT: Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
-            dependency(Libs.jackson_bom)
-            dependency(Libs.jackson_annotations)
-            dependency(Libs.jackson_core)
-            dependency(Libs.jackson_databind)
-            dependency(Libs.jackson_datatype_jdk8)
-            dependency(Libs.jackson_datatype_jsr310)
-            dependency(Libs.jackson_datatype_jsr353)
-            dependency(Libs.jackson_module_kotlin)
-            dependency(Libs.jackson_module_paranamer)
-            dependency(Libs.jackson_module_parameter_names)
-            dependency(Libs.jackson_module_blackbird)
-            dependency(Libs.jackson_module_jsonSchema)
+            dependency(rootLibs.jackson.bom.get().toString())
+            dependency(rootLibs.jackson.annotations.get().toString())
+            dependency(rootLibs.jackson.core.get().toString())
+            dependency(rootLibs.jackson.databind.get().toString())
+            dependency(rootLibs.jackson.datatype.jdk8.get().toString())
+            dependency(rootLibs.jackson.datatype.jsr310.get().toString())
+            dependency(rootLibs.jackson.datatype.jsr353.get().toString())
+            dependency(rootLibs.jackson.module.kotlin.get().toString())
+            dependency(rootLibs.jackson.module.paranamer.get().toString())
+            dependency(rootLibs.jackson.module.parameter.names.get().toString())
+            dependency(rootLibs.jackson.module.blackbird.get().toString())
+            dependency(rootLibs.jackson.module.json.schema.get().toString())
 
-            dependency(Libs.jackson_dataformat_avro)
-            dependency(Libs.jackson_dataformat_cbor)
-            dependency(Libs.jackson_dataformat_ion)
-            dependency(Libs.jackson_dataformat_protobuf)
-            dependency(Libs.jackson_dataformat_smile)
-            dependency(Libs.jackson_dataformat_csv)
-            dependency(Libs.jackson_dataformat_properties)
-            dependency(Libs.jackson_dataformat_yaml)
+            dependency(rootLibs.jackson.dataformat.avro.get().toString())
+            dependency(rootLibs.jackson.dataformat.cbor.get().toString())
+            dependency(rootLibs.jackson.dataformat.ion.get().toString())
+            dependency(rootLibs.jackson.dataformat.protobuf.get().toString())
+            dependency(rootLibs.jackson.dataformat.smile.get().toString())
+            dependency(rootLibs.jackson.dataformat.csv.get().toString())
+            dependency(rootLibs.jackson.dataformat.properties.get().toString())
+            dependency(rootLibs.jackson.dataformat.yaml.get().toString())
 
             // Retrofit
-            dependency(Libs.retrofit2)
-            dependency(Libs.retrofit2_adapter_java8)
-            dependency(Libs.retrofit2_adapter_reactor)
-            dependency(Libs.retrofit2_adapter_rxjava2)
-            dependency(Libs.retrofit2_converter_jackson)
-            dependency(Libs.retrofit2_converter_moshi)
-            dependency(Libs.retrofit2_converter_protobuf)
-            dependency(Libs.retrofit2_converter_scalars)
-            dependency(Libs.retrofit2_mock)
+            dependency(rootLibs.retrofit2.asProvider().get().toString())
+            dependency(rootLibs.retrofit2.adapter.java8.get().toString())
+            dependency(rootLibs.retrofit2.adapter.reactor.get().toString())
+            dependency(rootLibs.retrofit2.adapter.rxjava2.get().toString())
+            dependency(rootLibs.retrofit2.converter.jackson.get().toString())
+            dependency(rootLibs.retrofit2.converter.moshi.get().toString())
+            dependency(rootLibs.retrofit2.converter.protobuf.get().toString())
+            dependency(rootLibs.retrofit2.converter.scalars.get().toString())
+            dependency(rootLibs.retrofit2.mock.get().toString())
 
 
-            dependency(Libs.httpclient5)
+            dependency(rootLibs.httpclient5.asProvider().get().toString())
 
-            dependency(Libs.grpc_kotlin_stub)
+            dependency(rootLibs.grpc.kotlin.stub.get().toString())
 
-            dependency(Libs.mongo_bson)
-            dependency(Libs.mongo_bson_kotlin)
-            dependency(Libs.mongo_bson_kotlinx)
-            dependency(Libs.mongodb_driver_core)
-            dependency(Libs.mongodb_driver_reactivestreams)
-            dependency(Libs.mongodb_driver_sync)
-            dependency(Libs.mongodb_driver_kotlin_coroutine)
-            dependency(Libs.mongodb_driver_kotlin_extensions)
-            dependency(Libs.mongodb_driver_kotlin_sync)
+            dependency(rootLibs.mongo.bson.asProvider().get().toString())
+            dependency(rootLibs.mongo.bson.kotlin.get().toString())
+            dependency(rootLibs.mongo.bson.kotlinx.get().toString())
+            dependency(rootLibs.mongodb.driver.core.get().toString())
+            dependency(rootLibs.mongodb.driver.reactivestreams.get().toString())
+            dependency(rootLibs.mongodb.driver.sync.get().toString())
+            dependency(rootLibs.mongodb.driver.kotlin.coroutine.get().toString())
+            dependency(rootLibs.mongodb.driver.kotlin.extensions.get().toString())
+            dependency(rootLibs.mongodb.driver.kotlin.sync.get().toString())
 
             // Kafka
-            dependency(Libs.kafka_clients)
-            dependency(Libs.kafka_generator)
-            dependency(Libs.kafka_metadata)
-            dependency(Libs.kafka_raft)
-            dependency(Libs.kafka_server_common)
-            dependency(Libs.kafka_storage)
-            dependency(Libs.kafka_storage_api)
-            dependency(Libs.kafka_streams)
-            dependency(Libs.kafka_streams_test_utils)
-            dependency(Libs.kafka_2_13)
+            dependency(rootLibs.kafka.clients.get().toString())
+            dependency(rootLibs.kafka.generator.get().toString())
+            dependency(rootLibs.kafka.metadata.get().toString())
+            dependency(rootLibs.kafka.raft.get().toString())
+            dependency(rootLibs.kafka.server.common.get().toString())
+            dependency(rootLibs.kafka.storage.asProvider().get().toString())
+            dependency(rootLibs.kafka.storage.api.get().toString())
+            dependency(rootLibs.kafka.streams.asProvider().get().toString())
+            dependency(rootLibs.kafka.streams.test.utils.get().toString())
+            dependency(rootLibs.kafka.scala213.get().toString())
 
             // Hibernate
-            dependency(Libs.hibernate_core)
-            dependency(Libs.hibernate_jcache)
-            dependency(Libs.javassist)
+            dependency(rootLibs.hibernate.core.get().toString())
+            dependency(rootLibs.hibernate.jcache.get().toString())
+            dependency(rootLibs.javassist.get().toString())
 
-            dependency(Libs.antlr4_runtime)  // https://github.com/spring-projects/spring-data-jpa/issues/3262
-            dependency(Libs.antlr4_tool)
+            dependency(rootLibs.antlr4.runtime.get().toString())  // https://github.com/spring-projects/spring-data-jpa/issues/3262
+            dependency(rootLibs.antlr4.tool.get().toString())
 
-            dependency(Libs.querydsl_apt)
-            dependency(Libs.querydsl_core)
-            dependency(Libs.querydsl_jpa)
+            dependency(rootLibs.querydsl.apt.get().toString())
+            dependency(rootLibs.querydsl.core.get().toString())
+            dependency(rootLibs.querydsl.jpa.get().toString())
 
             // Validators
-            dependency(Libs.jakarta_el_api)
-            dependency(Libs.jakarta_validation_api)
-            dependency(Libs.hibernate_validator)
-            dependency(Libs.hibernate_validator_annotation_processor)
+            dependency(rootLibs.jakarta.el.api.get().toString())
+            dependency(rootLibs.jakarta.validation.api.get().toString())
+            dependency(rootLibs.hibernate.validator.asProvider().get().toString())
+            dependency(rootLibs.hibernate.validator.annotation.processor.get().toString())
 
-            dependency(Libs.hikaricp)
-            dependency(Libs.mysql_connector_j)
-            dependency(Libs.mariadb_java_client)
+            dependency(rootLibs.hikaricp.get().toString())
+            dependency(rootLibs.mysql.connector.j.get().toString())
+            dependency(rootLibs.mariadb.java.client.get().toString())
 
-            dependency(Libs.caffeine)
-            dependency(Libs.caffeine_jcache)
+            dependency(rootLibs.caffeine.asProvider().get().toString())
+            dependency(rootLibs.caffeine.jcache.get().toString())
 
-            dependency(Libs.objenesis)
-            dependency(Libs.ow2_asm)
+            dependency(rootLibs.objenesis.get().toString())
+            dependency(rootLibs.ow2.asm.asProvider().get().toString())
 
-            dependency(Libs.reflectasm)
+            dependency(rootLibs.reflectasm.get().toString())
 
-            dependency(Libs.junit_bom)
-            dependency(Libs.junit_jupiter)
-            dependency(Libs.junit_jupiter_api)
-            dependency(Libs.junit_jupiter_engine)
-            dependency(Libs.junit_jupiter_migrationsupport)
-            dependency(Libs.junit_jupiter_params)
-            dependency(Libs.junit_platform_commons)
-            dependency(Libs.junit_platform_engine)
-            dependency(Libs.junit_platform_launcher)
+            dependency(rootLibs.junit.bom.get().toString())
+            dependency(rootLibs.junit.jupiter.asProvider().get().toString())
+            dependency(rootLibs.junit.jupiter.api.get().toString())
+            dependency(rootLibs.junit.jupiter.engine.get().toString())
+            dependency(rootLibs.junit.jupiter.migrationsupport.get().toString())
+            dependency(rootLibs.junit.jupiter.params.get().toString())
+            dependency(rootLibs.junit.platform.commons.get().toString())
+            dependency(rootLibs.junit.platform.engine.get().toString())
+            dependency(rootLibs.junit.platform.launcher.get().toString())
 
-            dependency(Libs.kluent)
-            dependency(Libs.assertj_core)
+            dependency(rootLibs.kluent.get().toString())
+            dependency(rootLibs.assertj.core.get().toString())
 
-            dependency(Libs.mockk)
-            dependency(Libs.datafaker)
-            dependency(Libs.random_beans)
+            dependency(rootLibs.mockk.get().toString())
+            dependency(rootLibs.datafaker.get().toString())
+            dependency(rootLibs.random.beans.get().toString())
 
-            dependency(Libs.jsonpath)
-            dependency(Libs.jsonassert)
+            dependency(rootLibs.jsonpath.get().toString())
+            dependency(rootLibs.jsonassert.get().toString())
 
-            dependency(Libs.bouncycastle_bcpkix)
-            dependency(Libs.bouncycastle_bcprov)
+            dependency(rootLibs.bouncycastle.bcpkix.get().toString())
+            dependency(rootLibs.bouncycastle.bcprov.get().toString())
 
             // Prometheus
-            dependency(Libs.prometheus_simpleclient)
-            dependency(Libs.prometheus_simpleclient_common)
-            dependency(Libs.prometheus_simpleclient_httpserver)
-            dependency(Libs.prometheus_simpleclient_pushgateway)
-            dependency(Libs.prometheus_simpleclient_spring_boot)
-            dependency(Libs.prometheus_simpleclient_tracer_common)
-            dependency(Libs.prometheus_simpleclient_tracer_otel)
-            dependency(Libs.prometheus_simpleclient_tracer_otel_agent)
+            dependency(rootLibs.prometheus.simpleclient.asProvider().get().toString())
+            dependency(rootLibs.prometheus.simpleclient.common.get().toString())
+            dependency(rootLibs.prometheus.simpleclient.httpserver.get().toString())
+            dependency(rootLibs.prometheus.simpleclient.pushgateway.get().toString())
+            dependency(rootLibs.prometheus.simpleclient.spring.boot.get().toString())
+            dependency(rootLibs.prometheus.simpleclient.tracer.common.get().toString())
+            dependency(rootLibs.prometheus.simpleclient.tracer.otel.asProvider().get().toString())
+            dependency(rootLibs.prometheus.simpleclient.tracer.otel.agent.get().toString())
 
             // OW2 ASM
-            dependency(Libs.ow2_asm)
-            dependency(Libs.ow2_asm_commons)
-            dependency(Libs.ow2_asm_util)
-            dependency(Libs.ow2_asm_tree)
+            dependency(rootLibs.ow2.asm.asProvider().get().toString())
+            dependency(rootLibs.ow2.asm.commons.get().toString())
+            dependency(rootLibs.ow2.asm.util.get().toString())
+            dependency(rootLibs.ow2.asm.tree.get().toString())
 
-            dependency(Libs.snakeyaml)
-            dependency(Libs.jna)
+            dependency(rootLibs.snakeyaml.get().toString())
+            dependency(rootLibs.jna.asProvider().get().toString())
 
             // ByteBuddy
-            dependency(Libs.byte_buddy)
-            dependency(Libs.byte_buddy_agent)
+            dependency(rootLibs.byte.buddy.asProvider().get().toString())
+            dependency(rootLibs.byte.buddy.agent.get().toString())
         }
     }
 
@@ -570,34 +574,34 @@ subprojects {
         val testCompileOnly by configurations
         val testRuntimeOnly by configurations
 
-        api(Libs.jetbrains_annotations)
+        api(rootLibs.jetbrains.annotations)
 
-        implementation(Libs.kotlin_stdlib)
-        implementation(Libs.kotlin_reflect)
-        testImplementation(Libs.kotlin_test)
-        testImplementation(Libs.kotlin_test_junit5)
+        implementation(rootLibs.kotlin.stdlib)
+        implementation(rootLibs.kotlin.reflect)
+        testImplementation(rootLibs.kotlin.test)
+        testImplementation(rootLibs.kotlin.test.junit5)
 
-        implementation(Libs.kotlinx_coroutines_core)
-        implementation(Libs.kotlinx_atomicfu)
+        implementation(rootLibs.kotlinx.coroutines.core)
+        implementation(rootLibs.kotlinx.atomicfu)
 
         // 개발 시에는 logback 이 검증하기에 더 좋고, Production에서 비동기 로깅은 log4j2 가 성능이 좋다고 합니다.
-        api(Libs.slf4j_api)
-        testImplementation(Libs.logback)
-        testImplementation(Libs.jcl_over_slf4j)
-        testImplementation(Libs.jul_to_slf4j)
-        testImplementation(Libs.log4j_over_slf4j)
+        api(rootLibs.slf4j.api)
+        testImplementation(rootLibs.logback.classic)
+        testImplementation(rootLibs.jcl.over.slf4j)
+        testImplementation(rootLibs.jul.to.slf4j)
+        testImplementation(rootLibs.log4j.over.slf4j)
 
-        testImplementation(Libs.junit_jupiter)
-        testRuntimeOnly(Libs.junit_platform_engine)
-        testImplementation(Libs.junit_jupiter_migrationsupport)
+        testImplementation(rootLibs.junit.jupiter)
+        testRuntimeOnly(rootLibs.junit.platform.engine)
+        testImplementation(rootLibs.junit.jupiter.migrationsupport)
 
-        testImplementation(Libs.kluent)
-        testImplementation(Libs.awaitility_kotlin)
-        testImplementation(Libs.mockk)
+        testImplementation(rootLibs.kluent)
+        testImplementation(rootLibs.awaitility.kotlin)
+        testImplementation(rootLibs.mockk)
 
-        // Property baesd test
-        testImplementation(Libs.datafaker)
-        testImplementation(Libs.random_beans)
+        // Property based test
+        testImplementation(rootLibs.datafaker)
+        testImplementation(rootLibs.random.beans)
     }
 
     tasks.withType<Jar> {
@@ -613,7 +617,7 @@ subprojects {
     /*
         1. mavenLocal 에 publish 시에는 ./gradlew publishMavenPublicationToMavenLocalRepository 를 수행
         2. Maven Central 배포는 Central Portal Publisher API 기반의 aggregation task를 사용합니다.
-        
+
         ```bash
         $ ./gradlew clean build
         $ ./gradlew publishAggregationToCentralPortal

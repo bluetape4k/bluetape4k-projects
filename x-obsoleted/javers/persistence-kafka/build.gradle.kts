@@ -11,25 +11,25 @@ dependencies {
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_kafka)
+    testImplementation(libs.testcontainers.kafka)
 
     // Javers
     api(project(":bluetape4k-javers-core"))
     // bluetape4k-javers-core 의 테스트 코드를 재활용하기 위해 참조합니다.
     testImplementation(project(path = ":bluetape4k-javers-core", configuration = "testJar"))
 
-    api(Libs.javers_core)
+    api("org.javers:javers-core:7.7.0")
 
     // Kafka
-    api(Libs.kafka_clients)
-    compileOnly(Libs.spring_kafka)
+    api(libs.kafka.clients)
+    compileOnly(libs.spring.kafka)
 
     // Codec
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 }

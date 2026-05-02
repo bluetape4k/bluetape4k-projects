@@ -23,34 +23,34 @@ dependencies {
     api(project(":bluetape4k-logging"))
 
     // Exposed
-    api(platform(Libs.exposed_bom))
-    api(Libs.exposed_core)
-    compileOnly(Libs.exposed_jdbc)
-    compileOnly(Libs.exposed_dao)
-    compileOnly(Libs.exposed_java_time)
+    api(platform(libs.exposed.bom))
+    api(libs.exposed.core)
+    compileOnly(libs.exposed.jdbc)
+    compileOnly(libs.exposed.dao)
+    compileOnly(libs.exposed.java.time)
 
     // Coroutines
-    compileOnly(Libs.kotlinx_coroutines_core)
+    compileOnly(libs.kotlinx.coroutines.core)
 
     // Test Fixtures
     testFixturesApi(project(":bluetape4k-logging"))
-    testFixturesApi(platform(Libs.exposed_bom))
-    testFixturesApi(Libs.exposed_core)
-    testFixturesApi(Libs.exposed_jdbc)
-    testFixturesImplementation(Libs.exposed_java_time)
+    testFixturesApi(platform(libs.exposed.bom))
+    testFixturesApi(libs.exposed.core)
+    testFixturesApi(libs.exposed.jdbc)
+    testFixturesImplementation(libs.exposed.java.time)
 
     testFixturesImplementation(project(":bluetape4k-junit5"))
     testFixturesImplementation(project(":bluetape4k-exposed-jdbc-tests"))
     testFixturesImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
-    testFixturesCompileOnly(Libs.exposed_r2dbc)
+    testFixturesCompileOnly(libs.exposed.r2dbc)
 
-    testFixturesImplementation(Libs.kotlinx_coroutines_core)
-    testFixturesImplementation(Libs.kotlinx_coroutines_test)
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
 
-    testFixturesImplementation(Libs.kluent)
-    testFixturesImplementation(Libs.awaitility_kotlin)
+    testFixturesImplementation(libs.kluent)
+    testFixturesImplementation(libs.awaitility.kotlin)
 
     // Testing
     testImplementation(project(":bluetape4k-junit5"))
-    testImplementation(Libs.kluent)
+    testImplementation(libs.kluent)
 }

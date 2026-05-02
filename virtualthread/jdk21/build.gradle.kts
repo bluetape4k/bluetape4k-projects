@@ -35,6 +35,6 @@ dependencies {
     implementation(project(":bluetape4k-logging"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

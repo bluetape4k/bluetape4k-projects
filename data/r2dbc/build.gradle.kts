@@ -1,7 +1,7 @@
 plugins {
     kotlin("plugin.allopen")
     kotlin("plugin.spring")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -41,7 +41,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
     configurations {
@@ -99,58 +99,58 @@ benchmark {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Jackson
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.jackson_module_kotlin)
+    compileOnly(libs.jackson.module.kotlin)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactive)
-    api(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.reactive)
+    api(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    compileOnly(Libs.reactor_core)
-    compileOnly(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    compileOnly(libs.reactor.core)
+    compileOnly(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 
     // R2DBC
-    api(Libs.r2dbc_pool)
-    compileOnly(Libs.springBootStarter("data-r2dbc"))
-    compileOnly(Libs.h2_v2)
-    compileOnly(Libs.r2dbc_h2)
-    compileOnly(Libs.r2dbc_mysql)
-    compileOnly(Libs.r2dbc_postgresql)
+    api(libs.r2dbc.pool)
+    compileOnly("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    compileOnly(libs.h2.v2)
+    compileOnly(libs.r2dbc.h2)
+    compileOnly(libs.r2dbc.mysql)
+    compileOnly(libs.r2dbc.postgresql)
 
 
     // Spring Boot
-    compileOnly(Libs.springBoot("autoconfigure"))
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
     add("benchmarkImplementation", project(":bluetape4k-testcontainers"))
-    add("benchmarkImplementation", Libs.testcontainers_postgresql)
-    add("benchmarkImplementation", Libs.testcontainers_mysql)
-    add("benchmarkImplementation", Libs.testcontainers_r2dbc)
-    add("benchmarkImplementation", Libs.r2dbc_postgresql)
-    add("benchmarkImplementation", Libs.r2dbc_mysql)
-    add("benchmarkImplementation", Libs.postgresql_driver)
-    add("benchmarkImplementation", Libs.mysql_connector_j)
-    add("benchmarkRuntimeOnly", Libs.h2_v2)
-    add("benchmarkRuntimeOnly", Libs.r2dbc_h2)
-    add("benchmarkRuntimeOnly", Libs.r2dbc_postgresql)
-    add("benchmarkRuntimeOnly", Libs.r2dbc_mysql)
+    add("benchmarkImplementation", libs.testcontainers.postgresql)
+    add("benchmarkImplementation", libs.testcontainers.mysql)
+    add("benchmarkImplementation", libs.testcontainers.r2dbc)
+    add("benchmarkImplementation", libs.r2dbc.postgresql)
+    add("benchmarkImplementation", libs.r2dbc.mysql)
+    add("benchmarkImplementation", libs.postgresql.driver)
+    add("benchmarkImplementation", libs.mysql.connector.j)
+    add("benchmarkRuntimeOnly", libs.h2.v2)
+    add("benchmarkRuntimeOnly", libs.r2dbc.h2)
+    add("benchmarkRuntimeOnly", libs.r2dbc.postgresql)
+    add("benchmarkRuntimeOnly", libs.r2dbc.mysql)
 }

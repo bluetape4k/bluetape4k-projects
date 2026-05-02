@@ -7,7 +7,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
 
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
@@ -18,50 +18,50 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // AWS SDK V2 Core (공통 필수)
-    api(Libs.aws2_aws_core)
-    api(Libs.aws2_apache_client)
-    api(Libs.aws2_aws_crt_client)
-    api(Libs.aws2_netty_nio_client)
-    compileOnly(Libs.aws2_url_connection_client)
+    api(libs.aws2.aws.core)
+    api(libs.aws2.apache.client)
+    api(libs.aws2.aws.crt.client)
+    api(libs.aws2.netty.nio.client)
+    compileOnly(libs.aws2.url.connection.client)
 
     // AWS SDK V2 Services (compileOnly - 사용자가 필요한 서비스만 런타임에 추가)
-    compileOnly(Libs.aws2_dynamodb_enhanced)
-    compileOnly(Libs.aws2_s3)
-    compileOnly(Libs.aws2_s3_transfer_manager)
-    compileOnly(Libs.aws2_aws_crt)
-    compileOnly(Libs.aws2_ses)
-    compileOnly(Libs.aws2_sns)
-    compileOnly(Libs.aws2_sqs)
-    compileOnly(Libs.aws2_kms)
-    compileOnly(Libs.aws2_cloudwatch)
-    compileOnly(Libs.aws2_cloudwatchlogs)
-    compileOnly(Libs.aws2_kinesis)
-    compileOnly(Libs.aws2_sts)
+    compileOnly(libs.aws2.dynamodb.enhanced)
+    compileOnly(libs.aws2.s3)
+    compileOnly(libs.aws2.s3.transfer.manager)
+    compileOnly(libs.aws2.aws.crt)
+    compileOnly(libs.aws2.ses)
+    compileOnly(libs.aws2.sns)
+    compileOnly(libs.aws2.sqs)
+    compileOnly(libs.aws2.kms)
+    compileOnly(libs.aws2.cloudwatch)
+    compileOnly(libs.aws2.cloudwatchlogs)
+    compileOnly(libs.aws2.kinesis)
+    compileOnly(libs.aws2.sts)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactive)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Test
-    testImplementation(Libs.aws2_ec2)
-    testImplementation(Libs.aws2_test_utils)
-    testImplementation(Libs.testcontainers_localstack)
-    testImplementation(Libs.mockk)
-    testImplementation(Libs.awaitility_kotlin)
+    testImplementation(libs.aws2.ec2)
+    testImplementation(libs.aws2.test.utils)
+    testImplementation(libs.testcontainers.localstack)
+    testImplementation(libs.mockk)
+    testImplementation(libs.awaitility.kotlin)
 
     // Spring Boot (dynamodb 테스트용)
-    testImplementation(Libs.springBootStarter("webflux"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "junit", module = "junit")
         exclude(module = "mockito-core")
     }
-    testImplementation(Libs.jakarta_el_api)
-    testImplementation(Libs.hibernate_validator)
-    compileOnly(Libs.commons_io)
+    testImplementation(libs.jakarta.el.api)
+    testImplementation(libs.hibernate.validator)
+    compileOnly(libs.commons.io)
 }
 
 tasks.test {

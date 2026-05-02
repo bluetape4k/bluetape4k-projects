@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -23,7 +23,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -38,63 +38,63 @@ dependencies {
     api(project(":bluetape4k-resilience4j"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.wiremock)
+    testImplementation(libs.wiremock)
 
     // Benchmark
-    testImplementation(Libs.kotlinx_benchmark_runtime)
-    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
-    testImplementation(Libs.jmh_core)
+    testImplementation(libs.kotlinx.benchmark.runtime)
+    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
+    testImplementation(libs.jmh.core)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactive)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // OkHttp3
-    compileOnly(Libs.okhttp3)
-    compileOnly(Libs.okhttp3_coroutines)
-    compileOnly(Libs.okhttp3_logging_interceptor)
+    compileOnly(libs.okhttp3)
+    compileOnly(libs.okhttp3.coroutines)
+    compileOnly(libs.okhttp3.logging.interceptor)
 
     // OkHttp3 MockWebServer
-    compileOnly(Libs.okhttp3_mockwebserver)
+    compileOnly(libs.okhttp3.mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
-    compileOnly(Libs.httpclient5)
-    compileOnly(Libs.httpclient5_cache)
-    compileOnly(Libs.httpclient5_fluent)
-    testImplementation(Libs.httpclient5_testing)
+    compileOnly(libs.httpclient5)
+    compileOnly(libs.httpclient5.cache)
+    compileOnly(libs.httpclient5.fluent)
+    testImplementation(libs.httpclient5.testing)
 
     // Apache HttpComponent Core 5
-    compileOnly(Libs.httpcore5)
-    compileOnly(Libs.httpcore5_h2)
-    compileOnly(Libs.httpcore5_reactive)
-    testImplementation(Libs.httpcore5_testing)
+    compileOnly(libs.httpcore5)
+    compileOnly(libs.httpcore5.h2)
+    compileOnly(libs.httpcore5.reactive)
+    testImplementation(libs.httpcore5.testing)
 
     compileOnly(project(":bluetape4k-cache-core"))
-    compileOnly(Libs.caffeine)
-    compileOnly(Libs.caffeine_jcache)
+    compileOnly(libs.caffeine)
+    compileOnly(libs.caffeine.jcache)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
-    compileOnly(Libs.vertx_core)
-    compileOnly(Libs.vertx_web_client)
-    compileOnly(Libs.vertx_lang_kotlin)
-    compileOnly(Libs.vertx_lang_kotlin_coroutines)
+    compileOnly(libs.vertx.core)
+    compileOnly(libs.vertx.web.client)
+    compileOnly(libs.vertx.lang.kotlin)
+    compileOnly(libs.vertx.lang.kotlin.coroutines)
 
     // Jackson
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.jackson_databind)
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
+    compileOnly(libs.jackson.databind)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson.module.blackbird)
 
     // Fastjson2
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(Libs.fastjson2)
-    compileOnly(Libs.fastjson2_kotlin)
+    compileOnly(libs.fastjson2)
+    compileOnly(libs.fastjson2.kotlin)
 
     // Reactor
-    testImplementation(Libs.reactor_core)
-    testImplementation(Libs.reactor_kotlin_extensions)
+    testImplementation(libs.reactor.core)
+    testImplementation(libs.reactor.kotlin.extensions)
 }

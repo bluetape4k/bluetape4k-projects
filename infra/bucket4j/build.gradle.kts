@@ -7,51 +7,51 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-cache-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Bucket4j
-    api(Libs.bucket4j_core)
-    compileOnly(Libs.bucket4j_lettuce)
-    compileOnly(Libs.bucket4j_redisson)
+    api(libs.bucket4j.core)
+    compileOnly(libs.bucket4j.lettuce)
+    compileOnly(libs.bucket4j.redisson)
 
     // Local Cache
-    compileOnly(Libs.caffeine)
+    compileOnly(libs.caffeine)
 
     // Redis
-    compileOnly(Libs.lettuce_core)
-    compileOnly(Libs.redisson)
+    compileOnly(libs.lettuce.core)
+    compileOnly(libs.redisson)
 
     // Codecs
-    testImplementation(Libs.fory_kotlin)
-    testImplementation(Libs.kryo5)
+    testImplementation(libs.fory.kotlin)
+    testImplementation(libs.kryo5)
 
     // Compressor
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.zstd.jni)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Testcontainers for Redis
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers)
+    testImplementation(libs.testcontainers)
 
     // Spring Boot Example
-    testImplementation(Libs.springBootStarter("webflux"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
     // Reactor
-    testImplementation(Libs.reactor_netty)
-    testImplementation(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    testImplementation(libs.reactor.netty)
+    testImplementation(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 }

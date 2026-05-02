@@ -3,10 +3,10 @@ configurations {
 }
 
 dependencies {
-    api(Libs.logback)
-    api(Libs.kafka_clients)
+    api(libs.logback.classic)
+    api(libs.kafka.clients)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_kafka)
+    testImplementation(libs.testcontainers.kafka)
 }

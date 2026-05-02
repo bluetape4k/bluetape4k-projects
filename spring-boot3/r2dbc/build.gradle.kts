@@ -7,31 +7,31 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-r2dbc"))
     testImplementation(project(":bluetape4k-junit5"))
 
     api(project(":bluetape4k-spring-boot3-core"))
 
     // R2DBC
-    api(Libs.springBootStarter("data-r2dbc"))
-    testImplementation(Libs.r2dbc_pool)
-    testRuntimeOnly(Libs.r2dbc_h2)
-    testRuntimeOnly(Libs.h2_v2)
+    api("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    testImplementation(libs.r2dbc.pool)
+    testRuntimeOnly(libs.r2dbc.h2)
+    testRuntimeOnly(libs.h2.v2)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // PostgreSql Server
     // testImplementation(project(":bluetape4k-testcontainers"))
-    // testImplementation(Libs.testcontainers_postgresql)
-    // testImplementation(Libs.r2dbc_postgresql)
+    // testImplementation(libs.testcontainers.postgresql)
+    // testImplementation(libs.r2dbc.postgresql)
 
     // Spring Boot for Blog Application
-    testImplementation(Libs.springBootStarter("webflux"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")

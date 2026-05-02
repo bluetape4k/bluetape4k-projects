@@ -2,7 +2,7 @@ plugins {
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
     kotlin("plugin.allopen")
-    id(Plugins.graalvm_native)
+    alias(libs.plugins.graalvm.native)
 }
 
 allOpen {
@@ -19,7 +19,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-cassandra"))
     implementation(project(":bluetape4k-spring-boot4-cassandra"))
@@ -28,14 +28,14 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // NOTE: Cassandra 4 oss 버전을 사용합니다.
-    implementation(Libs.cassandra_java_driver_core)
-    implementation(Libs.cassandra_java_driver_query_builder)
-    implementation(Libs.cassandra_java_driver_mapper_runtime)
-    implementation(Libs.cassandra_java_driver_metrics_micrometer)
+    implementation(libs.cassandra.java.driver.core)
+    implementation(libs.cassandra.java.driver.query.builder)
+    implementation(libs.cassandra.java.driver.mapper.runtime)
+    implementation(libs.cassandra.java.driver.metrics.micrometer)
 
-    implementation(Libs.springBootStarter("aspectj"))
-    implementation(Libs.springBootStarter("data-cassandra"))
-    testImplementation(Libs.springBootStarter("test")) {
+    implementation("org.springframework.boot:spring-boot-starter-aspectj")
+    implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
@@ -43,12 +43,12 @@ dependencies {
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactive)
-    implementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
+    implementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    implementation(Libs.reactor_core)
-    implementation(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    implementation(libs.reactor.core)
+    implementation(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 }

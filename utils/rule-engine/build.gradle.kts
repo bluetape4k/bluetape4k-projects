@@ -8,41 +8,41 @@ dependencies {
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Spring BOM (SpEL 버전 관리)
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     compileOnly("org.springframework:spring-expression")
 
     // MVEL2
-    compileOnly(Libs.mvel2)
+    compileOnly(libs.mvel2)
 
     // Janino (runtime Java expression/script compiler)
-    compileOnly(Libs.janino)
-    compileOnly(Libs.janino_commons_compiler)
+    compileOnly(libs.janino)
+    compileOnly(libs.janino.commons.compiler)
 
     // Groovy (runtime script engine)
-    compileOnly(Libs.groovy)
+    compileOnly(libs.groovy)
 
     // Kotlin Script (jvm-host)
-    compileOnly(Libs.kotlin_scripting_common)
-    compileOnly(Libs.kotlin_scripting_jvm)
-    compileOnly(Libs.kotlin_scripting_jvm_host)
+    compileOnly(libs.kotlin.scripting.common)
+    compileOnly(libs.kotlin.scripting.jvm)
+    compileOnly(libs.kotlin.scripting.jvm.host)
 
     // Rule Reader
-    compileOnly(Libs.jackson_dataformat_yaml)
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.typesafe_config)
+    compileOnly(libs.jackson.dataformat.yaml)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.typesafe.config)
 
     // Test
-    testImplementation(Libs.mvel2)
-    testImplementation(Libs.janino)
-    testImplementation(Libs.janino_commons_compiler)
-    testImplementation(Libs.groovy)
-    testImplementation(Libs.kotlin_scripting_jvm_host)
+    testImplementation(libs.mvel2)
+    testImplementation(libs.janino)
+    testImplementation(libs.janino.commons.compiler)
+    testImplementation(libs.groovy)
+    testImplementation(libs.kotlin.scripting.jvm.host)
     testImplementation("org.springframework:spring-context")
-    testImplementation(Libs.jackson_dataformat_yaml)
-    testImplementation(Libs.jackson_module_kotlin)
-    testImplementation(Libs.typesafe_config)
+    testImplementation(libs.jackson.dataformat.yaml)
+    testImplementation(libs.jackson.module.kotlin)
+    testImplementation(libs.typesafe.config)
 }

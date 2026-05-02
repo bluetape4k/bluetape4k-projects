@@ -13,31 +13,31 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     api(project(":bluetape4k-spring-boot4-core"))
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mongodb)
+    testImplementation(libs.testcontainers.mongodb)
 
     // Mongo Driver
-    implementation(Libs.mongodb_driver_kotlin_sync)
-    implementation(Libs.mongodb_driver_kotlin_coroutine)
-    implementation(Libs.mongodb_driver_kotlin_extensions)
+    implementation(libs.mongodb.driver.kotlin.sync)
+    implementation(libs.mongodb.driver.kotlin.coroutine)
+    implementation(libs.mongodb.driver.kotlin.extensions)
 
     // Jackson 3
     testImplementation(project(":bluetape4k-jackson3"))
-    testImplementation(Libs.jackson3_module_kotlin)
-    testImplementation(Libs.jackson3_module_blackbird)
+    testImplementation(libs.jackson3.module.kotlin)
+    testImplementation(libs.jackson3.module.blackbird)
 
     // Spring Data MongoDB Reactive
-    api(Libs.springBootStarter("data-mongodb-reactive"))
+    api("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBoot("configuration-processor"))
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-configuration-processor")
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
@@ -45,12 +45,12 @@ dependencies {
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    implementation(Libs.reactor_core)
-    implementation(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    implementation(libs.reactor.core)
+    implementation(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 }

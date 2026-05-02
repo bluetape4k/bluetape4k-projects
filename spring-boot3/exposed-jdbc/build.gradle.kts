@@ -7,19 +7,19 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
-    api(Libs.springData("commons"))
+    implementation(platform(libs.spring.boot3.dependencies))
+    api("org.springframework.data:spring-data-commons")
 
-    api(Libs.kotlin_reflect)
+    api(libs.kotlin.reflect)
     api(project(":bluetape4k-logging"))
-    api(Libs.exposed_core)
-    api(Libs.exposed_dao)
-    api(Libs.exposed_jdbc)
-    api(Libs.exposed_java_time)
-    api(Libs.exposed_spring_transaction)
+    api(libs.exposed.core)
+    api(libs.exposed.dao)
+    api(libs.exposed.jdbc)
+    api(libs.exposed.java.time)
+    api(libs.exposed.spring.transaction)
 
-    testImplementation(Libs.exposed_migration_jdbc)
-    testImplementation(Libs.flyway_core)
+    testImplementation(libs.exposed.migration.jdbc)
+    testImplementation(libs.flyway.core)
     testImplementation(project(":bluetape4k-junit5"))
 
     testImplementation(project(":bluetape4k-virtualthread-jdk21"))
@@ -27,14 +27,14 @@ dependencies {
     api(project(":bluetape4k-exposed-jdbc"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBootStarter("data-jdbc"))
-    testImplementation(Libs.springBootStarter("test"))
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-starter-data-jdbc")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
 
     // Multi-DB 테스트용 JDBC 드라이버
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.postgresql_driver)
+    testImplementation(libs.mysql.connector.j)
+    testImplementation(libs.mariadb.java.client)
+    testImplementation(libs.postgresql.driver)
 }

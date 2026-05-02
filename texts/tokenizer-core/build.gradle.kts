@@ -8,11 +8,11 @@ dependencies {
 
     // Jackson
     testImplementation(project(":bluetape4k-jackson2"))
-    testImplementation(Libs.jackson_module_kotlin)
-    testImplementation(Libs.jackson_module_blackbird)
+    testImplementation(libs.jackson.module.kotlin)
+    testImplementation(libs.jackson.module.blackbird)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

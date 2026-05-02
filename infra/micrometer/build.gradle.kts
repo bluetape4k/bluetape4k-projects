@@ -8,7 +8,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
 
     api(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-cache-core"))
@@ -18,48 +18,48 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Micrometer
-    api(Libs.micrometer_core)
-    implementation(Libs.micrometer_registry_prometheus)
-    implementation(Libs.micrometer_registry_datadog)
-    testImplementation(Libs.micrometer_test)
+    api(libs.micrometer.core)
+    implementation(libs.micrometer.registry.prometheus)
+    implementation(libs.micrometer.registry.datadog)
+    testImplementation(libs.micrometer.test)
 
-    api(Libs.micrometer_observation)
-    implementation(Libs.micrometer_observation_test)
+    api(libs.micrometer.observation)
+    implementation(libs.micrometer.observation.test)
 
     // Micrometer Tracing
-    implementation(Libs.micrometer_tracing_bridge_otel)
-    testImplementation(Libs.micrometer_tracing_test)
-    testImplementation(Libs.micrometer_tracing_integeration_test)
+    implementation(libs.micrometer.tracing.bridge.otel)
+    testImplementation(libs.micrometer.tracing.test)
+    testImplementation(libs.micrometer.tracing.integration.test)
 
-    api(Libs.micrometer_context_propagation)  // thread local <-> reactor 등 상이한 환경에서 context 전파를 위해 사용
+    api(libs.micrometer.context.propagation)  // thread local <-> reactor 등 상이한 환경에서 context 전파를 위해 사용
 
     // Instrumentations
-    implementation(Libs.cache2k_core)
+    implementation(libs.cache2k.core)
     // 이미 cache2k_micrometer에 instrument 가 있지만, 예제용으로 만들기 위해 직접 구현했습니다.
-    // compileOnly(Libs.cache2k_micrometer)
-    // compileOnly(Libs.ignite_core)
+    // compileOnly(libs.cache2k.micrometer)
+    // compileOnly(libs.ignite.core)
 
     // Retrofit2 Instrumentations
     implementation(project(":bluetape4k-retrofit2"))
-    implementation(Libs.retrofit2)
-    implementation(Libs.retrofit2_adapter_reactor)
-    implementation(Libs.retrofit2_adapter_rxjava2)
-    implementation(Libs.retrofit2_adapter_rxjava3)
-    implementation(Libs.retrofit2_converter_jackson)
-    implementation(Libs.okhttp3)
+    implementation(libs.retrofit2)
+    implementation(libs.retrofit2.adapter.reactor)
+    implementation(libs.retrofit2.adapter.rxjava2)
+    implementation(libs.retrofit2.adapter.rxjava3)
+    implementation(libs.retrofit2.converter.jackson)
+    implementation(libs.okhttp3)
 
 
     // Jackson 2
     implementation(project(":bluetape4k-jackson2"))
-    implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_module_blackbird)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.module.blackbird)
 
-    implementation(Libs.vertx_core)
+    implementation(libs.vertx.core)
     testImplementation(project(":bluetape4k-vertx"))
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

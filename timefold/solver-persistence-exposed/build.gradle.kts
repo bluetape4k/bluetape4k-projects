@@ -3,29 +3,29 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.timefold_solver_bom))
+    implementation(platform(libs.timefold.solver.bom))
 
-    api(Libs.timefold_solver_core)
-    api(Libs.timefold_solver_persistence_common)
-    testImplementation(Libs.timefold_solver_test)
+    api(libs.timefold.solver.core)
+    api(libs.timefold.solver.persistence.common)
+    testImplementation(libs.timefold.solver.test)
 
-    api(Libs.exposed_core)
+    api(libs.exposed.core)
     compileOnly(project(":bluetape4k-exposed-jdbc"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
     // JDBC Drivers
-    testImplementation(Libs.hikaricp)
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mariadb_java_client)
-    testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.postgresql_driver)
-    testRuntimeOnly(Libs.pgjdbc_ng)
+    testImplementation(libs.hikaricp)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(libs.postgresql.driver)
+    testRuntimeOnly(libs.pgjdbc.ng)
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_junit_jupiter)
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 }

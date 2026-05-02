@@ -7,11 +7,11 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Smallrye Mutiny
-    testImplementation(Libs.mutiny)
-    testImplementation(Libs.mutiny_kotlin)
+    testImplementation(libs.mutiny)
+    testImplementation(libs.mutiny.kotlin)
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

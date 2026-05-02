@@ -9,25 +9,25 @@ dependencies {
 
     // Images
     // https://mvnrepository.com/artifact/com.sksamuel.scrimage/scrimage-core
-    api(Libs.scrimage_core)
-    api(Libs.scrimage_filters)
-    implementation(Libs.scrimage_webp)
+    api(libs.scrimage.core)
+    api(libs.scrimage.filters)
+    implementation(libs.scrimage.webp)
 
     // EXIF metadata (required runtime dependency)
-    implementation(Libs.metadata_extractor)
+    implementation(libs.metadata.extractor)
 
     // TIFF support via TwelveMonkeys ImageIO (auto-registers via SPI)
-    api(Libs.twelvemonkeys_imageio_tiff)
-    api(Libs.twelvemonkeys_imageio_metadata)
+    api(libs.twelvemonkeys.imageio.tiff)
+    api(libs.twelvemonkeys.imageio.metadata)
 
     // SVG rasterization via Apache Batik (opt-in; add to your own dependencies if needed)
-    compileOnly(Libs.batik_transcoder)
-    compileOnly(Libs.batik_codec)
-    testImplementation(Libs.batik_transcoder)
-    testImplementation(Libs.batik_codec)
+    compileOnly(libs.batik.transcoder)
+    compileOnly(libs.batik.codec)
+    testImplementation(libs.batik.transcoder)
+    testImplementation(libs.batik.codec)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

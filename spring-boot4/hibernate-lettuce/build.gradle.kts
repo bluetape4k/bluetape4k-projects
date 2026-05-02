@@ -38,33 +38,33 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     // 핵심: Hibernate 2nd Level Cache Lettuce 구현체
     api(project(":bluetape4k-hibernate-cache-lettuce"))
 
     // Spring Boot 4: HibernatePropertiesCustomizer가 spring-boot-hibernate 모듈로 이동 — compileOnly
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBoot("hibernate"))
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-hibernate")
 
     // Optional 의존성
-    compileOnly(Libs.springBootStarter("data-jpa"))
-    compileOnly(Libs.hibernate_core)
-    compileOnly(Libs.micrometer_core)
-    compileOnly(Libs.springBootStarter("actuator"))
-    compileOnly(Libs.springBoot("micrometer-metrics"))
+    compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+    compileOnly(libs.hibernate.core)
+    compileOnly(libs.micrometer.core)
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
+    compileOnly("org.springframework.boot:spring-boot-micrometer-metrics")
 
     // 직렬화/압축 런타임
-    implementation(Libs.fory_kotlin)
-    implementation(Libs.zstd_jni)
+    implementation(libs.fory.kotlin)
+    implementation(libs.zstd.jni)
 
     // Test
-    testImplementation(Libs.springBootStarter("test"))
-    testImplementation(Libs.springBootStarter("data-jpa"))
-    testImplementation(Libs.springBootStarter("actuator"))
-    testImplementation(Libs.micrometer_core)
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    testImplementation("org.springframework.boot:spring-boot-starter-actuator")
+    testImplementation(libs.micrometer.core)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
 }

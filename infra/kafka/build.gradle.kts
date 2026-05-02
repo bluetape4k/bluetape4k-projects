@@ -14,7 +14,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-resilience4j"))
@@ -22,49 +22,49 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Kafka
-    api(Libs.kafka_clients)
-    compileOnly(Libs.kafka_streams)
-    compileOnly(Libs.kafka_generator)
-    testImplementation(Libs.kafka_streams_test_utils)
-    testImplementation(Libs.kafka_server_common)
-    testImplementation(Libs.testcontainers_kafka)
+    api(libs.kafka.clients)
+    compileOnly(libs.kafka.streams)
+    compileOnly(libs.kafka.generator)
+    testImplementation(libs.kafka.streams.test.utils)
+    testImplementation(libs.kafka.server.common)
+    testImplementation(libs.testcontainers.kafka)
 
     // Spring Kafka
-    implementation(Libs.spring_kafka)
-    compileOnly(Libs.spring_kafka_test)
+    implementation(libs.spring.kafka)
+    compileOnly(libs.spring.kafka.test)
     implementation(project(":bluetape4k-spring-boot3-core"))
-    implementation(Libs.springData("commons"))
+    implementation("org.springframework.data:spring-data-commons")
 
     // Jackson
     implementation(project(":bluetape4k-jackson2"))
-    implementation(Libs.jackson_databind)
-    implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.jackson_module_blackbird)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.module.blackbird)
 
     // Codecs
-    compileOnly(Libs.kryo)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(libs.kryo)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
 
     // Compressors
-    compileOnly(Libs.commons_compress)
-    compileOnly(Libs.snappy_java)
+    compileOnly(libs.commons.compress)
+    compileOnly(libs.snappy.java)
     // at.yawk.lz4:lz4-java 를 api 로 노출: exclude 로 org.lz4 를 제거했으므로
     // 소비자 classpath 에 at.yawk.lz4:lz4-java:1.11.0 가 반드시 있어야 kafka LZ4 codec 이 동작한다.
-    api(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
+    api(libs.lz4.java)
+    compileOnly(libs.zstd.jni)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    implementation(Libs.reactor_kafka)
-    implementation(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    implementation(libs.reactor.kafka)
+    implementation(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")

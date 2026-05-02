@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -12,7 +12,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -28,52 +28,52 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons
-    compileOnly(Libs.commons_io)
-    compileOnly(Libs.commons_lang3)
-    compileOnly(Libs.commons_codec)
-    compileOnly(Libs.commons_compress)
+    compileOnly(libs.commons.io)
+    compileOnly(libs.commons.lang3)
+    compileOnly(libs.commons.codec)
+    compileOnly(libs.commons.compress)
 
     // Okio (compressor 내부용)
-    api(Libs.okio)
+    api(libs.okio)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    compileOnly(Libs.reactor_core)
-    compileOnly(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    compileOnly(libs.reactor.core)
+    compileOnly(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 
     // Eclipse Collections
-    compileOnly(Libs.eclipse_collections)
-    compileOnly(Libs.eclipse_collections_forkjoin)
-    testImplementation(Libs.eclipse_collections_testutils)
+    compileOnly(libs.eclipse.collections)
+    compileOnly(libs.eclipse.collections.forkjoin)
+    testImplementation(libs.eclipse.collections.testutils)
 
     // Cache
-    compileOnly(Libs.caffeine)
-    compileOnly(Libs.caffeine_jcache)
+    compileOnly(libs.caffeine)
+    compileOnly(libs.caffeine.jcache)
 
     // Compression
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.xz)
-    compileOnly(Libs.zstd_jni)
-    compileOnly(Libs.brotli4j)
-    compileOnly(Libs.brotli4j_native)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.xz)
+    compileOnly(libs.zstd.jni)
+    compileOnly(libs.brotli4j)
+    compileOnly(libs.brotli4j.native)
 
     // Binary Serializers
-    compileOnly(Libs.kryo5)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(libs.kryo5)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
 
     // Benchmark
-    testImplementation(Libs.kotlinx_benchmark_runtime)
-    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
-    testImplementation(Libs.jmh_core)
+    testImplementation(libs.kotlinx.benchmark.runtime)
+    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
+    testImplementation(libs.jmh.core)
 
     // Binary Serializer 와 비교하기 하기 위해 Benchmark 에서 사용합니다.
-    testImplementation(Libs.jackson_datatype_jsr310)
-    testImplementation(Libs.jackson_module_kotlin)
-    testImplementation(Libs.jackson_module_blackbird)
+    testImplementation(libs.jackson.datatype.jsr310)
+    testImplementation(libs.jackson.module.kotlin)
+    testImplementation(libs.jackson.module.blackbird)
 }

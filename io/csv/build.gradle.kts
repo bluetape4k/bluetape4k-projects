@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -13,7 +13,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -28,11 +28,11 @@ dependencies {
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Benchmark
-    testImplementation(Libs.kotlinx_benchmark_runtime)
-    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
-    testImplementation(Libs.jmh_core)
+    testImplementation(libs.kotlinx.benchmark.runtime)
+    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
+    testImplementation(libs.jmh.core)
 }

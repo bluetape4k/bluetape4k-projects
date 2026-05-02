@@ -46,12 +46,12 @@ dependencies {
 
     // vips-ffm FFM bindings (JDK 23+; system libvips required on all platforms)
     // D8: binding types are internal — use api() only if consumers need VipsImage directly
-    implementation(Libs.vips_ffm)
+    implementation(libs.vips.ffm)
 
     // BoundedInputStream for input size limits
-    implementation(Libs.commons_io)
+    implementation(libs.commons.io)
 
     // Coroutines
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

@@ -1,5 +1,5 @@
 plugins {
-    id(Plugins.avro) version Plugins.Versions.avro
+    alias(libs.plugins.avro.plugin)
 }
 
 avro {
@@ -27,12 +27,12 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.avro)
-    api(Libs.avro_kotlin)
+    api(libs.avro)
+    api(libs.avro.kotlin)
 
     // Compressor
-    runtimeOnly(Libs.snappy_java)
-    runtimeOnly(Libs.lz4_java)
-    runtimeOnly(Libs.zstd_jni)
-    runtimeOnly(Libs.xz)
+    runtimeOnly(libs.snappy.java)
+    runtimeOnly(libs.lz4.java)
+    runtimeOnly(libs.zstd.jni)
+    runtimeOnly(libs.xz)
 }

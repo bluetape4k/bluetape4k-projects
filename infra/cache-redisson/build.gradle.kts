@@ -4,35 +4,35 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-cache-core"))
 
     // Redisson JCache provider
-    api(Libs.redisson)
+    api(libs.redisson)
     api(project(":bluetape4k-redisson"))
     // bluetape4k-resilience4j는 compileOnly(cache-redisson) 의존으로 순환 의존성 발생 → 직접 라이브러리 사용
-    implementation(Libs.resilience4j_retry)
-    implementation(Libs.resilience4j_kotlin)
+    implementation(libs.resilience4j.retry)
+    implementation(libs.resilience4j.kotlin)
 
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
-    testImplementation(Libs.awaitility_kotlin)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.awaitility.kotlin)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.springBootStarter("cache"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-cache")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude("org.junit.vintage", "junit-vintage-engine")
         exclude("junit", "junit")
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
-    testRuntimeOnly(Libs.fory_kotlin)
-    testRuntimeOnly(Libs.kryo5)
+    testRuntimeOnly(libs.fory.kotlin)
+    testRuntimeOnly(libs.kryo5)
 
-    testRuntimeOnly(Libs.lz4_java)
-    testRuntimeOnly(Libs.snappy_java)
-    testRuntimeOnly(Libs.zstd_jni)
+    testRuntimeOnly(libs.lz4.java)
+    testRuntimeOnly(libs.snappy.java)
+    testRuntimeOnly(libs.zstd.jni)
 }

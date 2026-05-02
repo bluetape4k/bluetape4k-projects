@@ -8,41 +8,41 @@ dependencies {
     api(project(":bluetape4k-exposed-jdbc"))
     api(project(":bluetape4k-exposed-cache"))
     api(project(":bluetape4k-resilience4j"))
-    api(Libs.resilience4j_retry)
+    api(libs.resilience4j.retry)
 
     // Exposed
-    api(Libs.exposed_core)
-    api(Libs.exposed_dao)
-    api(Libs.exposed_jdbc)
-    api(Libs.exposed_java_time)
+    api(libs.exposed.core)
+    api(libs.exposed.dao)
+    api(libs.exposed.jdbc)
+    api(libs.exposed.java.time)
 
     // Lettuce
-    api(Libs.lettuce_core)
+    api(libs.lettuce.core)
 
     // Serializer (LettuceLoadedMap에서 사용하는 codec용)
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.zstd.jni)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
     testImplementation(testFixtures(project(":bluetape4k-exposed-cache")))
 
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    testImplementation(Libs.testcontainers_junit_jupiter)
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.pgjdbc_ng)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.mariadb.java.client)
+    testImplementation(libs.mysql.connector.j)
+    testImplementation(libs.postgresql.driver)
+    testImplementation(libs.pgjdbc.ng)
 }
