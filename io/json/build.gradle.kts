@@ -3,6 +3,6 @@ configurations {
 }
 
 dependencies {
-    api(Libs.jakarta_json_api)
+    api(libs.jakarta.json.api)
     implementation(project(":bluetape4k-core"))
 }

@@ -3,34 +3,34 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.junit_bom))
+    implementation(platform(libs.junit.bom))
 
     api(project(":bluetape4k-logging"))
     api(project(":bluetape4k-virtualthread-api"))
     runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 
-    api(Libs.kotlin_test_junit5)
+    api(libs.kotlin.test.junit5)
 
-    api(Libs.junit_jupiter)
-    api(Libs.junit_jupiter_engine)
-    api(Libs.junit_jupiter_params)
-    api(Libs.junit_platform_launcher)
+    api(libs.junit.jupiter)
+    api(libs.junit.jupiter.engine)
+    api(libs.junit.jupiter.params)
+    api(libs.junit.platform.launcher)
 
-    api(Libs.kluent)
-    api(Libs.mockk)
-    api(Libs.awaitility_kotlin)
+    api(libs.kluent)
+    api(libs.mockk)
+    api(libs.awaitility.kotlin)
 
-    api(Libs.datafaker)
-    api(Libs.java_uuid_generator)
-    api(Libs.random_beans)
+    api(libs.datafaker)
+    api(libs.java.uuid.generator)
+    api(libs.random.beans)
 
-    api(Libs.commons_lang3)
-    implementation(Libs.logback)
+    api(libs.commons.lang3)
+    implementation(libs.logback.classic)
 
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_debug)
-    implementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.debug)
+    implementation(libs.kotlinx.coroutines.test)
 
-    implementation(Libs.eclipse_collections)
-    testImplementation(Libs.eclipse_collections_testutils)
+    implementation(libs.eclipse.collections)
+    testImplementation(libs.eclipse.collections.testutils)
 }

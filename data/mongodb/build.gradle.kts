@@ -9,18 +9,18 @@ dependencies {
     testImplementation(project(":bluetape4k-jackson2"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mongodb)
+    testImplementation(libs.testcontainers.mongodb)
 
     // MongoDB Kotlin Coroutine Driver (네이티브 suspend/Flow 지원)
-    api(Libs.mongodb_driver_kotlin_coroutine)
+    api(libs.mongodb.driver.kotlin.coroutine)
     // MongoDB Kotlin Extensions (KProperty 기반 Filters/Sorts/Updates/Projections DSL)
-    api(Libs.mongodb_driver_kotlin_extensions)
+    api(libs.mongodb.driver.kotlin.extensions)
     // BSON Kotlin 지원
-    api(Libs.mongo_bson_kotlin)
+    api(libs.mongo.bson.kotlin)
     // kotlinx.serialization BSON 코덱 (선택적)
-    compileOnly(Libs.mongo_bson_kotlinx)
+    compileOnly(libs.mongo.bson.kotlinx)
 
     // Coroutines
-    implementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

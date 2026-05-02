@@ -5,23 +5,23 @@ configurations {
 dependencies {
     // Exposed + PostgreSQL (OLTP)
     testImplementation(project(":bluetape4k-exposed-clickhouse"))
-    testImplementation(Libs.exposed_core)
-    testImplementation(Libs.exposed_jdbc)
-    testImplementation(Libs.exposed_java_time)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.hikaricp)
+    testImplementation(libs.exposed.core)
+    testImplementation(libs.exposed.jdbc)
+    testImplementation(libs.exposed.java.time)
+    testImplementation(libs.postgresql.driver)
+    testImplementation(libs.hikaricp)
 
     // ClickHouse (OLAP)
-    testImplementation(Libs.clickhouse_jdbc)
+    testImplementation(libs.clickhouse.jdbc)
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Testing
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_clickhouse)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.clickhouse)
+    testImplementation(libs.testcontainers.postgresql)
 }

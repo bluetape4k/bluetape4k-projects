@@ -3,13 +3,13 @@ configurations {
 }
 
 dependencies {
-    implementation(Libs.kotlin_reflect)
+    implementation(libs.kotlin.reflect)
 
-    api(Libs.slf4j_api)
-    implementation(Libs.jcl_over_slf4j)
-    implementation(Libs.logback)
+    api(libs.slf4j.api)
+    implementation(libs.jcl.over.slf4j)
+    implementation(libs.logback.classic)
 
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_slf4j)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.slf4j)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

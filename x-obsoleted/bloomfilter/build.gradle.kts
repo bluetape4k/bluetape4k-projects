@@ -7,29 +7,29 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Hashing
-    api(Libs.zero_allocation_hashing)
+    api(libs.zero.allocation.hashing)
 
     // Redis Drivers
     compileOnly(project(":bluetape4k-lettuce"))
     compileOnly(project(":bluetape4k-redisson"))
-    compileOnly(Libs.lettuce_core)
-    compileOnly(Libs.redisson)
+    compileOnly(libs.lettuce.core)
+    compileOnly(libs.redisson)
 
     // Codecs
-    testImplementation(Libs.fory_kotlin)
-    testImplementation(Libs.kryo5)
+    testImplementation(libs.fory.kotlin)
+    testImplementation(libs.kryo5)
 
     // Compressor
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.zstd.jni)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // TestContainers
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers)
+    testImplementation(libs.testcontainers)
 }

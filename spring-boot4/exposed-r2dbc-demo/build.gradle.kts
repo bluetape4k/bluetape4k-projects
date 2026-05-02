@@ -8,29 +8,29 @@ configurations {
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-spring-boot4-exposed-r2dbc"))
 
-    implementation(Libs.exposed_r2dbc)
-    implementation(Libs.exposed_java_time)
+    implementation(libs.exposed.r2dbc)
+    implementation(libs.exposed.java.time)
 
-    implementation(Libs.r2dbc_pool)
-    runtimeOnly(Libs.r2dbc_h2)
-    runtimeOnly(Libs.h2_v2)   // JDBC DataSource (DataInitializer + SchemaUtils에 필요)
+    implementation(libs.r2dbc.pool)
+    runtimeOnly(libs.r2dbc.h2)
+    runtimeOnly(libs.h2.v2)   // JDBC DataSource (DataInitializer + SchemaUtils에 필요)
 
     // Jackson 3
     implementation(project(":bluetape4k-jackson3"))
-    implementation(Libs.jackson3_module_kotlin)
-    implementation(Libs.jackson3_module_blackbird)
+    implementation(libs.jackson3.module.kotlin)
+    implementation(libs.jackson3.module.blackbird)
 
-    implementation(Libs.springBootStarter("webflux"))
-    testImplementation(Libs.springBootStarter("test"))
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(project(":bluetape4k-junit5"))
 }

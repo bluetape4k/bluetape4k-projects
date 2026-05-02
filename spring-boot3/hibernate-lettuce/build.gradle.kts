@@ -18,30 +18,30 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     // 핵심: Hibernate 2nd Level Cache Lettuce 구현체
     api(project(":bluetape4k-hibernate-cache-lettuce"))
 
     // Spring Boot autoconfigure (HibernatePropertiesCustomizer 포함) — compileOnly (transitive 오염 방지)
-    compileOnly(Libs.springBoot("autoconfigure"))
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
 
     // Optional 의존성 (사용자 프로젝트에서 선택적 활성화)
-    compileOnly(Libs.springBootStarter("data-jpa"))
-    compileOnly(Libs.hibernate_core)
-    compileOnly(Libs.micrometer_core)
-    compileOnly(Libs.springBootStarter("actuator"))
+    compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+    compileOnly(libs.hibernate.core)
+    compileOnly(libs.micrometer.core)
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
 
     // 직렬화/압축 런타임
-    implementation(Libs.fory_kotlin)
-    implementation(Libs.zstd_jni)
+    implementation(libs.fory.kotlin)
+    implementation(libs.zstd.jni)
 
     // Test
-    testImplementation(Libs.springBootStarter("test"))
-    testImplementation(Libs.springBootStarter("data-jpa"))
-    testImplementation(Libs.springBootStarter("actuator"))
-    testImplementation(Libs.micrometer_core)
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    testImplementation("org.springframework.boot:spring-boot-starter-actuator")
+    testImplementation(libs.micrometer.core)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
 }

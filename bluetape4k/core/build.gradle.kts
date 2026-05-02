@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -12,7 +12,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -29,33 +29,33 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons
-    api(Libs.commons_lang3)
-    compileOnly(Libs.commons_codec)
-    compileOnly(Libs.commons_compress)
-    compileOnly(Libs.commons_io)
+    api(libs.commons.lang3)
+    compileOnly(libs.commons.codec)
+    compileOnly(libs.commons.compress)
+    compileOnly(libs.commons.io)
 
     // Hashing (XXHasher용)
-    compileOnly(Libs.lz4_java)
+    compileOnly(libs.lz4.java)
 
     // Coroutines
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    compileOnly(Libs.reactor_core)
-    compileOnly(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    compileOnly(libs.reactor.core)
+    compileOnly(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 
     // Collections
-    compileOnly(Libs.commons_collections4)
-    compileOnly(Libs.eclipse_collections)
-    compileOnly(Libs.eclipse_collections_forkjoin)
-    testImplementation(Libs.eclipse_collections_testutils)
+    compileOnly(libs.commons.collections4)
+    compileOnly(libs.eclipse.collections)
+    compileOnly(libs.eclipse.collections.forkjoin)
+    testImplementation(libs.eclipse.collections.testutils)
 
-    testImplementation(Libs.java_uuid_generator)
+    testImplementation(libs.java.uuid.generator)
 
     // Benchmark
-    testImplementation(Libs.kotlinx_benchmark_runtime)
-    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
-    testImplementation(Libs.jmh_core)
+    testImplementation(libs.kotlinx.benchmark.runtime)
+    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
+    testImplementation(libs.jmh.core)
 }

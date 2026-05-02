@@ -3,30 +3,30 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.jackson_bom))
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.jackson.bom))
+    implementation(platform(libs.spring.boot3.dependencies))
 
-    api(Libs.jackson_core)
-    api(Libs.jackson_databind)
-    api(Libs.jackson_datatype_jdk8)
-    api(Libs.jackson_datatype_jsr310)
-    api(Libs.jackson_module_kotlin)
-    api(Libs.jackson_module_parameter_names)
-    api(Libs.jackson_module_blackbird)
+    api(libs.jackson.core)
+    api(libs.jackson.databind)
+    api(libs.jackson.datatype.jdk8)
+    api(libs.jackson.datatype.jsr310)
+    api(libs.jackson.module.kotlin)
+    api(libs.jackson.module.parameter.names)
+    api(libs.jackson.module.blackbird)
 
-    compileOnly(Libs.jackson_dataformat_properties)
-    compileOnly(Libs.jackson_dataformat_yaml)
+    compileOnly(libs.jackson.dataformat.properties)
+    compileOnly(libs.jackson.dataformat.yaml)
 
     // Jackson Dataformats Binary (from jackson-binary)
-    compileOnly(Libs.jackson_dataformat_avro)
-    compileOnly(Libs.jackson_dataformat_cbor)
-    compileOnly(Libs.jackson_dataformat_ion)
-    compileOnly(Libs.jackson_dataformat_protobuf)
-    compileOnly(Libs.jackson_dataformat_smile)
+    compileOnly(libs.jackson.dataformat.avro)
+    compileOnly(libs.jackson.dataformat.cbor)
+    compileOnly(libs.jackson.dataformat.ion)
+    compileOnly(libs.jackson.dataformat.protobuf)
+    compileOnly(libs.jackson.dataformat.smile)
 
     // Jackson Dataformats Text (from jackson-text)
-    compileOnly(Libs.jackson_dataformat_csv)
-    compileOnly(Libs.jackson_dataformat_toml)
+    compileOnly(libs.jackson.dataformat.csv)
+    compileOnly(libs.jackson.dataformat.toml)
 
     api(project(":bluetape4k-json"))
     api(project(":bluetape4k-io"))
@@ -34,22 +34,22 @@ dependencies {
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    // api(Libs.javax_json_api)
-    api(Libs.jakarta_json_api)
+    // api(libs.jakarta.json.api)
+    api(libs.jakarta.json.api)
 
     // Gson
-    compileOnly(Libs.gson)
-    compileOnly(Libs.gson_javatime_serializers)
+    compileOnly(libs.gson)
+    compileOnly(libs.gson.javatime.serializers)
 
-    testImplementation(Libs.jsonpath)
-    testImplementation(Libs.jsonassert)
+    testImplementation(libs.jsonpath)
+    testImplementation(libs.jsonassert)
 
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
-    testImplementation(Libs.kotlinx_coroutines_reactive)
-    testImplementation(Libs.spring("context"))
-    testImplementation(Libs.spring("webflux"))
-    testRuntimeOnly(Libs.reactor_netty)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.coroutines.reactive)
+    testImplementation("org.springframework:spring-context")
+    testImplementation("org.springframework:spring-webflux")
+    testRuntimeOnly(libs.reactor.netty)
     testImplementation(project(":bluetape4k-testcontainers"))
 }

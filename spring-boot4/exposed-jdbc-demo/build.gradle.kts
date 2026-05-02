@@ -8,22 +8,22 @@ configurations {
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-spring-boot4-exposed-jdbc"))
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.springBootStarter("jdbc"))
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
 
-    implementation(Libs.exposed_jdbc)
-    implementation(Libs.exposed_dao)
-    implementation(Libs.exposed_migration_jdbc)
-    implementation(Libs.exposed_java_time)
-    runtimeOnly(Libs.h2_v2)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.migration.jdbc)
+    implementation(libs.exposed.java.time)
+    runtimeOnly(libs.h2.v2)
 
     // Jackson 3
     implementation(project(":bluetape4k-jackson3"))
-    implementation(Libs.jackson3_module_kotlin)
-    implementation(Libs.jackson3_module_blackbird)
+    implementation(libs.jackson3.module.kotlin)
+    implementation(libs.jackson3.module.blackbird)
 
-    testImplementation(Libs.springBootStarter("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

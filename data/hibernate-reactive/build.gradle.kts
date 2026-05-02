@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.noarg")
     kotlin("plugin.jpa")
     kotlin("kapt")
-    id(Plugins.kover)
+    alias(libs.plugins.kover)
 }
 
 // suspend inline fun + crossinline 람다는 Vert.x dispatcher 컨텍스트에서 실행되어
@@ -59,28 +59,28 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-hibernate"))
     api(project(":bluetape4k-mutiny"))
     api(project(":bluetape4k-vertx"))
 
     // NOTE: Java 9+ 환경에서 kapt가 제대로 동작하려면 javax.annotation-api 를 참조해야 합니다.
-    kapt(Libs.jakarta_annotation_api)
+    kapt(libs.jakarta.annotation.api)
 
-    api(Libs.hibernate_reactive_core)
+    api(libs.hibernate.reactive.core)
 
     // hibernate-reactive 는 querydsl 을 사용하지 못한다. 대신 jpamodelgen 을 사용합니다.
-    kapt(Libs.hibernate_jpamodelgen)
-    kaptTest(Libs.hibernate_jpamodelgen)
+    kapt(libs.hibernate.jpamodelgen)
+    kaptTest(libs.hibernate.jpamodelgen)
 
-    api(Libs.jakarta_validation_api)
-    implementation(Libs.hibernate_validator)
-    testImplementation(Libs.glassfish_expressly)  // Jakarta EL implementation for Hibernate Validator
+    api(libs.jakarta.validation.api)
+    implementation(libs.hibernate.validator)
+    testImplementation(libs.glassfish.expressly)  // Jakarta EL implementation for Hibernate Validator
 
-    api(Libs.mutiny_kotlin)
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactive)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.mutiny.kotlin)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.reactive)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(project(":bluetape4k-junit5"))
 
@@ -92,28 +92,28 @@ dependencies {
     compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-jackson2"))
 
-    testImplementation(Libs.kryo)
-    testImplementation(Libs.fory_kotlin)  // new Apache Fory
+    testImplementation(libs.kryo)
+    testImplementation(libs.fory.kotlin)  // new Apache Fory
 
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.zstd.jni)
 
     testImplementation(project(":bluetape4k-idgenerators"))
 
     // Caching 테스트
     compileOnly(project(":bluetape4k-cache-core"))
-    testImplementation(Libs.springBootStarter("cache"))
-    testImplementation(Libs.caffeine)
-    testImplementation(Libs.caffeine_jcache)
+    testImplementation("org.springframework.boot:spring-boot-starter-cache")
+    testImplementation(libs.caffeine)
+    testImplementation(libs.caffeine.jcache)
 
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.vertx_mysql_client) // MySQL
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.vertx.mysql.client) // MySQL
     // Testcontainers MySQL 에서 검증을 위해 사용하기 위해 불가피하게 필요합니다
     // reactive 방식에서는 항상 verx-mysql-client 를 사용합니다
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.mysql_connector_j)
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.mysql.connector.j)
 
     // bluetape4k-data-hibernate의 entity 들을 재사용하려고 testArchives 를 참조한다
     // persistence.xml 에서도 jar-file에 entity path를 추가해야 한다
@@ -122,5 +122,5 @@ dependencies {
 
     // LifecycleEntity가 spring-data-jpa 의 @AuditingEntityListener를 사용해서 어쩔 수 없이 추가했다.
     // 실제로 사용 안한다
-    testImplementation(Libs.springBootStarter("data-jpa"))
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }

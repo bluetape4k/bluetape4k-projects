@@ -4,13 +4,13 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(platform(Libs.exposed_bom))
+    implementation(platform(libs.exposed.bom))
 
-    api(Libs.exposed_core)
-    api(Libs.exposed_jdbc)
-    api(Libs.exposed_dao)
-    implementation(Libs.exposed_java_time)
-    implementation(Libs.exposed_kotlin_datetime)
+    api(libs.exposed.core)
+    api(libs.exposed.jdbc)
+    api(libs.exposed.dao)
+    implementation(libs.exposed.java.time)
+    implementation(libs.exposed.kotlin.datetime)
 
     api(project(":bluetape4k-exposed-jdbc"))
     api(project(":bluetape4k-exposed-cache"))
@@ -19,41 +19,41 @@ dependencies {
 
     // Redisson
     api(project(":bluetape4k-redisson"))
-    api(Libs.redisson)
+    api(libs.redisson)
 
 
     testImplementation(project(":bluetape4k-io"))
 
     // Codecs
-    compileOnly(Libs.kryo5)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(libs.kryo5)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
 
     // Compressor
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.zstd.jni)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_junit_jupiter)
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 
     testImplementation(project(":bluetape4k-idgenerators"))
 
     // Database Drivers
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mariadb_java_client)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.pgjdbc_ng)
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.mariadb.java.client)
+    testImplementation(libs.mysql.connector.j)
+    testImplementation(libs.postgresql.driver)
+    testImplementation(libs.pgjdbc.ng)
 
 }

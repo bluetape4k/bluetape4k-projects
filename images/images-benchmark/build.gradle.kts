@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")           // allOpen 필수
-    id(Plugins.kotlinx_benchmark)      // kotlinx-benchmark 플러그인
+    alias(libs.plugins.kotlinx.benchmark)      // kotlinx-benchmark 플러그인
 }
 
 allOpen {
@@ -43,7 +43,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -66,8 +66,8 @@ dependencies {
     }
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
-    add("benchmarkImplementation", Libs.jmh_generator_annprocess)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
+    add("benchmarkImplementation", libs.jmh.generator.annprocess)
 }

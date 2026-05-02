@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -23,7 +23,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -51,13 +51,13 @@ dependencies {
     api(project(":bluetape4k-netty"))
 
     // Lettuce
-    api(Libs.lettuce_core)
+    api(libs.lettuce.core)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Leader Election
     compileOnly(project(":bluetape4k-leader"))
@@ -66,29 +66,29 @@ dependencies {
     compileOnly(project(":bluetape4k-cache-core"))
 
     // Serializer
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 
     // JSON Codecs (compileOnly - 사용자가 직접 의존성 추가)
     compileOnly(project(":bluetape4k-jackson3"))
-    compileOnly(Libs.jackson3_databind)
-    compileOnly(Libs.jackson3_module_kotlin)
+    compileOnly(libs.jackson3.databind)
+    compileOnly(libs.jackson3.module.kotlin)
 
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(Libs.fastjson2)
-    compileOnly(Libs.fastjson2_kotlin)
+    compileOnly(libs.fastjson2)
+    compileOnly(libs.fastjson2.kotlin)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
 }

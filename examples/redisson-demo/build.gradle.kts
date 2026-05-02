@@ -8,41 +8,41 @@ configurations {
 }
 
 dependencies {
-    implementation(enforcedPlatform(Libs.spring_boot3_dependencies))
+    implementation(enforcedPlatform(libs.spring.boot3.dependencies))
     
     // Redisson
     testImplementation(project(":bluetape4k-redisson"))
-    testImplementation(Libs.redisson)
-    testImplementation(Libs.redisson_spring_boot_starter)
+    testImplementation(libs.redisson)
+    testImplementation(libs.redisson.spring.boot.starter)
 
     // Codecs
-    testImplementation(Libs.kryo)
-    testImplementation(Libs.fory_kotlin)  // new Apache Fory
+    testImplementation(libs.kryo)
+    testImplementation(libs.fory.kotlin)  // new Apache Fory
 
     // Compressor
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.zstd.jni)
 
     // Protobuf
     testImplementation(project(":bluetape4k-protobuf"))
 
     // Cache
     testImplementation(project(":bluetape4k-cache-redisson"))
-    testImplementation(Libs.caffeine)
-    testImplementation(Libs.caffeine_jcache)
+    testImplementation(libs.caffeine)
+    testImplementation(libs.caffeine.jcache)
 
     // JSON
     testImplementation(project(":bluetape4k-jackson2"))
-    testImplementation(Libs.jackson_module_kotlin)
-    testImplementation(Libs.jackson_module_blackbird)
-    testImplementation(Libs.jackson_dataformat_protobuf)
+    testImplementation(libs.jackson.module.kotlin)
+    testImplementation(libs.jackson.module.blackbird)
+    testImplementation(libs.jackson.dataformat.protobuf)
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))
-    testImplementation(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-idgenerators"))
@@ -51,12 +51,12 @@ dependencies {
 
     // Redisson Map Read/Write Through 예제를 위해 
     testImplementation(project(":bluetape4k-jdbc"))
-    testRuntimeOnly(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.springBootStarter("jdbc"))
+    testRuntimeOnly(libs.h2.v2)
+    testImplementation(libs.hikaricp)
+    testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
 
-    testImplementation(Libs.springBootStarter("data-redis"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-data-redis")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
@@ -64,7 +64,7 @@ dependencies {
     // Redisson Cache Strategy 예제를 위해
     testImplementation(project(":bluetape4k-exposed-jdbc"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
-    testImplementation(Libs.exposed_java_time)
-    testImplementation(Libs.exposed_spring_boot_starter)
-    testImplementation(Libs.springBoot("autoconfigure"))
+    testImplementation(libs.exposed.java.time)
+    testImplementation(libs.exposed.spring.boot.starter)
+    testImplementation("org.springframework.boot:spring-boot-autoconfigure")
 }

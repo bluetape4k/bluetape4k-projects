@@ -3,45 +3,45 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     // Exposed
-    implementation(platform(Libs.exposed_bom))
+    implementation(platform(libs.exposed.bom))
 
-    api(Libs.exposed_core)
-    api(Libs.exposed_r2dbc)
-    implementation(Libs.exposed_migration_r2dbc)
-    implementation(Libs.exposed_java_time)
+    api(libs.exposed.core)
+    api(libs.exposed.r2dbc)
+    implementation(libs.exposed.migration.r2dbc)
+    implementation(libs.exposed.java.time)
 
     implementation(project(":bluetape4k-idgenerators"))
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // R2DBC
-    api(Libs.r2dbc_spi)
-    api(Libs.r2dbc_pool)
-    implementation(Libs.r2dbc_h2)
-    implementation(Libs.r2dbc_mariadb)
-    implementation(Libs.r2dbc_mysql)
-    implementation(Libs.r2dbc_postgresql)
+    api(libs.r2dbc.spi)
+    api(libs.r2dbc.pool)
+    implementation(libs.r2dbc.h2)
+    implementation(libs.r2dbc.mariadb)
+    implementation(libs.r2dbc.mysql)
+    implementation(libs.r2dbc.postgresql)
 
     // Bluetape4k Modules for Testing
     api(project(":bluetape4k-junit5"))
     api(project(":bluetape4k-testcontainers"))
-    api(Libs.testcontainers_mariadb)
-    api(Libs.testcontainers_mysql)
-    api(Libs.testcontainers_postgresql)
+    api(libs.testcontainers.mariadb)
+    api(libs.testcontainers.mysql)
+    api(libs.testcontainers.postgresql)
 
     // Database Drivers for Testcontainers Database
-    compileOnly(Libs.h2_v2)
-    compileOnly(Libs.mariadb_java_client)
-    compileOnly(Libs.mysql_connector_j)
-    compileOnly(Libs.postgresql_driver)
+    compileOnly(libs.h2.v2)
+    compileOnly(libs.mariadb.java.client)
+    compileOnly(libs.mysql.connector.j)
+    compileOnly(libs.postgresql.driver)
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")

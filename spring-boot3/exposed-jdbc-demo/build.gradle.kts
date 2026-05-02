@@ -7,16 +7,16 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     implementation(project(":bluetape4k-spring-boot3-exposed-jdbc"))
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.jackson_module_kotlin)
-    implementation(Libs.exposed_spring_boot_starter)
-    implementation(Libs.exposed_jdbc)
-    implementation(Libs.exposed_dao)
-    implementation(Libs.exposed_migration_jdbc)
-    implementation(Libs.exposed_java_time)
-    runtimeOnly(Libs.h2_v2)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.exposed.spring.boot.starter)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.migration.jdbc)
+    implementation(libs.exposed.java.time)
+    runtimeOnly(libs.h2.v2)
 
-    testImplementation(Libs.springBootStarter("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

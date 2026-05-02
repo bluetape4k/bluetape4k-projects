@@ -18,33 +18,33 @@ tasks.withType<AbstractPublishToMaven>().configureEach { enabled = false }
 
 dependencies {
     // Spring Boot 4 BOM via platform() — KGP 2.3 compatible
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
     // Jackson 3 BOM — SB4 does not auto-opt-in
-    implementation(platform(Libs.jackson3_bom))
+    implementation(platform(libs.jackson3.bom))
 
-    implementation(Libs.springBootStarter("webflux"))
-    implementation(Libs.springBootStarter("cache"))
-    implementation(Libs.springBootStarter("actuator"))
-    implementation(Libs.caffeine)
-    implementation(Libs.jackson3_module_kotlin)
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation(libs.caffeine)
+    implementation(libs.jackson3.module.kotlin)
 
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactor)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
 
     implementation(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-coroutines"))
     implementation(project(":bluetape4k-logging"))
     implementation(project(":bluetape4k-jackson3"))
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
     // Spring Boot 4: WebTestClient 자동구성이 별도 아티팩트(spring-boot-webtestclient)로 분리됨
     testImplementation("org.springframework.boot:spring-boot-webtestclient")
-    testImplementation(Libs.kluent)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kluent)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(project(":bluetape4k-junit5"))
 }
 

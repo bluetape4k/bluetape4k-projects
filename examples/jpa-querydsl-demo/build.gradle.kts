@@ -59,44 +59,44 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
     implementation(project(":bluetape4k-hibernate"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    implementation(Libs.jakarta_annotation_api)
-    implementation(Libs.jakarta_persistence_api)
-    implementation(Libs.hibernate_core)
+    implementation(libs.jakarta.annotation.api)
+    implementation(libs.jakarta.persistence.api)
+    implementation(libs.hibernate.core)
 
     // QueryDsl
-    implementation(Libs.querydsl_jpa + ":jakarta")
-    kapt(Libs.querydsl_apt + ":jakarta")
-    kaptTest(Libs.querydsl_apt + ":jakarta")
-    kapt(Libs.jakarta_persistence_api)
+    implementation(variantOf(libs.querydsl.jpa) { classifier("jakarta") })
+    kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
+    kaptTest(variantOf(libs.querydsl.apt) { classifier("jakarta") })
+    kapt(libs.jakarta.persistence.api)
 
     // Vaidators
-    implementation(Libs.hibernate_validator)
-    runtimeOnly(Libs.jakarta_validation_api)
+    implementation(libs.hibernate.validator)
+    runtimeOnly(libs.jakarta.validation.api)
 
     // Spring Boot
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("validation"))
-    testImplementation(Libs.springBoot("autoconfigure"))
-    testImplementation(Libs.springBootStarter("test")) {
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    testImplementation("org.springframework.boot:spring-boot-autoconfigure")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")
     }
 
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.mysql_connector_j)
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.mysql.connector.j)
 
     // TestContainers
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mysql)
+    testImplementation(libs.testcontainers.mysql)
 
     // Caching 테스트
     testImplementation(project(":bluetape4k-cache-core"))
-    testImplementation(Libs.hibernate_jcache)
-    testImplementation(Libs.caffeine_jcache)
+    testImplementation(libs.hibernate.jcache)
+    testImplementation(libs.caffeine.jcache)
 }

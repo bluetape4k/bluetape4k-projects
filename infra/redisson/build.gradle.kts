@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -23,7 +23,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -46,14 +46,14 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))
 
     // Redisson
-    api(Libs.redisson)
-    compileOnly(Libs.redisson_spring_boot_starter)
+    api(libs.redisson)
+    compileOnly(libs.redisson.spring.boot.starter)
 
     // Dependencies
     compileOnly(project(":bluetape4k-cache-core"))
@@ -62,50 +62,50 @@ dependencies {
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Codecs
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.commons_compress)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.commons.compress)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.zstd.jni)
 
     // Jackson 2
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
-    compileOnly(Libs.jackson_dataformat_protobuf)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson.module.blackbird)
+    compileOnly(libs.jackson.dataformat.protobuf)
 
     // JSON Codecs (compileOnly - 사용자가 직접 의존성 추가)
     compileOnly(project(":bluetape4k-jackson3"))
-    compileOnly(Libs.jackson3_databind)
-    compileOnly(Libs.jackson3_module_kotlin)
+    compileOnly(libs.jackson3.databind)
+    compileOnly(libs.jackson3.module.kotlin)
 
     compileOnly(project(":bluetape4k-fastjson2"))
-    compileOnly(Libs.fastjson2)
-    compileOnly(Libs.fastjson2_kotlin)
+    compileOnly(libs.fastjson2)
+    compileOnly(libs.fastjson2.kotlin)
 
     // Cache
-    compileOnly(Libs.caffeine)
-    compileOnly(Libs.caffeine_jcache)
+    compileOnly(libs.caffeine)
+    compileOnly(libs.caffeine.jcache)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Redisson Map Read/Write Through test
     testImplementation(project(":bluetape4k-jdbc"))
-    testRuntimeOnly(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.springBootStarter("jdbc"))
+    testRuntimeOnly(libs.h2.v2)
+    testImplementation(libs.hikaricp)
+    testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
 }

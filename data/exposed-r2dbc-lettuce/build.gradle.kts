@@ -8,39 +8,39 @@ dependencies {
     api(project(":bluetape4k-exposed-r2dbc"))
     api(project(":bluetape4k-exposed-cache"))
     api(project(":bluetape4k-resilience4j"))
-    api(Libs.resilience4j_retry)
+    api(libs.resilience4j.retry)
 
     // Exposed R2DBC
-    api(Libs.exposed_core)
-    api(Libs.exposed_r2dbc)
-    compileOnly(Libs.exposed_java_time)
-    compileOnly(Libs.exposed_kotlin_datetime)
+    api(libs.exposed.core)
+    api(libs.exposed.r2dbc)
+    compileOnly(libs.exposed.java.time)
+    compileOnly(libs.exposed.kotlin.datetime)
 
     // Lettuce
-    api(Libs.lettuce_core)
+    api(libs.lettuce.core)
 
     // Serializer (LettuceLoadedMap 코덱용)
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.zstd.jni)
 
     // Coroutines (R2DBC suspend 브리징)
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactive)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
 
     // R2DBC drivers (test)
-    testRuntimeOnly(Libs.r2dbc_h2)
+    testRuntimeOnly(libs.r2dbc.h2)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
     testImplementation(testFixtures(project(":bluetape4k-exposed-cache")))
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(project(":bluetape4k-idgenerators"))
 }

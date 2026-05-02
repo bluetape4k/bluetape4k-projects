@@ -13,42 +13,42 @@ dependencies {
     testImplementation(project(":bluetape4k-idgenerators"))
 
     // AWS Kotlin SDK Core (공통 필수)
-    api(Libs.aws_kotlin_aws_core)
-    api(Libs.aws_kotlin_aws_config)
-    api(Libs.aws_kotlin_aws_endpoint)
-    api(Libs.aws_smithy_kotlin_http)
-    api(Libs.aws_smithy_kotlin_http_client_engine_crt)
-    implementation(Libs.aws_smithy_kotlin_http_client_engine_default)
-    implementation(Libs.aws_smithy_kotlin_http_client_engine_okhttp)
+    api(libs.aws.kotlin.aws.core)
+    api(libs.aws.kotlin.aws.config)
+    api(libs.aws.kotlin.aws.endpoint)
+    api(libs.aws.smithy.kotlin.http)
+    api(libs.aws.smithy.kotlin.http.client.engine.crt)
+    implementation(libs.aws.smithy.kotlin.http.client.engine.default)
+    implementation(libs.aws.smithy.kotlin.http.client.engine.okhttp)
 
     // AWS Kotlin SDK Services (compileOnly - 사용자가 필요한 서비스만 런타임에 추가)
-    compileOnly(Libs.aws_kotlin_dynamodb)
-    compileOnly(Libs.aws_kotlin_s3)
-    compileOnly(Libs.aws_kotlin_ses)
-    compileOnly(Libs.aws_kotlin_sesv2)
-    compileOnly(Libs.aws_kotlin_sns)
-    compileOnly(Libs.aws_kotlin_sqs)
-    compileOnly(Libs.aws_kotlin_kms)
-    compileOnly(Libs.aws_kotlin_cloudwatch)
-    compileOnly(Libs.aws_kotlin_cloudwatchlogs)
-    compileOnly(Libs.aws_kotlin_kinesis)
-    compileOnly(Libs.aws_kotlin_sts)
+    compileOnly(libs.aws.kotlin.dynamodb)
+    compileOnly(libs.aws.kotlin.s3)
+    compileOnly(libs.aws.kotlin.ses)
+    compileOnly(libs.aws.kotlin.sesv2)
+    compileOnly(libs.aws.kotlin.sns)
+    compileOnly(libs.aws.kotlin.sqs)
+    compileOnly(libs.aws.kotlin.kms)
+    compileOnly(libs.aws.kotlin.cloudwatch)
+    compileOnly(libs.aws.kotlin.cloudwatchlogs)
+    compileOnly(libs.aws.kotlin.kinesis)
+    compileOnly(libs.aws.kotlin.sts)
 
     // Resilience4j
-    compileOnly(Libs.resilience4j_retry)
-    compileOnly(Libs.resilience4j_kotlin)
+    compileOnly(libs.resilience4j.retry)
+    compileOnly(libs.resilience4j.kotlin)
 
     // Jackson
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson.module.blackbird)
 
     // Coroutines
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Testcontainers
-    testImplementation(Libs.testcontainers_localstack)
-    testImplementation(Libs.mockk)
+    testImplementation(libs.testcontainers.localstack)
+    testImplementation(libs.mockk)
 }
 
 tasks.test {

@@ -13,35 +13,35 @@ dependencies {
     api(project(":bluetape4k-logging"))
 
     // Elasticsearch Java Client
-    api(Libs.elasticsearch_java)
+    api(libs.elasticsearch.java)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
+    api(libs.kotlinx.coroutines.core)
 
     // Jackson 2 & 3 (optional)
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.jackson_databind)
-    compileOnly(Libs.jackson_module_kotlin)
+    compileOnly(libs.jackson.databind)
+    compileOnly(libs.jackson.module.kotlin)
     compileOnly(project(":bluetape4k-jackson3"))
-    compileOnly(Libs.jackson3_databind)
-    compileOnly(Libs.jackson3_module_kotlin)
+    compileOnly(libs.jackson3.databind)
+    compileOnly(libs.jackson3.module.kotlin)
 
     // Test Fixtures
     testFixturesApi(project(":bluetape4k-junit5"))
     testFixturesApi(project(":bluetape4k-testcontainers"))
-    testFixturesApi(Libs.elasticsearch_java)
-    testFixturesApi(Libs.kotlinx_coroutines_core)
-    testFixturesApi(Libs.kotlinx_coroutines_test)
-    testFixturesApi(Libs.testcontainers_elasticsearch)
+    testFixturesApi(libs.elasticsearch.java)
+    testFixturesApi(libs.kotlinx.coroutines.core)
+    testFixturesApi(libs.kotlinx.coroutines.test)
+    testFixturesApi(libs.testcontainers.elasticsearch)
 
     // Testing
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-jackson3"))
-    testImplementation(Libs.jackson3_databind)
-    testImplementation(Libs.jackson3_module_kotlin)
-    testImplementation(Libs.kotlinx_coroutines_test)
-    testImplementation(Libs.testcontainers_elasticsearch)
-    testImplementation(Libs.mockk)
-    testImplementation(Libs.kluent)
+    testImplementation(libs.jackson3.databind)
+    testImplementation(libs.jackson3.module.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.testcontainers.elasticsearch)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kluent)
 }

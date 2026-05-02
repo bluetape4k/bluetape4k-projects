@@ -44,23 +44,23 @@ dependencies {
     // Spring Boot 4 BOM: platform()을 사용하면 compileClasspath/runtimeClasspath에만 적용되고
     // kotlinBuildToolsApiClasspath 같은 내부 Gradle 설정에는 영향을 주지 않음
     // (dependencyManagement 플러그인은 ALL configurations에 적용되어 kotlin-stdlib 버전 충돌 유발)
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     // Core
-    api(Libs.kotlin_reflect)
+    api(libs.kotlin.reflect)
     api(project(":bluetape4k-exposed-jdbc"))
     api(project(":bluetape4k-exposed-core"))
     api(project(":bluetape4k-virtualthread-api"))
 
     // Exposed
-    api(Libs.exposed_spring7_transaction)
-    api(Libs.exposed_core)
-    api(Libs.exposed_jdbc)
-    api(Libs.exposed_java_time)
+    api(libs.exposed.spring7.transaction)
+    api(libs.exposed.core)
+    api(libs.exposed.jdbc)
+    api(libs.exposed.java.time)
 
     // Spring Batch (Spring Boot 4 BOM 버전 관리)
-    api(Libs.springBoot4Starter("batch"))
-    compileOnly(Libs.springBoot4("autoconfigure"))
+    api("org.springframework.boot:spring-boot-starter-batch")
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
@@ -70,13 +70,13 @@ dependencies {
         exclude(group = "org.jetbrains.exposed", module = "exposed-spring-boot-starter")
     }
     testImplementation(project(":bluetape4k-virtualthread-jdk21"))
-    testImplementation(Libs.springBoot4Starter("test"))
-    testImplementation(Libs.springBoot4Starter("jdbc"))  // DataSource auto-configuration (Spring Boot 4 분리 모듈)
-    testImplementation(Libs.spring_batch_test)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.testcontainers_postgresql)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.mysql_connector_j)
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-jdbc")  // DataSource auto-configuration (Spring Boot 4 분리 모듈)
+    testImplementation(libs.spring.batch.test)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.postgresql.driver)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.mysql.connector.j)
 }

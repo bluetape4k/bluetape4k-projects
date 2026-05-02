@@ -29,18 +29,18 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // NOTE: Cassandra 4 oss 버전을 사용합니다.
-    api(Libs.cassandra_java_driver_core)
-    api(Libs.cassandra_java_driver_query_builder)
-    compileOnly(Libs.cassandra_java_driver_mapper_runtime)
-    compileOnly(Libs.cassandra_java_driver_metrics_micrometer)
-    testImplementation(Libs.cassandra_java_driver_test_infra)
+    api(libs.cassandra.java.driver.core)
+    api(libs.cassandra.java.driver.query.builder)
+    compileOnly(libs.cassandra.java.driver.mapper.runtime)
+    compileOnly(libs.cassandra.java.driver.metrics.micrometer)
+    testImplementation(libs.cassandra.java.driver.test.infra)
 
     // cassandra 의 @Mapper, @Dao 를 활용할 때 사용합니다.
     // 참고: https://docs.datastax.com/en/developer/java-driver/4.13/manual/mapper/
-    kapt(Libs.cassandra_java_driver_mapper_processor)
-    kaptTest(Libs.cassandra_java_driver_mapper_processor)
+    kapt(libs.cassandra.java.driver.mapper.processor)
+    kaptTest(libs.cassandra.java.driver.mapper.processor)
 
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

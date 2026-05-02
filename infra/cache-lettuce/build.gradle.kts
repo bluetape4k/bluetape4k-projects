@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -23,7 +23,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -51,16 +51,16 @@ dependencies {
     api(project(":bluetape4k-lettuce"))
 
     // Lettuce JCache provider
-    api(Libs.lettuce_core)
+    api(libs.lettuce.core)
 
     // Front Cache in NearCache (Caffeine)
-    api(Libs.caffeine)
+    api(libs.caffeine)
 
     implementation(project(":bluetape4k-coroutines"))
     implementation(project(":bluetape4k-resilience4j"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactive)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
@@ -69,17 +69,17 @@ dependencies {
     implementation(project(":bluetape4k-protobuf"))
     implementation(project(":bluetape4k-io"))
 
-    testImplementation(Libs.awaitility_kotlin)
+    testImplementation(libs.awaitility.kotlin)
 
-    testRuntimeOnly(Libs.fory_kotlin)
-    testRuntimeOnly(Libs.kryo5)
+    testRuntimeOnly(libs.fory.kotlin)
+    testRuntimeOnly(libs.kryo5)
 
-    testRuntimeOnly(Libs.lz4_java)
-    testRuntimeOnly(Libs.snappy_java)
-    testRuntimeOnly(Libs.zstd_jni)
+    testRuntimeOnly(libs.lz4.java)
+    testRuntimeOnly(libs.snappy.java)
+    testRuntimeOnly(libs.zstd.jni)
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
 }

@@ -40,20 +40,20 @@ configurations.matching { it.name.startsWith("test") }.configureEach {
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
 
     implementation(project(":bluetape4k-spring-boot4-hibernate-lettuce"))
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.springBootStarter("data-jpa"))
-    implementation(Libs.springBootStarter("actuator"))
-    implementation(Libs.micrometer_core)
-    runtimeOnly(Libs.h2_v2)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation(libs.micrometer.core)
+    runtimeOnly(libs.h2.v2)
 
     // Jackson 3
-    implementation(Libs.jackson3_module_kotlin)
-    implementation(Libs.jackson3_module_blackbird)
+    implementation(libs.jackson3.module.kotlin)
+    implementation(libs.jackson3.module.blackbird)
 
-    testImplementation(Libs.springBootStarter("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(project(":bluetape4k-testcontainers"))
 }
 

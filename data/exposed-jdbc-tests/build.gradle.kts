@@ -4,17 +4,17 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(platform(Libs.exposed_bom))
-    api(Libs.exposed_core)
-    api(Libs.exposed_jdbc)
-    api(Libs.exposed_dao)
-    implementation(Libs.exposed_crypt)
-    implementation(Libs.exposed_kotlin_datetime)
-    implementation(Libs.exposed_java_time)
-    implementation(Libs.exposed_json)
-    implementation(Libs.exposed_money)
-    implementation(Libs.exposed_migration_jdbc)
-    implementation(Libs.exposed_spring_boot_starter)
+    implementation(platform(libs.exposed.bom))
+    api(libs.exposed.core)
+    api(libs.exposed.jdbc)
+    api(libs.exposed.dao)
+    implementation(libs.exposed.crypt)
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.exposed.java.time)
+    implementation(libs.exposed.json)
+    implementation(libs.exposed.money)
+    implementation(libs.exposed.migration.jdbc)
+    implementation(libs.exposed.spring.boot.starter)
 
     // Bluetape4k
     compileOnly(project(":bluetape4k-jdbc"))
@@ -23,29 +23,29 @@ dependencies {
 
     api(project(":bluetape4k-junit5"))
     api(project(":bluetape4k-testcontainers"))
-    api(Libs.testcontainers)
-    api(Libs.testcontainers_mariadb)
-    api(Libs.testcontainers_mysql)
-    api(Libs.testcontainers_postgresql)
-    // compileOnly(Libs.testcontainers_cockroachdb)
+    api(libs.testcontainers)
+    api(libs.testcontainers.mariadb)
+    api(libs.testcontainers.mysql)
+    api(libs.testcontainers.postgresql)
+    // compileOnly(libs.testcontainers.cockroachdb)
 
     // Database Drivers
-    compileOnly(Libs.hikaricp)
+    compileOnly(libs.hikaricp)
 
     // Database Drivers
-    compileOnly(Libs.h2_v2)
-    compileOnly(Libs.mariadb_java_client)
-    compileOnly(Libs.mysql_connector_j)
-    compileOnly(Libs.postgresql_driver)
-    compileOnly(Libs.pgjdbc_ng)
+    compileOnly(libs.h2.v2)
+    compileOnly(libs.mariadb.java.client)
+    compileOnly(libs.mysql.connector.j)
+    compileOnly(libs.postgresql.driver)
+    compileOnly(libs.pgjdbc.ng)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_debug)
-    implementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.debug)
+    implementation(libs.kotlinx.coroutines.test)
 
     // Id Generators
     compileOnly(project(":bluetape4k-idgenerators"))
-    compileOnly(Libs.java_uuid_generator)
+    compileOnly(libs.java.uuid.generator)
 }

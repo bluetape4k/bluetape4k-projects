@@ -20,26 +20,26 @@ tasks.withType<AbstractPublishToMaven>().configureEach { enabled = false }
 
 dependencies {
     // Spring Boot 4 BOM: platform() 방식 필수 (dependencyManagement 사용 금지 - KGP 2.3 충돌)
-    implementation(platform(Libs.spring_boot4_dependencies))
+    implementation(platform(libs.spring.boot4.dependencies))
     // Jackson 3 BOM: SB4는 tools.jackson.* (Jackson 3) 사용
-    implementation(platform(Libs.jackson3_bom))
+    implementation(platform(libs.jackson3.bom))
 
-    implementation(Libs.springBootStarter("web"))
-    implementation(Libs.springBootStarter("cache"))
-    implementation(Libs.caffeine)
-    implementation(Libs.jackson3_module_kotlin)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation(libs.caffeine)
+    implementation(libs.jackson3.module.kotlin)
 
     implementation(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-logging"))
     implementation(project(":bluetape4k-jackson3"))
 
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-    testImplementation(Libs.kluent)
-    testImplementation(Libs.okhttp3)
+    testImplementation(libs.kluent)
+    testImplementation(libs.okhttp3)
     testImplementation(project(":bluetape4k-junit5"))
 }
 

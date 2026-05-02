@@ -13,12 +13,12 @@ dependencies {
     testImplementation("org.openkoreantext:open-korean-text:2.3.1")
 
     // Coroutines
-    api(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Collections
-    implementation(Libs.commons_collections4)
-    implementation(Libs.eclipse_collections)
-    implementation(Libs.eclipse_collections_forkjoin)
-    testImplementation(Libs.eclipse_collections_testutils)
+    implementation(libs.commons.collections4)
+    implementation(libs.eclipse.collections)
+    implementation(libs.eclipse.collections.forkjoin)
+    testImplementation(libs.eclipse.collections.testutils)
 }

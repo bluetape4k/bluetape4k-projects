@@ -3,7 +3,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
 
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-okio"))
@@ -13,64 +13,64 @@ dependencies {
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactive)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Retrofit2
-    api(Libs.retrofit2)
-    api(Libs.retrofit2_converter_jackson)
-    api(Libs.retrofit2_converter_scalars)
-    api(Libs.retrofit2_adapter_java8)
-    compileOnly(Libs.retrofit2_adapter_reactor)
-    compileOnly(Libs.retrofit2_adapter_rxjava2)
-    compileOnly(Libs.retrofit2_adapter_rxjava3)
-    testImplementation(Libs.retrofit2_mock)
+    api(libs.retrofit2)
+    api(libs.retrofit2.converter.jackson)
+    api(libs.retrofit2.converter.scalars)
+    api(libs.retrofit2.adapter.java8)
+    compileOnly(libs.retrofit2.adapter.reactor)
+    compileOnly(libs.retrofit2.adapter.rxjava2)
+    compileOnly(libs.retrofit2.adapter.rxjava3)
+    testImplementation(libs.retrofit2.mock)
 
     // OkHttp3
-    api(Libs.okhttp3)
-    api(Libs.okhttp3_logging_interceptor)
+    api(libs.okhttp3)
+    api(libs.okhttp3.logging.interceptor)
 
     // OkHttp3 MockWebServer
-    testImplementation(Libs.okhttp3_mockwebserver)
+    testImplementation(libs.okhttp3.mockwebserver)
 
     // Apache HttpCompoents HttpClient 5
     // feign_hc5 를 사용하려면, httpcore5, httpcore5-h2 도 버전을 맞춰줘야 한다
-    compileOnly(Libs.httpclient5)
-    compileOnly(Libs.httpclient5_cache)
-    compileOnly(Libs.httpcore5)
-    compileOnly(Libs.httpcore5_h2)
+    compileOnly(libs.httpclient5)
+    compileOnly(libs.httpclient5.cache)
+    compileOnly(libs.httpcore5)
+    compileOnly(libs.httpcore5.h2)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
-    compileOnly(Libs.vertx_core)
-    compileOnly(Libs.vertx_lang_kotlin)
-    compileOnly(Libs.vertx_lang_kotlin_coroutines)
+    compileOnly(libs.vertx.core)
+    compileOnly(libs.vertx.lang.kotlin)
+    compileOnly(libs.vertx.lang.kotlin.coroutines)
 
     // Jackson
     api(project(":bluetape4k-jackson2"))
-    api(Libs.jackson_core)
-    api(Libs.jackson_databind)
-    api(Libs.jackson_module_kotlin)
-    api(Libs.jackson_module_blackbird)
+    api(libs.jackson.core)
+    api(libs.jackson.databind)
+    api(libs.jackson.module.kotlin)
+    api(libs.jackson.module.blackbird)
 
     // Fastjson2
-    compileOnly(Libs.fastjson2)
-    compileOnly(Libs.fastjson2_kotlin)
+    compileOnly(libs.fastjson2)
+    compileOnly(libs.fastjson2.kotlin)
 
     // Collections
-    compileOnly(Libs.commons_collections4)
-    compileOnly(Libs.eclipse_collections)
-    compileOnly(Libs.eclipse_collections_forkjoin)
-    testImplementation(Libs.eclipse_collections_testutils)
+    compileOnly(libs.commons.collections4)
+    compileOnly(libs.eclipse.collections)
+    compileOnly(libs.eclipse.collections.forkjoin)
+    testImplementation(libs.eclipse.collections.testutils)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
-    compileOnly(Libs.resilience4j_all)
-    compileOnly(Libs.resilience4j_kotlin)
-    compileOnly(Libs.resilience4j_cache)
-    compileOnly(Libs.resilience4j_retry)
-    compileOnly(Libs.resilience4j_circuitbreaker)
-    compileOnly(Libs.resilience4j_reactor)
+    compileOnly(libs.resilience4j.all)
+    compileOnly(libs.resilience4j.kotlin)
+    compileOnly(libs.resilience4j.cache)
+    compileOnly(libs.resilience4j.retry)
+    compileOnly(libs.resilience4j.circuitbreaker)
+    compileOnly(libs.resilience4j.reactor)
 }

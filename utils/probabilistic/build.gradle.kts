@@ -6,6 +6,6 @@ dependencies {
     api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

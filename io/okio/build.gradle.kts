@@ -10,19 +10,19 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Okio
-    api(Libs.okio)
+    api(libs.okio)
 
     // Apache Commons (base64)
-    compileOnly(Libs.commons_codec)
+    compileOnly(libs.commons.codec)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Compression (compress/tink 테스트에서 Compressors 사용)
-    testImplementation(Libs.commons_compress)
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.commons.compress)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.zstd.jni)
 }

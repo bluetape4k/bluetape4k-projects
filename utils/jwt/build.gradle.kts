@@ -11,41 +11,41 @@ dependencies {
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jjwt_api)
-    api(Libs.jjwt_impl)
-    api(Libs.jjwt_jackson)
+    api(libs.jjwt.api)
+    api(libs.jjwt.impl)
+    api(libs.jjwt.jackson)
 
     // Jackson
     api(project(":bluetape4k-jackson2"))
-    api(Libs.jackson_module_kotlin)
-    api(Libs.jackson_module_blackbird)
+    api(libs.jackson.module.kotlin)
+    api(libs.jackson.module.blackbird)
 
     // Serializer
-    compileOnly(Libs.fory_kotlin)
-    compileOnly(Libs.kryo5)
+    compileOnly(libs.fory.kotlin)
+    compileOnly(libs.kryo5)
 
     // Compressor
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 
     // Caching
     compileOnly(project(":bluetape4k-cache-redisson"))
-    testImplementation(Libs.caffeine_jcache)
-    testImplementation(Libs.ehcache)
+    testImplementation(libs.caffeine.jcache)
+    testImplementation(libs.ehcache)
 
     // Id Generators
     api(project(":bluetape4k-idgenerators"))
-    api(Libs.java_uuid_generator)
+    api(libs.java.uuid.generator)
 
     // KeyChain을 Redis 나 MongoDB에 저장하여, 다중서버가 공유하기 위한 KeyChainPersister 를 사용하기 위해
-    compileOnly(Libs.redisson)
-    compileOnly(Libs.mongodb_driver_sync)
-    compileOnly(Libs.mongodb_driver_reactivestreams)
-    compileOnly(Libs.mongodb_driver_kotlin_sync)
-    compileOnly(Libs.mongodb_driver_kotlin_coroutine)
+    compileOnly(libs.redisson)
+    compileOnly(libs.mongodb.driver.sync)
+    compileOnly(libs.mongodb.driver.reactivestreams)
+    compileOnly(libs.mongodb.driver.kotlin.sync)
+    compileOnly(libs.mongodb.driver.kotlin.coroutine)
 
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers)
-    testImplementation(Libs.testcontainers_mongodb)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.mongodb)
 }

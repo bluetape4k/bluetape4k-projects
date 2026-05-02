@@ -15,7 +15,7 @@ artifacts {
 }
 
 dependencies {
-    api(Libs.javers_core)
+    api("org.javers:javers-core:7.7.0")
 
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-jackson2"))
@@ -29,25 +29,25 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Cache for Javers repository
-    compileOnly(Libs.caffeine)
-    compileOnly(Libs.caffeine_jcache)
-    compileOnly(Libs.cache2k_core)
+    compileOnly(libs.caffeine)
+    compileOnly(libs.caffeine.jcache)
+    compileOnly(libs.cache2k.core)
 
     // Mongo
-    compileOnly(Libs.mongo_bson)
-    compileOnly(Libs.mongo_bson_kotlin)
-    compileOnly(Libs.mongo_bson_kotlinx)
-    compileOnly(Libs.mongodb_driver_sync)
-    compileOnly(Libs.mongodb_driver_kotlin_sync)
-    compileOnly(Libs.mongodb_driver_kotlin_coroutine)
-    compileOnly(Libs.mongodb_driver_kotlin_extensions)
+    compileOnly(libs.mongo.bson)
+    compileOnly(libs.mongo.bson.kotlin)
+    compileOnly(libs.mongo.bson.kotlinx)
+    compileOnly(libs.mongodb.driver.sync)
+    compileOnly(libs.mongodb.driver.kotlin.sync)
+    compileOnly(libs.mongodb.driver.kotlin.coroutine)
+    compileOnly(libs.mongodb.driver.kotlin.extensions)
 
     // Codec
-    compileOnly(Libs.kryo5)
-    compileOnly(Libs.fory_kotlin)
+    compileOnly(libs.kryo5)
+    compileOnly(libs.fory.kotlin)
 
     // Compression
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 }

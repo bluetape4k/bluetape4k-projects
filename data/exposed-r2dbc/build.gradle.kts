@@ -4,28 +4,28 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(platform(Libs.exposed_bom))
+    implementation(platform(libs.exposed.bom))
 
-    api(Libs.exposed_core)
-    api(Libs.exposed_r2dbc)
-    compileOnly(Libs.exposed_migration_r2dbc)
-    testImplementation(Libs.exposed_java_time)
+    api(libs.exposed.core)
+    api(libs.exposed.r2dbc)
+    compileOnly(libs.exposed.migration.r2dbc)
+    testImplementation(libs.exposed.java.time)
 
     api(project(":bluetape4k-exposed-core"))
     api(project(":bluetape4k-exposed-dao"))
     testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
 
     api(project(":bluetape4k-r2dbc"))
-    api(Libs.r2dbc_spi)
-    testRuntimeOnly(Libs.r2dbc_h2)
-    testRuntimeOnly(Libs.r2dbc_mariadb)
-    testRuntimeOnly(Libs.r2dbc_mysql)
-    testRuntimeOnly(Libs.r2dbc_postgresql)
+    api(libs.r2dbc.spi)
+    testRuntimeOnly(libs.r2dbc.h2)
+    testRuntimeOnly(libs.r2dbc.mariadb)
+    testRuntimeOnly(libs.r2dbc.mysql)
+    testRuntimeOnly(libs.r2dbc.postgresql)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-idgenerators"))
@@ -33,13 +33,13 @@ dependencies {
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 
     // Database Drivers for Testcontainers Databases
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mariadb_java_client)
-    testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.postgresql_driver)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(libs.postgresql.driver)
 }

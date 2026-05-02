@@ -1,7 +1,7 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
-    id(Plugins.kover)
+    alias(libs.plugins.kotlinx.benchmark)
+    alias(libs.plugins.kover)
 }
 
 kover {
@@ -52,7 +52,7 @@ benchmark {
     targets {
         register("benchmark") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
     configurations {
@@ -141,18 +141,18 @@ dependencies {
     // Exposed JDBC/R2DBC — 선택적 백엔드 (compileOnly)
     compileOnly(project(":bluetape4k-exposed-jdbc"))
     compileOnly(project(":bluetape4k-exposed-r2dbc"))
-    compileOnly(Libs.exposed_java_time)
+    compileOnly(libs.exposed.java.time)
 
     // Checkpoint JSON 직렬화 — bluetape4k-jackson3 선택 의존
     compileOnly(project(":bluetape4k-jackson3"))
 
     // Coroutines
-    implementation(Libs.kotlinx_coroutines_core)
+    implementation(libs.kotlinx.coroutines.core)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-jackson3"))
-    testImplementation(Libs.kotlinx_coroutines_test)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // JDBC/R2DBC 통합 테스트 인프라
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
@@ -160,23 +160,23 @@ dependencies {
     testImplementation(project(":bluetape4k-virtualthread-jdk21"))
 
     // Test DB — H2 (내장)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
-    testImplementation(Libs.r2dbc_h2)
-    testImplementation(Libs.r2dbc_pool)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
+    testImplementation(libs.r2dbc.h2)
+    testImplementation(libs.r2dbc.pool)
 
     // Test DB — PostgreSQL (Testcontainers)
-    testImplementation(Libs.testcontainers_postgresql)
-    testImplementation(Libs.postgresql_driver)
-    testImplementation(Libs.r2dbc_postgresql)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.postgresql.driver)
+    testImplementation(libs.r2dbc.postgresql)
 
     // Test DB — MySQL (Testcontainers)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.mysql_connector_j)
-    testImplementation(Libs.r2dbc_mysql)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.mysql.connector.j)
+    testImplementation(libs.r2dbc.mysql)
 
     // Benchmark
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime)
-    add("benchmarkImplementation", Libs.kotlinx_benchmark_runtime_jvm)
-    add("benchmarkImplementation", Libs.jmh_core)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime)
+    add("benchmarkImplementation", libs.kotlinx.benchmark.runtime.jvm)
+    add("benchmarkImplementation", libs.jmh.core)
 }

@@ -10,28 +10,28 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // Resilience4j
-    api(Libs.resilience4j_all)
-    api(Libs.resilience4j_cache)
-    api(Libs.resilience4j_kotlin)
-    compileOnly(Libs.resilience4j_reactor)
-    compileOnly(Libs.resilience4j_micrometer)
+    api(libs.resilience4j.all)
+    api(libs.resilience4j.cache)
+    api(libs.resilience4j.kotlin)
+    compileOnly(libs.resilience4j.reactor)
+    compileOnly(libs.resilience4j.micrometer)
 
     // Coroutines
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // JCache for Resilience4j Cache
-    testImplementation(Libs.caffeine_jcache)
-    testImplementation(Libs.cache2k_jcache)
-    testImplementation(Libs.redisson)
+    testImplementation(libs.caffeine.jcache)
+    testImplementation(libs.cache2k.jcache)
+    testImplementation(libs.redisson)
 
     // Serializer
-    testImplementation(Libs.fory_kotlin)
-    testImplementation(Libs.kryo5)
+    testImplementation(libs.fory.kotlin)
+    testImplementation(libs.kryo5)
 
     // Compressor
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.zstd.jni)
 }

@@ -3,7 +3,7 @@ import com.google.protobuf.gradle.id
 plugins {
     `java-library`
     idea
-    id(Plugins.protobuf) version Plugins.Versions.protobuf
+    alias(libs.plugins.protobuf.plugin)
 }
 
 idea {
@@ -15,7 +15,7 @@ idea {
 
 protobuf {
     protoc {
-        artifact = Libs.protobuf_protoc
+        artifact = libs.protobuf.protoc.get().toString()
     }
     generateProtoTasks {
         all().forEach { task ->
@@ -38,10 +38,10 @@ configurations {
 
 dependencies {
     // Protobuf
-    api(Libs.protobuf_java)
-    api(Libs.protobuf_java_util)
-    api(Libs.protobuf_kotlin)
-    api(Libs.proto_google_common_protos)
+    api(libs.protobuf.java)
+    api(libs.protobuf.java.util)
+    api(libs.protobuf.kotlin)
+    api(libs.proto.google.common.protos)
 
     api(project(":bluetape4k-io"))
 
@@ -50,12 +50,12 @@ dependencies {
     compileOnly(project(":bluetape4k-redisson"))
 
     // Redis Codecs
-    compileOnly(Libs.lz4_java)
-    compileOnly(Libs.snappy_java)
-    compileOnly(Libs.zstd_jni)
+    compileOnly(libs.lz4.java)
+    compileOnly(libs.snappy.java)
+    compileOnly(libs.zstd.jni)
 
     // Fallback codec
-    // compileOnly(Libs.fory_kotlin)
+    // compileOnly(libs.fory.kotlin)
 
     // Money (MoneySupport.kt)
     compileOnly(project(":bluetape4k-money"))

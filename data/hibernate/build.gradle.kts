@@ -83,81 +83,81 @@ artifacts {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot4_dependencies))
-    testImplementation(platform(Libs.junit_bom))
+    implementation(platform(libs.spring.boot4.dependencies))
+    testImplementation(platform(libs.junit.bom))
 
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.jakarta_persistence_api_32)
-    kapt(Libs.jakarta_persistence_api_32)
-    api(Libs.jakarta_transaction_api)
+    api(libs.jakarta.persistence.api.v32)
+    kapt(libs.jakarta.persistence.api.v32)
+    api(libs.jakarta.transaction.api)
 
-    api(Libs.hibernate_core)
-    api(Libs.hibernate_micrometer)
+    api(libs.hibernate.core)
+    api(libs.hibernate.micrometer)
 
     // NOTE: Kotlin 2.1.0 에서 QueryDSL 5.1.0 과 같이 사용하는 경우 예에가 발생한다. (QueryDSL만 사용하는 것을 추천합니다)
-    // kapt(Libs.hibernate_jpamodelgen)
-    // kaptTest(Libs.hibernate_jpamodelgen)
+    // kapt(libs.hibernate.jpamodelgen)
+    // kaptTest(libs.hibernate.jpamodelgen)
 
     // Querydsl
     // Hibernate 6+ jakarta 용은 claasifier로 ":jpa" 대신 ":jakarta" 를 사용해야 합니다.
     // https://github.com/querydsl/querydsl/issues/3493
-    api(Libs.querydsl_jpa + ":jakarta")
-    kapt(Libs.querydsl_apt + ":jakarta")
-    kaptTest(Libs.querydsl_apt + ":jakarta")
+    api(variantOf(libs.querydsl.jpa) { classifier("jakarta") })
+    kapt(variantOf(libs.querydsl.apt) { classifier("jakarta") })
+    kaptTest(variantOf(libs.querydsl.apt) { classifier("jakarta") })
 
     // Validator
-    api(Libs.jakarta_el_api)
-    api(Libs.jakarta_validation_api)
-    api(Libs.hibernate_validator)
-    testImplementation(Libs.glassfish_expressly)  // Jakarta EL 6.0 implementation for Hibernate Validator 9.x
+    api(libs.jakarta.el.api)
+    api(libs.jakarta.validation.api)
+    api(libs.hibernate.validator)
+    testImplementation(libs.glassfish.expressly)  // Jakarta EL 6.0 implementation for Hibernate Validator 9.x
 
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-tink"))
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson.module.blackbird)
 
-    compileOnly(Libs.kryo)
-    compileOnly(Libs.fory_kotlin)  // new Apache Fory
+    compileOnly(libs.kryo)
+    compileOnly(libs.fory.kotlin)  // new Apache Fory
 
-    testImplementation(Libs.commons_compress)
-    testImplementation(Libs.snappy_java)
-    testImplementation(Libs.lz4_java)
-    testImplementation(Libs.zstd_jni)
+    testImplementation(libs.commons.compress)
+    testImplementation(libs.snappy.java)
+    testImplementation(libs.lz4.java)
+    testImplementation(libs.zstd.jni)
 
     api(project(":bluetape4k-idgenerators"))
-    api(Libs.java_uuid_generator)
+    api(libs.java.uuid.generator)
 
     // TODO: querydsl-kotlin-codegen 은 tree entity 도 못 만들고, spring-data-jpa 의 repository에서 문제가 생긴다.
     // https://github.com/querydsl/querydsl/issues/3454
-    // kapt(Libs.querydsl_kotlin_codegen)
-    // kaptTest(Libs.querydsl_kotlin_codegen)
+    // kapt(libs.querydsl.kotlin.codegen)
+    // kaptTest(libs.querydsl.kotlin.codegen)
 
-    compileOnly(Libs.springBootStarter("data-jpa"))
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBoot("hibernate"))  // SB4: HibernatePropertiesCustomizer 이동된 모듈
-    testImplementation(Libs.springBoot("autoconfigure"))
-    testImplementation(Libs.springBootStarter("test")) {
+    compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-hibernate")  // SB4: HibernatePropertiesCustomizer 이동된 모듈
+    testImplementation("org.springframework.boot:spring-boot-autoconfigure")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
 
-    testImplementation(Libs.hikaricp)
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mysql_connector_j)
+    testImplementation(libs.hikaricp)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mysql.connector.j)
 
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mysql)
+    testImplementation(libs.testcontainers.mysql)
 
     // Caching 테스트
     testImplementation(project(":bluetape4k-cache-core"))
-    testImplementation(Libs.hibernate_jcache)
-    testImplementation(Libs.caffeine_jcache)
+    testImplementation(libs.hibernate.jcache)
+    testImplementation(libs.caffeine.jcache)
 
     // JDBC 와 같이 사용
     testImplementation(project(":bluetape4k-jdbc"))

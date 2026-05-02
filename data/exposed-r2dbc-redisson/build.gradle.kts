@@ -4,12 +4,12 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(platform(Libs.exposed_bom))
+    implementation(platform(libs.exposed.bom))
 
-    api(Libs.exposed_core)
-    api(Libs.exposed_r2dbc)
-    compileOnly(Libs.exposed_java_time)
-    compileOnly(Libs.exposed_kotlin_datetime)
+    api(libs.exposed.core)
+    api(libs.exposed.r2dbc)
+    compileOnly(libs.exposed.java.time)
+    compileOnly(libs.exposed.kotlin.datetime)
 
     api(project(":bluetape4k-exposed-r2dbc"))
     api(project(":bluetape4k-exposed-cache"))
@@ -18,47 +18,47 @@ dependencies {
 
     // Redisson
     api(project(":bluetape4k-redisson"))
-    api(Libs.redisson)
+    api(libs.redisson)
 
     // Codecs
     api(project(":bluetape4k-io"))
 
     // Serializers
-    runtimeOnly(Libs.kryo5)
-    runtimeOnly(Libs.fory_kotlin)  // new Apache Fory
+    runtimeOnly(libs.kryo5)
+    runtimeOnly(libs.fory.kotlin)  // new Apache Fory
 
     // Compressor
-    runtimeOnly(Libs.lz4_java)
-    runtimeOnly(Libs.snappy_java)
-    runtimeOnly(Libs.zstd_jni)
+    runtimeOnly(libs.lz4.java)
+    runtimeOnly(libs.snappy.java)
+    runtimeOnly(libs.zstd.jni)
 
     // Coroutines
     implementation(project(":bluetape4k-coroutines"))
-    implementation(Libs.kotlinx_coroutines_core)
-    implementation(Libs.kotlinx_coroutines_reactive)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(project(":bluetape4k-idgenerators"))
 
     // R2DBC
-    api(Libs.r2dbc_spi)
-    api(Libs.r2dbc_pool)
-    testRuntimeOnly(Libs.r2dbc_h2)
-    testRuntimeOnly(Libs.r2dbc_mariadb)
-    testRuntimeOnly(Libs.r2dbc_mysql)
-    testRuntimeOnly(Libs.r2dbc_postgresql)
+    api(libs.r2dbc.spi)
+    api(libs.r2dbc.pool)
+    testRuntimeOnly(libs.r2dbc.h2)
+    testRuntimeOnly(libs.r2dbc.mariadb)
+    testRuntimeOnly(libs.r2dbc.mysql)
+    testRuntimeOnly(libs.r2dbc.postgresql)
 
     // Bluetape4k Modules for Testing
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 
     // Database Drivers for Testcontainers Database
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mariadb_java_client)
-    testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.postgresql_driver)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(libs.postgresql.driver)
 
 }

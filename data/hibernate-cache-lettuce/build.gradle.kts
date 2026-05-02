@@ -28,23 +28,23 @@ dependencies {
     api(project(":bluetape4k-io"))
 
     // Serializer runtime dependencies (bluetape4k-io의 선택적 의존성)
-    implementation(Libs.fory_kotlin)
-    implementation(Libs.lz4_java)
+    implementation(libs.fory.kotlin)
+    implementation(libs.lz4.java)
 
     // Compressor runtime dependencies (bluetape4k-io의 선택적 의존성)
-    implementation(Libs.snappy_java)
-    implementation(Libs.zstd_jni)
+    implementation(libs.snappy.java)
+    implementation(libs.zstd.jni)
 
     // bluetape4k-redis: LettuceBinaryCodec
     api(project(":bluetape4k-lettuce"))
 
     // Hibernate
-    api(Libs.hibernate_core)
+    api(libs.hibernate.core)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers)
-    testImplementation(Libs.h2_v2)
-    testImplementation(Libs.hikaricp)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.h2.v2)
+    testImplementation(libs.hikaricp)
 }

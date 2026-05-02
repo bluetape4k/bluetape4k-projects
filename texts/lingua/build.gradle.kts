@@ -4,6 +4,6 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-core"))
-    api(Libs.lingua)
+    api(libs.lingua)
     testImplementation(project(":bluetape4k-junit5"))
 }

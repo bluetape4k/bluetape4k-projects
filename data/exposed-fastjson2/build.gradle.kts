@@ -4,31 +4,31 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(platform(Libs.exposed_bom))
-    api(Libs.exposed_core)
-    compileOnly(Libs.exposed_jdbc)
-    compileOnly(Libs.exposed_dao)
+    implementation(platform(libs.exposed.bom))
+    api(libs.exposed.core)
+    compileOnly(libs.exposed.jdbc)
+    compileOnly(libs.exposed.dao)
     api(project(":bluetape4k-exposed-core"))
     compileOnly(project(":bluetape4k-exposed-dao"))
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
     /* Fastjson2 */
     api(project(":bluetape4k-fastjson2"))
-    api(Libs.fastjson2_kotlin)
-    api(Libs.fastjson2_extension)
-    compileOnly(Libs.r2dbc_spi)
+    api(libs.fastjson2.kotlin)
+    api(libs.fastjson2.extension)
+    compileOnly(libs.r2dbc.spi)
 
     // Database Drivers
-    testImplementation(Libs.hikaricp)
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mariadb_java_client)
-    testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.postgresql_driver)
-    testRuntimeOnly(Libs.pgjdbc_ng)
+    testImplementation(libs.hikaricp)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(libs.postgresql.driver)
+    testRuntimeOnly(libs.pgjdbc.ng)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 }

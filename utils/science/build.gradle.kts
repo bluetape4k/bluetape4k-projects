@@ -27,38 +27,38 @@ tasks.test {
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-logging"))
-    api(Libs.jts_core)
+    api(libs.jts.core)
 
     // GIS / 좌표 변환 (LGPL — compileOnly로만 선언, JAI 제외)
-    compileOnly(Libs.proj4j)
-    compileOnly(Libs.proj4j_epsg)
-    compileOnly(Libs.esri_geometry_api)
+    compileOnly(libs.proj4j)
+    compileOnly(libs.proj4j.epsg)
+    compileOnly(libs.esri.geometry.api)
 
     // GeoTools (LGPL — compileOnly, javax.media:jai_core 제외 설정됨)
-    compileOnly(Libs.geotools_shapefile)
-    compileOnly(Libs.geotools_referencing)
-    compileOnly(Libs.geotools_epsg_hsql)
+    compileOnly(libs.geotools.shapefile)
+    compileOnly(libs.geotools.referencing)
+    compileOnly(libs.geotools.epsg.hsql)
 
     // NetCDF (UCAR netCDF-Java 5.9.1 — compileOnly, BSD-3-Clause)
     // 저장소: 루트 build.gradle.kts:71 에 Unidata Nexus 선언됨
-    compileOnly(Libs.ucar_cdm_core)
-    compileOnly(Libs.ucar_netcdf4)
+    compileOnly(libs.ucar.cdm.core)
+    compileOnly(libs.ucar.netcdf4)
     // cdm-core 가 ImmutableList<Variable> 등 Guava 컬렉션을 API 표면에 노출 → 컴파일 시 필요
-    compileOnly(Libs.guava)
+    compileOnly(libs.guava)
 
     // Micrometer — MeterRegistry 선택 주입 (compileOnly)
-    compileOnly(Libs.micrometer_core)
+    compileOnly(libs.micrometer.core)
 
     // Coroutines (compileOnly)
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
+    compileOnly(libs.kotlinx.coroutines.core)
 
     // Exposed / DB (선택적, compileOnly)
     compileOnly(project(":bluetape4k-exposed-jdbc"))
     compileOnly(project(":bluetape4k-exposed-postgresql"))
     compileOnly(project(":bluetape4k-exposed-jackson3"))
-    compileOnly(Libs.postgis_jdbc)
-    compileOnly(Libs.exposed_java_time)
+    compileOnly(libs.postgis.jdbc)
+    compileOnly(libs.exposed.java.time)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
@@ -66,10 +66,10 @@ dependencies {
     testImplementation(project(":bluetape4k-exposed-jdbc"))
     testImplementation(project(":bluetape4k-exposed-postgresql"))
     testImplementation(project(":bluetape4k-exposed-jackson3"))
-    testImplementation(Libs.kotlinx_coroutines_test)
-    testImplementation(Libs.testcontainers_junit_jupiter)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.postgresql)
 
-    testRuntimeOnly(Libs.postgresql_driver)
-    testRuntimeOnly(Libs.hikaricp)
+    testRuntimeOnly(libs.postgresql.driver)
+    testRuntimeOnly(libs.hikaricp)
 }

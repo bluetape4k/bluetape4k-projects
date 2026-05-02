@@ -8,33 +8,33 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     // Spring Boot Starters
-    compileOnly(Libs.springBootStarter("webflux"))
-    compileOnly(Libs.springBootStarter("web"))
+    compileOnly("org.springframework.boot:spring-boot-starter-webflux")
+    compileOnly("org.springframework.boot:spring-boot-starter-web")
     // spring-test for WebTestClient in test support sources (main)
-    compileOnly(Libs.springBootStarter("test"))
-    testImplementation(Libs.springBootStarter("test")) {
+    compileOnly("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-    testImplementation(Libs.springBootStarter("actuator"))
+    testImplementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Spring core (from spring/core)
     compileOnly(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.spring("context-support"))
-    compileOnly(Libs.spring("messaging"))
-    compileOnly(Libs.spring("web"))
-    compileOnly(Libs.springData("commons"))
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBoot("configuration-processor"))
-    api(Libs.jakarta_annotation_api)
-    compileOnly(Libs.findbugs)
+    compileOnly("org.springframework:spring-context-support")
+    compileOnly("org.springframework:spring-messaging")
+    compileOnly("org.springframework:spring-web")
+    compileOnly("org.springframework.data:spring-data-commons")
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-configuration-processor")
+    api(libs.jakarta.annotation.api)
+    compileOnly(libs.findbugs)
     compileOnly(project(":bluetape4k-idgenerators"))
-    compileOnly(Libs.java_uuid_generator)
-    compileOnly(Libs.netty_buffer)
+    compileOnly(libs.java.uuid.generator)
+    compileOnly(libs.netty.buffer)
 
     // Netty (from spring/webflux)
     compileOnly(project(":bluetape4k-netty"))
@@ -42,54 +42,54 @@ dependencies {
     compileOnly(project(":bluetape4k-micrometer"))
 
     // OkHttp3
-    compileOnly(Libs.okhttp3)
-    compileOnly(Libs.okhttp3_logging_interceptor)
-    testImplementation(Libs.okhttp3_mockwebserver)
+    compileOnly(libs.okhttp3)
+    compileOnly(libs.okhttp3.logging.interceptor)
+    testImplementation(libs.okhttp3.mockwebserver)
 
     // Apache HttpComponents HttpClient 5
-    compileOnly(Libs.httpclient5)
-    compileOnly(Libs.httpclient5_cache)
-    compileOnly(Libs.httpclient5_fluent)
-    testImplementation(Libs.httpclient5_testing)
+    compileOnly(libs.httpclient5)
+    compileOnly(libs.httpclient5.cache)
+    compileOnly(libs.httpclient5.fluent)
+    testImplementation(libs.httpclient5.testing)
 
     // Jackson
     compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(Libs.jackson_core)
-    compileOnly(Libs.jackson_databind)
-    compileOnly(Libs.jackson_module_kotlin)
-    compileOnly(Libs.jackson_module_blackbird)
+    compileOnly(libs.jackson.core)
+    compileOnly(libs.jackson.databind)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson.module.blackbird)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
-    compileOnly(Libs.resilience4j_all)
-    compileOnly(Libs.resilience4j_kotlin)
-    compileOnly(Libs.resilience4j_cache)
-    compileOnly(Libs.resilience4j_retry)
-    compileOnly(Libs.resilience4j_circuitbreaker)
-    compileOnly(Libs.resilience4j_reactor)
+    compileOnly(libs.resilience4j.all)
+    compileOnly(libs.resilience4j.kotlin)
+    compileOnly(libs.resilience4j.cache)
+    compileOnly(libs.resilience4j.retry)
+    compileOnly(libs.resilience4j.circuitbreaker)
+    compileOnly(libs.resilience4j.reactor)
 
     // Micrometer
-    compileOnly(Libs.micrometer_core)
-    testImplementation(Libs.micrometer_core)
-    testImplementation(Libs.micrometer_registry_prometheus)
+    compileOnly(libs.micrometer.core)
+    testImplementation(libs.micrometer.core)
+    testImplementation(libs.micrometer.registry.prometheus)
 
-    compileOnly(Libs.hibernate_validator)
-    compileOnly(Libs.jakarta_el_api)
+    compileOnly(libs.hibernate.validator)
+    compileOnly(libs.jakarta.el.api)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    compileOnly(Libs.kotlinx_coroutines_reactive)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    compileOnly(libs.kotlinx.coroutines.reactive)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // Reactor
-    compileOnly(Libs.reactor_core)
-    compileOnly(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    compileOnly(libs.reactor.core)
+    compileOnly(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 
     // Test infra
     compileOnly(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers)
+    testImplementation(libs.testcontainers)
 }

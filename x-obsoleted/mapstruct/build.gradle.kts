@@ -12,9 +12,9 @@ configurations {
 }
 
 dependencies {
-    implementation(Libs.mapstruct)
-    kapt(Libs.mapstruct_processor)
-    kaptTest(Libs.mapstruct_processor)
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor)
+    kaptTest(libs.mapstruct.processor)
 
     implementation(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))

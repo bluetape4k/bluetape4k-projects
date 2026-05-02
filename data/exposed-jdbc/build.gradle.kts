@@ -1,6 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
-    id(Plugins.kotlinx_benchmark)
+    alias(libs.plugins.kotlinx.benchmark)
 }
 
 allOpen {
@@ -13,7 +13,7 @@ benchmark {
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
-            jmhVersion = Versions.jmh
+            jmhVersion = libs.versions.jmh.get()
         }
     }
 }
@@ -23,57 +23,57 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
     // Exposed
-    implementation(platform(Libs.exposed_bom))
+    implementation(platform(libs.exposed.bom))
     api(project(":bluetape4k-exposed-core"))
     api(project(":bluetape4k-exposed-dao"))
-    api(Libs.exposed_jdbc)
-    compileOnly(Libs.exposed_migration_jdbc)
-    compileOnly(Libs.exposed_spring_boot_starter)
-    compileOnly(Libs.exposed_java_time)
-    compileOnly(Libs.exposed_kotlin_datetime)
+    api(libs.exposed.jdbc)
+    compileOnly(libs.exposed.migration.jdbc)
+    compileOnly(libs.exposed.spring.boot.starter)
+    compileOnly(libs.exposed.java.time)
+    compileOnly(libs.exposed.kotlin.datetime)
 
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
 
     // Entity ID generators
     implementation(project(":bluetape4k-idgenerators"))
-    implementation(Libs.java_uuid_generator)
+    implementation(libs.java.uuid.generator)
 
     // JDBC
     api(project(":bluetape4k-jdbc"))
-    compileOnly(Libs.hikaricp)
+    compileOnly(libs.hikaricp)
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
-    compileOnly(Libs.kotlinx_coroutines_core)
-    compileOnly(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_junit_jupiter)
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 
     // Spring Boot (테스트용)
-    testImplementation(Libs.springBootStarter("jdbc"))
-    testImplementation(Libs.springBootStarter("test")) {
+    testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")
     }
 
     // Database Drivers
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mariadb_java_client)
-    testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.postgresql_driver)
-    testRuntimeOnly(Libs.pgjdbc_ng)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(libs.postgresql.driver)
+    testRuntimeOnly(libs.pgjdbc.ng)
 
     // Benchmark (JMH for exposed-jdbc CRUD/pool 측정)
-    testImplementation(Libs.kotlinx_benchmark_runtime)
-    testImplementation(Libs.kotlinx_benchmark_runtime_jvm)
-    testImplementation(Libs.jmh_core)
+    testImplementation(libs.kotlinx.benchmark.runtime)
+    testImplementation(libs.kotlinx.benchmark.runtime.jvm)
+    testImplementation(libs.jmh.core)
 }

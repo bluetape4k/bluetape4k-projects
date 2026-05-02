@@ -4,15 +4,15 @@ configurations {
 
 dependencies {
     // Exposed
-    implementation(platform(Libs.exposed_bom))
-    api(Libs.exposed_core)
-    compileOnly(Libs.exposed_jdbc)
-    compileOnly(Libs.exposed_dao)
-    compileOnly(Libs.exposed_crypt)
-    compileOnly(Libs.exposed_kotlin_datetime)
-    compileOnly(Libs.exposed_java_time)
-    compileOnly(Libs.exposed_json)
-    compileOnly(Libs.exposed_money)
+    implementation(platform(libs.exposed.bom))
+    api(libs.exposed.core)
+    compileOnly(libs.exposed.jdbc)
+    compileOnly(libs.exposed.dao)
+    compileOnly(libs.exposed.crypt)
+    compileOnly(libs.exposed.kotlin.datetime)
+    compileOnly(libs.exposed.java.time)
+    compileOnly(libs.exposed.json)
+    compileOnly(libs.exposed.money)
 
     testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
     // exposed-dao 모듈에서 idEquals, idHashCode 등 사용
@@ -20,7 +20,7 @@ dependencies {
 
     // Entity ID generators (ColumnExtensions에서 사용)
     api(project(":bluetape4k-idgenerators"))
-    api(Libs.java_uuid_generator)
+    api(libs.java.uuid.generator)
 
     //
     // Custom Column Types
@@ -30,29 +30,29 @@ dependencies {
     compileOnly(project(":bluetape4k-io"))
 
     // Serializer (runtime for tests)
-    testRuntimeOnly(Libs.kryo5)
-    testRuntimeOnly(Libs.fory_kotlin)  // new Apache Fory
+    testRuntimeOnly(libs.kryo5)
+    testRuntimeOnly(libs.fory.kotlin)  // new Apache Fory
 
     // Compressors
-    testRuntimeOnly(Libs.lz4_java)
-    testRuntimeOnly(Libs.snappy_java)
-    testRuntimeOnly(Libs.zstd_jni)
+    testRuntimeOnly(libs.lz4.java)
+    testRuntimeOnly(libs.snappy.java)
+    testRuntimeOnly(libs.zstd.jni)
 
     // Phone number column types (compileOnly -> testImplementation 자동 전이 via extendsFrom)
-    compileOnly(Libs.libphonenumber)
+    compileOnly(libs.libphonenumber)
 
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(Libs.testcontainers_junit_jupiter)
-    testImplementation(Libs.testcontainers_mariadb)
-    testImplementation(Libs.testcontainers_mysql)
-    testImplementation(Libs.testcontainers_postgresql)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.mariadb)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.postgresql)
 
     // Database Drivers
-    compileOnly(Libs.hikaricp)
-    testRuntimeOnly(Libs.h2_v2)
-    testRuntimeOnly(Libs.mariadb_java_client)
-    testRuntimeOnly(Libs.mysql_connector_j)
-    testRuntimeOnly(Libs.postgresql_driver)
-    testRuntimeOnly(Libs.pgjdbc_ng)
+    compileOnly(libs.hikaricp)
+    testRuntimeOnly(libs.h2.v2)
+    testRuntimeOnly(libs.mariadb.java.client)
+    testRuntimeOnly(libs.mysql.connector.j)
+    testRuntimeOnly(libs.postgresql.driver)
+    testRuntimeOnly(libs.pgjdbc.ng)
 }

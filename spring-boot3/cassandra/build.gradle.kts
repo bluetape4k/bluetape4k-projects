@@ -22,7 +22,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(Libs.spring_boot3_dependencies))
+    implementation(platform(libs.spring.boot3.dependencies))
 
     api(project(":bluetape4k-cassandra"))
     api(project(":bluetape4k-spring-boot3-core"))
@@ -31,21 +31,21 @@ dependencies {
     testImplementation(project(":bluetape4k-testcontainers"))
 
     // NOTE: Cassandra 4 oss 버전을 사용합니다.
-    api(Libs.cassandra_java_driver_core)
-    api(Libs.cassandra_java_driver_query_builder)
-    compileOnly(Libs.cassandra_java_driver_mapper_runtime)
-    compileOnly(Libs.cassandra_java_driver_metrics_micrometer)
+    api(libs.cassandra.java.driver.core)
+    api(libs.cassandra.java.driver.query.builder)
+    compileOnly(libs.cassandra.java.driver.mapper.runtime)
+    compileOnly(libs.cassandra.java.driver.metrics.micrometer)
 
     // cassandra 의 @Mapper, @Dao 를 활용할 때 사용합니다.
     // 참고: https://docs.datastax.com/en/developer/java-driver/4.13/manual/mapper/
-    kapt(Libs.cassandra_java_driver_mapper_processor)
-    kaptTest(Libs.cassandra_java_driver_mapper_processor)
+    kapt(libs.cassandra.java.driver.mapper.processor)
+    kaptTest(libs.cassandra.java.driver.mapper.processor)
 
-    compileOnly(Libs.springBoot("autoconfigure"))
-    compileOnly(Libs.springBoot("configuration-processor"))
+    compileOnly("org.springframework.boot:spring-boot-autoconfigure")
+    compileOnly("org.springframework.boot:spring-boot-configuration-processor")
 
-    implementation(Libs.springBootStarter("data-cassandra"))
-    testImplementation(Libs.springBootStarter("test")) {
+    implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
@@ -53,11 +53,11 @@ dependencies {
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))
-    api(Libs.kotlinx_coroutines_core)
-    api(Libs.kotlinx_coroutines_reactor)
-    testImplementation(Libs.kotlinx_coroutines_test)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.reactor)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    implementation(Libs.reactor_core)
-    implementation(Libs.reactor_kotlin_extensions)
-    testImplementation(Libs.reactor_test)
+    implementation(libs.reactor.core)
+    implementation(libs.reactor.kotlin.extensions)
+    testImplementation(libs.reactor.test)
 }

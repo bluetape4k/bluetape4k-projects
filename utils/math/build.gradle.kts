@@ -7,10 +7,10 @@ dependencies {
     compileOnly(project(":bluetape4k-cache-core"))
     testImplementation(project(":bluetape4k-junit5"))
 
-    api(Libs.commons_math3)
-    api(Libs.commons_collections4)
+    api(libs.commons.math3)
+    api(libs.commons.collections4)
 
     // Random Number Generator
-    compileOnly(Libs.commons_digest3)
-    compileOnly(Libs.commons_rng_simple)
+    compileOnly(libs.commons.digest3)
+    compileOnly(libs.commons.rng.simple)
 }
