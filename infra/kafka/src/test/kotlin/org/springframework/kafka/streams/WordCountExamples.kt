@@ -125,7 +125,7 @@ class WordCountExamples {
             return KafkaTemplate(producerFactory())
         }
 
-        @Value($$"${spring.kafka.streams.state.dir:streams-state}")
+        @Value($$"${spring.kafka.streams.state-dir:streams-state}")
         private var stateStoreLocation: String? = null
 
         @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
