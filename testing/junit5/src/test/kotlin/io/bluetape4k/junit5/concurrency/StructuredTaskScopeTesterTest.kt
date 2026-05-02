@@ -8,8 +8,10 @@ import org.amshove.kluent.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
+import org.amshove.kluent.internal.assertFailsWith
+import java.util.concurrent.TimeoutException
 import kotlin.system.measureTimeMillis
-import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 
 @EnabledForJreRange(min = JRE.JAVA_21)
 class StructuredTaskScopeTesterTest {
@@ -83,6 +85,30 @@ class StructuredTaskScopeTesterTest {
     fun `실행할 코드블럭을 등록하지 않으면 예외가 발생한다`() {
         assertFailsWith<IllegalStateException> {
             StructuredTaskScopeTester().run()
+        }
+    }
+
+    @Test
+    fun `withTimeout - 데드라인 내 완료 시 정상 반환`() {
+        val block = CountingTask()
+
+        StructuredTaskScopeTester()
+            .rounds(3)
+            .withTimeout(2_000.milliseconds)
+            .add(block)
+            .run()
+
+        block.count shouldBeEqualTo 3
+    }
+
+    @Test
+    fun `withTimeout - 데드라인 초과 시 TimeoutException 발생`() {
+        assertFailsWith<TimeoutException> {
+            StructuredTaskScopeTester()
+                .rounds(1)
+                .withTimeout(50.milliseconds)
+                .add { Thread.sleep(5_000) }
+                .run()
         }
     }
 

@@ -116,7 +116,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAll) -> T
     ): T {
-        // wrapper around StructuredTaskScope.ShutdownOnFailure
+        // uses Joiner.awaitAllSuccessfulOrThrow() — cancels siblings on first failure
     }
 
     override fun <T> withAny(
@@ -124,7 +124,7 @@ class Jdk25StructuredTaskScopeProvider: StructuredTaskScopeProvider {
         factory: ThreadFactory,
         block: (scope: StructuredTaskScopeAny<T>) -> T
     ): T {
-        // wrapper around StructuredTaskScope.ShutdownOnSuccess
+        // uses Joiner.anySuccessfulResultOrThrow() — returns first success
     }
 }
 ```
@@ -211,7 +211,7 @@ fun main() {
     }
 
     // Use structured concurrency
-    val results = StructuredTaskScopes.all(
+    val results = StructuredTaskScopes.failFast(
         name = "parallel-tasks",
         factory = VirtualThreads.threadFactory()
     ) { scope ->
