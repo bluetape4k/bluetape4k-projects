@@ -107,7 +107,12 @@ class WordCountExamples {
     @EnableKafkaStreams
     class Config {
 
-        @Value($$"${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
+        companion object {
+            private const val EMBEDDED_BROKERS_PROPERTY =
+                $$"${EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS}"
+        }
+
+        @Value(EMBEDDED_BROKERS_PROPERTY)
         val brokerAddresses: String = uninitialized()
 
         @Bean
