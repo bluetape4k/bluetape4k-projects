@@ -54,7 +54,7 @@ import java.util.*
     partitions = 1,
     topics = [INPUT_TOPIC, OUTPUT_TOPIC],
     brokerProperties = [
-        $$"auto.create.topics.enable=${topics.authCreate:false}",
+        $$"auto.create.topics.enable=${topics.autoCreate:false}",
         $$"delete.topic.enable=${topic.delete:true}"
     ],
     brokerPropertiesLocation = $$"classpath:/${broker.filename:broker}.properties"
