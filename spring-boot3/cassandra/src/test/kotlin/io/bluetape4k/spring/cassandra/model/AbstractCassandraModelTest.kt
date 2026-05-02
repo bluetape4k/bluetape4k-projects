@@ -69,7 +69,7 @@ class AbstractCassandraModelTest {
     @Test
     fun `null과 동등하지 않음`() {
         val entity = StringEntity("id-1")
-        (entity == null).shouldBeFalse()
+        entity.shouldNotBeNull()
     }
 
     @Test

@@ -24,7 +24,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.delete
 import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.Table
 import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.inValues
@@ -50,8 +49,8 @@ class ReactiveDeleteOperationsTest(
     @Table(PERSON_TABLE_NAME)
     data class Person(
         @field:Id val id: String,
-        @field:Indexed var firstName: String,
-        @field:Indexed var lastName: String,
+        var firstName: String,
+        var lastName: String,
     ): Serializable
 
     private fun newPerson(): Person {

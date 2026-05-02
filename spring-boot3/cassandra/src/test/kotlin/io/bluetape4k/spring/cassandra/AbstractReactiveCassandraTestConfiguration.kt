@@ -22,6 +22,18 @@ abstract class AbstractReactiveCassandraTestConfiguration: AbstractReactiveCassa
 
         val server by lazy { CassandraServer.Launcher.cassandra4 }
 
+        // @SpringBootTest 테스트 클래스마다 별도의 Spring ApplicationContext가 생성되고,
+        // 각 컨텍스트 초기화 시 getRequiredSession()이 호출됩니다.
+        // 매번 새 CqlSession을 생성하면 Testcontainer 연결 수가 빠르게 누적되어
+        // 임계치(~24개) 초과 시 AllNodesFailedException 으로 테스트가 실패합니다.
+        // companion object lazy 싱글턴으로 모든 설정 인스턴스가 동일한 세션을 공유합니다.
+        val sharedSession: CqlSession by lazy {
+            CassandraServer.Launcher.newCqlSessionBuilder()
+                .withKeyspace(DEFAULT_KEYSPACE)
+                .withConfigLoader(DriverConfigLoader.fromClasspath("application.conf"))
+                .build()
+        }
+
         init {
             // default keyspace 를 재생성합니다.
             AbstractCassandraTest.recreateKeyspaceOnce(DEFAULT_KEYSPACE)
@@ -38,12 +50,7 @@ abstract class AbstractReactiveCassandraTestConfiguration: AbstractReactiveCassa
 
     override fun getSchemaAction(): SchemaAction = SchemaAction.CREATE_IF_NOT_EXISTS
 
-    override fun getRequiredSession(): CqlSession {
-        return CassandraServer.Launcher.newCqlSessionBuilder()
-            .withKeyspace(keyspaceName)
-            .apply { sessionBuilderConfigurer.configure(this) }
-            .build()
-    }
+    override fun getRequiredSession(): CqlSession = sharedSession
 
     /**
      * Custom Configuration을 사용하기 위해 (Profiles 등)
