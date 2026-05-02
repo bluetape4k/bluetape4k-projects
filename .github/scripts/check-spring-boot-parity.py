@@ -40,12 +40,17 @@ def main() -> int:
         errors.append(f"spring-boot4에만 있는 모듈: {', '.join(only_boot4)}")
 
     for boot, module_names in modules.items():
-        bom_token = f"spring_boot{boot}_dependencies"
+        # 두 형식 모두 허용:
+        # - 구 Libs.kt 방식: spring_boot{boot}_dependencies
+        # - libs.versions.toml 방식: spring.boot{boot}.dependencies
+        legacy_token = f"spring_boot{boot}_dependencies"
+        catalog_token = f"spring.boot{boot}.dependencies"
         base = ROOT / f"spring-boot{boot}"
         for module in sorted(module_names):
             build_file = base / module / "build.gradle.kts"
-            if bom_token not in build_file.read_text(encoding="utf-8"):
-                errors.append(f"{build_file.relative_to(ROOT)}: Libs.{bom_token} BOM 적용 누락")
+            content = build_file.read_text(encoding="utf-8")
+            if legacy_token not in content and catalog_token not in content:
+                errors.append(f"{build_file.relative_to(ROOT)}: spring-boot{boot}-dependencies BOM 적용 누락")
 
     nightly = NIGHTLY_WORKFLOW.read_text(encoding="utf-8")
     for boot, module_names in modules.items():
