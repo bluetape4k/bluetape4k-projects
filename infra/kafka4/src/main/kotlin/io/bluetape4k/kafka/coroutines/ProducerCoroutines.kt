@@ -49,7 +49,7 @@ suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): Rec
  *      emit(ProducerRecord("test-topic", "test-key2", "test-value2"))
  *      emit(ProducerRecord("test-topic", "test-key3", "test-value3"))
  * }
- * producer.sendFlow(records)
+ * producer.sendAsFlow(records)
  * ```
  *
  * @param records producing 할 record의 flow
@@ -79,7 +79,7 @@ suspend fun <K, V> Producer<K, V>.sendAsFlow(records: Flow<ProducerRecord<K, V>>
  *      emit(ProducerRecord("test-topic", "test-key2", "test-value2"))
  *      emit(ProducerRecord("test-topic", "test-key3", "test-value3"))
  * }
- * producer.sendFlowParallel(records)
+ * producer.sendAsFlowParallel(records)
  * ```
  *
  * @param records producing 할 record의 flow

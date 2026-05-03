@@ -23,7 +23,7 @@ fun String.toTopicPartition(): TopicPartition = topicPartitionOf(this)
  * `"topic-partition"` 형식 문자열을 [TopicPartition]으로 파싱합니다.
  *
  * ## 동작/계약
- * - [tp]가 blank면 `assertNotBlank("tp")` 검증으로 예외가 발생합니다.
+ * - [tp]가 blank면 `requireNotBlank("tp")` 검증으로 [IllegalArgumentException]이 발생합니다.
  * - 마지막 `-`를 구분자로 사용해 topic/partition을 분리합니다.
  * - 구분자가 없거나 partition이 정수가 아니면 `IllegalArgumentException`/`NumberFormatException`이 발생합니다.
  *

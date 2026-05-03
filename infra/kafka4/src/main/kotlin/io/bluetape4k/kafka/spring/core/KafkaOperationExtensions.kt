@@ -23,7 +23,7 @@ import kotlin.coroutines.resumeWithException
  *
  * ```
  * val kafkaOperations: KafkaOperations<String, String> = ...
- * val result = kafkaOperations.sendSuspending(ProducerRecord("topic", "key", "value"))
+ * val result = kafkaOperations.suspendSend(ProducerRecord("topic", "key", "value"))
  * ```
  *
  * @param K Key type   메시지 키 타입
@@ -112,7 +112,9 @@ suspend inline fun <K: Any, V: Any> KafkaOperations<K, V>.sendFlowAsParallel(
     records
         .async {
             suspendSend(it)
-        }.onCompletion { flush() }
+        }
+        // cause != null 이면 에러/취소 — flush() 호출 시 블로킹 위험이 있으므로 정상 완료 시에만 실행
+        .onCompletion { cause -> if (cause == null) flush() }
         .last()
 
 /**
@@ -138,9 +140,12 @@ suspend inline fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndForget(
     records
         .async {
             suspendSend(it)
-        }.onCompletion {
-            if (needFlush) flush()
-        }.collect()
+        }
+        // cause != null 이면 에러/취소 — 에러 중 flush() 호출은 불필요한 블로킹을 유발한다
+        .onCompletion { cause ->
+            if (needFlush && cause == null) flush()
+        }
+        .collect()
 }
 
 /**

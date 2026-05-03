@@ -61,7 +61,7 @@ fun <K, V1, V2> streamJoinedOf(storeName: String): StreamJoined<K, V1, V2> = Str
  * val streamJoined = streamJoinedOf(
  *     keySerde = Serdes.String(),
  *     valueSerde = Serdes.String(),
- *     otherValueSerde = Serdes.Long().asSerde()
+ *     otherValueSerde = Serdes.Long(),
  * )
  * val joinedStream = leftStream.join(rightStream, joiner, streamJoined)
  * ```
