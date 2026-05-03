@@ -6,10 +6,12 @@ import io.bluetape4k.examples.cassandra.domain.model.AllPossibleTypes
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.storage.CassandraServer
 import org.springframework.boot.persistence.autoconfigure.EntityScan
+import org.springframework.context.annotation.Configuration
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
 import org.springframework.data.cassandra.config.SchemaAction
 import org.springframework.data.cassandra.config.SessionBuilderConfigurer
 
+@Configuration(proxyBeanMethods = false)
 @EntityScan(basePackageClasses = [AllPossibleTypes::class])
 abstract class AbstractReactiveCassandraTestConfiguration: AbstractReactiveCassandraConfiguration() {
 
@@ -34,7 +36,7 @@ abstract class AbstractReactiveCassandraTestConfiguration: AbstractReactiveCassa
 
         init {
             // default keyspace 를 재생성합니다.
-            CassandraServer.Launcher.recreateKeyspace(DEFAULT_KEYSPACE)
+            AbstractCassandraTest.recreateKeyspaceOnce(DEFAULT_KEYSPACE)
         }
     }
 
@@ -46,7 +48,7 @@ abstract class AbstractReactiveCassandraTestConfiguration: AbstractReactiveCassa
 
     override fun getLocalDataCenter(): String = CassandraServer.LOCAL_DATACENTER1
 
-    override fun getSchemaAction(): SchemaAction = SchemaAction.RECREATE
+    override fun getSchemaAction(): SchemaAction = SchemaAction.CREATE_IF_NOT_EXISTS
 
     override fun getRequiredSession(): CqlSession = sharedSession
 
