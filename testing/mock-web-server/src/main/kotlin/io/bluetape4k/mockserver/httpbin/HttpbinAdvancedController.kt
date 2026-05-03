@@ -70,7 +70,12 @@ class HttpbinAdvancedController {
         response: HttpServletResponse,
     ): ResponseEntity<Any> {
         params.forEach { (name, value) ->
-            response.addCookie(Cookie(name, value).apply { path = "/" })
+            response.addCookie(
+                Cookie(name, value).apply {
+                    path = "/"
+                    secure = true
+                }
+            )
         }
         return ResponseEntity.status(302).location(URI("/httpbin/cookies")).build()
     }
@@ -86,6 +91,7 @@ class HttpbinAdvancedController {
                 Cookie(name, "").apply {
                     path = "/"
                     maxAge = 0
+                    secure = true
                 }
             )
         }
