@@ -798,10 +798,12 @@ jobs:
           - group: kafka-resilience
             test_tasks: >-
               :bluetape4k-kafka:test
+              :bluetape4k-kafka4:test
               :bluetape4k-resilience4j:test
               :bluetape4k-bucket4j:test
             kover_tasks: >-
               :bluetape4k-kafka:koverXmlReport
+              :bluetape4k-kafka4:koverXmlReport
               :bluetape4k-resilience4j:koverXmlReport
               :bluetape4k-bucket4j:koverXmlReport
             needs_mock_server: false
