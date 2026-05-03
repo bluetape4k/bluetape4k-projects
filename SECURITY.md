@@ -2,8 +2,8 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+The following versions are currently supported with security updates.
+Versions marked with :white_check_mark: receive security fixes; versions marked with :x: are no longer supported and should be upgraded.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -14,8 +14,19 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Please report suspected vulnerabilities by emailing **security@example.com**.
+Do not open public issues for security reports.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Include the following details in your report:
+- A description of the issue and its potential impact
+- Steps to reproduce (or a proof of concept)
+- Affected versions, configuration, and environment details
+- Any suggested mitigations or fixes
+
+You can expect an acknowledgment within **3 business days**. After triage,
+we will provide status updates at least every **7 business days** until
+resolution.
+
+If the report is accepted, we will work on a fix and coordinate disclosure.
+Please keep vulnerability details private until we publish a patch or advisory.
+If the report is declined, we will share the reason.
