@@ -148,7 +148,7 @@ class KafkaStreamsTests {
     @EnableKafkaStreams
     class KafkaStreamsConfig {
 
-        @Value($$"${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
+        @Value($$"${$${EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS}}")
         val brokerAddresses: String = uninitialized()
 
 

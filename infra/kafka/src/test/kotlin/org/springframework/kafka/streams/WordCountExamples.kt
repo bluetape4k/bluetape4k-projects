@@ -109,7 +109,7 @@ class WordCountExamples {
 
         companion object {
             private const val EMBEDDED_BROKERS_PROPERTY =
-                $$"${EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS}"
+                $$"${$${EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS}}"
         }
 
         @Value(EMBEDDED_BROKERS_PROPERTY)
