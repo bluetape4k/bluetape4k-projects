@@ -13,6 +13,8 @@
 | 모듈 전략 | `infra/kafka` 유지, `infra/kafka4` 병렬 신규 생성 |
 | Spring BOM | `implementation(platform(libs.spring.boot4.dependencies))` |
 | Spring Kafka alias | `spring-kafka4 = 4.0.5`, `spring-kafka4-test = 4.0.5` 별도 추가 |
+| Reactor Kafka alias | `reactor-kafka4` 별도 추가로 Kafka 4 classpath 경계 유지 |
+| Kafka artifact 정렬 | `infra/kafka4` 내부에서 `org.apache.kafka` group을 `kafka4` version ref로 강제 |
 | Jackson | Jackson 3 (`bluetape4k-jackson3`, `tools.jackson.*`, Spring Kafka 4 Jackson classes) |
 | Embedded Kafka | KRaft 전용, `kraft = true` 제거 |
 | Streams branch DSL | `KafkaStreamBrancher` 대신 Kafka Streams native `split/branch/defaultBranch` |
@@ -23,7 +25,7 @@
 
 1. `infra/kafka`를 `infra/kafka4`로 복사한다.
 2. `infra/kafka4/build.gradle.kts`를 Kafka 4 / Boot 4 / Jackson 3 기준으로 수정한다.
-3. `gradle/libs.versions.toml`에 `spring-kafka4` aliases를 추가한다.
+3. `gradle/libs.versions.toml`에 `spring-kafka4`와 `reactor-kafka4` aliases를 추가한다.
 4. `./gradlew projects` 또는 targeted Gradle task로 `:bluetape4k-kafka4` 등록을 확인한다.
 
 ### Phase B: 컴파일 포팅
@@ -49,17 +51,18 @@
 
 ### Phase E: 검증 / 리뷰 / PR
 
-17. `./bin/repo-test-summary -- ./gradlew :bluetape4k-kafka4:compileKotlin`
-18. `./bin/repo-test-summary -- ./gradlew :bluetape4k-kafka4:compileTestKotlin`
-19. `./bin/repo-test-summary -- ./gradlew :bluetape4k-kafka4:test`
-20. `git diff --check`
-21. Tier 4 code review: 컴파일 리스크, dependency 경계, README/KDoc 체크
-22. Lore commit 생성, push, PR 생성
+17. `.github/workflows/nightly-tests.yml`의 infra matrix에 `:bluetape4k-kafka4:test`와 `:bluetape4k-kafka4:koverXmlReport`를 추가한다.
+18. `./bin/repo-test-summary -- ./gradlew :bluetape4k-kafka4:compileKotlin`
+19. `./bin/repo-test-summary -- ./gradlew :bluetape4k-kafka4:compileTestKotlin`
+20. `./bin/repo-test-summary -- ./gradlew :bluetape4k-kafka4:test`
+21. `git diff --check`
+22. Tier 4 code review: 컴파일 리스크, dependency 경계, README/KDoc 체크
+23. Lore commit 생성, push, PR 생성
 
 ## 2. 회귀 기준
 
 - 기존 `infra/kafka` 파일을 수정하지 않는다. 단, catalog alias 추가는 공용 catalog 변경으로 허용한다.
 - `spring-kafka` 3.x alias는 그대로 유지한다.
 - `spring-kafka4` alias만 `infra/kafka4`에서 사용한다.
+- Kafka 4 모듈의 test/runtime classpath에 Kafka 3 artifact가 섞이지 않도록 `org.apache.kafka` group을 정렬한다.
 - `README.md`와 `README.ko.md` 둘 중 하나만 갱신된 상태로 커밋하지 않는다.
-

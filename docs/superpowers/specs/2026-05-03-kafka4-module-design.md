@@ -29,7 +29,7 @@
 ### Repo 근거
 
 - `settings.gradle.kts`는 `includeModules("infra", withBaseDir = false)`로 `infra/kafka4`를 `:bluetape4k-kafka4`로 자동 등록한다.
-- `gradle/libs.versions.toml`에는 `kafka4-*` alias가 이미 준비되어 있지만 Spring Kafka 4 별도 alias는 아직 없다.
+- `gradle/libs.versions.toml`에는 `kafka4-*` alias가 이미 준비되어 있지만 Spring Kafka 4 별도 alias는 아직 없다. `reactor-kafka`는 root BOM 영향으로 Kafka 3 라인과 섞일 수 있어 Kafka 4 모듈 전용 alias가 필요하다.
 - Spring Boot 4 모듈들은 `implementation(platform(libs.spring.boot4.dependencies))`를 직접 선언해 root Spring Boot 3 dependency management의 다운그레이드를 피한다.
 - `infra/kafka`는 Kafka core, codecs, coroutines, Spring Kafka extensions, test utils, Kafka Streams DSL을 한 모듈에 제공한다.
 
@@ -47,6 +47,7 @@
   - Spring Boot 4 BOM 적용
 - 영어/한국어 README 작성
 - targeted compile/test 검증
+- GitHub Nightly Tests workflow의 infra matrix에 `:bluetape4k-kafka4:test`와 kover report task 추가
 
 ### 제외
 
@@ -67,7 +68,7 @@
 
 ### R1. Spring Boot 3 BOM이 Spring Kafka 4 의존성을 다운그레이드
 
-완화: `infra/kafka4`는 Spring Boot 4 모듈 패턴처럼 `implementation(platform(libs.spring.boot4.dependencies))`를 선언하고, Spring Kafka 의존성은 `spring-kafka4` alias로 분리한다.
+완화: `infra/kafka4`는 Spring Boot 4 모듈 패턴처럼 `implementation(platform(libs.spring.boot4.dependencies))`를 선언하고, Spring Kafka 의존성은 `spring-kafka4` alias로 분리한다. 테스트 런타임에서는 `org.apache.kafka` artifact 전체를 `kafka4` version ref로 정렬해 Spring Boot 3 root dependency management의 Kafka 3.x 다운그레이드를 차단한다.
 
 ### R2. Spring Kafka 4에서 제거된 API로 컴파일 실패
 
@@ -88,6 +89,7 @@
 - `./gradlew :bluetape4k-kafka4:compileTestKotlin` 통과
 - 가능한 범위에서 `./gradlew :bluetape4k-kafka4:test` 통과
 - `README.md`와 `README.ko.md`가 Kafka 4 / Spring Boot 4 전용 모듈임을 설명한다.
+- `.github/workflows/nightly-tests.yml`이 `:bluetape4k-kafka4:test`를 실행한다.
 - `infra/kafka` 기존 동작은 변경하지 않는다.
 
 ## 7. Spec Review
@@ -99,4 +101,4 @@
 | Ops/SRE | Embedded Kafka KRaft 전용 변화와 test runtime 안정성이 가장 큰 위험이다. | `kraft` 제거와 targeted test를 acceptance에 포함 |
 | User/Caller | Kafka 3 모듈과 Kafka 4 모듈의 선택 기준이 문서에 보여야 한다. | README 양쪽에 compatibility 표 포함 |
 | Critic | Spring Kafka 4 alias 분리가 없으면 기존 Kafka 3 모듈까지 같이 흔들린다. | `spring-kafka4` alias 신규 추가 |
-
+| Implementation | Spring Kafka 4 test runtime에서 일부 Kafka artifact가 root BOM에 의해 Kafka 3.x로 내려가면 embedded broker가 `MetadataVersion`/`Feature` class 오류로 실패한다. | `reactor-kafka4` alias와 Kafka group resolution strategy 추가 |
