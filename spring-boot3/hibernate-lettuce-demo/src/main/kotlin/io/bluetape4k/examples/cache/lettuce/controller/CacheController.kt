@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.util.HtmlUtils
 
 @RestController
 @RequestMapping("/api/cache")
@@ -50,7 +51,8 @@ class CacheController(private val entityManagerFactory: EntityManagerFactory) {
         val cache = factory.getCaches()[region]
             ?: return ResponseEntity.notFound().build()
         cache.clearLocal()
-        return ResponseEntity.ok("Evicted local cache (L1 only) for region: $region")
+        val safeRegion = HtmlUtils.htmlEscape(region)
+        return ResponseEntity.ok("Evicted local cache (L1 only) for region: $safeRegion")
     }
 
     @DeleteMapping("/evict")
