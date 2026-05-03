@@ -5,6 +5,9 @@ on:
     - cron: '0 18 * * *'  # 매일 03:00 KST (18:00 UTC)
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: nightly-tests
   cancel-in-progress: true
