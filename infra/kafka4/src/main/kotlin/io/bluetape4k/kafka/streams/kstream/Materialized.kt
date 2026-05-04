@@ -60,9 +60,9 @@ fun <K, V, S: StateStore> materializedOf(storeName: String): Materialized<K, V, 
  *
  * 사용 예시:
  * ```kotlin
- * val materialized = materializedOf(
+ * val materialized = materializedOf<String, Long, KeyValueStore<Bytes, ByteArray>>(
  *     keySerde = Serdes.String(),
- *     valueSerde = Serdes.Long().asSerde()
+ *     valueSerde = Serdes.Long(),
  * )
  * ```
  *
@@ -85,11 +85,9 @@ fun <K, V, S: StateStore> materializedOf(
  *
  * 사용 예시:
  * ```kotlin
- * val windowSupplier = Stores.windowStoreBuilder(
- *     Stores.persistentWindowStore("window-store", Duration.ofHours(1), Duration.ofMinutes(5), false),
- *     Serdes.String(),
- *     Serdes.Long()
- * ).build()
+ * val windowSupplier = Stores.persistentWindowStore(
+ *     "window-store", Duration.ofHours(1), Duration.ofMinutes(5), false,
+ * )
  * val materialized = materializedOf<String, Long>(windowSupplier)
  * ```
  *
@@ -108,11 +106,9 @@ fun <K, V> materializedOf(supplier: WindowBytesStoreSupplier): Materialized<K, V
  *
  * 사용 예시:
  * ```kotlin
- * val sessionSupplier = Stores.sessionStoreBuilder(
- *     Stores.persistentSessionStore("session-store", Duration.ofMinutes(30)),
- *     Serdes.String(),
- *     Serdes.Long()
- * ).build()
+ * val sessionSupplier = Stores.persistentSessionStore(
+ *     "session-store", Duration.ofMinutes(30),
+ * )
  * val materialized = materializedOf<String, Long>(sessionSupplier)
  * ```
  *
@@ -131,11 +127,7 @@ fun <K, V> materializedOf(supplier: SessionBytesStoreSupplier): Materialized<K, 
  *
  * 사용 예시:
  * ```kotlin
- * val kvSupplier = Stores.keyValueStoreBuilder(
- *     Stores.persistentKeyValueStore("kv-store"),
- *     Serdes.String(),
- *     Serdes.Long()
- * ).build()
+ * val kvSupplier = Stores.persistentKeyValueStore("kv-store")
  * val materialized = materializedOf<String, Long>(kvSupplier)
  * ```
  *
