@@ -299,6 +299,7 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
 
         var entryCount = 0
         var totalUncompressedSize = 0L
+        val destPath = destDir.toPath().toAbsolutePath().normalize()
 
         while (entries.hasMoreElements()) {
             val entry = entries.nextElement()
@@ -325,12 +326,11 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
                 if (!matched) continue
             }
 
-            val file = File(destDir, entryName)
-
-            // Zip Slip 방어
-            require(file.canonicalPath.startsWith(destCanonical)) {
+            val targetPath = destPath.resolve(entryName).normalize()
+            require(targetPath.startsWith(destPath)) {
                 "Zip entry is outside of the target dir: $entryName"
             }
+            val file = targetPath.toFile()
 
             if (entry.isDirectory) {
                 if (!file.mkdirs() && !file.isDirectory) {
