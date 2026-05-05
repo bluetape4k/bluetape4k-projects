@@ -102,29 +102,34 @@ class KafkaStreamsTests {
 
     @Test
     fun `test KStreams`() {
-//        with(this.embeddedKafka.getKafkaServer(0).config()) {
-//            autoCreateTopicsEnable().shouldBeFalse()
-//            deleteTopicEnable().shouldBeTrue()
-//            brokerId() shouldBeEqualTo 2
-//        }
         this.streamsBuilderFactoryBean.stop()
 
+        // runningLatch: Streams 가 RUNNING 상태에 도달할 때만 countdown.
+        // stop() 후 start() 시 KRaft 리더 선출 + changelog 복구 완료까지 대기하지 않으면
+        // NotLeaderOrFollowerException / snapshot NoSuchFileException 으로 resultFuture 가 영원히 완료되지 않음.
+        val runningLatch = CountDownLatch(1)
         val stateLatch = CountDownLatch(1)
 
-        this.streamsBuilderFactoryBean.setStateListener { _, _ -> stateLatch.countDown() }
+        this.streamsBuilderFactoryBean.setStateListener { newState, _ ->
+            stateLatch.countDown()
+            if (newState == KafkaStreams.State.RUNNING) runningLatch.countDown()
+        }
         val exceptionHandler = mockk<StreamsUncaughtExceptionHandler>(relaxUnitFun = true)
         this.streamsBuilderFactoryBean.setStreamsUncaughtExceptionHandler(exceptionHandler)
 
         this.streamsBuilderFactoryBean.start()
 
-        val payload1 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
-        val payload2 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
+        // Streams 가 RUNNING 이 될 때까지 대기 — 메시지 전송 전에 파이프라인 준비 완료 보장
+        runningLatch.await(60, TimeUnit.SECONDS).shouldBeTrue()
+
+        val payload1 = "foo" + Base58.randomString(32)
+        val payload2 = "foo" + Base58.randomString(32)
 
         this.kafkaTemplate.sendDefault(0, payload1)
         this.kafkaTemplate.sendDefault(0, payload2)
         this.kafkaTemplate.flush()
 
-        val result = resultFuture.get(600, TimeUnit.SECONDS)
+        val result = resultFuture.get(60, TimeUnit.SECONDS)
 
         result.shouldNotBeNull()
 
