@@ -129,6 +129,20 @@ val decoded = codec.deserialize("events", bytes)
 
 The Jackson codec uses `bluetape4k-jackson3` and `tools.jackson.*` APIs.
 
+### Poison-pill Policy
+
+`AbstractKafkaCodec.deserialize` exposes a documented poison-pill policy:
+
+| Throwable type        | Behavior                                         |
+|-----------------------|--------------------------------------------------|
+| Generic `Exception`   | WARN log + return `null` (consumer loop continues) |
+| `CancellationException` | **Rethrown** — coroutine cancellation is preserved |
+| `Error` (OOM, StackOverflow, …) | **Propagated** — JVM corruption is not hidden |
+
+For permanent loss prevention, combine with Spring-Kafka's
+`ErrorHandlingDeserializer` and `DeadLetterPublishingRecoverer` to route
+poisoned records to a DLQ topic.
+
 ## Embedded Kafka Tests
 
 Spring Kafka 4 embedded brokers are KRaft-only. Do not use `kraft = true`; that
