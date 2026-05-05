@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -301,7 +302,11 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
     private fun doClose() {
         if (closed.compareAndSet(false, true)) {
             scope.cancel("SuspendKafkaProducerTemplate closed")
-            sender.close()
+            try {
+                sender.close()
+            } catch (e: Exception) {
+                log.error(e) { "KafkaSender 종료 중 예외 발생." }
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import org.apache.kafka.common.serialization.BytesDeserializer
 import org.apache.kafka.common.serialization.BytesSerializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.common.utils.Bytes
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -135,10 +136,19 @@ class BatchListenerConversionTests {
         val listener5 = this.config.listener5()
         listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
         listener5.received shouldBeEqualTo listOf(Foo("baz"), Foo("qux"))
+    }
 
-        // FIXME: 역직렬화에 실패하면 DLT 로 보내야 하는데, 최신 버전은 이게 작동을 하지 않는다
-        // listener5.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
-        // listener5.dlt shouldBeEqualTo "JUNK"
+    @Disabled("DLT 라우팅이 최신 Spring Kafka 버전에서 작동하지 않음 — 추적: GitHub Issue #300")
+    @Test
+    fun `conversion error routes to DLT`() {
+        template.send("blc6", 0, 0, """{ "bar": "baz" }""")
+        template.send("blc6", 0, 0, "JUNK")
+        template.send("blc6", 0, 0, """{ "bar": "qux" }""")
+
+        val listener5 = this.config.listener5()
+        listener5.latch1.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.latch2.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS).shouldBeTrue()
+        listener5.dlt shouldBeEqualTo "JUNK"
     }
 
     @Configuration
