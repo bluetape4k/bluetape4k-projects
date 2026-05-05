@@ -302,8 +302,11 @@ class SuspendKafkaProducerTemplate<K, V> private constructor(
     private fun doClose() {
         if (closed.compareAndSet(false, true)) {
             scope.cancel("SuspendKafkaProducerTemplate closed")
-            runCatching { sender.close() }
-                .onFailure { e -> log.error(e) { "KafkaSender 종료 중 예외 발생." } }
+            try {
+                sender.close()
+            } catch (e: Exception) {
+                log.error(e) { "KafkaSender 종료 중 예외 발생." }
+            }
         }
     }
 }
