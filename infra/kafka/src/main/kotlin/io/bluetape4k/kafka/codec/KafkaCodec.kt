@@ -6,6 +6,7 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
+import kotlinx.coroutines.CancellationException
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serializer
@@ -110,6 +111,22 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             doSerialize(topic, headers, this)
         }
 
+    /**
+     * 헤더의 [VALUE_TYPE_KEY] 를 참조해 역직렬화한다.
+     *
+     * **Poison-pill 정책**:
+     * - `Exception` 발생 시 WARN 로그를 남기고 `null` 을 반환해 컨슈머 루프 진행을 막지 않는다.
+     * - 영구 손실을 막으려면 Spring-Kafka 의 `ErrorHandlingDeserializer` + `DeadLetterPublishingRecoverer` 를 함께 사용하라.
+     *
+     * **흡수하지 않는 예외**:
+     * - [CancellationException] — 항상 재던진다 (코루틴 취소 신호 보존).
+     * - [Error] (OOM/StackOverflow 등) — JVM 상태가 손상된 상황에서 swallow 하면 위험하므로 그대로 전파한다.
+     *
+     * ```kotlin
+     * val codec = KafkaCodecs.Jackson
+     * val payload = codec.deserialize("orders", headers, bytes) // null 이면 poison pill — 메트릭/DLQ 로 라우팅 권장
+     * ```
+     */
     override fun deserialize(
         topic: String?,
         headers: Headers?,
@@ -117,8 +134,12 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
     ): T? =
         try {
             data?.run { doDeserialize(topic, headers, this) }
-        } catch (e: Throwable) {
-            log.warn(e) { "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, data=$data. Returning null (poison pill skipped)." }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) {
+                "Fail to deserialize data. topic=$topic, headerKeys=${headers?.map { it.key() }}, dataSize=${data?.size}. Returning null (poison pill skipped)."
+            }
             null
         }
 
@@ -134,7 +155,9 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             headers?.lastHeader(VALUE_TYPE_KEY)?.value()?.toUtf8String()
                 ?: return Any::class.java
 
-        if (allowedTypePackages.isNotEmpty() && allowedTypePackages.none { clazzName.startsWith(it) }) {
+        if (allowedTypePackages.isNotEmpty() &&
+            allowedTypePackages.none { clazzName == it || clazzName.startsWith("$it.") }
+        ) {
             throw IllegalArgumentException(
                 "클래스 '$clazzName'은 허용된 패키지 목록에 없습니다. allowedTypePackages=$allowedTypePackages"
             )

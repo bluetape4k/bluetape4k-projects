@@ -155,7 +155,9 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             headers?.lastHeader(VALUE_TYPE_KEY)?.value()?.toUtf8String()
                 ?: return Any::class.java
 
-        if (allowedTypePackages.isNotEmpty() && allowedTypePackages.none { clazzName.startsWith(it) }) {
+        if (allowedTypePackages.isNotEmpty() &&
+            allowedTypePackages.none { clazzName == it || clazzName.startsWith("$it.") }
+        ) {
             throw IllegalArgumentException(
                 "클래스 '$clazzName'은 허용된 패키지 목록에 없습니다. allowedTypePackages=$allowedTypePackages"
             )

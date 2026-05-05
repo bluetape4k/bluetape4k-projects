@@ -78,6 +78,27 @@ class KafkaCodecAllowlistTest {
     }
 
     @Test
+    fun `패키지 prefix spoofing 차단 - 허용 패키지와 유사하지만 다른 패키지는 거부`() {
+        // "io.bluetape4k.kafka.codec" 허용 시 "io.bluetape4k.kafka.codecEvil" 차단 검증
+        val openCodec = TestJsonCodec()
+        val restrictedCodec = TestJsonCodec(allowedTypePackages = setOf("io.bluetape4k.kafka.codec"))
+
+        val headers = RecordHeaders()
+        // SimpleMessage 직렬화 후 헤더 값을 spoofing된 패키지명으로 교체
+        val data = SimpleMessage("spoof test")
+        openCodec.serialize(topic, headers, data)
+
+        // 헤더의 VALUE_TYPE_KEY 값을 허용 패키지와 유사한 악의적 패키지명으로 덮어씀
+        val spoofedClass = "io.bluetape4k.kafka.codecEvil.MaliciousClass"
+        headers.remove(AbstractKafkaCodec.VALUE_TYPE_KEY)
+        headers.add(AbstractKafkaCodec.VALUE_TYPE_KEY, spoofedClass.toByteArray(Charsets.UTF_8))
+
+        // startsWith("io.bluetape4k.kafka.codec") = true이지만 패키지 경계(".") 없어서 차단돼야 함
+        val result = restrictedCodec.deserialize(topic, headers, """{"content":"spoof test"}""".toByteArray())
+        result.shouldBeNull()
+    }
+
+    @Test
     fun `헤더에 클래스 정보 없으면 Any 타입으로 역직렬화 성공`() {
         val codec = TestJsonCodec()
         val headers: Headers? = null

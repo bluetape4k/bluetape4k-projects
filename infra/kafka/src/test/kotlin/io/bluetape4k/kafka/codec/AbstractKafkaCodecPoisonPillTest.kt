@@ -1,6 +1,6 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.CancellationException
 import org.amshove.kluent.shouldBeNull
 import org.apache.kafka.common.header.Headers
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 /**
- * [AbstractKafkaCodec.deserialize] 의 poison-pill 정책과 예외 통과 정책을 검증한다.
+ * [AbstractKafkaCodec.deserialize] 의 poison-pill 정책과 예외 통과 정책을 검증한다 (kafka3).
  *
  * - 일반 [Exception] → WARN 로그 + null 반환 (consumer 루프 진행 보장)
  * - [CancellationException] → 항상 재던짐 (코루틴 취소 신호 보존)
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.assertThrows
  */
 class AbstractKafkaCodecPoisonPillTest {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     private class FakeException: RuntimeException("fake deserialize failure")
 
@@ -58,7 +58,6 @@ class AbstractKafkaCodecPoisonPillTest {
 
     @Test
     fun `null data returns null without invoking doDeserialize`() {
-        // doDeserialize 가 호출되면 예외가 던져지므로, null 입력에서 doDeserialize 가 호출되지 않음을 보장
         val codec = ThrowingCodec(FakeException())
         val headers = RecordHeaders()
         val result = codec.deserialize("test-topic", headers, null as ByteArray?)
