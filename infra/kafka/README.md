@@ -157,7 +157,7 @@ Available codecs:
 | `KafkaCodecs.String`    | UTF-8 string serialization              |
 | `KafkaCodecs.ByteArray` | Raw byte array passthrough              |
 | `KafkaCodecs.Jackson`   | JSON serialization                      |
-| `KafkaCodecs.Jdk`       | **Deprecated** — JDK serialization (RCE risk, use Kryo) |
+| `KafkaCodecs.Jdk`       | **Deprecated** — JDK serialization (RCE risk, use Fory) |
 | `KafkaCodecs.Kryo`      | Kryo binary serialization               |
 | `KafkaCodecs.Fory`      | FST binary serialization                |
 | `KafkaCodecs.LZ4Jdk`    | LZ4 compression + Java serialization    |

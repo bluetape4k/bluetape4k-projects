@@ -173,7 +173,7 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 ### Security: JdkKafkaCodec Deprecated
 
 `JdkKafkaCodec` is deprecated due to JDK deserialization RCE risks. Use
-`KryoKafkaCodec` or `JacksonKafkaCodec` instead.
+`ForyKafkaCodec` instead — it is both faster and safer.
 
 ## Embedded Kafka Tests
 

@@ -157,7 +157,7 @@ val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
 | `KafkaCodecs.String`    | UTF-8 문자열 직렬화        |
 | `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달         |
 | `KafkaCodecs.Jackson`   | JSON 직렬화             |
-| `KafkaCodecs.Jdk`       | **사용 중단** — Java 직렬화 (RCE 위험, Kryo 사용 권장) |
+| `KafkaCodecs.Jdk`       | **사용 중단** — Java 직렬화 (RCE 위험, Fory 사용 권장) |
 | `KafkaCodecs.Kryo`      | Kryo 바이너리 직렬화        |
 | `KafkaCodecs.Fory`      | Fory 바이너리 직렬화 (고성능, 권장) |
 | `KafkaCodecs.LZ4Jdk`    | LZ4 압축 + Java 직렬화    |

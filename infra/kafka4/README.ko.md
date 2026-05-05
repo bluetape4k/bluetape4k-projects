@@ -170,7 +170,7 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 ### 보안: JdkKafkaCodec 지원 중단
 
 `JdkKafkaCodec` 은 JDK 역직렬화 RCE 위험으로 인해 `@Deprecated` 처리되었습니다.
-`KryoKafkaCodec` 또는 `JacksonKafkaCodec` 을 사용하세요.
+성능과 보안 모두 우수한 `ForyKafkaCodec` 을 사용하세요.
 
 ## Embedded Kafka 테스트
 

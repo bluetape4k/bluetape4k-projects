@@ -32,7 +32,7 @@ abstract class BinaryKafkaCodec(
  * JDK 직렬화를 이용한 Kafka Codec
  *
  * **보안 경고**: JDK 직렬화는 역직렬화 과정에서 임의 코드 실행(RCE) 취약점이 있습니다.
- * [KryoKafkaCodec] 또는 [JacksonKafkaCodec]을 사용하십시오.
+ * 성능과 보안 모두 우수한 [ForyKafkaCodec]을 사용하십시오.
  *
  * ```kotlin
  * val codec = JdkKafkaCodec()
@@ -42,8 +42,8 @@ abstract class BinaryKafkaCodec(
  * ```
  */
 @Deprecated(
-    message = "JDK 직렬화는 역직렬화 과정에서 임의 코드 실행(RCE) 취약점이 있습니다. KryoKafkaCodec 또는 JacksonKafkaCodec을 사용하세요.",
-    replaceWith = ReplaceWith("KryoKafkaCodec()")
+    message = "JDK 직렬화는 역직렬화 과정에서 임의 코드 실행(RCE) 취약점이 있습니다. 성능과 보안 모두 우수한 ForyKafkaCodec을 사용하세요.",
+    replaceWith = ReplaceWith("ForyKafkaCodec()")
 )
 class JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.Jdk)
 
