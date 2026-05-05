@@ -2,7 +2,6 @@ package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.LibraryName
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.classIsPresent
 import io.bluetape4k.support.toUtf8Bytes
@@ -65,8 +64,8 @@ interface KafkaCodec<T>:
  *
  * **보안 경고**: 이 코덱은 Kafka 헤더의 `bluetape4k.kafka.codec.value.type` 값을 기반으로
  * 클래스를 동적으로 로드합니다. 신뢰할 수 없는 Kafka 브로커 또는 외부 네트워크에서
- * 수신된 메시지에 이 코덱을 사용하면 임의 클래스 로딩 취약점이 발생할 수 있습니다.
- * 반드시 신뢰할 수 있는 내부 Kafka 브로커 환경에서만 사용하십시오.
+ * 수신된 메시지에 이 코덱을 사용하면 임의 클래스 로딩(RCE) 취약점이 발생할 수 있습니다.
+ * 보안이 필요한 환경에서는 반드시 [allowedTypePackages]에 허용된 패키지를 지정하십시오.
  */
 abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
     companion object: KLogging() {
@@ -75,6 +74,20 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         @JvmStatic
         fun defaultCodec(): KafkaCodec<Any?> = JacksonKafkaCodec()
     }
+
+    /**
+     * 헤더에서 로드를 허용하는 클래스 패키지 접두사 목록.
+     *
+     * - **빈 집합(기본값)**: 모든 클래스 허용 (하위 호환, 신뢰 환경 전용)
+     * - **비어 있지 않은 집합**: 나열된 패키지로 시작하는 클래스만 허용 (권장, 보안 환경)
+     *
+     * ```kotlin
+     * class SecureJacksonCodec: JacksonKafkaCodec() {
+     *     override val allowedTypePackages = setOf("com.example.dto", "io.bluetape4k.domain")
+     * }
+     * ```
+     */
+    open val allowedTypePackages: Set<String> = emptySet()
 
     protected abstract fun doSerialize(
         topic: String?,
@@ -142,18 +155,20 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             headers?.lastHeader(VALUE_TYPE_KEY)?.value()?.toUtf8String()
                 ?: return Any::class.java
 
+        if (allowedTypePackages.isNotEmpty() && allowedTypePackages.none { clazzName.startsWith(it) }) {
+            throw IllegalArgumentException(
+                "클래스 '$clazzName'은 허용된 패키지 목록에 없습니다. allowedTypePackages=$allowedTypePackages"
+            )
+        }
+
+        if (!classIsPresent(clazzName)) {
+            throw IllegalArgumentException("클래스를 클래스패스에서 찾을 수 없습니다. clazzName=$clazzName")
+        }
+
         return try {
-            when {
-                classIsPresent(clazzName) -> {
-                    Class.forName(clazzName, false, Thread.currentThread().contextClassLoader)
-                }
-                else -> {
-                    Any::class.java
-                }
-            }
+            Class.forName(clazzName, false, Thread.currentThread().contextClassLoader)
         } catch (e: Exception) {
-            log.error(e) { "Fail to load value type. clazzName=$clazzName" }
-            Any::class.java
+            throw IllegalArgumentException("클래스 로딩 실패. clazzName=$clazzName", e)
         }
     }
 }
