@@ -1,15 +1,17 @@
 package io.bluetape4k.kafka.coroutines
 
 import io.bluetape4k.coroutines.flow.async
-import io.bluetape4k.coroutines.support.awaitSuspending
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Coroutine 환경 하에서 Producer를 이용하여 메시지를 producing 합니다.
@@ -32,9 +34,14 @@ import org.apache.kafka.clients.producer.RecordMetadata
  * @param record 발행할 메시지 ([ProducerRecord])
  * @return 발행 결과를 표현하는 [RecordMetadata] instance
  */
-suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): RecordMetadata {
-    return send(record).awaitSuspending()
-}
+suspend fun <K, V> Producer<K, V>.suspendSend(record: ProducerRecord<K, V>): RecordMetadata =
+    suspendCancellableCoroutine { cont ->
+        val future = send(record) { metadata, exception ->
+            if (exception != null) cont.resumeWithException(exception)
+            else cont.resume(metadata!!)
+        }
+        cont.invokeOnCancellation { future.cancel(true) }
+    }
 
 /**
  * 복수의 [ProducerRecord] 를 producing 하면서, 결과들을 Flow로 반환하도록 합니다.
@@ -124,7 +131,7 @@ suspend fun <K, V> Producer<K, V>.sendAndForget(
     records
         .buffer()
         .async {
-            send(it).awaitSuspending()
+            suspendSend(it)
         }
         // cause != null 이면 에러/취소 — 에러 중 flush() 호출은 불필요한 블로킹을 유발한다
         .onCompletion { cause ->
