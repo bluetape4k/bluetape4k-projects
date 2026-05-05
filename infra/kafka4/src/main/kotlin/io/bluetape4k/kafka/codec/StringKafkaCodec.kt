@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.warn
 import org.apache.kafka.common.header.Headers
 import java.nio.charset.Charset
 
@@ -59,11 +60,7 @@ class StringKafkaCodec: AbstractKafkaCodec<String>() {
     ): Charset {
         val propertyName = if (isKey) KEY_SERIALIZER_ENCODING else VALUE_SERIALIZER_ENCODING
         val encodingValue = configs[propertyName] ?: configs[SERIALIZER_ENCODING]
-
-        return when (encodingValue) {
-            is String -> runCatching { Charset.forName(encodingValue) }.getOrDefault(DefaultEncoding)
-            else -> DefaultEncoding
-        }
+        return resolveCharsetOrDefault(encodingValue, propertyName)
     }
 
     private fun getDeserializerEncoding(
@@ -72,10 +69,23 @@ class StringKafkaCodec: AbstractKafkaCodec<String>() {
     ): Charset {
         val propertyName = if (isKey) KEY_DESERIALIZER_ENCODING else VALUE_DESERIALIZER_ENCODING
         val encodingValue = configs[propertyName] ?: configs[DESERIALIZER_ENCODING]
+        return resolveCharsetOrDefault(encodingValue, propertyName)
+    }
 
-        return when (encodingValue) {
-            is String -> runCatching { Charset.forName(encodingValue) }.getOrDefault(DefaultEncoding)
+    /**
+     * 설정값을 [Charset] 으로 변환한다. 잘못된 charset 명이면 [DefaultEncoding] 으로 fallback 하되,
+     * silent fallback 으로 producer/consumer 인코딩 불일치(mojibake) 가 디버깅 불가능해지지 않도록 WARN 을 남긴다.
+     */
+    private fun resolveCharsetOrDefault(value: Any?, propertyName: String): Charset =
+        when (value) {
+            is String -> runCatching { Charset.forName(value) }
+                .onFailure { e ->
+                    log.warn(e) {
+                        "Invalid charset name. property=$propertyName, value=$value. " +
+                            "Falling back to ${DefaultEncoding.name()}. Producer/consumer 인코딩 불일치 위험을 확인하세요."
+                    }
+                }
+                .getOrDefault(DefaultEncoding)
             else -> DefaultEncoding
         }
-    }
 }
