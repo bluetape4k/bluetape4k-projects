@@ -157,13 +157,35 @@ val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
 | `KafkaCodecs.String`    | UTF-8 문자열 직렬화        |
 | `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달         |
 | `KafkaCodecs.Jackson`   | JSON 직렬화             |
-| `KafkaCodecs.Jdk`       | Java 직렬화             |
+| `KafkaCodecs.Jdk`       | **사용 중단** — Java 직렬화 (RCE 위험, Kryo 사용 권장) |
 | `KafkaCodecs.Kryo`      | Kryo 바이너리 직렬화        |
-| `KafkaCodecs.Fory`      | FST 바이너리 직렬화         |
+| `KafkaCodecs.Fory`      | Fory 바이너리 직렬화 (고성능, 권장) |
 | `KafkaCodecs.LZ4Jdk`    | LZ4 압축 + Java 직렬화    |
 | `KafkaCodecs.Lz4Kryo`   | LZ4 압축 + Kryo 직렬화    |
 | `KafkaCodecs.SnappyJdk` | Snappy 압축 + Java 직렬화 |
 | `KafkaCodecs.ZstdKryo`  | Zstd 압축 + Kryo 직렬화   |
+
+#### 보안: 클래스 로딩 허용 목록
+
+`AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서
+역직렬화 대상 클래스를 로드합니다. 공격자가 이 헤더를 조작하면 임의 클래스 로딩(RCE)이
+가능합니다.
+
+`allowedTypePackages` 를 오버라이드하여 로드 가능한 패키지를 제한하세요:
+
+```kotlin
+class SecureJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf(
+        "com.example.dto",
+        "io.bluetape4k.domain",
+    )
+}
+```
+
+| `allowedTypePackages` 값 | 동작 |
+|--------------------------|------|
+| `emptySet()` (기본값) | 모든 클래스 허용 — 하위 호환, 신뢰 환경 전용 |
+| 비어 있지 않은 집합 | 나열된 패키지 하위 클래스만 허용; 그 외 poison-pill `null` |
 
 ### 5. Spring KafkaTemplate과 Coroutines
 

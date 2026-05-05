@@ -143,6 +143,38 @@ For permanent loss prevention, combine with Spring-Kafka's
 `ErrorHandlingDeserializer` and `DeadLetterPublishingRecoverer` to route
 poisoned records to a DLQ topic.
 
+### Security: Class Loading Allowlist
+
+`AbstractKafkaCodec` loads the deserialization target class from the Kafka
+header `bluetape4k.kafka.codec.value.type`. If that header can be set by an
+attacker (untrusted broker or external network), arbitrary class loading (RCE)
+is possible.
+
+Override `allowedTypePackages` to restrict which packages may be loaded:
+
+```kotlin
+class SecureJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf(
+        "com.example.dto",
+        "io.bluetape4k.domain",
+    )
+}
+```
+
+| `allowedTypePackages` value | Effect |
+|-----------------------------|--------|
+| `emptySet()` (default) | All classes allowed — backward-compatible, trusted environments only |
+| Non-empty set | Only classes under listed package prefixes are allowed; others throw `IllegalArgumentException` → poison-pill (`null`) |
+
+> **Warning:** The default `emptySet()` maintains backward compatibility but
+> allows any class to be loaded. Set explicit packages in production when the
+> Kafka broker is not fully trusted.
+
+### Security: JdkKafkaCodec Deprecated
+
+`JdkKafkaCodec` is deprecated due to JDK deserialization RCE risks. Use
+`KryoKafkaCodec` or `JacksonKafkaCodec` instead.
+
 ## Embedded Kafka Tests
 
 Spring Kafka 4 embedded brokers are KRaft-only. Do not use `kraft = true`; that
