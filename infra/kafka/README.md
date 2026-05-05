@@ -157,13 +157,35 @@ Available codecs:
 | `KafkaCodecs.String`    | UTF-8 string serialization              |
 | `KafkaCodecs.ByteArray` | Raw byte array passthrough              |
 | `KafkaCodecs.Jackson`   | JSON serialization                      |
-| `KafkaCodecs.Jdk`       | Java serialization                      |
+| `KafkaCodecs.Jdk`       | **Deprecated** — JDK serialization (RCE risk, use Fory) |
 | `KafkaCodecs.Kryo`      | Kryo binary serialization               |
 | `KafkaCodecs.Fory`      | FST binary serialization                |
 | `KafkaCodecs.LZ4Jdk`    | LZ4 compression + Java serialization    |
 | `KafkaCodecs.Lz4Kryo`   | LZ4 compression + Kryo serialization    |
 | `KafkaCodecs.SnappyJdk` | Snappy compression + Java serialization |
 | `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization   |
+
+#### Security: Class Loading Allowlist
+
+`AbstractKafkaCodec` loads the deserialization target class from the Kafka
+header `bluetape4k.kafka.codec.value.type`. If that header can be set by an
+attacker, arbitrary class loading (RCE) is possible.
+
+Override `allowedTypePackages` to restrict which packages may be loaded:
+
+```kotlin
+class SecureJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf(
+        "com.example.dto",
+        "io.bluetape4k.domain",
+    )
+}
+```
+
+| `allowedTypePackages` value | Effect |
+|-----------------------------|--------|
+| `emptySet()` (default) | All classes allowed — backward-compatible, trusted environments only |
+| Non-empty set | Only classes under listed package prefixes allowed; others → poison-pill `null` |
 
 ### 5. Spring KafkaTemplate with Coroutines
 

@@ -142,6 +142,36 @@ Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니�
 `DeadLetterPublishingRecoverer` 와 함께 사용하여 poison record 를 DLQ 토픽으로
 라우팅하라.
 
+### 보안: 클래스 로딩 허용 목록
+
+`AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서
+역직렬화 대상 클래스를 로드합니다. 이 헤더를 공격자가 조작할 수 있는 환경(신뢰할 수
+없는 브로커, 외부 네트워크)에서는 임의 클래스 로딩(RCE)이 가능합니다.
+
+`allowedTypePackages` 를 오버라이드하여 로드 가능한 패키지를 제한하세요:
+
+```kotlin
+class SecureJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf(
+        "com.example.dto",
+        "io.bluetape4k.domain",
+    )
+}
+```
+
+| `allowedTypePackages` 값 | 동작 |
+|--------------------------|------|
+| `emptySet()` (기본값) | 모든 클래스 허용 — 하위 호환, 신뢰 환경 전용 |
+| 비어 있지 않은 집합 | 나열된 패키지 하위 클래스만 허용; 그 외 `IllegalArgumentException` → poison-pill (`null`) |
+
+> **경고:** 기본값 `emptySet()` 은 하위 호환성을 위해 모든 클래스 로딩을 허용합니다.
+> Kafka 브로커를 완전히 신뢰할 수 없는 프로덕션 환경에서는 반드시 명시적 패키지를 지정하십시오.
+
+### 보안: JdkKafkaCodec 지원 중단
+
+`JdkKafkaCodec` 은 JDK 역직렬화 RCE 위험으로 인해 `@Deprecated` 처리되었습니다.
+성능과 보안 모두 우수한 `ForyKafkaCodec` 을 사용하세요.
+
 ## Embedded Kafka 테스트
 
 Spring Kafka 4의 embedded broker는 KRaft 전용입니다. Spring Kafka 3 전환기에 쓰던
