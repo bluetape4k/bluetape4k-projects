@@ -162,14 +162,14 @@ fun <K, V> KafkaOperations<K, V>.getMetric(metricName: String): Metric? =
  * 대신 [getMetricValueOrNull]을 사용하세요.
  *
  * ```
- * val sendCount = producer.getMetricValueOrNull("record-send-total") ?: 0.0
+ * val sendCount = producer.getMetricValueOrNull("record-send-total").asDouble()
  * ```
  * @param metricName metric name to retrieve
  * @return metric 값 (메트릭이 없으면 0.0 — 실제 0과 구별 불가)
  */
 @Deprecated(
     message = "메트릭 이름이 없거나 오타인 경우 0.0을 반환하여 실제 0.0 값과 구별할 수 없습니다. getMetricValueOrNull()을 사용하세요.",
-    replaceWith = ReplaceWith("getMetricValueOrNull(metricName)")
+    replaceWith = ReplaceWith("getMetricValueOrNull(metricName).asDouble()", "io.bluetape4k.support.asDouble")
 )
 fun <K, V> KafkaOperations<K, V>.getMetricValue(metricName: String): Double =
     getMetric(metricName)?.metricValue().asDouble(0.0)
@@ -178,7 +178,7 @@ fun <K, V> KafkaOperations<K, V>.getMetricValue(metricName: String): Double =
  * Producer 의 metrics 측정 값을 조회합니다. 메트릭이 없으면 `null`을 반환합니다.
  *
  * ```
- * val sendCount = producer.getMetricValueOrNull("record-send-total") ?: 0.0
+ * val sendCount = producer.getMetricValueOrNull("record-send-total").asDouble()
  * ```
  * @param metricName metric name to retrieve
  * @return metric 값, 메트릭이 없으면 `null`

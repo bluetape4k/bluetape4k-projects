@@ -172,10 +172,16 @@ record header (`bluetape4k.kafka.codec.value.type`). Disable it when the consume
 already knows the type statically:
 
 ```kotlin
-class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+// Fory/Kryo codecs work safely without the header
+class NoHeaderForyCodec : ForyKafkaCodec() {
     override val writeValueTypeHeader = false
 }
 ```
+
+> **Note for `JacksonKafkaCodec`:** Jackson uses the header to determine the target type at
+> deserialization time. Setting `writeValueTypeHeader = false` without also overriding
+> `doDeserialize` causes it to fall back to `LinkedHashMap` (silent type corruption).
+> Use `ForyKafkaCodec` or `KryoKafkaCodec` when you want to disable the header safely.
 
 | `writeValueTypeHeader` | Effect |
 |------------------------|--------|

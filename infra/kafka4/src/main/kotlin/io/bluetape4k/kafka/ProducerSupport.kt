@@ -72,7 +72,7 @@ fun <K, V> producerOf(
  */
 @Deprecated(
     message = "메트릭 이름이 없거나 오타인 경우 0.0을 반환하여 실제 0.0 값과 구별할 수 없습니다. getMetricValueOrNull()을 사용하세요.",
-    replaceWith = ReplaceWith("getMetricValueOrNull(metricName)")
+    replaceWith = ReplaceWith("getMetricValueOrNull(metricName).asDouble()", "io.bluetape4k.support.asDouble")
 )
 fun <K, V> Producer<K, V>.getMetricValue(metricName: String): Double =
     getMetricValueOrNull(metricName)?.asDoubleOrNull() ?: 0.0

@@ -153,10 +153,16 @@ It also widens the class-loading attack surface described below.
 If your consumer already knows the value type statically, disable the header:
 
 ```kotlin
-class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+// Fory/Kryo codecs work safely without the header
+class NoHeaderForyCodec : ForyKafkaCodec() {
     override val writeValueTypeHeader = false
 }
 ```
+
+> **Note for `JacksonKafkaCodec`:** Jackson uses the header to determine the target type at
+> deserialization time. Setting `writeValueTypeHeader = false` without also overriding
+> `doDeserialize` causes it to fall back to `LinkedHashMap` (silent type corruption).
+> Use `ForyKafkaCodec` or `KryoKafkaCodec` when you want to disable the header safely.
 
 | `writeValueTypeHeader` | Effect |
 |------------------------|--------|

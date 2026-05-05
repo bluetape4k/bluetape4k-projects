@@ -152,10 +152,16 @@ Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니�
 컨슈머가 타입을 정적으로 이미 알고 있다면 헤더 쓰기를 비활성화할 수 있습니다:
 
 ```kotlin
-class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+// Fory/Kryo 기반 코덱은 헤더 없이 안전하게 작동합니다
+class NoHeaderForyCodec : ForyKafkaCodec() {
     override val writeValueTypeHeader = false
 }
 ```
+
+> **`JacksonKafkaCodec` 주의**: Jackson은 역직렬화 시 헤더에서 대상 타입을 결정합니다.
+> `doDeserialize`를 함께 오버라이드하지 않고 `writeValueTypeHeader = false`만 설정하면
+> `LinkedHashMap`으로 역직렬화되어 타입 손상이 발생합니다.
+> 헤더를 안전하게 비활성화하려면 `ForyKafkaCodec` 또는 `KryoKafkaCodec`을 사용하세요.
 
 | `writeValueTypeHeader` | 동작 |
 |------------------------|------|
