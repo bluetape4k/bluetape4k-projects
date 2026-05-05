@@ -37,6 +37,9 @@ jobs:
   # ── OWASP 의존성 취약점 스캔 ─────────────────────────────────────────────
   dependency-check:
     name: OWASP Dependency Check
+    permissions:
+      contents: read
+      security-events: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
