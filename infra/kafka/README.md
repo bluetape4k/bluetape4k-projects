@@ -165,6 +165,23 @@ Available codecs:
 | `KafkaCodecs.SnappyJdk` | Snappy compression + Java serialization |
 | `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization   |
 
+#### Performance: Opt-out of Value-Type Header
+
+By default, `AbstractKafkaCodec` writes the Java FQN of the value type to every
+record header (`bluetape4k.kafka.codec.value.type`). Disable it when the consumer
+already knows the type statically:
+
+```kotlin
+class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+    override val writeValueTypeHeader = false
+}
+```
+
+| `writeValueTypeHeader` | Effect |
+|------------------------|--------|
+| `true` (default) | FQN written to every record header — polymorphic deserialization works |
+| `false` | Header omitted — no bandwidth overhead, smaller attack surface. Consumer must know the type statically. |
+
 #### Security: Class Loading Allowlist
 
 `AbstractKafkaCodec` loads the deserialization target class from the Kafka

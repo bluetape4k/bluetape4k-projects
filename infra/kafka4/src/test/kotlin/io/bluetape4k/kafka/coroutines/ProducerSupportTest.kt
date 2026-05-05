@@ -6,8 +6,9 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.kafka.getMetricValue
+import io.bluetape4k.kafka.getMetricValueOrNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.asDouble
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.coroutines.CoroutineScope
@@ -131,7 +132,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
         val messages = randomStrings()
 
         runBlocking(Dispatchers.IO) {
-            val prevSentTotal = producer.getMetricValue("record-send-total")
+            val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
             val sendTime = measureTimeMillis {
                 val records = messages.asFlow()
@@ -141,7 +142,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
             }
 
             log.debug { "Send time=$sendTime" }
-            val currSentTotal = producer.getMetricValue("record-send-total") - prevSentTotal
+            val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
             log.debug { "Current sent count=$currSentTotal" }
         }
     }
@@ -151,11 +152,11 @@ class ProducerSupportTest: AbstractKafkaTest() {
         block: suspend CoroutineScope.() -> Unit,
     ) {
         runBlocking(Dispatchers.IO) {
-            val prevSentTotal = producer.getMetricValue("record-send-total")
+            val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
             block()
 
-            val currSentTotal = producer.getMetricValue("record-send-total") - prevSentTotal
+            val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
             log.debug { "Current sent count=$currSentTotal" }
             currSentTotal.toInt() shouldBeGreaterOrEqualTo expectCount
         }

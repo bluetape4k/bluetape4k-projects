@@ -165,6 +165,22 @@ val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
 | `KafkaCodecs.SnappyJdk` | Snappy 압축 + Java 직렬화 |
 | `KafkaCodecs.ZstdKryo`  | Zstd 압축 + Kryo 직렬화   |
 
+#### 성능: 타입 헤더 쓰기 비활성화
+
+`AbstractKafkaCodec` 은 기본적으로 매 레코드 헤더에 value 타입의 Java FQN 을 기록합니다.
+컨슈머가 타입을 정적으로 이미 알고 있다면 비활성화할 수 있습니다:
+
+```kotlin
+class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+    override val writeValueTypeHeader = false
+}
+```
+
+| `writeValueTypeHeader` | 동작 |
+|------------------------|------|
+| `true` (기본값) | 매 레코드에 FQN 헤더 기록 — 다형성 역직렬화 지원 |
+| `false` | 헤더 생략 — 대역폭 오버헤드 없음. 컨슈머가 타입을 정적으로 알고 있을 때 사용. |
+
 #### 보안: 클래스 로딩 허용 목록
 
 `AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서

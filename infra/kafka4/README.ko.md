@@ -142,6 +142,26 @@ Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니�
 `DeadLetterPublishingRecoverer` 와 함께 사용하여 poison record 를 DLQ 토픽으로
 라우팅하라.
 
+### 성능: 타입 헤더 쓰기 비활성화
+
+`AbstractKafkaCodec` 은 기본적으로 매 레코드 헤더에 value 타입의 Java FQN 을 기록합니다
+(`bluetape4k.kafka.codec.value.type`). 다형성 역직렬화에 필요하지만,
+처리량이 높은 토픽에서는 대역폭·저장 오버헤드가 발생하며 아래 설명하는
+클래스 로딩 attack surface 도 넓어집니다.
+
+컨슈머가 타입을 정적으로 이미 알고 있다면 헤더 쓰기를 비활성화할 수 있습니다:
+
+```kotlin
+class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+    override val writeValueTypeHeader = false
+}
+```
+
+| `writeValueTypeHeader` | 동작 |
+|------------------------|------|
+| `true` (기본값) | 매 레코드에 FQN 헤더 기록 — 다형성 역직렬화 지원 |
+| `false` | 헤더 생략 — 대역폭 오버헤드 없음, attack surface 축소. 컨슈머가 타입을 정적으로 알고 있을 때 사용. |
+
 ### 보안: 클래스 로딩 허용 목록
 
 `AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서

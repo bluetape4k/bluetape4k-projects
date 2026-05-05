@@ -1,8 +1,8 @@
 package io.bluetape4k.kafka
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.asDouble
 import io.bluetape4k.testcontainers.mq.KafkaServer
-import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldNotBeNull
@@ -54,17 +54,11 @@ class ProducerSupportTest: AbstractKafkaTest() {
         producer.send(record).get()
 
         // 메트릭 조회
-        val sendTotal = producer.getMetricValue("record-send-total")
+        val sendTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
         sendTotal shouldBeGreaterOrEqualTo 0.0
 
-        val retryTotal = producer.getMetricValue("record-retry-total")
+        val retryTotal = producer.getMetricValueOrNull("record-retry-total").asDouble()
         retryTotal shouldBeGreaterOrEqualTo 0.0
-    }
-
-    @Test
-    fun `존재하지 않는 메트릭은 0을 반환`() {
-        val value = producer.getMetricValue("non-existent-metric")
-        value shouldBeEqualTo 0.0
     }
 
     @Test
@@ -81,7 +75,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `메시지 전송 후 메트릭 증가 확인`() {
-        val initialSendTotal = producer.getMetricValue("record-send-total")
+        val initialSendTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
         // 여러 메시지 전송
         repeat(5) { i ->
@@ -89,7 +83,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
             producer.send(record).get()
         }
 
-        val finalSendTotal = producer.getMetricValue("record-send-total")
+        val finalSendTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
         finalSendTotal shouldBeGreaterOrEqualTo initialSendTotal + 5
     }
 

@@ -143,6 +143,26 @@ For permanent loss prevention, combine with Spring-Kafka's
 `ErrorHandlingDeserializer` and `DeadLetterPublishingRecoverer` to route
 poisoned records to a DLQ topic.
 
+### Performance: Opt-out of Value-Type Header
+
+By default, `AbstractKafkaCodec` writes the Java FQN of the value type to every
+record header (`bluetape4k.kafka.codec.value.type`). This enables polymorphic
+deserialization but adds bandwidth and storage overhead for high-throughput topics.
+It also widens the class-loading attack surface described below.
+
+If your consumer already knows the value type statically, disable the header:
+
+```kotlin
+class NoHeaderJacksonCodec : JacksonKafkaCodec() {
+    override val writeValueTypeHeader = false
+}
+```
+
+| `writeValueTypeHeader` | Effect |
+|------------------------|--------|
+| `true` (default) | FQN written to every record header — polymorphic deserialization works |
+| `false` | Header omitted — no bandwidth overhead, smaller attack surface. Consumer must know the type statically. |
+
 ### Security: Class Loading Allowlist
 
 `AbstractKafkaCodec` loads the deserialization target class from the Kafka

@@ -89,6 +89,21 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
      */
     open val allowedTypePackages: Set<String> = emptySet()
 
+    /**
+     * 직렬화 시 `bluetape4k.kafka.codec.value.type` 헤더에 Java FQN을 기록할지 여부.
+     *
+     * - `true` (기본값): 매 레코드에 타입 헤더를 기록합니다. 다형성 역직렬화 시 필요하지만
+     *   대역폭·저장 오버헤드가 발생하며 외부 공격자가 헤더를 조작할 수 있는 attack surface를 넓힙니다.
+     * - `false`: 헤더를 생략합니다. 컨슈머가 타입을 정적으로 알고 있는 경우(typed codec) 권장합니다.
+     *
+     * ```kotlin
+     * class NoHeaderJacksonCodec: JacksonKafkaCodec() {
+     *     override val writeValueTypeHeader = false
+     * }
+     * ```
+     */
+    open val writeValueTypeHeader: Boolean = true
+
     protected abstract fun doSerialize(
         topic: String?,
         headers: Headers?,
@@ -107,7 +122,7 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
         data: T?,
     ): ByteArray? =
         data?.run {
-            setValueType(headers, data.javaClass)
+            if (writeValueTypeHeader) setValueType(headers, data.javaClass)
             doSerialize(topic, headers, this)
         }
 
