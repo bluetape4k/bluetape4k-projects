@@ -15,7 +15,7 @@ import java.util.stream.Stream
  *
  * - 정상 입력: 압축/해제 결과 반환
  * - null / empty 입력: `null` 반환
- * - 손상 데이터 역직렬화: `null` 반환 (compress 와 달리 emptyByteArray 대신 null)
+ * - 손상 데이터 역직렬화: `decompress` 는 예외 전파, `decompressOrNull` 은 `null` 반환
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CompressorNullableApiTest {
@@ -125,7 +125,7 @@ class CompressorNullableApiTest {
     }
 
     @Test
-    fun `decompressOrNull vs decompress - 손상 데이터에 대한 반환값이 다르다`() {
+    fun `decompressOrNull vs decompress - 손상 데이터에 대한 동작이 다르다`() {
         val compressor = LZ4Compressor()
         val input = "contrast test".toByteArray()
         val compressed = compressor.compress(input)
@@ -136,11 +136,12 @@ class CompressorNullableApiTest {
         corrupted[2] = 0xFF.toByte()
         corrupted[3] = 0xFF.toByte()
 
-        // decompress: emptyByteArray 반환 (기존 계약 유지)
-        val decompressResult = compressor.decompress(corrupted)
-        decompressResult shouldBeEqualTo ByteArray(0)
+        // decompress: 예외 전파 — 호출자가 오류를 인지하고 처리
+        org.junit.jupiter.api.assertThrows<Exception> {
+            compressor.decompress(corrupted)
+        }
 
-        // decompressOrNull: null 반환 (손상 여부를 호출자가 구분 가능)
+        // decompressOrNull: null 반환 — 손상 여부를 호출자가 null 로 구분 가능
         compressor.decompressOrNull(corrupted).shouldBeNull()
     }
 }
