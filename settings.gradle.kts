@@ -16,7 +16,6 @@ rootProject.name = "$projectName-projects"
 
 includeModules("bluetape4k", true, false)
 
-includeModules("aws", withBaseDir = false)
 includeModules("data", withBaseDir = false)
 includeModules("infra", withBaseDir = false)
 includeModules("io", withBaseDir = false)
