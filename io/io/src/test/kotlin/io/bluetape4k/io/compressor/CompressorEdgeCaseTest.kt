@@ -171,7 +171,7 @@ class CompressorEdgeCaseTest {
     }
 
     @Test
-    fun `LZ4Compressor 압축 데이터 헤더 손상 시 예외를 처리한다`() {
+    fun `LZ4Compressor 압축 데이터 헤더 손상 시 예외를 던진다`() {
         val compressor = LZ4Compressor()
         val input = "Hello, LZ4!".toByteArray()
         val compressed = compressor.compress(input)
@@ -183,9 +183,13 @@ class CompressorEdgeCaseTest {
         corrupted[2] = 0xFF.toByte()
         corrupted[3] = 0xFF.toByte()
 
-        // AbstractCompressor는 예외를 삼키고 emptyByteArray를 반환하도록 설계되어 있음
-        val result = compressor.decompress(corrupted)
-        result shouldBeEqualTo emptyByteArray
+        // 손상 데이터는 예외를 전파 — silent failure 제거
+        org.junit.jupiter.api.assertThrows<Exception> {
+            compressor.decompress(corrupted)
+        }
+
+        // decompressOrNull 은 예외를 삼키고 null 반환
+        compressor.decompressOrNull(corrupted) shouldBeEqualTo null
     }
 
     @Test

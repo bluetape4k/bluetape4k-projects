@@ -1,17 +1,16 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.xerial.snappy.Snappy
 
 /**
  * [SnappyCompressor] decompression bomb 방어 테스트.
  *
- * - 256MB 초과 uncompressed_length를 선언하는 페이로드에 대해 emptyByteArray 반환 검증
+ * - 256MB 초과 uncompressed_length를 선언하는 페이로드에 대해 [IllegalArgumentException] 전파 검증
  * - 정상 데이터는 정상 처리됨 검증
- * - AbstractCompressor의 예외 → emptyByteArray 변환 정책 경유
  */
 class SnappyDecompressionBombTest {
 
@@ -28,13 +27,14 @@ class SnappyDecompressionBombTest {
     }
 
     @Test
-    fun `decompress - 256MB 초과 선언 페이로드는 emptyByteArray 반환`() {
+    fun `decompress - 256MB 초과 선언 페이로드는 IllegalArgumentException 전파`() {
         // Snappy 헤더: varint로 인코딩된 uncompressed_length (256MB + 1)
-        // AbstractCompressor.decompress()가 예외를 emptyByteArray로 변환함
+        // Wave 1 패치의 require() 검사가 AbstractCompressor.decompress()를 통해 호출자에게 전파됨
         val fakeCompressed = encodeSnappyHeader(256L * 1024 * 1024 + 1)
 
-        val result = compressor.decompress(fakeCompressed)
-        result.shouldBeEmpty()
+        assertThrows<IllegalArgumentException> {
+            compressor.decompress(fakeCompressed)
+        }
     }
 
     @Test
