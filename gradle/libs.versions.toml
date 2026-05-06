@@ -27,7 +27,7 @@ problem = "0.29.1"
 
 bucket4j = "8.18.0"
 resilience4j = "2.4.0"
-netty = "4.2.12.Final"
+netty = "4.2.13.Final"
 
 aws2 = "2.42.37"
 aws2-crt = "0.45.1"
@@ -900,7 +900,7 @@ hikaricp = { module = "com.zaxxer:HikariCP", version = "7.0.2" }
 tomcat-jdbc = { module = "org.apache.tomcat:tomcat-jdbc", version = "11.0.18" }
 mysql-connector-j = { module = "com.mysql:mysql-connector-j", version = "9.6.0" }
 mariadb-java-client = { module = "org.mariadb.jdbc:mariadb-java-client", version = "3.5.7" }
-postgresql-driver = { module = "org.postgresql:postgresql", version = "42.7.10" }
+postgresql-driver = { module = "org.postgresql:postgresql", version = "42.7.11" }
 pgjdbc-ng = { module = "com.impossibl.pgjdbc-ng:pgjdbc-ng", version = "0.8.9" }
 postgis-jdbc = { module = "net.postgis:postgis-jdbc", version = "2024.1.0" }
 pgvector = { module = "com.pgvector:pgvector", version = "0.1.6" }
