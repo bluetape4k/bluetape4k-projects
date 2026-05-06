@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * [Compressor]의 최상위 추상화 클래스입니다.
@@ -98,6 +99,8 @@ abstract class AbstractCompressor: Compressor {
         if (plain.isNullOrEmpty()) return null
         return try {
             doCompress(plain!!)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             log.error(e) { "Fail to compress. plain size=${plain?.size}" }
             null
@@ -123,6 +126,8 @@ abstract class AbstractCompressor: Compressor {
         if (compressed.isNullOrEmpty()) return null
         return try {
             doDecompress(compressed!!)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             log.error(e) { "Fail to decompress. compressed size=${compressed?.size}" }
             null

@@ -115,12 +115,17 @@ class CompressorNullableApiTest {
     }
 
     @Test
-    fun `decompressOrNull 은 손상된 GZip 데이터에 null 을 반환한다`() {
+    fun `GZip 손상 데이터 - decompress 는 예외, decompressOrNull 은 null`() {
         val compressor = GZipCompressor()
 
         // GZip 매직 바이트(0x1f 0x8b)를 무효화하면 반드시 파싱 실패
         val corrupted = byteArrayOf(0x00, 0x00, 0x01, 0x02, 0x03)
 
+        // decompress: 예외 전파 — silent failure 제거 검증
+        org.junit.jupiter.api.assertThrows<Exception> {
+            compressor.decompress(corrupted)
+        }
+        // decompressOrNull: null 반환
         compressor.decompressOrNull(corrupted).shouldBeNull()
     }
 
