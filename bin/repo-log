@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Compact git log with branch/remote context
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: repo-log [--top N] [--all]
+
+Show recent commits with author, relative date, and decoration.
+
+Options:
+  --top N   Number of commits to show (default: 10)
+  --all     Show all branches (git log --all)
+EOF
+}
+
+top_n=10
+all_flag=""
+
+while (($# > 0)); do
+    case "$1" in
+        --top) top_n="$2"; shift 2 ;;
+        --all) all_flag="--all"; shift ;;
+        --help|-h) usage; exit 0 ;;
+        *) echo "error: unknown argument: $1" >&2; usage >&2; exit 1 ;;
+    esac
+done
+
+if ! git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    echo "error: not inside a git repository" >&2; exit 1
+fi
+
+branch="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD)"
+upstream="$(git rev-parse --abbrev-ref "@{upstream}" 2>/dev/null || echo "(no upstream)")"
+ahead=0; behind=0
+if [[ "$upstream" != "(no upstream)" ]]; then
+    read -r ahead behind < <(git rev-list --left-right --count "HEAD...$upstream" 2>/dev/null || echo "0 0")
+fi
+
+echo "Branch: $branch  upstream: $upstream  (ahead $ahead, behind $behind)"
+echo ""
+git log $all_flag --oneline --decorate --color=always \
+    --format="%C(yellow)%h%Creset %C(cyan)%<(12,trunc)%ar%Creset %C(green)%<(15,trunc)%an%Creset %s %C(auto)%d%Creset" \
+    -n "$top_n"

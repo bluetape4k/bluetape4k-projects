@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# List all git worktrees with branch and ahead/behind info
+
+set -euo pipefail
+
+if ! git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    echo "error: not inside a git repository" >&2; exit 1
+fi
+
+echo "Worktrees in: $git_root"
+echo ""
+
+git worktree list --porcelain | awk '
+BEGIN { path=""; head=""; branch="" }
+/^worktree / { path=$2 }
+/^HEAD /      { head=substr($0,6,7) }
+/^branch /    { branch=$2; sub("refs/heads/","",branch) }
+/^bare/       { branch="(bare)" }
+/^detached/   { branch="(detached)" }
+/^$/ {
+    if (path != "") {
+        printf "  %-45s  %s  %s\n", path, head, branch
+        path=""; head=""; branch=""
+    }
+}
+END {
+    if (path != "") printf "  %-45s  %s  %s\n", path, head, branch
+}
+'
+
+echo ""
+echo "Total: $(git worktree list | wc -l | tr -d ' ') worktree(s)"

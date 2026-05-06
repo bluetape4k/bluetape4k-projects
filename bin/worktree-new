@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Create a new git worktree under .worktrees/<branch>
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: worktree-new <branch-name> [--base <base-branch>]
+
+Create a new worktree at .worktrees/<branch-name> on a new branch.
+
+Options:
+  --base <branch>   Base branch to branch from (default: current HEAD)
+
+Example:
+  worktree-new feat/my-feature
+  worktree-new fix/some-bug --base develop
+EOF
+}
+
+branch_name=""
+base_branch=""
+
+while (($# > 0)); do
+    case "$1" in
+        --base) base_branch="$2"; shift 2 ;;
+        --help|-h) usage; exit 0 ;;
+        -*) echo "error: unknown option: $1" >&2; usage >&2; exit 1 ;;
+        *)
+            if [[ -z "$branch_name" ]]; then branch_name="$1"
+            else echo "error: unexpected argument: $1" >&2; usage >&2; exit 1; fi
+            shift ;;
+    esac
+done
+
+if [[ -z "$branch_name" ]]; then
+    echo "error: branch name required" >&2; usage >&2; exit 1
+fi
+
+if ! git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+    echo "error: not inside a git repository" >&2; exit 1
+fi
+
+# Sanitize branch name for directory (replace / with -)
+dir_name="${branch_name//\//-}"
+worktree_path="$git_root/.worktrees/$dir_name"
+
+if [[ -d "$worktree_path" ]]; then
+    echo "error: worktree path already exists: $worktree_path" >&2; exit 1
+fi
+
+if [[ -n "$base_branch" ]]; then
+    git worktree add "$worktree_path" -b "$branch_name" "$base_branch"
+else
+    git worktree add "$worktree_path" -b "$branch_name"
+fi
+
+echo ""
+echo "Worktree created: $worktree_path"
+echo "Branch: $branch_name"
+echo ""
+echo "To enter:"
+echo "  cd $worktree_path"
