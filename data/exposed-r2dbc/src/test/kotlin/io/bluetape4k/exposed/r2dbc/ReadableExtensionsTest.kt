@@ -19,7 +19,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Date
 import java.util.UUID
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ReadableExtensions] 확장 함수 단위 테스트입니다.

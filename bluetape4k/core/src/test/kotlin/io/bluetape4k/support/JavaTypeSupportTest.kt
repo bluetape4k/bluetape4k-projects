@@ -3,7 +3,7 @@ package io.bluetape4k.support
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Type
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class JavaTypeSupportTest {
 

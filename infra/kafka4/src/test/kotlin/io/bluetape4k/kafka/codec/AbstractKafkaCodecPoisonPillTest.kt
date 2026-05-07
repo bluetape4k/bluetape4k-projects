@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [AbstractKafkaCodec.deserialize] 의 poison-pill 정책과 예외 통과 정책을 검증한다.
@@ -42,7 +42,7 @@ class AbstractKafkaCodecPoisonPillTest {
     fun `CancellationException is rethrown not swallowed`() {
         val codec = ThrowingCodec(CancellationException("coroutine cancelled"))
         val headers = RecordHeaders()
-        assertThrows<CancellationException> {
+        assertFailsWith<CancellationException> {
             codec.deserialize("test-topic", headers, byteArrayOf(1, 2, 3))
         }
     }
@@ -51,7 +51,7 @@ class AbstractKafkaCodecPoisonPillTest {
     fun `Error is propagated not swallowed`() {
         val codec = ThrowingCodec(OutOfMemoryError("simulated"))
         val headers = RecordHeaders()
-        assertThrows<OutOfMemoryError> {
+        assertFailsWith<OutOfMemoryError> {
             codec.deserialize("test-topic", headers, byteArrayOf(1, 2, 3))
         }
     }

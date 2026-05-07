@@ -14,7 +14,7 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -61,7 +61,7 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     @Test
     fun `unlock - 락을 보유하지 않으면 예외`() {
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             lock.unlock()
         }
     }

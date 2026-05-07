@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [JtsHelpers] 팩토리 함수 단위 테스트.
@@ -64,14 +64,14 @@ class JtsHelpersTest {
 
     @Test
     fun `wgs84Polygon - 좌표 2개 이하는 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             wgs84Polygon(126.97 to 37.56, 126.99 to 37.56)
         }
     }
 
     @Test
     fun `wgs84Polygon - 빈 입력은 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             wgs84Polygon()
         }
     }
@@ -104,14 +104,14 @@ class JtsHelpersTest {
 
     @Test
     fun `wgs84LineString - 좌표 1개 이하는 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             wgs84LineString(126.97 to 37.56)
         }
     }
 
     @Test
     fun `wgs84LineString - 빈 입력은 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             wgs84LineString()
         }
     }

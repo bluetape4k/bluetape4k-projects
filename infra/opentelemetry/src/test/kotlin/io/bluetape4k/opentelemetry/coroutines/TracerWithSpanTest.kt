@@ -19,7 +19,7 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.TimeUnit
 
 /**
@@ -137,7 +137,7 @@ class TracerWithSpanTest: AbstractOtelTest() {
 
     @Test
     fun `suspend withSpan with blank spanName should throw IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             runSuspendIO {
                 tracer.withSpan("  ") { }
             }
@@ -216,7 +216,7 @@ class TracerWithSpanTest: AbstractOtelTest() {
 
     @Test
     fun `blocking withSpan with blank spanName should throw IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             tracer.withSpan("") { }
         }
     }

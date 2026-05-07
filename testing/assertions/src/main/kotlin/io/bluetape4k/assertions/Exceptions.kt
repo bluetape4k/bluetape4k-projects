@@ -3,6 +3,7 @@ package io.bluetape4k.assertions
 import io.bluetape4k.assertions.internal.Failures
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KClass
+import kotlinx.coroutines.runBlocking
 
 /**
  * 동기 블록을 감싸 예외 검증용 DSL을 제공한다.
@@ -329,21 +330,83 @@ class CoInvokingBlock(val block: suspend () -> Any?) {
 fun coInvoking(block: suspend () -> Any?): CoInvokingBlock = CoInvokingBlock(block)
 
 /**
- * 블록이 타입 [T]의 예외를 던지는지 검증하고, 예외를 반환한다.
+ * 동기 또는 suspend 블록이 타입 [T]의 예외를 던지는지 검증하고, 예외를 반환한다.
  *
- * `org.amshove.kluent.internal.assertFailsWith`와 동일한 semantics.
+ * 단일 오버로드로 동기/suspend 코드 모두 처리한다. suspend 블록은 내부적으로 [kotlinx.coroutines.runBlocking]을
+ * 통해 실행되므로 `runTest` 블록 안에서 사용할 경우 즉시 예외를 던지는 단순 케이스에만 적합하다.
  *
- * @param block 검증할 코드 블록
+ * [CancellationException]은 기대 타입이 아닌 경우 즉시 rethrow하여 코루틴 취소 협력을 보장한다.
+ *
+ * @param message 검증 실패 시 출력할 추가 메시지 (null이면 기본 메시지 사용)
+ * @param block 검증할 코드 블록 (동기 또는 suspend)
  * @return 발생한 예외 (타입 [T])
  */
-inline fun <reified T : Throwable> assertFailsWith(noinline block: () -> Unit): T =
-    invoking(block) shouldThrow T::class
+inline fun <reified T : Throwable> assertFailsWith(
+    message: String? = null,
+    noinline block: suspend () -> Unit,
+): T {
+    val caught: Throwable? = try {
+        runBlocking { block() }
+        null
+    } catch (e: CancellationException) {
+        if (e is T) e else throw e
+    } catch (e: Throwable) {
+        e
+    }
+    val prefix = if (message != null) "$message — " else ""
+    if (caught == null) {
+        Failures.fail("${prefix}Expected ${T::class.simpleName} but no exception was thrown")
+    }
+    if (caught !is T) {
+        Failures.failComparison(
+            "${prefix}Expected ${T::class.simpleName} but got ${caught.javaClass.simpleName}",
+            T::class.simpleName,
+            caught.javaClass.simpleName
+        )
+    }
+    return caught
+}
 
 /**
- * 블록이 어떤 예외라도 던지는지 검증한다.
+ * 동기 또는 suspend 블록이 어떤 예외라도 던지는지 검증한다.
  *
- * @param block 검증할 코드 블록
+ * @param block 검증할 코드 블록 (동기 또는 suspend)
  * @return 발생한 예외
  */
-fun assertFails(block: () -> Unit): Throwable =
-    invoking(block) shouldThrow Throwable::class
+fun assertFails(block: suspend () -> Unit): Throwable =
+    assertFailsWith<Throwable>(block = block)
+
+/**
+ * 동기 또는 suspend 블록이 타입 [T]의 예외를 던지지 **않는지** 검증한다.
+ *
+ * 타입 [T]의 예외가 발생하면 검증 실패. 다른 타입의 예외나 예외 없음은 통과한다.
+ * Kluent의 `internal assertNotFailsWith`에 해당하는 공개 API.
+ *
+ * @param block 검증할 코드 블록 (동기 또는 suspend)
+ */
+inline fun <reified T : Throwable> assertNotFailsWith(noinline block: suspend () -> Unit) {
+    try {
+        runBlocking { block() }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        if (e is T) {
+            Failures.fail("Expected block NOT to throw ${T::class.simpleName} but it did: ${e.message}")
+        }
+    }
+}
+
+/**
+ * 동기 또는 suspend 블록이 어떤 예외도 던지지 않는지 검증한다.
+ *
+ * @param block 검증할 코드 블록 (동기 또는 suspend)
+ */
+fun assertNotFails(block: suspend () -> Unit) {
+    try {
+        runBlocking { block() }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        Failures.failWithCause("Expected no exception but got ${e::class.simpleName}: ${e.message}", e)
+    }
+}

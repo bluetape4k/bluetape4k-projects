@@ -4,7 +4,7 @@ import io.bluetape4k.states.api.StateMachine
 import io.bluetape4k.states.api.StateMachineException
 import io.bluetape4k.states.api.SuspendStateMachineInterface
 import io.bluetape4k.assertions.shouldBeEqualTo
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class TransitionExpectation<out S: Any, out E: Any>(val from: S, val event: E, val to: S)
 class PartialExpectation<out S: Any, out E: Any>(val from: S, val event: E)
@@ -20,7 +20,7 @@ fun <S: Any, E: Any> StateMachine<S, E>.assertReaches(target: S, vararg events: 
     events.forEach { transition(it) }; currentState shouldBeEqualTo target
 }
 fun <S: Any, E: Any> StateMachine<S, E>.assertRejects(event: E) {
-    assertThrows<StateMachineException> { transition(event) }
+    assertFailsWith<StateMachineException> { transition(event) }
 }
 
 suspend fun <S: Any, E: Any> SuspendStateMachineInterface<S, E>.verifyPath(vararg ex: TransitionExpectation<S, E>) {
@@ -30,5 +30,5 @@ suspend fun <S: Any, E: Any> SuspendStateMachineInterface<S, E>.assertReaches(ta
     events.forEach { transition(it) }; currentState shouldBeEqualTo target
 }
 suspend fun <S: Any, E: Any> SuspendStateMachineInterface<S, E>.assertRejects(event: E) {
-    assertThrows<StateMachineException> { transition(event) }
+    assertFailsWith<StateMachineException> { transition(event) }
 }

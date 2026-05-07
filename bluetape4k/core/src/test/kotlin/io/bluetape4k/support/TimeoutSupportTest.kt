@@ -7,7 +7,6 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.coInvoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -80,13 +79,14 @@ class TimeoutSupportTest: AbstractCoreTest() {
     fun `제한시간을 초과하는 비동기 작업에 대한 Non-Blocking 방법`() = runTest {
         var executed = false
 
-        coInvoking {
+        assertFailsWith<TimeoutException> {
             val future = asyncRunWithTimeout(100) {
                 Thread.sleep(1000)
                 executed = true
             }
             future.await()
-        } shouldThrow TimeoutException::class
+
+        }
         executed.shouldBeFalse()
     }
 

@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.special.MAX_FACTORIAL_NUMBER
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class CombinationTest {
 
@@ -48,7 +48,6 @@ class CombinationTest {
         variations(5, 3) shouldBeEqualTo 60.0
         variations(5, 4) shouldBeEqualTo 120.0
         variations(5, 5) shouldBeEqualTo 120.0
-
     }
 
     @Test

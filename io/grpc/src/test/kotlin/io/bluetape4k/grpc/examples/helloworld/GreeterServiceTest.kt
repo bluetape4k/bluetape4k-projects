@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class GreeterServiceTest {
     companion object: KLogging() {
@@ -93,14 +93,14 @@ class GreeterServiceTest {
 
     @Test
     fun `GreeterServer는 빈 이름으로 생성 시 예외를 던져야 한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             GreeterServer("")
         }
     }
 
     @Test
     fun `GreeterClient는 빈 이름으로 생성 시 예외를 던져야 한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             GreeterClient("")
         }
     }

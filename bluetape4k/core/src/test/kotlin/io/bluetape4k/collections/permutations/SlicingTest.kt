@@ -3,7 +3,7 @@ package io.bluetape4k.collections.permutations
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * slice, sliding, grouped 테스트
@@ -19,7 +19,7 @@ class SlicingTest: AbstractPermutationTest() {
         emptyIntPermutation.slice(0, 0).isEmpty().shouldBeTrue()
         emptyIntPermutation.slice(0, 10).isEmpty().shouldBeTrue()
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             emptyIntPermutation.slice(10, 9)
         }
     }
@@ -27,14 +27,14 @@ class SlicingTest: AbstractPermutationTest() {
     @Test
     fun `고정 순열의 slice 예외`() {
         val fixed = permutationOf(1, 2)
-        assertThrows<IllegalArgumentException> { fixed.slice(10, 9) }
-        assertThrows<IllegalArgumentException> { fixed.slice(-10, 9) }
+        assertFailsWith<IllegalArgumentException> { fixed.slice(10, 9) }
+        assertFailsWith<IllegalArgumentException> { fixed.slice(-10, 9) }
     }
 
     @Test
     fun `무한 순열의 slice`() {
         val nums = numbers(0)
-        assertThrows<IllegalArgumentException> { nums.slice(-10, 9) }
+        assertFailsWith<IllegalArgumentException> { nums.slice(-10, 9) }
         nums.slice(3, 7) shouldBeEqualTo permutationOf(3, 4, 5, 6)
     }
 
@@ -59,13 +59,13 @@ class SlicingTest: AbstractPermutationTest() {
     fun `빈 순열의 sliding`() {
         emptyPermutation.sliding(1).isEmpty().shouldBeTrue()
         emptyPermutation.sliding(10).isEmpty().shouldBeTrue()
-        assertThrows<IllegalArgumentException> { emptyPermutation.sliding(0) }
+        assertFailsWith<IllegalArgumentException> { emptyPermutation.sliding(0) }
     }
 
     @Test
     fun `고정 순열의 sliding`() {
         val fixed = permutationOf(1, 2, 3)
-        assertThrows<IllegalArgumentException> { fixed.sliding(0) }
+        assertFailsWith<IllegalArgumentException> { fixed.sliding(0) }
 
         val sliding = fixed.sliding(4)
         sliding.head shouldBeEqualTo listOf(1, 2, 3)
@@ -121,8 +121,8 @@ class SlicingTest: AbstractPermutationTest() {
 
     @Test
     fun `grouped 인자 0이면 예외`() {
-        assertThrows<IllegalArgumentException> { emptyPermutation<Any>().grouped(0) }
-        assertThrows<IllegalArgumentException> { permutationOf(1, 2, 3).grouped(0) }
+        assertFailsWith<IllegalArgumentException> { emptyPermutation<Any>().grouped(0) }
+        assertFailsWith<IllegalArgumentException> { permutationOf(1, 2, 3).grouped(0) }
     }
 
     @Test

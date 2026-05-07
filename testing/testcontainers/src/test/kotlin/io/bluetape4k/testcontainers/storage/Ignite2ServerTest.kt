@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Disabled("사용성이 낮아서 테스트에서 제외합니다")
 class Ignite2ServerTest: AbstractContainerTest() {

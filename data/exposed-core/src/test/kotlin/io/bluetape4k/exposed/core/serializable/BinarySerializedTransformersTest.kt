@@ -4,7 +4,7 @@ import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.io.Serializable
 
 class BinarySerializedTransformersTest {
@@ -133,7 +133,7 @@ class BinarySerializedTransformersTest {
         val corruptedBytes = byteArrayOf(0, 1, 2, 3, 4, 5)
 
         val ex =
-            assertThrows<Exception> {
+            assertFailsWith<Exception> {
                 transformer.wrap(corruptedBytes)
             }
         // 예외가 발생하면 충분함 — IllegalStateException 또는 직렬화 오류

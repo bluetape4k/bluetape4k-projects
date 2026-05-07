@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.math.BigInteger
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [JsonNodeExtensions] 확장 함수에 대한 테스트입니다.

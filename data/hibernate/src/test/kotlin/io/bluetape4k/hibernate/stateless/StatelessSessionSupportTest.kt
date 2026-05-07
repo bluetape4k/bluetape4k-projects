@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.LockMode
 import org.hibernate.graph.GraphSemantic
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class StatelessSessionSupportTest: AbstractHibernateTest() {
 

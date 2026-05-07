@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * ResultSetMappingExtensions 테스트 클래스
@@ -61,7 +61,7 @@ class ResultSetMappingExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `mapFirstOrThrow - 빈 ResultSet 에서 NoSuchElementException 발생`() {
-        assertThrows<NoSuchElementException> {
+        assertFailsWith<NoSuchElementException> {
             dataSource.runQuery("SELECT * FROM Actors WHERE 1 = 0") { rs ->
                 rs.mapFirstOrThrow { actorMapper(it) }
             }
@@ -83,7 +83,7 @@ class ResultSetMappingExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `mapSingle - 빈 ResultSet 에서 NoSuchElementException 발생`() {
-        assertThrows<NoSuchElementException> {
+        assertFailsWith<NoSuchElementException> {
             dataSource.runQuery("SELECT * FROM Actors WHERE 1 = 0") { rs ->
                 rs.mapSingle { actorMapper(it) }
             }
@@ -92,7 +92,7 @@ class ResultSetMappingExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `mapSingle - 2개 이상 행에서 IllegalStateException 발생`() {
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             dataSource.runQuery("SELECT * FROM Actors") { rs ->
                 rs.mapSingle { actorMapper(it) }
             }

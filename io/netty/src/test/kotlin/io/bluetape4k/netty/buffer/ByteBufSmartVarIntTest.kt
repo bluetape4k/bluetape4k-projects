@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ByteBufExtensions]의 Smart/VarInt/UShort 계열 함수들의 정확성을 검증합니다.
@@ -45,7 +45,7 @@ class ByteBufSmartVarIntTest: AbstractNettyTest() {
         @Test
         fun `writeShortSmart는 범위를 벗어나면 IllegalArgumentException을 던진다`() {
             ByteBufAllocator.DEFAULT.buffer(4).use { buf ->
-                assertThrows<IllegalArgumentException> {
+                assertFailsWith<IllegalArgumentException> {
                     buf.writeShortSmart(Smart.MAX_SHORT_VALUE + 1)
                 }
             }
@@ -79,7 +79,7 @@ class ByteBufSmartVarIntTest: AbstractNettyTest() {
         @Test
         fun `writeUShortSmart는 범위를 벗어나면 IllegalArgumentException을 던진다`() {
             ByteBufAllocator.DEFAULT.buffer(4).use { buf ->
-                assertThrows<IllegalArgumentException> {
+                assertFailsWith<IllegalArgumentException> {
                     buf.writeUShortSmart(USmart.MAX_SHORT_VALUE + 1)
                 }
             }
@@ -138,7 +138,7 @@ class ByteBufSmartVarIntTest: AbstractNettyTest() {
         @Test
         fun `writeIntSmart는 범위를 벗어나면 IllegalArgumentException을 던진다`() {
             ByteBufAllocator.DEFAULT.buffer(8).use { buf ->
-                assertThrows<IllegalArgumentException> {
+                assertFailsWith<IllegalArgumentException> {
                     buf.writeIntSmart(Smart.MAX_INT_VALUE + 1)
                 }
             }
@@ -172,7 +172,7 @@ class ByteBufSmartVarIntTest: AbstractNettyTest() {
         @Test
         fun `writeUIntSmart는 범위를 벗어나면 IllegalArgumentException을 던진다`() {
             ByteBufAllocator.DEFAULT.buffer(8).use { buf ->
-                assertThrows<IllegalArgumentException> {
+                assertFailsWith<IllegalArgumentException> {
                     buf.writeUIntSmart(-1)
                 }
             }

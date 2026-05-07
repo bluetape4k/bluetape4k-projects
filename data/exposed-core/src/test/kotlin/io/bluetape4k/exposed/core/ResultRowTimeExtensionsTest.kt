@@ -20,7 +20,7 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ResultRow] 확장 함수 중 시간 타입 변환 함수에 대한 단위 테스트.

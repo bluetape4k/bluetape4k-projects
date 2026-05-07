@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Suppress("UNUSED_PARAMETER")
 class VertxFutureBulkheadSupportTest: AbstractVertxFutureTest() {

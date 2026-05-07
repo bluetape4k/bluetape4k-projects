@@ -1,7 +1,9 @@
 package io.bluetape4k.assertions
 
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.assertNotFailsWith
+import io.bluetape4k.assertions.assertNotFails
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
@@ -12,30 +14,26 @@ class ExceptionsTest {
 
     @Test
     fun `invoking shouldThrow catches expected exception type`() {
-        val ex = invoking { throw IllegalStateException("oops") }
-            .shouldThrow(IllegalStateException::class)
+        val ex = assertFailsWith<IllegalStateException> { throw IllegalStateException("oops") }
         ex.message shouldBeEqualTo "oops"
     }
 
     @Test
     fun `invoking shouldThrow catches subclass of expected type`() {
-        invoking { throw IllegalArgumentException("arg") }
-            .shouldThrow(RuntimeException::class)
+        assertFailsWith<RuntimeException> { throw IllegalArgumentException("arg") }
     }
 
     @Test
     fun `invoking shouldThrow fails when type does not match`() {
         assertFailsWith<AssertionFailedError> {
-            invoking { throw IllegalStateException("oops") }
-                .shouldThrow(IllegalArgumentException::class)
+            assertFailsWith<IllegalArgumentException> { throw IllegalStateException("oops") }
         }
     }
 
     @Test
     fun `invoking shouldThrow fails when no exception is thrown`() {
         assertFailsWith<AssertionFailedError> {
-            invoking { 42 }
-                .shouldThrow(IllegalStateException::class)
+            assertFailsWith<IllegalStateException> { 42 }
         }
     }
 
@@ -160,8 +158,7 @@ class ExceptionsTest {
     @Test
     fun `invoking supports chaining shouldThrow with message validators`() {
         val rootCause = IllegalArgumentException("root")
-        invoking { throw IllegalStateException("wrapper error", rootCause) }
-            .shouldThrow(IllegalStateException::class)
+        assertFailsWith<IllegalStateException> { throw IllegalStateException("wrapper error", rootCause) }
 
         invoking { throw IllegalStateException("wrapper error", rootCause) }
             .withMessage("wrapper error")
@@ -173,24 +170,21 @@ class ExceptionsTest {
 
     @Test
     fun `coInvoking shouldThrow catches expected exception type`() = runTest {
-        val ex = coInvoking { throw IllegalStateException("co-oops") }
-            .shouldThrow(IllegalStateException::class)
+        val ex = assertFailsWith<IllegalStateException> { throw IllegalStateException("co-oops") }
         ex.message shouldBeEqualTo "co-oops"
     }
 
     @Test
     fun `coInvoking shouldThrow fails when type does not match`() = runTest {
         assertFailsWith<AssertionFailedError> {
-            coInvoking { throw IllegalStateException("oops") }
-                .shouldThrow(IllegalArgumentException::class)
+            assertFailsWith<IllegalArgumentException> { throw IllegalStateException("oops") }
         }
     }
 
     @Test
     fun `coInvoking shouldThrow fails when no exception is thrown`() = runTest {
         assertFailsWith<AssertionFailedError> {
-            coInvoking { 42 }
-                .shouldThrow(IllegalStateException::class)
+            assertFailsWith<IllegalStateException> { 42 }
         }
     }
 
@@ -287,8 +281,7 @@ class ExceptionsTest {
         // Note: java.util.concurrent.CancellationException extends IllegalStateException on JVM,
         // so we use IllegalArgumentException (a true sibling under RuntimeException) to verify rethrow.
         val caught = kotlin.runCatching {
-            coInvoking { throw CancellationException("cancelled") }
-                .shouldThrow(IllegalArgumentException::class)
+            assertFailsWith<IllegalArgumentException> { throw CancellationException("cancelled") }
         }
         // CancellationException 이 AssertionFailedError 가 아닌 CancellationException 으로 전파되어야 함
         assert(caught.exceptionOrNull() is CancellationException) {
@@ -298,8 +291,7 @@ class ExceptionsTest {
 
     @Test
     fun `coInvoking CancellationException is caught when expected type matches`() = runTest {
-        val ex = coInvoking { throw CancellationException("cancelled") }
-            .shouldThrow(CancellationException::class)
+        val ex = assertFailsWith<CancellationException> { throw CancellationException("cancelled") }
         ex.message shouldBeEqualTo "cancelled"
     }
 
@@ -321,6 +313,58 @@ class ExceptionsTest {
         }
         assert(caught.exceptionOrNull() is CancellationException) {
             "Expected CancellationException but got: ${caught.exceptionOrNull()}"
+        }
+    }
+
+    // ── assertNotFailsWith ─────────────────────────────────────────────────
+
+    @Test
+    fun `assertNotFailsWith passes when block throws different exception type`() {
+        assertNotFailsWith<IllegalArgumentException> {
+            throw IllegalStateException("different")
+        }
+    }
+
+    @Test
+    fun `assertNotFailsWith passes when block throws nothing`() {
+        assertNotFailsWith<IllegalArgumentException> { "no exception" }
+    }
+
+    @Test
+    fun `assertNotFailsWith fails when block throws expected type`() {
+        assertFailsWith<AssertionFailedError> {
+            assertNotFailsWith<IllegalArgumentException> {
+                throw IllegalArgumentException("should fail")
+            }
+        }
+    }
+
+    @Test
+    fun `assertNotFailsWith passes for suspend block that throws different type`() = runTest {
+        assertNotFailsWith<IllegalArgumentException> {
+            throw IllegalStateException("other")
+        }
+    }
+
+    @Test
+    fun `assertNotFailsWith rethrows CancellationException`() = runTest {
+        val caught = kotlin.runCatching {
+            assertNotFailsWith<IllegalArgumentException> { throw CancellationException("cancel") }
+        }
+        assert(caught.exceptionOrNull() is CancellationException)
+    }
+
+    // ── assertNotFails ─────────────────────────────────────────────────────
+
+    @Test
+    fun `assertNotFails passes when no exception thrown`() {
+        assertNotFails { "ok" }
+    }
+
+    @Test
+    fun `assertNotFails fails when exception thrown`() {
+        assertFailsWith<AssertionFailedError> {
+            assertNotFails { throw RuntimeException("boom") }
         }
     }
 }

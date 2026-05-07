@@ -115,7 +115,6 @@ class ResultsTest: AbstractFlowTest() {
                 awaitItem() shouldBeEqualTo Result.failure(testException)
                 awaitComplete()
             }
-
     }
 
     @Test

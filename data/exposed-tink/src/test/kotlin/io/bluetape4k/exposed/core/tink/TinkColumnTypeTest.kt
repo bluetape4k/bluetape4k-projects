@@ -14,7 +14,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -124,13 +124,13 @@ class TinkColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `컬럼 이름은 blank 일 수 없다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_name_aead_varchar_$testDB") {
                 val invalid = tinkAeadVarChar(" ", 32)
             }
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_name_daead_blob_$testDB") {
                 val invalid = tinkDaeadBlob("")
             }
@@ -215,25 +215,25 @@ class TinkColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `컬럼 길이는 0보다 커야 한다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_aead_varchar_$testDB") {
                 val invalid = tinkAeadVarChar("invalid", 0)
             }
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_aead_binary_$testDB") {
                 val invalid = tinkAeadBinary("invalid", 0)
             }
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_varchar_$testDB") {
                 val invalid = tinkDaeadVarChar("invalid", 0)
             }
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_binary_$testDB") {
                 val invalid = tinkDaeadBinary("invalid", 0)
             }
@@ -276,7 +276,7 @@ class TinkColumnTypeTest: AbstractExposedTest() {
         withTables(testDB, constrainedTable) {
             val longEmail = "${"a".repeat(180)}@example.com"
 
-            assertThrows<Exception> {
+            assertFailsWith<Exception> {
                 constrainedTable.insertAndGetId {
                     it[secret] = longEmail
                 }

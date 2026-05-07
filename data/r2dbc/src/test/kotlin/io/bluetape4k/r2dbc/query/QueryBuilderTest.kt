@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.Serializable
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class QueryBuilderTest {
 
@@ -168,7 +168,6 @@ class QueryBuilderTest {
             select("select * from actor")
             groupBy("actor_id")
             limit(10)
-
         }
         query.sql shouldBeEqualTo """
             select * from actor
@@ -199,7 +198,6 @@ class QueryBuilderTest {
             select("select actor_id, count(*) as cnt from actor")
             groupBy("actor_id")
             having("count(*) > 1")
-
         }
         query.sql shouldBeEqualTo """
             select actor_id, count(*) as cnt from actor

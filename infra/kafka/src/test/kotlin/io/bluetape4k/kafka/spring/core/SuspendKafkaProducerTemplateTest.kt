@@ -26,7 +26,7 @@ import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import reactor.kafka.sender.KafkaSender
 import reactor.kafka.sender.SenderOptions
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [SuspendKafkaProducerTemplate]에 대한 테스트 클래스입니다.

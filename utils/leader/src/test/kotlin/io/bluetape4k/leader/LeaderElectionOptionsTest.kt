@@ -3,7 +3,7 @@ package io.bluetape4k.leader
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 class LeaderElectionOptionsTest {
@@ -37,12 +37,12 @@ class LeaderElectionOptionsTest {
 
     @Test
     fun `LeaderGroupElectionOptions maxLeaders 가 0 이하면 예외가 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             io.bluetape4k.leader.local.LocalLeaderGroupElection(
                 LeaderGroupElectionOptions(maxLeaders = 0)
             )
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             io.bluetape4k.leader.local.LocalLeaderGroupElection(
                 LeaderGroupElectionOptions(maxLeaders = -1)
             )
@@ -52,10 +52,10 @@ class LeaderElectionOptionsTest {
     @Test
     fun `blank lockName 으로 호출 시 예외가 발생한다`() {
         val election = io.bluetape4k.leader.local.LocalLeaderElection()
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             election.runIfLeader("") { "should fail" }
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             election.runIfLeader("   ") { "should fail" }
         }
     }

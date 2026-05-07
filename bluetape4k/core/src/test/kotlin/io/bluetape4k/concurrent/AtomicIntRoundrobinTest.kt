@@ -11,7 +11,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class AtomicIntRoundrobinTest {
 
@@ -48,7 +48,6 @@ class AtomicIntRoundrobinTest {
 
         atomic.get() shouldBeEqualTo 1
         atomic.next() shouldBeEqualTo 2
-
     }
 
     @Test

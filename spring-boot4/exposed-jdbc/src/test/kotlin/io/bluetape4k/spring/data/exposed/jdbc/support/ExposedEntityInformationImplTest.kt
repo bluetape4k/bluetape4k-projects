@@ -7,7 +7,7 @@ import io.bluetape4k.spring.data.exposed.jdbc.repository.support.ExposedEntityIn
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class ExposedEntityInformationImplTest {
 
@@ -43,7 +43,7 @@ class ExposedEntityInformationImplTest {
     @Test
     fun `invoke throws when class has no companion object`() {
         // Use a plain Java class that has no Kotlin companion
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             @Suppress("UNCHECKED_CAST")
             ExposedEntityInformationImpl<UserEntity, Long>(String::class.java as Class<UserEntity>)
         }

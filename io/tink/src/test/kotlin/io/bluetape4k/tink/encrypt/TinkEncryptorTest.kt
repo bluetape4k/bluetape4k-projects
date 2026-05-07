@@ -8,7 +8,7 @@ import io.bluetape4k.tink.daeadKeysetHandle
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
@@ -129,7 +129,7 @@ class TinkEncryptorTest {
         val plaintext = "비밀 메시지".toByteArray()
         val ciphertext = encryptor1.encrypt(plaintext)
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             encryptor2.decrypt(ciphertext)
         }
     }
@@ -142,7 +142,7 @@ class TinkEncryptorTest {
         val tampered = ciphertext.copyOf()
             .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             encryptor.decrypt(tampered)
         }
     }
@@ -154,7 +154,7 @@ class TinkEncryptorTest {
         val plaintext = "검색 가능한 필드".toByteArray()
         val ciphertext = encryptor1.encrypt(plaintext)
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             encryptor2.decrypt(ciphertext)
         }
     }
@@ -167,7 +167,7 @@ class TinkEncryptorTest {
         val tampered = ciphertext.copyOf()
             .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             encryptor.decrypt(tampered)
         }
     }

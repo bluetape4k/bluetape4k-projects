@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class WGS84PointTest {
 

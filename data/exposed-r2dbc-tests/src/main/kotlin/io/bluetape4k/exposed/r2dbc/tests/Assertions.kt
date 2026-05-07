@@ -2,7 +2,7 @@ package io.bluetape4k.exposed.r2dbc.tests
 
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.r2dbc.R2dbcTransaction
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.fail
 
 @Suppress("UnusedReceiverParameter")
@@ -69,7 +69,7 @@ suspend fun R2dbcTransaction.assertFailAndRollback(message: String, block: suspe
 /**
  * 지정한 예외 타입 발생을 검증합니다.
  */
-inline fun <reified T: Throwable> expectException(body: () -> Unit) {
+inline fun <reified T: Throwable> expectException(crossinline body: () -> Unit) {
     assertFailsWith<T>("Failed on ${currentDialectTest.name}") {
         body()
     }

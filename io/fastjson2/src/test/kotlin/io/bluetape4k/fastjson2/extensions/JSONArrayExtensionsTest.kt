@@ -12,6 +12,7 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 class JSONArrayExtensionsTest: AbstractFastjson2Test() {
     companion object: KLogging()
@@ -83,7 +84,7 @@ class JSONArrayExtensionsTest: AbstractFastjson2Test() {
     fun `JSONArray 특정 인덱스 readValueOrNull 타입 불일치 시 JSONException 발생`() {
         val array = JSONArray.of("hello", "world")
         // String 값을 User(복합 타입) 로 변환 시 fastjson2가 JSONException 발생
-        org.junit.jupiter.api.assertThrows<com.alibaba.fastjson2.JSONException> {
+        assertFailsWith<com.alibaba.fastjson2.JSONException> {
             array.readValueOrNull<User>(0)
         }
     }

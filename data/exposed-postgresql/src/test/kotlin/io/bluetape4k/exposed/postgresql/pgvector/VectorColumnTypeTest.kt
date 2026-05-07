@@ -20,7 +20,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * pgvector 컬럼 타입 및 거리 연산 통합 테스트.
@@ -168,14 +168,14 @@ class VectorColumnTypeTest: AbstractExposedTest() {
 
     @Test
     fun `VectorColumnType dimension이 0이면 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             VectorColumnType(0)
         }
     }
 
     @Test
     fun `VectorColumnType dimension이 음수이면 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             VectorColumnType(-1)
         }
     }
@@ -202,7 +202,7 @@ class VectorColumnTypeTest: AbstractExposedTest() {
     fun `VectorColumnType 은 차원이 맞지 않는 벡터를 거부한다`() {
         val columnType = VectorColumnType(DIMENSION)
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             columnType.notNullValueToDB(floatArrayOf(1.0f, 2.0f))
         }
     }
@@ -211,7 +211,7 @@ class VectorColumnTypeTest: AbstractExposedTest() {
     fun `VectorColumnType 은 빈 문자열 입력 시 IllegalArgumentException 을 던진다`() {
         val columnType = VectorColumnType(DIMENSION)
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             columnType.valueFromDB("")
         }
     }
@@ -220,7 +220,7 @@ class VectorColumnTypeTest: AbstractExposedTest() {
     fun `VectorColumnType 은 공백 문자열 입력 시 IllegalArgumentException 을 던진다`() {
         val columnType = VectorColumnType(DIMENSION)
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             columnType.valueFromDB("   ")
         }
     }

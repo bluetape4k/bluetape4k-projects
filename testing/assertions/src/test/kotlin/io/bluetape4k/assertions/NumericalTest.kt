@@ -1,6 +1,6 @@
 package io.bluetape4k.assertions
 
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource

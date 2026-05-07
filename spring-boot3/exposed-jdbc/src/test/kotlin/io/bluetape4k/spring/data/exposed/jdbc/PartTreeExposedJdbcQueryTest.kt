@@ -14,7 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -182,7 +182,7 @@ class PartTreeExposedJdbcQueryTest: AbstractExposedJdbcRepositoryTest() {
     @Test
     fun `@Query native - placeholder 인덱스가 잘못되면 예외를 던진다`() {
         createUsers()
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             userJdbcRepository.findByEmailNativeBrokenPlaceholder("alice@example.com")
         }
     }

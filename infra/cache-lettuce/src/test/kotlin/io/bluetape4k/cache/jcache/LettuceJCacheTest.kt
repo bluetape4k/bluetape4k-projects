@@ -13,7 +13,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.net.URI
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -257,7 +257,7 @@ class LettuceJCacheTest {
 
         try {
             intKeyCache.put(1, "one")
-            assertThrows<CacheException> {
+            assertFailsWith<CacheException> {
                 intKeyCache.iterator()
             }
         } finally {

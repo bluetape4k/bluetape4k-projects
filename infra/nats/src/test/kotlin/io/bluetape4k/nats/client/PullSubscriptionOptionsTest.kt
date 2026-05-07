@@ -1,7 +1,7 @@
 package io.bluetape4k.nats.client
 
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 
 class PullSubscriptionOptionsTest {
@@ -24,14 +24,14 @@ class PullSubscriptionOptionsTest {
 
     @Test
     fun `pullSubscriptionOptionsOf with blank stream throws IllegalArgumentException`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             pullSubscriptionOptionsOf("", "consumer-a")
         }
     }
 
     @Test
     fun `pullSubscriptionOptionsOf with blank bind throws IllegalArgumentException`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             pullSubscriptionOptionsOf("orders", "")
         }
     }

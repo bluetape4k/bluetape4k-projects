@@ -12,7 +12,7 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BigQueryContext] 단위 테스트 — 에뮬레이터 없이 MockK로 동작 검증.
@@ -59,7 +59,7 @@ class BigQueryContextUnitTest {
 
         val context = BigQueryContext(bq, "proj", "ds", sqlGenDb)
 
-        val ex = assertThrows<BigQueryQueryException> {
+        val ex = assertFailsWith<BigQueryQueryException> {
             context.runRawQuery("SELECT * FROM missing_table")
         }
         ex.message.shouldNotBeNull()
@@ -75,7 +75,7 @@ class BigQueryContextUnitTest {
 
         val context = BigQueryContext(bq, "proj", "ds", sqlGenDb)
 
-        val ex = assertThrows<BigQueryQueryException> {
+        val ex = assertFailsWith<BigQueryQueryException> {
             context.runRawQuery("SELECT 1")
         }
         ex.shouldBeInstanceOf<BigQueryQueryException>()
@@ -91,7 +91,7 @@ class BigQueryContextUnitTest {
 
         val context = BigQueryContext(bq, "proj", "ds", sqlGenDb)
 
-        val ex = assertThrows<BigQueryQueryException> {
+        val ex = assertFailsWith<BigQueryQueryException> {
             context.runRawQuery(sql)
         }
         ex.message!! shouldContain "bad_table_xyz"

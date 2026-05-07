@@ -3,8 +3,7 @@ package io.bluetape4k.exposed.tests
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class AssertionsTest: AbstractExposedTest() {
 
@@ -58,7 +57,7 @@ class AssertionsTest: AbstractExposedTest() {
     fun `assertEquals should fail when values are not equal`() {
         withDb(TestDB.H2) {
             val exception =
-                assertThrows<AssertionError> {
+                assertFailsWith<AssertionError> {
                     assertEquals(1, 2)
                 }
             exception.message.shouldNotBeNull()

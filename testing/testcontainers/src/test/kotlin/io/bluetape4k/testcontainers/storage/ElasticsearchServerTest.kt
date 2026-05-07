@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Suppress("DEPRECATION")
 class ElasticsearchServerTest: AbstractContainerTest() {

@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class BoundingBoxTest {
 
@@ -95,14 +95,14 @@ class BoundingBoxTest {
     @Test
     fun `cellBoundingBox size가 0이하이면 예외를 발생시킨다`() {
         val zone = UtmZone(52, 'S')
-        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = 0.0, row = 0, col = 0) }
-        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = -1.0, row = 0, col = 0) }
+        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = 0.0, row = 0, col = 0) }
+        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = -1.0, row = 0, col = 0) }
     }
 
     @Test
     fun `cellBoundingBox row나 col이 음수이면 예외를 발생시킨다`() {
         val zone = UtmZone(52, 'S')
-        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = -1, col = 0) }
-        assertThrows<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = 0, col = -1) }
+        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = -1, col = 0) }
+        assertFailsWith<IllegalArgumentException> { zone.cellBoundingBox(size = 1.0, row = 0, col = -1) }
     }
 }

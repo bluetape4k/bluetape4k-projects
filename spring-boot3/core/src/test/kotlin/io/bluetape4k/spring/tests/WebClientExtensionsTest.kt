@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.awaitBodilessEntity
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitBodyOrNull
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class WebClientExtensionsTest: AbstractSpringTest() {
 
@@ -58,7 +58,6 @@ class WebClientExtensionsTest: AbstractSpringTest() {
                     .awaitBodyOrNull<String>()
 
                 log.debug { "response=$response" }
-
             }
         }
     }

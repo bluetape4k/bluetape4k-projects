@@ -3,7 +3,6 @@ package io.bluetape4k.redis.redisson.cache
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
-import io.bluetape4k.assertions.invoking
 import org.redisson.api.RMap
 import org.redisson.client.codec.StringCodec
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -11,6 +10,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("RedisCacheInvalidationStrategy")
 class CacheInvalidationStrategyTest {
@@ -94,7 +94,7 @@ class CacheInvalidationStrategyTest {
         val cache = redissonClient.getMap<String, String>(randomName())
         val strategy = RedisCacheInvalidationStrategy(cache)
 
-        invoking { strategy.invalidateByPattern("") } shouldThrow IllegalArgumentException::class
-        invoking { strategy.invalidateByPattern("  ") } shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> { strategy.invalidateByPattern("") }
+        assertFailsWith<IllegalArgumentException> { strategy.invalidateByPattern("  ") }
     }
 }

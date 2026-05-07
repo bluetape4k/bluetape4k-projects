@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.toList
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * Flow가 아무 요소도 방출하지 않는지 검증합니다.

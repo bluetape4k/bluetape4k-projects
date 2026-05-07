@@ -43,7 +43,7 @@ import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.query.query
 import org.springframework.data.cassandra.core.query.where
 import java.io.Serializable
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest
 class ReactiveSelectOperationsTest(

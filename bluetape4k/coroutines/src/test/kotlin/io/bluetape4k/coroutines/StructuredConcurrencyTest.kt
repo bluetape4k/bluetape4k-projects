@@ -12,7 +12,7 @@ import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -47,7 +47,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `taskScope - subtask 실패 시 예외 전파`() = runSuspendIO {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             taskScope<Int> {
                 fork { throw RuntimeException("subtask 실패") }
                 join().throwIfFailed()
@@ -59,7 +59,7 @@ class StructuredConcurrencyTest {
     @Test
     fun `taskScope - 하나 실패 시 다른 subtask 중단`() = runSuspendIO {
         val counter = AtomicInteger(0)
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             taskScope<Unit> {
                 fork { throw RuntimeException("빠른 실패") }
                 fork {
@@ -86,7 +86,7 @@ class StructuredConcurrencyTest {
     @Test
     fun `taskScope - getOrNull은 실패 subtask에 null 반환`() = runSuspendIO {
         val captured = mutableListOf<io.bluetape4k.concurrent.virtualthread.StructuredSubtask<Int>>()
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             taskScope<Int> {
                 captured += fork<Int> { throw RuntimeException("실패") }
                 fork { 42 }
@@ -124,7 +124,7 @@ class StructuredConcurrencyTest {
 
     @Test
     fun `firstSuccessTaskScope - 모두 실패 시 mapper 예외 발생`() = runSuspendIO {
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             firstSuccessTaskScope<String> {
                 fork { throw RuntimeException("실패 1") }
                 fork { throw RuntimeException("실패 2") }
@@ -368,7 +368,7 @@ class StructuredConcurrencyTest {
     @Test
     fun `taskScope joinUntil - 데드라인 초과 시 TimeoutException`() = runSuspendIO {
         val deadline = java.time.Instant.now().plusMillis(50)
-        assertThrows<TimeoutException> {
+        assertFailsWith<TimeoutException> {
             taskScope<Unit> {
                 fork { Thread.sleep(5000) }
                 joinUntil(deadline).throwIfFailed()
@@ -379,7 +379,7 @@ class StructuredConcurrencyTest {
     @Test
     fun `supervisedTaskScope joinUntil - 데드라인 초과 시 TimeoutException`() = runSuspendIO {
         val deadline = java.time.Instant.now().plusMillis(50)
-        assertThrows<TimeoutException> {
+        assertFailsWith<TimeoutException> {
             supervisedTaskScope<Int, List<Result<Int>>> {
                 fork { Thread.sleep(5000); 1 }
                 joinUntil(deadline)

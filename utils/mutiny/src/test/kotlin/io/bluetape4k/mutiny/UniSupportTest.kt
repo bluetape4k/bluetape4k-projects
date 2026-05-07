@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
@@ -72,7 +72,7 @@ class UniSupportTest {
         val error = IllegalStateException("boom")
         val uni = uniFailureOf<Int>(error)
 
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             uni.await().indefinitely()
         }
     }
@@ -81,7 +81,7 @@ class UniSupportTest {
     fun `uniFailureOf supplier는 실패 Uni를 생성한다`() {
         val uni = uniFailureOf<Int> { IllegalArgumentException("invalid") }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             uni.await().indefinitely()
         }
     }

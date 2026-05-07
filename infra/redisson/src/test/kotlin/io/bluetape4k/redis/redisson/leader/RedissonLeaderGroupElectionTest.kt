@@ -15,7 +15,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.redisson.client.RedisException
@@ -59,7 +59,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
 
     @Test
     fun `runIfLeader - action 예외 발생 시 예외가 호출자에게 전파된다`() {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             election.runIfLeader(randomName()) { throw RuntimeException("테스트 예외") }
         }
     }
@@ -91,7 +91,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
 
         try {
             acquiredLatch.await(2, TimeUnit.SECONDS)
-            assertThrows<RedisException> {
+            assertFailsWith<RedisException> {
                 singleElection.runIfLeader(lockName) { }
             }
         } finally {
@@ -301,7 +301,7 @@ class RedissonLeaderGroupElectionTest: AbstractRedissonTest() {
     fun `runAsyncIfLeader - failed future 발생 시 CompletionException 으로 전파되고 슬롯이 반환된다`() {
         val lockName = randomName()
 
-        assertThrows<CompletionException> {
+        assertFailsWith<CompletionException> {
             election.runAsyncIfLeader(lockName) {
                 futureOf<Int> { throw IllegalStateException("boom") }
             }.join()

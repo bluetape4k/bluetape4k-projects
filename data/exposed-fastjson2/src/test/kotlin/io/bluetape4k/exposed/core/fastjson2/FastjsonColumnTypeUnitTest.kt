@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [FastjsonColumnType] 및 [FastjsonBColumnType]의 직렬화/역직렬화 단위 테스트입니다.
@@ -97,7 +97,7 @@ class FastjsonColumnTypeUnitTest {
 
     @Test
     fun `valueFromDB 에 잘못된 JSON 문자열이 들어오면 예외가 발생한다`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             columnType.valueFromDB("not-valid-json")
         }
     }
@@ -119,7 +119,7 @@ class FastjsonColumnTypeUnitTest {
             serilaize = { serializer.serializeAsString(it) },
             deserialize = requireNotNullDeserialize
         )
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ct.valueFromDB("")
         }
     }
@@ -137,7 +137,7 @@ class FastjsonColumnTypeUnitTest {
                 }
             }
         )
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             bColumnType.valueFromDB("")
         }
     }

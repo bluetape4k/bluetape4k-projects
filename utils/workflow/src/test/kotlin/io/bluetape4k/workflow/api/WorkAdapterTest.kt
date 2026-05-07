@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class WorkAdapterTest: AbstractWorkflowTest() {
@@ -149,17 +149,17 @@ class WorkAdapterTest: AbstractWorkflowTest() {
 
     @Test
     fun `RetryPolicy maxAttempts 1 미만이면 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RetryPolicy(maxAttempts = 0)
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RetryPolicy(maxAttempts = -1)
         }
     }
 
     @Test
     fun `RetryPolicy backoffMultiplier 1 미만이면 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RetryPolicy(maxAttempts = 3, backoffMultiplier = 0.5)
         }
     }

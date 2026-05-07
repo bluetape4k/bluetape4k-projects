@@ -11,7 +11,7 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class RedisServerTest: AbstractContainerTest() {
 

@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
@@ -45,10 +45,10 @@ class AbstractLocalLeaderElectionTest {
     fun `blank lockName 으로 호출 시 IllegalArgumentException 이 발생한다 (LocalLeaderElection)`() {
         val election = LocalLeaderElection()
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             election.runIfLeader("") { "should fail" }
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             election.runIfLeader("   ") { "should fail" }
         }
     }
@@ -57,7 +57,7 @@ class AbstractLocalLeaderElectionTest {
     fun `blank lockName 으로 호출 시 IllegalArgumentException 이 발생한다 (LocalAsyncLeaderElection)`() {
         val election = LocalAsyncLeaderElection()
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             election.runAsyncIfLeader("") {
                 CompletableFuture.completedFuture("should fail")
             }.join()

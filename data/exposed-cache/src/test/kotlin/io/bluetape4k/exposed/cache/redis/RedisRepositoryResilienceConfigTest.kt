@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 /**
@@ -84,42 +84,42 @@ class RedisRepositoryResilienceConfigTest {
 
     @Test
     fun `retryMaxAttempts가 0이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedisRepositoryResilienceConfig(retryMaxAttempts = 0)
         }
     }
 
     @Test
     fun `retryMaxAttempts가 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedisRepositoryResilienceConfig(retryMaxAttempts = -1)
         }
     }
 
     @Test
     fun `retryWaitDuration이 0이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedisRepositoryResilienceConfig(retryWaitDuration = Duration.ZERO)
         }
     }
 
     @Test
     fun `retryWaitDuration이 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedisRepositoryResilienceConfig(retryWaitDuration = Duration.ofMillis(-1))
         }
     }
 
     @Test
     fun `timeoutDuration이 0이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedisRepositoryResilienceConfig(timeoutDuration = Duration.ZERO)
         }
     }
 
     @Test
     fun `timeoutDuration이 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedisRepositoryResilienceConfig(timeoutDuration = Duration.ofMillis(-1))
         }
     }

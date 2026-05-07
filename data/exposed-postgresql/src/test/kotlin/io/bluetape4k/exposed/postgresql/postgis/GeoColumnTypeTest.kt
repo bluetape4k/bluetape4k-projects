@@ -24,6 +24,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * PostGIS 컬럼 타입 및 공간 함수 통합 테스트.
@@ -199,7 +200,7 @@ class GeoColumnTypeTest: AbstractExposedTest() {
         val polygonWkt = "SRID=4326;POLYGON((126 37,127 37,127 38,126 38,126 37))"
         val pointType = GeoPointColumnType()
 
-        org.junit.jupiter.api.assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             pointType.valueFromDB(polygonWkt)
         }
     }
@@ -210,7 +211,7 @@ class GeoColumnTypeTest: AbstractExposedTest() {
         val pointWkt = "SRID=4326;POINT(126.9780 37.5665)"
         val polygonType = GeoPolygonColumnType()
 
-        org.junit.jupiter.api.assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             polygonType.valueFromDB(pointWkt)
         }
     }

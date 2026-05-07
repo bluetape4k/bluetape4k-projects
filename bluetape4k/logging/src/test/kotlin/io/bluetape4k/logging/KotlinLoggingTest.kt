@@ -2,7 +2,7 @@ package io.bluetape4k.logging
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.assertTrue
 
 class KotlinLoggingTest {

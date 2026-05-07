@@ -4,7 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * iterator 테스트
@@ -29,7 +29,7 @@ class IteratorTest: AbstractPermutationTest() {
         iterator.next() shouldBeEqualTo "a"
         iterator.hasNext().shouldBeFalse()
 
-        assertThrows<NoSuchElementException> {
+        assertFailsWith<NoSuchElementException> {
             iterator.next()
         }
     }

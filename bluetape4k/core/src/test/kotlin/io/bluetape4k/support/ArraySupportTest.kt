@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 import kotlin.byteArrayOf
 import kotlin.longArrayOf
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.assertTrue
 
 class ArraySupportTest {

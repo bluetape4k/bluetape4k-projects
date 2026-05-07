@@ -29,7 +29,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.time.LocalDate
 import java.time.Month
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
 class StageStatelessSessionExamples: AbstractStageTest() {

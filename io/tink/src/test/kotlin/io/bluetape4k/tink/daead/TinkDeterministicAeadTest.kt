@@ -5,7 +5,7 @@ import io.bluetape4k.tink.daeadKeysetHandle
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
@@ -61,7 +61,7 @@ class TinkDeterministicAeadTest {
 
         val ciphertext = daead.encryptDeterministically(plaintext, correctAd)
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             daead.decryptDeterministically(ciphertext, wrongAd)
         }
     }
@@ -94,7 +94,7 @@ class TinkDeterministicAeadTest {
         val plaintext = "비밀 필드".toByteArray()
         val ciphertext = daead.encryptDeterministically(plaintext)
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             daead2.decryptDeterministically(ciphertext)
         }
     }
@@ -106,7 +106,7 @@ class TinkDeterministicAeadTest {
         val tampered = ciphertext.copyOf()
             .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             daead.decryptDeterministically(tampered)
         }
     }

@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.tests
 import org.jetbrains.exposed.v1.core.Transaction
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Suppress("UnusedReceiverParameter")
 private val Transaction.failedOn: String
@@ -78,7 +78,7 @@ fun <T> Transaction.assertNotEquals(exp: T, act: T) =
  * // IllegalArgumentException 검증 성공
  * ```
  */
-inline fun <reified T: Throwable> expectException(body: () -> Unit) {
+inline fun <reified T: Throwable> expectException(crossinline body: () -> Unit) {
     assertFailsWith<T>("Failed on ${currentDialectTest.name}") {
         body()
     }

@@ -12,7 +12,7 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.PrintStream
 import java.net.URL
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class NginxServerTest: AbstractContainerTest() {
 

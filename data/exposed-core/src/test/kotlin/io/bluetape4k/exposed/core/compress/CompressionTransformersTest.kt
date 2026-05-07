@@ -7,7 +7,7 @@ import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * 특정 예외를 던지는 테스트용 Compressor 구현체.

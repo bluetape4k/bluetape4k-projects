@@ -14,7 +14,7 @@ import kotlinx.coroutines.yield
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class ObservationCoroutinesSupportTest: AbstractObservationTest() {

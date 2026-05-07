@@ -8,7 +8,7 @@ import io.github.resilience4j.bulkhead.BulkheadFullException
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class BulkheadExtensionsTest {
 

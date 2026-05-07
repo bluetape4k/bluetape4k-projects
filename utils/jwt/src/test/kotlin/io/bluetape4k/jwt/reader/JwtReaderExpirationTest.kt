@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.*
 
 class JwtReaderExpirationTest: AbstractJwtTest() {
@@ -39,7 +39,7 @@ class JwtReaderExpirationTest: AbstractJwtTest() {
         }.compose()
 
         // jjwt 는 기본적으로 만료된 토큰 파싱 시 예외를 던진다
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             provider.parse(jwt)
         }
     }
@@ -75,7 +75,7 @@ class JwtReaderExpirationTest: AbstractJwtTest() {
 
     @Test
     fun `parse - 잘못된 JWT 문자열은 예외를 던진다`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             provider.parse("invalid.jwt.string")
         }
     }

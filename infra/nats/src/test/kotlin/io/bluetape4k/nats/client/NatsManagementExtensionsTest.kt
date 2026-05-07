@@ -16,7 +16,7 @@ import io.nats.client.api.StreamInfo
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 import java.io.IOException
 
@@ -39,7 +39,7 @@ class JetStreamManagementExtensionsTest {
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
         val thrown =
-            assertThrows(JetStreamApiException::class.java) {
+            assertFailsWith<JetStreamApiException> {
                 jetStreamManagement.forcedDeleteStream("orders")
             }
 
@@ -52,7 +52,7 @@ class JetStreamManagementExtensionsTest {
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
         val thrown =
-            assertThrows(IOException::class.java) {
+            assertFailsWith<IOException> {
                 jetStreamManagement.forcedDeleteStream("orders")
             }
 
@@ -75,7 +75,7 @@ class JetStreamManagementExtensionsTest {
         every { jetStreamManagement.deleteConsumer("orders", "consumer-a") } throws unexpected
 
         val thrown =
-            assertThrows(IOException::class.java) {
+            assertFailsWith<IOException> {
                 jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
             }
 
@@ -98,7 +98,7 @@ class JetStreamManagementExtensionsTest {
         every { jetStreamManagement.purgeStream("orders") } throws unexpected
 
         val thrown =
-            assertThrows(IOException::class.java) {
+            assertFailsWith<IOException> {
                 jetStreamManagement.forcedPurgeStream("orders")
             }
 
@@ -111,7 +111,7 @@ class JetStreamManagementExtensionsTest {
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
         val thrown =
-            assertThrows(JetStreamApiException::class.java) {
+            assertFailsWith<JetStreamApiException> {
                 jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
             }
 
@@ -124,7 +124,7 @@ class JetStreamManagementExtensionsTest {
         every { jetStreamManagement.deleteStream("orders") } throws unexpected
 
         val thrown =
-            assertThrows(IOException::class.java) {
+            assertFailsWith<IOException> {
                 jetStreamManagement.createOrReplaceStream("orders", subjects = arrayOf("orders.created"))
             }
 
@@ -229,7 +229,7 @@ class KeyValueManagementExtensionsTest {
         every { keyValueManagement.delete("events") } throws unexpected
 
         val thrown =
-            assertThrows(JetStreamApiException::class.java) {
+            assertFailsWith<JetStreamApiException> {
                 keyValueManagement.forcedDelete("events")
             }
 
@@ -242,7 +242,7 @@ class KeyValueManagementExtensionsTest {
         every { keyValueManagement.delete("events") } throws unexpected
 
         val thrown =
-            assertThrows(IOException::class.java) {
+            assertFailsWith<IOException> {
                 keyValueManagement.forcedDelete("events")
             }
 
@@ -277,7 +277,7 @@ class ObjectStreamManagementExtensionsTest {
         every { objectStoreManagement.delete("artifacts") } throws unexpected
 
         val thrown =
-            assertThrows(JetStreamApiException::class.java) {
+            assertFailsWith<JetStreamApiException> {
                 objectStoreManagement.tryDelete("artifacts")
             }
 
@@ -290,7 +290,7 @@ class ObjectStreamManagementExtensionsTest {
         every { objectStoreManagement.delete("artifacts") } throws unexpected
 
         val thrown =
-            assertThrows(IOException::class.java) {
+            assertFailsWith<IOException> {
                 objectStoreManagement.tryDelete("artifacts")
             }
 

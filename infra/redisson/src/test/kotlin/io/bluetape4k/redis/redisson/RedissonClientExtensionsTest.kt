@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class RedissonClientExtensionsTest: AbstractRedissonTest() {
 
@@ -62,7 +62,7 @@ class RedissonClientExtensionsTest: AbstractRedissonTest() {
         val map = redisson.getMap<String, String>(mapName)
 
         try {
-            assertThrows<IllegalStateException> {
+            assertFailsWith<IllegalStateException> {
                 redisson.withTransaction {
                     val txMap = getMap<String, String>(mapName)
                     txMap["1"] = "value"

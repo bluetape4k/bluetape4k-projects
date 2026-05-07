@@ -21,7 +21,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.security.SecureRandom
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class UuidTest {
     companion object: KLoggingChannel() {

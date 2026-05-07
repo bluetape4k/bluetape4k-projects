@@ -9,7 +9,7 @@ import org.apache.commons.math3.exception.NoBracketingException
 import org.junit.jupiter.api.Test
 import kotlin.math.PI
 import kotlin.math.sin
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractEquatorTest {
 

@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.client.toEntity
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class RestClientExtensionsTest {
     companion object: KLogging() {

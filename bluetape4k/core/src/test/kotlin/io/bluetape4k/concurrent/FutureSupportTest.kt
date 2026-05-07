@@ -80,7 +80,6 @@ class FutureSupportTest {
             .run()
 
         counter.get() shouldBeEqualTo Runtimex.availableProcessors * 2 * ITEM_COUNT / 4
-
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)

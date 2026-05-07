@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLFeatureNotSupportedException
@@ -42,7 +42,7 @@ class ClickHouseTransactionPocTest : AbstractClickHouseTest() {
             conn.autoCommit = true
             // ClickHouse JDBC 0.9.5 드라이버는 commit()을 지원하지 않아 throw함
             // → ClickHouseConnectionWrapper에서 no-op으로 처리해야 하는 이유
-            assertThrows<SQLFeatureNotSupportedException> {
+            assertFailsWith<SQLFeatureNotSupportedException> {
                 conn.commit()
             }
             log.info("raw commit() with autoCommit=true: throws SQLFeatureNotSupportedException as expected")
@@ -57,7 +57,7 @@ class ClickHouseTransactionPocTest : AbstractClickHouseTest() {
         rawConnection().use { conn ->
             conn.autoCommit = true
             // ClickHouse JDBC 0.9.5 드라이버는 rollback()을 지원하지 않아 throw함
-            assertThrows<SQLFeatureNotSupportedException> {
+            assertFailsWith<SQLFeatureNotSupportedException> {
                 conn.rollback()
             }
             log.info("raw rollback() with autoCommit=true: throws SQLFeatureNotSupportedException as expected")

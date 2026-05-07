@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [JacksonColumnType] 및 [JacksonBColumnType]의 직렬화/역직렬화 단위 테스트입니다.
@@ -96,7 +96,7 @@ class Jackson3ColumnTypeUnitTest {
 
     @Test
     fun `valueFromDB 에 잘못된 JSON 문자열이 들어오면 예외가 발생한다`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             columnType.valueFromDB("not-valid-json")
         }
     }

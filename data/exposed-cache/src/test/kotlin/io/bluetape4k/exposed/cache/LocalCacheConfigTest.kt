@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 /**
@@ -80,14 +80,14 @@ class LocalCacheConfigTest {
     @Test
     fun `keyPrefix가 빈 문자열이면 IllegalArgumentException이 발생한다`() {
         // 빈 keyPrefix는 캐시 키 네임스페이스 충돌로 이어지므로 허용하지 않는다.
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(keyPrefix = "")
         }
     }
 
     @Test
     fun `keyPrefix가 공백만 있으면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(keyPrefix = "   ")
         }
     }
@@ -99,14 +99,14 @@ class LocalCacheConfigTest {
     @Test
     fun `maximumSize가 0이면 IllegalArgumentException이 발생한다`() {
         // maximumSize 0은 캐시를 비활성화하거나 구현체에 따라 OOM을 유발할 수 있다.
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(maximumSize = 0L)
         }
     }
 
     @Test
     fun `maximumSize가 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(maximumSize = -1L)
         }
     }
@@ -118,14 +118,14 @@ class LocalCacheConfigTest {
     @Test
     fun `expireAfterWrite가 0이면 IllegalArgumentException이 발생한다`() {
         // 0 이하이면 저장 직후 즉시 만료되어 캐시 효과가 없다.
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(expireAfterWrite = Duration.ZERO)
         }
     }
 
     @Test
     fun `expireAfterWrite가 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(expireAfterWrite = Duration.ofSeconds(-1))
         }
     }
@@ -137,14 +137,14 @@ class LocalCacheConfigTest {
     @Test
     fun `expireAfterAccess가 0이면 IllegalArgumentException이 발생한다`() {
         // 설정된 expireAfterAccess가 0이면 접근 직후 즉시 만료되는 것과 같다.
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(expireAfterAccess = Duration.ZERO)
         }
     }
 
     @Test
     fun `expireAfterAccess가 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(expireAfterAccess = Duration.ofSeconds(-1))
         }
     }
@@ -162,14 +162,14 @@ class LocalCacheConfigTest {
     @Test
     fun `writeBehindBatchSize가 0이면 IllegalArgumentException이 발생한다`() {
         // writeBehindBatchSize 0은 Write-Behind flush 배치가 영원히 실행되지 않는다.
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(writeBehindBatchSize = 0)
         }
     }
 
     @Test
     fun `writeBehindBatchSize가 음수이면 IllegalArgumentException이 발생한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(writeBehindBatchSize = -1)
         }
     }
@@ -181,7 +181,7 @@ class LocalCacheConfigTest {
     @Test
     fun `writeBehindQueueCapacity가 writeBehindBatchSize보다 작으면 IllegalArgumentException이 발생한다`() {
         // 큐 용량이 배치 크기보다 작으면 큐가 즉시 포화되어 Write-Behind가 동작하지 않는다.
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LocalCacheConfig(writeBehindBatchSize = 100, writeBehindQueueCapacity = 99)
         }
     }

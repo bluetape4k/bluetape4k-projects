@@ -265,6 +265,5 @@ class KafkaServer private constructor(
             val props = getConsumerProperties(kafkaServer)
             return KafkaConsumer(props, ByteArrayDeserializer(), ByteArrayDeserializer())
         }
-
     }
 }

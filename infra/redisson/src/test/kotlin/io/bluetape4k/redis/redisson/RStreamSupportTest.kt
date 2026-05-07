@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
@@ -17,6 +16,7 @@ import org.redisson.api.stream.StreamCreateGroupArgs
 import org.redisson.api.stream.StreamMessageId
 import org.redisson.api.stream.StreamReadGroupArgs
 import java.time.Duration
+import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("RStreamSupport")
 class RStreamSupportTest {
@@ -64,17 +64,17 @@ class RStreamSupportTest {
     @Test
     fun `ackAllAsync - 빈 ids 는 IllegalArgumentException 을 던진다`() {
         val stream = newStream()
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             stream.ackAllAsync("group-a", emptyList())
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `ackAllAsync - 빈 groupName 은 IllegalArgumentException 을 던진다`() {
         val stream = newStream()
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             stream.ackAllAsync("", listOf(StreamMessageId.NEWEST))
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
@@ -102,37 +102,37 @@ class RStreamSupportTest {
     @Test
     fun `claimAllAsync - 빈 ids 는 IllegalArgumentException 을 던진다`() {
         val stream = newStream()
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             stream.claimAllAsync(
                 groupName = "g",
                 consumerName = "c",
                 ids = emptyList()
             )
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `claimAllAsync - 빈 consumerName 은 IllegalArgumentException 을 던진다`() {
         val stream = newStream()
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             stream.claimAllAsync(
                 groupName = "g",
                 consumerName = " ",
                 ids = listOf(StreamMessageId.NEWEST)
             )
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `fastClaimAllAsync - 빈 ids 는 IllegalArgumentException 을 던진다`() {
         val stream = newStream()
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             stream.fastClaimAllAsync(
                 groupName = "g",
                 consumerName = "c",
                 ids = emptyList()
             )
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test

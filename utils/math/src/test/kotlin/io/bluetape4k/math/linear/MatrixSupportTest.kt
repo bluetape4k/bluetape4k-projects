@@ -10,7 +10,7 @@ import org.apache.commons.math3.fraction.Fraction
 import org.apache.commons.math3.fraction.FractionField
 import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class MatrixSupportTest {
 
@@ -134,35 +134,35 @@ class MatrixSupportTest {
     @Test
     fun `checkRowIndex는 유효 범위를 벗어난 인덱스에서 예외를 던진다`() {
         val m = realMatrixOf(3, 3)
-        assertThrows<Exception> { m.checkRowIndex(99) }
-        assertThrows<Exception> { m.checkRowIndex(-1) }
+        assertFailsWith<Exception> { m.checkRowIndex(99) }
+        assertFailsWith<Exception> { m.checkRowIndex(-1) }
     }
 
     @Test
     fun `checkColumnIndex는 유효 범위를 벗어난 인덱스에서 예외를 던진다`() {
         val m = realMatrixOf(3, 3)
-        assertThrows<Exception> { m.checkColumnIndex(99) }
+        assertFailsWith<Exception> { m.checkColumnIndex(99) }
     }
 
     @Test
     fun `checkMatrixIndex는 유효 범위를 벗어난 인덱스에서 예외를 던진다`() {
         val m = realMatrixOf(3, 3)
-        assertThrows<Exception> { m.checkMatrixIndex(99, 0) }
-        assertThrows<Exception> { m.checkMatrixIndex(0, 99) }
+        assertFailsWith<Exception> { m.checkMatrixIndex(99, 0) }
+        assertFailsWith<Exception> { m.checkMatrixIndex(0, 99) }
     }
 
     @Test
     fun `checkAdditionCompatible은 크기가 다른 행렬에서 예외를 던진다`() {
         val m1 = realMatrixOf(2, 3)
         val m2 = realMatrixOf(3, 2)
-        assertThrows<Exception> { m1.checkAdditionCompatible(m2) }
+        assertFailsWith<Exception> { m1.checkAdditionCompatible(m2) }
     }
 
     @Test
     fun `checkMultiplicationCompatible은 열-행 크기가 맞지 않으면 예외를 던진다`() {
         val m1 = realMatrixOf(2, 3)
         val m2 = realMatrixOf(2, 2)
-        assertThrows<Exception> { m1.checkMultiplicationCompatible(m2) }
+        assertFailsWith<Exception> { m1.checkMultiplicationCompatible(m2) }
     }
 
     @Test

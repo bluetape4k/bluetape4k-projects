@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.redisson.api.RMap
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
@@ -100,7 +100,7 @@ class RedissonAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         try {
-            assertThrows<ExecutionException> {
+            assertFailsWith<ExecutionException> {
                 memoizer(5).get(2, TimeUnit.SECONDS)
             }
 

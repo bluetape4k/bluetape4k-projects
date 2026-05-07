@@ -4,13 +4,13 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
+import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("mapCache DSL")
 class MapCacheSupportTest {
@@ -43,8 +43,8 @@ class MapCacheSupportTest {
 
     @Test
     fun `mapCache - 빈 이름은 IllegalArgumentException 을 던진다`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             mapCache<String, String>("", redissonClient)
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 }

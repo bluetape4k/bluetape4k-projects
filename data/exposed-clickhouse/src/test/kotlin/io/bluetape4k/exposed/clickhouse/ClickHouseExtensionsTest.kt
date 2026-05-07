@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.sql.ResultSet
 import kotlin.time.Duration.Companion.seconds
 
@@ -25,7 +25,7 @@ class ClickHouseExtensionsTest: AbstractClickHouseTest() {
 
     @Test
     fun `suspendTransaction - 예외 전파`() {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             runBlocking {
                 suspendTransaction(db) { error("test") }
             }

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.GraphDatabase
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @TestInstance(Lifecycle.PER_CLASS)
 class MemgraphServerTest: AbstractContainerTest() {

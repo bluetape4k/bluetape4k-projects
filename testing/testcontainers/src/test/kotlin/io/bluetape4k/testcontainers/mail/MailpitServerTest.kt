@@ -5,7 +5,7 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [MailpitServer] 테스트

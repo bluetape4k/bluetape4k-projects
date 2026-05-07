@@ -167,7 +167,6 @@ object TestService {
 
         @GET("anything/posts/{id}")
         fun getPost(@Path("id") postId: Int): Mono<HttpbinAnythingResponse>
-
     }
 
     /** `/anything`, `/put`, `/patch` 처럼 메소드와 본문 정보를 포함하는 범용 응답입니다. */

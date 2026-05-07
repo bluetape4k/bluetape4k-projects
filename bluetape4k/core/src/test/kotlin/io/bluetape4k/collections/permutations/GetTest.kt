@@ -2,7 +2,7 @@ package io.bluetape4k.collections.permutations
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * 인덱스 접근 테스트
@@ -12,7 +12,7 @@ class GetTest: AbstractPermutationTest() {
     @Test
     fun `음수 인덱스로 접근 시 예외 발생`() {
         val naturals = numbers(1)
-        assertThrows<IndexOutOfBoundsException> {
+        assertFailsWith<IndexOutOfBoundsException> {
             naturals.get(-1)
         }
     }
@@ -20,7 +20,7 @@ class GetTest: AbstractPermutationTest() {
     @Test
     fun `빈 순열의 첫 요소 접근 시 예외 발생`() {
         val empty = emptyPermutation<Int>()
-        assertThrows<IndexOutOfBoundsException> {
+        assertFailsWith<IndexOutOfBoundsException> {
             empty.get(0)
         }
     }
@@ -28,7 +28,7 @@ class GetTest: AbstractPermutationTest() {
     @Test
     fun `범위를 넘어서는 접근 시 예외 발생`() {
         val seq = permutationOf(1, 2, 3)
-        assertThrows<IndexOutOfBoundsException> {
+        assertFailsWith<IndexOutOfBoundsException> {
             seq.get(3)
         }
     }

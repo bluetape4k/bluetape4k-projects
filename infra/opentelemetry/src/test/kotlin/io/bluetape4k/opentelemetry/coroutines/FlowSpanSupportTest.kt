@@ -24,7 +24,7 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -180,7 +180,7 @@ class FlowSpanSupportTest: AbstractOtelTest() {
 
     @Test
     fun `traced with blank spanName should throw IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             runSuspendIO {
                 flowOf(1).traced(tracer, "").collect { }
             }
@@ -189,7 +189,7 @@ class FlowSpanSupportTest: AbstractOtelTest() {
 
     @Test
     fun `tracedCollect with blank spanName should throw IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             runSuspendIO {
                 flowOf(1).tracedCollect(tracer, "  ") { }
             }

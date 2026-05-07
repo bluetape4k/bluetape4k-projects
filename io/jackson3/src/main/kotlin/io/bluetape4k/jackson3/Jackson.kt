@@ -94,7 +94,6 @@ object Jackson: KLogging() {
             enable(
                 JsonReadFeature.ALLOW_TRAILING_COMMA
             )
-
         }
     }
 }

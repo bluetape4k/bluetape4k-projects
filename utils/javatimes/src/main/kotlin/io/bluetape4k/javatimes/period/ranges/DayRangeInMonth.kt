@@ -53,7 +53,6 @@ open class DayRangeInMonth(
         return other is DayRangeInMonth &&
                 startDayOfMonth == other.startDayOfMonth &&
                 endDayOfMonth == other.endDayOfMonth
-
     }
 
     override fun buildStringHelper(): ToStringBuilder {

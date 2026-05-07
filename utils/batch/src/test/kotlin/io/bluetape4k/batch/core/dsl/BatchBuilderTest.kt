@@ -10,13 +10,13 @@ import io.bluetape4k.batch.core.InMemoryBatchJobRepository
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.workflow.api.RetryPolicy
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BatchJobBuilder] 및 [BatchStepBuilder] DSL 빌더 검증 테스트.
@@ -114,41 +114,41 @@ class BatchBuilderTest {
 
     @Test
     fun `BatchStepBuilder - reader 없으면 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchStepBuilder<String, String>("step1").apply {
                 writer(noopWriter)
             }.build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `BatchStepBuilder - writer 없으면 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchStepBuilder<String, String>("step1").apply {
                 reader(noopReader)
             }.build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `BatchStepBuilder - chunkSize 0 이하면 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchStepBuilder<String, String>("step1").apply {
                 reader(noopReader)
                 writer(noopWriter)
                 chunkSize(0)
             }.build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `BatchStepBuilder - name이 blank이면 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchStepBuilder<String, String>("   ").apply {
                 reader(noopReader)
                 writer(noopWriter)
             }.build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── BatchStep 직접 생성 테스트 ──────────────────────────────────────────
@@ -169,26 +169,26 @@ class BatchBuilderTest {
 
     @Test
     fun `BatchStep - name blank이면 init에서 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchStep(
                 name = "",
                 chunkSize = 100,
                 reader = noopReader,
                 writer = noopWriter,
             )
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `BatchStep - chunkSize 0 이하이면 init에서 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchStep(
                 name = "step",
                 chunkSize = -1,
                 reader = noopReader,
                 writer = noopWriter,
             )
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── BatchJobBuilder 단위 테스트 ─────────────────────────────────────────
@@ -289,21 +289,21 @@ class BatchBuilderTest {
 
     @Test
     fun `BatchJobBuilder - name blank이면 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchJobBuilder("").apply {
                 step<String, String>("step1") {
                     reader(noopReader)
                     writer(noopWriter)
                 }
             }.build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `BatchJobBuilder - step 없으면 IllegalArgumentException`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             BatchJobBuilder("emptyJob").build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── batchJob DSL 함수 통합 테스트 ──────────────────────────────────────

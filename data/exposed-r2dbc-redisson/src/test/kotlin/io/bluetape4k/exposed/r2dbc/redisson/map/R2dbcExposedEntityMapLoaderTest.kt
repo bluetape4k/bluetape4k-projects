@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.r2dbc.insert
 import java.io.Serializable
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class R2dbcExposedEntityMapLoaderTest: AbstractExposedR2dbcTest() {
 

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.StandardOpenOption
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @TempFolderTest
 class SuspendedFileChannelSinkTest: AbstractOkioTest() {

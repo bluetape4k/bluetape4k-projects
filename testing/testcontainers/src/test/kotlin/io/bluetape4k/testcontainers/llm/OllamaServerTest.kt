@@ -10,7 +10,7 @@ import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.DockerImageName
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Disabled("사용 빈도가 낮고, 파일 사이즈가 크다")
 class OllamaServerTest: AbstractContainerTest() {

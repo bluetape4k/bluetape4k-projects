@@ -16,7 +16,7 @@ import org.junit.jupiter.api.fail
 import tools.jackson.module.kotlin.treeToValue
 import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class AsyncJsonParserTest {
     companion object: KLogging()

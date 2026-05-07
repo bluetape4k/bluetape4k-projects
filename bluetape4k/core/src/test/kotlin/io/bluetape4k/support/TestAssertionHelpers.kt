@@ -2,7 +2,7 @@
 
 package io.bluetape4k.support
 
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /** [block]이 [IllegalArgumentException]을 던지는지 확인합니다. */
 inline fun shouldFailRequire(noinline block: () -> Unit): IllegalArgumentException =

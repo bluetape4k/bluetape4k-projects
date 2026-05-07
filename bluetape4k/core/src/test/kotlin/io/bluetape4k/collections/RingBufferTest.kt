@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class RingBufferTest {
 
@@ -14,8 +14,8 @@ class RingBufferTest {
 
     @Test
     fun `maxSize가 0 이하이면 예외 발생`() {
-        assertThrows<IllegalArgumentException> { RingBuffer<String>(0) }
-        assertThrows<IllegalArgumentException> { RingBuffer<String>(-1) }
+        assertFailsWith<IllegalArgumentException> { RingBuffer<String>(0) }
+        assertFailsWith<IllegalArgumentException> { RingBuffer<String>(-1) }
     }
 
     @Test
@@ -30,13 +30,13 @@ class RingBufferTest {
     @Test
     fun `빈 버퍼에서 get 시 IndexOutOfBoundsException 발생`() {
         val ring = RingBuffer<String>(4)
-        assertThrows<IndexOutOfBoundsException> { ring[0] }
+        assertFailsWith<IndexOutOfBoundsException> { ring[0] }
     }
 
     @Test
     fun `빈 버퍼에서 next 시 NoSuchElementException 발생`() {
         val ring = RingBuffer<String>(4)
-        assertThrows<NoSuchElementException> { ring.next() }
+        assertFailsWith<NoSuchElementException> { ring.next() }
     }
 
     @Test

@@ -10,7 +10,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class CollectionSupportTest {
 
@@ -63,8 +63,8 @@ class CollectionSupportTest {
         list.swap(1, 1)
         list shouldContainSame listOf(3, 2, 1)
 
-        assertThrows<IllegalArgumentException> { list.swap(-1, 1) }
-        assertThrows<IllegalArgumentException> { list.swap(0, 3) }
+        assertFailsWith<IllegalArgumentException> { list.swap(-1, 1) }
+        assertFailsWith<IllegalArgumentException> { list.swap(0, 3) }
     }
 
     @Test

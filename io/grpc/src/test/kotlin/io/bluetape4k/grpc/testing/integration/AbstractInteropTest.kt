@@ -491,7 +491,6 @@ abstract class AbstractInteropTest {
         if (requests != null && responses != null) {
             checkTracers(tracerInfo.tracer, responses, requests)
         }
-
     }
 
     private fun checkTracers(

@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class UtmZoneTest {
 
@@ -77,18 +77,18 @@ class UtmZoneTest {
 
     @Test
     fun `UtmZone 경도 구역이 1~60 범위를 벗어나면 예외를 발생시킨다`() {
-        assertThrows<IllegalArgumentException> { UtmZone(0, 'S') }
-        assertThrows<IllegalArgumentException> { UtmZone(61, 'S') }
-        assertThrows<IllegalArgumentException> { UtmZone(-1, 'S') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(0, 'S') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(61, 'S') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(-1, 'S') }
     }
 
     @Test
     fun `UtmZone 위도 구역이 잘못된 문자이면 예외를 발생시킨다`() {
         // I, O 제외 검증
-        assertThrows<IllegalArgumentException> { UtmZone(52, 'I') }
-        assertThrows<IllegalArgumentException> { UtmZone(52, 'O') }
-        assertThrows<IllegalArgumentException> { UtmZone(52, 'Z') }
-        assertThrows<IllegalArgumentException> { UtmZone(52, 'A') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(52, 'I') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(52, 'O') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(52, 'Z') }
+        assertFailsWith<IllegalArgumentException> { UtmZone(52, 'A') }
     }
 
     @Test

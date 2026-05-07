@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.PrecisionModel
@@ -61,7 +61,7 @@ class MySqlWkbUtilsTest {
 
     @Test
     fun `parseMySqlInternalGeometry - 빈 배열은 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             MySqlWkbUtils.parseMySqlInternalGeometry(byteArrayOf())
         }
     }
@@ -69,12 +69,12 @@ class MySqlWkbUtilsTest {
     @Test
     fun `parseMySqlInternalGeometry - 4바이트 미만 입력은 예외`() {
         for (size in 1..3) {
-            assertThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 MySqlWkbUtils.parseMySqlInternalGeometry(ByteArray(size))
             }
         }
         // 4바이트도 WKB 부분이 없으므로 예외
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             MySqlWkbUtils.parseMySqlInternalGeometry(ByteArray(4))
         }
     }

@@ -13,7 +13,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 private fun h2R2dbcUrl(dbName: String = "url_test_${System.nanoTime()}") =
     "r2dbc:h2:mem:///$dbName;DB_CLOSE_DELAY=-1"

@@ -22,7 +22,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 @OutputCapture
@@ -89,7 +89,7 @@ class TestServiceTest {
             .build()
 
         // Coroutines 이므로 inline 형태의 assertFails를 사용합니다.
-        assertFailsWith(StatusException::class) {
+        assertFailsWith<StatusException> {
             client.unaryCall(request)
         }
     }

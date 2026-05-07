@@ -137,6 +137,5 @@ class ElasticsearchServer private constructor(
                 ShutdownQueue.register(this)
             }
         }
-
     }
 }

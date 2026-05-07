@@ -9,6 +9,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [AbstractCompressor.compressOrNull] / [AbstractCompressor.decompressOrNull] 보안 API 테스트.
@@ -122,7 +123,7 @@ class CompressorNullableApiTest {
         val corrupted = byteArrayOf(0x00, 0x00, 0x01, 0x02, 0x03)
 
         // decompress: 예외 전파 — silent failure 제거 검증
-        org.junit.jupiter.api.assertThrows<Exception> {
+        assertFailsWith<Exception> {
             compressor.decompress(corrupted)
         }
         // decompressOrNull: null 반환
@@ -142,7 +143,7 @@ class CompressorNullableApiTest {
         corrupted[3] = 0xFF.toByte()
 
         // decompress: 예외 전파 — 호출자가 오류를 인지하고 처리
-        org.junit.jupiter.api.assertThrows<Exception> {
+        assertFailsWith<Exception> {
             compressor.decompress(corrupted)
         }
 

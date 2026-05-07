@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [JpaEntity] 인터페이스와 [AbstractJpaEntity] 추상 클래스의 동작을 검증하는 테스트입니다.
@@ -29,7 +29,7 @@ class JpaEntityModelTest: AbstractHibernateTest() {
         transient.id.shouldBeNull()
         transient.isPersisted.shouldBeFalse()
 
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             transient.identifier
         }
     }

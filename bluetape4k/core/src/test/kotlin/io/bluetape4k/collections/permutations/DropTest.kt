@@ -3,7 +3,7 @@ package io.bluetape4k.collections.permutations
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * drop(n) 테스트
@@ -12,21 +12,21 @@ class DropTest: AbstractPermutationTest() {
 
     @Test
     fun `빈 순열에서 음수 drop 시 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             emptyPermutation<Any>().drop(-1L)
         }
     }
 
     @Test
     fun `비어있지 않은 순열에서 음수 drop 시 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             permutationOf(1, 2, 3).drop(-1L)
         }
     }
 
     @Test
     fun `무한 순열에서 음수 drop 시 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             primes().drop(-1L)
         }
     }

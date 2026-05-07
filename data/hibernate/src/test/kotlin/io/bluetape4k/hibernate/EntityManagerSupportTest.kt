@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class EntityManagerSupportTest: AbstractHibernateTest() {
 
@@ -160,7 +160,7 @@ class EntityManagerSupportTest: AbstractHibernateTest() {
 
     @Test
     fun `entity manager natural id helpers 는 빈 복합 natural id 입력을 허용하지 않는다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             em.findByNaturalId<NaturalIdBook>(emptyMap())
         }
     }

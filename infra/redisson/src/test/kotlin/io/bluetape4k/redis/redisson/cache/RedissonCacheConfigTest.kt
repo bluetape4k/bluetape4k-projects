@@ -4,7 +4,7 @@ import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.redisson.api.map.WriteMode
 import org.redisson.api.options.LocalCachedMapOptions
 import org.redisson.api.options.LocalCachedMapParams
@@ -62,17 +62,17 @@ class RedissonCacheConfigTest {
 
     @Test
     fun `unsupported settings fail fast during option conversion`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedissonCacheConfig(ttl = Duration.ofSeconds(1))
                 .toMapOptions<String, String>("ttl-cache")
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedissonCacheConfig(maxSize = 100)
                 .toLocalCachedMapOptions<String, String>("bounded-cache")
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             RedissonCacheConfig(deleteFromDBOnInvalidate = true)
                 .toMapOptions<String, String>("invalidate-cache")
         }

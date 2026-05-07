@@ -3,7 +3,7 @@ package io.bluetape4k.collections.permutations
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * tail 접근 테스트
@@ -12,7 +12,7 @@ class TailTest: AbstractPermutationTest() {
 
     @Test
     fun `빈 순열의 tail 접근 시 예외 발생`() {
-        assertThrows<NoSuchElementException> {
+        assertFailsWith<NoSuchElementException> {
             emptyPermutation.tail
         }
     }

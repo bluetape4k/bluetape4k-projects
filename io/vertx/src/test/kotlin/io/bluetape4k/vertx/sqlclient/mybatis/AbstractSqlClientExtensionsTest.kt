@@ -45,7 +45,7 @@ import org.mybatis.dynamic.sql.util.kotlin.model.selectDistinct
 import org.mybatis.dynamic.sql.util.kotlin.model.update
 import java.io.Serializable
 import java.time.LocalDate
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractSqlClientExtensionsTest: AbstractVertxSqlClientTest() {
 

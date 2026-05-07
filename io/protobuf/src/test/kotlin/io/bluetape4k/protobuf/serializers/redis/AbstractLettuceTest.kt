@@ -32,7 +32,6 @@ abstract class AbstractLettuceTest {
         @JvmStatic
         protected fun randomString(size: Int = 2048): String =
             Fakers.fixedString(size)
-
     }
 
     protected lateinit var client: RedisClient

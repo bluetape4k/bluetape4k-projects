@@ -11,7 +11,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 /**
@@ -87,7 +87,7 @@ class ResilientSuspendNearCacheDecoratorTest {
                 )
             )
 
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             runSuspendIO { cache.get("key1") }
         }
     }

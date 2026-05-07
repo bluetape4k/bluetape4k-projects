@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BitBuf] 및 [BitBufImpl]의 기능을 검증하는 테스트 클래스입니다.
@@ -97,7 +97,7 @@ class BitBufTest: AbstractNettyTest() {
     fun `읽을 수 있는 비트보다 많이 읽으면 IndexOutOfBoundsException이 발생한다`() {
         newBitBuf(1).use { bitBuf ->
             bitBuf.writeBits(0b1, 1)
-            assertThrows<IndexOutOfBoundsException> {
+            assertFailsWith<IndexOutOfBoundsException> {
                 bitBuf.readUnsignedBits(2)
             }
         }
@@ -108,7 +108,7 @@ class BitBufTest: AbstractNettyTest() {
         newBitBuf(1).use { bitBuf ->
             // 1바이트 = 8비트 모두 씀
             bitBuf.writeBits(0xFF, 8)
-            assertThrows<IndexOutOfBoundsException> {
+            assertFailsWith<IndexOutOfBoundsException> {
                 bitBuf.writeBits(1, 1)
             }
         }
@@ -117,10 +117,10 @@ class BitBufTest: AbstractNettyTest() {
     @Test
     fun `amount가 범위를 벗어나면 IllegalArgumentException이 발생한다`() {
         newBitBuf(8).use { bitBuf ->
-            assertThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 bitBuf.getUnsignedBits(0L, 0)
             }
-            assertThrows<IllegalArgumentException> {
+            assertFailsWith<IllegalArgumentException> {
                 bitBuf.getUnsignedBits(0L, Int.SIZE_BITS + 1)
             }
         }

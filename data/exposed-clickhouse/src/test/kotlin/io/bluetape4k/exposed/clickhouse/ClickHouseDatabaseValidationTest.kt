@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.clickhouse
 
-import io.bluetape4k.assertions.invoking
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ClickHouseDatabase.connect] 입력 유효성 검증 테스트.
@@ -13,43 +13,43 @@ class ClickHouseDatabaseValidationTest {
 
     @Test
     fun `connect fails when host is blank`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             ClickHouseDatabase.connect(host = "", port = 8123, database = "default")
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `connect fails when port is below range`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             ClickHouseDatabase.connect(host = "localhost", port = 0, database = "default")
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `connect fails when port is above range`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             ClickHouseDatabase.connect(host = "localhost", port = 65536, database = "default")
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `connect fails when database is blank`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             ClickHouseDatabase.connect(host = "localhost", port = 8123, database = "")
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `connect with jdbcUrl fails when blank`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             ClickHouseDatabase.connect(jdbcUrl = "")
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test
     fun `connect with jdbcUrl fails when wrong prefix`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             ClickHouseDatabase.connect(jdbcUrl = "jdbc:postgresql://localhost/db")
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 }

@@ -43,7 +43,6 @@ class ComparableHistogramTest {
         histogram[5.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(0.0, 100.0)
         histogram[105.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(100.0, 200.0)
         histogram[205.0]!!.range shouldBeEqualTo DefaultClosedClosedRange(200.0, 300.0)
-
     }
 
     data class Sale(val accountId: Int, val date: LocalDate, val value: Double)

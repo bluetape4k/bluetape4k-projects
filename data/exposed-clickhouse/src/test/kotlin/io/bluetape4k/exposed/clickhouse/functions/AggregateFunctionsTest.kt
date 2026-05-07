@@ -14,7 +14,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Instant
 
 /**
@@ -48,8 +48,8 @@ class AggregateFunctionsTest : AbstractClickHouseTest() {
 
     @Test
     fun `quantile level out of range throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> { quantile(-0.1, Events.eventId) }
-        assertThrows<IllegalArgumentException> { quantile(1.1, Events.eventId) }
+        assertFailsWith<IllegalArgumentException> { quantile(-0.1, Events.eventId) }
+        assertFailsWith<IllegalArgumentException> { quantile(1.1, Events.eventId) }
     }
 
     @Test

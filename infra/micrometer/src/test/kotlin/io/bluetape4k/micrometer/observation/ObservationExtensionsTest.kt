@@ -6,7 +6,7 @@ import io.micrometer.observation.ObservationRegistry
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class ObservationExtensionsTest {
     private fun registry(handler: ObservationHandler<Observation.Context>): ObservationRegistry =

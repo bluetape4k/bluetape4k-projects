@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import tools.jackson.databind.JsonNode
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class ReadableExtensionsTest {
 

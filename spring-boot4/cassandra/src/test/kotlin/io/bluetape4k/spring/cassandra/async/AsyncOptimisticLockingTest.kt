@@ -21,7 +21,7 @@ import org.springframework.data.cassandra.core.AsyncCassandraTemplate
 import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.selectOne
 import org.springframework.data.cassandra.core.truncate
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest(classes = [DomainTestConfiguration::class])
 class AsyncOptimisticLockingTest(

@@ -118,6 +118,5 @@ data class ExecutionEvent(
          */
         fun <T: Any> byPayload(payloadClass: KClass<T>, predicate: (T) -> Boolean) =
             { evt: ExecutionEvent -> evt.getPayload(payloadClass.java)?.run { predicate(this) } ?: false }
-
     }
 }

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.time.temporal.UnsupportedTemporalTypeException
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.days
 
 class CqlDurationSupportTest {

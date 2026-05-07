@@ -12,7 +12,7 @@ import javax.money.CurrencyUnit
 import javax.money.Monetary
 import javax.money.UnknownCurrencyException
 import javax.money.format.MonetaryFormats
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class MoneySupportTest {
 

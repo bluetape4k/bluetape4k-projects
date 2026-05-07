@@ -27,7 +27,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.io.TempDir
 import java.io.IOException
 import java.nio.file.Path
@@ -88,14 +88,14 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
     @Test
     fun `2 - registerFile throws FileOpen on missing path`() {
-        assertThrows<NetCdfException.FileOpen> {
+        assertFailsWith<NetCdfException.FileOpen> {
             service.registerFile("/non/existent/path.nc")
         }
     }
 
     @Test
     fun `3 - registerFile blank path throws IAE`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             service.registerFile("")
         }
     }
@@ -176,14 +176,14 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `9 - importGridValues throws VariableNotFound`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("err1.nc"), rank = 2)
         val fileId = service.registerFile(path.absolutePathString())
-        assertThrows<NetCdfException.VariableNotFound> {
+        assertFailsWith<NetCdfException.VariableNotFound> {
             service.importGridValues(fileId, "no_such_variable")
         }
     }
 
     @Test
     fun `10 - importGridValues throws on missing file record`() {
-        assertThrows<NetCdfException.FileRecordNotFound> {
+        assertFailsWith<NetCdfException.FileRecordNotFound> {
             service.importGridValues(99999L, "temperature")
         }
     }
@@ -192,14 +192,14 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
     fun `11 - importGridValues throws MissingCoordinate when lat axis missing`(@TempDir dir: Path) {
         val path = NetCdfSampleWriter.writeSample(dir.resolve("nolat.nc"), rank = 2, withLatAxis = false)
         val fileId = service.registerFile(path.absolutePathString())
-        assertThrows<NetCdfException.MissingCoordinate> {
+        assertFailsWith<NetCdfException.MissingCoordinate> {
             service.importGridValues(fileId, "temperature")
         }
     }
 
     @Test
     fun `12 - blank variable name throws IAE`() {
-        assertThrows<IllegalArgumentException> { service.importGridValues(1L, " ") }
+        assertFailsWith<IllegalArgumentException> { service.importGridValues(1L, " ") }
     }
 
     // -------------------------------------------------------------------------
@@ -304,7 +304,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             dir.resolve("bad.nc"), rank = 2, sourceCrs = "EPSG:9999999",
         )
         val fileId = service.registerFile(path.absolutePathString())
-        assertThrows<NetCdfException.UnsupportedProjection> {
+        assertFailsWith<NetCdfException.UnsupportedProjection> {
             service.importGridValues(fileId, "temperature")
         }
     }
@@ -388,7 +388,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
             progressRepo.acquireLease(fileId, "temperature")
         }
         // 직후 acquireLease 재시도 → ImportAlreadyRunning
-        assertThrows<NetCdfException.ImportAlreadyRunning> {
+        assertFailsWith<NetCdfException.ImportAlreadyRunning> {
             transaction(db) { progressRepo.acquireLease(fileId, "temperature") }
         }
     }

@@ -128,7 +128,6 @@ class MultiBasicExamples {
                         Throwable::printStackTrace,
                         { println("Done!") }
                     )
-
             }
         } finally {
             executor.shutdown()

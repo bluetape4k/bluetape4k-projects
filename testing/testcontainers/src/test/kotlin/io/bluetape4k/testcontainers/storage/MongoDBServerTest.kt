@@ -15,7 +15,7 @@ import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import org.bson.Document
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class MongoDBServerTest: AbstractContainerTest() {
 
