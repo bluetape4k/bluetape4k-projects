@@ -31,6 +31,7 @@ internal object Failures {
     /**
      * 원인 예외를 포함한 실패를 던진다.
      */
+    @PublishedApi
     internal fun failWithCause(message: String, cause: Throwable): Nothing =
         throw AssertionFailedError(message, cause)
 

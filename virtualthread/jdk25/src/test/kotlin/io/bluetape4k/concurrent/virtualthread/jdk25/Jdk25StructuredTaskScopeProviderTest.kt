@@ -80,7 +80,7 @@ class Jdk25StructuredTaskScopeProviderTest {
     fun `withSupervised joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
         assertFailsWith<TimeoutException> {
             provider.withSupervised<Int, Unit> { scope ->
-                scope.fork { Thread.sleep(10_000); 42 }
+                scope.fork { Thread.sleep(200); 42 }
                 scope.joinUntil(Instant.now().plusMillis(100))
             }
         }
@@ -117,7 +117,7 @@ class Jdk25StructuredTaskScopeProviderTest {
     fun `withAll joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
         assertFailsWith<TimeoutException> {
             provider.withAll { scope ->
-                scope.fork { Thread.sleep(10_000); 42 }
+                scope.fork { Thread.sleep(200); 42 }
                 scope.joinUntil(Instant.now().plusMillis(100))
                 scope.throwIfFailed()
             }
@@ -157,7 +157,7 @@ class Jdk25StructuredTaskScopeProviderTest {
     fun `withAny joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
         assertFailsWith<TimeoutException> {
             provider.withAny<String> { scope ->
-                scope.fork { Thread.sleep(10_000); "slow" }
+                scope.fork { Thread.sleep(200); "slow" }
                 scope.joinUntil(Instant.now().plusMillis(100)).result { RuntimeException(it) }
             }
         }

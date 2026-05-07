@@ -5,7 +5,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KClass
 import kotlin.time.Duration
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
 /**
@@ -333,23 +332,23 @@ class CoInvokingBlock(val block: suspend () -> Any?) {
 fun coInvoking(block: suspend () -> Any?): CoInvokingBlock = CoInvokingBlock(block)
 
 /**
- * 동기 또는 suspend 블록이 타입 [T]의 예외를 던지는지 검증하고, 예외를 반환한다.
+ * 블록이 타입 [T]의 예외를 던지는지 검증하고, 예외를 반환한다.
  *
- * 단일 오버로드로 동기/suspend 코드 모두 처리한다. suspend 블록은 내부적으로 [kotlinx.coroutines.runBlocking]을
- * 통해 실행되므로 `runTest` 블록 안에서 사용할 경우 즉시 예외를 던지는 단순 케이스에만 적합하다.
+ * `inline` 함수이므로 람다는 call site에 인라인되어, `runTest`/`runSuspendIO` 등 suspend 컨텍스트에서도
+ * 람다 내부에서 `delay()` 등 suspend 호출이 가능하다. `runBlocking` 없이 동작하여 데드락이 없다.
  *
  * [CancellationException]은 기대 타입이 아닌 경우 즉시 rethrow하여 코루틴 취소 협력을 보장한다.
  *
  * @param message 검증 실패 시 출력할 추가 메시지 (null이면 기본 메시지 사용)
- * @param block 검증할 코드 블록 (동기 또는 suspend)
+ * @param block 검증할 코드 블록
  * @return 발생한 예외 (타입 [T])
  */
 inline fun <reified T : Throwable> assertFailsWith(
     message: String? = null,
-    noinline block: suspend () -> Unit,
+    block: () -> Unit,
 ): T {
     val caught: Throwable? = try {
-        runBlocking { block() }
+        block()
         null
     } catch (e: CancellationException) {
         if (e is T) e else throw e
@@ -371,25 +370,28 @@ inline fun <reified T : Throwable> assertFailsWith(
 }
 
 /**
- * 동기 또는 suspend 블록이 어떤 예외라도 던지는지 검증한다.
+ * 블록이 어떤 예외라도 던지는지 검증한다.
  *
- * @param block 검증할 코드 블록 (동기 또는 suspend)
+ * `inline` 함수이므로 `runTest` 등 suspend 컨텍스트에서도 `runBlocking` 없이 동작한다.
+ *
+ * @param block 검증할 코드 블록
  * @return 발생한 예외
  */
-fun assertFails(block: suspend () -> Unit): Throwable =
+inline fun assertFails(block: () -> Unit): Throwable =
     assertFailsWith<Throwable>(block = block)
 
 /**
- * 동기 또는 suspend 블록이 타입 [T]의 예외를 던지지 **않는지** 검증한다.
+ * 블록이 타입 [T]의 예외를 던지지 **않는지** 검증한다.
  *
  * 타입 [T]의 예외가 발생하면 검증 실패. 다른 타입의 예외나 예외 없음은 통과한다.
- * Kluent의 `internal assertNotFailsWith`에 해당하는 공개 API.
  *
- * @param block 검증할 코드 블록 (동기 또는 suspend)
+ * `inline` 함수이므로 `runTest` 등 suspend 컨텍스트에서도 `runBlocking` 없이 동작한다.
+ *
+ * @param block 검증할 코드 블록
  */
-inline fun <reified T : Throwable> assertNotFailsWith(noinline block: suspend () -> Unit) {
+inline fun <reified T : Throwable> assertNotFailsWith(block: () -> Unit) {
     try {
-        runBlocking { block() }
+        block()
     } catch (e: CancellationException) {
         throw e
     } catch (e: Throwable) {
@@ -400,13 +402,15 @@ inline fun <reified T : Throwable> assertNotFailsWith(noinline block: suspend ()
 }
 
 /**
- * 동기 또는 suspend 블록이 어떤 예외도 던지지 않는지 검증한다.
+ * 블록이 어떤 예외도 던지지 않는지 검증한다.
  *
- * @param block 검증할 코드 블록 (동기 또는 suspend)
+ * `inline` 함수이므로 `runTest` 등 suspend 컨텍스트에서도 `runBlocking` 없이 동작한다.
+ *
+ * @param block 검증할 코드 블록
  */
-fun assertNotFails(block: suspend () -> Unit) {
+inline fun assertNotFails(block: () -> Unit) {
     try {
-        runBlocking { block() }
+        block()
     } catch (e: CancellationException) {
         throw e
     } catch (e: Throwable) {
@@ -415,24 +419,24 @@ fun assertNotFails(block: suspend () -> Unit) {
 }
 
 /**
- * 동기 또는 suspend 블록이 [duration] 내에 완료되는지 검증한다.
+ * suspend 블록이 [duration] 내에 완료되는지 검증한다.
  *
  * 시간 초과 시 [org.opentest4j.AssertionFailedError]를 던진다.
  * [CancellationException]은 즉시 rethrow하여 코루틴 취소 협력을 보장한다.
  *
  * @param duration 허용되는 최대 실행 시간
  * @param message 검증 실패 시 출력할 추가 메시지 (null이면 기본 메시지 사용)
- * @param block 검증할 코드 블록 (동기 또는 suspend)
+ * @param block 검증할 suspend 코드 블록
  * @return 블록의 반환값
  */
-fun <T> assertTimeout(
+suspend fun <T> assertTimeout(
     duration: Duration,
     message: String? = null,
     block: suspend () -> T,
 ): T {
     val prefix = if (message != null) "$message — " else ""
     return try {
-        runBlocking { withTimeout(duration) { block() } }
+        withTimeout(duration) { block() }
     } catch (e: TimeoutCancellationException) {
         Failures.fail("${prefix}Expected block to complete within $duration but it timed out")
     } catch (e: CancellationException) {

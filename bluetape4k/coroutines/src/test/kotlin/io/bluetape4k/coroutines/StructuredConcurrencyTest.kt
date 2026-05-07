@@ -370,7 +370,9 @@ class StructuredConcurrencyTest {
         val deadline = java.time.Instant.now().plusMillis(50)
         assertFailsWith<TimeoutException> {
             taskScope<Unit> {
-                fork { Thread.sleep(5000) }
+                // StructuredTaskScope.close()는 forked thread 완료까지 대기하므로
+                // sleep을 deadline보다 크되 최소화 (200ms > 50ms deadline)
+                fork { Thread.sleep(200) }
                 joinUntil(deadline).throwIfFailed()
             }
         }
@@ -381,7 +383,7 @@ class StructuredConcurrencyTest {
         val deadline = java.time.Instant.now().plusMillis(50)
         assertFailsWith<TimeoutException> {
             supervisedTaskScope<Int, List<Result<Int>>> {
-                fork { Thread.sleep(5000); 1 }
+                fork { Thread.sleep(200); 1 }
                 joinUntil(deadline)
                 results()
             }
