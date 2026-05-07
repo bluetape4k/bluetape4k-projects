@@ -3,8 +3,8 @@ package io.bluetape4k.rule.engines.mvel2
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleDefinition
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class MvelSupportTest {

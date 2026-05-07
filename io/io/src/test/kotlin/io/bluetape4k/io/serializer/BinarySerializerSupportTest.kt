@@ -1,6 +1,6 @@
 package io.bluetape4k.io.serializer
 
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import kotlin.test.assertFailsWith

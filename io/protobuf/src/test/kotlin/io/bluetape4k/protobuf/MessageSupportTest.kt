@@ -7,10 +7,10 @@ import io.bluetape4k.protobuf.messages.NestedMessage
 import io.bluetape4k.protobuf.messages.TestMessage
 import io.bluetape4k.protobuf.messages.nestedMessage
 import io.bluetape4k.protobuf.messages.testMessage
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 

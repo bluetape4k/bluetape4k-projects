@@ -2,7 +2,7 @@ package io.bluetape4k.okio
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.flow.toList
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class BufferedSourceExtensionsTest: AbstractOkioTest() {

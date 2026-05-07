@@ -12,8 +12,8 @@ import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.support.virtualThreadPartitionTaskExecutor
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

@@ -4,10 +4,10 @@ import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.cache.HttpCacheEntry
 import org.apache.hc.client5.http.cache.HttpCacheStorage
 import org.apache.hc.client5.http.classic.methods.HttpGet

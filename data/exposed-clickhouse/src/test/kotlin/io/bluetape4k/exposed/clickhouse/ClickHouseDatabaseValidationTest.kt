@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.clickhouse
 
-import org.amshove.kluent.shouldThrow
-import org.amshove.kluent.invoking
+import io.bluetape4k.assertions.invoking
 import org.junit.jupiter.api.Test
 
 /**

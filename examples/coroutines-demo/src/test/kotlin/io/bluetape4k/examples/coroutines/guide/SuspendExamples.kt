@@ -7,8 +7,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.resumeWithException

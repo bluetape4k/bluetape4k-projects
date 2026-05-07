@@ -16,9 +16,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.persistence.LockModeType
 import jakarta.persistence.criteria.CriteriaQuery
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.LazyInitializationException
 import org.hibernate.graph.RootGraph
 import org.hibernate.reactive.mutiny.Mutiny

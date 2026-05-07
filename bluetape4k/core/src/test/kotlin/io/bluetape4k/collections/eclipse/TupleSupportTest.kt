@@ -2,7 +2,7 @@ package io.bluetape4k.collections.eclipse
 
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.eclipse.collections.impl.tuple.Tuples
 import org.junit.jupiter.api.Test
 

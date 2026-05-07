@@ -8,9 +8,9 @@ import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
 import io.bluetape4k.science.exposed.repository.NetCdfImportProgressRepository
 import io.bluetape4k.science.exposed.service.NetCdfCatalogService
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Test

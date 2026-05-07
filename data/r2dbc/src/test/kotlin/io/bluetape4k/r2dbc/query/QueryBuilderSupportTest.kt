@@ -1,10 +1,10 @@
 package io.bluetape4k.r2dbc.query
 
 import io.r2dbc.spi.Parameter
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainAll
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**

@@ -6,7 +6,7 @@ import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import okio.Buffer
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.nio.channels.AsynchronousFileChannel

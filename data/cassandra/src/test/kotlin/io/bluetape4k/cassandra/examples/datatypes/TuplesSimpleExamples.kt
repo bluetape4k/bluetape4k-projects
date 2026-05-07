@@ -5,8 +5,8 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement
 import com.datastax.oss.driver.api.core.type.DataTypes
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class TuplesSimpleExamples: AbstractCassandraTest() {

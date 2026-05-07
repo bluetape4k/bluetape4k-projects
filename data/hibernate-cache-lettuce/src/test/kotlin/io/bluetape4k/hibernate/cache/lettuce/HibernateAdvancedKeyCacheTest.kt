@@ -4,10 +4,10 @@ import io.bluetape4k.hibernate.cache.lettuce.model.CompositePerson
 import io.bluetape4k.hibernate.cache.lettuce.model.CompositePersonId
 import io.bluetape4k.hibernate.cache.lettuce.model.NaturalUser
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.BeforeEach

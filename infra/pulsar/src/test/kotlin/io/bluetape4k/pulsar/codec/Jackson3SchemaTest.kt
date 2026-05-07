@@ -5,9 +5,9 @@ import io.bluetape4k.pulsar.AbstractPulsarTest
 import io.bluetape4k.pulsar.consumer.receiveSuspend
 import io.bluetape4k.pulsar.producer.sendSuspend
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.pulsar.common.schema.SchemaType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

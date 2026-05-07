@@ -16,7 +16,7 @@ import io.bluetape4k.exposed.redisson.repository.scenarios.SuspendedWriteThrough
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.cache.RedissonCacheConfig
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction

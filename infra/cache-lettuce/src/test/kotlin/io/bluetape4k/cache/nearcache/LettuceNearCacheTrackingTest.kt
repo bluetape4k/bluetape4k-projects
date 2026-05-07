@@ -8,9 +8,9 @@ import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterAll

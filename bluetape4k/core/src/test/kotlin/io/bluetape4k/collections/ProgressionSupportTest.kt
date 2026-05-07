@@ -2,8 +2,8 @@ package io.bluetape4k.collections
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 

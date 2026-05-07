@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 

@@ -6,8 +6,8 @@ import io.bluetape4k.logging.info
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 

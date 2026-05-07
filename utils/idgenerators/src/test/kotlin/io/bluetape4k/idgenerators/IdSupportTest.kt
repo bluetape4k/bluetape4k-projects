@@ -3,7 +3,7 @@ package io.bluetape4k.idgenerators
 import io.bluetape4k.idgenerators.snowflake.MAX_MACHINE_ID
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeInRange
 import org.junit.jupiter.api.Test
 
 class IdSupportTest {

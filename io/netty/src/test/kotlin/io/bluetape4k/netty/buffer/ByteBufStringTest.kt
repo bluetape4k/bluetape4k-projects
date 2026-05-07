@@ -5,7 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
 import io.netty.buffer.ByteBufAllocator
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.nio.charset.Charset

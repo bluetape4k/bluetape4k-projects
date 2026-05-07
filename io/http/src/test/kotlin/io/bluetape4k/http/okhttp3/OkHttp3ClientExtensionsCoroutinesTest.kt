@@ -9,8 +9,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockWebServer
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.AfterEach

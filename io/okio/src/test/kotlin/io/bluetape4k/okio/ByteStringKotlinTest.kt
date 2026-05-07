@@ -6,7 +6,7 @@ import okio.ByteString.Companion.encode
 import okio.ByteString.Companion.encodeUtf8
 import okio.ByteString.Companion.readByteString
 import okio.ByteString.Companion.toByteString
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import kotlin.test.Test

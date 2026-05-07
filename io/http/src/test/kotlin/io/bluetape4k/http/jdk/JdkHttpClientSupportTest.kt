@@ -3,8 +3,8 @@ package io.bluetape4k.http.jdk
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.net.http.HttpRequest

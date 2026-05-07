@@ -9,7 +9,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class ParallelFlowReduceTest {

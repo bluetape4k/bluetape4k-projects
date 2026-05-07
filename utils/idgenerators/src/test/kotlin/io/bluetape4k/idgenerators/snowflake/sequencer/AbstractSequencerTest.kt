@@ -9,10 +9,10 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test

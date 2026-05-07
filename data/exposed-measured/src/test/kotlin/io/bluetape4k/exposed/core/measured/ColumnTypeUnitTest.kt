@@ -8,11 +8,10 @@ import io.bluetape4k.measured.celsiusDelta
 import io.bluetape4k.measured.centimeters
 import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNear
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldThrow
+import io.bluetape4k.assertions.invoking
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 /**

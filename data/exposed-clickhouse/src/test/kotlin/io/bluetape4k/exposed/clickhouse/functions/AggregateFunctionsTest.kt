@@ -3,9 +3,9 @@ package io.bluetape4k.exposed.clickhouse.functions
 import io.bluetape4k.exposed.clickhouse.AbstractClickHouseTest
 import io.bluetape4k.exposed.clickhouse.domain.Events
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import org.jetbrains.exposed.v1.core.QueryBuilder
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert

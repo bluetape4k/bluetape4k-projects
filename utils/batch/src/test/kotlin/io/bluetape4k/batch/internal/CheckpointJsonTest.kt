@@ -1,9 +1,9 @@
 package io.bluetape4k.batch.internal
 
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

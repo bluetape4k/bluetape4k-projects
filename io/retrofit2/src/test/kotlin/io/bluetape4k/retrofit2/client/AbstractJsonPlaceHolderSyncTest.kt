@@ -9,7 +9,7 @@ import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.services.Httpbin
 import io.bluetape4k.retrofit2.services.Post
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue

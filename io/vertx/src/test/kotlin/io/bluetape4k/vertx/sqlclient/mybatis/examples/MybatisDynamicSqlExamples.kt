@@ -12,7 +12,7 @@ import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.coroutines.coAwait
 import io.vertx.sqlclient.templates.SqlTemplate
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.util.kotlin.model.select
 

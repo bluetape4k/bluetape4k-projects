@@ -1,8 +1,8 @@
 package io.bluetape4k
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.internal.assertFailsWith
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ToStringBuilderTest {

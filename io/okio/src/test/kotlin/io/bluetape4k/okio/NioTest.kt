@@ -9,9 +9,9 @@ import okio.BufferedSink
 import okio.buffer
 import okio.sink
 import okio.source
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import java.nio.ByteBuffer

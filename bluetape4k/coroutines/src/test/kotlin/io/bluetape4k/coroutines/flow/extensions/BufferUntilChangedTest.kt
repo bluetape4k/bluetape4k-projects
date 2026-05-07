@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 

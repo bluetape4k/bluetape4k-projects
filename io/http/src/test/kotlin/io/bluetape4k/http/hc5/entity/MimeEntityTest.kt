@@ -6,9 +6,9 @@ import io.bluetape4k.http.hc5.entity.mime.multipartEntity
 import io.bluetape4k.http.hc5.entity.mime.multipartPart
 import io.bluetape4k.http.hc5.entity.mime.multipartPartOf
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotBeNullOrEmpty
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
 import org.apache.hc.client5.http.entity.mime.HttpMultipartMode
 import org.apache.hc.client5.http.entity.mime.StringBody
 import org.apache.hc.core5.http.ContentType

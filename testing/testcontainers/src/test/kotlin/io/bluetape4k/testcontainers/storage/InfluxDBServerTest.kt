@@ -2,10 +2,10 @@ package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNullOrBlank
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle

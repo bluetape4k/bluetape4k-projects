@@ -8,7 +8,7 @@ import kotlinx.coroutines.channels.toList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith

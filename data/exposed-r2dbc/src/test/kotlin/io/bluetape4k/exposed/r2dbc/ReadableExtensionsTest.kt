@@ -3,10 +3,10 @@ package io.bluetape4k.exposed.r2dbc
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.r2dbc.spi.Readable
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import java.nio.ByteBuffer

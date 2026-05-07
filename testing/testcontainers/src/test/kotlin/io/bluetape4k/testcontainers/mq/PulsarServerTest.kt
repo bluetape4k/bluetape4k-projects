@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.mq
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.pulsar.client.api.PulsarClient
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

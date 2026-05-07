@@ -6,7 +6,7 @@ import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.Order

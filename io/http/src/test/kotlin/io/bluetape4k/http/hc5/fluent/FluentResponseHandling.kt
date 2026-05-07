@@ -10,7 +10,7 @@ import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import jakarta.json.JsonException
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.ClientProtocolException
 import org.apache.hc.client5.http.HttpResponseException
 import org.apache.hc.core5.http.ContentType

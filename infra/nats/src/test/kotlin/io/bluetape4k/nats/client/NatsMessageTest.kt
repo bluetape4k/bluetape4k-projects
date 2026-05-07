@@ -5,8 +5,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.nats.client.Message
 import io.nats.client.impl.Headers
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 

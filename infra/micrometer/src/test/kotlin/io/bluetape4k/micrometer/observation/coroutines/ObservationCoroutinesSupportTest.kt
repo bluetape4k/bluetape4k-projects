@@ -11,8 +11,8 @@ import io.micrometer.observation.Observation
 import io.micrometer.observation.tck.ObservationRegistryAssert
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds

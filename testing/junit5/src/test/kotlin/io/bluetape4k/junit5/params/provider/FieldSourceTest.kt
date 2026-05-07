@@ -1,6 +1,6 @@
 package io.bluetape4k.junit5.params.provider
 
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 
 class FieldSourceTest {

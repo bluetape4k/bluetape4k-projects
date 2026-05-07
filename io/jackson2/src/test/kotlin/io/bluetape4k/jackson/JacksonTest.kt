@@ -3,11 +3,11 @@ package io.bluetape4k.jackson
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.jackson.uuid.JsonUuidModule
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldContainAll
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContainAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

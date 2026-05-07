@@ -1,6 +1,6 @@
 package io.bluetape4k.collections.eclipse.ranges
 
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList
 import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList

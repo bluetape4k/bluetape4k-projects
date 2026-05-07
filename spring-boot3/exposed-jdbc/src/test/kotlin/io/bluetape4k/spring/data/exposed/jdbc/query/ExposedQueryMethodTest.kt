@@ -3,11 +3,11 @@ package io.bluetape4k.spring.data.exposed.jdbc.query
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.spring.data.exposed.jdbc.repository.UserJdbcRepository
 import io.bluetape4k.spring.data.exposed.jdbc.repository.query.ExposedQueryMethod
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldStartWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldStartWith
 import org.junit.jupiter.api.Test
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata

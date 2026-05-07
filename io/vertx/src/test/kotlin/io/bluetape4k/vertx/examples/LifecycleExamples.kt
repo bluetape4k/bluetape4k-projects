@@ -14,8 +14,8 @@ import io.vertx.junit5.VertxTestContext
 import io.vertx.kotlin.core.file.fileSystemOptionsOf
 import io.vertx.kotlin.core.vertxOptionsOf
 import io.vertx.kotlin.coroutines.coAwait
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -3,9 +3,9 @@ package io.bluetape4k.spring.redis.serializer
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.support.emptyByteArray
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments

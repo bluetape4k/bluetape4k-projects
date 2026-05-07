@@ -6,7 +6,7 @@ import io.bluetape4k.concurrent.virtualthread.virtualThread
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.concurrent.locks.ReentrantLock

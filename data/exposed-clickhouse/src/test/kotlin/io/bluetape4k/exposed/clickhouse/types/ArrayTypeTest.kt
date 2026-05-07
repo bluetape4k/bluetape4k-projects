@@ -4,8 +4,8 @@ import io.bluetape4k.exposed.clickhouse.AbstractClickHouseTest
 import io.bluetape4k.exposed.clickhouse.ClickHouseTable
 import io.bluetape4k.exposed.clickhouse.engine.mergeTree
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll

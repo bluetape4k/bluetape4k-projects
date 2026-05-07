@@ -4,8 +4,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import org.springframework.data.r2dbc.core.allAndAwait
 import org.springframework.data.relational.core.query.Criteria

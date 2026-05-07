@@ -6,7 +6,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.ContentType

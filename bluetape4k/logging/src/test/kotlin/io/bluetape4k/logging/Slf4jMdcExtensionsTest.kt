@@ -1,7 +1,7 @@
 package io.bluetape4k.logging
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNullOrEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNullOrEmpty
 import org.junit.jupiter.api.Test
 import org.slf4j.MDC
 

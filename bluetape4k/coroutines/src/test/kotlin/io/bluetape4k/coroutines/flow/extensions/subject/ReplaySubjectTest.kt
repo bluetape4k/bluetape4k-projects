@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class ReplaySubjectTest {

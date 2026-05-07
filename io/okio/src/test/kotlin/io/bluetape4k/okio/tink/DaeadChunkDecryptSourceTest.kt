@@ -5,8 +5,8 @@ import okio.Buffer
 import okio.EOFException
 import okio.ForwardingSource
 import okio.Source
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import kotlin.test.assertFailsWith

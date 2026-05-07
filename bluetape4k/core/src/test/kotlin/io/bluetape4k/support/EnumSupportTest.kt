@@ -2,10 +2,10 @@ package io.bluetape4k.support
 
 import io.bluetape4k.AbstractCoreTest
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.enums.enumEntries

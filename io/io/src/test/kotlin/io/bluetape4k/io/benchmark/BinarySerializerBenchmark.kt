@@ -13,8 +13,8 @@ import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate

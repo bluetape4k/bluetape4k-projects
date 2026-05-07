@@ -9,9 +9,9 @@ import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
 import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class EclipseCollectionKotlinExamples {
@@ -41,11 +41,11 @@ class EclipseCollectionKotlinExamples {
     fun `primitive array with asList`() {
         val ints = intArrayListOf(1, 2, 3, 4, 5).asList()
         ints.size shouldBeEqualTo 5
-        ints shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+        ints.toList() shouldBeEqualTo listOf(1, 2, 3, 4, 5)
 
         val longs = longArrayListOf(1, 2, 3, 4, 5).asList()
         longs.size shouldBeEqualTo 5
-        longs shouldBeEqualTo listOf(1, 2, 3, 4, 5)
+        longs.toList() shouldBeEqualTo listOf(1L, 2L, 3L, 4L, 5L)
     }
 
     @Test

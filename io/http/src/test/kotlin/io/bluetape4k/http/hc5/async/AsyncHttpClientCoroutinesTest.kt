@@ -7,7 +7,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds

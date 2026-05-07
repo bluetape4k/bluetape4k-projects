@@ -6,10 +6,10 @@ import io.bluetape4k.spring.batch.exposed.SourceRecord
 import io.bluetape4k.spring.batch.exposed.SourceTable
 import io.bluetape4k.spring.batch.exposed.insertTestData
 import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

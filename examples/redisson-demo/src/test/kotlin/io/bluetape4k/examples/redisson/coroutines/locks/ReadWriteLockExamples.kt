@@ -9,8 +9,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds

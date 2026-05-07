@@ -5,7 +5,7 @@ import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
 import io.bluetape4k.redis.redisson.RedissonTestUtils.faker
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.redisson.client.codec.Codec

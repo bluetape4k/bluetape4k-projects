@@ -12,9 +12,9 @@ import okio.ByteString.Companion.decodeHex
 import okio.ByteString.Companion.encodeUtf8
 import okio.EOFException
 import okio.Source
-import org.amshove.kluent.fail
-import org.amshove.kluent.internal.assertFailsWith
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigInteger

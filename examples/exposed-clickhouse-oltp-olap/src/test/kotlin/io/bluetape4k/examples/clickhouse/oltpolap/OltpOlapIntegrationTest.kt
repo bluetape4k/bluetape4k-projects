@@ -9,8 +9,8 @@ import io.bluetape4k.exposed.clickhouse.ClickHouseDatabase
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.database.ClickHouseServer
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

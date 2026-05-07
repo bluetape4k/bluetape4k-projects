@@ -1,7 +1,7 @@
 package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.jdbc.core.PreparedStatementSetter

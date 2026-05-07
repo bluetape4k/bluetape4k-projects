@@ -1,9 +1,9 @@
 package io.bluetape4k.testcontainers
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotThrow
+import io.bluetape4k.assertions.invoking
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -106,8 +106,8 @@ class RegisterSystemPropertiesTest {
 
         val closeAction = { registration.close() }
 
-        closeAction shouldNotThrow Exception::class
-        closeAction shouldNotThrow Exception::class
+        invoking(closeAction).shouldNotThrow()
+        invoking(closeAction).shouldNotThrow()
     }
 
     @Test

@@ -1,8 +1,8 @@
 package io.bluetape4k.exposed.core.serializable
 
 import io.bluetape4k.io.serializer.BinarySerializers
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.Serializable

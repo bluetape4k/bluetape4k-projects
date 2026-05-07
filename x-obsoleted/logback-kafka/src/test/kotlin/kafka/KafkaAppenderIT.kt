@@ -17,10 +17,10 @@ import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.BeforeEach

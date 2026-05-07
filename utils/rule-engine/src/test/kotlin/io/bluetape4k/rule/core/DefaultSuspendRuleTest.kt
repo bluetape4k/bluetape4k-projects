@@ -6,10 +6,10 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.SuspendAction
 import io.bluetape4k.rule.api.SuspendCondition
 import io.bluetape4k.rule.api.suspendRuleSetOf
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class DefaultSuspendRuleTest {

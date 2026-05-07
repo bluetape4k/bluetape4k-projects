@@ -3,9 +3,9 @@ package io.bluetape4k.leader
 import io.bluetape4k.leader.local.LocalAsyncLeaderGroupElection
 import io.bluetape4k.leader.local.LocalLeaderGroupElection
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import java.util.concurrent.CountDownLatch

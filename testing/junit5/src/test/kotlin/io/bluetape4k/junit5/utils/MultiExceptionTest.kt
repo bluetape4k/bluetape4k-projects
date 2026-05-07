@@ -1,9 +1,9 @@
 package io.bluetape4k.junit5.utils
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

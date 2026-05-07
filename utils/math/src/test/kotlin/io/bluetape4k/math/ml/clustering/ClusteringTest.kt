@@ -3,7 +3,7 @@ package io.bluetape4k.math.ml.clustering
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.math.model.Gender
 import io.bluetape4k.math.model.Patient
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 

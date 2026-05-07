@@ -1,7 +1,7 @@
 package io.bluetape4k.mockwebflux.admin
 
 import io.bluetape4k.mockwebflux.AbstractMockWebfluxServerTest
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 

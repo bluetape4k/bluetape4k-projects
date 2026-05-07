@@ -1,7 +1,7 @@
 package io.bluetape4k.junit5.system
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.TestInstance

@@ -4,9 +4,9 @@ import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.spring.AbstractSpringTest
 import kotlinx.coroutines.delay
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.util.StopWatch

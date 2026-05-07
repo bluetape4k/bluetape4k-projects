@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.redisson.repository.scenarios
 import io.bluetape4k.exposed.redisson.AbstractRedissonTest.Companion.ENABLE_DIALECTS_METHOD
 import io.bluetape4k.exposed.tests.TestDB
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
 import org.jetbrains.exposed.v1.jdbc.selectAll

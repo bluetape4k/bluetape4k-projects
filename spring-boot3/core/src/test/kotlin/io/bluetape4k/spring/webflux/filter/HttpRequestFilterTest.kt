@@ -1,8 +1,8 @@
 package io.bluetape4k.spring.webflux.filter
 
 import io.bluetape4k.spring.webflux.AbstractWebfluxTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest

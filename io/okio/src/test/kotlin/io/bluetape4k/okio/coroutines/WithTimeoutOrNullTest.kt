@@ -4,8 +4,8 @@ import io.bluetape4k.okio.AbstractOkioTest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import okio.Timeout
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds

@@ -2,10 +2,10 @@ package io.bluetape4k.measured
 
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldBeNear
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNear
 import org.junit.jupiter.api.Test
 
 @RandomizedTest

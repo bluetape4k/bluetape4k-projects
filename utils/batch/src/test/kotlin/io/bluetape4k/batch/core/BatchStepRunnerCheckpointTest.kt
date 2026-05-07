@@ -10,10 +10,10 @@ import io.bluetape4k.batch.api.StepReport
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.workflow.api.RetryPolicy
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicInteger

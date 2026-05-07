@@ -1,9 +1,9 @@
 package io.bluetape4k.apache
 
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.util.*
 

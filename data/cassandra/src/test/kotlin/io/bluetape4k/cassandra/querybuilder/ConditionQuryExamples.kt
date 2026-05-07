@@ -4,7 +4,7 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.deleteFrom
 import com.datastax.oss.driver.api.querybuilder.condition.Condition
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ConditionQuryExamples {

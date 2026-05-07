@@ -4,7 +4,7 @@ package io.bluetape4k.math.commons
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

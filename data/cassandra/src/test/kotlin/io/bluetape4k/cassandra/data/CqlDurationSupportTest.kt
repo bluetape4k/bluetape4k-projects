@@ -4,7 +4,7 @@ import io.bluetape4k.javatimes.nanosLong
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.nanosOfMillis
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.temporal.ChronoUnit

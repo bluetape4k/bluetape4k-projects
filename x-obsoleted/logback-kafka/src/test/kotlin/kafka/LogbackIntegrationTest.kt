@@ -9,9 +9,9 @@ import io.bluetape4k.support.trimWhitespace
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

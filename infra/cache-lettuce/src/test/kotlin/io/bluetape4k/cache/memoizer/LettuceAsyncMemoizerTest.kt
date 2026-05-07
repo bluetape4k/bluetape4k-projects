@@ -8,7 +8,7 @@ import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.codec.LettuceIntCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceLongCodec
 import io.bluetape4k.redis.lettuce.map.LettuceMap
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger

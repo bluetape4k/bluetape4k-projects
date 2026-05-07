@@ -9,7 +9,7 @@ import io.bluetape4k.testcontainers.mq.Spring
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.awaitility.kotlin.await

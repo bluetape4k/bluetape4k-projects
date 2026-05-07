@@ -3,7 +3,7 @@ package io.bluetape4k.okio
 import io.bluetape4k.junit5.concurrency.TestingExecutors
 import io.bluetape4k.logging.KLogging
 import okio.Timeout
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.util.concurrent.ExecutorService

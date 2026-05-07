@@ -4,11 +4,11 @@ import com.pgvector.PGvector
 import io.bluetape4k.exposed.tests.AbstractExposedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.database.PgvectorServer
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldBeNear
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable

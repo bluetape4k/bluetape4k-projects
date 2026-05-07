@@ -4,7 +4,7 @@ import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.impl.async.MinimalH2AsyncClient
 import org.apache.hc.client5.http.impl.async.MinimalHttpAsyncClient
 import org.apache.hc.core5.http2.config.H2Config

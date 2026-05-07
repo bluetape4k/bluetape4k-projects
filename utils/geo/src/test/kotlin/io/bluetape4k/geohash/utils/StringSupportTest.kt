@@ -2,9 +2,9 @@ package io.bluetape4k.geohash.utils
 
 import io.bluetape4k.geohash.geoHashOfString
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
 
 class StringSupportTest {

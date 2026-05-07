@@ -2,8 +2,8 @@ package io.bluetape4k.geohash
 
 import io.bluetape4k.geohash.tests.RandomGeoHashes
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNear
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
 import org.junit.jupiter.api.Test
 
 class GeoHashTestConvert {

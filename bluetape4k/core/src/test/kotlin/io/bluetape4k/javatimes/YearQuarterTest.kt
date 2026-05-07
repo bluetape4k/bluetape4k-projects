@@ -1,8 +1,8 @@
 package io.bluetape4k.javatimes
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.OffsetDateTime

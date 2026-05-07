@@ -6,9 +6,9 @@ import io.bluetape4k.pulsar.consumer.receiveSuspend
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.pulsar.client.api.Schema
 import org.apache.pulsar.client.api.SubscriptionType
 import org.junit.jupiter.api.Test

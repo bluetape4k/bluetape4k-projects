@@ -137,6 +137,8 @@ class MyTest {
 | `shouldBePositive()` | > 0 |
 | `shouldBeNegative()` | < 0 |
 | `shouldBeNear(expected, tolerance)` | Approx equality for floats |
+| `BigDecimal shouldBeEqualTo expected` | Scale-insensitive equality (`compareTo`) |
+| `BigDecimal shouldNotBeEqualTo expected` | Scale-insensitive inequality (`compareTo`) |
 
 ### Collections & Arrays
 
@@ -148,6 +150,9 @@ class MyTest {
 | `shouldNotContainAny(elements)` | Contains none (∩ = ∅) |
 | `shouldHaveSize(size)` | Size check |
 | `shouldContain(element)` | Contains single element |
+| `IntArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`) |
+| `ByteArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`) |
+| `Array<T> shouldBeEqualTo expected` | Object array deep content equality (`contentDeepEquals`) |
 
 ### Exceptions
 

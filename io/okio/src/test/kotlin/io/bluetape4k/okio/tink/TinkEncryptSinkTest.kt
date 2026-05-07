@@ -7,7 +7,7 @@ import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.tink.encrypt.TinkEncryptor
 import io.bluetape4k.tink.encrypt.TinkEncryptors
 import okio.Buffer
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

@@ -4,9 +4,9 @@ import io.bluetape4k.csv.model.ProductType
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Resourcex
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeBlank
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File

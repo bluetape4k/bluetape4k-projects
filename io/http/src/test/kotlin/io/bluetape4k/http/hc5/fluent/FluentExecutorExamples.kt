@@ -7,7 +7,7 @@ import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.apache.hc.client5.http.fluent.Executor
 import org.apache.hc.client5.http.fluent.Form
 import org.apache.hc.core5.http.ContentType

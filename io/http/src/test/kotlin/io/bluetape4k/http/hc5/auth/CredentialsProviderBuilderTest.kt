@@ -1,9 +1,9 @@
 package io.bluetape4k.http.hc5.auth
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.auth.AuthScope
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
 import org.apache.hc.core5.http.HttpHost

@@ -9,8 +9,8 @@ import jakarta.persistence.Embeddable
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository

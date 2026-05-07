@@ -8,10 +8,10 @@ import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotBeNullOrBlank
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 
 @RandomizedTest
 abstract class AbstractHttpbinTest: AbstractFeignTest() {

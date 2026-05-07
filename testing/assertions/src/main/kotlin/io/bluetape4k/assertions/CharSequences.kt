@@ -244,6 +244,36 @@ fun CharSequence?.shouldNotBeNullOrEmpty(): CharSequence {
     return s
 }
 
+// ── shouldBeNullOrBlank / shouldNotBeNullOrBlank ──────────────────────────────
+
+/**
+ * CharSequence가 null 또는 blank인지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ */
+fun CharSequence?.shouldBeNullOrBlank() {
+    if (!this.isNullOrBlank()) {
+        Failures.failComparison(
+            Messages.expectedToBe("be null or blank", "<null or blank>", this),
+            "<null or blank>",
+            this
+        )
+    }
+}
+
+/**
+ * CharSequence가 null이 아니고 blank가 아닌지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @return non-null receiver (체이닝 지원)
+ */
+fun CharSequence?.shouldNotBeNullOrBlank(): CharSequence {
+    if (this.isNullOrBlank()) {
+        Failures.fail("Expected CharSequence to not be null or blank, but was ${Messages.stringify(this)}.")
+    }
+    return this
+}
+
 // ── shouldMatch / shouldNotMatch ─────────────────────────────────────────────
 
 /**

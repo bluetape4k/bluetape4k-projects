@@ -12,7 +12,7 @@ import io.bluetape4k.javatimes.startOfMonth
 import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 

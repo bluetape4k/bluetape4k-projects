@@ -1,7 +1,7 @@
 package io.bluetape4k.apache
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 
 class ApacheExceptionUtilsTest {

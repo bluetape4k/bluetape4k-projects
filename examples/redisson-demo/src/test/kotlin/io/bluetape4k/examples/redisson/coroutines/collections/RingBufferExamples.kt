@@ -4,8 +4,8 @@ import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.future.await
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 /**

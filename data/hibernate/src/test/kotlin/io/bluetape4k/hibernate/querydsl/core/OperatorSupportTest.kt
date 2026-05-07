@@ -1,7 +1,7 @@
 package io.bluetape4k.hibernate.querydsl.core
 
 import com.querydsl.core.types.dsl.Expressions
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 

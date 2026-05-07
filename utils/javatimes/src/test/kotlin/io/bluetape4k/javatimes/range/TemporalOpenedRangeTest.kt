@@ -15,7 +15,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant

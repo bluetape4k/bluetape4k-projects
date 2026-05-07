@@ -1,7 +1,7 @@
 package io.bluetape4k.geohash.utils
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeNear
+import io.bluetape4k.assertions.shouldBeNear
 import org.junit.jupiter.api.Test
 
 class DoubleSupportTest {

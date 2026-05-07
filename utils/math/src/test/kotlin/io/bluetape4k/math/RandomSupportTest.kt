@@ -1,9 +1,9 @@
 package io.bluetape4k.math
 
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeIn
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeIn
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

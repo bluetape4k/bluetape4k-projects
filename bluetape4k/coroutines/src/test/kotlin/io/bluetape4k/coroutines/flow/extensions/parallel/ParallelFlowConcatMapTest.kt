@@ -12,7 +12,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class ParallelFlowConcatMapTest {

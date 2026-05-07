@@ -6,11 +6,11 @@ import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContainIgnoringCase
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldContainIgnoringCase
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest

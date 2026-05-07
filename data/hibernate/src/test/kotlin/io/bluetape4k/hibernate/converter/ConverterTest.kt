@@ -3,8 +3,8 @@ package io.bluetape4k.hibernate.converter
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.*

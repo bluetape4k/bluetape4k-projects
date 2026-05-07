@@ -6,8 +6,8 @@ import io.bluetape4k.support.uninitialized
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.Session
 import org.hibernate.annotations.NaturalId
 import org.junit.jupiter.api.Test

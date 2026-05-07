@@ -3,10 +3,10 @@ package io.bluetape4k.spring.tests
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flowOf
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient

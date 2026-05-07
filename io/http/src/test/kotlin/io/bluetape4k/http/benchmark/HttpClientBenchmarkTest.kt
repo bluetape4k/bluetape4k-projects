@@ -20,8 +20,8 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleRequestProducer
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer

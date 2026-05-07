@@ -7,10 +7,10 @@ import io.bluetape4k.idgenerators.ulid.utils.PastTimestampPart
 import io.bluetape4k.idgenerators.ulid.utils.partsOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeInRange
-import org.amshove.kluent.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 
 abstract class AbstractULIDTest {
     companion object: KLogging() {

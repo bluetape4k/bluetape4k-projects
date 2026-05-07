@@ -1,8 +1,8 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.internal.assertFailsWith
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream

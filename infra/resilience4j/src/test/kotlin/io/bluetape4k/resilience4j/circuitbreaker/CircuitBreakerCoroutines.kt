@@ -9,8 +9,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
 import io.github.resilience4j.kotlin.circuitbreaker.decorateSuspendFunction
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

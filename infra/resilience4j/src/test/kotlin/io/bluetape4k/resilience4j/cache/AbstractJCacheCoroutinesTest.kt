@@ -10,7 +10,7 @@ import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import io.github.resilience4j.cache.Cache
 import kotlinx.coroutines.delay
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture

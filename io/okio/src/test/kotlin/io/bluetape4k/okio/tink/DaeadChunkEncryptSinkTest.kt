@@ -4,9 +4,9 @@ import io.bluetape4k.tink.daead.TinkDaeads
 import okio.Buffer
 import okio.Sink
 import okio.Timeout
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import kotlin.test.assertFailsWith

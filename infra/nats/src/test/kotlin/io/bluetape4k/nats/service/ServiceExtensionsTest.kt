@@ -3,8 +3,8 @@ package io.bluetape4k.nats.service
 import io.mockk.mockk
 import io.nats.client.Connection
 import io.nats.service.ServiceMessageHandler
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

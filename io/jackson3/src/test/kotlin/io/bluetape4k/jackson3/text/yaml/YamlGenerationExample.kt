@@ -4,7 +4,7 @@ import io.bluetape4k.jackson3.text.trimYamlDocMarker
 import io.bluetape4k.jackson3.writeValue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import tools.jackson.core.JsonGenerator
 import tools.jackson.core.ObjectWriteContext

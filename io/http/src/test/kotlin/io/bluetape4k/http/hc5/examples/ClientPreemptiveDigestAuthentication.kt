@@ -9,7 +9,7 @@ import io.bluetape4k.http.hc5.http.httpHostOf
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.auth.BasicScheme

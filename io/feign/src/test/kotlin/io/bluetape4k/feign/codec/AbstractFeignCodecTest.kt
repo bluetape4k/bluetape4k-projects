@@ -7,9 +7,9 @@ import io.bluetape4k.feign.AbstractFeignTest
 import io.bluetape4k.feign.feignResponse
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8String
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 abstract class AbstractFeignCodecTest: AbstractFeignTest() {

@@ -2,9 +2,9 @@ package io.bluetape4k.hibernate.standalone
 
 import io.bluetape4k.hibernate.getEntityName
 import io.bluetape4k.hibernate.registerEventListener
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeNull
 import org.hibernate.event.spi.EventType
 import org.hibernate.event.spi.PreInsertEvent
 import org.hibernate.event.spi.PreInsertEventListener

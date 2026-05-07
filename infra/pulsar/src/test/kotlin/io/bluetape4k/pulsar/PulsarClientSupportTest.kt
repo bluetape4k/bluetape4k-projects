@@ -2,7 +2,7 @@ package io.bluetape4k.pulsar
 
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.pulsar.client.api.Schema
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

@@ -1,8 +1,8 @@
 package io.bluetape4k.mockserver.jsonplaceholder
 
 import io.bluetape4k.mockserver.jsonplaceholder.model.CommentRecord
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType

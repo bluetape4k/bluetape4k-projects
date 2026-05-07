@@ -12,7 +12,7 @@ import io.bluetape4k.nats.client.api.streamConfiguration
 import io.bluetape4k.nats.client.tryPurgeStream
 import io.nats.client.JetStream
 import io.nats.client.api.StorageType
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test

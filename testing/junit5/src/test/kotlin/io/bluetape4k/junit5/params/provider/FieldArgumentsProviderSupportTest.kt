@@ -3,9 +3,9 @@ package io.bluetape4k.junit5.params.provider
 import io.bluetape4k.junit5.utils.ExtensionTester
 import io.mockk.every
 import io.mockk.mockk
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.support.ParameterDeclarations

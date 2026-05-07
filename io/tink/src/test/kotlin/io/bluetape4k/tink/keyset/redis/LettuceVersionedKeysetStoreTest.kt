@@ -7,8 +7,8 @@ import io.bluetape4k.tink.aead.TinkAeads
 import io.bluetape4k.tink.keyset.VersionedTinkDaead
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.StringCodec
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 

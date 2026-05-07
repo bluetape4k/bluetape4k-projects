@@ -4,7 +4,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterKeyspace
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createKeyspace
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropKeyspace
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class KeyspaceStatementExamples {

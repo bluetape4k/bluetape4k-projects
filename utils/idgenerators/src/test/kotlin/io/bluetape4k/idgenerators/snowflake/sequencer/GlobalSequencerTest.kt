@@ -2,8 +2,8 @@ package io.bluetape4k.idgenerators.snowflake.sequencer
 
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class GlobalSequencerTest: AbstractSequencerTest() {

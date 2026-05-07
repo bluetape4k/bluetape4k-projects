@@ -8,10 +8,10 @@ import io.bluetape4k.science.exposed.model.SpatialLayerRecord
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
 import io.bluetape4k.science.exposed.service.ShapefileImportService
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

@@ -2,7 +2,7 @@ package io.bluetape4k.spring.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.spring.AbstractSpringTest
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import java.util.*

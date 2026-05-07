@@ -5,8 +5,8 @@ import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

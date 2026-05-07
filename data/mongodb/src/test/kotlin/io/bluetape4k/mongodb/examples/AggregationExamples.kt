@@ -18,8 +18,8 @@ import io.bluetape4k.mongodb.bson.documentOf
 import io.bluetape4k.mongodb.getCollectionOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.bson.Document
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

@@ -8,8 +8,8 @@ import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.retry.Retry
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 @Suppress("UNUSED_PARAMETER")

@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.Method
 import org.apache.hc.core5.http.message.BasicHeader

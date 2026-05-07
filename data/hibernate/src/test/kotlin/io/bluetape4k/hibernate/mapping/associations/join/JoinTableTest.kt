@@ -2,7 +2,7 @@ package io.bluetape4k.hibernate.mapping.associations.join
 
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull

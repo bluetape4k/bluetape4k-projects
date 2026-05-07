@@ -8,8 +8,8 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

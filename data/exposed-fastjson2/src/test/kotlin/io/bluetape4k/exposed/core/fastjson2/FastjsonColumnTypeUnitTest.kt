@@ -2,11 +2,11 @@ package io.bluetape4k.exposed.core.fastjson2
 
 import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.support.toUtf8Bytes
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

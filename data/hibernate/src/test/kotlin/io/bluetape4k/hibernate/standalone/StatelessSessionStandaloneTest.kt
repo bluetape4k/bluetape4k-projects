@@ -10,8 +10,8 @@ import io.bluetape4k.hibernate.stateless.createSelectionQueryAs
 import io.bluetape4k.hibernate.stateless.getAs
 import io.bluetape4k.hibernate.stateless.withStateless
 import io.bluetape4k.hibernate.stateless.withStatelss
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

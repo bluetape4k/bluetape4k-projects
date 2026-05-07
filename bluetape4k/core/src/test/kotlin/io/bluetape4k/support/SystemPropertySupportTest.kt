@@ -2,7 +2,7 @@ package io.bluetape4k.support
 
 import io.bluetape4k.AbstractCoreTest
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class SystemPropertySupportTest: AbstractCoreTest() {

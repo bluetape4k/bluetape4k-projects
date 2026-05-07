@@ -3,7 +3,7 @@ package io.bluetape4k.concurrent
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.test.assertFailsWith

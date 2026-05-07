@@ -4,8 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.spring.data.exposed.jdbc.repository.support.toCamelCase
 import io.bluetape4k.spring.data.exposed.jdbc.repository.support.toExposedOrderBy
 import io.bluetape4k.spring.data.exposed.jdbc.repository.support.toSnakeCase
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.junit.jupiter.api.Test

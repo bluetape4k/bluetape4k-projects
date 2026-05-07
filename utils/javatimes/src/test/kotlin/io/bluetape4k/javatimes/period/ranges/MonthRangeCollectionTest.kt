@@ -6,8 +6,8 @@ import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.startOfMonth
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 import java.time.YearMonth
 

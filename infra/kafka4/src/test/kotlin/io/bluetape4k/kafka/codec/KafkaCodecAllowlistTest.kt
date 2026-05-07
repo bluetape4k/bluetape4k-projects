@@ -3,8 +3,8 @@ package io.bluetape4k.kafka.codec
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test

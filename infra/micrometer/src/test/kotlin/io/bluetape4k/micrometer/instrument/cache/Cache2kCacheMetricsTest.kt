@@ -7,8 +7,8 @@ import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import io.micrometer.core.instrument.search.RequiredSearch
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.cache2k.Cache
 import org.cache2k.core.api.InternalCache
 import org.cache2k.core.api.InternalCacheInfo

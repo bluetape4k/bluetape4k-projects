@@ -7,7 +7,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropMaterializedVi
 import io.bluetape4k.cassandra.querybuilder.literal
 import io.bluetape4k.cassandra.querybuilder.lt
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class MaterializedViewStatementExamples {

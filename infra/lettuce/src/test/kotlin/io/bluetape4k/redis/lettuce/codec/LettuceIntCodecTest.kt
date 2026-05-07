@@ -2,8 +2,8 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 
 class LettuceIntCodecTest: AbstractLettuceTest() {

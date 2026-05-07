@@ -2,8 +2,8 @@ package io.bluetape4k.exposed.core.tink
 
 import io.bluetape4k.tink.aead.TinkAeads
 import io.bluetape4k.tink.daead.TinkDaeads
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

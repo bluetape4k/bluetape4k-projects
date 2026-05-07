@@ -6,10 +6,10 @@ import io.bluetape4k.testcontainers.AbstractContainerTest
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeBlank
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

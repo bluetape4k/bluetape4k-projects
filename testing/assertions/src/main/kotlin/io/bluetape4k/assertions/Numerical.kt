@@ -2,6 +2,11 @@ package io.bluetape4k.assertions
 
 import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
+import java.math.BigDecimal
+
+const val DOUBLE_EPSILON: Double = 1e-9
+const val FLOAT_EPSILON: Float = 1e-6f
+val BIGDECIMAL_EPSILON: BigDecimal = BigDecimal("1E-9")
 
 // ── Comparable 비교 ──────────────────────────────────────────────────────────
 
@@ -711,7 +716,7 @@ infix fun ULong.shouldNotBeIn(range: ULongRange): ULong {
  * @param tolerance 허용 오차 (양수여야 함)
  * @return receiver (체이닝 지원)
  */
-fun Double.shouldBeNear(expected: Double, tolerance: Double): Double {
+fun Double.shouldBeNear(expected: Double, tolerance: Double = DOUBLE_EPSILON): Double {
     if (this.isNaN() || expected.isNaN() || kotlin.math.abs(this - expected) > tolerance) {
         Failures.fail(
             "Expected <$this> to be near <$expected> within tolerance <$tolerance>, but was not."
@@ -730,8 +735,25 @@ fun Double.shouldBeNear(expected: Double, tolerance: Double): Double {
  * @param tolerance 허용 오차 (양수여야 함)
  * @return receiver (체이닝 지원)
  */
-fun Float.shouldBeNear(expected: Float, tolerance: Float): Float {
+fun Float.shouldBeNear(expected: Float, tolerance: Float = FLOAT_EPSILON): Float {
     if (this.isNaN() || expected.isNaN() || kotlin.math.abs(this - expected) > tolerance) {
+        Failures.fail(
+            "Expected <$this> to be near <$expected> within tolerance <$tolerance>, but was not."
+        )
+    }
+    return this
+}
+
+/**
+ * BigDecimal 값이 [expected]와 [tolerance] 이내로 근사한지 검증한다.
+ *
+ * @receiver 검증할 BigDecimal 값
+ * @param expected 기대하는 근사 값
+ * @param tolerance 허용 오차 (양수여야 함)
+ * @return receiver (체이닝 지원)
+ */
+fun BigDecimal.shouldBeNear(expected: BigDecimal, tolerance: BigDecimal = BIGDECIMAL_EPSILON): BigDecimal {
+    if ((this - expected).abs() > tolerance) {
         Failures.fail(
             "Expected <$this> to be near <$expected> within tolerance <$tolerance>, but was not."
         )
@@ -798,3 +820,24 @@ infix fun Double.shouldNotBeNear(expected: Double): Double = shouldNotBeNear(exp
  * @return receiver (체이닝 지원)
  */
 infix fun Float.shouldNotBeNear(expected: Float): Float = shouldNotBeNear(expected, 1e-6f)
+
+//
+// ── BigDecimal Equality (compareTo-based, scale-insensitive) ─────────────────
+//
+
+/** BigDecimal 수학적 동등성 검증 (scale 무관, compareTo 사용). */
+infix fun BigDecimal?.shouldBeEqualTo(expected: BigDecimal?): BigDecimal? {
+    if (this == null && expected == null) return null
+    if (this == null || expected == null || this.compareTo(expected) != 0) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+/** BigDecimal 수학적 비동등성 검증 (scale 무관, compareTo 사용). */
+infix fun BigDecimal?.shouldNotBeEqualTo(expected: BigDecimal?): BigDecimal? {
+    if (this != null && expected != null && this.compareTo(expected) == 0) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}

@@ -9,8 +9,8 @@ import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.User
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

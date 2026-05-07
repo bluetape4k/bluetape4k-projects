@@ -13,7 +13,7 @@ import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 

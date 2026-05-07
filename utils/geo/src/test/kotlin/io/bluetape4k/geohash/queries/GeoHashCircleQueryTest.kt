@@ -3,8 +3,8 @@ package io.bluetape4k.geohash.queries
 import io.bluetape4k.geohash.WGS84Point
 import io.bluetape4k.geohash.wgs84PointOf
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

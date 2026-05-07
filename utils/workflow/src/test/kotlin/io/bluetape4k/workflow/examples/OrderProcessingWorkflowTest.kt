@@ -4,10 +4,10 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.workflow.api.WorkReport
 import io.bluetape4k.workflow.api.workContext
 import io.bluetape4k.workflow.core.sequentialFlow
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 

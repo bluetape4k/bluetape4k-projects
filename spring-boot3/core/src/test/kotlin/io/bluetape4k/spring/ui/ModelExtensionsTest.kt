@@ -1,8 +1,8 @@
 package io.bluetape4k.spring.ui
 
 import io.bluetape4k.spring.AbstractSpringTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.ui.ExtendedModelMap
 import org.springframework.ui.ModelMap

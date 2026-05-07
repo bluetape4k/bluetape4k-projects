@@ -7,7 +7,7 @@ import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.support.toUtf8Bytes
 import okio.Buffer
 import okio.Sink
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith

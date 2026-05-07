@@ -8,10 +8,10 @@ import io.bluetape4k.hibernate.converters.SnappyStringConverter
 import io.bluetape4k.hibernate.converters.ZstdStringConverter
 import io.bluetape4k.logging.KLogging
 import jakarta.persistence.AttributeConverter
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream

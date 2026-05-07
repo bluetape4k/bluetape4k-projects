@@ -6,8 +6,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
 import kotlinx.coroutines.future.await
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.redisson.api.RBinaryStream
 import java.time.Duration

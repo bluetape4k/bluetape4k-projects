@@ -5,10 +5,10 @@ import io.bluetape4k.hibernate.findAll
 import io.bluetape4k.logging.KLogging
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException

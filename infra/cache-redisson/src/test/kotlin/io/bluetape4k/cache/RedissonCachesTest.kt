@@ -10,7 +10,7 @@ import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.SuspendNearJCache
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 
 /**

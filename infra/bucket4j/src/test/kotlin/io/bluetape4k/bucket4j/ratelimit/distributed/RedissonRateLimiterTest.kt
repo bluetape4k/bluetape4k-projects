@@ -13,7 +13,7 @@ import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith

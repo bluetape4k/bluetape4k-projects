@@ -4,8 +4,8 @@ import io.bluetape4k.cache.RedisServers.redisClient
 import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.util.*

@@ -3,8 +3,8 @@ package io.bluetape4k.tink
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import io.bluetape4k.tink.mac.TinkMac
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.security.GeneralSecurityException

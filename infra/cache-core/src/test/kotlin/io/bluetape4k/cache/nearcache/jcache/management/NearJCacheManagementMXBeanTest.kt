@@ -5,8 +5,8 @@ import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.cache.nearcache.jcache.NearJCache
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheConfig
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import javax.cache.expiry.EternalExpiryPolicy
 

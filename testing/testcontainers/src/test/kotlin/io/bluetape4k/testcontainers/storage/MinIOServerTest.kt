@@ -7,9 +7,9 @@ import io.minio.BucketExistsArgs
 import io.minio.MakeBucketArgs
 import io.minio.StatObjectArgs
 import io.minio.UploadObjectArgs
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNullOrBlank
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58

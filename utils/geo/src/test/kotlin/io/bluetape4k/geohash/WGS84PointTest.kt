@@ -3,9 +3,9 @@ package io.bluetape4k.geohash
 import io.bluetape4k.geohash.utils.VincentyGeodesy
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNear
-import org.amshove.kluent.shouldNotBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldNotBe
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith

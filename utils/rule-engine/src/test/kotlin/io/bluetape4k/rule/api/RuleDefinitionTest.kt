@@ -4,8 +4,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.DEFAULT_RULE_DESCRIPTION
 import io.bluetape4k.rule.DEFAULT_RULE_NAME
 import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class RuleDefinitionTest {

@@ -11,7 +11,7 @@ import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfHour
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class HourRangeTest: AbstractPeriodTest() {

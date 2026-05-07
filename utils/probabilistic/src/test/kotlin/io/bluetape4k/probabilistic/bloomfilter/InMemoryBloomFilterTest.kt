@@ -1,9 +1,9 @@
 package io.bluetape4k.probabilistic.bloomfilter
 
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.Serializable

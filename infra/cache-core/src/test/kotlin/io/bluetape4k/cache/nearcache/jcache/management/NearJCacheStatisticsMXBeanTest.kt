@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

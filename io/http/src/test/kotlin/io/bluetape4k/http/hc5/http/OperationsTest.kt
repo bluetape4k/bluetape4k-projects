@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.core5.concurrent.Cancellable
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture

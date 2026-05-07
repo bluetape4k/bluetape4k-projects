@@ -6,10 +6,10 @@ import io.bluetape4k.testcontainers.aws.LocalStackServer
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.localstack.AbstractLocalStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until

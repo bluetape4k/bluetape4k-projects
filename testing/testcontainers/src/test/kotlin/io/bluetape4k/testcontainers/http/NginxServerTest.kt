@@ -3,8 +3,8 @@ package io.bluetape4k.testcontainers.http
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File

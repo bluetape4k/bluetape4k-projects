@@ -8,8 +8,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils.commands
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange

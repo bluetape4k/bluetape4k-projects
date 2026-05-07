@@ -7,7 +7,7 @@ import io.github.resilience4j.kotlin.retry.decorateSuspendFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.test.assertFailsWith

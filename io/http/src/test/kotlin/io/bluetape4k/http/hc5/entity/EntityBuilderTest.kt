@@ -2,10 +2,10 @@ package io.bluetape4k.http.hc5.entity
 
 import io.bluetape4k.http.hc5.http.ContentTypes
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotBeNullOrEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
 import org.apache.hc.core5.http.ContentType
 import org.junit.jupiter.api.Test
 

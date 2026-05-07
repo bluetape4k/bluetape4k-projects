@@ -8,7 +8,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createTable
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropTable
 import com.datastax.oss.driver.api.querybuilder.schema.compaction.TimeWindowCompactionStrategy
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class TableStatementExamples {

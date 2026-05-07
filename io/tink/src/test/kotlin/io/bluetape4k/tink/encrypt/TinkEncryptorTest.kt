@@ -5,8 +5,8 @@ import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.aeadKeysetHandle
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import io.bluetape4k.tink.daeadKeysetHandle
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest

@@ -3,11 +3,11 @@ package io.bluetape4k.testcontainers.aws
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.utils.ShutdownQueue
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldStartWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainAll
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldStartWith
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region

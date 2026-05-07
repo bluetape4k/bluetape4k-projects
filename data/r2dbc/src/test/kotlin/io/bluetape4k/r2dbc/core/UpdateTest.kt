@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import kotlinx.coroutines.reactor.awaitSingle
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.r2dbc.core.awaitRowsUpdated

@@ -5,8 +5,8 @@ import com.google.crypto.tink.daead.AesSivKeyManager
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.tink.aead.TinkAeads
 import io.bluetape4k.tink.keyset.VersionedTinkDaead
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RedissonClient
 import java.time.Duration

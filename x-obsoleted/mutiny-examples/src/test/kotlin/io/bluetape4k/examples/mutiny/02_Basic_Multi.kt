@@ -10,8 +10,8 @@ import io.bluetape4k.mutiny.onEach
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.subscription.MultiSubscriber
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture

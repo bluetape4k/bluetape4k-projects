@@ -1,7 +1,7 @@
 package io.bluetape4k.support
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors

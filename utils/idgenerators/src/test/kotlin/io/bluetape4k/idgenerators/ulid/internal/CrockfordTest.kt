@@ -4,7 +4,7 @@ import io.bluetape4k.idgenerators.ulid.utils.MaxTimestamp
 import io.bluetape4k.idgenerators.ulid.utils.MaxTimestampPart
 import io.bluetape4k.idgenerators.ulid.utils.PastTimestamp
 import io.bluetape4k.idgenerators.ulid.utils.PastTimestampPart
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

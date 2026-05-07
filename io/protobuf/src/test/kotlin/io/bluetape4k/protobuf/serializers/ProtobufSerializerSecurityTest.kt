@@ -5,8 +5,8 @@ import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.protobuf.messages.TestMessage
 import io.bluetape4k.protobuf.messages.testMessage
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

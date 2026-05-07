@@ -7,11 +7,11 @@ import io.bluetape4k.rule.core.DefaultRuleEngine
 import io.bluetape4k.rule.core.ruleEngine
 import io.bluetape4k.rule.support.ActivationRuleGroup
 import io.bluetape4k.rule.support.ConditionalRuleGroup
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 
 /**

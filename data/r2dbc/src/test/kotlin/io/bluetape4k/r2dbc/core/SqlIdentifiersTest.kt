@@ -1,7 +1,7 @@
 package io.bluetape4k.r2dbc.core
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldThrow
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -31,38 +31,44 @@ class SqlIdentifiersTest {
 
     @Test
     fun `세미콜론과 DROP TABLE 구문이 포함된 식별자는 예외를 발생시킨다`() {
-        val invoke = { requireValidIdentifier("users; DROP TABLE users--") }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier("users; DROP TABLE users--")
+        }
     }
 
     @Test
     fun `작은따옴표와 OR 구문이 포함된 식별자는 예외를 발생시킨다`() {
-        val invoke = { requireValidIdentifier("users' OR '1'='1") }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier("users' OR '1'='1")
+        }
     }
 
     @Test
     fun `백틱이 포함된 식별자는 예외를 발생시킨다`() {
-        val invoke = { requireValidIdentifier("`users`") }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier("`users`")
+        }
     }
 
     @Test
     fun `숫자로 시작하는 식별자는 예외를 발생시킨다`() {
-        val invoke = { requireValidIdentifier("123invalid") }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier("123invalid")
+        }
     }
 
     @Test
     fun `빈 문자열 식별자는 예외를 발생시킨다`() {
-        val invoke = { requireValidIdentifier("") }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier("")
+        }
     }
 
     @Test
     fun `공백이 포함된 식별자는 예외를 발생시킨다`() {
-        val invoke = { requireValidIdentifier("users WHERE 1=1") }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier("users WHERE 1=1")
+        }
     }
 
     @ParameterizedTest(name = "무효한 SQL injection 식별자: [{0}]")
@@ -74,7 +80,8 @@ class SqlIdentifiersTest {
         "users WHERE 1=1",
     ])
     fun `SQL injection 패턴을 포함한 식별자는 예외를 발생시킨다`(identifier: String) {
-        val invoke = { requireValidIdentifier(identifier) }
-        invoke shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> {
+            requireValidIdentifier(identifier)
+        }
     }
 }

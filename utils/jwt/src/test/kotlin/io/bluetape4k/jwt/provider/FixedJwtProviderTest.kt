@@ -10,7 +10,7 @@ import io.bluetape4k.jwt.utils.epochSeconds
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.jsonwebtoken.UnsupportedJwtException
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.*

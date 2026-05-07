@@ -3,10 +3,10 @@ package io.bluetape4k.hibernate.cache.lettuce
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Assumptions.assumeTrue

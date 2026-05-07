@@ -5,7 +5,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createFunction
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropFunction
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class FunctionStatementExamples {

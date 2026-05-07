@@ -5,9 +5,9 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 

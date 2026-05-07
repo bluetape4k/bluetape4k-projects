@@ -5,8 +5,8 @@ import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.testcontainers.mq.Spring
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

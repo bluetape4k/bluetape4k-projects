@@ -10,8 +10,8 @@ import io.bluetape4k.jwt.codec.JwtCodecs
 import io.bluetape4k.jwt.provider.JwtProviderFactory
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -131,7 +131,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
 
         // Cache 1 에서 저장
         nearJCache1.put(jwt, reader.toDto())
-        nearJCache1.get(jwt)!!.toJwtReader() shouldBeEqualTo reader
+        assertSameReader(reader, nearJCache1.get(jwt)!!.toJwtReader())
 
         await atMost 10.seconds until { nearJCache2.containsKey(jwt) }
 

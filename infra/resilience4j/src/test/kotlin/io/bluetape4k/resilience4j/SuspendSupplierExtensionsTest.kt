@@ -3,8 +3,8 @@ package io.bluetape4k.resilience4j
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellationException
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.IOException

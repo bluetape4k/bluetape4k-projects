@@ -8,8 +8,8 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.utils.Runtimex
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.system.measureTimeMillis

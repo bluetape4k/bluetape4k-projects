@@ -3,9 +3,9 @@ package io.bluetape4k.kafka
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.asDouble
 import io.bluetape4k.testcontainers.mq.KafkaServer
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

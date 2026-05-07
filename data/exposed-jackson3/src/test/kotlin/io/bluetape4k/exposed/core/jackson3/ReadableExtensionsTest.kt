@@ -2,9 +2,9 @@ package io.bluetape4k.exposed.core.jackson3
 
 import io.bluetape4k.jackson3.JacksonSerializer
 import io.r2dbc.spi.Readable
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import tools.jackson.databind.JsonNode
 import kotlin.test.Test
 import kotlin.test.assertFailsWith

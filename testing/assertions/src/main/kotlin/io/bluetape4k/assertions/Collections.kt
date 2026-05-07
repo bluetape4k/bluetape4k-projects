@@ -4,6 +4,22 @@ import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
 
 /**
+ * 문자열 컬렉션이 대소문자를 무시하고 [expected] 문자열을 포함하는지 검증한다.
+ *
+ * @receiver 검증할 문자열 컬렉션 (nullable 허용)
+ * @param expected 대소문자 무시하고 포함해야 하는 문자열
+ * @return non-null receiver (체이닝 지원)
+ */
+infix fun Iterable<String>?.shouldContainIgnoringCase(expected: String): Iterable<String> {
+    if (this == null || this.none { it.equals(expected, ignoreCase = true) }) {
+        Failures.fail(
+            "Expected ${Messages.stringify(this)} to contain (ignoring case) ${Messages.stringify(expected)}, but it did not."
+        )
+    }
+    return this
+}
+
+/**
  * 컬렉션이 [expected] 원소를 포함하는지 검증한다.
  *
  * @receiver 검증할 컬렉션 (nullable 허용)
@@ -117,7 +133,7 @@ infix fun <T> Iterable<T>?.shouldContainNone(expected: Iterable<T>): Iterable<T>
  * @param size 기대하는 크기
  * @return non-null receiver (체이닝 지원)
  */
-fun <T> Iterable<T>?.shouldHaveSize(size: Int): Iterable<T> {
+infix fun <T> Iterable<T>?.shouldHaveSize(size: Int): Iterable<T> {
     val actualSize = this?.count() ?: 0
     if (actualSize != size) {
         Failures.failComparison(
@@ -173,6 +189,24 @@ infix fun <T> T.shouldBeIn(collection: Iterable<T>): T {
     }
     return this
 }
+
+/**
+ * 값이 [array] 배열에 포함되어 있는지 검증한다.
+ *
+ * @receiver 검증할 값
+ * @param array 포함 여부를 검증할 배열
+ * @return receiver (체이닝 지원)
+ */
+infix fun <T> T.shouldBeIn(array: Array<T>): T = shouldBeIn(array.toList())
+
+/**
+ * 값이 [array] 배열에 포함되어 있지 않은지 검증한다.
+ *
+ * @receiver 검증할 값
+ * @param array 포함 여부를 검증할 배열
+ * @return receiver (체이닝 지원)
+ */
+infix fun <T> T.shouldNotBeIn(array: Array<T>): T = shouldNotBeIn(array.toList())
 
 /**
  * 값이 [collection] 컬렉션에 포함되어 있지 않은지 검증한다.
@@ -253,6 +287,38 @@ infix fun <T> Iterable<T>?.shouldContentEqual(expected: Iterable<T>?): Iterable<
             "Expected ${Messages.stringify(actualList)} to content-equal ${Messages.stringify(expectedList)}, but they differed.",
             expectedList,
             actualList
+        )
+    }
+    return this
+}
+
+/**
+ * 두 컬렉션이 순서에 무관하게 동일한 원소(cardinality 포함)를 포함하는지 검증한다.
+ *
+ * - 양쪽 모두 null이면 통과한다.
+ * - 한쪽만 null이면 실패한다.
+ * - 원소의 수(cardinality)까지 같아야 통과한다.
+ *
+ * @receiver 검증할 컬렉션 (nullable 허용)
+ * @param expected 기대하는 컬렉션 (nullable 허용)
+ * @return non-null receiver (체이닝 지원)
+ */
+infix fun <T> Iterable<T>?.shouldContainSame(expected: Iterable<T>?): Iterable<T> {
+    if (this === expected) return this ?: emptyList()
+    if (this == null || expected == null) {
+        Failures.failComparison(
+            "Expected collections to contain same elements, but one was null.",
+            expected?.toList(),
+            this?.toList()
+        )
+    }
+    val actualFreq = this.groupingBy { it }.eachCount()
+    val expectedFreq = expected.groupingBy { it }.eachCount()
+    if (actualFreq != expectedFreq) {
+        Failures.failComparison(
+            "Expected ${Messages.stringify(this.toList())} to contain same elements as ${Messages.stringify(expected.toList())}, but they differed.",
+            expected.toList(),
+            this.toList()
         )
     }
     return this
