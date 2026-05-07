@@ -162,18 +162,22 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
   형식을 기본으로 한다.
 - **근거**: 메시지 일관성. 향후 i18n 또는 컬러링 도입 시 단일 지점에서 변경.
 
-### ADR-9: 모듈 의존성 — 최소 프로덕션 api 의존성
+### ADR-9: 모듈 의존성 — bluetape4k-* 모듈 의존 금지
 
-- **결정**: `bluetape4k-core`나 `bluetape4k-junit5`에 의존하지 않는다.
-  `api` 범위 의존성은 소비자 classpath에 전파되므로, 이 모듈의 public API를 사용하는 데
-  반드시 필요한 것만 포함한다:
-  - `bluetape4k-logging` — KLogging 로거 (api)
-  - `junit.bom` (platform) + `junit.jupiter.api` — assertion 실패 타입(`AssertionFailedError`) 제공 (api)
-  - `opentest4j` — `MultipleFailuresError` 등 opentest4j 타입 (api)
+- **결정**: `bluetape4k-assertions`는 어떤 `bluetape4k-*` 모듈에도 의존하지 않는다.
+  `bluetape4k-logging`, `bluetape4k-core`, `bluetape4k-junit5` 모두 **의존 금지**.
+  `api` 범위는 이 모듈의 public API를 사용하는 데 반드시 필요한 순수 외부 라이브러리만 허용:
+  - `junit.bom` (platform) + `junit.jupiter.api` — `AssertionFailedError` 타입 (api)
+  - `opentest4j` — `MultipleFailuresError` 타입 (api)
   - `kotlinx.coroutines.core` — FlowAssertions가 main 소스에 있어 소비자 classpath 필요 (api)
-  - `turbine` — 소비자가 TurbineSupport 사용 시 직접 추가 필요 (compileOnly)
-- **근거**: assertion 라이브러리는 가능한 한 가벼워야 하며, 모든 testing 모듈이 이 모듈을 흡수해도
-  순환 의존이 발생하지 않아야 한다. `bluetape4k-core`/`bluetape4k-junit5`는 의존 금지 (순환 위험).
+  - `turbine` — TurbineSupport 사용 소비자가 직접 추가 (compileOnly)
+- **근거**:
+  - assertions 모듈은 bluetape4k 생태계 전체의 최하위 테스팅 기반이므로, 어느 bluetape4k
+    모듈이 이 모듈을 흡수해도 순환 의존이 발생해선 안 된다.
+  - `bluetape4k-logging`을 추가하면 소비자 classpath에 logging 의존성이 강제 전파된다.
+  - assertion 함수는 stateless이므로 로깅 자체가 불필요하다.
+  - **KLogging 사용 금지** — `internal/Failures.kt`, `Softly.kt` 등 모든 내부 코드에서
+    logging을 사용하지 않는다. 예외 메시지와 `AssertionFailedError`만으로 진단 가능.
 
 ---
 
@@ -1065,24 +1069,23 @@ plugins {
 description = "Bluetape4k testing assertions — Kluent compatible, JUnit 5 native"
 
 dependencies {
+    // ⚠️ bluetape4k-* 모듈 의존 금지 (ADR-9)
     api(platform(libs.junit.bom))
-    api(project(":bluetape4k-logging"))
 
     // JUnit 5
     api(libs.junit.jupiter.api)
-    api("org.opentest4j:opentest4j")
+    api(libs.opentest4j)   // 버전 카탈로그 등록 후 libs.opentest4j 사용
 
     // Coroutines — api (FlowAssertions가 main 소스에 있어 소비자 classpath에도 필요)
     api(libs.kotlinx.coroutines.core)
-    // Turbine — compileOnly (사용자가 직접 추가해야 TurbineSupport 사용 가능)
+    // Turbine — compileOnly (TurbineSupport 사용자는 직접 testImplementation 추가 필요)
     compileOnly(libs.turbine)
 
-    // Test
+    // Test (bluetape4k-junit5는 testImplementation으로만 사용)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(libs.kotlin.test.junit5)
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(libs.junit.platform.launcher)
-    testImplementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.mockk)

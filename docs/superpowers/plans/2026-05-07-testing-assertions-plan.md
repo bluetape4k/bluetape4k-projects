@@ -14,13 +14,15 @@
 본 계획은 spec 부록 B의 13단계 흐름을 세분화한 작업 항목(T1~T22)이다.
 각 작업은 ID, 복잡도(`high`/`medium`/`low`), 대상 파일, 수용 기준(DoD), 의존 작업을 명시한다.
 
-### 공통 컨벤션 (H5 — 모든 구현자 필독)
+### 공통 컨벤션 (모든 구현자 필독)
 
-> **KLogging 사용 규칙**: `bluetape4k-logging`이 `api` 의존성이므로 프로젝트 규약에 따라
-> 상태 또는 생명주기를 가지는 클래스(`SoftAssertionScope`, `InvokingBlock`, `CoInvokingBlock`,
-> `Failures` 헬퍼 object 등)는 필요 시 `companion object : KLogging()` 패턴을 적용한다.
-> 순수 extension 함수 파일(`Basic.kt`, `Numerical.kt` 등)은 stateless이므로 logger를 추가하지 않는다.
-> **단, 어떤 파일에도 로깅이 필요한 경우에는 `private val log = KotlinLogging.logger {}`도 허용.**
+> **bluetape4k-* 의존 금지 (ADR-9)**: `bluetape4k-assertions`는 `bluetape4k-logging`,
+> `bluetape4k-core`, `bluetape4k-junit5` 등 어떤 `bluetape4k-*` 모듈에도 `api`/`implementation`
+> 의존을 추가하지 않는다. `testImplementation`으로만 허용.
+>
+> **KLogging/로깅 사용 금지**: assertion 함수는 stateless이므로 logging이 불필요하다.
+> `companion object : KLogging()` 또는 `KotlinLogging.logger {}` 사용 금지.
+> 실패 진단은 `AssertionFailedError` 메시지와 expected/actual 값만으로 충분하다.
 
 ### 복잡도 라우팅 가이드
 
@@ -72,9 +74,9 @@ T1 (스캐폴드)
   - `settings.gradle.kts` (확인 — `testing/` 자동 등록 여부 검증)
 - **수용 기준**:
   - `./gradlew :bluetape4k-assertions:tasks` 명령이 모듈을 인식하여 정상 출력한다.
-  - `build.gradle.kts`에 spec §9.1 의존성이 모두 선언되어 있다:
+  - `build.gradle.kts`에 spec §9.1 의존성이 모두 선언되어 있다 (**bluetape4k-* api 의존 금지**):
     - `api`: `platform(libs.junit.bom)`, `libs.junit.jupiter.api`,
-      `libs.opentest4j` (※아래 주의), `project(":bluetape4k-logging")`,
+      `libs.opentest4j` (※아래 주의),
       `libs.kotlinx.coroutines.core` (spec §9.1 우선 — §6.7의 compileOnly 표기는 오류)
     - `compileOnly`: `libs.turbine`
     - `testImplementation`: `project(":bluetape4k-junit5")`, `libs.kotlin.test.junit5`,
@@ -495,6 +497,8 @@ T1 (스캐폴드)
   - IntelliJ KDoc 검사 통과 (linkable references 모두 해석됨).
   - **⚠️ T14 bridge 함수 KDoc**: `bluetape4k-coroutines` deprecated 함수에도 KDoc 업데이트 필요
     — 이전 위치, 대체 함수 참조, 제거 예정 버전(v2) 명시.
+  - **KLogging/로깅 import 없음**: assertions 모듈은 `bluetape4k-logging` 미참조이므로
+    어떤 파일에도 `KLogging`/`KotlinLogging` import가 없음을 확인.
 - **의존**: T15, T16  ← T16이 Basic.kt에 신규 함수 추가하므로 T16 완료 후 KDoc 패스 실행
 
 ---
@@ -556,6 +560,8 @@ T1 (스캐폴드)
     - 깊은 중첩 (> 4 레벨) 없음.
     - `@Synchronized` / `synchronized {}` 사용 0건.
     - atomicfu 사용 0건 (assertion stateless).
+    - `bluetape4k-*` 모듈 api/implementation 의존 0건 (ADR-9).
+    - KLogging/KotlinLogging import 0건.
     - 모든 public API에 한국어 KDoc.
   - 최종 검증:
     - `./gradlew :bluetape4k-assertions:build` 통과.
