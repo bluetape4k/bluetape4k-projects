@@ -91,7 +91,6 @@ class TemporalInterval<T> private constructor(
                 endExclusive = ZonedDateTime.parse(rightStr.trim(), DateTimeFormatter.ISO_OFFSET_DATE_TIME)
             )
         }
-
     }
 
     /**

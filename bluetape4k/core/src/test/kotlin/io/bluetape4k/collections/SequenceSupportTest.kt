@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class SequenceSupportTest {
 
@@ -89,12 +89,12 @@ class SequenceSupportTest {
 
     @Test
     fun `sequenceOf step must be positive`() {
-        assertThrows<IllegalArgumentException> { charSequenceOf('a', 'z', 0) }
-        assertThrows<IllegalArgumentException> { byteSequenceOf(0, 10, 0) }
-        assertThrows<IllegalArgumentException> { intSequenceOf(1, 10, 0) }
-        assertThrows<IllegalArgumentException> { longSequenceOf(1L, 10L, 0L) }
-        assertThrows<IllegalArgumentException> { floatSequenceOf(1.0F, 10.0F, 0.0F) }
-        assertThrows<IllegalArgumentException> { doubleSequenceOf(1.0, 10.0, 0.0) }
+        assertFailsWith<IllegalArgumentException> { charSequenceOf('a', 'z', 0) }
+        assertFailsWith<IllegalArgumentException> { byteSequenceOf(0, 10, 0) }
+        assertFailsWith<IllegalArgumentException> { intSequenceOf(1, 10, 0) }
+        assertFailsWith<IllegalArgumentException> { longSequenceOf(1L, 10L, 0L) }
+        assertFailsWith<IllegalArgumentException> { floatSequenceOf(1.0F, 10.0F, 0.0F) }
+        assertFailsWith<IllegalArgumentException> { doubleSequenceOf(1.0, 10.0, 0.0) }
     }
 
     @Test

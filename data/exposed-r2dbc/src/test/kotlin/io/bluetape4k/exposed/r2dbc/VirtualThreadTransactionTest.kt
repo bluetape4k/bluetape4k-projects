@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class VirtualThreadTransactionTest: AbstractExposedR2dbcTest() {
 

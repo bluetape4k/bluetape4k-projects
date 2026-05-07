@@ -27,7 +27,7 @@ import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 
 @Suppress("UNCHECKED_CAST")

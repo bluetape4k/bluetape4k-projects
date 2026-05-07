@@ -21,7 +21,7 @@ import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class FailuresExample {
 

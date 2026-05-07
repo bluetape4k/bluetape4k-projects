@@ -66,7 +66,6 @@ abstract class AbstractKeyChainRepositoryTest {
         repository.rotate(newKeyChain).shouldBeFalse()
 
         repository.current() shouldBeEqualTo prevKeyChain
-
     }
 
     @Test

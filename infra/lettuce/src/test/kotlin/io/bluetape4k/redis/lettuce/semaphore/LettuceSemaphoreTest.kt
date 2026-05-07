@@ -13,7 +13,7 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -39,10 +39,10 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `constructor rejects non positive totalPermits`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LettuceSemaphore(connection, randomName(), totalPermits = 0)
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LettuceSemaphore(connection, randomName(), totalPermits = -1)
         }
     }
@@ -89,7 +89,7 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     @Test
     fun `acquire - 시간 초과 시 예외 발생`() {
         repeat(TOTAL_PERMITS) { semaphore.tryAcquire() }
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             semaphore.acquire(1, waitTime = Duration.ofMillis(200))
         }
     }

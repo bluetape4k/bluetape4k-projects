@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.trino
 
-import io.bluetape4k.assertions.invoking
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [TrinoDatabase] 입력값 검증 로직을 단위 검증하는 테스트.
@@ -18,32 +18,27 @@ class TrinoDatabaseValidationTest {
 
     @Test
     fun `host 가 공백이면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(host = "", port = 8080, catalog = "memory", schema = "default") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(host = "", port = 8080, catalog = "memory", schema = "default") }
     }
 
     @Test
     fun `port 가 0 이면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(host = "localhost", port = 0, catalog = "memory", schema = "default") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(host = "localhost", port = 0, catalog = "memory", schema = "default") }
     }
 
     @Test
     fun `port 가 65536 이면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(host = "localhost", port = 65536, catalog = "memory", schema = "default") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(host = "localhost", port = 65536, catalog = "memory", schema = "default") }
     }
 
     @Test
     fun `catalog 가 공백이면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(host = "localhost", port = 8080, catalog = "", schema = "default") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(host = "localhost", port = 8080, catalog = "", schema = "default") }
     }
 
     @Test
     fun `schema 가 공백이면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(host = "localhost", port = 8080, catalog = "memory", schema = "") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(host = "localhost", port = 8080, catalog = "memory", schema = "") }
     }
 
     // ----------------------------------------------------------------
@@ -52,13 +47,11 @@ class TrinoDatabaseValidationTest {
 
     @Test
     fun `jdbcUrl 이 공백이면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(jdbcUrl = "") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(jdbcUrl = "") }
     }
 
     @Test
     fun `jdbcUrl 이 trino 프로토콜로 시작하지 않으면 IllegalArgumentException 을 던진다`() {
-        invoking { TrinoDatabase.connect(jdbcUrl = "jdbc:postgresql://localhost/mydb") }
-            .shouldThrow(IllegalArgumentException::class)
+        assertFailsWith<IllegalArgumentException> { TrinoDatabase.connect(jdbcUrl = "jdbc:postgresql://localhost/mydb") }
     }
 }

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [UserContext] 단위 테스트입니다.

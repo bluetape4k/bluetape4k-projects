@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.net.HttpURLConnection
 import java.net.URI
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WireMockServerTest: AbstractContainerTest() {

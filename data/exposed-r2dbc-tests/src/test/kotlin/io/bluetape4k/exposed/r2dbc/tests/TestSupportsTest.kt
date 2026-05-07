@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.r2dbc.exists
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class TestSupportsTest: AbstractExposedR2dbcTest() {
 

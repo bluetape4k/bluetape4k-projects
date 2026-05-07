@@ -4,7 +4,7 @@ import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [managedChannel] 및 [grpcServer]/[grpcServerBuilder] 팩토리 함수 검증 테스트

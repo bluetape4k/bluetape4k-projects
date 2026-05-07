@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.stream.Stream
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [Compressor] 구현체들에 대한 edge case 테스트입니다.
@@ -184,7 +185,7 @@ class CompressorEdgeCaseTest {
         corrupted[3] = 0xFF.toByte()
 
         // 손상 데이터는 예외를 전파 — silent failure 제거
-        org.junit.jupiter.api.assertThrows<Exception> {
+        assertFailsWith<Exception> {
             compressor.decompress(corrupted)
         }
 

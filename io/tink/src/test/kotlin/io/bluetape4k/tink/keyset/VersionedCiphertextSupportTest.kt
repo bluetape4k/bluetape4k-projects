@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class VersionedCiphertextSupportTest {
 
@@ -48,7 +48,7 @@ class VersionedCiphertextSupportTest {
 
     @Test
     fun `빈 payload로 unpack시 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             unpackVersionedCiphertext(ByteArray(0))
         }
     }
@@ -56,7 +56,7 @@ class VersionedCiphertextSupportTest {
     @Test
     fun `Long SIZE_BYTES 크기의 payload로 unpack시 예외 발생`() {
         // 버전만 있고 암호문이 없는 경우 (크기가 Long.SIZE_BYTES 이하)
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             unpackVersionedCiphertext(ByteArray(Long.SIZE_BYTES))
         }
     }

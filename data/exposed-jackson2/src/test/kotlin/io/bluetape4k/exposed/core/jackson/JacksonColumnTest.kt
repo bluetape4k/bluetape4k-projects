@@ -724,6 +724,5 @@ class JacksonColumnTest: AbstractExposedTest() {
             val value = testerDatabaseGenerated.selectAll().single()[tester.value]
             value shouldBeEqualTo defaultUser
         }
-
     }
 }

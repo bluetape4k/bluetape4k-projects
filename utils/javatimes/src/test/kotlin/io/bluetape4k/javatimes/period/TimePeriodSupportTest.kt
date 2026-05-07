@@ -4,7 +4,7 @@ import io.bluetape4k.javatimes.period.ranges.YearCalendarTimeRange
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class TimePeriodSupportTest {
 
@@ -45,7 +45,7 @@ class TimePeriodSupportTest {
 
     @Test
     fun `yearOf는 잘못된 monthOfYear에 대해 예외를 던진다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             yearOf(2025, 13)
         }
     }

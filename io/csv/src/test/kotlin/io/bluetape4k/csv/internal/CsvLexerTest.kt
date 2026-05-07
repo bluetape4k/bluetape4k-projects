@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class CsvLexerTest {
 
@@ -249,7 +249,7 @@ class CsvLexerTest {
     @Test
     fun `maxCharsPerColumn exceeded throws ParseException`() {
         val settings = CsvSettings(maxCharsPerColumn = 5)
-        assertThrows<ParseException> {
+        assertFailsWith<ParseException> {
             lexerOf("abcdefgh", settings).next()
         }
     }
@@ -257,7 +257,7 @@ class CsvLexerTest {
     @Test
     fun `maxColumns exceeded throws ParseException`() {
         val settings = CsvSettings(maxColumns = 2)
-        assertThrows<ParseException> {
+        assertFailsWith<ParseException> {
             lexerOf("a,b,c", settings).next()
         }
     }

@@ -18,7 +18,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.api.Test
 import java.io.Serializable
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [SuspendedExposedEntityMapWriter] 단위 테스트.

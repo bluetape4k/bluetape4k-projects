@@ -13,6 +13,5 @@ fun routeNoteOf(message: String, latitude: Int, longitude: Int): RouteNote =
         .apply {
             this.message = message
             this.location = pointOf(latitude, longitude)
-
         }
         .build()

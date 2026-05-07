@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class GroovyActionTest {
 
@@ -79,7 +79,7 @@ class GroovyActionTest {
     @Test
     fun `잘못된 Groovy 스크립트는 RuleException 발생`() {
         val action = GroovyAction("def x = {{{{{ broken groovy")
-        assertThrows<RuleException> {
+        assertFailsWith<RuleException> {
             action.execute(Facts.empty())
         }
     }

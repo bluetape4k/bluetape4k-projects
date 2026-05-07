@@ -10,7 +10,7 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceCuckooFilterTest: AbstractLettuceTest() {
 
@@ -32,8 +32,8 @@ class LettuceCuckooFilterTest: AbstractLettuceTest() {
 
     @Test
     fun `CuckooFilterOptions - 잘못된 bucketSize 예외`() {
-        assertThrows<IllegalArgumentException> { CuckooFilterOptions(bucketSize = 0) }
-        assertThrows<IllegalArgumentException> { CuckooFilterOptions(bucketSize = 9) }
+        assertFailsWith<IllegalArgumentException> { CuckooFilterOptions(bucketSize = 0) }
+        assertFailsWith<IllegalArgumentException> { CuckooFilterOptions(bucketSize = 9) }
     }
 
     @Test
@@ -71,7 +71,7 @@ class LettuceCuckooFilterTest: AbstractLettuceTest() {
             cuckooFilter.filterName,
             CuckooFilterOptions(capacity = 2048L, bucketSize = 8),
         )
-        assertThrows<IllegalStateException> { other.tryInit() }
+        assertFailsWith<IllegalStateException> { other.tryInit() }
     }
 
     @Test

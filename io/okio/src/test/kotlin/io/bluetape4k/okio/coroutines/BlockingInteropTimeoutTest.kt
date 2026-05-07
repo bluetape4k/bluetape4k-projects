@@ -7,7 +7,7 @@ import okio.Timeout
 import org.junit.jupiter.api.Test
 import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class BlockingInteropTimeoutTest: AbstractOkioTest() {

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @TempFolderTest
 class SuspendedFileChannelSourceTest: AbstractOkioTest() {

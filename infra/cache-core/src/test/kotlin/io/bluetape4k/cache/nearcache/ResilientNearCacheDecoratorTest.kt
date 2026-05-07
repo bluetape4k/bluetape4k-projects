@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 /**
@@ -84,7 +84,7 @@ class ResilientNearCacheDecoratorTest {
                 )
             )
 
-        assertThrows<RuntimeException> { cache.get("key1") }
+        assertFailsWith<RuntimeException> { cache.get("key1") }
     }
 
     @Test
@@ -121,7 +121,7 @@ class ResilientNearCacheDecoratorTest {
                 )
             )
 
-        assertThrows<RuntimeException> { cache.put("key1", "value1") }
+        assertFailsWith<RuntimeException> { cache.put("key1", "value1") }
     }
 
     @Test

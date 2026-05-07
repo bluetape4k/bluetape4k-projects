@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Month
 
 class MonthRangeInYearTest {
@@ -69,7 +69,7 @@ class MonthRangeInYearTest {
 
     @Test
     fun `start greater than end throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             MonthRangeInYear(Month.DECEMBER, Month.JANUARY)
         }
     }

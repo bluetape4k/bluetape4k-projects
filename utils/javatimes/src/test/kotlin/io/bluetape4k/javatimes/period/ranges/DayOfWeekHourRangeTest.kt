@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.DayOfWeek
 import java.time.LocalTime
 
@@ -38,21 +38,21 @@ class DayOfWeekHourRangeTest {
 
     @Test
     fun `invalid startHourOfDay throws exception`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             DayOfWeekHourRange(DayOfWeek.MONDAY, -1, 18)
         }
     }
 
     @Test
     fun `invalid endHourOfDay throws exception`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             DayOfWeekHourRange(DayOfWeek.MONDAY, 0, 24)
         }
     }
 
     @Test
     fun `start greater than end throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             DayOfWeekHourRange(DayOfWeek.MONDAY, 18, 9)
         }
     }

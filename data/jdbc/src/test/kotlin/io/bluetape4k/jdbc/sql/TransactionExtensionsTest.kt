@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.sql.Connection
 
 /**
@@ -32,7 +32,7 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `withTransaction - 예외 발생 시 자동 롤백`() {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             dataSource.withTransaction { conn ->
                 conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Rollback', 'Test')")
                 throw RuntimeException("의도적인 예외")

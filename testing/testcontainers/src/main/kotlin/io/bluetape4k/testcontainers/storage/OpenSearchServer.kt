@@ -144,6 +144,5 @@ class OpenSearchServer private constructor(
                 ShutdownQueue.register(this)
             }
         }
-
     }
 }

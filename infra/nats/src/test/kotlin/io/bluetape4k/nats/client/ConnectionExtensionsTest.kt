@@ -12,7 +12,7 @@ import io.nats.client.impl.Headers
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
@@ -45,7 +45,7 @@ class ConnectionExtensionsTest {
 
     @Test
     fun `publish with blank subject throws IllegalArgumentException`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             nc.publish("", "hello")
         }
     }
@@ -59,7 +59,7 @@ class ConnectionExtensionsTest {
 
     @Test
     fun `publish with blank replyTo throws IllegalArgumentException`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             nc.publish("test.subject", "", "hello")
         }
     }
@@ -76,7 +76,7 @@ class ConnectionExtensionsTest {
 
     @Test
     fun `request with blank subject throws IllegalArgumentException`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             nc.request("", "body", timeout = 1.seconds)
         }
     }

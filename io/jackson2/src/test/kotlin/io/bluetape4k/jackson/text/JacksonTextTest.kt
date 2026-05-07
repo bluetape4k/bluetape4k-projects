@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [JacksonText] object의 모든 포맷(CSV/Props/TOML/YAML) singleton 및 왕복(serde) 테스트.
@@ -159,7 +160,7 @@ class JacksonTextTest: AbstractJacksonTextTest() {
 
         @Test
         fun `잘못된 TOML 입력은 예외를 발생시킨다`() {
-            org.junit.jupiter.api.assertThrows<Exception> {
+            assertFailsWith<Exception> {
                 mapper.readValue<Point>("NOT_VALID_TOML_KEY_WITHOUT_VALUE")
             }
         }

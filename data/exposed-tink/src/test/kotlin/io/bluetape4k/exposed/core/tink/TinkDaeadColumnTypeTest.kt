@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -103,7 +103,7 @@ class TinkDaeadColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAEAD Binary 컬럼 길이가 0 이하이면 IllegalArgumentException 이 발생한다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_binary_len_$testDB") {
                 val data = tinkDaeadBinary("data", 0)
             }
@@ -113,7 +113,7 @@ class TinkDaeadColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAEAD Binary 컬럼 이름이 blank 이면 IllegalArgumentException 이 발생한다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_binary_name_$testDB") {
                 val data = tinkDaeadBinary("  ", 256)
             }
@@ -202,7 +202,7 @@ class TinkDaeadColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAEAD Blob 컬럼 이름이 blank 이면 IllegalArgumentException 이 발생한다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_blob_name_$testDB") {
                 val data = tinkDaeadBlob("")
             }
@@ -300,7 +300,7 @@ class TinkDaeadColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAEAD VarChar 컬럼 길이가 0 이하이면 IllegalArgumentException 이 발생한다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_varchar_len_$testDB") {
                 val email = tinkDaeadVarChar("email", 0)
             }
@@ -310,7 +310,7 @@ class TinkDaeadColumnTypeTest: AbstractExposedTest() {
     @ParameterizedTest
     @MethodSource(ENABLE_DIALECTS_METHOD)
     fun `DAEAD VarChar 컬럼 이름이 blank 이면 IllegalArgumentException 이 발생한다`(testDB: TestDB) {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             object: IntIdTable("invalid_daead_varchar_name_$testDB") {
                 val email = tinkDaeadVarChar("", 256)
             }

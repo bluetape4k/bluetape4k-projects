@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -47,7 +47,7 @@ class LocalLeaderGroupElectionTest {
 
     @Test
     fun `runIfLeader - action 예외 발생 시 예외가 호출자에게 전파된다`() {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             election.runIfLeader(randomLockName()) { throw RuntimeException("테스트 예외") }
         }
     }

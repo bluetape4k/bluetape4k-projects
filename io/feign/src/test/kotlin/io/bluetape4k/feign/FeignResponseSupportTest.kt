@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [FeignResponseSupport]의 Content-Type 판별 및 본문 접근 확장 함수를 검증합니다.
@@ -136,7 +136,7 @@ class FeignResponseSupportTest: AbstractFeignTest() {
                 headers(emptyMap())
             }
 
-        val ex = assertThrows<IllegalStateException> {
+        val ex = assertFailsWith<IllegalStateException> {
             response.bodyAsReader()
         }
         ex.message shouldBeEqualTo "Response body is null."

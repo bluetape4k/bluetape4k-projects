@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.TimeoutException
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class TimeLimiterExtensionsTest {

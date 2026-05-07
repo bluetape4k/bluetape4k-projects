@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.math.BigDecimal
 import java.sql.Timestamp
 import java.time.Instant
@@ -185,7 +185,7 @@ class MapSupportTest {
     fun `존재하지 않는 key는 예외를 던진다`() {
         val map = mapOf("id" to 1)
 
-        val exception = assertThrows<IllegalArgumentException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             map.int("missing")
         }
 

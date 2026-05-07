@@ -14,7 +14,7 @@ import io.bluetape4k.utils.Runtimex
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import org.redisson.client.RedisException
@@ -105,7 +105,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
         )
         val leaderElection = RedissonLeaderElection(redissonClient, options)
 
-        assertThrows<CompletionException> {
+        assertFailsWith<CompletionException> {
             leaderElection
                 .runAsyncIfLeader(lockName) {
                     CompletableFuture.failedFuture<Int>(IllegalStateException("boom"))
@@ -142,7 +142,7 @@ class RedissonLeaderElectionTest: AbstractRedissonTest() {
 
         try {
             lockAcquired.await(1, TimeUnit.SECONDS)
-            assertThrows<RedisException> {
+            assertFailsWith<RedisException> {
                 leaderElection.runIfLeader(lockName) { 1 }
             }
         } finally {

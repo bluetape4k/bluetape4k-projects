@@ -13,7 +13,7 @@ import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import org.springframework.web.client.toEntity
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class RestClientExtensionsTest: AbstractSpringTest() {
 
@@ -121,7 +121,6 @@ class RestClientExtensionsTest: AbstractSpringTest() {
             response shouldContain "$baseUrl/patch"
             response shouldContain "Hello, World!"
         }
-
     }
 
     @Nested
@@ -195,7 +194,6 @@ class RestClientExtensionsTest: AbstractSpringTest() {
             client
                 .httpOptions("/anything")
                 .body<String>().shouldBeNull()
-
         }
     }
 }

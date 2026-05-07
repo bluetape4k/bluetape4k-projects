@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.io.Serializable
 
 /**
@@ -137,7 +137,7 @@ class FastForyCompatibilityTest {
     fun `방향A - Fory로 직렬화한 데이터를 FastFory로 역직렬화하면 예외 발생`() {
         val foryBytes = BinarySerializers.Fory.serialize(sample)
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             BinarySerializers.FastFory.deserialize<TestDomain>(foryBytes)
         }
     }
@@ -149,7 +149,7 @@ class FastForyCompatibilityTest {
     fun `방향B - FastFory로 직렬화한 데이터를 Fory로 역직렬화하면 예외 발생`() {
         val fastForyBytes = BinarySerializers.FastFory.serialize(sample)
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             BinarySerializers.Fory.deserialize<TestDomain>(fastForyBytes)
         }
     }

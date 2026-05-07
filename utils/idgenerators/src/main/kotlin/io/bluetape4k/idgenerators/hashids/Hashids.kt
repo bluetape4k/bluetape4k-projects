@@ -67,7 +67,6 @@ class Hashids(
         private fun String.unique(): String = toSet().joinToString(separator = EMPTY_STRING)
 
         private fun Long.isValidNumber() = this in 0..MAX_NUMBER
-
     }
 
     private val salt: String = salt.ifEmpty { DEFAULT_SALT }

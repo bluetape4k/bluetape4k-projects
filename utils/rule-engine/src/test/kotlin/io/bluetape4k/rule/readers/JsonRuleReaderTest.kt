@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 class JsonRuleReaderTest {
 
@@ -56,7 +57,7 @@ class JsonRuleReaderTest {
             }
         """.trimIndent()
 
-        org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             reader.read(json.reader())
         }
     }

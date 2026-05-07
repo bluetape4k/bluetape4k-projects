@@ -17,7 +17,7 @@ import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 

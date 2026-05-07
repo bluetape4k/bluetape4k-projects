@@ -14,7 +14,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 interface ReadThroughScenario<ID: Any, E: java.io.Serializable>: CacheTestScenario<ID, E> {
     companion object: KLogging()

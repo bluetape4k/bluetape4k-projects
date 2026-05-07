@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import io.bluetape4k.assertions.assertFailsWith
 
 class CompatibilitySmokeTest {
 
@@ -21,7 +22,7 @@ class CompatibilitySmokeTest {
 
     @Test
     fun `invoking shouldThrow works`() {
-        invoking { error("x") } shouldThrow IllegalStateException::class
+        assertFailsWith<IllegalStateException> { error("x") }
     }
 
     @Test

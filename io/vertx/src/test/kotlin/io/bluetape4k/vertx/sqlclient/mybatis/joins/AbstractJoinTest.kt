@@ -36,7 +36,7 @@ import org.mybatis.dynamic.sql.util.kotlin.KInvalidSQLException
 import org.mybatis.dynamic.sql.util.kotlin.elements.invoke
 import org.mybatis.dynamic.sql.util.kotlin.elements.max
 import org.mybatis.dynamic.sql.util.kotlin.model.select
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
 
@@ -158,7 +158,6 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
                 }
             }
         }
-
     }
 
     @Nested

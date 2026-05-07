@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -52,7 +52,7 @@ class LocalAsyncLeaderGroupElectionTest {
 
     @Test
     fun `runAsyncIfLeader - action future 실패 시 CompletionException 이 전파된다`() {
-        assertThrows<CompletionException> {
+        assertFailsWith<CompletionException> {
             election.runAsyncIfLeader(randomLockName()) {
                 CompletableFuture.failedFuture<String>(IllegalStateException("비동기 실패"))
             }.join()

@@ -22,7 +22,7 @@ import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.cassandra.core.CassandraOperations
 import org.springframework.data.cassandra.core.ReactiveCassandraOperations
 import org.springframework.data.cassandra.core.query.Criteria
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest(classes = [OptimisticLockTestConfiguration::class])
 class OptimisticLockTest @Autowired constructor(

@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.io.Serializable
 
 class InMemoryBloomFilterTest {
@@ -66,7 +66,7 @@ class InMemoryBloomFilterTest {
         val left = mutableBloomFilter<String>(expectedInsertions = 1_000L, fpp = 0.01)
         val right = mutableBloomFilter<String>(expectedInsertions = 2_000L, fpp = 0.01)
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             left.putAll(right)
         }
     }

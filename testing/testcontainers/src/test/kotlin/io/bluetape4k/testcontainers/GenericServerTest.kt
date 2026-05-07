@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [writeToSystemProperties] 확장 함수에 대한 단위 테스트입니다.

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.lifecycle.Startables
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class HazelcastServerTest: AbstractContainerTest() {
 

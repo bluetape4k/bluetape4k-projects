@@ -14,7 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigDecimal
 import java.math.BigInteger
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [ResultRow] 확장 함수 중 숫자/바이너리 타입 변환 함수에 대한 단위 테스트.

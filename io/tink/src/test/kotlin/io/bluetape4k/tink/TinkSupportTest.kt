@@ -6,7 +6,7 @@ import io.bluetape4k.tink.mac.TinkMac
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.security.GeneralSecurityException
 
 class TinkSupportTest {
@@ -26,7 +26,7 @@ class TinkSupportTest {
         val aead2 = TinkAead(aeadKeysetHandle())
         val ciphertext = aead1.encrypt("hello")
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             aead2.decrypt(ciphertext)
         }
     }
@@ -37,7 +37,7 @@ class TinkSupportTest {
         val daead2 = TinkDeterministicAead(daeadKeysetHandle())
         val ciphertext = daead1.encryptDeterministically("hello")
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             daead2.decryptDeterministically(ciphertext)
         }
     }

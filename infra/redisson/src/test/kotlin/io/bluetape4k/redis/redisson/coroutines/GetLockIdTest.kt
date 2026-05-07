@@ -9,11 +9,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("RedissonClient.getLockId")
 class GetLockIdTest {
@@ -22,8 +22,8 @@ class GetLockIdTest {
 
     @Test
     fun `getLockId - 빈 lockName 은 IllegalArgumentException 을 던진다`() {
-        invoking { redissonClient.getLockId("") } shouldThrow IllegalArgumentException::class
-        invoking { redissonClient.getLockId("  ") } shouldThrow IllegalArgumentException::class
+        assertFailsWith<IllegalArgumentException> { redissonClient.getLockId("") }
+        assertFailsWith<IllegalArgumentException> { redissonClient.getLockId("  ") }
     }
 
     @Test

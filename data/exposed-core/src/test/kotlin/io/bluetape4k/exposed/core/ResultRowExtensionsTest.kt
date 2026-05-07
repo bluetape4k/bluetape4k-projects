@@ -13,7 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.math.BigDecimal
 import java.util.*
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.assertTrue
 
 class ResultRowExtensionsTest: AbstractExposedTest() {

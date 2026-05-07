@@ -13,7 +13,7 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldStartWith
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.reflect.KFunction
 
 class ClassSupportTest {
@@ -78,7 +78,7 @@ class ClassSupportTest {
     @Test
     fun `cast 실패 시 ClassCastException을 던진다`() {
         val obj: Any = "Hello"
-        assertThrows<ClassCastException> {
+        assertFailsWith<ClassCastException> {
             obj.cast<Int>()
         }
     }

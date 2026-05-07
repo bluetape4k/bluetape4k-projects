@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.redisson.api.redisnode.RedisNodes
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class RedisClusterServerTest: AbstractContainerTest() {
 

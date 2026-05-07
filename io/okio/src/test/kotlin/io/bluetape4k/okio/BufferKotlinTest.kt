@@ -8,7 +8,7 @@ import okio.Buffer
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class BufferKotlinTest: AbstractOkioTest() {
 

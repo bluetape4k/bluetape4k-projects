@@ -3,7 +3,7 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.xerial.snappy.Snappy
 
 /**
@@ -32,7 +32,7 @@ class SnappyDecompressionBombTest {
         // Wave 1 패치의 require() 검사가 AbstractCompressor.decompress()를 통해 호출자에게 전파됨
         val fakeCompressed = encodeSnappyHeader(256L * 1024 * 1024 + 1)
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             compressor.decompress(fakeCompressed)
         }
     }

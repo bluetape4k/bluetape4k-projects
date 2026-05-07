@@ -5,7 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [LettuceBinaryCodecs.fastFory]와 [LettuceBinaryCodecs.fory] 간의 와이어 포맷 호환성 검증 테스트.
@@ -61,7 +61,7 @@ class FastForyCompatibilityTest {
         // ByteBuffer position을 rewind해야 재사용 가능
         encoded.rewind()
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             fastForyCodec.decodeValue(encoded)
         }
     }
@@ -80,7 +80,7 @@ class FastForyCompatibilityTest {
         val encoded = fastForyCodec.encodeValue(testData)
         encoded.rewind()
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             foryCodec.decodeValue(encoded)
         }
     }

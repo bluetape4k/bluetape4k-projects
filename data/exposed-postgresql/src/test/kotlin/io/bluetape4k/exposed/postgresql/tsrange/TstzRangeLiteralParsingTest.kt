@@ -4,7 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Instant
 
 class TstzRangeLiteralParsingTest {
@@ -61,14 +61,14 @@ class TstzRangeLiteralParsingTest {
 
     @Test
     fun `빈 문자열 literal 은 IllegalArgumentException 을 던진다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             columnType.valueFromDB("")
         }
     }
 
     @Test
     fun `공백만 포함된 literal 은 IllegalArgumentException 을 던진다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             columnType.valueFromDB("   ")
         }
     }
@@ -76,7 +76,7 @@ class TstzRangeLiteralParsingTest {
     @Test
     fun `지원하지 않는 timestamp 포맷은 IllegalArgumentException 을 던진다`() {
         // 완전히 잘못된 timestamp 포맷
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             columnType.valueFromDB("[NOT_A_DATE,ALSO_NOT_A_DATE)")
         }
     }

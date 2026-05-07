@@ -14,7 +14,7 @@ import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.cache.spi.access.AccessType
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceNearCacheRegionFactoryTest {
 

@@ -4,7 +4,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.io.Serializable
 
 class AbstractJpaEntityUnitTest {
@@ -33,7 +33,7 @@ class AbstractJpaEntityUnitTest {
     @Test
     fun `identifier는 id가 null이면 IllegalStateException을 발생시킨다`() {
         val entity = TestEntity("test")
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             entity.identifier
         }
     }

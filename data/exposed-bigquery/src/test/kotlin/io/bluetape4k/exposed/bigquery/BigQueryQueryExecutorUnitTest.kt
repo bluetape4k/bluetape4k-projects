@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BigQueryResultRow] 단위 테스트 — 에뮬레이터 없이 타입 변환 로직만 검증.

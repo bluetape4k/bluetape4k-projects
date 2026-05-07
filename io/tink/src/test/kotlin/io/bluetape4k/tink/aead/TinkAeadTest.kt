@@ -5,7 +5,7 @@ import io.bluetape4k.tink.aeadKeysetHandle
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
@@ -50,7 +50,7 @@ class TinkAeadTest {
 
         val ciphertext = aead.encrypt(plaintext, associatedData)
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             aead.decrypt(ciphertext, wrongAssociatedData)
         }
     }
@@ -61,7 +61,7 @@ class TinkAeadTest {
         val ciphertext = aead.encrypt(plaintext) // associatedData = EMPTY_BYTES
         val wrongAd = "context".toByteArray()
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             aead.decrypt(ciphertext, wrongAd)
         }
     }
@@ -90,7 +90,7 @@ class TinkAeadTest {
         val plaintext = "비밀 데이터".toByteArray()
         val ciphertext = aead.encrypt(plaintext)
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             aead2.decrypt(ciphertext)
         }
     }
@@ -102,7 +102,7 @@ class TinkAeadTest {
         val tampered = ciphertext.copyOf()
             .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
 
-        assertThrows<GeneralSecurityException> {
+        assertFailsWith<GeneralSecurityException> {
             aead.decrypt(tampered)
         }
     }

@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [feignRequestOf] 및 [requestOptions] 팩토리 함수 단위 테스트입니다.
@@ -59,14 +59,14 @@ class FeignRequestSupportTest {
 
     @Test
     fun `feignRequestOf with blank url throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             feignRequestOf("", HttpMethod.GET)
         }
     }
 
     @Test
     fun `feignRequestOf with whitespace url throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             feignRequestOf("   ", HttpMethod.GET)
         }
     }

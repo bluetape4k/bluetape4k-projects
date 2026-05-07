@@ -30,7 +30,7 @@ import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractJwtProviderTest: AbstractJwtTest() {

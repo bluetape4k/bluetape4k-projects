@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * DataSourceTransactionExtensions 테스트 클래스
@@ -49,7 +49,7 @@ class DataSourceTransactionExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `DataSource withTransaction - 롤백 확인`() {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             dataSource.withTransaction { conn ->
                 conn.createStatement().use { stmt ->
                     stmt.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('DS', 'Rollback')")

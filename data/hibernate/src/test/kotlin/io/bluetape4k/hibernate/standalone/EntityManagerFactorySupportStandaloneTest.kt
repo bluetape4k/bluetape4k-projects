@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class EntityManagerFactorySupportStandaloneTest : AbstractStandaloneHibernateTest() {
 
@@ -36,7 +36,7 @@ class EntityManagerFactorySupportStandaloneTest : AbstractStandaloneHibernateTes
 
     @Test
     fun `withNewEntityManager는 예외 발생 시 롤백한다`() {
-        assertThrows<RuntimeException> {
+        assertFailsWith<RuntimeException> {
             emf.withNewEntityManager { em ->
                 em.persist(StandaloneEntity("rollback-emf"))
                 throw RuntimeException("rollback trigger")

@@ -20,7 +20,7 @@ import org.testcontainers.utility.Base58
 import java.nio.ByteBuffer
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     companion object: KLogging()

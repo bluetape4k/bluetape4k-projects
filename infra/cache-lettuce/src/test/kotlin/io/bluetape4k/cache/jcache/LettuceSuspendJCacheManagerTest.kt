@@ -6,7 +6,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -37,13 +37,13 @@ class LettuceSuspendJCacheManagerTest {
         val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
         runSuspendIO { manager.close() }
 
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             manager.getOrCreate<String>("after-close")
         }
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             manager.getCache<String>("after-close")
         }
-        assertThrows(IllegalStateException::class.java) {
+        assertFailsWith<IllegalStateException> {
             runSuspendIO { manager.destroyCache("after-close") }
         }
     }

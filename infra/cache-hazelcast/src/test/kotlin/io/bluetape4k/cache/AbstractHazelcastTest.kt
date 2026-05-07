@@ -8,7 +8,6 @@ abstract class AbstractHazelcastTest {
     companion object: KLogging() {
 
         val faker = Fakers.faker
-
     }
 
 }

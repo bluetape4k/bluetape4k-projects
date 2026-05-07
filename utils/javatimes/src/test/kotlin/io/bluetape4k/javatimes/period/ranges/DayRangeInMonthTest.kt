@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class DayRangeInMonthTest {
 
@@ -57,21 +57,21 @@ class DayRangeInMonthTest {
 
     @Test
     fun `invalid start day throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             DayRangeInMonth(0, 10)
         }
     }
 
     @Test
     fun `invalid end day over max throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             DayRangeInMonth(1, 32)
         }
     }
 
     @Test
     fun `start greater than end throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             DayRangeInMonth(20, 5)
         }
     }

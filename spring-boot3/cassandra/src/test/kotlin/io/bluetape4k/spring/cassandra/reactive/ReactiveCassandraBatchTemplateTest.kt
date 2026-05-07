@@ -39,7 +39,7 @@ import org.springframework.data.cassandra.core.cql.WriteOptions
 import org.springframework.data.cassandra.core.selectOneById
 import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @SpringBootTest(classes = [ReactiveDomainTestConfiguration::class])
 @EnableReactiveCassandraRepositories

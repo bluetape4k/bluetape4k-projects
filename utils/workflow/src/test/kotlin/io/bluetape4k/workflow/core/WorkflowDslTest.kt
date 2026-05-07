@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -137,7 +137,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
 
     @Test
     fun `루트 중복 선언 시 IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             workflow("duplicate-root") {
                 sequential { execute("s-1") { ctx -> WorkReport.success(ctx) } }
                 parallel { execute("p-1") { ctx -> WorkReport.success(ctx) } }
@@ -147,7 +147,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
 
     @Test
     fun `condition 없이 conditionalFlow - requireNotNull 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             conditionalFlow("no-condition") {
                 // condition {} 없음
                 then("then-work") { ctx -> WorkReport.success(ctx) }
@@ -157,7 +157,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
 
     @Test
     fun `then 없이 conditionalFlow - requireNotNull 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             conditionalFlow("no-then") {
                 condition { true }
                 // then {} 없음

@@ -12,7 +12,7 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.FutureTask
@@ -75,7 +75,7 @@ class FutureSupportTest {
         val cancelled = CompletableFuture<Int>()
         cancelled.cancel(true)
 
-        assertThrows<CancellationException> {
+        assertFailsWith<CancellationException> {
             cancelled.await()
         }
     }

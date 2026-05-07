@@ -77,7 +77,6 @@ class ChannelAsFlowExamples {
                     delay(1.milliseconds)
                     totalProduced.incrementAndGet()
                     eventBus.postEvent(Event.Created)
-
                 }
             }.log("producer1-$it")
         }
@@ -88,7 +87,6 @@ class ChannelAsFlowExamples {
                     delay(1.milliseconds)
                     totalProduced.incrementAndGet()
                     eventBus.postEvent(Event.Deleted)
-
                 }
             }.log("producer2-$it")
         }

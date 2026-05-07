@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Suppress("DEPRECATION")
 class ImplicitSelectAllTest: AbstractExposedR2dbcTest() {

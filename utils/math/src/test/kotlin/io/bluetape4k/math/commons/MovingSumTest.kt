@@ -6,7 +6,7 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.math.MathConsts.BLOCK_SIZE
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class MovingSumTest {
 

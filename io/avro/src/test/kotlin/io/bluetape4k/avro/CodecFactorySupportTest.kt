@@ -5,7 +5,7 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -58,7 +58,7 @@ class CodecFactorySupportTest: AbstractAvroTest() {
 
     @Test
     fun `지원하지 않는 코덱 이름은 예외를 발생시킨다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             codecFactoryOf("unknown")
         }
     }

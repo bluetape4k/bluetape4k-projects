@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @Disabled("사용 빈도가 낮고, 파일 사이즈가 크다")
 class RedpandaServerTest: AbstractContainerTest() {

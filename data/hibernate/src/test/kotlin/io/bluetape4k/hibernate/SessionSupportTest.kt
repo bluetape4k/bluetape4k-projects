@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class SessionSupportTest: AbstractHibernateTest() {
 
@@ -88,7 +88,7 @@ class SessionSupportTest: AbstractHibernateTest() {
     fun `session natural id helpers 는 빈 복합 natural id 입력을 허용하지 않는다`() {
         val session = em.currentSession()
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             session.findByNaturalId<NaturalIdBook>(emptyMap())
         }
     }

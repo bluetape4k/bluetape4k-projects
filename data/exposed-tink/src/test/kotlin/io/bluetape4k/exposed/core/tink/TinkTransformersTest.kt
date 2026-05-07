@@ -5,7 +5,7 @@ import io.bluetape4k.tink.daead.TinkDaeads
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class TinkTransformersTest {
     @Test
@@ -189,7 +189,7 @@ class TinkTransformersTest {
         val transformer = StringTinkAeadEncryptionTransformer(TinkAeads.AES256_GCM)
         val garbage = "AAAA_invalid_ciphertext_BBBB"
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             transformer.wrap(garbage)
         }
     }
@@ -200,7 +200,7 @@ class TinkTransformersTest {
         val transformer = StringTinkDaeadEncryptionTransformer(TinkDaeads.AES256_SIV)
         val garbage = "AAAA_invalid_ciphertext_BBBB"
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             transformer.wrap(garbage)
         }
     }
@@ -215,7 +215,7 @@ class TinkTransformersTest {
 
         val encrypted = transformer1.unwrap(source)
 
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             transformer2.wrap(encrypted)
         }
     }

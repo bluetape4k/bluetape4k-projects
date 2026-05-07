@@ -150,7 +150,6 @@ class HexDumpSupportTest: AbstractIOTest() {
                 100000F1 F1 F2 F3 F4 F5 F6 F7 F8 F9 FA FB FC FD FE FF    ...............                    
                 """.trimIndent().trim()
         }
-
     }
 
     @Test

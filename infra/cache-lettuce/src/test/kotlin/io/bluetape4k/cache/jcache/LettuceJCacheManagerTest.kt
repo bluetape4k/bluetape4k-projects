@@ -10,7 +10,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import javax.cache.CacheException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -62,7 +62,7 @@ class LettuceJCacheManagerTest {
         val config = lettuceCacheConfigOf<String, String>()
         manager.createCache("dup-cache", config)
 
-        assertThrows<CacheException> {
+        assertFailsWith<CacheException> {
             manager.createCache("dup-cache", config)
         }
     }
@@ -87,7 +87,7 @@ class LettuceJCacheManagerTest {
     @Test
     fun `operations throw after close`() {
         manager.close()
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             manager.createCache("after-close", lettuceCacheConfigOf<String, String>())
         }
     }

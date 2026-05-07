@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.redisson.api.options.LocalCachedMapOptions
 import java.time.Duration
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class RedissonNearCacheConfigTest {
 

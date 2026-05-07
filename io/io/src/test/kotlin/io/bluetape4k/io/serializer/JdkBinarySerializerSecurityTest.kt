@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import untrusted.payload.UntrustedPayload
 import java.io.InvalidClassException
 import java.io.ObjectInputFilter
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [JdkBinarySerializer]의 보안 기능 — [ObjectInputFilter] 적용 — 검증 테스트.

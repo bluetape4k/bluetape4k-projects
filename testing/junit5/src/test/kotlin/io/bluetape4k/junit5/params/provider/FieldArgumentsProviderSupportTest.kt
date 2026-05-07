@@ -12,7 +12,7 @@ import org.junit.jupiter.params.support.ParameterDeclarations
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import java.util.*
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class FieldArgumentsProviderSupportTest {
 

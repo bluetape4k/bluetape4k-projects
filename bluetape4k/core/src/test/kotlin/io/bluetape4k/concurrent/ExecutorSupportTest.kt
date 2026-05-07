@@ -2,7 +2,7 @@ package io.bluetape4k.concurrent
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.atomic.AtomicInteger
 
 class ExecutorSupportTest {
@@ -31,7 +31,7 @@ class ExecutorSupportTest {
 
     @Test
     fun `withWorkStealingPool 은 parallelism 0이면 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             withWorkStealingPool(parallelism = 0) { 1 }.get()
         }
     }

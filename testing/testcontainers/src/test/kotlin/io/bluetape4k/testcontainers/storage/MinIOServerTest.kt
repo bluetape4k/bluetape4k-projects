@@ -13,7 +13,7 @@ import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class MinIOServerTest: AbstractContainerTest() {
 

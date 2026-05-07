@@ -78,7 +78,6 @@ class SharedFlowAsEventBus {
 
         private fun handleEventB(event: Event.EventB) {
             log.debug { "$name: EventB received. event=$event" }
-
         }
 
         private fun handleEventC(event: Event.EventC) {

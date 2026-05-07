@@ -30,7 +30,7 @@ import reactor.kafka.receiver.ReceiverOptions
 import java.util.*
 import java.util.function.Function
 import java.util.regex.Pattern
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [SuspendKafkaConsumerTemplate]에 대한 테스트 클래스입니다.

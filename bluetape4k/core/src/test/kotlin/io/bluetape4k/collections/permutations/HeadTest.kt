@@ -3,7 +3,7 @@ package io.bluetape4k.collections.permutations
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * head 접근 테스트
@@ -13,7 +13,7 @@ class HeadTest: AbstractPermutationTest() {
     @Test
     fun `빈 순열의 head 접근 시 예외 발생`() {
         val empty = emptyPermutation<Any>()
-        assertThrows<NoSuchElementException> {
+        assertFailsWith<NoSuchElementException> {
             empty.head
         }
     }
@@ -81,7 +81,7 @@ class HeadTest: AbstractPermutationTest() {
         val twoItems = permutationOf(1, 2)
         val tail = twoItems.tail.tail
 
-        assertThrows<NoSuchElementException> {
+        assertFailsWith<NoSuchElementException> {
             tail.head
         }
     }

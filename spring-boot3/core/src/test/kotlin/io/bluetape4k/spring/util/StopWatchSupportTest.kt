@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.springframework.util.StopWatch
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -83,7 +83,7 @@ class StopWatchSupportTest: AbstractSpringTest() {
     fun `이미 실행 중인 StopWatch에 task 호출 시 IllegalStateException`() {
         val sw = StopWatch("already running")
         sw.start("first task")
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             sw.task("second task") { 42 }
         }
         sw.stop()

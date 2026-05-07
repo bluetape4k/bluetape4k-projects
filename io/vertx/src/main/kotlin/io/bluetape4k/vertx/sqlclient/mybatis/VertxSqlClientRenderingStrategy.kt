@@ -67,7 +67,6 @@ class VertxSqlClientRenderingStrategy: RenderingStrategy() {
             } else if (prefix == "records[%s]") {
                 placeHolder = "${parameterName}%s"
             }
-
         }
         return "#{$placeHolder}"
     }

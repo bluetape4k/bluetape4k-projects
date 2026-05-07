@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -296,7 +296,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
 
     @Test
     fun `suspendWorkflow DSL - 루트 중복 선언 시 IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             suspendWorkflow("test-dup") {
                 sequential("seq1") {
                     execute("work") { ctx -> WorkReport.success(ctx) }
@@ -310,7 +310,7 @@ class SuspendWorkflowDslTest: AbstractWorkflowTest() {
 
     @Test
     fun `suspendWorkflow DSL - parallel 루트 중복 선언 시 IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             suspendWorkflow("test-dup-parallel") {
                 parallel("par1") {
                     execute("work") { ctx -> WorkReport.success(ctx) }

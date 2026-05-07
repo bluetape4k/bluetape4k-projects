@@ -9,7 +9,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldContainAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class JacksonTest {
 
@@ -57,7 +57,7 @@ class JacksonTest {
 
     @Test
     fun `createTypedJsonMapper - 빈 패키지 목록이면 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             Jackson.createTypedJsonMapper()
         }
     }

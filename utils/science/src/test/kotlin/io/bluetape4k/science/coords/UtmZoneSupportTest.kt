@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -101,14 +101,14 @@ class UtmZoneSupportTest {
 
     @Test
     fun `utmLatitudeBand는 84도 초과 위도에 예외를 발생시킨다`() {
-        assertThrows<IllegalArgumentException> { utmLatitudeBand(85.0) }
-        assertThrows<IllegalArgumentException> { utmLatitudeBand(90.0) }
+        assertFailsWith<IllegalArgumentException> { utmLatitudeBand(85.0) }
+        assertFailsWith<IllegalArgumentException> { utmLatitudeBand(90.0) }
     }
 
     @Test
     fun `utmLatitudeBand는 -80도 미만 위도에 예외를 발생시킨다`() {
-        assertThrows<IllegalArgumentException> { utmLatitudeBand(-81.0) }
-        assertThrows<IllegalArgumentException> { utmLatitudeBand(-90.0) }
+        assertFailsWith<IllegalArgumentException> { utmLatitudeBand(-81.0) }
+        assertFailsWith<IllegalArgumentException> { utmLatitudeBand(-90.0) }
     }
 
     @Test

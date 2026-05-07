@@ -50,7 +50,6 @@ open class TimeRange(
         @JvmStatic
         operator fun invoke(duration: Duration, end: ZonedDateTime, readonly: Boolean = false): TimeRange =
             TimeRange(end - duration, end, readonly)
-
     }
 
     override fun copy(offset: Duration): ITimePeriod {

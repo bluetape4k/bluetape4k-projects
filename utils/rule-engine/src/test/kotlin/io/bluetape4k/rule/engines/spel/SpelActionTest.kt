@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class SpelActionTest {
 
@@ -50,7 +50,7 @@ class SpelActionTest {
     fun `잘못된 SpEL 액션 표현식은 RuleException 발생`() {
         val action = SpelAction("1 + }")
         val facts = Facts.empty()
-        assertThrows<RuleException> {
+        assertFailsWith<RuleException> {
             action.execute(facts)
         }
     }

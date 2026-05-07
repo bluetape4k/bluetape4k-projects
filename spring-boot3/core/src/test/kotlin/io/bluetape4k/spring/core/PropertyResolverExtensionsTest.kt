@@ -15,7 +15,7 @@ import org.springframework.core.env.PropertyResolver
 import org.springframework.core.env.PropertySourcesPropertyResolver
 import org.springframework.core.env.getRequiredProperty
 import java.util.*
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class PropertyResolverExtensionsTest: AbstractSpringTest() {
 

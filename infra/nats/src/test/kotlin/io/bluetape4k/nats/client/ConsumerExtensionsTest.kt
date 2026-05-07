@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
@@ -44,7 +44,7 @@ class ConsumerExtensionsTest {
 
     @Test
     fun `drain with negative millis throws IllegalArgumentException`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             consumer.drain(-1L)
         }
     }

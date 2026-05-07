@@ -6,11 +6,11 @@ import io.bluetape4k.batch.api.SkipPolicy
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.workflow.api.RetryPolicy
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [BatchStepBuilder] 단위 테스트.
@@ -41,13 +41,13 @@ class BatchStepBuilderTest {
      */
     @Test
     fun `chunkSize 0 설정 시 IllegalArgumentException 발생`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             val builder = BatchStepBuilder<String, String>("testStep")
             builder.reader(noopReader)
             builder.writer(noopWriter)
             builder.chunkSize(0)  // 양수 검증 실패
             builder.build()
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── 2. processor suspend 람다 오버로드 정상 동작 ──────────────────────

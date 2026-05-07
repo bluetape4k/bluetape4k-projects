@@ -1,7 +1,7 @@
 package io.bluetape4k.assertions.coroutines
 
 import app.cash.turbine.test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest

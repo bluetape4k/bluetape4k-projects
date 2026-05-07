@@ -4,7 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [getNode] 및 [getNodeOrNull] 확장 함수 단위 테스트.
@@ -46,14 +46,14 @@ class PropertySupportTest {
 
     @Test
     fun `getNode - 존재하지 않는 경로는 예외를 발생시킨다`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             root.getNode("a.z")
         }
     }
 
     @Test
     fun `getNode - 리프 노드를 Map으로 캐스팅하면 예외가 발생한다`() {
-        assertThrows<Exception> {
+        assertFailsWith<Exception> {
             root.getNode("x.sub")
         }
     }

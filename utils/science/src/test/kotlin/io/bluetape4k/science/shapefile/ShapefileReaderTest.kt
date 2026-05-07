@@ -12,7 +12,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.io.File
 
 class ShapefileReaderTest {
@@ -78,7 +78,7 @@ class ShapefileReaderTest {
 
     @Test
     fun `존재하지 않는 파일 예외`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             loadShape(File("nonexistent.shp"))
         }
     }
@@ -86,7 +86,7 @@ class ShapefileReaderTest {
     @Test
     fun `shp 확장자가 아닌 파일 예외`() {
         val file = File(javaClass.classLoader.getResource("data/shp_v5/harbors/harbour_new.dbf")!!.file)
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             loadShape(file)
         }
     }

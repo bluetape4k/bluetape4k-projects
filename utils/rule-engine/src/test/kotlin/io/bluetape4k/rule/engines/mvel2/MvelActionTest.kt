@@ -6,7 +6,7 @@ import io.bluetape4k.rule.exception.RuleException
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class MvelActionTest {
 
@@ -62,7 +62,7 @@ class MvelActionTest {
     fun `잘못된 MVEL 액션은 RuleException 발생`() {
         val action = MvelAction("@#\$invalid!!")
         val facts = Facts.empty()
-        assertThrows<RuleException> {
+        assertFailsWith<RuleException> {
             action.execute(facts)
         }
     }

@@ -6,7 +6,6 @@ import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.bluetape4k.redis.redisson.options.codec
 import io.bluetape4k.redis.redisson.options.name
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
@@ -14,6 +13,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.redisson.api.options.LocalCachedMapOptions
+import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("localCachedMap / LocalCachedMapOptions extensions")
 class LocalCacheMapSupportTest {
@@ -49,13 +49,13 @@ class LocalCacheMapSupportTest {
 
     @Test
     fun `localCachedMap - 빈 이름은 IllegalArgumentException 을 던진다`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             localCachedMap<String, String>("", redissonClient)
-        } shouldThrow IllegalArgumentException::class
+        }
 
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             localCachedMap<String, String>(" ", redissonClient)
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     @Test

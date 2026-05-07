@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -125,10 +125,10 @@ class TemporalAmountSupportTest {
 
     @Test
     fun `Period에 years 또는 months가 있으면 millis 변환은 실패한다`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             Period.ofYears(1).millis
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             Period.ofMonths(3).nanos
         }
     }
@@ -138,7 +138,7 @@ class TemporalAmountSupportTest {
         Period.ofDays(2).toDurationExact() shouldBeEqualTo Duration.ofDays(2)
         Period.ofDays(2).toDurationOrNull() shouldBeEqualTo Duration.ofDays(2)
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             Period.ofMonths(1).toDurationExact()
         }
         Period.ofMonths(1).toDurationOrNull() shouldBeEqualTo null
@@ -153,7 +153,7 @@ class TemporalAmountSupportTest {
             override fun subtractFrom(temporal: Temporal): Temporal = temporal
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             amount.toDurationExact()
         }
         amount.toDurationOrNull() shouldBeEqualTo null
@@ -173,22 +173,22 @@ class TemporalAmountSupportTest {
 
     @Test
     fun `temporalAmount - 지원하지 않는 ChronoUnit은 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             1.temporalAmount(ChronoUnit.CENTURIES)
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             1L.temporalAmount(ChronoUnit.DECADES)
         }
 
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             1.temporalAmount(ChronoUnit.ERAS)
         }
     }
 
     @Test
     fun `Long temporalAmount - Int 범위를 넘는 YEARS는 예외 발생`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             (Int.MAX_VALUE.toLong() + 1L).temporalAmount(ChronoUnit.YEARS)
         }
     }

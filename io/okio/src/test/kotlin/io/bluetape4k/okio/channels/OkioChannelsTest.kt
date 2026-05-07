@@ -17,7 +17,7 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import java.util.*
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @TempFolderTest
 class OkioChannelsTest: AbstractOkioTest() {

@@ -110,7 +110,6 @@ class ManyToManyTest(
 
         val loaded = ownerRepo.findByIdOrNull(owner2.id!!)!!
         loaded.accounts.size shouldBeEqualTo 2
-
     }
 
     private fun verifyExistsAccount(account: BankAccount) {

@@ -10,7 +10,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceSuspendBloomFilterTest: AbstractLettuceTest() {
 
@@ -53,6 +53,6 @@ class LettuceSuspendBloomFilterTest: AbstractLettuceTest() {
             bloomFilter.filterName,
             BloomFilterOptions(expectedInsertions = 9999L, falseProbability = 0.5),
         )
-        assertThrows<IllegalStateException> { other.tryInit() }
+        assertFailsWith<IllegalStateException> { other.tryInit() }
     }
 }

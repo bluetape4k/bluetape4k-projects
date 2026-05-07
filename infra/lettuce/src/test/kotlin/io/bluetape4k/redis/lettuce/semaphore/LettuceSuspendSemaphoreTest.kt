@@ -14,7 +14,7 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -36,10 +36,10 @@ class LettuceSuspendSemaphoreTest: AbstractLettuceTest() {
 
     @Test
     fun `constructor rejects non positive totalPermits`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LettuceSuspendSemaphore(connection, randomName(), totalPermits = 0)
         }
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             LettuceSuspendSemaphore(connection, randomName(), totalPermits = -1)
         }
     }

@@ -115,7 +115,6 @@ class BatchListenerConversion2Tests {
 
         @Bean
         fun listener1() = Listener()
-
     }
 
     class Listener {

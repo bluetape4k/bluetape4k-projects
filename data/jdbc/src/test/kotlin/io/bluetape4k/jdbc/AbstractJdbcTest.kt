@@ -10,6 +10,5 @@ abstract class AbstractJdbcTest {
         val faker = Fakers.faker
 
         // val mysqlServer = MySQLServer().apply { start() }
-
     }
 }

@@ -7,13 +7,13 @@ import io.bluetape4k.batch.api.SkipPolicy
 import io.bluetape4k.batch.core.InMemoryBatchJobRepository
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.workflow.api.RetryPolicy
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [batchJob] DSL 단위 테스트.
@@ -169,50 +169,50 @@ class BatchDslTest {
 
     @Test
     fun `빈 job name - IllegalArgumentException 발생`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             batchJob("") {
                 noopStep("step1")
             }
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── 10. 검증 오류 - step 없음 ──────────────────────────────────────────
 
     @Test
     fun `step 없음 - IllegalArgumentException 발생`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             batchJob("noStepJob") {
                 // step 블록 없음
             }
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── 11. 검증 오류 - reader 없음 ────────────────────────────────────────
 
     @Test
     fun `reader 없음 - IllegalArgumentException 발생`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             batchJob("noReaderJob") {
                 step<String, String>("step1") {
                     writer(noopWriter)
                     // reader 없음
                 }
             }
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── 12. 검증 오류 - writer 없음 ────────────────────────────────────────
 
     @Test
     fun `writer 없음 - IllegalArgumentException 발생`() {
-        invoking {
+        assertFailsWith<IllegalArgumentException> {
             batchJob("noWriterJob") {
                 step<String, String>("step1") {
                     reader(noopReader)
                     // writer 없음
                 }
             }
-        } shouldThrow IllegalArgumentException::class
+        }
     }
 
     // ─── 13. 실제 실행 - DSL로 빌드한 Job 실행 ──────────────────────────────

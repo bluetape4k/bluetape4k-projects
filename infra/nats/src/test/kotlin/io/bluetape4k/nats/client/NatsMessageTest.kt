@@ -7,7 +7,7 @@ import io.nats.client.Message
 import io.nats.client.impl.Headers
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Assertions.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 
 class NatsMessageTest {
@@ -65,7 +65,7 @@ class NatsMessageTest {
 
     @Test
     fun `natsMessageOf with blank subject throws IllegalArgumentException for ByteArray`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             natsMessageOf("", "data".toUtf8Bytes())
         }
     }
@@ -89,7 +89,7 @@ class NatsMessageTest {
 
     @Test
     fun `natsMessageOf with blank subject throws IllegalArgumentException for String`() {
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             natsMessageOf("", "data")
         }
     }

@@ -3,12 +3,12 @@ package io.bluetape4k.redis.redisson.codec
 import io.bluetape4k.fastjson2.FastjsonSerializer
 import io.bluetape4k.logging.KLogging
 import io.netty.buffer.Unpooled
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 @DisplayName("Fastjson2Codec encode/decode & security")
 class Fastjson2CodecTest {
@@ -124,8 +124,7 @@ class Fastjson2CodecTest {
 
         val buf = codec.valueEncoder.encode(original)
         try {
-            invoking { codec.valueDecoder.decode(buf, null) }
-                .shouldThrow(SecurityException::class)
+            assertFailsWith<SecurityException> { codec.valueDecoder.decode(buf, null) }
         } finally {
             buf.release()
         }

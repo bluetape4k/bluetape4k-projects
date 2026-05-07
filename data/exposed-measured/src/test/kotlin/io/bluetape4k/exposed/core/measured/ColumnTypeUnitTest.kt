@@ -8,11 +8,11 @@ import io.bluetape4k.measured.celsiusDelta
 import io.bluetape4k.measured.centimeters
 import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
-import io.bluetape4k.assertions.invoking
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [MeasureColumnType], [TemperatureColumnType], [TemperatureDeltaColumnType] 단위 테스트.
@@ -76,7 +76,7 @@ class ColumnTypeUnitTest {
     @Test
     fun `MeasureColumnType valueFromDB 는 지원하지 않는 타입에서 예외를 던진다`() {
         val type = MeasureColumnType(Length.meters) { Measure(it, Length.meters) }
-        invoking { type.valueFromDB("invalid") } shouldThrow IllegalStateException::class
+        assertFailsWith<IllegalStateException> { type.valueFromDB("invalid") }
     }
 
     @Test
@@ -125,7 +125,7 @@ class ColumnTypeUnitTest {
     @Test
     fun `TemperatureColumnType valueFromDB 는 지원하지 않는 타입에서 예외를 던진다`() {
         val type = TemperatureColumnType()
-        invoking { type.valueFromDB("invalid") } shouldThrow IllegalStateException::class
+        assertFailsWith<IllegalStateException> { type.valueFromDB("invalid") }
     }
 
     @Test
@@ -174,7 +174,7 @@ class ColumnTypeUnitTest {
     @Test
     fun `TemperatureDeltaColumnType valueFromDB 는 지원하지 않는 타입에서 예외를 던진다`() {
         val type = TemperatureDeltaColumnType()
-        invoking { type.valueFromDB(listOf(1, 2)) } shouldThrow IllegalStateException::class
+        assertFailsWith<IllegalStateException> { type.valueFromDB(listOf(1, 2)) }
     }
 
     @Test

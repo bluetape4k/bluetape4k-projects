@@ -405,7 +405,6 @@ class CompositionTransformationExamples {
             .toList()
 
         log.debug { "Average:\n${agePerCity.joinToString("\n")}" }
-
     }
 
     private fun generate(): Person =

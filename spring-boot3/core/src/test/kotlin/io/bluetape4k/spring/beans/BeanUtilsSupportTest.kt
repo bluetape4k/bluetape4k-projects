@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import org.springframework.beans.BeanInstantiationException
 
 class BeanUtilsSupportTest: AbstractSpringTest() {
@@ -133,14 +133,14 @@ class BeanUtilsSupportTest: AbstractSpringTest() {
 
     @Test
     fun `findMethodWithMinimalParameters - 빈 이름은 AssertionError`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             BaseBean::class.java.findMethodWithMinimalParameters("")
         }
     }
 
     @Test
     fun `findMethod - 빈 이름은 AssertionError`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             BaseBean::class.java.findMethod("")
         }
     }

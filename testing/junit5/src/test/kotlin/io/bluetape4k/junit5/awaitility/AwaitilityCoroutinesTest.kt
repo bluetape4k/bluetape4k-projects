@@ -13,7 +13,7 @@ import org.awaitility.core.ConditionTimeoutException
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.milliseconds
 

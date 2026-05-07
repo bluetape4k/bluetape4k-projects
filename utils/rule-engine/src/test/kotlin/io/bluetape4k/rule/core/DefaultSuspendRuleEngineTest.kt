@@ -7,7 +7,7 @@ import io.bluetape4k.rule.api.suspendRuleSetOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.coInvoking
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
@@ -100,7 +100,7 @@ class DefaultSuspendRuleEngineTest {
         val canceledRule = buildSuspendRule("canceledRule", 1, { true }, { throw CancellationException("cancel") })
         val nextRule = buildSuspendRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
-        (coInvoking { engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty()) } shouldThrow CancellationException::class).message shouldBeEqualTo "cancel"
+        (assertFailsWith<CancellationException> { engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty()) }).message shouldBeEqualTo "cancel"
     }
 
     @Test
@@ -109,7 +109,7 @@ class DefaultSuspendRuleEngineTest {
         val canceledRule = buildSuspendRule("canceledOnEvaluate", 1, { throw CancellationException("cancel-on-evaluate") }, { it["executed"] = true })
         val nextRule = buildSuspendRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
-        (coInvoking { engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty()) } shouldThrow CancellationException::class).message shouldBeEqualTo "cancel-on-evaluate"
+        (assertFailsWith<CancellationException> { engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty()) }).message shouldBeEqualTo "cancel-on-evaluate"
     }
 
     @Test
@@ -128,7 +128,7 @@ class DefaultSuspendRuleEngineTest {
         val engine = DefaultSuspendRuleEngine()
         val canceledRule = buildSuspendRule("canceledOnCheck", cond = { throw CancellationException("cancel-on-check") }, act = { })
 
-        (coInvoking { engine.check(suspendRuleSetOf(canceledRule), Facts.empty()) } shouldThrow CancellationException::class).message shouldBeEqualTo "cancel-on-check"
+        (assertFailsWith<CancellationException> { engine.check(suspendRuleSetOf(canceledRule), Facts.empty()) }).message shouldBeEqualTo "cancel-on-check"
     }
 
     @Test

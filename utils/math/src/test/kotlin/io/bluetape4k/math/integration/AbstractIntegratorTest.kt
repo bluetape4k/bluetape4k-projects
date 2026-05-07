@@ -6,7 +6,7 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.math.commons.approximateEqual
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 abstract class AbstractIntegratorTest {
 

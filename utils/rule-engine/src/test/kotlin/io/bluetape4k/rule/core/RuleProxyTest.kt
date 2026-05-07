@@ -8,7 +8,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.rule.annotation.Action as ActionAnnotation
 import io.bluetape4k.rule.annotation.Condition as ConditionAnnotation
 import io.bluetape4k.rule.annotation.Fact as FactAnnotation
@@ -117,7 +117,7 @@ class RuleProxyTest {
 
     @Test
     fun `Rule 어노테이션이 없는 클래스는 예외 발생`() {
-        assertThrows<InvalidRuleDefinitionException> {
+        assertFailsWith<InvalidRuleDefinitionException> {
             NotAnnotatedRule().asRule()
         }
     }

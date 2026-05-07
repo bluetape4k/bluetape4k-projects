@@ -7,7 +7,7 @@ import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.net.InetSocketAddress
 import java.util.*
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class CqlSessionProviderTest: AbstractCassandraTest() {
 

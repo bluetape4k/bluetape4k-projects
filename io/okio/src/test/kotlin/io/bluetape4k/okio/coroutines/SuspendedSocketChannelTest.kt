@@ -12,7 +12,7 @@ import org.junit.jupiter.api.fail
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousServerSocketChannel
 import java.nio.channels.AsynchronousSocketChannel
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class SuspendedSocketChannelTest: AbstractOkioTest() {
 

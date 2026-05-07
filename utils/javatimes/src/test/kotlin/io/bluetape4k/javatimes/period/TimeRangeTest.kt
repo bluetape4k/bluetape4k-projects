@@ -12,7 +12,7 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
 
 /**
@@ -148,7 +148,7 @@ class TimeRangeTest {
     fun `readonly TimeRange는 move 불가`() {
         val range = TimeRange(nowZonedDateTime(), nowZonedDateTime() + 1.hours(), readonly = true)
 
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             range.move(30.minutes())
         }
     }
@@ -301,11 +301,11 @@ class TimeRangeTest {
 
         range.readonly.shouldBeTrue()
 
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             range.start = nowZonedDateTime()
         }
 
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             range.end = nowZonedDateTime()
         }
     }

@@ -4,7 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * take(n) 테스트
@@ -14,7 +14,7 @@ class TakeTest: AbstractPermutationTest() {
     @Test
     fun `음수 인자로 take 호출 시 예외 발생`() {
         val seq = permutationOf(1, 2, 3)
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             seq.limit(-1)
         }
     }

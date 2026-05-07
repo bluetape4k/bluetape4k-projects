@@ -6,7 +6,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 
 class BoundedStackTest {
 
@@ -14,8 +14,8 @@ class BoundedStackTest {
 
     @Test
     fun `maxSize가 0 이하이면 예외 발생`() {
-        assertThrows<IllegalArgumentException> { BoundedStack<String>(0) }
-        assertThrows<IllegalArgumentException> { BoundedStack<String>(-1) }
+        assertFailsWith<IllegalArgumentException> { BoundedStack<String>(0) }
+        assertFailsWith<IllegalArgumentException> { BoundedStack<String>(-1) }
     }
 
     @Test
@@ -29,19 +29,19 @@ class BoundedStackTest {
     @Test
     fun `빈 스택에서 get 시 IndexOutOfBoundsException 발생`() {
         val stack = BoundedStack<String>(4)
-        assertThrows<IndexOutOfBoundsException> { stack[0] }
+        assertFailsWith<IndexOutOfBoundsException> { stack[0] }
     }
 
     @Test
     fun `빈 스택에서 pop 시 NoSuchElementException 발생`() {
         val stack = BoundedStack<String>(4)
-        assertThrows<NoSuchElementException> { stack.pop() }
+        assertFailsWith<NoSuchElementException> { stack.pop() }
     }
 
     @Test
     fun `빈 스택에서 peek 시 NoSuchElementException 발생`() {
         val stack = BoundedStack<String>(4)
-        assertThrows<NoSuchElementException> { stack.peek() }
+        assertFailsWith<NoSuchElementException> { stack.peek() }
     }
 
     @Test

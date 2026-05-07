@@ -11,7 +11,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.time.temporal.UnsupportedTemporalTypeException
-import kotlin.test.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 class TemporalAccessorSupportTest {
 

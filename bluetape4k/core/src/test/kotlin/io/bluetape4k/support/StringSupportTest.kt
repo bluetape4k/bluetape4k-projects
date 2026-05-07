@@ -18,7 +18,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldStartWith
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import kotlin.text.dropLast
 import kotlin.text.takeLast
 
@@ -472,7 +472,7 @@ class StringSupportTest: AbstractCoreTest() {
 
     @Test
     fun `randomString with negative size throws IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             randomString(-1)
         }
     }

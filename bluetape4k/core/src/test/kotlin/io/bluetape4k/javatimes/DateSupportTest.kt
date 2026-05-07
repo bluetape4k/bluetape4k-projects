@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import io.bluetape4k.assertions.assertFailsWith
 import java.sql.Timestamp
 import java.time.Duration
 import java.time.Period
@@ -55,8 +55,8 @@ class DateSupportTest {
     @Test
     fun `Date plus Period 연산은 years 또는 months를 허용하지 않는다`() {
         val date = dateOf(0L)
-        assertThrows<IllegalArgumentException> { date + Period.ofMonths(1) }
-        assertThrows<IllegalArgumentException> { date + Period.ofYears(1) }
+        assertFailsWith<IllegalArgumentException> { date + Period.ofMonths(1) }
+        assertFailsWith<IllegalArgumentException> { date + Period.ofYears(1) }
     }
 
     @Test
@@ -123,8 +123,8 @@ class DateSupportTest {
     @Test
     fun `Timestamp plus Period 연산은 years 또는 months를 허용하지 않는다`() {
         val ts = Timestamp(0L)
-        assertThrows<IllegalArgumentException> { ts + Period.ofMonths(1) }
-        assertThrows<IllegalArgumentException> { ts + Period.ofYears(1) }
+        assertFailsWith<IllegalArgumentException> { ts + Period.ofMonths(1) }
+        assertFailsWith<IllegalArgumentException> { ts + Period.ofYears(1) }
     }
 
     @Test

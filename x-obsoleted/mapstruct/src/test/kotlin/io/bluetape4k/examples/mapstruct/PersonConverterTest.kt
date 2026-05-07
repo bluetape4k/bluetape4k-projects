@@ -83,6 +83,5 @@ class PersonConverterTest: AbstractMapstructTest() {
 
         @InheritInverseConfiguration
         fun convertToModel(personDto: PersonDto): Person
-
     }
 }
