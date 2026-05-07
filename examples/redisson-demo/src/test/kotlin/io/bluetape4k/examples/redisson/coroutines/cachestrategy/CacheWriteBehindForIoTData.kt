@@ -1,6 +1,5 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.exposed.core.dao.id.TimebasedUUIDTable
 import io.bluetape4k.javatimes.millis
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -22,6 +21,7 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.withPollDelay
 import org.awaitility.kotlin.withPollInterval
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
@@ -52,7 +52,7 @@ class CacheWriteBehindForIoTData: AbstractCacheExample() {
 
     companion object: KLoggingChannel()
 
-    object SensorDataTable: TimebasedUUIDTable("sensor_data") {
+    object SensorDataTable: LongIdTable("sensor_data") {
         val serialNo = varchar("sensor_serial_no", 255)
         val sensingTime = timestamp("sensing_time").defaultExpression(CurrentTimestamp)
         val temperature = decimal("temperature", 10, 2)

@@ -1,6 +1,5 @@
 package io.bluetape4k.science.exposed.service
 
-import io.bluetape4k.exposed.jdbc.newVirtualThreadJdbcTransaction
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.model.SpatialLayerRecord
@@ -10,6 +9,7 @@ import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.shapefile.loadShape
 import net.postgis.jdbc.PGgeometry
 import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.locationtech.jts.io.WKTWriter
 import java.io.File
 
@@ -67,7 +67,7 @@ class ShapefileImportService(
         val shape = loadShape(file)
 
         // 1. 레이어 메타데이터 insert — Virtual Thread 트랜잭션 (중복 검사 포함)
-        val layerRecord = newVirtualThreadJdbcTransaction {
+        val layerRecord = transaction {
             require(layerRepo.findByName(layerName) == null) {
                 "동일한 이름의 레이어가 이미 존재합니다: $layerName"
             }
@@ -94,10 +94,10 @@ class ShapefileImportService(
         for (batch in shape.records.chunked(batchSize)) {
             if (Thread.currentThread().isInterrupted) break
 
-            newVirtualThreadJdbcTransaction {
+            transaction {
                 SpatialFeatureTable.batchInsert(batch) { record ->
                     val wkt = wktWriter.write(record.geometry)
-                    val pgGeom = PGgeometry(wkt).geometry
+                    val pgGeom = PGgeometry(wkt)
 
                     this[SpatialFeatureTable.layerId] = layerRecord.id
                     this[SpatialFeatureTable.featureType] = record.geometry.geometryType

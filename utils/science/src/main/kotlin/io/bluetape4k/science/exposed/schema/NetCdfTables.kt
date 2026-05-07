@@ -1,13 +1,17 @@
 package io.bluetape4k.science.exposed.schema
 
-import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
-import io.bluetape4k.exposed.core.jackson3.jacksonb
-import io.bluetape4k.exposed.postgresql.postgis.geoPoint
-import io.bluetape4k.exposed.postgresql.postgis.geoPolygon
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
 import io.bluetape4k.science.exposed.model.NetCdfVariableInfo
+import io.bluetape4k.science.exposed.support.geoPoint
+import io.bluetape4k.science.exposed.support.geoPolygon
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.json.jsonb
+
+private val netcdfMapper = jacksonObjectMapper()
 
 /**
  * NetCDF 파일 메타데이터를 저장하는 Exposed 테이블입니다.
@@ -31,7 +35,10 @@ import org.jetbrains.exposed.v1.javatime.timestamp
  * }
  * ```
  */
-object NetCdfFileTable: AuditableLongIdTable("netcdf_files") {
+object NetCdfFileTable: LongIdTable("netcdf_files") {
+
+    val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+    val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 
     /** 파일 이름 */
     val filename = varchar("filename", 255)
@@ -43,13 +50,22 @@ object NetCdfFileTable: AuditableLongIdTable("netcdf_files") {
     val fileSize = long("file_size").default(0L)
 
     /** NetCDF 변수 목록 (JSONB) */
-    val variables = jacksonb<List<NetCdfVariableInfo>>("variables")
+    val variables = jsonb<List<NetCdfVariableInfo>>("variables",
+        { netcdfMapper.writeValueAsString(it) },
+        { netcdfMapper.readValue(it, object: TypeReference<List<NetCdfVariableInfo>>() {}) }
+    )
 
     /** 차원 이름-크기 매핑 (JSONB) */
-    val dimensions = jacksonb<Map<String, Int>>("dimensions")
+    val dimensions = jsonb<Map<String, Int>>("dimensions",
+        { netcdfMapper.writeValueAsString(it) },
+        { netcdfMapper.readValue(it, object: TypeReference<Map<String, Int>>() {}) }
+    )
 
     /** 전역 속성 (JSONB) */
-    val globalAttrs = jacksonb<Map<String, String>>("global_attrs")
+    val globalAttrs = jsonb<Map<String, String>>("global_attrs",
+        { netcdfMapper.writeValueAsString(it) },
+        { netcdfMapper.readValue(it, object: TypeReference<Map<String, String>>() {}) }
+    )
 
     /** 공간 경계 폴리곤 (PostGIS POLYGON, 선택) */
     val bbox = geoPolygon("bbox").nullable()
@@ -106,7 +122,10 @@ object NetCdfGridValueTable: LongIdTable("netcdf_grid_values") {
     val value = double("value")
 
     /** 부가 속성 (JSONB, 선택) */
-    val attrs = jacksonb<Map<String, Any?>>("attrs").nullable()
+    val attrs = jsonb<Map<String, Any?>>("attrs",
+        { netcdfMapper.writeValueAsString(it) },
+        { netcdfMapper.readValue(it, object: TypeReference<Map<String, Any?>>() {}) }
+    ).nullable()
 }
 
 /**

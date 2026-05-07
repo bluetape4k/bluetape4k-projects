@@ -61,9 +61,10 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
-    // Redisson Cache Strategy 예제를 위해
-    testImplementation(project(":bluetape4k-exposed-jdbc"))
-    testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
+    // Redisson Cache Strategy 예제 — raw JetBrains Exposed 직접 참조
+    testImplementation(libs.exposed.core)
+    testImplementation(libs.exposed.dao)
+    testImplementation(libs.exposed.jdbc)
     testImplementation(libs.exposed.java.time)
     testImplementation(libs.exposed.spring.boot.starter)
     testImplementation("org.springframework.boot:spring-boot-autoconfigure")

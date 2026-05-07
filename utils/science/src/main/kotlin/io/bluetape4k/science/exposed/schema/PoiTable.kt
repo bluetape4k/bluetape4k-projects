@@ -1,8 +1,14 @@
 package io.bluetape4k.science.exposed.schema
 
-import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
-import io.bluetape4k.exposed.core.jackson3.jacksonb
-import io.bluetape4k.exposed.postgresql.postgis.geoPoint
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.bluetape4k.science.exposed.support.geoPoint
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
+import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.json.jsonb
+
+private val poiMapper = jacksonObjectMapper()
 
 /**
  * 관심 지점(Point of Interest)을 저장하는 Exposed 테이블입니다.
@@ -21,7 +27,10 @@ import io.bluetape4k.exposed.postgresql.postgis.geoPoint
  * }
  * ```
  */
-object PoiTable: AuditableLongIdTable("poi") {
+object PoiTable: LongIdTable("poi") {
+
+    val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+    val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 
     /** POI 이름 */
     val name = varchar("name", 255)
@@ -33,5 +42,8 @@ object PoiTable: AuditableLongIdTable("poi") {
     val location = geoPoint("location")
 
     /** 부가 속성 (JSONB) */
-    val properties = jacksonb<Map<String, Any?>>("properties")
+    val properties = jsonb<Map<String, Any?>>("properties",
+        { poiMapper.writeValueAsString(it) },
+        { poiMapper.readValue(it, object: TypeReference<Map<String, Any?>>() {}) }
+    )
 }

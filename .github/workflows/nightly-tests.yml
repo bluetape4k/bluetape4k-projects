@@ -320,7 +320,6 @@ jobs:
               :bluetape4k-rule-engine:test \
               :bluetape4k-geo:test \
               :bluetape4k-science:test \
-                :bluetape4k-batch:test \
               -PincludeTags=slow-netcdf \
               --parallel
         env:
@@ -346,7 +345,6 @@ jobs:
             :bluetape4k-rule-engine:koverXmlReport \
             :bluetape4k-geo:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
-              :bluetape4k-batch:koverXmlReport \
             --parallel
         continue-on-error: true
 
@@ -435,142 +433,8 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Exposed Core 테스트 (H2) ─────────────────────────────────────────────
-  test-exposed-core:
-    name: Test / Exposed Core (H2)
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-
-      - name: Test exposed core modules with H2
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          shell: bash
-          command: |
-            ./gradlew \
-              :bluetape4k-exposed-core:test \
-              :bluetape4k-exposed-dao:test \
-              :bluetape4k-exposed-jackson2:test \
-              :bluetape4k-exposed-jackson3:test \
-              :bluetape4k-exposed-fastjson2:test \
-              :bluetape4k-exposed-tink:test \
-              :bluetape4k-exposed-measured:test \
-              :bluetape4k-exposed-cache:test \
-              :bluetape4k-exposed-duckdb:test \
-              :bluetape4k-exposed-r2dbc-caffeine:test \
-              --parallel
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-          TEST_DB: h2
-
-      - name: Generate Kover XML report
-        if: always()
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-core:koverXmlReport \
-            :bluetape4k-exposed-dao:koverXmlReport \
-            :bluetape4k-exposed-jackson2:koverXmlReport \
-            :bluetape4k-exposed-jackson3:koverXmlReport \
-            :bluetape4k-exposed-fastjson2:koverXmlReport \
-            :bluetape4k-exposed-tink:koverXmlReport \
-            :bluetape4k-exposed-measured:koverXmlReport \
-            :bluetape4k-exposed-cache:koverXmlReport \
-            :bluetape4k-exposed-duckdb:koverXmlReport \
-            :bluetape4k-exposed-r2dbc-caffeine:koverXmlReport \
-            --parallel
-        continue-on-error: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-test-results-exposed-core
-          path: '**/build/test-results/test/*.xml'
-          retention-days: 14
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-coverage-exposed-core
-          path: '**/build/reports/kover/'
-          retention-days: 14
-
-  # ── Spring Boot (H2 only) ─────────────────────────────────────────────────
-  test-spring-h2:
-    name: Test / Spring Boot (H2)
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-
-      - name: Test spring-boot modules (H2 only)
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          shell: bash
-          command: |
-            ./gradlew \
-              :bluetape4k-spring-boot3-exposed-jdbc:test \
-              :bluetape4k-spring-boot4-exposed-jdbc:test \
-              :bluetape4k-spring-boot3-exposed-jdbc-demo:test \
-              :bluetape4k-spring-boot4-exposed-jdbc-demo:test \
-              :bluetape4k-spring-boot3-exposed-r2dbc-demo:test \
-              :bluetape4k-spring-boot4-exposed-r2dbc-demo:test \
-              --parallel
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-          TEST_DB: h2
-
-      - name: Generate Kover XML report
-        if: always()
-        run: |
-          ./gradlew \
-            :bluetape4k-spring-boot3-exposed-jdbc:koverXmlReport \
-            :bluetape4k-spring-boot4-exposed-jdbc:koverXmlReport \
-            --parallel
-        continue-on-error: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-test-results-spring-h2
-          path: '**/build/test-results/test/*.xml'
-          retention-days: 14
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-coverage-spring-h2
-          path: '**/build/reports/kover/'
-          retention-days: 14
-
+  # ── 
+  
   # ── Infra 모듈 테스트 (Testcontainers) — Matrix 병렬 ─────────────────────
   # 3 groups run in parallel on separate runners
   test-infra:
@@ -682,131 +546,6 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 14
 
-  # ── Exposed JDBC Docker 테스트 ───────────────────────────────────────────
-  test-exposed-jdbc-docker:
-    name: Test / Exposed JDBC (Docker)
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-
-      - name: Test exposed JDBC docker modules
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          shell: bash
-          command: |
-            ./gradlew \
-              :bluetape4k-exposed:test \
-              :bluetape4k-exposed-jdbc:test \
-              :bluetape4k-exposed-jdbc-caffeine:test \
-              :bluetape4k-exposed-jdbc-lettuce:test \
-              :bluetape4k-exposed-jdbc-redisson:test \
-              --parallel
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-          TEST_DB: h2
-
-      - name: Generate Kover XML report
-        if: always()
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed:koverXmlReport \
-            :bluetape4k-exposed-jdbc:koverXmlReport \
-            :bluetape4k-exposed-jdbc-caffeine:koverXmlReport \
-            :bluetape4k-exposed-jdbc-lettuce:koverXmlReport \
-            :bluetape4k-exposed-jdbc-redisson:koverXmlReport \
-            --parallel
-        continue-on-error: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-test-results-exposed-jdbc-docker
-          path: '**/build/test-results/test/*.xml'
-          retention-days: 14
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-coverage-exposed-jdbc-docker
-          path: '**/build/reports/kover/'
-          retention-days: 14
-
-  # ── Exposed R2DBC Docker 테스트 ──────────────────────────────────────────
-  test-exposed-r2dbc-docker:
-    name: Test / Exposed R2DBC (Docker)
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-
-      - name: Test exposed R2DBC docker modules
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          shell: bash
-          command: |
-            ./gradlew \
-              :bluetape4k-exposed-r2dbc:test \
-              :bluetape4k-exposed-r2dbc-lettuce:test \
-              :bluetape4k-exposed-r2dbc-redisson:test \
-              :bluetape4k-exposed-trino:test
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-          TEST_DB: h2
-
-      - name: Generate Kover XML report
-        if: always()
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-r2dbc:koverXmlReport \
-            :bluetape4k-exposed-r2dbc-lettuce:koverXmlReport \
-            :bluetape4k-exposed-r2dbc-redisson:koverXmlReport \
-            :bluetape4k-exposed-trino:koverXmlReport \
-            --parallel
-        continue-on-error: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-test-results-exposed-r2dbc-docker
-          path: '**/build/test-results/test/*.xml'
-          retention-days: 14
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nightly-coverage-exposed-r2dbc-docker
-          path: '**/build/reports/kover/'
-          retention-days: 14
-
   # ── Data 모듈 테스트 (Testcontainers) — Matrix 병렬 ──────────────────────
   # 2 groups run in parallel on separate runners
   test-data:
@@ -819,15 +558,11 @@ jobs:
         include:
           - group: rdb
             test_tasks: >-
-              :bluetape4k-exposed-postgresql:test
-              :bluetape4k-exposed-mysql8:test
               :bluetape4k-jdbc:test
               :bluetape4k-hibernate:test
               :bluetape4k-hibernate-cache-lettuce:test
               :bluetape4k-hibernate-reactive:test
             kover_tasks: >-
-              :bluetape4k-exposed-postgresql:koverXmlReport
-              :bluetape4k-exposed-mysql8:koverXmlReport
               :bluetape4k-jdbc:koverXmlReport
               :bluetape4k-hibernate:koverXmlReport
               :bluetape4k-hibernate-cache-lettuce:koverXmlReport
@@ -841,13 +576,6 @@ jobs:
               :bluetape4k-mongodb:koverXmlReport
               :bluetape4k-cassandra:koverXmlReport
                 :bluetape4k-jwt:koverXmlReport
-          -   group: ext
-              test_tasks: >-
-                  :bluetape4k-exposed-clickhouse:test
-                  :bluetape4k-exposed-bigquery:test
-              kover_tasks: >-
-                  :bluetape4k-exposed-clickhouse:koverXmlReport
-                  :bluetape4k-exposed-bigquery:koverXmlReport
     steps:
       - uses: actions/checkout@v4
 
@@ -914,20 +642,16 @@ jobs:
               :bluetape4k-spring-boot3-core:test
               :bluetape4k-spring-boot3-redis:test
               :bluetape4k-spring-boot3-r2dbc:test
-              :bluetape4k-spring-boot3-exposed-r2dbc:test
             kover_tasks: >-
               :bluetape4k-spring-boot3-core:koverXmlReport
               :bluetape4k-spring-boot3-redis:koverXmlReport
               :bluetape4k-spring-boot3-r2dbc:koverXmlReport
-              :bluetape4k-spring-boot3-exposed-r2dbc:koverXmlReport
           - group: batch-nosql
             test_tasks: >-
-              :bluetape4k-spring-boot3-batch-exposed:test
               :bluetape4k-spring-boot3-mongodb:test
               :bluetape4k-spring-boot3-cassandra:test
               :bluetape4k-spring-boot3-hibernate-lettuce:test
             kover_tasks: >-
-              :bluetape4k-spring-boot3-batch-exposed:koverXmlReport
               :bluetape4k-spring-boot3-mongodb:koverXmlReport
               :bluetape4k-spring-boot3-cassandra:koverXmlReport
               :bluetape4k-spring-boot3-hibernate-lettuce:koverXmlReport
@@ -1007,20 +731,16 @@ jobs:
               :bluetape4k-spring-boot4-core:test
               :bluetape4k-spring-boot4-redis:test
               :bluetape4k-spring-boot4-r2dbc:test
-              :bluetape4k-spring-boot4-exposed-r2dbc:test
             kover_tasks: >-
               :bluetape4k-spring-boot4-core:koverXmlReport
               :bluetape4k-spring-boot4-redis:koverXmlReport
               :bluetape4k-spring-boot4-r2dbc:koverXmlReport
-              :bluetape4k-spring-boot4-exposed-r2dbc:koverXmlReport
           - group: batch-nosql
             test_tasks: >-
-              :bluetape4k-spring-boot4-batch-exposed:test
               :bluetape4k-spring-boot4-mongodb:test
               :bluetape4k-spring-boot4-cassandra:test
               :bluetape4k-spring-boot4-hibernate-lettuce:test
             kover_tasks: >-
-              :bluetape4k-spring-boot4-batch-exposed:koverXmlReport
               :bluetape4k-spring-boot4-mongodb:koverXmlReport
               :bluetape4k-spring-boot4-cassandra:koverXmlReport
               :bluetape4k-spring-boot4-hibernate-lettuce:koverXmlReport
@@ -1196,11 +916,7 @@ jobs:
       - test-io-http
       - test-utils
       - test-misc
-      - test-exposed-core
-      - test-spring-h2
       - test-infra
-      - test-exposed-jdbc-docker
-      - test-exposed-r2dbc-docker
       - test-data
       - test-spring3-docker
       - test-spring4-docker
@@ -1241,11 +957,7 @@ jobs:
       - test-io-http
       - test-utils
       - test-misc
-      - test-exposed-core
-      - test-spring-h2
       - test-infra
-      - test-exposed-jdbc-docker
-      - test-exposed-r2dbc-docker
       - test-data
       - test-spring3-docker
       - test-spring4-docker

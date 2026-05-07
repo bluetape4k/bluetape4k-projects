@@ -1,6 +1,5 @@
 package io.bluetape4k.science.exposed.repository
 
-import io.bluetape4k.exposed.jdbc.repository.LongJdbcRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.model.SpatialFeatureRecord
@@ -8,8 +7,10 @@ import io.bluetape4k.science.exposed.model.SpatialLayerRecord
 import io.bluetape4k.science.exposed.schema.SpatialFeatureTable
 import io.bluetape4k.science.exposed.schema.SpatialLayerTable
 import net.postgis.jdbc.PGgeometry
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.locationtech.jts.io.WKBReader
@@ -33,13 +34,11 @@ import org.locationtech.jts.io.WKTWriter
  * }
  * ```
  */
-class SpatialLayerRepository: LongJdbcRepository<SpatialLayerRecord> {
+class SpatialLayerRepository {
 
-    override val table = SpatialLayerTable
+    val table = SpatialLayerTable
 
-    override fun extractId(entity: SpatialLayerRecord): Long = entity.id
-
-    override fun ResultRow.toEntity(): SpatialLayerRecord = SpatialLayerRecord(
+    fun ResultRow.toEntity(): SpatialLayerRecord = SpatialLayerRecord(
         id = this[SpatialLayerTable.id].value,
         name = this[SpatialLayerTable.name],
         description = this[SpatialLayerTable.description],
@@ -101,6 +100,9 @@ class SpatialLayerRepository: LongJdbcRepository<SpatialLayerRecord> {
      * @param layerName 레이어 이름
      * @return 레이어 레코드 또는 null
      */
+    fun findByIdOrNull(id: Long): SpatialLayerRecord? =
+        SpatialLayerTable.selectAll().where { SpatialLayerTable.id eq id }.firstOrNull()?.toEntity()
+
     fun findByName(layerName: String): SpatialLayerRecord? {
         return SpatialLayerTable
             .selectAll()
@@ -108,6 +110,9 @@ class SpatialLayerRepository: LongJdbcRepository<SpatialLayerRecord> {
             .map { it.toEntity() }
             .firstOrNull()
     }
+
+    fun deleteById(id: Long): Int =
+        SpatialLayerTable.deleteWhere { SpatialLayerTable.id eq id }
 }
 
 /**
@@ -131,15 +136,13 @@ class SpatialLayerRepository: LongJdbcRepository<SpatialLayerRecord> {
  * }
  * ```
  */
-class SpatialFeatureRepository: LongJdbcRepository<SpatialFeatureRecord> {
+class SpatialFeatureRepository {
 
     companion object: KLogging()
 
-    override val table = SpatialFeatureTable
+    val table = SpatialFeatureTable
 
-    override fun extractId(entity: SpatialFeatureRecord): Long = entity.id
-
-    override fun ResultRow.toEntity(): SpatialFeatureRecord {
+    fun ResultRow.toEntity(): SpatialFeatureRecord {
         val pgGeom = this[SpatialFeatureTable.geom]
         val wktStr = pgGeom.toString()
         // PostGIS Geometry.toString()은 EWKT 형태를 반환합니다.
@@ -189,8 +192,20 @@ class SpatialFeatureRepository: LongJdbcRepository<SpatialFeatureRecord> {
      * @param record 저장할 피처 레코드
      * @return 생성된 ID가 설정된 [SpatialFeatureRecord]
      */
+    fun findAll(condition: () -> Op<Boolean>): List<SpatialFeatureRecord> {
+        return SpatialFeatureTable.selectAll().where { condition() }.map { row ->
+            with(this@SpatialFeatureRepository) { row.toEntity() }
+        }
+    }
+
+    fun findByIdOrNull(id: Long): SpatialFeatureRecord? =
+        SpatialFeatureTable.selectAll().where { SpatialFeatureTable.id eq id }.firstOrNull()?.toEntity()
+
+    fun deleteById(id: Long): Int =
+        SpatialFeatureTable.deleteWhere { SpatialFeatureTable.id eq id }
+
     fun save(record: SpatialFeatureRecord): SpatialFeatureRecord {
-        val pgGeom = PGgeometry(WKTWriter().write(record.geom)).geometry
+        val pgGeom = PGgeometry(WKTWriter().write(record.geom))
         val id = SpatialFeatureTable.insertAndGetId {
             it[layerId] = record.layerId
             it[featureType] = record.featureType

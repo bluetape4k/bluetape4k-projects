@@ -167,7 +167,7 @@ class NetCdfCatalogService(
         require(variableName.isNotBlank()) { "variableName must not be blank" }
 
         // FileRecordNotFound 는 lease 획득 전 → markFailed/counter 호출 없이 raise (Codex Plan v2.1 Medium#4)
-        val record = transaction { fileRepo.findByIdOrNull(fileId) }
+        val record = transaction { fileRepo.findById(fileId) }
             ?: throw NetCdfException.FileRecordNotFound(fileId)
 
         val progress = transaction { progressRepo.acquireLease(fileId, variableName, LEASE_TTL) }

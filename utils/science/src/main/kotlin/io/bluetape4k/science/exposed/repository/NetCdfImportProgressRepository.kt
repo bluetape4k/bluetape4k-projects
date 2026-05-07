@@ -1,6 +1,5 @@
 package io.bluetape4k.science.exposed.repository
 
-import io.bluetape4k.exposed.jdbc.repository.LongJdbcRepository
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
@@ -35,7 +34,7 @@ import java.time.Instant
  *
  * @see io.bluetape4k.science.exposed.service.NetCdfCatalogService
  */
-class NetCdfImportProgressRepository: LongJdbcRepository<NetCdfImportProgress> {
+class NetCdfImportProgressRepository {
 
     companion object: KLogging() {
         /**
@@ -46,11 +45,9 @@ class NetCdfImportProgressRepository: LongJdbcRepository<NetCdfImportProgress> {
         val DEFAULT_LEASE_TTL: Duration = Duration.ofMinutes(5)
     }
 
-    override val table = NetCdfImportProgressTable
+    val table = NetCdfImportProgressTable
 
-    override fun extractId(entity: NetCdfImportProgress): Long = entity.id
-
-    override fun ResultRow.toEntity(): NetCdfImportProgress = NetCdfImportProgress(
+    fun ResultRow.toEntity(): NetCdfImportProgress = NetCdfImportProgress(
         id = this[NetCdfImportProgressTable.id].value,
         fileId = this[NetCdfImportProgressTable.fileId].value,
         variableName = this[NetCdfImportProgressTable.variableName],

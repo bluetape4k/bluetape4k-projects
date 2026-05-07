@@ -4,20 +4,23 @@ import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorRecord
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.ActorTable
 import io.bluetape4k.examples.redisson.coroutines.cachestrategy.ActorSchema.toActorRecord
-import io.bluetape4k.exposed.jdbc.fetchBatchedResultFlow
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -32,6 +35,12 @@ import org.redisson.api.map.MapWriterAsync
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+
+private fun Query.fetchBatchedResultFlow(batchSize: Int = 100): Flow<Iterable<ResultRow>> = flow {
+    for (batch in fetchBatchedResults(batchSize)) {
+        emit(batch)
+    }
+}
 
 @Suppress("DEPRECATION")
 @SpringBootTest(

@@ -1,8 +1,14 @@
 package io.bluetape4k.science.exposed.schema
 
-import io.bluetape4k.exposed.core.auditable.AuditableLongIdTable
-import io.bluetape4k.exposed.core.jackson3.jacksonb
-import io.bluetape4k.exposed.postgresql.postgis.geoGeometry
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.bluetape4k.science.exposed.support.geoGeometry
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
+import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.json.jsonb
+
+private val spatialMapper = jacksonObjectMapper()
 
 /**
  * 공간 레이어 메타데이터를 저장하는 Exposed 테이블입니다.
@@ -26,7 +32,10 @@ import io.bluetape4k.exposed.postgresql.postgis.geoGeometry
  * }
  * ```
  */
-object SpatialLayerTable: AuditableLongIdTable("spatial_layers") {
+object SpatialLayerTable: LongIdTable("spatial_layers") {
+
+    val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+    val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 
     /** 레이어 이름 (유일 인덱스) */
     val name = varchar("name", 255).uniqueIndex()
@@ -76,7 +85,10 @@ object SpatialLayerTable: AuditableLongIdTable("spatial_layers") {
  * }
  * ```
  */
-object SpatialFeatureTable: AuditableLongIdTable("spatial_features") {
+object SpatialFeatureTable: LongIdTable("spatial_features") {
+
+    val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+    val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
 
     /** 소속 레이어 외래키 */
     val layerId = reference("layer_id", SpatialLayerTable)
@@ -88,7 +100,10 @@ object SpatialFeatureTable: AuditableLongIdTable("spatial_features") {
     val geom = geoGeometry("geom")
 
     /** 피처 속성을 JSONB로 저장 */
-    val properties = jacksonb<Map<String, Any?>>("properties")
+    val properties = jsonb<Map<String, Any?>>("properties",
+        { spatialMapper.writeValueAsString(it) },
+        { spatialMapper.readValue(it, object: TypeReference<Map<String, Any?>>() {}) }
+    )
 
     /** 피처 이름 (선택) */
     val name = varchar("name", 255).nullable()

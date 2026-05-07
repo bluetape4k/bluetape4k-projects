@@ -1,10 +1,12 @@
 package io.bluetape4k.science.exposed.repository
 
-import io.bluetape4k.exposed.jdbc.repository.LongJdbcRepository
 import io.bluetape4k.science.exposed.model.NetCdfFileRecord
 import io.bluetape4k.science.exposed.schema.NetCdfFileTable
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 /**
  * [NetCdfFileTable] 기반 JDBC Repository 입니다.
@@ -24,13 +26,11 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
  * }
  * ```
  */
-class NetCdfFileRepository: LongJdbcRepository<NetCdfFileRecord> {
+class NetCdfFileRepository {
 
-    override val table = NetCdfFileTable
+    val table = NetCdfFileTable
 
-    override fun extractId(entity: NetCdfFileRecord): Long = entity.id
-
-    override fun ResultRow.toEntity(): NetCdfFileRecord = NetCdfFileRecord(
+    fun ResultRow.toEntity(): NetCdfFileRecord = NetCdfFileRecord(
         id = this[NetCdfFileTable.id].value,
         filename = this[NetCdfFileTable.filename],
         filePath = this[NetCdfFileTable.filePath],
@@ -55,6 +55,14 @@ class NetCdfFileRepository: LongJdbcRepository<NetCdfFileRecord> {
      * @param record 저장할 파일 레코드
      * @return 생성된 ID가 설정된 [NetCdfFileRecord]
      */
+    fun findAll(): List<NetCdfFileRecord> = NetCdfFileTable.selectAll().map { it.toEntity() }
+
+    fun findById(id: Long): NetCdfFileRecord? =
+        NetCdfFileTable.selectAll().where { NetCdfFileTable.id eq id }.firstOrNull()?.toEntity()
+
+    fun deleteById(id: Long): Int =
+        NetCdfFileTable.deleteWhere { NetCdfFileTable.id eq id }
+
     fun save(record: NetCdfFileRecord): NetCdfFileRecord {
         val id = NetCdfFileTable.insertAndGetId {
             it[filename] = record.filename

@@ -1,18 +1,15 @@
 package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
-import io.bluetape4k.exposed.core.dao.id.SnowflakeIdTable
-import io.bluetape4k.exposed.dao.entityToStringBuilder
-import io.bluetape4k.exposed.dao.id.SnowflakeIdEntity
-import io.bluetape4k.exposed.dao.id.SnowflakeIdEntityClass
-import io.bluetape4k.exposed.dao.idEquals
-import io.bluetape4k.exposed.dao.idHashCode
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.dao.LongEntity
+import org.jetbrains.exposed.v1.dao.LongEntityClass
 import java.io.Serializable
 
 object ActorSchema {
 
-    object ActorTable: SnowflakeIdTable("exposed_actors") {
+    object ActorTable: LongIdTable("exposed_actors") {
         val firstname = varchar("first_name", 50)
         val lastname = varchar("last_name", 50)
         val description = text("description").nullable()
@@ -22,19 +19,16 @@ object ActorSchema {
         }
     }
 
-    class ActorEntity(id: EntityID<Long>): SnowflakeIdEntity(id), Serializable {
-        companion object: SnowflakeIdEntityClass<ActorEntity>(ActorTable)
+    class ActorEntity(id: EntityID<Long>): LongEntity(id), Serializable {
+        companion object: LongEntityClass<ActorEntity>(ActorTable)
 
         var firstname by ActorTable.firstname
         var lastname by ActorTable.lastname
         var description by ActorTable.description
 
-        override fun equals(other: Any?): Boolean = idEquals(other)
-        override fun hashCode(): Int = idHashCode()
-        override fun toString(): String = entityToStringBuilder()
-            .add("firstname", firstname)
-            .add("lastname", lastname)
-            .toString()
+        override fun equals(other: Any?): Boolean = other is ActorEntity && id == other.id
+        override fun hashCode(): Int = id.value.hashCode()
+        override fun toString(): String = "ActorEntity(id=${id.value}, firstname=$firstname, lastname=$lastname)"
     }
 
     data class ActorRecord(
