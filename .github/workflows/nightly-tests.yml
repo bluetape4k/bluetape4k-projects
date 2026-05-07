@@ -311,6 +311,7 @@ jobs:
               :bluetape4k-math:test \
               :bluetape4k-money:test \
               :bluetape4k-measured:test \
+              :bluetape4k-assertions:test \
               :bluetape4k-junit5:test \
               :bluetape4k-states:test \
               :bluetape4k-workflow:test \
@@ -341,6 +342,7 @@ jobs:
             :bluetape4k-math:koverXmlReport \
             :bluetape4k-money:koverXmlReport \
             :bluetape4k-measured:koverXmlReport \
+            :bluetape4k-assertions:koverXmlReport \
             :bluetape4k-junit5:koverXmlReport \
             :bluetape4k-states:koverXmlReport \
             :bluetape4k-workflow:koverXmlReport \
