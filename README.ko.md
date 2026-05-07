@@ -87,7 +87,7 @@ flowchart TB
 
     subgraph L3["데이터 접근 레이어 — Data Access"]
         direction LR
-        EXP["data/exposed-*"]
+        EXP["bluetape4k-exposed (별도 레포)"]
         HIB["data/hibernate*"]
         MONGO["data/mongodb"]
         CASS["data/cassandra"]
@@ -195,39 +195,14 @@ flowchart TB
 
 ### 데이터 모듈 (`data/`)
 
-#### Exposed 모듈 (기능별 분리)
+#### Exposed 모듈
 
-- **[exposed](./data/exposed/README.ko.md)**: umbrella 모듈 — `exposed-core` + `exposed-dao` + `exposed-jdbc` 묶음 (하위 호환)
-- **[exposed-core](./data/exposed-core/README.ko.md)**: JDBC 없이 사용 가능한 핵심 기능 — 압축/암호화/직렬화 컬럼 타입, ID 생성 확장, `HasIdentifier`, `ExposedPage`
-- **[exposed-dao](./data/exposed-dao/README.ko.md)**: DAO 엔티티 확장 — `EntityExtensions`, `StringEntity`, 커스텀 IdTable (`KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable` 등)
-- **[exposed-fastjson2](./data/exposed-fastjson2/README.ko.md)**: Exposed FastJSON2 JSON 컬럼 지원
-- **[exposed-jackson2](./data/exposed-jackson2/README.ko.md)/[jackson3](./data/exposed-jackson3/README.ko.md)
-  **: Exposed JSON 컬럼 지원 (Jackson 2.x/3.x)
-- **[exposed-jasypt](./data/exposed-jasypt/README.ko.md)**: Exposed Jasypt 암호화 컬럼
-- **[exposed-jdbc](./data/exposed-jdbc/README.ko.md)**: JDBC 전용 — `ExposedRepository`, `SoftDeletedRepository`, `SuspendedQuery`, `VirtualThreadTransaction`
-- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.ko.md)**: Exposed JDBC + Redisson (분산 락)
-- **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.ko.md)**: JDBC 기반 테스트 공통 인프라
-- **[exposed-measured](./data/exposed-measured/README.ko.md)**: Exposed 쿼리 실행 시간 측정 (Micrometer 통합)
-- **[exposed-r2dbc](./data/exposed-r2dbc/README.ko.md)**: Exposed + R2DBC (reactive, `ExposedR2dbcRepository`)
-- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.ko.md)**: Exposed R2DBC + Redisson (분산 락)
-- **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.ko.md)**: R2DBC 기반 테스트 공통 인프라
-- **[exposed-tink](./data/exposed-tink/README.ko.md)**: Exposed 암호화 컬럼 (Google Tink AEAD/Deterministic AEAD)
+> **이동됨**: Exposed ORM 관련 모듈(38개)은 독립 레포 **[bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed)**로 분리됐습니다.
+> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.8.0-SNAPSHOT`
 
 #### 기타 데이터 모듈
 
 - **[cassandra](./data/cassandra/README.ko.md)**: Cassandra 드라이버
-- **[exposed-bigquery](./data/exposed-bigquery/README.ko.md)**: Google BigQuery REST API 통합 — H2(PostgreSQL 모드)로 SQL 생성 후 BigQuery REST 실행, `BigQueryContext`(SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow`(Column 참조 타입 안전 접근), suspend/Flow API
-- **[exposed-duckdb](./data/exposed-duckdb/README.ko.md)**: DuckDB JDBC 통합 — `DuckDBDialect`(PostgreSQL 상속),
-  `DuckDBDatabase` 팩토리(인메모리/파일/읽기전용), `suspendTransaction`, `queryFlow`
-- **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.ko.md)**: Exposed JDBC + Lettuce Redis 캐시 — Read-through/Write-through/Write-behind, `AbstractJdbcLettuceRepository`, 코루틴 네이티브 `AbstractSuspendedJdbcLettuceRepository`
-- **[exposed-mysql8](./data/exposed-mysql8/README.ko.md)
-  **: MySQL 8.0 전용 Exposed 확장 — GIS 공간 데이터(8종), JTS 기반 Geometry 컬럼, `ST_Contains`/
-  `ST_Distance` 등 공간 함수; MySQL Internal Format WKB 변환
-- **[exposed-postgresql](./data/exposed-postgresql/README.ko.md)**: PostgreSQL 전용 Exposed 확장 — PostGIS 공간 데이터(`POINT`/
-  `POLYGON`), pgvector 벡터 검색(`VECTOR(n)`), TSTZRANGE 시간 범위 컬럼 타입; H2 fallback 지원
-- **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.ko.md)**: Exposed R2DBC + Lettuce Redis 캐시 — 코루틴 네이티브 Read-through/Write-through/Write-behind, `AbstractR2dbcLettuceRepository`
-- **[exposed-trino](./data/exposed-trino/README.ko.md)**: Trino JDBC 통합 —
-  `TrinoDialect`, catalog/schema 인식 연결 지원, 코루틴 친화적 쿼리 헬퍼, 분산 SQL 분석 워크로드 지원
 - **[hibernate](./data/hibernate/README.ko.md)/[hibernate-reactive](./data/hibernate-reactive/README.ko.md)**: Hibernate ORM 통합
 - **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 - **[jdbc](./data/jdbc/README.ko.md)**: JDBC 유틸리티
@@ -267,14 +242,6 @@ flowchart TB
 - **[cassandra-demo](./spring-boot3/cassandra-demo/README.ko.md)**: Spring Boot 3 기반 Cassandra 사용 예제
 - **[data-redis](./spring-boot3/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
   `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.ko.md)
-  **: Exposed DAO 엔티티 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원
-- **[exposed-jdbc-demo](./spring-boot3/exposed-jdbc-demo/README.ko.md)
-  **: Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모
-- **[exposed-r2dbc](./spring-boot3/exposed-r2dbc/README.ko.md)
-  **: Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원
-- **[exposed-r2dbc-demo](./spring-boot3/exposed-r2dbc-demo/README.ko.md)
-  **: Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모
 - **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.ko.md)
   **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — Properties 바인딩, Micrometer Metrics, Actuator Endpoint
 - **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.ko.md)
@@ -295,14 +262,6 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 - **[cassandra](./spring-boot4/cassandra/README.ko.md)**: Spring Data Cassandra 코루틴 확장
 - **[cassandra-demo](./spring-boot4/cassandra-demo/README.ko.md)**: Cassandra 사용 예제
 - **[data-redis](./spring-boot4/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[exposed-jdbc](./spring-boot4/exposed-jdbc/README.ko.md)
-  **: Exposed DAO 엔티티 기반 Spring Data JDBC Repository — PartTree 쿼리, QBE, Page/Sort 지원 (Spring Boot 4 BOM)
-- **[exposed-jdbc-demo](./spring-boot4/exposed-jdbc-demo/README.ko.md)
-  **: Exposed DAO + Spring Data JDBC + Spring MVC 통합 데모 (Spring Boot 4 BOM)
-- **[exposed-r2dbc](./spring-boot4/exposed-r2dbc/README.ko.md)
-  **: Exposed R2DBC DSL 기반 코루틴 Spring Data Repository — suspend CRUD, Flow 지원 (Spring Boot 4 BOM)
-- **[exposed-r2dbc-demo](./spring-boot4/exposed-r2dbc-demo/README.ko.md)
-  **: Exposed R2DBC + suspend Repository + Spring WebFlux 통합 데모 (Spring Boot 4 BOM)
 - **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.ko.md)
   **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
 - **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.ko.md)
@@ -370,9 +329,6 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
     - **[jdk21](./virtualthread/jdk21/README.ko.md)**: Java 21 Virtual Thread 구현체
     - **[jdk25](./virtualthread/jdk25/README.ko.md)**: Java 25 Virtual Thread 구현체
 
-### 기타 모듈
-
-- **[timefold](./timefold/solver-persistence-exposed/README.ko.md)**: Timefold Solver + Exposed 통합
 
 ### 예제 모듈 (`examples/`)
 
@@ -521,7 +477,7 @@ AI 에이전트나 긴 터미널 세션에서 원시 `git`/Gradle 출력을 바�
 ./bin/repo-diff
 
 # Gradle 테스트/빌드 로그 요약
-./bin/repo-test-summary -- ./gradlew :05-exposed-dml:01-dml:test
+./bin/repo-test-summary -- ./gradlew :bluetape4k-coroutines:test
 ```
 
 기본 흐름은 "요약 먼저, 필요한 파일이나 태스크만 원본 출력 확인"입니다.

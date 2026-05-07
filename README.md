@@ -85,7 +85,7 @@ flowchart TB
 
     subgraph L3["Data Access Layer"]
         direction LR
-        EXP["data/exposed-*"]
+        EXP["bluetape4k-exposed (별도 레포)"]
         HIB["data/hibernate*"]
         MONGO["data/mongodb"]
         CASS["data/cassandra"]
@@ -195,42 +195,13 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 
 ### Data Modules (`data/`)
 
-#### Exposed Modules (split by function)
+#### Exposed Modules
 
-- **[exposed](./data/exposed/README.md)**: Umbrella module — bundles `exposed-core` + `exposed-dao` + `exposed-jdbc` for backward compatibility
-- **[exposed-core](./data/exposed-core/README.md)**: Core features without JDBC — compressed/encrypted/serialized column types, ID generation extensions, `HasIdentifier`, `ExposedPage`
-- **[exposed-dao](./data/exposed-dao/README.md)**: DAO entity extensions — `EntityExtensions`, `StringEntity`, custom IdTables (`KsuidTable`, `SnowflakeIdTable`, `SoftDeletedIdTable`, etc.)
-- **[exposed-fastjson2](./data/exposed-fastjson2/README.md)**: FastJSON2 JSON column support for Exposed
-- **[exposed-jackson2](./data/exposed-jackson2/README.md)/[jackson3](./data/exposed-jackson3/README.md)
-  **: JSON column support for Exposed (Jackson 2.x/3.x)
-- **[exposed-jasypt](./data/exposed-jasypt/README.md)**: Jasypt-encrypted columns for Exposed
-- **[exposed-jdbc](./data/exposed-jdbc/README.md)**: JDBC-specific — `ExposedRepository`, `SoftDeletedRepository`,
-  `SuspendedQuery`, `VirtualThreadTransaction`
-- **[exposed-jdbc-redisson](./data/exposed-jdbc-redisson/README.md)**: Exposed JDBC + Redisson distributed locking
-- **[exposed-jdbc-tests](./data/exposed-jdbc-tests/README.md)**: Shared test infrastructure for JDBC-based modules
-- **[exposed-measured](./data/exposed-measured/README.md)**: Query execution time measurement via Micrometer
-- **[exposed-r2dbc](./data/exposed-r2dbc/README.md)**: Exposed + R2DBC reactive support (`ExposedR2dbcRepository`)
-- **[exposed-r2dbc-redisson](./data/exposed-r2dbc-redisson/README.md)**: Exposed R2DBC + Redisson distributed locking
-- **[exposed-r2dbc-tests](./data/exposed-r2dbc-tests/README.md)**: Shared test infrastructure for R2DBC-based modules
-- **[exposed-tink](./data/exposed-tink/README.md)**: Google Tink encrypted columns (AEAD/Deterministic AEAD)
+> **이동됨**: Exposed ORM 관련 모듈(38개)은 독립 레포 **[bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed)**로 분리됐습니다.
+> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.8.0-SNAPSHOT`
 
 #### Other Data Modules
 
-- **[cassandra](./data/cassandra/README.md)**: Cassandra driver
-- **[exposed-bigquery](./data/exposed-bigquery/README.md)**: Google BigQuery REST API integration — SQL generated via H2 (PostgreSQL mode) then executed on BigQuery REST; `BigQueryContext` (SELECT/INSERT/UPDATE/DELETE/DDL), `BigQueryResultRow` (type-safe column access), suspend/Flow API
-- **[exposed-duckdb](./data/exposed-duckdb/README.md)**: DuckDB JDBC integration —
-  `DuckDBDialect` (extends PostgreSQL dialect), `DuckDBDatabase` factory (in-memory/file/read-only),
-  `suspendTransaction`, `queryFlow`
-- **[exposed-jdbc-lettuce](./data/exposed-jdbc-lettuce/README.md)**: Exposed JDBC + Lettuce Redis cache — Read-through/Write-through/Write-behind; `AbstractJdbcLettuceRepository`, coroutine-native `AbstractSuspendedJdbcLettuceRepository`
-- **[exposed-mysql8](./data/exposed-mysql8/README.md)
-  **: MySQL 8.0-specific Exposed extensions — 8 GIS geometry types, JTS-based geometry columns, spatial functions (
-  `ST_Contains`, `ST_Distance`, etc.); MySQL Internal Format WKB conversion
-- **[exposed-postgresql](./data/exposed-postgresql/README.md)
-  **: PostgreSQL-specific Exposed extensions — PostGIS spatial data (`POINT`/`POLYGON`), pgvector vector search (
-  `VECTOR(n)`), TSTZRANGE time-range column types; H2 fallback support
-- **[exposed-r2dbc-lettuce](./data/exposed-r2dbc-lettuce/README.md)**: Exposed R2DBC + Lettuce Redis cache — coroutine-native Read-through/Write-through/Write-behind; `AbstractR2dbcLettuceRepository`
-- **[exposed-trino](./data/exposed-trino/README.md)**: Trino JDBC integration —
-  `TrinoDialect`, catalog/schema-aware connection support, coroutine-friendly query helpers, and distributed SQL query workflows for analytics use cases
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM integration
 - **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
 - **[jdbc](./data/jdbc/README.md)**: JDBC utilities
@@ -267,14 +238,6 @@ A pluggable cache abstraction layer — swap backends without changing applicati
 - **[cassandra-demo](./spring-boot3/cassandra-demo/README.md)**: Cassandra usage example with Spring Boot 3
 - **[data-redis](./spring-boot3/redis/README.md)**: High-performance Spring Data Redis serialization —
   `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[exposed-jdbc](./spring-boot3/exposed-jdbc/README.md)
-  **: Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support
-- **[exposed-jdbc-demo](./spring-boot3/exposed-jdbc-demo/README.md)
-  **: Exposed DAO + Spring Data JDBC + Spring MVC integration demo
-- **[exposed-r2dbc](./spring-boot3/exposed-r2dbc/README.md)
-  **: Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support
-- **[exposed-r2dbc-demo](./spring-boot3/exposed-r2dbc-demo/README.md)
-  **: Exposed R2DBC + suspend Repository + Spring WebFlux integration demo
 - **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.md)
   **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — properties binding, Micrometer Metrics, Actuator Endpoint
 - **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.md)
@@ -296,14 +259,6 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 - **[cassandra-demo](./spring-boot4/cassandra-demo/README.md)**: Cassandra usage example
 - **[data-redis](./spring-boot4/redis/README.md)**: High-performance Spring Data Redis serialization —
   `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[exposed-jdbc](./spring-boot4/exposed-jdbc/README.md)
-  **: Exposed DAO entity-based Spring Data JDBC Repository — PartTree queries, QBE, Page/Sort support (Spring Boot 4 BOM)
-- **[exposed-jdbc-demo](./spring-boot4/exposed-jdbc-demo/README.md)
-  **: Exposed DAO + Spring Data JDBC + Spring MVC integration demo (Spring Boot 4 BOM)
-- **[exposed-r2dbc](./spring-boot4/exposed-r2dbc/README.md)
-  **: Exposed R2DBC DSL-based coroutine Spring Data Repository — suspend CRUD, Flow support (Spring Boot 4 BOM)
-- **[exposed-r2dbc-demo](./spring-boot4/exposed-r2dbc-demo/README.md)
-  **: Exposed R2DBC + suspend Repository + Spring WebFlux integration demo (Spring Boot 4 BOM)
 - **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.md)
   **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
 - **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.md)
@@ -374,9 +329,6 @@ When rebuilding mock server Docker images with Jib, always disable the Gradle co
     - **[jdk21](./virtualthread/jdk21/README.md)**: Java 21 Virtual Thread implementation
     - **[jdk25](./virtualthread/jdk25/README.md)**: Java 25 Virtual Thread implementation
 
-### Other Modules
-
-- **[timefold](./timefold/solver-persistence-exposed/README.md)**: Timefold Solver + Exposed integration
 
 ### Example Modules (`examples/`)
 
@@ -522,7 +474,7 @@ Before opening raw `git`/Gradle output in AI agent sessions or long terminal ses
 ./bin/repo-diff
 
 # Condensed Gradle test/build log
-./bin/repo-test-summary -- ./gradlew :05-exposed-dml:01-dml:test
+./bin/repo-test-summary -- ./gradlew :bluetape4k-coroutines:test
 ```
 
 The recommended workflow: **summarize first, then read raw output only for specific files or tasks.**
