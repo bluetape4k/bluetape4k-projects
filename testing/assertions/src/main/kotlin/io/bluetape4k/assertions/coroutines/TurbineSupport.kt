@@ -5,8 +5,13 @@ import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.shouldBeEqualTo
 
 /**
- * Awaits next item and asserts it equals [expected].
- * Requires Turbine: `testImplementation(libs.turbine)`.
+ * 다음 항목을 기다렸다가 [expected]와 같은지 검증한다.
+ *
+ * Turbine 사용 필수: `testImplementation(libs.turbine)`.
+ *
+ * @receiver Turbine 인스턴스
+ * @param expected 기대하는 값
+ * @return catch한 항목
  */
 suspend fun <T> ReceiveTurbine<T>.awaitItemAndAssert(expected: T): T {
     val actual = awaitItem()
@@ -15,8 +20,13 @@ suspend fun <T> ReceiveTurbine<T>.awaitItemAndAssert(expected: T): T {
 }
 
 /**
- * Awaits next item and asserts [predicate] is true.
- * Requires Turbine: `testImplementation(libs.turbine)`.
+ * 다음 항목을 기다렸다가 [predicate]이 참인지 검증한다.
+ *
+ * Turbine 사용 필수: `testImplementation(libs.turbine)`.
+ *
+ * @receiver Turbine 인스턴스
+ * @param predicate 항목이 만족해야 하는 조건
+ * @return catch한 항목
  */
 suspend fun <T> ReceiveTurbine<T>.awaitItemMatching(predicate: (T) -> Boolean): T {
     val actual = awaitItem()
@@ -27,8 +37,12 @@ suspend fun <T> ReceiveTurbine<T>.awaitItemMatching(predicate: (T) -> Boolean): 
 }
 
 /**
- * Awaits error and asserts it is of type [E].
- * Requires Turbine: `testImplementation(libs.turbine)`.
+ * 에러를 기다렸다가 [E] 타입인지 검증한다.
+ *
+ * Turbine 사용 필수: `testImplementation(libs.turbine)`.
+ *
+ * @receiver Turbine 인스턴스
+ * @return [E] 타입의 예외
  */
 suspend inline fun <reified E : Throwable> ReceiveTurbine<*>.awaitErrorOfType(): E {
     val error = awaitError()
