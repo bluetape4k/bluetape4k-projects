@@ -128,10 +128,11 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
 
 ### ADR-6: FlowAssertions 이전 + Bridge (단일 구현 우선)
 
-- **결정**: **새 assertions 모듈이 정식(canonical) 구현 위치다.**
-  - `bluetape4k-assertions`의 `io.bluetape4k.assertions.coroutines.FlowAssertions.kt`가 유일한 구현체.
-  - `bluetape4k-coroutines`의 기존 `FlowAssertions.kt`는 `@Deprecated(level = WARNING)` 마커만
-    추가하고, **함수 본문은 기존 구현 그대로 유지한다** (inline suspend 함수는 위임 불가).
+- **결정**: **새 assertions 모듈이 정식(canonical) API 위치다.**
+  - `bluetape4k-assertions`의 `io.bluetape4k.assertions.coroutines.FlowAssertions.kt`가 공식 사용 위치.
+  - `bluetape4k-coroutines`의 기존 `FlowAssertions.kt`는 독립적인 호환 복사본으로 유지되며,
+    `@Deprecated(level = WARNING)` 마커를 추가한다. **함수 본문은 기존 구현 그대로 유지한다**
+    (inline suspend 함수는 위임 불가 — §4.9 bridge 예시 참조).
   - `bluetape4k-coroutines`는 `bluetape4k-assertions`에 **의존성을 추가하지 않는다**.
     bridge는 기존 Kluent 의존성만으로 독립 동작.
 - **이유**: inline suspend 함수는 다른 모듈로 위임 불가이며,
@@ -650,22 +651,30 @@ fun `flow fails with expected exception`() = runTest {
 }
 ```
 
-#### Bridge (deprecated, 기존 위치 유지)
+#### Bridge (deprecated, 기존 위치 유지 — ADR-6 적용)
+
+> ⚠️ **ADR-6 주의**: bridge 함수 본문은 기존 구현 그대로 유지한다.
+> 새 모듈로 위임(`io.bluetape4k.assertions.coroutines.*` 호출)하지 않는다.
+> inline suspend 함수는 cross-module 위임 불가이며,
+> `bluetape4k-coroutines`에 `bluetape4k-assertions` 의존성을 추가하면
+> production classpath에 JUnit/opentest4j가 오염된다.
 
 ```kotlin
 // bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/tests/FlowAssertions.kt
 @Deprecated(
-    message = "Moved to io.bluetape4k.assertions.coroutines.assertResult",
+    message = "Moved to io.bluetape4k.assertions.coroutines package",
     replaceWith = ReplaceWith("assertResult(*values)", "io.bluetape4k.assertions.coroutines.assertResult"),
     level = DeprecationLevel.WARNING
 )
 suspend inline fun <T> Flow<T>.assertResult(vararg values: T) {
-    io.bluetape4k.assertions.coroutines.assertResult(this, *values)
+    // ✅ 본문은 기존 구현 그대로 유지 — 새 모듈 위임 금지 (ADR-6)
+    val result = toList()
+    assertEquals(values.toList(), result)
 }
-// ... 7개 함수 모두 동일 패턴
+// ... 7개 함수 모두 동일 패턴 (각 함수의 원래 구현 본문 유지)
 ```
 
-위 bridge는 **임시**(2 minor 버전 후 제거 예정)이며, level = WARNING으로 컴파일은 통과시킨다.
+위 bridge는 **임시**(1 minor 버전 후 제거 예정)이며, level = WARNING으로 컴파일은 통과시킨다.
 
 ---
 

@@ -62,6 +62,21 @@ T1 (스캐폴드)
 
 ---
 
+## T0. Spec §4.9 bridge 예시 수정 (선행 작업)
+
+- **복잡도**: `low`
+- **대상 파일**:
+  - `docs/superpowers/specs/2026-05-06-testing-assertions-design.md` (수정 — §4.9 bridge 코드 블록)
+- **수용 기준**:
+  - spec §4.9 "Bridge" 코드 블록이 ADR-6와 일치한다:
+    - 함수 본문이 `io.bluetape4k.assertions.coroutines.*` 호출(위임)이 아닌 **기존 구현 유지** 패턴을 보여준다.
+    - 코드 블록 상단에 `// ✅ 본문은 기존 구현 그대로 유지 — 새 모듈 위임 금지 (ADR-6)` 주석 포함.
+  - spec commit 후 구현자가 spec만 읽어도 ADR-6 의도를 파악할 수 있다.
+  - (이미 직전 커밋에서 수정 완료 — 이 항목은 DoD 체크 목적으로 기재)
+- **의존**: 없음
+
+---
+
 ## T1. 모듈 스캐폴드 + Gradle 등록
 
 - **복잡도**: `low`
@@ -305,7 +320,10 @@ T1 (스캐폴드)
   - 테스트:
     - reified 버전 사용 후 smart-cast 컴파일 검증.
     - KClass 버전 — Comparable, sealed 등 다양한 타입.
-    - null receiver는 항상 실패.
+    - null receiver 동작 (Kotlin 의미론: `null is T` = false):
+      - `null.shouldBeInstanceOf<String>()` → **실패** (null은 어떤 타입도 아님)
+      - `null.shouldNotBeInstanceOf<String>()` → **통과** (null이 String이 아님은 참)
+      - 두 동작을 별도 테스트 케이스로 명시.
 - **의존**: T3
 
 ---
@@ -417,6 +435,11 @@ T1 (스캐폴드)
   - 테스트:
     - `runTest` + `flow.test { ... }` 환경에서 각 함수 passing/failing case 검증.
     - 잘못된 타입 (`awaitItemAndAssert` 불일치 시) `AssertionFailedError` 발생.
+  - **Turbine 격리 검증 (소비자 관점)**:
+    - `CompatibilitySmokeTest` (T17)는 `TurbineSupport` import 없이 `Basic`/`Numerical`/`Collections`
+      등 비-Turbine API만 사용한다. 이 테스트가 통과하면 Turbine 없는 소비자가
+      `bluetape4k-assertions`를 정상 사용할 수 있음을 증명한다.
+    - T17 DoD에 "Turbine import 없음" 체크 항목 추가 (T17 담당).
 - **의존**: T13
 
 ---
@@ -457,6 +480,9 @@ T1 (스캐폴드)
       - `Instant.now() shouldBeAfter Instant.now().minusSeconds(1)`
       - `assertSoftly { add { 1 shouldBeEqualTo 1 }; add { "a" shouldStartWith "a" } }`
   - 본 테스트가 통과하면 spec §1.3 "import만 단순 치환으로 컴파일/통과" 성공 지표 충족.
+  - **Turbine 격리 확인**: `CompatibilitySmokeTest.kt` 파일 내 `turbine` / `ReceiveTurbine` /
+    `TurbineSupport` import가 0건임을 확인. 이로써 Turbine 미사용 소비자가 정상 동작함을 증명.
+  - 파일에 `import org.amshove.kluent.*` 줄 없음 (Kluent 미참조 검증).
 - **의존**: T16
 
 ---
@@ -551,7 +577,7 @@ T1 (스캐폴드)
 - **복잡도**: `medium`
 - **대상 파일**: 본 모듈 전체
 - **수용 기준**:
-  - `oh-my-claudecode:code-reviewer` skill 실행.
+  - code-reviewer 실행 (`oh-my-claudecode:code-reviewer` 또는 Codex native code-review 도구).
   - 보고된 모든 CRITICAL 이슈 해결.
   - 보고된 모든 HIGH 이슈 해결.
   - MEDIUM 이슈는 가능한 범위에서 해결, 미해결 항목은 PR 본문에 사유 명시.
@@ -602,7 +628,8 @@ T1 (스캐폴드)
 
 | ID  | 작업                                            | 복잡도 | 의존         |
 |-----|-------------------------------------------------|--------|--------------|
-| T1  | 모듈 스캐폴드 + Gradle 등록                     | low    | -            |
+| T0  | Spec §4.9 bridge 예시 수정 (선행)               | low    | -            |
+| T1  | 모듈 스캐폴드 + Gradle 등록                     | low    | T0           |
 | T2  | internal/Failures + Messages                    | medium | T1           |
 | T3  | Basic.kt + 테스트                               | medium | T2           |
 | T4  | Numerical.kt + 테스트                           | medium | T3           |
@@ -625,7 +652,7 @@ T1 (스캐폴드)
 | T21 | Detekt baseline                                 | low    | T20          |
 | T22 | code-reviewer + 최종 검증                       | medium | T21, T18     |
 
-총 22개 작업 (high 3, medium 12, low 7).
+총 23개 작업 (high 3, medium 12, low 8).
 
 ---
 
