@@ -1000,6 +1000,7 @@ junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", vers
 junit-platform-commons = { module = "org.junit.platform:junit-platform-commons", version.ref = "junit-platform" }
 junit-platform-engine = { module = "org.junit.platform:junit-platform-engine", version.ref = "junit-platform" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+opentest4j = { module = "org.opentest4j:opentest4j" }
 junit-platform-suite-api = { module = "org.junit.platform:junit-platform-suite-api", version.ref = "junit-platform" }
 junit-platform-suite-engine = { module = "org.junit.platform:junit-platform-suite-engine", version.ref = "junit-platform" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
