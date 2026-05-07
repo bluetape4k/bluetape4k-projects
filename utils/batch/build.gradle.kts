@@ -1,3 +1,5 @@
+val exposedVersion: String by project
+
 plugins {
     kotlin("plugin.allopen")
     alias(libs.plugins.kotlinx.benchmark)
@@ -139,8 +141,8 @@ dependencies {
     runtimeOnly(project(":bluetape4k-virtualthread-jdk21"))
 
     // Exposed JDBC/R2DBC — 선택적 백엔드 (compileOnly)
-    compileOnly(project(":bluetape4k-exposed-jdbc"))
-    compileOnly(project(":bluetape4k-exposed-r2dbc"))
+    compileOnly("io.bluetape4k.exposed:bluetape4k-exposed-jdbc:${exposedVersion}")
+    compileOnly("io.bluetape4k.exposed:bluetape4k-exposed-r2dbc:${exposedVersion}")
     compileOnly(libs.exposed.java.time)
 
     // Checkpoint JSON 직렬화 — bluetape4k-jackson3 선택 의존
@@ -155,8 +157,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // JDBC/R2DBC 통합 테스트 인프라
-    testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
-    testImplementation(project(":bluetape4k-exposed-r2dbc-tests"))
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-jdbc-tests:${exposedVersion}")
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-r2dbc-tests:${exposedVersion}")
     testImplementation(project(":bluetape4k-virtualthread-jdk21"))
 
     // Test DB — H2 (내장)

@@ -1,3 +1,5 @@
+val exposedVersion: String by project
+
 plugins {
     idea
     kotlin("plugin.spring")
@@ -62,8 +64,8 @@ dependencies {
     }
 
     // Redisson Cache Strategy 예제를 위해
-    testImplementation(project(":bluetape4k-exposed-jdbc"))
-    testImplementation(project(":bluetape4k-exposed-jdbc-tests"))
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-jdbc:${exposedVersion}")
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-jdbc-tests:${exposedVersion}")
     testImplementation(libs.exposed.java.time)
     testImplementation(libs.exposed.spring.boot.starter)
     testImplementation("org.springframework.boot:spring-boot-autoconfigure")

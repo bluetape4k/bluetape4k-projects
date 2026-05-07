@@ -1,3 +1,5 @@
+val exposedVersion: String by project
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
     // javax.media:jai_core 는 Maven Central에 없으므로 모든 classpath에서 제외
@@ -54,18 +56,18 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.core)
 
     // Exposed / DB (선택적, compileOnly)
-    compileOnly(project(":bluetape4k-exposed-jdbc"))
-    compileOnly(project(":bluetape4k-exposed-postgresql"))
-    compileOnly(project(":bluetape4k-exposed-jackson3"))
+    compileOnly("io.bluetape4k.exposed:bluetape4k-exposed-jdbc:${exposedVersion}")
+    compileOnly("io.bluetape4k.exposed:bluetape4k-exposed-postgresql:${exposedVersion}")
+    compileOnly("io.bluetape4k.exposed:bluetape4k-exposed-jackson3:${exposedVersion}")
     compileOnly(libs.postgis.jdbc)
     compileOnly(libs.exposed.java.time)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(project(":bluetape4k-exposed-jdbc"))
-    testImplementation(project(":bluetape4k-exposed-postgresql"))
-    testImplementation(project(":bluetape4k-exposed-jackson3"))
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-jdbc:${exposedVersion}")
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-postgresql:${exposedVersion}")
+    testImplementation("io.bluetape4k.exposed:bluetape4k-exposed-jackson3:${exposedVersion}")
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
