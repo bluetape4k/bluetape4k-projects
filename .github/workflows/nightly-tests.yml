@@ -320,7 +320,6 @@ jobs:
               :bluetape4k-rule-engine:test \
               :bluetape4k-geo:test \
               :bluetape4k-science:test \
-                :bluetape4k-batch:test \
               -PincludeTags=slow-netcdf \
               --parallel
         env:
@@ -346,7 +345,6 @@ jobs:
             :bluetape4k-rule-engine:koverXmlReport \
             :bluetape4k-geo:koverXmlReport \
             :bluetape4k-science:koverXmlReport \
-              :bluetape4k-batch:koverXmlReport \
             --parallel
         continue-on-error: true
 

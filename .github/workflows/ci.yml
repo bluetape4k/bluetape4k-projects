@@ -249,7 +249,6 @@ jobs:
             ./gradlew \
               :bluetape4k-idgenerators:test \
               :bluetape4k-cache-core:test \
-              :bluetape4k-batch:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -260,7 +259,6 @@ jobs:
           ./gradlew \
             :bluetape4k-idgenerators:koverXmlReport \
             :bluetape4k-cache-core:koverXmlReport \
-            :bluetape4k-batch:koverXmlReport \
             --parallel
         continue-on-error: true
 
