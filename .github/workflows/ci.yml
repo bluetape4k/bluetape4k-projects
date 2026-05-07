@@ -256,7 +256,6 @@ jobs:
             ./gradlew \
               :bluetape4k-idgenerators:test \
               :bluetape4k-cache-core:test \
-              :bluetape4k-batch:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -267,7 +266,6 @@ jobs:
           ./gradlew \
             :bluetape4k-idgenerators:koverXmlReport \
             :bluetape4k-cache-core:koverXmlReport \
-            :bluetape4k-batch:koverXmlReport \
             --parallel
         continue-on-error: true
 
@@ -348,81 +346,17 @@ jobs:
           path: '**/build/reports/kover/'
           retention-days: 30
 
-  # ── 7. Exposed JDBC 테스트 (H2 · PostgreSQL · MySQL8) ────────────────────
-  test-exposed-jdbc:
-    name: Test / Exposed JDBC (${{ matrix.test_db }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        test_db: [h2, postgresql, mysql8]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: wrapper
-          cache-read-only: true
-
-      - name: Test exposed core+dao+jdbc (${{ matrix.test_db }})
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          shell: bash
-          command: |
-            ./gradlew \
-              :bluetape4k-exposed-core:test \
-              :bluetape4k-exposed-dao:test \
-              :bluetape4k-exposed-jdbc:test
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-          TEST_DB: ${{ matrix.test_db }}
-
-      - name: Generate Kover XML report
-        if: always()
-        run: |
-          ./gradlew \
-            :bluetape4k-exposed-core:koverXmlReport \
-            :bluetape4k-exposed-dao:koverXmlReport \
-            :bluetape4k-exposed-jdbc:koverXmlReport \
-            --parallel
-        continue-on-error: true
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-exposed-jdbc-${{ matrix.test_db }}
-          path: '**/build/test-results/test/*.xml'
-          retention-days: 30
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-exposed-jdbc-${{ matrix.test_db }}
-          path: '**/build/reports/kover/'
-          retention-days: 30
-
   # ── 나머지 모듈 → Nightly Tests에서 실행 ─────────────────────────────────
-  # utils 전체, misc, exposed-core, spring-h2, exposed-jdbc-docker (full),
-  # exposed-r2dbc-docker, data, spring3-docker, spring4-docker,
+  # utils 전체, misc, data, spring3-docker, spring4-docker,
   # testcontainers, aws 는 nightly-tests.yml (매일 03:00 KST) 에서 실행
+  # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
   # ── 8. 커버리지 집계 ──────────────────────────────────────────────────────
   coverage-report:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-key-utils, test-infra, test-exposed-jdbc]
+    needs: [test-core, test-io, test-key-utils, test-infra]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -461,7 +395,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [gitleaks, validate-wrapper, spring-boot-parity, build, test-core, test-io, test-key-utils, test-infra, test-exposed-jdbc, coverage-report]
+    needs: [gitleaks, validate-wrapper, spring-boot-parity, build, test-core, test-io, test-key-utils, test-infra, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
