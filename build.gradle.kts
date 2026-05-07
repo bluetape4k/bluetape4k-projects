@@ -8,7 +8,6 @@ import io.gitlab.arturbosch.detekt.report.ReportMergeTask
 import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import java.util.concurrent.TimeUnit
 
 plugins {
     base
@@ -70,14 +69,6 @@ allprojects {
         maven("https://repo.osgeo.org/repository/release/")
         // UCAR/Unidata — NetCDF/CDM 라이브러리
         maven("https://artifacts.unidata.ucar.edu/repository/unidata-all/")
-        // bluetape4k SNAPSHOT 버전 사용 시
-        maven {
-            name = "central-snapshots"
-            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-        }
-    }
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor(0, TimeUnit.SECONDS)
     }
 }
 
