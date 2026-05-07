@@ -14,6 +14,14 @@
 본 계획은 spec 부록 B의 13단계 흐름을 세분화한 작업 항목(T1~T22)이다.
 각 작업은 ID, 복잡도(`high`/`medium`/`low`), 대상 파일, 수용 기준(DoD), 의존 작업을 명시한다.
 
+### 공통 컨벤션 (H5 — 모든 구현자 필독)
+
+> **KLogging 사용 규칙**: `bluetape4k-logging`이 `api` 의존성이므로 프로젝트 규약에 따라
+> 상태 또는 생명주기를 가지는 클래스(`SoftAssertionScope`, `InvokingBlock`, `CoInvokingBlock`,
+> `Failures` 헬퍼 object 등)는 필요 시 `companion object : KLogging()` 패턴을 적용한다.
+> 순수 extension 함수 파일(`Basic.kt`, `Numerical.kt` 등)은 stateless이므로 logger를 추가하지 않는다.
+> **단, 어떤 파일에도 로깅이 필요한 경우에는 `private val log = KotlinLogging.logger {}`도 허용.**
+
 ### 복잡도 라우팅 가이드
 
 - `high` → Opus (핵심 로직, 동시성, contract, FlowAssertions, 가상스레드 안전 설계)
@@ -27,25 +35,28 @@ T1 (스캐폴드)
  └─ T2 (internal/Failures + Messages)
      └─ T3 (Basic.kt)
          ├─ T4 (Numerical)        ┐
-         ├─ T5 (CharSequences)    │ 병렬 가능
+         ├─ T5 (CharSequences)    │ 병렬 가능 (그룹 A)
          ├─ T6 (Collections)      │
          ├─ T7 (Arrays)           │
          └─ T8 (Maps)             ┘
-             └─ T9 (Exceptions)   ┐
-                T10 (Reflection)  │ 병렬 가능
-                T11 (DateTimes)   ┘
-                 └─ T12 (Softly + 가상스레드 테스트)
-                     └─ T13 (FlowAssertions 신규 위치 + 테스트)
-                         └─ T14 (bluetape4k-coroutines bridge @Deprecated)
-                             └─ T15 (TurbineSupport compileOnly)
-                                 └─ T16 (kotlin.test 포팅 함수)
-                                     └─ T17 (호환성 smoke test)
-                                         └─ T18 (junit5 의존성 추가)
-                                             └─ T19 (KDoc 한국어 패스)
-                                                 └─ T20 (README + Mermaid)
-                                                     └─ T21 (Detekt baseline)
-                                                         └─ T22 (code-reviewer)
+             ├─ T9  (Exceptions)   ┐
+             ├─ T10 (Reflection)   │ 병렬 가능 (그룹 B)
+             └─ T11 (DateTimes)    ┘
+         ├─ T12 (Softly + 가상스레드) ← T3 직접 의존
+         └─ T13 (FlowAssertions) ← T3, T6, T10 의존
+             ├─ T14 (coroutines bridge)  ┐ 병렬 가능 (그룹 C)
+             └─ T15 (TurbineSupport)     ┘
+     └─ T4~T8 → T16 (kotlin.test 포팅) ← 그룹 A 완료 후
+         └─ T17 (smoke test)
+             └─ T18 (junit5 의존성)
+                         ┐
+         T15 + T16 ──→  T19 (KDoc 패스)  [※ T15, T16 모두 완료 후]
+                         └─ T20 (README)
+                             └─ T21 (Detekt)
+                                 + T18 ──→ T22 (최종 검증)  [※ T21, T18 모두 완료 후]
 ```
+
+> **참고**: 위 그래프보다 하단 "작업 요약 표"의 의존 열이 권위 있는 기준이다.
 
 ---
 
@@ -61,13 +72,26 @@ T1 (스캐폴드)
   - `settings.gradle.kts` (확인 — `testing/` 자동 등록 여부 검증)
 - **수용 기준**:
   - `./gradlew :bluetape4k-assertions:tasks` 명령이 모듈을 인식하여 정상 출력한다.
-  - `build.gradle.kts`에 spec §9.1 의존성(api: junit-bom, junit.jupiter.api, opentest4j,
-    bluetape4k-logging, kotlinx.coroutines.core / compileOnly: turbine /
-    testImplementation: bluetape4k-junit5, kotlin.test.junit5, junit-engine, junit-launcher,
-    coroutines-test, mockk, datafaker, turbine, logback-classic) 가 모두 선언되어 있다.
+  - `build.gradle.kts`에 spec §9.1 의존성이 모두 선언되어 있다:
+    - `api`: `platform(libs.junit.bom)`, `libs.junit.jupiter.api`,
+      `libs.opentest4j` (※아래 주의), `project(":bluetape4k-logging")`,
+      `libs.kotlinx.coroutines.core` (spec §9.1 우선 — §6.7의 compileOnly 표기는 오류)
+    - `compileOnly`: `libs.turbine`
+    - `testImplementation`: `project(":bluetape4k-junit5")`, `libs.kotlin.test.junit5`,
+      `libs.junit.jupiter.engine`, `libs.junit.platform.launcher`,
+      `libs.kotlinx.coroutines.test`, `libs.turbine`, `libs.mockk`, `libs.datafaker`
+    - `testRuntimeOnly`: `libs.logback.classic`
+  - **⚠️ opentest4j 버전 카탈로그 확인 (H1)**:
+    - `gradle/libs.versions.toml` 또는 `buildSrc/Libs.kt`에 `opentest4j` 항목이 있으면
+      `api(libs.opentest4j)` 형식으로 참조.
+    - 없으면 먼저 버전 카탈로그에 추가한 후 참조. 버전은 `junit-bom`이 관리.
+    - **bare string `api("org.opentest4j:opentest4j")` 사용 금지** (프로젝트 규약 위반).
   - `description` 필드: "Bluetape4k testing assertions — Kluent compatible, JUnit 5 native".
-  - `junit-platform.properties` 와 `logback-test.xml` 이 다른 testing 모듈과 동일한 패턴으로 작성되어 있다.
+  - `junit-platform.properties`: `io.bluetape4k.assertions` 패키지 logger 이름으로 작성.
+  - `logback-test.xml`: `<logger name="io.bluetape4k.assertions" level="DEBUG"/>` 포함.
   - `./gradlew :bluetape4k-assertions:build -x test` 가 빈 모듈 상태에서 통과한다.
+  - **자동 등록 실패 대비**: `settings.gradle.kts`가 `testing/assertions`를 자동 인식하지 못하면
+    수동으로 `include(":bluetape4k-assertions")` + `project(":bluetape4k-assertions").projectDir` 설정 추가.
 - **의존**: 없음
 
 ---
@@ -116,7 +140,10 @@ T1 (스캐폴드)
     - 각 함수에 대해 passing case (receiver 반환 검증) + failing case (`assertFailsWith<AssertionFailedError>` + 메시지/expected/actual 검증) 작성.
     - `shouldNotBeNull` 이후 smart-cast 컴파일 검증 (예: `val s = maybeStr.shouldNotBeNull(); s.length`).
     - `shouldBe` (referential) vs `shouldBeEqualTo` (value) 의미 차이 검증.
-  - `assertFailsWith`는 `org.amshove.kluent.internal.assertFailsWith` 사용 (memory rule).
+  - **⚠️ assertFailsWith import (H2)**: `bluetape4k-assertions` 모듈의 자체 테스트에서는
+    `kotlin.test.assertFailsWith`를 사용한다. `org.amshove.kluent.internal.assertFailsWith`는
+    **이 모듈 내 사용 금지** (Kluent를 대체하는 모듈이 Kluent에 역참조하는 순환 의존 발생).
+    해당 memory rule은 다른 bluetape4k 모듈(bluetooth-junit5 등)에 적용된다.
 - **의존**: T2
 
 ---
@@ -358,6 +385,9 @@ T1 (스캐폴드)
 - **대상 파일**:
   - `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/tests/FlowAssertions.kt` (수정)
 - **수용 기준**:
+  - **⚠️ spec §4.9 코드 예시 무시 (H3)**: spec §4.9의 bridge 예시 코드는
+    새 모듈 함수 위임(`io.bluetape4k.assertions.coroutines.assertResult(this, *values)`)을 보여주지만
+    이것은 ADR-6와 충돌하는 잘못된 예시다. **ADR-6 우선 적용**: 본문 위임 절대 금지.
   - 기존 7개 함수 시그니처는 변경하지 않는다 (소비자 binary 호환).
   - 각 함수에 `@Deprecated(message = "Moved to io.bluetape4k.assertions.coroutines.<fn>", replaceWith = ReplaceWith("...", "io.bluetape4k.assertions.coroutines.<fn>"), level = DeprecationLevel.WARNING)` 추가.
   - **함수 본문은 기존 구현 그대로 유지** (spec ADR-6: inline suspend는 위임 불가, 의존성 추가도 불가).
@@ -463,7 +493,9 @@ T1 (스캐폴드)
     - `TurbineSupport`: Turbine `testImplementation` 필요 명시.
     - `assertSoftly`: 가상 스레드 안전, `add { }` 명시 필요.
   - IntelliJ KDoc 검사 통과 (linkable references 모두 해석됨).
-- **의존**: T15
+  - **⚠️ T14 bridge 함수 KDoc**: `bluetape4k-coroutines` deprecated 함수에도 KDoc 업데이트 필요
+    — 이전 위치, 대체 함수 참조, 제거 예정 버전(v2) 명시.
+- **의존**: T15, T16  ← T16이 Basic.kt에 신규 함수 추가하므로 T16 완료 후 KDoc 패스 실행
 
 ---
 
@@ -533,7 +565,7 @@ T1 (스캐폴드)
     - `./gradlew :bluetape4k-junit5:build` 통과.
     - 가상 스레드 테스트 별도 실행: `./gradlew :bluetape4k-assertions:test --tests "*SoftlyVirtualThreadTest*"` 통과.
     - 호환성 smoke test 별도 실행: `./gradlew :bluetape4k-assertions:test --tests "*CompatibilitySmokeTest*"` 통과.
-- **의존**: T21
+- **의존**: T21, T18  ← `bluetape4k-junit5:build` 검증이 T18(junit5 의존성 추가) 완료 후에 의미 있음
 
 ---
 
@@ -582,10 +614,10 @@ T1 (스캐폴드)
 | T16 | kotlin.test 포팅 (3순위 마무리)                 | medium | T4~T8        |
 | T17 | 호환성 smoke test                               | medium | T16          |
 | T18 | bluetape4k-junit5 api 의존성 추가               | low    | T17          |
-| T19 | KDoc 한국어 패스                                | low    | T15          |
+| T19 | KDoc 한국어 패스                                | low    | T15, T16     |
 | T20 | README.md + README.ko.md (Mermaid)              | low    | T19          |
 | T21 | Detekt baseline                                 | low    | T20          |
-| T22 | code-reviewer + 최종 검증                       | medium | T21          |
+| T22 | code-reviewer + 최종 검증                       | medium | T21, T18     |
 
 총 22개 작업 (high 3, medium 12, low 7).
 
