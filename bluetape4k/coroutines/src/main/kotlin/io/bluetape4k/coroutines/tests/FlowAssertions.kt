@@ -22,6 +22,14 @@ import kotlin.test.assertFailsWith
  * // assertion passed
  * ```
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertEmpty() instead.",
+    replaceWith = ReplaceWith(
+        "assertEmpty()",
+        "io.bluetape4k.assertions.coroutines.assertEmpty"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <T> Flow<T>.assertEmpty() {
     toList().shouldBeEmpty()
 }
@@ -40,6 +48,14 @@ suspend inline fun <T> Flow<T>.assertEmpty() {
  * ```
  * @param expected 기대 결과 Flow입니다.
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertResult(expected: Flow<T>) instead.",
+    replaceWith = ReplaceWith(
+        "assertResult(expected)",
+        "io.bluetape4k.assertions.coroutines.assertResult"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <T> Flow<T>.assertResult(expected: Flow<T>) {
     toList() shouldBeEqualTo expected.toList()
 }
@@ -58,6 +74,14 @@ suspend inline fun <T> Flow<T>.assertResult(expected: Flow<T>) {
  * ```
  * @param values 기대 값 목록입니다.
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertResult(*values) instead.",
+    replaceWith = ReplaceWith(
+        "assertResult(*values)",
+        "io.bluetape4k.assertions.coroutines.assertResult"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <T> Flow<T>.assertResult(vararg values: T) {
     toList() shouldBeEqualTo values.toList()
 }
@@ -76,6 +100,14 @@ suspend inline fun <T> Flow<T>.assertResult(vararg values: T) {
  * ```
  * @param values 기대 값 목록입니다.
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertResultSet(*values) instead.",
+    replaceWith = ReplaceWith(
+        "assertResultSet(*values)",
+        "io.bluetape4k.assertions.coroutines.assertResultSet"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <T> Flow<T>.assertResultSet(vararg values: T) {
     toList().toSet() shouldBeEqualTo values.toSet()
 }
@@ -94,6 +126,14 @@ suspend inline fun <T> Flow<T>.assertResultSet(vararg values: T) {
  * ```
  * @param values 기대 값 iterable입니다.
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertResultSet(values) instead.",
+    replaceWith = ReplaceWith(
+        "assertResultSet(values)",
+        "io.bluetape4k.assertions.coroutines.assertResultSet"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
     toList().toSet() shouldBeEqualTo values.toSet()
 }
@@ -112,6 +152,14 @@ suspend inline fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
  * ```
  * @param values 예외 발생 전 기대되는 방출값입니다.
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertFailure<T, E>(*values) instead.",
+    replaceWith = ReplaceWith(
+        "assertFailure(*values)",
+        "io.bluetape4k.assertions.coroutines.assertFailure"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <T, reified E: Throwable> Flow<T>.assertFailure(vararg values: T) {
     val list = mutableListOf<T>()
     assertFailsWith<E> {
@@ -133,6 +181,14 @@ suspend inline fun <T, reified E: Throwable> Flow<T>.assertFailure(vararg values
  * // assertion passed
  * ```
  */
+@Deprecated(
+    message = "Moved to io.bluetape4k.assertions.coroutines. Use assertError<E>() instead.",
+    replaceWith = ReplaceWith(
+        "assertError()",
+        "io.bluetape4k.assertions.coroutines.assertError"
+    ),
+    level = DeprecationLevel.WARNING
+)
 suspend inline fun <reified E: Throwable> Flow<*>.assertError() {
     var caught = false
     this.catch { e ->

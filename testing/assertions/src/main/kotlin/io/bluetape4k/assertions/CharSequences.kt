@@ -436,3 +436,26 @@ infix fun CharSequence.shouldNotContainRegex(regex: Regex): CharSequence {
     }
     return this
 }
+
+/**
+ * CharSequence의 일부가 [pattern] 문자열로 만든 Regex와 매치되는지 검증한다 (부분 포함).
+ *
+ * `Regex.containsMatchIn()`을 사용하므로 전체 문자열이 아닌 일부만 매치되어도 통과한다.
+ * 전체 매치가 필요하면 [shouldMatch]를 사용하라.
+ *
+ * @receiver 검증할 CharSequence (non-null)
+ * @param pattern 부분 매치에 사용할 정규식 패턴 문자열
+ * @return receiver (체이닝 지원)
+ */
+infix fun CharSequence.shouldContainRegex(pattern: String): CharSequence =
+    this shouldContainRegex Regex(pattern)
+
+/**
+ * CharSequence의 일부가 [pattern] 문자열로 만든 Regex와 매치되지 않는지 검증한다 (부분 포함).
+ *
+ * @receiver 검증할 CharSequence (non-null)
+ * @param pattern 부분 매치에 사용할 정규식 패턴 문자열
+ * @return receiver (체이닝 지원)
+ */
+infix fun CharSequence.shouldNotContainRegex(pattern: String): CharSequence =
+    this shouldNotContainRegex Regex(pattern)

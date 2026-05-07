@@ -776,3 +776,25 @@ fun Float.shouldNotBeNear(expected: Float, delta: Float): Float {
     }
     return this
 }
+
+/**
+ * Double 값이 [expected]와 기본 허용 오차(1e-10) 이내로 근사하지 않는지 검증한다.
+ *
+ * NaN은 어떤 값과도 근사하지 않으므로 이 검증은 항상 통과한다.
+ *
+ * @receiver 검증할 Double 값
+ * @param expected 비교 기준 값
+ * @return receiver (체이닝 지원)
+ */
+infix fun Double.shouldNotBeNear(expected: Double): Double = shouldNotBeNear(expected, 1e-10)
+
+/**
+ * Float 값이 [expected]와 기본 허용 오차(1e-6f) 이내로 근사하지 않는지 검증한다.
+ *
+ * NaN은 어떤 값과도 근사하지 않으므로 이 검증은 항상 통과한다.
+ *
+ * @receiver 검증할 Float 값
+ * @param expected 비교 기준 값
+ * @return receiver (체이닝 지원)
+ */
+infix fun Float.shouldNotBeNear(expected: Float): Float = shouldNotBeNear(expected, 1e-6f)

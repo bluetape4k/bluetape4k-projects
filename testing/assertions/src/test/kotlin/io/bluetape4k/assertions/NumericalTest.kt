@@ -767,6 +767,32 @@ class NumericalTest {
         Float.NaN.shouldNotBeNear(1.0f, 1e-6f)
     }
 
+    // ── shouldNotBeNear infix (default tolerance) ─────────────────────────
+
+    @Test
+    fun `Double shouldNotBeNear infix passes when values differ by more than default tolerance`() {
+        1.0 shouldNotBeNear 2.0
+    }
+
+    @Test
+    fun `Double shouldNotBeNear infix fails when values are within default tolerance`() {
+        assertFailsWith<AssertionFailedError> {
+            1.0 shouldNotBeNear 1.0
+        }
+    }
+
+    @Test
+    fun `Float shouldNotBeNear infix passes when values differ by more than default tolerance`() {
+        1.0f shouldNotBeNear 2.0f
+    }
+
+    @Test
+    fun `Float shouldNotBeNear infix fails when values are within default tolerance`() {
+        assertFailsWith<AssertionFailedError> {
+            1.0f shouldNotBeNear 1.0f
+        }
+    }
+
     // ── chaining: near ────────────────────────────────────────────────────
 
     @Test

@@ -518,6 +518,32 @@ class CharSequencesTest {
         }
     }
 
+    // ── shouldContainRegex / shouldNotContainRegex (String pattern) ──────
+
+    @Test
+    fun `shouldContainRegex with String pattern passes for partial match`() {
+        "hello 123 world" shouldContainRegex "\\d+"
+    }
+
+    @Test
+    fun `shouldContainRegex with String pattern fails when no match`() {
+        assertFailsWith<AssertionFailedError> {
+            "hello world" shouldContainRegex "\\d+"
+        }
+    }
+
+    @Test
+    fun `shouldNotContainRegex with String pattern passes when no match`() {
+        "hello world" shouldNotContainRegex "\\d+"
+    }
+
+    @Test
+    fun `shouldNotContainRegex with String pattern fails when pattern matches`() {
+        assertFailsWith<AssertionFailedError> {
+            "hello 123 world" shouldNotContainRegex "\\d+"
+        }
+    }
+
     // ── Chaining verification ─────────────────────────────────────────────
 
     @Test
