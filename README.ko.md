@@ -123,8 +123,9 @@ flowchart TB
         JUNIT["testing/junit5"]
         TC["testing/testcontainers"]
         UTILS["utils/*"]
-        TEXTS["texts/*"]
-        AWS["aws/*"]
+        TEXTS["bluetape4k-text ↗"]
+        AWS["bluetape4k-aws ↗"]
+        IMG["bluetape4k-image ↗"]
     end
 
     L5 --> L4
@@ -150,7 +151,7 @@ flowchart TB
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
     class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
     class SB3,SB4 intLayer
-    class JUNIT,TC,UTILS,TEXTS,AWS crossLayer
+    class JUNIT,TC,UTILS,TEXTS,AWS,IMG crossLayer
 ```
 
 ### Core 모듈 (`bluetape4k/`)
@@ -183,16 +184,14 @@ flowchart TB
 - **[vertx](./io/vertx/README.ko.md)**: Vert.x 단일 통합 모듈 — 핵심 기능, SQL 클라이언트, Resilience4j 통합 포함 (구 `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j` 통합됨)
 - ~~**[crypto](./io/crypto/README.ko.md)**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`tink`으로 대체)
 
-### AWS 모듈 (`aws/`)
+### AWS 모듈 → [bluetape4k-aws](https://github.com/bluetape4k/bluetape4k-aws)
+
+> 이 모듈들은 독립 저장소 **[bluetape4k-aws](https://github.com/bluetape4k/bluetape4k-aws)**로 분리되었습니다.
 
 각 서비스마다 **3단계 API** 패턴 제공: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
-- **[aws](./aws/aws/README.ko.md)
-  **: AWS Java SDK v2 기반 단일 통합 모듈 — DynamoDB, S3(TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS 포함. 각 서비스의 coroutines 확장 (
-  `XxxAsyncClientCoroutinesExtensions.kt`) 제공
-- **[aws-kotlin](./aws/aws-kotlin/README.ko.md)**: AWS Kotlin SDK 기반 단일 통합 모듈 — native `suspend` 함수 기본 제공 (
-  `.await()` 변환 불필요). DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS 포함. DSL 지원 (
-  `metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}` 등)
+- **[aws](https://github.com/bluetape4k/bluetape4k-aws)**: AWS Java SDK v2 — DynamoDB, S3(TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS (Coroutines 확장 포함)
+- **[aws-kotlin](https://github.com/bluetape4k/bluetape4k-aws)**: AWS Kotlin SDK — native `suspend` 함수 기본 제공; DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS DSL 지원
 
 ### 데이터 모듈 (`data/`)
 
@@ -311,20 +310,24 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 - **[mongodb](./spring-boot4/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot4/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
-### 텍스트 처리 모듈 (`texts/`)
+### 텍스트 처리 → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
 
-- **[tokenizer-core](./texts/tokenizer-core/README.ko.md)**: 토크나이저 공통 인터페이스 — `TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`
-- **[tokenizer-korean](./texts/tokenizer-korean/README.ko.md)**: 한국어 형태소 분석기 (Open Korean Text 기반) — twitter-text 의존성 제거 및 `TwitterCompatPatterns` 내부 구현
-- **[tokenizer-japanese](./texts/tokenizer-japanese/README.ko.md)**: 일본어 형태소 분석기 (Kuromoji IPAdic 0.9.0)
-- **[lingua](./texts/lingua/README.ko.md)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼 (75+ 언어)
-- **[text-search](./texts/text-search/README.ko.md)**: Aho-Corasick 다중 키워드 검색 — 금칙어 필터, 하이라이팅, Flow API
+> 이 모듈들은 독립 저장소 **[bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)**로 분리되었습니다.
 
-### 이미지 처리 모듈 (`images/`)
+- **[tokenizer-core](https://github.com/bluetape4k/bluetape4k-text)**: 토크나이저 공통 인터페이스 — `TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`
+- **[tokenizer-korean](https://github.com/bluetape4k/bluetape4k-text)**: 한국어 형태소 분석기 (Open Korean Text 기반)
+- **[tokenizer-japanese](https://github.com/bluetape4k/bluetape4k-text)**: 일본어 형태소 분석기 (Kuromoji IPAdic 0.9.0)
+- **[lingua](https://github.com/bluetape4k/bluetape4k-text)**: 언어 감지 — Lingua 기반 Kotlin DSL 래퍼 (75+ 언어)
+- **[text-search](https://github.com/bluetape4k/bluetape4k-text)**: Aho-Corasick 다중 키워드 검색 — 금칙어 필터, 하이라이팅, Flow API
 
-- **[images](./images/images/README.ko.md)**: 이미지 처리 유틸리티 (scrimage 기반 — 리사이즈, 크롭, 썸네일, 포맷 변환)
-- **[images-vips-api](./images/images-vips-api/README.ko.md)**: libvips 바인딩 중립 API — `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`, 예외 계층
-- **[images-vips-java21](./images/images-vips-java21/README.ko.md)**: Java 21 JVips/JNI 바인딩 구현체 — `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
-- **[images-vips-java25](./images/images-vips-java25/README.ko.md)**: Java 25 vips-ffm/FFM API 바인딩 구현체 — `FfmVipsRuntime`, `FfmVipsImage`, `Arena` 라이프사이클 관리
+### 이미지 처리 → [bluetape4k-image](https://github.com/bluetape4k/bluetape4k-image)
+
+> 이 모듈들은 독립 저장소 **[bluetape4k-image](https://github.com/bluetape4k/bluetape4k-image)**로 분리되었습니다.
+
+- **[images](https://github.com/bluetape4k/bluetape4k-image)**: 이미지 처리 유틸리티 (scrimage — 리사이즈, 크롭, 썸네일, 포맷 변환)
+- **[images-vips-api](https://github.com/bluetape4k/bluetape4k-image)**: libvips 바인딩 중립 API — `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`
+- **[images-vips-java21](https://github.com/bluetape4k/bluetape4k-image)**: Java 21 JVips/JNI 바인딩 — `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
+- **[images-vips-java25](https://github.com/bluetape4k/bluetape4k-image)**: Java 25 Panama FFM 바인딩 — `FfmVipsRuntime`, `FfmVipsImage`, `Arena` 라이프사이클 관리
 
 ### 유틸리티 모듈 (`utils/`)
 
