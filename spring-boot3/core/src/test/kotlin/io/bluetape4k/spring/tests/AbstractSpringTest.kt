@@ -7,9 +7,9 @@ abstract class AbstractSpringTest {
 
     companion object: KLogging() {
         @JvmStatic
-        protected val httpbin by lazy { BluetapeHttpServer.Launcher.bluetapeHttpServer }
+        protected val httpbin = BluetapeHttpServer.Launcher.bluetapeHttpServer
 
         @JvmStatic
-        protected val baseUrl by lazy { httpbin.httpbinUrl }
+        protected val baseUrl = httpbin.httpbinUrl
     }
 }
