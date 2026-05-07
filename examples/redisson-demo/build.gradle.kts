@@ -61,6 +61,11 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
 
-    // Redisson Cache Strategy 예제 — exposed 파일 이전됨, 관련 deps 제거
+    // Redisson Cache Strategy 예제 — raw JetBrains Exposed 직접 참조
+    testImplementation(libs.exposed.core)
+    testImplementation(libs.exposed.dao)
+    testImplementation(libs.exposed.jdbc)
+    testImplementation(libs.exposed.java.time)
+    testImplementation(libs.exposed.spring.boot.starter)
     testImplementation("org.springframework.boot:spring-boot-autoconfigure")
 }

@@ -53,12 +53,16 @@ dependencies {
     compileOnly(project(":bluetape4k-coroutines"))
     compileOnly(libs.kotlinx.coroutines.core)
 
-    // Exposed / DB (선택적, compileOnly) — bluetape4k-exposed 이전 후 raw Exposed만 사용
+    // Exposed / DB (선택적, compileOnly) — raw JetBrains Exposed 직접 참조
     compileOnly(libs.exposed.core)
     compileOnly(libs.exposed.dao)
     compileOnly(libs.exposed.jdbc)
     compileOnly(libs.exposed.java.time)
+    compileOnly(libs.exposed.json)
     compileOnly(libs.postgis.jdbc)
+    // JSONB 직렬화용 Jackson, PGobject (compileOnly)
+    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.postgresql.driver)
 
     // Test
     testImplementation(project(":bluetape4k-junit5"))
@@ -67,6 +71,7 @@ dependencies {
     testImplementation(libs.exposed.dao)
     testImplementation(libs.exposed.jdbc)
     testImplementation(libs.exposed.java.time)
+    testImplementation(libs.exposed.json)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
