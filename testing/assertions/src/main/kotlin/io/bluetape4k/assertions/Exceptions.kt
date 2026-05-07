@@ -3,7 +3,10 @@ package io.bluetape4k.assertions
 import io.bluetape4k.assertions.internal.Failures
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KClass
+import kotlin.time.Duration
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 /**
  * 동기 블록을 감싸 예외 검증용 DSL을 제공한다.
@@ -408,5 +411,31 @@ fun assertNotFails(block: suspend () -> Unit) {
         throw e
     } catch (e: Throwable) {
         Failures.failWithCause("Expected no exception but got ${e::class.simpleName}: ${e.message}", e)
+    }
+}
+
+/**
+ * 동기 또는 suspend 블록이 [duration] 내에 완료되는지 검증한다.
+ *
+ * 시간 초과 시 [org.opentest4j.AssertionFailedError]를 던진다.
+ * [CancellationException]은 즉시 rethrow하여 코루틴 취소 협력을 보장한다.
+ *
+ * @param duration 허용되는 최대 실행 시간
+ * @param message 검증 실패 시 출력할 추가 메시지 (null이면 기본 메시지 사용)
+ * @param block 검증할 코드 블록 (동기 또는 suspend)
+ * @return 블록의 반환값
+ */
+fun <T> assertTimeout(
+    duration: Duration,
+    message: String? = null,
+    block: suspend () -> T,
+): T {
+    val prefix = if (message != null) "$message — " else ""
+    return try {
+        runBlocking { withTimeout(duration) { block() } }
+    } catch (e: TimeoutCancellationException) {
+        Failures.fail("${prefix}Expected block to complete within $duration but it timed out")
+    } catch (e: CancellationException) {
+        throw e
     }
 }
