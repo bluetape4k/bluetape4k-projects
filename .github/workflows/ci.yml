@@ -348,7 +348,7 @@ jobs:
 
   # ── 나머지 모듈 → Nightly Tests에서 실행 ─────────────────────────────────
   # utils 전체, misc, data, spring3-docker, spring4-docker,
-  # testcontainers, aws 는 nightly-tests.yml (매일 03:00 KST) 에서 실행
+  # testcontainers 는 nightly-tests.yml (매일 03:00 KST) 에서 실행
   # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
   # ── 8. 커버리지 집계 ──────────────────────────────────────────────────────

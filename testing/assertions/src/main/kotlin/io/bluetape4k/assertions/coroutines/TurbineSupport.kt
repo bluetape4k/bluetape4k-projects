@@ -44,7 +44,7 @@ suspend fun <T> ReceiveTurbine<T>.awaitItemMatching(predicate: (T) -> Boolean): 
  * @receiver Turbine 인스턴스
  * @return [E] 타입의 예외
  */
-suspend inline fun <reified E : Throwable> ReceiveTurbine<*>.awaitErrorOfType(): E {
+suspend inline fun <reified E: Throwable> ReceiveTurbine<*>.awaitErrorOfType(): E {
     val error = awaitError()
     if (error !is E) {
         Failures.fail("Expected error of type ${E::class.simpleName}, but was ${error::class.simpleName}: ${error.message}")

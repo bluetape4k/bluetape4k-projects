@@ -79,7 +79,7 @@ class NetCdfTableTest: AbstractPostgisTest() {
 
             log.debug { "저장된 NetCdfFileRecord: $saved" }
 
-            val found = fileRepo.findByIdOrNull(saved.id)
+            val found = fileRepo.findById(saved.id)
             found.shouldNotBeNull()
             found.filename shouldBeEqualTo "ERA5_2024_01.nc"
             found.variables.size shouldBeEqualTo 2

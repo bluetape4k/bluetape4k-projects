@@ -67,9 +67,6 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.reactor)
     testImplementation(libs.kotlinx.coroutines.test)
 
-    // Leader Election
-    compileOnly(project(":bluetape4k-leader"))
-
     // Cache / Memorizer
     compileOnly(project(":bluetape4k-cache-core"))
 

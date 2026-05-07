@@ -1,15 +1,11 @@
 package io.bluetape4k.assertions
 
-import kotlin.coroutines.cancellation.CancellationException
-import kotlin.time.Duration.Companion.milliseconds
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.assertNotFailsWith
-import io.bluetape4k.assertions.assertNotFails
-import io.bluetape4k.assertions.assertTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 class ExceptionsTest {
 
@@ -374,13 +370,13 @@ class ExceptionsTest {
     // ── assertTimeout ──────────────────────────────────────────────────────
 
     @Test
-    fun `assertTimeout passes when block completes within duration`() {
+    fun `assertTimeout passes when block completes within duration`() = runTest {
         val result = assertTimeout(500.milliseconds) { 42 }
         result shouldBeEqualTo 42
     }
 
     @Test
-    fun `assertTimeout passes for suspend block within duration`() {
+    fun `assertTimeout passes for suspend block within duration`() = runTest {
         val result = assertTimeout(500.milliseconds) {
             delay(10.milliseconds)
             "done"
@@ -389,7 +385,7 @@ class ExceptionsTest {
     }
 
     @Test
-    fun `assertTimeout fails when block exceeds duration`() {
+    fun `assertTimeout fails when block exceeds duration`() = runTest {
         assertFailsWith<AssertionFailedError> {
             assertTimeout(50.milliseconds) {
                 delay(500.milliseconds)
@@ -398,7 +394,7 @@ class ExceptionsTest {
     }
 
     @Test
-    fun `assertTimeout includes custom message on failure`() {
+    fun `assertTimeout includes custom message on failure`() = runTest {
         val ex = assertFailsWith<AssertionFailedError> {
             assertTimeout(50.milliseconds, "slow operation") {
                 delay(500.milliseconds)

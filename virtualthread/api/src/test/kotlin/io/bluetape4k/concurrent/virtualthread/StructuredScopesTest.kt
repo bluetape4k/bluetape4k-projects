@@ -71,7 +71,6 @@ class StructuredScopesTest {
                 scope.fork { 1 }
                 scope.fork<Int> { throw IllegalStateException("subtask failed") }
                 scope.join().throwIfFailed()
-                0
             }
         }
     }
@@ -84,7 +83,6 @@ class StructuredScopesTest {
             StructuredTaskScopes.all(factory = Thread.ofVirtual().factory()) { scope ->
                 scope.fork<Int> { throw RuntimeException("error") }
                 scope.join().throwIfFailed { handlerCalled = true }
-                0
             }
         }
         handlerCalled.shouldBeTrue()
@@ -121,7 +119,7 @@ class StructuredScopesTest {
     @Suppress("DEPRECATION")
     @Test
     fun `any scope 가 가장 먼저 완료된 subtask 결과를 반환해야 한다`() {
-        val result = StructuredTaskScopes.any<String>(factory = Thread.ofVirtual().factory()) { scope ->
+        val result = StructuredTaskScopes.any(factory = Thread.ofVirtual().factory()) { scope ->
             scope.fork {
                 Thread.sleep(50)
                 "slow"
@@ -179,9 +177,8 @@ class StructuredScopesTest {
         var capturedSubtask: StructuredSubtask<Int>? = null
         assertFailsWith<RuntimeException> {
             StructuredTaskScopes.all(factory = Thread.ofVirtual().factory()) { scope ->
-                capturedSubtask = scope.fork<Int> { throw RuntimeException("boom") }
+                capturedSubtask = scope.fork { throw RuntimeException("boom") }
                 scope.join().throwIfFailed()
-                0
             }
         }
         val subtask = capturedSubtask.shouldNotBeNull()
@@ -209,7 +206,6 @@ class StructuredScopesTest {
                 scope.fork { 1 }
                 scope.fork<Int> { throw IllegalStateException("subtask failed") }
                 scope.join().throwIfFailed()
-                0
             }
         }
     }
@@ -229,7 +225,7 @@ class StructuredScopesTest {
 
     @Test
     fun `firstSuccess scope 가 가장 먼저 완료된 subtask 결과를 반환해야 한다`() {
-        val result = StructuredTaskScopes.firstSuccess<String> { scope ->
+        val result = StructuredTaskScopes.firstSuccess { scope ->
             scope.fork {
                 Thread.sleep(50)
                 "slow"
@@ -265,8 +261,8 @@ class StructuredScopesTest {
             scope.join().throwIfFailed()
         }
         capturedSubtask.shouldNotBeNull()
-        capturedSubtask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.SUCCESS
-        capturedSubtask!!.getOrNull() shouldBeEqualTo 42
+        capturedSubtask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.SUCCESS
+        capturedSubtask.getOrNull() shouldBeEqualTo 42
     }
 
     @Test
@@ -280,8 +276,8 @@ class StructuredScopesTest {
             }
         }
         capturedSubtask.shouldNotBeNull()
-        capturedSubtask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
-        capturedSubtask!!.getOrNull().shouldBeNull()
+        capturedSubtask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
+        capturedSubtask.getOrNull().shouldBeNull()
     }
 
     @Test
@@ -313,8 +309,8 @@ class StructuredScopesTest {
         }
 
         cancelledTask.shouldNotBeNull()
-        cancelledTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.UNAVAILABLE
-        cancelledTask!!.getOrNull().shouldBeNull()
+        cancelledTask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.UNAVAILABLE
+        cancelledTask.getOrNull().shouldBeNull()
     }
 
     @Test
@@ -334,11 +330,11 @@ class StructuredScopesTest {
             }
             ready.await()
             // join() 이전에 getOrNull() 호출 — ISE 가 아니라 null 반환이어야 한다
-            val result = earlySubtask!!.getOrNull()
+            val result = earlySubtask.getOrNull()
             result.shouldBeNull()
             hold.countDown()
             scope.join().throwIfFailed()
-            earlySubtask!!.getOrNull() shouldBeEqualTo 99
+            earlySubtask.getOrNull() shouldBeEqualTo 99
         }
     }
 
@@ -354,7 +350,6 @@ class StructuredScopesTest {
                 }
                 // 100ms 데드라인 — subtask보다 훨씬 짧음
                 scope.joinUntil(Instant.now().plusMillis(100)).throwIfFailed()
-                0
             }
         }
     }
@@ -470,13 +465,13 @@ class StructuredScopesTest {
         }
 
         successTask.shouldNotBeNull()
-        successTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.SUCCESS
-        successTask!!.getOrNull() shouldBeEqualTo 42
-        successTask!!.exceptionOrNull().shouldBeNull()
+        successTask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.SUCCESS
+        successTask.getOrNull() shouldBeEqualTo 42
+        successTask.exceptionOrNull().shouldBeNull()
 
         failedTask.shouldNotBeNull()
-        failedTask!!.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
-        failedTask!!.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
+        failedTask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
+        failedTask.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
     }
 
     // ── results(): List<Result<T>> 테스트 ──────────────────────────────────────

@@ -79,7 +79,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
         val id = service.registerFile(path.absolutePathString())
         id shouldBeGreaterThan 0L
 
-        val record = transaction(db) { fileRepo.findByIdOrNull(id) }
+        val record = transaction(db) { fileRepo.findById(id) }
         record.shouldNotBeNull()
         record.filename shouldBeEqualTo "rank2.nc"
         record.dimensions["lat"] shouldBeEqualTo NetCdfSampleWriter.DEFAULT_LAT_N
@@ -541,7 +541,7 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
         val fileId = service.registerFile(target.absolutePathString())
         fileId shouldBeGreaterThan 0L
-        val record = transaction(db) { fileRepo.findByIdOrNull(fileId) }
+        val record = transaction(db) { fileRepo.findById(fileId) }
         record.shouldNotBeNull()
         log.info { "CF-1.x sample registered — vars=${record.variables.size} dims=${record.dimensions.keys}" }
     }

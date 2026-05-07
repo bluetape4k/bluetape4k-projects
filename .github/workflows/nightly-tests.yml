@@ -315,7 +315,6 @@ jobs:
               :bluetape4k-junit5:test \
               :bluetape4k-states:test \
               :bluetape4k-workflow:test \
-              :bluetape4k-leader:test \
               :bluetape4k-mutiny:test \
               :bluetape4k-rule-engine:test \
               :bluetape4k-geo:test \
@@ -340,7 +339,6 @@ jobs:
             :bluetape4k-junit5:koverXmlReport \
             :bluetape4k-states:koverXmlReport \
             :bluetape4k-workflow:koverXmlReport \
-            :bluetape4k-leader:koverXmlReport \
             :bluetape4k-mutiny:koverXmlReport \
             :bluetape4k-rule-engine:koverXmlReport \
             :bluetape4k-geo:koverXmlReport \
@@ -826,10 +824,8 @@ jobs:
           - group: storage
             test_packages: io.bluetape4k.testcontainers.storage
             needs_mock_servers: false
-          - group: mq-aws
-            test_packages: >-
-              io.bluetape4k.testcontainers.mq
-              io.bluetape4k.testcontainers.aws
+          - group: mq
+            test_packages: io.bluetape4k.testcontainers.mq
             needs_mock_servers: false
           - group: infra-http
             test_packages: >-

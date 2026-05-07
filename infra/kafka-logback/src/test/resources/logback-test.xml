@@ -11,7 +11,24 @@
         </encoder>
     </appender>
 
-    <logger name="io.bluetape4k.logback.kafka" level="DEBUG"/>
+    <!--
+        KafkaAppender: LogbackIntegrationTest 전용 — topic "logs", bootstrapServers localhost:9093 (KafkaServer 기본 포트)
+    -->
+    <appender name="Kafka" class="io.bluetape4k.kafka.logback.KafkaAppender">
+        <bootstrapServers>localhost:9093</bootstrapServers>
+        <topic>logs</topic>
+        <keyProvider class="io.bluetape4k.kafka.logback.keyprovider.HostnameKafkaKeyProvider"/>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{ISO8601} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.bluetape4k.kafka.logback" level="DEBUG"/>
+
+    <!-- LogbackIntegrationTest 전용: Kafka로만 전송 -->
+    <logger name="LogbackIntegrationTest" level="INFO" additivity="false">
+        <appender-ref ref="Kafka"/>
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="Console"/>
