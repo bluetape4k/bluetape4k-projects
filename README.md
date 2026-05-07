@@ -121,8 +121,9 @@ flowchart TB
         JUNIT["testing/junit5"]
         TC["testing/testcontainers"]
         UTILS["utils/*"]
-        TEXTS["texts/*"]
-        AWS["aws/*"]
+        TEXTS["bluetape4k-text ↗"]
+        AWS["bluetape4k-aws ↗"]
+        IMG["bluetape4k-image ↗"]
     end
 
     L5 --> L4
@@ -148,7 +149,7 @@ flowchart TB
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
     class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
     class SB3,SB4 intLayer
-    class JUNIT,TC,UTILS,TEXTS,AWS crossLayer
+    class JUNIT,TC,UTILS,TEXTS,AWS,IMG crossLayer
 ```
 
 ### Core Modules (`bluetape4k/`)
@@ -183,16 +184,14 @@ flowchart TB
 - ~~**[crypto](./io/crypto/README.md)**~~: Encryption (Jasypt PBE, BouncyCastle) — **Deprecated**, use
   `bluetape4k-tink` instead
 
-### AWS Modules (`aws/`)
+### AWS Modules → [bluetape4k-aws](https://github.com/bluetape4k/bluetape4k-aws)
+
+> These modules have moved to the standalone **[bluetape4k-aws](https://github.com/bluetape4k/bluetape4k-aws)** repository.
 
 Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFuture)` → `coroutines (suspend)`
 
-- **[aws](./aws/aws/README.md)
-  **: AWS Java SDK v2 — unified module covering DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with per-service Coroutines extensions (
-  `XxxAsyncClientCoroutinesExtensions.kt`)
-- **[aws-kotlin](./aws/aws-kotlin/README.md)**: AWS Kotlin SDK — native `suspend` functions, no
-  `.await()` wrappers needed; covers DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (
-  `metricDatum {}`, `inputLogEvent {}`, `stsClientOf {}`, etc.)
+- **[aws](https://github.com/bluetape4k/bluetape4k-aws)**: AWS Java SDK v2 — DynamoDB, S3 (TransferManager), SES, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with Coroutines extensions
+- **[aws-kotlin](https://github.com/bluetape4k/bluetape4k-aws)**: AWS Kotlin SDK — native `suspend` functions; DynamoDB, S3, SES/SESv2, SNS, SQS, KMS, CloudWatch/Logs, Kinesis, STS with DSL support (`metricDatum {}`, `stsClientOf {}`, etc.)
 
 ### Data Modules (`data/`)
 
@@ -312,20 +311,24 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 - **[mongodb](./spring-boot4/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot4/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 
-### Text Processing Modules (`texts/`)
+### Text Processing → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
 
-- **[tokenizer-core](./texts/tokenizer-core/README.md)**: Tokenizer common interfaces — `TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`
-- **[tokenizer-korean](./texts/tokenizer-korean/README.md)**: Korean morphological analyzer (Open Korean Text) — twitter-text dependency replaced with `TwitterCompatPatterns`
-- **[tokenizer-japanese](./texts/tokenizer-japanese/README.md)**: Japanese morphological analyzer (Kuromoji IPAdic 0.9.0)
-- **[lingua](./texts/lingua/README.md)**: Language detection — Kotlin DSL wrapper over Lingua (75+ languages)
-- **[text-search](./texts/text-search/README.md)**: Aho-Corasick multi-keyword search — blockword filter, highlight, Flow API
+> These modules have moved to the standalone **[bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)** repository.
 
-### Image Processing Modules (`images/`)
+- **[tokenizer-core](https://github.com/bluetape4k/bluetape4k-text)**: Tokenizer common interfaces — `TokenizeRequest/Response`, `BlockwordRequest/Response`, `DictionaryProvider`
+- **[tokenizer-korean](https://github.com/bluetape4k/bluetape4k-text)**: Korean morphological analyzer (Open Korean Text)
+- **[tokenizer-japanese](https://github.com/bluetape4k/bluetape4k-text)**: Japanese morphological analyzer (Kuromoji IPAdic 0.9.0)
+- **[lingua](https://github.com/bluetape4k/bluetape4k-text)**: Language detection — Kotlin DSL wrapper over Lingua (75+ languages)
+- **[text-search](https://github.com/bluetape4k/bluetape4k-text)**: Aho-Corasick multi-keyword search — blockword filter, highlight, Flow API
 
-- **[images](./images/images/README.md)**: Image processing utilities (scrimage-based — resize, crop, thumbnail, format conversion)
-- **[images-vips-api](./images/images-vips-api/README.md)**: libvips binding-neutral API — `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`, exceptions
-- **[images-vips-java21](./images/images-vips-java21/README.md)**: Java 21 JVips/JNI binding implementation — `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
-- **[images-vips-java25](./images/images-vips-java25/README.md)**: Java 25 vips-ffm/FFM API binding implementation — `FfmVipsRuntime`, `FfmVipsImage`, `Arena` lifecycle
+### Image Processing → [bluetape4k-image](https://github.com/bluetape4k/bluetape4k-image)
+
+> These modules have moved to the standalone **[bluetape4k-image](https://github.com/bluetape4k/bluetape4k-image)** repository.
+
+- **[images](https://github.com/bluetape4k/bluetape4k-image)**: Image processing utilities (scrimage — resize, crop, thumbnail, format conversion)
+- **[images-vips-api](https://github.com/bluetape4k/bluetape4k-image)**: libvips binding-neutral API — `VipsImage`, `VipsRuntime`, `VipsEncodeOptions`
+- **[images-vips-java21](https://github.com/bluetape4k/bluetape4k-image)**: Java 21 JVips/JNI binding — `JVipsRuntime`, `JVipsImage`, `NativeHandle` Cleaner leak guard
+- **[images-vips-java25](https://github.com/bluetape4k/bluetape4k-image)**: Java 25 Panama FFM binding — `FfmVipsRuntime`, `FfmVipsImage`, `Arena` lifecycle
 
 ### Utility Modules (`utils/`)
 
