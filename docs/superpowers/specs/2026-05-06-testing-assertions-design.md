@@ -126,22 +126,23 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
   `Date`까지 일관되게 다룬다.
 - **결과**: 7 타입 × 4 함수 = 28개 DateTime assertion.
 
-### ADR-6: FlowAssertions 이전 + Bridge (의존성 방향 확정)
+### ADR-6: FlowAssertions 이전 + Bridge (단일 구현 우선)
 
-- **결정**: `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/tests/FlowAssertions.kt`
-  → `testing/assertions/src/main/kotlin/io/bluetape4k/assertions/coroutines/FlowAssertions.kt`로
-  이전.
-  - 기존 위치는 `@Deprecated(level = WARNING, replaceWith = ReplaceWith(...))` 브릿지 함수로 남기되,
-    **함수 본문은 새 모듈에 위임하지 않는다** (inline 함수는 위임 불가).
-    대신 기존 구현을 그대로 유지하면서 `@Deprecated` 마커만 추가.
+- **결정**: **새 assertions 모듈이 정식(canonical) 구현 위치다.**
+  - `bluetape4k-assertions`의 `io.bluetape4k.assertions.coroutines.FlowAssertions.kt`가 유일한 구현체.
+  - `bluetape4k-coroutines`의 기존 `FlowAssertions.kt`는 `@Deprecated(level = WARNING)` 마커만
+    추가하고, **함수 본문은 기존 구현 그대로 유지한다** (inline suspend 함수는 위임 불가).
   - `bluetape4k-coroutines`는 `bluetape4k-assertions`에 **의존성을 추가하지 않는다**.
-    bridge는 독립적으로 동작하며, Kluent 의존성만 유지한다.
-- **근거**: `bluetape4k-coroutines` → `bluetape4k-assertions` 의존성 추가 시
-  `junit-jupiter-api`가 production classpath에 오염된다. Inline 함수는 위임 불가이므로
-  bridge는 독립 구현 유지.
+    bridge는 기존 Kluent 의존성만으로 독립 동작.
+- **이유**: inline suspend 함수는 다른 모듈로 위임 불가이며,
+  `bluetape4k-coroutines` → `bluetape4k-assertions` 의존성 추가 시
+  `junit-jupiter-api` / `opentest4j`가 production classpath에 오염된다.
+- **마이그레이션 전략**: 사용자는 `import io.bluetape4k.coroutines.tests.assertResult` →
+  `import io.bluetape4k.assertions.coroutines.assertResult` 로 변경.
+  bridge는 1 마이너 버전 유지 후 제거.
 - **모듈 아키텍처**: `bluetape4k-assertions`는 독립 신규 모듈.
   `bluetape4k-junit5`에서 `api(project(":bluetape4k-assertions"))` 추가로
-  기존 사용자는 자동으로 새 assertions에 접근 가능.
+  기존 사용자는 의존성 변경 없이 새 assertions 접근 가능.
 
 ### ADR-7: Contracts 적용 범위
 
@@ -161,12 +162,18 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
   형식을 기본으로 한다.
 - **근거**: 메시지 일관성. 향후 i18n 또는 컬러링 도입 시 단일 지점에서 변경.
 
-### ADR-9: 모듈 의존성 — `bluetape4k-logging`만 추가
+### ADR-9: 모듈 의존성 — 최소 프로덕션 api 의존성
 
-- **결정**: api 의존성으로 `bluetape4k-logging`만 추가한다. `bluetape4k-core`나
-  `bluetape4k-junit5`에 의존하지 않는다.
+- **결정**: `bluetape4k-core`나 `bluetape4k-junit5`에 의존하지 않는다.
+  `api` 범위 의존성은 소비자 classpath에 전파되므로, 이 모듈의 public API를 사용하는 데
+  반드시 필요한 것만 포함한다:
+  - `bluetape4k-logging` — KLogging 로거 (api)
+  - `junit.bom` (platform) + `junit.jupiter.api` — assertion 실패 타입(`AssertionFailedError`) 제공 (api)
+  - `opentest4j` — `MultipleFailuresError` 등 opentest4j 타입 (api)
+  - `kotlinx.coroutines.core` — FlowAssertions가 main 소스에 있어 소비자 classpath 필요 (api)
+  - `turbine` — 소비자가 TurbineSupport 사용 시 직접 추가 필요 (compileOnly)
 - **근거**: assertion 라이브러리는 가능한 한 가벼워야 하며, 모든 testing 모듈이 이 모듈을 흡수해도
-  순환 의존이 발생하지 않아야 한다.
+  순환 의존이 발생하지 않아야 한다. `bluetape4k-core`/`bluetape4k-junit5`는 의존 금지 (순환 위험).
 
 ---
 
@@ -1126,8 +1133,9 @@ dependencies {
 - [ ] Detekt 통과 (또는 정당화된 baseline 등록)
 - [ ] Kluent 이름 호환 검증: 샘플 테스트 파일에서 `import org.amshove.kluent.*`만
       `import io.bluetape4k.assertions.*`로 바꾼 후 컴파일/실행 통과 (§7.5 smoke test)
-- [ ] Turbine 통합 동작 확인: `compileOnly` 격리 검증 (Turbine 의존성 제거 시 본 모듈 자체는
-      여전히 컴파일되며, `TurbineSupport.kt`만 컴파일 오류)
+- [ ] Turbine `compileOnly` 격리 검증: TurbineSupport를 사용하지 않는 소비자는 Turbine 없이
+      `bluetape4k-assertions`를 정상 사용 가능. TurbineSupport 사용 시 소비자가
+      `testImplementation(libs.turbine)` 직접 추가 필요 (KDoc + README에 명시 확인)
 - [ ] `./gradlew :bluetape4k-assertions:detekt` 통과
 - [ ] PR 본문에 테스트 결과(통과 수, 시간), 호환성 검증 결과, README 업데이트 명시
 - [ ] code-reviewer agent 실행 후 HIGH/CRITICAL 이슈 0건
@@ -1168,7 +1176,7 @@ dependencies {
 | Kluent의 백틱 API 사용 코드                            | import 변경만으로는 빌드 실패              | §5.2 의도적 편차 표에 명시; sed 스크립트 제공 (백틱 → 카멜케이스 변환)                             |
 | `assertSoftly` 자동 누적을 사용한 코드                 | 동작 변경 (silent fail → MultipleFailures)  | §5.2에 명시; IDE structural search/replace 가이드 제공                                             |
 | Turbine compileOnly 누락 시 사용자 혼란                | 사용자가 Turbine 추가 안 하면 NoClassDefFoundError | KDoc 상단에 "Turbine 의존성 필요" 표시; README에 별도 섹션                                         |
-| 기존 `bluetape4k-coroutines` 사용자가 새 모듈 의존성 추가 거부 | bridge가 동작하지 않음                     | bridge 함수의 본문에서 새 모듈 함수 호출이 필요하므로, `bluetape4k-coroutines`의 main에 의존성 추가 필수 — README에 명시 |
+| 기존 `bluetape4k-coroutines` 사용자가 새 모듈 의존성 추가 거부 | 새 assertions 접근 불가                    | ADR-6 결정: bridge는 독립 구현(@Deprecated), 의존성 없음. 사용자는 새 함수로 마이그레이션하거나 기존 구현 계속 사용 가능 — README 마이그레이션 가이드에 명시 |
 
 ---
 
