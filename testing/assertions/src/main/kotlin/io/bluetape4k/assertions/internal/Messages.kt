@@ -4,7 +4,10 @@ package io.bluetape4k.assertions.internal
  * assertion 실패 메시지를 생성하는 내부 유틸리티.
  *
  * 표준 포맷: `Expected <subject> to <verb> <expected>, but was <actual>.`
+ *
+ * @PublishedApi: public inline 함수에서 접근 가능하도록 공개 API로 노출한다.
  */
+@PublishedApi
 internal object Messages {
 
     /**
@@ -37,6 +40,7 @@ internal object Messages {
      * - primitive arrays → [e1, e2, ...]
      * - 그 외 → value.toString()
      */
+    @PublishedApi
     internal fun stringify(value: Any?): String = when (value) {
         null -> "<null>"
         is String -> "\"$value\""
