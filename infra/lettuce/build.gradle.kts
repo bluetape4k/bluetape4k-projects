@@ -12,6 +12,14 @@ sourceSets {
     create("benchmark")
 }
 
+kover {
+    currentProject {
+        sources {
+            excludedSourceSets.add("benchmark")
+        }
+    }
+}
+
 kotlin {
     target {
         compilations.getByName("benchmark").associateWith(compilations.getByName("main"))
