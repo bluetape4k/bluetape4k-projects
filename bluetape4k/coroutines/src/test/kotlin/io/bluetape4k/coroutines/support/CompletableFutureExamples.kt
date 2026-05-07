@@ -12,11 +12,11 @@ import kotlinx.coroutines.future.future
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class CompletableFutureExamples {
@@ -35,7 +35,6 @@ class CompletableFutureExamples {
 
     @Test
     fun `예외를 발생시키는 suspend 함수를 CompletableFuture로 변환하기`() = runTest {
-        // 예외를 Catch하기 위해 SupervisorJob을 사용합니다.
         assertFailsWith<BluetapeException> {
             val job = coroutineContext + SupervisorJob()
             withContext(job) {
@@ -44,7 +43,6 @@ class CompletableFutureExamples {
                     log.debug { "예외를 발생시킵니다." }
                     throw BluetapeException("Boom!")
                 }
-
                 log.debug { "예외가 발생했는지 확인합니다." }
                 future.await()
             }

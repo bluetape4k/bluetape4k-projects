@@ -5,9 +5,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+
+/** `runSuspendIO` / `runSuspendDefault` / `runSuspendVT` 의 기본 타임아웃 (60초, `runTest` 기본값과 동일) */
+val DEFAULT_SUSPEND_TEST_TIMEOUT: Duration = 60.seconds
 
 /**
  * suspend 테스트 블록을 [runBlocking]으로 실행합니다.
@@ -16,6 +22,8 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - `context`를 그대로 [runBlocking]에 전달해 실행 컨텍스트를 결정합니다.
  * - 수신 객체를 변경하지 않고 호출 스레드를 블로킹해 `testBody` 완료까지 대기합니다.
  * - `testBody` 예외는 감싸지지 않고 호출자에게 그대로 전파됩니다.
+ * - [timeout] 초과 시 [kotlinx.coroutines.TimeoutCancellationException]을 던집니다.
+ *   단, `Thread.sleep`처럼 suspension point가 없는 블로킹 코드는 타임아웃이 동작하지 않습니다.
  *
  * ```kotlin
  * var done = false
@@ -24,14 +32,16 @@ import kotlin.coroutines.EmptyCoroutineContext
  * ```
  *
  * @param context [runBlocking]에 전달할 코루틴 컨텍스트
+ * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
 inline fun runSuspendTest(
     context: CoroutineContext = EmptyCoroutineContext,
+    timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
     crossinline testBody: suspend CoroutineScope.() -> Unit,
 ) {
     runBlocking(context) {
-        testBody(this)
+        withTimeout(timeout) { testBody(this) }
     }
 }
 
@@ -49,10 +59,14 @@ inline fun runSuspendTest(
  * // threadNames.isNotEmpty() == true
  * ```
  *
+ * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendIO(crossinline testBody: suspend CoroutineScope.() -> Unit) {
-    runSuspendTest(Dispatchers.IO, testBody)
+inline fun runSuspendIO(
+    timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
+    crossinline testBody: suspend CoroutineScope.() -> Unit,
+) {
+    runSuspendTest(Dispatchers.IO, timeout, testBody)
 }
 
 /**
@@ -68,10 +82,14 @@ inline fun runSuspendIO(crossinline testBody: suspend CoroutineScope.() -> Unit)
  * // sum == 6
  * ```
  *
+ * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendDefault(crossinline testBody: suspend CoroutineScope.() -> Unit) {
-    runSuspendTest(Dispatchers.Default, testBody)
+inline fun runSuspendDefault(
+    timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
+    crossinline testBody: suspend CoroutineScope.() -> Unit,
+) {
+    runSuspendTest(Dispatchers.Default, timeout, testBody)
 }
 
 /**
@@ -103,8 +121,12 @@ internal val Dispatchers.VT: ExecutorCoroutineDispatcher by lazy {
  * // executed == true
  * ```
  *
+ * @param timeout 테스트 최대 허용 시간 (기본값: [DEFAULT_SUSPEND_TEST_TIMEOUT])
  * @param testBody 실행할 suspend 테스트 본문
  */
-inline fun runSuspendVT(crossinline testBody: suspend CoroutineScope.() -> Unit) {
-    runSuspendTest(Dispatchers.VT, testBody)
+inline fun runSuspendVT(
+    timeout: Duration = DEFAULT_SUSPEND_TEST_TIMEOUT,
+    crossinline testBody: suspend CoroutineScope.() -> Unit,
+) {
+    runSuspendTest(Dispatchers.VT, timeout, testBody)
 }
