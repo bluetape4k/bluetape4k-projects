@@ -924,3 +924,71 @@ private fun booleanArrayContentEquals(a: BooleanArray?, b: BooleanArray?): Boole
     a == null || b == null -> false
     else -> a.contentEquals(b)
 }
+
+//
+// ── Content Equality (shouldBeEqualTo overloads for array types) ──────────────
+// Non-null receivers ensure overload resolution wins over generic T.shouldBeEqualTo(T?)
+//
+
+infix fun <T> Array<out T>.shouldBeEqualTo(expected: Array<out T>): Array<out T> {
+    if (!this.contentDeepEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun IntArray.shouldBeEqualTo(expected: IntArray): IntArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LongArray.shouldBeEqualTo(expected: LongArray): LongArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun DoubleArray.shouldBeEqualTo(expected: DoubleArray): DoubleArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun FloatArray.shouldBeEqualTo(expected: FloatArray): FloatArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun ByteArray.shouldBeEqualTo(expected: ByteArray): ByteArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun CharArray.shouldBeEqualTo(expected: CharArray): CharArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun ShortArray.shouldBeEqualTo(expected: ShortArray): ShortArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun BooleanArray.shouldBeEqualTo(expected: BooleanArray): BooleanArray {
+    if (!this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}

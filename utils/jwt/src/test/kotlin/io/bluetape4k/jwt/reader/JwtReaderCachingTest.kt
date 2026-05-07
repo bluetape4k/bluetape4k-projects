@@ -131,7 +131,7 @@ class JwtReaderCachingTest: AbstractJwtTest() {
 
         // Cache 1 에서 저장
         nearJCache1.put(jwt, reader.toDto())
-        nearJCache1.get(jwt)!!.toJwtReader() shouldBeEqualTo reader
+        assertSameReader(reader, nearJCache1.get(jwt)!!.toJwtReader())
 
         await atMost 10.seconds until { nearJCache2.containsKey(jwt) }
 

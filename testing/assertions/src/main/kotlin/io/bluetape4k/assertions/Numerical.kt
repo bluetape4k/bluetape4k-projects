@@ -820,3 +820,24 @@ infix fun Double.shouldNotBeNear(expected: Double): Double = shouldNotBeNear(exp
  * @return receiver (체이닝 지원)
  */
 infix fun Float.shouldNotBeNear(expected: Float): Float = shouldNotBeNear(expected, 1e-6f)
+
+//
+// ── BigDecimal Equality (compareTo-based, scale-insensitive) ─────────────────
+//
+
+/** BigDecimal 수학적 동등성 검증 (scale 무관, compareTo 사용). */
+infix fun BigDecimal?.shouldBeEqualTo(expected: BigDecimal?): BigDecimal? {
+    if (this == null && expected == null) return null
+    if (this == null || expected == null || this.compareTo(expected) != 0) {
+        Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
+
+/** BigDecimal 수학적 비동등성 검증 (scale 무관, compareTo 사용). */
+infix fun BigDecimal?.shouldNotBeEqualTo(expected: BigDecimal?): BigDecimal? {
+    if (this != null && expected != null && this.compareTo(expected) == 0) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+    return this
+}
