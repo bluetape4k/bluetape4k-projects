@@ -12,8 +12,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-/** `runSuspendIO` / `runSuspendDefault` / `runSuspendVT` 의 기본 타임아웃 (60초, `runTest` 기본값과 동일) */
-val DEFAULT_SUSPEND_TEST_TIMEOUT: Duration = 60.seconds
+/** `runSuspendIO` / `runSuspendDefault` / `runSuspendVT` 의 기본 타임아웃 (3분 — Testcontainers 컨테이너 시작 포함 CI 환경 대응) */
+val DEFAULT_SUSPEND_TEST_TIMEOUT: Duration = 180.seconds
 
 /**
  * suspend 테스트 블록을 [runBlocking]으로 실행합니다.
