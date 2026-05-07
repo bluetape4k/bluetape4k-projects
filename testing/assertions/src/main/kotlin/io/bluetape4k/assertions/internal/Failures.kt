@@ -24,6 +24,7 @@ internal object Failures {
      * expected/actual 값을 포함한 비교 실패를 던진다.
      * IntelliJ diff viewer가 expected ↔ actual 차이를 시각화한다.
      */
+    @PublishedApi
     internal fun failComparison(message: String, expected: Any?, actual: Any?): Nothing =
         throw AssertionFailedError(message, expected, actual)
 
