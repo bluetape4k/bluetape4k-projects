@@ -1,6 +1,5 @@
 package io.bluetape4k.redis.redisson.coroutines
 
-import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -8,16 +7,12 @@ import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomString
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
-import io.bluetape4k.redis.redisson.leader.RedissonSuspendLeaderElection
 import io.bluetape4k.support.asBoolean
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.milliseconds
 
 class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
 
@@ -89,39 +84,4 @@ class RedissonClientCoroutineTest: AbstractRedissonCoroutineTest() {
         }
     }
 
-    @Test
-    fun `use transaction async in multi jobs`() = runSuspendIO {
-        val map = redisson.getMap<String, String>(randomName())
-
-        val lockName = randomName()
-        val leaderElection = RedissonSuspendLeaderElection(redissonClient)
-        val counter = AtomicInteger(0)
-
-        try {
-            SuspendedJobTester()
-                .workers(4)
-                .rounds(32)
-                .add {
-                    // redisson.runIfLeaderSuspending(lockName) {
-                    leaderElection.runIfLeader(lockName) {
-                        val value = randomString(64)
-                        redisson.withSuspendedTransaction {
-                            map.putAsync("1", value).await()
-                            map.putAsync("2", value).await()
-                            map.putAsync("3", value).await()
-                            counter.incrementAndGet()
-                        }
-                        delay(10L.milliseconds)
-                        map.getAsync("1").await() shouldBeEqualTo value
-                        map.getAsync("2").await() shouldBeEqualTo value
-                        map.getAsync("3").await() shouldBeEqualTo value
-                    }
-                }
-                .run()
-
-            counter.get() shouldBeEqualTo 32
-        } finally {
-            map.delete()
-        }
-    }
 }

@@ -58,7 +58,6 @@ dependencies {
     // Dependencies
     compileOnly(project(":bluetape4k-cache-core"))
     compileOnly(project(":bluetape4k-idgenerators"))
-    compileOnly(project(":bluetape4k-leader"))
 
     // Coroutines
     compileOnly(project(":bluetape4k-coroutines"))
