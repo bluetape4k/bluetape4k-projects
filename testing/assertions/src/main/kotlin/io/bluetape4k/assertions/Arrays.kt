@@ -930,6 +930,7 @@ private fun booleanArrayContentEquals(a: BooleanArray?, b: BooleanArray?): Boole
 // Non-null receivers ensure overload resolution wins over generic T.shouldBeEqualTo(T?)
 //
 
+/** 배열 내용 동등성 검증 (`contentDeepEquals` 사용). */
 infix fun <T> Array<out T>.shouldBeEqualTo(expected: Array<out T>): Array<out T> {
     if (!this.contentDeepEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -937,6 +938,7 @@ infix fun <T> Array<out T>.shouldBeEqualTo(expected: Array<out T>): Array<out T>
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun IntArray.shouldBeEqualTo(expected: IntArray): IntArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -944,6 +946,7 @@ infix fun IntArray.shouldBeEqualTo(expected: IntArray): IntArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun LongArray.shouldBeEqualTo(expected: LongArray): LongArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -951,6 +954,7 @@ infix fun LongArray.shouldBeEqualTo(expected: LongArray): LongArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun DoubleArray.shouldBeEqualTo(expected: DoubleArray): DoubleArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -958,6 +962,7 @@ infix fun DoubleArray.shouldBeEqualTo(expected: DoubleArray): DoubleArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun FloatArray.shouldBeEqualTo(expected: FloatArray): FloatArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -965,6 +970,7 @@ infix fun FloatArray.shouldBeEqualTo(expected: FloatArray): FloatArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun ByteArray.shouldBeEqualTo(expected: ByteArray): ByteArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -972,6 +978,7 @@ infix fun ByteArray.shouldBeEqualTo(expected: ByteArray): ByteArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun CharArray.shouldBeEqualTo(expected: CharArray): CharArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -979,6 +986,7 @@ infix fun CharArray.shouldBeEqualTo(expected: CharArray): CharArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun ShortArray.shouldBeEqualTo(expected: ShortArray): ShortArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)
@@ -986,6 +994,7 @@ infix fun ShortArray.shouldBeEqualTo(expected: ShortArray): ShortArray {
     return this
 }
 
+/** 배열 내용 동등성 검증 (`contentEquals` 사용). */
 infix fun BooleanArray.shouldBeEqualTo(expected: BooleanArray): BooleanArray {
     if (!this.contentEquals(expected)) {
         Failures.failComparison(Messages.expectedToBe("equal to", expected, this), expected, this)

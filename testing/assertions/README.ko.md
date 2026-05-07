@@ -137,6 +137,8 @@ class MyTest {
 | `shouldBePositive()` | > 0 |
 | `shouldBeNegative()` | < 0 |
 | `shouldBeNear(expected, tolerance)` | 부동소수점 근사 동등 |
+| `BigDecimal shouldBeEqualTo expected` | scale 무관 동등 (`compareTo`) |
+| `BigDecimal shouldNotBeEqualTo expected` | scale 무관 비동등 (`compareTo`) |
 
 ### 컬렉션 & 배열
 
@@ -148,6 +150,9 @@ class MyTest {
 | `shouldNotContainAny(elements)` | 어떤 요소도 미포함 (∩ = ∅) |
 | `shouldHaveSize(size)` | 크기 확인 |
 | `shouldContain(element)` | 요소 포함 |
+| `IntArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`) |
+| `ByteArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`) |
+| `Array<T> shouldBeEqualTo expected` | 객체 배열 deep 내용 동등 (`contentDeepEquals`) |
 
 ### 예외
 
