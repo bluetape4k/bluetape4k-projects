@@ -286,11 +286,10 @@ subprojects {
         }
 
         val reportMerge by registering(ReportMergeTask::class) {
-            val file = rootProject.layout.buildDirectory.asFile.get().resolve("reports/detekt/exposed.xml")
+            val file = rootProject.layout.buildDirectory.asFile.get().resolve("reports/detekt/merged.xml")
             output.set(file)
         }
         withType<Detekt>().configureEach detekt@{
-            enabled = this@subprojects.name !== "exposed-tests"
             finalizedBy(reportMerge)
             reportMerge.configure {
                 input.from(this@detekt.xmlReportFile)
@@ -749,18 +748,3 @@ dependencies {
         .forEach { sub -> kover(project(sub.path)) }
 }
 
-tasks.register("testDataExposedModules") {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    description = "Run tests for exposed* modules under the data directory in a single Gradle invocation."
-
-    val exposedTestTasks = provider {
-        val dataRoot = rootDir.toPath().resolve("data")
-        val exposedProjects = subprojects.filter { project ->
-            project.projectDir.toPath().startsWith(dataRoot) &&
-                    project.name.startsWith("bluetape4k-exposed")
-        }
-
-        exposedProjects.map { it.path + ":test" }
-    }
-    dependsOn(exposedTestTasks)
-}
