@@ -237,10 +237,11 @@ fun CharSequence?.shouldBeNullOrEmpty() {
  * @return non-null receiver (체이닝 지원)
  */
 fun CharSequence?.shouldNotBeNullOrEmpty(): CharSequence {
-    if (this.isNullOrEmpty()) {
-        Failures.fail("Expected CharSequence to not be null or empty, but was ${Messages.stringify(this)}.")
+    val s = this
+    if (s.isNullOrEmpty()) {
+        Failures.fail("Expected CharSequence to not be null or empty, but was ${Messages.stringify(s)}.")
     }
-    return this!!
+    return s
 }
 
 // ── shouldMatch / shouldNotMatch ─────────────────────────────────────────────

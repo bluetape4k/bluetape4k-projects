@@ -152,8 +152,9 @@ fun <K, V> Map<K, V>?.shouldBeEmpty(): Map<K, V>? {
 /**
  * Map이 비어 있지 않은지 검증한다.
  *
+ * receiver가 null이거나 비어 있으면 AssertionFailedError를 던진다.
+ *
  * @receiver 검증할 Map (nullable 허용)
- * @param 검증할 Map이 null이면 실패한다
  * @return non-null receiver (체이닝 지원)
  */
 fun <K, V> Map<K, V>?.shouldNotBeEmpty(): Map<K, V> {

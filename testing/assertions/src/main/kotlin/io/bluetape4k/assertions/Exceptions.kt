@@ -117,14 +117,11 @@ class InvokingBlock(val block: () -> Any?) {
     infix fun withCause(causeType: KClass<*>): InvokingBlock {
         val ex = captureException()
         val cause = ex.cause
-        if (cause == null) {
-            Failures.fail("Expected cause to be ${causeType.simpleName} but cause was null")
-        }
-        if (!causeType.isInstance(cause)) {
+        if (cause == null || !causeType.isInstance(cause)) {
             Failures.failComparison(
-                "Expected cause to be ${causeType.simpleName} but was ${cause::class.simpleName}",
+                "Expected cause to be ${causeType.simpleName} but was ${cause?.let { it::class.simpleName } ?: "<null>"}",
                 causeType.simpleName,
-                cause::class.simpleName
+                cause?.let { it::class.simpleName }
             )
         }
         return this
@@ -282,14 +279,11 @@ class CoInvokingBlock(val block: suspend () -> Any?) {
     suspend infix fun withCause(causeType: KClass<*>): CoInvokingBlock {
         val ex = captureException()
         val cause = ex.cause
-        if (cause == null) {
-            Failures.fail("Expected cause to be ${causeType.simpleName} but cause was null")
-        }
-        if (!causeType.isInstance(cause)) {
+        if (cause == null || !causeType.isInstance(cause)) {
             Failures.failComparison(
-                "Expected cause to be ${causeType.simpleName} but was ${cause::class.simpleName}",
+                "Expected cause to be ${causeType.simpleName} but was ${cause?.let { it::class.simpleName } ?: "<null>"}",
                 causeType.simpleName,
-                cause::class.simpleName
+                cause?.let { it::class.simpleName }
             )
         }
         return this

@@ -51,15 +51,16 @@ fun IntArray?.shouldNotContain(expected: Int): IntArray? {
  * @return receiver (체이닝 지원)
  */
 fun IntArray?.shouldHaveSize(size: Int): IntArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -86,10 +87,11 @@ fun IntArray?.shouldBeEmpty(): IntArray? {
  * @return receiver (체이닝 지원)
  */
 fun IntArray?.shouldNotBeEmpty(): IntArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -128,15 +130,16 @@ fun LongArray?.shouldNotContain(expected: Long): LongArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun LongArray?.shouldHaveSize(size: Int): LongArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -157,10 +160,11 @@ fun LongArray?.shouldBeEmpty(): LongArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun LongArray?.shouldNotBeEmpty(): LongArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -199,15 +203,16 @@ fun DoubleArray?.shouldNotContain(expected: Double): DoubleArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun DoubleArray?.shouldHaveSize(size: Int): DoubleArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -228,10 +233,11 @@ fun DoubleArray?.shouldBeEmpty(): DoubleArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun DoubleArray?.shouldNotBeEmpty(): DoubleArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -270,15 +276,16 @@ fun FloatArray?.shouldNotContain(expected: Float): FloatArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun FloatArray?.shouldHaveSize(size: Int): FloatArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -299,10 +306,11 @@ fun FloatArray?.shouldBeEmpty(): FloatArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun FloatArray?.shouldNotBeEmpty(): FloatArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -341,15 +349,16 @@ fun ByteArray?.shouldNotContain(expected: Byte): ByteArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun ByteArray?.shouldHaveSize(size: Int): ByteArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -370,10 +379,11 @@ fun ByteArray?.shouldBeEmpty(): ByteArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun ByteArray?.shouldNotBeEmpty(): ByteArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -412,15 +422,16 @@ fun ShortArray?.shouldNotContain(expected: Short): ShortArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun ShortArray?.shouldHaveSize(size: Int): ShortArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -441,10 +452,11 @@ fun ShortArray?.shouldBeEmpty(): ShortArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun ShortArray?.shouldNotBeEmpty(): ShortArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -483,15 +495,16 @@ fun CharArray?.shouldNotContain(expected: Char): CharArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun CharArray?.shouldHaveSize(size: Int): CharArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -512,10 +525,11 @@ fun CharArray?.shouldBeEmpty(): CharArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun CharArray?.shouldNotBeEmpty(): CharArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //
@@ -554,15 +568,16 @@ fun BooleanArray?.shouldNotContain(expected: Boolean): BooleanArray? {
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
 fun BooleanArray?.shouldHaveSize(size: Int): BooleanArray {
-    val actualSize = this?.size
-    if (actualSize != size) {
+    val arr = this
+    val actualSize = arr?.size
+    if (arr == null || actualSize != size) {
         Failures.failComparison(
             Messages.expectedToBe("have size", size, actualSize),
             size,
             actualSize
         )
     }
-    return this!!
+    return arr
 }
 
 /**
@@ -583,10 +598,11 @@ fun BooleanArray?.shouldBeEmpty(): BooleanArray? {
  * 배열이 비어있지 않은지 검증한다.
  */
 fun BooleanArray?.shouldNotBeEmpty(): BooleanArray {
-    if (this == null || this.isEmpty()) {
-        Failures.fail("Expected array to not be empty, but was${if (this == null) " null" else " empty"}.")
+    val arr = this
+    if (arr == null || arr.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was${if (arr == null) " null" else " empty"}.")
     }
-    return this
+    return arr
 }
 
 //

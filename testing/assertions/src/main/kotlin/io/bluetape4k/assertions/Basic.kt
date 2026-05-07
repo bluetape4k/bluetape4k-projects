@@ -131,14 +131,15 @@ fun <T : Any> T?.shouldNotBeNull(): T {
  * @return non-null Boolean receiver (체이닝 지원)
  */
 fun Boolean?.shouldBeTrue(): Boolean {
-    if (this != true) {
+    val b = this
+    if (b == null || !b) {
         Failures.failComparison(
-            Messages.expectedToBe("be", true, this),
+            Messages.expectedToBe("be", true, b),
             true,
-            this
+            b
         )
     }
-    return this!!
+    return b
 }
 
 /**
@@ -148,14 +149,15 @@ fun Boolean?.shouldBeTrue(): Boolean {
  * @return non-null Boolean receiver (체이닝 지원)
  */
 fun Boolean?.shouldBeFalse(): Boolean {
-    if (this != false) {
+    val b = this
+    if (b == null || b) {
         Failures.failComparison(
-            Messages.expectedToBe("be", false, this),
+            Messages.expectedToBe("be", false, b),
             false,
-            this
+            b
         )
     }
-    return this!!
+    return b
 }
 
 /**
