@@ -43,6 +43,7 @@ jobs:
   gitleaks:
     name: Secret Scan (gitleaks)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,6 +61,7 @@ jobs:
   validate-wrapper:
     name: Validate Gradle Wrapper
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: gradle/actions/wrapper-validation@v4
@@ -68,6 +70,7 @@ jobs:
   spring-boot-parity:
     name: Spring Boot 3/4 Parity
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: validate-wrapper
     steps:
       - uses: actions/checkout@v4
@@ -78,6 +81,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: validate-wrapper
     steps:
       - uses: actions/checkout@v4
@@ -101,6 +105,7 @@ jobs:
   test-core:
     name: Test / Core
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -164,6 +169,7 @@ jobs:
   test-io:
     name: Test / IO
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -225,6 +231,7 @@ jobs:
   test-key-utils:
     name: Test / Key Utils
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -284,6 +291,7 @@ jobs:
   test-infra:
     name: Test / Infra (Redis)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -344,6 +352,7 @@ jobs:
   test-exposed-jdbc:
     name: Test / Exposed JDBC (${{ matrix.test_db }})
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: build
     strategy:
       fail-fast: false
@@ -412,6 +421,7 @@ jobs:
   coverage-report:
     name: Coverage Report
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [test-core, test-io, test-key-utils, test-infra, test-exposed-jdbc]
     if: always()
     steps:
@@ -450,6 +460,7 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [gitleaks, validate-wrapper, spring-boot-parity, build, test-core, test-io, test-key-utils, test-infra, test-exposed-jdbc, coverage-report]
     if: always()
     steps:
