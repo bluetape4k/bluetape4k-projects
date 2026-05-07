@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka.exporter
+package io.bluetape4k.kafka.logback.exporter
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.Called

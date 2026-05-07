@@ -1,10 +1,10 @@
-package io.bluetape4k.logback.kafka.keyprovider
+package io.bluetape4k.kafka.logback.keyprovider
 
 import ch.qos.logback.core.CoreConstants
-import io.bluetape4k.logback.kafka.utils.hashBytes
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.kafka.logback.utils.hashBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 
 class HostnameKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {

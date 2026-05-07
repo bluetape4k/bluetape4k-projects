@@ -1,9 +1,9 @@
-package io.bluetape4k.logback.kafka
+package io.bluetape4k.kafka.logback
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.Appender
 import ch.qos.logback.core.spi.AppenderAttachableImpl
-import io.bluetape4k.logback.kafka.exporter.ExportExceptionHandler
+import io.bluetape4k.kafka.logback.exporter.ExportExceptionHandler
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * - 전송 실패는 [exportExceptionHandler]를 통해 경고 및 fallback appender로 전달됩니다.
  * - 종료 시 producer flush/close를 시도합니다.
  */
-class KafkaAppender<E : Any> : AbstractKafkaAppender<E>() {
+class KafkaAppender<E: Any>: io.bluetape4k.kafka.logback.AbstractKafkaAppender<E>() {
     companion object {
         /**
          * Kafka Client의 로그는 따로 처리하기 위해 (`org.apache.kafka.clients`)
@@ -93,7 +93,7 @@ class KafkaAppender<E : Any> : AbstractKafkaAppender<E>() {
     private fun getTimestamp(event: E): Long =
         when (event) {
             is ILoggingEvent -> event.timeStamp
-            else -> System.currentTimeMillis()
+            else             -> System.currentTimeMillis()
         }
 
     override fun start() {

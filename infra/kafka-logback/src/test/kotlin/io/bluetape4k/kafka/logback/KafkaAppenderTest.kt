@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka
+package io.bluetape4k.kafka.logback
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
@@ -6,8 +6,12 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.BasicStatusManager
 import ch.qos.logback.core.encoder.Encoder
-import io.bluetape4k.logback.kafka.exporter.KafkaExporter
-import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.kafka.logback.exporter.KafkaExporter
+import io.bluetape4k.kafka.logback.keyprovider.KafkaKeyProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.mockk.Called
@@ -18,10 +22,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldHaveSize
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.AfterEach

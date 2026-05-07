@@ -1,5 +1,9 @@
-package io.bluetape4k.logback.kafka
+package io.bluetape4k.kafka.logback
 
+import ch.qos.logback.classic.spi.ILoggingEvent
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -9,9 +13,6 @@ import io.bluetape4k.support.trimWhitespace
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -30,20 +31,34 @@ class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
 
     @BeforeAll
     fun beforeAll() {
+        // kafka 시작 후 실제 bootstrapServers로 logback-test.xml의 KafkaAppender를 업데이트
+        // logback XML은 JVM startup 시 파싱되므로 localhost:9093이 하드코딩됨
+        // producer는 lazy라서 아직 생성 전 — 여기서 업데이트하면 실제 포트를 사용
+        log.info { "Kafka Server: ${kafka.bootstrapServers}" }
+
+        val loggerContext = LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext
+        val logbackLogger = loggerContext.getLogger("LogbackIntegrationTest") as ch.qos.logback.classic.Logger
+        @Suppress("UNCHECKED_CAST")
+        val kafkaAppender = logbackLogger.getAppender("Kafka") as? KafkaAppender<ILoggingEvent>
+        if (kafkaAppender != null) {
+            kafkaAppender.bootstrapServers = kafka.bootstrapServers
+            log.info { "KafkaAppender bootstrapServers updated: ${kafka.bootstrapServers}" }
+        }
+
         logger = LoggerFactory.getLogger("LogbackIntegrationTest")
-        log.info { "Create Kafka Server: ${kafka.bootstrapServers}" }
     }
 
     @Test
     fun `export log to kafka and consume`() = runSuspendIO {
 
         val logSize = 100
-        launch {
+        val job = launch {
             repeat(logSize) {
                 logger.info("test message $it")
             }
         }
         delay(10.milliseconds)
+        job.join()
 
         val logTopicPartition = TopicPartition(TOPIC, 0)
         val consumer = KafkaServer.Launcher.createBinaryConsumer(kafka)

@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka.keyprovider
+package io.bluetape4k.kafka.logback.keyprovider
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext

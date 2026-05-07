@@ -65,10 +65,10 @@ classDiagram
 ### logback.xml
 
 ```xml
-<appender name="KAFKA" class="io.bluetape4k.logback.kafka.KafkaAppender">
+<appender name="KAFKA" class="io.bluetape4k.kafka.logback.KafkaAppender">
     <topic>application-logs</topic>
     <bootstrapServers>localhost:9092</bootstrapServers>
-    <keyProvider class="io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider"/>
+    <keyProvider class="io.bluetape4k.kafka.logback.keyprovider.HostnameKafkaKeyProvider"/>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
         <pattern>%d{ISO8601} %-5level [%thread] %logger{36} - %msg%n</pattern>
     </encoder>

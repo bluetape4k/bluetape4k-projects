@@ -1,12 +1,12 @@
-package io.bluetape4k.logback.kafka
+package io.bluetape4k.kafka.logback
 
 import ch.qos.logback.core.UnsynchronizedAppenderBase
 import ch.qos.logback.core.encoder.Encoder
 import ch.qos.logback.core.spi.AppenderAttachable
-import io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter
-import io.bluetape4k.logback.kafka.exporter.KafkaExporter
-import io.bluetape4k.logback.kafka.keyprovider.HostnameKafkaKeyProvider
-import io.bluetape4k.logback.kafka.keyprovider.KafkaKeyProvider
+import io.bluetape4k.kafka.logback.exporter.DefaultKafkaExporter
+import io.bluetape4k.kafka.logback.exporter.KafkaExporter
+import io.bluetape4k.kafka.logback.keyprovider.HostnameKafkaKeyProvider
+import io.bluetape4k.kafka.logback.keyprovider.KafkaKeyProvider
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**

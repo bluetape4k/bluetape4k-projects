@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka.keyprovider
+package io.bluetape4k.kafka.logback.keyprovider
 
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test

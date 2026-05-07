@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka.utils
+package io.bluetape4k.kafka.logback.utils
 
 import java.nio.ByteBuffer
 

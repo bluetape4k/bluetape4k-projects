@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka
+package io.bluetape4k.kafka.logback
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
@@ -8,19 +8,19 @@ import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import ch.qos.logback.core.AppenderBase
 import ch.qos.logback.core.status.Status
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logback.kafka.exporter.DefaultKafkaExporter
-import io.bluetape4k.logback.kafka.keyprovider.NullKafkaKeyProvider
+import io.bluetape4k.kafka.logback.exporter.DefaultKafkaExporter
+import io.bluetape4k.kafka.logback.keyprovider.NullKafkaKeyProvider
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.BeforeEach
@@ -37,7 +37,7 @@ class KafkaAppenderIT: AbstractKafkaIntegrationTest() {
 
     private val errorCollector = mutableListOf<Throwable>()
 
-    private lateinit var kafkaAppender: KafkaAppender<ILoggingEvent>
+    private lateinit var kafkaAppender: io.bluetape4k.kafka.logback.KafkaAppender<ILoggingEvent>
     private lateinit var loggerContext: LoggerContext
 
     private val fallbackAppender: Appender<ILoggingEvent> by lazy {

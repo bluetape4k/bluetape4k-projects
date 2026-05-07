@@ -1,4 +1,4 @@
-package io.bluetape4k.logback.kafka.keyprovider
+package io.bluetape4k.kafka.logback.keyprovider
 
 /**
  * 로그 이벤트에서 Kafka 메시지 키를 생성하는 전략 인터페이스입니다.
