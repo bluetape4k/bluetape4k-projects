@@ -10,7 +10,7 @@ import io.bluetape4k.testcontainers.http.BluetapeHttpServer
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

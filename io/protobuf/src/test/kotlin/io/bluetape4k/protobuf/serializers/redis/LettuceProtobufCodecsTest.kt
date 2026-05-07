@@ -8,8 +8,8 @@ import io.bluetape4k.protobuf.redis.messages.RedisSimpleMessage
 import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.lettuce.core.codec.RedisCodec
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.time.Instant

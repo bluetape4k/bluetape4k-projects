@@ -4,9 +4,9 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import kotlinx.coroutines.CancellationException
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 

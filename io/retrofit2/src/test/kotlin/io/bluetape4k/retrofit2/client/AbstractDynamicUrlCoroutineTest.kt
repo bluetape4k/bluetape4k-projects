@@ -8,7 +8,7 @@ import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofitOf
 import io.bluetape4k.retrofit2.service
 import io.bluetape4k.retrofit2.services.DynamicUrlService
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 abstract class AbstractDynamicUrlCoroutineTest: AbstractRetrofitTest() {

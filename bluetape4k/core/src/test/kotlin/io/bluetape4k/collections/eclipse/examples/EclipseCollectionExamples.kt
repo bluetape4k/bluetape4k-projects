@@ -6,10 +6,10 @@ import io.bluetape4k.collections.eclipse.parallel.PARALLEL_EXECUTOR_SERVICE
 import io.bluetape4k.collections.eclipse.primitives.toIntArrayList
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.eclipse.collections.api.bag.MutableBag
 import org.eclipse.collections.api.list.primitive.MutableIntList
 import org.eclipse.collections.impl.bag.mutable.HashBag

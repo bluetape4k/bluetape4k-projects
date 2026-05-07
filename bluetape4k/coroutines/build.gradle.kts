@@ -61,7 +61,7 @@ dependencies {
     testImplementation(libs.eclipse.collections.testutils)
 
     // Test Fixture
-    compileOnly(libs.kluent)
+    compileOnly(project(":bluetape4k-assertions"))
     compileOnly(libs.kotlin.test.junit5)
 
     testImplementation(libs.mockk)

@@ -13,9 +13,9 @@ import io.nats.client.ObjectStoreManagement
 import io.nats.client.api.KeyValueStatus
 import io.nats.client.api.StreamConfiguration
 import io.nats.client.api.StreamInfo
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.io.IOException

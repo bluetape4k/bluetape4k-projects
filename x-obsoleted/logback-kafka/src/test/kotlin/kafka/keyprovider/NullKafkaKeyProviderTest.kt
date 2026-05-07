@@ -1,6 +1,6 @@
 package io.bluetape4k.logback.kafka.keyprovider
 
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 
 class NullKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {

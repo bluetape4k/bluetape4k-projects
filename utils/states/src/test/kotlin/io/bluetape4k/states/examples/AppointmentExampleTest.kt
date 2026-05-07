@@ -9,8 +9,8 @@ import io.bluetape4k.states.testing.assertRejects
 import io.bluetape4k.states.testing.verifyPath
 import io.bluetape4k.states.testing.via
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class AppointmentExampleTest {

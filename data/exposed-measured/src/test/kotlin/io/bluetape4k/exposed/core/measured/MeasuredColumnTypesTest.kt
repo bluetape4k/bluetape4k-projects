@@ -15,7 +15,7 @@ import io.bluetape4k.measured.kiloWattHours
 import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
 import io.bluetape4k.measured.watts
-import org.amshove.kluent.shouldBeNear
+import io.bluetape4k.assertions.shouldBeNear
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId

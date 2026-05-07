@@ -13,9 +13,9 @@ import io.smallrye.mutiny.subscription.MultiEmitter
 import io.smallrye.mutiny.subscription.UniEmitter
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldContainAll
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContainAll
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.Duration

@@ -8,7 +8,7 @@ import io.bluetape4k.http.hc5.protocol.httpClientContextOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import org.amshove.kluent.fail
+import io.bluetape4k.assertions.fail
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.core5.concurrent.FutureCallback
 import org.apache.hc.core5.http.HttpStatus

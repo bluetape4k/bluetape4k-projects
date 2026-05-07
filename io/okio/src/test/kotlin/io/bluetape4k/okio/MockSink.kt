@@ -4,8 +4,8 @@ import io.bluetape4k.logging.KLogging
 import okio.Buffer
 import okio.Sink
 import okio.Timeout
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 
 /**
  * A scriptable sink. Like Mockito, but worse and requiring less configuration.

@@ -5,7 +5,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createAggregate
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropAggregate
 import io.bluetape4k.cassandra.querybuilder.tupleTerm
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class AggregationStatementExamples {

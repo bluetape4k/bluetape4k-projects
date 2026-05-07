@@ -4,9 +4,9 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
 import io.netty.buffer.ByteBufAllocator
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

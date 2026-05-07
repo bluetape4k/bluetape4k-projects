@@ -3,7 +3,7 @@ package io.bluetape4k.states.testing
 import io.bluetape4k.states.api.StateMachine
 import io.bluetape4k.states.api.StateMachineException
 import io.bluetape4k.states.api.SuspendStateMachineInterface
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.assertThrows
 
 class TransitionExpectation<out S: Any, out E: Any>(val from: S, val event: E, val to: S)

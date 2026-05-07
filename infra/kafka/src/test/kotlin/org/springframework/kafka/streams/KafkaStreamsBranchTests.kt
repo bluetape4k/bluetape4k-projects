@@ -6,7 +6,7 @@ import io.bluetape4k.kafka.spring.test.utils.getRecords
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.asBoolean
 import io.bluetape4k.support.uninitialized
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldContainSame
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Serdes

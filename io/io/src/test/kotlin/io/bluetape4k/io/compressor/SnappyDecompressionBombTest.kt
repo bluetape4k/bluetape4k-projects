@@ -1,7 +1,7 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.xerial.snappy.Snappy

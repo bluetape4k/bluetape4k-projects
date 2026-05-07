@@ -1,8 +1,8 @@
 package io.bluetape4k.examples.exposed.webflux
 
 import io.bluetape4k.examples.exposed.webflux.domain.ProductRecord
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test

@@ -11,7 +11,7 @@ import kotlinx.benchmark.Mode
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)

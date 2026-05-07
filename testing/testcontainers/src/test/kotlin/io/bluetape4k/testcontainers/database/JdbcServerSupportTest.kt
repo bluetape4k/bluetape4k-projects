@@ -3,7 +3,7 @@ package io.bluetape4k.testcontainers.database
 import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class JdbcServerSupportTest {

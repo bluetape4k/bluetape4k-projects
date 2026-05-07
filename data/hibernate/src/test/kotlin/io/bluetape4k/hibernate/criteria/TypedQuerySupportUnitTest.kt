@@ -4,8 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.persistence.NoResultException
 import jakarta.persistence.TypedQuery
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.stream.Stream
 

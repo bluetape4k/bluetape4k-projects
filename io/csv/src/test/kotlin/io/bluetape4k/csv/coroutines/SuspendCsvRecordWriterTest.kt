@@ -4,7 +4,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flow
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.StringWriter

@@ -50,7 +50,7 @@ fun IntArray?.shouldNotContain(expected: Int): IntArray? {
  * @param size 기대하는 크기
  * @return receiver (체이닝 지원)
  */
-fun IntArray?.shouldHaveSize(size: Int): IntArray {
+infix fun IntArray?.shouldHaveSize(size: Int): IntArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -129,7 +129,7 @@ fun LongArray?.shouldNotContain(expected: Long): LongArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun LongArray?.shouldHaveSize(size: Int): LongArray {
+infix fun LongArray?.shouldHaveSize(size: Int): LongArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -202,7 +202,7 @@ fun DoubleArray?.shouldNotContain(expected: Double): DoubleArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun DoubleArray?.shouldHaveSize(size: Int): DoubleArray {
+infix fun DoubleArray?.shouldHaveSize(size: Int): DoubleArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -275,7 +275,7 @@ fun FloatArray?.shouldNotContain(expected: Float): FloatArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun FloatArray?.shouldHaveSize(size: Int): FloatArray {
+infix fun FloatArray?.shouldHaveSize(size: Int): FloatArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -348,7 +348,7 @@ fun ByteArray?.shouldNotContain(expected: Byte): ByteArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun ByteArray?.shouldHaveSize(size: Int): ByteArray {
+infix fun ByteArray?.shouldHaveSize(size: Int): ByteArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -421,7 +421,7 @@ fun ShortArray?.shouldNotContain(expected: Short): ShortArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun ShortArray?.shouldHaveSize(size: Int): ShortArray {
+infix fun ShortArray?.shouldHaveSize(size: Int): ShortArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -494,7 +494,7 @@ fun CharArray?.shouldNotContain(expected: Char): CharArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun CharArray?.shouldHaveSize(size: Int): CharArray {
+infix fun CharArray?.shouldHaveSize(size: Int): CharArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -567,7 +567,7 @@ fun BooleanArray?.shouldNotContain(expected: Boolean): BooleanArray? {
 /**
  * 배열의 크기가 [size]와 같은지 검증한다.
  */
-fun BooleanArray?.shouldHaveSize(size: Int): BooleanArray {
+infix fun BooleanArray?.shouldHaveSize(size: Int): BooleanArray {
     val arr = this
     val actualSize = arr?.size
     if (arr == null || actualSize != size) {
@@ -729,6 +729,110 @@ infix fun BooleanArray?.shouldContentEqual(expected: BooleanArray?): BooleanArra
         )
     }
     return this
+}
+
+// ── Array<T> size / empty / shouldContainSame ─────────────────────────────────
+
+/** Array<T>의 크기가 [size]와 같은지 검증한다. */
+@Suppress("UNCHECKED_CAST")
+infix fun <T> Array<T>?.shouldHaveSize(size: Int): Array<T> {
+    val actual = this?.size ?: 0
+    if (actual != size) {
+        Failures.failComparison(
+            "Expected array to have size $size, but had size $actual.",
+            size, actual
+        )
+    }
+    return this ?: (emptyArray<Any?>() as Array<T>)
+}
+
+/** Array<T>가 비어있는지 검증한다. */
+fun <T> Array<T>?.shouldBeEmpty(): Array<T>? {
+    if (this != null && this.isNotEmpty()) {
+        Failures.fail("Expected array to be empty, but had ${this.size} elements.")
+    }
+    return this
+}
+
+/** Array<T>가 비어있지 않은지 검증한다. */
+fun <T> Array<T>?.shouldNotBeEmpty(): Array<T> {
+    if (this == null || this.isEmpty()) {
+        Failures.fail("Expected array to not be empty, but was ${Messages.stringify(this)}.")
+    }
+    return this
+}
+
+/**
+ * 두 Array<T>가 순서에 무관하게 동일한 원소(cardinality 포함)를 가지는지 검증한다.
+ */
+@Suppress("UNCHECKED_CAST")
+infix fun <T> Array<T>?.shouldContainSame(expected: Array<T>?): Array<T> {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: (emptyArray<Any?>() as Array<T>)
+}
+
+/**
+ * IntArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun IntArray?.shouldContainSame(expected: IntArray?): IntArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: intArrayOf()
+}
+
+/**
+ * LongArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun LongArray?.shouldContainSame(expected: LongArray?): LongArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: longArrayOf()
+}
+
+/**
+ * LongArray가 Iterable<Long>과 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun LongArray?.shouldContainSame(expected: Iterable<Long>?): LongArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: longArrayOf()
+}
+
+/**
+ * ByteArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun ByteArray?.shouldContainSame(expected: ByteArray?): ByteArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: byteArrayOf()
+}
+
+/**
+ * FloatArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun FloatArray?.shouldContainSame(expected: FloatArray?): FloatArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: floatArrayOf()
+}
+
+/**
+ * DoubleArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun DoubleArray?.shouldContainSame(expected: DoubleArray?): DoubleArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: doubleArrayOf()
+}
+
+/**
+ * ShortArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun ShortArray?.shouldContainSame(expected: ShortArray?): ShortArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: shortArrayOf()
+}
+
+/**
+ * CharArray가 순서에 무관하게 동일한 원소를 가지는지 검증한다.
+ */
+infix fun CharArray?.shouldContainSame(expected: CharArray?): CharArray {
+    this?.toList().shouldContainSame(expected?.toList())
+    return this ?: charArrayOf()
 }
 
 /**

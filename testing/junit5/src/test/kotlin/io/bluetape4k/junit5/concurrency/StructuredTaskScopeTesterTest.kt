@@ -3,12 +3,12 @@ package io.bluetape4k.junit5.concurrency
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import org.amshove.kluent.internal.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.TimeoutException
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.milliseconds

@@ -8,10 +8,10 @@ import io.bluetape4k.avro.message.examples.EmployeeList
 import io.bluetape4k.avro.message.examples.ProductRoot
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.XZCodec.DEFAULT_COMPRESSION
 import org.apache.avro.generic.GenericData

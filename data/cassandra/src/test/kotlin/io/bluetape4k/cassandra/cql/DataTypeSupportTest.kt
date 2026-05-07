@@ -1,9 +1,9 @@
 package io.bluetape4k.cassandra.cql
 
 import com.datastax.oss.driver.api.core.type.DataTypes
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class DataTypeSupportTest {

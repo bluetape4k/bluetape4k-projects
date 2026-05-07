@@ -15,7 +15,7 @@ import io.bluetape4k.collections.toIntStream
 import io.bluetape4k.collections.toLongArray
 import io.bluetape4k.collections.toLongStream
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.stream.DoubleStream
 import java.util.stream.IntStream

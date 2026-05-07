@@ -9,10 +9,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldThrow
+import io.bluetape4k.assertions.invoking
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 

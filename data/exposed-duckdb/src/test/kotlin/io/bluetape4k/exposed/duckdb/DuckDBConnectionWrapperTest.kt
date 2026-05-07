@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.duckdb
 
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Proxy
 import java.sql.Connection

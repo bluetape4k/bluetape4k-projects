@@ -10,10 +10,10 @@ import io.bluetape4k.batch.core.BatchStepRunnerTest.ListBatchReader
 import io.bluetape4k.batch.core.dsl.batchJob
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.workflow.api.WorkContext
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**

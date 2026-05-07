@@ -2,8 +2,8 @@ package io.bluetape4k.avro
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest

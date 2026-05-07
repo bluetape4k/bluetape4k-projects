@@ -3,10 +3,10 @@ package io.bluetape4k.bucket4j.local
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.local.LocalBucket
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

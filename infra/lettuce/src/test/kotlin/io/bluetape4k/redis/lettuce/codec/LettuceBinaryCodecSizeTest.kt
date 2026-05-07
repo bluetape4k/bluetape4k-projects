@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.io.serializer.BinarySerializers
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 

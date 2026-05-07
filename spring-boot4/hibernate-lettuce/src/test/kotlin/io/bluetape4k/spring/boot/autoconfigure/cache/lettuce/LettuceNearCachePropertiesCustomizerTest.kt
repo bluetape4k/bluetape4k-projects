@@ -1,8 +1,8 @@
 package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer
 import java.time.Duration

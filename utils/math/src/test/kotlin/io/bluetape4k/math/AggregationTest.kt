@@ -6,8 +6,8 @@ import io.bluetape4k.javatimes.toEpochMillis
 import io.bluetape4k.javatimes.todayInstant
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant

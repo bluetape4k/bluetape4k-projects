@@ -5,11 +5,11 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleDefinition
 import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.core.DefaultRuleEngine
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class GroovyRuleTest {

@@ -1,8 +1,8 @@
 package io.bluetape4k.math.transform
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNear
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
 import org.apache.commons.math3.complex.Complex
 import org.junit.jupiter.api.Test
 

@@ -10,10 +10,10 @@ import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.hibernate.getReferenceAs
 import io.bluetape4k.hibernate.save
 import io.bluetape4k.hibernate.withBatchSize
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

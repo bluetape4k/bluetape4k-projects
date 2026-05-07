@@ -7,11 +7,11 @@ import com.mongodb.WriteConcern
 import com.mongodb.client.MongoClients
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotBeNullOrBlank
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import org.bson.Document
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

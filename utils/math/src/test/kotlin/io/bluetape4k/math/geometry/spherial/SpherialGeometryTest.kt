@@ -11,8 +11,8 @@ import io.bluetape4k.math.geometry.spherial.twod.circlrOf
 import io.bluetape4k.math.geometry.spherial.twod.copy
 import io.bluetape4k.math.geometry.spherial.twod.s2PointOf
 import io.bluetape4k.math.geometry.spherial.twod.toS2Point
-import org.amshove.kluent.shouldBeNear
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
 import org.junit.jupiter.api.Test
 import kotlin.math.PI

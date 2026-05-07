@@ -12,8 +12,8 @@ import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue
 import kotlin.test.assertTrue

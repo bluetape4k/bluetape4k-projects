@@ -1,12 +1,12 @@
 package io.bluetape4k.testcontainers
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotThrow
+import io.bluetape4k.assertions.invoking
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -101,7 +101,7 @@ class PropertyExportingServerContractTest {
         )
 
         val callPropertyKeys = { server.propertyKeys() }
-        callPropertyKeys shouldNotThrow Exception::class
+        invoking(callPropertyKeys).shouldNotThrow()
     }
 
     /**
@@ -121,7 +121,7 @@ class PropertyExportingServerContractTest {
         registration.shouldNotBeNull()
 
         val closeAction = { registration.close() }
-        closeAction shouldNotThrow Exception::class
+        invoking(closeAction).shouldNotThrow()
 
         // 정리
         System.clearProperty("$SERVER_PREFIX.test-contract.host")
@@ -228,7 +228,7 @@ class PropertyExportingServerContractTest {
         )
 
         val callRegister = { server.registerSystemProperties().close() }
-        callRegister shouldNotThrow Exception::class
+        invoking(callRegister).shouldNotThrow()
     }
 
     /**

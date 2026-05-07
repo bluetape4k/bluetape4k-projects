@@ -5,9 +5,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.science.exposed.AbstractPostgisTest
 import io.bluetape4k.science.exposed.schema.PoiTable
 import net.postgis.jdbc.geometry.Point
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

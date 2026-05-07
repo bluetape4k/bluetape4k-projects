@@ -2,9 +2,9 @@ package io.bluetape4k.captcha.config
 
 import io.bluetape4k.captcha.AbstractCaptchaTest
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class CaptchaConfigTest: AbstractCaptchaTest() {

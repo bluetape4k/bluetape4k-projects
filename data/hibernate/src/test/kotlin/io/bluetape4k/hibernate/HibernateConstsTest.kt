@@ -1,6 +1,6 @@
 package io.bluetape4k.hibernate
 
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.hibernate.cfg.AvailableSettings
 import org.junit.jupiter.api.Test
 

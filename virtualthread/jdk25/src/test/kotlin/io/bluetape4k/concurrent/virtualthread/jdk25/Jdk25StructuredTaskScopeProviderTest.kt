@@ -2,15 +2,15 @@ package io.bluetape4k.concurrent.virtualthread.jdk25
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.TimeoutException
-import org.amshove.kluent.internal.assertFailsWith
+import io.bluetape4k.assertions.assertFailsWith
 
 @EnabledForJreRange(min = JRE.JAVA_25)
 class Jdk25StructuredTaskScopeProviderTest {

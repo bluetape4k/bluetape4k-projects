@@ -4,9 +4,9 @@ import io.bluetape4k.geohash.geoHashOfBinaryString
 import io.bluetape4k.geohash.geoHashOfString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInRange
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeTrue
 import kotlin.test.Test
 
 class GeoHashBoundingBoxSearchTest {

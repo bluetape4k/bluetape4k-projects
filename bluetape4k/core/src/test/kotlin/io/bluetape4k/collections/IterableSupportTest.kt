@@ -2,11 +2,11 @@ package io.bluetape4k.collections
 
 import io.bluetape4k.collections.eclipse.fastList
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainAll
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainAll
 import org.junit.jupiter.api.Test
 
 class IterableSupportTest {

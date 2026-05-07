@@ -2,8 +2,8 @@ package io.bluetape4k.netty.util
 
 import io.bluetape4k.netty.AbstractNettyTest
 import io.netty.buffer.ByteBufAllocator
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 
 /**

@@ -5,7 +5,7 @@ import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
 import io.bluetape4k.opentelemetry.trace.simpleSpanProcessorOf
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Hooks

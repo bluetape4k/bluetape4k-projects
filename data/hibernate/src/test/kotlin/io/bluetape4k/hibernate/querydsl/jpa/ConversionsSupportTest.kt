@@ -1,7 +1,7 @@
 package io.bluetape4k.hibernate.querydsl.jpa
 
 import com.querydsl.core.types.dsl.Expressions
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class ConversionsSupportTest {

@@ -3,7 +3,7 @@ package io.bluetape4k.logback.kafka.keyprovider
 import io.bluetape4k.logback.kafka.utils.hashBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldContainSame
+import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 
 class LoggerNameKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {

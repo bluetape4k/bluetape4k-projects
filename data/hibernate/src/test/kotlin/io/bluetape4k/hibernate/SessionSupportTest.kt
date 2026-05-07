@@ -2,9 +2,9 @@ package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.mapping.naturalid.NaturalIdBook
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

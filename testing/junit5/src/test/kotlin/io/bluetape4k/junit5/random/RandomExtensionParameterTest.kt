@@ -5,11 +5,11 @@ import io.bluetape4k.junit5.model.getDefaultSizeOfRandom
 import io.bluetape4k.junit5.model.shouldFullyPopulated
 import io.bluetape4k.junit5.model.shouldPartiallyPopulated
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEmpty
-import org.amshove.kluent.shouldNotBeNull
-import org.amshove.kluent.shouldNotBeNullOrBlank
-import org.amshove.kluent.shouldNotContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
+import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.TestInstance
 import java.util.stream.Stream

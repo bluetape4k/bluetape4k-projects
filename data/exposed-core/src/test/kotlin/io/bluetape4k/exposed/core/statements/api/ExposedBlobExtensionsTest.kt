@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.core.statements.api
 
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ExposedBlobExtensionsTest {

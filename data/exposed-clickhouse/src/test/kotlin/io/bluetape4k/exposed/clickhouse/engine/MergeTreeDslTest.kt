@@ -1,9 +1,9 @@
 package io.bluetape4k.exposed.clickhouse.engine
 
 import io.bluetape4k.exposed.clickhouse.sanitizeForClickHouse
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.Test
 
 class MergeTreeDslTest {

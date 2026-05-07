@@ -14,7 +14,7 @@ import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.support.virtualThreadPartitionTaskExecutor
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
 import io.bluetape4k.testcontainers.database.PostgreSQLServer
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order

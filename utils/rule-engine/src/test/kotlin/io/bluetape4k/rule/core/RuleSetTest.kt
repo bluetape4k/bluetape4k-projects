@@ -6,9 +6,9 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.Rule
 import io.bluetape4k.rule.api.RuleSet
 import io.bluetape4k.rule.api.ruleSetOf
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class RuleSetTest {

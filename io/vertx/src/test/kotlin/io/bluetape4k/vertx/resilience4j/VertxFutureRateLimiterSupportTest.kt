@@ -8,7 +8,7 @@ import io.github.resilience4j.kotlin.ratelimiter.RateLimiterConfig
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.time.Duration

@@ -7,10 +7,10 @@ import io.bluetape4k.jackson3.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson3.text.JacksonText
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainAll
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import tools.jackson.module.kotlin.readValue
 import java.io.Serializable

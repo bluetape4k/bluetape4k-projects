@@ -7,12 +7,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import kotlinx.coroutines.delay
-import org.amshove.kluent.`should be in range`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,10 +45,10 @@ class AuditingTest(
         log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.lastModifiedAt}" }
 
         actual.createdBy shouldBeEqualTo "the-current-user"
-        actual.createdAt.shouldNotBeNull().`should be in range`(instantRange)
+        actual.createdAt.shouldNotBeNull().shouldBeInRange(instantRange)
 
         actual.lastModifiedBy shouldBeEqualTo "the-current-user"
-        actual.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+        actual.lastModifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
 
         delay(100.milliseconds)
 
@@ -63,7 +63,7 @@ class AuditingTest(
         ssaved.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
 
         ssaved.lastModifiedBy shouldBeEqualTo "the-current-user"
-        ssaved.lastModifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+        ssaved.lastModifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
     }
 
     @Test
@@ -77,10 +77,10 @@ class AuditingTest(
             log.debug { "Actual createdAt=${actual.createdAt}, lastModifiedAt=${actual.modifiedAt}" }
 
             actual.createdBy shouldBeEqualTo "the-current-user"
-            actual.createdAt.shouldNotBeNull().`should be in range`(instantRange)
+            actual.createdAt.shouldNotBeNull().shouldBeInRange(instantRange)
 
             actual.modifiedBy shouldBeEqualTo "the-current-user"
-            actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+            actual.modifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
         }
 
         delay(100.milliseconds)
@@ -96,7 +96,7 @@ class AuditingTest(
             actual.createdAt.shouldNotBeNull() shouldBeEqualTo loaded.createdAt
 
             actual.modifiedBy shouldBeEqualTo "the-current-user"
-            actual.modifiedAt.shouldNotBeNull().`should be in range`(instantRange)
+            actual.modifiedAt.shouldNotBeNull().shouldBeInRange(instantRange)
         }
     }
 }

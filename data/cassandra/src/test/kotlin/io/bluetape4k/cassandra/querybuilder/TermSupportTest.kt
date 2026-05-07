@@ -3,7 +3,7 @@ package io.bluetape4k.cassandra.querybuilder
 import com.datastax.oss.driver.api.core.type.DataTypes
 import io.bluetape4k.cassandra.cql.userDefinedTypeOf
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.test.assertFailsWith

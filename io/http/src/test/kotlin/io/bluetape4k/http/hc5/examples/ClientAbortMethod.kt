@@ -7,8 +7,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
-import org.amshove.kluent.internal.assertFails
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.assertFails
+import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.core5.http.message.StatusLine

@@ -5,7 +5,7 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.spring.AbstractSpringTest
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.io.Serializable

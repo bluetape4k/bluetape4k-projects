@@ -6,9 +6,9 @@ import io.bluetape4k.nats.client.flush
 import io.bluetape4k.nats.client.publish
 import io.bluetape4k.support.toUtf8String
 import io.nats.client.Message
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit

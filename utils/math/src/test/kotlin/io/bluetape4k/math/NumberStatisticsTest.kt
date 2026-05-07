@@ -7,7 +7,7 @@ import io.bluetape4k.math.model.Gender.MALE
 import io.bluetape4k.math.model.Item
 import io.bluetape4k.math.model.Patient
 import io.bluetape4k.math.model.SaleDate
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.test.assertTrue

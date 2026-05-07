@@ -3,8 +3,8 @@ package io.bluetape4k.utils
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import io.bluetape4k.logging.KotlinLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 
 class SingletonHolderTest {

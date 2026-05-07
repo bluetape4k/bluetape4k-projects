@@ -6,7 +6,7 @@ import io.bluetape4k.http.hc5.classic.httpClient
 import io.bluetape4k.http.hc5.entity.consume
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.message.StatusLine

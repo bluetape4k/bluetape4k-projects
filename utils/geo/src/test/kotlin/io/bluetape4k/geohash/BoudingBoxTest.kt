@@ -1,11 +1,11 @@
 package io.bluetape4k.geohash
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.`should be near`
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -60,21 +60,21 @@ class BoudingBoxTest {
     @Test
     fun `get size`() {
         val bbox = boundingBoxOf(45.0, 90.0, 0.0, 30.0)
-        bbox.getLatitudeSize().`should be near`(45.0, DELTA)
-        bbox.getLongitudeSize().`should be near`(30.0, DELTA)
+        bbox.getLatitudeSize().shouldBeNear(45.0, DELTA)
+        bbox.getLongitudeSize().shouldBeNear(30.0, DELTA)
 
         val bbox2 = boundingBoxOf(-45.0, 45.0, -22.5, 30.0)
-        bbox2.getLatitudeSize().`should be near`(90.0, DELTA)
-        bbox2.getLongitudeSize().`should be near`(52.5, DELTA)
+        bbox2.getLatitudeSize().shouldBeNear(90.0, DELTA)
+        bbox2.getLongitudeSize().shouldBeNear(52.5, DELTA)
 
         val bbox3 = boundingBoxOf(-46.1, -44.0, -128.0, -127.2)
-        bbox3.getLatitudeSize().`should be near`(2.1, DELTA)
-        bbox3.getLongitudeSize().`should be near`(0.8, DELTA)
+        bbox3.getLatitudeSize().shouldBeNear(2.1, DELTA)
+        bbox3.getLongitudeSize().shouldBeNear(0.8, DELTA)
 
         // Testing bounding box that crosses the 180th meridian
         val bbox4 = boundingBoxOf(45.0, 90.0, 170.0, -170.0)
-        bbox4.getLatitudeSize().`should be near`(45.0, DELTA)
-        bbox4.getLongitudeSize().`should be near`(20.0, DELTA)
+        bbox4.getLatitudeSize().shouldBeNear(45.0, DELTA)
+        bbox4.getLongitudeSize().shouldBeNear(20.0, DELTA)
     }
 
     @Test

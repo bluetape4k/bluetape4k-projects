@@ -327,3 +327,23 @@ class CoInvokingBlock(val block: suspend () -> Any?) {
  * ```
  */
 fun coInvoking(block: suspend () -> Any?): CoInvokingBlock = CoInvokingBlock(block)
+
+/**
+ * 블록이 타입 [T]의 예외를 던지는지 검증하고, 예외를 반환한다.
+ *
+ * `org.amshove.kluent.internal.assertFailsWith`와 동일한 semantics.
+ *
+ * @param block 검증할 코드 블록
+ * @return 발생한 예외 (타입 [T])
+ */
+inline fun <reified T : Throwable> assertFailsWith(noinline block: () -> Unit): T =
+    invoking(block) shouldThrow T::class
+
+/**
+ * 블록이 어떤 예외라도 던지는지 검증한다.
+ *
+ * @param block 검증할 코드 블록
+ * @return 발생한 예외
+ */
+fun assertFails(block: () -> Unit): Throwable =
+    invoking(block) shouldThrow Throwable::class

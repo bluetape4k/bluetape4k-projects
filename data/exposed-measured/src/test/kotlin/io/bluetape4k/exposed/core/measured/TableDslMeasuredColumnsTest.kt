@@ -30,8 +30,8 @@ import io.bluetape4k.measured.kiloWatts
 import io.bluetape4k.measured.kilograms
 import io.bluetape4k.measured.kilometers2
 import io.bluetape4k.measured.meters
-import org.amshove.kluent.shouldBeNear
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.assertions.shouldBeTrue
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll

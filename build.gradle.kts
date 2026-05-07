@@ -596,6 +596,9 @@ subprojects {
         testImplementation(rootLibs.junit.jupiter.migrationsupport)
 
         testImplementation(rootLibs.kluent)
+        if (name != "bluetape4k-assertions") {
+            testImplementation(project(":bluetape4k-assertions"))
+        }
         testImplementation(rootLibs.awaitility.kotlin)
         testImplementation(rootLibs.mockk)
 

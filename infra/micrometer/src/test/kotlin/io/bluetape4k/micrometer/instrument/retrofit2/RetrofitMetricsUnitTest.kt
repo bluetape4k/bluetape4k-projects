@@ -3,8 +3,8 @@ package io.bluetape4k.micrometer.instrument.retrofit2
 import io.micrometer.core.instrument.Tag
 import okhttp3.Request
 import okio.Timeout
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import retrofit2.Call
 import retrofit2.Callback

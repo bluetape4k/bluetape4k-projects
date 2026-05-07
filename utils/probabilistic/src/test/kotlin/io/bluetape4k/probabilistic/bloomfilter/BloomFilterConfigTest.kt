@@ -1,7 +1,7 @@
 package io.bluetape4k.probabilistic.bloomfilter
 
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeInRange
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

@@ -6,8 +6,8 @@ import io.bluetape4k.redis.lettuce.map.LettuceLoadedMap
 import io.bluetape4k.redis.lettuce.map.MapWriter
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.lettuce.core.RedisClient
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.*
 

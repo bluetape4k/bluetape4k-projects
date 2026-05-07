@@ -6,10 +6,10 @@ import io.bluetape4k.geohash.BoundingBox
 import io.bluetape4k.geohash.GeoHash
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeLessThan
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CopyOnWriteArraySet
 

@@ -11,8 +11,8 @@ import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.time.Duration
 

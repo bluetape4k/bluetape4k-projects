@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.redisson.cache
 
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

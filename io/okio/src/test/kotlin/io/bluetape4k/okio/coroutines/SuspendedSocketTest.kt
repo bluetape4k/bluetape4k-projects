@@ -9,8 +9,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import org.amshove.kluent.internal.assertFailsWith
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.coInvoking
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.io.IOException
@@ -61,9 +61,7 @@ class SuspendedSocketTest: AbstractOkioTest() {
         val serverSource = server.asSuspendedSource().buffered()
         server.close()
 
-        assertFailsWith<IOException> {
-            serverSource.readUtf8()
-        }
+        coInvoking { serverSource.readUtf8() } shouldThrow IOException::class
     }
 
     @Test
@@ -71,10 +69,10 @@ class SuspendedSocketTest: AbstractOkioTest() {
         val serverSink = server.asSuspendedSink().buffered()
         server.close()
 
-        assertFailsWith<IOException> {
+        coInvoking {
             serverSink.writeUtf8(Fakers.randomString())
             serverSink.flush()
-        }
+        } shouldThrow IOException::class
     }
 
     @Test
@@ -87,9 +85,7 @@ class SuspendedSocketTest: AbstractOkioTest() {
                 server.close()
             }
 
-            assertFailsWith<IOException> {
-                serverSource.request(1L)
-            }
+            coInvoking { serverSource.request(1L) } shouldThrow IOException::class
         }
     }
 
@@ -103,11 +99,11 @@ class SuspendedSocketTest: AbstractOkioTest() {
                 server.close()
             }
 
-            assertFailsWith<IOException> {
+            coInvoking {
                 while (true) {
                     clientSink.writeUtf8(Fakers.randomString())
                 }
-            }
+            } shouldThrow IOException::class
         }
     }
 

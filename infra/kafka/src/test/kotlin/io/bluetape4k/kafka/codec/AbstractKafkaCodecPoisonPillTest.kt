@@ -2,7 +2,7 @@ package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.CancellationException
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeNull
 import org.apache.kafka.common.header.Headers
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.Test

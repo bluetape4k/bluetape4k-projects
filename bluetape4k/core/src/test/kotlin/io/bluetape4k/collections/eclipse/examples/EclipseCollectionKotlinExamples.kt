@@ -9,9 +9,9 @@ import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
 import io.bluetape4k.collections.eclipse.unifiedMapOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class EclipseCollectionKotlinExamples {

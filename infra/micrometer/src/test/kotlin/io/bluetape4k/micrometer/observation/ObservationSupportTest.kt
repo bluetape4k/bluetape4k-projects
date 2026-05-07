@@ -5,7 +5,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.micrometer.observation.tck.ObservationContextAssert
 import io.micrometer.observation.tck.ObservationRegistryAssert
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ObservationSupportTest: AbstractObservationTest() {

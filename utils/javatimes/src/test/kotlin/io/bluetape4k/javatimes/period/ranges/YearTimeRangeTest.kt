@@ -4,8 +4,8 @@ import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.QuartersPerYear
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class YearTimeRangeTest: AbstractPeriodTest() {

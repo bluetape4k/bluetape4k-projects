@@ -6,8 +6,8 @@ import io.bluetape4k.exposed.tests.withTablesSuspending
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.map.WriteMode
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.EntityID

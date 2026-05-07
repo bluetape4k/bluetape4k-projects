@@ -7,7 +7,7 @@ import io.bluetape4k.hibernate.model.QIntJpaEntity
 import io.bluetape4k.hibernate.querydsl.core.comparablePathOf
 import io.bluetape4k.hibernate.querydsl.core.listPathOf
 import io.bluetape4k.hibernate.querydsl.core.simplePathOf
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class JpaExpressionSupportTest {

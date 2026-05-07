@@ -2,9 +2,9 @@ package io.bluetape4k.tink
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.emptyByteArray
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 
 class SecureRandomSupportTest {

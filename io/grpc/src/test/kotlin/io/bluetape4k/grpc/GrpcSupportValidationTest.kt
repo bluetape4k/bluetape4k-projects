@@ -3,8 +3,8 @@ package io.bluetape4k.grpc
 import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessClient
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessServer
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

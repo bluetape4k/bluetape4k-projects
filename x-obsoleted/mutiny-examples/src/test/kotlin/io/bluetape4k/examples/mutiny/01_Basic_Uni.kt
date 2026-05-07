@@ -12,8 +12,8 @@ import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.smallrye.mutiny.subscription.UniSubscriber
 import io.smallrye.mutiny.subscription.UniSubscription
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until

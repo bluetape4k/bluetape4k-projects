@@ -7,7 +7,7 @@ import io.bluetape4k.okio.bufferOf
 import net.datafaker.Faker
 import okio.Buffer
 import okio.IOException
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

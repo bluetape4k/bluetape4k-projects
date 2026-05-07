@@ -120,7 +120,7 @@ infix fun <K, V> Map<K, V>?.shouldNotContain(pair: Pair<K, V>): Map<K, V>? {
  * @param size 기대하는 크기
  * @return non-null receiver (체이닝 지원)
  */
-fun <K, V> Map<K, V>?.shouldHaveSize(size: Int): Map<K, V> {
+infix fun <K, V> Map<K, V>?.shouldHaveSize(size: Int): Map<K, V> {
     val actual = this?.size
     if (this == null || actual != size) {
         Failures.failComparison(
@@ -162,6 +162,32 @@ fun <K, V> Map<K, V>?.shouldNotBeEmpty(): Map<K, V> {
         Failures.failComparison(
             Messages.expectedNotToBe("be", "empty map", this),
             "non-empty map",
+            this
+        )
+    }
+    return this
+}
+
+/**
+ * 두 Map이 동일한 키-값 쌍을 가지는지 검증한다 (순서 무관).
+ *
+ * @receiver 검증할 Map (nullable 허용)
+ * @param expected 기대하는 Map (nullable 허용)
+ * @return non-null receiver (체이닝 지원)
+ */
+infix fun <K, V> Map<K, V>?.shouldContainSame(expected: Map<K, V>?): Map<K, V> {
+    if (this === expected) return this ?: emptyMap()
+    if (this == null || expected == null) {
+        Failures.failComparison(
+            "Expected maps to contain same entries, but one was null.",
+            expected,
+            this
+        )
+    }
+    if (this != expected) {
+        Failures.failComparison(
+            "Expected ${Messages.stringify(this)} to contain same entries as ${Messages.stringify(expected)}, but they differed.",
+            expected,
             this
         )
     }

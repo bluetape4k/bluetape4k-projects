@@ -2,8 +2,8 @@ package io.bluetape4k.testcontainers.mail
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeBlank
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 

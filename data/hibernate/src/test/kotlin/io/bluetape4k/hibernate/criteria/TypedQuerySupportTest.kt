@@ -7,8 +7,8 @@ import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.createQueryAs
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import jakarta.persistence.TypedQuery
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 
 class TypedQuerySupportTest: AbstractHibernateTest() {

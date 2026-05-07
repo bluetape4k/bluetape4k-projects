@@ -1,6 +1,6 @@
 package io.bluetape4k.batch.api
 
-import org.amshove.kluent.shouldBe
+import io.bluetape4k.assertions.shouldBe
 import org.junit.jupiter.api.Test
 
 /**

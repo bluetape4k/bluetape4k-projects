@@ -10,8 +10,8 @@ import io.bluetape4k.redis.redisson.streamAddArgsOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 import org.redisson.api.RStream
 import org.redisson.api.stream.StreamCreateGroupArgs

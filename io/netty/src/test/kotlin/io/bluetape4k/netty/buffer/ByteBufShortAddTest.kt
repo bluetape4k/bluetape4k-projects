@@ -4,7 +4,7 @@ import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.Unpooled
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 

@@ -1,7 +1,7 @@
 package io.bluetape4k.collections.permutations
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

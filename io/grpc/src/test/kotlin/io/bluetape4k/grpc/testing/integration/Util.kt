@@ -4,8 +4,8 @@ import com.google.protobuf.MessageLite
 import io.grpc.Metadata
 import io.grpc.Metadata.Key
 import io.grpc.protobuf.ProtoUtils
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import java.net.URI
 import java.net.URISyntaxException
 

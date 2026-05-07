@@ -6,8 +6,8 @@ import io.bluetape4k.states.core.stateMachine
 import io.bluetape4k.states.testing.arrives
 import io.bluetape4k.states.testing.verifyPath
 import io.bluetape4k.states.testing.via
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 
 class TurnstileExampleTest {

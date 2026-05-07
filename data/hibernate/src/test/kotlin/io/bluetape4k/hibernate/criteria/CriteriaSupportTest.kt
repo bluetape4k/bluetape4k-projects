@@ -2,9 +2,9 @@ package io.bluetape4k.hibernate.criteria
 
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class CriteriaSupportTest: AbstractHibernateTest() {

@@ -8,8 +8,8 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import org.amshove.kluent.`should be in range`
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.util.concurrent.CompletableFuture
@@ -54,7 +54,7 @@ class Rule2RunBlockingSynchronousCode: AbstractVirtualThreadTest() {
 
         val durationMs = System.currentTimeMillis() - startMs
         log.debug { "비동기 코드 실행 시간 (msec): $durationMs" }
-        durationMs `should be in range` 500L..2000L
+        durationMs shouldBeInRange (500L..2000L)
     }
 
     /**

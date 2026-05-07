@@ -14,7 +14,7 @@ import io.bluetape4k.idgenerators.ulid.utils.PatternLeastSignificantBits
 import io.bluetape4k.idgenerators.ulid.utils.PatternMostSignificantBits
 import io.bluetape4k.idgenerators.ulid.utils.ZeroBytes
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test

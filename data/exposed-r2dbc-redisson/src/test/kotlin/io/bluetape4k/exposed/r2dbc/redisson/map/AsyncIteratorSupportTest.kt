@@ -1,7 +1,7 @@
 package io.bluetape4k.exposed.r2dbc.redisson.map
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.redisson.api.AsyncIterator
 import java.util.concurrent.CompletableFuture

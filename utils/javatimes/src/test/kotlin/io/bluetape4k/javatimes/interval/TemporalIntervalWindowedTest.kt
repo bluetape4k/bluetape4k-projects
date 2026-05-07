@@ -5,8 +5,8 @@ import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.params.ParameterizedTest

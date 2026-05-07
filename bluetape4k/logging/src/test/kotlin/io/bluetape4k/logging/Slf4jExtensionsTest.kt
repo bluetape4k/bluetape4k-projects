@@ -1,8 +1,8 @@
 package io.bluetape4k.logging
 
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldStartWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldStartWith
 import org.junit.jupiter.api.Test
 import org.slf4j.Marker
 import org.slf4j.MarkerFactory

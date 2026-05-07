@@ -1,10 +1,8 @@
 package io.bluetape4k.kafka
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.internal.assertFailsWith
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldThrow
-import org.amshove.kluent.withMessage
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -84,14 +82,16 @@ class TopicPartitionSupportTest: AbstractKafkaTest() {
 
     @Test
     fun `구분자가 없는 문자열은 예외 발생`() {
-        val exception = { "invalidtopicname".toTopicPartition() }
-        exception shouldThrow IllegalArgumentException::class withMessage "Not found kafka topic-position delimiter (-)"
+        assertFailsWith<IllegalArgumentException> {
+            "invalidtopicname".toTopicPartition()
+        }.message shouldBeEqualTo "Not found kafka topic-position delimiter (-)"
     }
 
     @Test
     fun `숫자가 아닌 파티션 번호는 예외 발생`() {
-        val exception = { "topic-abc".toTopicPartition() }
-        exception shouldThrow NumberFormatException::class
+        assertFailsWith<NumberFormatException> {
+            "topic-abc".toTopicPartition()
+        }
     }
 
     @Test

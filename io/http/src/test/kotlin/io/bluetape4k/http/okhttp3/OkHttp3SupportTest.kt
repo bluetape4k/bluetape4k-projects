@@ -13,9 +13,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeBlank
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.commons.lang3.time.StopWatch
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested

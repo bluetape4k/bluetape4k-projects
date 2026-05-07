@@ -9,8 +9,8 @@ import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.startOfDay
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 

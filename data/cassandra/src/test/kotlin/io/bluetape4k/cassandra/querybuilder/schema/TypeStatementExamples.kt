@@ -6,7 +6,7 @@ import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.alterType
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.createType
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder.dropType
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class TypeStatementExamples {

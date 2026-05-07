@@ -2,7 +2,7 @@ package io.bluetape4k.javatimes.period
 
 import io.bluetape4k.javatimes.period.ranges.YearCalendarTimeRange
 import io.bluetape4k.javatimes.zonedDateTimeOf
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

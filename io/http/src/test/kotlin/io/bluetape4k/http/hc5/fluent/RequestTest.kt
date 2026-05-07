@@ -1,7 +1,7 @@
 package io.bluetape4k.http.hc5.fluent
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.core5.http.Method
 import org.junit.jupiter.api.Test
 import java.net.URI

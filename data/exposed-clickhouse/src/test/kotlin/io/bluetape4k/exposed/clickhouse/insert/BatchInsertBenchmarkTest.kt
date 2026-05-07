@@ -3,7 +3,7 @@ package io.bluetape4k.exposed.clickhouse.insert
 import io.bluetape4k.exposed.clickhouse.AbstractClickHouseTest
 import io.bluetape4k.exposed.clickhouse.domain.Events
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

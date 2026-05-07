@@ -8,7 +8,7 @@ import okio.Inflater
 import okio.buffer
 import okio.deflate
 import okio.inflate
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class DeflateKotlinTest: AbstractOkioTest() {

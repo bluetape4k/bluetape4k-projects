@@ -6,8 +6,8 @@ import io.bluetape4k.collections.eclipse.fastListOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ChannelsExclipseExtensionsTest {

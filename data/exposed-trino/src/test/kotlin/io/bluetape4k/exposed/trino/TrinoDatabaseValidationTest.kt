@@ -1,7 +1,6 @@
 package io.bluetape4k.exposed.trino
 
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldThrow
+import io.bluetape4k.assertions.invoking
 import org.junit.jupiter.api.Test
 
 /**

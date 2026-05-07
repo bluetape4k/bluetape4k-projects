@@ -5,8 +5,8 @@ import io.bluetape4k.pulsar.AbstractPulsarTest
 import io.bluetape4k.pulsar.producer.sendSuspend
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.apache.pulsar.client.api.MessageId
 import org.apache.pulsar.client.api.Schema
 import org.junit.jupiter.api.Test

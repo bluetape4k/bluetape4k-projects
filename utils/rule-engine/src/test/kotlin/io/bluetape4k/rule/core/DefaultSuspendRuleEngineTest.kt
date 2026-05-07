@@ -7,11 +7,11 @@ import io.bluetape4k.rule.api.suspendRuleSetOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertFailsWith
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeFalse
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.coInvoking
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -100,9 +100,7 @@ class DefaultSuspendRuleEngineTest {
         val canceledRule = buildSuspendRule("canceledRule", 1, { true }, { throw CancellationException("cancel") })
         val nextRule = buildSuspendRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
-        assertFailsWith<CancellationException> {
-            engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty())
-        }.message shouldBeEqualTo "cancel"
+        (coInvoking { engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty()) } shouldThrow CancellationException::class).message shouldBeEqualTo "cancel"
     }
 
     @Test
@@ -111,9 +109,7 @@ class DefaultSuspendRuleEngineTest {
         val canceledRule = buildSuspendRule("canceledOnEvaluate", 1, { throw CancellationException("cancel-on-evaluate") }, { it["executed"] = true })
         val nextRule = buildSuspendRule("nextRule", 2, { true }, { it["nextRule"] = true })
 
-        assertFailsWith<CancellationException> {
-            engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty())
-        }.message shouldBeEqualTo "cancel-on-evaluate"
+        (coInvoking { engine.fire(suspendRuleSetOf(canceledRule, nextRule), Facts.empty()) } shouldThrow CancellationException::class).message shouldBeEqualTo "cancel-on-evaluate"
     }
 
     @Test
@@ -132,9 +128,7 @@ class DefaultSuspendRuleEngineTest {
         val engine = DefaultSuspendRuleEngine()
         val canceledRule = buildSuspendRule("canceledOnCheck", cond = { throw CancellationException("cancel-on-check") }, act = { })
 
-        assertFailsWith<CancellationException> {
-            engine.check(suspendRuleSetOf(canceledRule), Facts.empty())
-        }.message shouldBeEqualTo "cancel-on-check"
+        (coInvoking { engine.check(suspendRuleSetOf(canceledRule), Facts.empty()) } shouldThrow CancellationException::class).message shouldBeEqualTo "cancel-on-check"
     }
 
     @Test

@@ -9,10 +9,10 @@ import io.bluetape4k.math.ml.neuralnet.computeU
 import io.bluetape4k.math.ml.neuralnet.findBest
 import io.bluetape4k.math.ml.neuralnet.findBestAndSecondBest
 import io.bluetape4k.math.ml.neuralnet.sort
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeInRange
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.commons.math3.ml.neuralnet.FeatureInitializerFactory
 import org.apache.commons.math3.ml.neuralnet.SquareNeighbourhood
 import org.apache.commons.math3.ml.neuralnet.twod.NeuronSquareMesh2D

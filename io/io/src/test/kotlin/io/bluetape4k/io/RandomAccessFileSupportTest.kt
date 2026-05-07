@@ -2,8 +2,8 @@ package io.bluetape4k.io
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Resourcex
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.RandomAccessFile

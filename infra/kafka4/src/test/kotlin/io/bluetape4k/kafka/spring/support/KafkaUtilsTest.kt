@@ -2,8 +2,8 @@ package io.bluetape4k.kafka.spring.support
 
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.Test
