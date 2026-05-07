@@ -82,7 +82,7 @@ class AbstractJpaEntityUnitTest {
     @Test
     fun `null과 비교하면 false`() {
         val entity = TestEntity("test")
-        (entity == null).shouldBeFalse()
+        entity.equals(null).shouldBeFalse()
     }
 
     @Test

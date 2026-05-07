@@ -123,14 +123,12 @@ class NetCdfCatalogService(
             return id
         } finally {
             sample?.let { sampler ->
-                meterRegistry?.let { registry ->
-                    sampler.stop(
-                        registry.timer(
-                            "netcdf.register.duration",
-                            "status", if (success) "success" else "failure",
-                        )
+                sampler.stop(
+                    checkNotNull(meterRegistry).timer(
+                        "netcdf.register.duration",
+                        "status", if (success) "success" else "failure",
                     )
-                }
+                )
             }
         }
     }
@@ -467,9 +465,7 @@ class NetCdfCatalogService(
         }
 
         sliceTimer?.let { sampler ->
-            meterRegistry?.let { registry ->
-                sampler.stop(registry.timer("netcdf.import.slice.duration"))
-            }
+            sampler.stop(checkNotNull(meterRegistry).timer("netcdf.import.slice.duration"))
         }
         meterRegistry?.counter("netcdf.import.variable.records", "variable", ctx.variableName)
             ?.increment(inserted.toDouble())

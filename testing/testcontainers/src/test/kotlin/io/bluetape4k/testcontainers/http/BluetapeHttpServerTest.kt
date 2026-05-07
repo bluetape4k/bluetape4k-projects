@@ -67,8 +67,8 @@ class BluetapeHttpServerTest {
 
         httpClient.newCall(request).execute().use { response ->
             response.code shouldBeEqualTo 200
-            response.body.shouldNotBeNull()
-            response.body?.string() shouldBeEqualTo "pong"
+            val body = response.body.shouldNotBeNull()
+            body.string() shouldBeEqualTo "pong"
         }
     }
 
@@ -182,7 +182,7 @@ class BluetapeHttpServerTest {
 
         httpsClient.newCall(request).execute().use { response ->
             response.code shouldBeEqualTo 200
-            response.body?.string() shouldBeEqualTo "pong"
+            response.body.string() shouldBeEqualTo "pong"
         }
     }
 

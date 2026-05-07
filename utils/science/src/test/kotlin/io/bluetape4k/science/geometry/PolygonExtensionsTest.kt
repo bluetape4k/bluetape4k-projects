@@ -2,6 +2,7 @@ package io.bluetape4k.science.geometry
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
@@ -98,6 +99,6 @@ class PolygonExtensionsTest {
         val c = polygon.centroid()
         c.shouldNotBeNull()
         // JTS Point 타입임을 확인
-        (c is org.locationtech.jts.geom.Point).let { require(it) { "centroid는 Point 타입이어야 합니다" } }
+        c.shouldBeInstanceOf<org.locationtech.jts.geom.Point>()
     }
 }

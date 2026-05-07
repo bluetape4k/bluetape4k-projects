@@ -429,10 +429,10 @@ inline fun assertNotFails(block: () -> Unit) {
  * @param block 검증할 suspend 코드 블록
  * @return 블록의 반환값
  */
-suspend fun <T> assertTimeout(
+suspend inline fun <T> assertTimeout(
     duration: Duration,
     message: String? = null,
-    block: suspend () -> T,
+    crossinline block: suspend () -> T,
 ): T {
     val prefix = if (message != null) "$message — " else ""
     return try {

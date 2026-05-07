@@ -8,13 +8,13 @@ import java.util.Properties
 class PublishOptionsTest {
 
     @Test
-    fun `publishOptions with builder creates instance with stream`() {
+    fun `publishOptions with builder creates instance with expectedStream`() {
         val opts = publishOptions {
-            stream("orders")
+            expectedStream("orders")
         }
 
         opts.shouldNotBeNull()
-        opts.stream shouldBeEqualTo "orders"
+        opts.expectedStream shouldBeEqualTo "orders"
     }
 
     @Test
@@ -26,13 +26,13 @@ class PublishOptionsTest {
     }
 
     @Test
-    fun `publishOptionsOf with properties and builder applies stream`() {
+    fun `publishOptionsOf with properties and builder applies expectedStream`() {
         val props = Properties()
         val opts = publishOptionsOf(props) {
-            stream("events")
+            expectedStream("events")
         }
 
         opts.shouldNotBeNull()
-        opts.stream shouldBeEqualTo "events"
+        opts.expectedStream shouldBeEqualTo "events"
     }
 }
