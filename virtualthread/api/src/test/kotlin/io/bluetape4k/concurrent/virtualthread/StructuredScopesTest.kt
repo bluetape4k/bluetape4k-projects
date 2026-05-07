@@ -349,7 +349,7 @@ class StructuredScopesTest {
         assertFailsWith<TimeoutException> {
             StructuredTaskScopes.failFast { scope ->
                 scope.fork {
-                    Thread.sleep(10_000)
+                    Thread.sleep(200)
                     42
                 }
                 // 100ms 데드라인 — subtask보다 훨씬 짧음
@@ -426,7 +426,7 @@ class StructuredScopesTest {
         assertFailsWith<TimeoutException> {
             StructuredTaskScopes.supervised<Int, Unit> { scope ->
                 scope.fork {
-                    Thread.sleep(10_000)
+                    Thread.sleep(200)
                     42
                 }
                 scope.joinUntil(Instant.now().plusMillis(100))
