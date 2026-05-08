@@ -490,3 +490,43 @@ infix fun CharSequence.shouldContainRegex(pattern: String): CharSequence =
  */
 infix fun CharSequence.shouldNotContainRegex(pattern: String): CharSequence =
     this shouldNotContainRegex Regex(pattern)
+
+/**
+ * [expected]와 대소문자를 무시하고 같은지 검증한다. (Kluent 호환)
+ *
+ * @param expected 기대하는 값
+ * @param actual 검증할 값
+ * @param message 실패 시 출력할 메시지 (optional)
+ */
+fun assertEqualsIgnoringCase(expected: Any, actual: Any, message: String? = null) {
+    val equal = when {
+        actual is CharSequence && expected is CharSequence ->
+            actual.toString().equals(expected.toString(), ignoreCase = true)
+        actual is Char && expected is Char -> actual.equals(expected, ignoreCase = true)
+        else -> false
+    }
+    if (!equal) {
+        val prefix = if (message != null) "$message\n" else ""
+        Failures.fail("${prefix}Expected <$expected> to equal <$actual> ignoring case, but it did not.")
+    }
+}
+
+/**
+ * [expected]와 대소문자를 무시하고 다른지 검증한다. (Kluent 호환)
+ *
+ * @param expected 기대하는 값
+ * @param actual 검증할 값
+ * @param message 실패 시 출력할 메시지 (optional)
+ */
+fun assertNotEqualsIgnoringCase(expected: Any, actual: Any, message: String? = null) {
+    val equal = when {
+        actual is CharSequence && expected is CharSequence ->
+            actual.toString().equals(expected.toString(), ignoreCase = true)
+        actual is Char && expected is Char -> actual.equals(expected, ignoreCase = true)
+        else -> false
+    }
+    if (equal) {
+        val prefix = if (message != null) "$message\n" else ""
+        Failures.fail("${prefix}Expected <$expected> not to equal <$actual> ignoring case, but it did.")
+    }
+}
