@@ -2,6 +2,10 @@ name: CI
 
 permissions:
   contents: read
+  actions: read
+  checks: read
+  statuses: read
+  packages: read
 
 on:
   push:
@@ -28,6 +32,7 @@ on:
       - 'LICENSE'
       - '.omc/**'
       - '.claude/**'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -77,6 +82,51 @@ jobs:
       - name: Check Spring Boot 3/4 parity
         run: python3 .github/scripts/check-spring-boot-parity.py
 
+  # ── 1-c. 변경된 모듈 감지 ─────────────────────────────────────────────────
+  changes:
+    name: Detect changed modules
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: validate-wrapper
+    outputs:
+      shared: ${{ steps.filter.outputs.shared }}
+      core: ${{ steps.filter.outputs.core }}
+      io: ${{ steps.filter.outputs.io }}
+      key-utils: ${{ steps.filter.outputs.key-utils }}
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared:
+              - 'buildSrc/**'
+              - 'build.gradle.kts'
+              - 'settings.gradle.kts'
+              - 'gradle/**'
+              - 'gradle.properties'
+              - '.github/workflows/ci.yml'
+            core:
+              - 'bluetape4k/core/**'
+              - 'bluetape4k/coroutines/**'
+              - 'bluetape4k/logging/**'
+              - 'virtualthread/api/**'
+              - 'virtualthread/jdk21/**'
+            io:
+              - 'io/io/**'
+              - 'io/okio/**'
+              - 'io/json/**'
+              - 'io/jackson3/**'
+            key-utils:
+              - 'utils/idgenerators/**'
+              - 'infra/cache-core/**'
+            infra:
+              - 'infra/redisson/**'
+              - 'infra/lettuce/**'
+              - 'infra/cache-lettuce/**'
+              - 'infra/cache-redisson/**'
+
   # ── 2. 전체 빌드 (테스트 제외) ──────────────────────────────────────────
   build:
     name: Build
@@ -106,7 +156,8 @@ jobs:
     name: Test / Core
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: build
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs.core == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -170,7 +221,8 @@ jobs:
     name: Test / IO
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: build
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -232,7 +284,8 @@ jobs:
     name: Test / Key Utils
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: build
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs['key-utils'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -290,7 +343,8 @@ jobs:
     name: Test / Infra (Redis)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: build
+    needs: [build, changes]
+    if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -395,7 +449,7 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [gitleaks, validate-wrapper, spring-boot-parity, build, test-core, test-io, test-key-utils, test-infra, coverage-report]
+    needs: [gitleaks, validate-wrapper, spring-boot-parity, changes, build, test-core, test-io, test-key-utils, test-infra, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
@@ -403,8 +457,8 @@ jobs:
           RESULTS: ${{ join(needs.*.result, ',') }}
         run: |
           echo "Job results: $RESULTS"
-          if echo "$RESULTS" | grep -qE "failure|cancelled|skipped"; then
+          if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "CI failed"
             exit 1
           fi
-          echo "CI passed"
+          echo "CI passed (skipped jobs treated as success)"
