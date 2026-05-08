@@ -17,7 +17,6 @@ dependencies {
     api(libs.junit.platform.launcher)
 
     api(project(":bluetape4k-assertions"))
-    api(libs.kluent)
     api(libs.mockk)
     api(libs.awaitility.kotlin)
 
