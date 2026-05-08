@@ -731,28 +731,15 @@ class MailpitServer : GenericContainer<MailpitServer>("axllent/mailpit:latest") 
 
 ## 17. 장기 오픈 이슈 처리 🟢
 
-### 17.1 bucket4j + Exposed Rate Limiting 🟢
+### 17.1 bucket4j + Exposed Rate Limiting ✅ **이관됨**
 
-- Issue: [#38](https://github.com/bluetape4k/bluetape4k-projects/issues/38)
-- [ ] `infra/bucket4j` 또는 `data/exposed-bucket4j` 모듈 신규 생성
-- [ ] `Bucket4j` + Exposed JDBC 기반 분산 Rate Limiting 구현
-- [ ] Coroutines suspend API 제공
+- Issue: [#38](https://github.com/bluetape4k/bluetape4k-projects/issues/38) — **CLOSED (2026-05-08, 이관)**
+- 추적: bluetape4k-exposed [#4](https://github.com/bluetape4k/bluetape4k-exposed/issues/4)
 
-#### 참고 자료
-- [Bucket4j GitHub](https://github.com/bucket4j/bucket4j)
-- [Bucket4j Spring Boot Starter](https://github.com/MarcGiffing/bucket4j-spring-boot-starter)
+### 17.2 Spring Modulith + Exposed ✅ **이관됨**
 
-### 17.2 Spring Modulith + Exposed 🟢
-
-- Issue: [#25](https://github.com/bluetape4k/bluetape4k-projects/issues/25)
-- [ ] Spring Modulith `ApplicationModuleListener` + Exposed 트랜잭션 연동
-- [ ] `spring-boot4/spring-modulith-exposed` 모듈 신규 생성
-- [ ] 모듈 간 이벤트 발행/수신 DSL 제공
-- [ ] Spring Boot 4 대응 포함
-
-#### 참고 자료
-- [Spring Modulith 공식 문서](https://docs.spring.io/spring-modulith/reference/)
-- [Spring Modulith GitHub](https://github.com/spring-projects/spring-modulith)
+- Issue: [#25](https://github.com/bluetape4k/bluetape4k-projects/issues/25) — **CLOSED (2026-05-08, 이관)**
+- 추적: bluetape4k-exposed [#5](https://github.com/bluetape4k/bluetape4k-exposed/issues/5)
 
 ---
 
