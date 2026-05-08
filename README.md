@@ -215,6 +215,7 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
     - **[redisson](./infra/redisson/README.md)**: Redisson client, Codec, Memoizer, NearCache (`RLocalCachedMap`), Leader Election (with Coroutines support)
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
 - **[kafka](./infra/kafka/README.md)**: Kafka client
+- **[kafka-logback](./infra/kafka-logback/README.md)**: Logback Kafka Appender (promoted from `x-obsoleted/logback-kafka`)
 - **[micrometer](./infra/micrometer/README.md)**: Metrics
 - **[opentelemetry](./infra/opentelemetry/README.md)**: Distributed tracing
 - **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache
@@ -287,13 +288,15 @@ Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 
 
 ### Utility Modules (`utils/`)
 
+> **Moved**: The leader-election module split into a standalone repo **[bluetape4k-leader](https://github.com/bluetape4k/bluetape4k-leader)** (blocking / async / coroutine / virtual-thread leader-election APIs with Redis backend).
+
+
 - **[geo](./utils/geo/README.md)
   **: Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former
   `utils/geocode`, `utils/geohash`, `utils/geoip2`)
 - **[idgenerators](./utils/idgenerators/README.md)**: ID generators — `Uuid` (V1–V7 unified API), `ULID`, `Ksuid` (Seconds/Millis), `Snowflakers` unified factory, `Flake`, `Hashids`, and more
 - **[javatimes](./utils/javatimes/README.md)**: Date/time utilities
 - **[jwt](./utils/jwt/README.md)**: JWT processing
-- **[leader](./utils/leader/README.md)**: Leader election
 - **[math](./utils/math/README.md)**: Math utilities
 - **[measured](./utils/measured/README.md)**: Composable unit types (`Units`) and measurements (`Measure`) — express composite units (`m/s`, `kg*m/s^2`) with full type safety
 - **[money](./utils/money/README.md)**: Money/currency API
@@ -339,24 +342,20 @@ Demonstration modules showing library usage. Not published to Maven.
 - **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread usage examples
 
-### Obsolete Modules (`x-obsoleted/`)
+### Removed / Migrated Modules
 
-No longer maintained. Excluded from the build and scheduled for removal.
+The legacy `x-obsoleted/` directory was removed. The table below documents the final disposition of every former entry so older references stay traceable.
 
-- ~~**vertx-coroutines**~~: Vert.x + Coroutines — merged into `bluetape4k-vertx`
-- ~~**vertx-sqlclient**~~: Vert.x SQL Client — merged into `bluetape4k-vertx`
-- ~~**vertx-webclient**~~: Vert.x Web Client — merged into `bluetape4k-vertx`
-- ~~**mapstruct**~~: MapStruct integration — dropped, unused
-- ~~**bloomfilter**~~: Bloom Filter — dropped, low usage
-- ~~**captcha**~~: CAPTCHA generation — dropped, low usage
-- ~~**logback-kafka**~~: Logback Kafka Appender — dropped, low usage
-- ~~**nats**~~: NATS messaging — dropped, low usage
-- ~~**javers**~~: JaVers audit log — dropped, low usage
-- ~~**tokenizer**~~: Promoted to `texts/tokenizer-core`, `texts/tokenizer-korean`, `texts/tokenizer-japanese`
-- ~~**ahocorasick**~~: Promoted to `texts/text-search` — Aho-Corasick string search
-- ~~**lingua**~~: Promoted to `texts/lingua` — Language detection (Lingua wrapper)
-- ~~**naivebayes**~~: Naive Bayes classifier — dropped, low usage
-- ~~**mutiny-examples**~~: Mutiny usage examples — dropped
+| Module                              | Status                                                                                         |
+|-------------------------------------|------------------------------------------------------------------------------------------------|
+| `logback-kafka`                     | **Promoted** → [`infra/kafka-logback`](./infra/kafka-logback/README.md)                        |
+| `tokenizer`                         | **Migrated** → `bluetape4k-text` (tokenizer-core / tokenizer-korean / tokenizer-japanese)      |
+| `ahocorasick`                       | **Migrated** → `bluetape4k-text/text-search`                                                   |
+| `lingua`                            | **Migrated** → `bluetape4k-text/lingua`                                                        |
+| `javers`                            | **Spun off** → standalone repo [bluetape4k-javers](https://github.com/bluetape4k/bluetape4k-javers) |
+| `bloomfilter`                       | **Replaced** → `infra/lettuce` BloomFilter / CuckooFilter (Lua-based)                          |
+| `vertx-coroutines` / `vertx-sqlclient` / `vertx-webclient` | **Merged** → `bluetape4k-vertx`                                         |
+| `mapstruct`, `captcha`, `nats`, `naivebayes`, `mutiny-examples` | **Removed** (low usage)                                              |
 
 ## Building and Testing
 

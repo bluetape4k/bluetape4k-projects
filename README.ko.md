@@ -219,6 +219,7 @@ flowchart TB
     - **[redisson](./infra/redisson/README.ko.md)**: Redisson 클라이언트, Codec, Memorizer, NearCache (`RLocalCachedMap`), Leader Election (Coroutines 지원)
 - **[bucket4j](./infra/bucket4j/README.ko.md)**: Rate limiting
 - **[kafka](./infra/kafka/README.ko.md)**: Kafka 클라이언트
+- **[kafka-logback](./infra/kafka-logback/README.ko.md)**: Logback Kafka Appender (구 `x-obsoleted/logback-kafka` 에서 승격)
 - **[micrometer](./infra/micrometer/README.ko.md)**: 메트릭
 - **[opentelemetry](./infra/opentelemetry/README.ko.md)**: 분산 추적
 - **[resilience4j](./infra/resilience4j/README.ko.md)**: Resilience4j + Coroutines, Coroutines Cache
@@ -290,12 +291,13 @@ Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 �
 
 ### 유틸리티 모듈 (`utils/`)
 
+> **이동됨**: 리더 선출(leader election) 모듈은 독립 레포 **[bluetape4k-leader](https://github.com/bluetape4k/bluetape4k-leader)** 로 분리됐습니다. blocking / async / coroutine / virtual-thread API와 Redis 백엔드를 제공합니다.
+
 - **[geo](./utils/geo/README.ko.md)**: 지리 정보 처리 단일 통합 모듈 — geocode(Bing/Google), geohash, geoip2(MaxMind) 포함 (구
   `utils/geocode`, `utils/geohash`, `utils/geoip2` 통합됨)
 - **[idgenerators](./utils/idgenerators/README.ko.md)**: ID 생성기 — `Uuid`(V1~V7 통일 API), `ULID`, `Ksuid`(Seconds/Millis), `Snowflakers` 통일 팩토리, `Flake`, `Hashids` 등 다양한 ID 생성 알고리즘 제공
 - **[javatimes](./utils/javatimes/README.ko.md)**: 날짜/시간 유틸리티
 - **[jwt](./utils/jwt/README.ko.md)**: JWT 처리
-- **[leader](./utils/leader/README.ko.md)**: Leader 선출
 - **[math](./utils/math/README.ko.md)**: 수학 유틸리티
 - **[measured](./utils/measured/README.ko.md)**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로, 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **[money](./utils/money/README.ko.md)**: Money API
@@ -339,24 +341,20 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 - **[redisson-demo](./examples/redisson-demo/README.ko.md)**: Redisson 사용 예제
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.ko.md)**: Java Virtual Thread 사용 예제
 
-### 폐기된 모듈 (`x-obsoleted/`)
+### 제거 / 이전된 모듈
 
-더 이상 유지보수되지 않는 모듈입니다. 빌드에서 제외되었으며 삭제될 예정입니다.
+레거시 `x-obsoleted/` 디렉토리는 제거되었습니다. 이전 항목들의 최종 처분 내역을 표로 보존하여 과거 참조가 추적 가능하도록 유지합니다.
 
-- ~~**vertx-coroutines**~~: Vert.x + Coroutines — `bluetape4k-vertx`로 통합됨
-- ~~**vertx-sqlclient**~~: Vert.x SQL Client — `bluetape4k-vertx`로 통합됨
-- ~~**vertx-webclient**~~: Vert.x Web Client — `bluetape4k-vertx`로 통합됨
-- ~~**mapstruct**~~: MapStruct 통합 — 미사용으로 폐기
-- ~~**bloomfilter**~~: Bloom Filter — 사용 빈도 낮아 폐기
-- ~~**captcha**~~: CAPTCHA 생성 — 사용 빈도 낮아 폐기
-- ~~**logback-kafka**~~: Logback Kafka Appender — 사용 빈도 낮아 폐기
-- ~~**nats**~~: NATS 메시징 — 사용 빈도 낮아 폐기
-- ~~**javers**~~: JaVers 감사 로그 — 사용 빈도 낮아 폐기
-- ~~**tokenizer**~~: `texts/tokenizer-core`, `texts/tokenizer-korean`, `texts/tokenizer-japanese` 로 승격됨
-- ~~**ahocorasick**~~: `texts/text-search` 로 승격됨
-- ~~**lingua**~~: `texts/lingua` 로 승격됨
-- ~~**naivebayes**~~: Naive Bayes 분류기 — 사용 빈도 낮아 폐기
-- ~~**mutiny-examples**~~: Mutiny 사용 예제 — 폐기
+| 모듈                                | 상태                                                                                  |
+|-------------------------------------|---------------------------------------------------------------------------------------|
+| `logback-kafka`                     | **승격** → [`infra/kafka-logback`](./infra/kafka-logback/README.ko.md)                |
+| `tokenizer`                         | **이전** → `bluetape4k-text` (tokenizer-core / tokenizer-korean / tokenizer-japanese) |
+| `ahocorasick`                       | **이전** → `bluetape4k-text/text-search`                                              |
+| `lingua`                            | **이전** → `bluetape4k-text/lingua`                                                   |
+| `javers`                            | **분리** → 독립 레포 [bluetape4k-javers](https://github.com/bluetape4k/bluetape4k-javers) |
+| `bloomfilter`                       | **대체** → `infra/lettuce` BloomFilter / CuckooFilter (Lua 기반)                      |
+| `vertx-coroutines` / `vertx-sqlclient` / `vertx-webclient` | **통합** → `bluetape4k-vertx`                                  |
+| `mapstruct`, `captcha`, `nats`, `naivebayes`, `mutiny-examples` | **삭제** (사용 빈도 낮음)                                  |
 
 ## 빌드 및 테스트
 
