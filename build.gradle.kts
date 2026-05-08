@@ -527,7 +527,6 @@ subprojects {
             dependency(rootLibs.junit.platform.engine.get().toString())
             dependency(rootLibs.junit.platform.launcher.get().toString())
 
-            dependency(rootLibs.kluent.get().toString())
             dependency(rootLibs.assertj.core.get().toString())
 
             dependency(rootLibs.mockk.get().toString())
@@ -595,7 +594,7 @@ subprojects {
         testRuntimeOnly(rootLibs.junit.platform.engine)
         testImplementation(rootLibs.junit.jupiter.migrationsupport)
 
-        testImplementation(rootLibs.kluent)
+        testImplementation(rootLibs.bluetape4k.assertions)
         if (name != "bluetape4k-assertions") {
             testImplementation(project(":bluetape4k-assertions"))
         }

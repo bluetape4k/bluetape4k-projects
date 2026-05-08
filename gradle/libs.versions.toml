@@ -110,7 +110,6 @@ ow2-asm = "9.9.1"
 junit-jupiter = "6.0.3"
 junit-platform = "6.0.3"
 assertj-core = "3.27.7"
-kluent = "1.73"
 mockk = "1.14.9"
 springmockk = "5.0.1"
 awaitility = "4.3.0"
@@ -1005,7 +1004,7 @@ junit-platform-suite-api = { module = "org.junit.platform:junit-platform-suite-a
 junit-platform-suite-engine = { module = "org.junit.platform:junit-platform-suite-engine", version.ref = "junit-platform" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
 
-kluent = { module = "org.amshove.kluent:kluent", version.ref = "kluent" }
+bluetape4k-assertions = { module = "io.github.bluetape4k:bluetape4k-assertions" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj-core" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 springmockk = { module = "com.ninja-squad:springmockk", version.ref = "springmockk" }
