@@ -71,6 +71,7 @@ class MyTest {
         // 컬렉션
         listOf(1, 2, 3) shouldContainAll listOf(1, 2)
         listOf(1, 2, 3) shouldNotContainAny listOf(4, 5)
+        listOf("GET", "POST") shouldContainIgnoringCase "post"
         
         // 문자열
         "hello".shouldStartWith("he")
@@ -148,6 +149,7 @@ class MyTest {
 | `shouldNotBeEmpty()` | 비어있지 않음 |
 | `shouldContainAll(elements)` | 모든 요소 포함 (⊇) |
 | `shouldNotContainAny(elements)` | 어떤 요소도 미포함 (∩ = ∅) |
+| `shouldContainIgnoringCase(element)` | 문자열 컬렉션에서 대소문자 무시 요소 포함 |
 | `shouldHaveSize(size)` | 크기 확인 |
 | `shouldContain(element)` | 요소 포함 |
 | `IntArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`) |

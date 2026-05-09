@@ -71,6 +71,7 @@ class MyTest {
         // Collections
         listOf(1, 2, 3) shouldContainAll listOf(1, 2)
         listOf(1, 2, 3) shouldNotContainAny listOf(4, 5)
+        listOf("GET", "POST") shouldContainIgnoringCase "post"
         
         // CharSequences
         "hello".shouldStartWith("he")
@@ -148,6 +149,7 @@ class MyTest {
 | `shouldNotBeEmpty()` | Non-empty collection |
 | `shouldContainAll(elements)` | Contains all (⊇) |
 | `shouldNotContainAny(elements)` | Contains none (∩ = ∅) |
+| `shouldContainIgnoringCase(element)` | String collection contains element ignoring case |
 | `shouldHaveSize(size)` | Size check |
 | `shouldContain(element)` | Contains single element |
 | `IntArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`) |

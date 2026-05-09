@@ -6,6 +6,11 @@ import io.bluetape4k.assertions.internal.Messages
 /**
  * 문자열 컬렉션이 대소문자를 무시하고 [expected] 문자열을 포함하는지 검증한다.
  *
+ * 예:
+ * ```kotlin
+ * listOf("GET", "POST") shouldContainIgnoringCase "post"
+ * ```
+ *
  * @receiver 검증할 문자열 컬렉션 (nullable 허용)
  * @param expected 대소문자 무시하고 포함해야 하는 문자열
  * @return non-null receiver (체이닝 지원)
