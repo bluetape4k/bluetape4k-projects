@@ -12,6 +12,7 @@
 - Collection assertion helper `shouldNotContainAny` was added ([#342](https://github.com/bluetape4k/bluetape4k-projects/pull/342)).
 - Case-insensitive string assertions `assertEqualsIgnoringCase` and `assertNotEqualsIgnoringCase` were added ([#343](https://github.com/bluetape4k/bluetape4k-projects/pull/343)).
 - `bluetape4k-bom` module README files were added in English and Korean ([#346](https://github.com/bluetape4k/bluetape4k-projects/pull/346)).
+- `infra/` deprecated API inventory and follow-up cleanup PR split were documented ([#110](https://github.com/bluetape4k/bluetape4k-projects/issues/110)).
 
 ### Changed
 
