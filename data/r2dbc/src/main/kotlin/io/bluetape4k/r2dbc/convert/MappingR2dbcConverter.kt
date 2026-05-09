@@ -17,7 +17,7 @@ import org.springframework.data.r2dbc.convert.MappingR2dbcConverter
  * // user.id > 0
  * ```
  */
-inline fun <reified T> MappingR2dbcConverter.read(row: Row, metadata: RowMetadata? = null): T =
+inline fun <reified T: Any> MappingR2dbcConverter.read(row: Row, metadata: RowMetadata? = null): T =
     read(T::class.java, row, metadata)
 
 /**

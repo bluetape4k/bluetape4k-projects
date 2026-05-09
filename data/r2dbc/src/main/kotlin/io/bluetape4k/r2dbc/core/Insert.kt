@@ -55,7 +55,7 @@ interface InsertIntoSpec {
      * @param type 엔티티 클래스
      * @return [ReactiveInsertOperation.ReactiveInsert] 인스턴스
      */
-    fun <T> into(type: Class<T>): ReactiveInsertOperation.ReactiveInsert<T>
+    fun <T: Any> into(type: Class<T>): ReactiveInsertOperation.ReactiveInsert<T>
 }
 
 /**
@@ -79,7 +79,7 @@ internal class InsertIntoSpecImpl(
         idColumn: String,
     ): InsertValuesKeySpec = InsertValuesKeySpecImpl(client, table, idColumn)
 
-    override fun <T> into(type: Class<T>): ReactiveInsertOperation.ReactiveInsert<T> =
+    override fun <T: Any> into(type: Class<T>): ReactiveInsertOperation.ReactiveInsert<T> =
         client.entityTemplate.insert(type)
 }
 

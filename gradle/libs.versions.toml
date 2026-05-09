@@ -11,6 +11,7 @@ kotlinx-benchmark = "0.4.15"
 spring-boot = "4.0.6"
 spring-cloud = "2025.1.1"
 reactor-bom = "2025.0.5"
+reactor-kafka = "1.3.25"
 spring-statemachine = "4.0.1"
 
 chaos-monkey = "3.2.2"
@@ -647,7 +648,7 @@ groovy-jsr223 = { module = "org.apache.groovy:groovy-jsr223", version = "4.0.27"
 reactor-bom = { module = "io.projectreactor:reactor-bom", version.ref = "reactor-bom" }
 reactor-core = { module = "io.projectreactor:reactor-core" }
 reactor-core-micrometer = { module = "io.projectreactor:reactor-core-micrometer" }
-reactor-kafka = { module = "io.projectreactor.kafka:reactor-kafka" }
+reactor-kafka = { module = "io.projectreactor.kafka:reactor-kafka", version.ref = "reactor-kafka" }
 reactor-netty = { module = "io.projectreactor.netty:reactor-netty" }
 reactor-test = { module = "io.projectreactor:reactor-test" }
 reactor-tools = { module = "io.projectreactor:reactor-tools" }

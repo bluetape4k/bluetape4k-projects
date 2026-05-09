@@ -35,16 +35,10 @@ configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }
 
-val currentJvmMajor = JavaVersion.current().majorVersion.toInt()
-
 dependencies {
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-virtualthread-api"))
-    if (currentJvmMajor >= 25) {
-        compileOnly(project(":bluetape4k-virtualthread-jdk25"))
-    } else {
-        compileOnly(project(":bluetape4k-virtualthread-jdk21"))
-    }
+    compileOnly(project(":bluetape4k-virtualthread-jdk21"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Coroutines

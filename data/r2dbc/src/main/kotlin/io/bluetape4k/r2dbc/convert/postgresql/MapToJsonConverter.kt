@@ -24,12 +24,12 @@ class MapToJsonConverter(
      * Map을 Json 객체로 변환합니다.
      *
      * @param source 변환할 Map
-     * @return Json 객체, 변환 실패 시 빈 Json 반환
+     * @return Json 객체, 변환 실패 시 빈 Json 객체
      */
-    override fun convert(source: Map<String, Any?>): Json? = try {
+    override fun convert(source: Map<String, Any?>): Json = try {
         Json.of(mapper.writeValueAsString(source))
     } catch (e: JsonProcessingException) {
         log.error(e) { "Fail to serialize map to Json. source=$source" }
-        null
+        Json.of("{}")
     }
 }

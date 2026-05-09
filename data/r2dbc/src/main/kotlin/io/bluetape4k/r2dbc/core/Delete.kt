@@ -36,7 +36,7 @@ interface DeleteTableSpec {
      * @param type 엔티티 클래스
      * @return [ReactiveDeleteOperation.ReactiveDelete] 인스턴스
      */
-    fun <T> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete
+    fun <T: Any> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete
 }
 
 /**
@@ -49,7 +49,7 @@ private class DeleteTableSpecImpl(
 ): DeleteTableSpec {
     override fun from(table: String): DeleteValueSpec = DeleteValueSpecImpl(client, table)
 
-    override fun <T> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete = client.entityTemplate.delete(type)
+    override fun <T: Any> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete = client.entityTemplate.delete(type)
 }
 
 /**

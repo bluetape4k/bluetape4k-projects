@@ -7,12 +7,12 @@ plugins {
     id("io.gatling.gradle") version "3.15.0"
 }
 
-// Java 25 툴체인 (mock-server 전용 — Spring Boot 4 + Virtual Threads 최적화)
-java { toolchain { languageVersion.set(JavaLanguageVersion.of(25)) } }
-kotlin { jvmToolchain(25) }
-tasks.withType<JavaCompile>().configureEach { options.release.set(25) }
+// Java 21 toolchain (workspace baseline)
+java { toolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
+kotlin { jvmToolchain(21) }
+tasks.withType<JavaCompile>().configureEach { options.release.set(21) }
 tasks.withType<Test>().configureEach {
-    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(25)) })
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) })
 }
 
 // Spring Boot Application 모듈: fat-jar 빌드, publishing 불필요
@@ -72,7 +72,7 @@ val hostArch = when (System.getProperty("os.arch")) {
 
 jib {
     from {
-        image = "eclipse-temurin:25-jre-alpine"
+        image = "eclipse-temurin:21-jre-alpine"
         platforms {
             if (jibMultiPlatform) {
                 platform { architecture = "amd64"; os = "linux" }
