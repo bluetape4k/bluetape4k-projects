@@ -19,6 +19,7 @@ import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.testcontainers.storage.CassandraServer.Launcher.cassandra4
 import io.bluetape4k.utils.Resourcex
 import io.bluetape4k.utils.ShutdownQueue
+import org.testcontainers.cassandra.CassandraQueryWaitStrategy
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
 import java.io.IOException
@@ -133,9 +134,12 @@ class CassandraServer private constructor(
         withReuse(reuse)
 
         withEnv("CASSANDRA_SNITCH", "GossipingPropertyFileSnitch")
+        withEnv("CASSANDRA_ENDPOINT_SNITCH", "GossipingPropertyFileSnitch")
+        withEnv("CASSANDRA_DC", LOCAL_DATACENTER1)
         withEnv("JVM_OPTS", "-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.initial_token=0")
         withEnv("HEAP_NEWSIZE", "128M")
         withEnv("MAX_HEAP_SIZE", "1024M")
+        waitingFor(CassandraQueryWaitStrategy())
 
         if (useDefaultPort) {
             exposeCustomPorts(CQL_PORT)

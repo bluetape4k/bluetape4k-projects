@@ -231,13 +231,13 @@
 ### Task 5.4: Permutation 테스트 이관
 
 - **complexity: medium**
-- 41개 테스트 파일 → Kotlin JUnit 5 + Kluent 변환
+- 41개 테스트 파일 → Kotlin JUnit 5 + bluetape4k-assertions 변환
 - **변환 전략**:
     - `AbstractPermutationTest` 기반 클래스 먼저 변환
     - JUnit 4 `@Test` → JUnit 5 `@Test` (import 변경)
     - `@Before` → `@BeforeEach`
     - Mockito → MockK (필요 시)
-    - AssertJ → Kluent (`assertThat(x).isEqualTo(y)` → `x shouldBeEqualTo y`)
+    - AssertJ → bluetape4k-assertions (`assertThat(x).isEqualTo(y)` → `x shouldBeEqualTo y`)
     - `@Test(expected = ...)` → `shouldThrow<Exception> { ... }`
     - 테스트 파일 목록:
         - 기본 연산: HeadTest, TailTest, GetTest, SizeTest, ForEachTest

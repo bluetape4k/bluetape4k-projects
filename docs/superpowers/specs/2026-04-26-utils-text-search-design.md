@@ -13,7 +13,7 @@
 `x-obsoleted/ahocorasick`(11 main + 12 test) 의 검증된 Aho-Corasick 구현을 신규 `utils/text-search` 모듈로 승격(promotion)한다. 단순 이동에 그치지 않고, **value 매핑 generic** (`AhoCorasickAutomaton<V>`) · **Kotlin DSL** · **Coroutines `Flow<Match<V>>`** · **`replaceAll { ... }` 람다** · **선택적 Unicode 정규화** API를 추가한다. 한글 금칙어 검사, 대용량 텍스트 스트리밍 매칭, 사전 기반 토큰 치환 같은 실사용 시나리오를 한 모듈에서 만족시키는 것이 목표.
 
 ### 제약
-- Kotlin 2.3, JVM 21, JUnit 5 + MockK + Kluent.
+- Kotlin 2.3, JVM 21, JUnit 5 + MockK + bluetape4k-assertions.
 - `settings.gradle.kts` 의 `includeModules("utils", withBaseDir = false)` 패턴에 따라 디렉토리명 `utils/text-search/` → 아티팩트 `bluetape4k-text-search` 자동 등록.
 - `bluetape4k-core`(`ValueObject`, `KLogging`)와 `bluetape4k-coroutines` 에 의존. `kotlinx_coroutines_core` + `kotlinx_coroutines_test` 사용 (`Libs` 에 정의됨).
 - `kotlinx_coroutines_core` 는 `compileOnly`로 선언. Flow API(`matchesAsFlow`) 사용자는 자신의 프로젝트에 `implementation(Libs.kotlinx_coroutines_core)` 명시 필요. `bluetape4k-coroutines` 역시 `compileOnly`. Java 전용 사용자는 coroutines 의존성 없이 blocking API만 사용 가능.

@@ -15,7 +15,7 @@
 2. `testing/mock-webflux-server` 신규 생성 (Spring WebFlux + Coroutines + Jackson 3, 이미지:
    `bluetape4k/mock-webflux-server`, 포트 9999)
 3. `BluetapeWebfluxServer` testcontainer 추가 (`BluetapeHttpServer` 옆, 네임스페이스 `bluetape-webflux`)
-4. **두 서버의 모든 endpoint** 통합 테스트 (JUnit 5 + OkHttp / WebTestClient + Kluent)
+4. **두 서버의 모든 endpoint** 통합 테스트 (JUnit 5 + OkHttp / WebTestClient + bluetape4k-assertions)
 5. 각 서버에 Gatling 3.15 Java API 스트레스 테스트
 
 Non-goals: 실제 네트워크 에뮬레이션, WireMock 대체, mutual TLS, HTTP/2
@@ -353,14 +353,14 @@ class BluetapeWebfluxServer private constructor(
 | T03 | `build.gradle.kts` Jib image → `bluetape4k/mock-web-server`                                                                                                                                               | low        |
 | T04 | 전체 repo ripgrep: `bluetape4k-mock-server`, `bluetape4k/mock-server` 참조 일괄 업데이트                                                                                                                            | medium     |
 | T05 | `README.md` + `README.ko.md` 갱신 (Mermaid 아키텍처 포함, Architecture→UML→Features→Examples)                                                                                                                     | low        |
-| T06 | mock-web-server **전체 endpoint 100% 커버** 통합 테스트: 기존 보완 + Ping/Admin/Stream/Web 신규 추가 (OkHttp + Kluent)                                                                                                     | high       |
+| T06 | mock-web-server **전체 endpoint 100% 커버** 통합 테스트: 기존 보완 + Ping/Admin/Stream/Web 신규 추가 (OkHttp + bluetape4k-assertions)                                                                                                     | high       |
 | T07 | `build.gradle.kts` `io.gatling.gradle` 플러그인 + `gatlingTest` source set 추가                                                                                                                                 | medium     |
 | T08 | `MockWebServerSimulation.kt`: 5개 시나리오 (Gatling Java API)                                                                                                                                                  | medium     |
 | T09 | `testing/mock-webflux-server` scaffold: `build.gradle.kts` (webflux + jackson3 + jib, `container { ports = ["9999"] }`), `application.yml` (port 9999), `MockWebfluxServerApplication.kt`, test resources | medium     |
 | T10 | fixtures + `FixtureLoader` + `InMemoryRepository` + DTOs + HTML 복사; `ApplicationBootstrapConfig.kt`, `JsonplaceholderService.kt`, `GlobalExceptionHandler` (`@RestControllerAdvice`) 작성                   | medium     |
 | T11 | httpbin 컨트롤러 3개 `suspend`/`Flow` 포팅; `Thread.sleep` → `delay()`; Jackson 3 WebFlux codec 등록                                                                                                               | high       |
 | T12 | jsonplaceholder 컨트롤러 6개 `suspend` 포팅; `web/` 컨트롤러: `WebContentLoader`는 non-suspend + `@Cacheable` 유지, 컨트롤러에서 `withContext(Dispatchers.IO)` 호출                                                             | high       |
-| T13 | mock-webflux-server **전체 endpoint 100% 커버** 통합 테스트 (`WebTestClient` + Kluent)                                                                                                                             | high       |
+| T13 | mock-webflux-server **전체 endpoint 100% 커버** 통합 테스트 (`WebTestClient` + bluetape4k-assertions)                                                                                                                             | high       |
 | T14 | `mock-webflux-server` Gatling: `io.gatling.gradle` + `MockWebfluxServerSimulation.kt`                                                                                                                     | medium     |
 | T15 | `BluetapeWebfluxServer.kt`: `init { withExposedPorts(PORT); waitingFor(...) }`, 3-멤버 계약 구현; `PropertyExportingServerContractTest.expectedImplementors` 목록 업데이트                                            | medium     |
 | T16 | `BluetapeWebfluxServerTest.kt`; testcontainers `build.gradle.kts`에 `dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")`                                                                          | medium     |

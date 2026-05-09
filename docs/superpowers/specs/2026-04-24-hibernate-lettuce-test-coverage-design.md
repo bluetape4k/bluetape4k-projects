@@ -89,7 +89,7 @@
 
 ## 3. 접근 방식 비교 (3개)
 
-### A. Full Mock 단위 테스트 위주 (MockK + Kluent)
+### A. Full Mock 단위 테스트 위주 (MockK + bluetape4k-assertions)
 
 - **장점**: 빠름 (Redis/JPA 부팅 없음), 분기 직접 강제 가능 (`RegionFactory`가
   `LettuceNearCacheRegionFactory` 아닌 경우, statistics null 등), CI 안정적
@@ -198,9 +198,9 @@ Spring 컨텍스트 없이 `LettuceNearCacheHibernateAutoConfiguration` 내 람�
   `withRegion(name, localSize, localStats)` 체이닝으로 mock factory 생성. 양 모듈에 동일 코드 복제 (공통 testFixtures로 끌어올리는 비용 > 이득).
 - **`SimpleMeterRegistry`**: `io.micrometer.core.instrument.simple.SimpleMeterRegistry` 직접 인스턴스화. 외부 의존 없음.
 - **통합 테스트 Redis 싱글턴**: 기존 `RedisServer.Launcher.redis` 그대로 사용.
-- **MockK/Kluent 가용성**: `bluetape4k-junit5`가 `api(Libs.mockk)` + `api(Libs.kluent)`로 transitive export. 양 모듈 모두
+- **MockK/bluetape4k-assertions 가용성**: `bluetape4k-junit5`가 `api(Libs.mockk)` + `api(Libs.bluetape4kAssertions)`로 transitive export. 양 모듈 모두
   `testImplementation(project(":bluetape4k-junit5"))` 있으므로 Gradle 수정 불필요.
-- **스타일 통일**: 신규 테스트 파일은 MockK + Kluent로 작성. 기존 파일(`LettuceNearCacheAutoConfigurationTest.kt`,
+- **스타일 통일**: 신규 테스트 파일은 MockK + bluetape4k-assertions로 작성. 기존 파일(`LettuceNearCacheAutoConfigurationTest.kt`,
   `LettuceNearCacheIntegrationTest.kt`)은 기존 스타일 유지.
 
 ---
@@ -235,7 +235,7 @@ Spring 컨텍스트 없이 `LettuceNearCacheHibernateAutoConfiguration` 내 람�
 
 - [ ] 두 모듈 모두 `./gradlew test` 녹색
 - [ ] JaCoCo LINE coverage 두 모듈 모두 ≥ 70%
-- [ ] 신규 테스트 모두 JUnit 5 + MockK + Kluent 사용
+- [ ] 신규 테스트 모두 JUnit 5 + MockK + bluetape4k-assertions 사용
 - [ ] Hibernate `Statistics` 검증 테스트가 최소 3회 연속 재실행(pass) 안정
 - [ ] 회귀: 기존 테스트 전부 통과 유지
 - [ ] README 동기화 + testlog 기록

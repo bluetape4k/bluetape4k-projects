@@ -13,7 +13,7 @@
 `allowedPackagePrefixes` 보안 파라미터를 제공한다.
 
 **Tech Stack:** Kotlin 2.3, Jackson3 (
-`tools.jackson` 3.1.1), Fastjson2 2.0.61, Redisson, Lettuce 6.x, JMH (kotlinx-benchmark 0.4.15), JUnit 5, Kluent
+`tools.jackson` 3.1.1), Fastjson2 2.0.61, Redisson, Lettuce 6.x, JMH (kotlinx-benchmark 0.4.15), JUnit 5, bluetape4k-assertions
 
 **Spec:** `docs/superpowers/specs/2026-04-23-redis-json-codec-design.md`
 

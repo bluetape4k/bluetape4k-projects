@@ -226,12 +226,12 @@ flowchart TB
 
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
-- **[cache](./cache/all/README.ko.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **[cache-core](./cache/core/README.ko.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
-- **[cache-hazelcast](./cache/hazelcast/README.ko.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
-- **[cache-redisson](./cache/redisson/README.ko.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
-- **[cache-lettuce](./cache/lettuce/README.ko.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
-- **[hibernate-cache-lettuce](./cache/hibernate-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
+- **[cache](cache/cache/README.ko.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
+- **[cache-core](cache/cache-core/README.ko.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
+- **[cache-hazelcast](cache/cache-hazelcast/README.ko.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
+- **[cache-redisson](cache/cache-redisson/README.ko.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
+- **[cache-lettuce](cache/cache-lettuce/README.ko.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
+- **[hibernate-cache-lettuce](cache/hibernate-cache-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 
 ### Spring Boot 모듈 (`spring-boot/`)
 

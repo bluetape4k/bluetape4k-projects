@@ -220,7 +220,7 @@ macOS/Windows 로컬 실행 시 미세한 차이가 있을 수 있으므로 tole
 
 ### 3.3 `images/images` — JUnit5 Property-Based Testing
 
-**제약: Kotest 사용 금지** — 본 프로젝트는 JUnit5 + Kluent + MockK 만 허용한다.
+**제약: Kotest 사용 금지** — 본 프로젝트는 JUnit5 + bluetape4k-assertions + MockK 만 허용한다.
 
 JUnit5 의 `@ParameterizedTest` + `@MethodSource` 로 결정적 입력을 생성하여 PBT 와 동등한 효과를 낸다.
 
@@ -276,7 +276,7 @@ object ImagePropertyInputs {
 | 9 | 수평/수직 플립 후 크기 보존 | `img.flipX().dimensions shouldBeEqualTo img.dimensions` |
 | 10 | 색상 채널 추출 라운드 | RGB 채널 분리/재합성 후 픽셀 동일 |
 
-**Kluent 사용 규칙**: 비교는 `shouldBe` / `shouldBeEqualTo` / `shouldBeLessOrEqualTo` / `shouldBeLessThan` / `shouldBeGreaterOrEqualTo` 등 전용 matcher 를 사용한다. `(x == y).shouldBeTrue()` 류는 실패 시 값 맥락이 사라지므로 금지.
+**bluetape4k-assertions 사용 규칙**: 비교는 `shouldBe` / `shouldBeEqualTo` / `shouldBeLessOrEqualTo` / `shouldBeLessThan` / `shouldBeGreaterOrEqualTo` 등 전용 matcher 를 사용한다. `(x == y).shouldBeTrue()` 류는 실패 시 값 맥락이 사라지므로 금지.
 
 **실패 assertion**: 분기 안에서 명시적으로 실패가 필요할 때는 `org.junit.jupiter.api.Assertions.fail("...")` (AssertionError) 사용. `error()` (IllegalStateException) 금지.
 
@@ -623,7 +623,7 @@ ci.yml 변경이 있으면 동일 변경을 nightly-tests.yml 에도 반영한�
 ### Phase 4 — `images/images` JUnit5 PBT
 - [ ] `ImagePropertyInputs` (결정적 입력 생성기 + 1×1, 단색, 1:10 종횡비, 체커보드 edge case 고정 포함)
 - [ ] 불변식 10개 구현 (`@ParameterizedTest @MethodSource`) — `AbstractImageTest` 상속
-- [ ] 모든 PBT 통과 확인 (Kluent matcher 만 사용)
+- [ ] 모든 PBT 통과 확인 (bluetape4k-assertions matcher 만 사용)
 
 ### Phase 5 — `images/images-vips-java21` 골든 + PBT (CI 전용)
 - [ ] vips 용 `GoldenImageAssert` (BufferedImage / ByteArray 기반) — CI 가드 + 갱신 모드 동일
@@ -683,7 +683,7 @@ ci.yml 변경이 있으면 동일 변경을 nightly-tests.yml 에도 반영한�
 - [ ] `images/images/src/test/resources/golden/` 에 8장 이상 커밋
 - [ ] PBT 불변식 10개 통과 (1×1 / 단색 / 1:10 종횡비 / 체커보드 edge case 포함)
 - [ ] 모든 PBT 클래스 `AbstractImageTest` 상속
-- [ ] Kluent 비교 matcher 사용 (`shouldBeEqualTo` / `shouldBeLessOrEqualTo` 등) — `(x==y).shouldBeTrue()` 미사용
+- [ ] bluetape4k-assertions 비교 matcher 사용 (`shouldBeEqualTo` / `shouldBeLessOrEqualTo` 등) — `(x==y).shouldBeTrue()` 미사용
 - [ ] 실패 분기는 `Assertions.fail()` 사용
 
 ### 5.3 골든 이미지 / PBT — `images/images-vips-java21`
@@ -804,7 +804,7 @@ Libs.jmh_generator_annprocess
 - atomicfu 는 클래스 프로퍼티에서만 (`feedback_atomicfu_scope`)
 - Vega-Lite 금지 — Mermaid xychart-beta (`feedback_no_vegalite_in_readme`)
 - jar 소스 추출은 `.claude/lib-sources/<library>/` (`feedback_lib_source_extraction_path`)
-- Kluent 비교 matcher 필수 (`feedback_kluent_comparison_matchers`)
+- bluetape4k-assertions 비교 matcher 필수 (`feedback_bluetape4k_assertions_comparison_matchers`)
 - 함수 인자 2개 이상 동종 타입 → data class 래핑 (`feedback_function_args_data_class`)
 
 ### 7.5 참조 문헌

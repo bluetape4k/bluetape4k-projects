@@ -117,5 +117,5 @@ class FlociXxxTest : AbstractContainerTest() {
 - [ ] 모든 public 클래스에 한국어 KDoc 작성
 - [ ] Floci 알려진 버그 항목은 `@Disabled` + 이유 주석 처리
 - [ ] `FlociServer.Launcher.floci` 싱글턴으로 컨테이너 재사용
-- [ ] Kluent assertion 사용 (shouldBe*, shouldNotBe*, shouldContain 등)
+- [ ] bluetape4k-assertions assertion 사용 (shouldBe*, shouldNotBe*, shouldContain 등)
 - [ ] 로컬 테스트 통과 (`./gradlew :bluetape4k-testcontainers:test`)

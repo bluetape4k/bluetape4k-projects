@@ -87,6 +87,8 @@ dependencies {
     // Graph DB (Neo4j)
     compileOnly(libs.testcontainers.neo4j)
     compileOnly(libs.neo4j.java.driver)
+    testRuntimeOnly(libs.neo4j.java.driver)
+    testRuntimeOnly(libs.neo4j.bolt.connection.netty)
 
     // Graph DB (FalkorDB)
     compileOnly(libs.jfalkordb)

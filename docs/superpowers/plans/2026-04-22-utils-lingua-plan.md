@@ -6,7 +6,7 @@
 
 **Architecture:** `utils/lingua`는 thin wrapper 모듈로 유지한다. 기존 `LanguageDetector.kt`, `UnicodeDetector.kt`, `UnicodeSupport.kt`를 승격·복구하고, mixed-language 결과는 Unicode-letter tokenization 후 upstream `LanguageDetector.detectLanguageOf(text)`를 각 토큰에 적용해 non-`UNKNOWN` 언어를 `Set<Language>`로 축약하는 extension으로 노출한다. 짧은 Latin 토큰에서 발생할 수 있는 오탐(`Hello -> SOTHO`)은 confidence 후보가 모호할 때만 제한적으로 보정한다. 문서/README/testlog/superpowers index/TODO를 함께 갱신해 승격 작업을 완결한다.
 
-**Tech Stack:** Kotlin 2.3, Gradle multi-module build, `com.github.pemistahl:lingua`, JUnit 5, Kluent, Bluetape4k KLogging
+**Tech Stack:** Kotlin 2.3, Gradle multi-module build, `com.github.pemistahl:lingua`, JUnit 5, bluetape4k-assertions, Bluetape4k KLogging
 
 ---
 
@@ -59,7 +59,7 @@
 package io.bluetape4k.lingua
 
 import com.github.pemistahl.lingua.api.Language
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class LanguageDetectorBuilderTest: AbstractLinguaTest() {
@@ -187,7 +187,7 @@ package io.bluetape4k.lingua
 import com.github.pemistahl.lingua.api.IsoCode639_1
 import com.github.pemistahl.lingua.api.IsoCode639_3
 import com.github.pemistahl.lingua.api.Language
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class LanguageDetectorBuilderTest: AbstractLinguaTest() {
@@ -240,7 +240,7 @@ class LanguageDetectorBuilderTest: AbstractLinguaTest() {
 // utils/lingua/src/test/kotlin/io/bluetape4k/lingua/UnicodeDetectorTest.kt
 package io.bluetape4k.lingua
 
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.util.Locale
 
@@ -437,7 +437,7 @@ git commit -m "feat: lingua 모듈과 DSL 복구"
 package io.bluetape4k.lingua
 
 import com.github.pemistahl.lingua.api.Language
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class LanguageDetectorExtensionsTest: AbstractLinguaTest() {

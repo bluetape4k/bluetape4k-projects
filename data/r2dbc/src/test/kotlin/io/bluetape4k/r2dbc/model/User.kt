@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.io.Serializable
 import java.time.OffsetDateTime
 
-@Table("users")
+@Table("USERS")
 data class User(
     val username: String,
     val password: String,

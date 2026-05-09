@@ -3,7 +3,7 @@ package io.bluetape4k.collections.eclipse.parallel
 /**
  * Map 확장 함수의 병렬 처리 기능을 테스트한다.
  *
- * - JUnit 5, MockK, Kluent 사용
+ * - JUnit 5, MockK, bluetape4k-assertions 사용
  */
 import io.bluetape4k.collections.AbstractCollectionTest
 import io.bluetape4k.collections.eclipse.fastList

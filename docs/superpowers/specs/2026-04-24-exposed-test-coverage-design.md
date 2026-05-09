@@ -21,7 +21,7 @@
 
 - 신규 테스트 파일 2개 생성
 - 기존 테스트 파일 4개 확장
-- JUnit5 + Kluent + Testcontainers(H2/MariaDB/MySQL/PostgreSQL) 사용
+- JUnit5 + bluetape4k-assertions + Testcontainers(H2/MariaDB/MySQL/PostgreSQL) 사용
 - `@ParameterizedTest @MethodSource(ENABLE_DIALECTS_METHOD)` dialect 매트릭스
 
 ### 1.3 범위 (OUT)
@@ -80,7 +80,7 @@
 - **Dialect 매트릭스**: `@ParameterizedTest @MethodSource(ENABLE_DIALECTS_METHOD)` (필요 시 `ALL_DIALECTS_METHOD`)
 - **Wrapper**: jdbc는 `withTables(testDB, TableA, TableB) { … }`, r2dbc는 `runTest { withTables(testDB, …) { … } }` 또는
   `runSuspendIO { }`
-- **Assertions**: Kluent (`shouldBeEqualTo`, `shouldBeNull`, `shouldContainSame`, `shouldBeGreaterThan`)
+- **Assertions**: bluetape4k-assertions (`shouldBeEqualTo`, `shouldBeNull`, `shouldContainSame`, `shouldBeGreaterThan`)
 - **Logging**: 모든 테스트 클래스에 `companion object : KLogging()` 추가
 - **KDoc**: 각 테스트 클래스와 주요 테스트 메서드에 한글 KDoc (언어 정책상 skill/rules는 영어지만 테스트 KDoc은 한글 허용)
 - **Fixture**: Fakers (`faker`) 사용, 시드 데이터는 테스트 내에서 생성
@@ -219,7 +219,7 @@ class XxxTest : AbstractExposedR2dbcTest() {
 - `@ParameterizedTest @MethodSource(ENABLE_DIALECTS_METHOD)` 기본
 - AAA 구조 (Arrange-Act-Assert)
 - 한 테스트 하나의 책임
-- Kluent 단일 assertion 우선, 복합 상태는 묶어서
+- bluetape4k-assertions 단일 assertion 우선, 복합 상태는 묶어서
 - `Faker`로 동적 데이터 생성 → 결정적 검증이 필요하면 seeded 값 사용
 - 외부 리소스 누수 금지 (`withTables`가 처리)
 - Blob/UUID/Sequence 등 dialect 의존 기능은 `TestDB` 필터링

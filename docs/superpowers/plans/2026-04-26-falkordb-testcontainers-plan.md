@@ -22,7 +22,7 @@
 ### 일관성 규칙 (모든 태스크 공통)
 - **Kotlin Edit 워크플로우**: `.kt` 파일 편집 후 즉시 `ide_diagnostics` → import 오류 정리 → 빌드.
 - **표준 패턴 준수**: `MemgraphServer.kt` / `MemgraphServerTest.kt` 와 100% 동일한 클래스 구조.
-- **테스트 도구**: JUnit 5 + Kluent + AbstractContainerTest 만 사용 (Kotest/MockK 불필요).
+- **테스트 도구**: JUnit 5 + bluetape4k-assertions + AbstractContainerTest 만 사용 (Kotest/MockK 불필요).
 - **`atomicfu` 금지**: 본 작업에는 atomic 상태 없음.
 - **로깅**: `companion object: KLogging()` + `log.debug { ... }` 형식.
 
@@ -244,7 +244,7 @@ compileOnly(Libs.jfalkordb)
    - `Record.getString(key)` — jfalkordb 0.7.0 에 실재 확인 (javap 검증 완료)
    - **`deleteGraph()` + `runCatching`** — assert 실패해도 graph 정리 보장.
 
-6. **Kluent matcher 규칙** (CRITICAL — `feedback_kluent_comparison_matchers`):
+6. **bluetape4k-assertions matcher 규칙** (CRITICAL — `feedback_bluetape4k_assertions_comparison_matchers`):
    - `> < >= <=` 비교는 `shouldBeGreaterThan` / `shouldBeLessThan` / `shouldBeGreaterOrEqualTo` 등 사용. `(x > y).shouldBeTrue()` 금지.
    - `isNotBlank()` 같은 boolean 술어는 `(...).shouldBeTrue()` 허용.
 
@@ -254,12 +254,12 @@ import com.falkordb.FalkorDB
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
-import org.amshove.kluent.shouldBeTrue
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotBeEmpty   // ← 누락하기 쉬운 import
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty   // ← 누락하기 쉬운 import
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertFailsWith

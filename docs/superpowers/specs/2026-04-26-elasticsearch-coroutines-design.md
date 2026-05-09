@@ -47,8 +47,8 @@ bluetape4k 생태계에 `infra/elasticsearch` 모듈 (artifact: `bluetape4k-elas
 - `atomicfu` 는 클래스 프로퍼티 한정. 메서드 로컬 금지.
 - 모든 `Future<T>` 대기는 `bluetape4k.coroutines.support.awaitSuspending()` 재사용.
 - Logging: 일반 class 는 `companion object: KLogging()` / `companion object: KLoggingChannel()` 패턴, `object` 는 `object Foo : KLogging()` 처럼 직접 상속 (Kotlin `object` 안에 `companion object` 불가 — compile error).
-- Test: JUnit 5 + MockK + Kluent. **ktlint 금지** (IntelliJ formatter + .editorconfig).
-- Kluent 비교 matcher 필수 (`shouldBeGreaterOrEqualTo` 등). `(x >= y).shouldBeTrue()` 금지.
+- Test: JUnit 5 + MockK + bluetape4k-assertions. **ktlint 금지** (IntelliJ formatter + .editorconfig).
+- bluetape4k-assertions 비교 matcher 필수 (`shouldBeGreaterOrEqualTo` 등). `(x >= y).shouldBeTrue()` 금지.
 
 #### 모듈 등록
 - `settings.gradle.kts` 자동 등록: 디렉터리명 `infra/elasticsearch` → artifact `bluetape4k-elasticsearch`.
@@ -209,7 +209,7 @@ testcontainer 가 자체 self-signed CA 로 부팅하며, 클라이언트는 동
 | `bluetape4k-jackson3` | project, `compileOnly` | `Jackson3JsonpMapper` (Jackson 3 옵션) |
 | `bluetape4k-testcontainers` | project, `testImplementation` | `ElasticsearchServer` |
 | `bluetape4k-junit5` | project, `testImplementation` | Fakers, JUnit5 helpers |
-| MockK / Kluent | testImplementation | unit test |
+| MockK / bluetape4k-assertions | testImplementation | unit test |
 
 **Libs.kt 변경 사항**:
 1. `Versions.elasticsearch = "9.2.4"` → `"9.3.3"` (서버 TAG 와 통일).
@@ -732,7 +732,7 @@ abstract class AbstractElasticsearchTest {
 - 모든 테스트는 `runTest(timeout = 60.seconds)` (testcontainer + ES 부팅 고려).
 - 각 테스트마다 unique index 사용 (`randomIndexName()`) → 격리.
 - `@AfterEach` 에서 생성한 인덱스 cleanup (best-effort, 실패 무시).
-- Kluent matcher 필수: `response.result() shouldBeEqualTo Result.Created` 등.
+- bluetape4k-assertions matcher 필수: `response.result() shouldBeEqualTo Result.Created` 등.
 
 #### 6.3 테스트 리소스
 
@@ -761,7 +761,7 @@ junit.jupiter.testinstance.lifecycle.default=per_class
 
 #### 테스트
 - [ ] `AbstractElasticsearchTest` + 7개 테스트 클래스 작성.
-- [ ] 모든 테스트 `runTest` + Kluent matcher 사용.
+- [ ] 모든 테스트 `runTest` + bluetape4k-assertions matcher 사용.
 - [ ] `./gradlew :bluetape4k-elasticsearch:test` 통과 (passing count + duration 보고).
 - [ ] 라인 커버리지 80% 이상 (수동 측정 또는 jacoco — 프로젝트 표준 따름).
 

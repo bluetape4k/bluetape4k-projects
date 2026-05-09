@@ -316,7 +316,7 @@ public fun OpenTelemetry.createTracingWebFilter(): WebFilter =
 - **Coroutines**: `kotlinx-coroutines-core` (Flow API 포함)
 - **테스트**:
   - `opentelemetry-sdk-testing` (`InMemorySpanExporter`)
-  - JUnit 5 + MockK + Kluent
+  - JUnit 5 + MockK + bluetape4k-assertions
   - `kotlinx-coroutines-test` (`runTest`, `TestDispatcher`)
 - **WebFlux helper (선택)**:
   - `spring-webflux` — `compileOnly` 승격 검토

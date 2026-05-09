@@ -6,7 +6,7 @@
 
 **Architecture:** `utils/science`는 순수 GIS/과학 데이터 라이브러리(DB 무관). DB 적재 기능은 `exposed` 서브패키지에서 `compileOnly`로 exposed-postgresql/exposed-jackson3 연동. Phase 0에서 exposed-postgresql에 `GeoGeometryColumnType` 선행 추가.
 
-**Tech Stack:** Kotlin 2.3, Java 21, JTS 1.20.0, Proj4J 1.3.0, GeoTools 31.6 (LGPL, compileOnly), UCAR netcdfAll 5.6.0, Exposed 1.0+, PostGIS, JUnit 5 + Kluent
+**Tech Stack:** Kotlin 2.3, Java 21, JTS 1.20.0, Proj4J 1.3.0, GeoTools 31.6 (LGPL, compileOnly), UCAR netcdfAll 5.6.0, Exposed 1.0+, PostGIS, JUnit 5 + bluetape4k-assertions
 
 **Spec:** `docs/superpowers/specs/2026-04-01-bluetape4k-science-design.md`
 
@@ -66,7 +66,7 @@
 - [ ] Point, Polygon, LineString, MultiPolygon 타입 저장/조회 테스트
 - [ ] `stIntersects()`, `stContains()`, `stDistance()` 쿼리 테스트
 - [ ] 기존 `GeoColumnTypeTest.kt` 패턴 참고
-- [ ] JUnit 5 + Kluent assertion
+- [ ] JUnit 5 + bluetape4k-assertions assertion
 
 ---
 
@@ -258,7 +258,7 @@
 - [ ] UTM Zone 결정 정확도 검증
 - [ ] Geometry 연산(면적, 교차점, 거리) 수치 검증
 - [ ] Proj4J 좌표 변환 왕복 정확도 (UTM → WGS84 → UTM)
-- [ ] JUnit 5 + Kluent assertion, `@ParameterizedTest` 활용
+- [ ] JUnit 5 + bluetape4k-assertions assertion, `@ParameterizedTest` 활용
 
 ---
 

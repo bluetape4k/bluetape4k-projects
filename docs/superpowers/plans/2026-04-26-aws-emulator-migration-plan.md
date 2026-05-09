@@ -479,7 +479,7 @@ testRuntimeOnly(Libs.elasticmq)
 - 신규: `testing/testcontainers/src/test/kotlin/io/bluetape4k/testcontainers/mail/MailpitServerTest.kt`
 
 **구현 사항**:
-각 서버에 대해 다음 시나리오를 JUnit 5 + Kluent 로 작성한다.
+각 서버에 대해 다음 시나리오를 JUnit 5 + bluetape4k-assertions 로 작성한다.
 - start/stop 라이프사이클 정상 동작
 - `propertyKeys()` 가 Spec §4.9 표와 일치 (Set 비교)
 - `properties()` 가 모든 키에 non-blank 값을 채움 (`shouldNotBeNullOrBlank`)

@@ -222,12 +222,12 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 
 A pluggable cache abstraction layer — swap backends without changing application code.
 
-- **[cache](./cache/all/README.md)**: Umbrella module (cache-core + hazelcast + redisson + lettuce)
-- **[cache-core](./cache/core/README.md)**: JCache abstraction + Caffeine/Cache2k/Ehcache local caches (merged from former `cache-local`) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer implementations, 6 abstract test fixtures
-- **[cache-hazelcast](./cache/hazelcast/README.md)**: Hazelcast distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-hazelcast-near`)
-- **[cache-redisson](./cache/redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)
-- **[cache-lettuce](./cache/lettuce/README.md)**: Lettuce (Redis) distributed cache — `LettuceNearCacheConfig`, automatic invalidation via RESP3 CLIENT TRACKING
-- **[hibernate-cache-lettuce](./cache/hibernate-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
+- **[cache](cache/cache/README.md)**: Umbrella module (cache-core + hazelcast + redisson + lettuce)
+- **[cache-core](cache/cache-core/README.md)**: JCache abstraction + Caffeine/Cache2k/Ehcache local caches (merged from former `cache-local`) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer implementations, 6 abstract test fixtures
+- **[cache-hazelcast](cache/cache-hazelcast/README.md)**: Hazelcast distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-hazelcast-near`)
+- **[cache-redisson](cache/cache-redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)
+- **[cache-lettuce](cache/cache-lettuce/README.md)**: Lettuce (Redis) distributed cache — `LettuceNearCacheConfig`, automatic invalidation via RESP3 CLIENT TRACKING
+- **[hibernate-cache-lettuce](cache/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
 
 ### Spring Boot Modules (`spring-boot/`)
 

@@ -1,14 +1,14 @@
 package io.bluetape4k.rule.exception
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class RuleExceptionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `RuleException 기본 생성자`() {
@@ -42,7 +42,7 @@ class RuleExceptionTest {
     fun `InvalidRuleDefinitionException 생성`() {
         val ex = InvalidRuleDefinitionException("잘못된 Rule 정의")
         ex.message shouldBeEqualTo "잘못된 Rule 정의"
-        (ex is RuleException).shouldNotBeNull()
+        (ex as? RuleException).shouldNotBeNull()
     }
 
     @Test
@@ -50,6 +50,6 @@ class RuleExceptionTest {
         val ex = NoSuchFactException("age Fact 누락", "age")
         ex.message shouldBeEqualTo "age Fact 누락"
         ex.missingFact shouldBeEqualTo "age"
-        (ex is RuleException).shouldNotBeNull()
+        (ex as? RuleException).shouldNotBeNull()
     }
 }

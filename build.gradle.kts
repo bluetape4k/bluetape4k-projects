@@ -594,16 +594,11 @@ subprojects {
         testRuntimeOnly(rootLibs.junit.platform.engine)
         testImplementation(rootLibs.junit.jupiter.migrationsupport)
 
-        testImplementation(rootLibs.bluetape4k.assertions)
-        if (name != "bluetape4k-assertions") {
-            testImplementation(project(":bluetape4k-assertions"))
-        }
         testImplementation(rootLibs.awaitility.kotlin)
         testImplementation(rootLibs.mockk)
 
         // Property based test
         testImplementation(rootLibs.datafaker)
-        testImplementation(rootLibs.random.beans)
     }
 
     tasks.withType<Jar> {

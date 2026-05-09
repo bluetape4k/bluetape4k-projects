@@ -153,7 +153,7 @@ Task 1 (Uuid.kt 신규) → Task 2 (UuidGenerator.kt 신규) → Task 3 (기존 
 #### Acceptance Criteria
 - [x] 모든 테스트 통과
 - [x] 유니크성, 인코딩 포맷, 결정론적 동작 검증 포함
-- [x] JUnit 5 + Kluent assertions 사용
+- [x] JUnit 5 + bluetape4k-assertions assertions 사용
 
 ---
 

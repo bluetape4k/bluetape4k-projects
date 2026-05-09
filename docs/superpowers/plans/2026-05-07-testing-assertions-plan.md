@@ -103,7 +103,7 @@ T1 (스캐폴드)
       `api(libs.opentest4j)` 형식으로 참조.
     - 없으면 먼저 버전 카탈로그에 추가한 후 참조. 버전은 `junit-bom`이 관리.
     - **bare string `api("org.opentest4j:opentest4j")` 사용 금지** (프로젝트 규약 위반).
-  - `description` 필드: "Bluetape4k testing assertions — Kluent compatible, JUnit 5 native".
+  - `description` 필드: "Bluetape4k testing assertions — bluetape4k-assertions compatible, JUnit 5 native".
   - `junit-platform.properties`: `io.bluetape4k.assertions` 패키지 logger 이름으로 작성.
   - `logback-test.xml`: `<logger name="io.bluetape4k.assertions" level="DEBUG"/>` 포함.
   - `./gradlew :bluetape4k-assertions:build -x test` 가 빈 모듈 상태에서 통과한다.
@@ -158,8 +158,8 @@ T1 (스캐폴드)
     - `shouldNotBeNull` 이후 smart-cast 컴파일 검증 (예: `val s = maybeStr.shouldNotBeNull(); s.length`).
     - `shouldBe` (referential) vs `shouldBeEqualTo` (value) 의미 차이 검증.
   - **⚠️ assertFailsWith import (H2)**: `bluetape4k-assertions` 모듈의 자체 테스트에서는
-    `kotlin.test.assertFailsWith`를 사용한다. `org.amshove.kluent.internal.assertFailsWith`는
-    **이 모듈 내 사용 금지** (Kluent를 대체하는 모듈이 Kluent에 역참조하는 순환 의존 발생).
+    `kotlin.test.assertFailsWith`를 사용한다. `io.bluetape4k.assertions.assertFailsWith`는
+    **이 모듈 내 사용 금지** (bluetape4k-assertions를 대체하는 모듈이 bluetape4k-assertions에 역참조하는 순환 의존 발생).
     해당 memory rule은 다른 bluetape4k 모듈(bluetooth-junit5 등)에 적용된다.
 - **의존**: T2
 
@@ -184,7 +184,7 @@ T1 (스캐폴드)
   - spec §4.11 2순위 추가:
     - `Double/Float.shouldNotBeNear(expected, delta)`.
   - 모든 함수 chaining (receiver 반환).
-  - `shouldBeNear`는 named `tolerance` parameter (Kluent와 차이 — KDoc 명시).
+  - `shouldBeNear`는 named `tolerance` parameter (bluetape4k-assertions와 차이 — KDoc 명시).
   - 테스트: 각 함수 passing/failing case + parameterized 테스트로 6개 primitive 부호 검증.
 - **의존**: T3
 
@@ -285,7 +285,7 @@ T1 (스캐폴드)
     - `suspend infix fun ... CoInvokingBlock.shouldThrow(...)`, `suspend fun ... shouldNotThrow()`.
     - `withMessage(message)` (정확 일치), `withCause(KClass)` (assignable),
       `with(block: T.() -> Unit)`.
-  - 추가 (Kluent에 없는, spec §4.5):
+  - 추가 (bluetape4k-assertions에 없는, spec §4.5):
     - `withMessageContaining(substring: String)`, `withMessageMatching(regex: Regex)`.
   - 의미론 (spec §4.5):
     - `withMessage`: 정확 문자열 일치, 실패 시 명확 메시지.
@@ -482,7 +482,7 @@ T1 (스캐폴드)
   - 본 테스트가 통과하면 spec §1.3 "import만 단순 치환으로 컴파일/통과" 성공 지표 충족.
   - **Turbine 격리 확인**: `CompatibilitySmokeTest.kt` 파일 내 `turbine` / `ReceiveTurbine` /
     `TurbineSupport` import가 0건임을 확인. 이로써 Turbine 미사용 소비자가 정상 동작함을 증명.
-  - 파일에 `import org.amshove.kluent.*` 줄 없음 (Kluent 미참조 검증).
+  - 파일에 `import io.bluetape4k.assertions.*` 줄 없음 (bluetape4k-assertions 미참조 검증).
 - **의존**: T16
 
 ---
@@ -494,7 +494,7 @@ T1 (스캐폴드)
   - `testing/junit5/build.gradle.kts` (수정)
 - **수용 기준**:
   - `dependencies` 블록에 `api(project(":bluetape4k-assertions"))` 추가.
-  - `api(libs.kluent)`은 v1 단계에서 유지 (v2에서 제거 예정 — README에 명시).
+  - `api(libs.bluetape4k.assertions)`은 v1 단계에서 유지 (v2에서 제거 예정 — README에 명시).
   - `./gradlew :bluetape4k-junit5:build` 통과.
   - `./gradlew :bluetape4k-junit5:dependencies` 출력에서 `bluetape4k-assertions` 가
     api configuration에 표시됨을 확인.
@@ -546,7 +546,7 @@ T1 (스캐폴드)
        - **Vega-Lite 사용 금지** (memory rule), 차트는 Mermaid `xychart-beta` 사용.
     5. **Features / 기능 카탈로그**: spec §4 모든 영역 (Basic, Numerical, CharSequences, Collections, Arrays, Maps, Exceptions, Reflection, DateTimes, Softly, FlowAssertions, TurbineSupport).
     6. **Examples / 사용 예**: spec §4의 사용 예 발췌.
-    7. **Kluent 마이그레이션 가이드**: spec §5의 import 변경표 + 의도적 편차 표.
+    7. **bluetape4k-assertions 마이그레이션 가이드**: spec §5의 import 변경표 + 의도적 편차 표.
     8. **Turbine 사용 안내**: `testImplementation(libs.turbine)` 별도 추가 필요.
     9. **DateTime 지원 타입 표**: 7타입 × 4함수.
   - 각 섹션 코드 블록은 컴파일 가능한 형식.
@@ -608,13 +608,13 @@ T1 (스캐폴드)
 | 모듈 빌드 성공                                          | T1, T22         |
 | 모든 테스트 통과                                        | T22             |
 | Korean KDoc 작성                                        | T19             |
-| Kluent Keep 목록 모든 API 구현                          | T3~T13, T15     |
+| bluetape4k-assertions Keep 목록 모든 API 구현                          | T3~T13, T15     |
 | `assertSoftly` 가상 스레드 안전성 (256 vthreads)        | T12             |
 | FlowAssertions 이전 + bridge @Deprecated                | T13, T14        |
 | `:bluetape4k-coroutines:test` 통과                      | T14, T22        |
 | README.md + README.ko.md (Mermaid UML)                  | T20             |
 | Detekt 통과                                             | T21             |
-| Kluent 이름 호환 smoke test                             | T17             |
+| bluetape4k-assertions 이름 호환 smoke test                             | T17             |
 | Turbine compileOnly 격리                                | T15             |
 | `:bluetape4k-assertions:detekt` 통과                    | T21, T22        |
 | PR 본문 테스트 결과 / 호환성 결과 / README 업데이트     | T22 (PR 단계)   |

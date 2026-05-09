@@ -43,7 +43,6 @@ dependencies {
     }
     // Spring Boot 4: WebTestClient 자동구성이 별도 아티팩트(spring-boot-webtestclient)로 분리됨
     testImplementation("org.springframework.boot:spring-boot-webtestclient")
-    testImplementation(libs.bluetape4k.assertions)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(project(":bluetape4k-junit5"))
 }

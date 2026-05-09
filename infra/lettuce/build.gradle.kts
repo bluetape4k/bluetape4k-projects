@@ -88,7 +88,6 @@ dependencies {
     compileOnly(libs.fastjson2)
     compileOnly(libs.fastjson2.kotlin)
 
-    testImplementation(testFixtures(project(":bluetape4k-cache-core")))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 

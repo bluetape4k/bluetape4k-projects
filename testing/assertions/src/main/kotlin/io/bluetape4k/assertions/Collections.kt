@@ -127,7 +127,7 @@ infix fun <T> Iterable<T>?.shouldContainNone(expected: Iterable<T>): Iterable<T>
 }
 
 /**
- * 컬렉션이 [expected] 컬렉션의 원소를 하나도 포함하지 않는지 검증한다. (Kluent 호환 이름)
+ * 컬렉션이 [expected] 컬렉션의 원소를 하나도 포함하지 않는지 검증한다. (bluetape4k-assertions 호환 이름)
  *
  * `shouldContainNone`의 alias.
  *
@@ -139,7 +139,7 @@ infix fun <T> Iterable<T>?.shouldNotContainAny(expected: Iterable<T>): Iterable<
     shouldContainNone(expected)
 
 /**
- * 컬렉션이 [expected] vararg 원소를 하나도 포함하지 않는지 검증한다. (Kluent 호환 이름)
+ * 컬렉션이 [expected] vararg 원소를 하나도 포함하지 않는지 검증한다. (bluetape4k-assertions 호환 이름)
  *
  * `shouldContainNone`의 alias.
  *

@@ -18,7 +18,7 @@
 - KDoc은 Korean. KLogging: `companion object : KLoggingChannel()`.
 - Coroutines: `withContext(Dispatchers.Default)` (CPU bound).
 - 픽셀 단위 luma 비교: `assertSimilarToImage(actual, expected, tolerance)` (기존 `AbstractFilterTest` 사용).
-- Kluent 비교: `shouldBeGreaterThan` / `shouldBeInRange` 등 — `(x >= y).shouldBeTrue()` 금지.
+- bluetape4k-assertions 비교: `shouldBeGreaterThan` / `shouldBeInRange` 등 — `(x >= y).shouldBeTrue()` 금지.
 - 모든 `Graphics2D` 사용은 `try { ... } finally { g.dispose() }` 패턴.
 
 ---

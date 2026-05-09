@@ -57,7 +57,7 @@
 > - `lsp_diagnostics` 통과 (import 오류 / `@Deprecated` 경고 0)
 > - 모든 public 함수에 한국어 KDoc
 
-> **Kluent matcher 규칙** (모든 테스트 Task 공통):
+> **bluetape4k-assertions matcher 규칙** (모든 테스트 Task 공통):
 > - 비교는 `shouldBeEqualTo` / `shouldBeLessOrEqualTo` / `shouldBeGreaterOrEqualTo` / `shouldBeLessThan` / `shouldBeInRange` 사용
 > - `(x == y).shouldBeTrue()` / `(x >= y).shouldBeTrue()` 등 boolean 변환 후 단순 true/false 비교 **금지** (실패 시 값 맥락 손실)
 
@@ -275,7 +275,7 @@ graph TB
   - tolerance 초과 차이 → `AssertionError` throw + diff PNG 생성 확인.
   - tolerance 이내 차이 → 통과.
   - CI 가드: `withEnvironmentVariable("CI", "1")` 모킹 + 갱신 모드 → `IllegalStateException`.
-  - `AbstractImageTest` 상속, `companion object : KLoggingChannel()`, Kluent matcher 사용.
+  - `AbstractImageTest` 상속, `companion object : KLoggingChannel()`, bluetape4k-assertions matcher 사용.
 - **완료 조건**:
   - `./gradlew :bluetape4k-images:test --tests "io.bluetape4k.images.golden.GoldenImageAssertTest"` 통과.
   - 모든 public 함수에 한국어 KDoc 포함.
@@ -304,7 +304,7 @@ graph TB
   - 검증 모드 (`./gradlew :bluetape4k-images:test --tests "io.bluetape4k.images.golden.*"`) 통과.
   - 모든 public 함수에 한국어 KDoc 포함.
   - `companion object : KLoggingChannel()` 포함 / `lsp_diagnostics` 통과.
-  - Kluent matcher 사용 (`shouldBeEqualTo` 등) — `(x==y).shouldBeTrue()` 0건.
+  - bluetape4k-assertions matcher 사용 (`shouldBeEqualTo` 등) — `(x==y).shouldBeTrue()` 0건.
 - **선행 Task**: T4
 
 #### T6 — 골든 이미지 8장 산출물 검증 + 커밋
@@ -368,7 +368,7 @@ graph TB
   - 8: 크롭 후 크기 검증
   - 9: flipX/flipY 후 dimensions 보존
   - 10: RGB 채널 분리/재합성 후 픽셀 동일
-  - **Kluent matcher 필수**: `shouldBeEqualTo`, `shouldBeLessOrEqualTo`, `shouldBeLessThan`, `shouldBeGreaterOrEqualTo`. `(x==y).shouldBeTrue()` 금지.
+  - **bluetape4k-assertions matcher 필수**: `shouldBeEqualTo`, `shouldBeLessOrEqualTo`, `shouldBeLessThan`, `shouldBeGreaterOrEqualTo`. `(x==y).shouldBeTrue()` 금지.
   - 실패 분기: `org.junit.jupiter.api.Assertions.fail("...")` (AssertionError). `error()` 금지.
   - `AbstractImageTest` 상속, `companion object : KLoggingChannel()`, `@Tag("pbt")`.
 - **완료 조건**:
@@ -376,7 +376,7 @@ graph TB
   - `./gradlew :bluetape4k-images:test --tests "io.bluetape4k.images.property.ImagePropertyTest"` 통과 + duration 보고.
   - 모든 public 함수에 한국어 KDoc 포함.
   - `companion object : KLoggingChannel()` 포함 / `lsp_diagnostics` 통과.
-  - Kluent 비교 matcher 사용 — `(x==y).shouldBeTrue()` 0건.
+  - bluetape4k-assertions 비교 matcher 사용 — `(x==y).shouldBeTrue()` 0건.
 - **선행 Task**: T9
 
 ### Phase 5 — `images-vips-java25` 골든 + PBT (마스터 환경)
@@ -432,7 +432,7 @@ graph TB
   - `./gradlew :bluetape4k-images-vips-java25:test -Dvips.enabled=true --tests "io.bluetape4k.images.vips.java25.property.*"` 통과 (Mac/Linux 양쪽).
   - 모든 public 함수에 한국어 KDoc 포함.
   - `companion object : KLoggingChannel()` 포함 / `lsp_diagnostics` 통과.
-  - Kluent 비교 matcher 사용.
+  - bluetape4k-assertions 비교 matcher 사용.
 - **선행 Task**: T14
 
 ### Phase 6 — `images-vips-java21` 골든 + PBT (java25 골든 공유)
@@ -482,7 +482,7 @@ graph TB
   - `./gradlew :bluetape4k-images-vips-java21:test -Dvips.enabled=true --tests "io.bluetape4k.images.vips.java21.property.*"` 통과 (Linux only).
   - 모든 public 함수에 한국어 KDoc 포함.
   - `companion object : KLoggingChannel()` 포함 / `lsp_diagnostics` 통과.
-  - Kluent 비교 matcher 사용.
+  - bluetape4k-assertions 비교 matcher 사용.
 - **선행 Task**: T11
 
 ### Phase 7 — `images-benchmark` JMH
@@ -518,7 +518,7 @@ graph TB
   - 3개 enum 모두 non-null `ByteArray` 반환 (단위 테스트 1개로 검증).
   - 모든 public 함수에 한국어 KDoc 포함.
   - `companion object : KLoggingChannel()` 포함 / `lsp_diagnostics` 통과.
-  - Kluent 비교 matcher 사용 (단위 테스트).
+  - bluetape4k-assertions 비교 matcher 사용 (단위 테스트).
 - **선행 Task**: T16-A
 
 #### T18 — `ImageResizeBenchmark` + `ImageEncodeBenchmark`
@@ -756,7 +756,7 @@ graph TB
 - **CI yml 변경 시**: `feedback_ci_nightly_sync` — ci.yml ↔ nightly-tests.yml 동기화 (T21 → T22-ci 직렬 강제).
 - **README 변경 시**: `feedback_readme_maintenance` + `feedback_readme_language_links` — 영문/한국어 + 언어 전환 링크.
 - **모든 작업 worktree 안에서**: `feedback_use_worktree_for_all_work` — `.worktrees/images-quality-testing/` 검증.
-- **Kluent matcher**: `feedback_kluent_comparison_matchers` — `(x==y).shouldBeTrue()` 금지 (T7/T10/T13/T16).
+- **bluetape4k-assertions matcher**: `feedback_bluetape4k_assertions_comparison_matchers` — `(x==y).shouldBeTrue()` 금지 (T7/T10/T13/T16).
 - **벤치마크 모듈 publish/detekt 제외**: T1 검증 게이트 (publish + kover + detekt 모두 확인).
 - **public domain 라이선스**: T16-A 입력 이미지 출처/sha256 README 등재 의무.
 - **함수 인자 동종 타입 2개 이상 → data class 래핑**: T4/T4-A 의 `assertSimilarToGolden` 시그니처 검토 — 현 시그니처(이미지 + key + tolerance) 는 동종 타입 2개 미만으로 OK.

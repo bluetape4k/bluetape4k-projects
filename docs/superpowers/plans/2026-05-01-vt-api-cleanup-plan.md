@@ -332,7 +332,7 @@
     ```
   - scope 리소스 해제 테스트: `close()` 보장 (use{} 블록 정상 종료 확인)
   - 기존 `all scope`/`any scope` 테스트는 그대로 유지 (회귀 방지)
-  - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeNull`, `shouldNotBeNull`, `shouldBeInstanceOf`
+  - bluetape4k-assertions 매처 사용: `shouldBeEqualTo`, `shouldBeNull`, `shouldNotBeNull`, `shouldBeInstanceOf`
 - **완료 기준**:
   - [ ] `virtualthread/api/build.gradle.kts`에 `testRuntimeOnly(project(":bluetape4k-virtualthread-jdk21"))` 추가
   - [ ] `failFast` 정상/실패/기본값 테스트 3건 추가
@@ -446,7 +446,7 @@
     ```
   - 기존 `structuredTaskScopeAll {}`/`structuredTaskScopeAny {}` 테스트는 그대로 유지 (회귀 방지 + deprecated API 동작 검증)
   - `@EnabledForJreRange(min = JRE.JAVA_21)` 어노테이션 유지
-  - Kluent 매처 사용: `shouldBeEqualTo`, `shouldBeInstanceOf` 등
+  - bluetape4k-assertions 매처 사용: `shouldBeEqualTo`, `shouldBeInstanceOf` 등
   - **[수정 #8] `@Suppress("DEPRECATION")` 대상 파일 명시**:
     - `bluetape4k/core/src/main/kotlin/io/bluetape4k/concurrent/virtualthread/StructuredTaskScopeSupport.kt`
       → `structuredTaskScopeAll` 내부에서 `StructuredTaskScopes.all()` 호출 시 `@Suppress("DEPRECATION")` 필요

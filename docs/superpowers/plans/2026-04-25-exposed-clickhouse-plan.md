@@ -17,7 +17,7 @@
 - 각 태스크 완료 시 모듈 단위 테스트 실행:
   `./gradlew :bluetape4k-exposed-clickhouse:test` (필요 시 `--tests` 필터)
 - 새 파일 생성 시 KDoc(한국어) 필수, public service/factory에 `companion object : KLogging()` 추가
-- Kluent 비교 matcher 사용: `shouldBeEqualTo`, `shouldBeGreaterOrEqualTo`, `shouldBeInRange` 등
+- bluetape4k-assertions 비교 matcher 사용: `shouldBeEqualTo`, `shouldBeGreaterOrEqualTo`, `shouldBeInRange` 등
 - atomicfu는 클래스 프로퍼티에서만 사용
 
 ---

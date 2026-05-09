@@ -47,7 +47,7 @@
     - roundtrip PASS (FastFory encode → FastFory decode 성공)
     - **방향 A**: `BinarySerializers.Fory.serialize(obj)` 바이트 → `BinarySerializers.FastFory.deserialize(...)` → `assertThrows` (io/io는 fallback 없음, spec §7.2)
     - **방향 B**: `BinarySerializers.FastFory.serialize(obj)` 바이트 → `BinarySerializers.Fory.deserialize(...)` → `assertThrows`
-  - JUnit 5 + Kluent, KLogging companion
+  - JUnit 5 + bluetape4k-assertions, KLogging companion
 - **출력(완료 기준)**:
   - 3개 테스트 모두 PASS
   - 순환 참조 객체 사용 금지 (spec §7.3 경고 준수)

@@ -617,7 +617,7 @@
   - [ ] `CancellationException` catch 금지 → 항상 rethrow, finally 는 `NonCancellable`
   - [ ] `runBlocking` 금지, JDBC 는 `withContext(Dispatchers.VT) { transaction(database) { ... } }`
   - [ ] `org.jetbrains.exposed.v1.javatime.timestamp` 사용 — kotlinx-datetime 금지
-  - [ ] 테스트는 Kluent + JUnit5 + `runTest { }` / `runSuspendIO { }`
+  - [ ] 테스트는 bluetape4k-assertions + JUnit5 + `runTest { }` / `runSuspendIO { }`
 - **검증**: 모든 체크박스 통과, `Grep` 로 `runBlocking\|kotlinx-datetime\|newVirtualThreadJdbcTransaction` 탐색 → 0건
 
 ### T43. 컴파일 + 전체 테스트 실행

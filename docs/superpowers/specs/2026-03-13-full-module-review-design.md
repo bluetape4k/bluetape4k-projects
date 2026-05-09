@@ -20,7 +20,7 @@
 
 ### 테스트 보강 항목
 
-- `kotlin-junit5-testing` 패턴 적용 (Kluent 우선, MockK)
+- `kotlin-junit5-testing` 패턴 적용 (bluetape4k-assertions 우선, MockK)
 - 엣지 케이스 커버 (null, 빈값, 경계값)
 - 예외 경로 테스트
 - `runTest` vs `runSuspendIO` 올바른 사용

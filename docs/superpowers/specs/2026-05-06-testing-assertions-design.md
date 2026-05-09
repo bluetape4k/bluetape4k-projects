@@ -12,8 +12,8 @@
 
 ### 1.1 배경
 
-bluetape4k 프로젝트는 테스트 작성에 광범위하게 [Kluent](https://github.com/Kluent/Kluent)
-fluent assertion 라이브러리를 사용해왔다. 그러나 Kluent는 다음과 같은 문제를 안고 있다.
+bluetape4k 프로젝트는 테스트 작성에 광범위하게 [bluetape4k-assertions](https://github.com/bluetape4k-assertions/bluetape4k-assertions)
+fluent assertion 라이브러리를 사용해왔다. 그러나 bluetape4k-assertions는 다음과 같은 문제를 안고 있다.
 
 - **유지보수 중단**: 2023년 이후 사실상 신규 릴리스가 끊겼고, Kotlin 2.x / JUnit Jupiter 최신 버전 대응이 정체되어 있다.
 - **JUnit 4 잔재**: `ComparisonFailedException`이 JUnit 4에 종속되어 있어, JUnit 5의 `AssertionFailedError`
@@ -24,13 +24,13 @@ fluent assertion 라이브러리를 사용해왔다. 그러나 Kluent는 다음�
   자동완성 및 detekt 경고가 늘어난다.
 
 bluetape4k는 모든 모듈이 JVM 21+ / Kotlin 2.3+ / JUnit Jupiter 5.10+를 강제하므로, 더 이상
-Kluent의 호환 부담을 안고 갈 필요가 없다.
+bluetape4k-assertions의 호환 부담을 안고 갈 필요가 없다.
 
 ### 1.2 목적
 
 `bluetape4k-assertions` 모듈을 신설하여 다음을 달성한다.
 
-1. **드롭인 대체**: 기존 `org.amshove.kluent.*` import만 `io.bluetape4k.assertions.*`로 바꾸면
+1. **드롭인 대체**: 기존 `io.bluetape4k.assertions.*` import만 `io.bluetape4k.assertions.*`로 바꾸면
    대부분의 테스트 코드가 컴파일/통과되도록 한다.
 2. **JUnit 5 일급 연동**: `org.opentest4j.AssertionFailedError`를 직접 던져 IntelliJ /
    Gradle / Surefire 모두에서 expected/actual diff를 보여준다.
@@ -43,7 +43,7 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
 
 ### 1.3 성공 지표 (Acceptance Signals)
 
-- 기존 bluetape4k 테스트 코드 100개 이상에서 `import org.amshove.kluent.*` →
+- 기존 bluetape4k 테스트 코드 100개 이상에서 `import io.bluetape4k.assertions.*` →
   `import io.bluetape4k.assertions.*` 단순 치환만으로 컴파일이 성공한다.
 - `./gradlew :bluetape4k-assertions:build` 통과, `./gradlew :bluetape4k-coroutines:test` 통과.
 - 256 concurrent 가상 스레드에서 `assertSoftly` 사용 시 deadlock/crash 없음.
@@ -59,14 +59,14 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
   `Reflection`, `DateTimes`, `Softly`, `coroutines/FlowAssertions`, `coroutines/TurbineSupport`.
 - DateTime 지원 타입: `Instant`, `ZonedDateTime`, `OffsetDateTime`, `LocalDateTime`, `LocalDate`,
   `LocalTime`, `java.util.Date`.
-- Kluent Keep 목록(§4) 전체 함수의 1:1 미러링.
+- bluetape4k-assertions Keep 목록(§4) 전체 함수의 1:1 미러링.
 - Korean KDoc 작성.
 - Mermaid UML이 포함된 `README.md` + `README.ko.md`.
 
 ### 2.2 Out of Scope (v1, 후속 버전 검토)
 
 - 백틱 형 API (`should be equal to` 등) — 의도적 제외.
-- Kluent의 `Equivalency` / `EquivalencyAssertionOptions` — 객체 그래프 비교는 v2 검토.
+- bluetape4k-assertions의 `Equivalency` / `EquivalencyAssertionOptions` — 객체 그래프 비교는 v2 검토.
 - File / Path assertion (`shouldExist`, `shouldBeFile` 등) — v2.
 - `Char.shouldBeDigit` / `shouldNotBeDigit` — v2.
 - AnyException / AnyExceptionType sentinel — `Throwable::class`로 대체.
@@ -84,13 +84,13 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
 
 본 절은 변경 불가능한 결정 사항을 기록한다.
 
-### ADR-1: API 호환 전략 — Kluent 이름 그대로 미러링
+### ADR-1: API 호환 전략 — bluetape4k-assertions 이름 그대로 미러링
 
-- **결정**: Kluent의 백틱 없는 카멜케이스 이름(`shouldBeEqualTo`, `shouldContain` 등)을 그대로
-  사용한다. 시그니처도 Kluent와 동일하게 유지하되, 반환 타입이 Kluent에서 receiver였다면 본
+- **결정**: bluetape4k-assertions의 백틱 없는 카멜케이스 이름(`shouldBeEqualTo`, `shouldContain` 등)을 그대로
+  사용한다. 시그니처도 bluetape4k-assertions와 동일하게 유지하되, 반환 타입이 bluetape4k-assertions에서 receiver였다면 본
   모듈에서도 동일하게 receiver를 반환한다 (chaining 지원).
 - **근거**: 마이그레이션 비용을 최소화한다. `import` 줄 한 줄만 바꾸면 되어야 한다.
-- **결과**: API 표면은 Kluent와 거의 동일. 단, 의도적 편차(§5.2)는 명시한다.
+- **결과**: API 표면은 bluetape4k-assertions와 거의 동일. 단, 의도적 편차(§5.2)는 명시한다.
 
 ### ADR-2: 실패 처리 — `org.opentest4j.AssertionFailedError` 직접 생성
 
@@ -104,9 +104,9 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
 
 - **결정**: `assertSoftly { add { ... } }` DSL을 제공하되, 내부적으로 `Executable` 리스트를
   쌓아 `org.junit.jupiter.api.Assertions.assertAll(executables)`에 위임한다.
-- **근거**: thread-local 기반의 Kluent 구현은 가상 스레드에서 carrier pinning을 일으킬 수 있다.
+- **근거**: thread-local 기반의 bluetape4k-assertions 구현은 가상 스레드에서 carrier pinning을 일으킬 수 있다.
   JUnit 5 표준 API는 직렬 실행이고 어떤 스레드에서 호출해도 안전하다.
-- **결과**: Kluent의 `verify { }` 자동 누적 방식과 달리, 본 모듈은 `add { ... }` 명시적 등록을
+- **결과**: bluetape4k-assertions의 `verify { }` 자동 누적 방식과 달리, 본 모듈은 `add { ... }` 명시적 등록을
   요구한다 (§5.2 참조).
 
 ### ADR-4: Turbine — `compileOnly` 의존성
@@ -122,7 +122,7 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
 - **결정**: v1에 포함되는 타입은 `Instant`, `ZonedDateTime`, `OffsetDateTime`,
   `LocalDateTime`, `LocalDate`, `LocalTime`, `java.util.Date`. 각 타입에 대해
   `shouldBeAfter`, `shouldBeBefore`, `shouldBeOnOrAfter`, `shouldBeOnOrBefore`를 제공한다.
-- **근거**: Kluent에는 일부 타입만 있었으나, bluetape4k는 모든 표준 java.time 타입과 legacy
+- **근거**: bluetape4k-assertions에는 일부 타입만 있었으나, bluetape4k는 모든 표준 java.time 타입과 legacy
   `Date`까지 일관되게 다룬다.
 - **결과**: 7 타입 × 4 함수 = 28개 DateTime assertion.
 
@@ -134,7 +134,7 @@ Kluent의 호환 부담을 안고 갈 필요가 없다.
     `@Deprecated(level = WARNING)` 마커를 추가한다. **함수 본문은 기존 구현 그대로 유지한다**
     (inline suspend 함수는 위임 불가 — §4.9 bridge 예시 참조).
   - `bluetape4k-coroutines`는 `bluetape4k-assertions`에 **의존성을 추가하지 않는다**.
-    bridge는 기존 Kluent 의존성만으로 독립 동작.
+    bridge는 기존 bluetape4k-assertions 의존성만으로 독립 동작.
 - **이유**: inline suspend 함수는 다른 모듈로 위임 불가이며,
   `bluetape4k-coroutines` → `bluetape4k-assertions` 의존성 추가 시
   `junit-jupiter-api` / `opentest4j`가 production classpath에 오염된다.
@@ -235,9 +235,9 @@ Actual:   "Bob"
 Expected <"Alice"> to be equal to <"Bob">, but was <"Alice">.
 ```
 
-#### Kluent 차이점
+#### bluetape4k-assertions 차이점
 
-- `shouldBe`는 referential equality(`===`). Kluent의 `shouldBe`도 동일하나 일부 사용자는
+- `shouldBe`는 referential equality(`===`). bluetape4k-assertions의 `shouldBe`도 동일하나 일부 사용자는
   `shouldBeEqualTo`와 혼동했음 — KDoc에 명시한다.
 
 ---
@@ -289,9 +289,9 @@ Expected <100> to be greater than <1000>, but was not.
 Expected <0.3333> to be near <0.5> (tolerance: 1.0E-6), but difference was <0.1667>.
 ```
 
-#### Kluent 차이점
+#### bluetape4k-assertions 차이점
 
-- `shouldBeNear`는 Kluent에서는 `Double, Double, Double` 셋만 받는데, 본 모듈은 명시적으로
+- `shouldBeNear`는 bluetape4k-assertions에서는 `Double, Double, Double` 셋만 받는데, 본 모듈은 명시적으로
   named parameter `tolerance`를 받는다 (가독성).
 
 ---
@@ -413,9 +413,9 @@ Expected collection [alice, bob] to contain <carol>, but did not.
 Expected collection size to be <3>, but was <2>.
 ```
 
-#### Kluent 차이점
+#### bluetape4k-assertions 차이점
 
-- `shouldContainSame` 는 v1에서 제외 (Kluent의 의미가 모호 — `==` vs `containsAll && size`).
+- `shouldContainSame` 는 v1에서 제외 (bluetape4k-assertions의 의미가 모호 — `==` vs `containsAll && size`).
   대안: `(actual.toSet() shouldBeEqualTo expected.toSet())`.
 
 ---
@@ -475,11 +475,11 @@ Expected exception message <"id must be > 0">, but was <"id is null">.
   `SomeException`이 `CancellationException`이 아닌데 실제로 `CancellationException`이 던져지면
   **즉시 rethrow** (잡지 않음). 이는 coroutine cancellation을 숨기지 않기 위함.
 
-#### Kluent 차이점
+#### bluetape4k-assertions 차이점
 
 - `AnyException` / `AnyExceptionType` sentinel은 제거. 임의의 예외를 잡으려면
   `Throwable::class`를 사용한다. KDoc에 명시.
-- `withMessageContaining(substring)`, `withMessageMatching(regex)` 오버로드 추가 (Kluent에 없음).
+- `withMessageContaining(substring)`, `withMessageMatching(regex)` 오버로드 추가 (bluetape4k-assertions에 없음).
 
 ---
 
@@ -559,9 +559,9 @@ date shouldBeBefore Date(date.time + 1000)
 Expected <2026-05-06T10:00:00Z> to be after <2026-05-06T11:00:00Z>, but was not.
 ```
 
-#### Kluent 차이점
+#### bluetape4k-assertions 차이점
 
-- Kluent는 `LocalDate`, `LocalDateTime`만 지원했지만 본 모듈은 `Instant` / `ZonedDateTime` /
+- bluetape4k-assertions는 `LocalDate`, `LocalDateTime`만 지원했지만 본 모듈은 `Instant` / `ZonedDateTime` /
   `OffsetDateTime` / `LocalTime` / `Date`까지 포함한다.
 
 ---
@@ -603,13 +603,13 @@ org.opentest4j.MultipleFailuresError: Multiple Failures (2 failures)
   Expected <16> to be greater or equal to <18>, but was not.
 ```
 
-#### Kluent 차이점 (의도적)
+#### bluetape4k-assertions 차이점 (의도적)
 
-- Kluent는 `assertSoftly { user.name shouldBeEqualTo "alice" }` 스타일로 thread-local에
+- bluetape4k-assertions는 `assertSoftly { user.name shouldBeEqualTo "alice" }` 스타일로 thread-local에
   자동 누적하지만, 본 모듈은 명시적으로 `add { ... }`를 호출해야 한다.
 - **이유**: thread-local 기반 자동 누적은 가상 스레드에서 carrier pinning을 일으킬 수 있고,
   중첩 호출 시 의도와 다르게 동작한다. 명시적 등록이 더 안전하고 가독성이 좋다.
-- **마이그레이션**: 기존 Kluent `assertSoftly { foo shouldBe bar }` → `assertSoftly { add { foo shouldBe bar } }`.
+- **마이그레이션**: 기존 bluetape4k-assertions `assertSoftly { foo shouldBe bar }` → `assertSoftly { add { foo shouldBe bar } }`.
   자동 변환 가능 (정규식 또는 IDE structural search).
 
 ---
@@ -710,12 +710,12 @@ viewModel.state.test {
 
 ### 4.11 kotlin.test 포팅 (`KotlinTestSupport.kt`, `Arrays.kt` 확장)
 
-kotlin.test(`org.jetbrains.kotlin:kotlin-test`)가 제공하는 assertion 중 Kluent에 없거나 부족한
+kotlin.test(`org.jetbrains.kotlin:kotlin-test`)가 제공하는 assertion 중 bluetape4k-assertions에 없거나 부족한
 기능을 bluetape4k-assertions 스타일(extension function + infix)로 포팅한다.
 
 #### 포팅 대상 (우선순위순)
 
-**1순위 — Kluent에 완전히 없는 기능**
+**1순위 — bluetape4k-assertions에 완전히 없는 기능**
 
 ```kotlin
 // Reflection.kt — 타입 체크 + smart cast 반환 (kotlin.test.assertIs<T>)
@@ -736,7 +736,7 @@ infix fun ShortArray?.shouldContentEqual(expected: ShortArray?)
 infix fun <T> Array<T>?.shouldContentEqual(expected: Array<T>?)      // null-safe
 
 // Numerical.kt — 범위 포함 (kotlin.test.assertContains → shouldBeIn)
-// ClosedRange/OpenEndRange overloads (Kluent는 값→범위만, 여기서는 타입 명확)
+// ClosedRange/OpenEndRange overloads (bluetape4k-assertions는 값→범위만, 여기서는 타입 명확)
 infix fun <T: Comparable<T>> T.shouldBeIn(range: ClosedRange<T>): T
 infix fun <T: Comparable<T>> T.shouldNotBeIn(range: ClosedRange<T>): T
 infix fun <T: Comparable<T>> T.shouldBeIn(range: OpenEndRange<T>): T
@@ -802,43 +802,43 @@ infix fun <T> T?.shouldNotBeSameInstanceAs(expected: T?): T?
 
 ---
 
-## 5. Kluent 마이그레이션 가이드
+## 5. bluetape4k-assertions 마이그레이션 가이드
 
 ### 5.1 Import 변경표
 
-| 기존 (Kluent)                                         | 신규 (bluetape4k-assertions)                            |
+| 기존 (bluetape4k-assertions)                                         | 신규 (bluetape4k-assertions)                            |
 |-------------------------------------------------------|---------------------------------------------------------|
-| `import org.amshove.kluent.shouldBeEqualTo`           | `import io.bluetape4k.assertions.shouldBeEqualTo`       |
-| `import org.amshove.kluent.shouldBe`                  | `import io.bluetape4k.assertions.shouldBe`              |
-| `import org.amshove.kluent.shouldBeNull`              | `import io.bluetape4k.assertions.shouldBeNull`          |
-| `import org.amshove.kluent.shouldNotBeNull`           | `import io.bluetape4k.assertions.shouldNotBeNull`       |
-| `import org.amshove.kluent.shouldBeTrue` / `False`    | `import io.bluetape4k.assertions.shouldBeTrue` / `False`|
-| `import org.amshove.kluent.shouldBeGreaterThan` 등    | `import io.bluetape4k.assertions.shouldBeGreaterThan`   |
-| `import org.amshove.kluent.shouldStartWith` 등         | `import io.bluetape4k.assertions.shouldStartWith`       |
-| `import org.amshove.kluent.shouldContain` 등          | `import io.bluetape4k.assertions.shouldContain`         |
-| `import org.amshove.kluent.shouldContainKey`          | `import io.bluetape4k.assertions.shouldContainKey`      |
-| `import org.amshove.kluent.invoking`                  | `import io.bluetape4k.assertions.invoking`              |
-| `import org.amshove.kluent.coInvoking`                | `import io.bluetape4k.assertions.coInvoking`            |
-| `import org.amshove.kluent.shouldThrow`               | `import io.bluetape4k.assertions.shouldThrow`           |
-| `import org.amshove.kluent.shouldBeInstanceOf`        | `import io.bluetape4k.assertions.shouldBeInstanceOf`    |
-| `import org.amshove.kluent.shouldBeAfter`             | `import io.bluetape4k.assertions.shouldBeAfter`         |
-| `import org.amshove.kluent.assertSoftly`              | `import io.bluetape4k.assertions.assertSoftly`          |
-| `import org.amshove.kluent.internal.assertFailsWith`  | `import org.amshove.kluent.internal.assertFailsWith` (유지) |
+| `import io.bluetape4k.assertions.shouldBeEqualTo`           | `import io.bluetape4k.assertions.shouldBeEqualTo`       |
+| `import io.bluetape4k.assertions.shouldBe`                  | `import io.bluetape4k.assertions.shouldBe`              |
+| `import io.bluetape4k.assertions.shouldBeNull`              | `import io.bluetape4k.assertions.shouldBeNull`          |
+| `import io.bluetape4k.assertions.shouldNotBeNull`           | `import io.bluetape4k.assertions.shouldNotBeNull`       |
+| `import io.bluetape4k.assertions.shouldBeTrue` / `False`    | `import io.bluetape4k.assertions.shouldBeTrue` / `False`|
+| `import io.bluetape4k.assertions.shouldBeGreaterThan` 등    | `import io.bluetape4k.assertions.shouldBeGreaterThan`   |
+| `import io.bluetape4k.assertions.shouldStartWith` 등         | `import io.bluetape4k.assertions.shouldStartWith`       |
+| `import io.bluetape4k.assertions.shouldContain` 등          | `import io.bluetape4k.assertions.shouldContain`         |
+| `import io.bluetape4k.assertions.shouldContainKey`          | `import io.bluetape4k.assertions.shouldContainKey`      |
+| `import io.bluetape4k.assertions.invoking`                  | `import io.bluetape4k.assertions.invoking`              |
+| `import io.bluetape4k.assertions.coInvoking`                | `import io.bluetape4k.assertions.coInvoking`            |
+| `import io.bluetape4k.assertions.shouldThrow`               | `import io.bluetape4k.assertions.shouldThrow`           |
+| `import io.bluetape4k.assertions.shouldBeInstanceOf`        | `import io.bluetape4k.assertions.shouldBeInstanceOf`    |
+| `import io.bluetape4k.assertions.shouldBeAfter`             | `import io.bluetape4k.assertions.shouldBeAfter`         |
+| `import io.bluetape4k.assertions.assertSoftly`              | `import io.bluetape4k.assertions.assertSoftly`          |
+| `import io.bluetape4k.assertions.assertFailsWith`  | `import io.bluetape4k.assertions.assertFailsWith` (유지) |
 
-> 메모: `assertFailsWith`는 별도 마이그레이션 대상 아님 (Kluent의 internal 헬퍼는 그대로 사용
+> 메모: `assertFailsWith`는 별도 마이그레이션 대상 아님 (bluetape4k-assertions의 internal 헬퍼는 그대로 사용
 > 가능하거나, 본 모듈의 `shouldThrow`로 점진 치환).
 
 #### Sed/IDE 일괄 변환 예
 
 ```bash
-fd '*.kt' -e kt | xargs sd 'org\.amshove\.kluent\.' 'io.bluetape4k.assertions.'
+fd '*.kt' -e kt | xargs sd 'org\.amshove\.bluetape4k-assertions\.' 'io.bluetape4k.assertions.'
 ```
 
 ### 5.2 의도적 편차 (Intentional Deviations)
 
 다음 항목은 마이그레이션 시 단순 import 변경만으로는 해결되지 않으며, 코드 수정이 필요하다.
 
-| Kluent                                                  | 본 모듈                                            | 마이그레이션 방법                                     |
+| bluetape4k-assertions                                                  | 본 모듈                                            | 마이그레이션 방법                                     |
 |---------------------------------------------------------|----------------------------------------------------|-------------------------------------------------------|
 | `assertSoftly { foo shouldBe bar }` (자동 누적)         | `assertSoftly { add { foo shouldBe bar } }` (명시) | 각 statement를 `add { }`로 감싸기                     |
 | `... shouldThrow AnyException`                          | `... shouldThrow Throwable::class`                 | `AnyException` → `Throwable::class`                   |
@@ -872,7 +872,7 @@ fd '*.kt' -e kt | xargs sd 'org\.amshove\.kluent\.' 'io.bluetape4k.assertions.'
 - **reified**: 예외 타입 / 인스턴스 타입에 사용 (`shouldBeInstanceOf<T>()`,
   `assertFailure<T, E>`).
 - **contract**: §3 ADR-7 명시 두 함수만.
-- **value class**: 본 모듈에서는 사용 안 함 (Kluent 호환 우선).
+- **value class**: 본 모듈에서는 사용 안 함 (bluetape4k-assertions 호환 우선).
 
 ### 6.3 실패 메시지 일관성
 
@@ -935,7 +935,7 @@ src/test/kotlin/io/bluetape4k/assertions/
     └── MessagesTest.kt
 ```
 
-### 7.2 테스트 패턴 (AAA + Kluent-호환 자기참조)
+### 7.2 테스트 패턴 (AAA + bluetape4k-assertions-호환 자기참조)
 
 각 assertion에 대해 두 종류 테스트 작성:
 
@@ -993,11 +993,11 @@ fun `assertSoftly is safe under 256 concurrent virtual threads`() {
 별도 test source set 또는 `bluetape4k-junit5-tests` 등의 모듈에서 다음 시나리오 1회 실행:
 
 ```kotlin
-// 기존 Kluent 사용 예 → import만 io.bluetape4k.assertions.*로 변경 후 컴파일 + 실행
+// 기존 bluetape4k-assertions 사용 예 → import만 io.bluetape4k.assertions.*로 변경 후 컴파일 + 실행
 import io.bluetape4k.assertions.*
 
 class CompatibilitySmokeTest {
-    @Test fun `kluent style still works`() {
+    @Test fun `bluetape4k-assertions style still works`() {
         "abc" shouldBeEqualTo "abc"
         listOf(1, 2, 3) shouldContainAll listOf(1, 2)
         invoking { error("x") } shouldThrow IllegalStateException::class
@@ -1075,7 +1075,7 @@ plugins {
     kotlin("jvm")
 }
 
-description = "Bluetape4k testing assertions — Kluent compatible, JUnit 5 native"
+description = "Bluetape4k testing assertions — bluetape4k-assertions compatible, JUnit 5 native"
 
 dependencies {
     // ⚠️ bluetape4k-* 모듈 의존 금지 (ADR-9)
@@ -1109,7 +1109,7 @@ dependencies {
   bridge 함수는 독립 구현, 새 모듈에 위임 안 함.
 - **`bluetape4k-junit5`**: `api(project(":bluetape4k-assertions"))` 추가 (v1 필수).
   기존 사용자는 의존성 변경 없이 새 assertions 사용 가능.
-  `api(libs.kluent)` 는 단계적 제거 예정 (v2).
+  `api(libs.bluetape4k.assertions)` 는 단계적 제거 예정 (v2).
 - `mock-web-server`, `mock-webflux-server`, `testcontainers`: 추후 추가 (v1 이후).
 
 ### 9.3 라이브러리 버전 요건
@@ -1132,7 +1132,7 @@ dependencies {
 - [ ] `bluetape4k-assertions` 모듈 빌드 성공: `./gradlew :bluetape4k-assertions:build`
 - [ ] 모든 테스트 통과: 0 failures, 0 errors (테스트 수와 소요시간 보고)
 - [ ] 각 assertion 함수에 Korean KDoc 작성 (목적 / 동작·계약 / 사용 예 / @param / @return)
-- [ ] §4의 Kluent Keep 목록 모든 API 구현 (Basic / Numerical / CharSequence /
+- [ ] §4의 bluetape4k-assertions Keep 목록 모든 API 구현 (Basic / Numerical / CharSequence /
       Collections+Arrays+Maps / Exceptions / Reflection / DateTime / Softly / FlowAssertions /
       TurbineSupport)
 - [ ] `assertSoftly` 가상 스레드 안전성 검증: 256 concurrent virtual threads 테스트 통과
@@ -1140,10 +1140,10 @@ dependencies {
 - [ ] FlowAssertions 이전 완료 (`io.bluetape4k.assertions.coroutines.*`) +
       `bluetape4k-coroutines`의 기존 위치에 `@Deprecated(level = WARNING)` bridge 작성
 - [ ] `./gradlew :bluetape4k-coroutines:test` 통과 (bridge deprecation 경고만, 컴파일 오류 없음)
-- [ ] `README.md` + `README.ko.md` 작성: Mermaid UML 다이어그램, API 카탈로그, Kluent
+- [ ] `README.md` + `README.ko.md` 작성: Mermaid UML 다이어그램, API 카탈로그, bluetape4k-assertions
       마이그레이션 가이드(§5), 사용 예 포함
 - [ ] Detekt 통과 (또는 정당화된 baseline 등록)
-- [ ] Kluent 이름 호환 검증: 샘플 테스트 파일에서 `import org.amshove.kluent.*`만
+- [ ] bluetape4k-assertions 이름 호환 검증: 샘플 테스트 파일에서 `import io.bluetape4k.assertions.*`만
       `import io.bluetape4k.assertions.*`로 바꾼 후 컴파일/실행 통과 (§7.5 smoke test)
 - [ ] Turbine `compileOnly` 격리 검증: TurbineSupport를 사용하지 않는 소비자는 Turbine 없이
       `bluetape4k-assertions`를 정상 사용 가능. TurbineSupport 사용 시 소비자가
@@ -1185,7 +1185,7 @@ dependencies {
 | `shouldBe` (===) vs `shouldBeEqualTo` (==) 혼동        | 사용자가 잘못된 함수 호출                  | KDoc 첫 줄에 큰 경고; README 마이그레이션 표에 명시                                                |
 | `kotlin.contracts` smart-cast 가 Kotlin 버전에 의존    | 컴파일 환경 차이로 smart-cast 실패         | Kotlin 2.3+ 강제, Detekt 룰로 contract 사용 함수 추적                                              |
 | FlowAssertions bridge 경고 폭발                        | 기존 코드 빌드시 콘솔 노이즈               | DeprecationLevel.WARNING + ReplaceWith 정확히 작성, 2 minor 이내 제거 일정 README에 명시           |
-| Kluent의 백틱 API 사용 코드                            | import 변경만으로는 빌드 실패              | §5.2 의도적 편차 표에 명시; sed 스크립트 제공 (백틱 → 카멜케이스 변환)                             |
+| bluetape4k-assertions의 백틱 API 사용 코드                            | import 변경만으로는 빌드 실패              | §5.2 의도적 편차 표에 명시; sed 스크립트 제공 (백틱 → 카멜케이스 변환)                             |
 | `assertSoftly` 자동 누적을 사용한 코드                 | 동작 변경 (silent fail → MultipleFailures)  | §5.2에 명시; IDE structural search/replace 가이드 제공                                             |
 | Turbine compileOnly 누락 시 사용자 혼란                | 사용자가 Turbine 추가 안 하면 NoClassDefFoundError | KDoc 상단에 "Turbine 의존성 필요" 표시; README에 별도 섹션                                         |
 | 기존 `bluetape4k-coroutines` 사용자가 새 모듈 의존성 추가 거부 | 새 assertions 접근 불가                    | ADR-6 결정: bridge는 독립 구현(@Deprecated), 의존성 없음. 사용자는 새 함수로 마이그레이션하거나 기존 구현 계속 사용 가능 — README 마이그레이션 가이드에 명시 |

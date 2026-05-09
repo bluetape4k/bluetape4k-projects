@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-JUnit 5용 Kluent 호환 assertion DSL. api scope에 `bluetape4k-*` 의존성 없음 — import만 교체하면 마이그레이션 완료.
+JUnit 5용 bluetape4k-assertions 호환 assertion DSL. api scope에 `bluetape4k-*` 의존성 없음 — import만 교체하면 마이그레이션 완료.
 
 ## 아키텍처
 
@@ -26,7 +26,7 @@ graph TD
 
 ## 기능
 
-- **Kluent 호환** infix DSL — 같은 함수 이름, import만 교체하면 완료
+- **bluetape4k-assertions 호환** infix DSL — 같은 함수 이름, import만 교체하면 완료
 - **기본**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` 스마트 캐스트 지원
 - **숫자 비교**: `shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`, 부호 확인, 범위 포함 확인
 - **컬렉션/배열/맵**: 내용 동등성, 포함 검증 (`shouldContainAll`, `shouldNotContainAny`)
@@ -171,11 +171,11 @@ class MyTest {
 | `shouldBeInstanceOf<T>()` | 인스턴스 확인 (스마트 캐스트) |
 | `shouldNotBeInstanceOf<T>()` | 인스턴스 아님 확인 |
 
-## Kluent에서 마이그레이션
+## bluetape4k-assertions에서 마이그레이션
 
-`import org.amshove.kluent.*`을 `import io.bluetape4k.assertions.*`으로 교체하세요.
+`import io.bluetape4k.assertions.*`을 `import io.bluetape4k.assertions.*`으로 교체하세요.
 
-| Kluent | bluetape4k-assertions | 주의사항 |
+| bluetape4k-assertions | bluetape4k-assertions | 주의사항 |
 |--------|----------------------|---------|
 | `shouldBe` (value ==) | `shouldBeEqualTo` | bluetape4k에서는 의미가 다름 |
 | `shouldBe` (ref ===) | `shouldBe` | 동일한 동작 |
@@ -186,13 +186,13 @@ class MyTest {
 
 ### 중요한 의미 변화
 
-**Kluent의 `shouldBe`는 모든 타입에 대해 `==` (값 동등성)를 사용합니다.**
+**bluetape4k-assertions의 `shouldBe`는 모든 타입에 대해 `==` (값 동등성)를 사용합니다.**
 **bluetape4k-assertions의 `shouldBe`는 `===` (참조 동일성)를 사용합니다.**
 
-이는 의도적인 설계로, 값 동등성과 참조 동일성 모두를 명확하게 제공하기 위함입니다. Kluent의 `shouldBe`를 마이그레이션할 때는 값 동등성 검증에 항상 `shouldBeEqualTo`를 사용하세요.
+이는 의도적인 설계로, 값 동등성과 참조 동일성 모두를 명확하게 제공하기 위함입니다. bluetape4k-assertions의 `shouldBe`를 마이그레이션할 때는 값 동등성 검증에 항상 `shouldBeEqualTo`를 사용하세요.
 
 ```kotlin
-// Kluent
+// bluetape4k-assertions
 "a" shouldBe "a"  // 통과 (== 비교)
 
 // bluetape4k-assertions

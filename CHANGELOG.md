@@ -20,7 +20,7 @@
 - `spring-boot3/*` 모듈을 제거하고 `spring-boot4/*` 모듈을 versionless `spring-boot/*` 표준 모듈로 전환했습니다.
 - Gradle catalog의 Spring Boot/Spring Cloud BOM alias를 `spring.boot.dependencies`와 `spring.cloud.dependencies`로 단일화했습니다.
 - Nightly Spring Boot 테스트 matrix와 PR 체크리스트를 Spring Boot 4-only 구조에 맞춰 정리했습니다.
-- Test code migrated from Kluent to `bluetape4k-assertions`, including `assertFailsWith<T>` / `assertNotFailsWith<T>` migration paths ([#328](https://github.com/bluetape4k/bluetape4k-projects/pull/328), [#330](https://github.com/bluetape4k/bluetape4k-projects/pull/330), [#345](https://github.com/bluetape4k/bluetape4k-projects/pull/345)).
+- Test code migrated from bluetape4k-assertions to `bluetape4k-assertions`, including `assertFailsWith<T>` / `assertNotFailsWith<T>` migration paths ([#328](https://github.com/bluetape4k/bluetape4k-projects/pull/328), [#330](https://github.com/bluetape4k/bluetape4k-projects/pull/330), [#345](https://github.com/bluetape4k/bluetape4k-projects/pull/345)).
 - CI now uses paths-filter so only affected module test jobs run where possible ([#344](https://github.com/bluetape4k/bluetape4k-projects/pull/344)).
 - Exposed ORM modules were extracted to the standalone `bluetape4k-exposed` repository ([#334](https://github.com/bluetape4k/bluetape4k-projects/pull/334)).
 - AWS, images, texts, leader, and JaVers split cleanup continued by removing moved directories and updating follow-up docs ([#319](https://github.com/bluetape4k/bluetape4k-projects/pull/319), [#320](https://github.com/bluetape4k/bluetape4k-projects/pull/320), [#321](https://github.com/bluetape4k/bluetape4k-projects/pull/321), [#336](https://github.com/bluetape4k/bluetape4k-projects/pull/336), [#338](https://github.com/bluetape4k/bluetape4k-projects/pull/338)).

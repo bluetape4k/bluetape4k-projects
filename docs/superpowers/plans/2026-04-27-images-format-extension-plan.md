@@ -14,7 +14,7 @@
 - **Plan Task는 모두 필수** — 선택 없이 전수 완료 후 PR 생성, 완료 후 Plan 대비 비교 표 보고.
 - **TDD**: 각 task는 RED → GREEN → REFACTOR 순서. 인터페이스/데이터 클래스만 정의되는 task도 컴파일 가드 + reflection 검증 테스트 동반.
 - **테스트 작성 + 실행 검증** 필수: 작성·수정 즉시 `./gradlew :bluetape4k-images:test --tests "<class>"` 실행, pass/skip/fail 결과 보고에 포함.
-- **Kluent 비교 matcher** 사용 (`shouldBeGreaterThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`). `(x > y).shouldBeTrue()` 금지.
+- **bluetape4k-assertions 비교 matcher** 사용 (`shouldBeGreaterThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`). `(x > y).shouldBeTrue()` 금지.
 - **단계별 commit 분리** (Korean + prefix). 각 task 종료 시 commit, T22 종료 후 push + PR.
 - **편집 후 `ide_diagnostics`** 확인, 임포트 오류·`@Deprecated`는 즉시 해소.
 - **공개 API KDoc 한국어** + `## 동작/계약` + `## 예시` 섹션 필수, `companion object: KLoggingChannel()` 패턴 유지.

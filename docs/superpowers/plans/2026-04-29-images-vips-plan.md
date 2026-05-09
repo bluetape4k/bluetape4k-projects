@@ -472,7 +472,7 @@ Goal: Cover spec §6.2 assertions for both implementations + the `use {}` leak g
 - **complexity**: low
 - **deps**: T1.2
 - **files**: `utils/images-vips-api/src/test/kotlin/io/bluetape4k/images/vips/VipsEncodeOptionsTest.kt`
-- **details**: AAA pattern. Verify validation throws `IllegalArgumentException` for `quality = -1`, `quality = 101`, `effort = 0`, `effort = 10`. Verify `Default/HighQuality/LowBandwidth` constants. **Java serialization round-trip only** (`ObjectOutputStream` / `ObjectInputStream`) — `VipsEncodeOptions` implements `java.io.Serializable`, NOT `kotlinx.serialization.Serializable`. Use Kluent matchers (`shouldBeEqualTo`, `shouldThrow`). NO `@Tag("vips-required")` — pure logic test.
+- **details**: AAA pattern. Verify validation throws `IllegalArgumentException` for `quality = -1`, `quality = 101`, `effort = 0`, `effort = 10`. Verify `Default/HighQuality/LowBandwidth` constants. **Java serialization round-trip only** (`ObjectOutputStream` / `ObjectInputStream`) — `VipsEncodeOptions` implements `java.io.Serializable`, NOT `kotlinx.serialization.Serializable`. Use bluetape4k-assertions matchers (`shouldBeEqualTo`, `shouldThrow`). NO `@Tag("vips-required")` — pure logic test.
 - **DoD**: Runs in default `:test` (not skipped); passes.
 
 ### T4.2 — Test fixtures and AbstractVipsTest harness (api module)
@@ -514,7 +514,7 @@ Goal: Cover spec §6.2 assertions for both implementations + the `use {}` leak g
   13. `resize(0, 600)` or `resize(-1, 600)` → throws (expect `VipsDecodeException` or `IllegalArgumentException`)
   14. `crop` out of bounds (e.g., `crop(0, 0, width+1, height)`) → throws
   15. `vipsImageOf(ByteArray(byteArrayOf(0,1,2,3)))` corrupt data → throws `VipsDecodeException`
-  - Use Kluent matchers: `bytes.size shouldBeGreaterThan 0`, `width shouldBeEqualTo 100`. Never `(x >= y).shouldBeTrue()`.
+  - Use bluetape4k-assertions matchers: `bytes.size shouldBeGreaterThan 0`, `width shouldBeEqualTo 100`. Never `(x >= y).shouldBeTrue()`.
 - **DoD**: All 15 assertions pass when libvips present; skipped when absent. DoD count updated in final DoD section.
 
 ### T4.5 — JVipsResize ops tests (java21)
