@@ -36,7 +36,7 @@ interface UpdateTableSpec {
     /**
      * 엔티티 타입으로 업데이트할 테이블을 지정합니다.
      */
-    fun <T> table(domainType: Class<T>): ReactiveUpdateOperation.ReactiveUpdate
+    fun <T: Any> table(domainType: Class<T>): ReactiveUpdateOperation.ReactiveUpdate
 }
 
 /**
@@ -95,7 +95,7 @@ internal class UpdateTableSpecImpl(
 ): UpdateTableSpec {
     override fun table(table: String): UpdateValuesSpec = UpdateValuesSpecImpl(client, table)
 
-    override fun <T> table(domainType: Class<T>): ReactiveUpdateOperation.ReactiveUpdate =
+    override fun <T: Any> table(domainType: Class<T>): ReactiveUpdateOperation.ReactiveUpdate =
         client.entityTemplate.update(domainType)
 }
 

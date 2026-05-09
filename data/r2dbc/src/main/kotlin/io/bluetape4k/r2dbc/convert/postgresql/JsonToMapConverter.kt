@@ -19,12 +19,12 @@ class JsonToMapConverter(private val mapper: ObjectMapper): Converter<Json, Map<
 
     companion object: KLogging()
 
-    override fun convert(source: Json): Map<String, Any?>? {
+    override fun convert(source: Json): Map<String, Any?> {
         return try {
             mapper.readValue(source.asString())
         } catch (e: JsonProcessingException) {
             log.error(e) { "Fail to parse Json: $source" }
-            null
+            emptyMap()
         }
     }
 }
