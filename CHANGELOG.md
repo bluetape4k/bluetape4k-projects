@@ -6,11 +6,30 @@
 
 ## [Unreleased]
 
+### Added
+
+- `bluetape4k-assertions` module was added as the project-local assertion library foundation ([#326](https://github.com/bluetape4k/bluetape4k-projects/pull/326)).
+- Collection assertion helper `shouldNotContainAny` was added ([#342](https://github.com/bluetape4k/bluetape4k-projects/pull/342)).
+- Case-insensitive string assertions `assertEqualsIgnoringCase` and `assertNotEqualsIgnoringCase` were added ([#343](https://github.com/bluetape4k/bluetape4k-projects/pull/343)).
+- `bluetape4k-bom` module README files were added in English and Korean ([#346](https://github.com/bluetape4k/bluetape4k-projects/pull/346)).
+
 ### Changed
 
 - `spring-boot3/*` 모듈을 제거하고 `spring-boot4/*` 모듈을 versionless `spring-boot/*` 표준 모듈로 전환했습니다.
 - Gradle catalog의 Spring Boot/Spring Cloud BOM alias를 `spring.boot.dependencies`와 `spring.cloud.dependencies`로 단일화했습니다.
 - Nightly Spring Boot 테스트 matrix와 PR 체크리스트를 Spring Boot 4-only 구조에 맞춰 정리했습니다.
+- Test code migrated from Kluent to `bluetape4k-assertions`, including `assertFailsWith<T>` / `assertNotFailsWith<T>` migration paths ([#328](https://github.com/bluetape4k/bluetape4k-projects/pull/328), [#330](https://github.com/bluetape4k/bluetape4k-projects/pull/330), [#345](https://github.com/bluetape4k/bluetape4k-projects/pull/345)).
+- CI now uses paths-filter so only affected module test jobs run where possible ([#344](https://github.com/bluetape4k/bluetape4k-projects/pull/344)).
+- Exposed ORM modules were extracted to the standalone `bluetape4k-exposed` repository ([#334](https://github.com/bluetape4k/bluetape4k-projects/pull/334)).
+- AWS, images, texts, leader, and JaVers split cleanup continued by removing moved directories and updating follow-up docs ([#319](https://github.com/bluetape4k/bluetape4k-projects/pull/319), [#320](https://github.com/bluetape4k/bluetape4k-projects/pull/320), [#321](https://github.com/bluetape4k/bluetape4k-projects/pull/321), [#336](https://github.com/bluetape4k/bluetape4k-projects/pull/336), [#338](https://github.com/bluetape4k/bluetape4k-projects/pull/338)).
+- Codex/agent guidance now points at Codex resources ([#347](https://github.com/bluetape4k/bluetape4k-projects/pull/347)).
+
+### Fixed
+
+- `AbstractCompressor.compress/decompress` no longer swallows exceptions, preserving the breaking behavior change explicitly ([#317](https://github.com/bluetape4k/bluetape4k-projects/pull/317)).
+- `runSuspendIO` timeout was increased and `BluetapeHttpServer` eager initialization was fixed ([#337](https://github.com/bluetape4k/bluetape4k-projects/pull/337)).
+- Kafka Wave 1-3 security, cancellation, DLT, and metrics follow-ups were applied ([#309](https://github.com/bluetape4k/bluetape4k-projects/pull/309), [#310](https://github.com/bluetape4k/bluetape4k-projects/pull/310), [#314](https://github.com/bluetape4k/bluetape4k-projects/pull/314)).
+- Code scanning findings for workflow permissions, archive extraction, and secure cookie handling were addressed across multiple follow-up PRs ([#311](https://github.com/bluetape4k/bluetape4k-projects/pull/311), [#312](https://github.com/bluetape4k/bluetape4k-projects/pull/312), [#313](https://github.com/bluetape4k/bluetape4k-projects/pull/313), [#286](https://github.com/bluetape4k/bluetape4k-projects/pull/286), [#287](https://github.com/bluetape4k/bluetape4k-projects/pull/287), [#288](https://github.com/bluetape4k/bluetape4k-projects/pull/288)).
 
 ---
 
