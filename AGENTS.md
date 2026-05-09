@@ -30,7 +30,7 @@ repo-test-summary -- ./gradlew :module:test
 | `spring-boot3/4/` | WebFlux + coroutines, Exposed repositories, Spring Batch |
 | `virtualthread/` | `api`, `jdk21`, `jdk25`; update all related modules together |
 
-Full reference may live under `.claude/references/module-groups.md`.
+Full reference may live under `.codex/references/module-groups.md`.
 
 ## Build Configuration
 
@@ -42,7 +42,7 @@ Full reference may live under `.claude/references/module-groups.md`.
 
 ## Rules
 
-- Extract jar sources into `.claude/lib-sources/<library-name>/`, never `/tmp`
+- Extract jar sources into `.codex/lib-sources/<library-name>/`, never `/tmp`
   or the project source tree.
 - atomicfu is class-property only; do not use it for method-local variables.
 - Detekt is disabled in `exposed-jdbc-tests`; do not re-enable casually.
