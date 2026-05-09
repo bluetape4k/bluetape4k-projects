@@ -14,7 +14,7 @@
 - Concrete 테스트 클래스: `UserRepository` / `SuspendedUserRepository` 기반으로 각 시나리오 구현
 - `JdbcLettuceRepository` API (save/delete/findById) 기반 — Redisson의 put/invalidate와 다름
 
-**Tech Stack:** Kotlin, JUnit 5, Kluent assertions, H2 in-memory DB, Testcontainers Redis, Lettuce `LettuceLoadedMap`,
+**Tech Stack:** Kotlin, JUnit 5, bluetape4k-assertions assertions, H2 in-memory DB, Testcontainers Redis, Lettuce `LettuceLoadedMap`,
 `kotlinx-coroutines-test`
 
 ---
@@ -141,9 +141,9 @@ Expected: `BUILD SUCCESSFUL`
 package io.bluetape4k.exposed.lettuce.repository.scenarios
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -239,9 +239,9 @@ interface ReadThroughScenario<ID: Any, E : Any> : CacheTestScenario<ID, E> {
 package io.bluetape4k.exposed.lettuce.repository.scenarios
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -342,8 +342,8 @@ interface WriteThroughScenario<ID: Any, E : Any> : CacheTestScenario<ID, E> {
 package io.bluetape4k.exposed.lettuce.repository.scenarios
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -454,9 +454,9 @@ package io.bluetape4k.exposed.lettuce.repository.scenarios
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 interface SuspendedReadThroughScenario<ID: Any, E : Any> : SuspendedCacheTestScenario<ID, E> {
@@ -520,9 +520,9 @@ package io.bluetape4k.exposed.lettuce.repository.scenarios
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 interface SuspendedWriteThroughScenario<ID: Any, E : Any> : SuspendedCacheTestScenario<ID, E> {
@@ -591,8 +591,8 @@ package io.bluetape4k.exposed.lettuce.repository.scenarios
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds

@@ -782,7 +782,7 @@ JMH 없이 간이 측정 — 1920×1080 이미지 100회 반복 → 평균 < 목
 - 보간 결과 비교 시 `tolerance = 3`
 - 무손실 변환(flip, 90도 rotate) 비교 시 `tolerance = 0`
 
-### 7.6 Kluent matcher 사용 (사용자 메모리 규칙)
+### 7.6 bluetape4k-assertions matcher 사용 (사용자 메모리 규칙)
 
 ```kotlin
 result.width shouldBeGreaterThan 0

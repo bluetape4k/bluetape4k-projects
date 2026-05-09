@@ -1721,7 +1721,7 @@ dependencies {
 
 ### 9.1 테스트 도구
 
-- JUnit 5 + Kluent + MockK
+- JUnit 5 + bluetape4k-assertions + MockK
 - `kotlinx-coroutines-test` (`runTest`)
 
 ### 9.2 테스트 시나리오

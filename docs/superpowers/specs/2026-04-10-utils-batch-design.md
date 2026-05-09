@@ -2650,7 +2650,7 @@ CLAUDE.md 지침에 따라 모든 public 클래스·인터페이스·확장 함�
 - [x] `CancellationException` 은 catch 금지 — 항상 rethrow, `finally` 는 `NonCancellable` 컨텍스트
 - [x] `runBlocking` 금지 — JDBC 경로는 `withContext(Dispatchers.VT) { transaction(database) { ... } }`
 - [x] `org.jetbrains.exposed.v1.javatime.timestamp` — Java Time 사용 (kotlinx-datetime 금지)
-- [x] 테스트는 Kluent + JUnit 5 + `runTest { }` / `runSuspendIO { }`
+- [x] 테스트는 bluetape4k-assertions + JUnit 5 + `runTest { }` / `runSuspendIO { }`
 
 ## 부록 B. 향후 확장
 

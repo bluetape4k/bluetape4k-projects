@@ -26,7 +26,7 @@ author: planner (Opus, OMC)
 - DSL: `@DslMarker annotation class AhoCorasickDsl` + `fun <V> ahoCorasick { }` + `ahoCorasickOf(vararg keywords: String)` 헬퍼.
 - `kotlinx-coroutines-core`/`bluetape4k-coroutines`: `compileOnly` (Flow API 사용자만 추가 의존). Java/blocking-only 사용자는 coroutines 없이도 빌드 가능.
 
-**Tech Stack:** Kotlin 2.3, JVM 21, Gradle multi-module, JUnit 5 + MockK + Kluent, kotlinx-coroutines (compileOnly), kotlinx-benchmark (JMH).
+**Tech Stack:** Kotlin 2.3, JVM 21, Gradle multi-module, JUnit 5 + MockK + bluetape4k-assertions, kotlinx-coroutines (compileOnly), kotlinx-benchmark (JMH).
 
 ---
 
@@ -87,7 +87,7 @@ author: planner (Opus, OMC)
 - `x-obsoleted/ahocorasick/` (Task 13에서 git rm)
 
 ### 명시적 범위 규칙
-- 이 작업은 **Testcontainers 가 필요 없는 순수 모듈 작업**이다. 외부 인프라 없이 JUnit + Kluent 만으로 검증한다.
+- 이 작업은 **Testcontainers 가 필요 없는 순수 모듈 작업**이다. 외부 인프라 없이 JUnit + bluetape4k-assertions 만으로 검증한다.
 - `.kt` 파일을 만들거나 수정할 때마다 `mcp__intellij-index__ide_diagnostics` 로 import/deprecation 문제를 확인하고, 필요 시 `ide_optimize_imports` 를 적용한 뒤에만 build/test 로 진행한다.
 - `kotlinx_coroutines_core` / `bluetape4k-coroutines` 는 `compileOnly` 로 선언한다. 테스트에서는 `testImplementation(Libs.kotlinx_coroutines_test)` 가 transitive 로 가져온다.
 - `kotlinx-benchmark` 는 monorepo 최초 적용 — `utils/batch/build.gradle.kts` 의 검증된 패턴을 그대로 모방한다 (`sourceSets { create("benchmark") }` + `compilations.getByName("benchmark").associateWith(...main)` + `allOpen { annotation("org.openjdk.jmh.annotations.State") }`). spec §7.5 의 PoC 단순화 버전은 채택하지 않는다.

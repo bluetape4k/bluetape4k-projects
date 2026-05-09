@@ -11,7 +11,7 @@
 ## 컨텍스트
 
 - **언어/스택**: Kotlin 2.3, Spring Boot 3.5 / Spring Boot 4.0, Hibernate ORM, Lettuce (L2 cache)
-- **테스트 스택**: JUnit 5 + MockK + Kluent + SimpleMeterRegistry (Micrometer)
+- **테스트 스택**: JUnit 5 + MockK + bluetape4k-assertions + SimpleMeterRegistry (Micrometer)
 - **소스 클래스 (모듈당 6개)**:
     1. `LettuceNearCacheHibernateAutoConfiguration`
     2. `LettuceNearCacheSpringProperties`
@@ -122,7 +122,7 @@
 - **complexity**: low
 - **내용**: 신규 테스트 파일에 대해 `/bluetape4k-patterns` 스킬로 다음 확인
     - `companion object : KLogging()` 누락 없음 (pure test class는 불필요)
-    - Kluent assertion 사용 (`shouldBe`, `shouldBeNull`, 등)
+    - bluetape4k-assertions assertion 사용 (`shouldBe`, `shouldBeNull`, 등)
     - MockK relaxed mock 남용 없음
 - **검증**: 위반 없음
 
@@ -229,7 +229,7 @@
 
 - [ ] 두 모듈 `./gradlew test` 녹색
 - [ ] JaCoCo LINE coverage 두 모듈 모두 ≥ 70%
-- [ ] 신규 테스트 JUnit 5 + MockK + Kluent 사용
+- [ ] 신규 테스트 JUnit 5 + MockK + bluetape4k-assertions 사용
 - [ ] Hibernate Statistics 검증 테스트 3회 연속 안정
 - [ ] 기존 테스트 회귀 없음
 - [ ] README.md + README.ko.md 동기 업데이트

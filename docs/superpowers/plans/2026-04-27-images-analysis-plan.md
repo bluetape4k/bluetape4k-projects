@@ -282,7 +282,7 @@ utils/images/README.ko.md                                                     # 
     - `BlurScore(50.0, 100.0).isBlurry shouldBeEqualTo true`
     - 너무 작은 이미지(`width=2`) → IllegalArgumentException
     - threshold 변경 시 isBlurry 결과 변화
-  - **Kluent matcher 규칙**: `(x > y).shouldBeTrue()` 금지 → `shouldBeGreaterThan` 사용
+  - **bluetape4k-assertions matcher 규칙**: `(x > y).shouldBeTrue()` 금지 → `shouldBeGreaterThan` 사용
 - **완료 기준**: 6개 이상 테스트 케이스 모두 PASS. (DoD §Tests 2)
 
 ---
@@ -476,7 +476,7 @@ Wave 8: T19 → T20 (follow-up + verification sequential)
 
 - `companion object: KLogging()` (또는 KLoggingChannel for tests)
 - `Serializable` — data class 직렬화 가능 (`serialVersionUID = 1L`)는 model이 아니므로 선택. `ExifData`는 직렬화 가능하면 좋음
-- Kluent matcher: `shouldBeEqualTo`, `shouldBeGreaterThan`, `shouldBeInRange` — `.shouldBeTrue()` 비교 보다 우선
+- bluetape4k-assertions matcher: `shouldBeEqualTo`, `shouldBeGreaterThan`, `shouldBeInRange` — `.shouldBeTrue()` 비교 보다 우선
 - Test base: `AbstractImageTest`(이미 모듈에 존재 추정)
 
 ### Library Source 추출 위치

@@ -11,7 +11,7 @@
 ## 0. 공통 사항 (모든 태스크에 적용)
 
 - 모든 신규 테스트 클래스는 `companion object : KLogging()` 패턴 채택 (`io.bluetape4k.logging.KLogging`).
-- Kluent 비교는 반드시 `shouldBeGreaterOrEqualTo`/`shouldBeGreaterThan`/`shouldBeLessThan`/`shouldBeLessOrEqualTo`/`shouldBeInRange`/`shouldBeEqualTo` 사용. `(x >= y).shouldBeTrue()` 패턴 금지.
+- bluetape4k-assertions 비교는 반드시 `shouldBeGreaterOrEqualTo`/`shouldBeGreaterThan`/`shouldBeLessThan`/`shouldBeLessOrEqualTo`/`shouldBeInRange`/`shouldBeEqualTo` 사용. `(x >= y).shouldBeTrue()` 패턴 금지.
 - DB-방언 의존 테스트는 `@ParameterizedTest` + `@EnumSource(TestDB::class, names=["H2","POSTGRESQL","MYSQL_V8"])`. enum 명은 `MYSQL_V8` (구 `MYSQL8` 금지).
 - 코루틴 테스트는 `runTest(timeout = 30.seconds)` + 가상 시간(`TestCoroutineScheduler`) 우선.
 - 신규 테스트 파일: 200~400 라인 목표, 800 라인 절대 초과 금지.

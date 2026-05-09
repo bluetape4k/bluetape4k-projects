@@ -3,6 +3,8 @@ configurations {
 }
 
 dependencies {
+    testImplementation(project(":bluetape4k-junit5"))
+
     implementation(libs.kotlin.reflect)
 
     api(libs.slf4j.api)

@@ -377,7 +377,7 @@ fun `VALID_URL matches bare domain at line start`() {
 }
 ```
 
-Kluent matcher 사용 필수 (`shouldBeEqualTo`, `shouldBeGreaterOrEqualTo`, `shouldBeTrue`, `shouldBeInRange` 등 — `(x == y).shouldBeTrue()` 금지).
+bluetape4k-assertions matcher 사용 필수 (`shouldBeEqualTo`, `shouldBeGreaterOrEqualTo`, `shouldBeTrue`, `shouldBeInRange` 등 — `(x == y).shouldBeTrue()` 금지).
 
 **검증**:
 - `./gradlew :bluetape4k-tokenizer-korean:test --tests *TwitterCompatPatternsTest*` 100% 통과

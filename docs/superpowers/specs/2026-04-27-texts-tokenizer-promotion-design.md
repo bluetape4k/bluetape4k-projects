@@ -33,7 +33,7 @@ texts/
 
 ### 제약
 
-- Kotlin 2.3, JVM 21, JUnit 5 + MockK + Kluent.
+- Kotlin 2.3, JVM 21, JUnit 5 + MockK + bluetape4k-assertions.
 - `settings.gradle.kts` 의 `includeModules("texts", withBaseDir = false)` 패턴으로 디렉토리명 → 아티팩트 `bluetape4k-{dirname}` 자동 등록.
 - 단일 PR 로 처리한다 (모듈 이동 + twitter-text 제거 + Libs.kt 정비).
 - **이동 방식은 `git mv` 로 히스토리 보존**. 단순 이동 + 오타 수정만 허용 (Kotlin 2.3 API 현대화는 후속 PR).

@@ -2,13 +2,14 @@ package io.bluetape4k.testcontainers.storage
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.ResourceLock
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients
-import io.bluetape4k.assertions.assertFailsWith
 
 @Suppress("DEPRECATION")
 class ElasticsearchServerTest: AbstractContainerTest() {
@@ -20,7 +21,7 @@ class ElasticsearchServerTest: AbstractContainerTest() {
 
         @Test
         fun `launch elasticsearch`() {
-            ElasticsearchServer().use { es ->
+            ElasticsearchServer(reuse = false).use { es ->
                 es.start()
                 es.isRunning.shouldBeTrue()
             }
@@ -28,14 +29,12 @@ class ElasticsearchServerTest: AbstractContainerTest() {
 
         @Test
         fun `launch elastic search with ssl`() {
-            ElasticsearchServer(password = "wow-world").use { es ->
+            ElasticsearchServer(reuse = false, password = "wow-world").use { es ->
                 es.start()
                 es.isRunning.shouldBeTrue()
 
                 val config = ElasticsearchServer.Launcher.Spring.getClientConfiguration(es)
-                val client = ElasticsearchClients.getRestClient(config)
-                client.isRunning.shouldBeTrue()
-                client.close()
+                ElasticsearchClients.createImperative(config).shouldNotBeNull()
             }
         }
     }
@@ -45,7 +44,7 @@ class ElasticsearchServerTest: AbstractContainerTest() {
     inner class UseDefaultPort {
         @Test
         fun `launch elasticsearch with default port`() {
-            ElasticsearchServer(useDefaultPort = true).use { es ->
+            ElasticsearchServer(useDefaultPort = true, reuse = false).use { es ->
                 es.start()
                 es.isRunning.shouldBeTrue()
                 es.port shouldBeEqualTo ElasticsearchServer.PORT

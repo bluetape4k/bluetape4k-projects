@@ -90,7 +90,7 @@
 |------|------|------|
 | JDK Toolchain | 21 | 21 (변경 없음) |
 | Kotlin | 2.3 | 2.3 (변경 없음) |
-| JUnit 5 / MockK / Kluent | 현행 | 현행 |
+| JUnit 5 / MockK / bluetape4k-assertions | 현행 | 현행 |
 | Testcontainers (PostgreSQL/MySQL) | 현행 | 현행 |
 | Jacoco / Kover | 현행 | 현행 — 70% line coverage 게이트 추가 |
 

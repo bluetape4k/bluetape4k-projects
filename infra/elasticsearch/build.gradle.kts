@@ -43,5 +43,4 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.testcontainers.elasticsearch)
     testImplementation(libs.mockk)
-    testImplementation(libs.bluetape4k.assertions)
 }

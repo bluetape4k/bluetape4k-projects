@@ -492,7 +492,7 @@ infix fun CharSequence.shouldNotContainRegex(pattern: String): CharSequence =
     this shouldNotContainRegex Regex(pattern)
 
 /**
- * [expected]와 대소문자를 무시하고 같은지 검증한다. (Kluent 호환)
+ * [expected]와 대소문자를 무시하고 같은지 검증한다. (bluetape4k-assertions 호환)
  *
  * @param expected 기대하는 값
  * @param actual 검증할 값
@@ -512,7 +512,7 @@ fun assertEqualsIgnoringCase(expected: Any, actual: Any, message: String? = null
 }
 
 /**
- * [expected]와 대소문자를 무시하고 다른지 검증한다. (Kluent 호환)
+ * [expected]와 대소문자를 무시하고 다른지 검증한다. (bluetape4k-assertions 호환)
  *
  * @param expected 기대하는 값
  * @param actual 검증할 값

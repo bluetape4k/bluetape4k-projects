@@ -74,7 +74,7 @@ T01 → T02 → T03/T03a (병렬) → T04 → T05/T05a/T05b (병렬)
     - `testFixturesApi(Libs.elasticsearch_java)`
     - `testImplementation(project(":bluetape4k-junit5"))`
     - `testImplementation(project(":bluetape4k-jackson3"))` (테스트는 Jackson3 채택)
-    - `testImplementation(Libs.mockk)`, `testImplementation(Libs.kluent)`
+    - `testImplementation(Libs.mockk)`, `testImplementation(Libs.bluetape4kAssertions)`
 - **완료 조건**:
   - `./gradlew :bluetape4k-elasticsearch:dependencies` 가 의존성 트리를 출력.
   - `settings.gradle.kts` 자동 등록으로 모듈 인식.
@@ -289,7 +289,7 @@ T01 → T02 → T03/T03a (병렬) → T04 → T05/T05a/T05b (병렬)
   - `clientOf(...)` (sync) 한 번만 smoke test.
 - **완료 조건**:
   - 통합 테스트 통과.
-  - 모든 assertion 이 Kluent matcher (`shouldNotBeNull`, `shouldBeEqualTo`).
+  - 모든 assertion 이 bluetape4k-assertions matcher (`shouldNotBeNull`, `shouldBeEqualTo`).
 
 ### T12 — `ElasticsearchCoroutinesTest` (CRUD roundtrip)
 

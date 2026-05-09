@@ -33,7 +33,7 @@ Issue #240은 기존 API 호환성을 유지하면서 DAEAD(AES-SIV) 기반 청�
 - `TinkDeterministicAead`는 `encryptDeterministically(plaintext, associatedData)` / `decryptDeterministically(ciphertext, associatedData)`를 제공하고 기본 associated data는 빈 배열이다.
 - Google Tink 공식 문서는 Deterministic AEAD가 동일 plaintext에 동일 ciphertext를 생성하며 AES256_SIV key type을 권장한다고 설명한다. 또한 associated data는 인증되지만 암호화되지 않고, 결정성 때문에 동일 평문 패턴 노출 위험이 있다.
 - Tink 공식 문서는 Deterministic AEAD plaintext/associated data 길이가 `0..2^32 bytes` 범위라고 설명하고, 메시지당 1MB 미만일 때 많은 메시지 암호화에 대한 안정성 기준을 제시한다. 기본 64KB 청크는 이 기준 안에 있다.
-- `io/okio` 테스트는 `Buffer`, Kluent, `assertFailsWith`, helper `readAllTo` 패턴을 사용한다.
+- `io/okio` 테스트는 `Buffer`, bluetape4k-assertions, `assertFailsWith`, helper `readAllTo` 패턴을 사용한다.
 
 ## 설계 옵션
 

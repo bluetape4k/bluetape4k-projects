@@ -1106,10 +1106,10 @@ package io.bluetape4k.spring.batch.exposed.partition
 import io.bluetape4k.spring.batch.exposed.AbstractExposedBatchTest
 import io.bluetape4k.spring.batch.exposed.SourceTable
 import io.bluetape4k.spring.batch.exposed.insertTestData
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeLessOrEqualTo
-import org.amshove.kluent.shouldHaveSize
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class ExposedRangePartitionerTest : AbstractExposedBatchTest() {
@@ -1221,9 +1221,9 @@ import io.bluetape4k.spring.batch.exposed.SourceRecord
 import io.bluetape4k.spring.batch.exposed.SourceTable
 import io.bluetape4k.spring.batch.exposed.insertTestData
 import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.batch.item.ExecutionContext
 
@@ -1372,7 +1372,7 @@ package io.bluetape4k.spring.batch.exposed.writer
 import io.bluetape4k.spring.batch.exposed.AbstractExposedBatchTest
 import io.bluetape4k.spring.batch.exposed.TargetRecord
 import io.bluetape4k.spring.batch.exposed.TargetTable
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
@@ -1422,7 +1422,7 @@ package io.bluetape4k.spring.batch.exposed.writer
 import io.bluetape4k.spring.batch.exposed.AbstractExposedBatchTest
 import io.bluetape4k.spring.batch.exposed.TargetRecord
 import io.bluetape4k.spring.batch.exposed.TargetTable
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
@@ -1486,7 +1486,7 @@ import io.bluetape4k.spring.batch.exposed.AbstractExposedBatchTest
 import io.bluetape4k.spring.batch.exposed.SourceRecord
 import io.bluetape4k.spring.batch.exposed.SourceTable
 import io.bluetape4k.spring.batch.exposed.insertTestData
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
@@ -1587,7 +1587,7 @@ import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.support.virtualThreadPartitionTaskExecutor
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -1754,8 +1754,8 @@ import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.support.virtualThreadPartitionTaskExecutor
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -1918,8 +1918,8 @@ import io.bluetape4k.spring.batch.exposed.dsl.partitionedBatchJob
 import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -2084,7 +2084,7 @@ import io.bluetape4k.spring.batch.exposed.partition.ExposedRangePartitioner
 import io.bluetape4k.spring.batch.exposed.reader.ExposedKeysetItemReader
 import io.bluetape4k.spring.batch.exposed.support.virtualThreadPartitionTaskExecutor
 import io.bluetape4k.spring.batch.exposed.writer.ExposedItemWriter
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.jetbrains.exposed.sql.Database
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test

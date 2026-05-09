@@ -2,7 +2,7 @@
 
 [한국어](README.ko.md)
 
-Kluent-compatible assertion DSL for JUnit 5. Zero `bluetape4k-*` dependencies in api scope — drop-in import replacement.
+bluetape4k-assertions-compatible assertion DSL for JUnit 5. Zero `bluetape4k-*` dependencies in api scope — drop-in import replacement.
 
 ## Architecture
 
@@ -26,7 +26,7 @@ graph TD
 
 ## Features
 
-- **Kluent-compatible** infix DSL — same function names, import-only migration
+- **bluetape4k-assertions-compatible** infix DSL — same function names, import-only migration
 - **Basic**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` with smart cast contract
 - **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`), sign checks, range containment
 - **Collections / Arrays / Maps**: content equality, containment (`shouldContainAll`, `shouldNotContainAny`)
@@ -171,11 +171,11 @@ class MyTest {
 | `shouldBeInstanceOf<T>()` | Instance check (smart cast) |
 | `shouldNotBeInstanceOf<T>()` | Negative instance check |
 
-## Migration from Kluent
+## Migration from bluetape4k-assertions
 
-Replace `import org.amshove.kluent.*` with `import io.bluetape4k.assertions.*`.
+Replace `import io.bluetape4k.assertions.*` with `import io.bluetape4k.assertions.*`.
 
-| Kluent | bluetape4k-assertions | Notes |
+| bluetape4k-assertions | bluetape4k-assertions | Notes |
 |--------|----------------------|-------|
 | `shouldBe` (value ==) | `shouldBeEqualTo` | Different semantics in bluetape4k |
 | `shouldBe` (ref ===) | `shouldBe` | Same behavior |
@@ -186,13 +186,13 @@ Replace `import org.amshove.kluent.*` with `import io.bluetape4k.assertions.*`.
 
 ### Critical Semantic Change
 
-**Kluent's `shouldBe` uses `==` (structural equality) for all types.**
+**bluetape4k-assertions's `shouldBe` uses `==` (structural equality) for all types.**
 **bluetape4k-assertions's `shouldBe` uses `===` (referential equality).**
 
-This is intentional to provide clear semantics for both value and reference equality. Always use `shouldBeEqualTo` when migrating Kluent's `shouldBe` for value equality.
+This is intentional to provide clear semantics for both value and reference equality. Always use `shouldBeEqualTo` when migrating bluetape4k-assertions's `shouldBe` for value equality.
 
 ```kotlin
-// Kluent
+// bluetape4k-assertions
 "a" shouldBe "a"  // Passes (== comparison)
 
 // bluetape4k-assertions

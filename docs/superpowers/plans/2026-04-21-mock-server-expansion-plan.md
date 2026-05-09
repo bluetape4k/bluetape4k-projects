@@ -14,7 +14,7 @@
 `bluetape-webflux` namespace.
 
 **Tech Stack:
-** Kotlin 2.3, Java 25 toolchain, Spring Boot 4.0.5, Jackson 3 (explicit opt-in), Coroutines, Testcontainers, Jib 3.4.4, Gatling 3.15 Java API, JUnit 5 + Kluent + OkHttp / WebTestClient.
+** Kotlin 2.3, Java 25 toolchain, Spring Boot 4.0.5, Jackson 3 (explicit opt-in), Coroutines, Testcontainers, Jib 3.4.4, Gatling 3.15 Java API, JUnit 5 + bluetape4k-assertions + OkHttp / WebTestClient.
 
 **Worktree:** `.worktrees/feat/mock-server-expansion` (branch
 `feat/mock-server-expansion`). All work runs inside the worktree.
@@ -56,7 +56,7 @@ src/main/resources/
   application.yml                       # port 9999
   jsonplaceholder/*.json                # copied
   web/html/*.html                       # copied
-src/test/kotlin/io/bluetape4k/mockwebflux/...            # WebTestClient + Kluent
+src/test/kotlin/io/bluetape4k/mockwebflux/...            # WebTestClient + bluetape4k-assertions
 src/test/resources/junit-platform.properties + logback-test.xml
 src/gatling/kotlin/.../MockWebfluxServerSimulation.kt
 build.gradle.kts + README.md + README.ko.md
@@ -364,7 +364,7 @@ git commit -m "docs: mock-web-server README 이중 언어 및 UML 다이어그�
 - Create: `testing/mock-web-server/src/test/kotlin/io/bluetape4k/mockserver/web/WebContentContractTest.kt` (E35, E36)
 - Fill gaps in existing classes so every endpoint has one method (matrix below)
 
-**Test stack:** `@SpringBootTest(webEnvironment = RANDOM_PORT)` + OkHttp + Kluent.
+**Test stack:** `@SpringBootTest(webEnvironment = RANDOM_PORT)` + OkHttp + bluetape4k-assertions.
 
 **Depends on:** T02, T04
 **Acceptance criteria:**
@@ -458,7 +458,7 @@ package io.bluetape4k.mockserver.admin
 
 import io.bluetape4k.mockserver.MockServerTestBase
 import okhttp3.Request
-import org.amshove.kluent.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class PingContractTest: MockServerTestBase() {
@@ -483,8 +483,8 @@ package io.bluetape4k.mockserver.admin
 import io.bluetape4k.mockserver.MockServerTestBase
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.junit.jupiter.api.Test
 
 class AdminResetContractTest: MockServerTestBase() {
@@ -522,8 +522,8 @@ package io.bluetape4k.mockserver.web
 
 import io.bluetape4k.mockserver.MockServerTestBase
 import okhttp3.Request
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldContain
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -790,7 +790,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-    testImplementation(Libs.kluent)
+    testImplementation(Libs.bluetape4kAssertions)
     testImplementation(Libs.kotlinx_coroutines_test)
     testImplementation(project(":bluetape4k-junit5"))
 }
@@ -1656,8 +1656,8 @@ package io.bluetape4k.testcontainers.http
 import io.bluetape4k.logging.KLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class BluetapeWebfluxServerTest {

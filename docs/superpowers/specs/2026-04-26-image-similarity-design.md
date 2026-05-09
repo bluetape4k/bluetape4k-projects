@@ -46,7 +46,7 @@
 - **파일당 최대 ~800라인** — 현 파일에 5개 기능 추가 시 1500라인 초과 → 분할 필수.
 - **공개 API 안정성** — 기존 함수 시그니처 변경 금지, deprecated 처리 없이 그대로 유지.
 - **bluetape4k 컨벤션** — top-level 확장 함수 + `companion object : KLoggingChannel()` + KDoc(한국어 허용).
-- **JUnit 5 + MockK + Kluent** — 테스트 프레임워크 고정. `shouldBeInRange` 등 비교 matcher 사용.
+- **JUnit 5 + MockK + bluetape4k-assertions** — 테스트 프레임워크 고정. `shouldBeInRange` 등 비교 matcher 사용.
 - **재현성** — 동일 입력 동일 결과(난수 사용 금지). 해시 알고리즘에서 `ScaleMethod.Bicubic` 고정 (scrimage 기본값, `HASH_SCALE_METHOD` 상수화).
 - **이미지 크기 정책 (통일 기준)**:
   | 측정 종류 | 크기 다른 이미지 처리 |
@@ -554,7 +554,7 @@ internal fun ImmutableImage.scaleToMaxSide(maxSide: Int): ImmutableImage
 | 다른 이미지 (homer vs landscape) | < 0.5 | dist > 20 | dist > 20 | dist > 15 | dist > 20 | dist 비례 | < 0.5 | < 0.5 |
 | 크기 다른 이미지 | throws | OK(내부 리사이즈) | OK | OK | OK | OK | OK (정책: 허용) | OK |
 
-### 7.3 Kluent matcher 사용 규칙
+### 7.3 bluetape4k-assertions matcher 사용 규칙
 
 - 비교는 비교 matcher 사용 (`shouldBeGreaterThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`).
 - `(score > 0.9).shouldBeTrue()` 형태 금지 — 실패 시 실제 값이 메시지에 노출되지 않음.

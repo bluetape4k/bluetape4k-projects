@@ -7,10 +7,10 @@ import io.bluetape4k.support.uninitialized
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.r2dbc.core.awaitRowsUpdated
 
-@DataR2dbcTest
+@SpringBootTest(classes = [R2dbcTestApplication::class])
 abstract class AbstractR2dbcTest {
 
     companion object: KLoggingChannel()

@@ -6,7 +6,7 @@
 
 **Architecture:** cache-core에 인터페이스 + Decorator 정의, 각 cache-* 모듈이 구현. Resilient 변형 삭제 → `.withResilience {}` Decorator로 대체. 공통 abstract 테스트로 일관된 검증.
 
-**Tech Stack:** Kotlin 2.3, Caffeine, Lettuce, Hazelcast, Redisson, JCache, Resilience4j, JUnit 5, Kluent
+**Tech Stack:** Kotlin 2.3, Caffeine, Lettuce, Hazelcast, Redisson, JCache, Resilience4j, JUnit 5, bluetape4k-assertions
 
 **Spec:** `docs/superpowers/specs/2026-03-18-nearcache-unification-design.md`
 
@@ -347,7 +347,7 @@ git commit -m "feat: ResilientNearCacheDecorator + NearCacheResilienceConfig 추
 - 테스트 시나리오: get miss→null, put+get round trip, getAll batch, putIfAbsent→V? 반환,
   replace existing, replace with oldValue, remove, getAndRemove, getAndReplace,
   clearLocal (front only), clearAll (both), containsKey, stats tracking
-- Kluent assertions, `@Execution(ExecutionMode.SAME_THREAD)`
+- bluetape4k-assertions assertions, `@Execution(ExecutionMode.SAME_THREAD)`
 
 - [ ] **Step 2: `AbstractSuspendNearCacheOperationsTest.kt` 작성**
 
@@ -361,7 +361,7 @@ git commit -m "feat: ResilientNearCacheDecorator + NearCacheResilienceConfig 추
 ```kotlin
 testFixturesApi(Libs.awaitility_kotlin)
 testFixturesApi(Libs.kotlinx_coroutines_test)
-testFixturesApi(Libs.kluent)
+testFixturesApi(Libs.bluetape4kAssertions)
 testFixturesApi(Libs.junit_jupiter)
 ```
 

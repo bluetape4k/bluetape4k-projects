@@ -379,7 +379,7 @@ dependencies {
 - [ ] `BlurDetectorTest` — sharp 이미지 vs blur 이미지 (Scrimage `ImmutableImage.blur()` 사용해 흐림 fixture 생성), threshold 검증
 - [ ] `ExifDataTest` — `src/test/resources/images/exif/` 에 GPS 포함 / 미포함 / 손상 이미지 3종 fixture, GPS decimal 변환, dateTimeOriginal 검증
 - [ ] `SuspendAnalysisTest` — `runTest`로 suspend 변형 호출 검증
-- [ ] 모든 테스트는 `AbstractImageTest` 상속, Kluent `shouldBe*` 사용
+- [ ] 모든 테스트는 `AbstractImageTest` 상속, bluetape4k-assertions `shouldBe*` 사용
 - [ ] `companion object: KLoggingChannel()` 패턴 준수
 
 ### Test Resources

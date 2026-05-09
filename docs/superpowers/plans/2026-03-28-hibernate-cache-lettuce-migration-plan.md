@@ -6,7 +6,7 @@
 
 **Architecture:** `bluetape4k-cache-lettuce`의 `LettuceNearCache`(Caffeine L1 + Redis L2)를 Hibernate `RegionFactoryTemplate`에 브릿지. 소스 코드 및 패키지명 변경 없이 그대로 이관. `build.gradle.kts`만 의존성을 `Libs.bluetape4k_xxx` -> `project(":bluetape4k-xxx")`로 변환.
 
-**Tech Stack:** Kotlin 2.3, Hibernate 6.6.x, Lettuce 6.8.2, Caffeine, Testcontainers Redis, H2, JUnit 5, Kluent
+**Tech Stack:** Kotlin 2.3, Hibernate 6.6.x, Lettuce 6.8.2, Caffeine, Testcontainers Redis, H2, JUnit 5, bluetape4k-assertions
 
 **Spec:** `docs/superpowers/specs/2026-03-28-hibernate-cache-lettuce-migration-design.md`
 

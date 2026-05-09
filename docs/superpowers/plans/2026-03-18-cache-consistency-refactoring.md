@@ -9,7 +9,7 @@
 **Architecture:
 ** NearJCacheConfig Builder DSL을 cache-core에 추가하고, 각 모듈의 팩토리 함수를 통일된 네이밍/파라미터로 리팩토링. Lettuce 계열은 BinarySerializer → LettuceBinaryCodec으로 통일.
 
-**Tech Stack:** Kotlin 2.3, JCache (JSR-107), Lettuce, Hazelcast, Redisson, Caffeine, JUnit 5, Kluent
+**Tech Stack:** Kotlin 2.3, JCache (JSR-107), Lettuce, Hazelcast, Redisson, Caffeine, JUnit 5, bluetape4k-assertions
 
 **Spec:** `docs/superpowers/specs/2026-03-18-cache-consistency-refactoring-design.md`
 
@@ -101,8 +101,8 @@ block: NearJCacheConfigBuilder<K, V>.() -> Unit,
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.logging.KLogging
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeBlank
 import org.junit.jupiter.api.Test
 
 class NearJCacheConfigBuilderTest {

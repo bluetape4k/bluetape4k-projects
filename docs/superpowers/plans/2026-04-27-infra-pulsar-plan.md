@@ -575,7 +575,7 @@ class ProducerExtensionsTest : AbstractPulsarTest() {
 **주의**:
 - `runTest(timeout = 30.seconds)` 로 타임아웃 반드시 명시 (Pulsar 컨테이너 첫 시작 시 시간 소요)
   → T7 코드 블록의 두 테스트도 `runTest(timeout = 30.seconds)` / `runTest(timeout = 60.seconds)` 적용
-- Kluent matcher: `shouldBeEqualTo`, `shouldNotBeNull` (절대 `(x == y).shouldBeTrue()` 금지)
+- bluetape4k-assertions matcher: `shouldBeEqualTo`, `shouldNotBeNull` (절대 `(x == y).shouldBeTrue()` 금지)
 - `pulsarClient {}` DSL 사용 이유: `PulsarServer.Launcher.PulsarClient()` 팩토리 대신 본 모듈의 DSL을 직접 검증하기 위함
 
 **검증**: `./gradlew :bluetape4k-pulsar:test --tests "*ProducerExtensionsTest"` 통과.
@@ -795,7 +795,7 @@ classDiagram
 - [ ] 클래스 `companion object : KLogging()` 누락 없음
 - [ ] top-level 파일 `private val log = KotlinLogging.logger {}` 누락 없음
 - [ ] `requireNotBlank`, `requireNotNull` 등 validataion 패턴 적절히 사용
-- [ ] Kluent `shouldBeTrue()` 직접 사용 없음 — 비교 matcher 사용
+- [ ] bluetape4k-assertions `shouldBeTrue()` 직접 사용 없음 — 비교 matcher 사용
 
 ---
 
@@ -854,7 +854,7 @@ T1 → T2 → T3 → T4 → T5 → T6 (구현 6 Task 완료) → T7 → T8 → T
 - [ ] 모든 public API 한국어 KDoc
 - [ ] top-level 파일 `private val log = KotlinLogging.logger {}`
 - [ ] 클래스 파일 `companion object : KLogging()`
-- [ ] Kluent matcher 일관 사용 (shouldBeEqualTo / shouldNotBeNull)
+- [ ] bluetape4k-assertions matcher 일관 사용 (shouldBeEqualTo / shouldNotBeNull)
 
 ### 테스트
 - [ ] T7: ProducerExtensionsTest 통과

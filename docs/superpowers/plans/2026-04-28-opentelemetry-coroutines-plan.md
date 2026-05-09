@@ -248,8 +248,8 @@
   - [ ] **negative**: `throw RuntimeException(null)` 처럼 message=null 인 경우 → fallback `"unspecified error"` 검증 (javaClass.simpleName 누출 안 됨)
   - [ ] **negative**: 빈 문자열 `spanName` → `IllegalArgumentException` 발생 검증 (`requireNotBlank`)
   - [ ] 동일 스레드 nested 호출 → parent-child 관계 검증
-- **테스트 도구**: JUnit 5 + MockK + Kluent + `kotlinx-coroutines-test` (`runTest`)
-- **Kluent matcher**: 비교는 `shouldBeEqualTo`, `shouldNotBeNull`, `shouldBeGreaterThan` 등 사용 (`(x == y).shouldBeTrue()` 금지).
+- **테스트 도구**: JUnit 5 + MockK + bluetape4k-assertions + `kotlinx-coroutines-test` (`runTest`)
+- **bluetape4k-assertions matcher**: 비교는 `shouldBeEqualTo`, `shouldNotBeNull`, `shouldBeGreaterThan` 등 사용 (`(x == y).shouldBeTrue()` 금지).
 - **DoD**:
   - [ ] 모든 케이스 통과 — `./gradlew :bluetape4k-opentelemetry:test --tests "*TracerWithSpan*"`
 
@@ -314,7 +314,7 @@
 - **수행 내용**:
   - [ ] **KLogging**: 신규 파일에 `companion object : KLogging()` 포함 여부 (또는 top-level 파일이면 파일 레벨 logger 사용)
   - [ ] **requireNotBlank**: 모든 `spanName` 파라미터 진입부 검사 적용 확인
-  - [ ] **Kluent matchers**: 테스트에서 `(x == y).shouldBeTrue()` 패턴 0건 확인 — `shouldBeEqualTo` / `shouldBeGreaterThan` 등 사용
+  - [ ] **bluetape4k-assertions matchers**: 테스트에서 `(x == y).shouldBeTrue()` 패턴 0건 확인 — `shouldBeEqualTo` / `shouldBeGreaterThan` 등 사용
   - [ ] **불변성**: 신규 data class 없음 (extension function 전용 파일), 확인 후 pass
   - [ ] **`@Deprecated` 없음**: `ide_diagnostics` 에서 deprecated API 사용 0건
   - [ ] **import 정리**: `ide_optimize_imports` 실행 후 불필요 import 0건

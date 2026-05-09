@@ -22,7 +22,7 @@
 - 모든 입력은 `require` 가드로 즉시 검증
 
 **테스트 컨벤션**:
-- JUnit 5 + Kluent + MockK
+- JUnit 5 + bluetape4k-assertions + MockK
 - `runSuspendIO {}` (또는 `runTest`) 로 suspend 테스트
 - 신규 필터는 골든 이미지 1장씩 + 라운드트립 fuzz
 - scrimage 내장 래퍼는 직접 호출과의 동등성 검증으로 갈음 (골든 이미지 불필요)

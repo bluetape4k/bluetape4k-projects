@@ -13,7 +13,7 @@
 - 테스트는 `exposed-jdbc-lettuce`의 시나리오 구조를 R2DBC suspend 버전으로 재구현하고, `SuspendedJobTester`로 동시성을 검증한다.
 
 **Tech Stack:** Kotlin 2.3, Kotlin Exposed v1 (R2DBC), Lettuce (`LettuceLoadedMap`, `MapLoader`, `MapWriter`,
-`LettuceCacheConfig`), `bluetape4k-lettuce`, `bluetape4k-exposed-r2dbc`, JUnit 5, Kotest/Kluent, `SuspendedJobTester`
+`LettuceCacheConfig`), `bluetape4k-lettuce`, `bluetape4k-exposed-r2dbc`, JUnit 5, Kotest/bluetape4k-assertions, `SuspendedJobTester`
 
 ---
 
@@ -1128,7 +1128,7 @@ import io.bluetape4k.exposed.r2dbc.tests.withTables
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.redis.lettuce.map.LettuceCacheConfig
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.jetbrains.exposed.v1.r2dbc.insertAndGetId
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

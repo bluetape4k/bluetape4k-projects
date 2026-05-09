@@ -746,7 +746,7 @@ MULTIPOLYGON 등 혼재된 Geometry 타입을 포함하므로, 단일 generic Ge
    - `@Deprecated` 함수 전체 제거
 3. `geometry/` 패키지 마이그레이션
    - `Geometryx.kt` -> 기능별 파일 분리
-4. 단위 테스트 작성 (JUnit 5 + Kluent)
+4. 단위 테스트 작성 (JUnit 5 + bluetape4k-assertions)
 
 ### Phase 2: 좌표 프로젝션 (0.5일)
 

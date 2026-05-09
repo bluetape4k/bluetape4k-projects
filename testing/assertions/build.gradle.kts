@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm")
 }
 
-description = "Bluetape4k testing assertions — Kluent compatible, JUnit 5 native"
+description = "Bluetape4k testing assertions — bluetape4k-assertions compatible, JUnit 5 native"
 
 dependencies {
     api(platform(libs.junit.bom))

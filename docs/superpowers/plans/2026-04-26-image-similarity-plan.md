@@ -13,7 +13,7 @@
 - **Plan Task는 모두 필수** — 선택 없이 전수 완료 후 PR 생성, 완료 후 Plan 대비 비교 표 보고.
 - **TDD**: 각 task는 RED → GREEN → REFACTOR 순서.
 - **테스트 작성 + 실행 검증** 필수: 작성·수정 즉시 테스트 실행, pass/skip/fail 결과를 보고에 포함.
-- **Kluent 비교 matcher** 사용 (`shouldBeGreaterThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`). `(x > y).shouldBeTrue()` 금지.
+- **bluetape4k-assertions 비교 matcher** 사용 (`shouldBeGreaterThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`). `(x > y).shouldBeTrue()` 금지.
 - **단계별 commit 분리** (Korean + prefix).
 - **편집 후 `ide_diagnostics`** 확인, 임포트 오류·`@Deprecated`는 즉시 해소.
 
@@ -175,7 +175,7 @@ T1 ─┬─ T2 ─┐
 - **내용**:
   - 테스트 클래스: `class HashSimilarityTest : AbstractImageTest()`, `companion object : KLoggingChannel()`.
   - 사용 자산: `homer.jpg`, `landscape.jpg`. JPEG 90% 재저장본/밝기 +10/좌우 5px 시프트는 setup에서 scrimage로 즉석 생성.
-  - 케이스 (Kluent 비교 matcher 사용):
+  - 케이스 (bluetape4k-assertions 비교 matcher 사용):
     - `동일 이미지의 모든 해시는 distance가 0`: aHash/dHash/wHash/pHash(64) 4종.
     - `JPEG 90% 재저장 후 해시 거리는 임계값 이하`: aHash ≤ 4, dHash ≤ 4, wHash ≤ 6, pHash(64) ≤ 4.
     - `다른 이미지의 해시 거리는 20 초과`.

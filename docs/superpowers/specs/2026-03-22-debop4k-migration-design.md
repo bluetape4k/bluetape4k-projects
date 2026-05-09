@@ -46,7 +46,7 @@ val tail: Permutation<T>
     }
 ```
 
-**테스트**: 41개 테스트 파일 존재 (JUnit 4 + Mockito + AssertJ → JUnit 5 + Kluent 변환)
+**테스트**: 41개 테스트 파일 존재 (JUnit 4 + Mockito + AssertJ → JUnit 5 + bluetape4k-assertions 변환)
 
 ### 2.2 BoundedStack (크기 제한 스택)
 
@@ -58,7 +58,7 @@ val tail: Permutation<T>
 - Eclipse Collections `FastList` 의존 (`toList()`) → `ArrayList` 또는 `mutableListOf`로 대체 가능
 - `maxSize` 초과 시 가장 오래된 요소 자동 제거 (ring buffer 방식)
 
-**테스트**: Java 파일 1개 (JUnit 4 + AssertJ) → Kotlin JUnit 5 + Kluent 변환
+**테스트**: Java 파일 1개 (JUnit 4 + AssertJ) → Kotlin JUnit 5 + bluetape4k-assertions 변환
 
 ### 2.3 PaginatedList (페이징 데이터)
 
@@ -141,7 +141,7 @@ val tail: Permutation<T>
   `compileOnly` 추가 필요
 - `hash32`가 stateful (reset → update 패턴) — **thread-safety 이슈**: `synchronized` 또는 `ThreadLocal` 필요
 
-**테스트**: 기존 Kotlin 테스트 1개 → JUnit 5 + Kluent 변환
+**테스트**: 기존 Kotlin 테스트 1개 → JUnit 5 + bluetape4k-assertions 변환
 
 ## 3. 의존성 영향 분석
 

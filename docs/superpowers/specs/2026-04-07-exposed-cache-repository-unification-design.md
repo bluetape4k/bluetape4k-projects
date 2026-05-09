@@ -86,7 +86,7 @@ dependencies {
 
     // testFixtures 의존성
     testFixturesApi(project(":bluetape4k-junit5"))
-    testFixturesApi(Libs.kluent)
+    testFixturesApi(Libs.bluetape4kAssertions)
     testFixturesApi(Libs.kotlinx_coroutines_test)
 }
 ```
@@ -756,7 +756,7 @@ interface CacheTestScenario<ID: Any, E: Any> {
 ```kotlin
 package io.bluetape4k.exposed.redis.test
 
-import org.amshove.kluent.*
+import io.bluetape4k.assertions.*
 import org.junit.jupiter.api.Test
 
 /**
@@ -1188,7 +1188,7 @@ dependencies {
 
     // testFixtures — 공통 테스트 시나리오
     testFixturesApi(project(":bluetape4k-junit5"))
-    testFixturesApi(Libs.kluent)
+    testFixturesApi(Libs.bluetape4kAssertions)
     testFixturesApi(Libs.kotlinx_coroutines_core)
     testFixturesApi(Libs.kotlinx_coroutines_test)
 }

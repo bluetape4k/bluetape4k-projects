@@ -550,7 +550,7 @@ object IIORegistryUtils {
 - [ ] `AvifWriter`, `HeicReader`, `HeicReadOptions` 인터페이스/데이터 클래스 정의 (구현 없음, 본 모듈에는 구현체 없음을 KDoc에 명시).
 - [ ] `IIORegistryUtils.registerApplicationClasspathSpis()` 추가 + `SuspendTiffWriter` 초기화에서 호출.
 
-### 5.2 테스트 (JUnit 5 + MockK + Kluent)
+### 5.2 테스트 (JUnit 5 + MockK + bluetape4k-assertions)
 
 - [ ] `ImageFormatTest`: 신규 4개 포맷 parse 성공 + 대소문자 무시 검증.
 - [ ] `SuspendTiffWriterTest`: PNG 입력 → TIFF 라운드트립 (압축 모드별 4 케이스). 출력 바이트가 TIFF magic (`0x49492A00` 또는 `0x4D4D002A`)로 시작.

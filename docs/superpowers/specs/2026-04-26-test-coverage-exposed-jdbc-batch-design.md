@@ -4,7 +4,7 @@
 - **대상 모듈**: `data/exposed-jdbc`, `utils/batch`
 - **목표 커버리지**: 라인 기준 70% 이상 (모듈별)
 - **브랜치**: `test-coverage-batch` (worktree: `.worktrees/test-coverage-batch`)
-- **관련 메모리**: bluetape4k 테스트 규칙(`feedback_write_and_verify_tests`, `feedback_kluent_comparison_matchers`, `feedback_no_environment_blame`)
+- **관련 메모리**: bluetape4k 테스트 규칙(`feedback_write_and_verify_tests`, `feedback_bluetape4k_assertions_comparison_matchers`, `feedback_no_environment_blame`)
 
 ---
 
@@ -376,7 +376,7 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 - [ ] 신규 테스트 파일 모두 200~400 라인, 800 라인 절대 초과 금지
 - [ ] 기존 테스트 모두 회귀 없이 pass (`./gradlew :bluetape4k-exposed-jdbc:test` / `:bluetape4k-batch:test`)
 - [ ] 모든 테스트는 `runTest(timeout = 30.seconds)` 또는 `@Test` 표준 사용
-- [ ] **Kluent 비교 matcher 규칙 준수** — `shouldBeGreaterOrEqualTo`, `shouldBeGreaterThan`, `shouldBeLessThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`, `shouldBeEqualTo` 등을 사용한다. **`(x >= y).shouldBeTrue()` / `shouldBeTrue()` + 비교식 패턴은 금지** (실패 시 값 맥락이 사라짐). `feedback_kluent_comparison_matchers` 메모리 참조.
+- [ ] **bluetape4k-assertions 비교 matcher 규칙 준수** — `shouldBeGreaterOrEqualTo`, `shouldBeGreaterThan`, `shouldBeLessThan`, `shouldBeLessOrEqualTo`, `shouldBeInRange`, `shouldBeEqualTo` 등을 사용한다. **`(x >= y).shouldBeTrue()` / `shouldBeTrue()` + 비교식 패턴은 금지** (실패 시 값 맥락이 사라짐). `feedback_bluetape4k_assertions_comparison_matchers` 메모리 참조.
 - [ ] **모든 신규 테스트 클래스는 `companion object: KLogging()` 패턴 채택** (`io.bluetape4k.logging.KLogging` 사용, 디버그 로그용 `log` 프로퍼티 노출). 기존 패턴과 일관성 유지.
 - [ ] DB-방언 의존 테스트는 `@ParameterizedTest` + `@MethodSource` 또는 `@EnumSource(TestDB::class, names=["H2","POSTGRESQL","MYSQL_V8"])` 적용. **enum 이름은 `MYSQL_V8` (구 `MYSQL8` 표기 금지).**
 - [ ] 신규 픽스처/도메인은 별도 `Schema` 파일로 분리 (테스트 격리)
@@ -403,4 +403,4 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
 - 기존 표준 테스트: `data/exposed-jdbc/src/test/kotlin/io/bluetape4k/exposed/jdbc/repository/MovieJdbcRepositoryTest.kt`
 - BatchStepRunner 본체: `utils/batch/src/main/kotlin/io/bluetape4k/batch/core/BatchStepRunner.kt`
 - TestDB enum: bluetape4k-testing-junit5 / bluetape4k-exposed-cache testFixtures
-- 사용자 메모리: `feedback_kluent_comparison_matchers`, `feedback_write_and_verify_tests`, `feedback_no_environment_blame`
+- 사용자 메모리: `feedback_bluetape4k_assertions_comparison_matchers`, `feedback_write_and_verify_tests`, `feedback_no_environment_blame`

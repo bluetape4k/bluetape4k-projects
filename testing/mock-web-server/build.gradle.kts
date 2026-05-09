@@ -38,7 +38,6 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(group = "org.mockito", module = "mockito-core")
     }
-    testImplementation(libs.bluetape4k.assertions)
     testImplementation(libs.okhttp3)
     testImplementation(project(":bluetape4k-junit5"))
 }
