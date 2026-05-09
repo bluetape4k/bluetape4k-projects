@@ -23,8 +23,8 @@ scope is larger than the original 12-file issue comment.
 | # | Module | File | Deprecated API | Current usage | Decision | Replacement |
 |---:|---|---|---|---|---|---|
 | 1 | `bucket4j` | `infra/bucket4j/src/main/kotlin/io/bluetape4k/bucket4j/ratelimit/RateLimitResult.kt` | Secondary constructor `(consumedTokens, availableTokens)` | `RateLimitResultTest` covers compatibility only | Delete after test rewrite | `RateLimitResult.consumed(...)` / `rejected(...)` |
-| 2 | `cache-core` | `infra/cache-core/src/main/kotlin/io/bluetape4k/cache/caffeine/CaffeineSupport.kt` | `AsyncCache.getSuspending(...)` | KDoc sample only | Delete | `AsyncCache.suspendGet(...)` |
-| 3 | `cache-lettuce` | `infra/cache-lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
+| 2 | `cache-core` | `cache/core/src/main/kotlin/io/bluetape4k/cache/caffeine/CaffeineSupport.kt` | `AsyncCache.getSuspending(...)` | KDoc sample only | Delete | `AsyncCache.suspendGet(...)` |
+| 3 | `cache-lettuce` | `cache/lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
 | 4 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
 | 5 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
 | 6 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
@@ -69,8 +69,8 @@ Validation:
 
 Scope:
 
-- `infra/cache-core`
-- `infra/cache-lettuce`
+- `cache/core`
+- `cache/lettuce`
 - `infra/lettuce`
 - `infra/redisson`
 - `infra/opentelemetry`

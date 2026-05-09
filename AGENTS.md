@@ -26,7 +26,8 @@ repo-test-summary -- ./gradlew :module:test
 |---|---|
 | `bluetape4k/` | `core`, `coroutines`, `logging`, `bom` |
 | `data/` | Exposed, Hibernate, MongoDB, JDBC, R2DBC, Cassandra |
-| `infra/` | Lettuce, Redisson, Kafka, Pulsar, Resilience4j, cache modules |
+| `infra/` | Lettuce, Redisson, Kafka, Pulsar, Resilience4j |
+| `cache/` | Cache umbrella/core/backend modules and Hibernate Lettuce cache bridge |
 | `spring-boot3/4/` | WebFlux + coroutines, Exposed repositories, Spring Batch |
 | `virtualthread/` | `api`, `jdk21`, `jdk25`; update all related modules together |
 

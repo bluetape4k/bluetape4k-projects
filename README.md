@@ -76,7 +76,7 @@ flowchart TB
         REDISSON["infra/redisson"]
         KAFKA["infra/kafka"]
         R4J["infra/resilience4j"]
-        CACHE["infra/cache-*"]
+        CACHE["cache/*"]
         OTEL["infra/opentelemetry"]
         BUCKET["infra/bucket4j"]
         MICRO["infra/micrometer"]
@@ -202,7 +202,6 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 #### Other Data Modules
 
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM integration
-- **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
 - **[jdbc](./data/jdbc/README.md)**: JDBC utilities
 - **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver extensions — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
 - **[r2dbc](./data/r2dbc/README.md)**: R2DBC support
@@ -219,15 +218,16 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 - **[opentelemetry](./infra/opentelemetry/README.md)**: Distributed tracing
 - **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache
 
-#### Cache Modules (`infra/cache-*`)
+#### Cache Modules (`cache/`)
 
 A pluggable cache abstraction layer — swap backends without changing application code.
 
-- **[cache](./infra/cache/README.md)**: Umbrella module (cache-core + hazelcast + redisson + lettuce)
-- **[cache-core](./infra/cache-core/README.md)**: JCache abstraction + Caffeine/Cache2k/Ehcache local caches (merged from former `cache-local`) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer implementations, 6 abstract test fixtures
-- **[cache-hazelcast](./infra/cache-hazelcast/README.md)**: Hazelcast distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-hazelcast-near`)
-- **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)
-- **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce (Redis) distributed cache — `LettuceNearCacheConfig`, automatic invalidation via RESP3 CLIENT TRACKING
+- **[cache](./cache/all/README.md)**: Umbrella module (cache-core + hazelcast + redisson + lettuce)
+- **[cache-core](./cache/core/README.md)**: JCache abstraction + Caffeine/Cache2k/Ehcache local caches (merged from former `cache-local`) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer implementations, 6 abstract test fixtures
+- **[cache-hazelcast](./cache/hazelcast/README.md)**: Hazelcast distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-hazelcast-near`)
+- **[cache-redisson](./cache/redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)
+- **[cache-lettuce](./cache/lettuce/README.md)**: Lettuce (Redis) distributed cache — `LettuceNearCacheConfig`, automatic invalidation via RESP3 CLIENT TRACKING
+- **[hibernate-cache-lettuce](./cache/hibernate-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, per-region TTL override, 15 codec variants
 
 ### Spring Boot Modules (`spring-boot/`)
 

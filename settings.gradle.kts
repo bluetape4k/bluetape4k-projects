@@ -16,6 +16,8 @@ rootProject.name = "$projectName-projects"
 
 includeModules("bluetape4k", true, false)
 
+includeCacheModules()
+
 includeModules("data", withBaseDir = false)
 includeModules("infra", withBaseDir = false)
 includeModules("io", withBaseDir = false)
@@ -47,4 +49,18 @@ fun includeModules(baseDir: String, withProjectName: Boolean = true, withBaseDir
                     project(":$projectName").projectDir = dir
                 }
         }
+}
+
+fun includeCacheModules() {
+    mapOf(
+        "all" to "bluetape4k-cache",
+        "core" to "bluetape4k-cache-core",
+        "lettuce" to "bluetape4k-cache-lettuce",
+        "redisson" to "bluetape4k-cache-redisson",
+        "hazelcast" to "bluetape4k-cache-hazelcast",
+        "hibernate-lettuce" to "bluetape4k-hibernate-cache-lettuce",
+    ).forEach { (moduleDir, projectName) ->
+        include(projectName)
+        project(":$projectName").projectDir = file("$rootDir/cache/$moduleDir")
+    }
 }

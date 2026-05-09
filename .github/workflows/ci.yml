@@ -109,12 +109,12 @@ jobs:
               - 'io/jackson3/**'
             key-utils:
               - 'utils/idgenerators/**'
-              - 'infra/cache-core/**'
+              - 'cache/core/**'
             infra:
               - 'infra/redisson/**'
               - 'infra/lettuce/**'
-              - 'infra/cache-lettuce/**'
-              - 'infra/cache-redisson/**'
+              - 'cache/lettuce/**'
+              - 'cache/redisson/**'
 
   # ── 2. 전체 빌드 (테스트 제외) ──────────────────────────────────────────
   build:
