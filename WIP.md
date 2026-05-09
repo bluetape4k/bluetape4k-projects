@@ -20,7 +20,7 @@ from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
 | Priority | Issue | Difficulty | Notes |
 |---|---|---:|---|
 | P0 | [#257](https://github.com/bluetape4k/bluetape4k-projects/issues/257) monorepo split epic | XL | Program tracker. Keep phase state updated as repo splits close. |
-| P1 | [#333](https://github.com/bluetape4k/bluetape4k-projects/issues/333) extract cache modules | XL | Next major extraction after Spring Boot policy/removal lane stabilizes. |
+| P1 | [#333](https://github.com/bluetape4k/bluetape4k-projects/issues/333) reorganize cache modules under `cache/` | M | Scope reduced from standalone repo extraction to in-repo directory reorganization to avoid release/reference cycles. |
 | P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
 | P2 | [#151](https://github.com/bluetape4k/bluetape4k-projects/issues/151) LLM/vector Testcontainers | L | Test foundation for AI/vector work. |
 | P2 | [#148](https://github.com/bluetape4k/bluetape4k-projects/issues/148) utils/ai epic | XL | Split after `#149/#151` scope is clear. |
@@ -40,7 +40,7 @@ from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
       -> exposed repo #3 Spring Boot 3 removal + spring-boot4 -> spring-boot rename (closed)
 
 #257 monorepo split tracker
-  -> #333 cache extraction
+  -> #333 cache in-repo folder reorganization
   -> #262 data extraction (deferred)
 
 #110 infra deprecated inventory (documented in docs/infra-deprecated-inventory.md)
@@ -62,7 +62,7 @@ from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
 | Lane | Limit | Current next |
 |---|---:|---|
 | Policy / breaking cleanup | 1 | Keep `#257` updated as split phases close. |
-| Extraction planning | 1 | `#333` after deprecated cleanup issues are split. |
+| Extraction planning | 1 | `#333` in-repo cache folder reorganization; standalone cache repo is deferred. |
 | AI/vector | 1 | `#149` or `#151`, not `#148` first. |
 | Docs polish | 1 PR | `#323/#324/#325` together. |
 

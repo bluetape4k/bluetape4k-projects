@@ -78,7 +78,7 @@ flowchart TB
         REDISSON["infra/redisson"]
         KAFKA["infra/kafka"]
         R4J["infra/resilience4j"]
-        CACHE["infra/cache-*"]
+        CACHE["cache/*"]
         OTEL["infra/opentelemetry"]
         BUCKET["infra/bucket4j"]
         MICRO["infra/micrometer"]
@@ -203,7 +203,6 @@ flowchart TB
 
 - **[cassandra](./data/cassandra/README.ko.md)**: Cassandra 드라이버
 - **[hibernate](./data/hibernate/README.ko.md)/[hibernate-reactive](./data/hibernate-reactive/README.ko.md)**: Hibernate ORM 통합
-- **[hibernate-cache-lettuce](./data/hibernate-cache-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 - **[jdbc](./data/jdbc/README.ko.md)**: JDBC 유틸리티
 - **[mongodb](./data/mongodb/README.ko.md)**: MongoDB Kotlin Coroutine Driver 확장 — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
 - **[r2dbc](./data/r2dbc/README.ko.md)**: R2DBC 지원
@@ -223,15 +222,16 @@ flowchart TB
 - **[opentelemetry](./infra/opentelemetry/README.ko.md)**: 분산 추적
 - **[resilience4j](./infra/resilience4j/README.ko.md)**: Resilience4j + Coroutines, Coroutines Cache
 
-#### 캐시 모듈 (`infra/cache-*`)
+#### 캐시 모듈 (`cache/`)
 
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
-- **[cache](./infra/cache/README.ko.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **[cache-core](./infra/cache-core/README.ko.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
-- **[cache-hazelcast](./infra/cache-hazelcast/README.ko.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
-- **[cache-redisson](./infra/cache-redisson/README.ko.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
-- **[cache-lettuce](./infra/cache-lettuce/README.ko.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
+- **[cache](./cache/all/README.ko.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
+- **[cache-core](./cache/core/README.ko.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
+- **[cache-hazelcast](./cache/hazelcast/README.ko.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
+- **[cache-redisson](./cache/redisson/README.ko.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
+- **[cache-lettuce](./cache/lettuce/README.ko.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
+- **[hibernate-cache-lettuce](./cache/hibernate-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache (Caffeine L1 + Redis L2) — `LettuceNearCacheRegionFactory`, `LettuceNearCacheStorageAccess`, region별 TTL 오버라이드, 15가지 코덱 지원
 
 ### Spring Boot 모듈 (`spring-boot/`)
 

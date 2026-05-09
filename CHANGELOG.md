@@ -16,6 +16,7 @@
 
 ### Changed
 
+- Cache modules were reorganized under `cache/` while preserving existing Gradle project names, Maven artifact IDs, and Kotlin packages ([#333](https://github.com/bluetape4k/bluetape4k-projects/issues/333)).
 - `spring-boot3/*` 모듈을 제거하고 `spring-boot4/*` 모듈을 versionless `spring-boot/*` 표준 모듈로 전환했습니다.
 - Gradle catalog의 Spring Boot/Spring Cloud BOM alias를 `spring.boot.dependencies`와 `spring.cloud.dependencies`로 단일화했습니다.
 - Nightly Spring Boot 테스트 matrix와 PR 체크리스트를 Spring Boot 4-only 구조에 맞춰 정리했습니다.

@@ -1,6 +1,6 @@
 # Architecture 비교
 
-`infra/cache-lettuce`의 Near Cache는 `L1 Local Cache + L2 Redis` 구조를 전제로 한다. 이 문서는 invalidation 방식과 운영 패턴별 권장 구조를 비교한다.
+`cache/lettuce`의 Near Cache는 `L1 Local Cache + L2 Redis` 구조를 전제로 한다. 이 문서는 invalidation 방식과 운영 패턴별 권장 구조를 비교한다.
 
 ## 전제
 
