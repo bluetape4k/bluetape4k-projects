@@ -35,6 +35,28 @@ class CollectionsTest {
             .shouldContain("c")
     }
 
+    // ── shouldContainIgnoringCase ────────────────────────────────────────
+
+    @Test
+    fun `shouldContainIgnoringCase passes when matching element has different case`() {
+        listOf("GET", "Post", "delete") shouldContainIgnoringCase "post"
+    }
+
+    @Test
+    fun `shouldContainIgnoringCase fails when no element matches ignoring case`() {
+        assertFailsWith<AssertionFailedError> {
+            listOf("GET", "POST") shouldContainIgnoringCase "patch"
+        }
+    }
+
+    @Test
+    fun `shouldContainIgnoringCase fails when collection is null`() {
+        assertFailsWith<AssertionFailedError> {
+            val c: Iterable<String>? = null
+            c shouldContainIgnoringCase "get"
+        }
+    }
+
     // ── shouldNotContain ──────────────────────────────────────────────────
 
     @Test
