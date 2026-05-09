@@ -3,7 +3,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot3.dependencies))
+    implementation(platform(libs.spring.boot.dependencies))
 
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-okio"))

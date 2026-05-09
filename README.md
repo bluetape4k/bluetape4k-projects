@@ -57,7 +57,7 @@ Feel free to open an Issue if you need something that isn't here yet.
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
-- **Spring Boot**: 3.4.0+ / 4.0.0+
+- **Spring Boot**: 4.0.0+
 - **Kotlin Exposed**: 1.0.0+
 - **Databases**: H2, PostgreSQL, MySQL
 
@@ -68,8 +68,7 @@ Bluetape4k is a multi-module Gradle project organized by domain.
 ```mermaid
 flowchart TB
     subgraph L5["Integration Layer"]
-        SB3["spring-boot3/*"]
-        SB4["spring-boot4/*"]
+        SB["spring-boot/*"]
     end
 
     subgraph L4["Infrastructure Layer"]
@@ -148,7 +147,7 @@ flowchart TB
     class IO,JACKSON,FEIGN,RETRO,GRPC,OKIO,TINK,VERTX ioLayer
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
     class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
-    class SB3,SB4 intLayer
+    class SB intLayer
     class JUNIT,TC,UTILS,TEXTS,AWS,IMG crossLayer
 ```
 
@@ -230,42 +229,26 @@ A pluggable cache abstraction layer — swap backends without changing applicati
 - **[cache-redisson](./infra/cache-redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)
 - **[cache-lettuce](./infra/cache-lettuce/README.md)**: Lettuce (Redis) distributed cache — `LettuceNearCacheConfig`, automatic invalidation via RESP3 CLIENT TRACKING
 
-### Spring Boot 3 Modules (`spring-boot3/`)
+### Spring Boot Modules (`spring-boot/`)
 
-- **[core](./spring-boot3/core/README.md)
-  **: Spring Boot 3 unified module — Spring core utilities, WebFlux + Coroutines, Retrofit2 integration, test utilities (merged from former
-  `spring/core`, `spring/webflux`, `spring/retrofit2`, `spring/tests`)
-- **[cassandra](./spring-boot3/cassandra/README.md)**: Spring Data Cassandra
-- **[cassandra-demo](./spring-boot3/cassandra-demo/README.md)**: Cassandra usage example with Spring Boot 3
-- **[data-redis](./spring-boot3/redis/README.md)**: High-performance Spring Data Redis serialization —
-  `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.md)
-  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — properties binding, Micrometer Metrics, Actuator Endpoint
-- **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.md)
-  **: Hibernate Lettuce NearCache + Spring MVC integration demo
-- **[mongodb](./spring-boot3/mongodb/README.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` Coroutines extensions, Criteria/Query/Update infix DSL
-- **[r2dbc](./spring-boot3/r2dbc/README.md)**: Spring Data R2DBC
-
-> Spring Data JPA has moved to the `data/hibernate` module.
-
-### Spring Boot 4 Modules (`spring-boot4/`)
-
-Dedicated Spring Boot 4.x modules. Can be used independently from Spring Boot 3 modules.
+Spring Boot 4.x is the only supported Spring Boot line in this repo. Former `spring-boot3/*`
+modules were removed and former `spring-boot4/*` modules now publish as versionless
+`spring-boot/*` modules.
 
 > **BOM note**: Apply via `implementation(platform(...))` rather than `dependencyManagement { imports }` to avoid conflicts with KGP 2.3.x.
 
-- **[core](./spring-boot4/core/README.md)**: Spring Boot 4 common utilities — WebFlux + Coroutines, RestClient DSL (
+- **[core](./spring-boot/core/README.md)**: Spring Boot common utilities — WebFlux + Coroutines, RestClient DSL (
   `suspendGet`, `suspendPost`, etc.), Jackson 2 customizer, Retrofit2 integration, WebTestClient test utilities
-- **[cassandra](./spring-boot4/cassandra/README.md)**: Spring Data Cassandra with Coroutines extensions
-- **[cassandra-demo](./spring-boot4/cassandra-demo/README.md)**: Cassandra usage example
-- **[data-redis](./spring-boot4/redis/README.md)**: High-performance Spring Data Redis serialization —
+- **[cassandra](./spring-boot/cassandra/README.md)**: Spring Data Cassandra with Coroutines extensions
+- **[cassandra-demo](./spring-boot/cassandra-demo/README.md)**: Cassandra usage example
+- **[data-redis](./spring-boot/redis/README.md)**: High-performance Spring Data Redis serialization —
   `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.md)
-  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
-- **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.md)
-  **: Hibernate Lettuce NearCache + Spring MVC integration demo (Spring Boot 4 BOM)
-- **[mongodb](./spring-boot4/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
-- **[r2dbc](./spring-boot4/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
+- **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.md)
+  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
+- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.md)
+  **: Hibernate Lettuce NearCache + Spring MVC integration demo
+- **[mongodb](./spring-boot/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
+- **[r2dbc](./spring-boot/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 
 ### Text Processing → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
 

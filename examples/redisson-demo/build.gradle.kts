@@ -8,7 +8,7 @@ configurations {
 }
 
 dependencies {
-    implementation(enforcedPlatform(libs.spring.boot3.dependencies))
+    implementation(enforcedPlatform(libs.spring.boot.dependencies))
     
     // Redisson
     testImplementation(project(":bluetape4k-redisson"))

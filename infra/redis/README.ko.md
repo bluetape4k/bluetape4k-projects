@@ -221,8 +221,8 @@ classDiagram
 
 다음 별도 모듈에서 `RedisTemplate` / `ReactiveRedisTemplate` 설정용 고성능 Serializer를 제공합니다.
 
-- [bluetape4k-spring-boot3-redis](../../spring-boot3/redis/README.ko.md)
-- [bluetape4k-spring-boot4-redis](../../spring-boot4/redis/README.ko.md)
+- [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.ko.md)
+- [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.ko.md)
 
 ```kotlin
 import io.bluetape4k.redis.spring.serializer.RedisBinarySerializers

@@ -40,7 +40,7 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot3.dependencies))
+    implementation(platform(libs.spring.boot.dependencies))
     api(project(":bluetape4k-io"))
     implementation(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))

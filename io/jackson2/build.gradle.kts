@@ -4,7 +4,7 @@ configurations {
 
 dependencies {
     implementation(platform(libs.jackson.bom))
-    implementation(platform(libs.spring.boot3.dependencies))
+    implementation(platform(libs.spring.boot.dependencies))
 
     api(libs.jackson.core)
     api(libs.jackson.databind)

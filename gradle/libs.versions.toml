@@ -8,10 +8,8 @@ kotlinx-serialization = "1.11.0"
 kotlinx-atomicfu = "0.32.1"
 kotlinx-benchmark = "0.4.15"
 
-spring-boot3 = "3.5.14"
-spring-boot4 = "4.0.6"
-spring-cloud3 = "2025.0.2"
-spring-cloud4 = "2025.1.1"
+spring-boot = "4.0.6"
+spring-cloud = "2025.1.1"
 reactor-bom = "2025.0.5"
 spring-statemachine = "4.0.1"
 
@@ -164,8 +162,7 @@ kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kot
 
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 dependency-management = { id = "io.spring.dependency-management", version.ref = "dependency-management" }
-spring-boot3 = { id = "org.springframework.boot", version.ref = "spring-boot3" }
-spring-boot4 = { id = "org.springframework.boot", version.ref = "spring-boot4" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 test-logger = { id = "com.adarshr.test-logger", version.ref = "test-logger" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -311,12 +308,10 @@ kryo5 = { module = "com.esotericsoftware:kryo", version = "5.6.2" }
 fory-kotlin = { module = "org.apache.fory:fory-kotlin", version = "0.15.0" }
 
 # Spring Boot
-spring-boot3-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot3" }
-spring-boot4-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot4" }
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 
 # Spring Cloud
-spring-cloud3-dependencies = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud3" }
-spring-cloud4-dependencies = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud4" }
+spring-cloud-dependencies = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
 
 # Spring Statemachine
 spring-statemachine-bom = { module = "org.springframework.statemachine:spring-statemachine-bom", version.ref = "spring-statemachine" }
@@ -355,7 +350,6 @@ resilience4j-ratelimiter = { module = "io.github.resilience4j:resilience4j-ratel
 resilience4j-reactor = { module = "io.github.resilience4j:resilience4j-reactor", version.ref = "resilience4j" }
 resilience4j-retry = { module = "io.github.resilience4j:resilience4j-retry", version.ref = "resilience4j" }
 resilience4j-spring = { module = "io.github.resilience4j:resilience4j-spring", version.ref = "resilience4j" }
-resilience4j-spring-boot3 = { module = "io.github.resilience4j:resilience4j-spring-boot3", version.ref = "resilience4j" }
 resilience4j-timelimiter = { module = "io.github.resilience4j:resilience4j-timelimiter", version.ref = "resilience4j" }
 
 # Bucket4j
@@ -861,8 +855,7 @@ exposed-migration-jdbc = { module = "org.jetbrains.exposed:exposed-migration-jdb
 exposed-migration-r2dbc = { module = "org.jetbrains.exposed:exposed-migration-r2dbc", version.ref = "exposed" }
 exposed-money = { module = "org.jetbrains.exposed:exposed-money", version.ref = "exposed" }
 exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
-exposed-spring-boot-starter = { module = "org.jetbrains.exposed:exposed-spring-boot-starter", version.ref = "exposed" }
-exposed-spring-boot4-starter = { module = "org.jetbrains.exposed:exposed-spring-boot4-starter", version.ref = "exposed" }
+exposed-spring-boot-starter = { module = "org.jetbrains.exposed:exposed-spring-boot4-starter", version.ref = "exposed" }
 exposed-spring-transaction = { module = "org.jetbrains.exposed:spring-transaction", version.ref = "exposed" }
 exposed-spring7-transaction = { module = "org.jetbrains.exposed:spring7-transaction", version.ref = "exposed" }
 

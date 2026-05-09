@@ -6,7 +6,7 @@ Hibernate 7.2 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 +
 `hibernate.cache.lettuce.*` Hibernate properties 설정만으로 모든 Region에 Near Cache가 자동 적용된다.
 
 > Near Cache 코어는 `bluetape4k-projects` 의 `bluetape4k-cache-lettuce` 모듈을 사용한다.
-> Spring Boot 4와 통합하려면 [`spring-boot4/hibernate-lettuce`](../../spring-boot4/hibernate-lettuce/README.ko.md) 참조.
+> Spring Boot 4와 통합하려면 [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.ko.md) 참조.
 
 ## 요구 사항
 
@@ -254,5 +254,5 @@ Testcontainers로 Redis 7+를 자동 실행하며 H2 인메모리 DB를 사용�
   `default-update-timestamps-region`은 query cache invalidation 계약 때문에 Redis TTL을 적용하지 않는다.
 - **H2 버전**: Hibernate 7.2는 H2 v2 (`com.h2database:h2:2.x`) 필요.
 - **Jakarta Persistence 3.2.0 강제**: `build.gradle.kts`의 `configurations.all` 블록으로 Jakarta Persistence 3.2.0을 강제 지정한다.
-  Spring Boot 3.5 BOM이 이전 버전으로 다운그레이드하려는 시도를 방지한다.
+  Spring Boot BOM이 이전 버전으로 다운그레이드하려는 시도를 방지한다.
 - **Redis 6+**: `use_resp3=true` (기본값) 사용 시 필요. 하위 버전은 `use_resp3=false` 설정.

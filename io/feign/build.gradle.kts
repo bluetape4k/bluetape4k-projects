@@ -1,7 +1,7 @@
 plugins {
     // Spring 관련 Plugin 은 spring-cloud-openfeign 예제를 위한 것입니다.
     kotlin("plugin.spring")
-    // alias(libs.plugins.spring.boot3)
+    // alias(libs.plugins.spring.boot)
 }
 
 //tasks.bootJar {
@@ -13,8 +13,8 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot3.dependencies))
-    testImplementation(platform(libs.spring.cloud3.dependencies))
+    implementation(platform(libs.spring.boot.dependencies))
+    testImplementation(platform(libs.spring.cloud.dependencies))
 
     api(project(":bluetape4k-http"))
     api(project(":bluetape4k-netty"))

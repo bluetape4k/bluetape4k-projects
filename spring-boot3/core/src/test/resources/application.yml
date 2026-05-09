@@ -1,5 +1,0 @@
-management:
-    datadog:
-        metrics:
-            export:
-                enabled: false

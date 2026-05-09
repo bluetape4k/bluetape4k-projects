@@ -223,8 +223,8 @@ classDiagram
 The following separate modules provide high-performance serializers for configuring
 `RedisTemplate` / `ReactiveRedisTemplate`.
 
-- [bluetape4k-spring-boot3-redis](../../spring-boot3/redis/README.md)
-- [bluetape4k-spring-boot4-redis](../../spring-boot4/redis/README.md)
+- [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.md)
+- [bluetape4k-spring-boot-redis](../../spring-boot/redis/README.md)
 
 ```kotlin
 import io.bluetape4k.redis.spring.serializer.RedisBinarySerializers

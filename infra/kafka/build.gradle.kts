@@ -14,7 +14,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot3.dependencies))
+    implementation(platform(libs.spring.boot.dependencies))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-resilience4j"))
@@ -31,7 +31,7 @@ dependencies {
     // Spring Kafka
     implementation(libs.spring.kafka)
     compileOnly(libs.spring.kafka.test)
-    implementation(project(":bluetape4k-spring-boot3-core"))
+    implementation(project(":bluetape4k-spring-boot-core"))
     implementation("org.springframework.data:spring-data-commons")
 
     // Jackson
