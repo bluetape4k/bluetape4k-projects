@@ -4,7 +4,7 @@
 
 The **root Maven BOM** for the entire `io.github.bluetape4k:*` module set published from
 `bluetape4k-projects` — the foundational layer of the bluetape4k ecosystem. Manages versions of
-~80 modules across `bluetape4k/*`, `data/*`, `infra/*`, `io/*`, `spring-boot3/*`, `spring-boot4/*`,
+~70 modules across `bluetape4k/*`, `data/*`, `infra/*`, `io/*`, `spring-boot/*`,
 `testing/*`, `utils/*`, and `virtualthread/*`.
 
 ## Architecture
@@ -44,9 +44,8 @@ graph TB
       More2[+ ~10 more]
     end
 
-    subgraph "Spring Boot 3 / 4"
-      SB3[spring-boot3/* — 8 modules]
-      SB4[spring-boot4/* — 8 modules]
+    subgraph "Spring Boot"
+      SB[spring-boot/* — 8 modules]
     end
 
     subgraph "testing/*"
@@ -75,7 +74,7 @@ graph TB
     BOM -.-> Jdbc
     BOM -.-> Cache
     BOM -.-> Json
-    BOM -.-> SB3
+    BOM -.-> SB
     BOM -.-> Assert
     BOM -.-> Jwt
     BOM -.-> VtApi
@@ -85,7 +84,7 @@ The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>`
 
 ## Core Features
 
-- Centralized version management for ~80 `bluetape4k-*` modules in `bluetape4k-projects`
+- Centralized version management for ~70 `bluetape4k-*` modules in `bluetape4k-projects`
 - Foundation BOM that all sub-BOMs (`bluetape4k-aws-bom`, `bluetape4k-image-bom`, `bluetape4k-text-bom`, `bluetape4k-javers-bom`, `bluetape4k-graph-bom`, `bluetape4k-leader-bom`, `bluetape4k-exposed-bom`) depend on
 - Aggregated by `bluetape4k-dependencies` so a consumer can import a single BOM and pick up the entire ecosystem
 
@@ -97,8 +96,7 @@ The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>`
 | `data/*` | 7 | `bluetape4k-jdbc`, `bluetape4k-r2dbc`, `bluetape4k-hibernate`, `bluetape4k-hibernate-reactive`, `bluetape4k-hibernate-cache-lettuce`, `bluetape4k-mongodb`, `bluetape4k-cassandra` |
 | `infra/*` | 18 | cache (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback`, etc. |
 | `io/*` | 16 | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io` |
-| `spring-boot3/*` | 8 | `spring-boot3-core`, `spring-boot3-r2dbc`, `spring-boot3-mongodb`, `spring-boot3-cassandra`, `spring-boot3-redis`, `spring-boot3-hibernate-lettuce`, ... |
-| `spring-boot4/*` | 8 | mirror of spring-boot3 modules for Spring Boot 4 |
+| `spring-boot/*` | 8 | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce`, ... |
 | `testing/*` | 5 | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers` |
 | `utils/*` | 13 | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny`, ... |
 | `virtualthread/*` | 3 | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25` |

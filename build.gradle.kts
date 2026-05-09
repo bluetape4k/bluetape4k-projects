@@ -29,7 +29,7 @@ plugins {
     alias(libs.plugins.detekt)
 
     alias(libs.plugins.dependency.management)
-    alias(libs.plugins.spring.boot3) apply false
+    alias(libs.plugins.spring.boot) apply false
 
     alias(libs.plugins.dokka)
     alias(libs.plugins.test.logger)
@@ -331,9 +331,9 @@ subprojects {
         setApplyMavenExclusions(false)
 
         imports {
-            // spring_integration_bom, spring_cloud_dependencies, spring_boot3_dependencies 는
+            // spring_integration_bom, spring_cloud_dependencies, spring_boot_dependencies 는
             // 각 모듈에서 implementation(platform(...)) 으로 직접 선언합니다.
-            // (spring-boot4/ 모듈과 mock-server 는 SB4 BOM을 사용)
+            // (spring-boot/ 모듈과 mock-server 는 Spring Boot 4 BOM을 사용)
 
             // Reactor BOM: SB BOM에서 분리됐으므로 전역 관리 유지
             mavenBom(rootLibs.reactor.bom.get().toString())
@@ -746,4 +746,3 @@ dependencies {
         }
         .forEach { sub -> kover(project(sub.path)) }
 }
-

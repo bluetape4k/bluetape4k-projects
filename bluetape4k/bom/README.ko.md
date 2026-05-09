@@ -3,8 +3,8 @@
 한국어 | [English](./README.md)
 
 `bluetape4k-projects` 가 게시하는 전체 `io.github.bluetape4k:*` 모듈 집합의 **루트 Maven BOM**.
-bluetape4k 생태계의 토대 계층이며, `bluetape4k/*`, `data/*`, `infra/*`, `io/*`, `spring-boot3/*`,
-`spring-boot4/*`, `testing/*`, `utils/*`, `virtualthread/*` 의 약 80개 모듈 버전을 중앙 관리한다.
+bluetape4k 생태계의 토대 계층이며, `bluetape4k/*`, `data/*`, `infra/*`, `io/*`, `spring-boot/*`,
+`testing/*`, `utils/*`, `virtualthread/*` 의 약 70개 모듈 버전을 중앙 관리한다.
 
 ## Architecture
 
@@ -43,9 +43,8 @@ graph TB
       More2[+ ~10 more]
     end
 
-    subgraph "Spring Boot 3 / 4"
-      SB3[spring-boot3/* — 8개]
-      SB4[spring-boot4/* — 8개]
+    subgraph "Spring Boot"
+      SB[spring-boot/* — 8개]
     end
 
     subgraph "testing/*"
@@ -74,7 +73,7 @@ graph TB
     BOM -.-> Jdbc
     BOM -.-> Cache
     BOM -.-> Json
-    BOM -.-> SB3
+    BOM -.-> SB
     BOM -.-> Assert
     BOM -.-> Jwt
     BOM -.-> VtApi
@@ -85,7 +84,7 @@ BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 �
 
 ## 핵심 기능
 
-- `bluetape4k-projects` 의 약 80개 `bluetape4k-*` 모듈 버전 중앙 관리
+- `bluetape4k-projects` 의 약 70개 `bluetape4k-*` 모듈 버전 중앙 관리
 - 모든 sub-BOM (`bluetape4k-aws-bom`, `bluetape4k-image-bom`, `bluetape4k-text-bom`, `bluetape4k-javers-bom`, `bluetape4k-graph-bom`, `bluetape4k-leader-bom`, `bluetape4k-exposed-bom`) 의 토대 BOM
 - `bluetape4k-dependencies` 가 상위에서 통합 — 단일 BOM 선언만으로 전체 생태계 사용 가능
 
@@ -97,8 +96,7 @@ BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 �
 | `data/*` | 7 | `bluetape4k-jdbc`, `bluetape4k-r2dbc`, `bluetape4k-hibernate`, `bluetape4k-hibernate-reactive`, `bluetape4k-hibernate-cache-lettuce`, `bluetape4k-mongodb`, `bluetape4k-cassandra` |
 | `infra/*` | 18 | 캐시 (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback` 등 |
 | `io/*` | 16 | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io` |
-| `spring-boot3/*` | 8 | `spring-boot3-core`, `spring-boot3-r2dbc`, `spring-boot3-mongodb`, `spring-boot3-cassandra`, `spring-boot3-redis`, `spring-boot3-hibernate-lettuce` 등 |
-| `spring-boot4/*` | 8 | spring-boot3 와 동일 모듈의 Spring Boot 4 버전 |
+| `spring-boot/*` | 8 | `spring-boot-core`, `spring-boot-r2dbc`, `spring-boot-mongodb`, `spring-boot-cassandra`, `spring-boot-redis`, `spring-boot-hibernate-lettuce` 등 |
 | `testing/*` | 5 | `bluetape4k-assertions`, `bluetape4k-junit5`, `bluetape4k-mock-web-server`, `bluetape4k-mock-webflux-server`, `bluetape4k-testcontainers` |
 | `utils/*` | 13 | `jwt`, `money`, `javatimes`, `geo`, `idgenerators`, `math`, `measured`, `mutiny` 등 |
 | `virtualthread/*` | 3 | `virtualthread-api`, `virtualthread-jdk21`, `virtualthread-jdk25` |

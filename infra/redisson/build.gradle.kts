@@ -46,7 +46,7 @@ configurations {
 }
 
 dependencies {
-    implementation(platform(libs.spring.boot3.dependencies))
+    implementation(platform(libs.spring.boot.dependencies))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     api(project(":bluetape4k-netty"))

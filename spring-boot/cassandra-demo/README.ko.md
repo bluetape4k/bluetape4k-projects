@@ -1,0 +1,109 @@
+# Module Examples - Cassandra & Spring Data Cassandra (Spring Boot 4)
+
+[English](./README.md) | 한국어
+
+Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다 (Spring Boot 4.x).
+
+## UML
+
+```mermaid
+flowchart TD
+    Entity["@Table Entity"]
+    Repo["CassandraRepository /<br/>CoroutineCrudRepository"]
+    Template["CassandraTemplate /<br/>CassandraOperations"]
+    Reactive["Reactive / Coroutine APIs"]
+    Cassandra[("Apache Cassandra")]
+
+    Entity --> Repo
+    Entity --> Template
+    Repo --> Cassandra
+    Template --> Cassandra
+    Reactive --> Repo
+    Reactive --> Template
+
+    classDef entityStyle fill:#F57F17,stroke:#E65100,color:#000000
+    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
+    classDef templateStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
+    classDef reactiveStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
+    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
+
+    class Entity entityStyle
+    class Repo repoStyle
+    class Template templateStyle
+    class Reactive reactiveStyle
+    class Cassandra dbStyle
+```
+
+> Spring Boot 4 기반 versionless 표준 예제 모듈입니다.
+
+## 예제 목록
+
+### 기본 (basic/)
+
+| 예제 파일                                 | 설명                         |
+|---------------------------------------|----------------------------|
+| `BasicUserRepositoryTest.kt`          | 기본 Repository 사용법          |
+| `CassandraOperationsTest.kt`          | CassandraOperations로 쿼리 실행 |
+| `CoroutineCassandraOperationsTest.kt` | Coroutines 기반 비동기 쿼리       |
+
+### Kotlin DSL (kotlin/)
+
+| 예제 파일                     | 설명                        |
+|---------------------------|---------------------------|
+| `PersonRepositoryTest.kt` | Kotlin DSL로 Repository 정의 |
+| `TemplateTest.kt`         | CassandraTemplate 사용법     |
+
+### Reactive (reactive/)
+
+| 예제 파일                              | 설명                    |
+|------------------------------------|-----------------------|
+| `ReactivePersonRepositoryTest.kt`  | Reactive Repository   |
+| `CoroutinePersonRepositoryTest.kt` | Coroutines Repository |
+
+### 감사 (auditing/)
+
+| 예제 파일             | 설명                              |
+|-------------------|---------------------------------|
+| `AuditingTest.kt` | `@CreatedBy`, `@LastModifiedBy` |
+
+## Entity 정의
+
+```kotlin
+@Table
+data class User(
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
+    val name: String,
+    val email: String,
+)
+```
+
+## Repository
+
+```kotlin
+interface UserRepository : CassandraRepository<User, UUID> {
+    fun findByEmail(email: String): User?
+}
+```
+
+## Coroutines 지원
+
+```kotlin
+interface CoroutinePersonRepository : CoroutineCrudRepository<Person, UUID> {
+    suspend fun findByLastName(lastName: String): Flow<Person>
+}
+```
+
+## 실행 방법
+
+```bash
+# Cassandra Docker 실행
+docker run -d --name cassandra -p 9042:9042 cassandra:4
+
+# 모든 예제 실행
+./gradlew :bluetape4k-spring-boot-cassandra-demo:test
+```
+
+## 참고
+
+- [Spring Data Cassandra](https://spring.io/projects/spring-data-cassandra)
+- [Apache Cassandra](https://cassandra.apache.org/)

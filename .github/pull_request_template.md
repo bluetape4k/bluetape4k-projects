@@ -26,9 +26,8 @@
 
 - [ ] 변경된 모듈의 `README.md` + `README.ko.md` 업데이트
 - [ ] 공개 API에 KDoc 추가
-- [ ] `spring-boot3/` 또는 `spring-boot4/` 모듈 추가/변경 시 양쪽 대칭 반영 확인
-- [ ] Spring Boot 4 모듈 변경 시 `Libs.spring_boot4_dependencies` BOM 적용 및 Spring Framework 7.x 호환성 확인
-- [ ] Spring Boot 3/4 모듈 변경 시 `.github/workflows/nightly-tests.yml`의 독립 test task 및 비-demo kover task 등록 확인
+- [ ] `spring-boot/` 모듈 변경 시 Spring Boot 4 BOM 적용 및 Spring Framework 7.x 호환성 확인
+- [ ] `spring-boot/` 모듈 변경 시 `.github/workflows/nightly-tests.yml`의 독립 test task 및 비-demo kover task 등록 확인
 - [ ] `worktree`에서 작업 후 PR 생성
 - [ ] `testing/mock-web-server` 변경 시 Docker 이미지 재빌드:
   `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`

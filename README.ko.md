@@ -59,7 +59,7 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
-- **Spring Boot**: 3.4.0+ / 4.0.0+
+- **Spring Boot**: 4.0.0+
 - **Kotlin Exposed**: 1.0.0+
 - **데이터베이스**: H2, PostgreSQL, MySQL
 
@@ -70,8 +70,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 ```mermaid
 flowchart TB
     subgraph L5["통합 레이어 — Integration"]
-        SB3["spring-boot3/*"]
-        SB4["spring-boot4/*"]
+        SB["spring-boot/*"]
     end
 
     subgraph L4["인프라 레이어 — Infrastructure"]
@@ -150,7 +149,7 @@ flowchart TB
     class IO,JACKSON,FEIGN,RETRO,GRPC,OKIO,TINK,VERTX ioLayer
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
     class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
-    class SB3,SB4 intLayer
+    class SB intLayer
     class JUNIT,TC,UTILS,TEXTS,AWS,IMG crossLayer
 ```
 
@@ -234,41 +233,24 @@ flowchart TB
 - **[cache-redisson](./infra/cache-redisson/README.ko.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
 - **[cache-lettuce](./infra/cache-lettuce/README.ko.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation
 
-### Spring Boot 3 모듈 (`spring-boot3/`)
+### Spring Boot 모듈 (`spring-boot/`)
 
-- **[core](./spring-boot3/core/README.ko.md)
-  **: Spring Boot 3 기반 공통 기능 통합 모듈 — Spring core 유틸리티, WebFlux + Coroutines, Retrofit2 통합, 테스트 유틸리티 포함 (구 `spring/core`,
-  `spring/webflux`, `spring/retrofit2`, `spring/tests` 통합됨)
-- **[cassandra](./spring-boot3/cassandra/README.ko.md)**: Spring Data Cassandra
-- **[cassandra-demo](./spring-boot3/cassandra-demo/README.ko.md)**: Spring Boot 3 기반 Cassandra 사용 예제
-- **[data-redis](./spring-boot3/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`,
-  `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[hibernate-lettuce](./spring-boot3/hibernate-lettuce/README.ko.md)
-  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration — Properties 바인딩, Micrometer Metrics, Actuator Endpoint
-- **[hibernate-lettuce-demo](./spring-boot3/hibernate-lettuce-demo/README.ko.md)
-  **: Hibernate Lettuce NearCache + Spring MVC 통합 데모
-- **[mongodb](./spring-boot3/mongodb/README.ko.md)**: Spring Data MongoDB Reactive — `ReactiveMongoOperations` 코루틴 확장, Criteria/Query/Update infix DSL
-- **[r2dbc](./spring-boot3/r2dbc/README.ko.md)**: Spring Data R2DBC
-
-> Spring Data JPA는 `data/hibernate` 모듈로 이동했습니다.
-
-### Spring Boot 4 모듈 (`spring-boot4/`)
-
-Spring Boot 4.x 전용 모듈. Spring Boot 3 모듈과 독립적으로 사용 가능합니다.
+이 저장소는 Spring Boot 4.x만 지원합니다. 기존 `spring-boot3/*` 모듈은 제거했고,
+기존 `spring-boot4/*` 모듈은 versionless `spring-boot/*` 모듈로 게시합니다.
 
 > **BOM 적용 주의**: `dependencyManagement { imports }` 대신 `implementation(platform(...))` 방식으로 적용해야 KGP 2.3.x와 충돌 없이 빌드됩니다.
 
-- **[core](./spring-boot4/core/README.ko.md)**: Spring Boot 4 기반 공통 기능 — WebFlux + Coroutines, RestClient DSL (
+- **[core](./spring-boot/core/README.ko.md)**: Spring Boot 기반 공통 기능 — WebFlux + Coroutines, RestClient DSL (
   `suspendGet`, `suspendPost` 등), Jackson 2 커스터마이저, Retrofit2 통합, WebTestClient 테스트 유틸리티
-- **[cassandra](./spring-boot4/cassandra/README.ko.md)**: Spring Data Cassandra 코루틴 확장
-- **[cassandra-demo](./spring-boot4/cassandra-demo/README.ko.md)**: Cassandra 사용 예제
-- **[data-redis](./spring-boot4/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[hibernate-lettuce](./spring-boot4/hibernate-lettuce/README.ko.md)
-  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration (Spring Boot 4 BOM)
-- **[hibernate-lettuce-demo](./spring-boot4/hibernate-lettuce-demo/README.ko.md)
-  **: Hibernate Lettuce NearCache + Spring MVC 통합 데모 (Spring Boot 4 BOM)
-- **[mongodb](./spring-boot4/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
-- **[r2dbc](./spring-boot4/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
+- **[cassandra](./spring-boot/cassandra/README.ko.md)**: Spring Data Cassandra 코루틴 확장
+- **[cassandra-demo](./spring-boot/cassandra-demo/README.ko.md)**: Cassandra 사용 예제
+- **[data-redis](./spring-boot/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
+- **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.ko.md)
+  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
+- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.ko.md)
+  **: Hibernate Lettuce NearCache + Spring MVC 통합 데모
+- **[mongodb](./spring-boot/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
+- **[r2dbc](./spring-boot/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
 ### 텍스트 처리 → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
 

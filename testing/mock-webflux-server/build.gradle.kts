@@ -18,8 +18,8 @@ tasks.withType<AbstractPublishToMaven>().configureEach { enabled = false }
 
 dependencies {
     // Spring Boot 4 BOM via platform() — KGP 2.3 compatible
-    implementation(platform(libs.spring.boot4.dependencies))
-    // Jackson 3 BOM — SB4 does not auto-opt-in
+    implementation(platform(libs.spring.boot.dependencies))
+    // Jackson 3 BOM — Spring Boot 4 does not auto-opt-in
     implementation(platform(libs.jackson3.bom))
 
     implementation("org.springframework.boot:spring-boot-starter-webflux")
