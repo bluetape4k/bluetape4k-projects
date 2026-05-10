@@ -3,36 +3,22 @@ package io.bluetape4k.testcontainers.graphdb
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.GraphDatabase
-import io.bluetape4k.assertions.assertFailsWith
 
 @TestInstance(Lifecycle.PER_CLASS)
 class MemgraphServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private lateinit var memgraph: MemgraphServer
-
-    @BeforeAll
-    fun beforeAll() {
-        memgraph = MemgraphServer().apply { start() }
-    }
-
-    @AfterAll
-    fun afterAll() {
-        if(this::memgraph.isInitialized && memgraph.isRunning) {
-            memgraph.close()
-        }
-    }
+    private val memgraph: MemgraphServer by lazy { MemgraphServer.Launcher.memgraph }
 
     @Test
     fun `Memgraph 서버가 실행 중이어야 한다`() {
