@@ -11,6 +11,7 @@ import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
 
 /**
  * [Memgraph](https://memgraph.com/) 그래프 데이터베이스를 Testcontainers로 실행합니다.
@@ -43,8 +44,8 @@ class MemgraphServer private constructor(
         /** Memgraph 공식 Docker 이미지 이름 */
         const val IMAGE = "memgraph/memgraph"
 
-        /** 기본으로 사용하는 Memgraph 이미지 태그 — Memgraph 3.9.0 최신 안정 버전 */
-        const val TAG = "3.9.0"
+        /** 기본으로 사용하는 Memgraph 이미지 태그 — Docker Hub 최신 안정 버전 */
+        const val TAG = "latest"
 
         /** 시스템 프로퍼티 접두사에 사용되는 서버 이름 */
         const val NAME = "memgraph"
@@ -54,6 +55,9 @@ class MemgraphServer private constructor(
 
         /** Memgraph 로그 서버 포트 */
         const val LOG_PORT = 7444
+
+        /** CI 에서 컨테이너 startup hang 이 길어지지 않도록 제한합니다. */
+        private val START_TIMEOUT: Duration = Duration.ofMinutes(3)
 
         /**
          * [DockerImageName]을 직접 지정하여 [MemgraphServer] 인스턴스를 생성합니다.
@@ -124,9 +128,10 @@ class MemgraphServer private constructor(
     init {
         addExposedPorts(BOLT_PORT, LOG_PORT)
         withReuse(reuse)
+        withStartupAttempts(1)
         addEnv("MEMGRAPH", "--telemetry-enabled=false")
         withCommand("--telemetry-enabled=false")
-        waitingFor(Wait.forListeningPort())
+        waitingFor(Wait.forListeningPort().withStartupTimeout(START_TIMEOUT))
 
         if (useDefaultPort) {
             exposeCustomPorts(BOLT_PORT, LOG_PORT)
