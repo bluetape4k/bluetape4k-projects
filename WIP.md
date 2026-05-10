@@ -1,16 +1,12 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-09 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01.
-Open count: 11 issues after this PR closes `#110` and completed Spring Boot
-policy items are removed from active WIP.
+Snapshot: 2026-05-10 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 10 issues.
 
 ## Current Direction
 
 This repo is now the core/shared library baseline after several domain groups
-were split into independent repositories. Active work should keep the split
-tracker current, reduce deprecated infra surface, and prepare the next
-extraction steps.
+were split into independent repositories. Active work should keep the split tracker current and prepare the next extraction steps. The cache reorganization issue is now closed.
 
 Historical completed items from the old monorepo TODO are intentionally omitted
 from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
@@ -20,7 +16,6 @@ from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
 | Priority | Issue | Difficulty | Notes |
 |---|---|---:|---|
 | P0 | [#257](https://github.com/bluetape4k/bluetape4k-projects/issues/257) monorepo split epic | XL | Program tracker. Keep phase state updated as repo splits close. |
-| P1 | [#333](https://github.com/bluetape4k/bluetape4k-projects/issues/333) reorganize cache modules under `cache/` | M | Scope reduced from standalone repo extraction to in-repo directory reorganization to avoid release/reference cycles. |
 | P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
 | P2 | [#151](https://github.com/bluetape4k/bluetape4k-projects/issues/151) LLM/vector Testcontainers | L | Test foundation for AI/vector work. |
 | P2 | [#148](https://github.com/bluetape4k/bluetape4k-projects/issues/148) utils/ai epic | XL | Split after `#149/#151` scope is clear. |
@@ -40,7 +35,7 @@ from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
       -> exposed repo #3 Spring Boot 3 removal + spring-boot4 -> spring-boot rename (closed)
 
 #257 monorepo split tracker
-  -> #333 cache in-repo folder reorganization
+  -> #333 cache in-repo folder reorganization (closed)
   -> #262 data extraction (deferred)
 
 #110 infra deprecated inventory (documented in docs/infra-deprecated-inventory.md)
@@ -59,18 +54,19 @@ from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
 
 ## WIP Limits
 
-| Lane | Limit | Current next |
-|---|---:|---|
-| Policy / breaking cleanup | 1 | Keep `#257` updated as split phases close. |
-| Extraction planning | 1 | `#333` in-repo cache folder reorganization; standalone cache repo is deferred. |
-| AI/vector | 1 | `#149` or `#151`, not `#148` first. |
-| Docs polish | 1 PR | `#323/#324/#325` together. |
+| Lane                      | Limit | Current next                               |
+|---------------------------|------:|--------------------------------------------|
+| Policy / breaking cleanup |     1 | Keep `#257` updated as split phases close. |
+| Extraction planning       |     1 | Keep `#257` current; `#262` is deferred.   |
+| AI/vector                 |     1 | `#149` or `#151`, not `#148` first.        |
+| Docs polish               |  1 PR | `#323/#324/#325` together.                 |
 
 ## Cleanup Actions
 
-| Candidate | Action |
-|---|---|
-| `#280` vs `#263` | Resolved direction documented in PR #348; both are removed from the active queue. |
-| `#110` | Inventory documented in `docs/infra-deprecated-inventory.md`; close after this PR merges. |
-| `#251` | Close as not planned or convert into an ADR when a concrete state-machine decision is active. |
-| `#262` | Keep deferred; do not start until exposed split and Spring Boot direction are settled. |
+| Candidate        | Action                                                                                        |
+|------------------|-----------------------------------------------------------------------------------------------|
+| `#280` vs `#263` | Resolved direction documented in PR #348; both are removed from the active queue.             |
+| `#110`           | Inventory documented in `docs/infra-deprecated-inventory.md`; close after this PR merges.     |
+| `#333`           | Closed; keep completion in issue/PR history, not active WIP.                                  |
+| `#251`           | Close as not planned or convert into an ADR when a concrete state-machine decision is active. |
+| `#262`           | Keep deferred; do not start until exposed split and Spring Boot direction are settled.        |

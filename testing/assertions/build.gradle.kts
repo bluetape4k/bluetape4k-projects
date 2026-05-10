@@ -6,12 +6,15 @@ plugins {
 
 description = "Bluetape4k testing assertions — bluetape4k-assertions compatible, JUnit 5 native"
 
+configurations {
+    testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+}
+
 dependencies {
     api(platform(libs.junit.bom))
 
     // JUnit 5 — AssertionFailedError, MultipleFailuresError 타입 소비자 classpath 필요
     api(libs.junit.jupiter.api)
-    api(libs.opentest4j)
 
     // Coroutines — FlowAssertions 가 main 소스에 있으므로 소비자 classpath 필요
     api(libs.kotlinx.coroutines.core)
@@ -25,7 +28,6 @@ dependencies {
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(libs.junit.platform.launcher)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
     testImplementation(libs.mockk)
     testImplementation(libs.datafaker)
     testRuntimeOnly(libs.logback.classic)

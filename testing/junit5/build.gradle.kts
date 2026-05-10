@@ -21,16 +21,16 @@ dependencies {
     api(libs.awaitility.kotlin)
 
     api(libs.datafaker)
-    api(libs.java.uuid.generator)
-    api(libs.random.beans)
+    compileOnly(libs.java.uuid.generator)
+    compileOnly(libs.random.beans)
 
     api(libs.commons.lang3)
-    implementation(libs.logback.classic)
+    compileOnly(libs.logback.classic)
 
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.debug)
-    implementation(libs.kotlinx.coroutines.test)
+    compileOnly(libs.kotlinx.coroutines.core)
+    compileOnly(libs.kotlinx.coroutines.debug)
+    compileOnly(libs.kotlinx.coroutines.test)
 
-    implementation(libs.eclipse.collections)
+    compileOnly(libs.eclipse.collections)
     testImplementation(libs.eclipse.collections.testutils)
 }
