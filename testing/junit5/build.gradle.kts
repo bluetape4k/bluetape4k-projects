@@ -21,8 +21,8 @@ dependencies {
     api(libs.awaitility.kotlin)
 
     api(libs.datafaker)
-    compileOnly(libs.java.uuid.generator)
-    compileOnly(libs.random.beans)
+    api(libs.java.uuid.generator)
+    api(libs.random.beans)
 
     api(libs.commons.lang3)
     compileOnly(libs.logback.classic)
