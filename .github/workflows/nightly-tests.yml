@@ -862,6 +862,10 @@ jobs:
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
+      - name: Pre-pull Memgraph Docker image
+        if: ${{ matrix.group == 'graphdb-memgraph' }}
+        run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:3.9.0
+
       - name: Test testcontainers (${{ matrix.group }})
         uses: nick-fields/retry@v3
         with:
@@ -874,10 +878,19 @@ jobs:
             for pattern in "${patterns[@]}"; do
               tests_args+=(--tests "${pattern}")
             done
-            ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
+            if [[ "$NEEDS_MOCK_SERVERS" != "true" ]]; then
+              tests_args+=(
+                -x :bluetape4k-mock-web-server:jibDockerBuild
+                -x :bluetape4k-mock-webflux-server:jibDockerBuild
+              )
+            fi
+            timeout --kill-after=60s "${TEST_TIMEOUT_MINUTES}m" \
+              ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_PATTERNS: ${{ matrix.test_patterns }}
+          TEST_TIMEOUT_MINUTES: ${{ matrix.timeout_minutes }}
+          NEEDS_MOCK_SERVERS: ${{ matrix.needs_mock_servers }}
 
       - name: Generate Kover XML report
         if: always()
