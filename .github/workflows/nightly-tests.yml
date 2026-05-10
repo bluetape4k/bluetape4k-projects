@@ -728,23 +728,27 @@ jobs:
       matrix:
         include:
           - group: database
-            test_packages: io.bluetape4k.testcontainers.database
+            test_patterns: io.bluetape4k.testcontainers.database.*
             needs_mock_servers: false
           - group: storage
-            test_packages: io.bluetape4k.testcontainers.storage
+            test_patterns: io.bluetape4k.testcontainers.storage.*
             needs_mock_servers: false
           - group: mq
-            test_packages: io.bluetape4k.testcontainers.mq
+            test_patterns: io.bluetape4k.testcontainers.mq.*
             needs_mock_servers: false
           - group: infra-http
-            test_packages: >-
-              io.bluetape4k.testcontainers.infra
-              io.bluetape4k.testcontainers.http
+            test_patterns: >-
+              io.bluetape4k.testcontainers.infra.*
+              io.bluetape4k.testcontainers.http.*
             needs_mock_servers: true
           - group: graphdb-misc
-            test_packages: >-
-              io.bluetape4k.testcontainers.graphdb
-              io.bluetape4k.testcontainers
+            test_patterns: >-
+              io.bluetape4k.testcontainers.graphdb.*
+              io.bluetape4k.testcontainers.GenericContainerExtensionsSupportTest
+              io.bluetape4k.testcontainers.GenericServerSupportTest
+              io.bluetape4k.testcontainers.GenericServerTest
+              io.bluetape4k.testcontainers.PropertyExportingServerContractTest
+              io.bluetape4k.testcontainers.RegisterSystemPropertiesTest
             needs_mock_servers: false
     steps:
       - uses: actions/checkout@v4
@@ -778,19 +782,20 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            read -ra pkgs <<< "$TEST_PACKAGES"
+            read -ra patterns <<< "$TEST_PATTERNS"
             tests_args=()
-            for pkg in "${pkgs[@]}"; do
-              tests_args+=(--tests "${pkg}.*")
+            for pattern in "${patterns[@]}"; do
+              tests_args+=(--tests "${pattern}")
             done
             ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-          TEST_PACKAGES: ${{ matrix.test_packages }}
+          TEST_PATTERNS: ${{ matrix.test_patterns }}
 
       - name: Generate Kover XML report
         if: always()
-        run: ./gradlew :bluetape4k-testcontainers:koverXmlReport
+        timeout-minutes: 10
+        run: ./gradlew :bluetape4k-testcontainers:koverXmlReport -x :bluetape4k-testcontainers:test
         continue-on-error: true
 
       - name: Upload test results
