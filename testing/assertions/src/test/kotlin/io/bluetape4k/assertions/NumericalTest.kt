@@ -426,6 +426,16 @@ class NumericalTest {
     }
 
     @Test
+    fun `shouldBeInRange supports unsigned ranges`() {
+        5.toUByte() shouldBeInRange 1u..10u
+        5.toUShort() shouldBeInRange 1u..10u
+        5u shouldBeInRange 1u..10u
+        UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
+        5uL shouldBeInRange 1uL..10uL
+        ULong.MAX_VALUE shouldBeInRange Long.MAX_VALUE.toULong()..ULong.MAX_VALUE
+    }
+
+    @Test
     fun `shouldBeInRange fails when value is outside range`() {
         assertFailsWith<AssertionFailedError> {
             0 shouldBeInRange 1..10
@@ -443,6 +453,14 @@ class NumericalTest {
     fun `shouldNotBeInRange passes when value is outside range`() {
         0 shouldNotBeInRange 1..10
         11 shouldNotBeInRange 1..10
+    }
+
+    @Test
+    fun `shouldNotBeInRange supports unsigned ranges`() {
+        0.toUByte() shouldNotBeInRange 1u..10u
+        11.toUShort() shouldNotBeInRange 1u..10u
+        0u shouldNotBeInRange 1u..10u
+        11uL shouldNotBeInRange 1uL..10uL
     }
 
     @Test
