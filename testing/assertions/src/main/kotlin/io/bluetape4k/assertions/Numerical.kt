@@ -503,6 +503,118 @@ infix fun <T : Comparable<T>> T.shouldNotBeInRange(range: ClosedRange<T>): T {
 }
 
 /**
+ * UByte 값이 [range] 안에 있는지 검증한다.
+ *
+ * @receiver 검증할 UByte 값
+ * @param range UInt 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun UByte.shouldBeInRange(range: UIntRange): UByte {
+    if (this.toUInt() !in range) {
+        Failures.fail("Expected <$this> to be in range $range, but was not.")
+    }
+    return this
+}
+
+/**
+ * UByte 값이 [range] 안에 없는지 검증한다.
+ *
+ * @receiver 검증할 UByte 값
+ * @param range UInt 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun UByte.shouldNotBeInRange(range: UIntRange): UByte {
+    if (this.toUInt() in range) {
+        Failures.fail("Expected <$this> to not be in range $range, but was.")
+    }
+    return this
+}
+
+/**
+ * UShort 값이 [range] 안에 있는지 검증한다.
+ *
+ * @receiver 검증할 UShort 값
+ * @param range UInt 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun UShort.shouldBeInRange(range: UIntRange): UShort {
+    if (this.toUInt() !in range) {
+        Failures.fail("Expected <$this> to be in range $range, but was not.")
+    }
+    return this
+}
+
+/**
+ * UShort 값이 [range] 안에 없는지 검증한다.
+ *
+ * @receiver 검증할 UShort 값
+ * @param range UInt 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun UShort.shouldNotBeInRange(range: UIntRange): UShort {
+    if (this.toUInt() in range) {
+        Failures.fail("Expected <$this> to not be in range $range, but was.")
+    }
+    return this
+}
+
+/**
+ * UInt 값이 [range] 안에 있는지 검증한다.
+ *
+ * @receiver 검증할 UInt 값
+ * @param range UInt 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun UInt.shouldBeInRange(range: UIntRange): UInt {
+    if (this !in range) {
+        Failures.fail("Expected <$this> to be in range $range, but was not.")
+    }
+    return this
+}
+
+/**
+ * UInt 값이 [range] 안에 없는지 검증한다.
+ *
+ * @receiver 검증할 UInt 값
+ * @param range UInt 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun UInt.shouldNotBeInRange(range: UIntRange): UInt {
+    if (this in range) {
+        Failures.fail("Expected <$this> to not be in range $range, but was.")
+    }
+    return this
+}
+
+/**
+ * ULong 값이 [range] 안에 있는지 검증한다.
+ *
+ * @receiver 검증할 ULong 값
+ * @param range ULong 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun ULong.shouldBeInRange(range: ULongRange): ULong {
+    if (this !in range) {
+        Failures.fail("Expected <$this> to be in range $range, but was not.")
+    }
+    return this
+}
+
+/**
+ * ULong 값이 [range] 안에 없는지 검증한다.
+ *
+ * @receiver 검증할 ULong 값
+ * @param range ULong 범위
+ * @return receiver (체이닝 지원)
+ */
+infix fun ULong.shouldNotBeInRange(range: ULongRange): ULong {
+    if (this in range) {
+        Failures.fail("Expected <$this> to not be in range $range, but was.")
+    }
+    return this
+}
+
+/**
  * receiver가 [range] (닫힌 범위) 안에 있는지 검증한다.
  *
  * [shouldBeInRange]의 별칭.
