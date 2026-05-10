@@ -13,6 +13,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import kotlin.time.Duration.Companion.milliseconds
@@ -21,6 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
     classes = [OtelSpringBootApp::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
+@AutoConfigureWebTestClient
 class IndexControllerTest(
     @param:Autowired private val client: WebTestClient,
 ): AbstractOtelTest() {

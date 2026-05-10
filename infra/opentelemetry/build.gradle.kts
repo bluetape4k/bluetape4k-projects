@@ -77,6 +77,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     // Spring Boot
+    testImplementation("org.springframework.boot:spring-boot-webtestclient")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")

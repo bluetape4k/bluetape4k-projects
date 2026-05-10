@@ -2,11 +2,15 @@ package io.bluetape4k.examples.redisson.coroutines.cachestrategy
 
 import io.bluetape4k.logging.KLogging
 import org.redisson.spring.starter.RedissonAutoConfigurationV2
+import org.redisson.spring.starter.RedissonAutoConfigurationV4
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(
-    exclude = [RedissonAutoConfigurationV2::class]
+    exclude = [
+        RedissonAutoConfigurationV2::class,
+        RedissonAutoConfigurationV4::class,
+    ]
 )
 class CacheApplication {
     companion object: KLogging()
