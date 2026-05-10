@@ -25,9 +25,9 @@ dependencies {
     api(libs.random.beans)
 
     api(libs.commons.lang3)
-    compileOnly(libs.logback.classic)
+    api(libs.logback.classic)
 
-    compileOnly(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.core)
     compileOnly(libs.kotlinx.coroutines.debug)
     compileOnly(libs.kotlinx.coroutines.test)
 

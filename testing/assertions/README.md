@@ -28,7 +28,7 @@ graph TD
 
 - **bluetape4k-assertions-compatible** infix DSL — same function names, import-only migration
 - **Basic**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` with smart cast contract
-- **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`), sign checks, range containment
+- **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`), sign checks, signed and unsigned range containment
 - **Collections / Arrays / Maps**: content equality, containment (`shouldContainAll`, `shouldNotContainAny`)
 - **CharSequences**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, case-insensitive checks
 - **Exceptions**: `invoking { }` / `shouldThrow`, message matching, cause inspection
@@ -80,6 +80,8 @@ class MyTest {
         // Numerical
         5 shouldBeLessThan 10
         5 shouldBeGreaterThanOrEqualTo 5
+        5 shouldBeInRange 1..10
+        UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
         5.0 shouldBeNear 5.1 tolerance 0.2
         
         // Exceptions
@@ -137,6 +139,10 @@ class MyTest {
 | `shouldBeGreaterThanOrEqualTo(bound)` | >= |
 | `shouldBePositive()` | > 0 |
 | `shouldBeNegative()` | < 0 |
+| `shouldBeInRange(range)` | Closed range containment |
+| `shouldNotBeInRange(range)` | Closed range exclusion |
+| `UInt/ULong shouldBeInRange range` | Unsigned range containment |
+| `UInt/ULong shouldNotBeInRange range` | Unsigned range exclusion |
 | `shouldBeNear(expected, tolerance)` | Approx equality for floats |
 | `BigDecimal shouldBeEqualTo expected` | Scale-insensitive equality (`compareTo`) |
 | `BigDecimal shouldNotBeEqualTo expected` | Scale-insensitive inequality (`compareTo`) |

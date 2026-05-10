@@ -450,6 +450,22 @@ class NumericalTest {
     }
 
     @Test
+    fun `shouldBeInRange fails for unsigned values outside range`() {
+        assertFailsWith<AssertionFailedError> {
+            0.toUByte() shouldBeInRange 1u..10u
+        }
+        assertFailsWith<AssertionFailedError> {
+            11.toUShort() shouldBeInRange 1u..10u
+        }
+        assertFailsWith<AssertionFailedError> {
+            0u shouldBeInRange 1u..10u
+        }
+        assertFailsWith<AssertionFailedError> {
+            11uL shouldBeInRange 1uL..10uL
+        }
+    }
+
+    @Test
     fun `shouldNotBeInRange passes when value is outside range`() {
         0 shouldNotBeInRange 1..10
         11 shouldNotBeInRange 1..10
@@ -474,6 +490,22 @@ class NumericalTest {
     fun `shouldNotBeInRange fails at boundary`() {
         assertFailsWith<AssertionFailedError> {
             1 shouldNotBeInRange 1..10
+        }
+    }
+
+    @Test
+    fun `shouldNotBeInRange fails for unsigned values inside range`() {
+        assertFailsWith<AssertionFailedError> {
+            5.toUByte() shouldNotBeInRange 1u..10u
+        }
+        assertFailsWith<AssertionFailedError> {
+            5.toUShort() shouldNotBeInRange 1u..10u
+        }
+        assertFailsWith<AssertionFailedError> {
+            5u shouldNotBeInRange 1u..10u
+        }
+        assertFailsWith<AssertionFailedError> {
+            5uL shouldNotBeInRange 1uL..10uL
         }
     }
 
