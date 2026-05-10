@@ -718,7 +718,8 @@ jobs:
           retention-days: 14
 
   # ── Testcontainers (nightly 전용) — Matrix 병렬 ──────────────────────────
-  # 5 groups run in parallel; test packages filtered via --tests per group
+  # Heavy Docker families are split into narrower shards so one slow container
+  # does not hold the full nightly critical path.
   test-testcontainers:
     name: Test / Testcontainers (${{ matrix.group }})
     runs-on: ubuntu-latest
@@ -727,28 +728,114 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - group: database
-            test_patterns: io.bluetape4k.testcontainers.database.*
+          - group: database-core
+            test_patterns: >-
+              io.bluetape4k.testcontainers.database.MariaDBServerTest
+              io.bluetape4k.testcontainers.database.MySQL5ServerTest
+              io.bluetape4k.testcontainers.database.MySQL8ServerTest
+              io.bluetape4k.testcontainers.database.PostgreSQLServerTest
+              io.bluetape4k.testcontainers.database.PgvectorServerTest
+              io.bluetape4k.testcontainers.database.PostgisServerTest
+            timeout_minutes: 25
+            max_attempts: 2
             needs_mock_servers: false
-          - group: storage
-            test_patterns: io.bluetape4k.testcontainers.storage.*
+          - group: database-analytics
+            test_patterns: >-
+              io.bluetape4k.testcontainers.database.ClickHouseServerTest
+              io.bluetape4k.testcontainers.database.CockroachServerTest
+              io.bluetape4k.testcontainers.database.TrinoServerTest
+            timeout_minutes: 25
+            max_attempts: 2
             needs_mock_servers: false
-          - group: mq
-            test_patterns: io.bluetape4k.testcontainers.mq.*
+          - group: database-contract
+            test_patterns: >-
+              io.bluetape4k.testcontainers.database.JdbcServerSupportTest
+              io.bluetape4k.testcontainers.database.R2dbcServerSupportTest
+            timeout_minutes: 10
+            max_attempts: 1
             needs_mock_servers: false
-          - group: infra-http
+          - group: storage-cassandra
+            test_patterns: io.bluetape4k.testcontainers.storage.CassandraServerTest
+            timeout_minutes: 20
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: storage-search
+            test_patterns: >-
+              io.bluetape4k.testcontainers.storage.ElasticsearchOssServerTest
+              io.bluetape4k.testcontainers.storage.ElasticsearchServerTest
+              io.bluetape4k.testcontainers.storage.OpenSearchServerTest
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: storage-cache
+            test_patterns: >-
+              io.bluetape4k.testcontainers.storage.HazelcastServerTest
+              io.bluetape4k.testcontainers.storage.Ignite2ServerTest
+              io.bluetape4k.testcontainers.storage.Ignite3ServerTest
+              io.bluetape4k.testcontainers.storage.InfluxDBServerTest
+              io.bluetape4k.testcontainers.storage.MinIOServerTest
+              io.bluetape4k.testcontainers.storage.MongoDBServerTest
+              io.bluetape4k.testcontainers.storage.RedisClusterServerTest
+              io.bluetape4k.testcontainers.storage.RedisServerTest
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: mq-kafka
+            test_patterns: >-
+              io.bluetape4k.testcontainers.mq.KafkaServerTest
+              io.bluetape4k.testcontainers.mq.RedpandaServerTest
+            timeout_minutes: 20
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: mq-brokers
+            test_patterns: >-
+              io.bluetape4k.testcontainers.mq.NatsServerTest
+              io.bluetape4k.testcontainers.mq.PulsarServerTest
+              io.bluetape4k.testcontainers.mq.RabbitMQServerTest
+            timeout_minutes: 20
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: infra
             test_patterns: >-
               io.bluetape4k.testcontainers.infra.*
-              io.bluetape4k.testcontainers.http.*
-            needs_mock_servers: true
-          - group: graphdb-misc
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: http
             test_patterns: >-
-              io.bluetape4k.testcontainers.graphdb.*
+              io.bluetape4k.testcontainers.http.*
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: true
+          - group: graphdb-falkordb
+            test_patterns: io.bluetape4k.testcontainers.graphdb.FalkorDBServerTest
+            timeout_minutes: 12
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: graphdb-memgraph
+            test_patterns: io.bluetape4k.testcontainers.graphdb.MemgraphServerTest
+            timeout_minutes: 12
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: graphdb-neo4j
+            test_patterns: io.bluetape4k.testcontainers.graphdb.Neo4jServerTest
+            timeout_minutes: 12
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: graphdb-postgresql-age
+            test_patterns: io.bluetape4k.testcontainers.graphdb.PostgreSQLAgeServerTest
+            timeout_minutes: 12
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: misc-contract
+            test_patterns: >-
               io.bluetape4k.testcontainers.GenericContainerExtensionsSupportTest
               io.bluetape4k.testcontainers.GenericServerSupportTest
               io.bluetape4k.testcontainers.GenericServerTest
               io.bluetape4k.testcontainers.PropertyExportingServerContractTest
               io.bluetape4k.testcontainers.RegisterSystemPropertiesTest
+            timeout_minutes: 8
+            max_attempts: 1
             needs_mock_servers: false
     steps:
       - uses: actions/checkout@v4
@@ -778,8 +865,8 @@ jobs:
       - name: Test testcontainers (${{ matrix.group }})
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 60
-          max_attempts: 3
+          timeout_minutes: ${{ matrix.timeout_minutes }}
+          max_attempts: ${{ matrix.max_attempts }}
           shell: bash
           command: |
             read -ra patterns <<< "$TEST_PATTERNS"
