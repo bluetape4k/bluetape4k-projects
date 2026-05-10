@@ -26,6 +26,8 @@ dependencies {
     compileOnly(libs.kafka.streams)
     compileOnly(libs.kafka.generator)
     testImplementation(libs.kafka.streams.test.utils)
+    testRuntimeOnly(libs.kafka.server)
+    testRuntimeOnly(libs.kafka.server.common)
     testImplementation(libs.testcontainers.kafka)
 
     // Spring Kafka

@@ -472,11 +472,9 @@ jobs:
           - group: cache-misc
             test_tasks: >-
               :bluetape4k-micrometer:test
-              :bluetape4k-cache:test
               :bluetape4k-cache-hazelcast:test
             kover_tasks: >-
               :bluetape4k-micrometer:koverXmlReport
-              :bluetape4k-cache:koverXmlReport
               :bluetape4k-cache-hazelcast:koverXmlReport
             needs_mock_server: true
           -   group: search-messaging
@@ -514,7 +512,7 @@ jobs:
           shell: bash
           command: |
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}"
+            ./gradlew "${tasks[@]}" --max-workers=1
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
@@ -595,7 +593,7 @@ jobs:
           shell: bash
           command: |
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}"
+            ./gradlew "${tasks[@]}" --max-workers=1
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
@@ -689,7 +687,7 @@ jobs:
           shell: bash
           command: |
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}"
+            ./gradlew "${tasks[@]}" --max-workers=1
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}

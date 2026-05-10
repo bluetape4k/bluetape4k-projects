@@ -785,6 +785,7 @@ kafka-streams = { module = "org.apache.kafka:kafka-streams", version.ref = "kafk
 kafka-streams-test-utils = { module = "org.apache.kafka:kafka-streams-test-utils", version.ref = "kafka3" }
 kafka-metadata = { module = "org.apache.kafka:kafka-metadata", version.ref = "kafka3" }
 kafka-raft = { module = "org.apache.kafka:kafka-raft", version.ref = "kafka3" }
+kafka-server = { module = "org.apache.kafka:kafka-server", version.ref = "kafka3" }
 kafka-server-common = { module = "org.apache.kafka:kafka-server-common", version.ref = "kafka3" }
 kafka-storage = { module = "org.apache.kafka:kafka-storage", version.ref = "kafka3" }
 kafka-storage-api = { module = "org.apache.kafka:kafka-storage-api", version.ref = "kafka3" }

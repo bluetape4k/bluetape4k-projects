@@ -80,7 +80,7 @@ dependencies {
     compileOnly(libs.mongodb.driver.kotlin.extensions)
 
     // Cassandra
-    compileOnly(libs.testcontainers.cassandra)
+    api(libs.testcontainers.cassandra)
     compileOnly(libs.cassandra.java.driver.core)
     compileOnly(libs.cassandra.java.driver.query.builder)
 
