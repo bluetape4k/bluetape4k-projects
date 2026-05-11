@@ -1,0 +1,53 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 8
+    assignees:
+      - "debop"
+    groups:
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "org.jetbrains.kotlinx*"
+          - "com.google.devtools.ksp*"
+      spring:
+        patterns:
+          - "org.springframework*"
+          - "io.spring*"
+      testcontainers:
+        patterns:
+          - "org.testcontainers*"
+      jackson:
+        patterns:
+          - "com.fasterxml.jackson*"
+          - "tools.jackson*"
+      aws:
+        patterns:
+          - "software.amazon.awssdk*"
+          - "aws.sdk.kotlin*"
+          - "aws.smithy.kotlin*"
+      bluetape4k:
+        patterns:
+          - "io.github.bluetape4k*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 5
+    assignees:
+      - "debop"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
