@@ -939,7 +939,7 @@ zookeeper = { module = "org.apache.zookeeper:zookeeper", version = "3.9.5" }  # 
 curator-framework = { module = "org.apache.curator:curator-framework", version = "5.9.0" }  # https://mvnrepository.com/artifact/org.apache.curator/curator-framework
 
 # Weaviate
-weaviate-client = { module = "io.weaviate:client6", version = "6.0.1" }  # https://mvnrepository.com/artifact/io.weaviate/client6
+weaviate-client = { module = "io.weaviate:client6", version = "6.2.0" }  # https://mvnrepository.com/artifact/io.weaviate/client6
 
 # UUID Generator
 java-uuid-generator = { module = "com.fasterxml.uuid:java-uuid-generator", version = "5.2.0" }  # https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator
