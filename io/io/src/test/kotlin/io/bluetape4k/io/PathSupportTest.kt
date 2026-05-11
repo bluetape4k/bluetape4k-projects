@@ -5,8 +5,10 @@ import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.nio.file.InvalidPathException
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -44,6 +46,33 @@ class PathSupportTest: AbstractIOTest() {
             Paths.get("/usr"), Paths.get("/local"), Paths.get("/var"), Paths.get("/filename.txt")
         )
         path.toString() shouldBeEqualTo "/usr/local/var/filename.txt"
+    }
+
+    @Test
+    fun `combineSafe string rejects parent traversal`() {
+        val rootPath = Paths.get(tempFolder.rootPath)
+
+        assertFailsWith<InvalidPathException> {
+            rootPath.combineSafe("../secret.txt")
+        }
+    }
+
+    @Test
+    fun `combineSafe path rejects absolute input`() {
+        val rootPath = Paths.get(tempFolder.rootPath)
+
+        assertFailsWith<InvalidPathException> {
+            rootPath.combineSafe(Paths.get("/etc/passwd"))
+        }
+    }
+
+    @Test
+    fun `file combineSafe rejects absolute input`() {
+        val rootDir = Paths.get(tempFolder.rootPath).toFile()
+
+        assertFailsWith<InvalidPathException> {
+            rootDir.combineSafe(Paths.get("/etc/passwd"))
+        }
     }
 
     @Test

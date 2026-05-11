@@ -2,6 +2,7 @@
 
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.io.DEFAULT_BUFFER_SIZE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -11,6 +12,8 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.file.FileSystems
 import java.util.zip.Deflater
 import java.util.zip.DeflaterOutputStream
@@ -286,8 +289,6 @@ fun unzip(zipFilename: String, destDirName: String, vararg patterns: String) {
  */
 fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
     val zip = ZipFile(zipFile)
-    val destCanonical = destDir.canonicalPath
-
     try {
         val entries = zip.entries()
         val matchers = if (patterns.isNotEmpty()) {
@@ -298,7 +299,8 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
         }
 
         var entryCount = 0
-        var totalUncompressedSize = 0L
+        var declaredUncompressedSize = 0L
+        var extractedUncompressedSize = 0L
         val destPath = destDir.toPath().toAbsolutePath().normalize()
 
         while (entries.hasMoreElements()) {
@@ -313,9 +315,9 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
 
             // zip bomb 방어: 비압축 크기 제한 (엔트리 헤더의 크기 정보 기준)
             if (entry.size > 0) {
-                totalUncompressedSize += entry.size
-                require(totalUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
-                    "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $totalUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+                declaredUncompressedSize += entry.size
+                require(declaredUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
+                    "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $declaredUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
                 }
             }
 
@@ -345,7 +347,10 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
                 }
                 zip.getInputStream(entry).use { input ->
                     FileOutputStream(file).buffered().use { output ->
-                        input.copyTo(output)
+                        extractedUncompressedSize += input.copyToLimited(
+                            output = output,
+                            remainingLimit = ZIP_MAX_UNCOMPRESSED_SIZE - extractedUncompressedSize,
+                        )
                     }
                 }
             }
@@ -353,6 +358,30 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
     } finally {
         runCatching { zip.close() }
             .onFailure { log.warn(it) { "ZipFile 닫기 실패" } }
+    }
+}
+
+private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long): Long {
+    require(remainingLimit >= 0) {
+        "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+    }
+
+    var copied = 0L
+    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+    while (true) {
+        val read = read(buffer)
+        if (read < 0) {
+            return copied
+        }
+        if (read == 0) {
+            continue
+        }
+
+        copied += read
+        require(copied <= remainingLimit) {
+            "ZIP 실제 비압축 총 크기가 허용 한도를 초과했습니다: ${ZIP_MAX_UNCOMPRESSED_SIZE - remainingLimit + copied} > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
+        }
+        output.write(buffer, 0, read)
     }
 }
 

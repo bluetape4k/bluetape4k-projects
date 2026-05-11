@@ -240,6 +240,7 @@ Behavior notes:
 
 - `awaitAny(...)` returns or rethrows the earliest completed result
 - `awaitAnyAndCancelOthers()` also cancels losers when the winner finishes with failure or cancellation
+- parent coroutine cancellation is rethrown immediately; only a child `Deferred` cancellation is treated as a winner result
 - `map`, `mapAll`, and `concatMap` derive new `Deferred` values from an existing one
 
 ### Flow Extensions
@@ -282,6 +283,40 @@ Useful entry points:
 - `takeUntil`, `skipUntil`
 - `amb`, `race`, `withLatestFrom`
 - `groupBy`, `publish`, `replay`
+
+### Subjects
+
+Subject implementations are hot `Flow` bridges for producer/collector coordination.
+
+```kotlin
+import io.bluetape4k.coroutines.flow.extensions.subject.BehaviorSubject
+import io.bluetape4k.coroutines.flow.extensions.subject.PublishSubject
+import io.bluetape4k.coroutines.flow.extensions.subject.awaitCollector
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+
+suspend fun subjectExample() = coroutineScope {
+    val latest = BehaviorSubject(0)
+    latest.emit(1)
+    latest.complete()
+
+    val events = PublishSubject<Int>()
+    val collected = mutableListOf<Int>()
+    val job = launch { events.take(2).toList(collected) }
+    events.awaitCollector()
+    events.emit(10)
+    events.emit(20)
+    job.join()
+}
+```
+
+Behavior notes:
+
+- `BehaviorSubject` stores the latest value and replays it to new collectors
+- `PublishSubject` does not replay old values; it only sends values to current collectors
+- `emit`, `emitError`, and `complete` preserve caller coroutine cancellation while ignoring cancellation from already-removed collectors
 
 ### CoroutineScope Implementations
 

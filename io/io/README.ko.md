@@ -305,7 +305,25 @@ val serializer = JdkBinarySerializer(objectInputFilter = customFilter)
 | `ZIP_MAX_ENTRIES` | 10,000 | 최대 ZIP 엔트리 수 |
 | `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB | 최대 비압축 총 바이트 |
 
-어느 한도라도 초과하면 `IllegalArgumentException`이 발생합니다.
+어느 한도라도 초과하면 `IllegalArgumentException`이 발생합니다. 한도는 ZIP 메타데이터 기준으로
+먼저 확인하고, 실제 추출 중 읽힌 바이트 수로 다시 확인합니다.
+
+#### 안전한 경로 결합
+
+신뢰할 수 있는 기준 디렉토리 아래에 사용자 입력 상대 경로를 붙일 때는 `combineSafe`를 사용합니다.
+`..` 상위 경로 탈출과 절대 경로 입력을 거부합니다.
+
+```kotlin
+import io.bluetape4k.io.combineSafe
+import java.nio.file.Paths
+
+val base = Paths.get("/srv/app/data")
+val report = base.combineSafe("reports/2026.csv")
+
+// InvalidPathException 발생
+base.combineSafe("../secret.txt")
+base.combineSafe("/etc/passwd")
+```
 
 #### Nullable 압축기 API
 
@@ -368,16 +386,16 @@ Compressors.Streaming.Zstd.decompress(
 import io.bluetape4k.io.compressor.ZipBuilder
 
 // 인메모리 ZIP 생성
-val zipBytes = ZipBuilder()
-    .addContent("hello.txt", "Hello, World!")
-    .addContent("data/config.json", """{"key": "value"}""")
+val zipBytes = ZipBuilder.ofInMemory()
+    .add("Hello, World!").path("hello.txt").save()
+    .add("""{"key": "value"}""").path("data/config.json").save()
     .toBytes()
 
 // 파일 기반 ZIP 생성
-val zipFile = ZipBuilder()
-    .addFile(File("document.pdf"))
-    .addFolder(File("images/"))
-    .toZipFile(File("archive.zip"))
+val zipFile = ZipBuilder.of(File("archive.zip"))
+    .add(File("document.pdf")).path("docs/document.pdf").save()
+    .addFolder("images/")
+    .toZipFile()
 ```
 
 **ZIP 파일 유틸리티 (ZipFileSupport):**
@@ -390,7 +408,11 @@ val gzipped = gzip(File("data.txt"))       // data.txt.gz 생성
 val original = ungzip(gzipped)              // data.txt 복원
 
 // zip/unzip (디렉토리 지원)
-zip(File("project/"), File("project.zip"))
+ZipBuilder.of(File("project.zip"))
+    .add(File("project/"))
+    .recursive(true)
+    .save()
+    .toZipFile()
 unzip(File("project.zip"), File("output/"))
 
 // 패턴 필터링 unzip (Wildcard 지원)

@@ -240,6 +240,7 @@ suspend fun deferredExample() = coroutineScope {
 
 - `awaitAny(...)`는 가장 먼저 완료된 결과를 반환하거나 예외를 다시 던짐
 - `awaitAnyAndCancelOthers()`는 승자가 실패 또는 취소될 때 나머지도 취소
+- 부모 coroutine 취소는 즉시 다시 던지며, child `Deferred` 자체 취소만 승자 결과로 취급
 - `map`, `mapAll`, `concatMap`은 기존 `Deferred`로부터 새로운 `Deferred` 값을 파생
 
 ### Flow 확장
@@ -282,6 +283,40 @@ suspend fun flowExample() {
 - `takeUntil`, `skipUntil`
 - `amb`, `race`, `withLatestFrom`
 - `groupBy`, `publish`, `replay`
+
+### Subject
+
+Subject 구현체는 producer와 collector를 연결하는 hot `Flow` 브릿지입니다.
+
+```kotlin
+import io.bluetape4k.coroutines.flow.extensions.subject.BehaviorSubject
+import io.bluetape4k.coroutines.flow.extensions.subject.PublishSubject
+import io.bluetape4k.coroutines.flow.extensions.subject.awaitCollector
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+
+suspend fun subjectExample() = coroutineScope {
+    val latest = BehaviorSubject(0)
+    latest.emit(1)
+    latest.complete()
+
+    val events = PublishSubject<Int>()
+    val collected = mutableListOf<Int>()
+    val job = launch { events.take(2).toList(collected) }
+    events.awaitCollector()
+    events.emit(10)
+    events.emit(20)
+    job.join()
+}
+```
+
+동작 특성:
+
+- `BehaviorSubject`는 최신 값을 저장하고 새 collector에게 재생
+- `PublishSubject`는 과거 값을 재생하지 않고 현재 collector에게만 전달
+- `emit`, `emitError`, `complete`는 이미 제거된 collector의 취소는 무시하되 caller coroutine 취소는 보존
 
 ### CoroutineScope 구현체
 

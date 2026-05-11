@@ -302,7 +302,25 @@ val serializer = JdkBinarySerializer(objectInputFilter = customFilter)
 | `ZIP_MAX_ENTRIES` | 10,000 | Maximum number of ZIP entries |
 | `ZIP_MAX_UNCOMPRESSED_SIZE` | 1 GB | Maximum total uncompressed bytes |
 
-Exceeding either limit throws `IllegalArgumentException`.
+Exceeding either limit throws `IllegalArgumentException`. The limit is checked from ZIP metadata
+and again while bytes are actually extracted.
+
+#### Safe Path Combination
+
+Use `combineSafe` when appending user-provided relative paths under a trusted base directory.
+It rejects parent traversal and absolute paths.
+
+```kotlin
+import io.bluetape4k.io.combineSafe
+import java.nio.file.Paths
+
+val base = Paths.get("/srv/app/data")
+val report = base.combineSafe("reports/2026.csv")
+
+// Throws InvalidPathException
+base.combineSafe("../secret.txt")
+base.combineSafe("/etc/passwd")
+```
 
 #### Nullable Compressor API
 
@@ -366,16 +384,16 @@ Compressors.Streaming.Zstd.decompress(
 import io.bluetape4k.io.compressor.ZipBuilder
 
 // In-memory ZIP
-val zipBytes = ZipBuilder()
-    .addContent("hello.txt", "Hello, World!")
-    .addContent("data/config.json", """{"key": "value"}""")
+val zipBytes = ZipBuilder.ofInMemory()
+    .add("Hello, World!").path("hello.txt").save()
+    .add("""{"key": "value"}""").path("data/config.json").save()
     .toBytes()
 
 // File-based ZIP
-val zipFile = ZipBuilder()
-    .addFile(File("document.pdf"))
-    .addFolder(File("images/"))
-    .toZipFile(File("archive.zip"))
+val zipFile = ZipBuilder.of(File("archive.zip"))
+    .add(File("document.pdf")).path("docs/document.pdf").save()
+    .addFolder("images/")
+    .toZipFile()
 ```
 
 **ZIP File Utilities (ZipFileSupport):**
@@ -388,7 +406,11 @@ val gzipped = gzip(File("data.txt"))       // creates data.txt.gz
 val original = ungzip(gzipped)              // restores data.txt
 
 // zip/unzip (with directory support)
-zip(File("project/"), File("project.zip"))
+ZipBuilder.of(File("project.zip"))
+    .add(File("project/"))
+    .recursive(true)
+    .save()
+    .toZipFile()
 unzip(File("project.zip"), File("output/"))
 
 // Pattern-filtered unzip (wildcard support)
