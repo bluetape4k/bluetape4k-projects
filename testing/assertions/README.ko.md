@@ -28,7 +28,7 @@ graph TD
 
 - **bluetape4k-assertions 호환** infix DSL — 같은 함수 이름, import만 교체하면 완료
 - **기본**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` 스마트 캐스트 지원
-- **숫자 비교**: `shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`, 부호 확인, 범위 포함 확인
+- **숫자 비교**: `shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`, 부호 확인, signed/unsigned 범위 포함 확인
 - **컬렉션/배열/맵**: 내용 동등성, 포함 검증 (`shouldContainAll`, `shouldNotContainAny`)
 - **문자열**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, 대소문자 무시 검증
 - **예외**: `invoking { }` / `shouldThrow`, 메시지 검증, 원인 검사
@@ -80,6 +80,8 @@ class MyTest {
         // 숫자 비교
         5 shouldBeLessThan 10
         5 shouldBeGreaterThanOrEqualTo 5
+        5 shouldBeInRange 1..10
+        UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
         5.0 shouldBeNear 5.1 tolerance 0.2
         
         // 예외
@@ -137,6 +139,10 @@ class MyTest {
 | `shouldBeGreaterThanOrEqualTo(bound)` | >= |
 | `shouldBePositive()` | > 0 |
 | `shouldBeNegative()` | < 0 |
+| `shouldBeInRange(range)` | 닫힌 범위 포함 확인 |
+| `shouldNotBeInRange(range)` | 닫힌 범위 미포함 확인 |
+| `UInt/ULong shouldBeInRange range` | unsigned 범위 포함 확인 |
+| `UInt/ULong shouldNotBeInRange range` | unsigned 범위 미포함 확인 |
 | `shouldBeNear(expected, tolerance)` | 부동소수점 근사 동등 |
 | `BigDecimal shouldBeEqualTo expected` | scale 무관 동등 (`compareTo`) |
 | `BigDecimal shouldNotBeEqualTo expected` | scale 무관 비동등 (`compareTo`) |

@@ -181,7 +181,7 @@ flowchart TB
 - **[tink](./io/tink/README.ko.md)**: Google Tink 기반 현대적 암호화 — AEAD, Deterministic AEAD, MAC, Digest, 통합 Encryptor (
   `TinkEncryptor`), Okio `TinkEncryptSink`/`TinkDecryptSource`
 - **[vertx](./io/vertx/README.ko.md)**: Vert.x 단일 통합 모듈 — 핵심 기능, SQL 클라이언트, Resilience4j 통합 포함 (구 `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j` 통합됨)
-- ~~**[crypto](./io/crypto/README.ko.md)**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`tink`으로 대체)
+- ~~**crypto**~~: 암호화 기능 (Jasypt 기반 PBE, BouncyCastle) — **Deprecated** (`tink`으로 대체)
 
 ### AWS 모듈 → [bluetape4k-aws](https://github.com/bluetape4k/bluetape4k-aws)
 
@@ -214,7 +214,7 @@ flowchart TB
       `RedisFuture` → Coroutines 어댑터, 분산 Primitive (Lock, Semaphore, AtomicLong, Leader Election),
       `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind),
       **BloomFilter/CuckooFilter** (Lua 스크립트 기반, RedisBloom 불필요), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
-    - **[redisson](./infra/redisson/README.ko.md)**: Redisson 클라이언트, Codec, Memorizer, NearCache (`RLocalCachedMap`), Leader Election (Coroutines 지원)
+    - **[redisson](./infra/redisson/README.ko.md)**: Redisson 클라이언트, Codec, Memoizer, NearCache (`RLocalCachedMap`), Leader Election (Coroutines 지원)
 - **[bucket4j](./infra/bucket4j/README.ko.md)**: Rate limiting
 - **[kafka](./infra/kafka/README.ko.md)**: Kafka 클라이언트
 - **[kafka-logback](./infra/kafka-logback/README.ko.md)**: Logback Kafka Appender (구 `x-obsoleted/logback-kafka` 에서 승격)
@@ -226,8 +226,7 @@ flowchart TB
 
 플러그인 방식으로 백엔드를 교체할 수 있는 캐시 추상화 레이어입니다.
 
-- **[cache](cache/cache/README.ko.md)**: umbrella 모듈 (cache-core + hazelcast + redisson + lettuce)
-- **[cache-core](cache/cache-core/README.ko.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memorizer 구현체, testFixtures 6종 추상 테스트
+- **[cache-core](cache/cache-core/README.ko.md)**: JCache 추상화 + Caffeine/Cache2k/Ehcache 로컬 캐시 (구 `cache-local` 병합) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer 구현체, testFixtures 6종 추상 테스트
 - **[cache-hazelcast](cache/cache-hazelcast/README.ko.md)**: Hazelcast 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-hazelcast-near` 병합)
 - **[cache-redisson](cache/cache-redisson/README.ko.md)**: Redisson 분산 캐시 + Caffeine 2-Tier Near Cache (구 `cache-redisson-near` 병합)
 - **[cache-lettuce](cache/cache-lettuce/README.ko.md)**: Lettuce(Redis) 기반 분산 캐시 — `LettuceNearCacheConfig`, RESP3 CLIENT TRACKING 기반 자동 invalidation

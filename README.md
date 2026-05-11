@@ -180,7 +180,7 @@ flowchart TB
 - **[tink](./io/tink/README.md)**: Modern encryption via Google Tink — AEAD, Deterministic AEAD, MAC, Digest, unified
   `TinkEncryptor`, Okio `TinkEncryptSink`/`TinkDecryptSource`
 - **[vertx](./io/vertx/README.md)**: Vert.x unified module — core, SQL client, Resilience4j integration (merged from former `vertx/core`, `vertx/sqlclient`, `vertx/resilience4j`)
-- ~~**[crypto](./io/crypto/README.md)**~~: Encryption (Jasypt PBE, BouncyCastle) — **Deprecated**, use
+- ~~**crypto**~~: Encryption (Jasypt PBE, BouncyCastle) — **Deprecated**, use
   `bluetape4k-tink` instead
 
 ### AWS Modules → [bluetape4k-aws](https://github.com/bluetape4k/bluetape4k-aws)
@@ -222,7 +222,6 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 
 A pluggable cache abstraction layer — swap backends without changing application code.
 
-- **[cache](cache/cache/README.md)**: Umbrella module (cache-core + hazelcast + redisson + lettuce)
 - **[cache-core](cache/cache-core/README.md)**: JCache abstraction + Caffeine/Cache2k/Ehcache local caches (merged from former `cache-local`) — `AsyncCache`, `SuspendCache`, `NearCache`, `SuspendNearCache`, Memoizer implementations, 6 abstract test fixtures
 - **[cache-hazelcast](cache/cache-hazelcast/README.md)**: Hazelcast distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-hazelcast-near`)
 - **[cache-redisson](cache/cache-redisson/README.md)**: Redisson distributed cache + Caffeine 2-tier Near Cache (merged from former `cache-redisson-near`)

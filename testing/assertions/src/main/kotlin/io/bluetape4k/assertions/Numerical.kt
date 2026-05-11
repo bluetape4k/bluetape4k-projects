@@ -477,6 +477,12 @@ fun Double.shouldBeZero(): Double {
 /**
  * receiver가 [range] 안에 있는지 검증한다.
  *
+ * 예:
+ * ```kotlin
+ * 5 shouldBeInRange 1..10
+ * "kotlin" shouldBeInRange "java".."scala"
+ * ```
+ *
  * @receiver 검증할 값
  * @param range 검증할 범위 (닫힌 범위)
  * @return receiver (체이닝 지원)
@@ -490,6 +496,11 @@ infix fun <T : Comparable<T>> T.shouldBeInRange(range: ClosedRange<T>): T {
 
 /**
  * receiver가 [range] 안에 없는지 검증한다.
+ *
+ * 예:
+ * ```kotlin
+ * 0 shouldNotBeInRange 1..10
+ * ```
  *
  * @receiver 검증할 값
  * @param range 검증할 범위 (닫힌 범위)
@@ -505,6 +516,11 @@ infix fun <T : Comparable<T>> T.shouldNotBeInRange(range: ClosedRange<T>): T {
 /**
  * UByte 값이 [range] 안에 있는지 검증한다.
  *
+ * 예:
+ * ```kotlin
+ * 5.toUByte() shouldBeInRange 1u..10u
+ * ```
+ *
  * @receiver 검증할 UByte 값
  * @param range UInt 범위
  * @return receiver (체이닝 지원)
@@ -518,6 +534,11 @@ infix fun UByte.shouldBeInRange(range: UIntRange): UByte {
 
 /**
  * UByte 값이 [range] 안에 없는지 검증한다.
+ *
+ * 예:
+ * ```kotlin
+ * 0.toUByte() shouldNotBeInRange 1u..10u
+ * ```
  *
  * @receiver 검증할 UByte 값
  * @param range UInt 범위
@@ -533,6 +554,11 @@ infix fun UByte.shouldNotBeInRange(range: UIntRange): UByte {
 /**
  * UShort 값이 [range] 안에 있는지 검증한다.
  *
+ * 예:
+ * ```kotlin
+ * 5.toUShort() shouldBeInRange 1u..10u
+ * ```
+ *
  * @receiver 검증할 UShort 값
  * @param range UInt 범위
  * @return receiver (체이닝 지원)
@@ -546,6 +572,11 @@ infix fun UShort.shouldBeInRange(range: UIntRange): UShort {
 
 /**
  * UShort 값이 [range] 안에 없는지 검증한다.
+ *
+ * 예:
+ * ```kotlin
+ * 11.toUShort() shouldNotBeInRange 1u..10u
+ * ```
  *
  * @receiver 검증할 UShort 값
  * @param range UInt 범위
@@ -561,6 +592,11 @@ infix fun UShort.shouldNotBeInRange(range: UIntRange): UShort {
 /**
  * UInt 값이 [range] 안에 있는지 검증한다.
  *
+ * 예:
+ * ```kotlin
+ * UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
+ * ```
+ *
  * @receiver 검증할 UInt 값
  * @param range UInt 범위
  * @return receiver (체이닝 지원)
@@ -574,6 +610,11 @@ infix fun UInt.shouldBeInRange(range: UIntRange): UInt {
 
 /**
  * UInt 값이 [range] 안에 없는지 검증한다.
+ *
+ * 예:
+ * ```kotlin
+ * 0u shouldNotBeInRange 1u..10u
+ * ```
  *
  * @receiver 검증할 UInt 값
  * @param range UInt 범위
@@ -589,6 +630,11 @@ infix fun UInt.shouldNotBeInRange(range: UIntRange): UInt {
 /**
  * ULong 값이 [range] 안에 있는지 검증한다.
  *
+ * 예:
+ * ```kotlin
+ * ULong.MAX_VALUE shouldBeInRange Long.MAX_VALUE.toULong()..ULong.MAX_VALUE
+ * ```
+ *
  * @receiver 검증할 ULong 값
  * @param range ULong 범위
  * @return receiver (체이닝 지원)
@@ -602,6 +648,11 @@ infix fun ULong.shouldBeInRange(range: ULongRange): ULong {
 
 /**
  * ULong 값이 [range] 안에 없는지 검증한다.
+ *
+ * 예:
+ * ```kotlin
+ * 11uL shouldNotBeInRange 1uL..10uL
+ * ```
  *
  * @receiver 검증할 ULong 값
  * @param range ULong 범위

@@ -795,6 +795,28 @@ jobs:
             timeout_minutes: 20
             max_attempts: 2
             needs_mock_servers: false
+          - group: aws-core
+            test_patterns: >-
+              io.bluetape4k.testcontainers.aws.ElasticMqServerTest
+              io.bluetape4k.testcontainers.aws.FlociServerTest
+              io.bluetape4k.testcontainers.aws.LocalStackServerTest
+              io.bluetape4k.testcontainers.aws.MiniStackServerTest
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: aws-localstack
+            test_patterns: >-
+              io.bluetape4k.testcontainers.aws.localstack.services.*
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: aws-compatible
+            test_patterns: >-
+              io.bluetape4k.testcontainers.aws.floci.services.*
+              io.bluetape4k.testcontainers.aws.ministack.services.*
+            timeout_minutes: 25
+            max_attempts: 2
+            needs_mock_servers: false
           - group: infra
             test_patterns: >-
               io.bluetape4k.testcontainers.infra.*
@@ -837,6 +859,18 @@ jobs:
             timeout_minutes: 8
             max_attempts: 1
             needs_mock_servers: false
+          - group: mail
+            test_patterns: >-
+              io.bluetape4k.testcontainers.mail.*
+            timeout_minutes: 12
+            max_attempts: 2
+            needs_mock_servers: false
+          - group: llm-disabled
+            test_patterns: >-
+              io.bluetape4k.testcontainers.llm.*
+            timeout_minutes: 8
+            max_attempts: 1
+            needs_mock_servers: false
     steps:
       - uses: actions/checkout@v4
 
@@ -864,7 +898,7 @@ jobs:
 
       - name: Pre-pull Memgraph Docker image
         if: ${{ matrix.group == 'graphdb-memgraph' }}
-        run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:latest
+        run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:3.9.0
 
       - name: Test testcontainers (${{ matrix.group }})
         uses: nick-fields/retry@v3
