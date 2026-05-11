@@ -86,7 +86,7 @@ subprojects {
         resolutionStrategy.eachDependency {
             if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-serialization")) {
                 useVersion("1.9.0")
-                because("nmcp 1.4.4 runtime compatibility (avoid serialization ABI mismatch)")
+                because("nmcp runtime compatibility (avoid serialization ABI mismatch)")
             }
         }
     }
