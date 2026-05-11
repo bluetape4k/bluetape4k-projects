@@ -69,6 +69,11 @@ class TinkDigesterTest {
     }
 
     @Test
+    fun `문자열 malformed Base64 expected hash는 false를 반환`() {
+        digester.matches("Hello, World!", "not-base64-!").shouldBeFalse()
+    }
+
+    @Test
     fun `빈 입력 digest`() {
         val hash = digester.digest(ByteArray(0))
         hash shouldNotBeEqualTo ByteArray(0)

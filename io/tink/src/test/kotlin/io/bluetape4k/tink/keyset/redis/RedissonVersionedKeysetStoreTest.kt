@@ -2,14 +2,18 @@ package io.bluetape4k.tink.keyset.redis
 
 import com.google.crypto.tink.aead.AesGcmKeyManager
 import com.google.crypto.tink.daead.AesSivKeyManager
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.tink.aead.TinkAeads
 import io.bluetape4k.tink.keyset.VersionedTinkDaead
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RedissonClient
+import java.time.Clock
 import java.time.Duration
+import java.time.Instant
+import java.time.ZoneId
 
 class RedissonVersionedKeysetStoreTest {
 
@@ -70,5 +74,47 @@ class RedissonVersionedKeysetStoreTest {
         daead.decryptDeterministically(ct1) shouldBeEqualTo "hello"
         val ct3 = daead.encryptDeterministically("hello")
         (ct3 != ct1).shouldBeTrue()
+    }
+
+    @Test
+    fun `MultithreadingTester - concurrent rotateIfDue performs a single rotation`() {
+        val keyring = randomName()
+        val clock = MutableClock(Instant.parse("2026-05-11T00:00:00Z"))
+        val store = RedissonVersionedKeysetStore(
+            redisson,
+            keyring,
+            AesGcmKeyManager.aes256GcmTemplate(),
+            clock
+        )
+
+        store.current().version shouldBeEqualTo 1L
+        clock.advanceBy(Duration.ofDays(2))
+
+        // Redisson lock은 대기형이므로, 동시 due check가 몰려도 lock 안의 재확인으로 단일 회전만 허용한다.
+        MultithreadingTester()
+            .workers(8)
+            .rounds(2)
+            .add {
+                store.rotateIfDue(Duration.ofDays(1))
+            }
+            .run()
+
+        store.current().version shouldBeEqualTo 2L
+    }
+
+    private class MutableClock(
+        @Volatile private var current: Instant,
+        private val zone: ZoneId = ZoneId.of("UTC"),
+    ): Clock() {
+
+        override fun getZone(): ZoneId = zone
+
+        override fun withZone(zone: ZoneId): Clock = MutableClock(current, zone)
+
+        override fun instant(): Instant = current
+
+        fun advanceBy(duration: Duration) {
+            current = current.plus(duration)
+        }
     }
 }
