@@ -109,7 +109,7 @@ elasticsearch-java = "9.4.0"  # https://mvnrepository.com/artifact/co.elastic.cl
 kafka3 = "3.9.2"  # https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients; Server-side: spring-kafka 3.x embedded test (EmbeddedKafkaKraftBroker)
 kafka4 = "4.2.0"  # https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients; Client-side: kafka-clients, kafka-streams (production)
 spring-kafka = "3.3.13"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
-spring-kafka4 = "4.0.5"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+spring-kafka4 = "3.3.15"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
 timefold-solver = "2.0.0"  # https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-bom
 
