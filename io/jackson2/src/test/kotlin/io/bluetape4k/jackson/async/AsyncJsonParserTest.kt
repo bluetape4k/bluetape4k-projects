@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.treeToValueOrNull
 import io.bluetape4k.jackson.writeAsBytes
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
@@ -156,6 +157,91 @@ class AsyncJsonParserTest {
             }
         }
         parser.consume("]".toByteArray())
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `완성된 JSON 입력 종료를 알려도 추가 노드가 생성되지 않는다`() {
+        val parsed = AtomicInteger(0)
+        val parser = AsyncJsonParser { parsed.incrementAndGet() }
+
+        parser.consume("""{"key":"value"}""".toByteArray())
+        parser.endOfInput()
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `잘린 JSON 입력 종료 시 JsonParseException 이 발생한다`() {
+        val truncatedInputs =
+            listOf(
+                """{"key":""",
+                """{"id":12""",
+                """"unterm""",
+                "{\"a\":\"b\\",
+            )
+
+        truncatedInputs.forEach { input ->
+            val parser = AsyncJsonParser { /* 도달하지 않아야 함 */ }
+
+            parser.consume(input.toByteArray())
+
+            assertFailsWith<com.fasterxml.jackson.core.JsonParseException> {
+                parser.endOfInput()
+            }
+        }
+    }
+
+    @Test
+    fun `consume length 가 바이트 배열 범위를 벗어나면 IllegalArgumentException 이 발생한다`() {
+        val parser = AsyncJsonParser { /* 도달하지 않아야 함 */ }
+        val bytes = "{}".toByteArray()
+
+        assertFailsWith<IllegalArgumentException> {
+            parser.consume(bytes, -1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            parser.consume(bytes, bytes.size + 1)
+        }
+    }
+
+    @Test
+    fun `빈 청크와 부분 length 입력도 유효한 범위로 처리한다`() {
+        val parsed = AtomicInteger(0)
+        val parser = AsyncJsonParser { parsed.incrementAndGet() }
+
+        parser.consume(ByteArray(0))
+        parsed.get() shouldBeEqualTo 0
+
+        // length는 같은 ByteArray 안에서 실제 JSON으로 볼 prefix만 선택할 때 사용됩니다.
+        parser.consume("{}tail".toByteArray(), "{}".toByteArray().size)
+        parser.endOfInput()
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `endOfInput 이후 같은 파서에 다시 입력하면 IllegalStateException 이 발생한다`() {
+        val parser = AsyncJsonParser { /* 파서 수명주기만 검증 */ }
+
+        parser.consume("{}".toByteArray())
+        parser.endOfInput()
+
+        assertFailsWith<IllegalStateException> {
+            parser.consume("{}".toByteArray())
+        }
+    }
+
+    @Test
+    fun `endOfInput 은 두 번 호출해도 추가 노드를 만들지 않는다`() {
+        val parsed = AtomicInteger(0)
+        val parser = AsyncJsonParser { parsed.incrementAndGet() }
+
+        parser.consume("{}".toByteArray())
+        parser.endOfInput()
+        parser.endOfInput()
+
         parsed.get() shouldBeEqualTo 1
     }
 
