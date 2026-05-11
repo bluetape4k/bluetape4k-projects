@@ -60,7 +60,7 @@ lettuce = "6.8.2.RELEASE"  # https://mvnrepository.com/artifact/io.lettuce/lettu
 redisson = "4.3.1"  # https://mvnrepository.com/artifact/org.redisson/redisson
 lz4 = "1.11.0"  # https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java
 
-hibernate = "7.3.3.Final"  # https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
+hibernate = "7.3.4.Final"  # https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
 hibernate-reactive = "4.3.3.Final"  # https://mvnrepository.com/artifact/org.hibernate.reactive/hibernate-reactive-core
 hibernate-validator = "9.1.0.Final"  # https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
 querydsl = "5.1.0"  # https://mvnrepository.com/artifact/com.querydsl/querydsl-apt
