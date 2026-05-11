@@ -21,7 +21,8 @@ import javax.cache.event.CacheEntryListener
  * ## 동작/계약
  * - 캐시 항목은 Redis hash(`cacheName`)에 `hset/hget/hdel` 계열 명령으로 저장/조회합니다.
  * - `configuration.ttlSeconds` 가 지정되면 `supportsHSetEx` 여부에 따라 `HSETEX + EXPIRE`(Redis 8+) 또는 `HSET/HMSET + EXPIRE`(Redis 7 이하)로 동작합니다. 분기는 초기화 시점에 1회 결정됩니다.
- * - `close()`는 내부적으로 `clear()`를 수행해 Redis hash 키를 삭제합니다.
+ * - `close()`는 JCache 계약과 동일하게 리소스만 해제하며 Redis hash 데이터는 삭제하지 않습니다.
+ *   데이터 삭제가 필요하면 `close()` 전에 [clear]를 명시적으로 호출하세요.
  * - [CacheEntryListener] 등록을 지원하며, 등록된 리스너에게 [Channel] 기반 비동기 이벤트를 전파합니다.
  *
  * ```kotlin

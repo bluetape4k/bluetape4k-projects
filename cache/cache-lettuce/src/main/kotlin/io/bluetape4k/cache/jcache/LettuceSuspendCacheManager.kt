@@ -2,6 +2,7 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
+import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.lettuce.RedisCommandSupports
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
@@ -9,6 +10,9 @@ import io.bluetape4k.support.requireNotBlank
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -173,7 +177,9 @@ class LettuceSuspendCacheManager(
      *
      * ## 동작/계약
      * - 최초 1회만 실제 종료 로직이 수행되며 이후 호출은 즉시 반환합니다.
-     * - 각 캐시 종료 중 예외는 `runCatching`으로 무시하고 다음 캐시 종료를 계속합니다.
+     * - 종료 도중 외부 코루틴 취소가 요청되어도 [NonCancellable] 정리 구간에서 나머지 캐시 close를 먼저 시도합니다.
+     * - 개별 `cache.close()`가 [CancellationException]을 명시적으로 던지면 잔여 캐시 close 후 다시 던집니다.
+     * - 각 캐시 종료 중 일반 예외는 기록하고 다음 캐시 종료를 계속합니다.
      * - 종료 후 `getOrCreate/getCache/destroyCache`는 `IllegalStateException`을 발생시킵니다.
      *
      * ```kotlin
@@ -188,9 +194,20 @@ class LettuceSuspendCacheManager(
         if (closed.compareAndSet(expect = false, update = true)) {
             log.info { "Close LettuceSuspendCacheManager." }
 
-            caches.values.forEach { cache ->
-                runCatching { cache.close() }
+            var cancellation: CancellationException? = null
+            withContext(NonCancellable) {
+                caches.values.forEach { cache ->
+                    try {
+                        cache.close()
+                    } catch (e: CancellationException) {
+                        // cache.close() 자체가 취소 예외를 던진 경우에도 잔여 캐시 정리를 끝낸 뒤 호출자에게 전달한다.
+                        cancellation = cancellation ?: e
+                    } catch (e: Exception) {
+                        log.warn(e) { "LettuceSuspendCacheManager cache close failed. cacheName=${cache.name}" }
+                    }
+                }
             }
+            cancellation?.let { throw it }
         }
     }
 

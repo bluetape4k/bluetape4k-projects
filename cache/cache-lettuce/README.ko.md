@@ -598,6 +598,22 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
 
 `close()` 는 리소스(리스너, executor, 연결 핸들)를 해제할 뿐 **데이터를 삭제하지 않습니다**. 과거 구현은 `close()` 내부에서 `clear()` 를 수행해 JSR-107 계약을 위반했으므로 제거되었습니다. 종료 시점에 데이터를 비우려면 `close()` 이전에 `clear()` 를 명시적으로 호출하세요.
 
+`LettuceSuspendJCache.close()` 도 래핑한 `LettuceJCache` 와 같은 계약을 따릅니다. suspend cache manager의 close 경로는 호출자 취소가 요청되어도 non-cancellable 정리 구간에서 나머지 캐시 wrapper close를 먼저 시도합니다. 개별 cache close가 `CancellationException` 을 명시적으로 던지면 잔여 정리를 끝낸 뒤 다시 던집니다.
+
+### `LettuceSuspendMemoizer` — transient failure 및 cancellation 복구
+
+suspend memoizer의 in-flight 항목은 계산 조율 상태이지 영구 캐시 값이 아닙니다. evaluator가 실패하거나 취소되면 해당 in-flight `Deferred`를 예외 완료 후 제거해, 다음 같은 key 호출이 새 계산으로 복구될 수 있게 합니다.
+
+```kotlin
+val attempts = AtomicInteger(0)
+val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
+    if (attempts.incrementAndGet() == 1) error("temporary failure")
+    key * key
+}
+
+// 첫 실패는 성공 값처럼 캐시되지 않으므로 다음 호출에서 다시 계산한다.
+```
+
 ### `LettuceJCache.putAll` — 존재 여부 조회 배치화
 
 `CacheEntryListener` 가 등록된 경우 CREATED/UPDATED 이벤트 구분을 위해 키별로 `HEXISTS` 를 `N` 번 호출하던 비용을 단일 `HMGET` 한 번으로 줄였습니다. 엔트리 개수와 무관하게 roundtrip 이 1회로 고정됩니다.

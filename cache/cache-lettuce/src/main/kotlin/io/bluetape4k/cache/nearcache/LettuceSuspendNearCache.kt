@@ -21,6 +21,7 @@ import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import io.lettuce.core.api.coroutines.multi
 import io.lettuce.core.codec.RedisCodec
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
 
 /**
@@ -397,10 +398,24 @@ class LettuceSuspendNearCache<V: Any>(
      */
     override suspend fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
-            runCatching { trackingListener.close() }
-            runCatching { connection.close() }
-            runCatching { frontCache.close() }
+            closeResource("trackingListener") { trackingListener.close() }
+            closeResource("connection") { connection.close() }
+            closeResource("frontCache") { frontCache.close() }
             log.debug { "LettuceSuspendNearCache [${config.cacheName}] closed" }
+        }
+    }
+
+    private inline fun closeResource(
+        resourceName: String,
+        block: () -> Unit,
+    ) {
+        try {
+            block()
+        } catch (e: CancellationException) {
+            // 방어적으로라도 취소 신호는 일반 close 실패처럼 삼키지 않는다.
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) { "LettuceSuspendNearCache resource close failed. cacheName=$cacheName, resource=$resourceName" }
         }
     }
 

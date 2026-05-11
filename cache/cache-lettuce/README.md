@@ -218,6 +218,22 @@ Bulk deletes issue `UNLINK` instead of `DEL`. Large keys are evicted on a backgr
 
 `close()` releases resources (listeners, executors, connection handles) but does **not** delete data. Previously `close()` also ran `clear()`, which violated the JSR-107 contract. If you need data removal on shutdown, call `clear()` explicitly before `close()`.
 
+`LettuceSuspendJCache.close()` follows the same contract through its wrapped `LettuceJCache`. Suspend cache managers also protect close cleanup from caller cancellation: remaining cache wrappers are closed in a non-cancellable cleanup section. If an individual cache close explicitly throws `CancellationException`, the manager finishes the remaining cleanup first and then rethrows it.
+
+### `LettuceSuspendMemoizer` — transient failure and cancellation recovery
+
+Suspend memoizer in-flight entries are coordination state, not durable cache entries. If an evaluator fails or is cancelled, the in-flight `Deferred` is completed exceptionally and removed so the next call for the same key can start a fresh computation.
+
+```kotlin
+val attempts = AtomicInteger(0)
+val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
+    if (attempts.incrementAndGet() == 1) error("temporary failure")
+    key * key
+}
+
+// The first failed call is not cached as a value; the next call recomputes.
+```
+
 ### `LettuceJCache.putAll` — existence check batching
 
 When `CacheEntryListener` is registered, CREATED/UPDATED event classification used to cost `N × HEXISTS` roundtrips. It now uses a single `HMGET` to fetch the existence bitmap in one shot — O(1) roundtrips regardless of entry count.
