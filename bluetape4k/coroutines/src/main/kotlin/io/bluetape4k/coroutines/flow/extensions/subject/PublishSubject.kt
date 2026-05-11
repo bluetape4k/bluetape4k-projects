@@ -147,7 +147,11 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
         this.error = ex
         val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
         colls.forEach { collector ->
-            runCatching { collector.error(ex) }
+            try {
+                collector.error(ex)
+            } catch (e: CancellationException) {
+                currentCoroutineContext().ensureActive()
+            }
         }
     }
 
@@ -162,7 +166,11 @@ class PublishSubject<T>: AbstractFlow<T>(), SubjectApi<T> {
     override suspend fun complete() {
         val colls = collectors.getAndSet(TERMINATED as Array<ResumableCollector<T>>)
         colls.forEach { collector ->
-            runCatching { collector.complete() }
+            try {
+                collector.complete()
+            } catch (e: CancellationException) {
+                currentCoroutineContext().ensureActive()
+            }
         }
     }
 

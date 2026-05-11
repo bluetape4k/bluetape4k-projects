@@ -5,7 +5,10 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.selects.select
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 두 `Deferred`가 모두 완료되면 결과를 결합해 새 `Deferred`로 반환합니다.
@@ -180,7 +183,13 @@ suspend fun <T> Collection<Deferred<T>>.awaitAnyAndCancelOthers(): T {
     val firstFinished = coroutineScope {
         val signals = deferreds.mapIndexed { index, deferred ->
             async(start = CoroutineStart.UNDISPATCHED) {
-                IndexedValue(index, runCatching { deferred.await() })
+                val result = runCatching { deferred.await() }
+                    .onFailure { e ->
+                        if (e is CancellationException) {
+                            currentCoroutineContext().ensureActive()
+                        }
+                    }
+                IndexedValue(index, result)
             }
         }
         val winner = signals.awaitAny()

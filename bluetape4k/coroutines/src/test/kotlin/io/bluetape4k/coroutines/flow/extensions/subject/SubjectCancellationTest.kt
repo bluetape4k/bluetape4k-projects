@@ -3,7 +3,10 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 import io.bluetape4k.coroutines.tests.withSingleThread
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -184,5 +187,86 @@ class SubjectCancellationTest {
 
             job.isCompleted.shouldBeTrue()
         }
+    }
+
+    @Test
+    fun `BehaviorSubject complete preserves timeout cancellation while collector is busy`() = runTest {
+        val subject = BehaviorSubject<Int>()
+        val collectorEntered = CompletableDeferred<Unit>()
+        val releaseCollector = CompletableDeferred<Unit>()
+
+        val job = launch {
+            subject.collect {
+                collectorEntered.complete(Unit)
+                releaseCollector.await()
+            }
+        }
+
+        subject.awaitCollector()
+        subject.emit(1)
+        collectorEntered.await()
+
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.complete()
+            }
+        }
+
+        releaseCollector.complete(Unit)
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun `PublishSubject complete preserves timeout cancellation while collector is busy`() = runTest {
+        val subject = PublishSubject<Int>()
+        val collectorEntered = CompletableDeferred<Unit>()
+        val releaseCollector = CompletableDeferred<Unit>()
+
+        val job = launch {
+            subject.collect {
+                collectorEntered.complete(Unit)
+                releaseCollector.await()
+            }
+        }
+
+        subject.awaitCollector()
+        subject.emit(1)
+        collectorEntered.await()
+
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.complete()
+            }
+        }
+
+        releaseCollector.complete(Unit)
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun `PublishSubject emitError preserves timeout cancellation while collector is busy`() = runTest {
+        val subject = PublishSubject<Int>()
+        val collectorEntered = CompletableDeferred<Unit>()
+        val releaseCollector = CompletableDeferred<Unit>()
+
+        val job = launch {
+            subject.collect {
+                collectorEntered.complete(Unit)
+                releaseCollector.await()
+            }
+        }
+
+        subject.awaitCollector()
+        subject.emit(1)
+        collectorEntered.await()
+
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.emitError(IllegalStateException("boom"))
+            }
+        }
+
+        releaseCollector.complete(Unit)
+        job.cancelAndJoin()
     }
 }

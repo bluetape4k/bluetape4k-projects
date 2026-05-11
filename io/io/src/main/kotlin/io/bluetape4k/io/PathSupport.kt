@@ -64,10 +64,11 @@ fun Path.combine(vararg subpaths: Path): Path =
  * val path = root.combineSafe("user/test.txt")  // "/home/user/test.txt"
  * ```
  *
- * @param relativePath 상대 경로
+ * @param relativePath 결합할 상대 경로입니다. `..`로 시작하거나 절대 경로이면 거부합니다.
+ * @throws InvalidPathException 상대 경로가 `..`로 시작하거나 절대 경로인 경우
  */
 fun Path.combineSafe(relativePath: String): Path =
-    Paths.get(this.toString(), relativePath)
+    combineSafe(Paths.get(relativePath))
 
 /**
  * 파일 경로에 [relativePath]를 추가한 [Path]를 반환합니다.
@@ -81,6 +82,9 @@ fun Path.combineSafe(relativePath: String): Path =
  * @throws InvalidPathException 상대 경로가 잘못된 경우
  */
 fun Path.combineSafe(relativePath: Path): Path {
+    if (relativePath.isAbsolute) {
+        throw InvalidPathException(relativePath.toString(), "Absolute path is not allowed")
+    }
     val normalized = relativePath.normalizeAndRelativize()
     if (normalized.startsWith("..")) {
         throw InvalidPathException(relativePath.toString(), "Bad relative path")
@@ -130,6 +134,9 @@ private fun Path.dropLeadingTopDirs(): Path {
  * @throws InvalidPathException 상대 경로가 `..`로 시작하거나 절대 경로인 경우
  */
 fun File.combineSafe(relativePath: Path): File {
+    if (relativePath.isAbsolute) {
+        throw InvalidPathException(relativePath.toString(), "Absolute path is not allowed")
+    }
     val normalized = relativePath.normalizeAndRelativize()
     if (normalized.startsWith("..")) {
         throw InvalidPathException(relativePath.toString(), "Relative path $relativePath beginning with .. is invalid")
