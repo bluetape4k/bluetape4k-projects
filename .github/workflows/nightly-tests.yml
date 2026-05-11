@@ -35,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       scope: ${{ steps.plan.outputs.scope }}
+      run_smoke: ${{ steps.plan.outputs.run_smoke }}
       run_standard: ${{ steps.plan.outputs.run_standard }}
       run_testcontainers_coverage: ${{ steps.plan.outputs.run_testcontainers_coverage }}
       testcontainers_matrix: ${{ steps.plan.outputs.testcontainers_matrix }}
@@ -53,8 +54,9 @@ jobs:
           fi
 
           case "$scope" in
-            smoke|full) run_standard="true" ;;
-            *) run_standard="false" ;;
+            smoke) run_smoke="true"; run_standard="false" ;;
+            full) run_smoke="true"; run_standard="true" ;;
+            *) run_smoke="false"; run_standard="false" ;;
           esac
 
           case "$scope" in
@@ -277,6 +279,7 @@ jobs:
 
           {
             echo "scope=$scope"
+            echo "run_smoke=$run_smoke"
             echo "run_standard=$run_standard"
             echo "run_testcontainers_coverage=$run_testcontainers_coverage"
             echo "testcontainers_matrix=$matrix_json"
@@ -319,7 +322,7 @@ jobs:
     name: Detekt
     runs-on: ubuntu-latest
     needs: [build, plan]
-    if: ${{ needs.plan.outputs.run_standard == 'true' }}
+    if: ${{ needs.plan.outputs.run_smoke == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -349,7 +352,7 @@ jobs:
     name: Test / Core
     runs-on: ubuntu-latest
     needs: [build, plan]
-    if: ${{ needs.plan.outputs.run_standard == 'true' }}
+    if: ${{ needs.plan.outputs.run_smoke == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
