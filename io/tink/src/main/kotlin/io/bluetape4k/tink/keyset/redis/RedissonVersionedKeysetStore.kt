@@ -16,6 +16,9 @@ import java.util.concurrent.TimeUnit
 
 /**
  * `RedissonClient`를 직접 사용한 Redis 기반 versioned Tink keyset 저장소입니다.
+ *
+ * 저장되는 keyset JSON은 Tink key material을 포함합니다. 운영 환경에서는 Redis 접근 제어, 전송/저장 구간 암호화,
+ * 백업 보호, KMS/HSM 기반 envelope 보호 같은 별도 key-management 통제를 적용하세요.
  */
 class RedissonVersionedKeysetStore(
     private val redisson: RedissonClient,
@@ -72,9 +75,26 @@ class RedissonVersionedKeysetStore(
 
     override fun rotateIfDue(rotationPeriod: Duration): VersionedKeysetHandle {
         require(rotationPeriod > Duration.ZERO) { "rotationPeriod must be positive." }
-        val current = current()
-        val elapsed = Duration.between(current.createdAt, Instant.now(clock))
-        return if (elapsed >= rotationPeriod) rotate() else current
+        return withLock {
+            // Due 판단은 lock 안에서 다시 읽는다. 여러 caller가 같은 stale active keyset을 보고
+            // 순차적으로 rotate하는 것을 막아 "한 due window당 한 번"만 회전하게 한다.
+            val activeVersion = activeVersionBucket.get()?.toLongOrNull()
+            val current = if (activeVersion != null) {
+                requireNotNull(find(activeVersion)) { "Missing keyset for activeVersion=$activeVersion" }
+            } else {
+                val initial = newVersionedKeyset(1L)
+                persist(initial, activate = true)
+                initial
+            }
+            val elapsed = Duration.between(current.createdAt, Instant.now(clock))
+            if (elapsed >= rotationPeriod) {
+                val rotated = newVersionedKeyset(current.version + 1L)
+                persist(rotated, activate = true)
+                rotated
+            } else {
+                current
+            }
+        }
     }
 
     private fun newVersionedKeyset(version: Long): VersionedKeysetHandle =
@@ -85,6 +105,7 @@ class RedissonVersionedKeysetStore(
         )
 
     private fun persist(keyset: VersionedKeysetHandle, activate: Boolean) {
+        // active version은 마지막에 갱신한다. reader가 active=N을 봤다면 keyset/createdAt도 이미 기록된 상태여야 한다.
         keysetsMap[keyset.version.toString()] = keyset.keysetHandle.toJsonKeyset()
         createdAtMap[keyset.version.toString()] = keyset.createdAt.toEpochMilli().toString()
         if (activate) {
@@ -93,7 +114,7 @@ class RedissonVersionedKeysetStore(
     }
 
     private fun <T> withLock(action: () -> T): T {
-        require(lock.tryLock(5, 30, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
+        check(lock.tryLock(5, 30, TimeUnit.SECONDS)) { "Failed to acquire lock for keyring=$keyringName" }
         return try {
             action()
         } finally {
