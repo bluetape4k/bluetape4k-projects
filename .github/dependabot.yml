@@ -22,9 +22,11 @@ updates:
       testcontainers:
         patterns:
           - "org.testcontainers*"
-      jackson:
+      jackson2:
         patterns:
           - "com.fasterxml.jackson*"
+      jackson3:
+        patterns:
           - "tools.jackson*"
       aws:
         patterns:
@@ -34,6 +36,31 @@ updates:
       bluetape4k:
         patterns:
           - "io.github.bluetape4k*"
+    ignore:
+      # Compatibility-line aliases such as jackson2/jackson3, spring-boot3/spring-boot4,
+      # and kafka3/kafka4 are manual major migrations. Dependabot cannot infer the
+      # version-catalog alias contract from shared Maven coordinates.
+      - dependency-name: "com.fasterxml.jackson*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "tools.jackson*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "org.springframework.boot"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "org.springframework.boot:*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "org.apache.kafka:*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "org.springframework.kafka:*"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "io.projectreactor.kafka:*"
+        update-types:
+          - "version-update:semver-major"
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "develop"
