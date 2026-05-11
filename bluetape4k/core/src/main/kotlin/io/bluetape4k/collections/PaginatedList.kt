@@ -1,5 +1,7 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.io.Serializable
 
 /**
@@ -131,6 +133,7 @@ interface PaginatedList<out T> {
  * @param pageNo 현재 페이지 번호 (기본값: 0)
  * @param pageSize 페이지당 항목 수 (기본값: 10)
  * @param totalItemCount 전체 항목 수
+ * @throws IllegalArgumentException [pageNo] 또는 [totalItemCount]가 음수이거나 [pageSize]가 0 이하인 경우
  */
 data class SimplePaginatedList<out T>(
     override val contents: List<T>,
@@ -138,6 +141,12 @@ data class SimplePaginatedList<out T>(
     override val pageSize: Int = 10,
     override val totalItemCount: Long,
 ): PaginatedList<T>, Serializable {
+
+    init {
+        pageNo.requireZeroOrPositiveNumber("pageNo")
+        pageSize.requirePositiveNumber("pageSize")
+        totalItemCount.requireZeroOrPositiveNumber("totalItemCount")
+    }
 
     /**
      * 전체 페이지 수를 계산합니다.

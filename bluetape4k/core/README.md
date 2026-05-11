@@ -502,7 +502,15 @@ stack.push("d")  // "a" is automatically removed
 stack.peek()  // "d"
 stack.pop()   // "d"
 stack.size    // 2
+
+stack.insert(2, "x")  // inserts at bottom while respecting maxSize
+stack.toList()        // ["c", "b", "x"]
+
+stack.insert(3, "z")  // full stack: drops the current bottom element
+stack.toList()        // ["c", "b", "z"]
 ```
+
+`insert(index, value)` accepts `0..size`; when the stack is full, insertion preserves top-to-bottom order and drops the bottom element.
 
 #### RingBuffer (Circular Buffer)
 
@@ -521,7 +529,10 @@ buffer.add(4)  // overwrites 1
 buffer.next()  // 2 (oldest element)
 buffer.toList()  // [3, 4]
 buffer.removeIf { it > 3 }  // removes 4
+buffer.drop(0)  // no-op
 ```
+
+`drop(n)` requires `n >= 0`; `drop(size or more)` clears the buffer.
 
 #### PaginatedList (Pagination)
 
@@ -540,6 +551,8 @@ val page = SimplePaginatedList(
 page.totalPageCount  // 3
 page.contents        // ["a", "b", "c"]
 ```
+
+`SimplePaginatedList` validates `pageNo >= 0`, `pageSize > 0`, and `totalItemCount >= 0` at construction.
 
 #### Permutation (Lazy Evaluation Sequences)
 
