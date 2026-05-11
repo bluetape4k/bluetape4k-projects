@@ -158,7 +158,7 @@ shadow = "9.3.1"  # https://mvnrepository.com/artifact/com.gradleup.shadow/shado
 protobuf-plugin = "0.10.0"  # https://mvnrepository.com/artifact/com.google.protobuf/protobuf-gradle-plugin
 avro-plugin = "1.9.1"  # https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin/gradle-avro-plugin
 graalvm-native = "1.1.0"  # https://mvnrepository.com/artifact/org.graalvm.buildtools/native-gradle-plugin
-nmcp = "1.4.4"  # https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
+nmcp = "1.5.0"  # https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
 dependency-check = "12.2.2"  # https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
 
 [plugins]
