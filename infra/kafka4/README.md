@@ -129,6 +129,26 @@ val decoded = codec.deserialize("events", bytes)
 
 The Jackson codec uses `bluetape4k-jackson3` and `tools.jackson.*` APIs.
 
+Available codecs:
+
+| Codec | Description |
+|---|---|
+| `KafkaCodecs.String` | UTF-8 string serialization |
+| `KafkaCodecs.ByteArray` | Raw byte array passthrough |
+| `KafkaCodecs.Jackson` | Jackson 3 JSON serialization |
+| `KafkaCodecs.Jdk` | **Deprecated** — JDK serialization (RCE risk, use Fory) |
+| `KafkaCodecs.Kryo` | Kryo binary serialization |
+| `KafkaCodecs.Fory` | Fory binary serialization |
+| `KafkaCodecs.LZ4Jdk` | LZ4 compression + Java serialization |
+| `KafkaCodecs.Lz4Kryo` | LZ4 compression + Kryo serialization |
+| `KafkaCodecs.Lz4Fory` | LZ4 compression + Fory serialization |
+| `KafkaCodecs.SnappyJdk` | Snappy compression + Java serialization |
+| `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
+| `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization |
+| `KafkaCodecs.ZstdJdk` | Zstd compression + Java serialization |
+| `KafkaCodecs.ZstdKryo` | Zstd compression + Kryo serialization |
+| `KafkaCodecs.ZstdFory` | Zstd compression + Fory serialization |
+
 ### Poison-pill Policy
 
 `AbstractKafkaCodec.deserialize` exposes a documented poison-pill policy:
