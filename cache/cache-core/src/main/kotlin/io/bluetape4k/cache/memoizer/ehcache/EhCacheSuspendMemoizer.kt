@@ -74,15 +74,23 @@ class EhCacheSuspendMemoizer<T: Any, R: Any>(
         // 2단계: per-key Deferred로 중복 evaluator 실행 방지.
         // computeIfAbsent는 atomic이므로 같은 키에 대해 Deferred가 하나만 생성된다.
         return coroutineScope {
+            var createdByThisCall = false
             val deferred = inflightMap.computeIfAbsent(input) {
+                createdByThisCall = true
                 async {
                     evaluator(input)
                 }
             }
-            val result = deferred.await()
-            cache.put(input, result)
-            inflightMap.remove(input, deferred)
-            result
+            try {
+                val result = deferred.await()
+                cache.put(input, result)
+                result
+            } finally {
+                // 실패한 Deferred를 남기지 않아야 transient evaluator 실패 후 복구된다.
+                if (createdByThisCall || deferred.isCompleted) {
+                    inflightMap.remove(input, deferred)
+                }
+            }
         }
     }
 

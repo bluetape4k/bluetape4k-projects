@@ -3,6 +3,7 @@ package io.bluetape4k.cache.memoizer.inmemory
 import io.bluetape4k.cache.memoizer.AbstractSuspendMemoizerTest
 import io.bluetape4k.cache.memoizer.SuspendFactorialProvider
 import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
@@ -61,5 +62,23 @@ class InMemorySuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         results.forEach { it shouldBeEqualTo 5 }
         // per-key Deferred 패턴 덕분에 evaluator가 1회만 실행됨
         evalCount.get() shouldBeLessOrEqualTo 2
+    }
+
+    @Test
+    fun `evaluator 실패 후 같은 키를 다시 호출하면 새 계산으로 복구된다`() = runSuspendDefault {
+        val evalCount = AtomicInteger(0)
+        val memo = InMemorySuspendMemoizer<String, Int> { key ->
+            if (evalCount.incrementAndGet() == 1) {
+                error("transient failure")
+            }
+            key.length
+        }
+
+        assertFailsWith<IllegalStateException> {
+            memo("recover")
+        }
+
+        memo("recover") shouldBeEqualTo 7
+        evalCount.get() shouldBeEqualTo 2
     }
 }

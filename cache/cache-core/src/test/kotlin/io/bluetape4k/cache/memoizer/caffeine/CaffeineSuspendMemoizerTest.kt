@@ -7,6 +7,9 @@ import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.memoizer.AbstractSuspendMemoizerTest
 import io.bluetape4k.cache.memoizer.SuspendFactorialProvider
 import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
@@ -14,6 +17,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
 class CaffeineSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
@@ -56,5 +60,37 @@ class CaffeineSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         // clear 후에는 캐시에서 직접 조회해도 null이어야 한다.
         localCache.getIfPresent("hello").shouldBeNull()
         localCache.getIfPresent("world").shouldBeNull()
+    }
+
+    @Test
+    fun `evaluator 실패 후 같은 키를 다시 호출하면 새 계산으로 복구된다`() = runSuspendDefault {
+        val localCache = caffeine.cache<String, Int>()
+        val evalCount = AtomicInteger(0)
+        val memo = localCache.suspendMemoizer { key: String ->
+            if (evalCount.incrementAndGet() == 1) {
+                error("transient failure")
+            }
+            key.length
+        }
+
+        assertFailsWith<IllegalStateException> {
+            memo("recover")
+        }
+
+        // 실패한 in-flight Deferred가 제거되어야 이후 동시 호출들이 새 계산을 공유한다.
+        SuspendedJobTester()
+            .workers(8)
+            .rounds(2)
+            .add {
+                memo("recover") shouldBeEqualTo 7
+            }
+            .run()
+
+        memo("recover") shouldBeEqualTo 7
+        localCache.getIfPresent("recover") shouldBeEqualTo 7
+
+        // Caffeine의 executor 스케줄링에 따라 복구 계산 직후 일부 경합이 생길 수 있다.
+        // 핵심 계약은 실패한 Deferred를 재사용하지 않고 성공 값을 다시 캐시하는 것이다.
+        evalCount.get() shouldBeLessOrEqualTo 3
     }
 }

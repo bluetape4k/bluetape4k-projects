@@ -12,6 +12,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import kotlinx.coroutines.CancellationException
 import java.time.Duration
 
 /**
@@ -180,5 +181,40 @@ class ResilientSuspendNearCacheDecoratorTest {
             propagated = true
         }
         propagated shouldBeEqualTo true
+    }
+
+    /**
+     * resilience4j-kotlin은 suspend block의 Exception을 잡아 retry 여부를 판단한다.
+     * CancellationException을 ignoreExceptions로 제외하지 않으면 취소 신호도 retry되어 구조적 동시성이 깨진다.
+     */
+    @Test
+    fun `put - CancellationException은 retry 하지 않고 즉시 재전파된다`() {
+        coEvery { delegate.put("key1", "value1") } throws CancellationException("cancel put")
+
+        val cache = ResilientSuspendNearCacheDecorator(
+            delegate,
+            NearCacheResilienceConfig(
+                retryMaxAttempts = 3,
+                retryWaitDuration = Duration.ofMillis(10),
+                getFailureStrategy = GetFailureStrategy.RETURN_FRONT_OR_NULL
+            )
+        )
+
+        assertFailsWith<CancellationException> {
+            runSuspendIO { cache.put("key1", "value1") }
+        }
+        coVerify(exactly = 1) { delegate.put("key1", "value1") }
+    }
+
+    @Test
+    fun `close - CancellationException은 runCatching 으로 삼키지 않는다`() {
+        coEvery { delegate.close() } throws CancellationException("cancel close")
+
+        val cache = ResilientSuspendNearCacheDecorator(delegate)
+
+        assertFailsWith<CancellationException> {
+            runSuspendIO { cache.close() }
+        }
+        coVerify(exactly = 1) { delegate.close() }
     }
 }

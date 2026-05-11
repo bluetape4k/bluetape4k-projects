@@ -61,17 +61,25 @@ class InMemorySuspendMemoizer<in T: Any, out R: Any>(
         // computeIfAbsent는 atomic이므로 같은 키에 대해 Deferred가 하나만 생성된다.
         // evaluator는 Deferred 내부에서 실행되므로 lock을 보유하지 않아 재귀 호출이 안전하다.
         return coroutineScope {
+            var createdByThisCall = false
             val deferred = inflightMap.computeIfAbsent(input) {
+                createdByThisCall = true
                 async {
                     log.trace { "Cache miss for key: $input, evaluating..." }
                     evaluator(input)
                 }
             }
-            val result = deferred.await()
-            // 결과를 resultCache에 저장하고 inflight 항목 제거
-            resultCache[input] = result
-            inflightMap.remove(input, deferred)
-            result
+            try {
+                val result = deferred.await()
+                resultCache[input] = result
+                result
+            } finally {
+                // 실패/취소된 Deferred가 남으면 이후 같은 키 호출이 영구적으로 같은 실패를 재사용한다.
+                // 다만 다른 waiter가 취소된 것만으로 진행 중인 계산을 제거하지 않도록 생성자 또는 완료 상태에서만 제거한다.
+                if (createdByThisCall || deferred.isCompleted) {
+                    inflightMap.remove(input, deferred)
+                }
+            }
         }
     }
 

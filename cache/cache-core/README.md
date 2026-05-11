@@ -12,9 +12,8 @@ English | [한국어](./README.ko.md)
 - **Coroutines cache abstractions**: `SuspendCache`, `SuspendCacheEntry`
 - **Unified NearCache interfaces**: `NearCacheOperations<V>`, `SuspendNearCacheOperations<V>`, `NearCacheStatistics`
 - **Resilient decorators**: `ResilientNearCacheDecorator`, `ResilientSuspendNearCacheDecorator`
-- **JCache NearCache**: `JCacheNearCache<V>`
-- **Legacy Near Cache**: `NearCache<K,V>`, `SuspendNearCache<K,V>`
-- **Memorizer and Memoizer abstractions** for sync, async, and suspend flows
+- **JCache NearCache**: `NearJCache<K,V>`, `SuspendNearJCache<K,V>`
+- **Memoizer abstractions** for sync, async, and suspend flows
 - **Local cache providers**: Caffeine, Cache2k, and Ehcache
 
 ## Installation
@@ -50,12 +49,32 @@ Typical usage patterns:
 - resilience decorators in front of remote NearCache implementations
 - memoizers for repeatable, computation-heavy functions
 
+### Suspend Memoizer Failure Recovery
+
+Suspend memoizers merge concurrent calls for the same key through an in-flight
+`Deferred`. If the evaluator fails or the caller is cancelled, that in-flight
+entry is removed so a later call can recompute instead of replaying a stale
+failure.
+
+```kotlin
+var attempts = 0
+val memo = suspendMemoizer<String, Int> { key ->
+    attempts += 1
+    if (attempts == 1) error("temporary backend failure")
+    key.length
+}
+
+runCatching { memo("recover") }  // fails once
+val value = memo("recover")      // recomputes and returns 7
+```
+
 ## Recommended Usage Patterns
 
 - Use `cache-core` directly when local cache and common abstractions are enough.
 - Use provider modules such as Hazelcast, Lettuce, or Redisson when remote storage or invalidation is required.
 - Prefer the newer `Memoizer` / `AsyncMemoizer` / `SuspendMemoizer` abstractions for new code.
-- Use the legacy near-cache APIs only for backward compatibility.
+- Use `NearCacheOperations` / `SuspendNearCacheOperations` for provider-neutral two-tier cache contracts.
+- Suspend resilience decorators do not retry `CancellationException`; coroutine cancellation is propagated immediately.
 
 ## Architecture Diagrams
 
