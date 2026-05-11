@@ -8,6 +8,33 @@ configurations {
     }
 }
 
+kover {
+    currentProject {
+        instrumentation {
+            // LLM 컨테이너 테스트는 이미지 크기와 사용 빈도 때문에 Nightly 에서도 비활성화되어 있다.
+            excludedClasses.add("io.bluetape4k.testcontainers.llm.*")
+            // Launcher/Launch 객체는 테스트 인프라 재사용용 singleton holder 이므로 유효 커버리지에서 제외한다.
+            excludedClasses.add("**\$Launch")
+            excludedClasses.add("**\$Launch\$*")
+            excludedClasses.add("**\$Launcher")
+            excludedClasses.add("**\$Launcher\$*")
+        }
+    }
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "io.bluetape4k.testcontainers.llm.*",
+                    "**\$Launch",
+                    "**\$Launch\$*",
+                    "**\$Launcher",
+                    "**\$Launcher\$*",
+                )
+            }
+        }
+    }
+}
+
 // testcontainers 테스트 실행 전 mock-server Docker 이미지를 자동으로 빌드합니다.
 // Jib은 소스 변경이 없으면 up-to-date 체크로 스킵하므로 매번 느리지 않습니다.
 tasks.test {
