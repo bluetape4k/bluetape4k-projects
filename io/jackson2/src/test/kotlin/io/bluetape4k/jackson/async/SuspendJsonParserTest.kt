@@ -6,9 +6,11 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.jackson.treeToValueOrNull
 import io.bluetape4k.jackson.writeAsBytes
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flowOf
@@ -163,6 +165,94 @@ class SuspendJsonParserTest {
         }
         parser.consume(flowOf("]".toByteArray()))
 
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `완성된 Flow 입력은 consumeComplete 로 종료 검증까지 수행한다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+        parser.consumeComplete(flowOf("""{"key":"value"}""".toByteArray()))
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `빈 Flow 를 consumeComplete 로 처리하면 노드를 만들지 않는다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+        parser.consumeComplete(flowOf())
+
+        parsed.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `잘린 Flow 입력을 consumeComplete 로 처리하면 JsonParseException 이 발생한다`() = runTest {
+        val truncatedInputs =
+            listOf(
+                """{"key":""",
+                """{"id":12""",
+                """"unterm""",
+                "{\"a\":\"b\\",
+            )
+
+        truncatedInputs.forEach { input ->
+            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+            assertFailsWith<com.fasterxml.jackson.core.JsonParseException> {
+                parser.consumeComplete(flowOf(input.toByteArray()))
+            }
+        }
+    }
+
+    @Test
+    fun `증분 consume 후 잘린 입력 종료를 알리면 JsonParseException 이 발생한다`() = runTest {
+        val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+        parser.consume(flowOf("""{"key":""".toByteArray()))
+
+        assertFailsWith<com.fasterxml.jackson.core.JsonParseException> {
+            parser.endOfInput()
+        }
+    }
+
+    @Test
+    fun `consumeComplete 이후 같은 파서에 다시 입력하면 IllegalStateException 이 발생한다`() = runTest {
+        val parser = SuspendJsonParser { /* 파서 수명주기만 검증 */ }
+
+        parser.consumeComplete(flowOf("{}".toByteArray()))
+
+        assertFailsWith<IllegalStateException> {
+            parser.consume(flowOf("{}".toByteArray()))
+        }
+    }
+
+    @Test
+    fun `endOfInput 은 두 번 호출해도 추가 노드를 만들지 않는다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+        parser.consume(flowOf("{}".toByteArray()))
+        parser.endOfInput()
+        parser.endOfInput()
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `consume 는 코루틴 취소를 지연하지 않고 전파한다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser {
+            parsed.incrementAndGet()
+            // 콜백 취소는 구조화된 동시성의 정상 신호이므로 래핑하지 않고 그대로 전파되어야 합니다.
+            throw CancellationException("cancel parser callback")
+        }
+
+        assertFailsWith<CancellationException> {
+            parser.consume(flowOf("{}{}{}{}{}{}".toByteArray()))
+        }
         parsed.get() shouldBeEqualTo 1
     }
 

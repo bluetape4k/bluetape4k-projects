@@ -9,6 +9,28 @@ English | [한국어](./README.ko.md)
 It provides convenient access to the Jackson ecosystem in Kotlin, covering default `JsonMapper` configuration,
 `ObjectMapper` extensions, async JSON parsing, UUID Base62 encoding, field-level encryption, and field masking.
 
+## Why Jackson2 in bluetape4k
+
+- Keeps the widely deployed Jackson 2.x API while adding Kotlin-first mapper defaults and extension functions.
+- Provides one module for JSON, binary formats, UUID Base62 encoding, field masking, and Tink-backed field encryption.
+- Exposes streaming parsers that work with callback-style byte chunks and coroutine `Flow<ByteArray>` pipelines.
+- Uses explicit EOF APIs for non-blocking parsing so truncated final JSON fails fast instead of being treated as "more input may arrive later".
+
+## Recommended Usage Scenarios
+
+- Use `Jackson.defaultJsonMapper` when services need a shared Kotlin-ready `JsonMapper`.
+- Use `JacksonSerializer` behind cache, messaging, or storage abstractions that depend on the common `JsonSerializer` contract.
+- Use `AsyncJsonParser` for Netty, WebSocket, TCP, and listener callbacks that receive byte chunks one by one.
+- Use `SuspendJsonParser.consumeComplete(flow)` for finite `Flow<ByteArray>` streams such as HTTP responses, file streams, and broker payloads.
+- Use `@JsonTinkEncrypt` for field-level encryption where ciphertext can stay inside JSON documents.
+
+## Anti-Patterns
+
+- Do not omit `endOfInput()` or `consumeComplete(flow)` for a finite stream. Jackson's non-blocking parser needs an explicit EOF signal to report truncated JSON.
+- Do not reuse a parser after `endOfInput()` or `consumeComplete(flow)`. Create a new parser for each logical stream.
+- Do not use field encryption as a replacement for transport security, database access control, key rotation, or audit policy.
+- Do not add every Jackson dataformat dependency by default. Add only the runtime formats the application actually reads or writes.
+
 ## Architecture
 
 ### Class Structure
@@ -36,15 +58,14 @@ classDiagram
     class AsyncJsonParser {
         -callback: (JsonNode) -> Unit
         +consume(bytes: ByteArray)
+        +endOfInput()
     }
 
     class SuspendJsonParser {
         -callback: suspend (JsonNode) -> Unit
         +consume(flow: Flow~ByteArray~)
-    }
-
-    class JsonEncrypt {
-        <<annotation>>
+        +consumeComplete(flow: Flow~ByteArray~)
+        +endOfInput()
     }
 
     class JsonTinkEncrypt {
@@ -64,14 +85,11 @@ classDiagram
 
     JsonSerializer <|.. JacksonSerializer
     JacksonSerializer --> Jackson : uses
-    AsyncJsonParser --> SuspendJsonParser
-
     style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
     style AsyncJsonParser fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style SuspendJsonParser fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style JsonEncrypt fill:#FFFDE7,stroke:#FFF176,color:#F57F17
     style JsonTinkEncrypt fill:#FFFDE7,stroke:#FFF176,color:#F57F17
     style JsonMasker fill:#FFFDE7,stroke:#FFF176,color:#F57F17
     style JsonUuidEncoder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
@@ -182,12 +200,13 @@ When to use each parser:
 - `SuspendJsonParser`: `Flow<ByteArray>`-based pipelines where post-processing must be suspendable —
   `WebClient`, file streams, broker streams, etc.
 - Both parsers handle multiple consecutive JSON roots and scalar JSON roots (`"text"`, `123`, `true`, `null`).
+- Call `endOfInput()` for callback streams or `consumeComplete(flow)` for finite `Flow` streams when no more bytes will arrive.
 
 ### 5. UUID Base62 Encoding
 
 Encodes UUIDs as Base62 strings for compact JSON storage.
 
-### 6. Field Encryption (@JsonEncrypt / @JsonTinkEncrypt)
+### 6. Field Encryption (@JsonTinkEncrypt)
 
 Automatically encrypts and decrypts sensitive fields during JSON serialization.
 
@@ -296,12 +315,13 @@ val parser = AsyncJsonParser { root ->
 }
 parser.consume(chunk1)
 parser.consume(chunk2)
+parser.endOfInput()
 
 // Coroutine-based parsing
 val suspendParser = SuspendJsonParser { root ->
     processNode(root)  // suspendable
 }
-suspendParser.consume(byteArrayFlow)
+suspendParser.consumeComplete(byteArrayFlow)
 ```
 
 ### UUID Base62 Encoding
@@ -377,10 +397,6 @@ io.bluetape4k.jackson
 │   ├── AsyncJsonParser.kt        # Callback-based async parser
 │   └── SuspendJsonParser.kt      # Coroutine-based parser
 ├── crypto/                           # Field encryption
-│   ├── JsonEncrypt.kt                # @JsonEncrypt annotation (Jasypt, Deprecated)
-│   ├── JsonEncryptSerializer.kt      # Encryption serializer
-│   ├── JsonEncryptDeserializer.kt    # Decryption deserializer
-│   ├── JsonEncryptors.kt             # Encryptor cache management
 │   ├── TinkEncryptAlgorithm.kt       # Tink algorithm enum
 │   ├── JsonTinkEncrypt.kt            # @JsonTinkEncrypt annotation (Google Tink)
 │   ├── JsonTinkEncryptSerializer.kt  # Tink encryption serializer
@@ -413,7 +429,6 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-toml")
 
     // Encryption (optional)
-    implementation(project(":bluetape4k-crypto"))  // for @JsonEncrypt (Jasypt)
     implementation(project(":bluetape4k-tink"))    // for @JsonTinkEncrypt (Google Tink)
 }
 ```

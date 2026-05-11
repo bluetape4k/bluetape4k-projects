@@ -1,6 +1,7 @@
 package io.bluetape4k.jackson.async
 
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser
 import com.fasterxml.jackson.databind.JsonNode
@@ -15,6 +16,7 @@ import io.bluetape4k.jackson.createArray
 import io.bluetape4k.jackson.createNode
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
+import io.bluetape4k.support.requireInRange
 import jakarta.json.stream.JsonParsingException
 import java.io.Serializable
 import java.util.*
@@ -24,6 +26,8 @@ import java.util.*
  *
  * ## 동작/계약
  * - [consume] 호출 시 입력 청크를 파서에 공급하고 가능한 토큰을 즉시 처리합니다.
+ * - 입력 스트림이 끝나면 [endOfInput]을 호출해 마지막 JSON이 잘리지 않았는지 검증합니다.
+ * - [endOfInput] 호출 후에는 같은 파서를 재사용할 수 없고, 새 논리 스트림은 새 파서로 처리해야 합니다.
  * - 루트 노드가 완성될 때마다 [onNodeDone] 콜백을 호출합니다.
  * - 루트가 객체/배열뿐 아니라 문자열, 숫자, 불리언, null 같은 스칼라여도 [JsonNode]로 전달합니다.
  * - 토큰 시퀀스가 비정상적이면 [JsonParsingException]을 발생시킵니다.
@@ -51,6 +55,7 @@ import java.util.*
  *        DataBufferUtils.release(buffer)
  *        parser.consume(bytes)
  *    }
+ *    .doOnComplete { parser.endOfInput() }
  *    .blockLast()
  * ```
  *
@@ -121,15 +126,54 @@ class AsyncJsonParser(
      *
      * @param bytes JSON 데이터 청크
      * @param length 처리할 바이트 수
+     * @throws IllegalArgumentException [length]가 `0..bytes.size` 범위를 벗어난 경우
+     * @throws IllegalStateException 이미 [endOfInput]을 호출했거나 Jackson 파서가 더 이상 입력을 받지 않는 경우
+     * @throws JsonParseException Jackson이 입력 바이트를 파싱할 수 없는 경우
+     * @throws JsonParsingException 토큰 시퀀스가 비정상적인 경우
      */
     fun consume(bytes: ByteArray, length: Int = bytes.size) {
+        length.requireInRange(0, bytes.size, "length")
+
         val feeder = parser.nonBlockingInputFeeder
 
-        // 입력이 필요한 경우에만 데이터 제공
-        if (feeder.needMoreInput()) {
-            feeder.feedInput(bytes, 0, length)
+        // 이전 청크가 남아 있으면 먼저 비워서 새 입력을 조용히 버리는 상황을 막습니다.
+        if (!feeder.needMoreInput()) {
+            drainAvailableTokens()
         }
 
+        check(feeder.needMoreInput()) {
+            "Jackson non-blocking parser is not accepting more input. endOfInput() was likely called; create a new parser for the next logical stream."
+        }
+
+        // Jackson non-blocking parser는 이전 청크를 모두 소비한 뒤에만 다음 청크를 받을 수 있습니다.
+        feeder.feedInput(bytes, 0, length)
+
+        drainAvailableTokens()
+    }
+
+    /**
+     * 더 이상 입력이 없음을 파서에 알리고 남은 토큰을 모두 처리합니다.
+     *
+     * Jackson non-blocking parser는 EOF 신호를 받아야 `{"id":`처럼 마지막 청크가 잘린 입력을
+     * 정상적인 입력 부족 상태가 아니라 파싱 오류로 판정할 수 있습니다. 여러 청크를 계속 공급해야 한다면
+     * 모든 [consume] 호출이 끝난 뒤 한 번만 호출하세요.
+     *
+     * ```kotlin
+     * val roots = mutableListOf<JsonNode>()
+     * val parser = AsyncJsonParser { roots += it }
+     * parser.consume("""{"id":1}""".toByteArray())
+     * parser.endOfInput()
+     * ```
+     *
+     * @throws JsonParseException 마지막 JSON 입력이 잘렸거나 Jackson이 입력 바이트를 파싱할 수 없는 경우
+     * @throws JsonParsingException 토큰 시퀀스가 비정상적인 경우
+     */
+    fun endOfInput() {
+        parser.nonBlockingInputFeeder.endOfInput()
+        drainAvailableTokens()
+    }
+
+    private fun drainAvailableTokens() {
         var token: JsonToken?
         do {
             token = parser.nextToken()
