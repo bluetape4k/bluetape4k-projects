@@ -433,7 +433,7 @@ avro-ipc = { module = "org.apache.avro:avro-ipc", version.ref = "avro" }
 avro-ipc-netty = { module = "org.apache.avro:avro-ipc-netty", version.ref = "avro" }
 avro-compiler = { module = "org.apache.avro:avro-compiler", version.ref = "avro" }
 avro-protobuf = { module = "org.apache.avro:avro-protobuf", version.ref = "avro" }
-avro-kotlin = { module = "com.github.avro-kotlin.avro4k:avro4k-core", version = "2.10.0" }  # https://mvnrepository.com/artifact/com.github.avro-kotlin.avro4k/avro4k-core
+avro-kotlin = { module = "com.github.avro-kotlin.avro4k:avro4k-core", version = "2.10.1" }  # https://mvnrepository.com/artifact/com.github.avro-kotlin.avro4k/avro4k-core
 
 # AWS SDK v2
 aws2-bom = { module = "software.amazon.awssdk:bom", version.ref = "aws2" }
