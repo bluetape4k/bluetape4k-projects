@@ -128,6 +128,26 @@ val decoded = codec.deserialize("events", bytes)
 
 Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니다.
 
+사용 가능한 Codecs:
+
+| Codec | 설명 |
+|---|---|
+| `KafkaCodecs.String` | UTF-8 문자열 직렬화 |
+| `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달 |
+| `KafkaCodecs.Jackson` | Jackson 3 JSON 직렬화 |
+| `KafkaCodecs.Jdk` | **사용 중단** — Java 직렬화 (RCE 위험, Fory 사용 권장) |
+| `KafkaCodecs.Kryo` | Kryo 바이너리 직렬화 |
+| `KafkaCodecs.Fory` | Fory 바이너리 직렬화 |
+| `KafkaCodecs.LZ4Jdk` | LZ4 압축 + Java 직렬화 |
+| `KafkaCodecs.Lz4Kryo` | LZ4 압축 + Kryo 직렬화 |
+| `KafkaCodecs.Lz4Fory` | LZ4 압축 + Fory 직렬화 |
+| `KafkaCodecs.SnappyJdk` | Snappy 압축 + Java 직렬화 |
+| `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화 |
+| `KafkaCodecs.SnappyFory` | Snappy 압축 + Fory 직렬화 |
+| `KafkaCodecs.ZstdJdk` | Zstd 압축 + Java 직렬화 |
+| `KafkaCodecs.ZstdKryo` | Zstd 압축 + Kryo 직렬화 |
+| `KafkaCodecs.ZstdFory` | Zstd 압축 + Fory 직렬화 |
+
 ### Poison-pill 정책
 
 `AbstractKafkaCodec.deserialize` 는 명시적인 poison-pill 정책을 가진다.

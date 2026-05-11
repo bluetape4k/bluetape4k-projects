@@ -14,8 +14,8 @@ package io.bluetape4k.kafka.codec
  * // JSON Codec 사용
  * val jacksonCodec = KafkaCodecs.Jackson
  *
- * // LZ4 압축 + Kryo 직렬화 Codec 사용
- * val lz4KryoCodec = KafkaCodecs.Lz4Kryo
+ * // LZ4 압축 + Fory 직렬화 Codec 사용
+ * val lz4ForyCodec = KafkaCodecs.Lz4Fory
  * ```
  *
  * @see KafkaCodec
