@@ -72,15 +72,23 @@ class CaffeineSuspendMemoizer<T: Any, R: Any>(
         // computeIfAbsent는 atomic이므로 같은 키에 대해 Deferred가 하나만 생성된다.
         // evaluator는 Deferred 내부에서 실행되므로 lock을 보유하지 않아 재귀 호출이 안전하다.
         return coroutineScope {
+            var createdByThisCall = false
             val deferred = inflightMap.computeIfAbsent(input) {
+                createdByThisCall = true
                 async {
                     evaluator(input)
                 }
             }
-            val result = deferred.await()
-            cache.put(input, result)
-            inflightMap.remove(input, deferred)
-            result
+            try {
+                val result = deferred.await()
+                cache.put(input, result)
+                result
+            } finally {
+                // 실패/취소된 Deferred를 제거해야 같은 키의 다음 호출이 새 계산으로 복구할 수 있다.
+                if (createdByThisCall || deferred.isCompleted) {
+                    inflightMap.remove(input, deferred)
+                }
+            }
         }
     }
 

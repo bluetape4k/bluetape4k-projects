@@ -39,6 +39,9 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
             RetryConfig
                 .custom<Any>()
                 .maxAttempts(config.retryMaxAttempts)
+                // CancellationException은 코루틴 취소 신호이므로 retry 대상이 아니다.
+                // resilience4j-kotlin의 executeSuspendFunction은 Exception을 catch하므로 명시적으로 제외한다.
+                .ignoreExceptions(CancellationException::class.java)
                 .intervalFunction(
                     if (config.retryExponentialBackoff) {
                         IntervalFunction.ofExponentialBackoff(config.retryWaitDuration.toMillis())
@@ -182,7 +185,14 @@ class ResilientSuspendNearCacheDecorator<V: Any>(
     // -- Lifecycle --
 
     override suspend fun close() {
-        runCatching { delegate.close() }
+        try {
+            delegate.close()
+        } catch (e: CancellationException) {
+            // close() 중 취소된 코루틴도 정상 취소 흐름을 유지해야 한다.
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) { "close() 실패를 무시합니다. cacheName=$cacheName" }
+        }
     }
 }
 

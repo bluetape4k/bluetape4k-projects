@@ -14,9 +14,7 @@
 - **Resilient Decorator**: `ResilientNearCacheDecorator`,
   `ResilientSuspendNearCacheDecorator` (retry + failure strategy)
   - `NearCacheResilienceConfig.retryMaxAttempts`와 `retryWaitDuration`은 0보다 커야 함
-- **JCache NearCache**: `JCacheNearCache<V>` — JCache 호환 백엔드용 NearCacheOperations 구현
-- **Legacy Near Cache**: `NearCache<K,V>`, `SuspendNearCache<K,V>` (기존 호환)
-- **Memorizer 추상화**: `Memorizer`, `AsyncMemorizer`, `SuspendMemorizer` (구 인터페이스)
+- **JCache NearCache**: `NearJCache<K,V>`, `SuspendNearJCache<K,V>` — JCache 호환 2-tier 캐시 구현
 - **Memoizer 추상화**: `Memoizer`, `AsyncMemoizer`, `SuspendMemoizer` (신 인터페이스)
 - **로컬 캐시 Provider** (구 `cache-local` 통합):
   - **Caffeine**: `CaffeineSupport`, `CaffeineSuspendCache`, `CaffeineMemorizer`
@@ -38,6 +36,29 @@ dependencies {
 ### NearCache 통일 인터페이스
 
 모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)가 공통 인터페이스를 구현합니다.
+
+#### Coroutine 취소와 retry
+
+`ResilientSuspendNearCacheDecorator`는 일반 예외에 대해서만 retry를 적용합니다.
+`CancellationException`은 코루틴 취소 신호이므로 retry하지 않고 즉시 전파합니다.
+
+#### Suspend Memoizer 실패 복구
+
+`SuspendMemoizer` 구현체는 같은 키의 동시 호출을 in-flight `Deferred`로 병합합니다.
+evaluator가 실패하거나 호출 코루틴이 취소되면 해당 in-flight 항목을 제거하여, 다음 호출이
+같은 실패를 재사용하지 않고 새 계산으로 복구할 수 있게 합니다.
+
+```kotlin
+var attempts = 0
+val memo = suspendMemoizer<String, Int> { key ->
+    attempts += 1
+    if (attempts == 1) error("일시적 실패")
+    key.length
+}
+
+runCatching { memo("recover") }  // 최초 1회 실패
+val value = memo("recover")      // 새로 계산하여 7 반환
+```
 
 #### NearCache get() 동작 시퀀스 (front miss → back lookup → front fill)
 
@@ -388,7 +409,6 @@ suspendNear.close()
 | `NearCacheResilienceConfig`             | cache-core      | retry + failure strategy 설정                        |
 | `ResilientNearCacheDecorator<V>`        | cache-core      | Decorator: Resilience4j retry + GetFailureStrategy |
 | `ResilientSuspendNearCacheDecorator<V>` | cache-core      | Decorator suspend 버전                               |
-| `JCacheNearCache<V>`                    | cache-core      | JCache 호환 백엔드용 구현                                  |
 | `LettuceNearCache<V>`                   | cache-lettuce   | RESP3 CLIENT TRACKING 기반                           |
 | `LettuceSuspendNearCache<V>`            | cache-lettuce   | Lettuce coroutines 버전                              |
 | `HazelcastNearCache<V>`                 | cache-hazelcast | IMap + EntryListener invalidation                  |

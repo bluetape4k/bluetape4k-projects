@@ -74,15 +74,23 @@ class Cache2kSuspendMemoizer<in T: Any, out R: Any>(
         // 2단계: per-key Deferred로 중복 evaluator 실행 방지.
         // computeIfAbsent는 atomic이므로 같은 키에 대해 Deferred가 하나만 생성된다.
         return coroutineScope {
+            var createdByThisCall = false
             val deferred = inflightMap.computeIfAbsent(input) {
+                createdByThisCall = true
                 async {
                     evaluator(input)
                 }
             }
-            val result = deferred.await()
-            this@Cache2kSuspendMemoizer.cache.put(input, result)
-            inflightMap.remove(input, deferred)
-            result
+            try {
+                val result = deferred.await()
+                this@Cache2kSuspendMemoizer.cache.put(input, result)
+                result
+            } finally {
+                // evaluator 실패 후에도 in-flight 항목을 정리해 다음 호출이 재시도할 수 있게 한다.
+                if (createdByThisCall || deferred.isCompleted) {
+                    inflightMap.remove(input, deferred)
+                }
+            }
         }
     }
 
