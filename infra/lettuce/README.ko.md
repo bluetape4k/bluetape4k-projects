@@ -15,7 +15,6 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceJsonCodecs`                 | `jackson3<V>()` / `fastjson2<V>()` 팩토리 메서드 제공                                            |
 | `LettuceIntCodec`                   | Int 값을 4바이트 big-endian으로 직렬화하는 Codec (Redisson `IntegerCodec`과 호환)                       |
 | `LettuceLongCodec`                  | Long 값을 8바이트 big-endian으로 직렬화하는 Codec (Redisson `LongCodec`과 호환)                         |
-| `LettuceProtobufCodecs`             | Protobuf 기반 Codec 팩토리 (`bluetape4k-protobuf` 필요)                                         |
 | `RedisFuture` 확장                    | `awaitSuspending()` — `RedisFuture`를 suspend 함수로 변환                                      |
 | `LettuceMap<V>`                     | Generic 분산 Hash Map (sync + async). 코루틴 버전: `LettuceSuspendMap<V>`                       |
 | `LettuceSuspendMap<V>`              | Generic 분산 Hash Map (suspend 전용). `LettuceBinaryCodec<V>` 지원                             |
@@ -27,10 +26,6 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `LettuceSuspendSemaphore`           | 분산 세마포어 (suspend 전용)                                                                     |
 | `LettuceLock`                       | 분산 뮤텍스 락 (sync + async). 코루틴 버전: `LettuceSuspendLock`                                    |
 | `LettuceSuspendLock`                | 분산 뮤텍스 락 (suspend 전용)                                                                    |
-| `LettuceLeaderElection`             | 분산 단일 리더 선출 (sync + async). 코루틴 버전: `LettuceSuspendLeaderElection`                       |
-| `LettuceSuspendLeaderElection`      | 분산 단일 리더 선출 (suspend 전용)                                                                 |
-| `LettuceLeaderGroupElection`        | 분산 그룹 리더 선출 — 최대 N개 동시 리더 허용 (sync + async). 코루틴 버전: `LettuceSuspendLeaderGroupElection` |
-| `LettuceSuspendLeaderGroupElection` | 분산 그룹 리더 선출 (suspend 전용)                                                                 |
 | `LettuceHyperLogLog<V>`             | Redis HyperLogLog 근사 카디널리티 추정 (sync). 코루틴 버전: `LettuceSuspendHyperLogLog<V>`             |
 | `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog 근사 카디널리티 추정 (suspend 전용)                                               |
 | `LettuceBloomFilter`                | Redis BitSet 기반 Bloom Filter (sync). 코루틴 버전: `LettuceSuspendBloomFilter`                 |
@@ -40,6 +35,9 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 | `RedisScript`                       | SHA1을 미리 계산해 보관하는 재사용 Lua 스크립트. `EVALSHA` 우선 실행, `NOSCRIPT` 시 `EVAL` 자동 fallback        |
 | `RedisScriptRunner`                 | `RedisScript`를 sync / async / suspend API로 실행하는 헬퍼 객체 (`EVALSHA`→`EVAL` fallback 내장)   |
 
+Protobuf Codec은 `bluetape4k-protobuf` 모듈의
+`io.bluetape4k.protobuf.serializers.LettuceProtobufCodecs`에서 제공합니다.
+
 `LettuceCacheConfig` 제약:
 
 - `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, `nearCacheMaxSize`는 0보다 커야 합니다.
@@ -47,7 +45,7 @@ Lettuce Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도�
 - `keyPrefix`, `nearCacheName`은 공백일 수 없습니다.
 
 > **Memoizer**는
-`bluetape4k-cache-lettuce` 모듈로 이동되었습니다. 자세한 내용은 [cache-lettuce README](../cache-lettuce/README.ko.md)를 참조하세요.
+`bluetape4k-cache-lettuce` 모듈로 이동되었습니다. 자세한 내용은 [cache-lettuce README](../../cache/cache-lettuce/README.ko.md)를 참조하세요.
 
 ## 성능 최적화
 
@@ -381,58 +379,10 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
 }
 ```
 
-### LettuceLeaderElection — 분산 단일 리더 선출
-
-```kotlin
-import io.bluetape4k.redis.lettuce.leader.LettuceLeaderElection
-import io.bluetape4k.redis.lettuce.leader.LettuceSuspendLeaderElection
-
-// 동기/비동기
-val election = LettuceLeaderElection(connection, "my-leader-lock")
-election.runIfLeader {
-    println("나는 리더입니다!")
-}
-
-// 코루틴 전용
-val suspendElection = LettuceSuspendLeaderElection(connection, "my-leader-lock")
-suspendElection.runIfLeader {
-    // suspend 함수 호출 가능
-}
-```
-
-### LettuceLeaderGroupElection — 분산 그룹 리더 선출
-
-최대 N개의 노드가 동시에 리더 역할을 수행할 수 있는 그룹 선출입니다. 내부적으로 세마포어를 이용합니다.
-
-```kotlin
-import io.bluetape4k.redis.lettuce.leader.LettuceLeaderGroupElection
-import io.bluetape4k.redis.lettuce.leader.LettuceSuspendLeaderGroupElection
-import io.bluetape4k.leader.LeaderGroupElectionOptions
-import java.time.Duration
-
-val options = LeaderGroupElectionOptions(
-    maxLeaders = 3,
-    waitTime = Duration.ofSeconds(5),
-    leaseTime = Duration.ofSeconds(10),
-)
-
-// 동기/비동기
-val election = LettuceLeaderGroupElection(connection, options)
-election.runIfLeader("my-group-lock") {
-    println("그룹 리더로 실행 중 (최대 3개 동시)")
-}
-
-// 코루틴 전용
-val suspendElection = LettuceSuspendLeaderGroupElection(connection, options)
-suspendElection.runIfLeader("my-group-lock") {
-    // suspend 함수 호출 가능
-}
-```
-
 ## Memoizer (함수 결과 Redis 캐싱)
 
 > Memoizer는
-`bluetape4k-cache-lettuce` 모듈에 위치합니다. 자세한 사용법은 [cache-lettuce README](../cache-lettuce/README.ko.md)를 참조하세요.
+`bluetape4k-cache-lettuce` 모듈에 위치합니다. 자세한 사용법은 [cache-lettuce README](../../cache/cache-lettuce/README.ko.md)를 참조하세요.
 
 ```kotlin
 // build.gradle.kts
@@ -490,20 +440,9 @@ classDiagram
         +release(permits)
     }
 
-    class LettuceLeaderElection {
-        +runIfLeader(lockName, action): T
-        +runAsyncIfLeader(lockName, action): CompletableFuture~T~
-    }
-    class LettuceSuspendLeaderElection {
-        +runIfLeader(lockName, action): T
-    }
-
-    LettuceLeaderElection --> LettuceLock: uses
-    LettuceSuspendLeaderElection --> LettuceSuspendLock: uses
     note for LettuceSuspendAtomicLong "suspend 전용"
     note for LettuceSuspendLock "suspend 전용"
     note for LettuceSuspendSemaphore "suspend 전용"
-    note for LettuceSuspendLeaderElection "suspend 전용"
 
     style LettuceAtomicLong fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LettuceSuspendAtomicLong fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
@@ -511,8 +450,6 @@ classDiagram
     style LettuceSuspendLock fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style LettuceSemaphore fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LettuceSuspendSemaphore fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendLeaderElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
 ```
 
@@ -580,6 +517,12 @@ classDiagram
         +lz4Fory~V~(): LettuceBinaryCodec~V~
         +zstdFory~V~(): LettuceBinaryCodec~V~
         +snappyFory~V~(): LettuceBinaryCodec~V~
+        +gzipFory~V~(): LettuceBinaryCodec~V~
+        +fastFory~V~(): LettuceBinaryCodec~V~
+        +lz4FastFory~V~(): LettuceBinaryCodec~V~
+        +zstdFastFory~V~(): LettuceBinaryCodec~V~
+        +snappyFastFory~V~(): LettuceBinaryCodec~V~
+        +gzipFastFory~V~(): LettuceBinaryCodec~V~
     }
     class LettuceIntCodec {
         <<object>>
