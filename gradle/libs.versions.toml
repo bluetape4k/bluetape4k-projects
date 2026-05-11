@@ -807,8 +807,8 @@ spring-kafka = { module = "org.springframework.kafka:spring-kafka", version.ref 
 spring-kafka-test = { module = "org.springframework.kafka:spring-kafka-test", version.ref = "spring-kafka" }
 
 # Pulsar
-pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version = "3.3.9" }  # https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client-api
-pulsar-client = { module = "org.apache.pulsar:pulsar-client", version = "3.3.9" }  # https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
+pulsar-client-api = { module = "org.apache.pulsar:pulsar-client-api", version = "4.2.1" }  # https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client-api
+pulsar-client = { module = "org.apache.pulsar:pulsar-client", version = "4.2.1" }  # https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client
 
 # Nats
 jnats = { module = "io.nats:jnats", version = "2.25.1" }  # https://mvnrepository.com/artifact/io.nats/jnats
