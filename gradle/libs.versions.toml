@@ -826,8 +826,8 @@ timefold-solver-spring-boot-starter = { module = "ai.timefold.solver:timefold-so
 timefold-solver-test = { module = "ai.timefold.solver:timefold-solver-test", version.ref = "timefold-solver" }
 
 # Zipkin
-zipkin-brave = { module = "io.zipkin.brave:brave", version = "6.3.0" }  # https://mvnrepository.com/artifact/io.zipkin.brave/brave
-zipkin-brave-tests = { module = "io.zipkin.brave:brave-tests", version = "6.3.0" }  # https://mvnrepository.com/artifact/io.zipkin.brave/brave-tests
+zipkin-brave = { module = "io.zipkin.brave:brave", version = "6.3.1" }  # https://mvnrepository.com/artifact/io.zipkin.brave/brave
+zipkin-brave-tests = { module = "io.zipkin.brave:brave-tests", version = "6.3.1" }  # https://mvnrepository.com/artifact/io.zipkin.brave/brave-tests
 
 # Hashicorp Vault
 vault-java-driver = { module = "com.bettercloud:vault-java-driver", version = "5.1.0" }  # https://mvnrepository.com/artifact/com.bettercloud/vault-java-driver
