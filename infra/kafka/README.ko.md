@@ -7,7 +7,7 @@ Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸�
 ## 특징
 
 - **Kotlin Coroutines 지원**: Kafka Producer/Consumer 작업을 suspend 함수로 수행
-- **다양한 직렬화 지원**: Jackson, Kryo, FST, LZ4/Snappy/Zstd 압축을 포함한 다양한 Codec 제공
+- **다양한 직렬화 지원**: Jackson, Kryo, Fory, LZ4/Snappy/Zstd 압축을 포함한 다양한 Codec 제공
 - **Spring Kafka 통합**: Spring Kafka의 KafkaTemplate, 리스너 등을 위한 Kotlin 확장 함수
 - **Kafka Streams 지원**: KStream, KTable 작업을 위한 편의 함수들
 - **테스트 유틸리티**: Embedded Kafka를 활용한 테스트 지원
@@ -144,10 +144,10 @@ val data = mapOf("name" to "John", "age" to 30)
 val jsonBytes = jacksonCodec.serialize("test-topic", data)
 val decoded = jacksonCodec.deserialize("test-topic", jsonBytes)
 
-// LZ4 압축 + Kryo 직렬화
-val lz4KryoCodec = KafkaCodecs.Lz4Kryo
+// LZ4 압축 + Fory 직렬화
+val lz4ForyCodec = KafkaCodecs.Lz4Fory
 val largeObject = LargeDataObject(/* ... */)
-val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
+val compressed = lz4ForyCodec.serialize("test-topic", largeObject)
 ```
 
 사용 가능한 Codecs:
@@ -162,8 +162,13 @@ val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
 | `KafkaCodecs.Fory`      | Fory 바이너리 직렬화 (고성능, 권장) |
 | `KafkaCodecs.LZ4Jdk`    | LZ4 압축 + Java 직렬화    |
 | `KafkaCodecs.Lz4Kryo`   | LZ4 압축 + Kryo 직렬화    |
+| `KafkaCodecs.Lz4Fory`   | LZ4 압축 + Fory 직렬화    |
 | `KafkaCodecs.SnappyJdk` | Snappy 압축 + Java 직렬화 |
+| `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화 |
+| `KafkaCodecs.SnappyFory` | Snappy 압축 + Fory 직렬화 |
+| `KafkaCodecs.ZstdJdk`   | Zstd 압축 + Java 직렬화   |
 | `KafkaCodecs.ZstdKryo`  | Zstd 압축 + Kryo 직렬화   |
+| `KafkaCodecs.ZstdFory`  | Zstd 압축 + Fory 직렬화   |
 
 #### 성능: 타입 헤더 쓰기 비활성화
 
@@ -418,12 +423,20 @@ classDiagram
     class KafkaCodecs {
         <<object>>
         +String: StringKafkaCodec
+        +ByteArray: ByteArrayKafkaCodec
         +Jackson: JacksonKafkaCodec
+        +Jdk: BinaryKafkaCodec
         +Kryo: BinaryKafkaCodec
         +Fory: BinaryKafkaCodec
         +LZ4Jdk: BinaryKafkaCodec
         +Lz4Kryo: BinaryKafkaCodec
+        +Lz4Fory: BinaryKafkaCodec
+        +SnappyJdk: BinaryKafkaCodec
+        +SnappyKryo: BinaryKafkaCodec
+        +SnappyFory: BinaryKafkaCodec
+        +ZstdJdk: BinaryKafkaCodec
         +ZstdKryo: BinaryKafkaCodec
+        +ZstdFory: BinaryKafkaCodec
     }
 
     class SuspendKafkaProducerTemplate {
@@ -515,7 +528,7 @@ io.bluetape4k.kafka
 │   ├── KafkaCodec.kt         # 기본 Codec 인터페이스
 │   ├── KafkaCodecs.kt        # Codec 인스턴스 제공
 │   ├── JacksonKafkaCodec.kt  # JSON 직렬화
-│   ├── BinaryKafkaCodecs.kt  # 바이너리 직렬화 (JDK, Kryo, FST)
+│   ├── BinaryKafkaCodecs.kt  # 바이너리 직렬화 (JDK, Kryo, Fory)
 │   ├── StringKafkaCodec.kt   # 문자열 직렬화
 │   └── ByteArrayKafkaCodec.kt # 바이트 배열 직렬화
 ├── coroutines/               # Coroutine 지원
