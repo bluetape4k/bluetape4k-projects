@@ -9,8 +9,11 @@ import io.bluetape4k.jackson3.createArray
 import io.bluetape4k.jackson3.createNode
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
+import io.bluetape4k.support.requireInRange
 import jakarta.json.stream.JsonParsingException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ensureActive
 import tools.jackson.core.JsonToken
 import tools.jackson.core.ObjectReadContext
 import tools.jackson.core.json.JsonFactory
@@ -26,6 +29,7 @@ import java.util.*
  *
  * ## 동작/계약
  * - [consume]는 Flow를 수집하며 청크를 non-blocking parser에 공급합니다.
+ * - 완료된 입력 Flow라면 [consumeComplete]를 사용해 마지막 JSON이 잘리지 않았는지 검증합니다.
  * - 루트 노드 완성 시마다 [onNodeDone] suspend 콜백을 호출합니다.
  * - 루트가 객체/배열뿐 아니라 문자열, 숫자, 불리언, null 같은 스칼라여도 [JsonNode]로 전달합니다.
  * - 비정상 토큰 시퀀스는 [JsonParsingException]으로 전파됩니다.
@@ -53,7 +57,7 @@ import java.util.*
  *    }
  *    .asFlow()
  *
- * parser.consume(chunkFlow)
+ * parser.consumeComplete(chunkFlow)
  * ```
  *
  * ```kotlin
@@ -128,6 +132,7 @@ class SuspendJsonParser(
      * - Flow 요소를 순서대로 읽어 파서 입력으로 사용합니다.
      * - 루트 완성 시 [onNodeDone]을 호출합니다.
      * - 하나의 Flow 안에 여러 JSON 루트가 연속으로 들어와도 순서대로 처리합니다.
+     * - 이 메서드는 입력 종료를 의미하지 않습니다. 완료된 단일 입력 스트림은 [consumeComplete]를 사용하세요.
      * - 파싱 예외는 [jakarta.json.stream.JsonParsingException]으로 전파됩니다.
      *
      * ```kotlin
@@ -140,20 +145,75 @@ class SuspendJsonParser(
         val feeder = parser.nonBlockingInputFeeder()
 
         flow.collect { bytes ->
-            if (feeder.needMoreInput()) {
-                feeder.feedInput(bytes, 0, bytes.size)
-            }
-
-            while (true) {
-                val token = parser.nextToken()
-                if (token == null || token == JsonToken.NOT_AVAILABLE) {
-                    break
-                }
-
-                // JsonNode 빌드되면 onNodeDone 호출
-                buildTree(token)?.let { onNodeDone(it) }
-            }
+            // consume은 증분 공급 API라서 Flow 완료를 EOF로 보지 않습니다.
+            // 기존 호출자는 여러 Flow를 이어 붙여 하나의 논리 스트림을 구성할 수 있습니다.
+            feedInput(bytes, bytes.size)
+            drainAvailableTokens()
         }
+    }
+
+    private suspend fun feedInput(
+        bytes: ByteArray,
+        length: Int,
+    ) {
+        length.requireInRange(0, bytes.size, "length")
+        val feeder = parser.nonBlockingInputFeeder()
+
+        // 이전 청크가 남아 있으면 먼저 비워서 새 입력을 조용히 버리는 상황을 막습니다.
+        if (!feeder.needMoreInput()) {
+            drainAvailableTokens()
+        }
+
+        check(feeder.needMoreInput()) {
+            "Jackson non-blocking parser is not ready for more input. Drain previous input before feeding a new chunk."
+        }
+
+        // Jackson non-blocking parser는 이전 청크를 모두 소비한 뒤에만 다음 청크를 받을 수 있습니다.
+        feeder.feedInput(bytes, 0, length)
+    }
+
+    private suspend fun drainAvailableTokens() {
+        while (true) {
+            currentCoroutineContext().ensureActive()
+
+            val token = parser.nextToken()
+            if (token == null || token == JsonToken.NOT_AVAILABLE) {
+                break
+            }
+
+            buildTree(token)?.let { onNodeDone(it) }
+        }
+    }
+
+    /**
+     * [Flow]를 하나의 완료된 JSON 입력 스트림으로 소비합니다.
+     *
+     * [consume]과 달리 Flow 수집이 끝난 뒤 [endOfInput]을 호출하므로 마지막 청크가
+     * `{"id":`처럼 잘린 경우 Jackson 파싱 예외가 발생합니다. 부분 Flow를 여러 번 이어 붙이는
+     * 사용법에서는 [consume]을 호출하고, 마지막 입력 뒤 [endOfInput]을 직접 호출하세요.
+     *
+     * ```kotlin
+     * val roots = mutableListOf<JsonNode>()
+     * val parser = SuspendJsonParser { roots += it }
+     * parser.consumeComplete(flowOf("""{"id":1}""".toByteArray()))
+     * ```
+     *
+     * @param flow 완료된 JSON 입력을 구성하는 바이트 청크 Flow
+     */
+    suspend fun consumeComplete(flow: Flow<ByteArray>) {
+        consume(flow)
+        endOfInput()
+    }
+
+    /**
+     * 더 이상 입력이 없음을 파서에 알리고 남은 토큰을 모두 처리합니다.
+     *
+     * Jackson non-blocking parser는 명시적인 EOF 신호를 받아야 미완성 JSON을 오류로 확정합니다.
+     * 모든 [consume] 호출이 끝난 뒤 한 번만 호출하세요.
+     */
+    suspend fun endOfInput() {
+        parser.nonBlockingInputFeeder().endOfInput()
+        drainAvailableTokens()
     }
 
     /**

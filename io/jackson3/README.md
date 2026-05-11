@@ -9,6 +9,31 @@ English | [한국어](./README.ko.md)
 It provides the same feature set as Jackson 2.x (
 `bluetape4k-jackson2`), while following the new Jackson 3.x API and package structure (`tools.jackson.*`).
 
+## Why Jackson3 in bluetape4k
+
+- Kotlin-first mapper setup: `jsonMapper { }` and `Jackson.defaultJsonMapper` keep Kotlin module defaults in one place.
+- Safer extension functions: `readValueOrNull`, `writeAsString`, and `writeAsBytes` make common serialization paths concise.
+- Streaming-ready parsing: callback and coroutine parsers process root JSON nodes without buffering a whole response first.
+- Security extensions: Tink-backed field encryption and field masking can be attached to Jackson models through annotations.
+- Format flexibility: binary/text format modules are compile-only here, so applications can add only the runtime formats they use.
+
+## Recommended Usage Scenarios
+
+- Prefer this module for new Kotlin code that already targets Jackson 3.x and `tools.jackson.*` packages.
+- Use `JacksonSerializer` for bluetape4k serializer contracts, cache payloads, and simple byte/string JSON conversion.
+- Use ObjectMapper extensions when failure-as-null is acceptable and the caller can distinguish missing data from invalid data.
+- Use `AsyncJsonParser` for callback-style chunk feeds such as Netty, WebSocket, TCP, and message listeners.
+- Use `SuspendJsonParser.consumeComplete(flow)` when a finite `Flow<ByteArray>` represents one complete logical stream.
+- Use `@JsonTinkEncrypt` only for string fields that must be protected inside serialized JSON documents.
+
+## Anti-Patterns
+
+- Do not copy Jackson 2.x imports into this module. Jackson 3.x APIs live under `tools.jackson.*`, except annotations that still come from `com.fasterxml.jackson.annotation`.
+- Do not rely on removed `activateDefaultTyping()` behavior. Prefer explicit polymorphic models or sealed hierarchies.
+- Do not use `readValueOrNull` when invalid JSON must be audited or surfaced to callers; use throwing Jackson APIs instead.
+- Do not finish a network/file stream without calling `endOfInput()` or `consumeComplete(...)`; otherwise a truncated final JSON token may look like "waiting for more input."
+- Do not treat `consume(flow)` completion as EOF. It is an incremental feed API for callers that may append more chunks later.
+
 ## Jackson 2.x vs 3.x
 
 | Item             | Jackson 2.x                             | Jackson 3.x                               |
@@ -103,12 +128,13 @@ val parser = AsyncJsonParser { root ->
 }
 parser.consume(chunk1)
 parser.consume(chunk2)
+parser.endOfInput()
 
 // Coroutine-based parsing
 val suspendParser = SuspendJsonParser { root ->
     processNode(root)  // suspendable
 }
-suspendParser.consume(byteArrayFlow)
+suspendParser.consumeComplete(byteArrayFlow)
 ```
 
 When to use each parser:
@@ -118,6 +144,7 @@ When to use each parser:
 - `SuspendJsonParser`: `Flow<ByteArray>`-based pipelines where post-processing must be suspendable —
   `WebClient`, file streams, broker streams, etc.
 - Both parsers handle multiple consecutive JSON roots and scalar JSON roots (`"text"`, `123`, `true`, `null`).
+- Call `endOfInput()` when a callback stream ends, or use `consumeComplete(flow)` for a finite Flow. Jackson needs that EOF signal to report truncated final JSON.
 
 ### 4-1. WebClient Streaming Example
 
@@ -154,7 +181,7 @@ val chunkFlow = webClient.get()
     }
     .asFlow()
 
-parser.consume(chunkFlow)
+parser.consumeComplete(chunkFlow)
 ```
 
 If you are already receiving chunks via callbacks, `AsyncJsonParser` is more natural for the same scenario.
@@ -173,27 +200,7 @@ data class User(
 )
 ```
 
-### 6. Field Encryption (@JsonEncrypt / @JsonTinkEncrypt)
-
-#### Jasypt-based (`@JsonEncrypt`) — Deprecated
-
-```kotlin
-import io.bluetape4k.jackson3.crypto.JsonEncrypt
-import io.bluetape4k.jackson3.crypto.JsonEncryptModule
-
-data class User(
-    val username: String,
-    @get:JsonEncrypt          // AES encryption via Jasypt
-    val password: String,
-)
-
-// JsonEncryptModule must be registered
-val mapper = Jackson.createDefaultJsonMapper().rebuild()
-    .addModule(JsonEncryptModule())
-    .build()
-```
-
-#### Google Tink-based (`@JsonTinkEncrypt`) — Recommended
+### 6. Field Encryption (@JsonTinkEncrypt)
 
 Requires the `bluetape4k-tink` dependency and explicit registration of `JsonTinkEncryptModule`.
 
@@ -345,10 +352,6 @@ classDiagram
         +createDefaultJsonMapper() JsonMapper
     }
 
-    class JsonEncryptModule {
-        +setupModule(context)
-    }
-
     class JsonTinkEncryptModule {
         +setupModule(context)
     }
@@ -363,7 +366,6 @@ classDiagram
 
     JsonSerializer <|.. JacksonSerializer
     JacksonSerializer --> Jackson : uses
-    Jackson --> JsonEncryptModule : registers
     Jackson --> JsonTinkEncryptModule : registers
     Jackson --> JsonMaskerModule : registers
     Jackson --> JsonUuidModule : registers
@@ -371,7 +373,6 @@ classDiagram
     style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JsonEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style JsonTinkEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style JsonMaskerModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style JsonUuidModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -416,9 +417,8 @@ dependencies {
     implementation("tools.jackson.dataformat:jackson-dataformat-csv3")
     implementation("tools.jackson.dataformat:jackson-dataformat-toml3")
 
-    // Encryption (optional)
-    implementation(project(":bluetape4k-crypto"))  // for @JsonEncrypt (Jasypt)
-    implementation(project(":bluetape4k-tink"))    // for @JsonTinkEncrypt (Google Tink)
+    // Encryption (optional, for @JsonTinkEncrypt)
+    implementation(project(":bluetape4k-tink"))
 }
 ```
 
@@ -435,12 +435,6 @@ io.bluetape4k.jackson3
 │   ├── AsyncJsonParser.kt        # Callback-based async parser
 │   └── SuspendJsonParser.kt      # Coroutine-based parser
 ├── crypto/                                       # Field encryption
-│   ├── JsonEncrypt.kt                            # @JsonEncrypt annotation (Jasypt, Deprecated)
-│   ├── JsonEncryptModule.kt                      # Jasypt Module registration
-│   ├── JsonEncryptAnnotationInterospector.kt     # Jasypt Introspector
-│   ├── JsonEncryptSerializer.kt                  # Jasypt encryption serializer
-│   ├── JsonEncryptDeserializer.kt                # Jasypt decryption deserializer
-│   ├── JsonEncryptors.kt                         # Encryptor cache management
 │   ├── TinkEncryptAlgorithm.kt                   # Tink algorithm enum
 │   ├── JsonTinkEncrypt.kt                        # @JsonTinkEncrypt annotation (Google Tink)
 │   ├── JsonTinkEncryptModule.kt                  # Tink Module registration

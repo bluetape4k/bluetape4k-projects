@@ -211,6 +211,58 @@ class SuspendJsonParserTest {
         }
 
     @Test
+    fun `완성된 Flow 입력은 consumeComplete 로 종료 검증까지 수행한다`() =
+        runTest {
+            val parsed = AtomicInteger(0)
+            val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+            parser.consumeComplete(flowOf("""{"key":"value"}""".toByteArray()))
+
+            parsed.get() shouldBeEqualTo 1
+        }
+
+    @Test
+    fun `잘린 Flow 입력을 consumeComplete 로 처리하면 StreamReadException 이 발생한다`() =
+        runTest {
+            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+                parser.consumeComplete(flowOf("""{"key":""".toByteArray()))
+            }
+        }
+
+    @Test
+    fun `여러 형태의 잘린 Flow 입력을 consumeComplete 로 처리하면 StreamReadException 이 발생한다`() =
+        runTest {
+            val truncatedInputs =
+                listOf(
+                    """{"id":12""",
+                    """"unterm""",
+                    "{\"a\":\"b\\",
+                )
+
+            truncatedInputs.forEach { input ->
+                val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+                assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+                    parser.consumeComplete(flowOf(input.toByteArray()))
+                }
+            }
+        }
+
+    @Test
+    fun `증분 consume 후 잘린 입력 종료를 알리면 StreamReadException 이 발생한다`() =
+        runTest {
+            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+            parser.consume(flowOf("""{"key":""".toByteArray()))
+
+            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+                parser.endOfInput()
+            }
+        }
+
+    @Test
     fun `단순 JSON 객체를 올바르게 파싱한다`() =
         runTest {
             val parsed = AtomicInteger(0)

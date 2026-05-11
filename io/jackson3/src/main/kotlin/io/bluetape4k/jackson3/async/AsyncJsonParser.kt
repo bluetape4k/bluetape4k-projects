@@ -9,6 +9,7 @@ import io.bluetape4k.jackson3.createArray
 import io.bluetape4k.jackson3.createNode
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
+import io.bluetape4k.support.requireInRange
 import jakarta.json.stream.JsonParsingException
 import tools.jackson.core.JsonToken
 import tools.jackson.core.ObjectReadContext
@@ -25,6 +26,7 @@ import java.util.*
  *
  * ## 동작/계약
  * - [consume] 호출 시 입력 청크를 공급하고 가능한 토큰을 즉시 처리합니다.
+ * - 입력 스트림이 끝나면 [endOfInput]을 호출해 마지막 JSON이 잘리지 않았는지 검증합니다.
  * - 루트 노드가 완성될 때마다 [onNodeDone] 콜백을 호출합니다.
  * - 루트가 객체/배열뿐 아니라 문자열, 숫자, 불리언, null 같은 스칼라여도 [JsonNode]로 전달합니다.
  * - 비정상 토큰 시퀀스는 [JsonParsingException]으로 전파됩니다.
@@ -52,6 +54,7 @@ import java.util.*
  *        DataBufferUtils.release(buffer)
  *        parser.consume(bytes)
  *    }
+ *    .doOnComplete { parser.endOfInput() }
  *    .blockLast()
  * ```
  *
@@ -141,13 +144,45 @@ class AsyncJsonParser(
         bytes: ByteArray,
         length: Int = bytes.size,
     ) {
+        length.requireInRange(0, bytes.size, "length")
+
         val feeder = parser.nonBlockingInputFeeder()
 
-        // 입력이 필요한 경우에만 데이터 제공
-        if (feeder.needMoreInput()) {
-            feeder.feedInput(bytes, 0, length)
+        // 이전 청크가 남아 있으면 먼저 비워서 새 입력을 조용히 버리는 상황을 막습니다.
+        if (!feeder.needMoreInput()) {
+            drainAvailableTokens()
         }
 
+        check(feeder.needMoreInput()) {
+            "Jackson non-blocking parser is not ready for more input. Drain previous input before feeding a new chunk."
+        }
+
+        // Jackson non-blocking parser는 이전 청크를 모두 소비한 뒤에만 다음 청크를 받을 수 있습니다.
+        feeder.feedInput(bytes, 0, length)
+
+        drainAvailableTokens()
+    }
+
+    /**
+     * 더 이상 입력이 없음을 파서에 알리고 남은 토큰을 모두 처리합니다.
+     *
+     * Jackson non-blocking parser는 EOF 신호를 받아야 `{"id":`처럼 마지막 청크가 잘린 입력을
+     * 정상적인 입력 부족 상태가 아니라 파싱 오류로 판정할 수 있습니다. 여러 청크를 계속 공급해야 한다면
+     * 모든 [consume] 호출이 끝난 뒤 한 번만 호출하세요.
+     *
+     * ```kotlin
+     * val roots = mutableListOf<JsonNode>()
+     * val parser = AsyncJsonParser { roots += it }
+     * parser.consume("""{"id":1}""".toByteArray())
+     * parser.endOfInput()
+     * ```
+     */
+    fun endOfInput() {
+        parser.nonBlockingInputFeeder().endOfInput()
+        drainAvailableTokens()
+    }
+
+    private fun drainAvailableTokens() {
         var token: JsonToken?
         do {
             token = parser.nextToken()

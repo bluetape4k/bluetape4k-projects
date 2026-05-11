@@ -188,6 +188,62 @@ class AsyncJsonParserTest {
     }
 
     @Test
+    fun `완성된 JSON 입력 종료를 알려도 추가 노드가 생성되지 않는다`() {
+        val parsed = AtomicInteger(0)
+        val parser = AsyncJsonParser { parsed.incrementAndGet() }
+
+        parser.consume("""{"key":"value"}""".toByteArray())
+        parser.endOfInput()
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `잘린 JSON 입력 종료 시 StreamReadException 이 발생한다`() {
+        val parser = AsyncJsonParser { /* 도달하지 않아야 함 */ }
+
+        parser.consume("""{"key":""".toByteArray())
+
+        assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+            parser.endOfInput()
+        }
+    }
+
+    @Test
+    fun `여러 형태의 잘린 JSON 입력 종료 시 StreamReadException 이 발생한다`() {
+        val truncatedInputs =
+            listOf(
+                """{"id":12""",
+                """"unterm""",
+                "{\"a\":\"b\\",
+            )
+
+        truncatedInputs.forEach { input ->
+            val parser = AsyncJsonParser { /* 도달하지 않아야 함 */ }
+
+            parser.consume(input.toByteArray())
+
+            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+                parser.endOfInput()
+            }
+        }
+    }
+
+    @Test
+    fun `consume length 가 바이트 배열 범위를 벗어나면 IllegalArgumentException 이 발생한다`() {
+        val parser = AsyncJsonParser { /* 도달하지 않아야 함 */ }
+        val bytes = "{}".toByteArray()
+
+        assertFailsWith<IllegalArgumentException> {
+            parser.consume(bytes, -1)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            parser.consume(bytes, bytes.size + 1)
+        }
+    }
+
+    @Test
     fun `중첩 객체를 포함한 단순 JSON 을 올바르게 파싱한다`() {
         val parsed = AtomicInteger(0)
         val parser = AsyncJsonParser { parsed.incrementAndGet() }
