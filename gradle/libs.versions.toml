@@ -651,8 +651,8 @@ janino = { module = "org.codehaus.janino:janino", version = "3.1.12" }  # https:
 janino-commons-compiler = { module = "org.codehaus.janino:commons-compiler", version = "3.1.12" }  # https://mvnrepository.com/artifact/org.codehaus.janino/commons-compiler
 
 # Groovy
-groovy = { module = "org.apache.groovy:groovy", version = "4.0.27" }  # https://mvnrepository.com/artifact/org.apache.groovy/groovy
-groovy-jsr223 = { module = "org.apache.groovy:groovy-jsr223", version = "4.0.27" }  # https://mvnrepository.com/artifact/org.apache.groovy/groovy-jsr223
+groovy = { module = "org.apache.groovy:groovy", version = "5.0.6" }  # https://mvnrepository.com/artifact/org.apache.groovy/groovy
+groovy-jsr223 = { module = "org.apache.groovy:groovy-jsr223", version = "5.0.6" }  # https://mvnrepository.com/artifact/org.apache.groovy/groovy-jsr223
 
 # Reactor
 reactor-bom = { module = "io.projectreactor:reactor-bom", version.ref = "reactor-bom" }
