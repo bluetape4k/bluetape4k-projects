@@ -291,14 +291,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: plan
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: false
@@ -324,14 +324,14 @@ jobs:
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_smoke == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -341,7 +341,7 @@ jobs:
 
       - name: Upload detekt report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-detekt-report
           path: '**/build/reports/detekt/*.xml'
@@ -354,20 +354,20 @@ jobs:
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_smoke == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
 
       - name: Test bluetape4k core modules
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -393,7 +393,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-core
           path: '**/build/test-results/test/*.xml'
@@ -401,7 +401,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-core
           path: '**/build/reports/kover/'
@@ -414,20 +414,20 @@ jobs:
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
 
       - name: Test io modules
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -471,7 +471,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-io
           path: '**/build/test-results/test/*.xml'
@@ -479,7 +479,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-io
           path: '**/build/reports/kover/'
@@ -492,14 +492,14 @@ jobs:
       needs: [build, plan]
       if: ${{ needs.plan.outputs.run_standard == 'true' }}
       steps:
-          -   uses: actions/checkout@v4
+          -   uses: actions/checkout@v6
 
-          -   uses: actions/setup-java@v4
+          -   uses: actions/setup-java@v5
               with:
                   java-version: ${{ env.JAVA_VERSION }}
                   distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-          -   uses: gradle/actions/setup-gradle@v4
+          -   uses: gradle/actions/setup-gradle@v6
               with:
                   gradle-version: wrapper
                   cache-read-only: true
@@ -510,7 +510,7 @@ jobs:
                   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
           -   name: Test io http client modules
-              uses: nick-fields/retry@v3
+              uses: nick-fields/retry@v4
               with:
                 timeout_minutes: 60
                 max_attempts: 3
@@ -538,7 +538,7 @@ jobs:
 
           -   name: Upload test results
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: nightly-test-results-io-http
                   path: '**/build/test-results/test/*.xml'
@@ -546,7 +546,7 @@ jobs:
 
           -   name: Upload coverage report
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: nightly-coverage-io-http
                   path: '**/build/reports/kover/'
@@ -559,20 +559,20 @@ jobs:
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
 
       - name: Test utils modules
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -621,7 +621,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-utils
           path: '**/build/test-results/test/*.xml'
@@ -629,7 +629,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-utils
           path: '**/build/reports/kover/'
@@ -642,20 +642,20 @@ jobs:
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
 
       - name: Test misc modules (no Docker)
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -691,7 +691,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-misc
           path: '**/build/test-results/test/*.xml'
@@ -699,7 +699,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-misc
           path: '**/build/reports/kover/'
@@ -761,14 +761,14 @@ jobs:
                   :bluetape4k-nats:koverXmlReport
               needs_mock_server: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -780,7 +780,7 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test infra modules (${{ matrix.group }})
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -803,7 +803,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-infra-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
@@ -811,7 +811,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-infra-${{ matrix.group }}
           path: '**/build/reports/kover/'
@@ -849,20 +849,20 @@ jobs:
               :bluetape4k-cassandra:koverXmlReport
                 :bluetape4k-jwt:koverXmlReport
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
 
       - name: Test data modules (${{ matrix.group }})
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -885,7 +885,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-data-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
@@ -893,7 +893,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-data-${{ matrix.group }}
           path: '**/build/reports/kover/'
@@ -934,14 +934,14 @@ jobs:
               :bluetape4k-spring-boot-hibernate-lettuce-demo:test
             kover_tasks: ""
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -957,7 +957,7 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Test spring-boot modules (${{ matrix.group }})
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 60
           max_attempts: 3
@@ -980,7 +980,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-spring-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
@@ -988,7 +988,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-spring-${{ matrix.group }}
           path: '**/build/reports/kover/'
@@ -1006,14 +1006,14 @@ jobs:
       max-parallel: 8
       matrix: ${{ fromJson(needs.plan.outputs.testcontainers_matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -1035,7 +1035,7 @@ jobs:
         run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:3.9.0
 
       - name: Test testcontainers (${{ matrix.group }})
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: ${{ matrix.timeout_minutes }}
           max_attempts: ${{ matrix.max_attempts }}
@@ -1068,7 +1068,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-test-results-testcontainers-${{ matrix.group }}
           path: '**/build/test-results/test/*.xml'
@@ -1076,7 +1076,7 @@ jobs:
 
       - name: Upload coverage report
         if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-testcontainers-${{ matrix.group }}
           path: '**/build/reports/kover/'
@@ -1101,10 +1101,10 @@ jobs:
       - test-testcontainers
     if: always()
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: nightly-coverage-*
           path: coverage-artifacts
@@ -1117,7 +1117,7 @@ jobs:
 
       - name: Upload aggregated coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nightly-coverage-all
           path: coverage-artifacts/
