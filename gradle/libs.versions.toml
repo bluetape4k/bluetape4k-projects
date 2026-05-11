@@ -311,7 +311,6 @@ libphonenumber = { module = "com.googlecode.libphonenumber:libphonenumber", vers
 
 eclipse-collections = { module = "org.eclipse.collections:eclipse-collections", version.ref = "eclipse-collections" }
 eclipse-collections-forkjoin = { module = "org.eclipse.collections:eclipse-collections-forkjoin", version.ref = "eclipse-collections" }
-eclipse-collections-testutils = { module = "org.eclipse.collections:eclipse-collections-testutils", version.ref = "eclipse-collections" }
 
 jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
 

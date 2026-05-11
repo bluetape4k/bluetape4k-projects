@@ -10,8 +10,11 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.junit.jupiter.api.Timeout
 import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.Config
 import org.neo4j.driver.GraphDatabase
+import java.util.concurrent.TimeUnit
 
 @TestInstance(Lifecycle.PER_CLASS)
 class MemgraphServerTest: AbstractContainerTest() {
@@ -38,8 +41,17 @@ class MemgraphServerTest: AbstractContainerTest() {
     }
 
     @Test
+    @Timeout(45)
     fun `Neo4j Driver로 Bolt 연결 후 쿼리를 실행할 수 있어야 한다`() {
-        GraphDatabase.driver(memgraph.boltUrl, AuthTokens.none()).use { driver ->
+        val config = Config.builder()
+            .withConnectionTimeout(10, TimeUnit.SECONDS)
+            .withConnectionAcquisitionTimeout(10, TimeUnit.SECONDS)
+            .withConnectionLivenessCheckTimeout(5, TimeUnit.SECONDS)
+            .withMaxTransactionRetryTime(5, TimeUnit.SECONDS)
+            .build()
+
+        GraphDatabase.driver(memgraph.boltUrl, AuthTokens.none(), config).use { driver ->
+            driver.verifyConnectivity()
             driver.session().use { session ->
                 val result = session.run("RETURN 1 AS n")
                 val record = result.single()

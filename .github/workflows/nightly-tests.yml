@@ -2,8 +2,20 @@ name: Nightly Tests (Testcontainers)
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 매일 03:00 KST (18:00 UTC)
+    - cron: '0 18 * * 1-6'  # Daily smoke, 03:00 KST Mon-Sat
+    - cron: '0 18 * * 0'    # Weekly full, 03:00 KST Sunday
   workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Nightly scope to run'
+        type: choice
+        default: full
+        options:
+          - smoke
+          - full
+          - testcontainers
+          - graphdb
+          - aws
 
 permissions:
   contents: read
@@ -18,10 +30,263 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
+  plan:
+    name: Plan Nightly Scope
+    runs-on: ubuntu-latest
+    outputs:
+      scope: ${{ steps.plan.outputs.scope }}
+      run_standard: ${{ steps.plan.outputs.run_standard }}
+      run_testcontainers_coverage: ${{ steps.plan.outputs.run_testcontainers_coverage }}
+      testcontainers_matrix: ${{ steps.plan.outputs.testcontainers_matrix }}
+    steps:
+      - id: plan
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            scope="${{ inputs.scope }}"
+          elif [[ "${{ github.event.schedule }}" == "0 18 * * 0" ]]; then
+            scope="full"
+          else
+            scope="smoke"
+          fi
+
+          case "$scope" in
+            smoke|full) run_standard="true" ;;
+            *) run_standard="false" ;;
+          esac
+
+          case "$scope" in
+            full|testcontainers) run_testcontainers_coverage="true" ;;
+            *) run_testcontainers_coverage="false" ;;
+          esac
+
+          matrix_json="$(SCOPE="$scope" python3 <<'PY'
+          import json
+          import os
+
+          all_groups = [
+              {
+                  "group": "database-core",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.database.MariaDBServerTest",
+                      "io.bluetape4k.testcontainers.database.MySQL5ServerTest",
+                      "io.bluetape4k.testcontainers.database.MySQL8ServerTest",
+                      "io.bluetape4k.testcontainers.database.PostgreSQLServerTest",
+                      "io.bluetape4k.testcontainers.database.PgvectorServerTest",
+                      "io.bluetape4k.testcontainers.database.PostgisServerTest",
+                  ]),
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "database-analytics",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.database.ClickHouseServerTest",
+                      "io.bluetape4k.testcontainers.database.CockroachServerTest",
+                      "io.bluetape4k.testcontainers.database.TrinoServerTest",
+                  ]),
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "database-contract",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.database.JdbcServerSupportTest",
+                      "io.bluetape4k.testcontainers.database.R2dbcServerSupportTest",
+                  ]),
+                  "timeout_minutes": 10,
+                  "max_attempts": 1,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "storage-cassandra",
+                  "test_patterns": "io.bluetape4k.testcontainers.storage.CassandraServerTest",
+                  "timeout_minutes": 20,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "storage-search",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.storage.ElasticsearchOssServerTest",
+                      "io.bluetape4k.testcontainers.storage.ElasticsearchServerTest",
+                      "io.bluetape4k.testcontainers.storage.OpenSearchServerTest",
+                  ]),
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "storage-cache",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.storage.HazelcastServerTest",
+                      "io.bluetape4k.testcontainers.storage.Ignite2ServerTest",
+                      "io.bluetape4k.testcontainers.storage.Ignite3ServerTest",
+                      "io.bluetape4k.testcontainers.storage.InfluxDBServerTest",
+                      "io.bluetape4k.testcontainers.storage.MinIOServerTest",
+                      "io.bluetape4k.testcontainers.storage.MongoDBServerTest",
+                      "io.bluetape4k.testcontainers.storage.RedisClusterServerTest",
+                      "io.bluetape4k.testcontainers.storage.RedisServerTest",
+                  ]),
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "mq-kafka",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.mq.KafkaServerTest",
+                      "io.bluetape4k.testcontainers.mq.RedpandaServerTest",
+                  ]),
+                  "timeout_minutes": 20,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "mq-brokers",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.mq.NatsServerTest",
+                      "io.bluetape4k.testcontainers.mq.PulsarServerTest",
+                      "io.bluetape4k.testcontainers.mq.RabbitMQServerTest",
+                  ]),
+                  "timeout_minutes": 20,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "aws-core",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.aws.ElasticMqServerTest",
+                      "io.bluetape4k.testcontainers.aws.FlociServerTest",
+                      "io.bluetape4k.testcontainers.aws.LocalStackServerTest",
+                      "io.bluetape4k.testcontainers.aws.MiniStackServerTest",
+                  ]),
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "aws-localstack",
+                  "test_patterns": "io.bluetape4k.testcontainers.aws.localstack.services.*",
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "aws-compatible",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.aws.floci.services.*",
+                      "io.bluetape4k.testcontainers.aws.ministack.services.*",
+                  ]),
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "infra",
+                  "test_patterns": "io.bluetape4k.testcontainers.infra.*",
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "http",
+                  "test_patterns": "io.bluetape4k.testcontainers.http.*",
+                  "timeout_minutes": 25,
+                  "max_attempts": 2,
+                  "needs_mock_servers": True,
+              },
+              {
+                  "group": "graphdb-falkordb",
+                  "test_patterns": "io.bluetape4k.testcontainers.graphdb.FalkorDBServerTest",
+                  "timeout_minutes": 12,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "graphdb-memgraph",
+                  "test_patterns": "io.bluetape4k.testcontainers.graphdb.MemgraphServerTest",
+                  "timeout_minutes": 6,
+                  "max_attempts": 1,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "graphdb-neo4j",
+                  "test_patterns": "io.bluetape4k.testcontainers.graphdb.Neo4jServerTest",
+                  "timeout_minutes": 12,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "graphdb-postgresql-age",
+                  "test_patterns": "io.bluetape4k.testcontainers.graphdb.PostgreSQLAgeServerTest",
+                  "timeout_minutes": 12,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "misc-contract",
+                  "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.GenericContainerExtensionsSupportTest",
+                      "io.bluetape4k.testcontainers.GenericServerSupportTest",
+                      "io.bluetape4k.testcontainers.GenericServerTest",
+                      "io.bluetape4k.testcontainers.PropertyExportingServerContractTest",
+                      "io.bluetape4k.testcontainers.RegisterSystemPropertiesTest",
+                  ]),
+                  "timeout_minutes": 8,
+                  "max_attempts": 1,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "mail",
+                  "test_patterns": "io.bluetape4k.testcontainers.mail.*",
+                  "timeout_minutes": 12,
+                  "max_attempts": 2,
+                  "needs_mock_servers": False,
+              },
+              {
+                  "group": "llm-disabled",
+                  "test_patterns": "io.bluetape4k.testcontainers.llm.*",
+                  "timeout_minutes": 8,
+                  "max_attempts": 1,
+                  "needs_mock_servers": False,
+              },
+          ]
+
+          scope = os.environ["SCOPE"]
+          groups_by_scope = {
+              "smoke": ["database-contract", "misc-contract", "graphdb-memgraph", "aws-core"],
+              "full": [group["group"] for group in all_groups],
+              "testcontainers": [group["group"] for group in all_groups],
+              "graphdb": [
+                  "graphdb-falkordb",
+                  "graphdb-memgraph",
+                  "graphdb-neo4j",
+                  "graphdb-postgresql-age",
+              ],
+              "aws": ["aws-core", "aws-localstack", "aws-compatible"],
+          }
+          selected = set(groups_by_scope[scope])
+          print(json.dumps({"include": [group for group in all_groups if group["group"] in selected]}, separators=(",", ":")))
+          PY
+          )"
+
+          {
+            echo "scope=$scope"
+            echo "run_standard=$run_standard"
+            echo "run_testcontainers_coverage=$run_testcontainers_coverage"
+            echo "testcontainers_matrix=$matrix_json"
+          } >> "$GITHUB_OUTPUT"
+
   # ── 빌드 (컴파일 only) ───────────────────────────────────────────────────
   build:
     name: Build
     runs-on: ubuntu-latest
+    needs: plan
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +318,8 @@ jobs:
   detekt:
     name: Detekt
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -82,7 +348,8 @@ jobs:
   test-core:
     name: Test / Core
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -141,7 +408,8 @@ jobs:
   test-io:
     name: Test / IO
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -218,7 +486,8 @@ jobs:
   test-io-http:
       name: Test / IO HTTP
       runs-on: ubuntu-latest
-      needs: build
+      needs: [build, plan]
+      if: ${{ needs.plan.outputs.run_standard == 'true' }}
       steps:
           -   uses: actions/checkout@v4
 
@@ -284,7 +553,8 @@ jobs:
   test-utils:
     name: Test / Utils
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -366,7 +636,8 @@ jobs:
   test-misc:
     name: Test / Misc
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -438,7 +709,8 @@ jobs:
   test-infra:
     name: Test / Infra (${{ matrix.group }})
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -547,7 +819,8 @@ jobs:
   test-data:
     name: Test / Data (${{ matrix.group }})
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -628,7 +901,8 @@ jobs:
   test-spring-docker:
     name: Test / Spring Boot (${{ matrix.group }})
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
+    if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -723,154 +997,11 @@ jobs:
   test-testcontainers:
     name: Test / Testcontainers (${{ matrix.group }})
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, plan]
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - group: database-core
-            test_patterns: >-
-              io.bluetape4k.testcontainers.database.MariaDBServerTest
-              io.bluetape4k.testcontainers.database.MySQL5ServerTest
-              io.bluetape4k.testcontainers.database.MySQL8ServerTest
-              io.bluetape4k.testcontainers.database.PostgreSQLServerTest
-              io.bluetape4k.testcontainers.database.PgvectorServerTest
-              io.bluetape4k.testcontainers.database.PostgisServerTest
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: database-analytics
-            test_patterns: >-
-              io.bluetape4k.testcontainers.database.ClickHouseServerTest
-              io.bluetape4k.testcontainers.database.CockroachServerTest
-              io.bluetape4k.testcontainers.database.TrinoServerTest
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: database-contract
-            test_patterns: >-
-              io.bluetape4k.testcontainers.database.JdbcServerSupportTest
-              io.bluetape4k.testcontainers.database.R2dbcServerSupportTest
-            timeout_minutes: 10
-            max_attempts: 1
-            needs_mock_servers: false
-          - group: storage-cassandra
-            test_patterns: io.bluetape4k.testcontainers.storage.CassandraServerTest
-            timeout_minutes: 20
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: storage-search
-            test_patterns: >-
-              io.bluetape4k.testcontainers.storage.ElasticsearchOssServerTest
-              io.bluetape4k.testcontainers.storage.ElasticsearchServerTest
-              io.bluetape4k.testcontainers.storage.OpenSearchServerTest
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: storage-cache
-            test_patterns: >-
-              io.bluetape4k.testcontainers.storage.HazelcastServerTest
-              io.bluetape4k.testcontainers.storage.Ignite2ServerTest
-              io.bluetape4k.testcontainers.storage.Ignite3ServerTest
-              io.bluetape4k.testcontainers.storage.InfluxDBServerTest
-              io.bluetape4k.testcontainers.storage.MinIOServerTest
-              io.bluetape4k.testcontainers.storage.MongoDBServerTest
-              io.bluetape4k.testcontainers.storage.RedisClusterServerTest
-              io.bluetape4k.testcontainers.storage.RedisServerTest
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: mq-kafka
-            test_patterns: >-
-              io.bluetape4k.testcontainers.mq.KafkaServerTest
-              io.bluetape4k.testcontainers.mq.RedpandaServerTest
-            timeout_minutes: 20
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: mq-brokers
-            test_patterns: >-
-              io.bluetape4k.testcontainers.mq.NatsServerTest
-              io.bluetape4k.testcontainers.mq.PulsarServerTest
-              io.bluetape4k.testcontainers.mq.RabbitMQServerTest
-            timeout_minutes: 20
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: aws-core
-            test_patterns: >-
-              io.bluetape4k.testcontainers.aws.ElasticMqServerTest
-              io.bluetape4k.testcontainers.aws.FlociServerTest
-              io.bluetape4k.testcontainers.aws.LocalStackServerTest
-              io.bluetape4k.testcontainers.aws.MiniStackServerTest
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: aws-localstack
-            test_patterns: >-
-              io.bluetape4k.testcontainers.aws.localstack.services.*
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: aws-compatible
-            test_patterns: >-
-              io.bluetape4k.testcontainers.aws.floci.services.*
-              io.bluetape4k.testcontainers.aws.ministack.services.*
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: infra
-            test_patterns: >-
-              io.bluetape4k.testcontainers.infra.*
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: http
-            test_patterns: >-
-              io.bluetape4k.testcontainers.http.*
-            timeout_minutes: 25
-            max_attempts: 2
-            needs_mock_servers: true
-          - group: graphdb-falkordb
-            test_patterns: io.bluetape4k.testcontainers.graphdb.FalkorDBServerTest
-            timeout_minutes: 12
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: graphdb-memgraph
-            test_patterns: io.bluetape4k.testcontainers.graphdb.MemgraphServerTest
-            timeout_minutes: 12
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: graphdb-neo4j
-            test_patterns: io.bluetape4k.testcontainers.graphdb.Neo4jServerTest
-            timeout_minutes: 12
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: graphdb-postgresql-age
-            test_patterns: io.bluetape4k.testcontainers.graphdb.PostgreSQLAgeServerTest
-            timeout_minutes: 12
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: misc-contract
-            test_patterns: >-
-              io.bluetape4k.testcontainers.GenericContainerExtensionsSupportTest
-              io.bluetape4k.testcontainers.GenericServerSupportTest
-              io.bluetape4k.testcontainers.GenericServerTest
-              io.bluetape4k.testcontainers.PropertyExportingServerContractTest
-              io.bluetape4k.testcontainers.RegisterSystemPropertiesTest
-            timeout_minutes: 8
-            max_attempts: 1
-            needs_mock_servers: false
-          - group: mail
-            test_patterns: >-
-              io.bluetape4k.testcontainers.mail.*
-            timeout_minutes: 12
-            max_attempts: 2
-            needs_mock_servers: false
-          - group: llm-disabled
-            test_patterns: >-
-              io.bluetape4k.testcontainers.llm.*
-            timeout_minutes: 8
-            max_attempts: 1
-            needs_mock_servers: false
+      max-parallel: 8
+      matrix: ${{ fromJson(needs.plan.outputs.testcontainers_matrix) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -927,7 +1058,7 @@ jobs:
           NEEDS_MOCK_SERVERS: ${{ matrix.needs_mock_servers }}
 
       - name: Generate Kover XML report
-        if: always()
+        if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
         timeout-minutes: 10
         run: ./gradlew :bluetape4k-testcontainers:koverXmlReport -x :bluetape4k-testcontainers:test
         continue-on-error: true
@@ -941,7 +1072,7 @@ jobs:
           retention-days: 14
 
       - name: Upload coverage report
-        if: always()
+        if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: nightly-coverage-testcontainers-${{ matrix.group }}
@@ -953,6 +1084,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     needs:
+      - plan
       - build
       - detekt
       - test-core
@@ -993,6 +1125,7 @@ jobs:
     name: Nightly Status
     runs-on: ubuntu-latest
     needs:
+      - plan
       - build
       - detekt
       - test-core

@@ -49,7 +49,6 @@ dependencies {
     // Eclipse Collections
     compileOnly(libs.eclipse.collections)
     compileOnly(libs.eclipse.collections.forkjoin)
-    testImplementation(libs.eclipse.collections.testutils)
 
     // Cache
     compileOnly(libs.caffeine)
