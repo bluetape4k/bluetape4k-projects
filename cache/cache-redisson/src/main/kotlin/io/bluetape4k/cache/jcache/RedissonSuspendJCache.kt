@@ -1,8 +1,10 @@
 package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -30,7 +32,7 @@ import javax.cache.configuration.MutableConfiguration
  * - 캐시 데이터 저장소는 외부 [cache] 인스턴스를 그대로 사용합니다.
  *
  * ```kotlin
- * val cache = RedissonSuspendCache<String, String>("users", redisson)
+ * val cache = RedissonSuspendJCache<String, String>("users", redisson)
  * cache.put("u:1", "debop")
  * val value = cache.get("u:1")
  * // value == "debop"
@@ -48,7 +50,7 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
          * - 반환 객체는 동일 캐시 이름을 공유하는 JCache 인스턴스를 래핑합니다.
          *
          * ```kotlin
-         * val cache = RedissonSuspendCache("users", redisson, MutableConfiguration<String, String>())
+         * val cache = RedissonSuspendJCache("users", redisson, MutableConfiguration<String, String>())
          * // cache.isClosed() == false
          * ```
          */
@@ -75,7 +77,7 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
          * - 같은 이름 캐시가 이미 존재하면 해당 캐시를 재사용합니다.
          *
          * ```kotlin
-         * val cache = RedissonSuspendCache<String, Int>("scores", config)
+         * val cache = RedissonSuspendJCache<String, Int>("scores", config)
          * cache.put("u1", 10)
          * // cache.get("u1") == 10
          * ```
@@ -106,7 +108,16 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
     }
 
     override suspend fun close() {
-        withContext(Dispatchers.IO) { runCatching { cache.close() } }
+        withContext(Dispatchers.IO) {
+            try {
+                cache.close()
+            } catch (e: CancellationException) {
+                // suspend close 경로에서는 취소 신호를 일반 close 실패처럼 삼키지 않는다.
+                throw e
+            } catch (e: Exception) {
+                log.warn(e) { "RedissonSuspendJCache close failed." }
+            }
+        }
     }
 
     override fun isClosed(): Boolean = cache.isClosed

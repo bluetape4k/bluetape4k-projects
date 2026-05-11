@@ -1,14 +1,19 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
@@ -112,6 +117,81 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
                     memoizer(9) shouldBeEqualTo 81
                 }
                 .run()
+        } finally {
+            map.delete()
+        }
+    }
+
+    @Test
+    fun `evaluator 실패 후 같은 key를 다시 호출하면 새 계산으로 복구된다`() = runSuspendIO {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.suspendMemoizer { key ->
+            if (evaluateCount.incrementAndGet() == 1) {
+                error("transient failure")
+            }
+            key * key
+        }
+
+        try {
+            assertFailsWith<IllegalStateException> {
+                memoizer(7)
+            }
+
+            // 실패한 in-flight Deferred가 제거되어야 같은 key가 이전 실패에 고착되지 않는다.
+            memoizer(7) shouldBeEqualTo 49
+            memoizer(7) shouldBeEqualTo 49
+            evaluateCount.get() shouldBeEqualTo 2
+        } finally {
+            map.delete()
+        }
+    }
+
+    @Test
+    fun `evaluator 취소 후 같은 key를 다시 호출하면 새 계산으로 복구된다`() = runSuspendIO {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.suspendMemoizer { key ->
+            if (evaluateCount.incrementAndGet() == 1) {
+                throw CancellationException("test cancellation")
+            }
+            key * key
+        }
+
+        try {
+            assertFailsWith<CancellationException> {
+                memoizer(9)
+            }
+
+            // CancellationException도 성공 값처럼 저장하거나 in-flight에 남기지 않는다.
+            memoizer(9) shouldBeEqualTo 81
+            evaluateCount.get() shouldBeEqualTo 2
+        } finally {
+            map.delete()
+        }
+    }
+
+    @Test
+    fun `evaluator job 취소 후 같은 key를 다시 호출하면 새 계산으로 복구된다`() = runSuspendIO {
+        val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+        val started = CompletableDeferred<Unit>()
+        val evaluateCount = AtomicInteger(0)
+        val memoizer = map.suspendMemoizer { key ->
+            if (evaluateCount.incrementAndGet() == 1) {
+                started.complete(Unit)
+                delay(Long.MAX_VALUE)
+            }
+            key * key
+        }
+
+        try {
+            val job = launch { memoizer(11) }
+            started.await()
+            job.cancelAndJoin()
+
+            // 실제 Job 취소 경로에서도 in-flight 항목이 정리되어 다음 호출이 새 계산으로 복구된다.
+            memoizer(11) shouldBeEqualTo 121
+            evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.delete()
         }
