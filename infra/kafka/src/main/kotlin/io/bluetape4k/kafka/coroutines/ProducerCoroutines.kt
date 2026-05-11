@@ -30,6 +30,10 @@ import kotlin.coroutines.resumeWithException
  * producer.suspendSend(record)
  * ```
  *
+ * ## 동작/계약
+ * - Kafka callback이 예외를 전달하면 suspend 호출자에게 그대로 재던집니다.
+ * - 대기 중인 coroutine이 취소되면 Kafka [java.util.concurrent.Future]도 `cancel(true)`로 취소합니다.
+ * - callback은 성공 시 null이 아닌 [RecordMetadata]를 반환해야 합니다.
  *
  * @param record 발행할 메시지 ([ProducerRecord])
  * @return 발행 결과를 표현하는 [RecordMetadata] instance

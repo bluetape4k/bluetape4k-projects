@@ -227,8 +227,11 @@ class BehaviorSubject<T> private constructor(
             runCatching {
                 innerCollector.consumeReady.await()
                 innerCollector.resume()
-            }.onFailure {
-                log.error(it) { "Fail to complete. innerCollector=$innerCollector" }
+            }.onFailure { e ->
+                if (e is CancellationException) {
+                    currentCoroutineContext().ensureActive()
+                }
+                log.error(e) { "Fail to complete. innerCollector=$innerCollector" }
             }
         }
     }

@@ -309,13 +309,16 @@ object LettuceClients: KLogging() {
 
 /**
  * [StatefulRedisConnection]의 autoFlushCommands를 비활성화하고 [block] 내 명령을
- * 한 번의 flushCommands()로 파이프라인 전송합니다. await는 반드시 블록 외부에서 수행하세요.
+ * 한 번의 `flushCommands()`로 파이프라인 전송합니다.
+ *
+ * [block]은 명령을 발행하고 [RedisFuture]만 반환해야 합니다. `await`/`get` 같은 대기는
+ * `flushCommands()`가 실행된 뒤 처리되도록 반드시 블록 외부에서 수행하세요.
  *
  * ```kotlin
  * val futures = connection.withPipeline { cmd ->
- *     (0 until 1000).map { i -> cmd.set("key:$i", "value") }
+ *     (0 until 1000).map { i -> cmd.set("batch:$i", "value:$i") }
  * }
- * futures.map { async { it.await() } }.awaitAll()
+ * futures.awaitAll()
  * ```
  */
 fun <K, V, T> StatefulRedisConnection<K, V>.withPipeline(

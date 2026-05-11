@@ -501,7 +501,15 @@ stack.push("d")  // "a"가 자동 제거됨
 stack.peek()  // "d"
 stack.pop()   // "d"
 stack.size    // 2
+
+stack.insert(2, "x")  // maxSize를 지키며 bottom 위치에 삽입
+stack.toList()        // ["c", "b", "x"]
+
+stack.insert(3, "z")  // 가득 찬 스택: 현재 bottom 요소 제거
+stack.toList()        // ["c", "b", "z"]
 ```
+
+`insert(index, value)`는 `0..size` 범위를 허용하며, 스택이 가득 찬 경우 top-to-bottom 순서를 유지하고 bottom 요소를 제거합니다.
 
 #### RingBuffer (원형 버퍼)
 
@@ -519,7 +527,10 @@ buffer.add(4)  // 1이 덮어써짐
 buffer.next()  // 2 (가장 오래된 요소)
 buffer.toList()  // [3, 4]
 buffer.removeIf { it > 3 }  // 4 제거
+buffer.drop(0)  // no-op
 ```
+
+`drop(n)`은 `n >= 0`이어야 하며, `drop(size 이상)`은 버퍼를 비웁니다.
 
 #### PaginatedList (페이지네이션)
 
@@ -538,6 +549,8 @@ val page = SimplePaginatedList(
 page.totalPageCount  // 3
 page.contents        // ["a", "b", "c"]
 ```
+
+`SimplePaginatedList`는 생성 시 `pageNo >= 0`, `pageSize > 0`, `totalItemCount >= 0`을 검증합니다.
 
 #### Permutation (지연 평가 순열)
 

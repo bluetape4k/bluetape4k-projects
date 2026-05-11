@@ -2,7 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-A Kotlin extension module for the Redisson Redis client, providing DSL-based client creation, high-performance codecs, Kotlin Coroutines support, distributed leader election, and NearCache functionality.
+A Kotlin extension module for the Redisson Redis client, providing DSL-based client creation, high-performance codecs, Kotlin Coroutines support, and NearCache functionality.
 
 ## Features
 
@@ -13,12 +13,9 @@ A Kotlin extension module for the Redisson Redis client, providing DSL-based cli
 | `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions  |
 | `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters |
 | `RedissonCodecs`                | Codec combinations: serializers (Fory/Kryo5/Jackson3/Fastjson2) × compression (LZ4/Zstd/Snappy/GZip) |
-| `RedissonLeaderElection`        | `RLock`-based single-leader election (sync / async)                                 |
-| `RedissonSuspendLeaderElection` | `RLock`-based single-leader election (Coroutines)                                   |
-| `RedissonLeaderGroupElection`   | `RSemaphore`-based group election for N concurrent leaders                          |
 | `RedissonNearCache`             | 2-tier Near Cache based on `RLocalCachedMap`                                        |
 
-When using `RedissonCacheConfig` / `RedissonNearCacheConfig`:
+When using `RedissonCacheConfig` and Redisson near-cache options:
 
 - `maxSize`, `nearCacheMaxSize`, and `writeBehindBatchSize` must not be negative; batch size must be greater than 0.
 - `timeToLive`, `maxIdle`, `nearCacheTtl`, and
@@ -243,103 +240,16 @@ val values: List<String> = future.get()
 
 ---
 
-### 5. Leader Election — Distributed Leader Election
-
-#### Synchronous Version
-
-Uses `RLock` to ensure that only one process or thread executes a task in a distributed environment.
-
-```kotlin
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderElection
-import io.bluetape4k.leader.LeaderElectionOptions
-import java.time.Duration
-
-val options = LeaderElectionOptions(
-    waitTime = Duration.ofSeconds(5),
-    leaseTime = Duration.ofSeconds(30),
-)
-val election = RedissonLeaderElection(client, options)
-
-val result = election.runIfLeader("batch-job") {
-    // Only the elected leader runs this
-    processBatch()
-}
-
-// Also available as a RedissonClient extension function
-val result2 = client.runIfLeader("batch-job") {
-    processBatch()
-}
-
-// Async (CompletableFuture)
-val future = client.runAsyncIfLeader("batch-job") {
-    CompletableFuture.supplyAsync { processBatch() }
-}
-```
-
-#### Coroutine Version
-
-```kotlin
-import io.bluetape4k.redis.redisson.leader.RedissonSuspendLeaderElection
-
-val election = RedissonSuspendLeaderElection(client, options)
-
-val result = election.runIfLeader("batch-job") {
-    delay(100)
-    processData()
-}
-
-// Also available as a RedissonClient extension function
-val result2 = client.suspendRunIfLeader("batch-job") {
-    processData()
-}
-```
-
-> **Coroutine Lock ID
-**: Redisson Lock is thread-ID-based. In a coroutine environment, thread switches can break the lock.
-`RedissonSuspendLeaderElection` solves this by issuing a unique ID per coroutine session using `RAtomicLong`.
-
-#### Group Leader Election — Up to N Concurrent Leaders
-
-Uses `RSemaphore` to allow up to N processes to run concurrently.
-
-```kotlin
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection
-import io.bluetape4k.leader.LeaderGroupElectionOptions
-
-val options = LeaderGroupElectionOptions(
-    maxLeaders = 3,                       // Up to 3 concurrent leaders
-    waitTime = Duration.ofSeconds(5),
-)
-val groupElection = RedissonLeaderGroupElection(client, options)
-
-// Up to 3 processes/threads run concurrently
-val result = groupElection.runIfLeader("parallel-job") {
-    processChunk()
-}
-
-// Check state
-val state = groupElection.state("parallel-job")
-println("active=${state.activeCount}, available=${state.availableSlots}")
-
-// Async execution
-val future = groupElection.runAsyncIfLeader("parallel-job") {
-    CompletableFuture.supplyAsync { processChunk() }
-}
-```
-
----
-
-### 6. NearCache
+### 5. NearCache
 
 A 2-tier Near Cache based on Redisson's
 `RLocalCachedMap`. Lookups check the local cache first and fall back to Redis on a miss.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.nearcache.RedissonNearCache
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 
-val config = RedisCacheConfig()
-val nearCache = RedissonNearCache<String, Any>("my-cache", client, config)
+val options = RedissonNearCache.defaultLocalCacheOptions("my-cache")
+val nearCache = RedissonNearCache(client, options)
 
 nearCache.put("key", "value")
 val value = nearCache.get("key")   // Checks local cache first
@@ -442,29 +352,6 @@ classDiagram
     style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
     style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
-```
-
-### Distributed Leader Election Sequence
-
-```mermaid
-sequenceDiagram
-    participant P1 as Process 1
-    participant P2 as Process 2
-    participant Redis as Redis (RLock)
-    participant Job as Batch Job
-
-    P1->>+Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
-    P2->>Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
-    Redis-->>P1: Lock acquired
-    Redis-->>P2: Lock failed (waiting or giving up)
-
-    P1->>+Job: runIfLeader { processBatch() }
-    Note over P1,Job: Only P1 (the elected leader) runs this
-    Job-->>-P1: Work complete
-    P1->>Redis: unlock()
-    Redis-->>-P1: Lock released
-
-    P2->>Redis: Retry in the next round
 ```
 
 ### NearCache 2-Tier Cache Flow
@@ -623,7 +510,7 @@ Based on `RedissonConcurrencyBenchmark` (50 coroutines, 100 ops/coroutine):
 
 | Feature                                               | Minimum Redis Version |
 |-------------------------------------------------------|-----------------------|
-| Core features (Client, Batch, Transaction, Leader)    | Redis 5.0+            |
+| Core features (Client, Batch, Transaction, NearCache) | Redis 5.0+            |
 | RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+            |
 
 ## Build and Testing

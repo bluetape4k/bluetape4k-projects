@@ -145,6 +145,48 @@ class BoundedStackTest {
     }
 
     @Test
+    fun `insert at count on non-full stack appends at bottom without dropping`() {
+        val stack = BoundedStack<String>(3)
+
+        stack.pushAll("a", "b")
+        stack.insert(2, "x") shouldBeEqualTo "x"
+
+        stack.size shouldBeEqualTo 3
+        stack.toList() shouldBeEqualTo listOf("b", "a", "x")
+    }
+
+    @Test
+    fun `insert at count on full stack keeps order and drops bottom`() {
+        val stack = BoundedStack<String>(3)
+
+        stack.pushAll("a", "b", "c")
+        stack.insert(3, "x") shouldBeEqualTo "x"
+
+        stack.toList() shouldBeEqualTo listOf("c", "b", "x")
+    }
+
+    @Test
+    fun `insert in middle on full stack keeps top order and drops bottom`() {
+        val stack = BoundedStack<String>(3)
+
+        stack.pushAll("a", "b", "c")
+        stack.insert(1, "x")
+
+        stack.toList() shouldBeEqualTo listOf("c", "x", "b")
+    }
+
+    @Test
+    fun `insert rejects negative index or index greater than size`() {
+        val stack = BoundedStack<String>(3)
+        stack.pushAll("a", "b")
+
+        assertFailsWith<IndexOutOfBoundsException> { stack.insert(-1, "x") }
+        assertFailsWith<IndexOutOfBoundsException> { stack.insert(3, "x") }
+
+        stack.toList() shouldBeEqualTo listOf("b", "a")
+    }
+
+    @Test
     fun `clear로 모든 요소 제거`() {
         val stack = BoundedStack<String>(4)
 

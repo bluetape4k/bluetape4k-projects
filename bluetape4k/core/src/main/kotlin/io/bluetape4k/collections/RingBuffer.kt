@@ -1,5 +1,6 @@
 package io.bluetape4k.collections
 
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -190,8 +191,10 @@ class RingBuffer<E>(val maxSize: Int): Iterable<E> {
      *
      * @param n 제거할 요소 수
      * @return 이 버퍼 자신
+     * @throws IllegalArgumentException [n]이 음수인 경우
      */
     fun drop(n: Int): RingBuffer<E> = lock.withLock {
+        n.requireZeroOrPositiveNumber("n")
         if (n >= _size) {
             clearInternal()
         } else {
@@ -315,11 +318,29 @@ class RingBuffer<E>(val maxSize: Int): Iterable<E> {
     /**
      * 버퍼의 요소를 [Array]로 반환합니다.
      *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 3)
+     * buffer.addAll(1, 2, 3, 4)
+     * buffer.toArray<Int>().toList()  // [2, 3, 4]
+     * ```
+     *
      * @return 요소 배열
      */
     @PublishedApi
     internal fun toListInternal(): List<E> = toList()
 
+    /**
+     * 버퍼의 현재 스냅샷을 [Array]로 반환합니다.
+     * 반환 타입은 Kotlin/JVM 배열 표현 때문에 `Array<T?>`입니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<String>(maxSize = 2)
+     * buffer.addAll("a", "b", "c")
+     * buffer.toArray<String>().toList()  // ["b", "c"]
+     * ```
+     */
     inline fun <reified T> toArray(): Array<T?> {
         val snapshot = toListInternal()
         val result = arrayOfNulls<T>(snapshot.size)
@@ -328,6 +349,16 @@ class RingBuffer<E>(val maxSize: Int): Iterable<E> {
         return result
     }
 
+    /**
+     * 버퍼의 현재 스냅샷을 오래된 요소부터 순회하는 [Iterator]를 반환합니다.
+     *
+     * 예제:
+     * ```kotlin
+     * val buffer = RingBuffer<Int>(maxSize = 3)
+     * buffer.addAll(1, 2, 3, 4)
+     * buffer.iterator().asSequence().toList()  // [2, 3, 4]
+     * ```
+     */
     override fun iterator(): Iterator<E> {
         val snapshot = toList()
         return snapshot.iterator()

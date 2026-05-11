@@ -14,7 +14,8 @@ import java.util.concurrent.Executor
 /**
  * [RFuture] 컬렉션을 하나의 [CompletableFuture]로 합칩니다.
  *
- * 모든 [RFuture]가 완료될 때까지 기다린 후 결과를 [List]로 반환하는 [CompletableFuture]를 생성합니다.
+ * 모든 [RFuture]가 완료될 때까지 기다린 후 입력 순서대로 결과를 담은 [List]를 반환하는
+ * [CompletableFuture]를 생성합니다. 하나라도 실패하면 결과 [List]를 만들지 않고 해당 예외가 전파됩니다.
  *
  * ## 사용 예
  * ```kotlin
@@ -36,7 +37,8 @@ fun <V> Iterable<RFuture<out V>>.sequence(
  * [RFuture] 컬렉션의 모든 결과를 코루틴에서 기다린 후 [List]로 반환합니다.
  *
  * 현재 코루틴 디스패처를 Executor로 활용하며, 디스패처가 없으면 [Dispatchers.Default]를 사용합니다.
- * 컬렉션이 비어 있으면 빈 리스트를 즉시 반환합니다.
+ * 컬렉션이 비어 있으면 빈 리스트를 즉시 반환합니다. 결과 순서는 입력 순서를 보존하고,
+ * 실패한 [RFuture]가 있으면 해당 예외를 전파합니다.
  *
  * ## 사용 예
  * ```kotlin

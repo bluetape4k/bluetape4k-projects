@@ -194,12 +194,15 @@ class BoundedStack<E>(val maxSize: Int): Iterable<E> {
      * stack.pushAll("a", "b")  // top→bottom: ["b", "a"]
      * stack.insert(1, "x")     // 인덱스 1에 삽입 → ["b", "x", "a"]
      * stack.toList()           // ["b", "x", "a"]
+     *
+     * stack.insert(3, "z")      // 가득 찬 상태에서는 bottom 요소가 제거됨
+     * stack.toList()            // ["b", "x", "z"]
      * ```
      *
      * @param index 삽입할 위치 (0 = top)
      * @param elem 삽입할 요소
      * @return 삽입된 요소
-     * @throws IndexOutOfBoundsException [index]가 count보다 큰 경우
+     * @throws IndexOutOfBoundsException [index]가 0보다 작거나 count보다 큰 경우
      */
     fun insert(index: Int, elem: E): E = lock.withLock {
         if (index == 0) {
@@ -208,18 +211,25 @@ class BoundedStack<E>(val maxSize: Int): Iterable<E> {
         if (index < 0 || index > count) {
             throw IndexOutOfBoundsException(index.toString())
         }
-        // 새 top 위치를 확보
-        val newTop = if (top == 0) maxSize - 1 else top - 1
-        // 기존 요소들을 한 칸씩 앞(top 방향)으로 이동
-        for (i in 0 until index) {
-            val fromPos = (top + i) % maxSize
-            val toPos = (newTop + i) % maxSize
-            array[toPos] = array[fromPos]
+
+        val snapshot = ArrayList<E>(count + 1)
+        repeat(count) {
+            @Suppress("UNCHECKED_CAST")
+            snapshot.add(array[(top + it) % maxSize] as E)
         }
-        top = newTop
-        // target 위치에 새 요소 삽입
-        array[(top + index) % maxSize] = elem
-        if (count < maxSize) count++
+        if (count == maxSize && index == count) {
+            snapshot[snapshot.lastIndex] = elem
+        } else {
+            snapshot.add(index, elem)
+        }
+        if (snapshot.size > maxSize) {
+            snapshot.removeAt(snapshot.lastIndex)
+        }
+
+        array.fill(null)
+        top = 0
+        count = snapshot.size
+        snapshot.forEachIndexed { i, item -> array[i] = item }
         elem
     }
 
@@ -281,6 +291,15 @@ class BoundedStack<E>(val maxSize: Int): Iterable<E> {
         list
     }
 
+    /**
+     * 스택의 현재 스냅샷을 top부터 bottom 순서로 순회하는 [Iterator]를 반환합니다.
+     *
+     * ```kotlin
+     * val stack = BoundedStack<Int>(maxSize = 3)
+     * stack.pushAll(1, 2, 3)
+     * stack.iterator().asSequence().toList()  // [3, 2, 1]
+     * ```
+     */
     override fun iterator(): Iterator<E> {
         val snapshot = toList()
         return snapshot.iterator()

@@ -1,6 +1,9 @@
 package io.bluetape4k.redis.redisson.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.coroutines.support.awaitSuspending
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
@@ -9,10 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.redisson.api.RFuture
+import java.util.concurrent.CompletableFuture
 
 class RFutureSupportTest: AbstractRedissonCoroutineTest() {
 
@@ -24,6 +27,34 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
     @Test
     fun `awaitAll returns empty list for empty futures`() = runSuspendIO {
         emptyList<RFuture<Int>>().awaitAll() shouldBeEqualTo emptyList()
+    }
+
+    @Test
+    fun `awaitAll propagates failed RFuture`() = runSuspendIO {
+        val failure = IllegalStateException("redisson command failed")
+        val failed = failedRFuture<String>(failure)
+
+        val error = assertFailsWith<IllegalStateException> {
+            listOf(failed).awaitAll()
+        }
+        error.message shouldBeEqualTo failure.message
+    }
+
+    @Test
+    fun `awaitAll is stable under SuspendedJobTester`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(64)
+            .add {
+                val results = listOf(
+                    completedRFuture("first"),
+                    completedRFuture("second"),
+                    completedRFuture("third"),
+                ).awaitAll()
+
+                results shouldBeEqualTo listOf("first", "second", "third")
+            }
+            .run()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -38,6 +69,21 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
 
         lists.size shouldBeEqualTo ITEM_COUNT
         map.delete()
+    }
+
+    @Test
+    fun `sequence preserves input order independent of completion order`() {
+        val first = TestRFuture<Int>()
+        val second = TestRFuture<Int>()
+        val third = TestRFuture<Int>()
+
+        val sequenced = listOf(first, second, third).sequence()
+
+        third.complete(3)
+        first.complete(1)
+        second.complete(2)
+
+        sequenced.get() shouldBeEqualTo listOf(1, 2, 3)
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -85,4 +131,12 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
         lists.size shouldBeEqualTo ITEM_COUNT
         map.deleteAsync().awaitSuspending()
     }
+
+    private fun <T> completedRFuture(value: T): RFuture<T> =
+        TestRFuture<T>().apply { complete(value) }
+
+    private fun <T> failedRFuture(error: Throwable): RFuture<T> =
+        TestRFuture<T>().apply { completeExceptionally(error) }
+
+    private class TestRFuture<T>: CompletableFuture<T>(), RFuture<T>
 }

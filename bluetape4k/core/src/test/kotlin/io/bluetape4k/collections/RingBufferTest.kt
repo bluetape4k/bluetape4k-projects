@@ -102,6 +102,28 @@ class RingBufferTest {
     }
 
     @Test
+    fun `drop - 0개 제거는 기존 상태를 유지한다`() {
+        val ring = RingBuffer<Int>(5)
+
+        ring.addAll(1, 2, 3)
+        ring.drop(0)
+
+        ring.size shouldBeEqualTo 3
+        ring.toList() shouldBeEqualTo listOf(1, 2, 3)
+    }
+
+    @Test
+    fun `drop - 음수는 예외를 발생시키고 상태를 변경하지 않는다`() {
+        val ring = RingBuffer<Int>(5)
+
+        ring.addAll(1, 2, 3)
+        assertFailsWith<IllegalArgumentException> { ring.drop(-1) }
+
+        ring.size shouldBeEqualTo 3
+        ring.toList() shouldBeEqualTo listOf(1, 2, 3)
+    }
+
+    @Test
     fun `drop - 전체 크기 이상 제거 시 clear`() {
         val ring = RingBuffer<Int>(5)
 
@@ -152,6 +174,16 @@ class RingBufferTest {
         arr[0] shouldBeEqualTo 1
         arr[1] shouldBeEqualTo 2
         arr[2] shouldBeEqualTo 3
+    }
+
+    @Test
+    fun `toArray는 overflow 이후 논리 순서를 유지한다`() {
+        val ring = RingBuffer<Int>(3)
+
+        ring.addAll(1, 2, 3, 4)
+        val arr = ring.toArray<Int>()
+
+        arr.toList() shouldBeEqualTo listOf(2, 3, 4)
     }
 
     @RepeatedTest(3)
