@@ -9,8 +9,6 @@ updates:
       time: "06:00"
       timezone: "Asia/Seoul"
     open-pull-requests-limit: 8
-    assignees:
-      - "debop"
     groups:
       kotlin:
         patterns:
@@ -45,8 +43,6 @@ updates:
       time: "06:30"
       timezone: "Asia/Seoul"
     open-pull-requests-limit: 5
-    assignees:
-      - "debop"
     groups:
       github-actions:
         patterns:
