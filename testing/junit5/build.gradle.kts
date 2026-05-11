@@ -32,5 +32,4 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.test)
 
     compileOnly(libs.eclipse.collections)
-    testImplementation(libs.eclipse.collections.testutils)
 }

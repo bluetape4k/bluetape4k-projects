@@ -63,7 +63,6 @@ dependencies {
     compileOnly(libs.commons.collections4)
     compileOnly(libs.eclipse.collections)
     compileOnly(libs.eclipse.collections.forkjoin)
-    testImplementation(libs.eclipse.collections.testutils)
 
     // Resilience4j
     compileOnly(project(":bluetape4k-resilience4j"))
