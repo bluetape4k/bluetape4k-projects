@@ -98,7 +98,7 @@ caffeine = "3.2.4"  # https://mvnrepository.com/artifact/com.github.ben-manes.ca
 ehcache = "3.12.0"  # https://mvnrepository.com/artifact/org.ehcache/ehcache
 cache2k = "2.6.1.Final"  # https://mvnrepository.com/artifact/org.cache2k/cache2k-api
 
-ignite = "3.1.0"  # https://mvnrepository.com/artifact/org.apache.ignite/ignite-core
+ignite = "2.18.0"  # https://mvnrepository.com/artifact/org.apache.ignite/ignite-core
 ignite3 = "3.1.0"  # https://mvnrepository.com/artifact/org.apache.ignite/ignite-client
 hazelcast = "5.6.0"  # https://mvnrepository.com/artifact/com.hazelcast/hazelcast
 
@@ -109,7 +109,7 @@ elasticsearch-java = "9.4.0"  # https://mvnrepository.com/artifact/co.elastic.cl
 kafka3 = "3.9.2"  # https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients; Server-side: spring-kafka 3.x embedded test (EmbeddedKafkaKraftBroker)
 kafka4 = "4.2.0"  # https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients; Client-side: kafka-clients, kafka-streams (production)
 spring-kafka = "3.3.13"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
-spring-kafka4 = "3.3.15"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+spring-kafka4 = "4.0.5"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
 timefold-solver = "2.0.0"  # https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-bom
 
