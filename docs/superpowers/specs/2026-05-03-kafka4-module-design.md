@@ -47,7 +47,7 @@
   - Spring Boot 4 BOM 적용
 - 영어/한국어 README 작성
 - targeted compile/test 검증
-- GitHub Nightly Tests workflow의 infra matrix에 `:bluetape4k-kafka4:test`와 kover report task 추가
+- GitHub Nightly workflow의 infra matrix에 `:bluetape4k-kafka4:test`와 kover report task 추가
 
 ### 제외
 

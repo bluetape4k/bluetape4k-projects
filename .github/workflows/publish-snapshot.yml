@@ -5,7 +5,7 @@ permissions:
 
 on:
   workflow_run:
-    workflows: ["Nightly Tests (Testcontainers)"]
+    workflows: ["Nightly"]
     types: [completed]
     branches: [develop]
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
   publish:
     name: Publish SNAPSHOT to Maven Central
     runs-on: ubuntu-latest
-    # workflow_run: Nightly Tests 성공 시에만 실행. 수동 dispatch는 항상 실행.
+    # workflow_run: Nightly 성공 시에만 실행. 수동 dispatch는 항상 실행.
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
