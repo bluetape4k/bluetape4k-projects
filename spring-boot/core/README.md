@@ -11,6 +11,7 @@ A unified module providing common features for Spring Boot 4.x applications.
 ### Spring Core Utilities
 
 - BeanFactory extension functions
+- Kotlin reified annotation lookup extensions for `AnnotatedElementUtils` and `AnnotationUtils`
 - Spring Boot AutoConfiguration support
 - Jakarta Annotation API integration
 
@@ -72,6 +73,16 @@ dependencyManagement {
 ```
 
 ## Usage Examples
+
+### Annotation Lookup Extensions
+
+```kotlin
+import io.bluetape4k.spring.beans.findMergedAnnotationOrNull
+import io.bluetape4k.spring.beans.hasMergedAnnotation
+
+val mapping = method.findMergedAnnotationOrNull<RequestMapping>()
+val hasMapping = method.hasMergedAnnotation<RequestMapping>()
+```
 
 ### RestClient Coroutines DSL
 
