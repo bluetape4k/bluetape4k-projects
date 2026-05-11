@@ -2,7 +2,7 @@
 
 [English](./README.md) | 한국어
 
-Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. DSL 방식의 클라이언트 생성, 고성능 Codec, Kotlin Coroutines 지원, 분산 리더 선출, NearCache 기능을 제공합니다.
+Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도록 확장한 모듈입니다. DSL 방식의 클라이언트 생성, 고성능 Codec, Kotlin Coroutines 지원, NearCache 기능을 제공합니다.
 
 ## 주요 기능
 
@@ -13,12 +13,9 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 | `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수            |
 | `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
 | `RedissonCodecs`                | 직렬화(Fory/Kryo5/Jackson3/Fastjson2) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록         |
-| `RedissonLeaderElection`        | `RLock` 기반 단일 리더 선출 (동기 / 비동기)                                                  |
-| `RedissonSuspendLeaderElection` | `RLock` 기반 단일 리더 선출 (Coroutines)                                                |
-| `RedissonLeaderGroupElection`   | `RSemaphore` 기반 복수(N개) 동시 리더 선출                                                 |
 | `RedissonNearCache`             | `RLocalCachedMap` 기반 2-tier Near Cache                                          |
 
-`RedissonCacheConfig`/`RedissonNearCacheConfig` 사용 시:
+`RedissonCacheConfig` 및 Redisson near-cache 옵션 사용 시:
 
 - `maxSize`, `nearCacheMaxSize`, `writeBehindBatchSize`는 음수일 수 없고, 배치 크기는 0보다 커야 합니다.
 - `timeToLive`, `maxIdle`, `nearCacheTtl`, `nearCacheMaxIdleTime`은 지정 시 음수일 수 없으며, near cache TTL/idle은 0보다 커야 합니다.
@@ -242,101 +239,15 @@ val values: List<String> = future.get()
 
 ---
 
-### 5. Leader Election — 분산 리더 선출
-
-#### 동기 버전
-
-`RLock`을 기반으로 분산 환경에서 단 하나의 프로세스/스레드만 작업을 수행하도록 리더를 선출합니다.
-
-```kotlin
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderElection
-import io.bluetape4k.leader.LeaderElectionOptions
-import java.time.Duration
-
-val options = LeaderElectionOptions(
-    waitTime = Duration.ofSeconds(5),
-    leaseTime = Duration.ofSeconds(30),
-)
-val election = RedissonLeaderElection(client, options)
-
-val result = election.runIfLeader("batch-job") {
-    // 리더로 선출된 프로세스만 실행
-    processBatch()
-}
-
-// RedissonClient 확장 함수로도 사용 가능
-val result2 = client.runIfLeader("batch-job") {
-    processBatch()
-}
-
-// 비동기 (CompletableFuture)
-val future = client.runAsyncIfLeader("batch-job") {
-    CompletableFuture.supplyAsync { processBatch() }
-}
-```
-
-#### Coroutine 버전
-
-```kotlin
-import io.bluetape4k.redis.redisson.leader.RedissonSuspendLeaderElection
-
-val election = RedissonSuspendLeaderElection(client, options)
-
-val result = election.runIfLeader("batch-job") {
-    delay(100)
-    processData()
-}
-
-// RedissonClient 확장 함수로도 사용 가능
-val result2 = client.suspendRunIfLeader("batch-job") {
-    processData()
-}
-```
-
-> **코루틴 Lock ID**: Redisson Lock은 스레드 ID 기반입니다. 코루틴 환경에서는 스레드가 전환되면 락이 깨질 수 있으므로, `RedissonSuspendLeaderElection`은
-`RAtomicLong`으로 코루틴 세션마다 고유 ID를 발급하여 이 문제를 해결합니다.
-
-#### 그룹 리더 선출 — 최대 N개 동시 실행
-
-`RSemaphore` 기반으로 최대 N개 프로세스가 동시에 작업을 수행합니다.
-
-```kotlin
-import io.bluetape4k.redis.redisson.leader.RedissonLeaderGroupElection
-import io.bluetape4k.leader.LeaderGroupElectionOptions
-
-val options = LeaderGroupElectionOptions(
-    maxLeaders = 3,                       // 최대 3개 동시 실행
-    waitTime = Duration.ofSeconds(5),
-)
-val groupElection = RedissonLeaderGroupElection(client, options)
-
-// 최대 3개 프로세스/스레드가 동시에 실행
-val result = groupElection.runIfLeader("parallel-job") {
-    processChunk()
-}
-
-// 상태 조회
-val state = groupElection.state("parallel-job")
-println("active=${state.activeCount}, available=${state.availableSlots}")
-
-// 비동기 실행
-val future = groupElection.runAsyncIfLeader("parallel-job") {
-    CompletableFuture.supplyAsync { processChunk() }
-}
-```
-
----
-
-### 6. NearCache
+### 5. NearCache
 
 Redisson `RLocalCachedMap` 기반 2-tier Near Cache입니다. 로컬 캐시 우선 조회 후 없으면 Redis에서 조회합니다.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.nearcache.RedissonNearCache
-import io.bluetape4k.redis.redisson.cache.RedisCacheConfig
 
-val config = RedisCacheConfig()
-val nearCache = RedissonNearCache<String, Any>("my-cache", client, config)
+val options = RedissonNearCache.defaultLocalCacheOptions("my-cache")
+val nearCache = RedissonNearCache(client, options)
 
 nearCache.put("key", "value")
 val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
@@ -438,29 +349,6 @@ classDiagram
     style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
     style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
 
-```
-
-### 분산 리더 선출 시퀀스
-
-```mermaid
-sequenceDiagram
-    participant P1 as 프로세스 1
-    participant P2 as 프로세스 2
-    participant Redis as Redis (RLock)
-    participant Job as 배치 작업
-
-    P1->>+Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
-    P2->>Redis: tryLock("batch-job", waitTime=5s, leaseTime=30s)
-    Redis-->>P1: Lock 획득 성공
-    Redis-->>P2: Lock 획득 실패 (대기 or 포기)
-
-    P1->>+Job: runIfLeader { processBatch() }
-    Note over P1,Job: 리더로 선출된 P1만 실행
-    Job-->>-P1: 작업 완료
-    P1->>Redis: unlock()
-    Redis-->>-P1: Lock 해제
-
-    P2->>Redis: 다음 라운드에서 재시도
 ```
 
 ### NearCache 2-Tier 캐시 흐름
@@ -619,7 +507,7 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 | 기능                                                    | 최소 Redis 버전 |
 |-------------------------------------------------------|-------------|
-| 기본 기능 (Client, Batch, Transaction, Leader)            | Redis 5.0+  |
+| 기본 기능 (Client, Batch, Transaction, NearCache)            | Redis 5.0+  |
 | RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+  |
 
 ## 빌드 및 테스트
