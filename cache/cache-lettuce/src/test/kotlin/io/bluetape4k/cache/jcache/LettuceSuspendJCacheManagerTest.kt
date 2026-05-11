@@ -33,6 +33,26 @@ class LettuceSuspendJCacheManagerTest {
     }
 
     @Test
+    fun `manager close releases wrappers but keeps redis data`() = runSuspendIO {
+        val cacheName = "lettuce-suspend-manager-close-" + UUID.randomUUID().encodeBase62()
+        val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        val cache = manager.getOrCreate<String>(cacheName)
+
+        cache.put("key", "value")
+        manager.close()
+
+        val reopenedManager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
+        try {
+            // close()는 JCache 계약상 Redis hash 데이터를 삭제하지 않는다. 새 wrapper로 다시 읽을 수 있어야 한다.
+            val reopened = reopenedManager.getOrCreate<String>(cacheName)
+            reopened.get("key") shouldBeEqualTo "value"
+        } finally {
+            runCatching { reopenedManager.destroyCache(cacheName) }
+            runCatching { reopenedManager.close() }
+        }
+    }
+
+    @Test
     fun `closed manager rejects further operations`() {
         val manager = LettuceSuspendCacheManager(redisClient, defaultCodec = LettuceBinaryCodecs.lz4Fory())
         runSuspendIO { manager.close() }

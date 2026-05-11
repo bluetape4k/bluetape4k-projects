@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.map.LettuceSuspendMap
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -26,6 +27,7 @@ fun <K: Any, V: Any> LettuceSuspendMap<V>.suspendMemoizer(evaluator: suspend (K)
  * [LettuceSuspendMap]을 사용하여 함수 실행 결과를 코루틴 기반으로 메모이제이션하는 구현체입니다.
  *
  * 동일 JVM에서 동시 요청 시 in-flight 연산을 공유하여 중복 실행을 방지합니다.
+ * evaluator 실패 또는 코루틴 취소는 성공 값처럼 캐시하지 않으며, 다음 같은 key 호출은 새 계산을 시도합니다.
  *
  * ```kotlin
  * val connection = redisClient.connect(LettuceLongCodec)
@@ -68,6 +70,10 @@ class LettuceSuspendMemoizer<K: Any, V: Any>(
             val winner = if (isNew) evaluated else (map.get(key.toString()) ?: evaluated)
             deferred.complete(winner)
             return winner
+        } catch (e: CancellationException) {
+            // CancellationException은 coroutine 취소 신호이므로 실패 공유 후 즉시 재전파한다.
+            deferred.completeExceptionally(e)
+            throw e
         } catch (e: Throwable) {
             deferred.completeExceptionally(e)
             throw e
