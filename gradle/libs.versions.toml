@@ -610,7 +610,7 @@ fastjson2-extension = { module = "com.alibaba.fastjson2:fastjson2-extension", ve
 fastjson2-extension-spring6 = { module = "com.alibaba.fastjson2:fastjson2-extension-spring6", version.ref = "fastjson2" }
 
 # JSON assertions
-jsonpath = { module = "com.jayway.jsonpath:json-path", version = "2.10.0" }  # https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
+jsonpath = { module = "com.jayway.jsonpath:json-path", version = "3.0.0" }  # https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path
 jsonassert = { module = "org.skyscreamer:jsonassert", version = "1.5.3" }  # https://mvnrepository.com/artifact/org.skyscreamer/jsonassert
 
 # GSON
