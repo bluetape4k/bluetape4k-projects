@@ -630,7 +630,7 @@ brotli4j = { module = "com.aayushatharva.brotli4j:brotli4j", version = "1.20.0" 
 brotli4j-native = { module = "com.aayushatharva.brotli4j:native-linux-x86_64", version = "1.20.0" }  # https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/native-linux-x86_64
 brotli-dec = { module = "org.brotli:dec", version = "0.1.2" }  # https://mvnrepository.com/artifact/org.brotli/dec
 zstd-jni = { module = "com.github.luben:zstd-jni", version = "1.5.7-7" }  # https://mvnrepository.com/artifact/com.github.luben/zstd-jni
-xz = { module = "org.tukaani:xz", version = "1.11" }  # https://mvnrepository.com/artifact/org.tukaani/xz
+xz = { module = "org.tukaani:xz", version = "1.12" }  # https://mvnrepository.com/artifact/org.tukaani/xz
 
 # Cryptography
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version = "1.84" }  # https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
