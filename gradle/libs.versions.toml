@@ -1070,8 +1070,8 @@ jna-platform = { module = "net.java.dev.jna:jna-platform", version.ref = "jna" }
 wiremock = { module = "org.wiremock:wiremock", version = "3.13.2" }  # https://mvnrepository.com/artifact/org.wiremock/wiremock
 
 # Kubernetes
-fabric8-kubernetes-client-bom = { module = "io.fabric8:kubernetes-client-bom", version = "7.3.1" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
-fabric8-kubernetes-client = { module = "io.fabric8:kubernetes-client", version = "7.3.1" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
+fabric8-kubernetes-client-bom = { module = "io.fabric8:kubernetes-client-bom", version = "7.6.1" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
+fabric8-kubernetes-client = { module = "io.fabric8:kubernetes-client", version = "7.6.1" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
 kubernetes-client-java = { module = "io.kubernetes:client-java", version = "24.0.0" }  # https://mvnrepository.com/artifact/io.kubernetes/client-java
 
 # Rest Assured
