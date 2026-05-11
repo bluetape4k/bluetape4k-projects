@@ -187,12 +187,16 @@ class FileProcessingTest {
 
 #### TempFolder 주요 메소드
 
+`TempFolder.createFile(name)`과 `createDirectory(name)`은 임시 루트 아래의 상대 이름만 허용합니다.
+blank 이름, 절대 경로, `..` 경로 순회, 임시 루트 밖으로 해석되는 symlink 부모는 거부됩니다.
+
 ```kotlin
 val tempFolder = TempFolder()
 
 val autoNamedFile = tempFolder.createFile()
 val namedFile = tempFolder.createFile("config.yml")
 val dir = tempFolder.createDirectory("logs")
+// tempFolder.createFile("../escape.txt") 는 IllegalArgumentException 발생
 
 println(tempFolder.root)      // File 객체
 println(tempFolder.rootPath)  // String
@@ -447,6 +451,7 @@ gantt
 ## 모범 사례
 
 - 임시 파일이 필요한 테스트에는 ad hoc 경로 대신 `TempFolderExtension`을 사용하세요.
+- `TempFolder` 이름은 임시 루트 기준 상대 경로로 유지하세요. 경로 순회와 symlink escape는 거부됩니다.
 - 콘솔 출력을 검증해야 할 때는 `OutputCapture`를 사용하세요.
 - 샘플 값에는 하드코딩 대신 `FakeValue`/`Fakers` 프로바이더를 활용하세요.
 - 동시성 테스트에는 제공되는 Stress Tester 헬퍼를 재사용하세요 — 라운드 수가 증가해도 worker 수를 일정하게 유지합니다.

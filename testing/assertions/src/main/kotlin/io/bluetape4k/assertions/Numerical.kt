@@ -4,8 +4,31 @@ import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
 import java.math.BigDecimal
 
+/**
+ * [Double.shouldBeNear]의 기본 허용 오차.
+ *
+ * ```kotlin
+ * 1.0.shouldBeNear(1.0 + DOUBLE_EPSILON)
+ * ```
+ */
 const val DOUBLE_EPSILON: Double = 1e-9
+
+/**
+ * [Float.shouldBeNear]의 기본 허용 오차.
+ *
+ * ```kotlin
+ * 1.0f.shouldBeNear(1.0f + FLOAT_EPSILON)
+ * ```
+ */
 const val FLOAT_EPSILON: Float = 1e-6f
+
+/**
+ * [BigDecimal.shouldBeNear]의 기본 허용 오차.
+ *
+ * ```kotlin
+ * BigDecimal("1.0").shouldBeNear(BigDecimal("1.0000000001"))
+ * ```
+ */
 val BIGDECIMAL_EPSILON: BigDecimal = BigDecimal("1E-9")
 
 // ── Comparable 비교 ──────────────────────────────────────────────────────────
@@ -876,10 +899,12 @@ infix fun ULong.shouldNotBeIn(range: ULongRange): ULong {
  *
  * @receiver 검증할 Double 값
  * @param expected 기대하는 근사 값
- * @param tolerance 허용 오차 (양수여야 함)
+ * @param tolerance 허용 오차 (0 이상, NaN 불가)
  * @return receiver (체이닝 지원)
+ * @throws IllegalArgumentException [tolerance]가 음수이거나 NaN인 경우
  */
 fun Double.shouldBeNear(expected: Double, tolerance: Double = DOUBLE_EPSILON): Double {
+    require(!tolerance.isNaN() && tolerance >= 0.0) { "tolerance must be non-negative and not NaN" }
     if (this.isNaN() || expected.isNaN() || kotlin.math.abs(this - expected) > tolerance) {
         Failures.fail(
             "Expected <$this> to be near <$expected> within tolerance <$tolerance>, but was not."
@@ -895,10 +920,12 @@ fun Double.shouldBeNear(expected: Double, tolerance: Double = DOUBLE_EPSILON): D
  *
  * @receiver 검증할 Float 값
  * @param expected 기대하는 근사 값
- * @param tolerance 허용 오차 (양수여야 함)
+ * @param tolerance 허용 오차 (0 이상, NaN 불가)
  * @return receiver (체이닝 지원)
+ * @throws IllegalArgumentException [tolerance]가 음수이거나 NaN인 경우
  */
 fun Float.shouldBeNear(expected: Float, tolerance: Float = FLOAT_EPSILON): Float {
+    require(!tolerance.isNaN() && tolerance >= 0.0f) { "tolerance must be non-negative and not NaN" }
     if (this.isNaN() || expected.isNaN() || kotlin.math.abs(this - expected) > tolerance) {
         Failures.fail(
             "Expected <$this> to be near <$expected> within tolerance <$tolerance>, but was not."
@@ -912,10 +939,12 @@ fun Float.shouldBeNear(expected: Float, tolerance: Float = FLOAT_EPSILON): Float
  *
  * @receiver 검증할 BigDecimal 값
  * @param expected 기대하는 근사 값
- * @param tolerance 허용 오차 (양수여야 함)
+ * @param tolerance 허용 오차 (0 이상)
  * @return receiver (체이닝 지원)
+ * @throws IllegalArgumentException [tolerance]가 음수인 경우
  */
 fun BigDecimal.shouldBeNear(expected: BigDecimal, tolerance: BigDecimal = BIGDECIMAL_EPSILON): BigDecimal {
+    require(tolerance.signum() >= 0) { "tolerance must be non-negative" }
     if ((this - expected).abs() > tolerance) {
         Failures.fail(
             "Expected <$this> to be near <$expected> within tolerance <$tolerance>, but was not."
@@ -931,10 +960,12 @@ fun BigDecimal.shouldBeNear(expected: BigDecimal, tolerance: BigDecimal = BIGDEC
  *
  * @receiver 검증할 Double 값
  * @param expected 비교 기준 값
- * @param delta 허용 오차
+ * @param delta 허용 오차 (0 이상, NaN 불가)
  * @return receiver (체이닝 지원)
+ * @throws IllegalArgumentException [delta]가 음수이거나 NaN인 경우
  */
 fun Double.shouldNotBeNear(expected: Double, delta: Double): Double {
+    require(!delta.isNaN() && delta >= 0.0) { "delta must be non-negative and not NaN" }
     if (!this.isNaN() && !expected.isNaN() && kotlin.math.abs(this - expected) <= delta) {
         Failures.fail(
             "Expected <$this> to not be near <$expected> within tolerance <$delta>, but was."
@@ -950,10 +981,12 @@ fun Double.shouldNotBeNear(expected: Double, delta: Double): Double {
  *
  * @receiver 검증할 Float 값
  * @param expected 비교 기준 값
- * @param delta 허용 오차
+ * @param delta 허용 오차 (0 이상, NaN 불가)
  * @return receiver (체이닝 지원)
+ * @throws IllegalArgumentException [delta]가 음수이거나 NaN인 경우
  */
 fun Float.shouldNotBeNear(expected: Float, delta: Float): Float {
+    require(!delta.isNaN() && delta >= 0.0f) { "delta must be non-negative and not NaN" }
     if (!this.isNaN() && !expected.isNaN() && kotlin.math.abs(this - expected) <= delta) {
         Failures.fail(
             "Expected <$this> to not be near <$expected> within tolerance <$delta>, but was."

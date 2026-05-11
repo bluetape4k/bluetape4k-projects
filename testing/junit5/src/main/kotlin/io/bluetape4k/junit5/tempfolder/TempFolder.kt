@@ -7,7 +7,7 @@ import java.io.Closeable
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.Path
 
 /**
  * 테스트용 임시 루트 디렉터리와 하위 파일/디렉터리 생성을 관리합니다.
@@ -15,6 +15,8 @@ import java.nio.file.Paths
  * ## 동작/계약
  * - 생성 시 즉시 OS 임시 디렉터리 아래에 루트 폴더를 하나 만듭니다.
  * - 파일/디렉터리 생성 실패는 [TempFolderException]으로 감싸 던집니다.
+ * - 이름을 지정해 생성하는 파일/디렉터리는 정규화된 경로와 symlink 부모를 모두 검사해
+ *   임시 루트 밖에 생성되지 않도록 제한합니다.
  * - [close] 호출 시 루트 경로를 재귀 삭제하며 실패는 경고 로그로만 남깁니다.
  * - [Closeable]([AutoCloseable])을 구현하므로 JUnit 5 Extension Store에 저장 시
  *   테스트 컨텍스트 종료 시점에 [close]가 자동 호출되어 임시 파일이 정리됩니다.
@@ -71,6 +73,7 @@ class TempFolder: Closeable {
      *
      * ## 동작/계약
      * - `filename`이 blank이면 [IllegalArgumentException]이 발생합니다.
+     * - `..`, 절대 경로, 루트 밖을 가리키는 symlink 부모는 [IllegalArgumentException]으로 거부합니다.
      * - 이미 파일이 존재하거나 생성 실패 시 [TempFolderException]이 발생합니다.
      *
      * @param filename 생성할 파일 이름(공백 불가)
@@ -79,10 +82,7 @@ class TempFolder: Closeable {
         require(filename.isNotBlank()) { "filename must not be blank" }
 
         return try {
-            val path = Paths.get(rootFile.path, filename).normalize()
-            require(path.startsWith(rootFile.toPath())) {
-                "경로 순회가 감지되었습니다. filename이 임시 루트 디렉터리를 벗어날 수 없습니다: $filename"
-            }
+            val path = resolveChildPath(filename, "filename")
             Files.createFile(path).toFile().apply {
                 log.debug { "임시 파일을 생성했습니다. file=[$this]" }
             }
@@ -96,6 +96,7 @@ class TempFolder: Closeable {
      *
      * ## 동작/계약
      * - `dir`이 blank이면 [IllegalArgumentException]이 발생합니다.
+     * - `..`, 절대 경로, 루트 밖을 가리키는 symlink 부모는 [IllegalArgumentException]으로 거부합니다.
      * - 생성 실패 시 [TempFolderException]이 발생합니다.
      *
      * @param dir 생성할 디렉터리 이름(공백 불가)
@@ -104,10 +105,7 @@ class TempFolder: Closeable {
         require(dir.isNotBlank()) { "dir must not be blank" }
 
         return try {
-            val path = Paths.get(rootFile.path, dir).normalize()
-            require(path.startsWith(rootFile.toPath())) {
-                "경로 순회가 감지되었습니다. dir이 임시 루트 디렉터리를 벗어날 수 없습니다: $dir"
-            }
+            val path = resolveChildPath(dir, "dir")
             Files.createDirectory(path).toFile().apply {
                 log.debug { "임시 폴더를 생성했습니다. dir=[$this]" }
             }
@@ -141,5 +139,30 @@ class TempFolder: Closeable {
         } catch (e: Throwable) {
             throw TempFolderException("임시 폴더를 삭제하는데 실패했습니다. [${rootFile.path}]", e)
         }
+    }
+
+    private fun resolveChildPath(name: String, argumentName: String): Path {
+        val requestedPath = Path.of(name)
+        require(!requestedPath.isAbsolute) {
+            "$argumentName 은 절대 경로일 수 없습니다: $name"
+        }
+
+        val rootPath = rootFile.toPath().toAbsolutePath().normalize()
+        val path = rootPath.resolve(requestedPath).normalize()
+
+        require(path.startsWith(rootPath)) {
+            "경로 순회가 감지되었습니다. $argumentName 이 임시 루트 디렉터리를 벗어날 수 없습니다: $name"
+        }
+
+        val parent = path.parent ?: rootPath
+        if (Files.exists(parent)) {
+            val realRoot = rootPath.toRealPath()
+            val realParent = parent.toRealPath()
+            require(realParent.startsWith(realRoot)) {
+                "경로 순회가 감지되었습니다. $argumentName 의 부모 경로가 임시 루트 디렉터리를 벗어납니다: $name"
+            }
+        }
+
+        return path
     }
 }

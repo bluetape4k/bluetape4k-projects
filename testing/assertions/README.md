@@ -28,7 +28,7 @@ graph TD
 
 - **bluetape4k-assertions-compatible** infix DSL — same function names, import-only migration
 - **Basic**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` with smart cast contract
-- **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`), sign checks, signed and unsigned range containment
+- **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterOrEqualTo`), sign checks, signed and unsigned range containment
 - **Collections / Arrays / Maps**: content equality, containment (`shouldContainAll`, `shouldNotContainAny`)
 - **CharSequences**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, case-insensitive checks
 - **Exceptions**: `invoking { }` / `shouldThrow`, message matching, cause inspection
@@ -54,8 +54,14 @@ testImplementation(project(":bluetape4k-junit5"))
 
 ```kotlin
 import io.bluetape4k.assertions.*
-import io.bluetape4k.junit5.BlueConf
+import io.bluetape4k.assertions.coroutines.assertEmpty
+import io.bluetape4k.assertions.coroutines.assertResult
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 class MyTest {
     @Test
@@ -79,14 +85,13 @@ class MyTest {
         
         // Numerical
         5 shouldBeLessThan 10
-        5 shouldBeGreaterThanOrEqualTo 5
+        5 shouldBeGreaterOrEqualTo 5
         5 shouldBeInRange 1..10
         UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
-        5.0 shouldBeNear 5.1 tolerance 0.2
+        5.0.shouldBeNear(5.1, tolerance = 0.2)
         
         // Exceptions
-        invoking { error("boom") } shouldThrow IllegalStateException::class
-        coInvoking { delay(100) } shouldNotThrow
+        invoking { error("boom") }.shouldThrow(IllegalStateException::class)
         
         // Reflection
         listOf(1, 2, 3).shouldBeInstanceOf<List<*>>()
@@ -95,6 +100,13 @@ class MyTest {
         val now = LocalDateTime.now()
         now.shouldBeAfter(now.minusSeconds(1))
         now.shouldBeOnOrBefore(now.plusSeconds(1))
+    }
+
+    @Test
+    fun `coroutine assertions`() = runTest {
+        coInvoking { delay(10) }.shouldNotThrow()
+        flowOf(1, 2, 3).assertResult(1, 2, 3)
+        emptyFlow<Int>().assertEmpty()
     }
     
     @Test
@@ -107,12 +119,6 @@ class MyTest {
         // All assertions collected, MultipleFailuresError if any fail
     }
     
-    @Test
-    fun `flow assertions`() {
-        flowOf(1, 2, 3).assertResult(1, 2, 3)
-        flowOf(1, 2).assertNotEmpty()
-        flow<Int> { }.assertEmpty()
-    }
 }
 ```
 
@@ -134,9 +140,9 @@ class MyTest {
 | Function | Description |
 |----------|-------------|
 | `shouldBeLessThan(bound)` | < |
-| `shouldBeLessThanOrEqualTo(bound)` | <= |
+| `shouldBeLessOrEqualTo(bound)` | <= |
 | `shouldBeGreaterThan(bound)` | > |
-| `shouldBeGreaterThanOrEqualTo(bound)` | >= |
+| `shouldBeGreaterOrEqualTo(bound)` | >= |
 | `shouldBePositive()` | > 0 |
 | `shouldBeNegative()` | < 0 |
 | `shouldBeInRange(range)` | Closed range containment |
@@ -166,9 +172,9 @@ class MyTest {
 
 | Function | Description |
 |----------|-------------|
-| `invoking { }.shouldThrow<E>()` | Sync block throws E |
+| `invoking { }.shouldThrow(E::class)` | Sync block throws E |
 | `invoking { }.shouldNotThrow()` | Sync block throws nothing |
-| `coInvoking { }.shouldThrow<E>()` | Async block throws E |
+| `coInvoking { }.shouldThrow(E::class)` | Async block throws E |
 | `.withMessage(msg)` | Exact message match (chain) |
 | `.withMessageContaining(substring)` | Message contains (chain) |
 
@@ -188,7 +194,7 @@ Replace `import io.bluetape4k.assertions.*` with `import io.bluetape4k.assertion
 | `shouldBe` (value ==) | `shouldBeEqualTo` | Different semantics in bluetape4k |
 | `shouldBe` (ref ===) | `shouldBe` | Same behavior |
 | `shouldNotBeNull()` | `shouldNotBeNull()` | + smart cast contract |
-| `shouldThrow<E>()` | `invoking { }.shouldThrow(E::class)` | Explicit block wrapper |
+| `shouldThrow(E::class)` | `invoking { }.shouldThrow(E::class)` | Explicit block wrapper |
 | `shouldHaveMessage()` | `.withMessage()` | Chain on InvokingBlock |
 | `coInvoking { }` | `coInvoking { }` | Full coroutine support |
 

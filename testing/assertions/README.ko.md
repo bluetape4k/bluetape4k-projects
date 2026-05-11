@@ -28,7 +28,7 @@ graph TD
 
 - **bluetape4k-assertions 호환** infix DSL — 같은 함수 이름, import만 교체하면 완료
 - **기본**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` 스마트 캐스트 지원
-- **숫자 비교**: `shouldBeLessThan`, `shouldBeGreaterThanOrEqualTo`, 부호 확인, signed/unsigned 범위 포함 확인
+- **숫자 비교**: `shouldBeLessThan`, `shouldBeGreaterOrEqualTo`, 부호 확인, signed/unsigned 범위 포함 확인
 - **컬렉션/배열/맵**: 내용 동등성, 포함 검증 (`shouldContainAll`, `shouldNotContainAny`)
 - **문자열**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, 대소문자 무시 검증
 - **예외**: `invoking { }` / `shouldThrow`, 메시지 검증, 원인 검사
@@ -54,8 +54,14 @@ testImplementation(project(":bluetape4k-junit5"))
 
 ```kotlin
 import io.bluetape4k.assertions.*
-import io.bluetape4k.junit5.BlueConf
+import io.bluetape4k.assertions.coroutines.assertEmpty
+import io.bluetape4k.assertions.coroutines.assertResult
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 class MyTest {
     @Test
@@ -79,14 +85,13 @@ class MyTest {
         
         // 숫자 비교
         5 shouldBeLessThan 10
-        5 shouldBeGreaterThanOrEqualTo 5
+        5 shouldBeGreaterOrEqualTo 5
         5 shouldBeInRange 1..10
         UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
-        5.0 shouldBeNear 5.1 tolerance 0.2
+        5.0.shouldBeNear(5.1, tolerance = 0.2)
         
         // 예외
-        invoking { error("boom") } shouldThrow IllegalStateException::class
-        coInvoking { delay(100) } shouldNotThrow
+        invoking { error("boom") }.shouldThrow(IllegalStateException::class)
         
         // 리플렉션
         listOf(1, 2, 3).shouldBeInstanceOf<List<*>>()
@@ -95,6 +100,13 @@ class MyTest {
         val now = LocalDateTime.now()
         now.shouldBeAfter(now.minusSeconds(1))
         now.shouldBeOnOrBefore(now.plusSeconds(1))
+    }
+
+    @Test
+    fun `coroutine 검증`() = runTest {
+        coInvoking { delay(10) }.shouldNotThrow()
+        flowOf(1, 2, 3).assertResult(1, 2, 3)
+        emptyFlow<Int>().assertEmpty()
     }
     
     @Test
@@ -107,12 +119,6 @@ class MyTest {
         // 모든 검증 수집, 실패 시 MultipleFailuresError 발생
     }
     
-    @Test
-    fun `flow 검증`() {
-        flowOf(1, 2, 3).assertResult(1, 2, 3)
-        flowOf(1, 2).assertNotEmpty()
-        flow<Int> { }.assertEmpty()
-    }
 }
 ```
 
@@ -134,9 +140,9 @@ class MyTest {
 | 함수 | 설명 |
 |------|------|
 | `shouldBeLessThan(bound)` | < |
-| `shouldBeLessThanOrEqualTo(bound)` | <= |
+| `shouldBeLessOrEqualTo(bound)` | <= |
 | `shouldBeGreaterThan(bound)` | > |
-| `shouldBeGreaterThanOrEqualTo(bound)` | >= |
+| `shouldBeGreaterOrEqualTo(bound)` | >= |
 | `shouldBePositive()` | > 0 |
 | `shouldBeNegative()` | < 0 |
 | `shouldBeInRange(range)` | 닫힌 범위 포함 확인 |
@@ -166,9 +172,9 @@ class MyTest {
 
 | 함수 | 설명 |
 |------|------|
-| `invoking { }.shouldThrow<E>()` | 동기 블록이 E 예외 발생 |
+| `invoking { }.shouldThrow(E::class)` | 동기 블록이 E 예외 발생 |
 | `invoking { }.shouldNotThrow()` | 동기 블록이 예외 미발생 |
-| `coInvoking { }.shouldThrow<E>()` | 비동기 블록이 E 예외 발생 |
+| `coInvoking { }.shouldThrow(E::class)` | 비동기 블록이 E 예외 발생 |
 | `.withMessage(msg)` | 정확한 메시지 일치 (체이닝) |
 | `.withMessageContaining(substring)` | 메시지 부분 포함 (체이닝) |
 
@@ -188,7 +194,7 @@ class MyTest {
 | `shouldBe` (value ==) | `shouldBeEqualTo` | bluetape4k에서는 의미가 다름 |
 | `shouldBe` (ref ===) | `shouldBe` | 동일한 동작 |
 | `shouldNotBeNull()` | `shouldNotBeNull()` | + 스마트 캐스트 지원 |
-| `shouldThrow<E>()` | `invoking { }.shouldThrow(E::class)` | 명시적 블록 래퍼 |
+| `shouldThrow(E::class)` | `invoking { }.shouldThrow(E::class)` | 명시적 블록 래퍼 |
 | `shouldHaveMessage()` | `.withMessage()` | InvokingBlock에서 체이닝 |
 | `coInvoking { }` | `coInvoking { }` | 완전한 coroutine 지원 |
 

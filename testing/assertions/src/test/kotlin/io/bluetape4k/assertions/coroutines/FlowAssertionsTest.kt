@@ -1,6 +1,7 @@
 package io.bluetape4k.assertions.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -41,6 +42,13 @@ class FlowAssertionsTest {
     @Test
     fun `assertResultSet passes regardless of order`() = runTest {
         flowOf(3, 1, 2).assertResultSet(1, 2, 3)
+    }
+
+    @Test
+    fun `assertResultSet compares duplicate counts`() = runTest {
+        assertFailsWith<AssertionFailedError> {
+            flowOf(1, 1, 2).assertResultSet(1, 2, 2)
+        }
     }
 
     @Test
@@ -97,6 +105,29 @@ class FlowAssertionsTest {
         }
         assertFailsWith<AssertionFailedError> {
             errorFlow.assertError<IllegalArgumentException>()
+        }
+    }
+
+    @Test
+    fun `assertFailure rethrows CancellationException`() = runTest {
+        val cancelledFlow = flow<Int> {
+            emit(1)
+            throw CancellationException("cancelled")
+        }
+
+        assertFailsWith<CancellationException> {
+            cancelledFlow.assertFailure<Int, IllegalStateException>(1)
+        }
+    }
+
+    @Test
+    fun `assertError rethrows CancellationException`() = runTest {
+        val cancelledFlow = flow<Int> {
+            throw CancellationException("cancelled")
+        }
+
+        assertFailsWith<CancellationException> {
+            cancelledFlow.assertError<IllegalStateException>()
         }
     }
 }

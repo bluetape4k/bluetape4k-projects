@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.opentest4j.AssertionFailedError
+import java.math.BigDecimal
 
 class NumericalTest {
 
@@ -744,6 +745,16 @@ class NumericalTest {
         }
     }
 
+    @Test
+    fun `Double shouldBeNear rejects invalid tolerance`() {
+        assertFailsWith<IllegalArgumentException> {
+            1.0.shouldBeNear(1.0, -1.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            1.0.shouldBeNear(1.0, Double.NaN)
+        }
+    }
+
     // ── shouldBeNear (Float) ──────────────────────────────────────────────
 
     @Test
@@ -773,6 +784,30 @@ class NumericalTest {
         }
     }
 
+    @Test
+    fun `Float shouldBeNear rejects invalid tolerance`() {
+        assertFailsWith<IllegalArgumentException> {
+            1.0f.shouldBeNear(1.0f, -1.0f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            1.0f.shouldBeNear(1.0f, Float.NaN)
+        }
+    }
+
+    // ── shouldBeNear (BigDecimal) ─────────────────────────────────────────
+
+    @Test
+    fun `BigDecimal shouldBeNear passes within tolerance`() {
+        BigDecimal("1.000000001").shouldBeNear(BigDecimal("1.000000002"), BigDecimal("0.000000001"))
+    }
+
+    @Test
+    fun `BigDecimal shouldBeNear rejects negative tolerance`() {
+        assertFailsWith<IllegalArgumentException> {
+            BigDecimal("1.0").shouldBeNear(BigDecimal("1.0"), BigDecimal("-0.1"))
+        }
+    }
+
     // ── shouldNotBeNear (Double) ───────────────────────────────────────────
 
     @Test
@@ -798,6 +833,16 @@ class NumericalTest {
         1.0.shouldNotBeNear(Double.NaN, 1e-6)
     }
 
+    @Test
+    fun `Double shouldNotBeNear rejects invalid delta`() {
+        assertFailsWith<IllegalArgumentException> {
+            1.0.shouldNotBeNear(2.0, -1.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            1.0.shouldNotBeNear(2.0, Double.NaN)
+        }
+    }
+
     // ── shouldNotBeNear (Float) ────────────────────────────────────────────
 
     @Test
@@ -815,6 +860,16 @@ class NumericalTest {
     @Test
     fun `Float shouldNotBeNear passes when receiver is NaN`() {
         Float.NaN.shouldNotBeNear(1.0f, 1e-6f)
+    }
+
+    @Test
+    fun `Float shouldNotBeNear rejects invalid delta`() {
+        assertFailsWith<IllegalArgumentException> {
+            1.0f.shouldNotBeNear(2.0f, -1.0f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            1.0f.shouldNotBeNear(2.0f, Float.NaN)
+        }
     }
 
     // ── shouldNotBeNear infix (default tolerance) ─────────────────────────

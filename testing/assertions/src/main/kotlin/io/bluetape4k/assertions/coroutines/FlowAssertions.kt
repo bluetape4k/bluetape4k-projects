@@ -59,8 +59,10 @@ suspend fun <T> Flow<T>.assertResult(vararg values: T) {
 /**
  * 이 Flow가 [values]를 정확히 방출하는지 검증한다 (순서 무관).
  *
+ * 같은 값을 여러 번 방출하는 경우 중복 개수까지 비교한다.
+ *
  * @receiver 검증할 Flow
- * @param values 기대하는 값들 (순서 무관, 집합 비교)
+ * @param values 기대하는 값들 (순서 무관, 중복 개수 포함)
  * @throws org.opentest4j.AssertionFailedError 결과 집합이 다른 경우
  */
 suspend fun <T> Flow<T>.assertResultSet(vararg values: T) {
@@ -70,16 +72,18 @@ suspend fun <T> Flow<T>.assertResultSet(vararg values: T) {
 /**
  * 이 Flow가 [values]를 정확히 방출하는지 검증한다 (순서 무관).
  *
+ * 같은 값을 여러 번 방출하는 경우 중복 개수까지 비교한다.
+ *
  * @receiver 검증할 Flow
- * @param values 기대하는 값들 (순서 무관, 집합 비교)
+ * @param values 기대하는 값들 (순서 무관, 중복 개수 포함)
  * @throws org.opentest4j.AssertionFailedError 결과 집합이 다른 경우
  */
 suspend fun <T> Flow<T>.assertResultSet(values: Iterable<T>) {
     val actual = toList()
     val expected = values.toList()
-    if (actual.size != expected.size || actual.toSet() != expected.toSet()) {
+    if (actual.groupingBy { it }.eachCount() != expected.groupingBy { it }.eachCount()) {
         Failures.failComparison(
-            "Flow result sets differ (order-insensitive)",
+            "Flow result sets differ (order-insensitive, duplicate-aware)",
             expected.sortedBy { it.toString() },
             actual.sortedBy { it.toString() }
         )
