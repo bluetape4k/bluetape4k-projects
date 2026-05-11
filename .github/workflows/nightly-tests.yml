@@ -1,4 +1,4 @@
-name: Nightly Tests (Testcontainers)
+name: Nightly
 
 on:
   schedule:
