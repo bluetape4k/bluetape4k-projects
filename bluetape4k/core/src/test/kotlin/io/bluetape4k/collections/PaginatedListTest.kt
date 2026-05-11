@@ -1,6 +1,7 @@
 package io.bluetape4k.collections
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
@@ -80,5 +81,45 @@ class PaginatedListTest {
 
         list.contents.size shouldBeEqualTo 5
         list.contents shouldBeEqualTo items
+    }
+
+    @Test
+    fun `pageNo는 0 이상이어야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            SimplePaginatedList(
+                contents = emptyList<String>(),
+                pageNo = -1,
+                totalItemCount = 0,
+            )
+        }
+    }
+
+    @Test
+    fun `pageSize는 양수이어야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            SimplePaginatedList(
+                contents = emptyList<String>(),
+                pageSize = 0,
+                totalItemCount = 0,
+            )
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            SimplePaginatedList(
+                contents = emptyList<String>(),
+                pageSize = -1,
+                totalItemCount = 0,
+            )
+        }
+    }
+
+    @Test
+    fun `totalItemCount는 0 이상이어야 한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            SimplePaginatedList(
+                contents = emptyList<String>(),
+                totalItemCount = -1,
+            )
+        }
     }
 }
