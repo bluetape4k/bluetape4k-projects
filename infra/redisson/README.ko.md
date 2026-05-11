@@ -231,6 +231,7 @@ import io.bluetape4k.redis.redisson.coroutines.sequence
 // 여러 RFuture를 suspend로 일괄 대기
 val rfutures: List<RFuture<String>> = ids.map { rmap.getAsync(it) }
 val results: List<String> = rfutures.awaitAll()   // suspend
+// awaitAll()은 입력 순서를 보존하고 현재 coroutine dispatcher를 통해 재개합니다.
 
 // CompletableFuture로 변환 후 일괄 처리 (blocking)
 val future: CompletableFuture<List<String>> = rfutures.sequence()

@@ -232,6 +232,7 @@ import io.bluetape4k.redis.redisson.coroutines.sequence
 // Await multiple RFutures as suspend
 val rfutures: List<RFuture<String>> = ids.map { rmap.getAsync(it) }
 val results: List<String> = rfutures.awaitAll()   // suspend
+// awaitAll() preserves input order and resumes through the current coroutine dispatcher.
 
 // Convert to CompletableFuture for batch processing (blocking)
 val future: CompletableFuture<List<String>> = rfutures.sequence()
