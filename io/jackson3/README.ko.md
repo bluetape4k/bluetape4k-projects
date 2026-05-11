@@ -8,6 +8,31 @@
 
 Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서, Jackson 3.x의 새로운 API와 패키지 구조(`tools.jackson.*`)를 따릅니다.
 
+## bluetape4k에서 Jackson3를 쓰는 장점
+
+- Kotlin 우선 매퍼 구성: `jsonMapper { }`와 `Jackson.defaultJsonMapper`가 Kotlin 모듈 기본값을 한곳에 모읍니다.
+- 안전한 확장 함수: `readValueOrNull`, `writeAsString`, `writeAsBytes`로 자주 쓰는 직렬화 경로를 간결하게 표현합니다.
+- 스트리밍 친화 파싱: 콜백/코루틴 파서가 전체 응답을 먼저 버퍼링하지 않고 루트 JSON 노드 단위로 처리합니다.
+- 보안 확장: Tink 기반 필드 암호화와 필드 마스킹을 Jackson 모델 애너테이션으로 연결할 수 있습니다.
+- 포맷 선택성: 바이너리/텍스트 포맷은 `compileOnly`로 두고, 애플리케이션이 필요한 런타임 포맷만 추가합니다.
+
+## 추천 사용 시나리오
+
+- 새 Kotlin 코드가 Jackson 3.x와 `tools.jackson.*` 패키지를 기준으로 작성될 때 사용하세요.
+- bluetape4k serializer 계약, 캐시 payload, 단순 JSON byte/string 변환에는 `JacksonSerializer`를 사용하세요.
+- 실패 시 `null` 반환이 호출자 계약에 맞고, 누락 데이터와 잘못된 데이터를 구분할 수 있을 때 ObjectMapper 확장 함수를 사용하세요.
+- Netty, WebSocket, TCP, 메시지 리스너처럼 콜백으로 청크를 받는 코드는 `AsyncJsonParser`를 사용하세요.
+- 하나의 유한한 `Flow<ByteArray>`가 완성된 논리 스트림을 나타내면 `SuspendJsonParser.consumeComplete(flow)`를 사용하세요.
+- 직렬화된 JSON 문서 안에서 보호해야 하는 문자열 필드에만 `@JsonTinkEncrypt`를 사용하세요.
+
+## Anti-Patterns
+
+- Jackson 2.x import를 이 모듈로 복사하지 마세요. Jackson 3.x API는 `tools.jackson.*`에 있고, 일부 annotation만 `com.fasterxml.jackson.annotation`에 남아 있습니다.
+- 제거된 `activateDefaultTyping()` 동작에 의존하지 마세요. 명시적인 다형성 모델이나 sealed hierarchy를 사용하세요.
+- 잘못된 JSON을 감사하거나 호출자에게 알려야 하는 경로에는 `readValueOrNull`을 쓰지 말고 예외를 던지는 Jackson API를 사용하세요.
+- 네트워크/파일 스트림을 끝낼 때 `endOfInput()` 또는 `consumeComplete(...)`를 생략하지 마세요. 마지막 JSON 토큰이 잘렸는데도 “추가 입력 대기”처럼 보일 수 있습니다.
+- `consume(flow)` 완료를 EOF로 해석하지 마세요. 이 메서드는 이후 청크를 더 붙일 수 있는 증분 공급 API입니다.
+
 ## Jackson 2.x vs 3.x
 
 | 항목            | Jackson 2.x                             | Jackson 3.x                            |
@@ -102,12 +127,13 @@ val parser = AsyncJsonParser { root ->
 }
 parser.consume(chunk1)
 parser.consume(chunk2)
+parser.endOfInput()
 
 // 코루틴 기반 파싱
 val suspendParser = SuspendJsonParser { root ->
     processNode(root)  // suspend 가능
 }
-suspendParser.consume(byteArrayFlow)
+suspendParser.consumeComplete(byteArrayFlow)
 ```
 
 언제 어떤 파서를 쓰면 좋은지:
@@ -115,6 +141,7 @@ suspendParser.consume(byteArrayFlow)
 - `AsyncJsonParser`: Netty, WebSocket, TCP, 메시지 리스너처럼 `ByteArray` 청크를 콜백으로 받는 push 스타일 코드
 - `SuspendJsonParser`: `Flow<ByteArray>` 기반 파이프라인, `WebClient`/파일/브로커 스트림처럼 suspend 후처리가 필요한 코드
 - 두 파서 모두 연속된 여러 JSON 루트와 루트 스칼라 JSON(`"text"`, `123`, `true`, `null`)를 처리할 수 있습니다.
+- 콜백 스트림이 끝나면 `endOfInput()`을 호출하고, 유한한 Flow는 `consumeComplete(flow)`를 사용하세요. Jackson은 이 EOF 신호를 받아야 마지막 JSON이 잘린 경우 오류로 판정합니다.
 
 ### 4-1. WebClient 스트리밍 예제
 
@@ -150,7 +177,7 @@ val chunkFlow = webClient.get()
     }
     .asFlow()
 
-parser.consume(chunkFlow)
+parser.consumeComplete(chunkFlow)
 ```
 
 이미 청크를 콜백으로 받고 있다면 같은 시나리오에서도 `AsyncJsonParser`가 더 자연스럽습니다.
@@ -169,27 +196,7 @@ data class User(
 )
 ```
 
-### 6. 필드 암호화 (@JsonEncrypt / @JsonTinkEncrypt)
-
-#### Jasypt 기반 (`@JsonEncrypt`) — Deprecated
-
-```kotlin
-import io.bluetape4k.jackson3.crypto.JsonEncrypt
-import io.bluetape4k.jackson3.crypto.JsonEncryptModule
-
-data class User(
-    val username: String,
-    @get:JsonEncrypt          // AES 기본 암호화 (Jasypt)
-    val password: String,
-)
-
-// JsonEncryptModule 등록 필요
-val mapper = Jackson.createDefaultJsonMapper().rebuild()
-    .addModule(JsonEncryptModule())
-    .build()
-```
-
-#### Google Tink 기반 (`@JsonTinkEncrypt`) — 권장
+### 6. 필드 암호화 (@JsonTinkEncrypt)
 
 `bluetape4k-tink` 의존성이 필요하며, `JsonTinkEncryptModule`을 매퍼에 등록해야 합니다.
 
@@ -339,10 +346,6 @@ classDiagram
         +createDefaultJsonMapper() JsonMapper
     }
 
-    class JsonEncryptModule {
-        +setupModule(context)
-    }
-
     class JsonTinkEncryptModule {
         +setupModule(context)
     }
@@ -357,7 +360,6 @@ classDiagram
 
     JsonSerializer <|.. JacksonSerializer
     JacksonSerializer --> Jackson : 사용
-    Jackson --> JsonEncryptModule : 등록
     Jackson --> JsonTinkEncryptModule : 등록
     Jackson --> JsonMaskerModule : 등록
     Jackson --> JsonUuidModule : 등록
@@ -365,7 +367,6 @@ classDiagram
     style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
     style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JsonEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style JsonTinkEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style JsonMaskerModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style JsonUuidModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
@@ -410,9 +411,8 @@ dependencies {
     implementation("tools.jackson.dataformat:jackson-dataformat-csv3")
     implementation("tools.jackson.dataformat:jackson-dataformat-toml3")
 
-    // 암호화 (선택적)
-    implementation(project(":bluetape4k-crypto"))  // @JsonEncrypt (Jasypt) 사용 시
-    implementation(project(":bluetape4k-tink"))    // @JsonTinkEncrypt (Google Tink) 사용 시
+    // 암호화 (선택적, @JsonTinkEncrypt 사용 시)
+    implementation(project(":bluetape4k-tink"))
 }
 ```
 
@@ -429,12 +429,6 @@ io.bluetape4k.jackson3
 │   ├── AsyncJsonParser.kt        # 콜백 기반 비동기 파서
 │   └── SuspendJsonParser.kt      # 코루틴 기반 파서
 ├── crypto/                                       # 필드 암호화
-│   ├── JsonEncrypt.kt                            # @JsonEncrypt 어노테이션 (Jasypt, Deprecated)
-│   ├── JsonEncryptModule.kt                      # Jasypt Module 등록
-│   ├── JsonEncryptAnnotationInterospector.kt     # Jasypt Introspector
-│   ├── JsonEncryptSerializer.kt                  # Jasypt 암호화 직렬화기
-│   ├── JsonEncryptDeserializer.kt                # Jasypt 복호화 역직렬화기
-│   ├── JsonEncryptors.kt                         # Encryptor 캐시 관리
 │   ├── TinkEncryptAlgorithm.kt                   # Tink 알고리즘 enum
 │   ├── JsonTinkEncrypt.kt                        # @JsonTinkEncrypt 어노테이션 (Google Tink)
 │   ├── JsonTinkEncryptModule.kt                  # Tink Module 등록
