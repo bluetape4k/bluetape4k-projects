@@ -2,6 +2,7 @@ package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.future.await
@@ -51,13 +52,13 @@ fun <T: Any, R: Any> (suspend (T) -> R).memoizer(map: RMap<T, R>): RedissonSuspe
  * 1. 캐시 miss 시 [CompletableDeferred]를 `inFlight`에 등록한다.
  * 2. 동일 키를 동시에 요청한 다른 코루틴은 등록된 deferred를 `await()`으로 대기한다.
  * 3. 먼저 등록한 코루틴이 [evaluator]를 실행하고 결과를 Redis에 저장한 뒤 deferred를 완료시킨다.
- * 4. 완료 후 `inFlight`에서 해당 키를 제거한다.
+ * 4. 완료 후 `inFlight`에서 해당 키를 제거한다. evaluator 실패나 취소는 성공 값으로 저장하지 않는다.
  *
  * ## 코루틴 취소 주의사항
  * 대기 중인 코루틴이 취소되면 해당 코루틴의 `await()` 호출은 [kotlinx.coroutines.CancellationException]을
  * 던지지만, in-flight deferred 자체는 자동으로 취소되지 않습니다.
  * 즉, [evaluator]를 실행 중인 코루틴이 취소되지 않는 한 연산은 계속 진행됩니다.
- * 취소 전파가 필요한 경우 별도의 취소 처리 로직이 필요합니다.
+ * evaluator를 실행 중인 코루틴이 실패하거나 취소되면 같은 키의 다음 호출은 새 계산을 시작합니다.
  *
  * ```kotlin
  * val map: RMap<Int, Int> = redisson.getMap("squares")
@@ -84,7 +85,7 @@ class RedissonSuspendMemoizer<T: Any, R: Any>(
      * - Redis([map])에 캐시된 값이 있으면 즉시 반환한다.
      * - 캐시 miss 시 [evaluator]를 실행하고 결과를 Redis에 저장한 뒤 반환한다.
      * - 동일 키에 대한 동시 요청은 동일한 [Deferred]를 공유하여 [evaluator] 중복 실행을 방지한다.
-     * - [evaluator]에서 예외가 발생하면 deferred를 예외 상태로 완료하고 예외를 다시 던진다.
+     * - [evaluator]에서 예외나 취소가 발생하면 deferred를 예외 상태로 완료하고 예외를 다시 던진다.
      *
      * @param key 조회할 키
      * @return 키에 대응하는 값
@@ -107,6 +108,10 @@ class RedissonSuspendMemoizer<T: Any, R: Any>(
             val winner = map.putIfAbsentAsync(key, evaluated).await() ?: evaluated
             deferred.complete(winner)
             return winner
+        } catch (e: CancellationException) {
+            // CancellationException은 coroutine 취소 신호이므로 실패 공유 후 즉시 재전파한다.
+            deferred.completeExceptionally(e)
+            throw e
         } catch (e: Throwable) {
             deferred.completeExceptionally(e)
             throw e

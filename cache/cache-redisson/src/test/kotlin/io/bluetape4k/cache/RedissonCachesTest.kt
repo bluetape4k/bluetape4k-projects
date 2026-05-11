@@ -34,7 +34,7 @@ class RedissonCachesTest {
     }
 
     @Test
-    fun `suspendCache 팩토리는 RedissonSuspendCache 인스턴스를 반환한다`() {
+    fun `suspendJCache 팩토리는 RedissonSuspendJCache 인스턴스를 반환한다`() {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.suspendJCache<String, String>(redisson, name)
         try {

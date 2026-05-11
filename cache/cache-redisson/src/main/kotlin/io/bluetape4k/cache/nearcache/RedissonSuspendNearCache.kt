@@ -2,8 +2,10 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
 import org.redisson.api.RLocalCachedMap
 import org.redisson.api.RedissonClient
@@ -196,7 +198,14 @@ class RedissonSuspendNearCache<V: Any>(
      */
     override suspend fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
-            runCatching { localCachedMap.destroy() }
+            try {
+                localCachedMap.destroy()
+            } catch (e: CancellationException) {
+                // 방어적으로라도 취소 신호는 close 실패 로그로 소비하지 않고 호출자에게 전달한다.
+                throw e
+            } catch (e: Exception) {
+                log.warn(e) { "RedissonSuspendNearCache close failed. cacheName=${config.cacheName}" }
+            }
             log.debug { "RedissonSuspendNearCache [${config.cacheName}] closed" }
         }
     }
