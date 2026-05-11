@@ -1,9 +1,12 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.okio.bufferOf
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import net.datafaker.Faker
 import okio.Buffer
 import okio.IOException
@@ -93,5 +96,32 @@ class SuspendedPipeTest: AbstractOkioTest() {
         assertFailsWith<IllegalStateException> {
             pipe.source.read(Buffer(), 10)
         }
+    }
+
+    @Test
+    fun `SuspendedJobTester - concurrent producer consumer cycles remain stable`() = runSuspendIO {
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(32)
+            .add {
+                val pipe = SuspendedPipe(8L)
+
+                coroutineScope {
+                    val writer = async {
+                        val source = bufferOf("ping")
+                        pipe.sink.write(source, source.size)
+                        pipe.sink.close()
+                    }
+                    val reader = async {
+                        val sink = Buffer()
+                        pipe.source.readAll(sink)
+                        sink.readUtf8()
+                    }
+
+                    writer.await()
+                    reader.await() shouldBeEqualTo "ping"
+                }
+            }
+            .run()
     }
 }

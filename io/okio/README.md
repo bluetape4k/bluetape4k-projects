@@ -8,6 +8,103 @@ English | [한국어](./README.ko.md)
 `Source`/
 `Sink` abstractions, it provides compression, encryption, Base64 encoding, NIO channel integration, and Kotlin Coroutines async I/O.
 
+## Why Okio
+
+Okio is a pragmatic replacement layer for the parts of `java.io` and `java.nio`
+that tend to create awkward, allocation-heavy, or error-prone code. The core
+model is intentionally small: data flows through `Source` and `Sink`, and callers
+usually work with `BufferedSource`, `BufferedSink`, `Buffer`, and `ByteString`.
+
+Key strengths:
+
+- **Composable stream pipeline**: compression, encryption, Base64, hashing, and
+  channel adapters can be layered as small decorators around `Source`/`Sink`.
+- **Efficient buffering**: `Buffer` stores bytes in reusable segments and can move
+  data between buffers without copying every byte.
+- **Binary data as values**: `ByteString` makes immutable bytes easy to compare,
+  encode, decode, hash, and pass across module boundaries.
+- **One API for bytes and text**: the same buffered API handles raw bytes,
+  UTF-8, primitive numbers, and line-oriented protocols without switching
+  between byte streams and reader/writer wrappers.
+- **Safer I/O contracts**: `Timeout`, compact `Source`/`Sink` interfaces, and
+  buffered reads avoid common `InputStream.available()` and single-byte-read
+  pitfalls.
+- **Testability**: `Buffer` can stand in for both a source and a sink, so most
+  codec and protocol logic can be tested without files, sockets, or temp
+  streams.
+- **Coroutine-friendly extensions in this module**: `SuspendedSource`,
+  `SuspendedSink`, suspended file/socket channels, and `SuspendedPipe` make Okio
+  style pipelines usable from structured concurrency code.
+
+## Recommended Usage Scenarios
+
+Use `bluetape4k-okio` when your code needs one or more of these behaviors:
+
+- **Protocol or payload codecs**: implement binary protocols, framed messages,
+  length-prefixed records, checksums, or UTF-8 line parsers with `Buffer` and
+  `BufferedSource`.
+- **Streaming transformations**: compress, decompress, encrypt, decrypt, or
+  Base64-encode data while preserving the `Source`/`Sink` shape of the pipeline.
+- **Large payload processing**: prefer streaming compressors, DAEAD chunk
+  encryption, and buffered copying when payloads should not be materialized as a
+  single byte array.
+- **Bridging legacy and modern I/O**: adapt `InputStream`, `OutputStream`,
+  `ReadableByteChannel`, `WritableByteChannel`, and `FileChannel` into a common
+  Okio-based pipeline.
+- **Coroutine-based services**: use suspended file/socket adapters and
+  `SuspendedPipe` when the caller is already using structured concurrency and
+  should not block a coroutine dispatcher with raw stream operations.
+- **Deterministic tests for I/O code**: model sources and sinks with `Buffer`,
+  then add file/socket tests only for the integration boundary.
+- **Security-sensitive payload envelopes**: use DAEAD chunk encryption when the
+  payload is written incrementally and associated data must be authenticated with
+  every frame.
+
+Recommended defaults:
+
+- Prefer `use {}` around every source and sink that owns a resource.
+- Prefer streaming adapters for unknown or large payload sizes.
+- Prefer DAEAD chunk encryption for multi-write encrypted payloads.
+- Keep compression before encryption unless the protocol explicitly requires the
+  opposite order.
+- Treat `ByteString` as the public immutable boundary type and `Buffer` as the
+  mutable working area.
+- In coroutine code, prefer `SuspendedSource`/`SuspendedSink` and the suspended
+  buffered APIs instead of wrapping blocking stream calls directly.
+
+## Anti-Patterns
+
+Avoid these patterns when using this module:
+
+- **Do not rely on `InputStream.available()`** to decide whether a read can
+  complete. Use buffered Okio reads such as `request`, `require`, `exhausted`,
+  `readUtf8Line`, or protocol-specific length checks.
+- **Do not read one byte at a time from raw streams** in hot paths. Buffer the
+  source and consume bytes, strings, or primitives through `BufferedSource`.
+- **Do not materialize large streams with `readByteArray()` or `readUtf8()`**
+  unless the input is bounded and trusted. Stream to a sink or process frames
+  incrementally.
+- **Do not forget `close()` on compression or encryption sinks**. Some adapters
+  finalize footers, frames, or ciphertext only when closed.
+- **Do not use legacy `TinkEncryptSink` for multi-write payloads**. It creates
+  independent ciphertexts per write while the matching decrypt source expects a
+  single ciphertext. Use DAEAD chunk encryption for incremental writes.
+- **Do not reuse mismatched associated data** for DAEAD decryption. Associated
+  data is authenticated and must be identical to the encryption value.
+- **Do not swallow coroutine cancellation**. Re-throw `CancellationException`
+  before broad exception handling, especially around `close()` and cleanup paths.
+- **Do not implement a `SuspendedSource` that repeatedly returns `0L` for
+  positive read requests**. A positive read should either make progress, suspend
+  until progress is possible, or return `-1L` at EOF. Buffered suspended sources
+  fail fast after repeated no-progress reads to avoid infinite loops.
+- **Do not share a mutable `Buffer` across concurrent writers/readers without
+  ownership discipline**. Use `SuspendedPipe`, immutable `ByteString`, or a
+  higher-level queue/channel when ownership crosses coroutine or thread
+  boundaries.
+- **Do not mix one-shot and streaming adapters accidentally**. One-shot
+  compression/decompression buffers the full payload; streaming adapters are the
+  safer default for unbounded input.
+
 ## Key Features
 
 ### 1. Buffer / ByteString Utilities
@@ -208,6 +305,11 @@ suspend fun writeFileAsync(path: String, data: ByteArray) {
 val socketSource = SuspendedSocketChannelSource(socketChannel)
 val socketSink = SuspendedSocketChannelSink(socketChannel)
 ```
+
+Buffered suspended sources guard against broken or non-blocking delegates that
+repeatedly return `0L` for positive read requests. Operations that need more
+data, such as `request`, `skip`, `select`, `indexOf`, and `readAll`, throw an
+`IOException` after repeated no-progress reads instead of spinning forever.
 
 **Suspended Pipe (producer-consumer pattern):**
 

@@ -7,11 +7,13 @@ import io.bluetape4k.okio.coroutines.internal.ForwardSuspendedSource
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import okio.Buffer
 import okio.ByteString
 import okio.EOFException
 import okio.Options
 import okio.Timeout
+import java.io.IOException
 
 /**
  * [SuspendedSource]에 내부 버퍼를 추가하여 효율적인 읽기를 제공하는 [BufferedSuspendedSource]를 반환합니다.
@@ -24,6 +26,10 @@ import okio.Timeout
  * // line == "hello world"
  * bufferedSource.close()
  * ```
+ *
+ * ## 동작/계약
+ * - 하위 [SuspendedSource.read]가 양수 `byteCount` 요청에 대해 `0L`을 반복 반환하면
+ *   무한 대기를 막기 위해 [IOException]을 던집니다.
  */
 fun SuspendedSource.buffered(): BufferedSuspendedSource = RealBufferedSuspendedSource(this)
 
@@ -64,8 +70,11 @@ class RealBufferedSuspendedSource(
         byteCount.requireZeroOrPositiveNumber("byteCount")
         checkNotClosed()
 
+        var noProgressCount = 0
         while (buffer.size < byteCount) {
-            if (source.read(buffer, SEGMENT_SIZE) == -1L) {
+            val read = readIntoBufferOrThrowNoProgress("request bytes", noProgressCount)
+            noProgressCount = read.noProgressCount
+            if (read.byteCount == -1L) {
                 return false
             }
         }
@@ -181,13 +190,22 @@ class RealBufferedSuspendedSource(
     override suspend fun skip(byteCount: Long) {
         checkNotClosed()
         var remaining = byteCount
+        var noProgressCount = 0
         while (remaining > 0L) {
-            if (buffer.size == 0L && source.read(buffer, SEGMENT_SIZE) == -1L) {
-                throw EOFException("source exhausted. buffer size is 0 and cannot read more")
+            if (buffer.size == 0L) {
+                val read = readIntoBufferOrThrowNoProgress("skip bytes", noProgressCount)
+                noProgressCount = read.noProgressCount
+                if (read.byteCount == -1L) {
+                    throw EOFException("source exhausted. buffer size is 0 and cannot read more")
+                }
+                if (read.byteCount == 0L) {
+                    continue
+                }
             }
             val toSkip = minOf(remaining, buffer.size)
             buffer.skip(toSkip)
             remaining -= toSkip
+            noProgressCount = 0
         }
     }
 
@@ -215,6 +233,7 @@ class RealBufferedSuspendedSource(
     override suspend fun select(options: Options): Int {
         checkNotClosed()
 
+        var noProgressCount = 0
         while (true) {
             var needsMoreData = false
             for (i in 0 until options.size) {
@@ -233,7 +252,9 @@ class RealBufferedSuspendedSource(
                 }
             }
             if (!needsMoreData) return -1
-            if (source.read(buffer, SEGMENT_SIZE) == -1L) return -1
+            val read = readIntoBufferOrThrowNoProgress("select options", noProgressCount)
+            noProgressCount = read.noProgressCount
+            if (read.byteCount == -1L) return -1
         }
     }
 
@@ -270,10 +291,12 @@ class RealBufferedSuspendedSource(
             "offset=$offset, byteCount=$byteCount, sink.size=${sink.size}"
         }
         checkNotClosed()
+        var noProgressCount = 0
         if (buffer.size == 0L) {
-            val read = source.read(buffer, SEGMENT_SIZE)
-            if (read == -1L) {
-                return -1
+            while (buffer.size == 0L) {
+                val read = readIntoBufferOrThrowNoProgress("read bytes", noProgressCount)
+                noProgressCount = read.noProgressCount
+                if (read.byteCount == -1L) return -1
             }
         }
         val toRead = minOf(byteCount.toLong(), buffer.size).toInt()
@@ -288,10 +311,13 @@ class RealBufferedSuspendedSource(
         if (byteCount == 0L) return 0L
         checkNotClosed()
 
+        var noProgressCount = 0
         if (buffer.size == 0L) {
-            val read = source.read(buffer, SEGMENT_SIZE)
-            if (read == -1L)
-                return -1L
+            while (buffer.size == 0L) {
+                val read = readIntoBufferOrThrowNoProgress("read buffer", noProgressCount)
+                noProgressCount = read.noProgressCount
+                if (read.byteCount == -1L) return -1L
+            }
         }
 
         val toRead = minOf(byteCount, buffer.size)
@@ -338,11 +364,17 @@ class RealBufferedSuspendedSource(
     override suspend fun readAll(sink: SuspendedSink): Long {
         checkNotClosed()
         var totalBytesWritten = 0L
-        while (source.read(buffer, SEGMENT_SIZE) != -1L) {
+        var noProgressCount = 0
+        while (true) {
+            val read = readIntoBufferOrThrowNoProgress("read all bytes", noProgressCount)
+            noProgressCount = read.noProgressCount
+            if (read.byteCount == -1L) break
+            if (read.byteCount == 0L) continue
             val emitByteCount = buffer.completeSegmentByteCount()
             if (emitByteCount > 0L) {
                 totalBytesWritten += emitByteCount
                 sink.write(buffer, emitByteCount)
+                noProgressCount = 0
             }
         }
         if (buffer.size > 0L) {
@@ -402,10 +434,10 @@ class RealBufferedSuspendedSource(
             return buffer.readUtf8Line(newline)
         }
         if (scanLength < Long.MAX_VALUE &&
-            request(scanLength) &&
+            request(scanLength + 1L) &&
             buffer[scanLength - 1].toInt() == '\r'.code &&
             buffer[scanLength].toInt() == '\n'.code) {
-            return buffer.readUtf8(scanLength)      // The line was 'limit' UTF-8 bytes followed by \r\n.
+            return buffer.readUtf8Line(scanLength)  // The line was 'limit' UTF-8 bytes followed by \r\n.
         }
         val data = Buffer()
         buffer.copyTo(data, 0, minOf(32, buffer.size))
@@ -435,6 +467,7 @@ class RealBufferedSuspendedSource(
         fromIndex.requireInRange(0, toIndex, "fromIndex")
 
         var current = fromIndex
+        var noProgressCount = 0
         while (current < toIndex) {
             val result = buffer.indexOf(b, current, toIndex)
             if (result != -1L) {
@@ -444,9 +477,13 @@ class RealBufferedSuspendedSource(
             // The byte wasn't in the buffer. Give up if we've already reached our target size or if the
             // underlying stream is exhausted.
             val lastBufferSize = buffer.size
-            if (lastBufferSize >= toIndex || source.read(buffer, SEGMENT_SIZE) == -1L) {
+            if (lastBufferSize >= toIndex) {
                 return -1L
             }
+            val read = readIntoBufferOrThrowNoProgress("find byte", noProgressCount)
+            noProgressCount = read.noProgressCount
+            if (read.byteCount == -1L) return -1L
+            if (read.byteCount == 0L) continue
             // Continue the search from where we left off.
             current = maxOf(current, lastBufferSize)
         }
@@ -459,6 +496,7 @@ class RealBufferedSuspendedSource(
     override suspend fun indexOf(bytes: ByteString, fromIndex: Long): Long {
         checkNotClosed()
         var current = fromIndex
+        var noProgressCount = 0
         while (true) {
             val result = buffer.indexOf(bytes, current)
             if (result >= 0L) {
@@ -466,9 +504,10 @@ class RealBufferedSuspendedSource(
             }
 
             val lastBufferSize = buffer.size
-            if (source.read(buffer, SEGMENT_SIZE) == -1L) {
-                return -1L
-            }
+            val read = readIntoBufferOrThrowNoProgress("find byte string", noProgressCount)
+            noProgressCount = read.noProgressCount
+            if (read.byteCount == -1L) return -1L
+            if (read.byteCount == 0L) continue
 
             // Keep searching, picking up from where we left off.
             current = maxOf(current, lastBufferSize)
@@ -521,8 +560,11 @@ class RealBufferedSuspendedSource(
         if (closed.compareAndSet(false, true)) {
             try {
                 source.close()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 log.error(e) { "Error closing source[$source]" }
+                throw e
             }
         }
     }
@@ -535,6 +577,26 @@ class RealBufferedSuspendedSource(
     private fun checkNotClosed() {
         check(!closed.value) { "RealBufferedSuspendedSource is closed" }
     }
+
+    private suspend fun readIntoBufferOrThrowNoProgress(
+        operation: String,
+        noProgressCount: Int,
+    ): ReadAttempt {
+        val read = source.read(buffer, SEGMENT_SIZE)
+        if (read == 0L) {
+            val nextCount = noProgressCount + 1
+            if (nextCount >= SuspendedSource.MAX_NO_PROGRESS_READS) {
+                throw IOException("Unable to $operation from SuspendedSource: no progress.")
+            }
+            return ReadAttempt(read, nextCount)
+        }
+        return ReadAttempt(read, 0)
+    }
+
+    private data class ReadAttempt(
+        val byteCount: Long,
+        val noProgressCount: Int,
+    )
 
     private fun Buffer.readUtf8Line(newline: Long): String = when {
         newline > 0L && this[newline - 1].toInt() == '\r'.code -> {
