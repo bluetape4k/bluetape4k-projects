@@ -159,7 +159,7 @@ protobuf-plugin = "0.9.6"  # https://mvnrepository.com/artifact/com.google.proto
 avro-plugin = "1.9.1"  # https://mvnrepository.com/artifact/com.github.davidmc24.gradle.plugin/gradle-avro-plugin
 graalvm-native = "1.1.0"  # https://mvnrepository.com/artifact/org.graalvm.buildtools/native-gradle-plugin
 nmcp = "1.4.4"  # https://mvnrepository.com/artifact/com.gradleup.nmcp/nmcp
-dependency-check = "12.1.9"  # https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
+dependency-check = "12.2.2"  # https://mvnrepository.com/artifact/org.owasp/dependency-check-gradle
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
