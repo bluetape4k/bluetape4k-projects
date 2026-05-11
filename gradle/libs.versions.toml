@@ -926,7 +926,7 @@ neo4j-bolt-connection-netty = { module = "org.neo4j.bolt:neo4j-bolt-connection-n
 jfalkordb = { module = "com.falkordb:jfalkordb", version = "0.7.0" }  # https://mvnrepository.com/artifact/com.falkordb/jfalkordb
 
 # Minio
-minio = { module = "io.minio:minio", version = "8.6.0" }  # https://mvnrepository.com/artifact/io.minio/minio
+minio = { module = "io.minio:minio", version = "9.0.0" }  # https://mvnrepository.com/artifact/io.minio/minio
 
 # Milvus
 milvus-sdk-java = { module = "io.milvus:milvus-sdk-java", version = "2.6.13" }  # https://mvnrepository.com/artifact/io.milvus/milvus-sdk-java
