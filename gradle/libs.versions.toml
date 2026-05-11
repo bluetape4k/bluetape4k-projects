@@ -711,7 +711,7 @@ micrometer-context-propagation = { module = "io.micrometer:context-propagation",
 # OpenTelemetry
 opentelemetry-bom = { module = "io.opentelemetry:opentelemetry-bom", version.ref = "opentelemetry" }
 opentelemetry-alpha-bom = { module = "io.opentelemetry:opentelemetry-bom-alpha", version = "1.61.0-alpha" }  # https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-bom-alpha
-opentelemetry-instrumentation-bom-alpha = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha", version = "2.26.1-alpha" }  # https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom-alpha
+opentelemetry-instrumentation-bom-alpha = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha", version = "2.27.0-alpha" }  # https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-instrumentation-bom-alpha
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api" }
 opentelemetry-api-incubator = { module = "io.opentelemetry:opentelemetry-api-incubator" }
 opentelemetry-extension-aws = { module = "io.opentelemetry:opentelemetry-extension-aws" }
