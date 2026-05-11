@@ -33,6 +33,20 @@ repo-test-summary -- ./gradlew :module:test
 
 Full reference may live under `.codex/references/module-groups.md`.
 
+## Knowledge Retrieval
+
+- For prior decisions, lessons, specs, plans, security reviews, follow-up
+  issues, discussions, and historical context, query qmd before broad
+  filesystem search.
+- Use `qmd query ... -c wiki` for personal/cross-project knowledge under
+  `~/.codex/wiki`.
+- Use `qmd query ... -c bluetape4k-docs` for committed documentation under
+  `~/work/bluetape4k/**/docs/**/*.md`.
+- If qmd is unavailable or stale, fall back to `rg`/filesystem search and note
+  the indexing gap when it affects the answer.
+- For exact code symbols, filenames, current implementation lookup, and local
+  source relationships, use `rg` first.
+
 ## Build Configuration
 
 - Java 21 toolchain.
