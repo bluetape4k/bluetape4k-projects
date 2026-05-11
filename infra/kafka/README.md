@@ -7,7 +7,7 @@ A utility library for using Apache Kafka efficiently in a Kotlin environment. Pr
 ## Features
 
 - **Kotlin Coroutines support**: Kafka Producer/Consumer operations as suspend functions
-- **Multiple serialization formats**: Codecs for Jackson, Kryo, FST, and compression with LZ4/Snappy/Zstd
+- **Multiple serialization formats**: Codecs for Jackson, Kryo, Fory, and compression with LZ4/Snappy/Zstd
 - **Spring Kafka integration**: Kotlin extension functions for KafkaTemplate, listeners, and more
 - **Kafka Streams support**: Convenience functions for KStream and KTable operations
 - **Test utilities**: Testing support using Embedded Kafka
@@ -144,10 +144,10 @@ val data = mapOf("name" to "John", "age" to 30)
 val jsonBytes = jacksonCodec.serialize("test-topic", data)
 val decoded = jacksonCodec.deserialize("test-topic", jsonBytes)
 
-// LZ4 compression + Kryo serialization
-val lz4KryoCodec = KafkaCodecs.Lz4Kryo
+// LZ4 compression + Fory serialization
+val lz4ForyCodec = KafkaCodecs.Lz4Fory
 val largeObject = LargeDataObject(/* ... */)
-val compressed = lz4KryoCodec.serialize("test-topic", largeObject)
+val compressed = lz4ForyCodec.serialize("test-topic", largeObject)
 ```
 
 Available codecs:
@@ -159,11 +159,16 @@ Available codecs:
 | `KafkaCodecs.Jackson`   | JSON serialization                      |
 | `KafkaCodecs.Jdk`       | **Deprecated** — JDK serialization (RCE risk, use Fory) |
 | `KafkaCodecs.Kryo`      | Kryo binary serialization               |
-| `KafkaCodecs.Fory`      | FST binary serialization                |
+| `KafkaCodecs.Fory`      | Fory binary serialization               |
 | `KafkaCodecs.LZ4Jdk`    | LZ4 compression + Java serialization    |
 | `KafkaCodecs.Lz4Kryo`   | LZ4 compression + Kryo serialization    |
+| `KafkaCodecs.Lz4Fory`   | LZ4 compression + Fory serialization    |
 | `KafkaCodecs.SnappyJdk` | Snappy compression + Java serialization |
+| `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
+| `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization |
+| `KafkaCodecs.ZstdJdk`   | Zstd compression + Java serialization   |
 | `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization   |
+| `KafkaCodecs.ZstdFory`  | Zstd compression + Fory serialization   |
 
 #### Performance: Opt-out of Value-Type Header
 
@@ -419,12 +424,20 @@ classDiagram
     class KafkaCodecs {
         <<object>>
         +String: StringKafkaCodec
+        +ByteArray: ByteArrayKafkaCodec
         +Jackson: JacksonKafkaCodec
+        +Jdk: BinaryKafkaCodec
         +Kryo: BinaryKafkaCodec
         +Fory: BinaryKafkaCodec
         +LZ4Jdk: BinaryKafkaCodec
         +Lz4Kryo: BinaryKafkaCodec
+        +Lz4Fory: BinaryKafkaCodec
+        +SnappyJdk: BinaryKafkaCodec
+        +SnappyKryo: BinaryKafkaCodec
+        +SnappyFory: BinaryKafkaCodec
+        +ZstdJdk: BinaryKafkaCodec
         +ZstdKryo: BinaryKafkaCodec
+        +ZstdFory: BinaryKafkaCodec
     }
 
     class SuspendKafkaProducerTemplate {
@@ -516,7 +529,7 @@ io.bluetape4k.kafka
 │   ├── KafkaCodec.kt         # Base codec interface
 │   ├── KafkaCodecs.kt        # Codec instances
 │   ├── JacksonKafkaCodec.kt  # JSON serialization
-│   ├── BinaryKafkaCodecs.kt  # Binary serialization (JDK, Kryo, FST)
+│   ├── BinaryKafkaCodecs.kt  # Binary serialization (JDK, Kryo, Fory)
 │   ├── StringKafkaCodec.kt   # String serialization
 │   └── ByteArrayKafkaCodec.kt # Byte array serialization
 ├── coroutines/               # Coroutine support

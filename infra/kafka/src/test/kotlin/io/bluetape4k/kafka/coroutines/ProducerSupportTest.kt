@@ -2,29 +2,44 @@ package io.bluetape4k.kafka.coroutines
 
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.kafka.getMetricValueOrNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.asDouble
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.asDouble
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import org.apache.kafka.clients.producer.Callback
+import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 
 @RandomizedTest
@@ -56,6 +71,60 @@ class ProducerSupportTest: AbstractKafkaTest() {
 
         val metadata = producer.suspendSend(record)
         metadata.verifyRecordMetadata()
+    }
+
+    @Test
+    fun `suspendSend propagates callback exception`() = runTest {
+        val failure = TimeoutException("send failed")
+        val producer = mockk<Producer<String, String>>()
+
+        every { producer.send(any(), any()) } answers {
+            secondArg<Callback>().onCompletion(null, failure)
+            CompletableFuture<RecordMetadata>().apply {
+                completeExceptionally(failure)
+            }
+        }
+
+        assertFailsWith<TimeoutException> {
+            producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+        }
+    }
+
+    @Test
+    fun `suspendSend cancels kafka future when coroutine is cancelled`() = runTest {
+        val future = RecordingFuture<RecordMetadata>()
+        val producer = mockk<Producer<String, String>>()
+
+        every { producer.send(any(), any()) } returns future
+
+        val job = launch {
+            producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+        }
+
+        yield()
+        job.cancelAndJoin()
+
+        future.cancelledWithInterruption.get().shouldBeTrue()
+    }
+
+    @Test
+    fun `suspendSend remains stable under SuspendedJobTester`() = runSuspendIO {
+        val metadata = recordMetadata()
+        val producer = mockk<Producer<String, String>>()
+
+        every { producer.send(any(), any()) } answers {
+            secondArg<Callback>().onCompletion(metadata, null)
+            CompletableFuture.completedFuture(metadata)
+        }
+
+        SuspendedJobTester()
+            .workers(4)
+            .rounds(32)
+            .add {
+                producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+                    .verifyRecordMetadata()
+            }
+            .run()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -167,5 +236,20 @@ class ProducerSupportTest: AbstractKafkaTest() {
         partition() shouldBeGreaterOrEqualTo 0
         // ACK >= 1 이어야만 유효합니다.
         // offset() shouldBeGreaterOrEqualTo 0
+    }
+
+    private fun recordMetadata(): RecordMetadata =
+        mockk {
+            every { topic() } returns TEST_TOPIC_NAME
+            every { partition() } returns 0
+        }
+
+    private class RecordingFuture<T>: CompletableFuture<T>() {
+        val cancelledWithInterruption = AtomicBoolean(false)
+
+        override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+            cancelledWithInterruption.set(mayInterruptIfRunning)
+            return super.cancel(mayInterruptIfRunning)
+        }
     }
 }
