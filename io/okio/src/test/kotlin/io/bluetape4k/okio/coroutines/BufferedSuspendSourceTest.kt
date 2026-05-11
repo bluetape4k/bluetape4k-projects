@@ -9,6 +9,7 @@ import okio.ByteString
 import okio.EOFException
 import okio.Options
 import okio.ByteString.Companion.encodeUtf8
+import kotlinx.coroutines.CancellationException
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
@@ -16,6 +17,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import java.io.IOException
 
 class BufferedSuspendSourceTest: AbstractOkioTest() {
 
@@ -44,6 +46,41 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
             buffer.write(source, byteCount)
         }
         override suspend fun flush() {}
+        override suspend fun close() {}
+    }
+
+    private class NoProgressSuspendedSource: SuspendedSource {
+        override suspend fun read(sink: Buffer, byteCount: Long): Long = 0L
+        override suspend fun close() {}
+        override fun timeout() = okio.Timeout.NONE
+    }
+
+    private class CancellationOnCloseSource: SuspendedSource {
+        override suspend fun read(sink: Buffer, byteCount: Long): Long = -1L
+        override suspend fun close() {
+            throw CancellationException("close cancelled")
+        }
+    }
+
+    private class IOExceptionOnCloseSource: SuspendedSource {
+        override suspend fun read(sink: Buffer, byteCount: Long): Long = -1L
+        override suspend fun close() {
+            throw IOException("close failed")
+        }
+    }
+
+    private class RecoveringSuspendedSource(
+        private val text: String,
+        private val zeroReadsBeforeProgress: Int,
+    ): SuspendedSource {
+        private var reads = 0
+        private val data = Buffer().writeUtf8(text)
+
+        override suspend fun read(sink: Buffer, byteCount: Long): Long {
+            if (reads++ < zeroReadsBeforeProgress) return 0L
+            return data.read(sink, minOf(byteCount, data.size))
+        }
+
         override suspend fun close() {}
     }
 
@@ -111,6 +148,15 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `readDecimalLong throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.readDecimalLong()
+        }
+    }
+
+    @Test
     fun `readHexadecimalUnsignedLong reads hex number`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("deadbeef rest")
         val source = FakeSuspendedSource(buffer).buffered()
@@ -122,6 +168,15 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val buffer = Buffer().writeUtf8("1A2B rest")
         val source = FakeSuspendedSource(buffer).buffered()
         source.readHexadecimalUnsignedLong() shouldBeEqualTo 0x1A2BL
+    }
+
+    @Test
+    fun `readHexadecimalUnsignedLong throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.readHexadecimalUnsignedLong()
+        }
     }
 
     @Test
@@ -224,6 +279,15 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `read into ByteArray throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.read(ByteArray(4))
+        }
+    }
+
+    @Test
     fun `read into Buffer returns read byte count`() = runSuspendIO {
         val bytes = byteArrayOf(10, 20, 30)
         val buffer = Buffer().write(bytes)
@@ -240,6 +304,15 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val source = FakeSuspendedSource(buffer).buffered()
         val sink = Buffer()
         source.read(sink, 1L) shouldBeEqualTo -1L
+    }
+
+    @Test
+    fun `read into Buffer throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.read(Buffer(), 1L)
+        }
     }
 
     @Test
@@ -355,6 +428,16 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `readUtf8LineStrict strips CRLF when line length equals limit`() = runSuspendIO {
+        val buffer = Buffer().writeUtf8("hello\r\nnext")
+        val source = FakeSuspendedSource(buffer).buffered()
+
+        source.readUtf8LineStrict(5L) shouldBeEqualTo "hello"
+        source.readUtf8Line() shouldBeEqualTo "next"
+        source.readUtf8Line().shouldBeNull()
+    }
+
+    @Test
     fun `readUtf8CodePoint reads ASCII character`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("A")
         val source = FakeSuspendedSource(buffer).buffered()
@@ -383,6 +466,49 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `request zero bytes returns true without reading delegate`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        source.request(0L).shouldBeTrue()
+    }
+
+    @Test
+    fun `request throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.request(1L)
+        }
+    }
+
+    @Test
+    fun `request resets no progress counter when delegate later makes progress`() = runSuspendIO {
+        val source = RecoveringSuspendedSource("done", zeroReadsBeforeProgress = 2).buffered()
+
+        source.request(4L).shouldBeTrue()
+        source.readUtf8() shouldBeEqualTo "done"
+    }
+
+    @Test
+    fun `skip throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.skip(1L)
+        }
+    }
+
+    @Test
+    fun `select throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+        val options = Options.of("hello".encodeUtf8())
+
+        assertFailsWith<IOException> {
+            source.select(options)
+        }
+    }
+
+    @Test
     fun `indexOf finds byte in specified range`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("hello world")
         val source = FakeSuspendedSource(buffer).buffered()
@@ -397,6 +523,15 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
     }
 
     @Test
+    fun `indexOf byte throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.indexOf('x'.code.toByte(), 0L, 1L)
+        }
+    }
+
+    @Test
     fun `indexOf ByteString finds substring`() = runSuspendIO {
         val buffer = Buffer().writeUtf8("hello world")
         val source = FakeSuspendedSource(buffer).buffered()
@@ -408,6 +543,15 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val buffer = Buffer().writeUtf8("hello world")
         val source = FakeSuspendedSource(buffer).buffered()
         source.indexOf("xyz".encodeUtf8(), 0L) shouldBeEqualTo -1L
+    }
+
+    @Test
+    fun `indexOf ByteString throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.indexOf("xyz".encodeUtf8(), 0L)
+        }
     }
 
     @Test
@@ -458,5 +602,59 @@ class BufferedSuspendSourceTest: AbstractOkioTest() {
         val source = fake.buffered()
         source.close()
         fake.closed.shouldBeTrue()
+    }
+
+    @Test
+    fun `readAll throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.readAll(FakeSuspendedSink(Buffer()))
+        }
+    }
+
+    @Test
+    fun `readUtf8 throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.readUtf8()
+        }
+    }
+
+    @Test
+    fun `readByteArray throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.readByteArray()
+        }
+    }
+
+    @Test
+    fun `readByteString throws when delegate repeatedly reports no progress`() = runSuspendIO {
+        val source = NoProgressSuspendedSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.readByteString()
+        }
+    }
+
+    @Test
+    fun `close rethrows cancellation from underlying source`() = runSuspendIO {
+        val source = CancellationOnCloseSource().buffered()
+
+        assertFailsWith<CancellationException> {
+            source.close()
+        }
+    }
+
+    @Test
+    fun `close rethrows IOException from underlying source`() = runSuspendIO {
+        val source = IOExceptionOnCloseSource().buffered()
+
+        assertFailsWith<IOException> {
+            source.close()
+        }
     }
 }
