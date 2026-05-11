@@ -41,7 +41,7 @@
 | 15 | T-EJ-06 | exposed-jdbc | `repository/AuditableJdbcRepositoryVariantTest.kt` — `IntAuditableJdbcRepository`/`UUIDAuditableJdbcRepository` 변종 | medium | 4 |
 | 16 | T-EJ-07 | exposed-jdbc | `repository/MovieJdbcRepositoryTest.kt` 보강 (rollback) + `ActorJdbcRepositoryTest.kt` 보강 (findPage 경계) | medium | 3 |
 | 17 | T-BA-10 | utils/batch | `core/dsl/BatchStepBuilderTest.kt` 보강 — `chunkSize(0)` 검증, processor lambda 오버로드 | low | 3 |
-| 18 | T-FINAL | verify | Kover ≥70% 측정 + `koverVerify` 자동 게이트 설정 | medium | — |
+| 18 | T-FINAL | verify | Kover 리포트 측정 + report-only 추세 기록 | medium | — |
 | 19 | T-DOC | docs | README × 2 모듈 | low | — |
 | 20 | T-TESTLOG | docs | `docs/testlogs/2026-04.md` | low | — |
 | 21 | T-SUPERPOWERS | docs | `docs/superpowers/index/2026-04.md` | low | — |
@@ -294,7 +294,7 @@
 
 ---
 
-## T-FINAL: Kover 커버리지 측정 + koverVerify 자동 게이트 (complexity: medium)
+## T-FINAL: Kover 커버리지 측정 + report-only 추세 기록 (complexity: medium)
 
 > **사전 확인**: `BatchStepRunnerRetryTest` 등 가상 시간 테스트는 `runTest` 사용으로 TestCoroutineScheduler가 적용됨.
 > 기존 `BatchStepRunnerTest` (case 6/7/8)가 동일 패턴으로 동작 확인됨 — 별도 dispatcher 주입 불필요.
@@ -304,27 +304,11 @@
   ./gradlew :bluetape4k-exposed-jdbc:koverHtmlReport :bluetape4k-batch:koverHtmlReport
   ./gradlew :bluetape4k-exposed-jdbc:koverXmlReport  :bluetape4k-batch:koverXmlReport
   ```
-- **2단계 — 자동 게이트 설정** (미달 시 빌드 실패):
-  각 모듈의 `build.gradle.kts`에 추가:
-  ```kotlin
-  kover {
-      reports {
-          verify {
-              rule {
-                  bound {
-                      minValue.set(70)
-                      metric = CoverageUnit.LINE
-                  }
-              }
-          }
-      }
-  }
-  ```
-  ```bash
-  ./gradlew :bluetape4k-exposed-jdbc:koverVerify :bluetape4k-batch:koverVerify
-  ```
+- **2단계 — report-only 추세 기록**:
+  고정 퍼센트 미달만으로 CI/Nightly를 실패시키는 coverage gate는 추가하지 않는다.
+  XML 리포트와 PR description으로 Before/After 추세만 기록한다.
 - **검증**:
-  - HTML 리포트 (`build/reports/kover/html/index.html`) 라인 커버리지 ≥ 70% 확인.
+  - HTML 리포트 (`build/reports/kover/html/index.html`) 라인 커버리지 확인.
   - XML 리포트의 `<counter type="LINE" .../>` 비율 계산 후 PR description 첨부.
   - Before/After Δ 기록.
 - **실패 시**: 미달 모듈에 대해 §2.1 / §2.2 의 미커버 항목 중 추가 가능 영역 재검토 → 부족분 테스트 추가 → 재측정.
@@ -368,7 +352,7 @@
 5. T-EJ-03, T-BA-04 (read edge cases + checkpoint / 병렬 가능)
 6. T-EJ-04, T-EJ-05, T-EJ-06 (auditable / soft-deleted / 변종 / 병렬 가능)
 7. T-EJ-07, T-BA-07, T-BA-08, T-BA-09 (기존 파일 보강 / 병렬 가능)
-8. T-FINAL (Kover 측정 + koverVerify 게이트 설정) — 미달 시 부족분 추가 후 재측정
+8. T-FINAL (Kover 측정 + report-only 추세 기록) — 부족 영역이 보이면 별도 follow-up 으로 분리
 9. T-DOC, T-TESTLOG, T-SUPERPOWERS
 
 ---
@@ -378,8 +362,7 @@
 - [ ] 신규 테스트 함수 ≥ 87개 (보강 13개 포함)
 - [ ] `./gradlew :bluetape4k-exposed-jdbc:test` 전수 pass
 - [ ] `./gradlew :bluetape4k-batch:test` 전수 pass
-- [ ] `./gradlew :bluetape4k-exposed-jdbc:koverVerify :bluetape4k-batch:koverVerify` 성공 (자동 70% 게이트)
-- [ ] Kover HTML 리포트 라인 커버리지 ≥ 70% (두 모듈) 육안 확인
+- [ ] Kover HTML/XML 리포트 생성 및 Before/After 추세 기록
 - [ ] 신규 파일 모두 200~400 라인 (800 라인 절대 초과 금지)
 - [ ] code-reviewer agent 통과 (HIGH/CRITICAL 0건)
 - [ ] PR description 에 Before/After 테스트 카운트 + Kover % 첨부

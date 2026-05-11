@@ -598,20 +598,8 @@ T11/T12/T13 병렬 가능.
 
 #### 작업 항목
 
-1. 3개 모듈의 `build.gradle.kts` 에 Kover 70% measure-only verification rule 설정
-   ```kotlin
-   kover {
-       reports {
-           verify {
-               rule {
-                   minBound(70, coverageUnits = LINE)
-                   // measure-only: fail-on-violation 은 별도 이슈에서
-               }
-           }
-       }
-   }
-   ```
-2. fail-on-violation 활성화는 본 PR 범위 밖 — 별도 이슈 (Spec §5.3)
+1. 3개 모듈의 Kover HTML/XML 리포트를 생성하고 현재 baseline을 기록
+2. 고정 퍼센트 미달만으로 CI/Nightly를 실패시키는 verification rule은 추가하지 않음
 
 #### 대상 파일
 
@@ -621,8 +609,9 @@ T11/T12/T13 병렬 가능.
 
 #### 검증 방법
 
-- `./gradlew :bluetape4k-hibernate:koverVerify` 실행 — 70% 충족 시 통과
-- CI 에서 measure-only 게이트가 build 를 깨뜨리지 않음 확인 (Spec §4.1 위험 5 완화)
+- `./gradlew :bluetape4k-hibernate:koverHtmlReport :bluetape4k-hibernate:koverXmlReport` 실행
+- HTML/XML 리포트를 PR description 에 첨부하고 Before/After 추세만 기록
+- CI 에서 coverage report 생성이 build 를 깨뜨리지 않음 확인 (Spec §4.1 위험 5 완화)
 
 ---
 
