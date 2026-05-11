@@ -4,7 +4,7 @@
 
 `bluetape4k-projects` generates broad Kover XML artifacts in Nightly and
 aggregates coverage summaries across a large matrix. It does not enforce a
-broad repository-wide `koverVerify` gate.
+broad repository-wide coverage gate.
 
 ## Policy
 
@@ -16,15 +16,17 @@ introduced module-by-module rather than as one aggregate gate.
 
 ## Threshold Plan
 
-- Core and utility modules should target 80% after current baselines are
-  recorded.
-- Integration-heavy infrastructure modules should start at 60-70% with
-  documented rationale.
+- Treat Kover as a trend signal, not a build gate.
+- Use Nightly XML reports and existing coverage artifact uploads to identify
+  coverage regressions.
+- Open a focused issue when a module needs coverage repair; do not introduce a
+  failing threshold as the default enforcement mechanism.
 - `testing/testcontainers` requires artifact production checks before threshold
   changes because matrix partitioning can make coverage appear artificially low.
 - Benchmark/generated/test fixture code should remain explicitly excluded.
 
 ## CI/Nightly Contract
 
-Nightly aggregates Kover XML artifacts. Add `koverVerify` only for modules with
-validated thresholds, and keep those tasks in the relevant matrix group.
+Nightly aggregates Kover XML artifacts and keeps trend visibility. CI and
+Nightly must not fail solely because a module is below a fixed coverage
+percentage unless a future issue explicitly reintroduces that gate.

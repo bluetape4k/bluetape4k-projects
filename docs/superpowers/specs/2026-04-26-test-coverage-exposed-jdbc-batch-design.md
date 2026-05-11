@@ -346,12 +346,13 @@ bluetape4k 의 두 핵심 인프라 모듈 `bluetape4k-exposed-jdbc` 와 `blueta
    `utils/batch/build/reports/kover/html/index.html`.
    **목표: 두 모듈 모두 라인 커버리지 ≥ 70%.**
 
-2. **Kover XML 리포트로 임계치 가드(선택)**
+2. **Kover XML 리포트로 추세 확인**
    ```bash
    ./gradlew :bluetape4k-exposed-jdbc:koverXmlReport
    ./gradlew :bluetape4k-batch:koverXmlReport
    ```
-   필요 시 `koverVerify` task 의 `minBound = 70` 룰을 PR 게이트로 추가.
+   XML 리포트는 커버리지 리포트 비교와 coverage trend 확인에 사용한다.
+   고정 퍼센트 미달만으로 CI/Nightly를 실패시키는 coverage gate는 추가하지 않는다.
 
 3. **메서드 매트릭스 기반 정성 검증**
    - `JdbcRepository.kt` 의 public 메서드 중 본 스펙 §2.1 표의 23개 미커버 항목 → 신규 테스트로 ✅ 처리.
