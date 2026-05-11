@@ -923,7 +923,7 @@ neo4j-java-driver = { module = "org.neo4j.driver:neo4j-java-driver", version = "
 neo4j-bolt-connection-netty = { module = "org.neo4j.bolt:neo4j-bolt-connection-netty", version = "11.0.2" }  # https://mvnrepository.com/artifact/org.neo4j.bolt/neo4j-bolt-connection-netty
 
 # FalkorDB
-jfalkordb = { module = "com.falkordb:jfalkordb", version = "0.7.0" }  # https://mvnrepository.com/artifact/com.falkordb/jfalkordb
+jfalkordb = { module = "com.falkordb:jfalkordb", version = "0.8.0" }  # https://mvnrepository.com/artifact/com.falkordb/jfalkordb
 
 # Minio
 minio = { module = "io.minio:minio", version = "9.0.0" }  # https://mvnrepository.com/artifact/io.minio/minio
