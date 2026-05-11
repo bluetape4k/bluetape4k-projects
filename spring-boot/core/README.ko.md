@@ -11,6 +11,7 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 ### Spring Core 유틸리티
 
 - BeanFactory 확장 함수
+- `AnnotatedElementUtils`와 `AnnotationUtils`를 위한 Kotlin reified 애너테이션 조회 확장
 - Spring Boot AutoConfiguration 지원
 - Jakarta Annotation API 통합
 
@@ -73,6 +74,16 @@ dependencyManagement {
 ```
 
 ## 사용 예시
+
+### 애너테이션 조회 확장
+
+```kotlin
+import io.bluetape4k.spring.beans.findMergedAnnotationOrNull
+import io.bluetape4k.spring.beans.hasMergedAnnotation
+
+val mapping = method.findMergedAnnotationOrNull<RequestMapping>()
+val hasMapping = method.hasMergedAnnotation<RequestMapping>()
+```
 
 ### RestClient Coroutines DSL
 
