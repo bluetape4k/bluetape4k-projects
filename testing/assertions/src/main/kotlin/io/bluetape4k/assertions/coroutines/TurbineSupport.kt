@@ -49,5 +49,5 @@ suspend inline fun <reified E: Throwable> ReceiveTurbine<*>.awaitErrorOfType(): 
     if (error !is E) {
         Failures.fail("Expected error of type ${E::class.simpleName}, but was ${error::class.simpleName}: ${error.message}")
     }
-    return error as E
+    return error
 }

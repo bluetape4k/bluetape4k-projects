@@ -1,11 +1,17 @@
 package io.bluetape4k.junit5.tempfolder
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.nio.file.Files
+import java.util.concurrent.atomic.AtomicInteger
 
 class TempFolderClassTest {
     companion object: KLogging()
@@ -89,6 +95,9 @@ class TempFolderClassTest {
             assertFailsWith<IllegalArgumentException> {
                 folder.createFile("../../etc/passwd")
             }
+            assertFailsWith<IllegalArgumentException> {
+                folder.createFile(folder.root.resolve("absolute.txt").absolutePath)
+            }
         }
     }
 
@@ -101,6 +110,94 @@ class TempFolderClassTest {
             assertFailsWith<IllegalArgumentException> {
                 folder.createDirectory("../../tmp")
             }
+            assertFailsWith<IllegalArgumentException> {
+                folder.createDirectory(folder.root.resolve("absolute").absolutePath)
+            }
+        }
+    }
+
+    @Test
+    fun `루트 밖을 가리키는 symlink 부모 아래에는 파일을 생성할 수 없다`() {
+        TempFolder().use { folder ->
+            TempFolder().use { outside ->
+                Files.createSymbolicLink(
+                    folder.root.toPath().resolve("outside-link"),
+                    outside.root.toPath()
+                )
+
+                assertFailsWith<IllegalArgumentException> {
+                    folder.createFile("outside-link/escape.txt")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `루트 밖을 가리키는 symlink 부모 아래에는 디렉터리를 생성할 수 없다`() {
+        TempFolder().use { folder ->
+            TempFolder().use { outside ->
+                Files.createSymbolicLink(
+                    folder.root.toPath().resolve("outside-link"),
+                    outside.root.toPath()
+                )
+
+                assertFailsWith<IllegalArgumentException> {
+                    folder.createDirectory("outside-link/escape")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `MultithreadingTester 로 동시 파일 생성을 검증한다`() {
+        TempFolder().use { folder ->
+            val count = AtomicInteger()
+
+            MultithreadingTester()
+                .workers(4)
+                .rounds(20)
+                .add {
+                    val index = count.incrementAndGet()
+                    folder.createFile("thread-$index.txt").exists().shouldBeTrue()
+                }
+                .run()
+
+            count.get() shouldBeEqualTo 80
+        }
+    }
+
+    @Test
+    fun `StructuredTaskScopeTester 로 구조화된 동시 디렉터리 생성을 검증한다`() {
+        TempFolder().use { folder ->
+            val count = AtomicInteger()
+
+            StructuredTaskScopeTester()
+                .rounds(40)
+                .add {
+                    val index = count.incrementAndGet()
+                    folder.createDirectory("scope-$index").exists().shouldBeTrue()
+                }
+                .run()
+
+            count.get() shouldBeEqualTo 40
+        }
+    }
+
+    @Test
+    fun `SuspendedJobTester 로 suspend 동시 파일 생성을 검증한다`() = runTest {
+        TempFolder().use { folder ->
+            val count = AtomicInteger()
+
+            SuspendedJobTester()
+                .workers(4)
+                .rounds(40)
+                .add {
+                    val index = count.incrementAndGet()
+                    folder.createFile("job-$index.txt").exists().shouldBeTrue()
+                }
+                .run()
+
+            count.get() shouldBeEqualTo 40
         }
     }
 

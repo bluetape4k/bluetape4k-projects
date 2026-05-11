@@ -163,6 +163,9 @@ fun `annotated stopwatch test`() { }
 
 ### TempFolderExtension
 
+`TempFolder.createFile(name)` and `createDirectory(name)` accept relative names under the temporary root only. Blank names,
+absolute paths, `..` traversal, and symlink parents that resolve outside the temporary root are rejected.
+
 ```kotlin
 @ExtendWith(TempFolderExtension::class)
 class FileProcessingTest {
@@ -302,6 +305,7 @@ class FieldSourceTest {
 ## Best Practices
 
 - Use `TempFolderExtension` instead of ad hoc file paths in tests.
+- Keep `TempFolder` names relative to the temporary root; path traversal and symlink escapes are rejected.
 - Capture stdout/stderr when assertions depend on console output.
 - Prefer `FakeValue` / `Fakers` providers for sample values instead of hardcoded data.
 - Use the provided stress-testing helpers for concurrency-heavy tests — they maintain a stable worker pool regardless of round count.
