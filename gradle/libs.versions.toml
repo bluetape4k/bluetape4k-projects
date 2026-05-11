@@ -307,7 +307,7 @@ log4j-web = { module = "org.apache.logging.log4j:log4j-web", version.ref = "log4
 
 findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }  # https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
 guava = { module = "com.google.guava:guava", version = "33.4.8-jre" }  # https://mvnrepository.com/artifact/com.google.guava/guava
-libphonenumber = { module = "com.googlecode.libphonenumber:libphonenumber", version = "8.13.52" }  # https://mvnrepository.com/artifact/com.googlecode.libphonenumber/libphonenumber
+libphonenumber = { module = "com.googlecode.libphonenumber:libphonenumber", version = "9.0.30" }  # https://mvnrepository.com/artifact/com.googlecode.libphonenumber/libphonenumber
 
 eclipse-collections = { module = "org.eclipse.collections:eclipse-collections", version.ref = "eclipse-collections" }
 eclipse-collections-forkjoin = { module = "org.eclipse.collections:eclipse-collections-forkjoin", version.ref = "eclipse-collections" }
