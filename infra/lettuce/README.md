@@ -16,7 +16,6 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceJsonCodecs`                 | Factory object providing `jackson3<V>()` and `fastjson2<V>()` factory methods                                                                |
 | `LettuceIntCodec`                   | Codec that serializes Int values as 4-byte big-endian (binary-compatible with Redisson `IntegerCodec`)                                       |
 | `LettuceLongCodec`                  | Codec that serializes Long values as 8-byte big-endian (binary-compatible with Redisson `LongCodec`)                                         |
-| `LettuceProtobufCodecs`             | Protobuf-based codec factory (requires `bluetape4k-protobuf`)                                                                                |
 | `RedisFuture` extensions            | `awaitSuspending()` — converts `RedisFuture` to a suspend function                                                                           |
 | `LettuceMap<V>`                     | Generic distributed hash map (sync + async). Coroutine variant: `LettuceSuspendMap<V>`                                                       |
 | `LettuceSuspendMap<V>`              | Generic distributed hash map (suspend-only). Supports `LettuceBinaryCodec<V>`                                                                |
@@ -28,10 +27,6 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `LettuceSuspendSemaphore`           | Distributed semaphore (suspend-only)                                                                                                         |
 | `LettuceLock`                       | Distributed mutex lock (sync + async). Coroutine variant: `LettuceSuspendLock`                                                               |
 | `LettuceSuspendLock`                | Distributed mutex lock (suspend-only)                                                                                                        |
-| `LettuceLeaderElection`             | Distributed single-leader election (sync + async). Coroutine variant: `LettuceSuspendLeaderElection`                                         |
-| `LettuceSuspendLeaderElection`      | Distributed single-leader election (suspend-only)                                                                                            |
-| `LettuceLeaderGroupElection`        | Distributed group leader election — allows up to N concurrent leaders (sync + async). Coroutine variant: `LettuceSuspendLeaderGroupElection` |
-| `LettuceSuspendLeaderGroupElection` | Distributed group leader election (suspend-only)                                                                                             |
 | `LettuceHyperLogLog<V>`             | Redis HyperLogLog approximate cardinality estimation (sync). Coroutine variant: `LettuceSuspendHyperLogLog<V>`                               |
 | `LettuceSuspendHyperLogLog<V>`      | Redis HyperLogLog approximate cardinality estimation (suspend-only)                                                                          |
 | `LettuceBloomFilter`                | Redis BitSet-based Bloom Filter (sync). Coroutine variant: `LettuceSuspendBloomFilter`                                                       |
@@ -41,6 +36,9 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 | `RedisScript`                       | Reusable Lua script with pre-computed SHA1. Enables `EVALSHA`-first execution with automatic `EVAL` fallback on `NOSCRIPT`                   |
 | `RedisScriptRunner`                 | Helper object to execute `RedisScript` via sync / async / suspend APIs with `EVALSHA`→`EVAL` fallback                                        |
 
+Protobuf codecs are provided by the `bluetape4k-protobuf` module through
+`io.bluetape4k.protobuf.serializers.LettuceProtobufCodecs`.
+
 `LettuceCacheConfig` constraints:
 
 - `writeBehindBatchSize`, `writeBehindQueueCapacity`, `writeRetryAttempts`, and
@@ -49,7 +47,7 @@ A Kotlin extension module for the Lettuce Redis client, providing high-performan
 - `keyPrefix` and `nearCacheName` must not be blank.
 
 > **Memoizer** has been moved to the
-`bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../cache-lettuce/README.md) for details.
+`bluetape4k-cache-lettuce` module. See the [cache-lettuce README](../../cache/cache-lettuce/README.md) for details.
 
 ## Performance Optimizations
 
@@ -385,58 +383,10 @@ if (suspendLock.tryLock(waitTime = 5.seconds)) {
 }
 ```
 
-### LettuceLeaderElection — Distributed Single-Leader Election
-
-```kotlin
-import io.bluetape4k.redis.lettuce.leader.LettuceLeaderElection
-import io.bluetape4k.redis.lettuce.leader.LettuceSuspendLeaderElection
-
-// Sync/async
-val election = LettuceLeaderElection(connection, "my-leader-lock")
-election.runIfLeader {
-    println("I am the leader!")
-}
-
-// Coroutine-only
-val suspendElection = LettuceSuspendLeaderElection(connection, "my-leader-lock")
-suspendElection.runIfLeader {
-    // Can call suspend functions
-}
-```
-
-### LettuceLeaderGroupElection — Distributed Group Leader Election
-
-Group election that allows up to N nodes to act as leaders simultaneously. Uses a semaphore internally.
-
-```kotlin
-import io.bluetape4k.redis.lettuce.leader.LettuceLeaderGroupElection
-import io.bluetape4k.redis.lettuce.leader.LettuceSuspendLeaderGroupElection
-import io.bluetape4k.leader.LeaderGroupElectionOptions
-import java.time.Duration
-
-val options = LeaderGroupElectionOptions(
-    maxLeaders = 3,
-    waitTime = Duration.ofSeconds(5),
-    leaseTime = Duration.ofSeconds(10),
-)
-
-// Sync/async
-val election = LettuceLeaderGroupElection(connection, options)
-election.runIfLeader("my-group-lock") {
-    println("Running as a group leader (up to 3 concurrent)")
-}
-
-// Coroutine-only
-val suspendElection = LettuceSuspendLeaderGroupElection(connection, options)
-suspendElection.runIfLeader("my-group-lock") {
-    // Can call suspend functions
-}
-```
-
 ## Memoizer (Caching Function Results in Redis)
 
 > The Memoizer lives in the
-`bluetape4k-cache-lettuce` module. See [cache-lettuce README](../cache-lettuce/README.md) for detailed usage.
+`bluetape4k-cache-lettuce` module. See [cache-lettuce README](../../cache/cache-lettuce/README.md) for detailed usage.
 
 ```kotlin
 // build.gradle.kts
@@ -494,20 +444,9 @@ classDiagram
         +release(permits)
     }
 
-    class LettuceLeaderElection {
-        +runIfLeader(lockName, action): T
-        +runAsyncIfLeader(lockName, action): CompletableFuture~T~
-    }
-    class LettuceSuspendLeaderElection {
-        +runIfLeader(lockName, action): T
-    }
-
-    LettuceLeaderElection --> LettuceLock: uses
-    LettuceSuspendLeaderElection --> LettuceSuspendLock: uses
     note for LettuceSuspendAtomicLong "suspend-only"
     note for LettuceSuspendLock "suspend-only"
     note for LettuceSuspendSemaphore "suspend-only"
-    note for LettuceSuspendLeaderElection "suspend-only"
 
     style LettuceAtomicLong fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LettuceSuspendAtomicLong fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
@@ -515,8 +454,6 @@ classDiagram
     style LettuceSuspendLock fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
     style LettuceSemaphore fill:#E0F2F1,stroke:#80CBC4,color:#00695C
     style LettuceSuspendSemaphore fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendLeaderElection fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
 
 ```
 
