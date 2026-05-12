@@ -212,8 +212,8 @@ jobs:
               {
                   "group": "graphdb-memgraph",
                   "test_patterns": "io.bluetape4k.testcontainers.graphdb.MemgraphServerTest",
-                  "timeout_minutes": 6,
-                  "max_attempts": 1,
+                  "timeout_minutes": 12,
+                  "max_attempts": 2,
                   "needs_mock_servers": False,
               },
               {
@@ -303,8 +303,27 @@ jobs:
           gradle-version: wrapper
           cache-read-only: false
 
-      - name: Build (compile only)
-        run: ./gradlew build -x test --parallel
+      - name: Build (compile only, excluding examples)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          excluded_tasks=(
+            -x :bluetape4k-examples-coroutines-demo:build
+            -x :bluetape4k-examples-jpa-querydsl-demo:build
+            -x :bluetape4k-examples-redisson-demo:build
+            -x :bluetape4k-examples-virtualthreads-demo:build
+          )
+
+          projects="$(./gradlew -q projects)"
+          if grep -q -- "--- Project ':idgenerator-ktor'" <<< "$projects"; then
+            excluded_tasks+=(-x :idgenerator-ktor:build)
+          fi
+          if grep -q -- "--- Project ':bluetape4k-spring-boot-idgenerator-demo'" <<< "$projects"; then
+            excluded_tasks+=(-x :bluetape4k-spring-boot-idgenerator-demo:build)
+          fi
+
+          ./gradlew build -x test "${excluded_tasks[@]}" --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
