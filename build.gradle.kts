@@ -7,7 +7,9 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.report.ReportMergeTask
 import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
+import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import java.io.File
 
 plugins {
     base
@@ -77,8 +79,22 @@ allprojects {
 // where `libs` is not in scope (different receiver type in the lambda).
 val rootLibs = libs
 
+fun Project.isSampleOrBenchmarkProject(): Boolean {
+    val relativeProjectDir = rootDir.toPath()
+        .relativize(projectDir.toPath())
+        .toString()
+        .replace(File.separatorChar, '/')
+
+    return relativeProjectDir == "workshop" ||
+            relativeProjectDir.startsWith("workshop/") ||
+            relativeProjectDir == "examples" ||
+            relativeProjectDir.startsWith("examples/") ||
+            name.contains("-demo") ||
+            name.endsWith("-benchmark")
+}
+
 subprojects {
-    if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
+    if (!isSampleOrBenchmarkProject()) {
         apply(plugin = "com.gradleup.nmcp")
     }
 
@@ -119,7 +135,7 @@ subprojects {
         plugin("org.jetbrains.kotlinx.atomicfu")
 
         // Kover — Kotlin 코드 커버리지 (examples/workshop/-demo/-benchmark 는 별도 필터링)
-        if (!path.contains("workshop") && !path.contains("examples") && !path.contains("-demo") && !path.endsWith("-benchmark")) {
+        if (!isSampleOrBenchmarkProject()) {
             plugin("org.jetbrains.kotlinx.kover")
         }
 
@@ -622,7 +638,7 @@ subprojects {
      */
     publishing {
         publications {
-            if (!project.path.contains("workshop") && !project.path.contains("examples") && !project.path.contains("-demo") && !project.path.endsWith("-benchmark")) {
+            if (!project.isSampleOrBenchmarkProject()) {
                 create<MavenPublication>("Bluetape4k") {
                     val binaryJar = components["java"]
 
@@ -658,10 +674,7 @@ subprojects {
 
     configurePublishingSigning(
         publicationName = "Bluetape4k",
-        enabled = !project.path.contains("workshop") &&
-                !project.path.contains("examples") &&
-                !project.path.contains("-demo") &&
-                !project.path.endsWith("-benchmark"),
+        enabled = !project.isSampleOrBenchmarkProject(),
     )
 
     tasks.withType<GenerateMavenPom>().configureEach {
@@ -682,7 +695,7 @@ subprojects {
 }
 
 val publishableProjects = subprojects.filterNot { project ->
-    project.path.contains("workshop") || project.path.contains("examples") || project.path.contains("-demo") || project.path.endsWith("-benchmark")
+    project.isSampleOrBenchmarkProject()
 }
 
 extensions.configure<NmcpAggregationExtension>("nmcpAggregation") {
@@ -734,10 +747,7 @@ dependencies {
     subprojects
         .filter { sub ->
             sub.name != "bluetape4k-bom" &&
-                    !sub.path.contains("workshop") &&
-                    !sub.path.contains("examples") &&
-                    !sub.path.contains("-demo") &&
-                    !sub.path.endsWith("-benchmark")
+                    !sub.isSampleOrBenchmarkProject()
         }
         .forEach { sub -> kover(project(sub.path)) }
 }

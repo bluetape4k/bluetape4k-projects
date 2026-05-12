@@ -19,6 +19,7 @@ blockhound = "1.0.16.RELEASE"  # https://mvnrepository.com/artifact/io.projectre
 
 mutiny = "3.2.0"  # https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
 vertx = "5.0.12"  # https://mvnrepository.com/artifact/io.vertx/vertx-dependencies
+ktor = "3.4.3"  # https://mvnrepository.com/artifact/io.ktor/ktor-server-core
 
 swagger = "2.2.49"  # https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core
 springdoc-openapi = "3.0.3"  # https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-api
@@ -229,6 +230,14 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-serialization-json-jvm = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-properties = { module = "org.jetbrains.kotlinx:kotlinx-serialization-properties", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinx-serialization" }
+
+# Ktor
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 
 # Kotlinx AtomicFU
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlinx-atomicfu" }
