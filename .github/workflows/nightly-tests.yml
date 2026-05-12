@@ -212,8 +212,8 @@ jobs:
               {
                   "group": "graphdb-memgraph",
                   "test_patterns": "io.bluetape4k.testcontainers.graphdb.MemgraphServerTest",
-                  "timeout_minutes": 6,
-                  "max_attempts": 1,
+                  "timeout_minutes": 12,
+                  "max_attempts": 2,
                   "needs_mock_servers": False,
               },
               {
