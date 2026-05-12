@@ -1,13 +1,23 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-12 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 13 issues.
+Snapshot: 2026-05-13 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 11 issues.
+
+## Recently Completed
+
+- `#416` Spring Boot idgenerator example closed by PR #422.
+- `#419` Ktor idgenerator example closed by PR #421.
+- `#420` Examples workflow split closed by PR #423.
+- PR #424 aligned the `graphdb-memgraph` Nightly timeout/retry policy with the other graphdb jobs.
+- PR #417 refreshed WIP after adding the idgenerator example lane; this refresh removes the now-completed example items from the active queue.
 
 ## Current Direction
 
 This repo is now the core/shared library baseline after several domain groups were split into independent repositories. Active work should keep the split tracker current, prepare the next extraction steps, and promote small shared utilities that remove duplicate downstream code.
 
-The new Spring annotation utility follow-up `#364` is a good small foundation item because `bluetape4k-leader` already implemented local reified helpers during #79 and `bluetape4k-aws` has similar Java-style Spring annotation calls.
+The new Spring annotation utility follow-up `#364` remains a good small foundation item because `bluetape4k-leader` already implemented local reified helpers during #79 and `bluetape4k-aws` has similar Java-style Spring annotation calls.
+
+Examples now have a dedicated `Examples` GitHub Actions workflow. Do not reopen the idgenerator example lane unless a new follow-up issue is created.
 
 Historical completed items from the old monorepo TODO are intentionally omitted from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
 
@@ -17,8 +27,6 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 |---|---|---:|---|
 | P0 | [#257](https://github.com/bluetape4k/bluetape4k-projects/issues/257) monorepo split epic | XL | Program tracker. Keep phase state updated as repo splits close. |
 | P2 | [#364](https://github.com/bluetape4k/bluetape4k-projects/issues/364) Spring annotation reified utilities | S | Add shared Kotlin idioms for Spring `AnnotatedElementUtils` / `AnnotationUtils`; unblocks leader/AWS cleanup. |
-| P2 | [#416](https://github.com/bluetape4k/bluetape4k-projects/issues/416) idgenerator Spring Boot example | S | Add Spring Boot REST demo before examples workflow split; keep Ktor scope in `#419`. |
-| P2 | [#420](https://github.com/bluetape4k/bluetape4k-projects/issues/420) Examples GitHub Actions 분리 | S | Move example verification out of Nightly after `#416/#419` examples are in place. |
 | P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
 | P2 | [#151](https://github.com/bluetape4k/bluetape4k-projects/issues/151) LLM/vector Testcontainers | L | Test foundation for AI/vector work. |
 | P2 | [#148](https://github.com/bluetape4k/bluetape4k-projects/issues/148) utils/ai epic | XL | Split after `#149/#151` scope is clear. |
@@ -45,10 +53,9 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
   -> leader #79 cleanup: remove local helper once shared API is released
   -> aws cleanup: replace repeated `AnnotatedElementUtils.findMergedAnnotation(..., A::class.java)` style calls
 
-#416 idgenerator framework examples
-  -> Spring Boot starter/sample usability improvements
-  -> Ktor integration reference examples
-  -> README/framework documentation updates
+#416 Spring Boot idgenerator example (closed by PR #422)
+#419 Ktor idgenerator example (closed by PR #421)
+  -> #420 Examples workflow split (closed by PR #423)
 
 #110 infra deprecated inventory (documented in docs/infra-deprecated-inventory.md)
   -> follow-up deprecated cleanup PRs
@@ -62,10 +69,6 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 #324 KDoc
 #325 CHANGELOG
   -> one small docs PR is preferred
-
-#416 Spring Boot idgenerator example
-#419 Ktor idgenerator example
-  -> #420 Examples workflow split
 ```
 
 ## WIP Limits
@@ -75,7 +78,6 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 | Policy / breaking cleanup |     1 | Keep `#257` updated as split phases close. |
 | Extraction planning       |     1 | Keep `#257` current; `#262` is deferred.   |
 | Shared Spring utilities   |     1 | `#364` as a small API PR before downstream cleanup. |
-| Examples                  |     1 | Finish `#416`, then `#420`; keep `#419` in its own PR. |
 | AI/vector                 |     1 | `#149` or `#151`, not `#148` first.        |
 | Docs polish               |  1 PR | `#323/#324/#325` together.                 |
 
