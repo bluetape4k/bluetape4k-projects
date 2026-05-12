@@ -1,7 +1,7 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-11 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 11 issues.
+Snapshot: 2026-05-12 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 12 issues.
 
 ## Current Direction
 
@@ -17,6 +17,7 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 |---|---|---:|---|
 | P0 | [#257](https://github.com/bluetape4k/bluetape4k-projects/issues/257) monorepo split epic | XL | Program tracker. Keep phase state updated as repo splits close. |
 | P2 | [#364](https://github.com/bluetape4k/bluetape4k-projects/issues/364) Spring annotation reified utilities | S | Add shared Kotlin idioms for Spring `AnnotatedElementUtils` / `AnnotationUtils`; unblocks leader/AWS cleanup. |
+| P2 | [#416](https://github.com/bluetape4k/bluetape4k-projects/issues/416) idgenerator Spring Boot / Ktor examples | M | Add practical framework integration samples and minimal docs/tests. |
 | P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
 | P2 | [#151](https://github.com/bluetape4k/bluetape4k-projects/issues/151) LLM/vector Testcontainers | L | Test foundation for AI/vector work. |
 | P2 | [#148](https://github.com/bluetape4k/bluetape4k-projects/issues/148) utils/ai epic | XL | Split after `#149/#151` scope is clear. |
@@ -43,6 +44,11 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
   -> leader #79 cleanup: remove local helper once shared API is released
   -> aws cleanup: replace repeated `AnnotatedElementUtils.findMergedAnnotation(..., A::class.java)` style calls
 
+#416 idgenerator framework examples
+  -> Spring Boot starter/sample usability improvements
+  -> Ktor integration reference examples
+  -> README/framework documentation updates
+
 #110 infra deprecated inventory (documented in docs/infra-deprecated-inventory.md)
   -> follow-up deprecated cleanup PRs
   -> safer extraction/refactor planning
@@ -64,6 +70,7 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 | Policy / breaking cleanup |     1 | Keep `#257` updated as split phases close. |
 | Extraction planning       |     1 | Keep `#257` current; `#262` is deferred.   |
 | Shared Spring utilities   |     1 | `#364` as a small API PR before downstream cleanup. |
+| Framework integration examples | 1 | `#416` Spring Boot / Ktor idgenerator samples. |
 | AI/vector                 |     1 | `#149` or `#151`, not `#148` first.        |
 | Docs polish               |  1 PR | `#323/#324/#325` together.                 |
 
