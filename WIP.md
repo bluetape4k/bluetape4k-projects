@@ -45,6 +45,11 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
   -> leader #79 cleanup: remove local helper once shared API is released
   -> aws cleanup: replace repeated `AnnotatedElementUtils.findMergedAnnotation(..., A::class.java)` style calls
 
+#416 idgenerator framework examples
+  -> Spring Boot starter/sample usability improvements
+  -> Ktor integration reference examples
+  -> README/framework documentation updates
+
 #110 infra deprecated inventory (documented in docs/infra-deprecated-inventory.md)
   -> follow-up deprecated cleanup PRs
   -> safer extraction/refactor planning
