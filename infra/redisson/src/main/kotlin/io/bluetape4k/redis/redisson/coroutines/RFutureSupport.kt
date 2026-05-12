@@ -10,6 +10,7 @@ import kotlinx.coroutines.future.await
 import org.redisson.api.RFuture
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
+import kotlin.coroutines.ContinuationInterceptor
 
 /**
  * [RFuture] 컬렉션을 하나의 [CompletableFuture]로 합칩니다.
@@ -56,8 +57,9 @@ suspend fun <V> Collection<RFuture<out V>>.awaitAll(): List<V> {
         return emptyList()
     }
 
-    val executor = currentCoroutineContext()[CoroutineDispatcher]?.asExecutor()
-        ?: Dispatchers.Default.asExecutor()
+    val executor =
+        (currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher)?.asExecutor()
+            ?: Dispatchers.Default.asExecutor()
 
     return sequence(executor).await()
 }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.redisson.api.RFuture
@@ -55,6 +56,18 @@ class RFutureSupportTest: AbstractRedissonCoroutineTest() {
                 results shouldBeEqualTo listOf("first", "second", "third")
             }
             .run()
+    }
+
+    @Test
+    fun `awaitAll uses the current coroutine dispatcher when present`() = runSuspendIO {
+        val results = withContext(Dispatchers.IO) {
+            listOf(
+                completedRFuture("first"),
+                completedRFuture("second"),
+            ).awaitAll()
+        }
+
+        results shouldBeEqualTo listOf("first", "second")
     }
 
     @RepeatedTest(REPEAT_SIZE)
