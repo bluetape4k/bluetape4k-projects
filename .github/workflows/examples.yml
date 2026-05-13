@@ -83,10 +83,10 @@ jobs:
             :bluetape4k-examples-virtualthreads-demo:test
           )
 
-          if [[ -f examples/ktor/idgenerator-ktor/build.gradle.kts ]]; then
+          if [[ -f examples/ktor/idgenerator-ktor-demo/build.gradle.kts ]]; then
             tasks+=(
-              :idgenerator-ktor:compileKotlin
-              :idgenerator-ktor:test
+              :idgenerator-ktor-demo:compileKotlin
+              :idgenerator-ktor-demo:test
             )
           fi
 

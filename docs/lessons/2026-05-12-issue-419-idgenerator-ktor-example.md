@@ -6,8 +6,8 @@
 
 ## 결정
 
-- 실행 가능한 Ktor 예제는 `examples/ktor/idgenerator-ktor`에 둔다.
-- `settings.gradle.kts`에는 `includeModules("examples/ktor", false, false)`를 추가해 `:idgenerator-ktor`로 등록한다.
+- 실행 가능한 Ktor 예제는 `examples/ktor/idgenerator-ktor-demo`에 둔다.
+- `settings.gradle.kts`에는 `includeModules("examples/ktor", false, false)`를 추가해 `:idgenerator-ktor-demo`로 등록한다.
 - 명시적 `/ids/{type}` route와 generic `/idgen/{type}` route를 모두 제공하되, 뒤에서는 하나의 registry를 공유한다.
 - `includeModules("examples/ktor", false, false)`처럼 project path에 `examples`가 빠질 수 있으므로, 배포/Kover 제외 판정은 Gradle path만 보지 않고 `projectDir`가 `examples/**` 아래인지도 확인한다.
 
@@ -18,7 +18,7 @@
 ## 검증
 
 ```bash
-./gradlew :idgenerator-ktor:compileKotlin :idgenerator-ktor:test --parallel
+./gradlew :idgenerator-ktor-demo:compileKotlin :idgenerator-ktor-demo:test --parallel
 ```
 
 결과: 테스트 6개 통과.

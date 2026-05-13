@@ -1,4 +1,4 @@
-# idgenerator Ktor 예제
+# idgenerator Ktor Demo
 
 [English](./README.md) | 한국어
 
@@ -22,7 +22,7 @@ flowchart LR
 ## 실행
 
 ```bash
-./gradlew :idgenerator-ktor:run
+./gradlew :idgenerator-ktor-demo:run
 ```
 
 application은 `0.0.0.0:8080`에서 실행됩니다.
@@ -30,7 +30,7 @@ application은 `0.0.0.0:8080`에서 실행됩니다.
 ## 테스트
 
 ```bash
-./gradlew :idgenerator-ktor:compileKotlin :idgenerator-ktor:test
+./gradlew :idgenerator-ktor-demo:compileKotlin :idgenerator-ktor-demo:test
 ```
 
 ## Endpoints

@@ -19,13 +19,13 @@ Examples workflow와 Nightly example 제외 로직을 추가했다.
 ## Verification Evidence
 
 - `ruby -e 'require "yaml"; ...' .github/workflows/examples.yml .github/workflows/nightly-tests.yml` 성공.
-- `./gradlew -q projects | rg "bluetape4k-examples|idgenerator-ktor|spring-boot-idgenerator-demo"`로 현재 branch의 기존 examples 4개 모듈만 확인.
+- `./gradlew -q projects | rg "bluetape4k-examples|idgenerator-ktor-demo|spring-boot-idgenerator-demo"`로 현재 branch의 기존 examples 4개 모듈만 확인.
 - `./gradlew :bluetape4k-examples-coroutines-demo:compileKotlin :bluetape4k-examples-coroutines-demo:test :bluetape4k-examples-jpa-querydsl-demo:compileKotlin :bluetape4k-examples-jpa-querydsl-demo:test :bluetape4k-examples-redisson-demo:compileKotlin :bluetape4k-examples-redisson-demo:test :bluetape4k-examples-virtualthreads-demo:compileKotlin :bluetape4k-examples-virtualthreads-demo:test --parallel` 성공.
   - coroutines demo: 125 passing, 2 pending.
   - jpa-querydsl demo: 42 passing, 1 pending.
   - redisson demo: 89 passing.
   - virtualthreads demo: 32 passing.
-- `./gradlew build -x test ... --dry-run | rg "bluetape4k-examples|idgenerator-ktor|spring-boot-idgenerator-demo"` 결과 match 없음으로 Nightly build exclusion 확인.
+- `./gradlew build -x test ... --dry-run | rg "bluetape4k-examples|idgenerator-ktor-demo|spring-boot-idgenerator-demo"` 결과 match 없음으로 Nightly build exclusion 확인.
 - 첫 GitHub Actions 실행에서 `examples/virtualthreads-demo`의 `Example3_CreateStartedAndUnstartedVirtualThread`가 virtual thread 상태를 `RUNNABLE`로 고정 기대해 CI에서 `TIMED_WAITING`을 관측하며 실패했다. 상태값 대신 latch로 시작/생존 여부를 검증하도록 안정화했다.
 - `./gradlew :bluetape4k-examples-virtualthreads-demo:test --parallel` 성공, virtualthreads demo 32개 통과.
 

@@ -316,8 +316,8 @@ jobs:
           )
 
           projects="$(./gradlew -q projects)"
-          if grep -q -- "--- Project ':idgenerator-ktor'" <<< "$projects"; then
-            excluded_tasks+=(-x :idgenerator-ktor:build)
+          if grep -q -- "--- Project ':idgenerator-ktor-demo'" <<< "$projects"; then
+            excluded_tasks+=(-x :idgenerator-ktor-demo:build)
           fi
           if grep -q -- "--- Project ':bluetape4k-spring-boot-idgenerator-demo'" <<< "$projects"; then
             excluded_tasks+=(-x :bluetape4k-spring-boot-idgenerator-demo:build)

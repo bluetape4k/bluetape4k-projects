@@ -1,4 +1,4 @@
-# idgenerator Ktor Example
+# idgenerator Ktor Demo
 
 English | [한국어](./README.ko.md)
 
@@ -22,7 +22,7 @@ The explicit `/ids/...` routes and generic `/idgen/{type}` routes share the same
 ## Run
 
 ```bash
-./gradlew :idgenerator-ktor:run
+./gradlew :idgenerator-ktor-demo:run
 ```
 
 The application listens on `0.0.0.0:8080`.
@@ -30,7 +30,7 @@ The application listens on `0.0.0.0:8080`.
 ## Test
 
 ```bash
-./gradlew :idgenerator-ktor:compileKotlin :idgenerator-ktor:test
+./gradlew :idgenerator-ktor-demo:compileKotlin :idgenerator-ktor-demo:test
 ```
 
 ## Endpoints
