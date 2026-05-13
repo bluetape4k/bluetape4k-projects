@@ -395,4 +395,4 @@ Integration tests automatically manage Redis + H2 via Testcontainers.
 
 ## License
 
-Apache License 2.0
+MIT License

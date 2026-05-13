@@ -630,4 +630,4 @@ tasks.register<de.undercouch.gradle.tasks.download.Download>("downloadAgent") {
 
 ## 라이선스
 
-Apache License 2.0
+MIT License

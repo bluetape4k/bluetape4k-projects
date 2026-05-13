@@ -217,4 +217,4 @@ class MyTest {
 ---
 
 **유지보수자**: Sunghyouk Bae (@sunghyouk.bae@gmail.com)
-**라이선스**: Apache 2.0
+**라이선스**: MIT

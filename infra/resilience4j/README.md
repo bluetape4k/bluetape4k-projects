@@ -578,4 +578,4 @@ More examples are available in the `src/test/kotlin/io/bluetape4k/resilience4j` 
 
 ## License
 
-Apache License 2.0
+MIT License

@@ -371,4 +371,4 @@ class MyNatsTest : AbstractNatsTest() {
 
 ## 라이선스
 
-Apache License 2.0
+MIT License
