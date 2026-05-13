@@ -683,7 +683,7 @@ dependencies {
 
 ## License
 
-Apache License 2.0
+MIT License
 
 ## References
 

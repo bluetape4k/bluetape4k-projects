@@ -371,4 +371,4 @@ Test examples are located in `src/test/kotlin/io/bluetape4k/nats/`:
 
 ## License
 
-Apache License 2.0
+MIT License

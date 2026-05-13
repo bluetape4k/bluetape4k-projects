@@ -217,4 +217,4 @@ This is intentional to provide clear semantics for both value and reference equa
 ---
 
 **Maintainer**: Sunghyouk Bae (@sunghyouk.bae@gmail.com)
-**License**: Apache 2.0
+**License**: MIT

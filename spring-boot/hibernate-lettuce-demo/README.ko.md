@@ -456,4 +456,4 @@ dependencies {
 
 ## 라이센스
 
-Apache License 2.0
+MIT License
