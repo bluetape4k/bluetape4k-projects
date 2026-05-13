@@ -27,6 +27,7 @@ includeModules("virtualthread", withProjectName = true, withBaseDir = true)
 
 // Examples (library style examples)
 includeModules("examples", withProjectName = true, withBaseDir = true)
+includeModules("examples/spring-boot", false, false)
 includeModules("examples/ktor", false, false)
 
 fun includeModules(baseDir: String, withProjectName: Boolean = true, withBaseDir: Boolean = true) {

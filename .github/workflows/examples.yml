@@ -5,7 +5,7 @@ on:
     branches: [develop, main]
     paths:
       - 'examples/**'
-      - 'spring-boot/idgenerator-demo/**'
+      - 'examples/spring-boot/idgenerator-spring-boot-demo/**'
       - 'settings.gradle.kts'
       - 'build.gradle.kts'
       - 'buildSrc/**'
@@ -22,7 +22,7 @@ on:
     branches: [develop]
     paths:
       - 'examples/**'
-      - 'spring-boot/idgenerator-demo/**'
+      - 'examples/spring-boot/idgenerator-spring-boot-demo/**'
       - 'settings.gradle.kts'
       - 'build.gradle.kts'
       - 'buildSrc/**'
@@ -83,17 +83,17 @@ jobs:
             :bluetape4k-examples-virtualthreads-demo:test
           )
 
-          if [[ -f examples/ktor/idgenerator-ktor/build.gradle.kts ]]; then
+          if [[ -f examples/ktor/idgenerator-ktor-demo/build.gradle.kts ]]; then
             tasks+=(
-              :idgenerator-ktor:compileKotlin
-              :idgenerator-ktor:test
+              :idgenerator-ktor-demo:compileKotlin
+              :idgenerator-ktor-demo:test
             )
           fi
 
-          if [[ -f spring-boot/idgenerator-demo/build.gradle.kts ]]; then
+          if [[ -f examples/spring-boot/idgenerator-spring-boot-demo/build.gradle.kts ]]; then
             tasks+=(
-              :bluetape4k-spring-boot-idgenerator-demo:compileKotlin
-              :bluetape4k-spring-boot-idgenerator-demo:test
+              :idgenerator-spring-boot-demo:compileKotlin
+              :idgenerator-spring-boot-demo:test
             )
           fi
 
@@ -109,7 +109,7 @@ jobs:
           path: |
             examples/**/build/test-results/test/**
             examples/**/build/reports/tests/test/**
-            spring-boot/idgenerator-demo/build/test-results/test/**
-            spring-boot/idgenerator-demo/build/reports/tests/test/**
+            examples/spring-boot/idgenerator-spring-boot-demo/build/test-results/test/**
+            examples/spring-boot/idgenerator-spring-boot-demo/build/reports/tests/test/**
           if-no-files-found: ignore
           retention-days: 14

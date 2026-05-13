@@ -6,7 +6,7 @@
 
 ## Decision
 
-- 새 예제는 기존 Spring Boot demo 계열과 맞춰 `spring-boot/idgenerator-demo`에 둔다.
+- 새 예제는 기존 Spring Boot demo 계열과 맞춰 `examples/spring-boot/idgenerator-spring-boot-demo`에 둔다.
 - `IdGeneratorConfiguration`에서 generator Bean 등록 방식을 드러내고, `IdGeneratorRegistry`가 REST type과 generator를 매핑한다.
 - 사용자가 선호한 명시적 endpoint를 유지하면서, 재사용성이 좋은 `/idgen/{type}`도 함께 제공한다.
 - unique ID 검증은 endpoint 테스트에서 `SuspendedJobTester`를 사용해 병렬 요청으로 증명한다.
@@ -17,8 +17,8 @@ Spring Boot 애플리케이션, REST controller/service/registry/configuration, 
 
 ## Verification Evidence
 
-- `./gradlew :bluetape4k-spring-boot-idgenerator-demo:compileKotlin :bluetape4k-spring-boot-idgenerator-demo:compileTestKotlin --parallel` 성공.
-- `./gradlew :bluetape4k-spring-boot-idgenerator-demo:test --parallel` 성공, `IdGeneratorDemoApplicationTest` 7개 통과.
+- `./gradlew :idgenerator-spring-boot-demo:compileKotlin :idgenerator-spring-boot-demo:compileTestKotlin --parallel` 성공.
+- `./gradlew :idgenerator-spring-boot-demo:test --parallel` 성공, `IdGeneratorDemoApplicationTest` 7개 통과.
 
 ## Future Guidance
 
