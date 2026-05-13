@@ -238,10 +238,15 @@ encrypted.asDaeadChunkDecryptSource(
 }
 ```
 
-DAEAD chunk encryption writes each frame as an 8-byte big-endian ciphertext
-length (`DEFAULT_DAEAD_CHUNK_SIZE = 64 KiB`) followed by the DAEAD ciphertext.
-Always close the encrypt sink, preferably with `use {}`, because the last partial
-chunk is finalized on `close()`.
+DAEAD chunk encryption writes each frame as `[1-byte flags][8-byte big-endian
+ciphertext length][ciphertext]`. `DEFAULT_DAEAD_CHUNK_SIZE` is 64 KiB. The
+chunk index and final-frame flag are bound into DAEAD associated data so frame
+reorder, duplicate replay, whole-frame truncation, and trailing data after the
+final frame fail during decryption.
+This is the v2 DAEAD chunk format and is not wire-compatible with older
+`[8-byte length][ciphertext]` frames.
+Always close the encrypt sink, preferably with `use {}`, because the final frame
+is written on `close()`.
 
 Deterministic AEAD produces the same ciphertext for the same key, plaintext, and
 associated data. This can reveal repeated plaintext chunks. Associated data is

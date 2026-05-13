@@ -10,32 +10,35 @@ import okio.Sink
 import java.io.IOException
 
 /**
- * 평문을 DAEAD 청크 포맷으로 암호화하여 [Sink]에 기록하는 [Sink] 구현체입니다.
+ * Encrypts plaintext into a DAEAD chunk stream and writes it to a delegate [Sink].
  *
- * 입력은 [chunkSize] 크기의 평문 청크로 나뉘며, 각 청크는
- * `[8-byte big-endian ciphertext length][ciphertext]` 형식으로 기록됩니다.
- * 마지막 partial chunk는 [close] 시점에 기록되므로 반드시 `use {}` 또는 [close]를 호출해야 합니다.
+ * Input is split into plaintext chunks of [chunkSize]. Each encrypted frame is
+ * written as `[1-byte flags][8-byte big-endian ciphertext length][ciphertext]`.
+ * The last partial chunk is finalized on [close], so callers must use `use {}`
+ * or close this sink explicitly. The chunk index and final-frame flag are bound
+ * into DAEAD associated data, so chunk reorder, deletion, and duplicate replay
+ * fail during decryption.
  *
- * [TinkDeterministicAead]는 같은 키, 평문, 연관 데이터에 대해 같은 암호문을 생성합니다.
- * 이 특성 때문에 동일 청크 평문 반복 여부가 노출될 수 있습니다. 결정성이 필요하지 않은 일반
- * 암호화에는 `TinkEncryptSink`를 사용하세요.
+ * [TinkDeterministicAead] produces the same ciphertext for the same key,
+ * plaintext, and associated data. This can reveal repeated plaintext chunks.
+ * Use `TinkEncryptSink` when deterministic encryption is not required.
  *
  * ```kotlin
  * val daead = TinkDaeads.AES256_SIV
  * val output = Buffer()
  *
  * output.asDaeadChunkEncryptSink(daead).use { sink ->
- *     val plaintext = Buffer().writeUtf8("대용량 스트리밍 평문")
+ *     val plaintext = Buffer().writeUtf8("large streaming plaintext")
  *     sink.write(plaintext, plaintext.size)
  * }
- * // output 에는 DAEAD 청크 포맷으로 암호화된 데이터가 담겨 있다.
- * // DaeadChunkDecryptSource 로 복호화하면 원본 평문을 얻을 수 있다.
+ * // output now contains DAEAD chunk frames.
+ * // Decrypt with DaeadChunkDecryptSource to restore the plaintext.
  * ```
  *
- * @param delegate 암호문을 기록할 위임 [Sink]
- * @param daead 청크 암호화에 사용할 DAEAD 래퍼
- * @param chunkSize 평문 청크 크기. 기본값은 [DEFAULT_DAEAD_CHUNK_SIZE]입니다.
- * @param associatedData 청크 인증에 사용할 연관 데이터. 인증되지만 암호화되지는 않습니다.
+ * @param delegate target [Sink] for ciphertext frames.
+ * @param daead DAEAD wrapper used to encrypt each chunk.
+ * @param chunkSize plaintext chunk size. Defaults to [DEFAULT_DAEAD_CHUNK_SIZE].
+ * @param associatedData caller-provided associated data. It is authenticated but not encrypted.
  * @see DaeadChunkDecryptSource
  * @see TinkEncryptSink
  */
@@ -51,17 +54,18 @@ class DaeadChunkEncryptSink(
     private val associatedData: ByteArray = associatedData.copyOf()
     private val plainBuffer = Buffer()
     private var closed = false
+    private var chunkIndex = 0L
 
     init {
         chunkSize.requirePositiveNumber("chunkSize")
     }
 
     /**
-     * [source]에서 [byteCount] 바이트를 읽어 내부 버퍼에 누적한 뒤 완성된 청크를 암호화합니다.
+     * Reads [byteCount] bytes from [source], buffers them, and emits complete encrypted chunks.
      *
-     * @param source 평문을 제공하는 버퍼
-     * @param byteCount 처리할 바이트 수
-     * @throws IOException close 이후 호출 시, 또는 암호화 실패 시
+     * @param source plaintext buffer.
+     * @param byteCount number of bytes to consume.
+     * @throws IOException after close or when encryption/write fails.
      */
     override fun write(source: Buffer, byteCount: Long) {
         if (closed) {
@@ -77,10 +81,10 @@ class DaeadChunkEncryptSink(
     }
 
     /**
-     * 완성된 청크만 기록하고 partial chunk는 [close]까지 유지합니다.
+     * Emits only chunks known to be non-final and keeps the last possible final chunk until [close].
      *
-     * **주의**: partial chunk는 [close] 시점에만 기록됩니다. `flush()`를 호출해도
-     * partial chunk는 기록되지 않습니다.
+     * Note: `flush()` also keeps a buffered chunk of exactly [chunkSize] bytes because
+     * it may be the final chunk unless more plaintext arrives.
      */
     override fun flush() {
         if (!closed) {
@@ -90,7 +94,7 @@ class DaeadChunkEncryptSink(
     }
 
     /**
-     * 남은 partial chunk를 암호화한 뒤 위임 [Sink]를 닫습니다.
+     * Encrypts the remaining final chunk and closes the delegate [Sink].
      */
     override fun close() {
         if (closed) {
@@ -99,7 +103,7 @@ class DaeadChunkEncryptSink(
 
         var thrown: Throwable? = null
         try {
-            emitRemainingChunk()
+            emitFinalChunk()
             super.flush()
         } catch (e: Throwable) {
             thrown = e
@@ -132,30 +136,34 @@ class DaeadChunkEncryptSink(
     }
 
     private fun emitCompleteChunks() {
-        while (plainBuffer.size >= chunkSize) {
-            emitChunk(chunkSize.toLong())
+        while (plainBuffer.size > chunkSize) {
+            emitChunk(chunkSize.toLong(), finalChunk = false)
         }
     }
 
-    private fun emitRemainingChunk() {
-        if (plainBuffer.size > 0L) {
-            emitChunk(plainBuffer.size)
-        }
+    private fun emitFinalChunk() {
+        emitChunk(plainBuffer.size, finalChunk = true)
     }
 
-    private fun emitChunk(byteCount: Long) {
+    private fun emitChunk(byteCount: Long, finalChunk: Boolean) {
         val plaintext = plainBuffer.readByteArray(byteCount)
-        val ciphertext = daead.encryptDeterministically(plaintext, associatedData)
+        // Bind stream position into AD so whole-frame reorder/drop/duplicate attacks fail authentication.
+        val ciphertext = daead.encryptDeterministically(
+            plaintext,
+            daeadChunkAssociatedData(associatedData, chunkIndex, finalChunk)
+        )
         val frame = Buffer()
+            .writeByte(if (finalChunk) DAEAD_CHUNK_FINAL_FLAG else DAEAD_CHUNK_NON_FINAL_FLAG)
             .writeLong(ciphertext.size.toLong())
             .write(ciphertext)
 
         super.write(frame, frame.size)
+        chunkIndex++
     }
 }
 
 /**
- * 현재 [Sink]를 DAEAD 청크 암호화 [Sink]로 변환합니다.
+ * Wraps this [Sink] as a DAEAD chunk encryption sink.
  *
  * ```kotlin
  * val daead = TinkDaeads.AES256_SIV
@@ -164,13 +172,13 @@ class DaeadChunkEncryptSink(
  * output.asDaeadChunkEncryptSink(daead, associatedData = "context".toByteArray()).use { sink ->
  *     sink.write(Buffer().writeUtf8("hello"), 5L)
  * }
- * // output 을 DaeadChunkDecryptSource 로 같은 associatedData 를 사용해 복호화하세요.
+ * // Decrypt output with DaeadChunkDecryptSource and the same associatedData.
  * ```
  *
- * @param daead 청크 암호화에 사용할 DAEAD 래퍼
- * @param chunkSize 평문 청크 크기. 기본값은 [DEFAULT_DAEAD_CHUNK_SIZE] (64 KiB)입니다.
- * @param associatedData 청크 인증에 사용할 연관 데이터. 복호화 시 동일한 값을 전달해야 합니다.
- * @return DAEAD 청크 암호화 [Sink]
+ * @param daead DAEAD wrapper used to encrypt each chunk.
+ * @param chunkSize plaintext chunk size. Defaults to [DEFAULT_DAEAD_CHUNK_SIZE] (64 KiB).
+ * @param associatedData caller-provided associated data. Decryption must use the same value.
+ * @return DAEAD chunk encryption [Sink].
  * @see DaeadChunkDecryptSource
  */
 fun Sink.asDaeadChunkEncryptSink(
@@ -181,10 +189,30 @@ fun Sink.asDaeadChunkEncryptSink(
     DaeadChunkEncryptSink(this, daead, chunkSize, associatedData)
 
 /**
- * DAEAD 청크 암호화에서 사용하는 기본 평문 청크 크기 (64 KiB)입니다.
+ * Default plaintext chunk size for DAEAD chunk encryption (64 KiB).
  *
- * 암호화 Sink 생성 시 [chunkSize] 파라미터로 이 값을 재정의할 수 있습니다.
- * [DaeadChunkDecryptSource]는 헤더에서 ciphertext 길이를 읽으므로 복호화 측에서
- * 별도로 chunkSize 를 지정할 필요가 없습니다.
+ * Override this with the [chunkSize] parameter when constructing the encryption sink.
+ * [DaeadChunkDecryptSource] reads ciphertext lengths from frame headers, so the
+ * decrypting side does not need the plaintext chunk size.
  */
 const val DEFAULT_DAEAD_CHUNK_SIZE: Int = 64 * 1024
+
+internal const val DAEAD_CHUNK_NON_FINAL_FLAG: Int = 0
+internal const val DAEAD_CHUNK_FINAL_FLAG: Int = 1
+
+private const val DAEAD_CHUNK_ASSOCIATED_DATA_DOMAIN = "bluetape4k-okio-daead-chunk-v2"
+
+// Domain separation + caller AD + frame metadata form the authenticated stream context.
+internal fun daeadChunkAssociatedData(
+    associatedData: ByteArray,
+    chunkIndex: Long,
+    finalChunk: Boolean,
+): ByteArray =
+    Buffer()
+        .writeUtf8(DAEAD_CHUNK_ASSOCIATED_DATA_DOMAIN)
+        .writeByte(0)
+        .writeInt(associatedData.size)
+        .write(associatedData)
+        .writeLong(chunkIndex)
+        .writeByte(if (finalChunk) DAEAD_CHUNK_FINAL_FLAG else DAEAD_CHUNK_NON_FINAL_FLAG)
+        .readByteArray()

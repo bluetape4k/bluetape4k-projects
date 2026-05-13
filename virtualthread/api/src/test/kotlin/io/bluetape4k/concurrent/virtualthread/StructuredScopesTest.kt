@@ -1,7 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -9,12 +8,17 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import java.util.ServiceConfigurationError
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.StructuredTaskScope
+import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeoutException
-import io.bluetape4k.assertions.assertFailsWith
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * [StructuredTaskScopes], [StructuredTaskScopeProvider], [StructuredSubtask], [StructuredTaskScopeAll],
@@ -47,6 +51,23 @@ class StructuredScopesTest {
     fun `provider priority 가 양수여야 한다`() {
         val provider = StructuredTaskScopes.provider()
         provider.priority.shouldBeGreaterThan(0)
+    }
+
+    @Test
+    fun `provider discovery skips broken next entries`() {
+        val providers = StructuredTaskScopes.discoverStructuredTaskScopeProviders(
+            FailingNextThenProviderIterator(TestStructuredTaskScopeProvider("valid-provider", priority = 10))
+        )
+
+        providers.size shouldBeEqualTo 1
+        providers.first().providerName shouldBeEqualTo "valid-provider"
+    }
+
+    @Test
+    fun `provider discovery stops cleanly when hasNext fails`() {
+        val providers = StructuredTaskScopes.discoverStructuredTaskScopeProviders(FailingHasNextIterator())
+
+        providers shouldBeEqualTo emptyList<StructuredTaskScopeProvider>()
     }
 
     // ── 기존 all/any 회귀 테스트 (deprecated API 동작 검증) ─────────────────────
@@ -219,6 +240,27 @@ class StructuredScopesTest {
             task.get()
         }
         result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `StructuredTaskScopeTester 로 failFast API 를 반복 검증한다`() {
+        val completed = AtomicInteger()
+
+        StructuredTaskScopeTester()
+            .rounds(32)
+            .add {
+                val result = StructuredTaskScopes.failFast { scope ->
+                    val a = scope.fork { 10 }
+                    val b = scope.fork { 20 }
+                    scope.join().throwIfFailed()
+                    a.get() + b.get()
+                }
+                result shouldBeEqualTo 30
+                completed.incrementAndGet()
+            }
+            .run()
+
+        completed.get() shouldBeEqualTo 32
     }
 
     // ── firstSuccess 신규 API 테스트 ────────────────────────────────────────────
@@ -550,5 +592,50 @@ class StructuredScopesTest {
 
         successes.sorted() shouldBeEqualTo allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted()
         failures.size shouldBeEqualTo allResults.mapNotNull { it.exceptionOrNull() }.size
+    }
+
+    private class FailingNextThenProviderIterator(
+        private val provider: StructuredTaskScopeProvider,
+    ): Iterator<StructuredTaskScopeProvider> {
+        private var index = 0
+
+        override fun hasNext(): Boolean = index < 2
+
+        override fun next(): StructuredTaskScopeProvider =
+            when (index++) {
+                0 -> throw ServiceConfigurationError("broken provider entry")
+                1 -> provider
+                else -> throw NoSuchElementException()
+            }
+    }
+
+    private class FailingHasNextIterator: Iterator<StructuredTaskScopeProvider> {
+        override fun hasNext(): Boolean = throw ServiceConfigurationError("broken provider index")
+        override fun next(): StructuredTaskScopeProvider = throw NoSuchElementException()
+    }
+
+    private class TestStructuredTaskScopeProvider(
+        override val providerName: String,
+        override val priority: Int,
+    ): StructuredTaskScopeProvider {
+        override fun isSupported(): Boolean = true
+
+        override fun <T> withAll(
+            name: String?,
+            factory: ThreadFactory,
+            block: (scope: StructuredTaskScopeAll) -> T,
+        ): T = error("not used")
+
+        override fun <T> withAny(
+            name: String?,
+            factory: ThreadFactory,
+            block: (scope: StructuredTaskScopeAny<T>) -> T,
+        ): T = error("not used")
+
+        override fun <T, R> withSupervised(
+            name: String?,
+            factory: ThreadFactory,
+            block: (scope: StructuredTaskScopeSupervised<T>) -> R,
+        ): R = error("not used")
     }
 }

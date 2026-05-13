@@ -10,37 +10,41 @@ import okio.Source
 import java.io.IOException
 
 /**
- * DAEAD 청크 포맷으로 암호화된 데이터를 복호화하여 [Source]로 제공하는 구현체입니다.
+ * Decrypts a DAEAD chunk stream and exposes plaintext through [Source].
  *
- * 입력은 `[8-byte big-endian ciphertext length][ciphertext]` 청크의 반복이어야 합니다.
- * [read]는 필요한 경우 다음 청크 하나만 읽고 복호화하므로 전체 암호문을 메모리에 적재하지 않습니다.
+ * Input must be a sequence of `[1-byte flags][8-byte big-endian ciphertext length][ciphertext]`
+ * frames. [read] decrypts at most the next encrypted chunk when the internal
+ * plaintext buffer is empty, so it never loads the whole ciphertext stream into memory.
+ * The chunk index and final-frame flag are bound into DAEAD associated data, so
+ * chunk reorder, deletion, and duplicate replay fail with authentication or EOF errors.
  *
- * [TinkDeterministicAead]는 같은 키, 평문, 연관 데이터에 대해 같은 암호문을 생성합니다.
- * 이 특성 때문에 동일 청크 평문 반복 여부가 노출될 수 있습니다. 또한 [associatedData]는
- * 인증되지만 암호화되지 않으며, 암호화 시 사용한 값과 동일해야 복호화가 성공합니다.
+ * [TinkDeterministicAead] produces the same ciphertext for the same key,
+ * plaintext, and associated data. This can reveal repeated plaintext chunks.
+ * [associatedData] is authenticated but not encrypted and must match the value
+ * used during encryption.
  *
  * ```kotlin
  * val daead = TinkDaeads.AES256_SIV
  * val output = Buffer()
  *
- * // 암호화
+ * // Encrypt
  * output.asDaeadChunkEncryptSink(daead).use { sink ->
- *     sink.write(Buffer().writeUtf8("스트리밍 평문"), 14L)
+ *     sink.write(Buffer().writeUtf8("streaming plaintext"), 19L)
  * }
  *
- * // 복호화 — 한 번에 하나의 청크만 메모리에 적재
+ * // Decrypt — only one chunk is loaded at a time.
  * val decrypted = Buffer()
  * output.asDaeadChunkDecryptSource(daead).use { source ->
  *     source.read(decrypted, Long.MAX_VALUE)
  * }
- * val plaintext = decrypted.readUtf8() // "스트리밍 평문"
+ * val plaintext = decrypted.readUtf8() // "streaming plaintext"
  * ```
  *
- * @param delegate DAEAD 청크 암호문을 읽을 위임 [Source]
- * @param daead 청크 복호화에 사용할 DAEAD 래퍼
- * @param associatedData 청크 인증에 사용할 연관 데이터. 암호화 시 사용한 값과 동일해야 합니다.
- * @param maxCiphertextLength 허용하는 청크 ciphertext 최대 길이 (기본값: [DEFAULT_DAEAD_MAX_CIPHERTEXT_LENGTH]).
- *   신뢰할 수 없는 소스에서 읽을 때 대규모 메모리 할당 공격을 방어합니다.
+ * @param delegate source of DAEAD chunk ciphertext frames.
+ * @param daead DAEAD wrapper used to decrypt each chunk.
+ * @param associatedData caller-provided associated data. It must match the encryption value.
+ * @param maxCiphertextLength maximum allowed ciphertext length per frame.
+ *   Defaults to [DEFAULT_DAEAD_MAX_CIPHERTEXT_LENGTH] to limit memory allocation from untrusted sources.
  * @see DaeadChunkEncryptSink
  * @see TinkDecryptSource
  */
@@ -52,24 +56,27 @@ class DaeadChunkDecryptSource(
 ): ForwardingSource(delegate) {
 
     companion object: KLogging() {
-        private const val CHUNK_HEADER_SIZE = Long.SIZE_BYTES.toLong()
+        private const val CHUNK_HEADER_SIZE = 1L + Long.SIZE_BYTES
+        private const val TRAILING_PROBE_BYTE_COUNT = 64L
         private const val MAX_NO_PROGRESS_READS = 8
     }
 
     private val associatedData: ByteArray = associatedData.copyOf()
     private val plainBuffer = Buffer()
     private var closed = false
+    private var finished = false
+    private var chunkIndex = 0L
 
     /**
-     * 복호화된 평문을 [sink]에 최대 [byteCount] 바이트만큼 읽어옵니다.
+     * Reads up to [byteCount] decrypted plaintext bytes into [sink].
      *
-     * 내부 평문 버퍼가 비어 있으면 다음 청크 하나를 읽고 복호화합니다.
-     * 한 번 호출 시 최대 한 청크 분량의 평문만 반환할 수 있습니다.
+     * When the internal plaintext buffer is empty, this source reads and decrypts
+     * the next encrypted chunk. A single call returns at most one chunk of plaintext.
      *
-     * @param sink 복호화된 평문을 받을 버퍼
-     * @param byteCount 요청할 최대 바이트 수
-     * @return 실제 읽은 바이트 수 또는 EOF 시 -1
-     * @throws IOException close 이후 호출 시, 또는 스트림 포맷 오류 시
+     * @param sink target plaintext buffer.
+     * @param byteCount maximum requested byte count.
+     * @return number of bytes read, or `-1` after the authenticated final frame.
+     * @throws IOException after close or when the stream format/authentication is invalid.
      */
     override fun read(sink: Buffer, byteCount: Long): Long {
         if (closed) {
@@ -80,7 +87,10 @@ class DaeadChunkDecryptSource(
             return 0L
         }
 
-        if (plainBuffer.size == 0L && !readNextChunk()) {
+        while (plainBuffer.size == 0L && !finished) {
+            readNextChunk()
+        }
+        if (plainBuffer.size == 0L && finished) {
             return -1L
         }
 
@@ -90,7 +100,7 @@ class DaeadChunkDecryptSource(
     }
 
     /**
-     * 내부 평문 버퍼와 위임 [Source]를 닫습니다.
+     * Closes the internal plaintext buffer and delegate [Source].
      */
     override fun close() {
         if (closed) {
@@ -104,9 +114,15 @@ class DaeadChunkDecryptSource(
         }
     }
 
-    private fun readNextChunk(): Boolean {
-        val header = readExactlyOrNull(CHUNK_HEADER_SIZE) ?: return false
+    private fun readNextChunk() {
+        val header = readExactly(CHUNK_HEADER_SIZE)
+        val flags = header.readByte().toInt()
         val ciphertextLength = header.readLong()
+        val finalChunk = when (flags) {
+            DAEAD_CHUNK_NON_FINAL_FLAG -> false
+            DAEAD_CHUNK_FINAL_FLAG -> true
+            else -> throw IOException("Invalid DAEAD chunk flags: $flags")
+        }
 
         if (ciphertextLength <= 0L || ciphertextLength > Int.MAX_VALUE) {
             throw IOException("Invalid DAEAD chunk ciphertext length: $ciphertextLength")
@@ -117,15 +133,46 @@ class DaeadChunkDecryptSource(
             )
         }
 
-        val ciphertext = readExactlyOrNull(ciphertextLength)
-            ?: throw EOFException("Truncated DAEAD chunk ciphertext. expected=$ciphertextLength")
+        val ciphertext = readExactly(ciphertextLength)
 
-        val plaintext = daead.decryptDeterministically(ciphertext.readByteArray(), associatedData)
+        // The flag is part of AD; changing final/non-final state invalidates the frame.
+        val plaintext = daead.decryptDeterministically(
+            ciphertext.readByteArray(),
+            daeadChunkAssociatedData(associatedData, chunkIndex, finalChunk)
+        )
+        chunkIndex++
         plainBuffer.write(plaintext)
-        return true
+        if (finalChunk) {
+            ensureNoTrailingData()
+            finished = true
+        }
     }
 
-    private fun readExactlyOrNull(byteCount: Long): Buffer? {
+    private fun ensureNoTrailingData() {
+        val probe = Buffer()
+        var noProgressCount = 0
+
+        while (true) {
+            val bytesRead = super.read(probe, TRAILING_PROBE_BYTE_COUNT)
+            when {
+                bytesRead < 0L -> return
+
+                bytesRead == 0L -> {
+                    noProgressCount++
+                    if (noProgressCount >= MAX_NO_PROGRESS_READS) {
+                        throw IOException("Unable to verify DAEAD chunk stream EOF: no progress.")
+                    }
+                }
+
+                else -> {
+                    // Final frame authentication is only complete when no trailing frame bytes remain.
+                    throw IOException("Trailing DAEAD chunk data after final frame.")
+                }
+            }
+        }
+    }
+
+    private fun readExactly(byteCount: Long): Buffer {
         val buffer = Buffer()
         var noProgressCount = 0
 
@@ -133,9 +180,6 @@ class DaeadChunkDecryptSource(
             val bytesRead = super.read(buffer, byteCount - buffer.size)
             when {
                 bytesRead < 0L -> {
-                    if (buffer.size == 0L) {
-                        return null
-                    }
                     throw EOFException("Truncated DAEAD chunk. expected=$byteCount actual=${buffer.size}")
                 }
 
@@ -155,7 +199,7 @@ class DaeadChunkDecryptSource(
 }
 
 /**
- * 현재 [Source]를 DAEAD 청크 복호화 [Source]로 변환합니다.
+ * Wraps this [Source] as a DAEAD chunk decryption source.
  *
  * ```kotlin
  * val daead = TinkDaeads.AES256_SIV
@@ -169,10 +213,11 @@ class DaeadChunkDecryptSource(
  * }
  * ```
  *
- * @param daead 청크 복호화에 사용할 DAEAD 래퍼
- * @param associatedData 청크 인증에 사용할 연관 데이터. 암호화 시 사용한 값과 동일해야 합니다.
- * @param maxCiphertextLength 허용하는 청크 ciphertext 최대 길이. 기본값: [DEFAULT_DAEAD_MAX_CIPHERTEXT_LENGTH].
- * @return DAEAD 청크 복호화 [Source]
+ * @param daead DAEAD wrapper used to decrypt each chunk.
+ * @param associatedData caller-provided associated data. It must match the encryption value.
+ * @param maxCiphertextLength maximum allowed ciphertext length per frame.
+ *   Defaults to [DEFAULT_DAEAD_MAX_CIPHERTEXT_LENGTH].
+ * @return DAEAD chunk decryption [Source].
  * @see DaeadChunkEncryptSink
  */
 fun Source.asDaeadChunkDecryptSource(
@@ -183,10 +228,10 @@ fun Source.asDaeadChunkDecryptSource(
     DaeadChunkDecryptSource(this, daead, associatedData, maxCiphertextLength)
 
 /**
- * DAEAD 청크 복호화에서 허용하는 기본 최대 ciphertext 길이 (16 MiB)입니다.
+ * Default maximum ciphertext length accepted by DAEAD chunk decryption (16 MiB).
  *
- * 신뢰할 수 없는 소스로부터 대규모 메모리 할당 공격을 방어하기 위한 상한선입니다.
- * 암호화 측의 `chunkSize` 가 이 값보다 크면 [DaeadChunkDecryptSource] 생성 시
- * `maxCiphertextLength` 파라미터를 명시적으로 지정하세요.
+ * This bounds memory allocation when reading from untrusted sources. If the
+ * encryption side uses a larger plaintext chunk size, pass an explicit
+ * `maxCiphertextLength` when creating [DaeadChunkDecryptSource].
  */
 const val DEFAULT_DAEAD_MAX_CIPHERTEXT_LENGTH: Long = 16L * 1024 * 1024

@@ -16,26 +16,31 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
     private val daead = TinkDaeads.AES256_SIV
 
     @Test
-    fun `empty input writes no chunk`() {
+    fun `empty input writes final marker`() {
         val encrypted = Buffer()
 
         encrypted.asDaeadChunkEncryptSink(daead).use {
             it.flush()
         }
 
-        encrypted.size shouldBeEqualTo 0L
+        encrypted.readByte().toInt() shouldBeEqualTo DAEAD_CHUNK_FINAL_FLAG
+        encrypted.readLong().shouldBeGreaterThan(0L)
     }
 
     @Test
-    fun `single chunk uses big endian ciphertext length header`() {
+    fun `single chunk uses final flag and big endian ciphertext length header`() {
         val plaintext = byteArrayOf(1, 2, 3)
-        val expectedCiphertext = daead.encryptDeterministically(plaintext)
+        val expectedCiphertext = daead.encryptDeterministically(
+            plaintext,
+            daeadChunkAssociatedData(ByteArray(0), chunkIndex = 0L, finalChunk = true)
+        )
         val encrypted = Buffer()
 
         encrypted.asDaeadChunkEncryptSink(daead, chunkSize = plaintext.size).use { sink ->
             sink.write(Buffer().write(plaintext), plaintext.size.toLong())
         }
 
+        encrypted.readByte().toInt() shouldBeEqualTo DAEAD_CHUNK_FINAL_FLAG
         encrypted.readLong() shouldBeEqualTo expectedCiphertext.size.toLong()
         encrypted.readByteArray() shouldBeEqualTo expectedCiphertext
     }
@@ -54,6 +59,7 @@ class DaeadChunkEncryptSinkTest: AbstractTinkEncryptTest() {
 
         val framed = encrypted.clone()
         while (framed.size > 0L) {
+            framed.readByte()
             val ciphertextLength = framed.readLong()
             chunks += ciphertextLength
             framed.skip(ciphertextLength)

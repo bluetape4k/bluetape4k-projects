@@ -389,14 +389,29 @@ object StructuredTaskScopes: KLogging() {
 
     private val providers: List<StructuredTaskScopeProvider> by lazy {
         val loader = ServiceLoader.load(StructuredTaskScopeProvider::class.java)
-        val iterator = loader.iterator()
+        discoverStructuredTaskScopeProviders(loader.iterator())
+    }
+
+    internal fun discoverStructuredTaskScopeProviders(
+        iterator: Iterator<StructuredTaskScopeProvider>,
+    ): List<StructuredTaskScopeProvider> {
         val discovered = mutableListOf<StructuredTaskScopeProvider>()
 
         while (true) {
-            val provider = runCatching {
-                if (!iterator.hasNext()) return@runCatching null
-                iterator.next()
+            val hasNext = runCatching {
+                iterator.hasNext()
+            }.onFailure { error ->
+                log.warn(error) { "Stopping StructuredTaskScopeProvider discovery after ServiceLoader.hasNext() failed." }
             }.getOrNull() ?: break
+            if (!hasNext) {
+                break
+            }
+            // A broken service entry must not hide later providers that are valid for this runtime.
+            val provider = runCatching {
+                iterator.next()
+            }.onFailure { error ->
+                log.warn(error) { "Skipping failed StructuredTaskScopeProvider entry." }
+            }.getOrNull() ?: continue
 
             runCatching {
                 if (provider.isSupported()) {
@@ -408,7 +423,7 @@ object StructuredTaskScopes: KLogging() {
             }
         }
 
-        discovered.sortedByDescending { it.priority }
+        return discovered.sortedByDescending { it.priority }
     }
 
     /**
