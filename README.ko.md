@@ -24,23 +24,20 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
     - `bluetape4k-measured` 의 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 제공
 
 2. 기존 Java 라이브러리를 무지성으로 사용하지 않고, 좀 더 효과적으로 사용할 수 있도록 개선한 기능을 제공합니다.
-    - `bluetape4k-core` 의 LZ4, Zstd 등 압축 기능 개선
-    - `bluetape4k-redis` 의 lettuce, redisson 용 Codec 제공 (공식 Codec 보다 성능이 월등함)
+    - `bluetape4k-io` 의 LZ4, Zstd, Snappy, Zip 등 압축 기능 개선
+    - `bluetape4k-redis`, `bluetape4k-lettuce`, `bluetape4k-redisson` 의 고성능 Lettuce/Redisson Codec 제공
 
 3. 테스트를 좀 더 완성도 있게 하기 위한 기능을 제공합니다.
     - `bluetape4k-junit5` 다양한 테스트 기법을 Junit5 기반으로 제공합니다.
     - `bluetape4k-testcontainers` 다양한 서비스들을 테스트 환경에서 사용할 수 있도록 합니다.
 
-3. Kotlin Coroutines 등 Async/Non-Blocking 방식의 개발을 지원하는 기능을 제공합니다.
+4. Kotlin Coroutines 등 Async/Non-Blocking 방식의 개발을 지원하는 기능을 제공합니다.
     - `bluetape4k-coroutines` Coroutine 을 사용할 때 유용한 기능을 제공합니다.
-    - `bluetape4k-feigh`, `bluetape4k-retrofit2` 등은 HTTP 통신 시 async/non-blocking을 위해 Coroutines 을 사용하도록 합니다
+    - `bluetape4k-feign`, `bluetape4k-retrofit2` 등은 HTTP 통신 시 async/non-blocking을 위해 Coroutines 을 사용하도록 합니다
 
-4. AWS SDK 사용 시 성능을 위해 개선한 기능을 제공합니다.
-    - `bluetape4k-aws` AWS Java SDK v2 기반으로 DynamoDB, S3, SES, SNS, SQS, KMS, CloudWatch, Kinesis, STS 등을 Async/Non-Blocking 방식으로 사용할 수 있도록 합니다.
-    - S3 TransferManager를 활용한 대용량 파일 전송 성능 최적화를 제공합니다.
-
-5. AWS Kotlin SDK 를 사용을 편리하게 하기 위한 기능을 제공합니다.
-    - `bluetape4k-aws-kotlin` AWS Kotlin SDK 기반으로 native `suspend` 함수를 기본 제공하여 Coroutines 환경에서 편리하게 사용할 수 있습니다.
+5. 독립 저장소로 분리된 bluetape4k 생태계 모듈을 함께 관리합니다.
+    - AWS, image, text, leader-election, JaVers, Exposed 통합은 독립 bluetape4k 저장소로 분리되었습니다.
+    - 이 저장소는 공유 Kotlin/JVM 기반, I/O, data, infra, Spring Boot, testing, utility, example 모듈을 유지합니다.
 
 6. MSA의 필수인 Resilience4j 에 대한 Kotlin Coroutines 지원을 강화했습니다.
     - `bluetape4k-resilience4j` Resilience4j 를 사용할 때 Kotlin Coroutines 를 사용할 수 있도록 지원합니다.
@@ -59,8 +56,8 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
-- **Spring Boot**: 4.0.0+
-- **Kotlin Exposed**: 1.0.0+
+- **Spring Boot**: 4.x
+- **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 이 repo의 `exposedVersion`을 따름)
 - **데이터베이스**: H2, PostgreSQL, MySQL
 
 ## 모듈 구조
@@ -77,6 +74,10 @@ flowchart TB
         LETTUCE["infra/lettuce"]
         REDISSON["infra/redisson"]
         KAFKA["infra/kafka"]
+        KAFKA4["infra/kafka4"]
+        ES["infra/elasticsearch"]
+        NATS["infra/nats"]
+        PULSAR["infra/pulsar"]
         R4J["infra/resilience4j"]
         CACHE["cache/*"]
         OTEL["infra/opentelemetry"]
@@ -120,8 +121,10 @@ flowchart TB
     subgraph CROSS["횡단 관심사 — Cross-cutting"]
         direction LR
         JUNIT["testing/junit5"]
+        ASSERT["testing/assertions"]
         TC["testing/testcontainers"]
         UTILS["utils/*"]
+        PROB["utils/probabilistic"]
         TEXTS["bluetape4k-text ↗"]
         AWS["bluetape4k-aws ↗"]
         IMG["bluetape4k-image ↗"]
@@ -148,9 +151,9 @@ flowchart TB
     class COROU,VT coreExt
     class IO,JACKSON,FEIGN,RETRO,GRPC,OKIO,TINK,VERTX ioLayer
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
-    class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
+    class LETTUCE,REDISSON,KAFKA,KAFKA4,ES,NATS,PULSAR,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
     class SB intLayer
-    class JUNIT,TC,UTILS,TEXTS,AWS,IMG crossLayer
+    class JUNIT,ASSERT,TC,UTILS,PROB,TEXTS,AWS,IMG crossLayer
 ```
 
 ### Core 모듈 (`bluetape4k/`)
@@ -158,7 +161,7 @@ flowchart TB
 - **[core](./bluetape4k/core/README.ko.md)**: 핵심 유틸리티 (assertions, required, 컬렉션(BoundedStack, RingBuffer, PaginatedList, Permutation), Wildcard 패턴 매칭, XXHasher 등)
 - **[coroutines](./bluetape4k/coroutines/README.ko.md)**: Kotlin Coroutines 확장 (DeferredValue, Flow extensions, AsyncFlow)
 - **[logging](./bluetape4k/logging/README.ko.md)**: 로깅 관련 기능
-- **bom**: Bill of Materials (의존성 관리)
+- **[bom](./bluetape4k/bom/README.ko.md)**: Bill of Materials (의존성 관리)
 
 ### I/O 모듈 (`io/`)
 
@@ -169,13 +172,11 @@ flowchart TB
 - **[grpc](./io/grpc/README.ko.md)**: gRPC 서버/클라이언트 추상화 (`bluetape4k-protobuf` 포함)
 - **[http](./io/http/README.ko.md)**: HTTP 유틸리티
 - **[io](./io/io/README.ko.md)**: 파일 I/O, 압축(LZ4, Zstd, Snappy, Zip), 직렬화(Kryo, Fory), ZIP 빌더/유틸리티
-- **[jackson2](./io/jackson2/README.ko.md)/[jackson3](./io/jackson3/README.ko.md)
-  **: Jackson 2.x/3.x 통합 — 바이너리(CBOR, Ion, Smile) 및 텍스트(CSV, YAML, TOML) 포맷 포함 (구 `jackson-binary/text`,
+- **[jackson2](./io/jackson2/README.ko.md)/[jackson3](./io/jackson3/README.ko.md)**: Jackson 2.x/3.x 통합 — 바이너리(CBOR, Ion, Smile) 및 텍스트(CSV, YAML, TOML) 포맷 포함 (구 `jackson-binary/text`,
   `jackson3-binary/text` 통합됨)
 - **[json](./io/json/README.ko.md)**: JSON 처리
 - **[netty](./io/netty/README.ko.md)**: Netty 통합
-- **[okio](./io/okio/README.ko.md)
-  **: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink 암호화 Sink/Source
+- **[okio](./io/okio/README.ko.md)**: Okio 기반 I/O 확장 — Buffer/Sink/Source 유틸리티, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink 암호화 Sink/Source
 - **[protobuf](./io/protobuf/README.ko.md)**: Protobuf 유틸리티 (Timestamp/Duration/Money 변환, ProtobufSerializer)
 - **[retrofit2](./io/retrofit2/README.ko.md)**: Retrofit2 HTTP 클라이언트 (Coroutines 지원)
 - **[tink](./io/tink/README.ko.md)**: Google Tink 기반 현대적 암호화 — AEAD, Deterministic AEAD, MAC, Digest, 통합 Encryptor (
@@ -216,10 +217,14 @@ flowchart TB
       **BloomFilter/CuckooFilter** (Lua 스크립트 기반, RedisBloom 불필요), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
     - **[redisson](./infra/redisson/README.ko.md)**: Redisson 클라이언트, Codec, Memoizer, NearCache (`RLocalCachedMap`), Leader Election (Coroutines 지원)
 - **[bucket4j](./infra/bucket4j/README.ko.md)**: Rate limiting
+- **[elasticsearch](./infra/elasticsearch/README.ko.md)**: Elasticsearch Java API client DSL 및 Coroutines 지원
 - **[kafka](./infra/kafka/README.ko.md)**: Kafka 클라이언트
+- **[kafka4](./infra/kafka4/README.ko.md)**: Kafka 4.x / Spring Kafka 4.x 라인
 - **[kafka-logback](./infra/kafka-logback/README.ko.md)**: Logback Kafka Appender (구 `x-obsoleted/logback-kafka` 에서 승격)
 - **[micrometer](./infra/micrometer/README.ko.md)**: 메트릭
+- **[nats](./infra/nats/README.ko.md)**: NATS Java client DSL 및 Coroutines 지원
 - **[opentelemetry](./infra/opentelemetry/README.ko.md)**: 분산 추적
+- **[pulsar](./infra/pulsar/README.ko.md)**: Apache Pulsar client 확장, Coroutines 및 schema helper 지원
 - **[resilience4j](./infra/resilience4j/README.ko.md)**: Resilience4j + Coroutines, Coroutines Cache
 
 #### 캐시 모듈 (`cache/`)
@@ -244,10 +249,9 @@ flowchart TB
 - **[cassandra](./spring-boot/cassandra/README.ko.md)**: Spring Data Cassandra 코루틴 확장
 - **[cassandra-demo](./spring-boot/cassandra-demo/README.ko.md)**: Cassandra 사용 예제
 - **[data-redis](./spring-boot/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.ko.md)
-  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
-- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.ko.md)
-  **: Hibernate Lettuce NearCache + Spring MVC 통합 데모
+- **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
+- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.ko.md)**: Hibernate Lettuce NearCache + Spring MVC 통합 데모
+- **[idgenerator-demo](./spring-boot/idgenerator-demo/README.ko.md)**: `bluetape4k-idgenerators` Spring Boot REST 예제
 - **[mongodb](./spring-boot/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
@@ -283,16 +287,16 @@ flowchart TB
 - **[measured](./utils/measured/README.ko.md)**: 조합 가능한 단위 타입(`Units`)과 측정값(`Measure`) 기반으로, 복합 단위(`m/s`, `kg*m/s^2`)를 타입 안전하게 표현
 - **[money](./utils/money/README.ko.md)**: Money API
 - **[mutiny](./utils/mutiny/README.ko.md)**: Mutiny reactive 통합
+- **[probabilistic](./utils/probabilistic/README.ko.md)**: Bloom filter 등 의존성 없는 확률적 자료구조
 - **[rule-engine](./utils/rule-engine/README.ko.md)**: 경량 Kotlin Rule Engine — DSL 규칙, 어노테이션 기반 규칙, 스크립트 엔진, 코루틴 실행 지원
-- **[science](./utils/science/README.ko.md)
-  **: GIS 공간 데이터 처리 — 좌표계 변환(BoundingBox/UTM/DMS, Proj4J), Shapefile 읽기(GeoTools 31.6 LGPL), JTS 기반 공간 기하학 연산, PostGIS DB 적재 파이프라인(SpatialLayerTable/SpatialFeatureTable/PoiTable)
+- **[science](./utils/science/README.ko.md)**: GIS 공간 데이터 처리 — 좌표계 변환(BoundingBox/UTM/DMS, Proj4J), Shapefile 읽기(GeoTools 31.6 LGPL), JTS 기반 공간 기하학 연산, PostGIS DB 적재 파이프라인(SpatialLayerTable/SpatialFeatureTable/PoiTable)
 - **[states](./utils/states/README.ko.md)**: Kotlin DSL 기반 유한 상태 머신 라이브러리 — 동기/코루틴 FSM, Guard 조건, `StateFlow` 상태 관찰 지원
-- **[workflow](./utils/workflow/README.ko.md)
-  **: Kotlin DSL 워크플로우 오케스트레이션 — Sequential/Parallel/Conditional/Repeat/Retry 플로우, 동기(Virtual Threads) + 코루틴(suspend/Flow), ABORTED/CANCELLED/PartialSuccess 지원
+- **[workflow](./utils/workflow/README.ko.md)**: Kotlin DSL 워크플로우 오케스트레이션 — Sequential/Parallel/Conditional/Repeat/Retry 플로우, 동기(Virtual Threads) + 코루틴(suspend/Flow), ABORTED/CANCELLED/PartialSuccess 지원
 - ~~**units**~~: 단위 표현 value class — **Deprecated** (`measured`로 통합)
 
 ### 테스트 모듈 (`testing/`)
 
+- **[assertions](./testing/assertions/README.ko.md)**: 테스트용 bluetape4k assertion DSL 기반
 - **[junit5](./testing/junit5/README.ko.md)**: JUnit 5 확장 및 유틸리티
 - **[testcontainers](./testing/testcontainers/README.ko.md)**: Testcontainers 지원 (Redis, Kafka, DB 등)
 - **[mock-web-server](./testing/mock-web-server/README.ko.md)**: 통합 테스트용 MVC Mock HTTP Server Docker 이미지
@@ -319,6 +323,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 
 - **[coroutines-demo](./examples/coroutines-demo/README.ko.md)**: Kotlin Coroutines 사용 예제
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.ko.md)**: JPA + QueryDSL 사용 예제
+- **[idgenerator-ktor](./examples/ktor/idgenerator-ktor/README.ko.md)**: `bluetape4k-idgenerators` Ktor HTTP 예제
 - **[redisson-demo](./examples/redisson-demo/README.ko.md)**: Redisson 사용 예제
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.ko.md)**: Java Virtual Thread 사용 예제
 
@@ -335,7 +340,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 | `javers`                            | **분리** → 독립 레포 [bluetape4k-javers](https://github.com/bluetape4k/bluetape4k-javers) |
 | `bloomfilter`                       | **대체** → `infra/lettuce` BloomFilter / CuckooFilter (Lua 기반)                      |
 | `vertx-coroutines` / `vertx-sqlclient` / `vertx-webclient` | **통합** → `bluetape4k-vertx`                                  |
-| `mapstruct`, `captcha`, `nats`, `naivebayes`, `mutiny-examples` | **삭제** (사용 빈도 낮음)                                  |
+| `mapstruct`, `captcha`, `naivebayes`, `mutiny-examples` | **삭제** (사용 빈도 낮음)                                  |
 
 ## 빌드 및 테스트
 
