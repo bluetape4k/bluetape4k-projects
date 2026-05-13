@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class Example4_VirtualThreadFactory: AbstractVirtualThreadTest() {
 
@@ -23,8 +25,11 @@ class Example4_VirtualThreadFactory: AbstractVirtualThreadTest() {
         val factory = builder.factory()
         factory.javaClass.name shouldBeEqualTo "java.lang.ThreadBuilders\$VirtualThreadFactory"
 
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
         val thread = factory.newThread {
-            Thread.sleep(1000)
+            entered.countDown()
+            release.await()
             log.debug { "Virtual Thread" }
         }
 
@@ -36,10 +41,17 @@ class Example4_VirtualThreadFactory: AbstractVirtualThreadTest() {
 
         thread.start()
 
-        thread.state shouldBeEqualTo Thread.State.RUNNABLE
-        thread.isAlive.shouldBeTrue()
+        try {
+            // A started virtual thread may already be WAITING/TIMED_WAITING, so assert the lifecycle contract instead.
+            entered.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            thread.isAlive.shouldBeTrue()
+        } finally {
+            release.countDown()
+            thread.join(1_000)
+        }
 
-        thread.join()
+        thread.isAlive shouldBeEqualTo false
+        thread.state shouldBeEqualTo Thread.State.TERMINATED
     }
 
     @Test
