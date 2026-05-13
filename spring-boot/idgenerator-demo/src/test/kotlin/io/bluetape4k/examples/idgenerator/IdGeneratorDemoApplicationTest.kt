@@ -1,11 +1,13 @@
 package io.bluetape4k.examples.idgenerator
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.examples.idgenerator.config.IdGeneratorProperties
 import io.bluetape4k.examples.idgenerator.controller.ErrorResponse
 import io.bluetape4k.examples.idgenerator.controller.GeneratorsResponse
 import io.bluetape4k.examples.idgenerator.controller.HealthResponse
@@ -146,6 +148,19 @@ class IdGeneratorDemoApplicationTest {
                 }
                 .run()
         }
+
+    @Test
+    fun `id generator properties reject invalid batch limits`() {
+        assertFailsWith<IllegalArgumentException> {
+            IdGeneratorProperties(defaultBatchSize = 0, maxBatchSize = 20)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            IdGeneratorProperties(defaultBatchSize = 5, maxBatchSize = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            IdGeneratorProperties(defaultBatchSize = 21, maxBatchSize = 20)
+        }
+    }
 
     private inline fun <reified T: Any> getOk(path: String): T =
         client

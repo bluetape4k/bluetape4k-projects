@@ -8,11 +8,11 @@ import io.bluetape4k.examples.idgenerator.controller.IdResponse
 import org.springframework.stereotype.Service
 
 /**
- * ID 발급 API의 애플리케이션 유스케이스를 담당합니다.
+ * Handles the application use cases for the ID issuing API.
  *
- * ## 동작/계약
- * - 단건 발급은 registry의 generator를 한 번 호출합니다.
- * - 배치 발급은 `1..maxBatchSize` 범위로 검증한 뒤 요청 수만큼 ID를 생성합니다.
+ * ## Behavior
+ * - Single ID issuing invokes the selected registry generator once.
+ * - Batch issuing validates the size against `1..maxBatchSize`, then generates the requested number of IDs.
  *
  * ```kotlin
  * val response = idGeneratorService.generate("uuid-v7")
@@ -56,7 +56,7 @@ class IdGeneratorService(
 }
 
 /**
- * batch size가 예제 API의 허용 범위를 벗어났을 때 발생하는 예외입니다.
+ * Exception raised when the requested batch size is outside the example API range.
  */
 class InvalidBatchSizeException(
     val batchSize: Int,

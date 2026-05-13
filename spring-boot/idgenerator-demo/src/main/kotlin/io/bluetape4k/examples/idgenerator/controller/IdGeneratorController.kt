@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * idgenerator Spring Boot REST 예제 controller입니다.
+ * REST controller for the idgenerator Spring Boot demo.
  *
- * ## 동작/계약
- * - `/ids/{type}` 계열은 명시적이고 복사하기 쉬운 endpoint를 제공합니다.
- * - `/idgen/{type}` 계열은 type을 path variable로 받는 generic endpoint를 제공합니다.
+ * ## Behavior
+ * - The `/ids/{type}` family provides explicit endpoints that are easy to copy.
+ * - The `/idgen/{type}` family provides generic endpoints that accept the type as a path variable.
  *
  * ```http
  * GET /ids/uuid-v7

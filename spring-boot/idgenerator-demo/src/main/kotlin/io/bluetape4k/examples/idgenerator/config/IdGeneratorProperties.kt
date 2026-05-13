@@ -1,13 +1,15 @@
 package io.bluetape4k.examples.idgenerator.config
 
+import io.bluetape4k.support.requirePositiveNumber
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
- * ID batch 발급 예제에서 사용하는 설정 속성입니다.
+ * Configuration properties for the ID batch example.
  *
- * ## 동작/계약
- * - `defaultBatchSize`는 size query parameter가 없을 때 사용합니다.
- * - `maxBatchSize`는 예제 API가 한 번에 발급하는 ID 개수를 제한합니다.
+ * ## Behavior
+ * - `defaultBatchSize` is used when the `size` query parameter is omitted.
+ * - `maxBatchSize` limits how many IDs the example API can issue at once.
+ * - Both values must be positive, and `defaultBatchSize` must not exceed `maxBatchSize`.
  *
  * ```yaml
  * bluetape4k:
@@ -20,4 +22,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class IdGeneratorProperties(
     val defaultBatchSize: Int = 10,
     val maxBatchSize: Int = 100,
-)
+) {
+    init {
+        defaultBatchSize.requirePositiveNumber("defaultBatchSize")
+        maxBatchSize.requirePositiveNumber("maxBatchSize")
+        require(defaultBatchSize <= maxBatchSize) {
+            "defaultBatchSize must be less than or equal to maxBatchSize: " +
+                    "defaultBatchSize=$defaultBatchSize, maxBatchSize=$maxBatchSize"
+        }
+    }
+}

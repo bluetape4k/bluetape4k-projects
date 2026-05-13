@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
 /**
- * REST API의 문자열 type을 실제 ID generator Bean에 매핑합니다.
+ * Maps REST API generator type strings to the actual ID generator beans.
  *
- * ## 동작/계약
- * - 지원 type은 `uuid-v4`, `uuid-v7`, `ulid`, `ksuid`, `snowflake`, `flake`입니다.
- * - registry는 generator 구현체를 직접 노출하지 않고 문자열 ID 생성 함수로 감쌉니다.
+ * ## Behavior
+ * - Supported types are `uuid-v4`, `uuid-v7`, `ulid`, `ksuid`, `snowflake`, and `flake`.
+ * - The registry wraps generators as string ID suppliers instead of exposing concrete implementations.
  *
  * ```kotlin
  * val next = registry.get("uuid-v7").nextId()
@@ -34,32 +34,32 @@ class IdGeneratorRegistry(
             IdGeneratorEntry(
                 type = "uuid-v4",
                 description = "Random UUID v4",
-                nextId = uuidV4Generator::nextIdAsString,
+                idSupplier = uuidV4Generator::nextIdAsString,
             ),
             IdGeneratorEntry(
                 type = "uuid-v7",
                 description = "Time-ordered UUID v7",
-                nextId = uuidV7Generator::nextIdAsString,
+                idSupplier = uuidV7Generator::nextIdAsString,
             ),
             IdGeneratorEntry(
                 type = "ulid",
                 description = "Monotonic ULID string",
-                nextId = ulidGenerator::nextIdAsString,
+                idSupplier = ulidGenerator::nextIdAsString,
             ),
             IdGeneratorEntry(
                 type = "ksuid",
                 description = "K-Sortable Unique Identifier string",
-                nextId = ksuidGenerator::nextIdAsString,
+                idSupplier = ksuidGenerator::nextIdAsString,
             ),
             IdGeneratorEntry(
                 type = "snowflake",
                 description = "Twitter-style Snowflake long ID",
-                nextId = snowflakeGenerator::nextIdAsString,
+                idSupplier = snowflakeGenerator::nextIdAsString,
             ),
             IdGeneratorEntry(
                 type = "flake",
                 description = "Boundary-style 128-bit Flake ID encoded as Base62",
-                nextId = flakeGenerator::nextIdAsString,
+                idSupplier = flakeGenerator::nextIdAsString,
             ),
         ).associateBy { it.type }
 
@@ -74,23 +74,23 @@ class IdGeneratorRegistry(
 }
 
 /**
- * REST API에서 사용할 ID generator 항목입니다.
+ * ID generator entry used by the REST API.
  *
- * ## 동작/계약
- * - [nextId]는 매 호출마다 새 문자열 ID를 반환합니다.
- * - type과 description은 endpoint 문서와 `/generators` 응답에 사용합니다.
+ * ## Behavior
+ * - [nextId] returns a fresh string ID on every call.
+ * - [type] and [description] are used by endpoint documentation and the `/generators` response.
  */
-data class IdGeneratorEntry(
+class IdGeneratorEntry(
     val type: String,
     val description: String,
-    private val nextId: () -> String,
+    private val idSupplier: () -> String,
 ) {
     fun nextId(): String =
-        nextId.invoke()
+        idSupplier.invoke()
 }
 
 /**
- * 지원하지 않는 generator type을 요청했을 때 발생하는 예외입니다.
+ * Exception raised when a caller requests an unsupported generator type.
  */
 class UnsupportedGeneratorTypeException(
     val generatorType: String,
