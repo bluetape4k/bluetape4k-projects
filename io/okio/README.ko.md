@@ -219,9 +219,12 @@ encrypted.asDaeadChunkDecryptSource(
 }
 ```
 
-DAEAD 청크 암호화는 각 frame을 8-byte big-endian ciphertext 길이(`DEFAULT_DAEAD_CHUNK_SIZE` = 64 KiB)와
-DAEAD ciphertext로 기록합니다. 마지막 partial chunk는 `close()`에서 확정되므로
+DAEAD 청크 암호화는 각 frame을 `[1-byte flags][8-byte big-endian ciphertext length][ciphertext]`
+형식으로 기록합니다. `DEFAULT_DAEAD_CHUNK_SIZE`는 64 KiB입니다. 청크 index와 final-frame flag는
+DAEAD associated data에 바인딩되므로 frame 순서 변경, 중복 재생, whole-frame truncation은 복호화 중
+실패하며, final frame 뒤에 trailing data가 남아도 실패합니다. final frame은 `close()`에서 기록되므로
 암호화 Sink는 반드시 닫아야 하며, `use {}` 사용을 권장합니다.
+이는 v2 DAEAD chunk format이며 기존 `[8-byte length][ciphertext]` frame과 wire-compatible하지 않습니다.
 
 Deterministic AEAD는 같은 키, 평문, 연관 데이터에 대해 같은 암호문을 생성합니다.
 따라서 반복 평문 청크 패턴이 노출될 수 있습니다. 연관 데이터는 인증되지만 암호화되지 않으며,

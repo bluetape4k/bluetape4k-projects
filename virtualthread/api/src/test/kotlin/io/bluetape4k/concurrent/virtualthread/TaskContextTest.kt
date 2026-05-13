@@ -8,11 +8,13 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.lang.ScopedValue
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * [TaskContext] — ScopedValue 기반 컨텍스트 전파 테스트
@@ -200,6 +202,25 @@ class TaskContextTest {
 
         results[0] shouldBeEqualTo "req-777"
         results[1] shouldBeEqualTo "tenant-99"
+    }
+
+    @Test
+    fun `StructuredTaskScopeTester 반복 실행에서도 ScopedValue 가 자동 전파된다`() {
+        val requestId = TaskContext.newKey<String>()
+        val completed = AtomicInteger()
+
+        TaskContext.run(requestId, "req-stress") {
+            StructuredTaskScopeTester()
+                .rounds(32)
+                .add {
+                    TaskContext.get(requestId) shouldBeEqualTo "req-stress"
+                    completed.incrementAndGet()
+                }
+                .run()
+        }
+
+        completed.get() shouldBeEqualTo 32
+        TaskContext.get(requestId).shouldBeNull()
     }
 
     @Test

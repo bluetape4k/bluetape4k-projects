@@ -1,15 +1,16 @@
 package io.bluetape4k.okio.tink
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.tink.daead.TinkDaeads
 import okio.Buffer
 import okio.EOFException
 import okio.ForwardingSource
 import okio.Source
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessThan
 import org.junit.jupiter.api.Test
 import java.io.IOException
-import io.bluetape4k.assertions.assertFailsWith
+import java.security.GeneralSecurityException
 
 class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
 
@@ -34,7 +35,7 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
         val decrypted = Buffer()
 
         while (source.read(decrypted, 5L) >= 0L) {
-            // 반복 read 계약 검증
+            // Exercise the repeated-read contract across decrypted chunk boundaries.
         }
 
         decrypted.readByteArray() shouldBeEqualTo expected
@@ -75,8 +76,17 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
     }
 
     @Test
-    fun `empty input returns eof`() {
-        Buffer().asDaeadChunkDecryptSource(daead).read(Buffer(), 1L) shouldBeEqualTo -1L
+    fun `encrypted empty input returns eof`() {
+        val encrypted = encrypt(ByteArray(0), chunkSize = 4)
+
+        encrypted.asDaeadChunkDecryptSource(daead).read(Buffer(), 1L) shouldBeEqualTo -1L
+    }
+
+    @Test
+    fun `raw empty input without final marker throws eof exception`() {
+        assertFailsWith<EOFException> {
+            Buffer().asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
+        }
     }
 
     @Test
@@ -88,7 +98,10 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
 
     @Test
     fun `truncated ciphertext throws eof exception`() {
-        val malformed = Buffer().writeLong(16L).write(ByteArray(15))
+        val malformed = Buffer()
+            .writeByte(DAEAD_CHUNK_NON_FINAL_FLAG)
+            .writeLong(16L)
+            .write(ByteArray(15))
 
         assertFailsWith<EOFException> {
             malformed.asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
@@ -98,21 +111,31 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
     @Test
     fun `invalid ciphertext length zero throws io exception`() {
         assertFailsWith<IOException> {
-            Buffer().writeLong(0L).asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
+            Buffer()
+                .writeByte(DAEAD_CHUNK_NON_FINAL_FLAG)
+                .writeLong(0L)
+                .asDaeadChunkDecryptSource(daead)
+                .read(Buffer(), 1L)
         }
     }
 
     @Test
     fun `negative ciphertext length throws io exception`() {
         assertFailsWith<IOException> {
-            Buffer().writeLong(-1L).asDaeadChunkDecryptSource(daead).read(Buffer(), 1L)
+            Buffer()
+                .writeByte(DAEAD_CHUNK_NON_FINAL_FLAG)
+                .writeLong(-1L)
+                .asDaeadChunkDecryptSource(daead)
+                .read(Buffer(), 1L)
         }
     }
 
     @Test
     fun `ciphertext length exceeding maxCiphertextLength throws io exception`() {
         val smallMax = 100L
-        val header = Buffer().writeLong(smallMax + 1L)
+        val header = Buffer()
+            .writeByte(DAEAD_CHUNK_NON_FINAL_FLAG)
+            .writeLong(smallMax + 1L)
 
         assertFailsWith<IOException> {
             header.asDaeadChunkDecryptSource(daead, maxCiphertextLength = smallMax).read(Buffer(), 1L)
@@ -123,8 +146,53 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
     fun `wrong associated data fails to decrypt`() {
         val encrypted = encrypt("secret".toByteArray(), chunkSize = 4, associatedData = byteArrayOf(1))
 
-        assertFailsWith<Exception> {
+        assertFailsWith<GeneralSecurityException> {
             encrypted.asDaeadChunkDecryptSource(daead, associatedData = byteArrayOf(2)).read(Buffer(), 1L)
+        }
+    }
+
+    @Test
+    fun `reordered chunks fail to decrypt`() {
+        val frames = encrypt("abcdefgh".toByteArray(), chunkSize = 4).readFrames()
+        val reordered = Buffer()
+            .write(frames[1])
+            .write(frames[0])
+
+        assertFailsWith<GeneralSecurityException> {
+            reordered.asDaeadChunkDecryptSource(daead).readAllTo(Buffer())
+        }
+    }
+
+    @Test
+    fun `dropped final chunk fails to decrypt`() {
+        val frames = encrypt("abcdefgh".toByteArray(), chunkSize = 4).readFrames()
+        val truncated = Buffer().write(frames.first())
+
+        assertFailsWith<EOFException> {
+            truncated.asDaeadChunkDecryptSource(daead).readAllTo(Buffer())
+        }
+    }
+
+    @Test
+    fun `duplicated chunk fails to decrypt`() {
+        val frames = encrypt("abcdefgh".toByteArray(), chunkSize = 4).readFrames()
+        val duplicated = Buffer()
+            .write(frames[0])
+            .write(frames[0])
+            .write(frames[1])
+
+        assertFailsWith<GeneralSecurityException> {
+            duplicated.asDaeadChunkDecryptSource(daead).readAllTo(Buffer())
+        }
+    }
+
+    @Test
+    fun `trailing data after final chunk fails to decrypt`() {
+        val tampered = encrypt("secret".toByteArray(), chunkSize = 4)
+            .writeByte(DAEAD_CHUNK_NON_FINAL_FLAG)
+
+        assertFailsWith<IOException> {
+            tampered.asDaeadChunkDecryptSource(daead).readAllTo(Buffer())
         }
     }
 
@@ -237,6 +305,20 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
         }
     }
 
+    private fun Buffer.readFrames(): List<ByteArray> {
+        val frames = mutableListOf<ByteArray>()
+        while (size > 0L) {
+            val frame = Buffer()
+            val flags = readByte()
+            val ciphertextLength = readLong()
+            frame.writeByte(flags.toInt())
+            frame.writeLong(ciphertextLength)
+            frame.write(this, ciphertextLength)
+            frames += frame.readByteArray()
+        }
+        return frames
+    }
+
     private class CountingSource(delegate: Source): ForwardingSource(delegate) {
         var bytesRead: Long = 0L
             private set
@@ -260,7 +342,7 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
         }
     }
 
-    /** 항상 0L 을 반환하여 진행 없음(no progress) 상태를 시뮬레이션하는 [Source]. */
+    /** Simulates a source that repeatedly returns 0L without making progress. */
     private class StalledSource: Source {
         override fun read(sink: Buffer, byteCount: Long): Long = 0L
         override fun timeout() = okio.Timeout.NONE
