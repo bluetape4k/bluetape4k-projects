@@ -60,7 +60,7 @@ Supported types are `uuid-v4`, `uuid-v7`, `ulid`, `ksuid`, `snowflake`, and `fla
 ## Usage
 
 ```bash
-./gradlew :bluetape4k-spring-boot-idgenerator-demo:bootRun
+./gradlew :idgenerator-spring-boot-demo:bootRun
 ```
 
 ```bash
@@ -72,7 +72,7 @@ curl http://localhost:8080/generators
 ## Tests
 
 ```bash
-./gradlew :bluetape4k-spring-boot-idgenerator-demo:test
+./gradlew :idgenerator-spring-boot-demo:test
 ```
 
 The tests load the Spring Boot application, verify all REST endpoints, and use `SuspendedJobTester`

@@ -36,7 +36,7 @@ PR #426 applies the follow-ups from PR #422 review:
 ## Verification Evidence
 
 ```bash
-repo-test-summary -- ./gradlew :bluetape4k-spring-boot-idgenerator-demo:compileKotlin :bluetape4k-spring-boot-idgenerator-demo:compileTestKotlin :bluetape4k-spring-boot-idgenerator-demo:test --parallel
+repo-test-summary -- ./gradlew :idgenerator-spring-boot-demo:compileKotlin :idgenerator-spring-boot-demo:compileTestKotlin :idgenerator-spring-boot-demo:test --parallel
 ```
 
 Result: 8 tests passing.

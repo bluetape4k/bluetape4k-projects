@@ -60,7 +60,7 @@ Generic 엔드포인트:
 ## 사용법
 
 ```bash
-./gradlew :bluetape4k-spring-boot-idgenerator-demo:bootRun
+./gradlew :idgenerator-spring-boot-demo:bootRun
 ```
 
 ```bash
@@ -72,7 +72,7 @@ curl http://localhost:8080/generators
 ## 테스트
 
 ```bash
-./gradlew :bluetape4k-spring-boot-idgenerator-demo:test
+./gradlew :idgenerator-spring-boot-demo:test
 ```
 
 테스트는 Spring Boot 애플리케이션을 로드하고 모든 REST endpoint를 검증합니다. 또한 `SuspendedJobTester`로
