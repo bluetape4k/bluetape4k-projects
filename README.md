@@ -11,7 +11,7 @@ Shared Kotlin/JVM library collection for backend development
 
 English | [한국어](./README.ko.md)
 
-![Blue Tape](./doc/bluetape4k.png)
+![Bluetape4k engineering workbench](./doc/bluetape4k.png)
 
 KDoc writing guidelines: `doc/Kdoc_Instruction.md`
 
