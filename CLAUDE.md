@@ -1,15 +1,20 @@
-# CLAUDE.md — bluetape4k-projects
+# CLAUDE.md - bluetape4k-projects
 
-Bluetape4k 코어 라이브러리. 공유 Kotlin/JVM 백엔드 라이브러리 컬렉션.
-Kotlin idiom 극대화, Java 라이브러리 개선, Coroutines 기반 비동기/논블로킹 개발 지원.
-Gradle 멀티모듈; `settings.gradle.kts` 가 서브디렉토리를 `bluetape4k-{dirname}` 으로 자동 등록.
+Core bluetape4k Kotlin/JVM backend libraries. This repository keeps the shared
+foundation after AWS, image, text, leader-election, JaVers, and Exposed domains
+were split into standalone repositories.
+
+`settings.gradle.kts` auto-registers module directories. Most groups publish as
+`bluetape4k-{name}`; `spring-boot/*`, `virtualthread/*`, and `examples/*` keep
+their base directory in the Gradle project name, while `examples/ktor/*` uses
+the leaf directory name directly.
 
 ## Build Commands
 
 ```bash
-repo-status                      # git status 요약
-repo-diff                        # 파일별 변경 수
-repo-test-summary -- ./gradlew :module:test   # 테스트 출력 요약
+repo-status                      # compact git status
+repo-diff                        # compact file-level diff summary
+repo-test-summary -- ./gradlew :module:test   # summarized test output
 
 ./gradlew clean build
 ./gradlew build -x test
@@ -22,32 +27,43 @@ repo-test-summary -- ./gradlew :module:test   # 테스트 출력 요약
 
 ## Module Groups
 
-> Full list: `.claude/references/module-groups.md`
-
-| Group             | Description                                                         |
-|-------------------|---------------------------------------------------------------------|
-| `bluetape4k/`     | `core`, `coroutines`, `logging`, `bom`                              |
-| `data/`           | `exposed-*`, `hibernate`, `mongodb`, `jdbc`, `r2dbc`, `cassandra`   |
-| `infra/`          | `lettuce`, `redisson`, `kafka`, `pulsar`, `resilience4j`, `cache-*` |
-| `spring-boot3/4/` | WebFlux+Coroutines, Exposed repos, Spring Batch                     |
-| `virtualthread/`  | `api`, `jdk21`, `jdk25` — always update both together               |
+| Group | Description |
+|---|---|
+| `bluetape4k/` | `core`, `coroutines`, `logging`, `bom` |
+| `io/` | I/O, compression, serialization, HTTP clients, Jackson 2/3, Okio, Tink, Vert.x, gRPC, Protobuf |
+| `data/` | Cassandra, Hibernate, JDBC, MongoDB, R2DBC; Exposed lives in `bluetape4k-exposed` |
+| `infra/` | Redis/Lettuce/Redisson, Kafka 3/4, Elasticsearch, NATS, Pulsar, Bucket4j, Micrometer, OpenTelemetry, Resilience4j |
+| `cache/` | Cache abstraction/backends and Hibernate Lettuce cache bridge |
+| `spring-boot/` | Spring Boot 4.x modules and demos; no `spring-boot3/*` line remains |
+| `testing/` | `assertions`, `junit5`, `testcontainers`, mock web server images |
+| `utils/` | Geo, ID generators, date/time, JWT, math, measured, money, mutiny, probabilistic, rule-engine, science, states, workflow |
+| `virtualthread/` | `api`, `jdk21`, `jdk25`; update all related modules together |
+| `examples/` | Library examples; not published to Maven |
 
 ## Build Configuration
 
-- **JVM Toolchain**: Java 21 · **Kotlin**: 2.3 · **Gradle**: ZGC daemon, 4–8 GB heap, parallel build
-- `buildSrc/Libs.kt` — dependency versions · `gradle.properties` — `baseVersion=1.7.0`
+- JVM toolchain: Java 21.
+- Kotlin language/API: 2.3.
+- Spring Boot line: 4.x only.
+- Version catalog: `gradle/libs.versions.toml`.
+- Project coordinates: `gradle.properties` owns `projectGroup`, `baseVersion`, `snapshotVersion`, and external `exposedVersion`.
+- Gradle daemon is tuned for ZGC, 4-8 GB heap, and parallel build.
 
 ## Important Notes
 
-- **jar source extraction**: `.claude/lib-sources/<library-name>/` — never `/tmp/` or project source tree
-- **atomicfu**: class property level only — never method-local variables
-- **Detekt**: disabled in `exposed-jdbc-tests`
-- **virtualthread-api**: `virtualthread/api` 변경 시 반드시 `jdk21` + `jdk25` 모두 업데이트
-- **mock-web-server** 변경 → `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`
-- **mock-webflux-server** 변경 → `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`
-- **Publishing**: GitHub Packages Maven; `workshop/` + `examples/` 제외
+- Extract jar sources into `.claude/lib-sources/<library-name>/`, never `/tmp`
+  or the project source tree.
+- atomicfu is class-property only; do not use it for method-local variables.
+- Changes in `virtualthread/api` must be reflected in both `jdk21` and `jdk25`.
+- Changes in `mock-web-server` require
+  `./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache`.
+- Changes in `mock-webflux-server` require
+  `./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache`.
+- Publishing excludes `workshop/`, `examples/`, `*-demo`, and benchmark-style modules.
+- Keep top-level `README.md` and `README.ko.md` synchronized with
+  `settings.gradle.kts` when modules are added, moved, removed, or split out.
 
-## Design Patterns (프로젝트 특이사항)
+## Design Patterns
 
-- **Auditable**: UPDATE 작업은 항상 `auditedUpdate*` 사용
-- KDoc full reference: `.claude/references/design-patterns.md`
+- Auditable update paths must use `auditedUpdate*`.
+- KDoc full reference: `.claude/references/design-patterns.md`.

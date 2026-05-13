@@ -24,8 +24,8 @@ Bluetape4k was born out of real-world backend development with Kotlin — fillin
     - Composable unit types (`Units`) and measurements (`Measure`) in `bluetape4k-measured`
 
 2. **Improved wrappers around Java libraries** — use proven libraries more effectively.
-    - Enhanced LZ4, Zstd compression in `bluetape4k-core`
-    - High-performance Lettuce/Redisson codecs in `bluetape4k-redis` (significantly faster than official codecs)
+    - Enhanced LZ4, Zstd, Snappy, and Zip compression in `bluetape4k-io`
+    - High-performance Lettuce/Redisson codecs in `bluetape4k-redis`, `bluetape4k-lettuce`, and `bluetape4k-redisson`
 
 3. **Better testing infrastructure** — write more thorough, reliable tests.
     - `bluetape4k-junit5`: diverse testing techniques on top of JUnit 5
@@ -35,18 +35,15 @@ Bluetape4k was born out of real-world backend development with Kotlin — fillin
     - `bluetape4k-coroutines`: utilities for writing coroutine-based code
     - `bluetape4k-feign`, `bluetape4k-retrofit2`: HTTP clients with native Coroutines support
 
-5. **AWS SDK performance improvements**.
-    - `bluetape4k-aws`: AWS Java SDK v2 — DynamoDB, S3, SES, SNS, SQS, KMS, CloudWatch, Kinesis, STS with async/non-blocking APIs
-    - Optimized large file transfers via S3 TransferManager
+5. **Split-repository ecosystem modules**.
+    - AWS, image, text, leader-election, JaVers, and Exposed integrations now live in standalone bluetape4k repositories.
+    - This repository keeps the shared Kotlin/JVM foundation, I/O, data, infra, Spring Boot, testing, utility, and example modules.
 
-6. **Ergonomic AWS Kotlin SDK wrappers**.
-    - `bluetape4k-aws-kotlin`: native `suspend` functions built on the AWS Kotlin SDK — no `.await()` boilerplate needed
-
-7. **Resilience4j with Coroutines support** — essential for microservices.
+6. **Resilience4j with Coroutines support** — essential for microservices.
     - `bluetape4k-resilience4j`: full Coroutines integration for Resilience4j
     - Coroutines-native cache to store API call results in async contexts
 
-8. **Redis at every level**.
+7. **Redis at every level**.
     - `bluetape4k-redis`: high-performance codecs for Lettuce and Redisson
     - Coroutines-compatible distributed locking via Redisson
     - Near Cache support to boost throughput beyond simple distributed caching
@@ -57,8 +54,8 @@ Feel free to open an Issue if you need something that isn't here yet.
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
-- **Spring Boot**: 4.0.0+
-- **Kotlin Exposed**: 1.0.0+
+- **Spring Boot**: 4.x
+- **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts use this repo's `exposedVersion`)
 - **Databases**: H2, PostgreSQL, MySQL
 
 ## Module Structure
@@ -75,6 +72,10 @@ flowchart TB
         LETTUCE["infra/lettuce"]
         REDISSON["infra/redisson"]
         KAFKA["infra/kafka"]
+        KAFKA4["infra/kafka4"]
+        ES["infra/elasticsearch"]
+        NATS["infra/nats"]
+        PULSAR["infra/pulsar"]
         R4J["infra/resilience4j"]
         CACHE["cache/*"]
         OTEL["infra/opentelemetry"]
@@ -118,8 +119,10 @@ flowchart TB
     subgraph CROSS["Cross-cutting"]
         direction LR
         JUNIT["testing/junit5"]
+        ASSERT["testing/assertions"]
         TC["testing/testcontainers"]
         UTILS["utils/*"]
+        PROB["utils/probabilistic"]
         TEXTS["bluetape4k-text ↗"]
         AWS["bluetape4k-aws ↗"]
         IMG["bluetape4k-image ↗"]
@@ -146,9 +149,9 @@ flowchart TB
     class COROU,VT coreExt
     class IO,JACKSON,FEIGN,RETRO,GRPC,OKIO,TINK,VERTX ioLayer
     class EXP,HIB,MONGO,CASS,JDBC,R2DBC dataLayer
-    class LETTUCE,REDISSON,KAFKA,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
+    class LETTUCE,REDISSON,KAFKA,KAFKA4,ES,NATS,PULSAR,R4J,CACHE,OTEL,BUCKET,MICRO infraLayer
     class SB intLayer
-    class JUNIT,TC,UTILS,TEXTS,AWS,IMG crossLayer
+    class JUNIT,ASSERT,TC,UTILS,PROB,TEXTS,AWS,IMG crossLayer
 ```
 
 ### Core Modules (`bluetape4k/`)
@@ -156,7 +159,7 @@ flowchart TB
 - **[core](./bluetape4k/core/README.md)**: Core utilities — assertions, required helpers, collections (BoundedStack, RingBuffer, PaginatedList, Permutation), wildcard pattern matching, XXHasher, and more
 - **[coroutines](./bluetape4k/coroutines/README.md)**: Kotlin Coroutines extensions — DeferredValue, Flow extensions, AsyncFlow
 - **[logging](./bluetape4k/logging/README.md)**: Logging utilities
-- **bom**: Bill of Materials for dependency management
+- **[bom](./bluetape4k/bom/README.md)**: Bill of Materials for dependency management
 
 ### I/O Modules (`io/`)
 
@@ -166,15 +169,12 @@ flowchart TB
 - **[feign](./io/feign/README.md)**: Feign HTTP client with Coroutines support
 - **[grpc](./io/grpc/README.md)**: gRPC server/client abstractions (includes `bluetape4k-protobuf`)
 - **[http](./io/http/README.md)**: HTTP utilities
-- **[io](./io/io/README.md)
-  **: File I/O, compression (LZ4, Zstd, Snappy, Zip), serialization (Kryo, Fory), ZIP builder/utilities
-- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)
-  **: Jackson 2.x/3.x integration — binary (CBOR, Ion, Smile) and text (CSV, YAML, TOML) formats (merged from former
+- **[io](./io/io/README.md)**: File I/O, compression (LZ4, Zstd, Snappy, Zip), serialization (Kryo, Fory), ZIP builder/utilities
+- **[jackson2](./io/jackson2/README.md)/[jackson3](./io/jackson3/README.md)**: Jackson 2.x/3.x integration — binary (CBOR, Ion, Smile) and text (CSV, YAML, TOML) formats (merged from former
   `jackson-binary/text` and `jackson3-binary/text` modules)
 - **[json](./io/json/README.md)**: JSON processing utilities
 - **[netty](./io/netty/README.md)**: Netty integration
-- **[okio](./io/okio/README.md)
-  **: Okio-based I/O extensions — Buffer/Sink/Source utilities, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink encrypt Sink/Source
+- **[okio](./io/okio/README.md)**: Okio-based I/O extensions — Buffer/Sink/Source utilities, Base64, Channel, Cipher, Compress, Coroutines, Jasypt/Tink encrypt Sink/Source
 - **[protobuf](./io/protobuf/README.md)**: Protobuf utilities — Timestamp/Duration/Money conversions, ProtobufSerializer
 - **[retrofit2](./io/retrofit2/README.md)**: Retrofit2 HTTP client with Coroutines support
 - **[tink](./io/tink/README.md)**: Modern encryption via Google Tink — AEAD, Deterministic AEAD, MAC, Digest, unified
@@ -201,6 +201,7 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 
 #### Other Data Modules
 
+- **[cassandra](./data/cassandra/README.md)**: Cassandra Java Driver extensions with Coroutines support
 - **[hibernate](./data/hibernate/README.md)/[hibernate-reactive](./data/hibernate-reactive/README.md)**: Hibernate ORM integration
 - **[jdbc](./data/jdbc/README.md)**: JDBC utilities
 - **[mongodb](./data/mongodb/README.md)**: MongoDB Kotlin Coroutine Driver extensions — `mongoClient {}` DSL, `findFirst`, `exists`, `upsert`, `findAsFlow`, `documentOf {}`, Aggregation Pipeline DSL
@@ -212,10 +213,14 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
     - **[lettuce](./infra/lettuce/README.md)**: Lettuce client, high-performance codecs (Jdk/Kryo/Fory × GZip/LZ4/Snappy/Zstd), `RedisFuture` → Coroutines adapters, distributed primitives (Lock, Semaphore, AtomicLong, Leader Election), `MapLoader`/`MapWriter`/`LettuceLoadedMap` (Read-through/Write-through/Write-behind), **BloomFilter/CuckooFilter** (Lua-script based, no RedisBloom extension needed), **HyperLogLog** (PFADD/PFCOUNT/PFMERGE)
     - **[redisson](./infra/redisson/README.md)**: Redisson client, Codec, Memoizer, NearCache (`RLocalCachedMap`), Leader Election (with Coroutines support)
 - **[bucket4j](./infra/bucket4j/README.md)**: Rate limiting
+- **[elasticsearch](./infra/elasticsearch/README.md)**: Elasticsearch Java API client DSLs and Coroutines support
 - **[kafka](./infra/kafka/README.md)**: Kafka client
+- **[kafka4](./infra/kafka4/README.md)**: Kafka 4.x / Spring Kafka 4.x line
 - **[kafka-logback](./infra/kafka-logback/README.md)**: Logback Kafka Appender (promoted from `x-obsoleted/logback-kafka`)
 - **[micrometer](./infra/micrometer/README.md)**: Metrics
+- **[nats](./infra/nats/README.md)**: NATS Java client DSLs and Coroutines support
 - **[opentelemetry](./infra/opentelemetry/README.md)**: Distributed tracing
+- **[pulsar](./infra/pulsar/README.md)**: Apache Pulsar client extensions with Coroutines and schema helpers
 - **[resilience4j](./infra/resilience4j/README.md)**: Resilience4j + Coroutines, Coroutines-native cache
 
 #### Cache Modules (`cache/`)
@@ -242,10 +247,9 @@ modules were removed and former `spring-boot4/*` modules now publish as versionl
 - **[cassandra-demo](./spring-boot/cassandra-demo/README.md)**: Cassandra usage example
 - **[data-redis](./spring-boot/redis/README.md)**: High-performance Spring Data Redis serialization —
   `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
-- **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.md)
-  **: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
-- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.md)
-  **: Hibernate Lettuce NearCache + Spring MVC integration demo
+- **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
+- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.md)**: Hibernate Lettuce NearCache + Spring MVC integration demo
+- **[idgenerator-demo](./spring-boot/idgenerator-demo/README.md)**: Spring Boot REST demo for `bluetape4k-idgenerators`
 - **[mongodb](./spring-boot/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 
@@ -273,8 +277,7 @@ modules were removed and former `spring-boot4/*` modules now publish as versionl
 > **Moved**: The leader-election module split into a standalone repo **[bluetape4k-leader](https://github.com/bluetape4k/bluetape4k-leader)** (blocking / async / coroutine / virtual-thread leader-election APIs with Redis backend).
 
 
-- **[geo](./utils/geo/README.md)
-  **: Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former
+- **[geo](./utils/geo/README.md)**: Geographic information — unified module covering geocode (Bing/Google), geohash, geoip2 (MaxMind) (merged from former
   `utils/geocode`, `utils/geohash`, `utils/geoip2`)
 - **[idgenerators](./utils/idgenerators/README.md)**: ID generators — `Uuid` (V1–V7 unified API), `ULID`, `Ksuid` (Seconds/Millis), `Snowflakers` unified factory, `Flake`, `Hashids`, and more
 - **[javatimes](./utils/javatimes/README.md)**: Date/time utilities
@@ -283,22 +286,20 @@ modules were removed and former `spring-boot4/*` modules now publish as versionl
 - **[measured](./utils/measured/README.md)**: Composable unit types (`Units`) and measurements (`Measure`) — express composite units (`m/s`, `kg*m/s^2`) with full type safety
 - **[money](./utils/money/README.md)**: Money/currency API
 - **[mutiny](./utils/mutiny/README.md)**: Mutiny reactive integration
-- **[rule-engine](./utils/rule-engine/README.md)
-  **: Lightweight Kotlin rule engine — DSL rules, annotation-based rules, script engines, and coroutine execution
-- **[science](./utils/science/README.md)
-  **: GIS spatial data processing — coordinate system conversions (BoundingBox/UTM/DMS, Proj4J), Shapefile reading (GeoTools 31.6 LGPL), JTS-based spatial geometry operations, PostGIS DB ingestion pipeline (SpatialLayerTable/SpatialFeatureTable/PoiTable)
+- **[probabilistic](./utils/probabilistic/README.md)**: Dependency-free probabilistic data structures, including Bloom filters
+- **[rule-engine](./utils/rule-engine/README.md)**: Lightweight Kotlin rule engine — DSL rules, annotation-based rules, script engines, and coroutine execution
+- **[science](./utils/science/README.md)**: GIS spatial data processing — coordinate system conversions (BoundingBox/UTM/DMS, Proj4J), Shapefile reading (GeoTools 31.6 LGPL), JTS-based spatial geometry operations, PostGIS DB ingestion pipeline (SpatialLayerTable/SpatialFeatureTable/PoiTable)
 - **[states](./utils/states/README.md)**: Kotlin DSL-based finite state machine library — sync/coroutine FSMs, guards, and `StateFlow` observation
-- **[workflow](./utils/workflow/README.md)
-  **: Kotlin DSL workflow orchestration — Sequential/Parallel/Conditional/Repeat/Retry flows, sync (Virtual Threads) + coroutine (suspend/Flow), ABORTED/CANCELLED/PartialSuccess support
+- **[workflow](./utils/workflow/README.md)**: Kotlin DSL workflow orchestration — Sequential/Parallel/Conditional/Repeat/Retry flows, sync (Virtual Threads) + coroutine (suspend/Flow), ABORTED/CANCELLED/PartialSuccess support
 - ~~**units**~~: Unit value classes — **Deprecated**, merged into `measured`
 
 ### Testing Modules (`testing/`)
 
+- **[assertions](./testing/assertions/README.md)**: bluetape4k assertion DSL foundation for tests
 - **[junit5](./testing/junit5/README.md)**: JUnit 5 extensions and utilities
 - **[testcontainers](./testing/testcontainers/README.md)**: Testcontainers support (Redis, Kafka, databases, etc.)
 - **[mock-web-server](./testing/mock-web-server/README.md)**: MVC mock HTTP server Docker image for integration tests
-- **[mock-webflux-server](./testing/mock-webflux-server/README.md)
-  **: WebFlux mock HTTP server Docker image for integration tests
+- **[mock-webflux-server](./testing/mock-webflux-server/README.md)**: WebFlux mock HTTP server Docker image for integration tests
 
 When rebuilding mock server Docker images with Jib, always disable the Gradle configuration cache:
 
@@ -321,6 +322,7 @@ Demonstration modules showing library usage. Not published to Maven.
 
 - **[coroutines-demo](./examples/coroutines-demo/README.md)**: Kotlin Coroutines usage examples
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL usage examples
+- **[idgenerator-ktor](./examples/ktor/idgenerator-ktor/README.md)**: Ktor HTTP example for `bluetape4k-idgenerators`
 - **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread usage examples
 
@@ -337,7 +339,7 @@ The legacy `x-obsoleted/` directory was removed. The table below documents the f
 | `javers`                            | **Spun off** → standalone repo [bluetape4k-javers](https://github.com/bluetape4k/bluetape4k-javers) |
 | `bloomfilter`                       | **Replaced** → `infra/lettuce` BloomFilter / CuckooFilter (Lua-based)                          |
 | `vertx-coroutines` / `vertx-sqlclient` / `vertx-webclient` | **Merged** → `bluetape4k-vertx`                                         |
-| `mapstruct`, `captcha`, `nats`, `naivebayes`, `mutiny-examples` | **Removed** (low usage)                                              |
+| `mapstruct`, `captcha`, `naivebayes`, `mutiny-examples` | **Removed** (low usage)                                              |
 
 ## Building and Testing
 

@@ -2,7 +2,10 @@
 
 Core bluetape4k Kotlin/JVM backend libraries. This repo improves Java library
 ergonomics and provides coroutine-first, non-blocking infrastructure modules.
-`settings.gradle.kts` auto-registers subdirectories as `bluetape4k-{dirname}`.
+`settings.gradle.kts` auto-registers module directories. Most groups publish as
+`bluetape4k-{name}`; `spring-boot/*`, `virtualthread/*`, and `examples/*` keep
+their base directory in the Gradle project name, while `examples/ktor/*` uses
+the leaf directory name directly.
 
 ## Commands
 
@@ -25,11 +28,15 @@ repo-test-summary -- ./gradlew :module:test
 | Group | Purpose |
 |---|---|
 | `bluetape4k/` | `core`, `coroutines`, `logging`, `bom` |
-| `data/` | Exposed, Hibernate, MongoDB, JDBC, R2DBC, Cassandra |
-| `infra/` | Lettuce, Redisson, Kafka, Pulsar, Resilience4j |
+| `io/` | I/O, compression, serialization, HTTP clients, Jackson 2/3, Okio, Tink, Vert.x, gRPC, Protobuf |
+| `data/` | Cassandra, Hibernate, MongoDB, JDBC, R2DBC; Exposed lives in `bluetape4k-exposed` |
+| `infra/` | Redis/Lettuce/Redisson, Kafka 3/4, Elasticsearch, NATS, Pulsar, Bucket4j, Micrometer, OpenTelemetry, Resilience4j |
 | `cache/` | Cache umbrella/core/backend modules and Hibernate Lettuce cache bridge |
-| `spring-boot3/4/` | WebFlux + coroutines, Exposed repositories, Spring Batch |
+| `spring-boot/` | Spring Boot 4.x modules and demos; no `spring-boot3/*` line remains |
+| `testing/` | `assertions`, `junit5`, `testcontainers`, mock web server images |
+| `utils/` | Geo, ID generators, date/time, JWT, math, measured, money, mutiny, probabilistic, rule-engine, science, states, workflow |
 | `virtualthread/` | `api`, `jdk21`, `jdk25`; update all related modules together |
+| `examples/` | Library examples; not published to Maven |
 
 Full reference may live under `.codex/references/module-groups.md`.
 
@@ -51,9 +58,11 @@ Full reference may live under `.codex/references/module-groups.md`.
 
 - Java 21 toolchain.
 - Kotlin 2.3.
+- Spring Boot 4.x only.
 - Gradle daemon tuned for ZGC, 4-8 GB heap, parallel build.
-- Versions live in `buildSrc/Libs.kt`.
-- `gradle.properties` owns `baseVersion`.
+- Versions live in `gradle/libs.versions.toml`.
+- `gradle.properties` owns `projectGroup`, `baseVersion`, `snapshotVersion`,
+  and external `exposedVersion`.
 
 ## Rules
 
@@ -69,3 +78,5 @@ Full reference may live under `.codex/references/module-groups.md`.
 - Publishing uses GitHub Packages Maven; `workshop/` and `examples/` are
   excluded.
 - Auditable update paths must use `auditedUpdate*`.
+- Keep top-level `README.md` and `README.ko.md` synchronized with
+  `settings.gradle.kts` when modules are added, moved, removed, or split out.
