@@ -6,6 +6,17 @@ English | [한국어](./README.ko.md)
 
 > The former `bluetape4k-cache-local` module was merged into this module.
 
+## Package / Import Stability
+
+The cache folder reorganization moved this module under `cache/cache-core/`, but
+the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
+
+- Gradle project: `:bluetape4k-cache-core`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-cache-core`
+- Kotlin package root: `io.bluetape4k.cache`
+
+No user import migration is required for the reorganization.
+
 ## Provided Features
 
 - **Common JCache utilities**: `JCaching`, `jcacheManager`, `jcacheConfiguration`, and more

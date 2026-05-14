@@ -4,6 +4,7 @@ import org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStr
 import org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 /**
  * Apache Commons Compress 라이브러리의 [DeflateCompressorOutputStream]을 이용한 Deflate 압축기
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream
  *
  * @see [DeflateCompressorOutputStream]
  * @see [DeflateCompressorInputStream]
+ * @throws IOException when Apache Commons Compress stream processing fails.
  */
 class ApacheDeflateCompressor: AbstractCompressor() {
     /**

@@ -1,6 +1,7 @@
 package io.bluetape4k.io.compressor
 
 import com.github.luben.zstd.Zstd
+import com.github.luben.zstd.ZstdException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.toByteArray
@@ -28,6 +29,9 @@ import org.apache.commons.compress.compressors.zstandard.ZstdUtils
  * 참고: [zstd-jni](https://github.com/luben/zstd-jni)
  *
  * @property level 압축 레벨
+ * @throws IllegalArgumentException when the stored source-size header is negative or exceeds the 256 MB limit.
+ * @throws IllegalStateException when the Zstd compression API returns an error code.
+ * @throws ZstdException when zstd-jni codec processing fails.
  */
 class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
 

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.DeflaterOutputStream
 import java.util.zip.InflaterInputStream
+import java.util.zip.ZipException
 
 /**
  * JDK Deflate 알고리즘을 이용한 압축기
@@ -18,6 +19,8 @@ import java.util.zip.InflaterInputStream
  *
  * @see [DeflaterOutputStream]
  * @see [InflaterInputStream]
+ * @throws java.io.IOException when Deflate stream processing fails.
+ * @throws ZipException when the payload is corrupt or not valid Deflate data.
  */
 class DeflateCompressor: AbstractCompressor() {
 

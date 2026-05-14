@@ -4,6 +4,7 @@ import org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStream
 import org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 /**
  * Apache Compress 라이브러리의 Block LZ4 알고리즘을 사용한 Compressor
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream
  *
  * @see [BlockLZ4CompressorInputStream]
  * @see [BlockLZ4CompressorOutputStream]
+ * @throws IOException when Apache Commons Compress Block LZ4 stream processing fails.
  */
 class BlockLZ4Compressor: AbstractCompressor() {
     /**

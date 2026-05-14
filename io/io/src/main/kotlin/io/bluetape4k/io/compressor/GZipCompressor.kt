@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import java.util.zip.ZipException
 
 /**
  * JDK GZip 알고리즘을 이용한 압축/복원
@@ -18,6 +19,8 @@ import java.util.zip.GZIPOutputStream
  *
  * @see [GZIPOutputStream]
  * @see [GZIPInputStream]
+ * @throws java.io.IOException when GZip stream processing fails.
+ * @throws ZipException when the payload is corrupt or not valid GZip data.
  */
 class GZipCompressor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,

@@ -142,8 +142,13 @@ sequenceDiagram
         AC-->>C: emptyByteArray
     else 유효한 데이터
         AC->>Impl: doCompress(plain)
-        Impl-->>AC: compressed: ByteArray
-        AC-->>C: compressed
+        alt 성공
+            Impl-->>AC: compressed: ByteArray
+            AC-->>C: compressed
+        else 실패
+            Impl--xAC: IOException / IllegalArgumentException / 라이브러리 예외
+            AC--xC: 동일 예외 전파
+        end
     end
 
     C->>AC: decompress(compressed: ByteArray?)
@@ -152,10 +157,20 @@ sequenceDiagram
         AC-->>C: emptyByteArray
     else 유효한 데이터
         AC->>Impl: doDecompress(compressed)
-        Impl-->>AC: plain: ByteArray
-        AC-->>C: plain
+        alt 성공
+            Impl-->>AC: plain: ByteArray
+            AC-->>C: plain
+        else 실패
+            Impl--xAC: IOException / IllegalArgumentException / 라이브러리 예외
+            AC--xC: 동일 예외 전파
+        end
     end
 ```
+
+`compress()`와 `decompress()`는 예외 전파 API입니다. null 또는 empty 입력은
+`emptyByteArray`를 반환하지만, 구현체 압축/복원 실패는 호출자에게 그대로 전파됩니다.
+손상 입력이나 압축 실패를 예외 대신 `null`로 표현하려면
+`compressOrNull()` / `decompressOrNull()`을 사용하세요.
 
 ### serialize/deserialize 흐름
 

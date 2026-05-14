@@ -4,6 +4,17 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-cache-redisson` provides Redisson-backed cache adapters for the bluetape4k cache APIs. It focuses on JCache integration, coroutine-friendly wrappers, Redisson `RLocalCachedMap` near caches, and Redis-backed memoizers.
 
+## Package / Import Stability
+
+The cache folder reorganization moved this module under `cache/cache-redisson/`,
+but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
+
+- Gradle project: `:bluetape4k-cache-redisson`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-cache-redisson`
+- Kotlin package root: `io.bluetape4k.cache`
+
+No user import migration is required for the reorganization.
+
 ## Provided APIs
 
 | API | Package | Purpose |

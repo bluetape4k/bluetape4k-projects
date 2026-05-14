@@ -4,6 +4,7 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 /**
  * BZip2 알고리즘을 사용한 Compressor
@@ -19,6 +20,8 @@ import java.io.ByteArrayOutputStream
  * @param bufferSize 내부 버퍼 크기 (기본값: [DEFAULT_BUFFER_SIZE])
  * @see [BZip2CompressorInputStream]
  * @see [BZip2CompressorOutputStream]
+ * @throws IllegalArgumentException when [bufferSize] is not greater than zero.
+ * @throws IOException when BZip2 stream processing fails.
  */
 class BZip2Compressor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
