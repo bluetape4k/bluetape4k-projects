@@ -142,8 +142,13 @@ sequenceDiagram
         AC-->>C: emptyByteArray
     else valid data
         AC->>Impl: doCompress(plain)
-        Impl-->>AC: compressed: ByteArray
-        AC-->>C: compressed
+        alt success
+            Impl-->>AC: compressed: ByteArray
+            AC-->>C: compressed
+        else failure
+            Impl--xAC: IOException / IllegalArgumentException / library exception
+            AC--xC: throws same exception
+        end
     end
 
     C->>AC: decompress(compressed: ByteArray?)
@@ -152,10 +157,20 @@ sequenceDiagram
         AC-->>C: emptyByteArray
     else valid data
         AC->>Impl: doDecompress(compressed)
-        Impl-->>AC: plain: ByteArray
-        AC-->>C: plain
+        alt success
+            Impl-->>AC: plain: ByteArray
+            AC-->>C: plain
+        else failure
+            Impl--xAC: IOException / IllegalArgumentException / library exception
+            AC--xC: throws same exception
+        end
     end
 ```
+
+`compress()` and `decompress()` are throwing APIs: null or empty input returns
+`emptyByteArray`, but implementation failures are propagated to the caller. Use
+`compressOrNull()` / `decompressOrNull()` when corrupt input or compression
+failure should be represented as `null` instead of an exception.
 
 ### serialize/deserialize Flow
 
@@ -324,8 +339,8 @@ base.combineSafe("/etc/passwd")
 
 #### Nullable Compressor API
 
-`AbstractCompressor` provides safe nullable variants that return `null` instead of throwing or
-returning `emptyByteArray` on failure:
+`AbstractCompressor` provides safe nullable variants for callers that prefer
+`null` recovery over thrown compression/decompression failures:
 
 ```kotlin
 val compressed = compressor.compressOrNull(input)   // null if input null/empty

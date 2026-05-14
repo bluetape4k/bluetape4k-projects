@@ -6,6 +6,17 @@
 
 > 기존 `bluetape4k-cache-local` 모듈이 이 모듈에 통합되었습니다.
 
+## 패키지 / import 안정성
+
+cache 폴더 재편으로 소스 위치는 `cache/cache-core/`가 되었지만 Gradle 프로젝트 이름, Maven artifact, Kotlin
+package는 유지됩니다.
+
+- Gradle project: `:bluetape4k-cache-core`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-cache-core`
+- Kotlin package root: `io.bluetape4k.cache`
+
+이번 재편으로 인한 사용자 import 변경은 필요하지 않습니다.
+
 ## 제공 기능
 
 - **JCache 공통 유틸리티**: `JCaching`, `jcacheManager`, `jcacheConfiguration` 등

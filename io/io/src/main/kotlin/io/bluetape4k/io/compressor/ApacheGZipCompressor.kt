@@ -4,6 +4,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 /**
  * Apache Commons Compress 라이브러리의 [GzipCompressorOutputStream]을 이용한 GZip 압축기
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream
  *
  * @see [GzipCompressorOutputStream]
  * @see [GzipCompressorInputStream]
+ * @throws IOException when Apache Commons Compress stream processing fails.
  */
 class ApacheGZipCompressor: AbstractCompressor() {
     /**

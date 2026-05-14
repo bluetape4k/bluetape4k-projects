@@ -7,6 +7,17 @@ English | [한국어](./README.ko.md)
 
 > The former `bluetape4k-cache-hazelcast-near` module was merged into this module.
 
+## Package / Import Stability
+
+The cache folder reorganization moved this module under `cache/cache-hazelcast/`,
+but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
+
+- Gradle project: `:bluetape4k-cache-hazelcast`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-cache-hazelcast`
+- Kotlin package root: `io.bluetape4k.cache`
+
+No user import migration is required for the reorganization.
+
 ## Provided Features
 
 - `HazelcastJCaching`

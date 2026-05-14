@@ -4,6 +4,7 @@ import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStrea
 import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 /**
  * Apache Commons Compress FramedLZ4 알고리즘을 이용한 압축기
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream
  *
  * @see [FramedLZ4CompressorInputStream]
  * @see [FramedLZ4CompressorOutputStream]
+ * @throws IOException when Apache Commons Compress framed LZ4 stream processing fails.
  */
 class FramedLZ4Compressor: AbstractCompressor() {
 

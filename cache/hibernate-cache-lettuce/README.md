@@ -1,4 +1,4 @@
-# infra-hibernate-cache-lettuce
+# Module bluetape4k-hibernate-cache-lettuce
 
 English | [한국어](./README.ko.md)
 
@@ -7,6 +7,18 @@ Hibernate 7.2 **2nd Level Cache** implementation backed by Lettuce Near Cache (C
 
 > The Near Cache core uses the `bluetape4k-cache-lettuce` module from `bluetape4k-projects`.
 > For Spring Boot 4 integration, see [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.md).
+
+## Package / Import Stability
+
+The cache folder reorganization moved this module under
+`cache/hibernate-cache-lettuce/`, but the Gradle project name, Maven artifact ID,
+and Kotlin packages remain stable:
+
+- Gradle project: `:bluetape4k-hibernate-cache-lettuce`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce`
+- Kotlin package root: `io.bluetape4k.hibernate.cache.lettuce`
+
+No user import migration is required for the reorganization.
 
 ## Requirements
 
@@ -94,7 +106,7 @@ flowchart TD
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation(project(":hibernate-cache-lettuce"))
+    implementation(project(":bluetape4k-hibernate-cache-lettuce"))
 
     // Runtime serialization (required — must be declared explicitly since bluetape4k-io uses optional dependencies)
     implementation(Libs.fory_kotlin)  // Apache Fory

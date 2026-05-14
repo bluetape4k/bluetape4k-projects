@@ -3,6 +3,7 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toByteArray
 import io.bluetape4k.support.toInt
+import net.jpountz.lz4.LZ4Exception
 import net.jpountz.lz4.LZ4Factory
 
 /**
@@ -28,6 +29,8 @@ import net.jpountz.lz4.LZ4Factory
  * ```
  *
  * @see [lz4-java yawkat fork](https://github.com/yawkat/lz4-java) — CVE-2025-12183/CVE-2025-66566 패치 포함 유지보수 버전
+ * @throws IllegalArgumentException when the stored source-size header is negative or exceeds the 256 MB limit.
+ * @throws LZ4Exception when LZ4 block compression or decompression fails.
  */
 class LZ4Compressor: AbstractCompressor() {
 

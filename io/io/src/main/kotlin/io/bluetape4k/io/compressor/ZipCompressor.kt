@@ -4,6 +4,7 @@ import io.bluetape4k.support.requirePositiveNumber
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipEntry
+import java.util.zip.ZipException
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
@@ -20,6 +21,8 @@ import java.util.zip.ZipOutputStream
  *
  * @see [ZipOutputStream]
  * @see [ZipInputStream]
+ * @throws java.io.IOException when the ZIP entry is missing or stream processing fails.
+ * @throws ZipException when the payload is corrupt or not valid ZIP data.
  */
 class ZipCompressor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,

@@ -1,6 +1,7 @@
 package io.bluetape4k.io.compressor
 
 import com.github.luben.zstd.Zstd
+import com.github.luben.zstd.ZstdException
 import io.bluetape4k.io.compressor.ApacheZstdCompressor.Companion.DEFAULT_LEVEL
 import io.bluetape4k.logging.KLogging
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream
@@ -31,6 +32,8 @@ import java.io.ByteArrayOutputStream
  *
  * @see [ZstdCompressorInputStream]
  * @see [ZstdCompressorOutputStream]
+ * @throws java.io.IOException when Apache Commons Compress stream processing fails.
+ * @throws ZstdException when zstd-jni codec processing fails.
  */
 class ApacheZstdCompressor private constructor(val level: Int): AbstractCompressor() {
 
@@ -53,10 +56,14 @@ class ApacheZstdCompressor private constructor(val level: Int): AbstractCompress
      */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = ByteArrayOutputStream(plain.size)
-        ZstdCompressorOutputStream(output, level).use { zstd ->
-            zstd.write(plain)
-            zstd.flush()
-        }
+        ZstdCompressorOutputStream.builder()
+            .setOutputStream(output)
+            .setLevel(level)
+            .get()
+            .use { zstd ->
+                zstd.write(plain)
+                zstd.flush()
+            }
         return output.toByteArray()
     }
 

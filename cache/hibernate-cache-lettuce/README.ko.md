@@ -1,4 +1,4 @@
-# infra-hibernate-cache-lettuce
+# Module bluetape4k-hibernate-cache-lettuce
 
 [English](./README.md) | 한국어
 
@@ -7,6 +7,17 @@ Hibernate 7.2 **2nd Level Cache** 구현체 — Lettuce Near Cache(Caffeine L1 +
 
 > Near Cache 코어는 `bluetape4k-projects` 의 `bluetape4k-cache-lettuce` 모듈을 사용한다.
 > Spring Boot 4와 통합하려면 [`spring-boot/hibernate-lettuce`](../../spring-boot/hibernate-lettuce/README.ko.md) 참조.
+
+## 패키지 / import 안정성
+
+cache 폴더 재편으로 소스 위치는 `cache/hibernate-cache-lettuce/`가 되었지만 Gradle 프로젝트 이름, Maven
+artifact, Kotlin package는 유지됩니다.
+
+- Gradle project: `:bluetape4k-hibernate-cache-lettuce`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-hibernate-cache-lettuce`
+- Kotlin package root: `io.bluetape4k.hibernate.cache.lettuce`
+
+이번 재편으로 인한 사용자 import 변경은 필요하지 않습니다.
 
 ## 요구 사항
 
@@ -94,7 +105,7 @@ flowchart TD
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation(project(":hibernate-cache-lettuce"))
+    implementation(project(":bluetape4k-hibernate-cache-lettuce"))
 
     // 런타임 직렬화 (필수 - bluetape4k-io의 optional 의존성이므로 명시 필요)
     implementation(Libs.fory_kotlin)  // Apache Fory

@@ -1,6 +1,7 @@
 package io.bluetape4k.io.compressor
 
 import org.xerial.snappy.Snappy
+import org.xerial.snappy.SnappyError
 
 /**
  * Snappy 알고리즘을 사용한 Compressor
@@ -17,6 +18,9 @@ import org.xerial.snappy.Snappy
  * ```
  *
  * @see [FramedSnappyCompressor]
+ * @throws IllegalArgumentException when source-size validation fails or exceeds the 256 MB limit.
+ * @throws SnappyError when the Snappy native library or codec reports a state error.
+ * @throws org.xerial.snappy.SnappyException when the Snappy codec reports a codec failure.
  */
 class SnappyCompressor: AbstractCompressor() {
 

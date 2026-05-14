@@ -4,28 +4,38 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
+import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * [Compressor]의 최상위 추상화 클래스입니다.
+ * Base implementation for [Compressor].
  *
- * ## Null/Empty 처리 정책
- * - `compress(null)` 또는 `compress(emptyByteArray)`: 빈 [ByteArray]를 반환합니다.
- * - `decompress(null)` 또는 `decompress(emptyByteArray)`: 빈 [ByteArray]를 반환합니다.
- * - 압축/해제 실패 시 예외를 그대로 전파합니다.
+ * ## Null and empty input contract
+ * - `compress(null)` and `compress(emptyByteArray)`: return an empty [ByteArray].
+ * - `decompress(null)` and `decompress(emptyByteArray)`: return an empty [ByteArray].
+ * - Compression and decompression failures are propagated to the caller.
  *
- * ## 예외 처리
- * `compress()`/`decompress()` 는 내부 예외를 호출자에게 전파합니다.
- * 실패 시 `null`을 반환받으려면 [compressOrNull] / [decompressOrNull] 을 사용하세요.
+ * ## Failure handling
+ * [compress] and [decompress] are throwing APIs. Use [compressOrNull] or
+ * [decompressOrNull] when a failure should be represented as `null`.
  *
- * ## 구현 방법
- * [doCompress]와 [doDecompress]를 구현하면 됩니다.
- * null/empty 체크는 이 클래스에서 담당합니다.
+ * Common propagated failures are:
+ * - [IOException] for stream or codec I/O failures.
+ * - [IllegalArgumentException] for invalid input or defensive size-limit checks.
+ * - Algorithm-specific runtime failures such as `net.jpountz.lz4.LZ4Exception`,
+ *   `org.xerial.snappy.SnappyException`, `org.xerial.snappy.SnappyError`,
+ *   `com.github.luben.zstd.ZstdException`, or `java.util.zip.ZipException`.
+ *
+ * Implementation classes document their codec-specific failure types.
+ *
+ * ## Implementation guide
+ * Implement [doCompress] and [doDecompress]. This base class owns the null and
+ * empty input checks.
  *
  * ```kotlin
  * class MyCompressor: AbstractCompressor() {
- *     override fun doCompress(plain: ByteArray): ByteArray = /* 압축 구현 */
- *     override fun doDecompress(compressed: ByteArray): ByteArray = /* 해제 구현 */
+ *     override fun doCompress(plain: ByteArray): ByteArray = /* compression */
+ *     override fun doDecompress(compressed: ByteArray): ByteArray = /* decompression */
  * }
  * ```
  *
@@ -40,19 +50,20 @@ abstract class AbstractCompressor: Compressor {
     protected abstract fun doDecompress(compressed: ByteArray): ByteArray
 
     /**
-     * [plain] 데이터를 압축합니다.
+     * Compresses [plain] data.
      *
-     * null/empty 입력은 빈 [ByteArray]를 반환합니다. 압축 실패 시 예외를 전파합니다.
-     * 실패 시 `null`을 받으려면 [compressOrNull]을 사용하세요.
+     * Null or empty input returns an empty [ByteArray]. Compression failures are
+     * propagated to the caller. Use [compressOrNull] when failure should return `null`.
      *
      * ```
      * val compressor = GzipCompressor()
      * val compressed = compressor.compress("Hello, World!".toByteArray())
      * ```
      *
-     * @param plain 원본 데이터
-     * @return 압축된 데이터
-     * @throws Exception 압축 실패 시
+     * @param plain source data
+     * @return compressed data
+     * @throws IOException when the underlying codec fails during stream or buffer I/O
+     * @throws IllegalArgumentException when input validation or defensive size-limit checks fail
      */
     override fun compress(plain: ByteArray?): ByteArray {
         if (plain.isNullOrEmpty()) return emptyByteArray
@@ -60,10 +71,11 @@ abstract class AbstractCompressor: Compressor {
     }
 
     /**
-     * 압축된 데이터([compressed])를 복원하여 [ByteArray]로 반환합니다.
+     * Decompresses [compressed] data.
      *
-     * null/empty 입력은 빈 [ByteArray]를 반환합니다. 복원 실패 시 예외를 전파합니다.
-     * 손상 데이터를 `null`로 처리하려면 [decompressOrNull]을 사용하세요.
+     * Null or empty input returns an empty [ByteArray]. Decompression failures are
+     * propagated to the caller. Use [decompressOrNull] when corrupt input should
+     * return `null`.
      *
      * ```
      * val compressor = GzipCompressor()
@@ -71,9 +83,10 @@ abstract class AbstractCompressor: Compressor {
      * val plain = compressor.decompress(compressed)
      * ```
      *
-     * @param compressed 압축된 데이터
-     * @return 복원된 데이터
-     * @throws Exception 복원 실패 시 (손상 데이터, 크기 제한 초과 등)
+     * @param compressed compressed data
+     * @return decompressed data
+     * @throws IOException when the underlying codec fails during stream or buffer I/O
+     * @throws IllegalArgumentException when corrupt input, invalid headers, or defensive size-limit checks fail
      */
     override fun decompress(compressed: ByteArray?): ByteArray {
         if (compressed.isNullOrEmpty()) return emptyByteArray
@@ -81,9 +94,9 @@ abstract class AbstractCompressor: Compressor {
     }
 
     /**
-     * [plain] 데이터를 압축하여 반환합니다. 입력이 null/empty이거나 압축 실패 시 `null`을 반환합니다.
+     * Compresses [plain] and returns `null` for null/empty input or compression failure.
      *
-     * `compress()`와 달리 실패를 `null`로 명시적으로 표현하므로, 데이터 손실 없이 오류를 처리할 수 있습니다.
+     * Unlike [compress], this method represents failure as `null`.
      *
      * ```kotlin
      * val result = compressor.compressOrNull(corruptData)
@@ -92,8 +105,8 @@ abstract class AbstractCompressor: Compressor {
      * }
      * ```
      *
-     * @param plain 원본 데이터
-     * @return 압축된 데이터 또는 `null`
+     * @param plain source data
+     * @return compressed data or `null`
      */
     fun compressOrNull(plain: ByteArray?): ByteArray? {
         if (plain.isNullOrEmpty()) return null
@@ -108,9 +121,9 @@ abstract class AbstractCompressor: Compressor {
     }
 
     /**
-     * 압축된 데이터([compressed])를 복원하여 반환합니다. 입력이 null/empty이거나 복원 실패 시 `null`을 반환합니다.
+     * Decompresses [compressed] and returns `null` for null/empty input or decompression failure.
      *
-     * `decompress()`와 달리 실패를 `null`로 명시적으로 표현하므로, 손상 데이터를 빈 배열과 구분할 수 있습니다.
+     * Unlike [decompress], this method represents failure as `null`.
      *
      * ```kotlin
      * val result = compressor.decompressOrNull(suspectData)
@@ -119,8 +132,8 @@ abstract class AbstractCompressor: Compressor {
      * }
      * ```
      *
-     * @param compressed 압축된 데이터
-     * @return 복원된 데이터 또는 `null`
+     * @param compressed compressed data
+     * @return decompressed data or `null`
      */
     fun decompressOrNull(compressed: ByteArray?): ByteArray? {
         if (compressed.isNullOrEmpty()) return null

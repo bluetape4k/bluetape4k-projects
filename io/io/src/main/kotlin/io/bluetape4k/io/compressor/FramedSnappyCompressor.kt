@@ -4,6 +4,7 @@ import org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInpu
 import org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 /**
  * Apache Commons Compress의 Framed Snappy 알고리즘을 사용한 Compressor
@@ -18,6 +19,7 @@ import java.io.ByteArrayOutputStream
  *
  * @see [FramedSnappyCompressorOutputStream]
  * @see [FramedSnappyCompressorInputStream]
+ * @throws IOException when Apache Commons Compress framed Snappy stream processing fails.
  */
 class FramedSnappyCompressor: AbstractCompressor() {
 

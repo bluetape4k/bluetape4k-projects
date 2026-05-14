@@ -20,7 +20,7 @@
 
 ### Changed
 
-- Cache modules were reorganized under `cache/` while preserving existing Gradle project names, Maven artifact IDs, and Kotlin packages ([#350](https://github.com/bluetape4k/bluetape4k-projects/pull/350)).
+- Cache modules were reorganized under `cache/` while preserving existing Gradle project names, Maven artifact IDs, and Kotlin packages; users do not need to change `io.bluetape4k.cache.*` imports for the folder move ([#350](https://github.com/bluetape4k/bluetape4k-projects/pull/350), [#354](https://github.com/bluetape4k/bluetape4k-projects/issues/354)).
 - Spring Boot 4 became the standard Spring Boot line, with migration follow-up fixes and versionless `spring-boot/*` modules ([#348](https://github.com/bluetape4k/bluetape4k-projects/pull/348), [#351](https://github.com/bluetape4k/bluetape4k-projects/pull/351)).
 - Gradle catalog의 Spring Boot/Spring Cloud BOM alias를 `spring.boot.dependencies`와 `spring.cloud.dependencies`로 단일화했습니다.
 - Nightly and Examples workflows were split and tuned for tiered Testcontainers, Docker shard timeouts, Memgraph images, Kover report behavior, Spring Boot 4-only checks, and graphdb retry policy ([#355](https://github.com/bluetape4k/bluetape4k-projects/pull/355), [#356](https://github.com/bluetape4k/bluetape4k-projects/pull/356), [#357](https://github.com/bluetape4k/bluetape4k-projects/pull/357), [#358](https://github.com/bluetape4k/bluetape4k-projects/pull/358), [#363](https://github.com/bluetape4k/bluetape4k-projects/pull/363), [#366](https://github.com/bluetape4k/bluetape4k-projects/pull/366), [#367](https://github.com/bluetape4k/bluetape4k-projects/pull/367), [#413](https://github.com/bluetape4k/bluetape4k-projects/pull/413), [#414](https://github.com/bluetape4k/bluetape4k-projects/pull/414), [#423](https://github.com/bluetape4k/bluetape4k-projects/pull/423), [#424](https://github.com/bluetape4k/bluetape4k-projects/pull/424)).
@@ -33,9 +33,21 @@
 - Dependency baselines were refreshed across build plugins, GitHub Actions, Spring, Pulsar, Hibernate, GeoTools, Protobuf, OpenTelemetry instrumentation, and other library groups ([#378](https://github.com/bluetape4k/bluetape4k-projects/pull/378), [#382](https://github.com/bluetape4k/bluetape4k-projects/pull/382), [#383](https://github.com/bluetape4k/bluetape4k-projects/pull/383), [#384](https://github.com/bluetape4k/bluetape4k-projects/pull/384), [#386](https://github.com/bluetape4k/bluetape4k-projects/pull/386), [#387](https://github.com/bluetape4k/bluetape4k-projects/pull/387), [#388](https://github.com/bluetape4k/bluetape4k-projects/pull/388), [#389](https://github.com/bluetape4k/bluetape4k-projects/pull/389), [#392](https://github.com/bluetape4k/bluetape4k-projects/pull/392), [#393](https://github.com/bluetape4k/bluetape4k-projects/pull/393), [#394](https://github.com/bluetape4k/bluetape4k-projects/pull/394), [#397](https://github.com/bluetape4k/bluetape4k-projects/pull/397), [#401](https://github.com/bluetape4k/bluetape4k-projects/pull/401), [#402](https://github.com/bluetape4k/bluetape4k-projects/pull/402), [#403](https://github.com/bluetape4k/bluetape4k-projects/pull/403), [#404](https://github.com/bluetape4k/bluetape4k-projects/pull/404), [#405](https://github.com/bluetape4k/bluetape4k-projects/pull/405), [#407](https://github.com/bluetape4k/bluetape4k-projects/pull/407), [#408](https://github.com/bluetape4k/bluetape4k-projects/pull/408), [#409](https://github.com/bluetape4k/bluetape4k-projects/pull/409)).
 - WIP and README image documentation were refreshed after the idgenerator example lane completed ([#417](https://github.com/bluetape4k/bluetape4k-projects/pull/417), [#425](https://github.com/bluetape4k/bluetape4k-projects/pull/425), [#429](https://github.com/bluetape4k/bluetape4k-projects/pull/429)).
 
+### Breaking Changes
+
+- `AbstractCompressor.compress()` and `AbstractCompressor.decompress()` now propagate compression/decompression failures instead of returning `emptyByteArray` for failed non-empty input ([#317](https://github.com/bluetape4k/bluetape4k-projects/pull/317), [#325](https://github.com/bluetape4k/bluetape4k-projects/issues/325)).
+
+#### Migration
+
+| Previous expectation | Replacement |
+| --- | --- |
+| Failed `compress()` returns `emptyByteArray` | Use `compressOrNull()` when failures should return `null`, or catch the propagated exception from `compress()`. |
+| Failed `decompress()` returns `emptyByteArray` | Use `decompressOrNull()` when corrupt input should return `null`, or catch the propagated exception from `decompress()`. |
+| Corrupt compressed data is ignored | Use `decompressOrNull()` for nullable recovery, or catch the propagated exception from `decompress()`. |
+
 ### Fixed
 
-- `AbstractCompressor.compress/decompress` no longer swallows exceptions, preserving the breaking behavior change explicitly ([#317](https://github.com/bluetape4k/bluetape4k-projects/pull/317)).
+- `AbstractCompressor.compress/decompress` no longer swallows exceptions; this behavior change is documented as a breaking change in this release ([#317](https://github.com/bluetape4k/bluetape4k-projects/pull/317)).
 - `runSuspendIO` timeout was increased and `BluetapeHttpServer` eager initialization was fixed ([#337](https://github.com/bluetape4k/bluetape4k-projects/pull/337)).
 - Kafka Wave 1-3 security, cancellation, DLT, and metrics follow-ups were applied ([#309](https://github.com/bluetape4k/bluetape4k-projects/pull/309), [#310](https://github.com/bluetape4k/bluetape4k-projects/pull/310), [#314](https://github.com/bluetape4k/bluetape4k-projects/pull/314)).
 - Code scanning findings for workflow permissions, archive extraction, and secure cookie handling were addressed across multiple follow-up PRs ([#311](https://github.com/bluetape4k/bluetape4k-projects/pull/311), [#312](https://github.com/bluetape4k/bluetape4k-projects/pull/312), [#313](https://github.com/bluetape4k/bluetape4k-projects/pull/313), [#286](https://github.com/bluetape4k/bluetape4k-projects/pull/286), [#287](https://github.com/bluetape4k/bluetape4k-projects/pull/287), [#288](https://github.com/bluetape4k/bluetape4k-projects/pull/288)).

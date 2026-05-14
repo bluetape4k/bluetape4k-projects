@@ -4,6 +4,17 @@
 
 `bluetape4k-cache-lettuce`는 Lettuce(Redis) 기반 JCache Provider와 NearCache 구현을 제공합니다.
 
+## 패키지 / import 안정성
+
+cache 폴더 재편으로 소스 위치는 `cache/cache-lettuce/`가 되었지만 Gradle 프로젝트 이름, Maven artifact,
+Kotlin package는 유지됩니다.
+
+- Gradle project: `:bluetape4k-cache-lettuce`
+- Maven artifact: `io.github.bluetape4k:bluetape4k-cache-lettuce`
+- Kotlin package root: `io.bluetape4k.cache`
+
+이번 재편으로 인한 사용자 import 변경은 필요하지 않습니다.
+
 ## 설치
 
 ```kotlin
