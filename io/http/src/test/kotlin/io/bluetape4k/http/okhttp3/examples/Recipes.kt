@@ -13,8 +13,8 @@ import io.bluetape4k.http.okhttp3.executeAsync
 import io.bluetape4k.http.okhttp3.okhttp3Client
 import io.bluetape4k.http.okhttp3.okhttp3RequestOf
 import io.bluetape4k.http.okhttp3.print
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.jackson.writeAsString
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.junit5.tempfolder.TempFolder

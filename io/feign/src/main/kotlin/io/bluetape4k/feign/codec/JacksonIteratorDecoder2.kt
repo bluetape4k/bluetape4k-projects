@@ -1,10 +1,5 @@
 package io.bluetape4k.feign.codec
 
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.JsonToken
-import com.fasterxml.jackson.databind.ObjectReader
-import com.fasterxml.jackson.databind.RuntimeJsonMappingException
-import com.fasterxml.jackson.databind.json.JsonMapper
 import feign.Response
 import feign.Util
 import feign.codec.DecodeException
@@ -12,10 +7,15 @@ import feign.codec.Decoder
 import feign.codec.DefaultDecoder
 import io.bluetape4k.feign.bodyAsReader
 import io.bluetape4k.feign.isJsonBody
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.actualIteratorTypeArgument
 import io.bluetape4k.support.closeSafe
+import tools.jackson.core.JacksonException
+import tools.jackson.core.JsonParser
+import tools.jackson.core.JsonToken
+import tools.jackson.databind.ObjectReader
+import tools.jackson.databind.json.JsonMapper
 import java.io.BufferedReader
 import java.io.Closeable
 import java.io.IOException
@@ -96,7 +96,7 @@ class JacksonIteratorDecoder2 private constructor(
             }
             reader.reset()
             return JacksonIterator<Any?>(type.actualIteratorTypeArgument(), mapper, response, reader)
-        } catch (e: RuntimeJsonMappingException) {
+        } catch (e: JacksonException) {
             reader.closeSafe()
             if (e.cause is IOException) {
                 throw e.cause as IOException
@@ -126,7 +126,7 @@ class JacksonIteratorDecoder2 private constructor(
         reader: Reader,
     ): Iterator<T>, Closeable {
 
-        private val parser: JsonParser = mapper.factory.createParser(reader)
+        private val parser: JsonParser = mapper.createParser(reader)
         private val objectReader: ObjectReader = mapper.reader().forType(mapper.constructType(type))
 
         private var nextLoaded = false

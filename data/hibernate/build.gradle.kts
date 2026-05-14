@@ -117,9 +117,9 @@ dependencies {
     // Converter
     // compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-tink"))
-    compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(libs.jackson.module.kotlin)
-    compileOnly(libs.jackson.module.blackbird)
+    compileOnly(project(":bluetape4k-jackson3"))
+    compileOnly(libs.jackson3.module.kotlin)
+    compileOnly(libs.jackson3.module.blackbird)
 
     compileOnly(libs.kryo)
     compileOnly(libs.fory.kotlin)  // new Apache Fory

@@ -1,12 +1,12 @@
 package io.bluetape4k.r2dbc.convert.postgresql
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.r2dbc.postgresql.codec.Json
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.convert.WritingConverter
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.ObjectMapper
 
 /**
  * Map\<String, Any?\>를 PostgreSQL의 Json 타입으로 변환하는 Converter입니다.
@@ -28,7 +28,7 @@ class MapToJsonConverter(
      */
     override fun convert(source: Map<String, Any?>): Json = try {
         Json.of(mapper.writeValueAsString(source))
-    } catch (e: JsonProcessingException) {
+    } catch (e: JacksonException) {
         log.error(e) { "Fail to serialize map to Json. source=$source" }
         Json.of("{}")
     }

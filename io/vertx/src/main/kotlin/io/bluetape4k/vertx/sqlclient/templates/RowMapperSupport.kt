@@ -1,10 +1,10 @@
 package io.bluetape4k.vertx.sqlclient.templates
 
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.vertx.sqlclient.Row
 import io.vertx.sqlclient.templates.RowMapper
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.readValue
 
 // 현재로서는 Jackson 을 이용하여 Row -> JSON -> Record 로 만드는 방법 밖에는 없을 듯 ...
 // NOTE: alias 같은 게 포함되어 있는 경우에 제대로 작동하지 않습니다.

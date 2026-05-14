@@ -1,19 +1,19 @@
 package io.bluetape4k.geocode
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.AbstractValueObject
 import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.geocode.bing.BingAddress
 import io.bluetape4k.geocode.google.GoogleAddress
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.jackson.readValueOrNull
-import io.bluetape4k.jackson.writeAsString
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.jackson3.readValueOrNull
+import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.hashOf
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.RepeatedTest
+import tools.jackson.module.kotlin.readValue
 import java.util.*
 
 @RandomizedTest

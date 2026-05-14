@@ -63,12 +63,12 @@ dependencies {
     compileOnly(libs.vertx.lang.kotlin)
     compileOnly(libs.vertx.lang.kotlin.coroutines)
 
-    // Jackson (2.14 와 2.13 이 혼용되어서 jackson-core, jackson-databind 를 모두 지정해주어야 한다)
-    api(project(":bluetape4k-jackson2"))
-    api(libs.jackson.core)
-    api(libs.jackson.databind)
-    api(libs.jackson.module.kotlin)
-    compileOnly(libs.jackson.module.blackbird)
+    // Jackson
+    api(project(":bluetape4k-jackson3"))
+    api(libs.jackson3.core)
+    api(libs.jackson3.databind)
+    api(libs.jackson3.module.kotlin)
+    compileOnly(libs.jackson3.module.blackbird)
 
     // Fastjson2
     compileOnly(project(":bluetape4k-fastjson2"))

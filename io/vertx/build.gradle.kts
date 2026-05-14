@@ -30,9 +30,9 @@ dependencies {
     implementation(libs.vertx.pg.client)
     compileOnly(libs.vertx.jdbc.client)
     compileOnly(libs.agroal.pool)
-    compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(libs.jackson.module.kotlin)
-    compileOnly(libs.jackson.module.blackbird)
+    compileOnly(project(":bluetape4k-jackson3"))
+    compileOnly(libs.jackson3.module.kotlin)
+    compileOnly(libs.jackson3.module.blackbird)
     implementation(libs.mybatis.dynamic.sql)
 
     // Coroutines

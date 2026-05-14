@@ -13,7 +13,7 @@ dependencies {
     api(project(":bluetape4k-core"))
     implementation(project(":bluetape4k-cache-core"))
     testImplementation(project(":bluetape4k-http"))
-    testImplementation(project(":bluetape4k-jackson2"))
+    testImplementation(project(":bluetape4k-jackson3"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
@@ -50,9 +50,9 @@ dependencies {
 
 
     // Jackson 2
-    implementation(project(":bluetape4k-jackson2"))
-    implementation(libs.jackson.module.kotlin)
-    implementation(libs.jackson.module.blackbird)
+    implementation(project(":bluetape4k-jackson3"))
+    implementation(libs.jackson3.module.kotlin)
+    implementation(libs.jackson3.module.blackbird)
 
     implementation(libs.vertx.core)
     testImplementation(project(":bluetape4k-vertx"))

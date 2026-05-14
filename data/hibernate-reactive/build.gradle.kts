@@ -90,7 +90,7 @@ dependencies {
     // Converter 사용 시
     // compileOnly(project(":bluetape4k-crypto"))
     compileOnly(project(":bluetape4k-tink"))
-    testImplementation(project(":bluetape4k-jackson2"))
+    testImplementation(project(":bluetape4k-jackson3"))
 
     testImplementation(libs.kryo)
     testImplementation(libs.fory.kotlin)  // new Apache Fory

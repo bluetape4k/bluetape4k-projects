@@ -1,12 +1,12 @@
 package io.bluetape4k.feign.codec
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.json.JsonMapper
 import feign.RequestTemplate
 import feign.codec.EncodeException
 import feign.codec.Encoder
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.json.JsonMapper
 import java.lang.reflect.Type
 
 /**
@@ -60,7 +60,7 @@ class JacksonEncoder2 private constructor(
         try {
             val javaType = mapper.typeFactory.constructType(bodyType)
             template.body(mapper.writerFor(javaType).writeValueAsBytes(obj), Charsets.UTF_8)
-        } catch (e: JsonProcessingException) {
+        } catch (e: JacksonException) {
             throw EncodeException(e.message, e)
         }
     }

@@ -7,8 +7,6 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder.function
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
 import com.datastax.oss.driver.api.querybuilder.select.Selector
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.CqlSessionProvider
 import io.bluetape4k.cassandra.cql.getStringOrEmpty
@@ -17,9 +15,9 @@ import io.bluetape4k.cassandra.data.setValue
 import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.cassandra.querybuilder.inValues
 import io.bluetape4k.cassandra.querybuilder.literal
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.jackson.readValueOrNull
-import io.bluetape4k.jackson.writeAsString
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.jackson3.readValueOrNull
+import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
@@ -27,6 +25,8 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.node.JsonNodeFactory
 import java.io.Serializable
 
 class JacksonJsonFunctionExamples: AbstractCassandraTest() {

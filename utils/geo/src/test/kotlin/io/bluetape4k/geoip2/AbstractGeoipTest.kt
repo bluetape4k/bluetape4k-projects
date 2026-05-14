@@ -1,13 +1,13 @@
 package io.bluetape4k.geoip2
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.maxmind.geoip2.model.CityResponse
 import com.maxmind.geoip2.model.CountryResponse
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
+import tools.jackson.databind.PropertyNamingStrategies
+import tools.jackson.databind.json.JsonMapper
 
 abstract class AbstractGeoipTest {
 
@@ -31,9 +31,9 @@ abstract class AbstractGeoipTest {
          */
         @JvmStatic
         protected val jsonMapper: JsonMapper by lazy {
-            Jackson.defaultJsonMapper.apply {
-                setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            }
+            Jackson.defaultJsonMapper.rebuild()
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build() as JsonMapper
         }
     }
 
