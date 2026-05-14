@@ -9,65 +9,80 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration
 
 /**
- * 분산 환경에서 즉시 소비 시도 계약을 제공하는 코루틴용 rate limiter 구현체입니다.
+ * Coroutine rate limiter for distributed Bucket4j async proxies.
  *
- * ## 동작/계약
- * - [consume]은 원격 버킷에 대해 대기 없는 즉시 소비를 시도합니다.
- * - 소비 결과와 잔여 토큰은 `ConsumptionProbe` 한 번의 조회 결과로 해석합니다.
- * - 코루틴 취소는 `ERROR`로 감싸지 않고 그대로 전파합니다.
+ * ## Contract
+ * - [consume] attempts immediate token consumption without waiting for refill.
+ * - Consumption outcome and remaining tokens are derived from one
+ *   `ConsumptionProbe`.
+ * - Coroutine cancellation is propagated unchanged.
+ * - [defaultTimeout] converts slow async store operations into an
+ *   [RateLimitResult.error] result; it is not a retry or refill wait timeout.
  *
  * ```kotlin
  * val rateLimiter = DistributedSuspendRateLimiter(asyncBucketProxyProvider)
  * val result: RateLimitResult = rateLimiter.consume("key", 1)
  *
  * when (result.status) {
- *     RateLimitStatus.CONSUMED -> {
- *         // Rate Limit 적용 성공
- *     }
- *     RateLimitStatus.REJECTED -> {
- *         // 토큰 부족으로 거절
- *     }
- *     RateLimitStatus.ERROR -> {
- *         // 오류 발생 시 result.errorMessage 확인
- *     }
+ *     RateLimitStatus.CONSUMED -> Unit
+ *     RateLimitStatus.REJECTED -> check(result.diagnostics.rejectionReason != null)
+ *     RateLimitStatus.ERROR -> check(result.errorMessage != null)
  * }
  * ```
  *
- * @property asyncBucketProxyProvider [AsyncBucketProxyProvider] 인스턴스.
- * 원격 저장소(Redis 등)에 연결된 async bucket proxy를 제공합니다.
+ * @property asyncBucketProxyProvider provider for async bucket proxies backed by
+ * a remote store such as Redis.
  */
-class DistributedSuspendRateLimiter(
+class DistributedSuspendRateLimiter @JvmOverloads constructor(
     private val asyncBucketProxyProvider: AsyncBucketProxyProvider,
+    private val defaultTimeout: Duration? = null,
 ): SuspendRateLimiter<String> {
 
     companion object: KLoggingChannel()
 
     /**
-     * [key] 기준으로 [numToken] 갯수만큼 즉시 소비 시도합니다. 결과는 [RateLimitResult]로 반환됩니다.
+     * Attempts immediate consumption of [numToken] tokens for [key].
      *
-     * ```kotlin
-     * val rateLimiter = DistributedSuspendRateLimiter(asyncBucketProxyProvider)
-     * val result = rateLimiter.consume("user-42", 1L)
-     * // result.isConsumed == true (토큰 여유가 있는 경우)
-     * // result.remainingTokens >= 0
-     * ```
-     *
-     * @param key      Rate Limit 적용 대상 Key
-     * @param numToken 소비할 토큰 수
-     * @return [RateLimitResult] 토큰 소비 결과
-     *
-     * @throws CancellationException 코루틴 취소 시 그대로 전파
+     * @throws CancellationException when the coroutine is cancelled.
      */
     override suspend fun consume(key: String, numToken: Long): RateLimitResult {
+        return consume(key, numToken, defaultTimeout)
+    }
+
+    /**
+     * Attempts immediate token consumption with an optional timeout for the
+     * underlying async distributed bucket operation.
+     *
+     * Timeout is reported as [RateLimitResult.error]. Coroutine cancellation is
+     * propagated unchanged.
+     *
+     * This overload is intentionally available on the concrete distributed
+     * implementation only. Code typed as [SuspendRateLimiter] should configure
+     * [defaultTimeout] on the bean instead.
+     */
+    suspend fun consume(key: String, numToken: Long, timeout: Duration?): RateLimitResult {
         validateRateLimitRequest(key, numToken)
         log.debug { "rate limit for key=$key, numToken=$numToken" }
 
         return try {
             val bucketProxy = asyncBucketProxyProvider.resolveBucket(key)
-            toRateLimitResult(bucketProxy.tryConsumeAndReturnRemaining(numToken).await(), numToken)
+            val probe = if (timeout == null) {
+                bucketProxy.tryConsumeAndReturnRemaining(numToken).await()
+            } else {
+                withTimeout(timeout) {
+                    bucketProxy.tryConsumeAndReturnRemaining(numToken).await()
+                }
+            }
+            toRateLimitResult(probe, numToken)
+        } catch (e: TimeoutCancellationException) {
+            log.warn(e) { "Rate Limiter timed out. key=$key" }
+            RateLimitResult.error(e)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

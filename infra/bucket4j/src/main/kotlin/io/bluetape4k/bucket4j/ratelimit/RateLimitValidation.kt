@@ -35,8 +35,21 @@ internal inline fun toRateLimitResult(
     requestedTokens: Long,
 ): RateLimitResult {
     return if (probe.isConsumed) {
-        RateLimitResult.consumed(requestedTokens, probe.remainingTokens)
+        RateLimitResult.consumed(
+            consumedTokens = requestedTokens,
+            availableTokens = probe.remainingTokens,
+            diagnostics = RateLimitDiagnostics(
+                nanosToWaitForRefill = 0,
+                nanosToWaitForReset = probe.nanosToWaitForReset,
+            ),
+        )
     } else {
-        RateLimitResult.rejected(probe.remainingTokens)
+        RateLimitResult.rejected(
+            availableTokens = probe.remainingTokens,
+            diagnostics = RateLimitDiagnostics.rejected(
+                nanosToWaitForRefill = probe.nanosToWaitForRefill,
+                nanosToWaitForReset = probe.nanosToWaitForReset,
+            ),
+        )
     }
 }

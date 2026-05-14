@@ -1,99 +1,172 @@
 package io.bluetape4k.bucket4j.ratelimit
 
 import java.io.Serializable
+import java.time.Duration
 
 /**
- * 토큰 소비 시도 결과 상태를 나타냅니다.
+ * Result status for a rate-limit token consumption attempt.
  *
- * ## 동작/계약
- * - [CONSUMED]는 요청 토큰이 정상 소비된 상태입니다.
- * - [REJECTED]는 가용 토큰 부족으로 소비가 거절된 상태입니다.
- * - [ERROR]는 소비 처리 중 예외가 발생한 상태입니다.
- *
- * ```kotlin
- * val status = RateLimitStatus.CONSUMED
- * // status.name == "CONSUMED"
- * ```
+ * ## Contract
+ * - [CONSUMED] means the requested tokens were consumed.
+ * - [REJECTED] means the bucket did not have enough available tokens.
+ * - [ERROR] means the provider failed while resolving or consuming from a bucket.
  */
 enum class RateLimitStatus {
-    /** 요청 토큰이 정상 소비됨 */
+    /** Requested tokens were consumed. */
     CONSUMED,
 
-    /** 토큰 부족으로 소비 거절됨 */
+    /** Consumption was rejected because the bucket had insufficient tokens. */
     REJECTED,
 
-    /** 처리 중 오류가 발생함 */
+    /** Provider or bucket processing failed. */
     ERROR
 }
 
 /**
- * Rate limit 토큰 소비 결과를 나타내는 값 객체입니다.
+ * Stable rejection reason owned by bluetape4k.
  *
- * ## 동작/계약
- * - [status]에 따라 [consumedTokens], [availableTokens], [errorMessage] 해석이 달라집니다.
- * - [isConsumed]/[isRejected]/[isError]는 [status] 비교 결과를 그대로 반환합니다.
- * - `consumed/rejected/error` 팩토리 메서드는 상태별 권장 생성 경로입니다.
+ * Values are additive-only: existing names must not be renamed or reordered
+ * because callers may persist or exhaustively match them.
+ */
+enum class RateLimitRejectionReason {
+    /** The bucket had fewer available tokens than requested. */
+    INSUFFICIENT_TOKENS
+}
+
+/**
+ * Diagnostic data derived from Bucket4j probes without exposing upstream types.
  *
- * ```kotlin
- * val result = RateLimitResult.consumed(consumedTokens = 1, availableTokens = 9)
- * // result.isConsumed == true
- * // result.availableTokens == 9
- * ```
+ * ## Contract
+ * - [nanosToWaitForRefill] is positive only when a rejected caller can retry
+ *   after waiting for token refill.
+ * - [nanosToWaitForReset] is the observed time until the bucket is fully
+ *   refilled when the upstream probe provides it.
+ * - [rejectionReason] is set only for [RateLimitStatus.REJECTED] results.
+ */
+data class RateLimitDiagnostics(
+    val nanosToWaitForRefill: Long = 0,
+    val nanosToWaitForReset: Long = 0,
+    val rejectionReason: RateLimitRejectionReason? = null,
+): Serializable {
+
+    init {
+        require(nanosToWaitForRefill >= 0) {
+            "nanosToWaitForRefill must be greater than or equal to 0. nanosToWaitForRefill=$nanosToWaitForRefill"
+        }
+        require(nanosToWaitForReset >= 0) {
+            "nanosToWaitForReset must be greater than or equal to 0. nanosToWaitForReset=$nanosToWaitForReset"
+        }
+    }
+
+    companion object {
+        private const val serialVersionUID: Long = 1L
+
+        @JvmField
+        val EMPTY: RateLimitDiagnostics = RateLimitDiagnostics()
+
+        @JvmStatic
+        fun rejected(
+            nanosToWaitForRefill: Long,
+            nanosToWaitForReset: Long,
+            rejectionReason: RateLimitRejectionReason = RateLimitRejectionReason.INSUFFICIENT_TOKENS,
+        ): RateLimitDiagnostics =
+            RateLimitDiagnostics(nanosToWaitForRefill, nanosToWaitForReset, rejectionReason)
+    }
+}
+
+/**
+ * Value object returned by bluetape4k rate limiters.
+ *
+ * ## Contract
+ * - [status] defines how [consumedTokens], [availableTokens], [diagnostics], and
+ *   [errorMessage] should be interpreted.
+ * - [isConsumed], [isRejected], and [isError] are status predicates.
+ * - Factory methods are the preferred construction path.
  */
 data class RateLimitResult(
-    /** 토큰 소비 결과 상태입니다. */
+    /** Token consumption result status. */
     val status: RateLimitStatus,
-    /** 실제로 소비된 토큰 수입니다. */
+    /** Number of tokens consumed by this attempt. */
     val consumedTokens: Long = 0,
-    /** 소비 시도 이후 관측된 잔여 토큰 수입니다. */
+    /** Remaining tokens observed after the attempt. */
     val availableTokens: Long,
-    /** 오류 발생 시 상위 계층에서 로깅/메트릭 태깅에 사용할 메시지입니다. */
+    /** Public, sanitized error message for logging or metric tags. */
     val errorMessage: String? = null,
+    /** Probe diagnostics for retry-after and rejection reporting. */
+    val diagnostics: RateLimitDiagnostics = RateLimitDiagnostics.EMPTY,
 ): Serializable {
 
     init {
         require(consumedTokens >= 0) { "consumedTokens must be greater than or equal to 0. consumedTokens=$consumedTokens" }
         require(availableTokens >= 0) { "availableTokens must be greater than or equal to 0. availableTokens=$availableTokens" }
+        require(status == RateLimitStatus.REJECTED || diagnostics.rejectionReason == null) {
+            "rejectionReason is meaningful only for REJECTED results. status=$status, rejectionReason=${diagnostics.rejectionReason}"
+        }
     }
 
-    @Deprecated(
-        message = "Use status-based factory methods or the primary constructor with explicit status.",
-        replaceWith = ReplaceWith("RateLimitResult.consumed(consumedTokens, availableTokens)")
-    )
-    constructor(consumedTokens: Long, availableTokens: Long): this(
-        status = if (consumedTokens > 0) RateLimitStatus.CONSUMED else RateLimitStatus.REJECTED,
-        consumedTokens = consumedTokens,
-        availableTokens = availableTokens,
-    )
-
-    /** 소비 성공 여부를 반환합니다. */
+    /** Whether this attempt consumed tokens. */
     val isConsumed: Boolean get() = status == RateLimitStatus.CONSUMED
 
-    /** 소비 거절 여부를 반환합니다. */
+    /** Whether this attempt was rejected. */
     val isRejected: Boolean get() = status == RateLimitStatus.REJECTED
 
-    /** 오류 발생 여부를 반환합니다. */
+    /** Whether this attempt failed with provider or bucket error. */
     val isError: Boolean get() = status == RateLimitStatus.ERROR
 
+    /** Caller-friendly retry delay for rejected attempts, or `null` when absent. */
+    val retryAfter: Duration?
+        get() = diagnostics.nanosToWaitForRefill
+            .takeIf { status == RateLimitStatus.REJECTED && it > 0 }
+            ?.let(Duration::ofNanos)
+
     companion object {
-        /** 소비 성공 결과를 생성합니다. */
-        @JvmStatic
-        fun consumed(consumedTokens: Long, availableTokens: Long): RateLimitResult =
-            RateLimitResult(RateLimitStatus.CONSUMED, consumedTokens, availableTokens)
+        private const val serialVersionUID: Long = 1L
+        private const val MAX_ERROR_MESSAGE_LENGTH = 256
 
-        /** 소비 거절 결과를 생성합니다. */
-        @JvmStatic
-        fun rejected(availableTokens: Long): RateLimitResult =
-            RateLimitResult(RateLimitStatus.REJECTED, 0, availableTokens)
+        private val URI_CREDENTIALS = Regex("([a-zA-Z][a-zA-Z0-9+.-]*://)([^/\\s]+)@")
 
-        /** 오류 결과를 생성합니다. */
+        /** Creates a consumed result. */
+        @JvmStatic
+        fun consumed(
+            consumedTokens: Long,
+            availableTokens: Long,
+            diagnostics: RateLimitDiagnostics = RateLimitDiagnostics.EMPTY,
+        ): RateLimitResult =
+            RateLimitResult(RateLimitStatus.CONSUMED, consumedTokens, availableTokens, diagnostics = diagnostics)
+
+        /** Creates a rejected result. */
+        @JvmStatic
+        fun rejected(
+            availableTokens: Long,
+            diagnostics: RateLimitDiagnostics = RateLimitDiagnostics.rejected(
+                nanosToWaitForRefill = 0,
+                nanosToWaitForReset = 0,
+            ),
+        ): RateLimitResult =
+            RateLimitResult(RateLimitStatus.REJECTED, 0, availableTokens, diagnostics = diagnostics)
+
+        /** Creates an error result with a public sanitized message. */
         @JvmStatic
         fun error(cause: Throwable? = null): RateLimitResult =
             RateLimitResult(
                 status = RateLimitStatus.ERROR,
                 consumedTokens = 0,
                 availableTokens = 0,
-                errorMessage = cause?.message ?: cause?.toString()
+                errorMessage = sanitizeErrorMessage(cause)
             )
+
+        internal fun sanitizeErrorMessage(cause: Throwable?): String? {
+            if (cause == null) return null
+
+            val source = cause.message
+                ?.takeIf { it.isNotBlank() }
+                ?: cause.javaClass.name
+
+            return source
+                .replace(URI_CREDENTIALS) { matchResult ->
+                    "${matchResult.groupValues[1]}<redacted>@"
+                }
+                .take(MAX_ERROR_MESSAGE_LENGTH)
+        }
     }
 }

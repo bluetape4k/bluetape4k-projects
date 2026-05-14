@@ -28,13 +28,15 @@ class RateLimiterProbeUsageTest {
         val bucketProvider = mockk<LocalBucketProvider>()
         val bucket = mockk<LocalBucket>()
         every { bucketProvider.resolveBucket("user:1") } returns bucket
-        every { bucket.tryConsumeAndReturnRemaining(3) } returns ConsumptionProbe.consumed(7, 0)
+        every { bucket.tryConsumeAndReturnRemaining(3) } returns ConsumptionProbe.consumed(7, 123)
 
         val result = LocalRateLimiter(bucketProvider).consume("user:1", 3)
 
         result.status shouldBeEqualTo RateLimitStatus.CONSUMED
         result.consumedTokens shouldBeEqualTo 3
         result.availableTokens shouldBeEqualTo 7
+        result.diagnostics.nanosToWaitForRefill shouldBeEqualTo 0
+        result.diagnostics.nanosToWaitForReset shouldBeEqualTo 123
 
         verify(exactly = 1) { bucket.tryConsumeAndReturnRemaining(3) }
         verify(exactly = 0) { bucket.availableTokens }
@@ -45,13 +47,16 @@ class RateLimiterProbeUsageTest {
         val bucketProvider = mockk<BucketProxyProvider>()
         val bucket = mockk<BucketProxy>()
         every { bucketProvider.resolveBucket("user:1") } returns bucket
-        every { bucket.tryConsumeAndReturnRemaining(2) } returns ConsumptionProbe.rejected(8, 11, 11)
+        every { bucket.tryConsumeAndReturnRemaining(2) } returns ConsumptionProbe.rejected(8, 11, 22)
 
         val result = DistributedRateLimiter(bucketProvider).consume("user:1", 2)
 
         result.status shouldBeEqualTo RateLimitStatus.REJECTED
         result.consumedTokens shouldBeEqualTo 0
         result.availableTokens shouldBeEqualTo 8
+        result.diagnostics.nanosToWaitForRefill shouldBeEqualTo 11
+        result.diagnostics.nanosToWaitForReset shouldBeEqualTo 22
+        result.diagnostics.rejectionReason shouldBeEqualTo RateLimitRejectionReason.INSUFFICIENT_TOKENS
 
         verify(exactly = 1) { bucket.tryConsumeAndReturnRemaining(2) }
         verify(exactly = 0) { bucket.availableTokens }
@@ -62,13 +67,15 @@ class RateLimiterProbeUsageTest {
         val bucketProvider = mockk<LocalSuspendBucketProvider>()
         val bucket = mockk<SuspendLocalBucket>()
         every { bucketProvider.resolveBucket("user:1") } returns bucket
-        every { bucket.tryConsumeAndReturnRemaining(4) } returns ConsumptionProbe.consumed(6, 0)
+        every { bucket.tryConsumeAndReturnRemaining(4) } returns ConsumptionProbe.consumed(6, 456)
 
         val result = LocalSuspendRateLimiter(bucketProvider).consume("user:1", 4)
 
         result.status shouldBeEqualTo RateLimitStatus.CONSUMED
         result.consumedTokens shouldBeEqualTo 4
         result.availableTokens shouldBeEqualTo 6
+        result.diagnostics.nanosToWaitForRefill shouldBeEqualTo 0
+        result.diagnostics.nanosToWaitForReset shouldBeEqualTo 456
 
         verify(exactly = 1) { bucket.tryConsumeAndReturnRemaining(4) }
         verify(exactly = 0) { bucket.availableTokens }

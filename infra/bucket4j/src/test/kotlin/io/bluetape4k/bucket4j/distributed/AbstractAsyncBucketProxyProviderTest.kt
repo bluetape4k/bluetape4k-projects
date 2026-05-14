@@ -1,16 +1,17 @@
 package io.bluetape4k.bucket4j.distributed
 
+import io.bluetape4k.bucket4j.MAX_BUCKET_KEY_BYTES
 import io.bluetape4k.bucket4j.bucketConfiguration
-import io.bluetape4k.codec.Base58
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -70,6 +71,26 @@ abstract class AbstractAsyncBucketProxyProviderTest {
     fun `빈 key 는 허용하지 않는다`() = runTest {
         assertFailsWith<IllegalArgumentException> {
             bucketProvider.resolveBucket(" ")
+        }
+    }
+
+    @Test
+    fun `serialized bucket key size cap 을 초과한 key 는 허용하지 않는다`() = runTest {
+        assertFailsWith<IllegalArgumentException> {
+            bucketProvider.resolveBucket("x".repeat(MAX_BUCKET_KEY_BYTES + 1))
+        }
+    }
+
+    @Test
+    fun `serialized bucket key size cap 은 prefix 포함 경계값으로 적용한다`() = runTest {
+        val prefixBytes = AsyncBucketProxyProvider.DEFAULT_KEY_PREFIX.toByteArray().size
+        val maxKey = "x".repeat(MAX_BUCKET_KEY_BYTES - prefixBytes)
+        val oversizedKey = "x".repeat(MAX_BUCKET_KEY_BYTES - prefixBytes + 1)
+
+        bucketProvider.resolveBucket(maxKey).availableTokens.await() shouldBeEqualTo INITIAL_TOKEN
+
+        assertFailsWith<IllegalArgumentException> {
+            bucketProvider.resolveBucket(oversizedKey)
         }
     }
 }

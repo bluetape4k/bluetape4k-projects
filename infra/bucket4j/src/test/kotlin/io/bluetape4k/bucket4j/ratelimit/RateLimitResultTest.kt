@@ -1,11 +1,18 @@
 package io.bluetape4k.bucket4j.ratelimit
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.time.Duration
 
 class RateLimitResultTest {
     @Test
@@ -15,6 +22,8 @@ class RateLimitResultTest {
         result.status shouldBeEqualTo RateLimitStatus.CONSUMED
         result.consumedTokens shouldBeEqualTo 2
         result.availableTokens shouldBeEqualTo 8
+        result.diagnostics shouldBeEqualTo RateLimitDiagnostics.EMPTY
+        result.retryAfter.shouldBeNull()
         result.isConsumed.shouldBeTrue()
         result.isRejected.shouldBeFalse()
         result.isError.shouldBeFalse()
@@ -22,11 +31,21 @@ class RateLimitResultTest {
 
     @Test
     fun `rejected factory 는 consumedTokens 를 0으로 고정한다`() {
-        val result = RateLimitResult.rejected(availableTokens = 3)
+        val result = RateLimitResult.rejected(
+            availableTokens = 3,
+            diagnostics = RateLimitDiagnostics.rejected(
+                nanosToWaitForRefill = 1_000,
+                nanosToWaitForReset = 10_000,
+            ),
+        )
 
         result.status shouldBeEqualTo RateLimitStatus.REJECTED
         result.consumedTokens shouldBeEqualTo 0
         result.availableTokens shouldBeEqualTo 3
+        result.diagnostics.nanosToWaitForRefill shouldBeEqualTo 1_000
+        result.diagnostics.nanosToWaitForReset shouldBeEqualTo 10_000
+        result.diagnostics.rejectionReason shouldBeEqualTo RateLimitRejectionReason.INSUFFICIENT_TOKENS
+        result.retryAfter shouldBeEqualTo Duration.ofNanos(1_000)
         result.isConsumed.shouldBeFalse()
         result.isRejected.shouldBeTrue()
         result.isError.shouldBeFalse()
@@ -57,7 +76,7 @@ class RateLimitResultTest {
     }
 
     @Test
-    fun `error factory 는 예외 메시지가 없으면 예외 타입 정보를 보존한다`() {
+    fun `error factory 는 예외 메시지가 없으면 예외 타입 이름을 보존한다`() {
         val result = RateLimitResult.error(IllegalStateException())
 
         result.status shouldBeEqualTo RateLimitStatus.ERROR
@@ -65,30 +84,40 @@ class RateLimitResultTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun `deprecated 생성자는 consumedTokens 가 양수이면 consumed 로 해석한다`() {
-        val result = RateLimitResult(consumedTokens = 3, availableTokens = 7)
+    fun `error factory 는 URI credential 을 redaction 한다`() {
+        val result = RateLimitResult.error(
+            IllegalStateException("redis://user:secret@localhost:6379 is unavailable")
+        )
 
-        result.status shouldBeEqualTo RateLimitStatus.CONSUMED
-        result.isConsumed.shouldBeTrue()
-        result.consumedTokens shouldBeEqualTo 3
-        result.availableTokens shouldBeEqualTo 7
+        result.errorMessage.shouldNotContain("secret")
+        result.errorMessage shouldBeEqualTo "redis://<redacted>@localhost:6379 is unavailable"
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun `deprecated 생성자는 consumedTokens 가 0이면 rejected 로 해석한다`() {
-        val result = RateLimitResult(consumedTokens = 0, availableTokens = 4)
+    fun `error factory 는 at sign 을 포함한 URI credential 을 redaction 한다`() {
+        val result = RateLimitResult.error(
+            IllegalStateException("redis://user:p@ss@localhost:6379 is unavailable")
+        )
 
-        result.status shouldBeEqualTo RateLimitStatus.REJECTED
-        result.isRejected.shouldBeTrue()
+        result.errorMessage.shouldNotContain("p@ss")
+        result.errorMessage shouldBeEqualTo "redis://<redacted>@localhost:6379 is unavailable"
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun `deprecated 생성자는 음수 consumedTokens 를 허용하지 않는다`() {
+    fun `error factory 는 public message 를 256자로 제한한다`() {
+        val result = RateLimitResult.error(IllegalStateException("x".repeat(300)))
+
+        result.errorMessage?.length shouldBeEqualTo 256
+    }
+
+    @Test
+    fun `primary constructor 는 음수 consumedTokens 를 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> {
-            RateLimitResult(consumedTokens = -1, availableTokens = 4)
+            RateLimitResult(
+                status = RateLimitStatus.CONSUMED,
+                consumedTokens = -1,
+                availableTokens = 4,
+            )
         }
     }
 
@@ -101,6 +130,65 @@ class RateLimitResultTest {
                 availableTokens = -1,
             )
         }
+    }
+
+    @Test
+    fun `rejectionReason 은 rejected 결과에만 허용된다`() {
+        assertFailsWith<IllegalArgumentException> {
+            RateLimitResult.consumed(
+                consumedTokens = 1,
+                availableTokens = 1,
+                diagnostics = RateLimitDiagnostics(
+                    rejectionReason = RateLimitRejectionReason.INSUFFICIENT_TOKENS
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun `retryAfter 는 refill nanos 가 0이면 null 이다`() {
+        val result = RateLimitResult.rejected(
+            availableTokens = 0,
+            diagnostics = RateLimitDiagnostics.rejected(
+                nanosToWaitForRefill = 0,
+                nanosToWaitForReset = 5_000,
+            ),
+        )
+
+        result.retryAfter.shouldBeNull()
+    }
+
+    @Test
+    fun `diagnostics 는 음수 nanos 를 허용하지 않는다`() {
+        assertFailsWith<IllegalArgumentException> {
+            RateLimitDiagnostics(nanosToWaitForRefill = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            RateLimitDiagnostics(nanosToWaitForReset = -1)
+        }
+    }
+
+    @Test
+    fun `result 와 diagnostics 는 Java serialization round trip 을 지원한다`() {
+        val source = RateLimitResult.rejected(
+            availableTokens = 0,
+            diagnostics = RateLimitDiagnostics.rejected(
+                nanosToWaitForRefill = 1_000,
+                nanosToWaitForReset = 10_000,
+            ),
+        )
+
+        val bytes = ByteArrayOutputStream().use { bytes ->
+            ObjectOutputStream(bytes).use { it.writeObject(source) }
+            bytes.toByteArray()
+        }
+        val restored = ObjectInputStream(ByteArrayInputStream(bytes)).use {
+            it.readObject() as RateLimitResult
+        }
+
+        restored shouldBeEqualTo source
+        restored.errorMessage.shouldBeNull()
+        restored.toString() shouldContain "RateLimitResult"
     }
 
     @Test
@@ -119,5 +207,6 @@ class RateLimitResultTest {
         result.status shouldBeEqualTo RateLimitStatus.REJECTED
         result.consumedTokens shouldBeEqualTo 0
         result.availableTokens shouldBeEqualTo 3
+        result.diagnostics.rejectionReason shouldBeEqualTo RateLimitRejectionReason.INSUFFICIENT_TOKENS
     }
 }
