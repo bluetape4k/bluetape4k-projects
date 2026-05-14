@@ -2,13 +2,11 @@ package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.CancellationException
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -59,6 +57,53 @@ class SuspendCacheImplStabilityTest {
         }
     }
 
+    @Test
+    fun `JCache get cancellation is rethrown without cache error event`() = runSuspendTest {
+        val cancellation = KotlinCancellationException("jcache get cancelled")
+        val jcache = mockk<javax.cache.Cache<String, String>>()
+        every { jcache.name } returns "cancel-on-get"
+        every { jcache.containsKey("key-cancel-get") } throws cancellation
+
+        val suspendCache = SuspendCache.of(jcache)
+        val errorEvents = AtomicInteger(0)
+        suspendCache.eventPublisher.onError {
+            errorEvents.incrementAndGet()
+        }
+
+        val thrown = assertFailsWith<KotlinCancellationException> {
+            suspendCache.computeIfAbsent("key-cancel-get") {
+                "should not load"
+            }
+        }
+
+        thrown shouldBeEqualTo cancellation
+        errorEvents.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `JCache put cancellation is rethrown without cache error event`() = runSuspendTest {
+        val cancellation = KotlinCancellationException("jcache put cancelled")
+        val jcache = mockk<javax.cache.Cache<String, String>>()
+        every { jcache.name } returns "cancel-on-put"
+        every { jcache.containsKey("key-cancel-put") } returns false
+        every { jcache.put("key-cancel-put", "value") } throws cancellation
+
+        val suspendCache = SuspendCache.of(jcache)
+        val errorEvents = AtomicInteger(0)
+        suspendCache.eventPublisher.onError {
+            errorEvents.incrementAndGet()
+        }
+
+        val thrown = assertFailsWith<KotlinCancellationException> {
+            suspendCache.computeIfAbsent("key-cancel-put") {
+                "value"
+            }
+        }
+
+        thrown shouldBeEqualTo cancellation
+        errorEvents.get() shouldBeEqualTo 0
+    }
+
     /**
      * 코루틴이 취소되면 computeIfAbsent 실행 중에도 CancellationException이 전파된다.
      *
@@ -90,7 +135,7 @@ class SuspendCacheImplStabilityTest {
         }
 
         // 코루틴 취소
-        job.cancel("intentional cancel")
+        job.cancel(KotlinCancellationException("intentional cancel"))
         job.join()
 
         // CancellationException이 전파되었음을 확인합니다.

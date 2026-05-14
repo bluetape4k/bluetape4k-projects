@@ -2,6 +2,8 @@ package io.bluetape4k.resilience4j.cache
 
 import io.github.resilience4j.cache.Cache
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -34,21 +36,26 @@ internal object CacheCoroutineLocks {
 }
 
 /**
- * Resilience4j [Cache] 를 사용하여 캐시된 값을 반환합니다.
+ * Returns a cached value through a Resilience4j [Cache], loading it on miss.
  *
- * 캐시에 값이 없을 경우 [loader]를 실행하여 값을 로드하고 캐시에 저장합니다.
+ * Contract:
+ * - The upstream [Cache] interface exposes `computeIfAbsent` but no public
+ *   backing JCache accessor.
+ * - The suspend loader runs outside the blocking cache probe so coroutine
+ *   cancellation can propagate.
+ * - Use [SuspendCache] when direct JCache read/write semantics are required.
  *
  * ```kotlin
  * val cache = Cache.of(jcache)
  * val result = withCache(cache, "key") { key -> loadFromDatabase(key) }
  * ```
  *
- * @param K 캐시 키 타입
- * @param V 캐시 값 타입
- * @param cache Resilience4j 캐시 객체
- * @param key 캐시 키
- * @param loader 캐시 미스 시 호출할 로더
- * @return 캐시된 값 또는 로드된 값
+ * @param K cache key type.
+ * @param V cache value type.
+ * @param cache Resilience4j cache facade.
+ * @param key cache key.
+ * @param loader suspend loader invoked on cache miss.
+ * @return cached or loaded value.
  */
 suspend inline fun <K, V> withCache(
     cache: Cache<K, V>,
@@ -59,9 +66,11 @@ suspend inline fun <K, V> withCache(
 }
 
 /**
- * [Cache]를 Coroutine 환경에서 사용할 수 있도록 데코레이터 함수를 생성합니다.
+ * Decorates a key-based suspend loader with a Resilience4j [Cache].
  *
- * 반환된 함수는 캐시 미스 시에만 원본 [loader]를 실행합니다.
+ * The returned function invokes [loader] only when the upstream cache facade
+ * reports a miss. Coroutine cancellation is rechecked around blocking cache
+ * probes and is not converted into a cache value.
  *
  * ```kotlin
  * val cache = Cache.of(jcache)
@@ -70,10 +79,10 @@ suspend inline fun <K, V> withCache(
  * val user = cachedLoader("user:1")
  * ```
  *
- * @param K 캐시 키 타입
- * @param V 캐시 값 타입
- * @param loader 캐시 미스 시 실행할 key 기반 suspend 함수
- * @return 캐시가 적용된 suspend 함수
+ * @param K cache key type.
+ * @param V cache value type.
+ * @param loader key-based suspend loader invoked on cache miss.
+ * @return suspend function decorated with cache lookup.
  * @see executeSuspendFunction
  */
 inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
@@ -83,13 +92,16 @@ inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
 }
 
 /**
- * [Cache]를 사용하여 지정된 키로 값을 로드합니다.
+ * Loads a value for [key] through a Resilience4j [Cache].
  *
- * JCache 접근은 블로킹 I/O이므로 [Dispatchers.IO]에서 실행합니다.
- * 캐시 히트 시 [loader]를 호출하지 않고 캐시된 값을 반환합니다.
- * 캐시 미스 시 [loader]를 실행하고 결과를 캐시에 저장합니다.
- * 동일 key의 동시 cache miss는 내부 mutex로 직렬화하여 loader 중복 실행을 방지합니다.
- * JCache 접근 중 예외가 발생하면 miss로 숨기지 않고 호출자에게 그대로 전파합니다.
+ * Contract:
+ * - Cache probes run on [Dispatchers.IO] because JCache providers may block.
+ * - Concurrent misses for the same key are serialized with an internal mutex.
+ * - The suspend [loader] runs outside the blocking cache probe.
+ * - `CancellationException` from the coroutine context or [loader] propagates
+ *   unchanged.
+ * - The upstream [Cache] interface does not expose direct `containsKey`/`get`;
+ *   use [SuspendCache] for strict direct JCache access.
  *
  * ```kotlin
  * val cache = Cache.of(jcache)
@@ -98,11 +110,11 @@ inline fun <K, V> Cache<K, V>.decorateSuspendFunction(
  * }
  * ```
  *
- * @param K 캐시 키 타입
- * @param V 캐시 값 타입
- * @param key 캐시 키
- * @param loader 캐시 미스 시 실행할 key 기반 suspend 함수
- * @return 캐시된 값 또는 로드된 값
+ * @param K cache key type.
+ * @param V cache value type.
+ * @param key cache key; must not be null.
+ * @param loader key-based suspend loader invoked on cache miss.
+ * @return cached or loaded value.
  */
 suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
     key: K,
@@ -113,22 +125,26 @@ suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
 
     return try {
         mutex.withLock {
-            // JCache 접근은 블로킹 I/O - Dispatchers.IO로 offload
+            // Resilience4j Cache exposes no public backing JCache accessor.
+            // Keep this compatibility probe non-blocking for the suspend loader,
+            // and use SuspendCache.of(jcache) when direct JCache read/write
+            // semantics are required.
             val cachedValue: V? = withContext(Dispatchers.IO) {
                 computeIfAbsent(cacheKey) { null }
             }
+            currentCoroutineContext().ensureActive()
             if (cachedValue != null) {
                 return@withLock cachedValue
             }
 
-            // 캐시 미스: loader 실행
             val value = loader(cacheKey)
+            currentCoroutineContext().ensureActive()
 
-            // 로드된 값을 캐시에 저장 (null이 아닌 경우만)
             if (value != null) {
                 withContext(Dispatchers.IO) {
                     computeIfAbsent(cacheKey) { value }
                 }
+                currentCoroutineContext().ensureActive()
             }
 
             value
