@@ -180,6 +180,27 @@ sequenceDiagram
 - **Cache 지원**: Suspend 함수용 캐시 데코레이터
 - **Fallback 처리**: 예외 발생 시 대체 로직 지원
 
+## 모듈 경계
+
+이 모듈은 Resilience4j의 장애 허용 정책 조합을 담당합니다. Circuit breaker, retry, 단순 rate limiter,
+bulkhead, time limiter, cache, fallback, events, metrics, Spring 설정 호환성이 이 모듈의 범위입니다.
+
+토큰 버킷 quota, 분산 bucket 상태, 남은 토큰 진단, bucket probe 기반 retry-after가 필요하면
+`bluetape4k-bucket4j`를 사용하세요. Resilience4j `RateLimiter`는 정책 데코레이터이고, Bucket4j는
+토큰 버킷 엔진입니다.
+
+## 코루틴 계약
+
+- `CancellationException`은 suspend wrapper, fallback helper, cache helper, 조합 데코레이터에서 그대로 전파됩니다.
+- `Throwable`처럼 넓은 예외 타입을 fallback에 지정해도 코루틴 취소는 복구하지 않습니다.
+- Retry는 코루틴 취소를 재시도하지 않습니다.
+- Resilience4j Kotlin `TimeLimiter`는 코루틴 timeout 의미를 사용합니다. Timeout은
+  `TimeoutCancellationException`으로 발생하고 코루틴을 취소하며, suspend 함수에서는 `cancelRunningFuture`를
+  사용하지 않습니다.
+- Resilience4j Kotlin `RateLimiter`와 `Retry`는 대기가 필요할 때 `delay()`로 suspend합니다.
+- Semaphore `Bulkhead`의 `maxWaitDuration`이 0보다 크면 permission 획득 중 block될 수 있습니다. 코루틴 중심
+  경로에서는 의도적인 bounded blocking이 아니라면 0 wait를 권장합니다.
+
 ## 의존성
 
 ```kotlin
@@ -353,6 +374,19 @@ val decorated = timeLimiter.decorateSuspendFunction1 { id: String ->
 
 여러 Resilience4j 컴포넌트를 조합하여 사용합니다.
 
+`SuspendDecorators`는 `withXxx`를 호출할 때마다 현재 함수를 감쌉니다. 마지막 `withXxx` 호출이 가장 바깥
+데코레이터이며 먼저 실행됩니다. 서비스 호출의 일반적인 순서는 다음과 같습니다.
+
+```text
+withBulkhead -> withTimeLimiter -> withRateLimit -> withCircuitBreaker -> withRetry -> withFallback
+```
+
+실행 구조는 다음과 같습니다.
+
+```text
+fallback(retry(circuitBreaker(rateLimiter(timeLimiter(bulkhead(block))))))
+```
+
 ```kotlin
 import io.bluetape4k.resilience4j.SuspendDecorators
 
@@ -361,11 +395,11 @@ val result = SuspendDecorators.ofSupplier {
     // 실행할 작업
     apiClient.fetchData()
 }
-    .withCircuitBreaker(circuitBreaker)
-    .withRetry(retry)
-    .withRateLimiter(rateLimiter)
     .withBulkhead(bulkhead)
     .withTimeLimiter(timeLimiter)
+    .withRateLimit(rateLimiter)
+    .withCircuitBreaker(circuitBreaker)
+    .withRetry(retry)
     .withFallback { result, throwable ->
         // 실패 시 대체 로직
         defaultData()
@@ -376,9 +410,12 @@ val result = SuspendDecorators.ofSupplier {
 val decorated = SuspendDecorators.ofFunction1 { id: String ->
     userService.findById(id)
 }
+    .withBulkhead(bulkhead)
+    .withTimeLimiter(timeLimiter)
+    .withRateLimit(rateLimiter)
     .withCircuitBreaker(circuitBreaker)
     .withRetry(retry)
-    .withCache(cache)  // JCache
+    .withCache(cache)  // Resilience4j Cache
     .decorate()
 
 val user = decorated("user-123")
@@ -387,6 +424,7 @@ val user = decorated("user-123")
 val adder = SuspendDecorators.ofFunction2 { a: Int, b: Int ->
     calculator.add(a, b)
 }
+    .withBulkhead(bulkhead)
     .withCircuitBreaker(circuitBreaker)
     .withRetry(retry)
     .invoke(10, 20)  // 30
@@ -396,23 +434,35 @@ val adder = SuspendDecorators.ofFunction2 { a: Int, b: Int ->
 
 JCache를 사용하여 suspend 함수 결과를 캐싱합니다.
 
+캐시 표면은 두 가지입니다.
+
+- `SuspendCache.of(jcache)`는 직접 JCache 접근을 소유하는 엄격한 coroutine-first 경로입니다.
+- Resilience4j `Cache<K, V>` 확장은 upstream facade 호환 경로입니다. Resilience4j 2.4.0은 public backing
+  JCache accessor를 제공하지 않으므로, 이 경로는 two-phase 호환 probe를 유지하고 blocking cache 호출 주변에서
+  코루틴 취소를 다시 확인합니다.
+
+`SuspendCache`는 취소가 아닌 실패만 cache error event로 발행합니다. Loader 또는 JCache 접근에서 발생한
+취소는 그대로 전파됩니다.
+
 ```kotlin
 import io.bluetape4k.resilience4j.cache.*
 import io.github.resilience4j.cache.Cache
-import javax.cache.CacheManager
 
-// Cache 생성
-val cache = Cache.of<String, User>(cacheManager.createCache("users"))
+// Caffeine, Cache2k, Redisson 등 provider가 만든 JCache 인스턴스라고 가정
+val jCache: javax.cache.Cache<String, User> = existingJCache
 
-// suspend 함수에 적용
-suspend fun getUserCached(id: String): User = withSuspendCache(cache, id) {
+// Resilience4j cache facade 생성
+val resilienceCache = Cache.of<String, User>(jCache)
+
+// Resilience4j cache 호환 경로를 suspend 함수에 적용
+suspend fun getUserCached(id: String): User = withCache(resilienceCache, id) {
     userRepository.findById(it)
 }
 
-// SuspendCache 인터페이스 사용
+// 직접 JCache 의미가 필요하면 SuspendCache 사용
 val suspendCache = SuspendCache.of<String, User>(jCache)
-val user = suspendCache.executeSuspendFunction("user-123") {
-    userRepository.findById("user-123")
+suspend fun getUserStrictCached(id: String): User = withSuspendCache(suspendCache, id) {
+    userRepository.findById(id)
 }
 ```
 
@@ -420,12 +470,16 @@ val user = suspendCache.executeSuspendFunction("user-123") {
 
 Resilience4j 패턴을 Kotlin Flow에 적용합니다.
 
+Flow decoration은 collection이 실행될 때 적용됩니다. 새 collection마다 정책에 다시 진입하며, operator 자체는
+emit된 element를 캐시하지 않습니다. Downstream collector 취소는 그대로 전파됩니다. TimeLimiter timeout은
+collecting coroutine을 취소합니다. Bulkhead non-zero wait의 blocking 주의점은 suspend 함수와 동일합니다.
+
 ```kotlin
-import io.bluetape4k.resilience4j.circuitbreaker.*
-import io.bluetape4k.resilience4j.retry.*
-import io.bluetape4k.resilience4j.ratelimiter.*
-import io.bluetape4k.resilience4j.bulkhead.*
-import io.bluetape4k.resilience4j.timelimiter.*
+import io.github.resilience4j.kotlin.bulkhead.bulkhead
+import io.github.resilience4j.kotlin.circuitbreaker.circuitBreaker
+import io.github.resilience4j.kotlin.ratelimiter.rateLimiter
+import io.github.resilience4j.kotlin.retry.retry
+import io.github.resilience4j.kotlin.timelimiter.timeLimiter
 import kotlinx.coroutines.flow.*
 
 // CircuitBreaker + Flow
@@ -452,6 +506,9 @@ val resilientFlow = dataFlow
 ```
 
 ### 9. Fallback 처리
+
+Fallback handler는 일반 suspend 함수이지만 코루틴 취소를 복구하지 않습니다. 모든 내부 데코레이터의 실패를
+관찰해야 하면 fallback을 마지막에 두세요.
 
 ```kotlin
 import io.bluetape4k.resilience4j.SuspendDecorators
@@ -491,6 +548,10 @@ val result3 = SuspendDecorators.ofSupplier {
 ```
 
 ### 10. Metrics 및 모니터링
+
+Upstream Resilience4j registry, event publisher, Spring Boot property, Micrometer 통합을 source of truth로
+사용하세요. bluetape4k가 추가하는 observability 표면은 coroutine cache wrapper의 `SuspendCache.metrics`와
+`SuspendCache.eventPublisher`뿐입니다.
 
 ```kotlin
 import io.github.resilience4j.micrometer.tagged.*
@@ -544,7 +605,7 @@ class CircuitBreakerTest {
         
         // 실패율 임계치 초과 시 CircuitBreaker 오픈
         repeat(10) {
-            runCatching {
+            assertFailsWith<RuntimeException> {
                 withCircuitBreaker(circuitBreaker) {
                     throw RuntimeException("error")
                 }

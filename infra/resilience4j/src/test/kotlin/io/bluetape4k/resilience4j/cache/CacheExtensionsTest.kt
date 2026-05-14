@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import io.bluetape4k.assertions.assertFailsWith
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
 class CacheExtensionsTest {
@@ -122,5 +123,34 @@ class CacheExtensionsTest {
         }
 
         error.message shouldBeEqualTo "cache down"
+    }
+
+    @Test
+    fun `executeSuspendFunction propagates cache cancellation`() = runSuspendTest {
+        val cancellation = CancellationException("cache cancelled")
+        val cache = mockk<Cache<String, String>>()
+        every { cache.computeIfAbsent(any(), any()) } throws cancellation
+
+        val thrown = assertFailsWith<CancellationException> {
+            cache.executeSuspendFunction("debop") { key -> "Hi $key!" }
+        }
+
+        thrown.message shouldBeEqualTo cancellation.message
+    }
+
+    @Test
+    fun `executeSuspendFunction propagates loader cancellation`() = runSuspendTest {
+        val jcache = CaffeineJCacheProvider.getJCache<String, String>("loader-cancel")
+        jcache.clear()
+        val cache = Cache.of(jcache)
+        val cancellation = CancellationException("loader cancelled")
+
+        val thrown = assertFailsWith<CancellationException> {
+            cache.executeSuspendFunction("debop") {
+                throw cancellation
+            }
+        }
+
+        thrown.message shouldBeEqualTo cancellation.message
     }
 }

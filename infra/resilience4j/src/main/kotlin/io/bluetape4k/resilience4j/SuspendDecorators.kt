@@ -11,6 +11,7 @@ import io.bluetape4k.resilience4j.ratelimiter.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.ratelimiter.decorateSuspendFunction1
 import io.bluetape4k.resilience4j.retry.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.retry.decorateSuspendFunction1
+import io.bluetape4k.resilience4j.retry.executeSuspendFunctionPreservingCancellation
 import io.bluetape4k.resilience4j.timelimiter.decorateSuspendBiFunction
 import io.bluetape4k.resilience4j.timelimiter.decorateSuspendFunction1
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -19,7 +20,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.bulkhead.decorateSuspendFunction
 import io.github.resilience4j.kotlin.circuitbreaker.decorateSuspendFunction
 import io.github.resilience4j.kotlin.ratelimiter.decorateSuspendFunction
-import io.github.resilience4j.kotlin.retry.decorateSuspendFunction
 import io.github.resilience4j.kotlin.timelimiter.decorateSuspendFunction
 import io.github.resilience4j.ratelimiter.RateLimiter
 import io.github.resilience4j.retry.Retry
@@ -236,13 +236,16 @@ object SuspendDecorators: KLoggingChannel() {
         }
 
         /**
-         * [Retry]를 적용합니다.
+         * Applies [Retry].
          *
-         * @param retry 적용할 Retry 인스턴스
-         * @return 현재 빌더 (체인 지원)
+         * Coroutine cancellation is rethrown immediately and is never retried.
+         *
+         * @param retry retry policy to apply.
+         * @return current builder for chaining.
          */
         fun withRetry(retry: Retry) = apply {
-            supplier = retry.decorateSuspendFunction(supplier)
+            val current = supplier
+            supplier = { retry.executeSuspendFunctionPreservingCancellation { current() } }
         }
 
         /**

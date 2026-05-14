@@ -10,6 +10,7 @@ import io.github.resilience4j.retry.RetryConfig
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 import io.bluetape4k.assertions.assertFailsWith
 
 class RetryCoroutinesTest {
@@ -123,5 +124,24 @@ class RetryCoroutinesTest {
         metrics.numberOfFailedCallsWithRetryAttempt shouldBeEqualTo 0
 
         helloWorldService.invocationCount shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `decorateSuspendFunction1 retries null result`() = runSuspendTest {
+        val attempts = AtomicInteger(0)
+        val retry = Retry.of("nullable-result") {
+            RetryConfig.custom<Any?>()
+                .maxAttempts(3)
+                .waitDuration(Duration.ZERO)
+                .retryOnResult { result -> result == null }
+                .build()
+        }
+
+        val decorated: suspend (Unit) -> String? = retry.decorateSuspendFunction1 { _: Unit ->
+            if (attempts.incrementAndGet() == 1) null else "Hello world"
+        }
+
+        decorated(Unit) shouldBeEqualTo "Hello world"
+        attempts.get() shouldBeEqualTo 2
     }
 }
