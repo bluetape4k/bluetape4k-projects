@@ -11,7 +11,7 @@ work should happen in follow-up PRs.
 
 | Decision | Count | Meaning |
 |---|---:|---|
-| Delete | 18 files | Deprecated API has a direct replacement and should not remain in the next cleanup line. |
+| Delete | 17 files | Deprecated API has a direct replacement and should not remain in the next cleanup line. |
 | Replace call sites first | 6 files | Repo-local tests or samples still exercise the deprecated API and must move first. |
 | Keep | 0 files | No deprecated `infra/` API needs long-term retention. |
 
@@ -22,24 +22,23 @@ scope is larger than the original 12-file issue comment.
 
 | # | Module | File | Deprecated API | Current usage | Decision | Replacement |
 |---:|---|---|---|---|---|---|
-| 1 | `bucket4j` | `infra/bucket4j/src/main/kotlin/io/bluetape4k/bucket4j/ratelimit/RateLimitResult.kt` | Secondary constructor `(consumedTokens, availableTokens)` | `RateLimitResultTest` covers compatibility only | Delete after test rewrite | `RateLimitResult.consumed(...)` / `rejected(...)` |
-| 2 | `cache-core` | `cache/core/src/main/kotlin/io/bluetape4k/cache/caffeine/CaffeineSupport.kt` | `AsyncCache.getSuspending(...)` | KDoc sample only | Delete | `AsyncCache.suspendGet(...)` |
-| 3 | `cache-lettuce` | `cache/lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
-| 4 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
-| 5 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
-| 6 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
-| 7 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/KafkaOperationExtensions.kt` | `awaitSend(...)`, `sendSuspending(...)`, `getMetricValue(...)` | KDoc/definition only | Delete | `suspendSend(...)`, `getMetricValueOrNull(...).asDouble()` |
-| 8 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
-| 9 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
-| 10 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
-| 11 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/spring/core/KafkaOperationExtensions.kt` | `awaitSend(...)`, `sendSuspending(...)`, `getMetricValue(...)` | Definition only | Delete | `suspendSend(...)`, `getMetricValueOrNull(...).asDouble()` |
-| 12 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
-| 13 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt` | `suspendAwait()`, `coAwait()` | `RedisFutureSupportTest` compatibility tests | Replace tests, then delete | `awaitSuspending()` |
-| 14 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/coroutines/SpanCoroutineSupport.kt` | `SpanBuilder.useSuspendSpan(...)` overloads | One compatibility test path | Replace tests, then delete | `useSpanSuspending(...)` |
-| 15 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanExporterSupport.kt` | `spanExportOf(...)` | Definition only | Delete | `spanExporterOf(...)` |
-| 16 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanProcessorSupport.kt` | `batchSpanProcess(...)` | Definition only | Delete | `batchSpanProcessorOf(...)` |
-| 17 | `redisson` | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
-| 18 | `resilience4j` | `infra/resilience4j/src/main/kotlin/io/bluetape4k/resilience4j/SuspendDecorators.kt` | `decoreate()` typo overloads | Definition only | Delete | `decorate()` |
+| 1 | `cache-core` | `cache/core/src/main/kotlin/io/bluetape4k/cache/caffeine/CaffeineSupport.kt` | `AsyncCache.getSuspending(...)` | KDoc sample only | Delete | `AsyncCache.suspendGet(...)` |
+| 2 | `cache-lettuce` | `cache/lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
+| 3 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
+| 4 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
+| 5 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
+| 6 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/KafkaOperationExtensions.kt` | `awaitSend(...)`, `sendSuspending(...)`, `getMetricValue(...)` | KDoc/definition only | Delete | `suspendSend(...)`, `getMetricValueOrNull(...).asDouble()` |
+| 7 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
+| 8 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
+| 9 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
+| 10 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/spring/core/KafkaOperationExtensions.kt` | `awaitSend(...)`, `sendSuspending(...)`, `getMetricValue(...)` | Definition only | Delete | `suspendSend(...)`, `getMetricValueOrNull(...).asDouble()` |
+| 11 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
+| 12 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt` | `suspendAwait()`, `coAwait()` | `RedisFutureSupportTest` compatibility tests | Replace tests, then delete | `awaitSuspending()` |
+| 13 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/coroutines/SpanCoroutineSupport.kt` | `SpanBuilder.useSuspendSpan(...)` overloads | One compatibility test path | Replace tests, then delete | `useSpanSuspending(...)` |
+| 14 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanExporterSupport.kt` | `spanExportOf(...)` | Definition only | Delete | `spanExporterOf(...)` |
+| 15 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanProcessorSupport.kt` | `batchSpanProcess(...)` | Definition only | Delete | `batchSpanProcessorOf(...)` |
+| 16 | `redisson` | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
+| 17 | `resilience4j` | `infra/resilience4j/src/main/kotlin/io/bluetape4k/resilience4j/SuspendDecorators.kt` | `decoreate()` typo overloads | Definition only | Delete | `decorate()` |
 
 ## Follow-Up PR Split
 
@@ -88,26 +87,11 @@ Validation:
 
 - `./gradlew :bluetape4k-cache-core:test :bluetape4k-cache-lettuce:test :bluetape4k-lettuce:test :bluetape4k-redisson:test :bluetape4k-opentelemetry:test :bluetape4k-resilience4j:test --no-daemon`
 
-### PR C: Bucket4j result factory cleanup
-
-Scope:
-
-- `infra/bucket4j`
-
-Tasks:
-
-- Remove the deprecated `RateLimitResult(consumedTokens, availableTokens)`
-  constructor.
-- Rewrite compatibility tests to assert the canonical factory methods and
-  validation paths.
-
-Validation:
-
-- `./gradlew :bluetape4k-bucket4j:test --no-daemon`
-
 ## Notes For Follow-Up Work
 
-- This issue intentionally does not delete code.
+- Bucket4j `RateLimitResult(consumedTokens, availableTokens)` cleanup was
+  completed by issue #434.
+- This inventory intentionally does not delete the remaining code.
 - Keep each cleanup PR small enough to review API removal and test migration
   separately.
 - When a cleanup PR removes public API, add the migration note to

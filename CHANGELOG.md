@@ -17,6 +17,7 @@
 - Unsigned range assertion coverage and helpers were added to the assertion DSL ([#360](https://github.com/bluetape4k/bluetape4k-projects/pull/360)).
 - `bluetape4k-idgenerators` examples were added for Ktor and Spring Boot 4, with dedicated REST endpoints and tests ([#421](https://github.com/bluetape4k/bluetape4k-projects/pull/421), [#422](https://github.com/bluetape4k/bluetape4k-projects/pull/422)).
 - Governance and agent guidance docs were expanded for lessons capture, Kover coverage policy, dependency governance, and qmd knowledge retrieval ([#370](https://github.com/bluetape4k/bluetape4k-projects/pull/370), [#373](https://github.com/bluetape4k/bluetape4k-projects/pull/373), [#377](https://github.com/bluetape4k/bluetape4k-projects/pull/377), [#398](https://github.com/bluetape4k/bluetape4k-projects/pull/398)).
+- `bluetape4k-bucket4j` `RateLimitDiagnostics`, `RateLimitRejectionReason`, and rejected-result `retryAfter` were added to make retry and rejection reporting independent from Bucket4j probe types ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 
 ### Changed
 
@@ -32,15 +33,21 @@
 - Dependabot assignment and dependency compatibility guard policies were adjusted, including Redis client major-version guards and compatibility-line dependency restoration ([#379](https://github.com/bluetape4k/bluetape4k-projects/pull/379), [#395](https://github.com/bluetape4k/bluetape4k-projects/pull/395), [#399](https://github.com/bluetape4k/bluetape4k-projects/pull/399), [#411](https://github.com/bluetape4k/bluetape4k-projects/pull/411), [#412](https://github.com/bluetape4k/bluetape4k-projects/pull/412)).
 - Dependency baselines were refreshed across build plugins, GitHub Actions, Spring, Pulsar, Hibernate, GeoTools, Protobuf, OpenTelemetry instrumentation, and other library groups ([#378](https://github.com/bluetape4k/bluetape4k-projects/pull/378), [#382](https://github.com/bluetape4k/bluetape4k-projects/pull/382), [#383](https://github.com/bluetape4k/bluetape4k-projects/pull/383), [#384](https://github.com/bluetape4k/bluetape4k-projects/pull/384), [#386](https://github.com/bluetape4k/bluetape4k-projects/pull/386), [#387](https://github.com/bluetape4k/bluetape4k-projects/pull/387), [#388](https://github.com/bluetape4k/bluetape4k-projects/pull/388), [#389](https://github.com/bluetape4k/bluetape4k-projects/pull/389), [#392](https://github.com/bluetape4k/bluetape4k-projects/pull/392), [#393](https://github.com/bluetape4k/bluetape4k-projects/pull/393), [#394](https://github.com/bluetape4k/bluetape4k-projects/pull/394), [#397](https://github.com/bluetape4k/bluetape4k-projects/pull/397), [#401](https://github.com/bluetape4k/bluetape4k-projects/pull/401), [#402](https://github.com/bluetape4k/bluetape4k-projects/pull/402), [#403](https://github.com/bluetape4k/bluetape4k-projects/pull/403), [#404](https://github.com/bluetape4k/bluetape4k-projects/pull/404), [#405](https://github.com/bluetape4k/bluetape4k-projects/pull/405), [#407](https://github.com/bluetape4k/bluetape4k-projects/pull/407), [#408](https://github.com/bluetape4k/bluetape4k-projects/pull/408), [#409](https://github.com/bluetape4k/bluetape4k-projects/pull/409)).
 - WIP and README image documentation were refreshed after the idgenerator example lane completed ([#417](https://github.com/bluetape4k/bluetape4k-projects/pull/417), [#425](https://github.com/bluetape4k/bluetape4k-projects/pull/425), [#429](https://github.com/bluetape4k/bluetape4k-projects/pull/429)).
+- `bluetape4k-bucket4j` now validates prefixed bucket keys at 512 bytes, documents provider lifecycle/expiration ownership, supports distributed coroutine operation timeouts while retaining the Java one-argument constructor overload, and preserves identified-bandwidth configuration replacement behavior ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 
 ### Breaking Changes
 
+- `RateLimitResult(consumedTokens, availableTokens)` was removed. Use `RateLimitResult.consumed(...)` or `RateLimitResult.rejected(...)` and read the new `diagnostics` / `retryAfter` fields for retry guidance ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
+- `RateLimitResult` primary constructor, `copy(...)`, and `componentN()` shape changed because `diagnostics` was added. Recompile Kotlin callers and update Java callers that construct or destructure the value type directly ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 - `AbstractCompressor.compress()` and `AbstractCompressor.decompress()` now propagate compression/decompression failures instead of returning `emptyByteArray` for failed non-empty input ([#317](https://github.com/bluetape4k/bluetape4k-projects/pull/317), [#325](https://github.com/bluetape4k/bluetape4k-projects/issues/325)).
 
 #### Migration
 
 | Previous expectation | Replacement |
 | --- | --- |
+| `RateLimitResult(consumedTokens, availableTokens)` | `RateLimitResult.consumed(consumedTokens, availableTokens)` or `RateLimitResult.rejected(availableTokens)` |
+| Inspect Bucket4j probe types for retry delay | Use `RateLimitResult.retryAfter` or `result.diagnostics.nanosToWaitForRefill` |
+| Distributed suspend calls can wait indefinitely on the async store | Use `DistributedSuspendRateLimiter(provider, defaultTimeout = ...)` or `consume(key, tokens, timeout)` |
 | Failed `compress()` returns `emptyByteArray` | Use `compressOrNull()` when failures should return `null`, or catch the propagated exception from `compress()`. |
 | Failed `decompress()` returns `emptyByteArray` | Use `decompressOrNull()` when corrupt input should return `null`, or catch the propagated exception from `decompress()`. |
 | Corrupt compressed data is ignored | Use `decompressOrNull()` for nullable recovery, or catch the propagated exception from `decompress()`. |

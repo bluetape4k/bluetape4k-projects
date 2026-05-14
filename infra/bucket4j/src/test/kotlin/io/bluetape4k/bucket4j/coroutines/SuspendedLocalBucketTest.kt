@@ -7,6 +7,7 @@ import io.github.bucket4j.BandwidthBuilder
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -149,6 +150,20 @@ class SuspendedLocalBucketTest: AbstractBucket4jTest() {
             runCurrent() // delay 지점까지 진입
             job.cancelAndJoin()
             job.isCancelled.shouldBeTrue()
+        }
+
+        @Test
+        fun `대기 중 취소되면 CancellationException 을 전파한다`() = runTest {
+            val task = async {
+                bucket.consume(9L) // 최소 4초 대기
+            }
+
+            runCurrent()
+            task.cancel(CancellationException("cancel waiting bucket"))
+
+            assertFailsWith<CancellationException> {
+                task.await()
+            }
         }
     }
 }

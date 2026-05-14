@@ -3,6 +3,8 @@ package io.bluetape4k.bucket4j
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.github.bucket4j.Bucket
+import io.github.bucket4j.TokensInheritanceStrategy
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import io.bluetape4k.assertions.assertFailsWith
@@ -71,5 +73,33 @@ class ConfigurationSupportTest {
                 addBandwidth { error("bandwidth 생성 실패") }
             }
         }
+    }
+
+    @Test
+    fun `bandwidth id 는 configuration replacement 를 위해 보존된다`() {
+        val config = bucketConfiguration {
+            addLimit { it.capacity(10).refillGreedy(10, Duration.ofSeconds(1)).id("burst") }
+            addLimit { it.capacity(100).refillGreedy(100, Duration.ofMinutes(1)).id("sustained") }
+        }
+
+        config.bandwidths.map { it.id } shouldBeEqualTo listOf("burst", "sustained")
+    }
+
+    @Test
+    fun `identified bandwidth 는 replaceConfiguration 에서 proportional token 을 보존한다`() {
+        val initial = bucketConfiguration {
+            addLimit { it.capacity(10).refillGreedy(10, Duration.ofSeconds(1)).id("burst") }
+        }
+        val replacement = bucketConfiguration {
+            addLimit { it.capacity(20).refillGreedy(20, Duration.ofSeconds(1)).id("burst") }
+        }
+        val bucket = Bucket.builder()
+            .addLimit(initial.bandwidths.first())
+            .build()
+
+        bucket.tryConsume(5)
+        bucket.replaceConfiguration(replacement, TokensInheritanceStrategy.PROPORTIONALLY)
+
+        bucket.availableTokens shouldBeEqualTo 10
     }
 }

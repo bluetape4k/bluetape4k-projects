@@ -1,6 +1,7 @@
 package io.bluetape4k.bucket4j.local
 
 import com.github.benmanes.caffeine.cache.LoadingCache
+import io.bluetape4k.bucket4j.validateBucketKeySize
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.caffeine.loadingCache
 import io.bluetape4k.concurrent.virtualthread.VirtualThreadExecutor
@@ -13,12 +14,16 @@ import io.github.bucket4j.local.LocalBucket
 import java.time.Duration
 
 /**
- * Custom Key 기반 (예: userId) 의 Local Bucket을 제공합니다.
+ * Base provider for key-based local Bucket4j buckets.
  *
- * [resolveBucket]은 빈 key를 허용하지 않으며, key prefix를 적용한 캐시 키로 버킷을 조회합니다.
+ * ## Contract
+ * - [resolveBucket] rejects blank keys.
+ * - The local cache key is `[keyPrefix] + key`.
+ * - The prefixed key must be at most `MAX_BUCKET_KEY_BYTES` UTF-8 bytes.
+ * - The same key resolves to the same cached local bucket until cache expiry.
  *
- * @property bucketConfiguration [BucketConfiguration] 인스턴스
- * @property keyPrefix Bucket Key Prefix
+ * @property bucketConfiguration bucket configuration used for new buckets.
+ * @property keyPrefix cache-key namespace prefix.
  */
 abstract class AbstractLocalBucketProvider<T: LocalBucket>(
     protected val bucketConfiguration: BucketConfiguration,
@@ -27,16 +32,16 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
     companion object: KLogging() {
         const val DEFAULT_KEY_PREFIX = "bluetape4k.rate-limit.key."
 
-        /** 버킷 캐시의 최대 엔트리 수 */
+        /** Maximum number of local bucket cache entries. */
         const val DEFAULT_CACHE_MAX_SIZE = 100_000L
 
-        /** 버킷 캐시의 접근 후 만료 시간 */
+        /** Access-based expiration for local bucket cache entries. */
         @JvmStatic
         val DEFAULT_CACHE_EXPIRE_AFTER_ACCESS: Duration = Duration.ofHours(6)
     }
 
     /**
-     * Custom Key: [Bucket] 을 저장하는 캐시
+     * Cache storing one local bucket per prefixed key.
      */
     protected open val cache: LoadingCache<String, T> by lazy {
         caffeine {
@@ -48,29 +53,22 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
         }
     }
 
-    /**
-     * Bucket을 생성합니다.
-     *
-     * @return [Bucket]
-     */
+    /** Creates a new local bucket for cache misses. */
     protected abstract fun createBucket(): T
 
     /**
-     * [key]에 key prefix를 결합하여 캐시 키를 반환합니다.
+     * Returns the prefixed cache key for [key].
      *
      * ```kotlin
      * val provider = LocalBucketProvider(bucketConfiguration, keyPrefix = "app.rate.")
      * val cacheKey = provider.getBucketKey("user-42")
      * // cacheKey == "app.rate.user-42"
      * ```
-     *
-     * @param key 원본 키
-     * @return prefix가 적용된 캐시 키
      */
     protected open fun getBucketKey(key: String): String = "$keyPrefix$key"
 
     /**
-     * [key]에 해당하는 [LocalBucket]을 제공합니다.
+     * Resolves the local bucket for [key].
      *
      * ```kotlin
      * val config = BucketConfiguration.builder()
@@ -82,14 +80,13 @@ abstract class AbstractLocalBucketProvider<T: LocalBucket>(
      * // result.remainingTokens == 9
      * ```
      *
-     * @param key Custom Key
-     * @return [LocalBucket] 인스턴스
-     * @throws IllegalArgumentException key가 blank인 경우
+     * @throws IllegalArgumentException when [key] is blank or the prefixed key
+     * exceeds `MAX_BUCKET_KEY_BYTES`.
      */
     open fun resolveBucket(key: String): T {
         key.requireNotBlank("key")
         log.debug { "Loading local bucket. key=$key" }
-        val bucketKey = getBucketKey(key)
+        val bucketKey = validateBucketKeySize(getBucketKey(key))
 
         return cache
             .get(bucketKey)

@@ -6,18 +6,24 @@ import io.bluetape4k.bucket4j.distributed.redis.lettuceBasedProxyManagerOf
 import io.bluetape4k.bucket4j.ratelimit.AbstractSuspendRateLimiterTest
 import io.bluetape4k.bucket4j.ratelimit.RateLimitStatus
 import io.bluetape4k.bucket4j.ratelimit.SuspendRateLimiter
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.github.bucket4j.ConsumptionProbe
+import io.github.bucket4j.distributed.AsyncBucketProxy
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ClientSideConfig
 import io.github.bucket4j.distributed.proxy.ExecutionStrategy
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import io.bluetape4k.assertions.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -64,5 +70,46 @@ class LettuceSuspendRateLimiterTest: AbstractSuspendRateLimiterTest() {
         assertFailsWith<CancellationException> {
             limiter.consume(randomKey(), 1)
         }
+    }
+
+    @Test
+    fun `distributed await 중 취소되면 CancellationException 을 전파한다`() = runTest {
+        val bucket = mockk<AsyncBucketProxy>()
+        val pending = CompletableFuture<ConsumptionProbe>()
+        every { bucket.tryConsumeAndReturnRemaining(any()) } returns pending
+
+        val provider = mockk<AsyncBucketProxyProvider>()
+        every { provider.resolveBucket(any()) } returns bucket
+
+        val limiter = DistributedSuspendRateLimiter(provider)
+        val task = async {
+            limiter.consume(randomKey(), 1)
+        }
+
+        task.cancel(CancellationException("cancel distributed wait"))
+
+        assertFailsWith<CancellationException> {
+            task.await()
+        }
+    }
+
+    @Test
+    fun `distributed await timeout 은 error 결과로 반환한다`() = runTest {
+        val bucket = mockk<AsyncBucketProxy>()
+        val pending = CompletableFuture<ConsumptionProbe>()
+        every { bucket.tryConsumeAndReturnRemaining(any()) } returns pending
+
+        val provider = mockk<AsyncBucketProxyProvider>()
+        every { provider.resolveBucket(any()) } returns bucket
+
+        val limiter = DistributedSuspendRateLimiter(provider, defaultTimeout = 10.milliseconds)
+        val deferred = async {
+            limiter.consume(randomKey(), 1)
+        }
+
+        advanceTimeBy(10.milliseconds)
+
+        val result = deferred.await()
+        result.status shouldBeEqualTo RateLimitStatus.ERROR
     }
 }

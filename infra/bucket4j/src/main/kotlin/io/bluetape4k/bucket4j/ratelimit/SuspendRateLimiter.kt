@@ -1,12 +1,15 @@
 package io.bluetape4k.bucket4j.ratelimit
 
 /**
- * 코루틴 환경에서 토큰 소비를 제공하는 suspend rate limiter 인터페이스입니다.
+ * Coroutine-based rate limiter interface.
  *
- * ## 동작/계약
- * - [consume]은 대기 없이 즉시 소비를 시도하고 결과를 반환합니다.
- * - 성공/거절/오류 상태는 [RateLimitResult]로 표현됩니다.
- * - 코루틴 취소는 구현체가 가로채지 않고 호출자에게 전파해야 합니다.
+ * ## Contract
+ * - [consume] attempts immediate token consumption and returns without waiting
+ *   for token refill.
+ * - Success, rejection, and provider failure are represented by [RateLimitResult].
+ * - Coroutine cancellation must be propagated to the caller unchanged.
+ * - Distributed implementations may provide implementation-specific timeout
+ *   configuration for the underlying async store operation.
  *
  * ```kotlin
  * val result = suspendRateLimiter.consume("user:1", 1)
@@ -16,12 +19,13 @@ package io.bluetape4k.bucket4j.ratelimit
 interface SuspendRateLimiter<K> {
 
     /**
-     * 지정한 [key] 버킷에서 [numToken] 만큼 토큰을 비동기로 소비 시도합니다.
+     * Attempts to consume [numToken] tokens from the bucket identified by [key].
      *
-     * ## 동작/계약
-     * - [numToken] 기본값은 `1`입니다.
-     * - 소비 성공 시 consumed, 토큰 부족 시 rejected 결과를 반환합니다.
-     * - 코루틴 취소 시 `CancellationException`이 그대로 전파됩니다.
+     * ## Contract
+     * - [numToken] defaults to `1`.
+     * - Returns a consumed result on success and a rejected result when tokens
+     *   are insufficient.
+     * - Propagates `CancellationException` unchanged.
      *
      * ```kotlin
      * val result = suspendRateLimiter.consume("api-key", 2)
