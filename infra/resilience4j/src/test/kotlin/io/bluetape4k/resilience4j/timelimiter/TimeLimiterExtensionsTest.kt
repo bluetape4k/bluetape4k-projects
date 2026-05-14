@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeoutException
 import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
@@ -88,5 +89,46 @@ class TimeLimiterExtensionsTest {
         assertFailsWith<TimeoutException> {
             decorated(1)
         }
+    }
+
+    @Test
+    fun `futureSupplier - 성공하는 Future 결과를 반환한다`() {
+        val tl = defaultTimeLimiter()
+        val result = tl.futureSupplier {
+            CompletableFuture.supplyAsync { 42 }
+        }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completionStage - 성공하는 비동기 결과를 반환한다`() {
+        val tl = defaultTimeLimiter()
+        val supplier = tl.completionStage {
+            CompletableFuture.supplyAsync { 42 }
+        }
+        val result = supplier.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completableFuture - 비동기 결과를 변환한다`() {
+        val tl = defaultTimeLimiter()
+        @Suppress("UNCHECKED_CAST")
+        val func = tl.completableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 } as CompletableFuture<Int>
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `decorateCompletableFuture - 비동기 결과를 변환한다`() {
+        val tl = defaultTimeLimiter()
+        @Suppress("UNCHECKED_CAST")
+        val func = tl.decorateCompletableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 } as CompletableFuture<Int>
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
     }
 }
