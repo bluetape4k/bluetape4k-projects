@@ -13,8 +13,6 @@ English | [한국어](./README.ko.md)
 
 ![Bluetape4k Projects modular backend workbench](./docs/assets/projects-workbench.png)
 
-KDoc writing guidelines: `doc/Kdoc_Instruction.md`
-
 ## Introduction
 
 Bluetape4k was born out of real-world backend development with Kotlin — filling gaps that existing libraries leave open, especially around Coroutines, async I/O, and idiomatic Kotlin patterns.

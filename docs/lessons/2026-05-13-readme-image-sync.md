@@ -6,7 +6,9 @@ The project README image needed to match the bluetape4k organization profile ima
 
 ## Decision
 
-Copy the profile image into `doc/bluetape4k.png` and keep the existing README image path stable.
+Copy the profile image into the repository and keep the README image path stable.
+
+Superseded on 2026-05-14: the obsolete top-level `doc/` directory was removed. The current README image lives under `docs/assets/projects-workbench.png`.
 
 ## Outcome
 
@@ -14,8 +16,8 @@ Both English and Korean README files now describe the copied workbench image wit
 
 ## Verification
 
-Checked that `doc/bluetape4k.png` is a PNG image and that both README files reference it.
+Checked that both README files reference the same local image asset.
 
 ## Future guidance
 
-Prefer replacing the local README asset in `doc/` when updating the top-level project image, so GitHub rendering does not depend on cross-repository relative paths.
+Prefer replacing the local README asset under `docs/assets/` when updating the top-level project image, so GitHub rendering does not depend on cross-repository relative paths.
