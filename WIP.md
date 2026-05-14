@@ -1,7 +1,7 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-13 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 10 issues.
+Snapshot: 2026-05-14 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 12 issues.
 
 ## Recently Completed
 
@@ -17,7 +17,7 @@ Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. O
 
 This repo is now the core/shared library baseline after several domain groups were split into independent repositories. Active work should keep repository-facing docs aligned with the current module graph, promote small shared utilities that remove duplicate downstream code, and avoid reopening completed extraction lanes without a fresh issue.
 
-The next high-leverage implementation item is `#418` because it extends the existing optional HTTP backend model without introducing a new common abstraction. The docs lane should first close the top-level README/module graph drift and then continue with `#354` cache README/KDoc cross-link checks plus the compressor docs trio `#323/#324/#325`.
+The next high-leverage implementation item is `#418` because it extends the existing optional HTTP backend model without introducing a new common abstraction. Infra resilience work is split under umbrella `#433`: execute Bucket4j facade hardening in `#434` and Resilience4j coroutine facade hardening in `#435`. Keep both as JVM engine wrappers; do not port upstream internals. The docs lane should first close the top-level README/module graph drift and then continue with `#354` cache README/KDoc cross-link checks plus the compressor docs trio `#323/#324/#325`.
 
 Examples now have a dedicated `Examples` GitHub Actions workflow. Do not reopen the idgenerator example lane unless a new follow-up issue is created.
 
@@ -28,6 +28,9 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 | Priority | Issue | Difficulty | Notes |
 |---|---|---:|---|
 | P1 | [#418](https://github.com/bluetape4k/bluetape4k-projects/issues/418) optional Ktor client helpers for `io/http` | S | Thin optional backend; keep Ktor lifecycle explicit and do not introduce a common HTTP abstraction. |
+| P1 | [#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434) Bucket4j Kotlin rate-limit facade hardening | M | Standardize consumption result helpers, duration APIs, provider lifecycle, cancellation expectations, and README guidance. |
+| P1 | [#435](https://github.com/bluetape4k/bluetape4k-projects/issues/435) Resilience4j coroutine facade hardening | M | Standardize retry/circuit breaker/bulkhead/time limiter composition, cancellation propagation, Flow contracts, and README guidance. |
+| P2 | [#433](https://github.com/bluetape4k/bluetape4k-projects/issues/433) Kotlin JVM resilience/rate-limit wrapper umbrella | S | Decision record only; implementation belongs to `#434/#435`. |
 | P2 | [#354](https://github.com/bluetape4k/bluetape4k-projects/issues/354) cache README/KDoc cross-link audit | S | Follow-up after cache folder reorganization; check English/Korean README import paths and KDoc links. |
 | P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
 | P2 | [#151](https://github.com/bluetape4k/bluetape4k-projects/issues/151) LLM/vector Testcontainers | L | Test foundation for AI/vector work. |
@@ -36,7 +39,6 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 | P3 | [#323](https://github.com/bluetape4k/bluetape4k-projects/issues/323) io README Mermaid | S | Pair with `#324/#325`. |
 | P3 | [#324](https://github.com/bluetape4k/bluetape4k-projects/issues/324) AbstractCompressor KDoc throws | S | Pair with `#323/#325`. |
 | P3 | [#325](https://github.com/bluetape4k/bluetape4k-projects/issues/325) compressor breaking-change changelog | S | Pair with `#323/#324`. |
-| P4 | [#251](https://github.com/bluetape4k/bluetape4k-projects/issues/251) states module analysis | S | Question-style issue; convert to ADR/research note only when needed. |
 
 ## Dependency Map
 
@@ -53,6 +55,11 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 #418 Ktor client helpers
   -> io/http README pair documents Ktor CIO as an optional suspend-native backend
   -> compileOnly Ktor client dependencies plus targeted tests
+
+#433 Kotlin JVM resilience/rate-limit wrapper standardization
+  -> #434 infra/bucket4j owns token-bucket rate limiting and distributed bucket provider ergonomics
+  -> #435 infra/resilience4j owns retry, circuit breaker, bulkhead, time limiter, cache, and decorator composition
+  -> shared contract: cancellation must propagate, duration APIs must be consistent, README pairs must explain when to use each limiter
 
 #416 Spring Boot idgenerator example (closed by PR #422)
 #419 Ktor idgenerator example (closed by PR #421)
@@ -77,6 +84,7 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 | Lane                      | Limit | Current next                               |
 |---------------------------|------:|--------------------------------------------|
 | Optional HTTP backend     |     1 | `#418` Ktor client helpers.                |
+| Infra resilience facade   |     1 | `#434` first, then `#435`; `#433` is umbrella only. |
 | Cache/docs audit          |     1 | `#354` after current top-level docs sync.  |
 | AI/vector                 |     1 | `#149` or `#151`, not `#148` first.        |
 | Docs polish               |  1 PR | `#323/#324/#325` together.                 |
@@ -90,4 +98,4 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 | `#333`           | Closed; keep completion in issue/PR history, not active WIP.                                  |
 | `#257`           | Closed; keep split status in README/CHANGELOG and standalone repo history, not active WIP.    |
 | `#364`           | Closed; remove from active queue and let downstream repos adopt the shared utility as needed. |
-| `#251`           | Close as not planned or convert into an ADR when a concrete state-machine decision is active. |
+| `#251`           | Closed by the states comparison and follow-up split; keep research notes, not an active WIP row. |
