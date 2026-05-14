@@ -2,7 +2,6 @@ package io.bluetape4k.cassandra.examples.json
 
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.cql.BoundStatement
-import com.datastax.oss.driver.api.core.type.codec.ExtraTypeCodecs
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.function
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.insertInto
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
@@ -10,7 +9,6 @@ import com.datastax.oss.driver.api.querybuilder.select.Selector
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.CqlSessionProvider
 import io.bluetape4k.cassandra.cql.getStringOrEmpty
-import io.bluetape4k.cassandra.data.getValue
 import io.bluetape4k.cassandra.data.setValue
 import io.bluetape4k.cassandra.querybuilder.bindMarker
 import io.bluetape4k.cassandra.querybuilder.inValues
@@ -25,8 +23,6 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import tools.jackson.databind.JsonNode
-import tools.jackson.databind.node.JsonNodeFactory
 import java.io.Serializable
 
 class JacksonJsonFunctionExamples: AbstractCassandraTest() {
@@ -36,9 +32,6 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
             val name: String? = null,
             val age: Int? = null,
         ): Serializable
-
-        private val USER_CODEC = ExtraTypeCodecs.json(User::class.java)
-        private val JSON_NODE_CODEC = ExtraTypeCodecs.json(JsonNode::class.java)
     }
 
     private val mapper = Jackson.defaultJsonMapper
@@ -69,9 +62,7 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
         val session = CqlSessionProvider.getOrCreateSession(
             "jackson_examples",
             { newCqlSessionBuilder() }
-        ) {
-            addTypeCodecs(USER_CODEC, JSON_NODE_CODEC)
-        }
+        ) {}
         createSchema(session)
         insertFromJson(session)
         selectToJson(session)
@@ -99,19 +90,27 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
     private fun insertFromJson(session: CqlSession) {
         val alice = User("alice", 30)
         val bob = User("bob", 35)
+        val aliceJson = mapper.writeAsString(alice)
+        val bobJson = mapper.writeAsString(bob)
 
-        val aliceScores = JsonNodeFactory.instance.objectNode()
-            .put("call_of_duty", 4.8)
-            .put("pokemon_go", 9.7)
+        val aliceScoresJson = mapper.writeAsString(
+            mapOf(
+                "call_of_duty" to 4.8F,
+                "pokemon_go" to 9.7F,
+            )
+        )
 
-        val bobScores = JsonNodeFactory.instance.objectNode()
-            .put("zelda", 8.3)
-            .put("pokemon_go", 12.4)
+        val bobScoresJson = mapper.writeAsString(
+            mapOf(
+                "zelda" to 8.3F,
+                "pokemon_go" to 12.4F,
+            )
+        )
 
         val stmt = insertInto("json_jackson_function")
             .value("id", 1.literal())
-            .value("user", function("fromJson", alice.literal(session.context.codecRegistry)))
-            .value("scores", function("fromJson", aliceScores.literal(session.context.codecRegistry)))
+            .value("user", function("fromJson", aliceJson.literal()))
+            .value("scores", function("fromJson", aliceScoresJson.literal()))
             .build()
 
         log.debug { "query=${stmt.query}" }
@@ -127,10 +126,10 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
 
         val bs = ps.bind()
             .setValue<BoundStatement, Int>("id", 2)
-            .setValue<BoundStatement, User>("user", bob)
-            .setValue<BoundStatement, JsonNode>("scores", bobScores)
-        // .set("user", bob, User::class.java)
-        // .set("scores", bobScores, JsonNode::class.java)
+            .setValue<BoundStatement, String>("user", bobJson)
+            .setValue<BoundStatement, String>("scores", bobScoresJson)
+        // .set("user", bobJson, String::class.java)
+        // .set("scores", bobScoresJson, String::class.java)
         session.execute(bs)
     }
 
@@ -148,10 +147,12 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
 
         rows.forEach { row ->
             val id = row.getInt("id")
-            val user = row.getValue<User>("user")
             val userJson = row.getStringOrEmpty("user")
-            val scores = row.getValue<JsonNode>("scores")
+            val user = mapper.readValueOrNull<User>(userJson)
+            user.shouldNotBeNull()
             val scoresJson = row.getStringOrEmpty("scores")
+            val scores = mapper.readValueOrNull<Map<String, Float>>(scoresJson)
+            scores.shouldNotBeNull()
 
             log.debug {
                 """

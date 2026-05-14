@@ -14,6 +14,7 @@ import io.bluetape4k.support.closeSafe
 import tools.jackson.core.JacksonException
 import tools.jackson.core.JsonParser
 import tools.jackson.core.JsonToken
+import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.ObjectReader
 import tools.jackson.databind.json.JsonMapper
 import java.io.BufferedReader
@@ -127,7 +128,9 @@ class JacksonIteratorDecoder2 private constructor(
     ): Iterator<T>, Closeable {
 
         private val parser: JsonParser = mapper.createParser(reader)
-        private val objectReader: ObjectReader = mapper.reader().forType(mapper.constructType(type))
+        private val objectReader: ObjectReader = mapper.reader()
+            .without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .forType(mapper.constructType(type))
 
         private var nextLoaded = false
         private var nextElement: T? = null
