@@ -1,13 +1,13 @@
 package io.bluetape4k.hibernate.converters
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.json.JsonMapper
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.json.JsonMapper
 
 /**
  * Object를 JSON 포맷으로 렌더링된 문자열로 저장하고, 로드 시에는 원래 Object로 변환하는 Converter 입니다.
@@ -42,7 +42,7 @@ abstract class AbstractObjectAsJsonConverter<T: Any>(
 
         return try {
             attribute?.run { jsonMapper.writeValueAsString(this) }
-        } catch (e: JsonProcessingException) {
+        } catch (e: JacksonException) {
             log.error(e) { "Fail to write as json string. $attribute" }
             null
         }
@@ -53,7 +53,7 @@ abstract class AbstractObjectAsJsonConverter<T: Any>(
 
         return try {
             dbData?.run { jsonMapper.readValue(this, classType) }
-        } catch (e: JsonProcessingException) {
+        } catch (e: JacksonException) {
             log.error(e) { "Fail to read json string. $dbData" }
             null
         }

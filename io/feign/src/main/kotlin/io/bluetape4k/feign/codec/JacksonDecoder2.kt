@@ -1,8 +1,5 @@
 package io.bluetape4k.feign.codec
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import feign.Response
 import feign.Util
 import feign.codec.DecodeException
@@ -10,12 +7,15 @@ import feign.codec.Decoder
 import feign.codec.DefaultDecoder
 import io.bluetape4k.feign.bodyAsReader
 import io.bluetape4k.feign.isJsonBody
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import io.bluetape4k.support.closeSafe
+import tools.jackson.core.exc.StreamReadException
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonTypeRef
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.Reader
@@ -109,7 +109,7 @@ class JacksonDecoder2 private constructor(
             reader.reset()
             log.trace { "Read json format response body. target type=$type" }
             return mapper.readValue(reader, mapper.constructType(type))
-        } catch (e: JsonParseException) {
+        } catch (e: StreamReadException) {
             log.error(e) { "Fail to read json format response body. type=$type" }
 
             if (e.cause is IOException) {

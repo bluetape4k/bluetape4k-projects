@@ -84,10 +84,10 @@ dependencies {
     compileOnly(libs.vertx.lang.kotlin.coroutines)
 
     // Jackson
-    compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(libs.jackson.databind)
-    compileOnly(libs.jackson.module.kotlin)
-    compileOnly(libs.jackson.module.blackbird)
+    compileOnly(project(":bluetape4k-jackson3"))
+    compileOnly(libs.jackson3.databind)
+    compileOnly(libs.jackson3.module.kotlin)
+    compileOnly(libs.jackson3.module.blackbird)
 
     // Fastjson2
     compileOnly(project(":bluetape4k-fastjson2"))

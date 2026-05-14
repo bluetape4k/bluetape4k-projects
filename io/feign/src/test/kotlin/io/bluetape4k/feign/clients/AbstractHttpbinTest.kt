@@ -1,10 +1,10 @@
 package io.bluetape4k.feign.clients
 
-import com.fasterxml.jackson.databind.json.JsonMapper
 import io.bluetape4k.feign.AbstractFeignTest
 import io.bluetape4k.feign.services.HttpbinAnythingResponse
 import io.bluetape4k.feign.services.Post
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
+import tools.jackson.databind.json.JsonMapper
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace

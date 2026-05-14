@@ -20,11 +20,11 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.reactor)
     testImplementation(libs.kotlinx.coroutines.test)
 
-    // Jackson (테스트 페이로드 인코딩용) — bluetape4k-jackson2가 나머지 전이 포함
-    testImplementation(project(":bluetape4k-jackson2"))
-    testImplementation(libs.jackson.databind)
-    testImplementation(libs.jackson.module.kotlin)
-    compileOnly(libs.jackson.module.blackbird)
+    // Jackson (테스트 페이로드 인코딩용) — bluetape4k-jackson3가 나머지 전이 포함
+    testImplementation(project(":bluetape4k-jackson3"))
+    testImplementation(libs.jackson3.databind)
+    testImplementation(libs.jackson3.module.kotlin)
+    compileOnly(libs.jackson3.module.blackbird)
 
     // Compressors / Serializers (테스트 페이로드용)
     testImplementation(libs.lz4.java)

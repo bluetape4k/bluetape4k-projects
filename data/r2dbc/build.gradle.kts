@@ -104,8 +104,8 @@ dependencies {
     testImplementation(project(":bluetape4k-junit5"))
 
     // Jackson
-    compileOnly(project(":bluetape4k-jackson2"))
-    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(project(":bluetape4k-jackson3"))
+    compileOnly(libs.jackson3.module.kotlin)
 
     // Coroutines
     api(project(":bluetape4k-coroutines"))

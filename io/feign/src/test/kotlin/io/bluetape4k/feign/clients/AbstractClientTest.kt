@@ -1,6 +1,5 @@
 package io.bluetape4k.feign.clients
 
-import com.fasterxml.jackson.databind.json.JsonMapper
 import feign.CollectionFormat
 import feign.FeignException
 import feign.Headers
@@ -20,7 +19,8 @@ import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.toUtf8String
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
+import tools.jackson.databind.json.JsonMapper
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.closeSafe

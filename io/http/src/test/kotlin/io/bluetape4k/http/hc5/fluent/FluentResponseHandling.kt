@@ -1,12 +1,10 @@
 package io.bluetape4k.http.hc5.fluent
 
 import com.alibaba.fastjson2.JSON
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.io.toString
 import io.bluetape4k.io.toUtf8String
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import jakarta.json.JsonException
@@ -14,6 +12,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.client5.http.ClientProtocolException
 import org.apache.hc.client5.http.HttpResponseException
 import org.apache.hc.core5.http.ContentType
+import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.readValue
 import org.apache.hc.core5.http.HttpStatus
 import org.junit.jupiter.api.Test
 import javax.xml.parsers.ParserConfigurationException

@@ -8,8 +8,8 @@ import io.bluetape4k.feign.codec.JacksonDecoder2
 import io.bluetape4k.feign.codec.JacksonEncoder2
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.http.okhttp3.mock.enqueueBody
-import io.bluetape4k.jackson.Jackson
-import io.bluetape4k.jackson.writeAsString
+import io.bluetape4k.jackson3.Jackson
+import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.closeSafe

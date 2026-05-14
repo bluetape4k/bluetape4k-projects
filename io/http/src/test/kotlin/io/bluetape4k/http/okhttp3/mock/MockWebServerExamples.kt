@@ -1,12 +1,11 @@
 package io.bluetape4k.http.okhttp3.mock
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.LibraryName
 import io.bluetape4k.http.okhttp3.bodyAsString
 import io.bluetape4k.http.okhttp3.execute
 import io.bluetape4k.http.okhttp3.okhttp3Client
 import io.bluetape4k.http.okhttp3.okhttp3Request
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import okhttp3.OkHttpClient
@@ -14,6 +13,7 @@ import okhttp3.mockwebserver.MockWebServer
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import tools.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

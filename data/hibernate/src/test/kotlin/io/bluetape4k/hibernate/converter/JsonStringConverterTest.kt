@@ -1,13 +1,13 @@
 package io.bluetape4k.hibernate.converter
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.bluetape4k.hibernate.AbstractHibernateTest
-import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.treeToValue
 
 class JsonStringConverterTest: AbstractHibernateTest() {
 

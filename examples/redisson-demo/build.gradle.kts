@@ -33,10 +33,10 @@ dependencies {
     testImplementation(libs.caffeine.jcache)
 
     // JSON
-    testImplementation(project(":bluetape4k-jackson2"))
-    testImplementation(libs.jackson.module.kotlin)
-    testImplementation(libs.jackson.module.blackbird)
-    testImplementation(libs.jackson.dataformat.protobuf)
+    testImplementation(project(":bluetape4k-jackson3"))
+    testImplementation(libs.jackson3.module.kotlin)
+    testImplementation(libs.jackson3.module.blackbird)
+    testImplementation(libs.jackson3.dataformat.protobuf)
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))
