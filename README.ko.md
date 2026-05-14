@@ -11,7 +11,7 @@ JVM 환경에서 Kotlin 언어로 개발할 때 사용하는 공용 라이브러
 
 [English](./README.md) | 한국어
 
-![bluetape4k 백엔드 컴포넌트 작업대 일러스트](./doc/bluetape4k.png)
+![bluetape4k Projects 모듈형 백엔드 작업대 일러스트](./docs/assets/projects-workbench.png)
 
 KDoc 작성 지침: `doc/Kdoc_Instruction.md`
 
