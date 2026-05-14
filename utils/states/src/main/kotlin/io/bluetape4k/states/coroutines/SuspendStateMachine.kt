@@ -5,7 +5,9 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.states.api.StateMachineException
 import io.bluetape4k.states.api.SuspendStateMachineInterface
 import io.bluetape4k.states.api.TransitionResult
+import io.bluetape4k.states.core.ParentTransitionKey
 import io.bluetape4k.states.core.TransitionKey
+import io.bluetape4k.states.core.TransitionRegistry
 import io.bluetape4k.states.core.TransitionTarget
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +46,7 @@ class SuspendStateMachine<S: Any, E: Any>(
     override val initialState: S,
     override val finalStates: Set<S>,
     private val transitions: Map<TransitionKey<S, E>, TransitionTarget<S, E>>,
+    private val parentTransitions: Map<ParentTransitionKey<S, E>, TransitionTarget<S, E>> = emptyMap(),
     private val onTransitionCallback: (suspend (S, E, S) -> Unit)? = null,
 ): SuspendStateMachineInterface<S, E> {
 
@@ -51,6 +54,7 @@ class SuspendStateMachine<S: Any, E: Any>(
 
     private val mutex = Mutex()
     private val _stateFlow = MutableStateFlow(initialState)
+    private val registry = TransitionRegistry(transitions, parentTransitions)
 
     override val stateFlow: StateFlow<S> = _stateFlow.asStateFlow()
 
@@ -82,8 +86,7 @@ class SuspendStateMachine<S: Any, E: Any>(
             throw StateMachineException("이미 종료 상태입니다: $previous")
         }
 
-        val key = TransitionKey(previous, event::class.java)
-        val target = transitions[key]
+        val target = registry.resolve(previous, event)?.target
             ?: throw StateMachineException(
                 "허용되지 않은 전이: $previous + ${event::class.simpleName}. " +
                         "허용된 이벤트: ${allowedEvents().map { it.simpleName }}"
@@ -129,8 +132,7 @@ class SuspendStateMachine<S: Any, E: Any>(
         val state = currentState
         if (state in finalStates) return false
 
-        val key = TransitionKey(state, event::class.java)
-        val target = transitions[key] ?: return false
+        val target = registry.resolve(state, event)?.target ?: return false
         return target.guard?.invoke(state, event) ?: true
     }
 
@@ -154,9 +156,6 @@ class SuspendStateMachine<S: Any, E: Any>(
         val state = currentState
         if (state in finalStates) return emptySet()
 
-        return transitions.keys
-            .filter { it.state == state }
-            .map { it.eventType }
-            .toSet()
+        return registry.allowedEvents(state)
     }
 }

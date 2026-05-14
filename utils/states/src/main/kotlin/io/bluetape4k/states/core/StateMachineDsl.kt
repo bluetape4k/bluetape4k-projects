@@ -75,6 +75,7 @@ class StateMachineBuilder<S: Any, E: Any> {
     var finalStates: Set<S> = emptySet()
 
     private val transitions = mutableMapOf<TransitionKey<S, E>, TransitionTarget<S, E>>()
+    private val parentTransitions = mutableMapOf<ParentTransitionKey<S, E>, TransitionTarget<S, E>>()
     private var onTransitionCallback: ((S, E, S) -> Unit)? = null
 
     /**
@@ -98,6 +99,23 @@ class StateMachineBuilder<S: Any, E: Any> {
     }
 
     /**
+     * Registers an inherited transition for every state matching [from].
+     *
+     * Exact state transitions have precedence over inherited transitions.
+     */
+    fun transition(
+        from: Class<out S>,
+        eventType: Class<out E>,
+        to: S,
+        block: TransitionBuilder<S, E>.() -> Unit = {},
+    ) {
+        val builder = TransitionBuilder<S, E>().apply(block)
+        val key = ParentTransitionKey(from, eventType)
+        val target = TransitionTarget(to, builder.guardFunction)
+        parentTransitions[key] = target
+    }
+
+    /**
      * 전이 콜백을 설정합니다.
      *
      * @param callback 이전 상태, 이벤트, 다음 상태를 받는 콜백
@@ -109,12 +127,33 @@ class StateMachineBuilder<S: Any, E: Any> {
     /**
      * [DefaultStateMachine]을 생성합니다.
      */
-    fun build(): StateMachine<S, E> = DefaultStateMachine(
-        initialState = initialState,
-        finalStates = finalStates,
-        transitions = transitions.toMap(),
-        onTransitionCallback = onTransitionCallback,
-    )
+    fun build(): StateMachine<S, E> {
+        val exactTransitions = transitions.toMap()
+        val inheritedTransitions = parentTransitions.toMap()
+        validateInheritedTransitions(exactTransitions, inheritedTransitions)
+
+        return DefaultStateMachine(
+            initialState = initialState,
+            finalStates = finalStates,
+            transitions = exactTransitions,
+            parentTransitions = inheritedTransitions,
+            onTransitionCallback = onTransitionCallback,
+        )
+    }
+
+    private fun validateInheritedTransitions(
+        exactTransitions: Map<TransitionKey<S, E>, TransitionTarget<S, E>>,
+        inheritedTransitions: Map<ParentTransitionKey<S, E>, TransitionTarget<S, E>>,
+    ) {
+        val knownStates = buildSet {
+            add(initialState)
+            addAll(finalStates)
+            addAll(exactTransitions.keys.map { it.state })
+            addAll(exactTransitions.values.map { it.state })
+            addAll(inheritedTransitions.values.map { it.state })
+        }
+        TransitionRegistry(exactTransitions, inheritedTransitions).validateKnownStates(knownStates)
+    }
 }
 
 /**
@@ -149,6 +188,7 @@ class SuspendStateMachineBuilder<S: Any, E: Any> {
     var finalStates: Set<S> = emptySet()
 
     private val transitions = mutableMapOf<TransitionKey<S, E>, TransitionTarget<S, E>>()
+    private val parentTransitions = mutableMapOf<ParentTransitionKey<S, E>, TransitionTarget<S, E>>()
     private var onTransitionCallback: (suspend (S, E, S) -> Unit)? = null
 
     /**
@@ -172,6 +212,23 @@ class SuspendStateMachineBuilder<S: Any, E: Any> {
     }
 
     /**
+     * Registers an inherited transition for every state matching [from].
+     *
+     * Exact state transitions have precedence over inherited transitions.
+     */
+    fun transition(
+        from: Class<out S>,
+        eventType: Class<out E>,
+        to: S,
+        block: TransitionBuilder<S, E>.() -> Unit = {},
+    ) {
+        val builder = TransitionBuilder<S, E>().apply(block)
+        val key = ParentTransitionKey(from, eventType)
+        val target = TransitionTarget(to, builder.guardFunction)
+        parentTransitions[key] = target
+    }
+
+    /**
      * suspend 전이 콜백을 설정합니다.
      *
      * @param callback 이전 상태, 이벤트, 다음 상태를 받는 suspend 콜백
@@ -183,12 +240,26 @@ class SuspendStateMachineBuilder<S: Any, E: Any> {
     /**
      * [SuspendStateMachine]을 생성합니다.
      */
-    fun build(): SuspendStateMachineInterface<S, E> = SuspendStateMachine(
-        initialState = initialState,
-        finalStates = finalStates,
-        transitions = transitions.toMap(),
-        onTransitionCallback = onTransitionCallback,
-    )
+    fun build(): SuspendStateMachineInterface<S, E> {
+        val exactTransitions = transitions.toMap()
+        val inheritedTransitions = parentTransitions.toMap()
+        val knownStates = buildSet {
+            add(initialState)
+            addAll(finalStates)
+            addAll(exactTransitions.keys.map { it.state })
+            addAll(exactTransitions.values.map { it.state })
+            addAll(inheritedTransitions.values.map { it.state })
+        }
+        TransitionRegistry(exactTransitions, inheritedTransitions).validateKnownStates(knownStates)
+
+        return SuspendStateMachine(
+            initialState = initialState,
+            finalStates = finalStates,
+            transitions = exactTransitions,
+            parentTransitions = inheritedTransitions,
+            onTransitionCallback = onTransitionCallback,
+        )
+    }
 }
 
 /**
@@ -244,3 +315,12 @@ fun <S: Any, E: Any> suspendStateMachine(
  * @return 이벤트 클래스 객체
  */
 inline fun <reified E: Any> on(): Class<E> = E::class.java
+
+/**
+ * Returns a state class for inherited transition registration.
+ *
+ * ```kotlin
+ * transition(state<OrderState.Payable>(), on<OrderEvent.Cancel>(), to = OrderState.Cancelled)
+ * ```
+ */
+inline fun <reified S: Any> state(): Class<S> = S::class.java

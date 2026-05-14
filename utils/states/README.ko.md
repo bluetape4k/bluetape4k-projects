@@ -2,7 +2,8 @@
 
 [English](./README.md) | 한국어
 
-Kotlin DSL 기반 유한 상태 머신(FSM) 라이브러리입니다. 동기 및 코루틴 FSM을 모두 지원하며, Guard 조건과 StateFlow 기반 상태 관찰 기능을 제공합니다.
+JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM) 라이브러리입니다. 동기 FSM, 코루틴 FSM,
+선택적 reactive event/effect runtime, Guard 조건, nested state-family 전이, StateFlow 기반 상태 관찰을 제공합니다.
 
 ## 아키텍처
 
@@ -178,9 +179,21 @@ classDiagram
 - **타입 안전 DSL**: `stateMachine {}`, `suspendStateMachine {}` DSL로 간결하게 FSM 정의
 - **동기 FSM**: `AtomicReference` CAS 기반 Thread-Safe 상태 전이
 - **코루틴 FSM**: `Mutex` + `StateFlow` 기반 suspend 전이 및 상태 관찰
+- **Reactive runtime**: `reactiveStateMachine {}` 기반 event queue, one-time effect, lifecycle side effect
+- **Nested state-family 전이**: `state<ParentState>()`로 sealed state family에 공통 전이 등록
 - **Guard 조건**: 전이 전 조건 검증 지원
 - **종료 상태 일관성**: 종료 상태에 도달하면 `canTransition()`은 `false`, `allowedEvents()`는 빈 집합을 반환
 - **clinic-appointment 패턴**: Map 기반 전이 + suspend 콜백 패턴 채택
+
+## 모듈 포지셔닝
+
+`bluetape4k-states`는 backend workflow, domain service, library 코드에서 작은 Kotlin/JVM FSM이 필요할 때 사용합니다.
+명시적 `TransitionResult`, guard, final-state 검사, 결정적인 테스트가 중요한 경우에 맞습니다.
+
+주 관심사가 ViewModel/Compose 상태, multiplatform UI target, UI lifecycle 통합이라면 UI/presentation-layer state
+machine을 선택하는 편이 낫습니다. [`joost-klitsie/StateMachine`](https://github.com/joost-klitsie/StateMachine)은
+event/effect와 nested-state 아이디어의 참고 자료일 뿐, 이 모듈의 의존성이 아닙니다. 비교와 개선 작업은 #436,
+#437, #438에서 추적합니다.
 
 ## 상태 전이 다이어그램 예시
 
@@ -309,6 +322,59 @@ val fsm = stateMachine<State, Event> {
         guard { state, event -> (event as ApproveEvent).approvedBy != null }
     }
 }
+```
+
+### Nested State-Family 전이
+
+sealed parent type에 매칭되는 모든 상태에 inherited transition을 등록할 수 있습니다. 정확한 state 전이가 있으면
+그 전이가 inherited transition보다 우선합니다.
+
+```kotlin
+sealed interface OrderState
+data object Created: OrderState
+sealed interface ActiveOrder: OrderState
+data object Paid: ActiveOrder
+data object Packed: ActiveOrder
+data object Cancelled: OrderState
+
+sealed class OrderEvent {
+    data object Cancel: OrderEvent()
+}
+
+val fsm = stateMachine<OrderState, OrderEvent> {
+    initialState = Paid
+    finalStates = setOf(Cancelled)
+
+    transition(state<ActiveOrder>(), on<OrderEvent.Cancel>(), to = Cancelled)
+}
+```
+
+### Reactive Event/Effect Runtime
+
+event queue, one-time effect, lifecycle-managed state side effect가 필요할 때 `reactiveStateMachine {}`를 사용합니다.
+더 작은 명시적 FSM이면 기존 sync/suspend API가 더 적합합니다.
+
+```kotlin
+val machine = reactiveStateMachine<OrderState, OrderEvent, OrderEffect>(scope) {
+    initialState = Created
+    finalStates = setOf(Cancelled)
+
+    transition(Created, on<OrderEvent.Cancel>(), to = Cancelled) {
+        effect { _, _, _ -> emit(OrderEffect.ShowCancelledMessage) }
+    }
+
+    onState(state<ActiveOrder>()) {
+        sideEffect(key = { state -> state::class }) {
+            auditOrderState(it)
+        }
+    }
+}
+
+val effectJob = launch {
+    machine.effects.collect { effect -> handle(effect) }
+}
+
+machine.send(OrderEvent.Cancel)
 ```
 
 ## 상태 전이 시퀀스 다이어그램
