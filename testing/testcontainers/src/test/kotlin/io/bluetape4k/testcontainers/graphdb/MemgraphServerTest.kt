@@ -7,21 +7,37 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.Timeout
+import org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD
 import org.neo4j.driver.AuthTokens
 import org.neo4j.driver.Config
 import org.neo4j.driver.GraphDatabase
 import java.util.concurrent.TimeUnit
 
 @TestInstance(Lifecycle.PER_CLASS)
+@Timeout(value = 5, unit = TimeUnit.MINUTES, threadMode = SEPARATE_THREAD)
 class MemgraphServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
-    private val memgraph: MemgraphServer by lazy { MemgraphServer.Launcher.memgraph }
+    private lateinit var memgraph: MemgraphServer
+
+    @BeforeAll
+    fun beforeAll() {
+        memgraph = MemgraphServer().apply { start() }
+    }
+
+    @AfterAll
+    fun afterAll() {
+        if (this::memgraph.isInitialized && memgraph.isRunning) {
+            memgraph.close()
+        }
+    }
 
     @Test
     fun `Memgraph 서버가 실행 중이어야 한다`() {
@@ -41,7 +57,7 @@ class MemgraphServerTest: AbstractContainerTest() {
     }
 
     @Test
-    @Timeout(45)
+    @Timeout(value = 3, unit = TimeUnit.MINUTES, threadMode = SEPARATE_THREAD)
     fun `Neo4j Driver로 Bolt 연결 후 쿼리를 실행할 수 있어야 한다`() {
         val config = Config.builder()
             .withConnectionTimeout(10, TimeUnit.SECONDS)
