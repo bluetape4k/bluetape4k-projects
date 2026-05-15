@@ -450,11 +450,14 @@ io.bluetape4k.http
 dependencies {
     implementation(project(":bluetape4k-http"))
 
-    // Optional (add only what you need)
-    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("io.vertx:vertx-core")                    // Vert.x
-    implementation("io.ktor:ktor-client-core")               // Ktor Client (any engine)
-    implementation("io.ktor:ktor-client-cio")                // Ktor CIO engine (HTTP/1.x)
+    // Apache HttpComponents 5 (primary backend)
+    implementation("org.apache.httpcomponents.client5:httpclient5")
+
+    // Optional backends — add compileOnly for each backend you use
+    compileOnly("com.squareup.okhttp3:okhttp")               // OkHttp3
+    compileOnly("io.vertx:vertx-core")                       // Vert.x
+    compileOnly("io.ktor:ktor-client-core")                  // Ktor Client (any engine)
+    compileOnly("io.ktor:ktor-client-cio")                   // Ktor CIO engine (HTTP/1.x)
 }
 ```
 
