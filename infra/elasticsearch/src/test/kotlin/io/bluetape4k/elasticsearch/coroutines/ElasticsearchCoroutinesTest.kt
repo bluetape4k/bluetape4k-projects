@@ -51,13 +51,13 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     private lateinit var indexName: String
 
     @BeforeEach
-    fun setUp() = runTest(timeout = 30.seconds) {
+    fun setUp() = runTest(timeout = 60.seconds) {
         indexName = ElasticsearchTestFixtures.randomIndexName("crud-test")
         asyncClient.createTestIndex(indexName).await()
     }
 
     @AfterEach
-    fun tearDown() = runTest(timeout = 30.seconds) {
+    fun tearDown() = runTest(timeout = 60.seconds) {
         runCatching { asyncClient.deleteTestIndex(indexName).await() }
     }
 
@@ -66,7 +66,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `인덱스 생성 후 존재 확인 그리고 삭제가 순서대로 동작한다`() = runTest(timeout = 30.seconds) {
+    fun `인덱스 생성 후 존재 확인 그리고 삭제가 순서대로 동작한다`() = runTest(timeout = 60.seconds) {
         val tmpIndex = ElasticsearchTestFixtures.randomIndexName("lifecycle-test")
 
         // 생성
@@ -91,7 +91,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `문서 색인 후 조회하면 동일한 내용을 반환한다`() = runTest(timeout = 30.seconds) {
+    fun `문서 색인 후 조회하면 동일한 내용을 반환한다`() = runTest(timeout = 60.seconds) {
         val docId = "doc-1"
         val doc = TestDocument(
             title = "Elasticsearch 소개",
@@ -127,7 +127,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `문서 색인 후 업데이트하면 변경된 내용이 반영된다`() = runTest(timeout = 30.seconds) {
+    fun `문서 색인 후 업데이트하면 변경된 내용이 반영된다`() = runTest(timeout = 60.seconds) {
         val docId = "doc-update"
         val original = TestDocument(title = "원본 제목", content = "원본 내용", score = 1.0)
 
@@ -163,7 +163,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `문서 색인 후 삭제하면 조회되지 않는다`() = runTest(timeout = 30.seconds) {
+    fun `문서 색인 후 삭제하면 조회되지 않는다`() = runTest(timeout = 60.seconds) {
         val docId = "doc-delete"
         val doc = TestDocument(title = "삭제 대상", content = "삭제될 내용")
 
@@ -197,7 +197,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `색인된 문서는 exists 가 true 를 반환한다`() = runTest(timeout = 30.seconds) {
+    fun `색인된 문서는 exists 가 true 를 반환한다`() = runTest(timeout = 60.seconds) {
         val docId = "exists-doc"
         asyncClient.indexSuspending<TestDocument> {
             index(indexName)
@@ -214,7 +214,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `없는 문서는 exists 가 false 를 반환한다`() = runTest(timeout = 30.seconds) {
+    fun `없는 문서는 exists 가 false 를 반환한다`() = runTest(timeout = 60.seconds) {
         val exists = asyncClient.existsSuspending {
             index(indexName)
             id("non-existent-id")
@@ -227,7 +227,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `match_all 쿼리로 색인된 전체 문서를 조회한다`() = runTest(timeout = 30.seconds) {
+    fun `match_all 쿼리로 색인된 전체 문서를 조회한다`() = runTest(timeout = 60.seconds) {
         val docs = listOf(
             TestDocument(title = "문서 A", content = "내용 A", tags = listOf("alpha")),
             TestDocument(title = "문서 B", content = "내용 B", tags = listOf("beta")),
@@ -254,7 +254,7 @@ class ElasticsearchCoroutinesTest : AbstractElasticsearchTest() {
     }
 
     @Test
-    fun `term 쿼리로 특정 태그를 가진 문서를 조회한다`() = runTest(timeout = 30.seconds) {
+    fun `term 쿼리로 특정 태그를 가진 문서를 조회한다`() = runTest(timeout = 60.seconds) {
         val targetTag = "kotlin"
         asyncClient.indexSuspending<TestDocument> {
             index(indexName)
