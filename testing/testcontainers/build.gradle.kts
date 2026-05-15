@@ -163,6 +163,9 @@ dependencies {
     compileOnly(libs.testcontainers.vault)
     compileOnly(libs.vault.java.driver)
 
+    // Apache HttpComponents 5 — used by GrafanaServer for Grafana HTTP API provisioning
+    implementation(libs.httpclient5.fluent)
+
     // OkHttp
     testImplementation(libs.okhttp3)
 
