@@ -194,6 +194,8 @@ flowchart TD
         CN["ConsulServer"]
         VT["VaultServer"]
         PR["PrometheusServer"]
+        GF["GrafanaServer"]
+        K3["K3sServer"]
         ZK["ZooKeeperServer"]
         TX["ToxiproxyServer"]
         KC["KeycloakServer"]
@@ -256,7 +258,7 @@ flowchart TD
     class RD,RDC,MGO,CS,ES,ESO,OS,MN,IFL,HZ,IG2,IG3 storageStyle
     class NJ,MG,FK,PA graphStyle
     class KF,RB,PL,NT,RP mqStyle
-    class CN,VT,PR,ZK,TX,KC,ZP infraStyle
+    class CN,VT,PR,GF,K3,ZK,TX,KC,ZP infraStyle
     class TR sqlStyle
     class WM,NG,BHS,BWS mockStyle
     class LS deprecatedStyle
@@ -275,7 +277,7 @@ flowchart TD
 - **Mail testing**: `MailpitServer` provides SMTP + Web UI for email integration tests
 - **LLM support**: `ChromaDBServer` (vector DB, port 8000), `OllamaServer` (local LLM inference, port 11434)
 - **Distributed cache/grid**: `HazelcastServer` (5.x slim), `Ignite2Server`, `Ignite3Server` (auto cluster-init)
-- **Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`)
+- **Observability**: `ZipkinServer` (distributed tracing, `openzipkin/zipkin-slim:2.23`), `GrafanaServer` (dashboards + datasource provisioning, `grafana/grafana:11.6.1`), `K3sServer` (lightweight Kubernetes cluster, `rancher/k3s`; requires `--privileged` Docker mode)
 - Shared `GenericServer` / `GenericContainer` utilities
 - Automatic PostgreSQL extension activation for PostGIS and pgvector
 - Declarative activation of extra PostgreSQL extensions through `withExtensions()`
@@ -318,6 +320,8 @@ Every server implements
 | ElasticMqServer     | `elasticmq`     | `host`, `port`, `url`, `sqsEndpoint`                                                |
 | MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
+| GrafanaServer       | `grafana`       | `host`, `port`, `url`                                                               |
+| K3sServer           | `k3s`           | `host`, `port`, `url`                                                               |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer        | `jaeger`        | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
 | ElasticsearchOssServer| `elasticsearch-oss`| `host`, `port`, `url`                                                               |
@@ -516,6 +520,39 @@ println("Admin Token: ${influxDB.adminToken}")
 println("Bucket: ${influxDB.bucket}")
 println("Organization: ${influxDB.organization}")
 ```
+
+### Grafana
+
+```kotlin
+// Singleton launcher
+val grafana = GrafanaServer.Launcher.grafana
+
+// Provision a Prometheus datasource after start
+grafana.withPrometheusDataSource("http://prometheus:9090")
+
+// Provision a dashboard from JSON
+// grafana.withDashboard(dashboardJsonString)
+
+println("Grafana URL: ${grafana.url}")  // http://host:<port>
+// Default credentials: admin / admin
+```
+
+### K3s (Kubernetes)
+
+```kotlin
+// Singleton launcher — K3s is slow to start; prefer the singleton across tests
+val k3s = K3sServer.Launcher.k3s
+
+// Build a fabric8 Kubernetes client
+val client = k3s.kubernetesClient()
+client.use {
+    println(it.namespaces().list().items)
+}
+```
+
+> **Note**: K3s requires `--privileged` Docker mode. Tag tests that use `K3sServer`
+> with `@Tag("k8s")` so they can be confined to nightly CI runs where a privileged
+> runner is available. Add `io.fabric8:kubernetes-client` to the test runtime classpath.
 
 ### Toxiproxy (Chaos Testing)
 

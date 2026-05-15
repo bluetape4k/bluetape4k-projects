@@ -194,6 +194,8 @@ flowchart TD
         CN["ConsulServer"]
         VT["VaultServer"]
         PR["PrometheusServer"]
+        GF["GrafanaServer"]
+        K3["K3sServer"]
         ZK["ZooKeeperServer"]
         TX["ToxiproxyServer"]
         KC["KeycloakServer"]
@@ -256,7 +258,7 @@ flowchart TD
     class RD,RDC,MGO,CS,ES,ESO,OS,MN,IFL,HZ,IG2,IG3 storageStyle
     class NJ,MG,FK,PA graphStyle
     class KF,RB,PL,NT,RP mqStyle
-    class CN,VT,PR,ZK,TX,KC,ZP infraStyle
+    class CN,VT,PR,GF,K3,ZK,TX,KC,ZP infraStyle
     class TR sqlStyle
     class WM,NG,BHS,BWS mockStyle
     class LS deprecatedStyle
@@ -280,7 +282,7 @@ flowchart TD
 - **AWS 에뮬레이터**: `AwsEmulatorServer` 공통 인터페이스; `FlociServer`(GraalVM Native, 권장), `LocalStackServer`(@Deprecated)
 - **임베디드 SQS**: `ElasticMqServer` — Docker 없이 JVM 내 SQS 서버 실행
 - **메일 테스트**: `MailpitServer` — SMTP + Web UI로 이메일 통합 테스트 지원
-- **관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`)
+- **관측성**: `ZipkinServer` — 분산 추적 (`openzipkin/zipkin-slim:2.23`), `GrafanaServer` — 대시보드 + 데이터소스 프로비저닝 (`grafana/grafana:11.6.1`), `K3sServer` — 경량 Kubernetes 클러스터 (`rancher/k3s`; `--privileged` Docker 모드 필요)
 - **고정 포트 매핑 옵션**: `useDefaultPort=true` 설정 시 기본 포트로 바인딩
 - **시스템 프로퍼티 자동 등록**: 컨테이너 시작 시 연결 정보 자동 등록
 - **Spring Boot 설정 단순화**: `${testcontainers...}` placeholder로 연결 정보 주입
@@ -323,6 +325,8 @@ flowchart TD
 | ElasticMqServer     | `elasticmq`     | `host`, `port`, `url`, `sqsEndpoint`                                                |
 | MailpitServer       | `mailpit`       | `host`, `port`, `url`, `smtpPort`, `uiPort`, `uiUrl`                               |
 | PrometheusServer    | `prometheus`    | `host`, `port`, `url`, `server-port`, `pushgateway-port`, `graphite-exporter-port`  |
+| GrafanaServer       | `grafana`       | `host`, `port`, `url`                                                               |
+| K3sServer           | `k3s`           | `host`, `port`, `url`                                                               |
 | ConsulServer        | `consul`        | `host`, `port`, `url`, `dns-port`, `http-port`, `rpc-port`                          |
 | JaegerServer          | `jaeger`           | `host`, `port`, `url`, `frontend-port`, `zipkin-port`, `config-port`, `thrift-port` |
 | ElasticsearchOssServer| `elasticsearch-oss`| `host`, `port`, `url`                                                               |
@@ -524,6 +528,39 @@ println("Admin Token: ${influxDB.adminToken}")
 println("Bucket: ${influxDB.bucket}")
 println("Organization: ${influxDB.organization}")
 ```
+
+### Grafana
+
+```kotlin
+// 싱글턴 런처
+val grafana = GrafanaServer.Launcher.grafana
+
+// 시작 후 Prometheus 데이터소스 등록
+grafana.withPrometheusDataSource("http://prometheus:9090")
+
+// 대시보드 JSON 으로 대시보드 등록
+// grafana.withDashboard(dashboardJsonString)
+
+println("Grafana URL: ${grafana.url}")  // http://host:<port>
+// 기본 자격증명: admin / admin
+```
+
+### K3s (Kubernetes)
+
+```kotlin
+// 싱글턴 런처 — K3s는 시작이 느리므로 테스트 간 싱글턴 사용 권장
+val k3s = K3sServer.Launcher.k3s
+
+// fabric8 Kubernetes 클라이언트 빌드
+val client = k3s.kubernetesClient()
+client.use {
+    println(it.namespaces().list().items)
+}
+```
+
+> **주의**: K3s는 `--privileged` Docker 모드가 필요합니다. `K3sServer`를 사용하는 테스트에는
+> `@Tag("k8s")`를 붙여 권한 있는 런너를 사용하는 nightly CI 에서만 실행되도록 제한하세요.
+> 테스트 런타임 클래스패스에 `io.fabric8:kubernetes-client` 의존성을 추가해야 합니다.
 
 ### 카오스 테스트 (Toxiproxy)
 
