@@ -76,6 +76,11 @@ dependencies {
     compileOnly(libs.caffeine)
     compileOnly(libs.caffeine.jcache)
 
+    // Ktor Client
+    compileOnly(libs.ktor.client.core)
+    compileOnly(libs.ktor.client.cio)
+    testImplementation(libs.ktor.client.mock)
+
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
     compileOnly(libs.vertx.core)
