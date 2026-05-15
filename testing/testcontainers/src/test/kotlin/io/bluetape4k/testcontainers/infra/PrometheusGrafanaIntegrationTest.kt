@@ -20,8 +20,10 @@ class PrometheusGrafanaIntegrationTest: AbstractContainerTest() {
         val prometheus: PrometheusServer by lazy { PrometheusServer.Launcher.prometheus }
         val grafana: GrafanaServer by lazy { GrafanaServer.Launcher.grafana }
 
+        // Stable UID ensures overwrite:true deduplicates correctly on container reuse
+        private const val DASHBOARD_UID = "bluetape4k-prometheus-integration"
         private val DASHBOARD_JSON =
-            """{"title":"Prometheus Integration","panels":[],"schemaVersion":36}"""
+            """{"uid":"$DASHBOARD_UID","title":"Prometheus Integration","panels":[],"schemaVersion":36}"""
 
         private fun basicAuth(): String {
             val encoded = Base64.getEncoder()
@@ -29,13 +31,17 @@ class PrometheusGrafanaIntegrationTest: AbstractContainerTest() {
             return "Basic $encoded"
         }
 
-        private fun datasourceExists(): Boolean {
-            val code = Request.get("${grafana.url}/api/datasources/name/Prometheus")
-                .addHeader("Authorization", basicAuth())
-                .execute()
-                .returnResponse()
-                .code
-            return code == 200
+        // Returns true only when a Prometheus datasource pointing at the current prometheus.url exists.
+        // Handles container reuse: a stale datasource with a different URL is treated as absent.
+        private fun datasourceUpToDate(): Boolean {
+            val body = runCatching {
+                Request.get("${grafana.url}/api/datasources/name/Prometheus")
+                    .addHeader("Authorization", basicAuth())
+                    .execute()
+                    .returnContent()
+                    .asString()
+            }.getOrNull() ?: return false
+            return body.contains(prometheus.url)
         }
     }
 
@@ -44,12 +50,12 @@ class PrometheusGrafanaIntegrationTest: AbstractContainerTest() {
         prometheus.isRunning.shouldBeTrue()
         grafana.isRunning.shouldBeTrue()
 
-        // Idempotent: skip POST if datasource already exists (container reuse)
-        if (!datasourceExists()) {
+        // Idempotent: only provision when datasource is absent or points at a stale URL
+        if (!datasourceUpToDate()) {
             grafana.withPrometheusDataSource(prometheus.url)
         }
 
-        // withDashboard uses overwrite:true — safe to call on every run
+        // Stable UID + overwrite:true → idempotent across container reuse
         grafana.withDashboard(DASHBOARD_JSON)
     }
 
@@ -76,7 +82,7 @@ class PrometheusGrafanaIntegrationTest: AbstractContainerTest() {
 
     @Test
     fun `provisioned dashboard is retrievable via api`() {
-        val body = Request.get("${grafana.url}/api/search?type=dash-db")
+        val body = Request.get("${grafana.url}/api/dashboards/uid/$DASHBOARD_UID")
             .addHeader("Authorization", basicAuth())
             .execute()
             .returnContent()
