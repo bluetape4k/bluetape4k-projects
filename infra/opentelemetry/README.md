@@ -12,7 +12,8 @@ English | [한국어](./README.ko.md)
 - **Flow tracing**: `Flow.traced()` / `Flow.tracedCollect()` — 1 collect = 1 Span
 - **Span management**: `use` pattern for automatic resource cleanup
 - **DSL support**: DSLs for configuring Attributes, TracerProvider, and MeterProvider
-- **Spring Boot 3 WebFlux integration**: `createTracingWebFilter()` helper (Spring Boot 3 only — see note below)
+- **Legacy WebFlux tracing helper**: `createTracingWebFilter()` targets the
+  older Spring WebFlux API and is retained for migration reference only
 - **Spring Boot Starter support**: Auto-configured OpenTelemetry SDK
 
 ## Dependency
@@ -327,11 +328,11 @@ val compositeExporter = spanExporterOf(
 )
 ```
 
-### 9. Spring WebFlux Tracing (Spring Boot 3 Only)
+### 9. Legacy Spring WebFlux Tracing Helper
 
 > **Spring Boot version constraint:**
 > `createTracingWebFilter()` uses `opentelemetry-spring-webflux-5.3`, which targets Spring WebFlux 5.3 / 6.x (Spring Boot 3).
-> **Spring Boot 4 (Spring Framework 7.x) is not yet supported** — support will be added once the OTel instrumentation BOM publishes a compatible artifact.
+> Current bluetape4k Spring integrations support Spring Boot 4.x only. Do not use this helper for new Spring Boot 4 applications until the OTel instrumentation BOM publishes a Spring Framework 7-compatible artifact.
 
 ```kotlin
 import io.bluetape4k.opentelemetry.webflux.createTracingWebFilter

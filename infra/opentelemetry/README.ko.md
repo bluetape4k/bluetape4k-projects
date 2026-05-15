@@ -12,7 +12,8 @@
 - **Flow 트레이싱**: `Flow.traced()` / `Flow.tracedCollect()` — 1 collect = 1 Span
 - **Span 관리**: 자동 리소스 관리를 위한 `use` 패턴
 - **DSL 제공**: Attributes, TracerProvider, MeterProvider 설정을 위한 DSL
-- **Spring Boot 3 WebFlux 통합**: `createTracingWebFilter()` 헬퍼 (Spring Boot 3 전용 — 아래 참고)
+- **레거시 WebFlux 트레이싱 헬퍼**: `createTracingWebFilter()`는 이전
+  Spring WebFlux API를 대상으로 하며, 마이그레이션 참고용으로만 유지합니다.
 - **Spring Boot Starter 지원**: 자동 설정 OpenTelemetry SDK
 
 ## 의존성
@@ -326,11 +327,11 @@ val compositeExporter = spanExporterOf(
 )
 ```
 
-### 9. Spring WebFlux 트레이싱 (Spring Boot 3 전용)
+### 9. 레거시 Spring WebFlux 트레이싱 헬퍼
 
 > **Spring Boot 버전 제약:**
 > `createTracingWebFilter()`는 `opentelemetry-spring-webflux-5.3` 아티팩트를 사용하며, Spring WebFlux 5.3 / 6.x (Spring Boot 3) 대상입니다.
-> **Spring Boot 4 (Spring Framework 7.x)는 아직 미지원** — OTel instrumentation BOM에서 대응 아티팩트 출시 후 지원 예정입니다.
+> 현재 bluetape4k의 Spring 연동은 Spring Boot 4.x만 지원합니다. OTel instrumentation BOM에서 Spring Framework 7 대응 아티팩트를 제공하기 전까지 이 헬퍼를 새 Spring Boot 4 애플리케이션에 사용하지 마세요.
 
 ```kotlin
 import io.bluetape4k.opentelemetry.webflux.createTracingWebFilter
