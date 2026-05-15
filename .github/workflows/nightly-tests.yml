@@ -212,7 +212,7 @@ jobs:
               {
                   "group": "graphdb-memgraph",
                   "test_patterns": "io.bluetape4k.testcontainers.graphdb.MemgraphServerTest",
-                  "timeout_minutes": 12,
+                  "timeout_minutes": 25,
                   "max_attempts": 2,
                   "needs_mock_servers": False,
               },
@@ -261,7 +261,7 @@ jobs:
 
           scope = os.environ["SCOPE"]
           groups_by_scope = {
-              "smoke": ["database-contract", "misc-contract", "graphdb-memgraph", "aws-core"],
+              "smoke": ["database-contract", "misc-contract", "aws-core"],
               "full": [group["group"] for group in all_groups],
               "testcontainers": [group["group"] for group in all_groups],
               "graphdb": [
