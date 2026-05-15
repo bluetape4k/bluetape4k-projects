@@ -460,14 +460,13 @@ io.bluetape4k.http
 dependencies {
     implementation(project(":bluetape4k-http"))
 
-    // Apache HttpComponents 5 (기본 백엔드)
-    implementation("org.apache.httpcomponents.client5:httpclient5")
-
-    // 선택적 백엔드 — 사용할 백엔드만 compileOnly로 추가
-    compileOnly("com.squareup.okhttp3:okhttp")               // OkHttp3
-    compileOnly("io.vertx:vertx-core")                       // Vert.x
-    compileOnly("io.ktor:ktor-client-core")                  // Ktor Client (엔진 선택)
-    compileOnly("io.ktor:ktor-client-cio")                   // Ktor CIO 엔진 (HTTP/1.x)
+    // 사용할 백엔드만 compileOnly로 추가.
+    // 애플리케이션 프로젝트에서 런타임에 필요한 경우 implementation으로 변경하세요.
+    compileOnly("org.apache.httpcomponents.client5:httpclient5") // HC5
+    compileOnly("com.squareup.okhttp3:okhttp")                   // OkHttp3
+    compileOnly("io.vertx:vertx-core")                           // Vert.x
+    compileOnly("io.ktor:ktor-client-core")                      // Ktor Client (엔진 선택)
+    compileOnly("io.ktor:ktor-client-cio")                       // Ktor CIO 엔진 (HTTP/1.x)
 }
 ```
 
