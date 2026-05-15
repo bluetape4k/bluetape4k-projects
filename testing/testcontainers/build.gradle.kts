@@ -40,6 +40,26 @@ kover {
 tasks.test {
     dependsOn(":bluetape4k-mock-web-server:jibDockerBuild")
     dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")
+    useJUnitPlatform {
+        // K3s requires a privileged Docker runner. Excluded from regular CI by default.
+        // Enable with: ./gradlew :bluetape4k-testcontainers:test -PincludeK8s
+        if (!project.hasProperty("includeK8s")) {
+            excludeTags("k8s")
+        }
+    }
+}
+
+// Separate task for k8s-tagged tests (nightly privileged runner).
+tasks.register<Test>("k8sTest") {
+    description = "Runs @Tag(\"k8s\") tests — requires a privileged Docker runner."
+    group = "verification"
+    dependsOn(":bluetape4k-mock-web-server:jibDockerBuild")
+    dependsOn(":bluetape4k-mock-webflux-server:jibDockerBuild")
+    useJUnitPlatform {
+        includeTags("k8s")
+    }
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
 }
 
 dependencies {
@@ -110,6 +130,11 @@ dependencies {
     api(libs.testcontainers.cassandra)
     compileOnly(libs.cassandra.java.driver.core)
     compileOnly(libs.cassandra.java.driver.query.builder)
+
+    // Kubernetes (K3s)
+    api(libs.testcontainers.k3s)
+    compileOnly(libs.fabric8.kubernetes.client)
+    testImplementation(libs.fabric8.kubernetes.client)
 
     // Graph DB (Neo4j)
     compileOnly(libs.testcontainers.neo4j)
