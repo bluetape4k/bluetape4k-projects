@@ -10,6 +10,8 @@ import io.bluetape4k.testcontainers.graphdb.MemgraphServer.Companion.TAG
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy.Mode.WITH_OUTER_TIMEOUT
 import org.testcontainers.utility.DockerImageName
 import java.time.Duration
 
@@ -58,6 +60,8 @@ class MemgraphServer private constructor(
 
         /** CI 에서 컨테이너 startup hang 이 길어지지 않도록 제한합니다. */
         private val START_TIMEOUT: Duration = Duration.ofMinutes(3)
+
+        private const val READY_LOG_REGEX = ".*You are running Memgraph v.*"
 
         /**
          * [DockerImageName]을 직접 지정하여 [MemgraphServer] 인스턴스를 생성합니다.
@@ -131,7 +135,12 @@ class MemgraphServer private constructor(
         withStartupAttempts(1)
         addEnv("MEMGRAPH", "--telemetry-enabled=false")
         withCommand("--telemetry-enabled=false")
-        waitingFor(Wait.forListeningPort().withStartupTimeout(START_TIMEOUT))
+        waitingFor(
+            WaitAllStrategy(WITH_OUTER_TIMEOUT)
+                .withStrategy(Wait.forLogMessage(READY_LOG_REGEX, 1))
+                .withStrategy(Wait.forListeningPort())
+                .withStartupTimeout(START_TIMEOUT)
+        )
 
         if (useDefaultPort) {
             exposeCustomPorts(BOLT_PORT, LOG_PORT)
