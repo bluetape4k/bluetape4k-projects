@@ -7,10 +7,12 @@ import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.util.Properties
 
 /**
  * [ProducerSupport] 및 Producer 관련 유틸리티 함수에 대한 테스트 클래스입니다.
@@ -92,5 +94,25 @@ class ProducerSupportTest: AbstractKafkaTest() {
         val testProducer = KafkaServer.Launcher.createStringProducer()
         testProducer.shouldNotBeNull()
         testProducer.close()
+    }
+
+    @Test
+    fun `producerOf Properties로 Producer 생성`() {
+        val props = Properties().apply {
+            put("bootstrap.servers", KafkaServer.Launcher.kafka.bootstrapServers)
+            put("key.serializer", StringSerializer::class.java.name)
+            put("value.serializer", StringSerializer::class.java.name)
+            put("acks", "all")
+        }
+        val customProducer = producerOf<String, String>(props)
+        customProducer.shouldNotBeNull()
+        customProducer.close()
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `getMetricValue deprecated - 존재하지 않는 메트릭은 0_0을 반환한다`() {
+        val value = producer.getMetricValue("nonexistent-metric-xyz")
+        assert(value == 0.0) { "Nonexistent metric should return 0.0, got $value" }
     }
 }

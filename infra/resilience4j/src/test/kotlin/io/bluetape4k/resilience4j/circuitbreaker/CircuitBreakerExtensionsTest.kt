@@ -7,6 +7,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.IOException
+import java.util.concurrent.CompletableFuture
 import io.bluetape4k.assertions.assertFailsWith
 
 class CircuitBreakerExtensionsTest {
@@ -91,5 +92,105 @@ class CircuitBreakerExtensionsTest {
         assertFailsWith<CallNotPermittedException> {
             decorated(21)
         }
+    }
+
+    @Test
+    fun `runnable - 성공 시 실행된다`() {
+        val cb = CircuitBreaker.ofDefaults("test-runnable")
+        var executed = false
+        cb.runnable { executed = true }.invoke()
+        executed shouldBeEqualTo true
+        cb.metrics.numberOfSuccessfulCalls shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `checkedRunnable - 성공 시 실행된다`() {
+        val cb = CircuitBreaker.ofDefaults("test-checked-runnable")
+        var executed = false
+        cb.checkedRunnable { executed = true }.run()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `callable - 결과를 반환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-callable")
+        val result = cb.callable { 42 }.invoke()
+        result shouldBeEqualTo 42
+        cb.metrics.numberOfSuccessfulCalls shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `supplier - 결과를 반환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-supplier")
+        val result = cb.supplier { "hello" }.invoke()
+        result shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `checkedSupplier - 결과를 반환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-checked-supplier")
+        val result = cb.checkedSupplier { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `consumer - 입력을 처리한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-consumer")
+        var received: String? = null
+        cb.consumer<String> { received = it }.invoke("hello")
+        received shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `checkedConsumer - 입력을 처리한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-checked-consumer")
+        var received: String? = null
+        cb.checkedConsumer<String> { received = it }.accept("hello")
+        received shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `function - 결과를 변환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-function")
+        val result = cb.function { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `checkedFunction - 결과를 변환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-checked-function")
+        val result = cb.checkedFunction { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completionStatge - 비동기 결과를 반환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-cs")
+        val supplier = cb.completionStatge {
+            CompletableFuture.supplyAsync { 42 }
+        }
+        val result = supplier().toCompletableFuture().get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completableFuture - 비동기 결과를 변환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-cf")
+        val func = cb.completableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `decorateCompletableFuture - 비동기 결과를 변환한다`() {
+        val cb = CircuitBreaker.ofDefaults("test-dcf")
+        val func = cb.decorateCompletableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+        cb.metrics.numberOfSuccessfulCalls shouldBeEqualTo 1
     }
 }

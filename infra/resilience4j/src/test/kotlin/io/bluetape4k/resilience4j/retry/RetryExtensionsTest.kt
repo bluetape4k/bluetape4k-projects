@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import io.bluetape4k.assertions.assertFailsWith
 
 class RetryExtensionsTest {
@@ -131,5 +132,111 @@ class RetryExtensionsTest {
         val result = decorated(21)
         result shouldBeEqualTo 42
         (attempt >= 2).shouldBeTrue()
+    }
+
+    @Test
+    fun `runnable - 성공 시 실행된다`() {
+        var executed = false
+        retry.runnable { executed = true }.run()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `runnable - 예외 발생 시 maxAttempts만큼 재시도한다`() {
+        var count = 0
+        assertFailsWith<RuntimeException> {
+            retry.runnable {
+                count++
+                throw RuntimeException("fail")
+            }.run()
+        }
+        count shouldBeEqualTo retry.retryConfig.maxAttempts
+    }
+
+    @Test
+    fun `checkedRunnable - 성공 시 실행된다`() {
+        var executed = false
+        retry.checkedRunnable { executed = true }.run()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `callable - 결과를 반환한다`() {
+        val result = retry.callable { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `callable - 예외 발생 시 재시도한다`() {
+        var count = 0
+        assertFailsWith<IOException> {
+            retry.callable {
+                count++
+                throw IOException("fail")
+                @Suppress("UNREACHABLE_CODE")
+                42
+            }.invoke()
+        }
+        count shouldBeEqualTo retry.retryConfig.maxAttempts
+    }
+
+    @Test
+    fun `supplier - 결과를 반환한다`() {
+        val result = retry.supplier { "hello" }.invoke()
+        result shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `checkedSupplier - 결과를 반환한다`() {
+        val result = retry.checkedSupplier { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `function - 결과를 변환한다`() {
+        val result = retry.function { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `checkedFunction - 결과를 변환한다`() {
+        val result = retry.checkedFunction { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completionStage - 비동기 결과를 반환한다`() {
+        val supplier = retry.completionStage {
+            CompletableFuture.supplyAsync { 42 }
+        }
+        val result = supplier().toCompletableFuture().get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completableFutureFunction - 비동기 결과를 변환한다`() {
+        val func = retry.completableFutureFunction { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completableFuture - 비동기 결과를 변환한다`() {
+        val func = retry.completableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `withRetry async - 비동기 결과를 변환한다`() {
+        val func = withRetry<Int, Int>(retry) { input ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
     }
 }

@@ -1,8 +1,10 @@
 package io.bluetape4k.spring.cassandra.cql
 
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
@@ -77,5 +79,63 @@ class OptionsSupportTest {
         val cql = delete.addWriteOptions(options).build().query
 
         cql.contains("USING TIMESTAMP $TIMESTAMP").shouldBeEqualTo(true)
+    }
+
+    @Test
+    fun `queryOptions builder should create instance`() {
+        val options = queryOptions { pageSize(100) }
+        options.shouldNotBeNull()
+    }
+
+    @Test
+    fun `insertOptions builder should create instance`() {
+        val options = insertOptions { withIfNotExists() }
+        options.isIfNotExists.shouldBeTrue()
+    }
+
+    @Test
+    fun `updateOptions builder should create instance`() {
+        val options = updateOptions { withIfExists() }
+        options.isIfExists.shouldBeTrue()
+    }
+
+    @Test
+    fun `deleteOptions builder should create instance`() {
+        val options = deleteOptions { }
+        options.shouldNotBeNull()
+    }
+
+    @Test
+    fun `writeOptions with no ttl should not be positive ttl`() {
+        val options = writeOptions { }
+        options.isPositiveTtl.shouldBeFalse()
+    }
+
+    @Test
+    fun `insert should apply both ttl and timestamp`() {
+        val insert = QueryBuilder.insertInto(KEYSPACE, TABLE)
+            .value("id", QueryBuilder.literal(1))
+
+        val options = writeOptions {
+            ttl(Duration.ofSeconds(5))
+            timestamp(TIMESTAMP)
+        }
+
+        val cql = insert.addWriteOptions(options).build().query
+
+        cql.contains("USING TIMESTAMP $TIMESTAMP").shouldBeEqualTo(true)
+        cql.contains("TTL 5").shouldBeEqualTo(true)
+    }
+
+    @Test
+    fun `update non-UpdateStart should not apply options`() {
+        val update = QueryBuilder.update(KEYSPACE, TABLE)
+            .setColumn("name", QueryBuilder.literal("b"))
+            .whereColumn("id").isEqualTo(QueryBuilder.literal(1))
+
+        val options = writeOptions { timestamp(TIMESTAMP) }
+
+        val result = update.addWriteOptions(options)
+        result.shouldNotBeNull()
     }
 }

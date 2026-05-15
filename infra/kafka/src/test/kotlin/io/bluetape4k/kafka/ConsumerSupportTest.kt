@@ -7,11 +7,13 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.Properties
 
 /**
  * [ConsumerSupport] 및 Consumer 관련 유틸리티 함수에 대한 테스트 클래스입니다.
@@ -132,6 +134,20 @@ class ConsumerSupportTest: AbstractKafkaTest() {
     fun `Consumer 메트릭 조회`() {
         val metrics = consumer.metrics()
         metrics.shouldNotBeNull()
+    }
+
+    @Test
+    fun `consumerOf Properties로 Consumer 생성`() {
+        val props = Properties().apply {
+            put("bootstrap.servers", KafkaServer.Launcher.kafka.bootstrapServers)
+            put("group.id", "$testGroupId-props")
+            put("key.deserializer", StringDeserializer::class.java.name)
+            put("value.deserializer", StringDeserializer::class.java.name)
+            put("auto.offset.reset", "earliest")
+        }
+        val propsConsumer = consumerOf<String, String>(props)
+        propsConsumer.shouldNotBeNull()
+        propsConsumer.close()
     }
 
     @Test

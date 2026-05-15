@@ -3,6 +3,7 @@ package io.bluetape4k.kafka.streams.kstream
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.mockk.mockk
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.Topology
 import org.apache.kafka.streams.kstream.Branched
@@ -15,8 +16,12 @@ import org.apache.kafka.streams.kstream.Produced
 import org.apache.kafka.streams.kstream.Repartitioned
 import org.apache.kafka.streams.kstream.StreamJoined
 import org.apache.kafka.streams.kstream.TableJoined
+import org.apache.kafka.streams.kstream.Window
+import org.apache.kafka.streams.processor.StreamPartitioner
 import org.apache.kafka.streams.state.KeyValueStore
+import org.apache.kafka.streams.state.Stores
 import org.junit.jupiter.api.Test
+import java.time.Duration
 
 /**
  * Kafka Streams KStream DSL 관련 유틸리티 함수에 대한 테스트 클래스입니다.
@@ -206,6 +211,14 @@ class KStreamDslTest: AbstractKafkaTest() {
     }
 
     @Test
+    fun `branchedOf with function and no name`() {
+        val fn: (KStream<String, String>) -> KStream<String, String> = { s -> s }
+        val branched: Branched<String, String> = branchedOf(chain = fn)
+
+        branched.shouldNotBeNull()
+    }
+
+    @Test
     fun `branchedOf with consumer`() {
         val consumerFunction: (KStream<String, String>) -> Unit = { _ -> }
 
@@ -216,5 +229,85 @@ class KStreamDslTest: AbstractKafkaTest() {
             )
 
         branched.shouldNotBeNull()
+    }
+
+    @Test
+    fun `branchedOf with consumer and no name`() {
+        val fn: (KStream<String, String>) -> Unit = { _ -> }
+        val branched: Branched<String, String> = branchedOf(chain = fn)
+
+        branched.shouldNotBeNull()
+    }
+
+    @Test
+    fun `materializedOf with StoreType`() {
+        val materialized: Materialized<String, Long, KeyValueStore<org.apache.kafka.common.utils.Bytes, ByteArray>> =
+            materializedOf(Materialized.StoreType.IN_MEMORY)
+
+        materialized.shouldNotBeNull()
+    }
+
+    @Test
+    fun `materializedOf with WindowBytesStoreSupplier`() {
+        val windowSupplier = Stores.inMemoryWindowStore(
+            "test-window-store", Duration.ofMinutes(5), Duration.ofMinutes(1), false
+        )
+        val materialized = materializedOf<String, String>(windowSupplier)
+
+        materialized.shouldNotBeNull()
+    }
+
+    @Test
+    fun `materializedOf with SessionBytesStoreSupplier`() {
+        val sessionSupplier = Stores.persistentSessionStore("test-session-store", Duration.ofMinutes(30))
+        val materialized = materializedOf<String, String>(sessionSupplier)
+
+        materialized.shouldNotBeNull()
+    }
+
+    @Test
+    fun `materializedOf with KeyValueBytesStoreSupplier`() {
+        val kvSupplier = Stores.persistentKeyValueStore("test-kv-store")
+        val materialized = materializedOf<String, String>(kvSupplier)
+
+        materialized.shouldNotBeNull()
+    }
+
+    @Test
+    fun `streamJoinedOf with store suppliers`() {
+        val leftSupplier = Stores.inMemoryWindowStore(
+            "left-join-store", Duration.ofMinutes(5), Duration.ofMinutes(1), false
+        )
+        val rightSupplier = Stores.inMemoryWindowStore(
+            "right-join-store", Duration.ofMinutes(5), Duration.ofMinutes(1), false
+        )
+        val streamJoined: StreamJoined<String, String, Long> = streamJoinedOf(leftSupplier, rightSupplier)
+
+        streamJoined.shouldNotBeNull()
+    }
+
+    @Test
+    fun `repartitionedOf with partitioner`() {
+        val partitioner = StreamPartitioner<String, String> { _, _, _, numPartitions -> numPartitions - 1 }
+        val repartitioned: Repartitioned<String, String> = repartitionedOf(partitioner)
+
+        repartitioned.shouldNotBeNull()
+    }
+
+    @Test
+    fun `tableJoinedOf with partitioners`() {
+        val leftPartitioner = StreamPartitioner<String, Void> { _, key, _, numPartitions -> key.hashCode() % numPartitions }
+        val rightPartitioner = StreamPartitioner<Int, Void> { _, key, _, numPartitions -> key % numPartitions }
+        val tableJoined: TableJoined<String, Int> = tableJoinedOf(leftPartitioner, rightPartitioner)
+
+        tableJoined.shouldNotBeNull()
+    }
+
+    @Test
+    fun `windowedOf로 Windowed 인스턴스 생성`() {
+        val window = mockk<Window>()
+        val windowed = windowedOf("test-key", window)
+
+        windowed.shouldNotBeNull()
     }
 }

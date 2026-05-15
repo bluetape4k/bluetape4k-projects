@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import io.bluetape4k.assertions.assertFailsWith
@@ -128,7 +128,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send many messages with future`() {
+    fun `send many messages with future`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -145,7 +145,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send many messages with suspend`() {
+    fun `send many messages with suspend`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -163,7 +163,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send flow messages all async`() {
+    fun `send flow messages all async`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -181,7 +181,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send flow messages as parallel mode`() {
+    fun `send flow messages as parallel mode`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -197,38 +197,33 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send and forget flow messages`() {
+    fun `send and forget flow messages`() = runSuspendIO {
         val messages = randomStrings()
+        val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
-        runBlocking(Dispatchers.IO) {
-            val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
+        val sendTime = measureTimeMillis {
+            val records = messages.asFlow()
+                .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
 
-            val sendTime = measureTimeMillis {
-                val records = messages.asFlow()
-                    .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
-
-                producer.sendAndForget(records, true)
-            }
-
-            log.debug { "Send time=$sendTime" }
-            val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
-            log.debug { "Current sent count=$currSentTotal" }
+            producer.sendAndForget(records, true)
         }
+
+        log.debug { "Send time=$sendTime" }
+        val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
+        log.debug { "Current sent count=$currSentTotal" }
     }
 
-    private fun measureSendRecords(
+    private suspend fun measureSendRecords(
         expectCount: Int = MESSAGE_SIZE,
         block: suspend CoroutineScope.() -> Unit,
     ) {
-        runBlocking(Dispatchers.IO) {
-            val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
+        val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
-            block()
+        coroutineScope { block() }
 
-            val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
-            log.debug { "Current sent count=$currSentTotal" }
-            currSentTotal.toInt() shouldBeGreaterOrEqualTo expectCount
-        }
+        val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
+        log.debug { "Current sent count=$currSentTotal" }
+        currSentTotal.toInt() shouldBeGreaterOrEqualTo expectCount
     }
 
     private fun RecordMetadata.verifyRecordMetadata() {

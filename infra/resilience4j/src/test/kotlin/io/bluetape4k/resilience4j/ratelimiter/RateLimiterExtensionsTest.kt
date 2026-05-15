@@ -8,6 +8,7 @@ import io.github.resilience4j.ratelimiter.RequestNotPermitted
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import io.bluetape4k.assertions.assertFailsWith
 
 class RateLimiterExtensionsTest {
@@ -93,5 +94,94 @@ class RateLimiterExtensionsTest {
         assertFailsWith<RequestNotPermitted> {
             decorated(21)
         }
+    }
+
+    @Test
+    fun `runnable - 성공 시 실행된다`() {
+        val rl = unlimitedRateLimiter()
+        var executed = false
+        rl.runnable { executed = true }.invoke()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `checkedRunnable - 성공 시 실행된다`() {
+        val rl = unlimitedRateLimiter()
+        var executed = false
+        rl.checkedRunnable { executed = true }.run()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `callable - 결과를 반환한다`() {
+        val rl = unlimitedRateLimiter()
+        val result = rl.callable { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `supplier - 결과를 반환한다`() {
+        val rl = unlimitedRateLimiter()
+        val result = rl.supplier { "hello" }.invoke()
+        result shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `checkedSupplier - 결과를 반환한다`() {
+        val rl = unlimitedRateLimiter()
+        val result = rl.checkedSupplier { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `consumer - 입력을 처리한다`() {
+        val rl = unlimitedRateLimiter()
+        var received: String? = null
+        rl.consumer<String> { received = it }.invoke("hello")
+        received shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `function - 결과를 변환한다`() {
+        val rl = unlimitedRateLimiter()
+        val result = rl.function { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `checkedFunction - 결과를 변환한다`() {
+        val rl = unlimitedRateLimiter()
+        val result = rl.checkedFunction { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completionStage - 비동기 결과를 반환한다`() {
+        val rl = unlimitedRateLimiter()
+        val supplier = rl.completionStage {
+            CompletableFuture.supplyAsync { 42 }
+        }
+        val result = supplier().toCompletableFuture().get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completableFuture - 비동기 결과를 변환한다`() {
+        val rl = unlimitedRateLimiter()
+        val func = rl.completableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `decorateCompletableFuture - 비동기 결과를 변환한다`() {
+        val rl = unlimitedRateLimiter()
+        val func = rl.decorateCompletableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
     }
 }

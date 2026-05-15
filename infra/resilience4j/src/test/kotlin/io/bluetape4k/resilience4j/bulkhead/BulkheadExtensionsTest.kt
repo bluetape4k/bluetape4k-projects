@@ -8,6 +8,7 @@ import io.github.resilience4j.bulkhead.BulkheadFullException
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import io.bluetape4k.assertions.assertFailsWith
 
 class BulkheadExtensionsTest {
@@ -81,5 +82,115 @@ class BulkheadExtensionsTest {
         }
 
         decorated(20, 22) shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `runnable - 성공 시 실행된다`() {
+        val bulkhead = defaultBulkhead()
+        var executed = false
+        bulkhead.runnable { executed = true }.invoke()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `runnable - bulkhead 초과 시 BulkheadFullException 발생한다`() {
+        val bulkhead = Bulkhead.of("test-zero-runnable-${System.nanoTime()}") {
+            BulkheadConfig.custom()
+                .maxConcurrentCalls(0)
+                .maxWaitDuration(Duration.ZERO)
+                .build()
+        }
+        assertFailsWith<BulkheadFullException> {
+            bulkhead.runnable { }.invoke()
+        }
+    }
+
+    @Test
+    fun `checkedRunnable - 성공 시 실행된다`() {
+        val bulkhead = defaultBulkhead()
+        var executed = false
+        bulkhead.checkedRunnable { executed = true }.run()
+        executed shouldBeEqualTo true
+    }
+
+    @Test
+    fun `callable - 결과를 반환한다`() {
+        val bulkhead = defaultBulkhead()
+        val result = bulkhead.callable { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `supplier - 결과를 반환한다`() {
+        val bulkhead = defaultBulkhead()
+        val result = bulkhead.supplier { "hello" }.invoke()
+        result shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `checkedSupplier - 결과를 반환한다`() {
+        val bulkhead = defaultBulkhead()
+        val result = bulkhead.checkedSupplier { 42 }.invoke()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `consumer - 입력을 처리한다`() {
+        val bulkhead = defaultBulkhead()
+        var received: String? = null
+        bulkhead.consumer<String> { received = it }.invoke("hello")
+        received shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `checkedConsumer - 입력을 처리한다`() {
+        val bulkhead = defaultBulkhead()
+        var received: String? = null
+        bulkhead.checkedConsumer<String> { received = it }.accept("hello")
+        received shouldBeEqualTo "hello"
+    }
+
+    @Test
+    fun `function - 결과를 변환한다`() {
+        val bulkhead = defaultBulkhead()
+        val result = bulkhead.function { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `checkedFunction - 결과를 변환한다`() {
+        val bulkhead = defaultBulkhead()
+        val result = bulkhead.checkedFunction { input: Int -> input * 2 }.invoke(21)
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completionStage - 비동기 결과를 반환한다`() {
+        val bulkhead = defaultBulkhead()
+        val supplier = bulkhead.completionStage {
+            CompletableFuture.supplyAsync { 42 }
+        }
+        val result = supplier().toCompletableFuture().get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `completableFuture - 비동기 결과를 변환한다`() {
+        val bulkhead = defaultBulkhead()
+        val func = bulkhead.completableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `decorateCompletableFuture - 비동기 결과를 변환한다`() {
+        val bulkhead = defaultBulkhead()
+        val func = bulkhead.decorateCompletableFuture { input: Int ->
+            CompletableFuture.supplyAsync { input * 2 }
+        }
+        val result = func(21).get()
+        result shouldBeEqualTo 42
     }
 }
