@@ -6,7 +6,7 @@ English | [한국어](./README.ko.md)
 
 `bluetape4k-http` integrates multiple HTTP client libraries through Kotlin extension functions and DSLs.
 
-It provides a consistent interface for Apache HttpComponents 5, OkHttp3, and Vert.x HttpClient, with built-in support for Kotlin Coroutines and Virtual Threads.
+It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, and Ktor Client, with built-in support for Kotlin Coroutines and Virtual Threads.
 
 ## Architecture
 
@@ -21,7 +21,7 @@ flowchart TD
 
     subgraph bluetape4k-http
         EXT[executeSuspending\nextension functions]
-        DSL[Builder DSLs\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf]
+        DSL[Builder DSLs\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf / ktorCioHttpClientOf]
     end
 
     subgraph Backends["HTTP Client Backends"]
@@ -30,6 +30,7 @@ flowchart TD
         HC5CA[HC5 Caching\ncachingHttpAsyncClient]
         OKH[OkHttp3\nokhttp3Client]
         VTX[Vert.x HttpClient\nvertxHttpClientOf]
+        KTOR[Ktor CIO\nktorCioHttpClientOf]
     end
 
     APP --> CO
@@ -40,11 +41,13 @@ flowchart TD
     DSL --> HC5CA
     DSL --> OKH
     DSL --> VTX
+    DSL --> KTOR
     HC5A --> SERVER[(HTTP Server)]
     HC5C --> SERVER
     HC5CA --> SERVER
     OKH --> SERVER
     VTX --> SERVER
+    KTOR --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
     classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
@@ -55,7 +58,7 @@ flowchart TD
     class APP coreStyle
     class CO asyncStyle
     class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,VTX serviceStyle
+    class HC5A,HC5C,HC5CA,OKH,VTX,KTOR serviceStyle
     class SERVER extStyle
 ```
 
@@ -380,6 +383,20 @@ Async / coroutine modes can exceed this ceiling without blocking threads.
 | Cache persistence across restarts | OkHttp3 + DiskLruCache |
 | General high-throughput (no caching needed) | HC5 Classic VirtualThread or OkHttp3 |
 | High-latency async bulk requests | HC5 Async Coroutines or Vert.x WebClient |
+| Ktor-based apps / coroutine-first calls | Ktor CIO |
+
+## Backend Comparison
+
+| Client | Protocol | Characteristics | Use case |
+|--------|----------|-----------------|----------|
+| HC5 Async | HTTP/1.x, HTTP/2 | Full-featured, caching, SSL, Virtual Thread | Enterprise backend, high-throughput |
+| HC5 Classic | HTTP/1.x, HTTP/2 | Synchronous, VirtualThread support | Legacy code, blocking I/O |
+| OkHttp3 | HTTP/1.x, HTTP/2 | Interceptors, DiskLruCache, MockWebServer | General-purpose, Android-compatible |
+| JDK | HTTP/1.x, HTTP/2 | Standard library, no extra dependency | Minimal footprint, Java-native |
+| Vert.x | HTTP/1.x, HTTP/2 | Event-loop, reactive, ALPN | Vert.x-based applications |
+| Ktor CIO | HTTP/1.x | Suspend-native, Ktor plugin ecosystem, lightweight | Ktor-based apps/libraries and coroutine-first calls |
+
+> **Note**: Ktor CIO does not support HTTP/2. For HTTP/2 use cases, prefer HC5 Async, JDK, or OkHttp3.
 
 ## Coroutines Support
 
@@ -421,8 +438,10 @@ io.bluetape4k.http
 │   ├── CachingRequestInterceptor.kt
 │   ├── CachingResponseInterceptor.kt
 │   └── mock/               # MockWebServer utilities
-└── vertx/                  # Vert.x HttpClient
-    └── VertxHttpClientSupport.kt
+├── vertx/                  # Vert.x HttpClient
+│   └── VertxHttpClientSupport.kt
+└── ktor/                   # Ktor Client (optional, suspend-native)
+    └── KtorHttpClientSupport.kt
 ```
 
 ## Dependencies
@@ -431,9 +450,13 @@ io.bluetape4k.http
 dependencies {
     implementation(project(":bluetape4k-http"))
 
-    // Optional (add only what you need)
-    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("io.vertx:vertx-core")                    // Vert.x
+    // Add compileOnly for each backend you use.
+    // Change to implementation in application projects where runtime availability is required.
+    compileOnly("org.apache.httpcomponents.client5:httpclient5") // HC5
+    compileOnly("com.squareup.okhttp3:okhttp")                   // OkHttp3
+    compileOnly("io.vertx:vertx-core")                           // Vert.x
+    compileOnly("io.ktor:ktor-client-core")                      // Ktor Client (any engine)
+    compileOnly("io.ktor:ktor-client-cio")                       // Ktor CIO engine (HTTP/1.x)
 }
 ```
 
@@ -466,10 +489,12 @@ Covered packages:
 | `hc5/ssl` | ✅ | `SslSupportTest` |
 | `jdk` | ✅ | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest` |
 | `okhttp3` | ✅ | Multiple tests |
+| `ktor` | ✅ | `KtorHttpClientSupportTest` |
 
 ## References
 
 - [Apache HttpComponents 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Vert.x HttpClient](https://vertx.io/docs/vertx-core/kotlin/)
+- [Ktor Client](https://ktor.io/docs/client-create-and-configure.html)
 - [httpbin.org](https://httpbin.org/) - HTTP testing API

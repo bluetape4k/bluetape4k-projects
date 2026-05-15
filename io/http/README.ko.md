@@ -6,7 +6,7 @@
 
 `bluetape4k-http`는 다양한 HTTP 클라이언트 라이브러리를 Kotlin 확장 함수와 DSL로 통합하여 제공하는 모듈입니다.
 
-Apache HttpComponents 5, OkHttp3, Vert.x HttpClient 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
+Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관된 방식으로 사용할 수 있으며, Kotlin Coroutines와 Virtual Threads를 기본 지원합니다.
 
 ## 아키텍처
 
@@ -21,7 +21,7 @@ flowchart TD
 
     subgraph bluetape4k-http
         EXT[executeSuspending\n확장 함수]
-        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf]
+        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf / ktorCioHttpClientOf]
     end
 
     subgraph Backends["HTTP 클라이언트 백엔드"]
@@ -30,6 +30,7 @@ flowchart TD
         HC5CA[HC5 캐싱\ncachingHttpAsyncClient]
         OKH[OkHttp3\nokhttp3Client]
         VTX[Vert.x HttpClient\nvertxHttpClientOf]
+        KTOR[Ktor CIO\nktorCioHttpClientOf]
     end
 
     APP --> CO
@@ -40,11 +41,13 @@ flowchart TD
     DSL --> HC5CA
     DSL --> OKH
     DSL --> VTX
+    DSL --> KTOR
     HC5A --> SERVER[(HTTP 서버)]
     HC5C --> SERVER
     HC5CA --> SERVER
     OKH --> SERVER
     VTX --> SERVER
+    KTOR --> SERVER
 
     classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
     classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
@@ -55,7 +58,7 @@ flowchart TD
     class APP coreStyle
     class CO asyncStyle
     class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,VTX serviceStyle
+    class HC5A,HC5C,HC5CA,OKH,VTX,KTOR serviceStyle
     class SERVER extStyle
 ```
 
@@ -304,6 +307,9 @@ val vertxClient = vertxHttpClientOf(options)
 | HC5 Async         | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합    | 고성능 비동기 통신    |
 | OkHttp3           | HTTP/1.1, HTTP/2 | 경량, Virtual Thread 기본 | 범용 HTTP 클라이언트 |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | 이벤트 루프 기반             | Vert.x 생태계 통합 |
+| Ktor CIO          | HTTP/1.x         | suspend-native, 경량, Ktor 플러그인 생태계 | Ktor 기반 앱 / 코루틴 우선 호출 |
+
+> **참고**: Ktor CIO는 HTTP/2를 지원하지 않습니다. HTTP/2가 필요한 경우 HC5 Async, JDK, 또는 OkHttp3를 사용하세요.
 
 ## 성능 벤치마크
 
@@ -442,8 +448,10 @@ io.bluetape4k.http
 │   ├── CachingRequestInterceptor.kt
 │   ├── CachingResponseInterceptor.kt
 │   └── mock/               # MockWebServer 유틸리티
-└── vertx/                  # Vert.x HttpClient
-    └── VertxHttpClientSupport.kt
+├── vertx/                  # Vert.x HttpClient
+│   └── VertxHttpClientSupport.kt
+└── ktor/                   # Ktor Client (선택적, suspend-native)
+    └── KtorHttpClientSupport.kt
 ```
 
 ## 의존성
@@ -452,9 +460,13 @@ io.bluetape4k.http
 dependencies {
     implementation(project(":bluetape4k-http"))
 
-    // 선택적 의존성 (필요한 것만 추가)
-    implementation("com.squareup.okhttp3:okhttp")           // OkHttp3
-    implementation("io.vertx:vertx-core")                    // Vert.x
+    // 사용할 백엔드만 compileOnly로 추가.
+    // 애플리케이션 프로젝트에서 런타임에 필요한 경우 implementation으로 변경하세요.
+    compileOnly("org.apache.httpcomponents.client5:httpclient5") // HC5
+    compileOnly("com.squareup.okhttp3:okhttp")                   // OkHttp3
+    compileOnly("io.vertx:vertx-core")                           // Vert.x
+    compileOnly("io.ktor:ktor-client-core")                      // Ktor Client (엔진 선택)
+    compileOnly("io.ktor:ktor-client-cio")                       // Ktor CIO 엔진 (HTTP/1.x)
 }
 ```
 
@@ -485,10 +497,12 @@ dependencies {
 | `hc5/ssl` | ✅ | `SslSupportTest` |
 | `jdk` | ✅ | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest` |
 | `okhttp3` | ✅ | 다수의 테스트 |
+| `ktor` | ✅ | `KtorHttpClientSupportTest` |
 
 ## 참고
 
 - [Apache HttpComponents 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
 - [OkHttp](https://square.github.io/okhttp/)
 - [Vert.x HttpClient](https://vertx.io/docs/vertx-core/kotlin/)
+- [Ktor Client](https://ktor.io/docs/client-create-and-configure.html)
 - [httpbin.org](https://httpbin.org/) - HTTP 테스트용 API
