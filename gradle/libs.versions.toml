@@ -81,6 +81,7 @@ h2-v2 = "2.4.240"  # https://mvnrepository.com/artifact/com.h2database/h2
 agroal = "3.1"  # https://mvnrepository.com/artifact/io.agroal/agroal-api
 
 blaze-persistence = "3.34.6"  # https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-core-api
+blaze-persistence-jakarta = "1.6.16"  # https://repo1.maven.org/maven2/com/blazebit/blaze-persistence-integration-hibernate-7.0/
 javers = "7.11.0"  # https://mvnrepository.com/artifact/org.javers/javers-core
 
 slf4j = "2.0.17"  # https://mvnrepository.com/artifact/org.slf4j/slf4j-api
@@ -477,6 +478,14 @@ aws2-url-connection-client = { module = "software.amazon.awssdk:url-connection-c
 aws2-utils = { module = "software.amazon.awssdk:utils", version.ref = "aws2" }
 aws2-test-utils = { module = "software.amazon.awssdk:test-utils", version.ref = "aws2" }
 aws2-aws-crt = { module = "software.amazon.awssdk.crt:aws-crt", version.ref = "aws2-crt" }
+
+blaze-persistence-core-api-jakarta = { module = "com.blazebit:blaze-persistence-core-api-jakarta", version.ref = "blaze-persistence-jakarta" }
+blaze-persistence-core-impl-jakarta = { module = "com.blazebit:blaze-persistence-core-impl-jakarta", version.ref = "blaze-persistence-jakarta" }
+blaze-persistence-entity-view-api-jakarta = { module = "com.blazebit:blaze-persistence-entity-view-api-jakarta", version.ref = "blaze-persistence-jakarta" }
+blaze-persistence-entity-view-impl-jakarta = { module = "com.blazebit:blaze-persistence-entity-view-impl-jakarta", version.ref = "blaze-persistence-jakarta" }
+blaze-persistence-jpa-criteria-api-jakarta = { module = "com.blazebit:blaze-persistence-jpa-criteria-api-jakarta", version.ref = "blaze-persistence-jakarta" }
+blaze-persistence-jpa-criteria-impl-jakarta = { module = "com.blazebit:blaze-persistence-jpa-criteria-impl-jakarta", version.ref = "blaze-persistence-jakarta" }
+blaze-persistence-integration-hibernate7 = { module = "com.blazebit:blaze-persistence-integration-hibernate-7.0", version.ref = "blaze-persistence-jakarta" }
 
 # AWS Kotlin SDK
 aws-kotlin-aws-core = { module = "aws.sdk.kotlin:aws-core", version.ref = "aws-kotlin" }

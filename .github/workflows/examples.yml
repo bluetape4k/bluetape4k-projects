@@ -75,6 +75,8 @@ jobs:
           tasks=(
             :bluetape4k-examples-coroutines-demo:compileKotlin
             :bluetape4k-examples-coroutines-demo:test
+            :bluetape4k-examples-jpa-blazepersistence-demo:compileKotlin
+            :bluetape4k-examples-jpa-blazepersistence-demo:test
             :bluetape4k-examples-jpa-querydsl-demo:compileKotlin
             :bluetape4k-examples-jpa-querydsl-demo:test
             :bluetape4k-examples-redisson-demo:compileKotlin
