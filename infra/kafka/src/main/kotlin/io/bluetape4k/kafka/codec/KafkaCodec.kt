@@ -93,22 +93,25 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
     /**
      * Package prefix allowlist for types loaded from the [VALUE_TYPE_KEY] header.
      *
+     * Each entry is matched against the incoming class name as follows:
+     * - **Exact match**: `clazzName == entry` — allows a specific fully-qualified class name.
+     * - **Package prefix**: `clazzName.startsWith("$entry.")` — allows all classes under that package.
+     *
+     * Semantics by value:
      * - **Empty set (default)**: deny all — no class is loaded from the header.
-     *   This is the safe default for untrusted or shared Kafka topics.
-     * - **Non-empty set**: allow only classes whose fully-qualified name equals one of
-     *   the entries or starts with `"<entry>."`.
-     * - **[ALLOW_ALL_TYPES_UNSAFE]**: bypass all checks (pre-1.8.0 behavior, unsafe).
+     *   Safe default for untrusted or shared Kafka topics.
+     * - **Non-empty set**: allow only classes whose FQN exactly equals or starts with `"<entry>."`.
+     * - **[ALLOW_ALL_TYPES_UNSAFE]**: bypass all checks (pre-1.8.0 allow-all behavior, unsafe).
      *
      * ```kotlin
-     * // Safe: only allow DTOs in your own package
-     * class SecureJacksonCodec : JacksonKafkaCodec() {
-     *     override val allowedTypePackages = setOf("com.example.dto", "io.bluetape4k.domain")
-     * }
+     * // Safe: allow all DTOs under a specific package
+     * val codec = JacksonKafkaCodec(allowedTypePackages = setOf("com.example.dto"))
      *
-     * // Unsafe (legacy): allow any class from the header
-     * class LegacyJacksonCodec : JacksonKafkaCodec() {
-     *     override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
-     * }
+     * // Also safe: allow only one specific class
+     * val singleClass = JacksonKafkaCodec(allowedTypePackages = setOf("com.example.dto.OrderEvent"))
+     *
+     * // Unsafe legacy mode (opt-in only)
+     * val legacy = JacksonKafkaCodec(allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE)
      * ```
      */
     open val allowedTypePackages: Set<String> = emptySet()
@@ -203,6 +206,10 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             if (allowedTypePackages.isEmpty() ||
                 allowedTypePackages.none { clazzName == it || clazzName.startsWith("$it.") }
             ) {
+                log.warn {
+                    "[SECURITY] Rejected class '$clazzName' from Kafka header — not in allowedTypePackages=$allowedTypePackages. " +
+                    "If intentional, add the package to allowedTypePackages or use ALLOW_ALL_TYPES_UNSAFE (unsafe)."
+                }
                 throw IllegalArgumentException(
                     "Class '$clazzName' is not in allowedTypePackages=$allowedTypePackages. " +
                     "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
