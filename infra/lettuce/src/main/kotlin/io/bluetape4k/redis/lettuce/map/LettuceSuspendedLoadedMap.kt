@@ -121,14 +121,24 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      */
     suspend fun get(key: K): V? {
         val redisKey = redisKey(key)
-        val cached = runCatching { asyncCommands.get(redisKey).await() }
-            .onFailure { log.warn(it) { "Redis GET 실패, loader fallback: $redisKey" } }
-            .getOrNull()
+        val cached = try {
+            asyncCommands.get(redisKey).await()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) { "Redis GET 실패, loader fallback: $redisKey" }
+            null
+        }
         if (cached != null) return cached
         val loader = loader ?: return null
         val value = loader.load(key) ?: return null
-        runCatching { asyncCommands.set(redisKey, value, SetArgs().ex(ttlSeconds)).await() }
-            .onFailure { log.warn(it) { "Redis SETEX 실패: $redisKey" } }
+        try {
+            asyncCommands.set(redisKey, value, SetArgs().ex(ttlSeconds)).await()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) { "Redis SETEX 실패: $redisKey" }
+        }
         return value
     }
 
@@ -317,41 +327,55 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     private suspend fun writeToDeadLetter(batch: Map<K, V>) {
         // HSET (recovery values) first; LPUSH (monitoring keys) only on success.
         // Two commands use different codec connections so MULTI/EXEC is not possible.
-        runCatching {
+        try {
             val deadLetterKey = "${config.keyPrefix}:dead-letter"
             val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
             val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
             asyncCommands.hset(deadLetterValuesKey, valueMap).await()
             val serializedKeys = batch.keys.map { keySerializer(it) }
             strAsyncCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray()).await()
-        }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.error(e) { "Dead letter 기록 실패" }
+        }
     }
 
     private suspend fun flushBatch(entries: List<Triple<K, V, Int>>) {
         if (entries.isEmpty()) return
         val batch = entries.associate { it.first to it.second }
-        runCatching { writer?.write(batch) }
-            .onFailure { e ->
-                val retryCount = entries.first().third + 1
-                log.error(e) { "Write-behind flush 실패 (attempt $retryCount): ${batch.keys}" }
-                if (retryCount < MAX_DEAD_LETTER_RETRY) {
-                    val dropped = mutableMapOf<K, V>()
-                    entries.forEach { (k, v, _) ->
-                        val result = writeBehindChannel?.trySend(Triple(k, v, retryCount))
-                        if (result == null || result.isFailure) {
-                            log.warn { "Requeue failed for key=$k (attempt $retryCount): channel full or closed" }
-                            dropped[k] = v
-                        }
+        try {
+            writer?.write(batch)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            val retryCount = entries.first().third + 1
+            log.error(e) { "Write-behind flush 실패 (attempt $retryCount): ${batch.keys}" }
+            if (retryCount < MAX_DEAD_LETTER_RETRY) {
+                val dropped = mutableMapOf<K, V>()
+                entries.forEach { (k, v, _) ->
+                    val result = writeBehindChannel?.trySend(Triple(k, v, retryCount))
+                    if (result == null || result.isFailure) {
+                        log.warn { "Requeue failed for key=$k (attempt $retryCount): channel full or closed" }
+                        dropped[k] = v
                     }
-                    if (dropped.isNotEmpty()) {
-                        writeToDeadLetter(dropped)
-                    }
-                } else {
-                    writeToDeadLetter(batch)
                 }
+                if (dropped.isNotEmpty()) {
+                    writeToDeadLetter(dropped)
+                }
+            } else {
+                writeToDeadLetter(batch)
             }
+        }
     }
 
+    /**
+     * Releases resources held by this map.
+     *
+     * **In coroutine contexts**: prefer [suspendClose] to avoid blocking the thread.
+     * This method uses [runBlocking] internally and will block the calling thread
+     * while waiting for the write-behind job to finish flushing.
+     */
     override fun close() {
         // 1. 채널을 먼저 닫아 새 write 차단 (producer가 IllegalStateException을 던짐)
         writeBehindChannel?.close()
@@ -362,6 +386,26 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
                     job.join()
                 }
+            }
+        }
+        ownedJob.cancel()
+        if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
+        connection.close()
+    }
+
+    /**
+     * Releases resources held by this map without blocking the calling thread.
+     *
+     * This is the coroutine-safe alternative to [close]. Call this from a coroutine
+     * context to avoid thread blocking while waiting for the write-behind job to drain.
+     */
+    suspend fun suspendClose() {
+        // 1. 채널을 먼저 닫아 새 write 차단
+        writeBehindChannel?.close()
+        // 2. write-behind job이 drain을 마칠 때까지 suspend로 대기
+        writeBehindJob?.let { job ->
+            withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
+                job.join()
             }
         }
         ownedJob.cancel()
