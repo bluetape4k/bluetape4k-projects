@@ -8,10 +8,12 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.okio.toTimeout
 import io.bluetape4k.retrofit2.toIOException
 import io.vertx.core.http.HttpClient
+import io.vertx.core.http.HttpClientRequest
 import io.vertx.kotlin.core.http.requestOptionsOf
 import kotlinx.atomicfu.atomic
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -104,6 +106,13 @@ class VertxCallFactory private constructor(
         private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
         private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
+        private val tags = ConcurrentHashMap<Class<*>, Any>()
+
+        @Volatile
+        private var cancelled = false
+
+        @Volatile
+        private var vertxRequest: HttpClientRequest? = null
 
         override fun execute(): okhttp3.Response {
             log.debug { "Execute VertxCall. request=$okRequest" }
@@ -147,10 +156,19 @@ class VertxCallFactory private constructor(
 
             client.request(options)
                 .onSuccess { clientRequest ->
-                    val vertxRequest = okRequest.toVertxHttpClientRequest(clientRequest)
-                    log.trace { "Send vertx request ... request=$vertxRequest, version=${vertxRequest.version()}" }
+                    val req = okRequest.toVertxHttpClientRequest(clientRequest)
+                    vertxRequest = req
+                    log.trace { "Send vertx request ... request=$req, version=${req.version()}" }
 
-                    vertxRequest.send()
+                    // If cancel() was called before vertxRequest was assigned, reset and
+                    // complete the promise so enqueue() callbacks fire and execute() unblocks.
+                    if (cancelled) {
+                        req.reset()
+                        promise.cancel(true)
+                        return@onSuccess
+                    }
+
+                    req.send()
                         .onSuccess { vertxResponse ->
                             vertxResponse.toOkResponse(okRequest, promise)
                         }
@@ -170,15 +188,15 @@ class VertxCallFactory private constructor(
         }
 
         override fun cancel() {
-            promise?.let { promise ->
-                if (!promise.cancel(true)) {
-                    log.warn { "Cannot cancel promise. $promise" }
-                }
-            }
+            cancelled = true
+            promise?.cancel(true)
+            // reset() is idempotent in Vert.x 5.x (returns false on subsequent calls),
+            // so a concurrent double-reset between executeAsync and cancel() is safe.
+            vertxRequest?.reset()
         }
 
         override fun isCanceled(): Boolean {
-            return promise?.isCancelled ?: false
+            return cancelled
         }
 
         override fun clone(): okhttp3.Call {
@@ -193,13 +211,21 @@ class VertxCallFactory private constructor(
             return timeout
         }
 
-        override fun <T: Any> tag(type: KClass<T>): T? = null
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> tag(type: KClass<T>): T? =
+            (tags[type.java] ?: okRequest.tag(type.java)) as? T
 
-        override fun <T> tag(type: Class<out T>): T? = null
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> tag(type: Class<out T>): T? =
+            (tags[type] ?: okRequest.tag(type)) as? T
 
-        override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T =
+            tags.computeIfAbsent(type.java) { okRequest.tag(type.java) ?: computeIfAbsent() } as T
 
-        override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T =
+            tags.computeIfAbsent(type) { okRequest.tag(type) ?: computeIfAbsent() } as T
 
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")

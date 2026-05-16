@@ -15,7 +15,9 @@ import org.apache.hc.core5.reactor.IOReactorStatus
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
@@ -117,6 +119,13 @@ class Hc5CallFactory private constructor(
         private val promiseRef = atomic<CompletableFuture<okhttp3.Response>?>(null)
         private var promise by promiseRef
         private val timeout = callTimeout.toTimeout()
+        private val tags = ConcurrentHashMap<Class<*>, Any>()
+
+        @Volatile
+        private var cancelled = false
+
+        @Volatile
+        private var hc5Future: Future<SimpleHttpResponse>? = null
 
         override fun execute(): okhttp3.Response {
             log.debug { "Execute Hc5Call. request=$okRequest" }
@@ -154,7 +163,7 @@ class Hc5CallFactory private constructor(
 
             val simpleRequest = okRequest.toSimpleHttpRequest()
 
-            asyncClient.execute(simpleRequest, object: FutureCallback<SimpleHttpResponse> {
+            hc5Future = asyncClient.execute(simpleRequest, object: FutureCallback<SimpleHttpResponse> {
                 override fun completed(result: SimpleHttpResponse) {
                     try {
                         val okResponse: okhttp3.Response = result.toOkHttp3Response(okRequest)
@@ -173,6 +182,11 @@ class Hc5CallFactory private constructor(
                 }
             })
 
+            // If cancel() was called before hc5Future was assigned, cancel now
+            if (cancelled) {
+                hc5Future?.cancel(true)
+            }
+
             return promise
         }
 
@@ -181,15 +195,13 @@ class Hc5CallFactory private constructor(
         }
 
         override fun cancel() {
-            promise?.let { promise ->
-                if (!promise.cancel(true)) {
-                    log.warn { "Cannot cancel promise. $promise" }
-                }
-            }
+            cancelled = true
+            promise?.cancel(true)
+            hc5Future?.cancel(true)
         }
 
         override fun isCanceled(): Boolean {
-            return promise?.isCancelled ?: false
+            return cancelled
         }
 
         override fun clone(): okhttp3.Call {
@@ -204,13 +216,21 @@ class Hc5CallFactory private constructor(
             return timeout
         }
 
-        override fun <T: Any> tag(type: KClass<T>): T? = null
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> tag(type: KClass<T>): T? =
+            (tags[type.java] ?: okRequest.tag(type.java)) as? T
 
-        override fun <T> tag(type: Class<out T>): T? = null
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> tag(type: Class<out T>): T? =
+            (tags[type] ?: okRequest.tag(type)) as? T
 
-        override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T =
+            tags.computeIfAbsent(type.java) { okRequest.tag(type.java) ?: computeIfAbsent() } as T
 
-        override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T = computeIfAbsent()
+        @Suppress("UNCHECKED_CAST")
+        override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T =
+            tags.computeIfAbsent(type) { okRequest.tag(type) ?: computeIfAbsent() } as T
 
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")
