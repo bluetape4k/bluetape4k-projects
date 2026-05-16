@@ -12,9 +12,14 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 
 @RandomizedTest
 @TempFolderTest
@@ -100,5 +105,52 @@ class FileSupportTest: AbstractIOTest() {
         path.writeAsync("abc".toByteArray(), append = false).join()
 
         path.readAllBytesAsync().join().decodeToString() shouldBeEqualTo "abc"
+    }
+
+    @Test
+    fun `createTempDirectory는 존재하는 디렉토리를 원자적으로 생성한다`() {
+        val dir = createTempDirectory(prefix = "test-atomic-", deleteAtExit = false)
+        try {
+            dir.shouldNotBeNull()
+            dir.exists().shouldBeTrue()
+            dir.isDirectory.shouldBeTrue()
+        } finally {
+            dir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun `createTempDirectory는 서로 다른 고유한 경로를 반환한다`() {
+        val dir1 = createTempDirectory(prefix = "test-unique-", deleteAtExit = false)
+        val dir2 = createTempDirectory(prefix = "test-unique-", deleteAtExit = false)
+        try {
+            dir1.canonicalPath shouldNotBeEqualTo dir2.canonicalPath
+            dir1.isDirectory.shouldBeTrue()
+            dir2.isDirectory.shouldBeTrue()
+        } finally {
+            dir1.deleteRecursively()
+            dir2.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun `createTempDirectory는 동시 호출에서도 충돌 없이 고유한 디렉토리를 생성한다`() {
+        val created = ConcurrentLinkedQueue<String>()
+        try {
+            MultithreadingTester()
+                .workers(8)
+                .rounds(10)
+                .add {
+                    val dir = createTempDirectory(prefix = "test-concurrent-", deleteAtExit = false)
+                    created.add(dir.canonicalPath)
+                }
+                .run()
+
+            val paths = created.toList()
+            paths.toSet().size shouldBeEqualTo paths.size  // all paths unique
+            paths.all { java.io.File(it).isDirectory }.shouldBeTrue()
+        } finally {
+            created.forEach { java.io.File(it).deleteRecursively() }
+        }
     }
 }
