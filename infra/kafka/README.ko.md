@@ -211,8 +211,9 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 
 | `allowedTypePackages` 값 | 동작 |
 |--------------------------|------|
-| `emptySet()` (기본값) | 모든 클래스 허용 — 하위 호환, 신뢰 환경 전용 |
-| 비어 있지 않은 집합 | 나열된 패키지 하위 클래스만 허용; 그 외 poison-pill `null` |
+| `emptySet()` (기본값) | **모든 클래스 차단** — 타입 헤더에서 클래스를 로드하지 않음. 신뢰할 수 없거나 공유된 토픽에 대한 안전한 기본값. |
+| 비어 있지 않은 집합 | 나열된 패키지 접두사와 일치하는 FQN 클래스만 허용; 그 외 poison-pill `null` 반환. |
+| `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | 모든 검사 우회 — 1.8.0 이전의 허용-전체 동작 복원. 완전히 신뢰할 수 있는 내부 환경에서만 사용. |
 
 ### 5. Spring KafkaTemplate과 Coroutines
 
