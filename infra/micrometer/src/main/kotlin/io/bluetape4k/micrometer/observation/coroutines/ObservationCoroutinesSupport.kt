@@ -84,7 +84,12 @@ suspend inline fun <T: Any> Observation.observeSuspending(
     }
 
 /**
- * [observeSuspending] 결과를 [Result] 로 감싸 예외를 호출자에게 위임하지 않습니다.
+ * Wraps [observeSuspending] in a [Result], returning failure for non-cancellation errors.
+ *
+ * ## Behaviour / Contract
+ * - Returns `Result.success(value)` when the block completes normally.
+ * - Returns `Result.failure(exception)` for non-cancellation exceptions.
+ * - Rethrows [CancellationException] so structured cancellation is preserved.
  *
  * ```kotlin
  * val registry = ObservationRegistry.create()
@@ -96,18 +101,25 @@ suspend inline fun <T: Any> Observation.observeSuspending(
  * // result.getOrNull() == "observed-result"
  * ```
  *
- * @param T 결과 타입
- * @param block Observation 컨텍스트를 받아 실행할 suspend 블록
- * @return 성공 시 블록 결과, 실패 시 예외를 담은 [Result]
+ * @param T result type
+ * @param block suspend block receiving the [Observation.Context]
+ * @return [Result] wrapping the block result or the non-cancellation failure
  */
 suspend inline fun <T: Any> Observation.tryObserveSuspending(
     crossinline block: suspend (Observation.Context) -> T?,
-): Result<T> =
-    runCatching {
-        withObservationContextSuspending { ctx: Observation.Context ->
-            block(ctx)
-        } ?: throw NoSuchElementException()
+): Result<T> {
+    return try {
+        Result.success(
+            withObservationContextSuspending { ctx: Observation.Context ->
+                block(ctx)
+            } ?: throw NoSuchElementException()
+        )
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        Result.failure(e)
     }
+}
 
 /**
  * 이름을 기준으로 새 [Observation]을 만들고 suspend 블록을 실행합니다.
@@ -136,7 +148,12 @@ suspend inline fun <T: Any> withObservationSuspending(
     }
 
 /**
- * [withObservationSuspending] 결과를 [Result] 로 감싸 반환합니다.
+ * Wraps [withObservationSuspending] in a [Result], returning failure for non-cancellation errors.
+ *
+ * ## Behaviour / Contract
+ * - Returns `Result.success(value)` when the block completes normally.
+ * - Returns `Result.failure(exception)` for non-cancellation exceptions.
+ * - Rethrows [CancellationException] so structured cancellation is preserved.
  *
  * ```kotlin
  * val registry = ObservationRegistry.create()
@@ -147,20 +164,27 @@ suspend inline fun <T: Any> withObservationSuspending(
  * // result.getOrNull() == "user-data"
  * ```
  *
- * @param T 결과 타입
- * @param name Observation 이름
- * @param registry Observation 등록 대상 [ObservationRegistry]
- * @param block Observation 이 바인딩된 상태로 실행할 suspend 블록
- * @return 성공 시 블록 결과, 실패 시 예외를 담은 [Result]
+ * @param T result type
+ * @param name observation name
+ * @param registry [ObservationRegistry] to register the observation with
+ * @param block suspend block to execute under the observation
+ * @return [Result] wrapping the block result or the non-cancellation failure
  */
 suspend inline fun <T: Any> tryWithObservationSuspending(
     name: String,
     registry: ObservationRegistry,
     crossinline block: suspend () -> T,
-): Result<T> =
-    runCatching {
-        withObservationSuspending(name, registry, block) ?: throw NoSuchElementException()
+): Result<T> {
+    return try {
+        Result.success(
+            withObservationSuspending(name, registry, block) ?: throw NoSuchElementException()
+        )
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Throwable) {
+        Result.failure(e)
     }
+}
 
 /**
  * Suspend 함수 실행 시 Micrometer Observation을 이용하여 관찰(Observe)할 수 있도록 합니다.
