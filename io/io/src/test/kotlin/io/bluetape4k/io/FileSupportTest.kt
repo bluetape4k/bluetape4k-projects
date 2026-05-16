@@ -15,12 +15,11 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 @RandomizedTest
 @TempFolderTest
@@ -136,21 +135,18 @@ class FileSupportTest: AbstractIOTest() {
 
     @Test
     fun `createTempDirectory는 동시 호출에서도 충돌 없이 고유한 디렉토리를 생성한다`() {
-        val count = 50
         val created = CopyOnWriteArrayList<String>()
-        val executor = Executors.newFixedThreadPool(8)
         try {
-            repeat(count) {
-                executor.submit {
+            MultithreadingTester()
+                .workers(8)
+                .rounds(10)
+                .add {
                     val dir = createTempDirectory(prefix = "test-concurrent-", deleteAtExit = false)
                     created.add(dir.canonicalPath)
                 }
-            }
-            executor.shutdown()
-            executor.awaitTermination(10, TimeUnit.SECONDS)
+                .run()
 
-            created.size shouldBeEqualTo count
-            created.toSet().size shouldBeEqualTo count  // all paths unique
+            created.toSet().size shouldBeEqualTo created.size  // all paths unique
             created.all { java.io.File(it).isDirectory }.shouldBeTrue()
         } finally {
             created.forEach { java.io.File(it).deleteRecursively() }
