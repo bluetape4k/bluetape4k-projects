@@ -22,8 +22,10 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.io.Closeable
 
@@ -381,16 +383,21 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         writeBehindChannel?.close()
         // 2. writeBehindJob이 채널을 drain하고 자연스럽게 종료될 때까지 대기
         //    취소 전에 join해야 남은 배치가 손실 없이 flush됨
-        writeBehindJob?.let { job ->
-            runBlocking(Dispatchers.IO) {
-                withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
-                    job.join()
+        try {
+            writeBehindJob?.let { job ->
+                runBlocking(Dispatchers.IO) {
+                    withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
+                        job.join()
+                    }
                 }
             }
+        } catch (e: Exception) {
+            log.warn(e) { "Write-behind job drain timed out or failed during close()" }
+        } finally {
+            ownedJob.cancel()
+            if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
+            connection.close()
         }
-        ownedJob.cancel()
-        if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-        connection.close()
     }
 
     /**
@@ -402,14 +409,22 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     suspend fun suspendClose() {
         // 1. 채널을 먼저 닫아 새 write 차단
         writeBehindChannel?.close()
-        // 2. write-behind job이 drain을 마칠 때까지 suspend로 대기
-        writeBehindJob?.let { job ->
-            withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
-                job.join()
+        // 2. write-behind job이 drain을 마칠 때까지 suspend로 대기.
+        //    NonCancellable 컨텍스트에서 실행해 호출자 취소에도 정리 블록이 실행되도록 보장.
+        try {
+            writeBehindJob?.let { job ->
+                withContext(NonCancellable) {
+                    withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
+                        job.join()
+                    }
+                }
             }
+        } catch (e: Exception) {
+            log.warn(e) { "Write-behind job drain timed out or failed during suspendClose()" }
+        } finally {
+            ownedJob.cancel()
+            if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
+            connection.close()
         }
-        ownedJob.cancel()
-        if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-        connection.close()
     }
 }

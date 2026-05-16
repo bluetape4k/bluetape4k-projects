@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.map
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import kotlin.test.assertFailsWith
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisFuture
@@ -145,13 +146,44 @@ class LettuceSuspendedLoadedMapMockTest {
 
         val map = buildMap(asyncCommands, loader = loader)
 
-        var caughtCancellation = false
-        try {
+        assertFailsWith<CancellationException> {
             map.get("key1")
-        } catch (e: CancellationException) {
-            caughtCancellation = true
         }
-        // CancellationException must propagate out of get(), not be swallowed
-        caughtCancellation shouldBeEqualTo true
+    }
+
+    @Test
+    fun `get - CancellationException from asyncCommands await is rethrown, not swallowed`() = runSuspendIO {
+        // This test verifies the actual fix: runCatching { await() } → try/catch that rethrows CE.
+        // A future completed with CancellationException must escape get(), not be silently swallowed.
+        val asyncCommands = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
+        every { asyncCommands.get(any<String>()) } returns
+            failedRedisFuture(CancellationException("redis command cancelled"))
+
+        val map = buildMap(asyncCommands, loader = null)
+
+        assertFailsWith<CancellationException> {
+            map.get("key1")
+        }
+    }
+
+    @Test
+    fun `get - CancellationException from asyncCommands SET await is rethrown`() = runSuspendIO {
+        // Verifies the SETEX path: CE from set().await() must not be swallowed.
+        val asyncCommands = mockk<RedisAsyncCommands<String, String>>(relaxed = true)
+
+        // GET misses (null) → loader returns value → SET fails with CE
+        every { asyncCommands.get(any<String>()) } returns completedRedisFuture(null)
+        every { asyncCommands.set(any(), any(), any<SetArgs>()) } returns
+            failedRedisFuture(CancellationException("set cancelled"))
+
+        val loader = mockk<SuspendedMapLoader<String, String>>()
+        coEvery { loader.load("key1") } returns "value1"
+        coEvery { loader.loadAllKeys() } returns emptyList()
+
+        val map = buildMap(asyncCommands, loader = loader)
+
+        assertFailsWith<CancellationException> {
+            map.get("key1")
+        }
     }
 }

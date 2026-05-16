@@ -56,6 +56,7 @@ class WorkAdapterTest: AbstractWorkflowTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `SuspendWork asBlocking 정상 변환`() {
         val suspendWork = SuspendWork { ctx -> WorkReport.success(ctx) }
         val blockingWork = suspendWork.asBlocking()
@@ -66,6 +67,7 @@ class WorkAdapterTest: AbstractWorkflowTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `SuspendWork asBlocking 결과가 원본 SuspendWork와 동일`() {
         val ctx = WorkContext()
         ctx["input"] = 42
