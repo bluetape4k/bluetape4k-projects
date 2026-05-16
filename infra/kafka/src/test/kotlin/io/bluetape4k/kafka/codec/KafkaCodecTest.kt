@@ -6,7 +6,9 @@ class KafkaCodecTest {
 
     @Nested
     inner class JacksonCodecTest: AbstractKafkaCodecTest() {
-        override val codec: KafkaCodec<Any?> = KafkaCodecs.Jackson
+        override val codec: KafkaCodec<Any?> = JacksonKafkaCodec(
+            allowedTypePackages = setOf("io.bluetape4k.kafka.codec")
+        )
     }
 
     @Nested
