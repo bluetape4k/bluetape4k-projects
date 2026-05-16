@@ -4,6 +4,7 @@ import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * JCache를 이용하는 [JCacheAsyncMemoizer]를 생성합니다.
@@ -23,7 +24,7 @@ fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemoizer(
     JCacheAsyncMemoizer(this, evaluator)
 
 /**
- * JCache를 이용하여 메소드의 실행 결과를 캐시하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ * Memoizes an async function using a JCache so repeated calls return the cached result.
  *
  * ```kotlin
  * val cachingProvider = Caching.getCachingProvider()
@@ -34,9 +35,13 @@ fun <T: Any, R: Any> javax.cache.Cache<T, R>.asyncMemoizer(
  * // result == 5
  * ```
  *
- * ## Virtual Thread 안전성
- * `putIfAbsent` 기반 in-flight 추적을 사용하여 Carrier Thread 고정(pinning) 없이
- * Virtual Thread 환경에서도 안전하게 동작합니다.
+ * ## Thread Safety / Virtual Thread Safety
+ * - Uses `putIfAbsent`-based in-flight tracking — no `synchronized` blocks, safe for virtual threads.
+ * - A generation counter prevents write-after-clear races: if [clear] is called while an evaluator
+ *   is in flight, the stale result is discarded and never written to the cache.
+ * - `inFlight` removal uses value-aware two-arg `remove(key, value)` so a freshly installed
+ *   promise is not accidentally evicted by a concurrent completion from a previous generation.
+ * - The caller's [CompletableFuture] is always completed regardless of the generation check.
  */
 class JCacheAsyncMemoizer<in T: Any, R: Any>(
     private val jcache: javax.cache.Cache<@UnsafeVariance T, R>,
@@ -46,39 +51,47 @@ class JCacheAsyncMemoizer<in T: Any, R: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<@UnsafeVariance T, CompletableFuture<R>>()
+    private val generation = AtomicLong(0)
 
     override fun invoke(input: T): CompletableFuture<R> {
-        // 1. 완료된 결과 캐시 hit
         jcache.get(input)?.let { return CompletableFuture.completedFuture(it) }
 
-        // 2. in-flight 확인 또는 신규 등록
         val promise = CompletableFuture<R>()
         val existing = inFlight.putIfAbsent(input, promise)
         if (existing != null) return existing
 
-        // 3. evaluator를 lock 밖에서 실행 (Virtual Thread-safe)
+        val capturedGen = generation.get()
+
+        fun completeExceptionally(error: Throwable) {
+            inFlight.remove(input, promise)
+            promise.completeExceptionally(error)
+        }
+
         runCatching { evaluator(input) }
             .fold(
                 onSuccess = { future ->
                     future.whenComplete { result, error ->
-                        inFlight.remove(input)
-                        if (error != null) promise.completeExceptionally(error)
-                        else {
-                            jcache.put(input, result)
+                        if (error != null) {
+                            completeExceptionally(error)
+                        } else if (result == null) {
+                            completeExceptionally(NullPointerException("evaluator returned null for input $input"))
+                        } else {
+                            inFlight.remove(input, promise)
+                            if (generation.get() == capturedGen) {
+                                jcache.put(input, result)
+                            }
                             promise.complete(result)
                         }
                     }
                 },
-                onFailure = { error ->
-                    inFlight.remove(input)
-                    promise.completeExceptionally(error)
-                }
+                onFailure = ::completeExceptionally
             )
 
         return promise
     }
 
     override fun clear() {
+        generation.incrementAndGet()
         inFlight.clear()
         jcache.clear()
     }
