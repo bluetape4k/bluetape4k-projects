@@ -248,6 +248,29 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
         }
     }
 
+    @Test
+    fun `getAll - 모든 키가 캐시 미스인 경우 loader로 모두 처리한다`() {
+        val loaderCallCount = AtomicInteger(0)
+        val loader =
+            object: MapLoader<String, String> {
+                override fun load(key: String): String {
+                    loaderCallCount.incrementAndGet()
+                    return "fallback-$key"
+                }
+
+                override fun loadAllKeys(): Iterable<String> = emptyList()
+            }
+
+        newMap(loader = loader).use { map ->
+            // No pre-populated keys — all will be cache misses
+            val result = map.getAll(setOf("k1", "k2", "k3"))
+            result["k1"] shouldBeEqualTo "fallback-k1"
+            result["k2"] shouldBeEqualTo "fallback-k2"
+            result["k3"] shouldBeEqualTo "fallback-k3"
+            loaderCallCount.get() shouldBeEqualTo 3
+        }
+    }
+
     // =========================================================================
     // deleteAll / clear
     // =========================================================================
