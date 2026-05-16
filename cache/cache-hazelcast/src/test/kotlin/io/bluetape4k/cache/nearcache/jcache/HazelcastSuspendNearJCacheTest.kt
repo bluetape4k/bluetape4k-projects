@@ -8,7 +8,12 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Disabled
 import java.time.Duration
 
-@Disabled("HazelcastSuspendNearJCache 가 EventListener 제대로 동작하지 않습니다")
+@Disabled(
+    "이유: Hazelcast는 CacheEntryListenerConfiguration을 클러스터 전체에 직렬화하여 배포하므로 " +
+        "CaffeineSuspendJCache(non-Serializable)를 캡처한 SuspendJCacheEntryEventListener를 등록할 수 없습니다. " +
+        "HazelcastSerializationException: NotSerializableException(CaffeineSuspendJCache). " +
+        "Tracked: #490"
+)
 class HazelcastSuspendNearJCacheTest: AbstractSuspendNearJCacheTest() {
 
     companion object: KLoggingChannel()

@@ -49,11 +49,27 @@ abstract class AbstractSuspendNearJCacheTest
     protected val frontCoCache1 by lazy { createFrontSuspendCache(Duration.ofMinutes(5)) }
     protected val frontCoCache2 by lazy { createFrontSuspendCache(Duration.ofMinutes(10)) }
 
+    /**
+     * Creates a [SuspendNearJCache] for the given front and back caches.
+     *
+     * Override in subclasses that cannot register a listener (e.g. Hazelcast, which requires
+     * [javax.cache.configuration.CacheEntryListenerConfiguration] to be Serializable for cluster
+     * distribution) to call [SuspendNearJCache.withoutListener] instead.
+     *
+     * The default implementation calls [SuspendNearJCache.invoke] which registers a
+     * [io.bluetape4k.cache.jcache.SuspendJCacheEntryEventListener] on [backSuspendJCache] so that
+     * mutations propagate from back → front.
+     */
+    protected open fun createSuspendNearJCache(
+        front: SuspendJCache<String, Any>,
+        back: SuspendJCache<String, Any>,
+    ): SuspendNearJCache<String, Any> = SuspendNearJCache.invoke(front, back)
+
     protected val suspendNearJCache1: SuspendNearJCache<String, Any> by lazy {
-        SuspendNearJCache(frontCoCache1, backSuspendJCache)
+        createSuspendNearJCache(frontCoCache1, backSuspendJCache)
     }
     protected val suspendNearJCache2: SuspendNearJCache<String, Any> by lazy {
-        SuspendNearJCache(frontCoCache2, backSuspendJCache)
+        createSuspendNearJCache(frontCoCache2, backSuspendJCache)
     }
 
     @BeforeEach
