@@ -212,8 +212,9 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 
 | `allowedTypePackages` value | Effect |
 |-----------------------------|--------|
-| `emptySet()` (default) | All classes allowed — backward-compatible, trusted environments only |
-| Non-empty set | Only classes under listed package prefixes allowed; others → poison-pill `null` |
+| `emptySet()` (default) | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics. |
+| Non-empty set | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`. |
+| `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | Bypass all checks — restores pre-1.8.0 allow-all behavior. Use only in fully trusted, internally controlled deployments. |
 
 ### 5. Spring KafkaTemplate with Coroutines
 
