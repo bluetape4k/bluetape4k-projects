@@ -14,8 +14,8 @@ import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.future.await
@@ -83,6 +83,11 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
 
     private val ttlSeconds = config.ttl.seconds
 
+    // Internal job owned by this instance; child of the provided scope's job.
+    // close() cancels ownedJob only — never the caller's scope.
+    private val ownedJob = SupervisorJob(parent = scope.coroutineContext[Job])
+    private val ownedScope = CoroutineScope(scope.coroutineContext + ownedJob)
+
     // Write-behind: Channel + coroutine consumer
     private val writeBehindChannel: Channel<Triple<K, V, Int>>? =
         if (config.writeMode == WriteMode.WRITE_BEHIND) {
@@ -93,7 +98,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
 
     private val writeBehindJob =
         writeBehindChannel?.let {
-            scope.launch { consumeWriteBehindChannel() }
+            ownedScope.launch { consumeWriteBehindChannel() }
         }
 
     private fun redisKey(key: K): String = "${config.keyPrefix}:${keySerializer(key)}"
@@ -291,6 +296,19 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         }
     }
 
+    private suspend fun writeToDeadLetter(batch: Map<K, V>) {
+        // HSET (recovery values) first; LPUSH (monitoring keys) only on success.
+        // Two commands use different codec connections so MULTI/EXEC is not possible.
+        runCatching {
+            val deadLetterKey = "${config.keyPrefix}:dead-letter"
+            val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
+            val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
+            asyncCommands.hset(deadLetterValuesKey, valueMap).await()
+            val serializedKeys = batch.keys.map { keySerializer(it) }
+            strAsyncCommands.lpush(deadLetterKey, *serializedKeys.toTypedArray()).await()
+        }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
+    }
+
     private suspend fun flushBatch(entries: List<Triple<K, V, Int>>) {
         if (entries.isEmpty()) return
         val batch = entries.associate { it.first to it.second }
@@ -299,24 +317,19 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 val retryCount = entries.first().third + 1
                 log.error(e) { "Write-behind flush 실패 (attempt $retryCount): ${batch.keys}" }
                 if (retryCount < MAX_DEAD_LETTER_RETRY) {
+                    val dropped = mutableMapOf<K, V>()
                     entries.forEach { (k, v, _) ->
-                        writeBehindChannel?.trySend(Triple(k, v, retryCount))
+                        val result = writeBehindChannel?.trySend(Triple(k, v, retryCount))
+                        if (result == null || result.isFailure) {
+                            log.warn { "Requeue failed for key=$k (attempt $retryCount): channel full or closed" }
+                            dropped[k] = v
+                        }
+                    }
+                    if (dropped.isNotEmpty()) {
+                        writeToDeadLetter(dropped)
                     }
                 } else {
-                    runCatching {
-                        // 개선: HSET(복구용 값)을 먼저 저장한 후 LPUSH(모니터링용 키 목록)를 저장합니다.
-                        //       두 명령은 서로 다른 codec connection을 사용하므로 MULTI/EXEC 불가.
-                        //       HSET 실패 시 LPUSH를 건너뛰어 복구 불가 상태(모니터링 오탐)를 방지합니다.
-                        val deadLetterKey = "${config.keyPrefix}:dead-letter"
-                        val deadLetterValuesKey = "${config.keyPrefix}:dead-letter:values"
-                        val valueMap = batch.entries.associate { (k, v) -> keySerializer(k) to v }
-                        // HSET 먼저: 실패 시 LPUSH 건너뜀 (복구 데이터 우선)
-                        asyncCommands.hset(deadLetterValuesKey, valueMap).await()
-                        val serializedKeys = batch.keys.map { keySerializer(it) }
-                        strAsyncCommands
-                            .lpush(deadLetterKey, *serializedKeys.toTypedArray())
-                            .await()
-                    }.onFailure { ex -> log.error(ex) { "Dead letter 기록 실패" } }
+                    writeToDeadLetter(batch)
                 }
             }
     }
@@ -333,7 +346,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 }
             }
         }
-        scope.cancel()
+        ownedJob.cancel()
         if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
         connection.close()
     }
