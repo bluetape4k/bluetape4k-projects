@@ -44,12 +44,13 @@ open class Resumable {
     private val continuation by continuationRef
 
     /**
-     * 외부에서 [resume] 신호가 올 때까지 현재 코루틴을 대기시킵니다.
+     * Suspends the current coroutine until [resume] is called externally.
      *
-     * ## 동작/계약
-     * - 이미 재개된 상태면 suspend 없이 즉시 반환합니다.
-     * - 다른 코루틴이 이미 대기 중이면 `IllegalStateException`이 발생합니다.
-     * - 복귀 직후 내부 continuation 슬롯을 `null`로 되돌립니다.
+     * ## Behaviour / Contract
+     * - Returns immediately without suspending if already in the READY state.
+     * - Throws `IllegalStateException` if another coroutine is already waiting.
+     * - Clears the internal continuation slot before returning.
+     * - Cancellation clears the waiter slot so a subsequent `await()` succeeds normally.
      */
     suspend fun await() {
         suspendCancellableCoroutine { cont ->
@@ -63,6 +64,11 @@ open class Resumable {
                     throw IllegalStateException("Only one thread can await a Resumable")
                 }
                 if (continuationRef.compareAndSet(current, cont)) {
+                    // Clear only this continuation on cancellation; leave READY intact if
+                    // resume() already replaced it before the handler fires.
+                    cont.invokeOnCancellation {
+                        continuationRef.compareAndSet(cont, null)
+                    }
                     break
                 }
             }

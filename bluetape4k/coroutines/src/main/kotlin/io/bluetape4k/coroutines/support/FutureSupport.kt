@@ -9,10 +9,11 @@ import java.util.concurrent.Future
 /**
  * `Future`를 중단 가능 방식으로 대기하고 완료 값을 반환합니다.
  *
- * ## 동작/계약
- * - `CompletionStage` 구현체면 `await()`를 사용해 바로 대기합니다.
- * - 그 외 `Future`는 `asCompletableFuture()`로 변환해 `await()`로 대기합니다.
- * - 이미 취소된 `Future`면 `CancellationException`을 던집니다.
+ * ## Behaviour / Contract
+ * - Delegates to `await()` directly when the receiver is a `CompletionStage`.
+ * - Wraps other `Future` types via `asCompletableFuture()` then awaits.
+ * - Throws `CancellationException` if the `Future` is already cancelled.
+ * - Cancelling the caller propagates to the underlying `Future` via `cancel(false)`.
  *
  * ```kotlin
  * val future = java.util.concurrent.CompletableFuture.completedFuture(42)
