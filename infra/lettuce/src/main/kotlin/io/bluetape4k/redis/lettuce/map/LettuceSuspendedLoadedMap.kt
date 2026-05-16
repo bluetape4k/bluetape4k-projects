@@ -12,6 +12,7 @@ import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.codec.StringCodec
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -176,16 +177,29 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         val keyList = keys.toList()
         val redisKeys = keyList.map { redisKey(it) }.toTypedArray()
 
-        val values = runCatching { asyncCommands.mget(*redisKeys).await() }.getOrNull() ?: emptyList()
+        val mgetResult = try {
+            asyncCommands.mget(*redisKeys).await()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            log.warn(e) { "Redis MGET 실패, loader fallback: ${redisKeys.take(5)}..." }
+            null
+        }
 
         val result = mutableMapOf<K, V>()
-        val missedKeys = mutableListOf<K>()
+        val missedKeys: MutableList<K>
 
-        values.forEachIndexed { i, kv ->
-            if (kv != null && kv.hasValue()) {
-                result[keyList[i]] = kv.value
-            } else {
-                missedKeys.add(keyList[i])
+        if (mgetResult == null) {
+            // MGET failed entirely — treat all requested keys as cache misses
+            missedKeys = keyList.toMutableList()
+        } else {
+            missedKeys = mutableListOf()
+            mgetResult.forEachIndexed { i, kv ->
+                if (kv != null && kv.hasValue()) {
+                    result[keyList[i]] = kv.value
+                } else {
+                    missedKeys.add(keyList[i])
+                }
             }
         }
 
@@ -193,9 +207,13 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
             for (key in missedKeys) {
                 val value = loader.load(key) ?: continue
                 result[key] = value
-                runCatching {
+                try {
                     asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
-                }.onFailure { log.warn(it) { "Redis SETEX 실패: ${redisKey(key)}" } }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    log.warn(e) { "Redis SETEX 실패: ${redisKey(key)}" }
+                }
             }
         }
         return result

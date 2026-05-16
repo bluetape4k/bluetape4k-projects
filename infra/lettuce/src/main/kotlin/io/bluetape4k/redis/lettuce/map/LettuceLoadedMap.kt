@@ -167,18 +167,24 @@ class LettuceLoadedMap<K: Any, V: Any>(
         val keyList = keys.toList()
         val redisKeys = keyList.map { redisKey(it) }.toTypedArray()
 
-        val values = runCatching { commands.mget(*redisKeys) }
+        val mgetResult = runCatching { commands.mget(*redisKeys) }
             .onFailure { log.warn(it) { "Redis MGET 실패, loader fallback: ${redisKeys.take(5)}..." } }
-            .getOrNull() ?: emptyList()
+            .getOrNull()
 
         val result = mutableMapOf<K, V>()
-        val missedKeys = mutableListOf<K>()
+        val missedKeys: MutableList<K>
 
-        values.forEachIndexed { i, kv ->
-            if (kv != null && kv.hasValue()) {
-                result[keyList[i]] = kv.value
-            } else {
-                missedKeys.add(keyList[i])
+        if (mgetResult == null) {
+            // MGET failed entirely — treat all requested keys as cache misses
+            missedKeys = keyList.toMutableList()
+        } else {
+            missedKeys = mutableListOf()
+            mgetResult.forEachIndexed { i, kv ->
+                if (kv != null && kv.hasValue()) {
+                    result[keyList[i]] = kv.value
+                } else {
+                    missedKeys.add(keyList[i])
+                }
             }
         }
 

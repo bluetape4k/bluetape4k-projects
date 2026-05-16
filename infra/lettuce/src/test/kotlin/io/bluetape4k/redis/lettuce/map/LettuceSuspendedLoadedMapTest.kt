@@ -146,4 +146,47 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
             strConn.close()
         }
     }
+
+    @Test
+    fun `getAll - 일부 캐시 미스 키는 loader로 Read-through한다`() = runSuspendIO {
+        val loaderCallCount = AtomicInteger(0)
+        val loader = object: SuspendedMapLoader<String, String> {
+            override suspend fun load(key: String): String {
+                loaderCallCount.incrementAndGet()
+                return "from-db-$key"
+            }
+
+            override suspend fun loadAllKeys(): List<String> = emptyList()
+        }
+
+        newMap(loader = loader).use { map ->
+            map.set("k1", "cached-v1")
+            val result = map.getAll(setOf("k1", "k2", "k3"))
+            result["k1"] shouldBeEqualTo "cached-v1"
+            result["k2"] shouldBeEqualTo "from-db-k2"
+            result["k3"] shouldBeEqualTo "from-db-k3"
+            loaderCallCount.get() shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `getAll - 모든 키가 캐시 미스인 경우 loader로 모두 처리한다`() = runSuspendIO {
+        val loaderCallCount = AtomicInteger(0)
+        val loader = object: SuspendedMapLoader<String, String> {
+            override suspend fun load(key: String): String {
+                loaderCallCount.incrementAndGet()
+                return "fallback-$key"
+            }
+
+            override suspend fun loadAllKeys(): List<String> = emptyList()
+        }
+
+        newMap(loader = loader).use { map ->
+            val result = map.getAll(setOf("k1", "k2", "k3"))
+            result["k1"] shouldBeEqualTo "fallback-k1"
+            result["k2"] shouldBeEqualTo "fallback-k2"
+            result["k3"] shouldBeEqualTo "fallback-k3"
+            loaderCallCount.get() shouldBeEqualTo 3
+        }
+    }
 }
