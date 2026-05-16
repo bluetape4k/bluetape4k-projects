@@ -73,11 +73,10 @@ class CaffeineAsyncMemoizer<T: Any, R: Any>(
     override fun invoke(input: T): CompletableFuture<R> {
         cache.getIfPresent(input)?.let { return CompletableFuture.completedFuture(it) }
 
+        val capturedGen = generation.get()
         val promise = CompletableFuture<R>()
         val existing = inFlight.putIfAbsent(input, promise)
         if (existing != null) return existing
-
-        val capturedGen = generation.get()
 
         fun completeExceptionally(error: Throwable) {
             inFlight.remove(input, promise)

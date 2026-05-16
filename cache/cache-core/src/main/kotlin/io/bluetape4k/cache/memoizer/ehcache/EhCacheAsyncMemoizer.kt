@@ -86,11 +86,10 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
     override fun invoke(key: T): CompletableFuture<R> {
         cache.get(key)?.let { return CompletableFuture.completedFuture(it) }
 
+        val capturedGen = generation.get()
         val promise = CompletableFuture<R>()
         val existing = inFlight.putIfAbsent(key, promise)
         if (existing != null) return existing
-
-        val capturedGen = generation.get()
 
         fun completeExceptionally(error: Throwable) {
             inFlight.remove(key, promise)

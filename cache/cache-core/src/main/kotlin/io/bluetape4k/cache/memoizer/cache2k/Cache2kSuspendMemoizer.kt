@@ -37,14 +37,6 @@ fun <T: Any, R: Any> (suspend (T) -> R).withSuspendMemoizer(
     Cache2kSuspendMemoizer(cache, this)
 
 /**
- * Cache2k 기반 [SuspendMemoizer] 구현체입니다.
- *
- * ```kotlin
- * val memo = SuspendCache2kMemoizer(cache) { key: String -> key.length }
- * // memo("abcd") == 4
- * ```
- */
-/**
  * Cache2k-backed [SuspendMemoizer] that deduplicates concurrent evaluations per key.
  *
  * ## Recursion Safety
