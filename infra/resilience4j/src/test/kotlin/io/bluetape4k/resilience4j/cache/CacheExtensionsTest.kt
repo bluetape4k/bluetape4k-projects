@@ -153,4 +153,30 @@ class CacheExtensionsTest {
 
         thrown.message shouldBeEqualTo cancellation.message
     }
+
+    @Test
+    fun `CacheCoroutineLocks release removes mutex entry when all callers release`() = runSuspendTest {
+        val jcache = CaffeineJCacheProvider.getJCache<String, String>("refcount-test")
+        val cache = Cache.of(jcache)
+        val key = "refcount-test-key"
+
+        // Two callers acquire a Mutex for the same key — they must get the same instance.
+        val mutex1 = CacheCoroutineLocks.mutexFor(cache, key)
+        val mutex2 = CacheCoroutineLocks.mutexFor(cache, key)
+        (mutex1 === mutex2) shouldBeEqualTo true
+
+        // Release one of the two references — entry must still be alive.
+        CacheCoroutineLocks.release(cache, key, mutex1)
+        val mutex3 = CacheCoroutineLocks.mutexFor(cache, key)
+        (mutex3 === mutex1) shouldBeEqualTo true   // same entry still present
+
+        // Release all remaining references (mutex2 + mutex3 = 2 remaining).
+        CacheCoroutineLocks.release(cache, key, mutex2)
+        CacheCoroutineLocks.release(cache, key, mutex3)
+
+        // Entry has been removed. A fresh mutexFor call must create a new Mutex instance.
+        val mutex4 = CacheCoroutineLocks.mutexFor(cache, key)
+        (mutex4 === mutex1) shouldBeEqualTo false  // new Mutex after full release
+        CacheCoroutineLocks.release(cache, key, mutex4)
+    }
 }
