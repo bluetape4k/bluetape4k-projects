@@ -310,6 +310,7 @@ jobs:
 
           excluded_tasks=(
             -x :bluetape4k-examples-coroutines-demo:build
+            -x :bluetape4k-examples-jpa-blazepersistence-demo:build
             -x :bluetape4k-examples-jpa-querydsl-demo:build
             -x :bluetape4k-examples-redisson-demo:build
             -x :bluetape4k-examples-virtualthreads-demo:build

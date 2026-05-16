@@ -319,6 +319,7 @@ When rebuilding mock server Docker images with Jib, always disable the Gradle co
 Demonstration modules showing library usage. Not published to Maven.
 
 - **[coroutines-demo](./examples/coroutines-demo/README.md)**: Kotlin Coroutines usage examples
+- **[jpa-blazepersistence-demo](./examples/jpa-blazepersistence-demo/README.md)**: JPA + Blaze Persistence usage examples
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL usage examples
 - **[idgenerator-ktor](./examples/ktor/idgenerator-ktor/README.md)**: Ktor HTTP example for `bluetape4k-idgenerators`
 - **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples

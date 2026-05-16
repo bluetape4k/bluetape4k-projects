@@ -320,6 +320,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 라이브러리 사용 방법을 보여주는 예제 모듈입니다. 배포되지 않습니다.
 
 - **[coroutines-demo](./examples/coroutines-demo/README.ko.md)**: Kotlin Coroutines 사용 예제
+- **[jpa-blazepersistence-demo](./examples/jpa-blazepersistence-demo/README.ko.md)**: JPA + Blaze Persistence 사용 예제
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.ko.md)**: JPA + QueryDSL 사용 예제
 - **[idgenerator-ktor](./examples/ktor/idgenerator-ktor/README.ko.md)**: `bluetape4k-idgenerators` Ktor HTTP 예제
 - **[redisson-demo](./examples/redisson-demo/README.ko.md)**: Redisson 사용 예제
