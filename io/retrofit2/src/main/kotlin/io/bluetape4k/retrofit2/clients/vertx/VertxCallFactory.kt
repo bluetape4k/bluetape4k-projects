@@ -188,6 +188,8 @@ class VertxCallFactory private constructor(
         override fun cancel() {
             cancelled = true
             promise?.cancel(true)
+            // reset() is idempotent in Vert.x 5.x (returns false on subsequent calls),
+            // so a concurrent double-reset between executeAsync and cancel() is safe.
             vertxRequest?.reset()
         }
 
