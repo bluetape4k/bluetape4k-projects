@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.charset.Charset
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.CompletableFuture
@@ -113,19 +114,29 @@ fun createFile(path: String): File {
 }
 
 /**
- * 임시 디렉토리를 생성합니다. [deleteAtExit]가 true라면 프로그램 종료 시 삭제할 수 있습니다.
+ * Creates a temporary directory using the JDK atomic [Files.createTempDirectory] API.
  *
- * ```
- * val tempDir = createTempDirectory()
+ * ## Behavior / Contract
+ * - The directory is created atomically — there is no delete-then-mkdir race (TOCTOU).
+ * - If [deleteAtExit] is `true`, a JVM shutdown hook deletes the directory and all its contents.
+ * - The [suffix] parameter is kept for API compatibility but is **ignored**; [Files.createTempDirectory]
+ *   generates a unique numeric suffix automatically. The resulting directory name does **not** include
+ *   the [suffix] value (e.g., no `.dir` extension), unlike the previous implementation.
+ * - [prefix] must not contain path separators; otherwise [Files.createTempDirectory] throws
+ *   [java.nio.file.InvalidPathException].
+ *
+ * ```kotlin
+ * val tempDir = createTempDirectory("myapp-")
+ * // tempDir.exists() == true && tempDir.isDirectory == true
  * ```
  *
- * @param deleteAtExit Boolean 프로그램 종료 시 삭제할 것인가 여부
- * @return File 생성된 임시 디렉토리
+ * @param prefix prefix for the directory name
+ * @param suffix ignored; retained for binary compatibility
+ * @param deleteAtExit if `true`, registers a shutdown hook to delete the directory on JVM exit
+ * @return the created temporary directory
  */
 fun createTempDirectory(prefix: String = "temp", suffix: String = "dir", deleteAtExit: Boolean = true): File {
-    val dir = File.createTempFile(prefix, suffix)
-    dir.deleteRecursively()
-    dir.mkdirs()
+    val dir = Files.createTempDirectory(prefix).toFile()
 
     if (deleteAtExit) {
         Runtimex.addShutdownHook {
