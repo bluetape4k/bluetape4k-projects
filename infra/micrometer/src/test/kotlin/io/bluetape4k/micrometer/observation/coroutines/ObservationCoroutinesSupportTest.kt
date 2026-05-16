@@ -9,7 +9,10 @@ import io.bluetape4k.micrometer.observation.AbstractObservationTest
 import io.bluetape4k.micrometer.observation.start
 import io.micrometer.observation.Observation
 import io.micrometer.observation.tck.ObservationRegistryAssert
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
@@ -170,5 +173,58 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
+    }
+
+    @Test
+    fun `tryObserveSuspending - cancellation propagates to parent job`() = runTest {
+        val name = Base58.randomString(8)
+        val observation = observationRegistry.start(name)
+
+        var cancelled = false
+        var result: Result<String>? = null
+        val job = launch {
+            try {
+                result = observation.tryObserveSuspending<String> { _ ->
+                    delay(100.milliseconds)  // arbitrary under runTest virtual time
+                    "never"
+                }
+            } catch (e: CancellationException) {
+                cancelled = true
+                throw e
+            }
+        }
+
+        yield()
+        job.cancel()
+        job.join()
+
+        cancelled shouldBeEqualTo true
+        result shouldBeEqualTo null  // wrapper must not return Result.failure; it must rethrow
+    }
+
+    @Test
+    fun `tryWithObservationSuspending - cancellation propagates to parent job`() = runTest {
+        val name = "observer.cancel." + Base58.randomString(8)
+
+        var cancelled = false
+        var result: Result<String>? = null
+        val job = launch {
+            try {
+                result = tryWithObservationSuspending<String>(name, observationRegistry) {
+                    delay(100.milliseconds)  // arbitrary under runTest virtual time
+                    "never"
+                }
+            } catch (e: CancellationException) {
+                cancelled = true
+                throw e
+            }
+        }
+
+        yield()
+        job.cancel()
+        job.join()
+
+        cancelled shouldBeEqualTo true
+        result shouldBeEqualTo null  // wrapper must not return Result.failure; it must rethrow
     }
 }
