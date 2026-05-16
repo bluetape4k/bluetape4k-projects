@@ -3,8 +3,6 @@ package io.bluetape4k.cache.memoizer.caffeine
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.memoizer.Memoizer
 import io.bluetape4k.logging.KLogging
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * Caffeine Cache를 이용하여 [CaffeineMemoizer]를 생성합니다.
@@ -38,7 +36,7 @@ fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): CaffeineMemoiz
     CaffeineMemoizer(cache, this)
 
 /**
- * Caffeine Cache를 이용하여 메소드의 실행 결과를 기억하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ * Memoizes a synchronous function using a Caffeine [Cache] so repeated calls return the cached result.
  *
  * ```kotlin
  * val cache = Caffeine.newBuilder().maximumSize(1000).build<String, Int>()
@@ -47,16 +45,19 @@ fun <T: Any, R: Any> ((T) -> R).withMemoizer(cache: Cache<T, R>): CaffeineMemoiz
  * // result == 5
  * ```
  *
- * @property cache 실행한 값을 저장할 Cache
- * @property evaluator 캐시 값을 생성하는 메소드
+ * ## Thread Safety
+ * Uses a non-atomic read-evaluate-write pattern to support recursive evaluators (e.g., factorial,
+ * fibonacci). `Cache.get(key, function)` would cause `IllegalStateException: Recursive update`
+ * when the evaluator itself calls the memoizer for a different key on the same Caffeine cache.
+ *
+ * @property cache Caffeine cache that stores computed values
+ * @property evaluator function that computes the value for a given input
  */
 class CaffeineMemoizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
     private val evaluator: (T) -> R,
 ): Memoizer<T, R> {
     companion object: KLogging()
-
-    private val lock = ReentrantLock()
 
     override fun invoke(input: T): R =
         cache.getIfPresent(input)
@@ -67,8 +68,6 @@ class CaffeineMemoizer<T: Any, R: Any>(
             }
 
     override fun clear() {
-        lock.withLock {
-            cache.cleanUp()
-        }
+        cache.invalidateAll()
     }
 }

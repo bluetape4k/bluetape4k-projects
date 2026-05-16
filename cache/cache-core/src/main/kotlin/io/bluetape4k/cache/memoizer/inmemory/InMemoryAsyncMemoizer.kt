@@ -4,6 +4,7 @@ import io.bluetape4k.cache.memoizer.AsyncMemoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * InMemory를 이용하여 [InMemoryAsyncMemoizer]를 생성합니다.
@@ -20,17 +21,20 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).asyncMemoizer(): InMemoryAsyn
     InMemoryAsyncMemoizer(this)
 
 /**
- * 로컬 메모리에 [evaluator] 실행 결과를 저장하는 [AsyncMemoizer] 구현체.
+ * In-memory [AsyncMemoizer] that stores evaluation results in a local [ConcurrentHashMap].
  *
- * ## Virtual Thread 안전성
- * `putIfAbsent` 기반 in-flight 추적을 사용하여 `ConcurrentHashMap.computeIfAbsent`의
- * bin lock 장기 보유 문제를 피합니다. Carrier Thread 고정(pinning) 없이
- * Virtual Thread 환경에서도 안전하게 동작합니다.
+ * ## Thread Safety / Virtual Thread Safety
+ * - Uses `putIfAbsent`-based in-flight tracking — no `synchronized` blocks, safe for virtual threads.
+ * - A generation counter prevents write-after-clear races: if [clear] is called while an evaluator
+ *   is in flight, the stale result is discarded and never written to the result cache.
+ * - `inFlight` removal uses value-aware two-arg `remove(key, value)` so a freshly installed
+ *   promise is not accidentally evicted by a concurrent completion from a previous generation.
+ * - The caller's [CompletableFuture] is always completed regardless of the generation check.
  *
- * ## 동작 방식
- * - 결과 캐시 hit → 즉시 완료된 Future 반환
- * - in-flight 있음 → 진행 중인 Future 공유 (중복 평가 방지)
- * - 신규 평가 → lock 밖에서 evaluator 실행
+ * ## Behaviour
+ * - Result cache hit → returns an already-completed Future immediately.
+ * - In-flight hit → shares the in-progress Future (no duplicate evaluation).
+ * - New evaluation → runs the evaluator outside any lock.
  */
 class InMemoryAsyncMemoizer<in T: Any, R: Any>(
     private val evaluator: (T) -> CompletableFuture<R>,
@@ -40,16 +44,18 @@ class InMemoryAsyncMemoizer<in T: Any, R: Any>(
 
     private val resultCache = ConcurrentHashMap<@UnsafeVariance T, R>()
     private val inFlight = ConcurrentHashMap<@UnsafeVariance T, CompletableFuture<R>>()
+    private val generation = AtomicLong(0)
 
     override fun invoke(input: T): CompletableFuture<R> {
         resultCache[input]?.let { return CompletableFuture.completedFuture(it) }
 
+        val capturedGen = generation.get()
         val promise = CompletableFuture<R>()
         val existing = inFlight.putIfAbsent(input, promise)
         if (existing != null) return existing
 
         fun completeExceptionally(error: Throwable) {
-            inFlight.remove(input)
+            inFlight.remove(input, promise)
             promise.completeExceptionally(error)
         }
 
@@ -59,9 +65,13 @@ class InMemoryAsyncMemoizer<in T: Any, R: Any>(
                     future.whenComplete { result, error ->
                         if (error != null) {
                             completeExceptionally(error)
+                        } else if (result == null) {
+                            completeExceptionally(NullPointerException("evaluator returned null for input $input"))
                         } else {
-                            inFlight.remove(input)
-                            resultCache[input] = result
+                            inFlight.remove(input, promise)
+                            if (generation.get() == capturedGen) {
+                                resultCache[input] = result
+                            }
                             promise.complete(result)
                         }
                     }
@@ -73,6 +83,7 @@ class InMemoryAsyncMemoizer<in T: Any, R: Any>(
     }
 
     override fun clear() {
+        generation.incrementAndGet()
         inFlight.clear()
         resultCache.clear()
     }

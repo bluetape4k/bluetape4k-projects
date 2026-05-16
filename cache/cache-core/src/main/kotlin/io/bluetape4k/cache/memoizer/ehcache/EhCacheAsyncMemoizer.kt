@@ -5,6 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.ehcache.Cache
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Ehcache를 이용하는 [EhCacheAsyncMemoizer]를 생성합니다.
@@ -49,7 +50,7 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
 ): EhCacheAsyncMemoizer<T, R> = EhCacheAsyncMemoizer(cache, this)
 
 /**
- * Ehcache를 이용하여 메소드의 실행 결과를 캐시하여, 재 실행 시에 빠르게 응답할 수 있도록 합니다.
+ * Memoizes an async function using an EhCache [Cache] so repeated calls return the cached result.
  *
  * ```kotlin
  * val cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build(true)
@@ -65,9 +66,13 @@ fun <T: Any, R: Any> ((T) -> CompletableFuture<R>).withAsyncMemoizer(
  * // result == 5
  * ```
  *
- * ## Virtual Thread 안전성
- * `putIfAbsent` 기반 in-flight 추적을 사용하여 Carrier Thread 고정(pinning) 없이
- * Virtual Thread 환경에서도 안전하게 동작합니다.
+ * ## Thread Safety / Virtual Thread Safety
+ * - Uses `putIfAbsent`-based in-flight tracking — no `synchronized` blocks, safe for virtual threads.
+ * - A generation counter prevents write-after-clear races: if [clear] is called while an evaluator
+ *   is in flight, the stale result is discarded and never written to the cache.
+ * - `inFlight` removal uses value-aware two-arg `remove(key, value)` so a freshly installed
+ *   promise is not accidentally evicted by a concurrent completion from a previous generation.
+ * - The caller's [CompletableFuture] is always completed regardless of the generation check.
  */
 class EhCacheAsyncMemoizer<T: Any, R: Any>(
     private val cache: Cache<T, R>,
@@ -76,16 +81,18 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
+    private val generation = AtomicLong(0)
 
     override fun invoke(key: T): CompletableFuture<R> {
         cache.get(key)?.let { return CompletableFuture.completedFuture(it) }
 
+        val capturedGen = generation.get()
         val promise = CompletableFuture<R>()
         val existing = inFlight.putIfAbsent(key, promise)
         if (existing != null) return existing
 
         fun completeExceptionally(error: Throwable) {
-            inFlight.remove(key)
+            inFlight.remove(key, promise)
             promise.completeExceptionally(error)
         }
 
@@ -95,9 +102,13 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
                     future.whenComplete { result, error ->
                         if (error != null) {
                             completeExceptionally(error)
+                        } else if (result == null) {
+                            completeExceptionally(NullPointerException("evaluator returned null for key $key"))
                         } else {
-                            inFlight.remove(key)
-                            cache.put(key, result)
+                            inFlight.remove(key, promise)
+                            if (generation.get() == capturedGen) {
+                                cache.put(key, result)
+                            }
                             promise.complete(result)
                         }
                     }
@@ -109,6 +120,7 @@ class EhCacheAsyncMemoizer<T: Any, R: Any>(
     }
 
     override fun clear() {
+        generation.incrementAndGet()
         inFlight.clear()
         cache.clear()
     }
