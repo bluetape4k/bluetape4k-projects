@@ -59,7 +59,6 @@ val centralSnapshotsParallelism: Int = providers
 val projectGroup: String by project
 val baseVersion: String by project
 val snapshotVersion: String by project
-val exposedVersion: String by project
 
 allprojects {
     group = projectGroup
