@@ -1,5 +1,6 @@
 package org.springframework.kafka.core
 
+import io.bluetape4k.kafka.codec.AbstractKafkaCodec
 import io.bluetape4k.kafka.codec.JacksonKafkaCodec
 import io.bluetape4k.kafka.codec.StringKafkaCodec
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,8 +11,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.ProducerConfig
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
@@ -27,6 +26,7 @@ import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Headers
 import org.springframework.messaging.handler.annotation.Payload
 import java.io.Serializable
+import java.time.Duration
 
 @SpringBootTest
 class CustomKafkaExamples {
@@ -40,30 +40,29 @@ class CustomKafkaExamples {
     @EnableKafka
     class TestConfiguration {
 
-        @Bean
-        fun producerProperties(): MutableMap<String, Any?> {
-            return KafkaServer.Launcher.getProducerProperties().apply {
-                this[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringKafkaCodec::class.java
-                this[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = JacksonKafkaCodec::class.java
-            }
-        }
+        // Use instance-based serializers so allowedTypePackages can be configured.
+        // Class-reference config uses the default constructor (allowedTypePackages=emptySet),
+        // which rejects all types from the Kafka type header (security feature added in 1.8.0).
+        private fun valueCodec() = JacksonKafkaCodec(
+            allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+        )
 
         @Bean
+        @Suppress("UNCHECKED_CAST")
         fun producerFactory(): ProducerFactory<String, Greeting> {
-            return KafkaServer.Launcher.Spring.getProducerFactory(producerProperties())
+            return KafkaServer.Launcher.Spring.getProducerFactory(
+                keySerializer = StringKafkaCodec(),
+                valueSerializer = valueCodec()
+            ) as ProducerFactory<String, Greeting>
         }
 
         @Bean
-        fun consumerProperties(): MutableMap<String, Any?> {
-            return KafkaServer.Launcher.getConsumerProperties().apply {
-                this[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringKafkaCodec::class.java
-                this[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = JacksonKafkaCodec::class.java
-            }
-        }
-
-        @Bean
+        @Suppress("UNCHECKED_CAST")
         fun consumerFactory(): ConsumerFactory<String, Greeting> {
-            return KafkaServer.Launcher.Spring.getConsumerFactory(consumerProperties())
+            return KafkaServer.Launcher.Spring.getConsumerFactory(
+                keyDeserializer = StringKafkaCodec(),
+                valueDeserializer = valueCodec()
+            ) as ConsumerFactory<String, Greeting>
         }
 
         @Bean
@@ -108,7 +107,7 @@ class CustomKafkaExamples {
         log.debug { "produceRecord=${result.producerRecord}" }
         log.debug { "recordMetadata=${result.recordMetadata}" }
 
-        await until { receiveCounter.value >= 2 }
+        await.atMost(Duration.ofSeconds(30)) until { receiveCounter.value >= 2 }
     }
 
     @KafkaListener(topics = [CUSTOM_TOPIC_NAME], groupId = "custom")
