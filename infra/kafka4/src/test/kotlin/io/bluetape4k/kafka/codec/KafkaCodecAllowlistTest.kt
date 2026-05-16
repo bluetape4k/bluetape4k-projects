@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper
 
 /**
- * [AbstractKafkaCodec.allowedTypePackages] 허용 목록 검증 테스트 (#296/#303).
+ * [AbstractKafkaCodec.allowedTypePackages] allowlist validation tests.
  *
- * - emptySet() 기본값: 모든 클래스 허용 (하위 호환)
- * - 허용 패키지 지정 시: 목록 외 클래스 → IllegalArgumentException → deserialize null 반환 (poison-pill)
- * - 허용 패키지에 속하는 클래스: 정상 처리
+ * - emptySet() default: deny all — no class is loaded from the header (secure default since 1.8.0)
+ * - Non-empty allowedTypePackages: only matching classes are allowed; others → IllegalArgumentException → null (poison-pill)
+ * - [AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE]: bypass all checks (pre-1.8.0 allow-all, unsafe)
  */
 class KafkaCodecAllowlistTest {
 
@@ -40,14 +40,15 @@ class KafkaCodecAllowlistTest {
     data class SimpleMessage(val content: String)
 
     @Test
-    fun `emptySet 기본값 - 모든 클래스 허용`() {
-        val codec = TestJsonCodec()
+    fun `emptySet 기본값 - 모든 클래스 차단 (deny-all secure default)`() {
+        val codec = TestJsonCodec() // emptySet → deny all
         val headers = RecordHeaders()
         val data = SimpleMessage("hello")
         val bytes = codec.serialize(topic, headers, data)
 
+        // emptySet() means deny all: class name in header is rejected → null (poison-pill)
         val result = codec.deserialize(topic, headers, bytes)
-        result.shouldNotBeNull()
+        result.shouldBeNull()
     }
 
     @Test

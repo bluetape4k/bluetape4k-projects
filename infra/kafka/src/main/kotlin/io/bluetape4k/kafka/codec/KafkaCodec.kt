@@ -71,19 +71,43 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
     companion object: KLogging() {
         const val VALUE_TYPE_KEY = "$LibraryName.kafka.codec.value.type"
 
+        /**
+         * Sentinel value for [allowedTypePackages] that bypasses all package checks.
+         *
+         * Use only in fully trusted, internal deployments where all Kafka producers are
+         * controlled. Assigning this constant re-enables the pre-1.8.0 allow-all behavior.
+         *
+         * ```kotlin
+         * class LegacyJacksonCodec : JacksonKafkaCodec() {
+         *     override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+         * }
+         * ```
+         */
+        @JvmField
+        val ALLOW_ALL_TYPES_UNSAFE: Set<String> = setOf("*")
+
         @JvmStatic
         fun defaultCodec(): KafkaCodec<Any?> = JacksonKafkaCodec()
     }
 
     /**
-     * 헤더에서 로드를 허용하는 클래스 패키지 접두사 목록.
+     * Package prefix allowlist for types loaded from the [VALUE_TYPE_KEY] header.
      *
-     * - **빈 집합(기본값)**: 모든 클래스 허용 (하위 호환, 신뢰 환경 전용)
-     * - **비어 있지 않은 집합**: 나열된 패키지로 시작하는 클래스만 허용 (권장, 보안 환경)
+     * - **Empty set (default)**: deny all — no class is loaded from the header.
+     *   This is the safe default for untrusted or shared Kafka topics.
+     * - **Non-empty set**: allow only classes whose fully-qualified name equals one of
+     *   the entries or starts with `"<entry>."`.
+     * - **[ALLOW_ALL_TYPES_UNSAFE]**: bypass all checks (pre-1.8.0 behavior, unsafe).
      *
      * ```kotlin
-     * class SecureJacksonCodec: JacksonKafkaCodec() {
+     * // Safe: only allow DTOs in your own package
+     * class SecureJacksonCodec : JacksonKafkaCodec() {
      *     override val allowedTypePackages = setOf("com.example.dto", "io.bluetape4k.domain")
+     * }
+     *
+     * // Unsafe (legacy): allow any class from the header
+     * class LegacyJacksonCodec : JacksonKafkaCodec() {
+     *     override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
      * }
      * ```
      */
@@ -174,12 +198,17 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
             headers?.lastHeader(VALUE_TYPE_KEY)?.value()?.toUtf8String()
                 ?: return Any::class.java
 
-        if (allowedTypePackages.isNotEmpty() &&
-            allowedTypePackages.none { clazzName == it || clazzName.startsWith("$it.") }
-        ) {
-            throw IllegalArgumentException(
-                "클래스 '$clazzName'은 허용된 패키지 목록에 없습니다. allowedTypePackages=$allowedTypePackages"
-            )
+        // "*" sentinel bypasses all checks (ALLOW_ALL_TYPES_UNSAFE)
+        if (!allowedTypePackages.contains("*")) {
+            if (allowedTypePackages.isEmpty() ||
+                allowedTypePackages.none { clazzName == it || clazzName.startsWith("$it.") }
+            ) {
+                throw IllegalArgumentException(
+                    "Class '$clazzName' is not in allowedTypePackages=$allowedTypePackages. " +
+                    "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
+                    "to allow all types (unsafe)."
+                )
+            }
         }
 
         if (!classIsPresent(clazzName)) {

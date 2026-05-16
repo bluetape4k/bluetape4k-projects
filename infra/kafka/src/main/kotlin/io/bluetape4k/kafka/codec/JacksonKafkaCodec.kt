@@ -7,20 +7,25 @@ import io.bluetape4k.support.emptyByteArray
 import org.apache.kafka.common.header.Headers
 
 /**
- * Kafka 키나 메시지를 JSON으로 직렬화/역직렬화하는 Kafka Codec
+ * Kafka codec that serializes and deserializes messages as JSON using Jackson.
  *
  * ```kotlin
- * val codec = JacksonKafkaCodec()
- * val data = mapOf("id" to 1, "name" to "debop")
- * val bytes = codec.serialize("my-topic", null, data)
- * val result = codec.deserialize("my-topic", null, bytes)
- * // result is a Map with id=1, name="debop"
+ * // Safe: only allow DTOs in your own package
+ * val codec = JacksonKafkaCodec(allowedTypePackages = setOf("com.example.dto"))
+ * val bytes = codec.serialize("my-topic", null, MyDto("hello"))
+ * val result = codec.deserialize("my-topic", null, bytes) as MyDto
+ *
+ * // Unsafe legacy mode (allow any class from the header)
+ * val legacyCodec = JacksonKafkaCodec(allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE)
  * ```
  *
- * @param mapper Jackson [JsonMapper] 인스턴스
+ * @param mapper Jackson [JsonMapper] instance
+ * @param allowedTypePackages package prefix allowlist for class loading from the type header;
+ *   empty set (default) denies all — safe for untrusted topics
  */
 class JacksonKafkaCodec(
     private val mapper: JsonMapper = Jackson.defaultJsonMapper,
+    override val allowedTypePackages: Set<String> = emptySet(),
 ): AbstractKafkaCodec<Any?>() {
 
     override fun doSerialize(topic: String?, headers: Headers?, graph: Any?): ByteArray {
