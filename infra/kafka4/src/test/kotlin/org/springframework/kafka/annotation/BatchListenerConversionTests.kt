@@ -22,8 +22,9 @@ import org.apache.kafka.common.serialization.BytesDeserializer
 import org.apache.kafka.common.serialization.BytesSerializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.common.utils.Bytes
-import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
@@ -38,6 +39,7 @@ import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.BatchListenerFailedException
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer
 import org.springframework.kafka.listener.DefaultErrorHandler
+import org.springframework.util.backoff.FixedBackOff
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter
 import org.springframework.kafka.support.converter.BytesJacksonJsonMessageConverter
@@ -54,7 +56,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6.DLT"])
+@EmbeddedKafka(partitions = 1, topics = ["blc1", "blc2", "blc3", "blc4", "blc5", "blc6", "blc6-dlt"])
+@TestMethodOrder(MethodOrderer.MethodName::class)
 class BatchListenerConversionTests {
 
     companion object: KLoggingChannel() {
@@ -138,7 +141,6 @@ class BatchListenerConversionTests {
         listener5.received shouldBeEqualTo listOf(Foo("baz"), Foo("qux"))
     }
 
-    @Disabled("DLT 라우팅이 최신 Spring Kafka 버전에서 작동하지 않음 — 추적: GitHub Issue #300")
     @Test
     fun `conversion error routes to DLT`() {
         template.send("blc6", 0, 0, """{ "bar": "baz" }""")
@@ -166,7 +168,7 @@ class BatchListenerConversionTests {
             factory.setBatchMessageConverter(BatchMessagingMessageConverter(converter()))
             factory.setReplyTemplate(template(embeddedKafka))
 
-            val errorHandler = DefaultErrorHandler(DeadLetterPublishingRecoverer(template))
+            val errorHandler = DefaultErrorHandler(DeadLetterPublishingRecoverer(template), FixedBackOff(0L, 0L))
             errorHandler.setLogLevel(KafkaException.Level.DEBUG)
             factory.setCommonErrorHandler(errorHandler)
             return factory
@@ -338,7 +340,6 @@ class BatchListenerConversionTests {
             this.latch1.countDown()
             foos.forEachIndexed { i, foo ->
                 if (foo == null && conversionFailures[i] != null) {
-                    // FIXME: 기존에는 BatchListenerFailedException 이 발생시키면, DLT로 보내는데, 버전 업 이후 작동을 하지 않는다
                     log.warn(conversionFailures[i]) { "JSON 파싱 예외가 발생하여, DLT 로 보냅니다." }
                     throw BatchListenerFailedException("Conversion error", conversionFailures[i], i)
                 } else {
@@ -348,8 +349,8 @@ class BatchListenerConversionTests {
         }
 
         @KafkaListener(
-            topics = ["blc6.DLT"],
-            groupId = "blc6.DLT",
+            topics = ["blc6-dlt"],
+            groupId = "blc6-dlt",
             properties = [ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG + ":org.apache.kafka.common.serialization.StringDeserializer"]
         )
         fun listen5Dlt(input: String) {
