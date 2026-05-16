@@ -379,6 +379,37 @@ Hibernate ORM 6.6.x → 7.2.7.Final, Hibernate Reactive 2.4.x → 3.2.0.Final로
 
 ### Fixed
 
+#### infra/kafka + infra/kafka4 — JacksonKafkaCodec class-reference 설정 시 allowedTypePackages 미적용 수정 ([#515](https://github.com/bluetape4k/bluetape4k-projects/pull/515))
+
+1.8.0 보안 기능(`allowedTypePackages` 기본값 `emptySet()`)이 Kafka 속성에서 class-reference 방식으로 코덱을 지정할 때 적용되지 않던 문제를 수정했습니다.
+
+- `CustomKafkaExamples` 테스트에서 `*_CLASS_CONFIG = JacksonKafkaCodec::class.java` → 인스턴스 기반 팩토리 설정(`ALLOW_ALL_TYPES_UNSAFE`)으로 교체
+- Awaitility 대기 시간 기본 10초 → 30초로 연장 (CI 부하 여유분)
+- `infra/kafka` / `infra/kafka4` 양쪽 동일 적용
+
+---
+
+#### bluetape4k/coroutines + bluetape4k/core + infra/lettuce + io/retrofit2 — 1.8.0 hard blocker batch ([#512](https://github.com/bluetape4k/bluetape4k-projects/pull/512))
+
+- **Resumable stale waiter** ([#483](https://github.com/bluetape4k/bluetape4k-projects/issues/483)): `Resumable.await()`에 `invokeOnCancellation` 핸들러 추가 — 취소된 continuation이 슬롯에 잔류하는 문제 수정. `FutureToCompletableFutureWrapper.cancel()`이 하위 `Future`에 취소를 전파하도록 수정.
+- **Lettuce write-behind drop** ([#476](https://github.com/bluetape4k/bluetape4k-projects/issues/476)): `LettuceSuspendedLoadedMap` write-behind 재시도 중 엔트리 유실 수정.
+- **Retrofit HC5 cancel race** ([#484](https://github.com/bluetape4k/bluetape4k-projects/issues/484)): `Hc5CallFactory` cancel/enqueue race 수정, OkHttp request tag fallback 추가.
+- **Retrofit Vert.x cancel+tag** ([#489](https://github.com/bluetape4k/bluetape4k-projects/issues/489)): pre-cancel 시 `promise.cancel(true)` 누락으로 30초 hang 발생하던 문제 수정. Vert.x call의 tag가 `okRequest.tag()`를 fallback으로 조회하도록 수정.
+
+---
+
+#### cache/cache-core — CacheCoroutineLocks per-key Mutex ref-counting 수정 ([#513](https://github.com/bluetape4k/bluetape4k-projects/pull/513), [#499](https://github.com/bluetape4k/bluetape4k-projects/issues/499))
+
+`CacheCoroutineLocks.mutexFor()`와 `releaseMutex()`에 ref-counting을 추가하여 동시 호출 경쟁에서 Mutex 조기 제거로 인한 `NullPointerException` 수정.
+
+---
+
+#### cache/near-cache-core — suspend 이벤트 전파 누락 수정 ([#514](https://github.com/bluetape4k/bluetape4k-projects/pull/514), [#490](https://github.com/bluetape4k/bluetape4k-projects/issues/490))
+
+`AbstractSuspendNearCache`의 `invalidate`/`invalidateAll`/`put` 이벤트가 suspend 경로에서 전파되지 않던 문제를 수정했습니다. Lettuce/Redisson 백엔드에 suspend 전파 계약 명시.
+
+---
+
 #### io/io — org.lz4 → at.yawk.lz4:1.11.0 CVE 보안 마이그레이션 ([#233](https://github.com/bluetape4k/bluetape4k-projects/pull/233), [#203](https://github.com/bluetape4k/bluetape4k-projects/issues/203))
 
 - `org.lz4:lz4-java` → `at.yawk.lz4:lz4-java:1.11.0` 교체 — CVE-2025-12183 / CVE-2025-66566 취약점 수정

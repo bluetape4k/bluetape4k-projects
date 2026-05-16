@@ -1,10 +1,18 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-14 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 12 issues.
+Snapshot: 2026-05-17 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 8 issues.
 
 ## Recently Completed
 
+- `#471` 1.8.0 Hard Blockers resolved: PRs #512 (coroutine/Lettuce/Retrofit batch), #513 (CacheCoroutineLocks mutex ref-count), #514 (NearCache suspend event propagation) merged to develop. Nightly CI: 39/39 SUCCESS.
+- PR #515 fixed `CustomKafkaExamples > send greeting()` Nightly flaky failure — root cause: `JacksonKafkaCodec` class-reference config bypasses `allowedTypePackages` (1.8.0 security feature).
+- `#483` Resumable stale waiter + FutureToCompletableFutureWrapper cancel propagation — fixed in PR #512.
+- `#476` Lettuce write-behind retry drop — fixed in PR #512.
+- `#484` Retrofit HC5 cancel race + tag fallback — fixed in PR #512.
+- `#489` Retrofit Vert.x pre-cancel hang + tag seeding — fixed in PR #512.
+- `#499` CacheCoroutineLocks per-key Mutex race — fixed in PR #513.
+- `#490` NearCache suspend event propagation — fixed in PR #514.
 - `#416` Spring Boot idgenerator example closed by PR #422.
 - `#419` Ktor idgenerator example closed by PR #421.
 - `#420` Examples workflow split closed by PR #423.
