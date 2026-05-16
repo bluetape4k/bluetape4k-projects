@@ -88,8 +88,16 @@ inline fun <T> withKryoInput(
 }
 
 /**
- * Kryo 를 이용한 비동기 작업을 [CompletableFuture]로 반환합니다.
- * Kryo 가 thread-safe 하지 않으므로 풀에서 인스턴스를 대여하고, 작업 완료 후 자동 반환합니다.
+ * Executes a Kryo serialization task asynchronously and returns a [CompletableFuture].
+ *
+ * A [Kryo] instance is obtained from the pool **on the executor thread** (inside [CompletableFuture.supplyAsync]),
+ * not on the caller thread. It is released via a `finally` block regardless of success or exception.
+ *
+ * ## Behavior / Contract
+ * - If the returned future is cancelled before the supplier runs, no [Kryo] instance is ever obtained.
+ * - If the future is cancelled while the supplier is running, the supplier continues to completion
+ *   on the worker thread; the `finally` block releases the [Kryo] instance before the worker exits.
+ * - The [func] block must not leave the [Kryo] instance in an inconsistent state across threads.
  *
  * ```kotlin
  * val future: CompletableFuture<ByteArray?> = withKryoAsync {
@@ -97,21 +105,24 @@ inline fun <T> withKryoInput(
  *     writeClassAndObject(output, "Hello, Async Kryo!")
  *     output.toBytes()
  * }
- * val bytes = future.get()  // 비동기 결과 획득
+ * val bytes = future.get()
  * ```
  *
- * @param T 반환 수형
- * @param func [Kryo] 인스턴스를 수신자로 비동기 실행할 작업 블록
- * @return 작업 결과를 담은 [CompletableFuture]
+ * @param T return type
+ * @param func block executed with a [Kryo] receiver on the async executor thread
+ * @return [CompletableFuture] holding the result, or null
  */
 inline fun <T: Any> withKryoAsync(
     crossinline func: Kryo.() -> T?,
 ): CompletableFuture<T?> {
-    val kryo = KryoProvider.obtainKryo()
-    return CompletableFuture.supplyAsync { func(kryo) }
-        .whenCompleteAsync { _, _ ->
+    return CompletableFuture.supplyAsync {
+        val kryo = KryoProvider.obtainKryo()
+        try {
+            func(kryo)
+        } finally {
             KryoProvider.releaseKryo(kryo)
         }
+    }
 }
 
 /**
