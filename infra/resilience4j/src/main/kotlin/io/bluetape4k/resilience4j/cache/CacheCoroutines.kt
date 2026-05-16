@@ -8,32 +8,27 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.WeakHashMap
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 @PublishedApi
 internal object CacheCoroutineLocks {
     private val lock = ReentrantLock()
-    private val locksByCache = WeakHashMap<Cache<*, *>, ConcurrentHashMap<Any, Mutex>>()
+    // Plain HashMap is sufficient because all access is under lock.
+    // WeakHashMap: the inner map is GC'd when the Cache key becomes unreachable.
+    private val locksByCache = WeakHashMap<Cache<*, *>, HashMap<Any, Mutex>>()
 
-    fun mutexFor(cache: Cache<*, *>, key: Any): Mutex {
-        val locks = lock.withLock {
-            locksByCache.getOrPut(cache) { ConcurrentHashMap() }
-        }
-        return locks.computeIfAbsent(key) { Mutex() }
+    fun mutexFor(cache: Cache<*, *>, key: Any): Mutex = lock.withLock {
+        locksByCache.getOrPut(cache) { HashMap() }.getOrPut(key) { Mutex() }
     }
 
     fun release(cache: Cache<*, *>, key: Any, mutex: Mutex) {
-        if (mutex.isLocked) return
-
-        lock.withLock {
-            val locks = locksByCache[cache] ?: return
-            locks.remove(key, mutex)
-            if (locks.isEmpty()) {
-                locksByCache.remove(cache)
-            }
-        }
+        // Per-key Mutex entries are intentionally not removed here.
+        // Removing an entry while a concurrent caller holds the Mutex reference
+        // but has not yet acquired it would allow a new caller to receive a
+        // different Mutex for the same key — breaking the per-key serialization
+        // guarantee. The WeakHashMap reclaims the entire inner map when the
+        // Cache key becomes unreachable, so memory is bounded per Cache lifetime.
     }
 }
 
@@ -122,8 +117,8 @@ suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
     key: K,
     crossinline loader: suspend (K) -> V,
 ): V {
-    val cacheKey = requireNotNull(key) { "cache key must not be null" }
-    val mutex = CacheCoroutineLocks.mutexFor(this, cacheKey as Any)
+    val cacheKey: K & Any = requireNotNull(key) { "cache key must not be null" }
+    val mutex = CacheCoroutineLocks.mutexFor(this, cacheKey)
 
     return try {
         mutex.withLock {
@@ -152,6 +147,6 @@ suspend inline fun <K, V> Cache<K, V>.executeSuspendFunction(
             value
         }
     } finally {
-        CacheCoroutineLocks.release(this, cacheKey as Any, mutex)
+        CacheCoroutineLocks.release(this, cacheKey, mutex)
     }
 }
