@@ -14,21 +14,49 @@ import kotlin.concurrent.withLock
 @PublishedApi
 internal object CacheCoroutineLocks {
     private val lock = ReentrantLock()
+
+    /**
+     * Holds a [Mutex] and its active reference count.
+     *
+     * All fields are mutated exclusively under [CacheCoroutineLocks.lock], so no
+     * additional synchronization is required inside this class.
+     */
+    private class MutexEntry(val mutex: Mutex, var refCount: Int = 0)
+
     // Plain HashMap is sufficient because all access is under lock.
     // WeakHashMap: the inner map is GC'd when the Cache key becomes unreachable.
-    private val locksByCache = WeakHashMap<Cache<*, *>, HashMap<Any, Mutex>>()
+    private val locksByCache = WeakHashMap<Cache<*, *>, HashMap<Any, MutexEntry>>()
 
+    /**
+     * Returns the per-key [Mutex] for [cache] + [key], incrementing its reference
+     * count. Every call to [mutexFor] must be paired with exactly one call to
+     * [release] to prevent unbounded memory growth.
+     */
     fun mutexFor(cache: Cache<*, *>, key: Any): Mutex = lock.withLock {
-        locksByCache.getOrPut(cache) { HashMap() }.getOrPut(key) { Mutex() }
+        val entry = locksByCache.getOrPut(cache) { HashMap() }
+            .getOrPut(key) { MutexEntry(Mutex()) }
+        entry.refCount++
+        entry.mutex
     }
 
-    fun release(cache: Cache<*, *>, key: Any, mutex: Mutex) {
-        // Per-key Mutex entries are intentionally not removed here.
-        // Removing an entry while a concurrent caller holds the Mutex reference
-        // but has not yet acquired it would allow a new caller to receive a
-        // different Mutex for the same key — breaking the per-key serialization
-        // guarantee. The WeakHashMap reclaims the entire inner map when the
-        // Cache key becomes unreachable, so memory is bounded per Cache lifetime.
+    /**
+     * Decrements the reference count for [cache] + [key]. When the count reaches
+     * zero no caller holds a reference to the entry, so it is safe to remove it
+     * from the map. Because removal happens under [lock] and only after the count
+     * is confirmed to be zero, no concurrent [mutexFor] call for the same key can
+     * observe the stale entry — they either see the existing entry (refCount > 0)
+     * or create a fresh one.
+     */
+    fun release(cache: Cache<*, *>, key: Any, mutex: Mutex) = lock.withLock {
+        val perCache = locksByCache[cache] ?: return@withLock
+        val entry = perCache[key] ?: return@withLock
+        entry.refCount--
+        if (entry.refCount <= 0) {
+            perCache.remove(key)
+            if (perCache.isEmpty()) {
+                locksByCache.remove(cache)
+            }
+        }
     }
 }
 
