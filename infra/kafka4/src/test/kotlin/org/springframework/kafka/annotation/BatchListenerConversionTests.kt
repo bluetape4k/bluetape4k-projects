@@ -39,7 +39,6 @@ import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.BatchListenerFailedException
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer
 import org.springframework.kafka.listener.DefaultErrorHandler
-import org.springframework.util.backoff.FixedBackOff
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter
 import org.springframework.kafka.support.converter.BytesJacksonJsonMessageConverter
@@ -51,6 +50,7 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 import org.springframework.messaging.Message
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.SendTo
+import org.springframework.util.backoff.FixedBackOff
 import java.io.Serializable
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
