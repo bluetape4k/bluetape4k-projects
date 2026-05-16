@@ -7,16 +7,18 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.WeakHashMap
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 @PublishedApi
 internal object CacheCoroutineLocks {
-    private val locksByCache =
-        Collections.synchronizedMap(WeakHashMap<Cache<*, *>, ConcurrentHashMap<Any, Mutex>>())
+    private val lock = ReentrantLock()
+    private val locksByCache = WeakHashMap<Cache<*, *>, ConcurrentHashMap<Any, Mutex>>()
 
     fun mutexFor(cache: Cache<*, *>, key: Any): Mutex {
-        val locks = synchronized(locksByCache) {
+        val locks = lock.withLock {
             locksByCache.getOrPut(cache) { ConcurrentHashMap() }
         }
         return locks.computeIfAbsent(key) { Mutex() }
@@ -25,7 +27,7 @@ internal object CacheCoroutineLocks {
     fun release(cache: Cache<*, *>, key: Any, mutex: Mutex) {
         if (mutex.isLocked) return
 
-        synchronized(locksByCache) {
+        lock.withLock {
             val locks = locksByCache[cache] ?: return
             locks.remove(key, mutex)
             if (locks.isEmpty()) {

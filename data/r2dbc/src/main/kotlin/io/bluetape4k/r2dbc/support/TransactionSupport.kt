@@ -8,6 +8,8 @@ import org.springframework.transaction.TransactionDefinition
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.WeakHashMap
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * [ConnectionFactory] 별 [R2dbcTransactionManager] 캐시.
@@ -16,6 +18,7 @@ import java.util.WeakHashMap
  * [WeakHashMap]으로 캐싱합니다. [WeakHashMap]을 사용하므로 [ConnectionFactory]가 GC 대상이 되면
  * 자동으로 캐시에서 제거됩니다.
  */
+private val transactionManagerLock = ReentrantLock()
 internal val transactionManagerCache = WeakHashMap<ConnectionFactory, R2dbcTransactionManager>()
 
 /**
@@ -23,7 +26,7 @@ internal val transactionManagerCache = WeakHashMap<ConnectionFactory, R2dbcTrans
  */
 @PublishedApi
 internal fun ConnectionFactory.getOrCreateTransactionManager(): R2dbcTransactionManager =
-    synchronized(transactionManagerCache) {
+    transactionManagerLock.withLock {
         transactionManagerCache.getOrPut(this) { R2dbcTransactionManager(this) }
     }
 
