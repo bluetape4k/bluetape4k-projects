@@ -116,4 +116,43 @@ class VertxHttpClientTest: AbstractClientTest() {
 
         call.tag(UnsetTag::class).shouldBeNull()
     }
+
+    @Test
+    fun `cancel before enqueue still fires onFailure callback`() {
+        cancelTestServer.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+
+        val request = Request.Builder()
+            .url(cancelTestServer.url("/"))
+            .build()
+        val call = callFactory.newCall(request)
+        call.cancel()
+
+        val latch = CountDownLatch(1)
+        call.enqueue(object: okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                latch.countDown()
+            }
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.close()
+                latch.countDown()
+            }
+        })
+
+        // Promise must be completed (cancelled) even when cancel() precedes enqueue().
+        latch.await(5, TimeUnit.SECONDS).shouldBeTrue()
+    }
+
+    @Test
+    fun `tag seeded from request is visible on call`() {
+        data class RequestMeta(val id: Int)
+
+        val meta = RequestMeta(42)
+        val request = Request.Builder()
+            .url(cancelTestServer.url("/"))
+            .tag(RequestMeta::class.java, meta)
+            .build()
+        val call = callFactory.newCall(request)
+
+        call.tag(RequestMeta::class) shouldBeSameInstanceAs meta
+    }
 }

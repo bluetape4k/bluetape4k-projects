@@ -160,9 +160,11 @@ class VertxCallFactory private constructor(
                     vertxRequest = req
                     log.trace { "Send vertx request ... request=$req, version=${req.version()}" }
 
-                    // If cancel() was called before vertxRequest was assigned, reset now
+                    // If cancel() was called before vertxRequest was assigned, reset and
+                    // complete the promise so enqueue() callbacks fire and execute() unblocks.
                     if (cancelled) {
                         req.reset()
+                        promise.cancel(true)
                         return@onSuccess
                     }
 
@@ -210,18 +212,20 @@ class VertxCallFactory private constructor(
         }
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T: Any> tag(type: KClass<T>): T? = tags[type.java] as? T
+        override fun <T: Any> tag(type: KClass<T>): T? =
+            (tags[type.java] ?: okRequest.tag(type.java)) as? T
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> tag(type: Class<out T>): T? = tags[type] as? T
+        override fun <T> tag(type: Class<out T>): T? =
+            (tags[type] ?: okRequest.tag(type)) as? T
 
         @Suppress("UNCHECKED_CAST")
         override fun <T: Any> tag(type: KClass<T>, computeIfAbsent: () -> T): T =
-            tags.computeIfAbsent(type.java) { computeIfAbsent() } as T
+            tags.computeIfAbsent(type.java) { okRequest.tag(type.java) ?: computeIfAbsent() } as T
 
         @Suppress("UNCHECKED_CAST")
         override fun <T: Any> tag(type: Class<T>, computeIfAbsent: () -> T): T =
-            tags.computeIfAbsent(type) { computeIfAbsent() } as T
+            tags.computeIfAbsent(type) { okRequest.tag(type) ?: computeIfAbsent() } as T
 
         private fun throwAlreadyExecuted() {
             error("Already executed. request=$okRequest")

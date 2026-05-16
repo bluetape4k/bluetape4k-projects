@@ -116,4 +116,18 @@ class Hc5HttpClientTest: AbstractClientTest() {
 
         call.tag(UnsetTag::class).shouldBeNull()
     }
+
+    @Test
+    fun `tag seeded from request is visible on call`() {
+        data class RequestMeta(val id: Int)
+
+        val meta = RequestMeta(42)
+        val request = Request.Builder()
+            .url(cancelTestServer.url("/"))
+            .tag(RequestMeta::class.java, meta)
+            .build()
+        val call = callFactory.newCall(request)
+
+        call.tag(RequestMeta::class) shouldBeSameInstanceAs meta
+    }
 }
