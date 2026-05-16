@@ -40,12 +40,13 @@ fun <T> Future<T>.asCompletableFuture(): CompletableFuture<T> = when (this@asCom
 /**
  * [Future]를 [CompletableFuture]로 변환하는 래퍼.
  * Virtual thread에서 [Future.get]으로 블로킹 대기하여 폴링 오버헤드를 제거합니다.
+ * [cancel]은 래핑된 Future에도 전파되어 불필요한 작업을 중단시킵니다.
  */
-private class FutureToCompletableFutureWrapper<T>(future: Future<T>): CompletableFuture<T>() {
+private class FutureToCompletableFutureWrapper<T>(private val wrapped: Future<T>): CompletableFuture<T>() {
     init {
         Thread.ofVirtual().name("future-wrapper").start {
             try {
-                complete(future.get())
+                complete(wrapped.get())
             } catch (e: CancellationException) {
                 cancel(true)
             } catch (e: ExecutionException) {
@@ -54,5 +55,10 @@ private class FutureToCompletableFutureWrapper<T>(future: Future<T>): Completabl
                 completeExceptionally(e)
             }
         }
+    }
+
+    override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
+        wrapped.cancel(mayInterruptIfRunning)
+        return super.cancel(mayInterruptIfRunning)
     }
 }

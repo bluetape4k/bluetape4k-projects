@@ -1,5 +1,7 @@
 package io.bluetape4k.coroutines.support
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
@@ -10,9 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
-import io.bluetape4k.assertions.shouldBeEqualTo
+import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.FutureTask
@@ -25,6 +26,7 @@ class FutureSupportTest {
     companion object: KLoggingChannel() {
         private const val ITEM_COUNT = 128
         private const val DELAY_TIME = 100L
+        private const val CANCEL_PROPAGATION_DELAY_MS = 50L
     }
 
     @Test
@@ -78,5 +80,23 @@ class FutureSupportTest {
         assertFailsWith<CancellationException> {
             cancelled.await()
         }
+    }
+
+    @Test
+    fun `awaitSuspending 취소 시 하위 Future도 취소된다`() = runSuspendDefault {
+        // FutureTask that is never started — future.get() inside the wrapper blocks
+        // until the task is started or cancelled.
+        val task = FutureTask { "never" }
+
+        val job = launch(Dispatchers.IO) {
+            task.awaitSuspending<String>()
+        }
+
+        // Give the wrapper's virtual thread time to start and block on task.get().
+        delay(CANCEL_PROPAGATION_DELAY_MS.milliseconds)
+        job.cancel()
+        job.join()
+
+        task.isCancelled shouldBeEqualTo true
     }
 }
