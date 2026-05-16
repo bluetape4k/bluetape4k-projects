@@ -66,7 +66,7 @@ fun release(cache: Cache<*, *>, key: Any, mutex: Mutex) {
 
 **Option B (reference counting) 이번 PR에서 선택하지 않은 이유:**
 - ref-counting 자체는 outer ReentrantLock 안에서 안전하다 (mutexFor에서 증가, release에서 감소, 그 사이 count≥1이므로 제거 불가)
-- 버그 수정의 외과적 범위를 유지하기 위해 복잡도를 최소화; ref-counting은 #XXX에서 follow-up으로 처리
+- 버그 수정의 외과적 범위를 유지하기 위해 복잡도를 최소화; ref-counting은 #499에서 follow-up으로 처리
 - WeakHashMap GC 모델이 Cache 인스턴스 수명 기반 회수를 제공하고, JCache provider(Caffeine 등)가 key cardinality를 자체적으로 제한하므로 메모리 위험 실질적으로 낮음
 
 ---
