@@ -79,7 +79,7 @@ jobs:
           PY
 
       - name: Publish SNAPSHOT
-        run: ./gradlew publishAggregationToCentralSnapshots --no-daemon --no-configuration-cache --no-build-cache
+        run: ./gradlew publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT --no-daemon --no-configuration-cache --no-build-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
