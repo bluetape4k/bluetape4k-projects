@@ -52,6 +52,11 @@ updates:
       - dependency-name: "org.springframework.boot:*"
         update-types:
           - "version-update:semver-major"
+      # Spring Kafka 3/4 compatibility aliases share the same Maven coordinate.
+      # Dependabot cannot preserve that version-catalog contract, so manage both
+      # aliases manually.
+      - dependency-name: "spring-kafka*"
+      - dependency-name: "org.springframework.kafka:*"
       # Redis client major baselines start here, then align outward after validation.
       - dependency-name: "io.lettuce:lettuce-core"
         update-types:
@@ -60,9 +65,6 @@ updates:
         update-types:
           - "version-update:semver-major"
       - dependency-name: "org.apache.kafka:*"
-        update-types:
-          - "version-update:semver-major"
-      - dependency-name: "org.springframework.kafka:*"
         update-types:
           - "version-update:semver-major"
       - dependency-name: "io.projectreactor.kafka:*"
