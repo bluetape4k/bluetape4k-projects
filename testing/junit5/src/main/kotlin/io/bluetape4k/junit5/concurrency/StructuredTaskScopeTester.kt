@@ -1,39 +1,49 @@
 package io.bluetape4k.junit5.concurrency
 
 import io.bluetape4k.concurrent.virtualthread.StructuredTaskScopes
-import io.bluetape4k.junit5.tester.StressTester
+import io.bluetape4k.junit5.tester.WorkerStressTester
 import io.bluetape4k.junit5.tester.StressTester.Companion.DEFAULT_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MAX_ROUNDS_PER_WORKER
 import io.bluetape4k.junit5.tester.StressTester.Companion.MIN_ROUNDS_PER_WORKER
+import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MAX_WORKER_SIZE
+import io.bluetape4k.junit5.tester.WorkerStressTester.Companion.MIN_WORKER_SIZE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import java.time.Instant
+import java.util.concurrent.Semaphore
 import java.util.concurrent.ThreadFactory
 import kotlin.time.Duration
 
 /**
  * Java 21/25 StructuredTaskScope 기반으로 테스트 블록을 병렬 실행합니다.
  *
- * ## 동작/계약
- * - `rounds` 값은 `1..1_000_000`만 허용하며 벗어나면 [IllegalArgumentException]이 발생합니다.
- * - 실행할 블록이 없을 때 [run]을 호출하면 [IllegalStateException]이 발생합니다.
- * - 기본은 virtual thread factory를 사용하고, [withFactory]로 사용자 factory를 지정할 수 있습니다.
- * - 실행 중 예외가 발생하면 scope 종료 시 `throwIfFailed` 경로로 전파됩니다.
+ * ## Behavior / Contract
+ * - `rounds` accepts `1..1_000_000`; values outside that range throw [IllegalArgumentException].
+ * - Calling [run] with no registered blocks throws [IllegalStateException].
+ * - Uses a virtual thread factory by default; override with [withFactory].
+ * - [workers] limits the number of concurrently running test blocks via an internal [Semaphore].
+ *   The default is `availableProcessors * 2`.
+ * - Exceptions thrown by test blocks are propagated by `throwIfFailed` after the scope joins.
  *
  * ```kotlin
  * val counter = java.util.concurrent.atomic.AtomicInteger()
  * StructuredTaskScopeTester()
+ *      .workers(4)
  *      .rounds(3)
  *      .add { counter.incrementAndGet() }
  *      .run()
  * // counter.get() == 3
  * ```
  */
-class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
+class StructuredTaskScopeTester: WorkerStressTester<StructuredTaskScopeTester> {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        /** Default worker count: twice the number of available processors. */
+        val DEFAULT_WORKER_COUNT: Int = Runtime.getRuntime().availableProcessors() * 2
+    }
 
     private var roundsPerWorker: Int = DEFAULT_ROUNDS_PER_WORKER
+    private var workerSize: Int = DEFAULT_WORKER_COUNT
 
     private val testBlocks = mutableListOf<() -> Unit>()
     private var factory: ThreadFactory? = null
@@ -115,6 +125,30 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
     }
 
     /**
+     * Sets the maximum number of concurrently running test blocks.
+     *
+     * ## Behavior / Contract
+     * - Accepts values in `1..2000`; values outside that range throw [IllegalArgumentException].
+     * - An internal [Semaphore] created at [run] time limits live executions to this count.
+     * - Defaults to `availableProcessors * 2` when not called.
+     *
+     * ```kotlin
+     * StructuredTaskScopeTester()
+     *     .workers(4)
+     *     .rounds(100)
+     *     .add { heavyWork() }
+     *     .run()
+     * // at most 4 blocks execute concurrently
+     * ```
+     */
+    override fun workers(value: Int) = apply {
+        require(value in MIN_WORKER_SIZE..MAX_WORKER_SIZE) {
+            "Invalid workers: [$value] -- must be range in $MIN_WORKER_SIZE..$MAX_WORKER_SIZE"
+        }
+        workerSize = value
+    }
+
+    /**
      * 실행할 테스트 블록을 하나 추가합니다.
      *
      * ## 동작/계약
@@ -147,16 +181,18 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
     }
 
     /**
-     * 등록된 블록을 StructuredTaskScope로 실행합니다.
+     * Runs all registered blocks using a StructuredTaskScope.
      *
-     * ## 동작/계약
-     * - 블록이 하나도 없으면 [IllegalStateException]이 발생합니다.
-     * - `rounds` 횟수만큼 모든 블록을 fork하고, join 후 실패를 전파합니다.
-     * - 호출이 끝나면 scope가 닫히며 스레드 자원은 정리됩니다.
+     * ## Behavior / Contract
+     * - Throws [IllegalStateException] when no blocks are registered.
+     * - Forks every block for each round; at most [workers] blocks run concurrently
+     *   (controlled by an internal [Semaphore]).
+     * - Propagates the first failure via `throwIfFailed` after the scope joins.
+     * - The scope is closed and all thread resources are released when this method returns.
      *
      * ```kotlin
      * val counter = java.util.concurrent.atomic.AtomicInteger()
-     * StructuredTaskScopeTester().rounds(2).add { counter.incrementAndGet() }.run()
+     * StructuredTaskScopeTester().workers(4).rounds(2).add { counter.incrementAndGet() }.run()
      * // counter.get() == 2
      * ```
      */
@@ -166,12 +202,20 @@ class StructuredTaskScopeTester: StressTester<StructuredTaskScopeTester> {
         }
 
         val factory = this.factory ?: Thread.ofVirtual().factory()
-        // deadline은 fork 루프 시작 전에 계산 — fork 자체 소요 시간이 timeout을 잠식하지 않도록
+        // Compute deadline before the fork loop so that fork overhead does not eat into the timeout.
         val deadline = timeout?.let { Instant.now().plusMillis(it.inWholeMilliseconds) }
+        val semaphore = Semaphore(workerSize)
         StructuredTaskScopes.failFast("stressTester", factory) { scope ->
             repeat(roundsPerWorker) {
                 testBlocks.forEach { block ->
-                    scope.fork { block() }
+                    scope.fork {
+                        semaphore.acquire()
+                        try {
+                            block()
+                        } finally {
+                            semaphore.release()
+                        }
+                    }
                 }
             }
             val joined = deadline?.let { scope.joinUntil(it) } ?: scope.join()
