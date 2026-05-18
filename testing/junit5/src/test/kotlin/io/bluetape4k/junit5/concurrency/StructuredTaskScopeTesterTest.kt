@@ -10,6 +10,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -112,6 +113,30 @@ class StructuredTaskScopeTesterTest {
         }
     }
 
+    @Test
+    fun `workers - 기본 worker 수는 availableProcessors 의 2배이다`() {
+        StructuredTaskScopeTester.DEFAULT_WORKER_COUNT shouldBeEqualTo Runtime.getRuntime().availableProcessors() * 2
+    }
+
+    @Test
+    fun `workers - 지정한 수 이상으로 동시 실행되지 않는다`() {
+        val activeTasks = AtomicInteger(0)
+        val peakConcurrency = AtomicInteger(0)
+        val workerLimit = 2
+
+        StructuredTaskScopeTester()
+            .workers(workerLimit)
+            .rounds(10)
+            .add {
+                val current = activeTasks.incrementAndGet()
+                peakConcurrency.getAndUpdate { maxOf(it, current) }
+                Thread.sleep(10)
+                activeTasks.decrementAndGet()
+            }
+            .run()
+
+        peakConcurrency.get() shouldBeLessOrEqualTo workerLimit
+    }
 
     private class CountingTask: () -> Unit {
         private val counter = atomic(0)
