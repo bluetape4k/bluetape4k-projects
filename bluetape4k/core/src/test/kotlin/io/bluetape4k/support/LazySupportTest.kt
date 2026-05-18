@@ -2,9 +2,8 @@ package io.bluetape4k.support
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.Test
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 class LazySupportTest {
@@ -30,17 +29,13 @@ class LazySupportTest {
             "value"
         }
 
-        val executor = Executors.newFixedThreadPool(8)
-        try {
-            val tasks = List(16) { Callable { lazyValue } }
-            val results = executor.invokeAll(tasks).map { it.get() }.distinct()
+        MultithreadingTester()
+            .workers(8)
+            .rounds(2)
+            .add { lazyValue shouldBeEqualTo "value" }
+            .run()
 
-            results.size shouldBeEqualTo 1
-            results.first() shouldBeEqualTo "value"
-            initialized.get() shouldBeGreaterOrEqualTo 1
-        } finally {
-            executor.shutdownNow()
-        }
+        initialized.get() shouldBeGreaterOrEqualTo 1
     }
 }
 
