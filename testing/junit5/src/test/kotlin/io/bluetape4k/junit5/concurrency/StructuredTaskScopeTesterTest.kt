@@ -9,8 +9,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import io.bluetape4k.assertions.assertFailsWith
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeoutException
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -120,22 +121,29 @@ class StructuredTaskScopeTesterTest {
 
     @Test
     fun `workers - 지정한 수 이상으로 동시 실행되지 않는다`() {
-        val activeTasks = AtomicInteger(0)
-        val peakConcurrency = AtomicInteger(0)
         val workerLimit = 2
+        // Semaphore(workerLimit).tryAcquire() fails atomically if more than workerLimit
+        // threads enter concurrently — avoids the non-atomic increment+peak-update race.
+        val guard = Semaphore(workerLimit)
+        val limitExceeded = AtomicBoolean(false)
 
         StructuredTaskScopeTester()
             .workers(workerLimit)
             .rounds(10)
             .add {
-                val current = activeTasks.incrementAndGet()
-                peakConcurrency.getAndUpdate { maxOf(it, current) }
-                Thread.sleep(10)
-                activeTasks.decrementAndGet()
+                if (!guard.tryAcquire()) {
+                    limitExceeded.set(true)
+                } else {
+                    try {
+                        Thread.sleep(10)
+                    } finally {
+                        guard.release()
+                    }
+                }
             }
             .run()
 
-        peakConcurrency.get() shouldBeLessOrEqualTo workerLimit
+        limitExceeded.get() shouldBeEqualTo false
     }
 
     private class CountingTask: () -> Unit {

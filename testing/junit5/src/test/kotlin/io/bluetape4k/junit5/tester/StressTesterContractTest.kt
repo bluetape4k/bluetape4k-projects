@@ -26,9 +26,9 @@ class StressTesterContractTest {
 
     @EnabledForJreRange(min = JRE.JAVA_21)
     @Test
-    fun `버추얼스레드 테스터는 StressTester 계약으로 실행된다`() {
+    fun `버추얼스레드 테스터는 WorkerStressTester 계약으로 실행된다`() {
         val counter = AtomicInteger(0)
-        val tester = configureRoundsTester(StructuredTaskScopeTester(), rounds = 4)
+        val tester = configureWorkerTester(StructuredTaskScopeTester(), workers = 2, rounds = 4)
 
         tester
             .add { counter.incrementAndGet() }
