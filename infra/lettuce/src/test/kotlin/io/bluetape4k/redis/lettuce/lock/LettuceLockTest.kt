@@ -16,9 +16,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -26,7 +23,6 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
         private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-        private val executor by lazy { Executors.newFixedThreadPool(5) }
     }
 
     private lateinit var lock: LettuceLock
@@ -78,23 +74,21 @@ class LettuceLockTest: AbstractLettuceTest() {
 
     @Test
     fun `동시성 - 여러 스레드에서 하나만 락 획득`() {
-        val threadCount = 5
         val acquiredCount = AtomicInteger(0)
-        val latch = CountDownLatch(threadCount)
 
-        repeat(threadCount) {
-            executor.submit {
+        MultithreadingTester()
+            .workers(5)
+            .rounds(1)
+            .add {
                 val threadLock = LettuceLock(connection, lock.lockKey, Duration.ofSeconds(5))
                 if (threadLock.tryLock(waitTime = Duration.ofMillis(100))) {
                     acquiredCount.incrementAndGet()
                     Thread.sleep(100)
                     threadLock.unlock()
                 }
-                latch.countDown()
             }
-        }
+            .run()
 
-        latch.await(5, TimeUnit.SECONDS)
         acquiredCount.get() shouldBeEqualTo 1
     }
 

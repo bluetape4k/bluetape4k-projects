@@ -14,9 +14,7 @@ import java.io.Serializable
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import java.util.stream.Stream
 import io.bluetape4k.assertions.assertFailsWith
 
@@ -182,30 +180,21 @@ class SerializerEdgeCaseTest {
     fun `멀티스레드 환경에서 동시 직렬화가 안전하게 동작한다`(serializer: BinarySerializer) {
         data class Item(val id: Int, val name: String) : Serializable
 
-        val executor = Executors.newFixedThreadPool(THREAD_COUNT)
-        val latch = CountDownLatch(THREAD_COUNT)
-        val errorCount = java.util.concurrent.atomic.AtomicInteger(0)
+        val counter = java.util.concurrent.atomic.AtomicInteger(0)
         val results = java.util.concurrent.ConcurrentHashMap<Int, Item>()
 
-        repeat(THREAD_COUNT) { idx ->
-            val item = Item(idx, "thread-$idx")
-            executor.submit {
-                try {
-                    val bytes = serializer.serialize(item)
-                    val deserialized = serializer.deserialize<Item>(bytes)
-                    if (deserialized != null) results[idx] = deserialized
-                } catch (e: Throwable) {
-                    errorCount.incrementAndGet()
-                } finally {
-                    latch.countDown()
-                }
+        MultithreadingTester()
+            .workers(THREAD_COUNT)
+            .rounds(1)
+            .add {
+                val idx = counter.getAndIncrement()
+                val item = Item(idx, "thread-$idx")
+                val bytes = serializer.serialize(item)
+                val deserialized = serializer.deserialize<Item>(bytes)
+                if (deserialized != null) results[idx] = deserialized
             }
-        }
+            .run()
 
-        latch.await(30, TimeUnit.SECONDS)
-        executor.shutdown()
-
-        errorCount.get() shouldBeEqualTo 0
         results.size shouldBeEqualTo THREAD_COUNT
         repeat(THREAD_COUNT) { idx ->
             results[idx].shouldNotBeNull()
@@ -268,35 +257,22 @@ class SerializerEdgeCaseTest {
 
     @Test
     fun `KryoProvider 멀티스레드 환경에서 안전하게 동작한다`() {
-        val executor = Executors.newFixedThreadPool(THREAD_COUNT)
-        val latch = CountDownLatch(THREAD_COUNT)
-        val errorCount = java.util.concurrent.atomic.AtomicInteger(0)
-
-        repeat(THREAD_COUNT) { idx ->
-            executor.submit {
+        MultithreadingTester()
+            .workers(THREAD_COUNT)
+            .rounds(1)
+            .add {
+                val kryo = KryoProvider.obtainKryo()
                 try {
-                    val kryo = KryoProvider.obtainKryo()
+                    val output = KryoProvider.obtainOutput()
                     try {
-                        // Kryo로 간단한 직렬화 수행
-                        val output = KryoProvider.obtainOutput()
-                        try {
-                            kryo.writeObject(output, "thread-safe-test-$idx")
-                        } finally {
-                            KryoProvider.releaseOutput(output)
-                        }
+                        kryo.writeObject(output, "thread-safe-test")
                     } finally {
-                        KryoProvider.releaseKryo(kryo)
+                        KryoProvider.releaseOutput(output)
                     }
-                } catch (e: Throwable) {
-                    errorCount.incrementAndGet()
                 } finally {
-                    latch.countDown()
+                    KryoProvider.releaseKryo(kryo)
                 }
             }
-        }
-
-        latch.await(30, TimeUnit.SECONDS)
-        executor.shutdown()
-        errorCount.get() shouldBeEqualTo 0
+            .run()
     }
 }
