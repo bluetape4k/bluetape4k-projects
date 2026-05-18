@@ -13,16 +13,12 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceAtomicLongTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
         private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-        private val executor by lazy { Executors.newFixedThreadPool(10) }
     }
 
     private lateinit var atomicLong: LettuceAtomicLong
@@ -115,19 +111,16 @@ class LettuceAtomicLongTest: AbstractLettuceTest() {
     fun `동시성 - 여러 스레드에서 incrementAndGet`() {
         val threadCount = 10
         val iterationsPerThread = 100
-        val latch = CountDownLatch(threadCount)
 
-        repeat(threadCount) {
-            executor.submit {
+        MultithreadingTester()
+            .workers(threadCount)
+            .rounds(iterationsPerThread)
+            .add {
                 val counter = LettuceAtomicLong(connection, atomicLong.key)
-                repeat(iterationsPerThread) {
-                    counter.incrementAndGet()
-                }
-                latch.countDown()
+                counter.incrementAndGet()
             }
-        }
+            .run()
 
-        latch.await(30, TimeUnit.SECONDS)
         atomicLong.get() shouldBeEqualTo (threadCount * iterationsPerThread).toLong()
     }
 

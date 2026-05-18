@@ -12,9 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import java.util.stream.Stream
 import io.bluetape4k.assertions.assertFailsWith
 
@@ -141,34 +139,16 @@ class CompressorEdgeCaseTest {
     @MethodSource("fastCompressors")
     fun `멀티스레드 환경에서 동시 압축이 안전하게 동작한다`(compressor: Compressor) {
         val input = "Concurrent compression test data: bluetape4k ".repeat(100).toByteArray()
-        val executor = Executors.newFixedThreadPool(THREAD_COUNT)
-        val latch = CountDownLatch(THREAD_COUNT)
-        val errorCount = java.util.concurrent.atomic.AtomicInteger(0)
-        val results = java.util.concurrent.CopyOnWriteArrayList<ByteArray>()
 
-        repeat(THREAD_COUNT) { _ ->
-            executor.submit {
-                try {
-                    val compressed = compressor.compress(input)
-                    val decompressed = compressor.decompress(compressed)
-                    results.add(decompressed)
-                } catch (e: Throwable) {
-                    errorCount.incrementAndGet()
-                    log.debug(e) { "Concurrent compression error: ${e.message}" }
-                } finally {
-                    latch.countDown()
-                }
+        MultithreadingTester()
+            .workers(THREAD_COUNT)
+            .rounds(1)
+            .add {
+                val compressed = compressor.compress(input)
+                val decompressed = compressor.decompress(compressed)
+                (decompressed contentEquals input).shouldBeTrue()
             }
-        }
-
-        latch.await(30, TimeUnit.SECONDS)
-        executor.shutdown()
-
-        errorCount.get() shouldBeEqualTo 0
-        results.size shouldBeEqualTo THREAD_COUNT
-        results.forEach { result ->
-            (result contentEquals input).shouldBeTrue()
-        }
+            .run()
     }
 
     @Test

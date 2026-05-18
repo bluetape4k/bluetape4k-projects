@@ -15,9 +15,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
 import java.time.Duration
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
@@ -26,7 +23,6 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     companion object: KLogging() {
         const val TOTAL_PERMITS = 3
         private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client) }
-        private val executor by lazy { Executors.newFixedThreadPool(10) }
     }
 
     private lateinit var semaphore: LettuceSemaphore
@@ -98,10 +94,11 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
     fun `동시성 - 최대 TOTAL_PERMITS개만 동시 접근 허용`() {
         val maxConcurrent = AtomicInteger(0)
         val concurrent = AtomicInteger(0)
-        val latch = CountDownLatch(10)
 
-        repeat(10) {
-            executor.submit {
+        MultithreadingTester()
+            .workers(10)
+            .rounds(1)
+            .add {
                 val s = LettuceSemaphore(connection, semaphore.semaphoreKey, TOTAL_PERMITS)
                 if (s.tryAcquire()) {
                     val current = concurrent.incrementAndGet()
@@ -110,11 +107,9 @@ class LettuceSemaphoreTest: AbstractLettuceTest() {
                     concurrent.decrementAndGet()
                     s.release()
                 }
-                latch.countDown()
             }
-        }
+            .run()
 
-        latch.await(10, TimeUnit.SECONDS)
         maxConcurrent.get() shouldBeGreaterOrEqualTo 1
     }
 

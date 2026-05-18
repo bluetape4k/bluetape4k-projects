@@ -7,10 +7,9 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import retrofit2.Response
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import java.io.IOException
 import java.time.Duration
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
 
 class RetrofitMetricsSupportTest {
 
@@ -102,20 +101,14 @@ class RetrofitMetricsSupportTest {
 
         val threadCount = 8
         val callsPerThread = 20
-        val latch = CountDownLatch(1)
-        val executor = Executors.newFixedThreadPool(threadCount)
 
-        val futures = List(threadCount) {
-            executor.submit {
-                latch.await()
-                repeat(callsPerThread) {
-                    recorder.recordTiming(tags, Duration.ofMillis(5))
-                }
+        MultithreadingTester()
+            .workers(threadCount)
+            .rounds(callsPerThread)
+            .add {
+                recorder.recordTiming(tags, Duration.ofMillis(5))
             }
-        }
-        latch.countDown()
-        futures.forEach { it.get() }
-        executor.shutdown()
+            .run()
 
         val timer = registry.find(MicrometerRetrofitMetricsRecorder.METRICS_KEY).tags(tags).timer()
         timer.shouldNotBeNull()

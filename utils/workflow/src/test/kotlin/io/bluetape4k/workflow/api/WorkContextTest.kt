@@ -4,11 +4,9 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class WorkContextTest: AbstractWorkflowTest() {
 
@@ -130,22 +128,16 @@ class WorkContextTest: AbstractWorkflowTest() {
     fun `병렬 compute 스레드 안전성`() {
         val threadCount = 10
         val incrementsPerThread = 100
-        val latch = CountDownLatch(threadCount)
-        val executor = Executors.newFixedThreadPool(threadCount)
 
         ctx["counter"] = 0
 
-        repeat(threadCount) {
-            executor.submit {
-                repeat(incrementsPerThread) {
-                    ctx.compute("counter") { _, old -> ((old as? Int) ?: 0) + 1 }
-                }
-                latch.countDown()
+        MultithreadingTester()
+            .workers(threadCount)
+            .rounds(incrementsPerThread)
+            .add {
+                ctx.compute("counter") { _, old -> ((old as? Int) ?: 0) + 1 }
             }
-        }
-
-        latch.await(5, TimeUnit.SECONDS)
-        executor.shutdown()
+            .run()
 
         val finalCount: Int? = ctx["counter"]
         finalCount shouldBeEqualTo threadCount * incrementsPerThread
