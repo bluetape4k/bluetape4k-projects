@@ -2,13 +2,11 @@ package io.bluetape4k.cache.memoizer
 
 import com.hazelcast.map.IMap
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class HazelcastMemoizerTest: AbstractMemoizerTest() {
@@ -44,21 +42,14 @@ class HazelcastMemoizerTest: AbstractMemoizerTest() {
             Thread.sleep(100)
             key * key
         }
-        val pool = Executors.newFixedThreadPool(16)
-        val startLatch = CountDownLatch(1)
-
         try {
-            val tasks = List(16) {
-                pool.submit<Int> {
-                    startLatch.await(1, TimeUnit.SECONDS)
-                    memoizer(7)
-                }
-            }
-            startLatch.countDown()
-            tasks.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            MultithreadingTester()
+                .workers(16)
+                .rounds(1)
+                .add { memoizer(7) shouldBeEqualTo 49 }
+                .run()
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
-            pool.shutdownNow()
             map.destroy()
         }
     }
