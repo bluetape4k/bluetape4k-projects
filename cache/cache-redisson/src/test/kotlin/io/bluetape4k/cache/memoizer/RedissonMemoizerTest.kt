@@ -8,9 +8,6 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class RedissonMemoizerTest: AbstractMemoizerTest() {
@@ -45,22 +42,14 @@ class RedissonMemoizerTest: AbstractMemoizerTest() {
             Thread.sleep(100)
             key * key
         }
-        val pool = Executors.newFixedThreadPool(16)
-        val startLatch = CountDownLatch(1)
-
         try {
-            val tasks = List(16) {
-                pool.submit<Int> {
-                    startLatch.await(1, TimeUnit.SECONDS)
-                    memoizer(7)
-                }
-            }
-
-            startLatch.countDown()
-            tasks.forEach { it.get(2, TimeUnit.SECONDS) shouldBeEqualTo 49 }
+            MultithreadingTester()
+                .workers(16)
+                .rounds(1)
+                .add { memoizer(7) shouldBeEqualTo 49 }
+                .run()
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
-            pool.shutdownNow()
             map.delete()
         }
     }
