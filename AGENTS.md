@@ -19,8 +19,8 @@ repo-test-summary -- ./gradlew :module:test
 ./gradlew :bluetape4k-coroutines:build
 ./gradlew test --tests "io.bluetape4k.io.CompressorTest"
 ./gradlew detekt
-./gradlew publishBluetape4kPublicationToBluetape4kRepository
-./gradlew publishBluetape4kPublicationToBluetape4kRepository -PsnapshotVersion=
+./gradlew nmcpPublishAggregationToCentralPortalSnapshots               # SNAPSHOT
+./gradlew nmcpPublishAggregationToCentralPortal -PsnapshotVersion=     # RELEASE
 ```
 
 ## Module Groups
