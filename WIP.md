@@ -1,7 +1,7 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-17 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 8 issues.
+Snapshot: 2026-05-18 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 12 issues.
 
 ## Recently Completed
 
@@ -35,9 +35,13 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 
 | Priority | Issue | Difficulty | Notes |
 |---|---|---:|---|
+| P1 | [#539](https://github.com/bluetape4k/bluetape4k-projects/issues/539) remove deprecated BinaryKafkaCodecs (JDK RCE) | S | Audit usages, escalate to ERROR log, then remove; related to #492 serialization trust profiles. |
+| P1 | [#540](https://github.com/bluetape4k/bluetape4k-projects/issues/540) GrpcServer / AbstractGrpcServer lifecycle tests | M | Core infrastructure with zero test coverage; add start/stop/restart lifecycle tests. |
+| P1 | [#542](https://github.com/bluetape4k/bluetape4k-projects/issues/542) ResilientNearCacheDecorator.close() swallows exception | S | Replace `runCatching{}` with logged try/catch; check ResilientSuspendNearCacheDecorator for same pattern. |
 | P1 | [#418](https://github.com/bluetape4k/bluetape4k-projects/issues/418) optional Ktor client helpers for `io/http` | S | Thin optional backend; keep Ktor lifecycle explicit and do not introduce a common HTTP abstraction. |
 | P1 | [#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434) Bucket4j Kotlin rate-limit facade hardening | M | Standardize consumption result helpers, duration APIs, provider lifecycle, cancellation expectations, and README guidance. |
 | P1 | [#435](https://github.com/bluetape4k/bluetape4k-projects/issues/435) Resilience4j coroutine facade hardening | M | Standardize retry/circuit breaker/bulkhead/time limiter composition, cancellation propagation, Flow contracts, and README guidance. |
+| P2 | [#541](https://github.com/bluetape4k/bluetape4k-projects/issues/541) FutureToCompletableFutureWrapper virtual thread per object | S | Replace per-instance `Thread.ofVirtual().start()` with shared `Executors.newVirtualThreadPerTaskExecutor()`. |
 | P2 | [#433](https://github.com/bluetape4k/bluetape4k-projects/issues/433) Kotlin JVM resilience/rate-limit wrapper umbrella | S | Decision record only; implementation belongs to `#434/#435`. |
 | P2 | [#354](https://github.com/bluetape4k/bluetape4k-projects/issues/354) cache README/KDoc cross-link audit | S | Follow-up after cache folder reorganization; check English/Korean README import paths and KDoc links. |
 | P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
@@ -85,6 +89,20 @@ Historical completed items from the old monorepo TODO are intentionally omitted 
 #324 KDoc
 #325 CHANGELOG
   -> one small docs PR is preferred
+
+#539 remove deprecated BinaryKafkaCodecs (JDK RCE)
+  -> related: #492 serialization trust profiles
+  -> audit usages -> escalate to ERROR -> remove
+
+#540 GrpcServer / AbstractGrpcServer lifecycle tests
+  -> core infrastructure; zero test coverage currently
+
+#541 FutureToCompletableFutureWrapper virtual thread per object
+  -> replace with shared Executors.newVirtualThreadPerTaskExecutor()
+
+#542 ResilientNearCacheDecorator.close() swallows exception
+  -> replace runCatching{} with logged try/catch
+  -> check ResilientSuspendNearCacheDecorator for same pattern
 ```
 
 ## WIP Limits
