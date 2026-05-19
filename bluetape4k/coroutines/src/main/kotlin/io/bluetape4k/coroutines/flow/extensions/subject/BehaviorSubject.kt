@@ -190,11 +190,12 @@ class BehaviorSubject<T> private constructor(
         current = DONE
 
         collectors.getAndSet(TERMINATED).forEach { innerCollector ->
-            runCatching {
+            try {
                 innerCollector.consumeReady.await()
                 innerCollector.resume()
-            }.onFailure { e ->
-                if (e is CancellationException) throw e
+            } catch (e: CancellationException) {
+                currentCoroutineContext().ensureActive()
+            } catch (e: Throwable) {
                 log.error(e) { "BehaviorSubject.emitError 알림 실패. innerCollector=$innerCollector" }
             }
         }
@@ -224,13 +225,12 @@ class BehaviorSubject<T> private constructor(
         current = DONE
 
         collectors.getAndSet(TERMINATED).forEach { innerCollector ->
-            runCatching {
+            try {
                 innerCollector.consumeReady.await()
                 innerCollector.resume()
-            }.onFailure { e ->
-                if (e is CancellationException) {
-                    currentCoroutineContext().ensureActive()
-                }
+            } catch (e: CancellationException) {
+                currentCoroutineContext().ensureActive()
+            } catch (e: Throwable) {
                 log.error(e) { "Fail to complete. innerCollector=$innerCollector" }
             }
         }

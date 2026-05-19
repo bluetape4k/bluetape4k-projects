@@ -217,6 +217,89 @@ class SubjectCancellationTest {
     }
 
     @Test
+    fun `BehaviorSubject emitError preserves timeout cancellation while collector is busy`() = runTest {
+        val subject = BehaviorSubject<Int>()
+        val collectorEntered = CompletableDeferred<Unit>()
+        val releaseCollector = CompletableDeferred<Unit>()
+
+        val job = launch {
+            subject.collect {
+                collectorEntered.complete(Unit)
+                releaseCollector.await()
+            }
+        }
+
+        subject.awaitCollector()
+        subject.emit(1)
+        collectorEntered.await()
+
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(10.milliseconds) {
+                subject.emitError(IllegalStateException("boom"))
+            }
+        }
+
+        releaseCollector.complete(Unit)
+        job.cancelAndJoin()
+    }
+
+    @Test
+    fun `BehaviorSubject emitError continues after a collector is cancelled`() = runTest {
+        val subject = BehaviorSubject<Int>()
+        val emittedError = IllegalStateException("boom")
+        val secondCollectorError = CompletableDeferred<Throwable>()
+
+        val firstJob = launch {
+            subject.collect { /* consume */ }
+        }
+        val secondJob = launch {
+            try {
+                subject.collect { /* consume */ }
+            } catch (e: IllegalStateException) {
+                secondCollectorError.complete(e)
+            }
+        }
+
+        subject.awaitCollectors(2)
+
+        firstJob.cancel()
+        subject.emitError(emittedError)
+
+        withTimeout(1.seconds) {
+            secondCollectorError.await()
+        } shouldBeInstanceOf IllegalStateException::class
+
+        firstJob.cancelAndJoin()
+        secondJob.cancelAndJoin()
+    }
+
+    @Test
+    fun `BehaviorSubject complete continues after a collector is cancelled`() = runTest {
+        val subject = BehaviorSubject<Int>()
+        val secondCollectorCompleted = CompletableDeferred<Unit>()
+
+        val firstJob = launch {
+            subject.collect { /* consume */ }
+        }
+        val secondJob = launch {
+            subject.collect { /* consume */ }
+            secondCollectorCompleted.complete(Unit)
+        }
+
+        subject.awaitCollectors(2)
+
+        firstJob.cancel()
+        subject.complete()
+
+        withTimeout(1.seconds) {
+            secondCollectorCompleted.await()
+        }
+
+        firstJob.cancelAndJoin()
+        secondJob.cancelAndJoin()
+    }
+
+    @Test
     fun `PublishSubject complete preserves timeout cancellation while collector is busy`() = runTest {
         val subject = PublishSubject<Int>()
         val collectorEntered = CompletableDeferred<Unit>()
