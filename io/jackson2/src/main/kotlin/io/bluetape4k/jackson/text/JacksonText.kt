@@ -1,9 +1,16 @@
 package io.bluetape4k.jackson.text
 
 import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.cfg.CoercionAction
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.type.LogicalType
 import com.fasterxml.jackson.dataformat.csv.CsvFactory
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsFactory
@@ -25,6 +32,8 @@ import io.bluetape4k.jackson.text.JacksonText.Toml.defaultSerializer
 import io.bluetape4k.jackson.text.JacksonText.Yaml.defaultFactory
 import io.bluetape4k.jackson.text.JacksonText.Yaml.defaultMapper
 import io.bluetape4k.jackson.text.JacksonText.Yaml.defaultSerializer
+import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
  * Jackson 텍스트 포맷(CSV/Properties/TOML/YAML) 기본 mapper/factory/serializer를 제공합니다.
@@ -185,6 +194,13 @@ object JacksonText {
                 .disable(*disabledSerializationFeatures)
                 .enable(*enabledDeserializationFeatures)
                 .disable(*disabledDeserializationFeatures)
+                .withCoercionConfig(LogicalType.Integer) {
+                    it.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull)
+                }
+                .withCoercionConfig(LogicalType.Float) {
+                    it.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull)
+                }
+                .addModule(PropsNullableNumberModule)
                 .build()
         }
 
@@ -229,6 +245,46 @@ object JacksonText {
             PropsJacksonSerializer(defaultMapper)
         }
     }
+
+    private object PropsNullableNumberModule: SimpleModule() {
+        init {
+            addDeserializer(Byte::class.javaObjectType, object: StdDeserializer<Byte>(Byte::class.javaObjectType) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Byte? =
+                    p.propsValueAsStringOrNull()?.toByte()
+            })
+            addDeserializer(Short::class.javaObjectType, object: StdDeserializer<Short>(Short::class.javaObjectType) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Short? =
+                    p.propsValueAsStringOrNull()?.toShort()
+            })
+            addDeserializer(Int::class.javaObjectType, object: StdDeserializer<Int>(Int::class.javaObjectType) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Int? =
+                    p.propsValueAsStringOrNull()?.toInt()
+            })
+            addDeserializer(Long::class.javaObjectType, object: StdDeserializer<Long>(Long::class.javaObjectType) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Long? =
+                    p.propsValueAsStringOrNull()?.toLong()
+            })
+            addDeserializer(Float::class.javaObjectType, object: StdDeserializer<Float>(Float::class.javaObjectType) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Float? =
+                    p.propsValueAsStringOrNull()?.toFloat()
+            })
+            addDeserializer(Double::class.javaObjectType, object: StdDeserializer<Double>(Double::class.javaObjectType) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): Double? =
+                    p.propsValueAsStringOrNull()?.toDouble()
+            })
+            addDeserializer(BigInteger::class.java, object: StdDeserializer<BigInteger>(BigInteger::class.java) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): BigInteger? =
+                    p.propsValueAsStringOrNull()?.toBigInteger()
+            })
+            addDeserializer(BigDecimal::class.java, object: StdDeserializer<BigDecimal>(BigDecimal::class.java) {
+                override fun deserialize(p: JsonParser, ctxt: DeserializationContext?): BigDecimal? =
+                    p.propsValueAsStringOrNull()?.toBigDecimal()
+            })
+        }
+    }
+
+    private fun JsonParser.propsValueAsStringOrNull(): String? =
+        valueAsString?.takeUnless { it.isEmpty() }
 
     /**
      * TOML 포맷 기본 구성 요소를 제공합니다.

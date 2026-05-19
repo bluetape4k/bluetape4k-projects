@@ -12,7 +12,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.json.JsonMapper
@@ -88,7 +87,6 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
         """.trimMargin()
 
 
-        @Disabled("PropsMapper 에 버그가 있다. 미지정 속성은 null 이 되어야 하는데, maxWaitMillis=0 으로 지정된다.")
         @Test
         fun `generate datasource properties to properties format and parse`() {
             val bluetape4k = Bluetape4kProperty(mapOf("default" to default, "read" to read))
@@ -108,7 +106,7 @@ class ParseNamedDataSourcePropertiesTest: AbstractJacksonTextTest() {
             parsedRead shouldBeEqualTo read
         }
 
-        @Disabled("PropsMapper 에 버그가 있다. 미지정 속성은 null 이 되어야 하는데, maxWaitMillis=0 으로 지정된다.")
+        @Test
         fun `generate datasource properties to properties and parse`() {
             val bluetape4k = Bluetape4kProperty(mapOf("default" to default, "read" to read))
             val root = RootProperty(bluetape4k)
