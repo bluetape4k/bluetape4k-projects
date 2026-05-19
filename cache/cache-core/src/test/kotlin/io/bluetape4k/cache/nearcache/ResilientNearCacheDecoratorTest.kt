@@ -6,7 +6,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.junit5.output.InMemoryLogbackAppender
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
@@ -130,6 +132,22 @@ class ResilientNearCacheDecoratorTest {
 
         cache.close()
         verify(exactly = 1) { delegate.close() }
+    }
+
+    @Test
+    fun `close - delegate 실패 시 예외를 삼키고 로그만 남김`() {
+        every { delegate.close() } throws RuntimeException("close failure")
+        val cache = ResilientNearCacheDecorator(delegate)
+        val appender = InMemoryLogbackAppender(ResilientNearCacheDecorator::class)
+
+        try {
+            cache.close()
+
+            verify(exactly = 1) { delegate.close() }
+            appender.lastMessage shouldContain "Ignoring close() failure. cacheName=test-cache"
+        } finally {
+            appender.close()
+        }
     }
 
     @Test
