@@ -395,15 +395,15 @@ dependencies {
 
 ### 분산 Primitive 클래스 계층
 
-![Component Primitive Component Component 1](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-01.svg)
+![Component Primitive Component Component 1](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-01.png)
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
-![LettuceLoadedMap Read-Through / Write-Through Component 2](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-02.svg)
+![LettuceLoadedMap Read-Through / Write-Through Component 2](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-02.png)
 
 ### LettuceBinaryCodec 계층
 
-![LettuceBinaryCodec Component 3](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-03.svg)
+![LettuceBinaryCodec Component 3](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-03.png)
 
 ## 확률 자료구조
 

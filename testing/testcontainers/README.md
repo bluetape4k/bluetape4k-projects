@@ -8,15 +8,15 @@ A server wrapper and utility library for building integration tests quickly on t
 
 ### Container Lifecycle
 
-![Container Lifecycle 1](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.svg)
+![Container Lifecycle 1](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
 
 ### Supported Container Class Diagram
 
-![Supported Container Class Diagram 2](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.svg)
+![Supported Container Class Diagram 2](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ### Supported Container Structure
 
-![Supported Container Structure 3](../../docs/images/readme-diagrams/testing-testcontainers-diagram-03.svg)
+![Supported Container Structure 3](../../docs/images/readme-diagrams/testing-testcontainers-diagram-03.png)
 
 ## Key Features
 
@@ -306,7 +306,7 @@ client.use {
 
 ### Toxiproxy (Chaos Testing)
 
-![Toxiproxy (Chaos Testing) 4](../../docs/images/readme-diagrams/testing-testcontainers-diagram-04.svg)
+![Toxiproxy (Chaos Testing) 4](../../docs/images/readme-diagrams/testing-testcontainers-diagram-04.png)
 
 ### AWS Emulators
 

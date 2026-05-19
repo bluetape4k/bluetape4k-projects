@@ -229,15 +229,15 @@ val result = totalAmount.await().indefinitely()
 
 ## Mutiny Type Diagram
 
-![Mutiny Type Diagram 1](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.svg)
+![Mutiny Type Diagram 1](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.png)
 
 ## Mutiny Processing Flow
 
-![Mutiny Processing Flow 2](../../docs/images/readme-diagrams/utils-mutiny-diagram-02.svg)
+![Mutiny Processing Flow 2](../../docs/images/readme-diagrams/utils-mutiny-diagram-02.png)
 
 ## Coroutine Interop Flow
 
-![Coroutine Interop Flow 3](../../docs/images/readme-diagrams/utils-mutiny-diagram-03.svg)
+![Coroutine Interop Flow 3](../../docs/images/readme-diagrams/utils-mutiny-diagram-03.png)
 
 ## Mutiny vs Other Reactive Libraries
 

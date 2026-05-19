@@ -126,11 +126,11 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ### Class Structure
 
-![Class Structure 1](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.svg)
+![Class Structure 1](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
 
 ### JSON vs JSONB Serialization Flow
 
-![JSON vs JSONB Serialization Flow 2](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.svg)
+![JSON vs JSONB Serialization Flow 2](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
 
 ## Dependencies
 

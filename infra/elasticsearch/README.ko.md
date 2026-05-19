@@ -71,7 +71,7 @@ dependencies {
 
 ## 클래스 계층
 
-![Component Component 1](../../docs/images/readme-diagrams/infra-elasticsearch-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/infra-elasticsearch-ko-diagram-01.png)
 
 ## 사용 예시
 

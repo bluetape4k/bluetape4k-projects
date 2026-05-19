@@ -68,19 +68,19 @@ dependencies {
 
 ### 모듈 의존성 구조
 
-![Component Component Component 1](../../docs/images/readme-diagrams/io-vertx-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/io-vertx-ko-diagram-01.png)
 
 ### Vert.x 이벤트 루프 + Coroutines 처리 흐름
 
-![Vert.x Component Component + Coroutines Component Component 2](../../docs/images/readme-diagrams/io-vertx-ko-diagram-02.svg)
+![Vert.x Component Component + Coroutines Component Component 2](../../docs/images/readme-diagrams/io-vertx-ko-diagram-02.png)
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
-![Circuit Breaker + Resilience4j Integration Component 3](../../docs/images/readme-diagrams/io-vertx-ko-diagram-03.svg)
+![Circuit Breaker + Resilience4j Integration Component 3](../../docs/images/readme-diagrams/io-vertx-ko-diagram-03.png)
 
 ### Vert.x 핵심 컴포넌트 클래스 구조
 
-![Vert.x Component Component Component Component 4](../../docs/images/readme-diagrams/io-vertx-ko-diagram-04.svg)
+![Vert.x Component Component Component Component 4](../../docs/images/readme-diagrams/io-vertx-ko-diagram-04.png)
 
 ## 사용 예시
 

@@ -10,15 +10,15 @@ English | [한국어](./README.ko.md)
 
 ### Compressor Hierarchy
 
-![Compressor Hierarchy 1](../../docs/images/readme-diagrams/io-io-diagram-01.svg)
+![Compressor Hierarchy 1](../../docs/images/readme-diagrams/io-io-diagram-01.png)
 
 ### BinarySerializer Hierarchy
 
-![BinarySerializer Hierarchy 2](../../docs/images/readme-diagrams/io-io-diagram-02.svg)
+![BinarySerializer Hierarchy 2](../../docs/images/readme-diagrams/io-io-diagram-02.png)
 
 ### compress/decompress Flow
 
-![compress/decompress Flow 3](../../docs/images/readme-diagrams/io-io-diagram-03.svg)
+![compress/decompress Flow 3](../../docs/images/readme-diagrams/io-io-diagram-03.png)
 
 `compress()` and `decompress()` are throwing APIs: null or empty input returns
 `emptyByteArray`, but implementation failures are propagated to the caller. Use
@@ -27,7 +27,7 @@ failure should be represented as `null` instead of an exception.
 
 ### serialize/deserialize Flow
 
-![serialize/deserialize Flow 4](../../docs/images/readme-diagrams/io-io-diagram-04.svg)
+![serialize/deserialize Flow 4](../../docs/images/readme-diagrams/io-io-diagram-04.png)
 
 ## Key Features
 
@@ -412,7 +412,7 @@ JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
 | Jdk | ~8,431 | — | Java standard |
 | Jackson | ~4,323 | — | Disadvantaged for binary data |
 
-![Serialization Performance Comparison 5](../../docs/images/readme-diagrams/io-io-diagram-05.svg)
+![Serialization Performance Comparison 5](../../docs/images/readme-diagrams/io-io-diagram-05.png)
 
 > `ForyBinarySerializer.fast()` is ~71% faster than standard Fory and supports nullable types.
 > `KryoBinarySerializer.fast()` is ~97% faster but does **not** support Kotlin nullable fields (`Type?`).
@@ -426,7 +426,7 @@ JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
 | Jackson | 39,510  | JSON-based                  |
 | Jdk     | 22,249  | Java standard               |
 
-![Serialization Performance Comparison 6](../../docs/images/readme-diagrams/io-io-diagram-06.svg)
+![Serialization Performance Comparison 6](../../docs/images/readme-diagrams/io-io-diagram-06.png)
 
 ### Compression Performance Comparison
 
@@ -440,7 +440,7 @@ Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.tx
 | GZip      | 1,195 | Excellent compatibility                |
 | Deflate   | 1,084 | GZip-based                             |
 
-![Compression Performance Comparison 7](../../docs/images/readme-diagrams/io-io-diagram-07.svg)
+![Compression Performance Comparison 7](../../docs/images/readme-diagrams/io-io-diagram-07.png)
 
 ## Module Structure
 

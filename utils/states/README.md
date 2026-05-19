@@ -12,7 +12,7 @@ transitions, and `StateFlow`-based state observation.
 
 How states, events, and the state machine interact:
 
-![Concept Overview 1](../../docs/images/readme-diagrams/utils-states-diagram-01.svg)
+![Concept Overview 1](../../docs/images/readme-diagrams/utils-states-diagram-01.png)
 
 A `StateMachine` holds a set of typed **transitions** (from-state + event-type → to-state).  
 Each transition can have an optional **guard condition** that must pass before the state changes.  
@@ -20,7 +20,7 @@ Each transition can have an optional **guard condition** that must pass before t
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/utils-states-diagram-02.svg)
+![Class Diagram 2](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
 
 > `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between
 `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common
@@ -28,7 +28,7 @@ Each transition can have an optional **guard condition** that must pass before t
 
 ### DSL Builder Structure
 
-![DSL Builder Structure 3](../../docs/images/readme-diagrams/utils-states-diagram-03.svg)
+![DSL Builder Structure 3](../../docs/images/readme-diagrams/utils-states-diagram-03.png)
 
 ## Key Features
 
@@ -55,15 +55,15 @@ The comparison work is tracked through #436, #437, and #438.
 
 ### 1. Turnstile — Simple FSM
 
-![1. Turnstile — Simple FSM 4](../../docs/images/readme-diagrams/utils-states-diagram-04.svg)
+![1. Turnstile — Simple FSM 4](../../docs/images/readme-diagrams/utils-states-diagram-04.png)
 
 ### 2. Order — One-Way FSM
 
-![2. Order — One-Way FSM 5](../../docs/images/readme-diagrams/utils-states-diagram-05.svg)
+![2. Order — One-Way FSM 5](../../docs/images/readme-diagrams/utils-states-diagram-05.png)
 
 ### 3. Appointment — Complex FSM (`clinic-appointment`)
 
-![3. Appointment — Complex FSM (clinic-appointment) 6](../../docs/images/readme-diagrams/utils-states-diagram-06.svg)
+![3. Appointment — Complex FSM (clinic-appointment) 6](../../docs/images/readme-diagrams/utils-states-diagram-06.png)
 
 ## Quick Start
 
@@ -187,11 +187,11 @@ machine.send(OrderEvent.Cancel)
 
 ### Synchronous FSM Transition Flow
 
-![Synchronous FSM Transition Flow 7](../../docs/images/readme-diagrams/utils-states-diagram-07.svg)
+![Synchronous FSM Transition Flow 7](../../docs/images/readme-diagrams/utils-states-diagram-07.png)
 
 ### Coroutine FSM Transition Flow (`SuspendStateMachine`)
 
-![Coroutine FSM Transition Flow (SuspendStateMachine) 8](../../docs/images/readme-diagrams/utils-states-diagram-08.svg)
+![Coroutine FSM Transition Flow (SuspendStateMachine) 8](../../docs/images/readme-diagrams/utils-states-diagram-08.png)
 
 ## `clinic-appointment` Migration Guide
 

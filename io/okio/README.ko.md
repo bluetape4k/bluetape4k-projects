@@ -384,25 +384,25 @@ io.bluetape4k.okio
 
 Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등을 데코레이터 패턴으로 제공합니다.
 
-![Sink / Source Component Component 1](../../docs/images/readme-diagrams/io-okio-ko-diagram-01.svg)
+![Sink / Source Component Component 1](../../docs/images/readme-diagrams/io-okio-ko-diagram-01.png)
 
 ### NIO 채널 어댑터 계층
 
 Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
 
-![NIO Component Component Component 2](../../docs/images/readme-diagrams/io-okio-ko-diagram-02.svg)
+![NIO Component Component Component 2](../../docs/images/readme-diagrams/io-okio-ko-diagram-02.png)
 
 ### Coroutines 비동기 I/O 계층
 
 Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니다.
 
-![Coroutines Async I/O Component 3](../../docs/images/readme-diagrams/io-okio-ko-diagram-03.svg)
+![Coroutines Async I/O Component 3](../../docs/images/readme-diagrams/io-okio-ko-diagram-03.png)
 
 ### 압축 팩토리 (Compressable)
 
 `Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
 
-![Component Component (Compressable) 4](../../docs/images/readme-diagrams/io-okio-ko-diagram-04.svg)
+![Component Component (Compressable) 4](../../docs/images/readme-diagrams/io-okio-ko-diagram-04.png)
 
 ## 시퀀스 다이어그램
 
@@ -410,31 +410,31 @@ Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니�
 
 `CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
 
-![Component Sink (One-Shot) — compress on close 5](../../docs/images/readme-diagrams/io-okio-ko-diagram-05.svg)
+![Component Sink (One-Shot) — compress on close 5](../../docs/images/readme-diagrams/io-okio-ko-diagram-05.png)
 
 ### 압축 Sink (Streaming) — compress incrementally
 
 `StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
 
-![Component Sink (Streaming) — compress incrementally 6](../../docs/images/readme-diagrams/io-okio-ko-diagram-06.svg)
+![Component Sink (Streaming) — compress incrementally 6](../../docs/images/readme-diagrams/io-okio-ko-diagram-06.png)
 
 ### 복원 Source (One-Shot) — decompress on first read
 
 `DecompressableSource`는 첫 번째 `read()` 호출 시 전체 데이터를 복원하고 캐싱합니다.
 
-![Component Source (One-Shot) — decompress on first read 7](../../docs/images/readme-diagrams/io-okio-ko-diagram-07.svg)
+![Component Source (One-Shot) — decompress on first read 7](../../docs/images/readme-diagrams/io-okio-ko-diagram-07.png)
 
 ### Tink 암호화 + 압축 조합 흐름
 
 `Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
 
-![Tink Encryption + Component Component Component 8](../../docs/images/readme-diagrams/io-okio-ko-diagram-08.svg)
+![Tink Encryption + Component Component Component 8](../../docs/images/readme-diagrams/io-okio-ko-diagram-08.png)
 
 ### Coroutines 비동기 파일 I/O 흐름
 
 `AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
 
-![Coroutines Async Component I/O Component 9](../../docs/images/readme-diagrams/io-okio-ko-diagram-09.svg)
+![Coroutines Async Component I/O Component 9](../../docs/images/readme-diagrams/io-okio-ko-diagram-09.png)
 
 ## 라이선스
 

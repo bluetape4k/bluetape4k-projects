@@ -262,15 +262,15 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ### Codec 계층 구조
 
-![Codec Component Component 1](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-01.svg)
+![Codec Component Component 1](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-01.png)
 
 ### NearCache 2-Tier 캐시 흐름
 
-![NearCache 2-Tier Cache Component 2](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-02.svg)
+![NearCache 2-Tier Cache Component 2](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-02.png)
 
 ### Batch / Transaction 처리 흐름
 
-![Batch / Transaction Component Component 3](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-03.svg)
+![Batch / Transaction Component Component 3](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-03.png)
 
 ## 고성능 Batch 패턴 — 메가배치
 

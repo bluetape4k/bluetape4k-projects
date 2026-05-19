@@ -28,15 +28,15 @@
 
 ### 요청 라우팅 개요
 
-![Request Routing Component 1](../../docs/images/readme-diagrams/testing-mock-webflux-server-ko-diagram-01.svg)
+![Request Routing Component 1](../../docs/images/readme-diagrams/testing-mock-webflux-server-ko-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![Component Diagram 2](../../docs/images/readme-diagrams/testing-mock-webflux-server-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/testing-mock-webflux-server-ko-diagram-02.png)
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 
-![Component Diagram — httpbin GET Request 3](../../docs/images/readme-diagrams/testing-mock-webflux-server-ko-diagram-03.svg)
+![Component Diagram — httpbin GET Request 3](../../docs/images/readme-diagrams/testing-mock-webflux-server-ko-diagram-03.png)
 
 ## Features
 

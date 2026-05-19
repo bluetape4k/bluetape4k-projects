@@ -115,19 +115,19 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 ### 핵심 클래스 구조
 
-![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-01.png)
 
 ### R2DBC + Coroutines 데이터 흐름
 
-![R2DBC + Coroutines Data Component 2](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-02.svg)
+![R2DBC + Coroutines Data Component 2](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-02.png)
 
 ### CRUD 연산 계층 구조
 
-![CRUD Component Component Component 3](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-03.svg)
+![CRUD Component Component Component 3](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-03.png)
 
 ### 코루틴 변환 시퀀스
 
-![Coroutines Component Component 4](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-04.svg)
+![Coroutines Component Component 4](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-04.png)
 
 ## 참고
 

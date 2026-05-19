@@ -12,19 +12,19 @@ It allows REST API calls to be declared as interface methods, and supports plugg
 
 ### Overall Architecture: Feign + Coroutines Integration
 
-![Overall Architecture: Feign + Coroutines Integration 1](../../docs/images/readme-diagrams/io-feign-diagram-01.svg)
+![Overall Architecture: Feign + Coroutines Integration 1](../../docs/images/readme-diagrams/io-feign-diagram-01.png)
 
 ### Class Hierarchy: Feign + Coroutines
 
-![Class Hierarchy: Feign + Coroutines 2](../../docs/images/readme-diagrams/io-feign-diagram-02.svg)
+![Class Hierarchy: Feign + Coroutines 2](../../docs/images/readme-diagrams/io-feign-diagram-02.png)
 
 ### HTTP Transport Layer Options
 
-![HTTP Transport Layer Options 3](../../docs/images/readme-diagrams/io-feign-diagram-03.svg)
+![HTTP Transport Layer Options 3](../../docs/images/readme-diagrams/io-feign-diagram-03.png)
 
 ### Suspend Function HTTP Request Flow
 
-![Suspend Function HTTP Request Flow 4](../../docs/images/readme-diagrams/io-feign-diagram-04.svg)
+![Suspend Function HTTP Request Flow 4](../../docs/images/readme-diagrams/io-feign-diagram-04.png)
 
 ## Key Features
 

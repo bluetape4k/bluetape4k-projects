@@ -378,19 +378,19 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### 확장 함수 API 개요
 
-![Component Function API Component 1](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-01.svg)
+![Component Function API Component 1](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-01.png)
 
 ### 주요 API 구조
 
-![Component API Component 2](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-02.svg)
+![Component API Component 2](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-02.png)
 
 ### R2DBC 쿼리 실행 흐름
 
-![R2DBC Query Component Component 3](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-03.svg)
+![R2DBC Query Component Component 3](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-03.png)
 
 ### JDBC vs R2DBC 비교
 
-![JDBC vs R2DBC Component 4](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-04.svg)
+![JDBC vs R2DBC Component 4](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-04.png)
 
 ## 참고 자료
 

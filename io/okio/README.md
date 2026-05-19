@@ -408,26 +408,26 @@ io.bluetape4k.okio
 Compression, encryption, and Base64 encoding are layered on top of Okio's `Sink`/
 `Source` abstractions using the decorator pattern.
 
-![Sink / Source Adapter Hierarchy 1](../../docs/images/readme-diagrams/io-okio-diagram-01.svg)
+![Sink / Source Adapter Hierarchy 1](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
 
 ### NIO Channel Adapter Hierarchy
 
 Converts Java NIO `FileChannel`/`ByteChannel` to Okio `Sink`/`Source`.
 
-![NIO Channel Adapter Hierarchy 2](../../docs/images/readme-diagrams/io-okio-diagram-02.svg)
+![NIO Channel Adapter Hierarchy 2](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
 
 ### Coroutines Async I/O Hierarchy
 
 Async Sink/Source abstraction based on Kotlin Coroutines `suspend` functions.
 
-![Coroutines Async I/O Hierarchy 3](../../docs/images/readme-diagrams/io-okio-diagram-03.svg)
+![Coroutines Async I/O Hierarchy 3](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
 
 ### Compression Factory (Compressable)
 
 The
 `Compressable` object provides a convenient way to create compression/decompression Sink/Source for various algorithms.
 
-![Compression Factory (Compressable) 4](../../docs/images/readme-diagrams/io-okio-diagram-04.svg)
+![Compression Factory (Compressable) 4](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
 
 ## Sequence Diagrams
 
@@ -435,31 +435,31 @@ The
 
 `CompressableSink` accumulates all data in an internal buffer and compresses everything at `close()`.
 
-![Compression Sink (One-Shot) — compress on close 5](../../docs/images/readme-diagrams/io-okio-diagram-05.svg)
+![Compression Sink (One-Shot) — compress on close 5](../../docs/images/readme-diagrams/io-okio-diagram-05.png)
 
 ### Compression Sink (Streaming) — compress incrementally
 
 `StreamingCompressSink` compresses data immediately as it arrives, making it ideal for large-scale streaming.
 
-![Compression Sink (Streaming) — compress incrementally 6](../../docs/images/readme-diagrams/io-okio-diagram-06.svg)
+![Compression Sink (Streaming) — compress incrementally 6](../../docs/images/readme-diagrams/io-okio-diagram-06.png)
 
 ### Decompression Source (One-Shot) — decompress on first read
 
 `DecompressableSource` decompresses and caches all data on the first `read()` call.
 
-![Decompression Source (One-Shot) — decompress on first read 7](../../docs/images/readme-diagrams/io-okio-diagram-07.svg)
+![Decompression Source (One-Shot) — decompress on first read 7](../../docs/images/readme-diagrams/io-okio-diagram-07.png)
 
 ### Tink Encryption + Compression Combined Flow
 
 Compression followed by encryption using chained Sink decorators.
 
-![Tink Encryption + Compression Combined Flow 8](../../docs/images/readme-diagrams/io-okio-diagram-08.svg)
+![Tink Encryption + Compression Combined Flow 8](../../docs/images/readme-diagrams/io-okio-diagram-08.png)
 
 ### Coroutines Async File I/O Flow
 
 Non-blocking file I/O using `AsynchronousFileChannel`.
 
-![Coroutines Async File I/O Flow 9](../../docs/images/readme-diagrams/io-okio-diagram-09.svg)
+![Coroutines Async File I/O Flow 9](../../docs/images/readme-diagrams/io-okio-diagram-09.png)
 
 ## License
 

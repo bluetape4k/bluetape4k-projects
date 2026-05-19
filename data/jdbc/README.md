@@ -476,15 +476,15 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### Extension Function API Overview
 
-![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
+![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
 
 ### Core API Structure
 
-![Core API Structure 2](../../docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
+![Core API Structure 2](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
 
 ### JDBC Query Execution Flow
 
-![JDBC Query Execution Flow 3](../../docs/images/readme-diagrams/data-jdbc-diagram-03.svg)
+![JDBC Query Execution Flow 3](../../docs/images/readme-diagrams/data-jdbc-diagram-03.png)
 
 ## References
 

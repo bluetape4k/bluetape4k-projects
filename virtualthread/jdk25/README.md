@@ -15,7 +15,7 @@ Because it has a higher priority than the JDK 21 implementation (
 
 ## UML
 
-![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.svg)
+![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.png)
 
 ## Main Implementations
 

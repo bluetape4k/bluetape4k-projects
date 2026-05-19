@@ -335,11 +335,11 @@ io.bluetape4k.tink
 
 ### TinkEncryptor 클래스 계층
 
-![TinkEncryptor Component Component 1](../../docs/images/readme-diagrams/io-tink-ko-diagram-01.svg)
+![TinkEncryptor Component Component 1](../../docs/images/readme-diagrams/io-tink-ko-diagram-01.png)
 
 ### AEAD encrypt/decrypt 흐름
 
-![AEAD encrypt/decrypt Component 2](../../docs/images/readme-diagrams/io-tink-ko-diagram-02.svg)
+![AEAD encrypt/decrypt Component 2](../../docs/images/readme-diagrams/io-tink-ko-diagram-02.png)
 
 ## bluetape4k-crypto 와의 차이
 

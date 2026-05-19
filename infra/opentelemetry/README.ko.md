@@ -355,19 +355,19 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### OpenTelemetry 핵심 클래스 구조
 
-![OpenTelemetry Component Component Component 1](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-01.svg)
+![OpenTelemetry Component Component Component 1](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-01.png)
 
 ### OpenTelemetry 구성 요소
 
-![OpenTelemetry Configuration Component 2](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-02.svg)
+![OpenTelemetry Configuration Component 2](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-02.png)
 
 ### Span 생명주기 (Coroutines 환경)
 
-![Span Component (Coroutines Component) 3](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-03.svg)
+![Span Component (Coroutines Component) 3](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-03.png)
 
 ### 분산 추적 전파 흐름
 
-![Component Component Component Component 4](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-04.svg)
+![Component Component Component Component 4](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-04.png)
 
 ## 테스트 전략
 

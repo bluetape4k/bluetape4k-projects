@@ -238,19 +238,19 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ### Core Class Structure
 
-![Core Class Structure 1](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.svg)
+![Core Class Structure 1](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
 
 ### Metric Collection Flow
 
-![Metric Collection Flow 2](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.svg)
+![Metric Collection Flow 2](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
 
 ### Retrofit2 Metric Collection Sequence
 
-![Retrofit2 Metric Collection Sequence 3](../../docs/images/readme-diagrams/infra-micrometer-diagram-03.svg)
+![Retrofit2 Metric Collection Sequence 3](../../docs/images/readme-diagrams/infra-micrometer-diagram-03.png)
 
 ### Coroutine Observation Flow
 
-![Coroutine Observation Flow 4](../../docs/images/readme-diagrams/infra-micrometer-diagram-04.svg)
+![Coroutine Observation Flow 4](../../docs/images/readme-diagrams/infra-micrometer-diagram-04.png)
 
 ## Architecture
 

@@ -71,15 +71,15 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ### Core Class Structure
 
-![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
+![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
 
 ### Cassandra Data Access Layer
 
-![Cassandra Data Access Layer 2](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
+![Cassandra Data Access Layer 2](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
 
 ### Coroutine Conversion Sequence
 
-![Coroutine Conversion Sequence 3](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-03.svg)
+![Coroutine Conversion Sequence 3](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-03.png)
 
 ## References
 

@@ -26,17 +26,17 @@ A wrapper and utility module for building application-level rate limiters using 
 
 ### Bucket4j Integration Class Diagram
 
-![Bucket4j Integration Class Diagram 1](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.svg)
+![Bucket4j Integration Class Diagram 1](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
 
 ### Rate Limiting Sequence Diagrams
 
 #### Local Rate Limiter — Token Consumption Flow
 
-![Local Rate Limiter — Token Consumption Flow 2](../../docs/images/readme-diagrams/infra-bucket4j-diagram-02.svg)
+![Local Rate Limiter — Token Consumption Flow 2](../../docs/images/readme-diagrams/infra-bucket4j-diagram-02.png)
 
 #### Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow
 
-![Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow 3](../../docs/images/readme-diagrams/infra-bucket4j-diagram-03.svg)
+![Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow 3](../../docs/images/readme-diagrams/infra-bucket4j-diagram-03.png)
 
 ## What This Module Adds Over Raw Bucket4j
 

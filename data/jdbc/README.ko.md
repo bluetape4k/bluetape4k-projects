@@ -477,15 +477,15 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### 확장 함수 API 개요
 
-![Component Function API Component 1](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-01.svg)
+![Component Function API Component 1](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-01.png)
 
 ### 주요 API 구조
 
-![Component API Component 2](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-02.svg)
+![Component API Component 2](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-02.png)
 
 ### JDBC 쿼리 실행 흐름
 
-![JDBC Query Component Component 3](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-03.svg)
+![JDBC Query Component Component 3](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-03.png)
 
 ## 참고 자료
 

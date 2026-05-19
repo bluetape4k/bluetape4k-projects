@@ -49,7 +49,7 @@ dependencies {
 
 ## 의존성 경계
 
-![Component Component 1](../../docs/images/readme-diagrams/infra-kafka4-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/infra-kafka4-ko-diagram-01.png)
 
 `infra/kafka4/build.gradle.kts`는 모든 `org.apache.kafka` artifact를 이 모듈의
 Kafka 4 버전으로 정렬합니다. root dependency management가 Kafka 3 artifact를

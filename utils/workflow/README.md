@@ -12,7 +12,7 @@ For additional reference, see [easy-flows](https://github.com/j-easy/easy-flows)
 
 How work units, context, and flows relate:
 
-![Concept Overview 1](../../docs/images/readme-diagrams/utils-workflow-diagram-01.svg)
+![Concept Overview 1](../../docs/images/readme-diagrams/utils-workflow-diagram-01.png)
 
 A `Work` unit is a named lambda that receives a `WorkContext` and returns a `WorkReport`.  
 Flows compose multiple work units into an execution strategy.  
@@ -20,11 +20,11 @@ Flows compose multiple work units into an execution strategy.
 
 ### WorkReport States
 
-![WorkReport States 2](../../docs/images/readme-diagrams/utils-workflow-diagram-02.svg)
+![WorkReport States 2](../../docs/images/readme-diagrams/utils-workflow-diagram-02.png)
 
 ### Execution Model
 
-![Execution Model 3](../../docs/images/readme-diagrams/utils-workflow-diagram-03.svg)
+![Execution Model 3](../../docs/images/readme-diagrams/utils-workflow-diagram-03.png)
 
 ## Key Features
 
@@ -102,7 +102,7 @@ val report = suspendWork.execute(ctx)
 
 Execute tasks in order; error handling controlled by `ErrorStrategy`:
 
-![Sequential Flow 4](../../docs/images/readme-diagrams/utils-workflow-diagram-04.svg)
+![Sequential Flow 4](../../docs/images/readme-diagrams/utils-workflow-diagram-04.png)
 
 ```kotlin
 // Sync version
@@ -136,7 +136,7 @@ val report = flow.execute(WorkContext())
 
 Execute tasks concurrently:
 
-![Parallel Flow 5](../../docs/images/readme-diagrams/utils-workflow-diagram-05.svg)
+![Parallel Flow 5](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
 
 ```kotlin
 // Sync (Virtual Threads)
@@ -159,7 +159,7 @@ val report = flow.execute(WorkContext())
 
 Branch execution based on a predicate:
 
-![Conditional Flow 6](../../docs/images/readme-diagrams/utils-workflow-diagram-06.svg)
+![Conditional Flow 6](../../docs/images/readme-diagrams/utils-workflow-diagram-06.png)
 
 ```kotlin
 val flow = conditionalFlow("check-valid") {
@@ -175,7 +175,7 @@ val report = flow.execute(ctx)
 
 Execute a task repeatedly until a condition is met:
 
-![Repeat Flow 7](../../docs/images/readme-diagrams/utils-workflow-diagram-07.svg)
+![Repeat Flow 7](../../docs/images/readme-diagrams/utils-workflow-diagram-07.png)
 
 ```kotlin
 // Sync
@@ -203,7 +203,7 @@ val report = flow.execute(WorkContext())
 
 Automatically retry failed tasks with exponential backoff:
 
-![Retry Flow 8](../../docs/images/readme-diagrams/utils-workflow-diagram-08.svg)
+![Retry Flow 8](../../docs/images/readme-diagrams/utils-workflow-diagram-08.png)
 
 ```kotlin
 val flow = retryFlow("call-api") {

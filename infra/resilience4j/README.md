@@ -10,7 +10,7 @@ This module provides extension functions and decorators that make it easy to use
 
 ### Resilience4j Coroutines Integration Class Diagram
 
-![Resilience4j Coroutines Integration Class Diagram 1](../../docs/images/readme-diagrams/infra-resilience4j-diagram-01.svg)
+![Resilience4j Coroutines Integration Class Diagram 1](../../docs/images/readme-diagrams/infra-resilience4j-diagram-01.png)
 
 ### Architecture
 
@@ -18,11 +18,11 @@ This module provides extension functions and decorators that make it easy to use
 
 CLOSED → failures accumulate → OPEN → Half-Open → Recovery flow:
 
-![CircuitBreaker + Retry Combination Sequence Diagram 2](../../docs/images/readme-diagrams/infra-resilience4j-diagram-02.svg)
+![CircuitBreaker + Retry Combination Sequence Diagram 2](../../docs/images/readme-diagrams/infra-resilience4j-diagram-02.png)
 
 #### SuspendCache Operation Sequence Diagram
 
-![SuspendCache Operation Sequence Diagram 3](../../docs/images/readme-diagrams/infra-resilience4j-diagram-03.svg)
+![SuspendCache Operation Sequence Diagram 3](../../docs/images/readme-diagrams/infra-resilience4j-diagram-03.png)
 
 ## Features
 

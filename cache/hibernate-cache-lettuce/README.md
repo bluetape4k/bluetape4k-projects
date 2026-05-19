@@ -31,11 +31,11 @@ No user import migration is required for the reorganization.
 
 ### Near Cache 2-Tier Structure
 
-![Near Cache 2-Tier Structure 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
+![Near Cache 2-Tier Structure 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)
 
 ### Layer Structure
 
-![Layer Structure 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
+![Layer Structure 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
 
 - **Region Isolation**: Each region gets its own `LettuceNearCache` instance
 - **Key Prefix**: Redis key collision is prevented using the `{regionName}::{key}` format
@@ -148,7 +148,7 @@ val products: MutableList<Product> = mutableListOf()
 
 #### getFromCache / putIntoCache Flow
 
-![getFromCache / putIntoCache Flow 3](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-03.svg)
+![getFromCache / putIntoCache Flow 3](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-03.png)
 
 | Operation                       | Behavior                                                               |
 |---------------------------------|------------------------------------------------------------------------|

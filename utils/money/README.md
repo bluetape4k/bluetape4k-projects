@@ -235,11 +235,11 @@ USD.isCurrencyConversionAvailable    // true
 
 ## Class Diagram
 
-![Class Diagram 1](../../docs/images/readme-diagrams/utils-money-diagram-01.svg)
+![Class Diagram 1](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
 
 ## Currency Operation Flow
 
-![Currency Operation Flow 2](../../docs/images/readme-diagrams/utils-money-diagram-02.svg)
+![Currency Operation Flow 2](../../docs/images/readme-diagrams/utils-money-diagram-02.png)
 
 > **Note**: For currency conversion, `Money` is recommended for accuracy.
 > `FastMoney` uses a default scale of 5, so values beyond 5 decimal places can lose precision.

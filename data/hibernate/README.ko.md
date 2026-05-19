@@ -556,15 +556,15 @@ class Purchase {
 
 ### Repository 클래스 구조
 
-![Repository Component Component 1](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-01.svg)
+![Repository Component Component 1](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-01.png)
 
 ### JPA 엔티티 클래스 계층 구조
 
-![JPA Component Component Component Component 2](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-02.svg)
+![JPA Component Component Component Component 2](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-02.png)
 
 ### AttributeConverter 종류
 
-![AttributeConverter Component 3](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-03.svg)
+![AttributeConverter Component 3](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-03.png)
 
 ## 참고
 

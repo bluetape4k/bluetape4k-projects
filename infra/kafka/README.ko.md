@@ -398,15 +398,15 @@ class KafkaIntegrationTest {
 
 ### Kafka 클래스 계층
 
-![Kafka Component Component 1](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-01.svg)
+![Kafka Component Component 1](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-01.png)
 
 ### Producer/Consumer 메시지 흐름
 
-![Producer/Consumer Message Component 2](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-02.svg)
+![Producer/Consumer Message Component 2](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-02.png)
 
 ### Kafka Streams 처리 흐름
 
-![Kafka Streams Component Component 3](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-03.svg)
+![Kafka Streams Component Component 3](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-03.png)
 
 ## 패키지 구조
 

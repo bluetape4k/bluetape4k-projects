@@ -37,7 +37,7 @@ that are useful for larger read models:
 
 ## Domain Model
 
-![Domain Model 1](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.svg)
+![Domain Model 1](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.png)
 
 ## Core Usage
 

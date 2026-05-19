@@ -228,15 +228,15 @@ val result = totalAmount.await().indefinitely()
 
 ## Mutiny 타입 다이어그램
 
-![Mutiny Component Diagram 1](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-01.svg)
+![Mutiny Component Diagram 1](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-01.png)
 
 ## Mutiny 처리 흐름
 
-![Mutiny Component Component 2](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-02.svg)
+![Mutiny Component Component 2](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-02.png)
 
 ## Coroutine 연동 흐름
 
-![Coroutine Component Component 3](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-03.svg)
+![Coroutine Component Component 3](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-03.png)
 
 ## Mutiny vs 다른 반응형 라이브러리
 

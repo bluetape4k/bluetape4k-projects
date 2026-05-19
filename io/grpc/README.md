@@ -13,19 +13,19 @@ A Kotlin extension library for implementing gRPC servers and clients.
 
 ### Class Hierarchy
 
-![Class Hierarchy 1](../../docs/images/readme-diagrams/io-grpc-diagram-01.svg)
+![Class Hierarchy 1](../../docs/images/readme-diagrams/io-grpc-diagram-01.png)
 
 ### Component Overview
 
-![Component Overview 2](../../docs/images/readme-diagrams/io-grpc-diagram-02.svg)
+![Component Overview 2](../../docs/images/readme-diagrams/io-grpc-diagram-02.png)
 
 ### gRPC Server-Client Communication Sequence
 
-![gRPC Server-Client Communication Sequence 3](../../docs/images/readme-diagrams/io-grpc-diagram-03.svg)
+![gRPC Server-Client Communication Sequence 3](../../docs/images/readme-diagrams/io-grpc-diagram-03.png)
 
 ### In-process Test Sequence
 
-![In-process Test Sequence 4](../../docs/images/readme-diagrams/io-grpc-diagram-04.svg)
+![In-process Test Sequence 4](../../docs/images/readme-diagrams/io-grpc-diagram-04.png)
 
 ## Key Features
 

@@ -73,19 +73,19 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 #### NearCache get() 동작 시퀀스 (front miss → back lookup → front fill)
 
-![NearCache get() Component Component (front miss → back lookup → front fill) 1](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-01.svg)
+![NearCache get() Component Component (front miss → back lookup → front fill) 1](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-01.png)
 
 #### NearCache put() 동작 시퀀스 (write-through)
 
-![NearCache put() Component Component (write-through) 2](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-02.svg)
+![NearCache put() Component Component (write-through) 2](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-02.png)
 
 #### NearCacheOperations (Blocking)
 
-![NearCacheOperations (Blocking) 3](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-03.svg)
+![NearCacheOperations (Blocking) 3](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-03.png)
 
 #### SuspendNearCacheOperations (Coroutine)
 
-![SuspendNearCacheOperations (Coroutine) 4](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-04.svg)
+![SuspendNearCacheOperations (Coroutine) 4](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-04.png)
 
 #### JCache 기반 NearCache (`nearcache.jcache` 패키지)
 
@@ -94,15 +94,15 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 ##### SuspendJCache 인터페이스
 
-![SuspendJCache Component 5](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-05.svg)
+![SuspendJCache Component 5](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-05.png)
 
 ##### NearJCache (동기)
 
-![NearJCache (Component) 6](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-06.svg)
+![NearJCache (Component) 6](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-06.png)
 
 ##### SuspendNearJCache (코루틴)
 
-![SuspendNearJCache (Coroutines) 7](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-07.svg)
+![SuspendNearJCache (Coroutines) 7](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-07.png)
 
 ##### NearJCacheConfig Builder DSL
 

@@ -91,15 +91,15 @@ val value = memo("recover")      // recomputes and returns 7
 
 ### NearCache get() Sequence (front miss → back lookup → front fill)
 
-![NearCache get() Sequence (front miss → back lookup → front fill) 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
+![NearCache get() Sequence (front miss → back lookup → front fill) 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.png)
 
 ### NearCache put() Sequence (write-through)
 
-![NearCache put() Sequence (write-through) 2](../../docs/images/readme-diagrams/cache-cache-core-diagram-02.svg)
+![NearCache put() Sequence (write-through) 2](../../docs/images/readme-diagrams/cache-cache-core-diagram-02.png)
 
 ### NearCache Interface Hierarchy
 
-![NearCache Interface Hierarchy 3](../../docs/images/readme-diagrams/cache-cache-core-diagram-03.svg)
+![NearCache Interface Hierarchy 3](../../docs/images/readme-diagrams/cache-cache-core-diagram-03.png)
 
 ## `testFixtures` Usage Guide
 

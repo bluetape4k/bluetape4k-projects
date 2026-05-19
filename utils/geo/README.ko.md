@@ -10,15 +10,15 @@
 
 ### 모듈 구성
 
-![Component Configuration 1](../../docs/images/readme-diagrams/utils-geo-ko-diagram-01.svg)
+![Component Configuration 1](../../docs/images/readme-diagrams/utils-geo-ko-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![Component Diagram 2](../../docs/images/readme-diagrams/utils-geo-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-geo-ko-diagram-02.png)
 
 ### GeoHash 인코딩/디코딩 흐름
 
-![GeoHash Component/Component Component 3](../../docs/images/readme-diagrams/utils-geo-ko-diagram-03.svg)
+![GeoHash Component/Component Component 3](../../docs/images/readme-diagrams/utils-geo-ko-diagram-03.png)
 
 ## 제공 기능
 

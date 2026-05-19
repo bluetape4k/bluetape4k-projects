@@ -8,19 +8,19 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### 모듈 구조 및 런타임 선택
 
-![Module Structure Component Runtime Component 1](../docs/images/readme-diagrams/virtualthread-ko-diagram-01.svg)
+![Module Structure Component Runtime Component 1](../docs/images/readme-diagrams/virtualthread-ko-diagram-01.png)
 
 ---
 
 ### 클래스 다이어그램
 
-![Component Diagram 2](../docs/images/readme-diagrams/virtualthread-ko-diagram-02.svg)
+![Component Diagram 2](../docs/images/readme-diagrams/virtualthread-ko-diagram-02.png)
 
 ---
 
 ### ServiceLoader 선택 시퀀스
 
-![ServiceLoader Component Component 3](../docs/images/readme-diagrams/virtualthread-ko-diagram-03.svg)
+![ServiceLoader Component Component 3](../docs/images/readme-diagrams/virtualthread-ko-diagram-03.png)
 
 ---
 

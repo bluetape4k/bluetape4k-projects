@@ -92,11 +92,11 @@ Typical usage includes:
 
 ### HazelcastNearCache Class Hierarchy
 
-![HazelcastNearCache Class Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
+![HazelcastNearCache Class Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)
 
 ### 2-Tier NearCache Flow
 
-![2-Tier NearCache Flow 2](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
+![2-Tier NearCache Flow 2](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)
 
 ## `HazelcastNearCacheConfig` Options
 

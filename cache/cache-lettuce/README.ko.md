@@ -99,7 +99,7 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + LettuceJCache(back) 구조로,
 `NearJCacheConfig` Builder DSL로 설정합니다.
 
-![JCache Component NearCache (nearcache.jcache Component) 1](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-01.svg)
+![JCache Component NearCache (nearcache.jcache Component) 1](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-01.png)
 
 #### NearJCacheConfig DSL
 
@@ -144,11 +144,11 @@ cache.close()
 
 #### LettuceNearCache 계층
 
-![LettuceNearCache Component 2](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-02.svg)
+![LettuceNearCache Component 2](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-02.png)
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름
 
-![RESP3 CLIENT TRACKING Component Invalidation Component 3](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-03.svg)
+![RESP3 CLIENT TRACKING Component Invalidation Component 3](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-03.png)
 
 ### NearCache 아키텍처
 
@@ -460,4 +460,4 @@ val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
 
 ### 변경 요약 Flowchart
 
-![Component Component Flowchart 4](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-04.svg)
+![Component Component Flowchart 4](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-04.png)

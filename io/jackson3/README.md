@@ -307,15 +307,15 @@ val restored = yamlMapper.readValue<User>(yaml)     // deserialization
 
 ### Jackson 2.x vs 3.x Module Comparison
 
-![Jackson 2.x vs 3.x Module Comparison 1](../../docs/images/readme-diagrams/io-jackson3-diagram-01.svg)
+![Jackson 2.x vs 3.x Module Comparison 1](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
 
 ### Class Structure
 
-![Class Structure 2](../../docs/images/readme-diagrams/io-jackson3-diagram-02.svg)
+![Class Structure 2](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
 
 ### Jackson 3.x Module Registration Flow
 
-![Jackson 3.x Module Registration Flow 3](../../docs/images/readme-diagrams/io-jackson3-diagram-03.svg)
+![Jackson 3.x Module Registration Flow 3](../../docs/images/readme-diagrams/io-jackson3-diagram-03.png)
 
 ## Dependencies
 

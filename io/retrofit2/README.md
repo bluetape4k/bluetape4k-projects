@@ -13,15 +13,15 @@ Beyond the default OkHttp transport, it supports multiple HTTP backends includin
 
 ### Overall Architecture: Retrofit2 + Coroutines + Result Pattern
 
-![Overall Architecture: Retrofit2 + Coroutines + Result Pattern 1](../../docs/images/readme-diagrams/io-retrofit2-diagram-01.svg)
+![Overall Architecture: Retrofit2 + Coroutines + Result Pattern 1](../../docs/images/readme-diagrams/io-retrofit2-diagram-01.png)
 
 ### Retrofit2 + Result Pattern Integration
 
-![Retrofit2 + Result Pattern Integration 2](../../docs/images/readme-diagrams/io-retrofit2-diagram-02.svg)
+![Retrofit2 + Result Pattern Integration 2](../../docs/images/readme-diagrams/io-retrofit2-diagram-02.png)
 
 ### Suspend Function HTTP Request Flow (Result Pattern)
 
-![Suspend Function HTTP Request Flow (Result Pattern) 3](../../docs/images/readme-diagrams/io-retrofit2-diagram-03.svg)
+![Suspend Function HTTP Request Flow (Result Pattern) 3](../../docs/images/readme-diagrams/io-retrofit2-diagram-03.png)
 
 ## Key Features
 

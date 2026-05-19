@@ -385,19 +385,19 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### Extension Function API Overview
 
-![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
+![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
 
 ### Core API Structure
 
-![Core API Structure 2](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
+![Core API Structure 2](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
 
 ### R2DBC Query Execution Flow
 
-![R2DBC Query Execution Flow 3](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
+![R2DBC Query Execution Flow 3](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
 
 ### JDBC vs R2DBC Comparison
 
-![JDBC vs R2DBC Comparison 4](../../docs/images/readme-diagrams/data-r2dbc-diagram-04.svg)
+![JDBC vs R2DBC Comparison 4](../../docs/images/readme-diagrams/data-r2dbc-diagram-04.png)
 
 ## References
 

@@ -12,15 +12,15 @@ A Kotlin extension library for working with Google Protocol Buffers messages.
 
 ### Type Conversion Class Structure
 
-![Type Conversion Class Structure 1](../../docs/images/readme-diagrams/io-protobuf-diagram-01.svg)
+![Type Conversion Class Structure 1](../../docs/images/readme-diagrams/io-protobuf-diagram-01.png)
 
 ### Protobuf Type Conversion Flow
 
-![Protobuf Type Conversion Flow 2](../../docs/images/readme-diagrams/io-protobuf-diagram-02.svg)
+![Protobuf Type Conversion Flow 2](../../docs/images/readme-diagrams/io-protobuf-diagram-02.png)
 
 ### Serialization Sequence
 
-![Serialization Sequence 3](../../docs/images/readme-diagrams/io-protobuf-diagram-03.svg)
+![Serialization Sequence 3](../../docs/images/readme-diagrams/io-protobuf-diagram-03.png)
 
 ## Key Features
 

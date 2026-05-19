@@ -25,15 +25,15 @@
 
 ### 전체 알고리즘 구조
 
-![Component Component Component 1](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![Component Diagram 2](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-02.png)
 
 ### Snowflake 비트 구조
 
-![Snowflake Component Component 3](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-03.svg)
+![Snowflake Component Component 3](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-03.png)
 
 - **timestamp**: 41 bits, epoch 이후 약 69년간 유일성 보장
 - **machineId**: 10 bits, 최대 1,024개 기계 지원 (0–1023)
@@ -110,7 +110,7 @@ val idString: String = uuidGen.nextIdAsString()  // Base62
    48bits       80bits
 ```
 
-![ULID (Universally Unique Lexicographically Sortable Identifier) 4](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-04.svg)
+![ULID (Universally Unique Lexicographically Sortable Identifier) 4](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-04.png)
 
 ```kotlin
 // 랜덤 ULID 생성
@@ -135,7 +135,7 @@ check(a < b)
 
 **생성기 선택 가이드:**
 
-![ULID (Universally Unique Lexicographically Sortable Identifier) 5](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-05.svg)
+![ULID (Universally Unique Lexicographically Sortable Identifier) 5](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-05.png)
 
 ### KSUID (K-Sortable Unique ID)
 

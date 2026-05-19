@@ -265,15 +265,15 @@ val value = nearCache.get("key")   // Checks local cache first
 
 ### Codec Hierarchy
 
-![Codec Hierarchy 1](../../docs/images/readme-diagrams/infra-redisson-diagram-01.svg)
+![Codec Hierarchy 1](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
 
 ### NearCache 2-Tier Cache Flow
 
-![NearCache 2-Tier Cache Flow 2](../../docs/images/readme-diagrams/infra-redisson-diagram-02.svg)
+![NearCache 2-Tier Cache Flow 2](../../docs/images/readme-diagrams/infra-redisson-diagram-02.png)
 
 ### Batch / Transaction Processing Flow
 
-![Batch / Transaction Processing Flow 3](../../docs/images/readme-diagrams/infra-redisson-diagram-03.svg)
+![Batch / Transaction Processing Flow 3](../../docs/images/readme-diagrams/infra-redisson-diagram-03.png)
 
 ## High-Performance Batch Pattern — Mega-Batch
 

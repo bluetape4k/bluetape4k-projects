@@ -9,11 +9,11 @@
 
 ### JWT 생성 및 검증 흐름
 
-![JWT Component Component Validation Component 1](../../docs/images/readme-diagrams/utils-jwt-ko-diagram-01.svg)
+![JWT Component Component Validation Component 1](../../docs/images/readme-diagrams/utils-jwt-ko-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![Component Diagram 2](../../docs/images/readme-diagrams/utils-jwt-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-jwt-ko-diagram-02.png)
 
 ### JWT 토큰 구조
 

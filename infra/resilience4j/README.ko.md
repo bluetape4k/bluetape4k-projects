@@ -10,7 +10,7 @@
 
 ### Resilience4j Coroutines 통합 클래스 다이어그램
 
-![Resilience4j Coroutines Integration Component Diagram 1](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-01.svg)
+![Resilience4j Coroutines Integration Component Diagram 1](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-01.png)
 
 ### 아키텍처
 
@@ -18,11 +18,11 @@
 
 CLOSED → 실패 누적 → OPEN → Half-Open → 복구 흐름:
 
-![CircuitBreaker + Retry Component Component Diagram 2](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-02.svg)
+![CircuitBreaker + Retry Component Component Diagram 2](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-02.png)
 
 #### SuspendCache 동작 시퀀스 다이어그램
 
-![SuspendCache Component Component Diagram 3](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-03.svg)
+![SuspendCache Component Component Diagram 3](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-03.png)
 
 ## 특징
 

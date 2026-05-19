@@ -108,11 +108,11 @@ election.runIfLeader {
 
 ## 모듈 의존성 구조
 
-![Component Component Component 1](../../docs/images/readme-diagrams/infra-redis-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/infra-redis-ko-diagram-01.png)
 
 ## 핵심 클래스 다이어그램
 
-![Component Component Diagram 2](../../docs/images/readme-diagrams/infra-redis-ko-diagram-02.svg)
+![Component Component Diagram 2](../../docs/images/readme-diagrams/infra-redis-ko-diagram-02.png)
 
 ## Spring Data Redis
 

@@ -68,19 +68,19 @@ dependencies {
 
 ### Module Dependency Structure
 
-![Module Dependency Structure 1](../../docs/images/readme-diagrams/io-vertx-diagram-01.svg)
+![Module Dependency Structure 1](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
 
 ### Vert.x Event Loop + Coroutines Processing Flow
 
-![Vert.x Event Loop + Coroutines Processing Flow 2](../../docs/images/readme-diagrams/io-vertx-diagram-02.svg)
+![Vert.x Event Loop + Coroutines Processing Flow 2](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
 
 ### Circuit Breaker + Resilience4j Integration Flow
 
-![Circuit Breaker + Resilience4j Integration Flow 3](../../docs/images/readme-diagrams/io-vertx-diagram-03.svg)
+![Circuit Breaker + Resilience4j Integration Flow 3](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
 
 ### Vert.x Core Component Class Structure
 
-![Vert.x Core Component Class Structure 4](../../docs/images/readme-diagrams/io-vertx-diagram-04.svg)
+![Vert.x Core Component Class Structure 4](../../docs/images/readme-diagrams/io-vertx-diagram-04.png)
 
 ## Usage Examples
 

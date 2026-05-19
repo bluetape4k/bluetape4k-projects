@@ -12,19 +12,19 @@
 
 ### 전체 아키텍처: Feign + Coroutines 통합
 
-![Component Architecture: Feign + Coroutines Integration 1](../../docs/images/readme-diagrams/io-feign-ko-diagram-01.svg)
+![Component Architecture: Feign + Coroutines Integration 1](../../docs/images/readme-diagrams/io-feign-ko-diagram-01.png)
 
 ### 클래스 계층: Feign + Coroutines 통합 구조
 
-![Component Component: Feign + Coroutines Integration Component 2](../../docs/images/readme-diagrams/io-feign-ko-diagram-02.svg)
+![Component Component: Feign + Coroutines Integration Component 2](../../docs/images/readme-diagrams/io-feign-ko-diagram-02.png)
 
 ### HTTP 전송 계층 옵션
 
-![HTTP Component Component Component 3](../../docs/images/readme-diagrams/io-feign-ko-diagram-03.svg)
+![HTTP Component Component Component 3](../../docs/images/readme-diagrams/io-feign-ko-diagram-03.png)
 
 ### suspend 함수 기반 HTTP 요청 흐름
 
-![suspend Function Component HTTP Request Component 4](../../docs/images/readme-diagrams/io-feign-ko-diagram-04.svg)
+![suspend Function Component HTTP Request Component 4](../../docs/images/readme-diagrams/io-feign-ko-diagram-04.png)
 
 ## 주요 기능
 

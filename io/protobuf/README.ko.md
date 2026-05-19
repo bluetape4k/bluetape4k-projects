@@ -12,15 +12,15 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 ### 타입 변환 클래스 구조
 
-![Component Component Component Component 1](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-01.svg)
+![Component Component Component Component 1](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-01.png)
 
 ### Protobuf 타입 변환 흐름
 
-![Protobuf Component Component Component 2](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-02.svg)
+![Protobuf Component Component Component 2](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-02.png)
 
 ### 직렬화 시퀀스
 
-![Component Component 3](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-03.svg)
+![Component Component 3](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-03.png)
 
 ## 주요 기능
 

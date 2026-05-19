@@ -8,19 +8,19 @@ Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라�
 
 ### 클래스 계층 다이어그램
 
-![Component Component Diagram 1](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-01.svg)
+![Component Component Diagram 1](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-01.png)
 
 ---
 
 ### 로깅 처리 흐름
 
-![Component Component Component 2](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-02.svg)
+![Component Component Component 2](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-02.png)
 
 ---
 
 ### KLoggingChannel 비동기 로깅 시퀀스
 
-![KLoggingChannel Async Component Component 3](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-03.svg)
+![KLoggingChannel Async Component Component 3](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-03.png)
 
 ## 주요 기능
 

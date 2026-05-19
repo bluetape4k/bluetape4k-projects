@@ -51,11 +51,11 @@ println(distance.toHuman())    // 50.0 m
 
 ## Class Diagram
 
-![Class Diagram 1](../../docs/images/readme-diagrams/utils-measured-diagram-01.svg)
+![Class Diagram 1](../../docs/images/readme-diagrams/utils-measured-diagram-01.png)
 
 ## Unit Composition Flow
 
-![Unit Composition Flow 2](../../docs/images/readme-diagrams/utils-measured-diagram-02.svg)
+![Unit Composition Flow 2](../../docs/images/readme-diagrams/utils-measured-diagram-02.png)
 
 ## Compatibility Adapter for `units`
 

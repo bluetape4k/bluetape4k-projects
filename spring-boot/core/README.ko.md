@@ -181,19 +181,19 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ### 핵심 클래스 구조
 
-![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-01.png)
 
 ### Spring WebFlux + Coroutines 요청 흐름
 
-![Spring WebFlux + Coroutines Request Component 2](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-02.svg)
+![Spring WebFlux + Coroutines Request Component 2](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-02.png)
 
 ### RestClient Coroutines DSL 구조
 
-![RestClient Coroutines DSL Component 3](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-03.svg)
+![RestClient Coroutines DSL Component 3](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-03.png)
 
 ### Retrofit2 통합 구조
 
-![Retrofit2 Integration Component 4](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-04.svg)
+![Retrofit2 Integration Component 4](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-04.png)
 
 ## 빌드 및 테스트
 

@@ -8,11 +8,11 @@ Apache Commons Math3를 기반으로 수학/통계 연산, 보간, 적분, 방�
 
 ### 기능 구조
 
-![Component Component 1](../../docs/images/readme-diagrams/utils-math-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/utils-math-ko-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![Component Diagram 2](../../docs/images/readme-diagrams/utils-math-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-math-ko-diagram-02.png)
 
 ## 주요 기능
 

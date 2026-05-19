@@ -8,7 +8,7 @@ Spring Boot 4 + Hibernate 7 **2nd Level Cache (2LC)** with **Lettuce Near Cache*
 
 ## UML 다이어그램
 
-![UML Diagram 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-ko-diagram-01.svg)
+![UML Diagram 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-ko-diagram-01.png)
 
 ## 아키텍처
 
@@ -39,7 +39,7 @@ Hibernate Session Factory
 H2 Database
 ```
 
-![Architecture 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-ko-diagram-02.svg)
+![Architecture 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-ko-diagram-02.png)
 
 ## 도메인 모델
 
