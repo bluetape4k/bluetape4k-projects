@@ -119,6 +119,21 @@ Supports lightweight async processing using Virtual Threads.
 
 ### 6. Security Features
 
+#### Serialization Trust Profiles
+
+Codec documentation uses `SerializationTrustProfile` names to describe the
+deserialization boundary:
+
+| Profile | Meaning |
+|---|---|
+| `TrustedInternal` | Data is read only from a fully trusted internal boundary. |
+| `AllowListedTypes` | Dynamic class/type loading is restricted by package prefixes, class names, or object input filters. |
+| `NoDynamicTypeLoading` | The caller supplies the target type statically; serialized data does not choose the class. |
+| `UnsafeLegacyCompatibility` | Legacy allow-all behavior is enabled only through an explicit unsafe name. |
+
+See [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)
+for codec defaults and migration guidance.
+
 #### JDK Serialization Filter (JEP 290)
 
 `JdkBinarySerializer` now applies `JDK_DEFAULT_OBJECT_INPUT_FILTER` by default, which only allows

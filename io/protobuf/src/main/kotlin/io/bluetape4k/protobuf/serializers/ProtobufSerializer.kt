@@ -38,6 +38,12 @@ class ProtobufSerializer(
     private val fallback: BinarySerializer = BinarySerializers.Kryo,
     private val allowedClassPrefixes: Set<String> = DEFAULT_ALLOWED_PREFIXES,
 ): AbstractBinarySerializer() {
+    init {
+        require(allowedClassPrefixes.all { it.isNotBlank() }) {
+            "allowedClassPrefixes must not contain blank entries."
+        }
+    }
+
     companion object {
         private val messageTypes = ConcurrentHashMap<String, Class<out ProtoMessage>>()
 
@@ -69,7 +75,7 @@ class ProtobufSerializer(
             val className = protoAny.typeUrl.substringAfterLast("/")
 
             // 보안: 허용 목록에 없는 클래스는 로딩 거부
-            require(allowedClassPrefixes.any { className.startsWith(it) }) {
+            require(allowedClassPrefixes.any { className.matchesAllowedPrefix(it) }) {
                 "신뢰할 수 없는 Protobuf 클래스: $className. allowedClassPrefixes에 추가하세요."
             }
 
@@ -87,4 +93,10 @@ class ProtobufSerializer(
             fallback.deserialize(bytes)
         }
     }
+
+    private fun String.matchesAllowedPrefix(prefix: String): Boolean =
+        this == prefix || startsWith(prefix.ensurePackagePrefix())
+
+    private fun String.ensurePackagePrefix(): String =
+        if (endsWith(".")) this else "$this."
 }

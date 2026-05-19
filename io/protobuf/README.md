@@ -34,6 +34,8 @@ A Kotlin extension library for working with Google Protocol Buffers messages.
 
 ### Security: ProtobufSerializer Allowlist
 
+Trust profile: `AllowListedTypes`.
+
 `ProtobufSerializer` checks the `typeUrl` of each `Any` message against an allowlist before deserializing.
 Classes whose prefix is not in the allowlist throw `SecurityException` (wrapped as `BinarySerializationException`).
 
@@ -59,6 +61,25 @@ val expandedSerializer = ProtobufSerializer(
 ```
 
 The fallback serializer for non-Protobuf objects was also changed from `Jdk` to `Kryo` to avoid JDK deserialization RCE risks.
+
+`RedissonProtobufCodec` uses the same default allowlist for Redis values and
+uses Kryo5 as the fallback for non-Protobuf values. For legacy trusted
+deployments that need the old allow-all behavior temporarily, configure it
+explicitly:
+
+```kotlin
+val codec = RedissonProtobufCodec(
+    allowedClassPrefixes = RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE,
+)
+```
+
+Prefer a narrow custom allowlist for production:
+
+```kotlin
+val codec = RedissonProtobufCodec(
+    allowedClassPrefixes = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES + setOf("com.example.proto.")
+)
+```
 
 ## Usage Examples
 

@@ -122,6 +122,20 @@ Virtual Threads를 활용한 경량 스레드 기반 비동기 처리를 지원�
 
 ### 6. 보안 기능
 
+#### 직렬화 신뢰 프로필
+
+Codec 문서는 `SerializationTrustProfile` 이름으로 역직렬화 신뢰 경계를 설명합니다:
+
+| 프로필 | 의미 |
+|---|---|
+| `TrustedInternal` | 완전히 신뢰하는 내부 경계에서 쓴 데이터만 읽습니다. |
+| `AllowListedTypes` | 동적 클래스/타입 로딩을 패키지 접두사, 클래스명, object input filter로 제한합니다. |
+| `NoDynamicTypeLoading` | 호출자가 대상 타입을 정적으로 제공하며, 직렬화 데이터가 클래스를 선택하지 않습니다. |
+| `UnsafeLegacyCompatibility` | 명시적인 unsafe 이름으로만 레거시 허용-전체 동작을 켭니다. |
+
+Codec 기본값과 마이그레이션 지침은 [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)를
+참고하세요.
+
 #### JDK 직렬화 필터 (JEP 290)
 
 `JdkBinarySerializer`는 이제 기본적으로 `JDK_DEFAULT_OBJECT_INPUT_FILTER`를 적용합니다.

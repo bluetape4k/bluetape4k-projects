@@ -112,9 +112,13 @@ application has an explicit tombstone/null-value contract.
 ## Jackson 3 Codec
 
 ```kotlin
-import io.bluetape4k.kafka.codec.KafkaCodecs
+import io.bluetape4k.kafka.codec.JacksonKafkaCodec
 
-val codec = KafkaCodecs.Jackson
+class ExampleJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf("java.util")
+}
+
+val codec = ExampleJacksonCodec()
 val bytes = codec.serialize("events", mapOf("name" to "spring-kafka-4"))
 val decoded = codec.deserialize("events", bytes)
 ```
@@ -183,6 +187,9 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 
 ### Security: Class Loading Allowlist
 
+Trust profile: `AllowListedTypes` by default. Use
+`UnsafeLegacyCompatibility` only through `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`.
+
 `AbstractKafkaCodec` loads the deserialization target class from the Kafka
 header `bluetape4k.kafka.codec.value.type`. If that header can be set by an
 attacker (untrusted broker or external network), arbitrary class loading (RCE)
@@ -201,12 +208,17 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 
 | `allowedTypePackages` value | Effect |
 |-----------------------------|--------|
-| `emptySet()` (default) | All classes allowed — backward-compatible, trusted environments only |
-| Non-empty set | Only classes under listed package prefixes are allowed; others throw `IllegalArgumentException` → poison-pill (`null`) |
+| `emptySet()` (default) | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics. |
+| Non-empty set | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`. |
+| `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | Bypass all checks — restores pre-1.8.0 allow-all behavior. Use only in fully trusted, internally controlled deployments. |
 
-> **Warning:** The default `emptySet()` maintains backward compatibility but
-> allows any class to be loaded. Set explicit packages in production when the
-> Kafka broker is not fully trusted.
+Legacy migration example:
+
+```kotlin
+class LegacyTrustedJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+}
+```
 
 ### Security: JdkKafkaCodec Deprecated
 
