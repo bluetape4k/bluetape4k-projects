@@ -394,6 +394,7 @@ jobs:
           shell: bash
           command: |
             ./gradlew \
+              :bluetape4k-annotations:test \
               :bluetape4k-core:test \
               :bluetape4k-coroutines:test \
               :bluetape4k-logging:test \
@@ -405,6 +406,7 @@ jobs:
         if: always()
         run: |
           ./gradlew \
+            :bluetape4k-annotations:koverXmlReport \
             :bluetape4k-core:koverXmlReport \
             :bluetape4k-coroutines:koverXmlReport \
             :bluetape4k-logging:koverXmlReport \

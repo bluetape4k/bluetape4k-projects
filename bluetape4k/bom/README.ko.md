@@ -23,7 +23,7 @@ BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 �
 
 | 그룹 | 모듈 수 | 주요 모듈 |
 |------|--------|----------|
-| `bluetape4k/*` | 3 | `bluetape4k-core`, `bluetape4k-coroutines`, `bluetape4k-logging` |
+| `bluetape4k/*` | 4 | `bluetape4k-annotations`, `bluetape4k-core`, `bluetape4k-coroutines`, `bluetape4k-logging` |
 | `data/*` | 7 | `bluetape4k-jdbc`, `bluetape4k-r2dbc`, `bluetape4k-hibernate`, `bluetape4k-hibernate-reactive`, `bluetape4k-hibernate-cache-lettuce`, `bluetape4k-mongodb`, `bluetape4k-cassandra` |
 | `infra/*` | 18 | 캐시 (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback` 등 |
 | `io/*` | 16 | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io` |

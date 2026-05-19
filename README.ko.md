@@ -66,6 +66,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### Core 모듈 (`bluetape4k/`)
 
+- **[annotations](./bluetape4k/annotations/README.ko.md)**: API 성숙도 annotation (experimental, beta, internal, delicate, implementation-only opt-in 마커)
 - **[core](./bluetape4k/core/README.ko.md)**: 핵심 유틸리티 (assertions, required, 컬렉션(BoundedStack, RingBuffer, PaginatedList, Permutation), Wildcard 패턴 매칭, XXHasher 등)
 - **[coroutines](./bluetape4k/coroutines/README.ko.md)**: Kotlin Coroutines 확장 (DeferredValue, Flow extensions, AsyncFlow)
 - **[logging](./bluetape4k/logging/README.ko.md)**: 로깅 관련 기능
