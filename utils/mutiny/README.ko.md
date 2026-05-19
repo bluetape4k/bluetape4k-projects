@@ -228,31 +228,15 @@ val result = totalAmount.await().indefinitely()
 
 ## Mutiny 타입 다이어그램
 
-![Mutiny 타입 다이어그램 1](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-01.svg)
+![Mutiny Component Diagram 1](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-01.svg)
 
 ## Mutiny 처리 흐름
 
-![Mutiny 처리 흐름 2](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-02.svg)
+![Mutiny Component Component 2](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-02.svg)
 
 ## Coroutine 연동 흐름
 
-```mermaid
-sequenceDiagram
-    box "코루틴" #F3E5F5
-    participant CS as CoroutineScope
-    end
-    box "반응형" #E3F2FD
-    participant UNI as "Uni~T~"
-    end
-    box "소비자" #E8F5E9
-    participant SUB as Subscriber
-    end
-
-    CS->>UNI: asUni { suspend 블록 }
-    Note over UNI: 별도 코루틴에서 실행
-    UNI->>SUB: onItem(result)
-    SUB->>SUB: await().atMost(5.seconds)
-```
+![Coroutine Component Component 3](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-03.svg)
 
 ## Mutiny vs 다른 반응형 라이브러리
 

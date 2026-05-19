@@ -395,41 +395,15 @@ dependencies {
 
 ### 분산 Primitive 클래스 계층
 
-![분산 Primitive 클래스 계층 1](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-01.svg)
+![Component Primitive Component Component 1](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-01.svg)
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant LettuceLoadedMap
-    participant Redis
-    participant MapLoader
-    participant MapWriter
-    Note over Client, MapWriter: Read-Through (캐시 미스)
-    Client ->> LettuceLoadedMap: get(key)
-    LettuceLoadedMap ->> Redis: GET prefix:key
-    Redis -->> LettuceLoadedMap: null (캐시 미스)
-    LettuceLoadedMap ->> MapLoader: load(key)
-    MapLoader -->> LettuceLoadedMap: value
-    LettuceLoadedMap ->> Redis: SETEX prefix:key value ttl
-    LettuceLoadedMap -->> Client: value
-    Note over Client, MapWriter: Read-Through (캐시 히트)
-    Client ->> LettuceLoadedMap: get(key)
-    LettuceLoadedMap ->> Redis: GET prefix:key
-    Redis -->> LettuceLoadedMap: value (캐시 히트)
-    LettuceLoadedMap -->> Client: value
-    Note over Client, MapWriter: Write-Through
-    Client ->> LettuceLoadedMap: set(key, value)
-    LettuceLoadedMap ->> MapWriter: write({key: value})
-    MapWriter -->> LettuceLoadedMap: ok
-    LettuceLoadedMap ->> Redis: SETEX prefix:key value ttl
-    LettuceLoadedMap -->> Client: ok
-```
+![LettuceLoadedMap Read-Through / Write-Through Component 2](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-02.svg)
 
 ### LettuceBinaryCodec 계층
 
-![LettuceBinaryCodec 계층 2](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-02.svg)
+![LettuceBinaryCodec Component 3](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-03.svg)
 
 ## 확률 자료구조
 

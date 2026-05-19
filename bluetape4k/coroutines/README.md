@@ -28,27 +28,7 @@ It focuses on:
 
 ### DeferredValue Usage Flow
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant DV as DeferredValue
-        participant Co as Coroutine (background)
-
-    C->>DV: deferredValueOf(block)
-    DV->>Co: starts coroutine immediately (eager)
-
-    C->>DV: .map(transform)
-    DV-->>C: returns new DeferredValue (doubled)
-
-    C->>DV: doubled.await()
-    DV->>Co: suspends waiting for result
-    Co-->>DV: 42
-    DV-->>C: 42
-
-    Note over C,Co: value property is blocking access (not recommended)
-    C->>DV: doubled.value
-    DV-->>C: 42 (blocks thread)
-```
+![DeferredValue Usage Flow 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
 
 ---
 
@@ -296,7 +276,7 @@ These APIs read Reactor `Context`. They do not create Reactor publishers or brid
 
 ### 1. Flow Extension Categories
 
-![1. Flow Extension Categories 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
+![1. Flow Extension Categories 4](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-04.svg)
 
 ---
 
@@ -304,20 +284,7 @@ These APIs read Reactor `Context`. They do not create Reactor publishers or brid
 
 Groups input elements into `List`s of size `n`. Emits the final partial chunk as well (`partialWindow=true` by default).
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant C as chunked(3)
-        participant R as Collector
-    S ->> C: emit(1)
-    S ->> C: emit(2)
-    S ->> C: emit(3)
-    C ->> R: emit([1, 2, 3])
-    S ->> C: emit(4)
-    S ->> C: emit(5)
-    Note over C: source complete, partialWindow=true
-    C ->> R: emit([4, 5])
-```
+![2. chunked(n) — Fixed-Size Chunks 5](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-05.svg)
 
 ---
 
@@ -325,23 +292,7 @@ sequenceDiagram
 
 Emits windows of size `size`, advancing by `step` each time.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant W as windowed(size=3, step=2)
-        participant R as Collector
-    S ->> W: emit(1)
-    S ->> W: emit(2)
-    S ->> W: emit(3)
-    W ->> R: emit([1, 2, 3])
-    Note over W: step=2, drop first 2 → buffer=[3]
-    S ->> W: emit(4)
-    S ->> W: emit(5)
-    W ->> R: emit([3, 4, 5])
-    Note over W: step=2, drop first 2 → buffer=[5]
-    Note over S: source complete, partialWindow=false
-    Note over W: partial window discarded
-```
+![3. windowed(size, step) — Sliding Window 6](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-06.svg)
 
 ---
 
@@ -350,26 +301,7 @@ sequenceDiagram
 `sliding` is equivalent to `windowed(size, step=1)`.
 `bufferedSliding` maintains a buffer and emits a snapshot on every element.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant SL as sliding(2)
-        participant BS as bufferedSliding(2)
-    S ->> SL: emit(1)
-    S ->> SL: emit(2)
-    SL -->> SL: window=[1,2] full
-    SL ->> SL: emit([1, 2])
-    S ->> SL: emit(3)
-    SL ->> SL: emit([2, 3])
-    S ->> BS: emit(1)
-    BS ->> BS: emit([1])
-    S ->> BS: emit(2)
-    BS ->> BS: emit([1, 2])
-    S ->> BS: emit(3)
-    BS ->> BS: emit([2, 3])
-    Note over BS: source complete, drain buffer
-    BS ->> BS: emit([3])
-```
+![4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window 7](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-07.svg)
 
 ---
 
@@ -379,27 +311,7 @@ Runs the transform function on up to `parallelism` elements concurrently. Result
 
 > **Performance (2026-04-21)**: `FlowParallel` and `FlowSequential` were redesigned with per-rail `Channel` buffers and a `select`-based fan-in. Benchmark results show a **+32.7% geomean** throughput gain across all parallel operators, with `mapParallel` showing up to **+506%** improvement. `AsyncFlow` also benefits from removing the `LazyDeferred` atomic wrapper.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant MP as mapParallel(parallelism=3)
-        participant R as Collector
-    S ->> MP: emit(1)
-    S ->> MP: emit(2)
-    S ->> MP: emit(3)
-    Note over MP: 3 coroutines running concurrently
-    par parallel transform
-        MP -->> MP: transform(1) → 10
-    and
-        MP -->> MP: transform(2) → 20
-    and
-        MP -->> MP: transform(3) → 30
-    end
-    MP ->> R: emit(10 or 20 or 30, arrival order)
-    MP ->> R: emit(...)
-    MP ->> R: emit(...)
-    Note over R: result order depends on execution speed
-```
+![5. mapParallel(parallelism) — Parallel Transformation 8](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-08.svg)
 
 ---
 
@@ -407,25 +319,7 @@ sequenceDiagram
 
 Starts inner Flows eagerly and concurrently, but **emits results in source order**.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant CM as concatMapEager
-        participant R as Collector
-    S ->> CM: emit(1) → transform → flowOf(1, 10)
-    S ->> CM: emit(2) → transform → flowOf(2, 20)
-    Note over CM: start collecting 2 inner Flows concurrently
-    par eager collection
-        CM -->> CM: queue A receives 1, 10
-    and
-        CM -->> CM: queue B receives 2, 20
-    end
-    Note over CM: drain queues in source order (A→B)
-    CM ->> R: emit(1)
-    CM ->> R: emit(10)
-    CM ->> R: emit(2)
-    CM ->> R: emit(20)
-```
+![6. concatMapEager { } — Order-Preserving Eager Parallel Collection 9](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-09.svg)
 
 ---
 
@@ -433,21 +327,7 @@ sequenceDiagram
 
 Buffers values arriving within `timeout` and emits them together as a `List`. Resets the timeout on each new arrival.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant BD as bufferingDebounce(200ms)
-        participant R as Collector
-    S ->> BD: emit(A) [t=0ms]
-    S ->> BD: emit(B) [t=50ms]
-    S ->> BD: emit(C) [t=80ms]
-    Note over BD: resetting timeout...
-    Note over BD: t=280ms, timeout expired
-    BD ->> R: emit([A, B, C])
-    S ->> BD: emit(D) [t=400ms]
-    Note over S: source complete
-    BD ->> R: emit([D])
-```
+![7. bufferingDebounce(timeout) — Debounced Batching 10](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-10.svg)
 
 ---
 
@@ -455,58 +335,13 @@ sequenceDiagram
 
 Within a fixed window, emits the first element (leading), last element (trailing), or both.
 
-```mermaid
-sequenceDiagram
-        participant S as Source (emits every 200ms)
-        participant TL as throttleLeading(500ms)
-        participant TT as throttleTrailing(500ms)
-    Note over S, TT: input: 1(0ms) 2(200ms) 3(400ms) 4(600ms) 5(800ms) 6(1000ms)
-    S ->> TL: emit(1) [0ms] — window starts
-    Note over TL: 2, 3 ignored
-    S ->> TL: emit(4) [600ms] — new window
-    Note over TL: 5 ignored
-    S ->> TL: emit(7) [1200ms] — new window
-    Note over TL: result: [1, 4, 7, ...]
-    S ->> TT: emit(1) [0ms] — buffering starts
-    S ->> TT: emit(2) [200ms]
-    S ->> TT: emit(3) [400ms]
-    Note over TT: 500ms window ends → emit last=3
-    TT -->> TT: emit(3)
-    S ->> TT: emit(4) [600ms]
-    Note over TT: result: [3, 6, 9, ...]
-```
+![8. throttleLeading / throttleTrailing / throttleBoth — Throttle 11](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-11.svg)
 
 ---
 
 ### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — Gate Control
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant N as Notifier Flow
-        participant TU as takeUntil
-        participant SU as skipUntil
-        participant R as Collector
-    Note over S, R: takeUntil: emit only until the first notifier event
-    S ->> TU: emit(1)
-    TU ->> R: emit(1)
-    S ->> TU: emit(2)
-    TU ->> R: emit(2)
-    N ->> TU: emit(signal) ← stop trigger
-    Note over TU: subsequent values blocked
-    S ->> TU: emit(3)
-    Note over TU: blocked (not emitted)
-    Note over S, R: skipUntil: emit only after the first notifier event
-    S ->> SU: emit(A)
-    Note over SU: gate closed, discarded
-    S ->> SU: emit(B)
-    Note over SU: discarded
-    N ->> SU: emit(signal) ← gate opens
-    S ->> SU: emit(C)
-    SU ->> R: emit(C)
-    S ->> SU: emit(D)
-    SU ->> R: emit(D)
-```
+![9. takeUntil(notifier) / skipUntil(notifier) — Gate Control 12](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-12.svg)
 
 ---
 
@@ -514,26 +349,7 @@ sequenceDiagram
 
 Collects multiple Flows concurrently and emits values in arrival order.
 
-```mermaid
-sequenceDiagram
-        participant F1 as Flow A
-        participant F2 as Flow B
-        participant M as merge()
-        participant R as Collector
-
-    par concurrent collection
-        F1 ->> M: emit(1)
-        F2 ->> M: emit(X)
-        F1 ->> M: emit(2)
-        F2 ->> M: emit(Y)
-    end
-    Note over M: queued in arrival order
-    M ->> R: emit(1 or X, arrival order)
-    M ->> R: emit(X or 1, ...)
-    M ->> R: emit(2 or Y, ...)
-    M ->> R: emit(Y or 2, ...)
-    Note over R: per-flow order (1→2, X→Y) is preserved
-```
+![10. merge(flows) — Unordered Merge 13](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-13.svg)
 
 ---
 
@@ -541,20 +357,7 @@ sequenceDiagram
 
 Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext` is an alias for `pairwise`.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant P as pairwise()
-        participant R as Collector
-    S ->> P: emit(1)
-    Note over P: buffer=[1], pair incomplete
-    S ->> P: emit(2)
-    P ->> R: emit((1, 2))
-    S ->> P: emit(3)
-    P ->> R: emit((2, 3))
-    S ->> P: emit(4)
-    P ->> R: emit((3, 4))
-```
+![11. pairwise() / zipWithNext() — Adjacent Pairs 14](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-14.svg)
 
 ---
 
@@ -562,20 +365,7 @@ sequenceDiagram
 
 Calls `initialSupplier` at collect time to produce the seed, then emits each accumulated result.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant SW as scanWith({ 0 }) { acc, v -> acc + v }
-        participant R as Collector
-    Note over SW: collect starts → initialSupplier() called → acc=0
-    SW ->> R: emit(0)
-    S ->> SW: emit(1)
-    SW ->> R: emit(1)
-    S ->> SW: emit(2)
-    SW ->> R: emit(3)
-    S ->> SW: emit(3)
-    SW ->> R: emit(6)
-```
+![12. scanWith(initial) { } — Lazy Initial Value Accumulation 15](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-15.svg)
 
 ---
 
@@ -584,26 +374,7 @@ sequenceDiagram
 Starts each element as a `Deferred` asynchronously, but **emits results in input order**. Unlike
 `mapParallel`, output order is guaranteed.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant AF as Flow.async { }
-        participant R as Collector
-    S ->> AF: emit(1) → LazyDeferred started
-    S ->> AF: emit(2) → LazyDeferred started
-    S ->> AF: emit(3) → LazyDeferred started
-    Note over AF: 3 Deferreds running concurrently
-    par async computation
-        AF -->> AF: Deferred(1) complete
-        AF -->> AF: Deferred(3) complete (may finish first)
-        AF -->> AF: Deferred(2) complete
-    end
-    Note over AF: await() in input order
-    AF ->> R: emit(result_1)
-    AF ->> R: emit(result_2)
-    AF ->> R: emit(result_3)
-    Note over R: always 1→2→3 order
-```
+![13. AsyncFlow — Order-Preserving Async Transformation 16](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-16.svg)
 
 ---
 

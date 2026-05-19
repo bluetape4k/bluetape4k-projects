@@ -477,33 +477,15 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### 확장 함수 API 개요
 
-![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-01.svg)
+![Component Function API Component 1](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-01.svg)
 
 ### 주요 API 구조
 
-![주요 API 구조 2](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-02.svg)
+![Component API Component 2](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-02.svg)
 
 ### JDBC 쿼리 실행 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant DS as DataSource 확장
-        participant Conn as Connection 확장
-        participant PS as PreparedStatement
-        participant DB as 데이터베이스
-
-    App->>DS: withConnect { conn -> ... }
-    DS->>Conn: executeQuery(sql, params) { rs -> ... }
-    Conn->>PS: prepareStatement(sql)
-    Conn->>PS: setParameters(params)
-    PS->>DB: executeQuery()
-    DB-->>PS: ResultSet
-    PS-->>Conn: ResultSet
-    Conn-->>App: ResultSet 처리 결과
-
-    Note over DS,DB: withTransaction 사용 시 자동 커밋/롤백 처리
-```
+![JDBC Query Component Component 3](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-03.svg)
 
 ## 참고 자료
 

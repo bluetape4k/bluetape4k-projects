@@ -403,31 +403,11 @@ class KafkaIntegrationTest {
 
 ### Producer/Consumer Message Flow
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant PT as SuspendKafkaProducerTemplate
-    participant CT as SuspendKafkaConsumerTemplate
-    participant Kafka as Kafka Broker
-    participant Handler as Message Handler
-
-    App->>+PT: send(topic, key, value)
-    Note over PT: Wraps in Reactor Kafka SenderRecord
-    PT->>+Kafka: Publish ProducerRecord
-    Kafka-->>-PT: SenderResult (partition, offset)
-    PT-->>-App: Return SenderResult
-
-    Kafka->>+CT: ReceiverRecord stream
-    CT->>+Handler: Flow.collect { record }
-    Handler->>Handler: Process business logic
-    Handler->>Kafka: receiverOffset.commit()
-    Handler-->>-CT: Processing complete
-    CT-->>-Kafka: ACK
-```
+![Producer/Consumer Message Flow 2](../../docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
 
 ### Kafka Streams Processing Flow
 
-![Kafka Streams Processing Flow 2](../../docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
+![Kafka Streams Processing Flow 3](../../docs/images/readme-diagrams/infra-kafka-diagram-03.svg)
 
 ## Package Structure
 

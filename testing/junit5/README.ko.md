@@ -8,11 +8,11 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 
 ### 확장 기능 구성 다이어그램
 
-![확장 기능 구성 다이어그램 1](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-01.svg)
+![Component Component Configuration Diagram 1](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-01.svg)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-02.svg)
 
 ## 주요 기능
 
@@ -317,7 +317,7 @@ class FieldSourceTest {
 
 출력 예시:
 
-![테스트 실행 및 Mermaid 리포트 추출 3](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-03.svg)
+![Test Component Component Mermaid Component Component 3](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-03.svg)
 
 - `active`: 성공한 테스트
 - `crit`: 실패한 테스트

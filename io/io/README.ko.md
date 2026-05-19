@@ -10,50 +10,15 @@
 
 ### Compressor 계층
 
-![Compressor 계층 1](../../docs/images/readme-diagrams/io-io-ko-diagram-01.svg)
+![Compressor Component 1](../../docs/images/readme-diagrams/io-io-ko-diagram-01.svg)
 
 ### BinarySerializer 계층
 
-![BinarySerializer 계층 2](../../docs/images/readme-diagrams/io-io-ko-diagram-02.svg)
+![BinarySerializer Component 2](../../docs/images/readme-diagrams/io-io-ko-diagram-02.svg)
 
 ### compress/decompress 흐름
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant AC as AbstractCompressor
-        participant Impl as 구현체(e.g. LZ4Compressor)
-
-    C->>AC: compress(plain: ByteArray?)
-    AC->>AC: plain.isNullOrEmpty() 검사
-    alt null 또는 빈 배열
-        AC-->>C: emptyByteArray
-    else 유효한 데이터
-        AC->>Impl: doCompress(plain)
-        alt 성공
-            Impl-->>AC: compressed: ByteArray
-            AC-->>C: compressed
-        else 실패
-            Impl--xAC: IOException / IllegalArgumentException / 라이브러리 예외
-            AC--xC: 동일 예외 전파
-        end
-    end
-
-    C->>AC: decompress(compressed: ByteArray?)
-    AC->>AC: compressed.isNullOrEmpty() 검사
-    alt null 또는 빈 배열
-        AC-->>C: emptyByteArray
-    else 유효한 데이터
-        AC->>Impl: doDecompress(compressed)
-        alt 성공
-            Impl-->>AC: plain: ByteArray
-            AC-->>C: plain
-        else 실패
-            Impl--xAC: IOException / IllegalArgumentException / 라이브러리 예외
-            AC--xC: 동일 예외 전파
-        end
-    end
-```
+![compress/decompress Component 3](../../docs/images/readme-diagrams/io-io-ko-diagram-03.svg)
 
 `compress()`와 `decompress()`는 예외 전파 API입니다. null 또는 empty 입력은
 `emptyByteArray`를 반환하지만, 구현체 압축/복원 실패는 호출자에게 그대로 전파됩니다.
@@ -62,30 +27,7 @@ sequenceDiagram
 
 ### serialize/deserialize 흐름
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant ABS as AbstractBinarySerializer
-        participant Impl as 구현체(e.g. KryoBinarySerializer)
-
-    C->>ABS: serialize(graph: Any?)
-    alt graph == null
-        ABS-->>C: emptyByteArray
-    else 유효한 객체
-        ABS->>Impl: doSerialize(graph)
-        Impl-->>ABS: bytes: ByteArray
-        ABS-->>C: bytes
-    end
-
-    C->>ABS: deserialize(bytes: ByteArray?)
-    alt null 또는 빈 배열
-        ABS-->>C: null
-    else 유효한 데이터
-        ABS->>Impl: doDeserialize(bytes)
-        Impl-->>ABS: obj: T?
-        ABS-->>C: obj
-    end
-```
+![serialize/deserialize Component 4](../../docs/images/readme-diagrams/io-io-ko-diagram-04.svg)
 
 ## 주요 기능
 
@@ -472,7 +414,7 @@ JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 | Jdk | ~8,431 | — | ✅ | Java 표준 |
 | Jackson | ~4,323 | — | ✅ | 바이너리 데이터에 불리 |
 
-![직렬화 성능 비교 3](../../docs/images/readme-diagrams/io-io-ko-diagram-03.svg)
+![Component Component Component 5](../../docs/images/readme-diagrams/io-io-ko-diagram-05.svg)
 
 > `ForyBinarySerializer.fast()`는 nullable 타입을 지원하며 기본 Fory 대비 +71% 빠릅니다.
 > `KryoBinarySerializer.fast()`는 +97% 빠르지만 Kotlin nullable 필드(`Type?`)를 **지원하지 않습니다**.
@@ -486,7 +428,7 @@ JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 | Jackson | 39,510  | JSON 기반 |
 | Jdk     | 22,249  | Java 표준 |
 
-![직렬화 성능 비교 4](../../docs/images/readme-diagrams/io-io-ko-diagram-04.svg)
+![Component Component Component 6](../../docs/images/readme-diagrams/io-io-ko-diagram-06.svg)
 
 ### 압축 성능 비교
 
@@ -500,7 +442,7 @@ JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 | GZip    | 1,195 | 호환성 우수           |
 | Deflate | 1,084 | GZip 기반          |
 
-![압축 성능 비교 5](../../docs/images/readme-diagrams/io-io-ko-diagram-05.svg)
+![Component Component Component 7](../../docs/images/readme-diagrams/io-io-ko-diagram-07.svg)
 
 ## 모듈 구조
 

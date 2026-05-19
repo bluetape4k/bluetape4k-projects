@@ -36,18 +36,7 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 
 ### Sequence Diagram — httpbin GET
 
-```mermaid
-sequenceDiagram
-    participant CLIENT as Test / Client
-    participant SERVER as BluetapeWebfluxServer (Docker)
-    participant CTRL as HttpbinController
-
-    CLIENT->>SERVER: GET http://host:80/httpbin/get
-    SERVER->>CTRL: dispatch /httpbin/get
-    CTRL->>CTRL: build HttpbinResponse (suspend)\n(url, method, headers, origin)
-    CTRL-->>SERVER: HttpbinResponse JSON
-    SERVER-->>CLIENT: 200 OK + JSON body
-```
+![Sequence Diagram — httpbin GET 3](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-03.svg)
 
 ## Features
 

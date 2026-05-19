@@ -25,15 +25,15 @@
 
 ### 전체 알고리즘 구조
 
-![전체 알고리즘 구조 1](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-01.svg)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-02.svg)
 
 ### Snowflake 비트 구조
 
-![Snowflake 비트 구조 3](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-03.svg)
+![Snowflake Component Component 3](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-03.svg)
 
 - **timestamp**: 41 bits, epoch 이후 약 69년간 유일성 보장
 - **machineId**: 10 bits, 최대 1,024개 기계 지원 (0–1023)

@@ -355,39 +355,19 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### OpenTelemetry 핵심 클래스 구조
 
-![OpenTelemetry 핵심 클래스 구조 1](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-01.svg)
+![OpenTelemetry Component Component Component 1](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-01.svg)
 
 ### OpenTelemetry 구성 요소
 
-![OpenTelemetry 구성 요소 2](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-02.svg)
+![OpenTelemetry Configuration Component 2](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-02.svg)
 
 ### Span 생명주기 (Coroutines 환경)
 
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant Builder as SpanBuilder
-    participant Span as Span
-    participant Context as CoroutineContext
-    participant Child as 하위 작업
-
-    App->>+Builder: tracer.spanBuilder("operation")
-    App->>Builder: useSpanSuspending { ... }
-    Builder->>+Span: startSpan()
-    Span->>+Context: makeCurrent() / withContext
-    Note over Context: Span Context 코루틴에 전파
-    Context->>+Child: 하위 코루틴 실행
-    Note over Child: withContext(Dispatchers.IO)<br/>에서도 Context 유지
-    Child-->>-Context: 결과 반환
-    Context-->>-Span: 블록 종료
-    Span->>Span: end()
-    Span-->>-Builder: Span 종료
-    Builder-->>-App: 결과 반환
-```
+![Span Component (Coroutines Component) 3](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-03.svg)
 
 ### 분산 추적 전파 흐름
 
-![분산 추적 전파 흐름 3](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-03.svg)
+![Component Component Component Component 4](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-04.svg)
 
 ## 테스트 전략
 

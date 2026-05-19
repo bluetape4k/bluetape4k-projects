@@ -262,36 +262,15 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ### Codec 계층 구조
 
-![Codec 계층 구조 1](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-01.svg)
+![Codec Component Component 1](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-01.svg)
 
 ### NearCache 2-Tier 캐시 흐름
 
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant Local as 로컬 캐시<br/>(RLocalCachedMap)
-    participant Redis as Redis<br/>(원격 저장소)
-    participant Other as 다른 노드
-
-    App->>+Local: get("key")
-    alt 로컬 캐시 히트
-        Local-->>App: 값 즉시 반환
-    else 로컬 캐시 미스
-        Local->>+Redis: GET "key"
-        Redis-->>-Local: 값 반환
-        Local->>Local: 로컬 캐시에 저장
-        Local-->>-App: 값 반환
-    end
-
-    App->>Redis: put("key", newValue)
-    Redis->>Local: Invalidation 전파
-    Redis->>Other: Invalidation 전파 (Pub/Sub)
-    Other->>Other: 로컬 캐시 무효화
-```
+![NearCache 2-Tier Cache Component 2](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-02.svg)
 
 ### Batch / Transaction 처리 흐름
 
-![Batch / Transaction 처리 흐름 2](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-02.svg)
+![Batch / Transaction Component Component 3](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-03.svg)
 
 ## 고성능 Batch 패턴 — 메가배치
 

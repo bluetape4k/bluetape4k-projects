@@ -240,11 +240,11 @@ class VirtualThreadsTest {
 
 ## 클래스 다이어그램
 
-![클래스 다이어그램 1](../../docs/images/readme-diagrams/virtualthread-api-ko-diagram-01.svg)
+![Component Diagram 1](../../docs/images/readme-diagrams/virtualthread-api-ko-diagram-01.svg)
 
 ## ServiceLoader 기반 런타임 선택 흐름
 
-![ServiceLoader 기반 런타임 선택 흐름 2](../../docs/images/readme-diagrams/virtualthread-api-ko-diagram-02.svg)
+![ServiceLoader Component Runtime Component Component 2](../../docs/images/readme-diagrams/virtualthread-api-ko-diagram-02.svg)
 
 ## 참고 자료
 

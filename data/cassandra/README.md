@@ -372,22 +372,7 @@ More examples are available in the `src/test/kotlin/io/bluetape4k/cassandra` pac
 
 ### Asynchronous Query Execution Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant Ext as CqlSession Extension
-        participant Session as CqlSession
-        participant DB as Cassandra
-
-    App->>Ext: executeSuspending(query)
-    Ext->>Session: executeAsync(statement)
-    Session->>DB: Execute CQL
-    DB-->>Session: AsyncResultSet
-    Session-->>Ext: CompletionStage
-    Ext-->>App: suspend (Flow<Row>)
-    App->>Ext: rowsFlow()
-    Ext-->>App: Flow<Row>
-```
+![Asynchronous Query Execution Flow 3](../../docs/images/readme-diagrams/data-cassandra-diagram-03.svg)
 
 ## References
 

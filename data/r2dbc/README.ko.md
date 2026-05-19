@@ -378,34 +378,19 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### 확장 함수 API 개요
 
-![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-01.svg)
+![Component Function API Component 1](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-01.svg)
 
 ### 주요 API 구조
 
-![주요 API 구조 2](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-02.svg)
+![Component API Component 2](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-02.svg)
 
 ### R2DBC 쿼리 실행 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant R2DBC as DatabaseClient 확장
-        participant Spring as Spring R2DBC
-        participant DB as 데이터베이스
-
-    App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
-    R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
-    Spring->>DB: R2DBC 쿼리 실행 (논블로킹)
-    DB-->>Spring: Flux~Row~
-    Spring-->>R2DBC: Flux~Row~
-    R2DBC-->>App: Flow~T~ (코루틴 변환)
-
-    Note over App,DB: 모든 I/O가 논블로킹, 코루틴 컨텍스트에서 실행
-```
+![R2DBC Query Component Component 3](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-03.svg)
 
 ### JDBC vs R2DBC 비교
 
-![JDBC vs R2DBC 비교 3](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-03.svg)
+![JDBC vs R2DBC Component 4](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-04.svg)
 
 ## 참고 자료
 

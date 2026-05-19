@@ -315,27 +315,7 @@ val restored = yamlMapper.readValue<User>(yaml)     // deserialization
 
 ### Jackson 3.x Module Registration Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant J as Jackson
-        participant M as JsonMapper.Builder
-        participant MOD as JacksonModules
-
-    App->>J: Jackson.createDefaultJsonMapper()
-    J->>M: jsonMapper { findAndAddModules() }
-    M->>MOD: Register JsonTinkEncryptModule
-    M->>MOD: Register JsonMaskerModule
-    M->>MOD: Register JsonUuidModule
-    MOD-->>M: Wire Introspector / Serializer / Deserializer
-    M-->>J: Build JsonMapper
-    J-->>App: Configured ObjectMapper
-
-    App->>J: mapper.writeValueAsString(obj)
-    J->>MOD: Detect @JsonTinkEncrypt fields
-    MOD-->>J: Encrypted value
-    J-->>App: JSON string
-```
+![Jackson 3.x Module Registration Flow 3](../../docs/images/readme-diagrams/io-jackson3-diagram-03.svg)
 
 ## Dependencies
 

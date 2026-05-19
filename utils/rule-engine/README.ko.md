@@ -10,66 +10,34 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 세 가지 핵심 구성 요소와 상호 작용:
 
-![개념 개요 1](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-01.svg)
 
 `Rule`은 **condition** (`Facts` 검사 Predicate)과 **action** (`Facts` 수정 함수)으로 구성됩니다.  
 `RuleEngine.fire()`는 우선순위 순으로 Rule을 순회하며 조건을 평가하고, 만족하는 Rule의 Action을 실행합니다.
 
 ### 핵심 클래스 다이어그램
 
-![핵심 클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-02.svg)
+![Component Component Diagram 2](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-02.svg)
 
 ### Rule Engine 클래스 다이어그램
 
-![Rule Engine 클래스 다이어그램 3](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-03.svg)
+![Rule Engine Component Diagram 3](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-03.svg)
 
 ### Composite Rule 다이어그램
 
-![Composite Rule 다이어그램 4](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-04.svg)
+![Composite Rule Diagram 4](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-04.svg)
 
 ### Rule 실행 시퀀스
 
-```mermaid
-sequenceDiagram
-    box "소비자" #E8F5E9
-    participant Caller
-    end
-    box "Rule Engine" #E3F2FD
-    participant RuleEngine
-    participant RuleListener
-    end
-    box "Rules" #FFF3E0
-    participant Rule
-    participant Facts
-    end
-    Caller ->> RuleEngine: fire(ruleSet, facts)
-
-    loop rules (우선순위 순)
-        RuleEngine ->> RuleListener: beforeEvaluate(rule, facts)
-        RuleEngine ->> Rule: evaluate(facts)
-        Rule -->> RuleEngine: true / false
-
-        alt condition = true
-            RuleEngine ->> Rule: execute(facts)
-            Rule ->> Facts: 값 수정
-            RuleEngine ->> RuleListener: onSuccess(rule, facts)
-            Note over RuleEngine: skipOnFirstAppliedRule → 중단
-        else condition = false
-            RuleEngine ->> RuleListener: onFailure(rule, facts)
-            Note over RuleEngine: skipOnFirstNonTriggeredRule → 중단
-        end
-    end
-
-    RuleEngine -->> Caller: (완료)
-```
+![Rule Component Component 5](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-05.svg)
 
 ### InferenceRuleEngine (Forward Chaining)
 
-![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-05.svg)
+![InferenceRuleEngine (Forward Chaining) 6](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-06.svg)
 
 ### Rule Engine 선택 가이드
 
-![Rule Engine 선택 가이드 6](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-06.svg)
+![Rule Engine Component Component 7](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-07.svg)
 
 ## 핵심 기능
 
@@ -219,7 +187,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### 스크립트 엔진 선택 가이드
 
-![스크립트 엔진 선택 가이드 7](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-07.svg)
+![Component Component Component Component 8](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-08.svg)
 
 | 시나리오 | 추천 엔진 | 이유 |
 |---------|---------|------|

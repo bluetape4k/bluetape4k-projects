@@ -32,58 +32,11 @@ A wrapper and utility module for building application-level rate limiters using 
 
 #### Local Rate Limiter — Token Consumption Flow
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant LocalRateLimiter
-    participant LocalBucketProvider
-    participant LocalBucket
-    Caller ->> LocalRateLimiter: consume("user:1", 1)
-    LocalRateLimiter ->> LocalRateLimiter: validateRateLimitRequest(key, numToken)
-    LocalRateLimiter ->> LocalBucketProvider: resolveBucket("user:1")
-    LocalBucketProvider -->> LocalRateLimiter: LocalBucket (from cache)
-    LocalRateLimiter ->> LocalBucket: tryConsumeAndReturnRemaining(1)
-
-    alt Sufficient tokens (CONSUMED)
-        LocalBucket -->> LocalRateLimiter: probe { isConsumed=true, remaining=9, resetNanos=... }
-        LocalRateLimiter -->> Caller: RateLimitResult(CONSUMED, consumed=1, available=9, diagnostics)
-    else Insufficient tokens (REJECTED)
-        LocalBucket -->> LocalRateLimiter: probe { isConsumed=false, remaining=0, refillNanos=... }
-        LocalRateLimiter -->> Caller: RateLimitResult(REJECTED, consumed=0, available=0, retryAfter)
-    else Error (ERROR)
-        LocalBucket -->> LocalRateLimiter: Exception
-        LocalRateLimiter -->> Caller: RateLimitResult(ERROR, errorMessage=...)
-    end
-```
+![Local Rate Limiter — Token Consumption Flow 2](../../docs/images/readme-diagrams/infra-bucket4j-diagram-02.svg)
 
 #### Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant DistributedSuspendRateLimiter
-    participant AsyncBucketProxyProvider
-    participant AsyncBucketProxy
-    participant Redis
-    Caller ->> DistributedSuspendRateLimiter: consume("tenant:a", 1)
-    DistributedSuspendRateLimiter ->> AsyncBucketProxyProvider: resolveBucket("tenant:a")
-    AsyncBucketProxyProvider -->> DistributedSuspendRateLimiter: AsyncBucketProxy
-    DistributedSuspendRateLimiter ->> AsyncBucketProxy: tryConsumeAndReturnRemaining(1)
-    AsyncBucketProxy ->> Redis: EVALSHA (atomic Lua script)
-
-    alt Sufficient tokens
-        Redis -->> AsyncBucketProxy: consumed=1, remaining=99
-        AsyncBucketProxy -->> DistributedSuspendRateLimiter: CompletableFuture (await)
-        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(CONSUMED, 1, 99, diagnostics)
-    else Insufficient tokens
-        Redis -->> AsyncBucketProxy: consumed=0, remaining=0, refill wait
-        AsyncBucketProxy -->> DistributedSuspendRateLimiter: CompletableFuture (await)
-        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(REJECTED, 0, 0, retryAfter)
-    else Timeout or store failure
-        AsyncBucketProxy -->> DistributedSuspendRateLimiter: failure
-        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(ERROR, errorMessage)
-    end
-```
+![Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow 3](../../docs/images/readme-diagrams/infra-bucket4j-diagram-03.svg)
 
 ## What This Module Adds Over Raw Bucket4j
 

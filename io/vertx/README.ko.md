@@ -68,40 +68,19 @@ dependencies {
 
 ### 모듈 의존성 구조
 
-![모듈 의존성 구조 1](../../docs/images/readme-diagrams/io-vertx-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/io-vertx-ko-diagram-01.svg)
 
 ### Vert.x 이벤트 루프 + Coroutines 처리 흐름
 
-![Vert.x 이벤트 루프 + Coroutines 처리 흐름 2](../../docs/images/readme-diagrams/io-vertx-ko-diagram-02.svg)
+![Vert.x Component Component + Coroutines Component Component 2](../../docs/images/readme-diagrams/io-vertx-ko-diagram-02.svg)
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
-```mermaid
-sequenceDiagram
-        participant 앱 as Verticle (Coroutines)
-        participant CB as CircuitBreaker
-        participant SVC as 원격 서비스
-
-    앱->>CB: cb.executeSuspend { remoteCall() }
-    CB->>CB: 상태 확인 (CLOSED/OPEN/HALF_OPEN)
-
-    alt CLOSED (정상)
-        CB->>SVC: 원격 호출
-        SVC-->>CB: 응답
-        CB-->>앱: 성공 결과
-    else OPEN (차단)
-        CB-->>앱: CallNotPermittedException
-    else HALF_OPEN (테스트)
-        CB->>SVC: 테스트 호출
-        SVC-->>CB: 성공/실패
-        CB->>CB: 상태 전환 (CLOSED/OPEN)
-        CB-->>앱: 결과 반환
-    end
-```
+![Circuit Breaker + Resilience4j Integration Component 3](../../docs/images/readme-diagrams/io-vertx-ko-diagram-03.svg)
 
 ### Vert.x 핵심 컴포넌트 클래스 구조
 
-![Vert.x 핵심 컴포넌트 클래스 구조 3](../../docs/images/readme-diagrams/io-vertx-ko-diagram-03.svg)
+![Vert.x Component Component Component Component 4](../../docs/images/readme-diagrams/io-vertx-ko-diagram-04.svg)
 
 ## 사용 예시
 

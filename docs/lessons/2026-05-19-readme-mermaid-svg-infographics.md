@@ -2,30 +2,28 @@
 
 ## Context
 
-README files used Mermaid diagrams directly. The requested documentation
-presentation was pastel infographic-style SVG images, while keeping
-`sequenceDiagram` blocks as Mermaid source.
+README files used live Mermaid diagrams. Some Korean diagram labels were clipped
+in generated images, and sequence diagrams also needed the same SVG treatment.
 
 ## Decision
 
-Render every non-sequence Mermaid block in README files to SVG under
-`docs/images/readme-diagrams/`, using a shared pastel Mermaid theme and
-diagram-type-safe render normalization. Replace only the rendered Mermaid
-blocks with relative SVG image links.
+Render every README Mermaid block to SVG under `docs/images/readme-diagrams/`
+using English diagram labels and a shared Mermaid theme that prefers Comic Mono.
+Korean README diagrams use the matching English README Mermaid source when
+available.
 
 ## Outcome
 
-Generated SVG assets for flowchart, graph, classDiagram, xychart, bar-derived,
-gantt, block-beta, and state diagrams. README sequence diagrams remain as
-Mermaid code blocks.
+Generated checked-in SVG assets for all README Mermaid diagrams and replaced the
+Mermaid blocks with relative image links.
 
 ## Verification
 
-Rendered all planned SVG files with Mermaid CLI 11.14.0. Verified the README
-conversion counts and ran `git diff --check`.
+Rendered SVG assets with Mermaid CLI 11.14.0, verified SVG link/file counts,
+verified zero remaining README Mermaid blocks, checked generated SVGs for Korean
+text, and ran `git diff --check`.
 
 ## Future Guidance
 
-For README diagram conversion, render first, finalize README edits only after
-all SVG files exist, and keep `.worktrees` excluded from repository-wide
-documentation rewrites.
+Render from the base branch source when updating existing diagram-image PRs, so
+previous image-link conversions do not hide the original Mermaid blocks.

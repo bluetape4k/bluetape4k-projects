@@ -7,7 +7,7 @@ Ktor 예제는 #419에서 별도로 다룹니다.
 
 ## 아키텍처
 
-![아키텍처 1](../../../docs/images/readme-diagrams/examples-spring-boot-idgenerator-spring-boot-demo-ko-diagram-01.svg)
+![Architecture 1](../../../docs/images/readme-diagrams/examples-spring-boot-idgenerator-spring-boot-demo-ko-diagram-01.svg)
 
 ## 설정
 

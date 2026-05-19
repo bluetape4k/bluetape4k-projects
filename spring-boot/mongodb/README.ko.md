@@ -107,39 +107,19 @@ val update = ("name" setTo "Alice")
 
 ### 핵심 클래스 구조
 
-![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-01.svg)
 
 ### ReactiveMongoOperations 코루틴 확장 흐름
 
-![ReactiveMongoOperations 코루틴 확장 흐름 2](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-02.svg)
+![ReactiveMongoOperations Coroutines Component Component 2](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-02.svg)
 
 ### Criteria / Query / Update DSL 흐름
 
-![Criteria / Query / Update DSL 흐름 3](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-03.svg)
+![Criteria / Query / Update DSL Component 3](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-03.svg)
 
 ### 코루틴 변환 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as 코루틴 확장
-        participant Ops as ReactiveMongoOperations
-        participant DB as MongoDB
-
-    App->>Ext: findAllAsFlow<User>()
-    Ext->>Ops: findAll(User::class) → Flux<User>
-    Ops->>DB: find({}) 쿼리
-    DB-->>Ops: 문서 스트림
-    Ops-->>Ext: Flux<User>
-    Ext-->>App: Flow<User> (코루틴 스트림)
-
-    App->>Ext: insertSuspending(user)
-    Ext->>Ops: insert(user) → Mono<User>
-    Ops->>DB: insertOne 요청
-    DB-->>Ops: 삽입된 문서
-    Ops-->>Ext: Mono<User>
-    Ext-->>App: User (suspend 결과)
-```
+![Coroutines Component Component 4](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-04.svg)
 
 ## 참고 자료
 

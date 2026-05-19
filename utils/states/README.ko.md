@@ -11,7 +11,7 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 
 상태, 이벤트, 상태 머신이 어떻게 상호 작용하는지:
 
-![개념 개요 1](../../docs/images/readme-diagrams/utils-states-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/utils-states-ko-diagram-01.svg)
 
 `StateMachine`은 타입화된 **전이 규칙** (출발 상태 + 이벤트 타입 → 도착 상태) 집합을 보유합니다.  
 각 전이는 상태 변경 전에 검사되는 선택적 **Guard 조건**을 가질 수 있습니다.  
@@ -19,14 +19,14 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-states-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-states-ko-diagram-02.svg)
 
 > `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과
 `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
 
 ### DSL 빌더 구조
 
-![DSL 빌더 구조 3](../../docs/images/readme-diagrams/utils-states-ko-diagram-03.svg)
+![DSL Component Component 3](../../docs/images/readme-diagrams/utils-states-ko-diagram-03.svg)
 
 ## 주요 특징
 
@@ -53,15 +53,15 @@ event/effect와 nested-state 아이디어의 참고 자료일 뿐, 이 모듈의
 
 ### 1. 회전문 (Turnstile) — 단순 FSM
 
-![1. 회전문 (Turnstile) — 단순 FSM 4](../../docs/images/readme-diagrams/utils-states-ko-diagram-04.svg)
+![1. Component (Turnstile) — Component FSM 4](../../docs/images/readme-diagrams/utils-states-ko-diagram-04.svg)
 
 ### 2. 주문 (Order) — 단방향 FSM
 
-![2. 주문 (Order) — 단방향 FSM 5](../../docs/images/readme-diagrams/utils-states-ko-diagram-05.svg)
+![2. Component (Order) — Component FSM 5](../../docs/images/readme-diagrams/utils-states-ko-diagram-05.svg)
 
 ### 3. 예약 (Appointment) — 복잡한 FSM (clinic-appointment)
 
-![3. 예약 (Appointment) — 복잡한 FSM (clinic-appointment) 6](../../docs/images/readme-diagrams/utils-states-ko-diagram-06.svg)
+![3. YesComponent (Appointment) — Component FSM (clinic-appointment) 6](../../docs/images/readme-diagrams/utils-states-ko-diagram-06.svg)
 
 ## Quick Start
 
@@ -186,70 +186,11 @@ machine.send(OrderEvent.Cancel)
 
 ### 동기 FSM 전이 흐름
 
-```mermaid
-sequenceDiagram
-    box "소비자" #E8F5E9
-    participant Caller
-    end
-    box "상태 머신" #E3F2FD
-    participant DefaultStateMachine
-    participant AtomicReference
-    participant TransitionMap
-    end
-    box "콜백" #FFF3E0
-    participant OnTransitionCallback
-    end
-
-    Caller->>DefaultStateMachine: transition(event)
-    DefaultStateMachine->>AtomicReference: get() → previousState
-    DefaultStateMachine->>DefaultStateMachine: finalStates.contains(previousState)?
-    alt 최종 상태
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>TransitionMap: get(TransitionKey(previousState, event::class))
-    alt 전이 없음
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>DefaultStateMachine: guard?.invoke(previousState, event)?
-    alt Guard 실패
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>AtomicReference: compareAndSet(previousState, nextState)
-    alt CAS 실패 (동시 전이 충돌)
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>OnTransitionCallback: invoke(previous, event, next)
-    DefaultStateMachine-->>Caller: TransitionResult(previous, event, next)
-```
+![Component FSM Component Component 7](../../docs/images/readme-diagrams/utils-states-ko-diagram-07.svg)
 
 ### 코루틴 FSM 전이 흐름 (SuspendStateMachine)
 
-```mermaid
-sequenceDiagram
-    box "소비자" #E8F5E9
-    participant Caller
-    end
-    box "코루틴 상태 머신" #F3E5F5
-    participant SuspendStateMachine
-    participant Mutex
-    participant MutableStateFlow
-    end
-    box "콜백" #FFF3E0
-    participant OnTransitionCallback
-    end
-
-    Caller->>SuspendStateMachine: transition(event) [suspend]
-    SuspendStateMachine->>Mutex: withLock { ... }
-    Note over Mutex: 동시 전이 직렬화
-
-    Mutex->>MutableStateFlow: value → previousState
-    SuspendStateMachine->>SuspendStateMachine: finalStates / transitions 검증
-    SuspendStateMachine->>SuspendStateMachine: guard 조건 확인
-    SuspendStateMachine->>MutableStateFlow: value = nextState
-    Note over MutableStateFlow: StateFlow 구독자에게 자동 방출
-    SuspendStateMachine->>OnTransitionCallback: invoke(previous, event, next)
-    SuspendStateMachine-->>Caller: TransitionResult(previous, event, next)
-```
+![Coroutines FSM Component Component (SuspendStateMachine) 8](../../docs/images/readme-diagrams/utils-states-ko-diagram-08.svg)
 
 ## clinic-appointment 마이그레이션 가이드
 

@@ -71,28 +71,15 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ### 핵심 클래스 구조
 
-![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-01.svg)
 
 ### Cassandra 데이터 접근 계층
 
-![Cassandra 데이터 접근 계층 2](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-02.svg)
+![Cassandra Data Component Component 2](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-02.svg)
 
 ### 코루틴 변환 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as 코루틴 확장
-        participant Ops as ReactiveCassandraOperations
-        participant DB as Apache Cassandra
-
-    App->>Ext: executeSuspending(cql, args)
-    Ext->>Ops: execute(statement) → Mono/Flux
-    Ops->>DB: CQL 쿼리 전송
-    DB-->>Ops: ReactiveResultSet
-    Ops-->>Ext: Mono<ReactiveResultSet>
-    Ext-->>App: suspend 결과 반환 (코루틴)
-```
+![Coroutines Component Component 3](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-03.svg)
 
 ## 참고
 

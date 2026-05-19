@@ -22,64 +22,17 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 ### Bucket4j 통합 클래스 다이어그램
 
-![Bucket4j 통합 클래스 다이어그램 1](../../docs/images/readme-diagrams/infra-bucket4j-ko-diagram-01.svg)
+![Bucket4j Integration Component Diagram 1](../../docs/images/readme-diagrams/infra-bucket4j-ko-diagram-01.svg)
 
 ### Rate Limiting 시퀀스 다이어그램
 
 #### 로컬 Rate Limiter — 토큰 소비 흐름
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant LocalRateLimiter
-    participant LocalBucketProvider
-    participant LocalBucket
-    Caller ->> LocalRateLimiter: consume("user:1", 1)
-    LocalRateLimiter ->> LocalRateLimiter: validateRateLimitRequest(key, numToken)
-    LocalRateLimiter ->> LocalBucketProvider: resolveBucket("user:1")
-    LocalBucketProvider -->> LocalRateLimiter: LocalBucket (캐시에서 반환)
-    LocalRateLimiter ->> LocalBucket: tryConsumeAndReturnRemaining(1)
-
-    alt 토큰 충분 (CONSUMED)
-        LocalBucket -->> LocalRateLimiter: probe { isConsumed=true, remaining=9, resetNanos=... }
-        LocalRateLimiter -->> Caller: RateLimitResult(CONSUMED, consumed=1, available=9, diagnostics)
-    else 토큰 부족 (REJECTED)
-        LocalBucket -->> LocalRateLimiter: probe { isConsumed=false, remaining=0, refillNanos=... }
-        LocalRateLimiter -->> Caller: RateLimitResult(REJECTED, consumed=0, available=0, retryAfter)
-    else 오류 발생 (ERROR)
-        LocalBucket -->> LocalRateLimiter: Exception
-        LocalRateLimiter -->> Caller: RateLimitResult(ERROR, errorMessage=...)
-    end
-```
+![Component Rate Limiter — Component Component Component 2](../../docs/images/readme-diagrams/infra-bucket4j-ko-diagram-02.svg)
 
 #### 분산 Suspend Rate Limiter — Redis 기반 코루틴 흐름
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant DistributedSuspendRateLimiter
-    participant AsyncBucketProxyProvider
-    participant AsyncBucketProxy
-    participant Redis
-    Caller ->> DistributedSuspendRateLimiter: consume("tenant:a", 1)
-    DistributedSuspendRateLimiter ->> AsyncBucketProxyProvider: resolveBucket("tenant:a")
-    AsyncBucketProxyProvider -->> DistributedSuspendRateLimiter: AsyncBucketProxy
-    DistributedSuspendRateLimiter ->> AsyncBucketProxy: tryConsumeAndReturnRemaining(1)
-    AsyncBucketProxy ->> Redis: EVALSHA (atomic Lua script)
-
-    alt 토큰 충분
-        Redis -->> AsyncBucketProxy: consumed=1, remaining=99
-        AsyncBucketProxy -->> DistributedSuspendRateLimiter: CompletableFuture (await)
-        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(CONSUMED, 1, 99, diagnostics)
-    else 토큰 부족
-        Redis -->> AsyncBucketProxy: consumed=0, remaining=0, refill wait
-        AsyncBucketProxy -->> DistributedSuspendRateLimiter: CompletableFuture (await)
-        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(REJECTED, 0, 0, retryAfter)
-    else timeout 또는 저장소 오류
-        AsyncBucketProxy -->> DistributedSuspendRateLimiter: failure
-        DistributedSuspendRateLimiter -->> Caller: RateLimitResult(ERROR, errorMessage)
-    end
-```
+![Component Suspend Rate Limiter — Redis Component Coroutines Component 3](../../docs/images/readme-diagrams/infra-bucket4j-ko-diagram-03.svg)
 
 ## Bucket4j 직접 사용 대비 추가 기능
 

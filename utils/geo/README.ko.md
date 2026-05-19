@@ -10,43 +10,15 @@
 
 ### 모듈 구성
 
-![모듈 구성 1](../../docs/images/readme-diagrams/utils-geo-ko-diagram-01.svg)
+![Component Configuration 1](../../docs/images/readme-diagrams/utils-geo-ko-diagram-01.svg)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-geo-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/utils-geo-ko-diagram-02.svg)
 
 ### GeoHash 인코딩/디코딩 흐름
 
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant GH as GeoHashUtils
-    participant Grid as GeoHash 격자
-
-    box "애플리케이션 레이어" #E8F5E9
-    participant App as 애플리케이션
-    end
-    box "유틸리티 레이어" #FFF3E0
-    participant GH as GeoHashUtils
-    end
-    box "데이터 레이어" #E3F2FD
-    participant Grid as GeoHash 격자
-    end
-
-    App->>GH: encode(lat=37.5665, lon=126.9780, precision=9)
-    GH->>Grid: Base32 셀로 분할
-    Grid-->>GH: "wydm9mufd"
-    GH-->>App: 해시 문자열
-
-    App->>GH: decode("wydm9mufd")
-    GH->>Grid: 역방향 경계 박스 조회
-    Grid-->>GH: GeoPoint(37.5665, 126.9780)
-    GH-->>App: GeoPoint
-
-    App->>GH: neighbors("wydm9mufd")
-    GH-->>App: 인접 8개 해시 목록
-```
+![GeoHash Component/Component Component 3](../../docs/images/readme-diagrams/utils-geo-ko-diagram-03.svg)
 
 ## 제공 기능
 

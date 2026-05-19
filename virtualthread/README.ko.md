@@ -8,36 +8,19 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### 모듈 구조 및 런타임 선택
 
-![모듈 구조 및 런타임 선택 1](../docs/images/readme-diagrams/virtualthread-ko-diagram-01.svg)
+![Module Structure Component Runtime Component 1](../docs/images/readme-diagrams/virtualthread-ko-diagram-01.svg)
 
 ---
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../docs/images/readme-diagrams/virtualthread-ko-diagram-02.svg)
+![Component Diagram 2](../docs/images/readme-diagrams/virtualthread-ko-diagram-02.svg)
 
 ---
 
 ### ServiceLoader 선택 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant VT as VirtualThreads
-        participant SL as ServiceLoader
-        participant F21 as Jdk21VirtualThreadFactory
-        participant F25 as Jdk25VirtualThreadFactory
-    App ->> VT: VirtualThreads.executorService()
-    VT ->> SL: ServiceLoader.load(VirtualThreadFactory)
-    SL -->> VT: [Jdk21Factory(21), Jdk25Factory(25), Fallback(MIN)]
-    VT ->> VT: isSupported() 필터링 후 priority 내림차순 정렬
-    Note over VT: JDK 25 환경 → Jdk25Factory 선택
-    VT ->> F25: executorService()
-    F25 -->> App: VirtualThreadExecutorService (JDK 25)
-    Note over App, F25: JDK 21 환경이면 → Jdk21Factory 선택
-    VT ->> F21: executorService()
-    F21 -->> App: VirtualThreadExecutorService (JDK 21)
-```
+![ServiceLoader Component Component 3](../docs/images/readme-diagrams/virtualthread-ko-diagram-03.svg)
 
 ---
 

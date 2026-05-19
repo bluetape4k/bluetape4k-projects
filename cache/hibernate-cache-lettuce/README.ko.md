@@ -30,11 +30,11 @@ artifact, Kotlin package는 유지됩니다.
 
 ### Near Cache 2-Tier 구조
 
-![Near Cache 2-Tier 구조 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-01.svg)
+![Near Cache 2-Tier Component 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-01.svg)
 
 ### 레이어 구조
 
-![레이어 구조 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-02.svg)
+![Layer Component 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-02.svg)
 
 - **Region 격리**: 각 Region은 독립된 `LettuceNearCache` 인스턴스를 가짐
 - **키 prefix**: `{regionName}::{key}` 형식으로 Redis 키 충돌 방지
@@ -146,31 +146,7 @@ val products: MutableList<Product> = mutableListOf()
 
 #### getFromCache / putIntoCache 흐름
 
-```mermaid
-sequenceDiagram
-        participant Hibernate
-        participant Storage as LettuceNearCacheStorageAccess
-        participant L1 as Caffeine (L1)
-        participant L2 as Redis (L2)
-
-    Note over Hibernate,L2: getFromCache
-    Hibernate->>Storage: getFromCache(key)
-    Storage->>L1: get(key)
-    alt L1 Hit
-        L1-->>Storage: value
-    else L1 Miss
-        L1-->>Storage: null
-        Storage->>L2: GET regionName::key
-        L2-->>Storage: value
-        Storage->>L1: put(key, value)
-    end
-    Storage-->>Hibernate: value
-
-    Note over Hibernate,L2: putIntoCache
-    Hibernate->>Storage: putIntoCache(key, value)
-    Storage->>L1: put(key, value)
-    Storage->>L2: SET regionName::key value
-```
+![getFromCache / putIntoCache Component 3](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-03.svg)
 
 | 연산                        | 동작                                                        |
 |---------------------------|-----------------------------------------------------------|

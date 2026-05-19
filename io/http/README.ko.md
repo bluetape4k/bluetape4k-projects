@@ -12,32 +12,19 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
 
-![전체 아키텍처: 다중 백엔드 HTTP 클라이언트 1](../../docs/images/readme-diagrams/io-http-ko-diagram-01.svg)
+![Component Architecture: Component Component HTTP Client 1](../../docs/images/readme-diagrams/io-http-ko-diagram-01.svg)
 
 ### HTTP 클라이언트 계층 (HC5)
 
-![HTTP 클라이언트 계층 (HC5) 2](../../docs/images/readme-diagrams/io-http-ko-diagram-02.svg)
+![HTTP Client Component (HC5) 2](../../docs/images/readme-diagrams/io-http-ko-diagram-02.svg)
 
 ### OkHttp3 클라이언트 계층
 
-![OkHttp3 클라이언트 계층 3](../../docs/images/readme-diagrams/io-http-ko-diagram-03.svg)
+![OkHttp3 Client Component 3](../../docs/images/readme-diagrams/io-http-ko-diagram-03.svg)
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as executeSuspending()
-        participant HC5 as CloseableHttpAsyncClient
-        participant Server as HTTP 서버
-
-    App->>Ext: suspend fun executeSuspending(request)
-    Ext->>HC5: execute(request, FutureCallback)
-    HC5->>Server: HTTP 요청 (비동기)
-    Server-->>HC5: HTTP 응답
-    HC5-->>Ext: FutureCallback.completed(response)
-    Ext-->>App: SimpleHttpResponse
-```
+![Async HTTP Request Component (HC5 Async + Coroutines) 4](../../docs/images/readme-diagrams/io-http-ko-diagram-04.svg)
 
 ## 주요 기능
 
@@ -280,7 +267,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
   - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
   - OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
 
-![3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과 4](../../docs/images/readme-diagrams/io-http-ko-diagram-04.svg)
+![3. HttpClientCompressionCacheBenchmark — Cache + gzip Component 5](../../docs/images/readme-diagrams/io-http-ko-diagram-05.svg)
 
 **권장 선택**:
 

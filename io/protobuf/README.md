@@ -20,24 +20,7 @@ A Kotlin extension library for working with Google Protocol Buffers messages.
 
 ### Serialization Sequence
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant S as ProtobufSerializer
-        participant P as Protobuf Runtime
-
-    Note over App,P: Serialization
-    App->>S: serialize(protoMessage)
-    S->>P: message.toByteArray()
-    P-->>S: ByteArray (binary Protobuf)
-    S-->>App: ByteArray
-
-    Note over App,P: Deserialization
-    App->>S: deserialize(bytes, MyMessage::class.java)
-    S->>P: MyMessage.parseFrom(bytes)
-    P-->>S: MyMessage object
-    S-->>App: MyMessage (null on failure)
-```
+![Serialization Sequence 3](../../docs/images/readme-diagrams/io-protobuf-diagram-03.svg)
 
 ## Key Features
 

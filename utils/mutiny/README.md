@@ -237,23 +237,7 @@ val result = totalAmount.await().indefinitely()
 
 ## Coroutine Interop Flow
 
-```mermaid
-sequenceDiagram
-    box "Coroutines" #F3E5F5
-    participant CS as CoroutineScope
-    end
-    box "Reactive" #E3F2FD
-    participant UNI as "Uni~T~"
-    end
-    box "Consumer" #E8F5E9
-    participant SUB as Subscriber
-    end
-
-    CS->>UNI: asUni { suspend block }
-    Note over UNI: executed in a separate coroutine
-    UNI->>SUB: onItem(result)
-    SUB->>SUB: await().atMost(5.seconds)
-```
+![Coroutine Interop Flow 3](../../docs/images/readme-diagrams/utils-mutiny-diagram-03.svg)
 
 ## Mutiny vs Other Reactive Libraries
 

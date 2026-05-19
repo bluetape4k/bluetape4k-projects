@@ -364,31 +364,11 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### Span Lifecycle in a Coroutine Context
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant Builder as SpanBuilder
-    participant Span as Span
-    participant Context as CoroutineContext
-    participant Child as Child Work
-
-    App->>+Builder: tracer.spanBuilder("operation")
-    App->>Builder: useSpanSuspending { ... }
-    Builder->>+Span: startSpan()
-    Span->>+Context: makeCurrent() / withContext
-    Note over Context: Span context propagated to coroutine
-    Context->>+Child: Launch child coroutine
-    Note over Child: Context remains active inside<br/>withContext(Dispatchers.IO)
-    Child-->>-Context: Return result
-    Context-->>-Span: Block exits
-    Span->>Span: end()
-    Span-->>-Builder: Span finished
-    Builder-->>-App: Return result
-```
+![Span Lifecycle in a Coroutine Context 3](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.svg)
 
 ### Distributed Trace Propagation
 
-![Distributed Trace Propagation 3](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.svg)
+![Distributed Trace Propagation 4](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-04.svg)
 
 ## Testing Strategy
 

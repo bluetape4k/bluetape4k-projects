@@ -91,51 +91,15 @@ val value = memo("recover")      // recomputes and returns 7
 
 ### NearCache get() Sequence (front miss → back lookup → front fill)
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as NearCache
-    participant Front as Front Cache (Caffeine)
-    participant Back as Back Cache (Redis/IMap/Redisson)
-    App ->> NC: get("key")
-    NC ->> Front: get("key")
-    alt front hit
-        Front -->> NC: value
-        NC -->> App: value (immediate return)
-    else front miss
-        Front -->> NC: null
-        NC ->> Back: get("key")
-        alt back hit
-            Back -->> NC: value
-            NC ->> Front: put("key", value)
-            Front -->> NC: ok
-            NC -->> App: value
-        else back miss
-            Back -->> NC: null
-            NC -->> App: null
-        end
-    end
-```
+![NearCache get() Sequence (front miss → back lookup → front fill) 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
 
 ### NearCache put() Sequence (write-through)
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as NearCache
-    participant Front as Front Cache (Caffeine)
-    participant Back as Back Cache (Redis/IMap/Redisson)
-    App ->> NC: put("key", value)
-    NC ->> Back: set("key", value)
-    Back -->> NC: ok
-    NC ->> Front: put("key", value)
-    Front -->> NC: ok
-    NC -->> App: (complete)
-```
+![NearCache put() Sequence (write-through) 2](../../docs/images/readme-diagrams/cache-cache-core-diagram-02.svg)
 
 ### NearCache Interface Hierarchy
 
-![NearCache Interface Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
+![NearCache Interface Hierarchy 3](../../docs/images/readme-diagrams/cache-cache-core-diagram-03.svg)
 
 ## `testFixtures` Usage Guide
 

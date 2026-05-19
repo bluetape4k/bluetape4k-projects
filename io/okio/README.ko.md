@@ -384,25 +384,25 @@ io.bluetape4k.okio
 
 Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등을 데코레이터 패턴으로 제공합니다.
 
-![Sink / Source 어댑터 계층 1](../../docs/images/readme-diagrams/io-okio-ko-diagram-01.svg)
+![Sink / Source Component Component 1](../../docs/images/readme-diagrams/io-okio-ko-diagram-01.svg)
 
 ### NIO 채널 어댑터 계층
 
 Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
 
-![NIO 채널 어댑터 계층 2](../../docs/images/readme-diagrams/io-okio-ko-diagram-02.svg)
+![NIO Component Component Component 2](../../docs/images/readme-diagrams/io-okio-ko-diagram-02.svg)
 
 ### Coroutines 비동기 I/O 계층
 
 Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니다.
 
-![Coroutines 비동기 I/O 계층 3](../../docs/images/readme-diagrams/io-okio-ko-diagram-03.svg)
+![Coroutines Async I/O Component 3](../../docs/images/readme-diagrams/io-okio-ko-diagram-03.svg)
 
 ### 압축 팩토리 (Compressable)
 
 `Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
 
-![압축 팩토리 (Compressable) 4](../../docs/images/readme-diagrams/io-okio-ko-diagram-04.svg)
+![Component Component (Compressable) 4](../../docs/images/readme-diagrams/io-okio-ko-diagram-04.svg)
 
 ## 시퀀스 다이어그램
 
@@ -410,140 +410,31 @@ Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니�
 
 `CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant CS as CompressableSink
-        participant PB as plainBuffer
-        participant Comp as Compressor
-        participant D as delegate Sink
-
-    C->>CS: write(data, byteCount)
-    CS->>PB: write(data, byteCount)
-    Note over PB: 내부 버퍼에 축적
-
-    C->>CS: write(data2, byteCount2)
-    CS->>PB: write(data2, byteCount2)
-
-    C->>CS: close()
-    CS->>PB: readByteArray()
-    PB-->>CS: plainBytes
-    CS->>Comp: compress(plainBytes)
-    Comp-->>CS: compressedBytes
-    CS->>D: write(compressedBytes)
-    CS->>D: flush()
-    CS->>D: close()
-```
+![Component Sink (One-Shot) — compress on close 5](../../docs/images/readme-diagrams/io-okio-ko-diagram-05.svg)
 
 ### 압축 Sink (Streaming) — compress incrementally
 
 `StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant SS as StreamingCompressSink
-        participant CS as compressingStream
-        participant D as delegate Sink
-
-    Note over SS: 초기화 시 compressor.compressing(delegate.outputStream()) 생성
-
-    C->>SS: write(data, byteCount)
-    SS->>CS: write(bytes, 0, size)
-    CS->>D: 압축된 청크 기록
-
-    C->>SS: write(data2, byteCount2)
-    SS->>CS: write(bytes, 0, size)
-    CS->>D: 압축된 청크 기록
-
-    C->>SS: close()
-    SS->>CS: close()
-    Note over CS: footer/finalize 기록
-    CS->>D: 최종 청크 기록
-    SS->>D: close()
-```
+![Component Sink (Streaming) — compress incrementally 6](../../docs/images/readme-diagrams/io-okio-ko-diagram-06.svg)
 
 ### 복원 Source (One-Shot) — decompress on first read
 
 `DecompressableSource`는 첫 번째 `read()` 호출 시 전체 데이터를 복원하고 캐싱합니다.
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant DS as DecompressableSource
-        participant DB as decodedBuffer
-        participant Comp as Compressor
-        participant D as delegate Source
-
-    C->>DS: read(sink, byteCount)
-    alt 첫 번째 read (decodedReady == false)
-        DS->>D: readByteArray()
-        D-->>DS: compressedBytes
-        DS->>Comp: decompress(compressedBytes)
-        Comp-->>DS: plainBytes
-        DS->>DB: write(plainBytes)
-        Note over DS: decodedReady = true
-    end
-    DS->>DB: read(sink, min(byteCount, remaining))
-    DB-->>C: 복원된 데이터
-```
+![Component Source (One-Shot) — decompress on first read 7](../../docs/images/readme-diagrams/io-okio-ko-diagram-07.svg)
 
 ### Tink 암호화 + 압축 조합 흐름
 
 `Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant CS as CompressableSink
-        participant ES as TinkEncryptSink
-        participant D as delegate Sink
-
-    Note over C: sink.asTinkEncryptSink(encryptor).asCompressSink(compressor)
-
-    C->>CS: write(plainData)
-    Note over CS: 내부 버퍼에 축적
-
-    C->>CS: close()
-    CS->>CS: compress(plainData)
-    CS->>ES: write(compressedData)
-    ES->>ES: encrypt(compressedData)
-    ES->>D: write(encryptedData)
-    ES->>D: flush()
-    D-->>C: 압축 + 암호화된 데이터 기록 완료
-```
+![Tink Encryption + Component Component Component 8](../../docs/images/readme-diagrams/io-okio-ko-diagram-08.svg)
 
 ### Coroutines 비동기 파일 I/O 흐름
 
 `AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
 
-```mermaid
-sequenceDiagram
-        participant C as Coroutine
-        participant BS as BufferedSuspendedSink
-        participant RS as RealBufferedSuspendedSink
-        participant FS as SuspendedFileChannelSink
-        participant CH as AsynchronousFileChannel
-
-    C->>BS: write(buffer) [suspend]
-    BS->>RS: write(buffer) [suspend]
-    RS->>RS: buffer에 축적
-    C->>BS: emit() [suspend]
-    BS->>RS: emit() [suspend]
-    RS->>FS: write(buffer, byteCount) [suspend]
-    FS->>CH: write(ByteBuffer, position)
-    Note over FS,CH: CompletionHandler → suspendCoroutine 변환
-    CH-->>FS: bytesWritten
-    FS-->>RS: 완료
-    RS-->>C: 완료
-
-    C->>BS: close() [suspend]
-    BS->>RS: close() [suspend]
-    RS->>FS: flush() [suspend]
-    FS->>CH: force(false)
-    RS->>FS: close() [suspend]
-    FS->>CH: close()
-```
+![Coroutines Async Component I/O Component 9](../../docs/images/readme-diagrams/io-okio-ko-diagram-09.svg)
 
 ## 라이선스
 

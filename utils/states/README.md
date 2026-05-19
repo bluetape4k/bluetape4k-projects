@@ -187,70 +187,11 @@ machine.send(OrderEvent.Cancel)
 
 ### Synchronous FSM Transition Flow
 
-```mermaid
-sequenceDiagram
-    box "Consumer" #E8F5E9
-    participant Caller
-    end
-    box "State Machine" #E3F2FD
-    participant DefaultStateMachine
-    participant AtomicReference
-    participant TransitionMap
-    end
-    box "Callbacks" #FFF3E0
-    participant OnTransitionCallback
-    end
-
-    Caller->>DefaultStateMachine: transition(event)
-    DefaultStateMachine->>AtomicReference: get() → previousState
-    DefaultStateMachine->>DefaultStateMachine: finalStates.contains(previousState)?
-    alt final state
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>TransitionMap: get(TransitionKey(previousState, event::class))
-    alt no transition
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>DefaultStateMachine: guard?.invoke(previousState, event)?
-    alt guard failed
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>AtomicReference: compareAndSet(previousState, nextState)
-    alt CAS failure (concurrent transition conflict)
-        DefaultStateMachine-->>Caller: throw StateMachineException
-    end
-    DefaultStateMachine->>OnTransitionCallback: invoke(previous, event, next)
-    DefaultStateMachine-->>Caller: TransitionResult(previous, event, next)
-```
+![Synchronous FSM Transition Flow 7](../../docs/images/readme-diagrams/utils-states-diagram-07.svg)
 
 ### Coroutine FSM Transition Flow (`SuspendStateMachine`)
 
-```mermaid
-sequenceDiagram
-    box "Consumer" #E8F5E9
-    participant Caller
-    end
-    box "Coroutine State Machine" #F3E5F5
-    participant SuspendStateMachine
-    participant Mutex
-    participant MutableStateFlow
-    end
-    box "Callbacks" #FFF3E0
-    participant OnTransitionCallback
-    end
-
-    Caller->>SuspendStateMachine: transition(event) [suspend]
-    SuspendStateMachine->>Mutex: withLock { ... }
-    Note over Mutex: concurrent transitions are serialized
-
-    Mutex->>MutableStateFlow: value → previousState
-    SuspendStateMachine->>SuspendStateMachine: validate finalStates / transitions
-    SuspendStateMachine->>SuspendStateMachine: check guard condition
-    SuspendStateMachine->>MutableStateFlow: value = nextState
-    Note over MutableStateFlow: automatically emitted to StateFlow subscribers
-    SuspendStateMachine->>OnTransitionCallback: invoke(previous, event, next)
-    SuspendStateMachine-->>Caller: TransitionResult(previous, event, next)
-```
+![Coroutine FSM Transition Flow (SuspendStateMachine) 8](../../docs/images/readme-diagrams/utils-states-diagram-08.svg)
 
 ## `clinic-appointment` Migration Guide
 

@@ -190,15 +190,15 @@ buf.writeUIntSmart(100000) // 4바이트
 
 ### ByteBuf 확장 API 구조
 
-![ByteBuf 확장 API 구조 1](../../docs/images/readme-diagrams/io-netty-ko-diagram-01.svg)
+![ByteBuf Component API Component 1](../../docs/images/readme-diagrams/io-netty-ko-diagram-01.svg)
 
 ### Smart 인코딩 데이터 흐름
 
-![Smart 인코딩 데이터 흐름 2](../../docs/images/readme-diagrams/io-netty-ko-diagram-02.svg)
+![Smart Component Data Component 2](../../docs/images/readme-diagrams/io-netty-ko-diagram-02.svg)
 
 ### Netty 채널 파이프라인 처리 흐름
 
-![Netty 채널 파이프라인 처리 흐름 3](../../docs/images/readme-diagrams/io-netty-ko-diagram-03.svg)
+![Netty Component Component Component Component 3](../../docs/images/readme-diagrams/io-netty-ko-diagram-03.svg)
 
 ## 테스트
 

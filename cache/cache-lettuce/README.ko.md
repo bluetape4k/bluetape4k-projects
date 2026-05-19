@@ -99,7 +99,7 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + LettuceJCache(back) 구조로,
 `NearJCacheConfig` Builder DSL로 설정합니다.
 
-![JCache 기반 NearCache (nearcache.jcache 패키지) 1](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-01.svg)
+![JCache Component NearCache (nearcache.jcache Component) 1](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-01.svg)
 
 #### NearJCacheConfig DSL
 
@@ -144,36 +144,11 @@ cache.close()
 
 #### LettuceNearCache 계층
 
-![LettuceNearCache 계층 2](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-02.svg)
+![LettuceNearCache Component 2](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-02.svg)
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름
 
-```mermaid
-sequenceDiagram
-    participant App1 as Application (인스턴스 1)
-    participant NC1 as LettuceNearCache (인스턴스 1)
-    participant Front1 as Caffeine (인스턴스 1)
-    participant Redis as Redis Server
-    participant NC2 as LettuceNearCache (인스턴스 2)
-    participant Front2 as Caffeine (인스턴스 2)
-    Note over NC1, Redis: 초기화 — RESP3 CLIENT TRACKING 등록
-    NC1 ->> Redis: CLIENT TRACKING ON (RESP3)
-    NC2 ->> Redis: CLIENT TRACKING ON (RESP3)
-    Note over App1, Front1: 인스턴스 1이 키를 읽어 로컬 캐시에 저장
-    App1 ->> NC1: get("key")
-    NC1 ->> Redis: GET {cacheName}:key
-    Redis -->> NC1: value
-    NC1 ->> Front1: put("key", value)
-    Note over App1, Front2: 인스턴스 1이 키를 수정
-    App1 ->> NC1: put("key", newValue)
-    NC1 ->> Redis: SET {cacheName}:key newValue
-    Redis -->> NC1: OK
-    Note over Redis, Front2: Redis가 추적 중인 인스턴스에 invalidation push
-    Redis ->> NC2: INVALIDATE {cacheName}:key (push)
-    NC2 ->> Front2: invalidate("key")
-    Front2 -->> NC2: (로컬 캐시에서 제거)
-    Note over NC2, Redis: 인스턴스 2가 다음 get 시 Redis에서 최신값 조회
-```
+![RESP3 CLIENT TRACKING Component Invalidation Component 3](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-03.svg)
 
 ### NearCache 아키텍처
 
@@ -485,4 +460,4 @@ val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
 
 ### 변경 요약 Flowchart
 
-![변경 요약 Flowchart 3](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-03.svg)
+![Component Component Flowchart 4](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-04.svg)

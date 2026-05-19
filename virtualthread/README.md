@@ -20,24 +20,7 @@ This structure supports Java 21 and Java 25 in the same project by splitting the
 
 ### ServiceLoader Selection Sequence
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant VT as VirtualThreads
-        participant SL as ServiceLoader
-        participant F21 as Jdk21VirtualThreadFactory
-        participant F25 as Jdk25VirtualThreadFactory
-    App ->> VT: VirtualThreads.executorService()
-    VT ->> SL: ServiceLoader.load(VirtualThreadFactory)
-    SL -->> VT: [Jdk21Factory(21), Jdk25Factory(25), Fallback(MIN)]
-    VT ->> VT: filter isSupported() && sort by priority desc
-    Note over VT: JDK 25 runtime → Jdk25Factory wins
-    VT ->> F25: executorService()
-    F25 -->> App: VirtualThreadExecutorService (JDK 25)
-    Note over App, F25: JDK 21 runtime → Jdk21Factory wins instead
-    VT ->> F21: executorService()
-    F21 -->> App: VirtualThreadExecutorService (JDK 21)
-```
+![ServiceLoader Selection Sequence 3](../docs/images/readme-diagrams/virtualthread-diagram-03.svg)
 
 ---
 

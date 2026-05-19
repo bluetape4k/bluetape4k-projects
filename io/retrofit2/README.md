@@ -21,31 +21,7 @@ Beyond the default OkHttp transport, it supports multiple HTTP backends includin
 
 ### Suspend Function HTTP Request Flow (Result Pattern)
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant API as Retrofit Interface (suspend fun)
-        participant RC as ResultCall
-        participant CF as Call.Factory (e.g. Hc5CallFactory)
-        participant Server as HTTP Server
-
-    App->>API: suspend fun getUser(): Result~User~
-    API->>RC: enqueue(callback)
-    RC->>CF: delegate.enqueue(resultCallback)
-    CF->>Server: HTTP request (async)
-    Server-->>CF: HTTP response
-    alt 2xx success
-        CF-->>RC: onResponse (body != null)
-        RC-->>API: Result.success(body)
-    else 4xx/5xx failure
-        CF-->>RC: onResponse (isSuccessful == false)
-        RC-->>API: Result.failure(HttpException)
-    else network error
-        CF-->>RC: onFailure(throwable)
-        RC-->>API: Result.failure(IOException)
-    end
-    API-->>App: Result~User~
-```
+![Suspend Function HTTP Request Flow (Result Pattern) 3](../../docs/images/readme-diagrams/io-retrofit2-diagram-03.svg)
 
 ## Key Features
 

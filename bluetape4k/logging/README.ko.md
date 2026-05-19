@@ -8,43 +8,19 @@ Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라�
 
 ### 클래스 계층 다이어그램
 
-![클래스 계층 다이어그램 1](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-01.svg)
+![Component Component Diagram 1](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-01.svg)
 
 ---
 
 ### 로깅 처리 흐름
 
-![로깅 처리 흐름 2](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-02.svg)
+![Component Component Component 2](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-02.svg)
 
 ---
 
 ### KLoggingChannel 비동기 로깅 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션 코루틴
-        participant CH as KLoggingChannel
-        participant SF as MutableSharedFlow (버퍼 64)
-        participant BG as 백그라운드 코루틴
-        participant SLF as SLF4J Logger
-
-    App->>CH: log.debug { "Processing event: $id" }
-    CH->>CH: isDebugEnabled 확인
-    alt DEBUG 비활성화
-        CH-->>App: (Lambda 미실행, 즉시 반환)
-    else DEBUG 활성화
-        CH->>SF: emit(LogEvent(DEBUG, msg))
-        alt 버퍼 여유 있음
-            SF-->>App: 즉시 resume (non-blocking)
-        else 버퍼 꽉 참 (64개 초과)
-            SF-->>App: SUSPEND (BackPressure)
-        end
-        BG->>SF: collect LogEvent
-        BG->>SLF: log.debug(msg, error)
-    end
-
-    Note over App,SLF: JVM 종료 시 Shutdown Hook → job.cancel()
-```
+![KLoggingChannel Async Component Component 3](../../docs/images/readme-diagrams/bluetape4k-logging-ko-diagram-03.svg)
 
 ## 주요 기능
 

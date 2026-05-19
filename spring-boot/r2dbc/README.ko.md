@@ -115,39 +115,19 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 ### 핵심 클래스 구조
 
-![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-01.svg)
+![Component Component Component 1](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-01.svg)
 
 ### R2DBC + Coroutines 데이터 흐름
 
-![R2DBC + Coroutines 데이터 흐름 2](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-02.svg)
+![R2DBC + Coroutines Data Component 2](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-02.svg)
 
 ### CRUD 연산 계층 구조
 
-![CRUD 연산 계층 구조 3](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-03.svg)
+![CRUD Component Component Component 3](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-03.svg)
 
 ### 코루틴 변환 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as XyzSuspending 확장
-        participant Ops as R2dbcEntityOperations
-        participant DB as 데이터베이스
-
-    App->>Ext: findOneByIdOrNullSuspending<Post>(id)
-    Ext->>Ops: selectOne(query, Post::class) → Mono<Post>
-    Ops->>DB: SELECT * FROM posts WHERE id=?
-    DB-->>Ops: 행 데이터
-    Ops-->>Ext: Mono<Post>
-    Ext-->>App: Post? (suspend 반환)
-
-    App->>Ext: selectAllSuspending<Post>()
-    Ext->>Ops: select(Post::class) → Flux<Post>
-    Ops->>DB: SELECT * FROM posts
-    DB-->>Ops: 행 스트림
-    Ops-->>Ext: Flux<Post>
-    Ext-->>App: Flow<Post> (코루틴 스트림)
-```
+![Coroutines Component Component 4](../../docs/images/readme-diagrams/spring-boot-r2dbc-ko-diagram-04.svg)
 
 ## 참고
 

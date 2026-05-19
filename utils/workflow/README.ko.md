@@ -12,7 +12,7 @@ Kotlin DSL 기반 워크플로우 오케스트레이션 라이브러리입니다
 
 Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
 
-![개념 개요 1](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-01.svg)
 
 `Work` 단위는 `WorkContext`를 받아 `WorkReport`를 반환하는 이름 있는 람다입니다.  
 플로우는 여러 Work 단위를 실행 전략으로 조합합니다.  
@@ -20,11 +20,11 @@ Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
 
 ### WorkReport 상태
 
-![WorkReport 상태 2](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-02.svg)
+![WorkReport Component 2](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-02.svg)
 
 ### 실행 모델 선택
 
-![실행 모델 선택 3](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-03.svg)
+![Component Component Component 3](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-03.svg)
 
 ## 주요 특징
 
@@ -101,7 +101,7 @@ val report = suspendWork.execute(ctx)
 
 작업을 순서대로 실행; 에러 처리는 `ErrorStrategy` 제어:
 
-![순차 흐름 4](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-04.svg)
+![Component Component 4](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-04.svg)
 
 ```kotlin
 // 동기 버전
@@ -135,7 +135,7 @@ val report = flow.execute(WorkContext())
 
 작업 동시 실행:
 
-![병렬 흐름 5](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-05.svg)
+![Component Component 5](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-05.svg)
 
 ```kotlin
 // 동기 (Virtual Threads)
@@ -158,7 +158,7 @@ val report = flow.execute(WorkContext())
 
 Predicate 기반 분기 실행:
 
-![조건 흐름 6](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-06.svg)
+![Component Component 6](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-06.svg)
 
 ```kotlin
 val flow = conditionalFlow("check-valid") {
@@ -174,7 +174,7 @@ val report = flow.execute(ctx)
 
 조건이 참인 동안 작업 반복:
 
-![반복 흐름 7](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-07.svg)
+![Component Component 7](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-07.svg)
 
 ```kotlin
 // 동기
@@ -202,7 +202,7 @@ val report = flow.execute(WorkContext())
 
 실패한 작업을 지수 백오프로 자동 재시도:
 
-![재시도 흐름 8](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-08.svg)
+![Component Component 8](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-08.svg)
 
 ```kotlin
 val flow = retryFlow("call-api") {

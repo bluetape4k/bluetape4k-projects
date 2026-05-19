@@ -20,33 +20,7 @@ A foundational utility library for Kotlin backend development. It provides the c
 
 ### Validation Chaining Flow
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant R as RequireSupport
-        participant V as Valid Value
-
-    C->>R: username.requireNotBlank("username")
-    alt blank or null
-        R-->>C: IllegalArgumentException
-    else valid
-        R->>C: username (non-null)
-    end
-
-    C->>R: .requireStartsWith("user_", "username")
-    alt prefix mismatch
-        R-->>C: IllegalArgumentException
-    else valid
-        R->>V: username (validated)
-    end
-
-    C->>R: age.requireGe(18, "age")
-    alt less than 18
-        R-->>C: IllegalArgumentException
-    else valid
-        R->>C: age (chained return)
-    end
-```
+![Validation Chaining Flow 3](../../docs/images/readme-diagrams/bluetape4k-core-diagram-03.svg)
 
 ## Features
 

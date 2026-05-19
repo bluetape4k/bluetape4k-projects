@@ -12,32 +12,15 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 ### 타입 변환 클래스 구조
 
-![타입 변환 클래스 구조 1](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-01.svg)
+![Component Component Component Component 1](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-01.svg)
 
 ### Protobuf 타입 변환 흐름
 
-![Protobuf 타입 변환 흐름 2](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-02.svg)
+![Protobuf Component Component Component 2](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-02.svg)
 
 ### 직렬화 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant 앱 as 애플리케이션
-        participant S as ProtobufSerializer
-        participant P as Protobuf 런타임
-
-    Note over 앱,P: 직렬화
-    앱->>S: serialize(protoMessage)
-    S->>P: message.toByteArray()
-    P-->>S: ByteArray (바이너리 Protobuf)
-    S-->>앱: ByteArray
-
-    Note over 앱,P: 역직렬화
-    앱->>S: deserialize(bytes, MyMessage::class.java)
-    S->>P: MyMessage.parseFrom(bytes)
-    P-->>S: MyMessage 객체
-    S-->>앱: MyMessage (실패 시 null)
-```
+![Component Component 3](../../docs/images/readme-diagrams/io-protobuf-ko-diagram-03.svg)
 
 ## 주요 기능
 

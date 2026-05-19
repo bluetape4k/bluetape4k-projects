@@ -73,55 +73,19 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 #### NearCache get() 동작 시퀀스 (front miss → back lookup → front fill)
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as NearCache
-    participant Front as Front Cache (Caffeine)
-    participant Back as Back Cache (Redis/IMap/Redisson)
-    App ->> NC: get("key")
-    NC ->> Front: get("key")
-    alt front hit
-        Front -->> NC: value
-        NC -->> App: value (즉시 반환)
-    else front miss
-        Front -->> NC: null
-        NC ->> Back: get("key")
-        alt back hit
-            Back -->> NC: value
-            NC ->> Front: put("key", value)
-            Front -->> NC: ok
-            NC -->> App: value
-        else back miss
-            Back -->> NC: null
-            NC -->> App: null
-        end
-    end
-```
+![NearCache get() Component Component (front miss → back lookup → front fill) 1](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-01.svg)
 
 #### NearCache put() 동작 시퀀스 (write-through)
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as NearCache
-    participant Front as Front Cache (Caffeine)
-    participant Back as Back Cache (Redis/IMap/Redisson)
-    App ->> NC: put("key", value)
-    NC ->> Back: set("key", value)
-    Back -->> NC: ok
-    NC ->> Front: put("key", value)
-    Front -->> NC: ok
-    NC -->> App: (완료)
-```
+![NearCache put() Component Component (write-through) 2](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-02.svg)
 
 #### NearCacheOperations (Blocking)
 
-![NearCacheOperations (Blocking) 1](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-01.svg)
+![NearCacheOperations (Blocking) 3](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-03.svg)
 
 #### SuspendNearCacheOperations (Coroutine)
 
-![SuspendNearCacheOperations (Coroutine) 2](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-02.svg)
+![SuspendNearCacheOperations (Coroutine) 4](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-04.svg)
 
 #### JCache 기반 NearCache (`nearcache.jcache` 패키지)
 
@@ -130,15 +94,15 @@ sequenceDiagram
 
 ##### SuspendJCache 인터페이스
 
-![SuspendJCache 인터페이스 3](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-03.svg)
+![SuspendJCache Component 5](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-05.svg)
 
 ##### NearJCache (동기)
 
-![NearJCache (동기) 4](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-04.svg)
+![NearJCache (Component) 6](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-06.svg)
 
 ##### SuspendNearJCache (코루틴)
 
-![SuspendNearJCache (코루틴) 5](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-05.svg)
+![SuspendNearJCache (Coroutines) 7](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-07.svg)
 
 ##### NearJCacheConfig Builder DSL
 

@@ -24,27 +24,7 @@ It allows REST API calls to be declared as interface methods, and supports plugg
 
 ### Suspend Function HTTP Request Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant API as Feign interface (suspend fun)
-        participant CB as CoroutineFeign.CoroutineBuilder
-        participant AC as AsyncClient
-        participant Codec as JacksonDecoder2
-        participant Server as HTTP Server
-
-    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
-    CB-->>App: Return MyApi proxy
-
-    App->>API: suspend fun someApi()
-    API->>AC: Async HTTP request
-    AC->>Server: HTTP request
-    Server-->>AC: HTTP response
-    AC-->>API: Response
-    API->>Codec: decode(response, type)
-    Codec-->>API: Deserialized object
-    API-->>App: Return result
-```
+![Suspend Function HTTP Request Flow 4](../../docs/images/readme-diagrams/io-feign-diagram-04.svg)
 
 ## Key Features
 

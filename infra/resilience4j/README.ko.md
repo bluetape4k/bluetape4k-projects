@@ -10,7 +10,7 @@
 
 ### Resilience4j Coroutines 통합 클래스 다이어그램
 
-![Resilience4j Coroutines 통합 클래스 다이어그램 1](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-01.svg)
+![Resilience4j Coroutines Integration Component Diagram 1](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-01.svg)
 
 ### 아키텍처
 
@@ -18,82 +18,11 @@
 
 CLOSED → 실패 누적 → OPEN → Half-Open → 복구 흐름:
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant SuspendDecorators
-    participant Retry
-    participant CircuitBreaker
-    participant Service
-
-    Caller ->> SuspendDecorators: ofSupplier { service.call() }.withCircuitBreaker(cb).withRetry(retry).invoke()
-    Note over CircuitBreaker: 상태: CLOSED
-
-    loop Retry (최대 maxAttempts)
-        SuspendDecorators ->> CircuitBreaker: executeSuspendFunction
-        CircuitBreaker ->> Service: call()
-
-        alt 성공
-            Service -->> CircuitBreaker: result
-            CircuitBreaker -->> SuspendDecorators: result (성공 기록)
-            SuspendDecorators -->> Caller: result
-        else 실패 (실패율 임계치 미달)
-            Service -->> CircuitBreaker: Exception
-            CircuitBreaker -->> Retry: Exception (실패 기록)
-            Retry ->> Retry: waitDuration delay 후 재시도
-        else 실패율 임계치 초과
-            Note over CircuitBreaker: 상태: CLOSED → OPEN
-            CircuitBreaker -->> SuspendDecorators: CallNotPermittedException
-            SuspendDecorators -->> Caller: CallNotPermittedException
-        end
-    end
-
-    Note over CircuitBreaker: waitDurationInOpenState 경과
-    Note over CircuitBreaker: 상태: OPEN → HALF_OPEN
-    Caller ->> CircuitBreaker: 다음 호출 (탐침)
-    CircuitBreaker ->> Service: call()
-    alt 탐침 성공
-        Service -->> CircuitBreaker: result
-        Note over CircuitBreaker: 상태: HALF_OPEN → CLOSED
-    else 탐침 실패
-        Service -->> CircuitBreaker: Exception
-        Note over CircuitBreaker: 상태: HALF_OPEN → OPEN
-    end
-```
+![CircuitBreaker + Retry Component Component Diagram 2](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-02.svg)
 
 #### SuspendCache 동작 시퀀스 다이어그램
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant SuspendCacheImpl
-    participant JCache
-    participant Loader
-
-    Caller ->> SuspendCacheImpl: computeIfAbsent("user:1") { loadUser() }
-    SuspendCacheImpl ->> JCache: containsKey("user:1")
-
-    alt Cache Hit
-        JCache -->> SuspendCacheImpl: true
-        SuspendCacheImpl ->> JCache: get("user:1")
-        JCache -->> SuspendCacheImpl: cachedValue
-        SuspendCacheImpl ->> SuspendCacheImpl: onCacheHit() 이벤트 발행
-        SuspendCacheImpl -->> Caller: cachedValue
-    else Cache Miss
-        JCache -->> SuspendCacheImpl: false
-        SuspendCacheImpl ->> SuspendCacheImpl: onCacheMiss() 이벤트 발행
-        SuspendCacheImpl ->> Loader: loader() suspend 실행
-        Loader -->> SuspendCacheImpl: loadedValue
-        SuspendCacheImpl ->> JCache: put("user:1", loadedValue)
-        SuspendCacheImpl -->> Caller: loadedValue
-    else Cache Error
-        JCache -->> SuspendCacheImpl: Exception
-        SuspendCacheImpl ->> SuspendCacheImpl: onError() 이벤트 발행
-        SuspendCacheImpl ->> Loader: loader() fallback 실행
-        Loader -->> SuspendCacheImpl: loadedValue
-        SuspendCacheImpl -->> Caller: loadedValue
-    end
-```
+![SuspendCache Component Component Diagram 3](../../docs/images/readme-diagrams/infra-resilience4j-ko-diagram-03.svg)
 
 ## 특징
 

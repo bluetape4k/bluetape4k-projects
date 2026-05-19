@@ -79,20 +79,7 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ### Coroutine Conversion Sequence
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant Ext as Coroutine Extension
-        participant Ops as ReactiveCassandraOperations
-        participant DB as Apache Cassandra
-
-    App->>Ext: executeSuspending(cql, args)
-    Ext->>Ops: execute(statement) → Mono/Flux
-    Ops->>DB: Send CQL query
-    DB-->>Ops: ReactiveResultSet
-    Ops-->>Ext: Mono<ReactiveResultSet>
-    Ext-->>App: Return suspend result (coroutine)
-```
+![Coroutine Conversion Sequence 3](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-03.svg)
 
 ## References
 

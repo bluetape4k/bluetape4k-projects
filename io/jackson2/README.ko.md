@@ -303,37 +303,15 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ### 클래스 구조
 
-![클래스 구조 1](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-01.svg)
+![Component Component 1](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-01.svg)
 
 ### Jackson 직렬화 파이프라인
 
-![Jackson 직렬화 파이프라인 2](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-02.svg)
+![Jackson Component Component 2](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-02.svg)
 
 ### 필드 암호화 흐름 (@JsonTinkEncrypt)
 
-```mermaid
-sequenceDiagram
-        participant 앱 as 애플리케이션
-        participant M as ObjectMapper
-        participant S as JsonTinkEncryptSerializer
-        participant T as Google Tink AEAD
-
-    Note over 앱,T: 직렬화 (암호화)
-    앱->>M: writeValueAsString(user)
-    M->>S: serialize(@JsonTinkEncrypt 필드)
-    S->>T: AEAD.encrypt(plaintext)
-    T-->>S: Base64 암호문
-    S-->>M: 암호화된 JSON 필드
-    M-->>앱: JSON 문자열
-
-    Note over 앱,T: 역직렬화 (복호화)
-    앱->>M: readValue(json, User::class)
-    M->>S: deserialize(@JsonTinkEncrypt 필드)
-    S->>T: AEAD.decrypt(ciphertext)
-    T-->>S: 평문
-    S-->>M: 복호화된 값
-    M-->>앱: User 객체
-```
+![Component Encryption Component (@JsonTinkEncrypt) 3](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-03.svg)
 
 ## 의존성
 

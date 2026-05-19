@@ -119,27 +119,7 @@ val update = ("name" setTo "Alice")
 
 ### Coroutine Conversion Sequence
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant Ext as Coroutine Extension
-        participant Ops as ReactiveMongoOperations
-        participant DB as MongoDB
-
-    App->>Ext: findAllAsFlow<User>()
-    Ext->>Ops: findAll(User::class) → Flux<User>
-    Ops->>DB: find({}) query
-    DB-->>Ops: Document stream
-    Ops-->>Ext: Flux<User>
-    Ext-->>App: Flow<User> (coroutine stream)
-
-    App->>Ext: insertSuspending(user)
-    Ext->>Ops: insert(user) → Mono<User>
-    Ops->>DB: insertOne request
-    DB-->>Ops: Inserted document
-    Ops-->>Ext: Mono<User>
-    Ext-->>App: User (suspend result)
-```
+![Coroutine Conversion Sequence 4](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-04.svg)
 
 ## References
 

@@ -88,7 +88,7 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 `NearJCache<K,V>` /
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + Hazelcast IMap(back) 구조입니다.
 
-![JCache 기반 NearCache (nearcache.jcache 패키지) 1](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-01.svg)
+![JCache Component NearCache (nearcache.jcache Component) 1](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-01.svg)
 
 > Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
 
@@ -119,31 +119,11 @@ suspendNearJCache.close()
 
 ### HazelcastNearCache 계층
 
-![HazelcastNearCache 계층 2](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-02.svg)
+![HazelcastNearCache Component 2](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-02.svg)
 
 ### IMap EntryListener 기반 Invalidation 흐름
 
-```mermaid
-sequenceDiagram
-    participant App1 as Application (인스턴스 1)
-    participant NC1 as HazelcastNearCache (인스턴스 1)
-    participant Front1 as Caffeine (인스턴스 1)
-    participant IMap as Hazelcast IMap (분산)
-    participant Listener2 as EntryListener (인스턴스 2)
-    participant Front2 as Caffeine (인스턴스 2)
-    Note over NC1, IMap: 초기화 — IMap.addEntryListener 등록
-    NC1 ->> IMap: addEntryListener(entryListener, true)
-    Listener2 ->> IMap: addEntryListener(entryListener, true)
-    Note over App1, Front1: 인스턴스 1이 키를 수정
-    App1 ->> NC1: put("key", newValue)
-    NC1 ->> Front1: put("key", newValue)
-    NC1 ->> IMap: set("key", newValue)
-    Note over IMap, Front2: IMap이 EntryUpdated 이벤트 발행
-    IMap ->> Listener2: entryUpdated("key", newValue)
-    Listener2 ->> Front2: invalidate("key")
-    Front2 -->> Listener2: (로컬 캐시에서 제거)
-    Note over Front2: 다음 get("key") 시 IMap에서 최신값 조회
-```
+![IMap EntryListener Component Invalidation Component 3](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-03.svg)
 
 ## NearCache 아키텍처
 

@@ -107,15 +107,15 @@ sf.withSessionSuspending { session ->
 
 ### Reactive Repository 클래스 구조
 
-![Reactive Repository 클래스 구조 1](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-01.svg)
+![Reactive Repository Component Component 1](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-01.svg)
 
 ### Hibernate Reactive API 구조
 
-![Hibernate Reactive API 구조 2](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-02.svg)
+![Hibernate Reactive API Component 2](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-02.svg)
 
 ### 세션 유형 비교
 
-![세션 유형 비교 3](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-03.svg)
+![Component Type Component 3](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-03.svg)
 
 ## 버전 요구사항
 

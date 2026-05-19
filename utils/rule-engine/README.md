@@ -30,47 +30,15 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 
 ### Rule Execution Sequence
 
-```mermaid
-sequenceDiagram
-    box "Consumer" #E8F5E9
-    participant Caller
-    end
-    box "Rule Engine" #E3F2FD
-    participant RuleEngine
-    participant RuleListener
-    end
-    box "Rules" #FFF3E0
-    participant Rule
-    participant Facts
-    end
-    Caller ->> RuleEngine: fire(ruleSet, facts)
-
-    loop each Rule (priority order)
-        RuleEngine ->> RuleListener: beforeEvaluate(rule, facts)
-        RuleEngine ->> Rule: evaluate(facts)
-        Rule -->> RuleEngine: true / false
-
-        alt condition = true
-            RuleEngine ->> Rule: execute(facts)
-            Rule ->> Facts: modify values
-            RuleEngine ->> RuleListener: onSuccess(rule, facts)
-            Note over RuleEngine: skipOnFirstAppliedRule → stop
-        else condition = false
-            RuleEngine ->> RuleListener: onFailure(rule, facts)
-            Note over RuleEngine: skipOnFirstNonTriggeredRule → stop
-        end
-    end
-
-    RuleEngine -->> Caller: done
-```
+![Rule Execution Sequence 5](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.svg)
 
 ### InferenceRuleEngine (Forward Chaining)
 
-![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.svg)
+![InferenceRuleEngine (Forward Chaining) 6](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.svg)
 
 ### Rule Engine Selection Guide
 
-![Rule Engine Selection Guide 6](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.svg)
+![Rule Engine Selection Guide 7](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.svg)
 
 ## Core Features
 
@@ -217,7 +185,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### Script Engine Selection Guide
 
-![Script Engine Selection Guide 7](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.svg)
+![Script Engine Selection Guide 8](../../docs/images/readme-diagrams/utils-rule-engine-diagram-08.svg)
 
 | Scenario | Recommended | Reason |
 |----------|-------------|--------|

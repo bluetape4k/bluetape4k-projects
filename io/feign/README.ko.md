@@ -12,39 +12,19 @@
 
 ### 전체 아키텍처: Feign + Coroutines 통합
 
-![전체 아키텍처: Feign + Coroutines 통합 1](../../docs/images/readme-diagrams/io-feign-ko-diagram-01.svg)
+![Component Architecture: Feign + Coroutines Integration 1](../../docs/images/readme-diagrams/io-feign-ko-diagram-01.svg)
 
 ### 클래스 계층: Feign + Coroutines 통합 구조
 
-![클래스 계층: Feign + Coroutines 통합 구조 2](../../docs/images/readme-diagrams/io-feign-ko-diagram-02.svg)
+![Component Component: Feign + Coroutines Integration Component 2](../../docs/images/readme-diagrams/io-feign-ko-diagram-02.svg)
 
 ### HTTP 전송 계층 옵션
 
-![HTTP 전송 계층 옵션 3](../../docs/images/readme-diagrams/io-feign-ko-diagram-03.svg)
+![HTTP Component Component Component 3](../../docs/images/readme-diagrams/io-feign-ko-diagram-03.svg)
 
 ### suspend 함수 기반 HTTP 요청 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant API as Feign 인터페이스(suspend fun)
-        participant CB as CoroutineFeign.CoroutineBuilder
-        participant AC as AsyncClient
-        participant Codec as JacksonDecoder2
-        participant Server as HTTP 서버
-
-    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
-    CB-->>App: MyApi 프록시 반환
-
-    App->>API: suspend fun someApi()
-    API->>AC: 비동기 HTTP 요청
-    AC->>Server: HTTP 요청
-    Server-->>AC: HTTP 응답
-    AC-->>API: Response
-    API->>Codec: decode(response, type)
-    Codec-->>API: 역직렬화된 객체
-    API-->>App: 결과 반환
-```
+![suspend Function Component HTTP Request Component 4](../../docs/images/readme-diagrams/io-feign-ko-diagram-04.svg)
 
 ## 주요 기능
 

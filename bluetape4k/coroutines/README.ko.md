@@ -16,39 +16,19 @@
 
 ### 모듈 구성 개요
 
-![모듈 구성 개요 1](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-01.svg)
+![Component Configuration Component 1](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-01.svg)
 
 ---
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-02.svg)
+![Component Diagram 2](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-02.svg)
 
 ---
 
 ### DeferredValue 사용 흐름
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant DV as DeferredValue
-        participant Co as 코루틴 (백그라운드)
-
-    C->>DV: deferredValueOf(block)
-    DV->>Co: 즉시 코루틴 시작 (eager)
-
-    C->>DV: .map(transform)
-    DV-->>C: 새 DeferredValue (doubled) 반환
-
-    C->>DV: doubled.await()
-    DV->>Co: 결과 대기 (suspend)
-    Co-->>DV: 42
-    DV-->>C: 42
-
-    Note over C,Co: value 프로퍼티는 블로킹 접근 (비추천)
-    C->>DV: doubled.value
-    DV-->>C: 42 (스레드 블록)
-```
+![DeferredValue Component Component 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-03.svg)
 
 ---
 
@@ -296,7 +276,7 @@ suspend fun traceId(): String? =
 
 ### 1. Flow 확장 함수 카테고리 개요
 
-![1. Flow 확장 함수 카테고리 개요 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-03.svg)
+![1. Flow Component Function Component Component 4](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-04.svg)
 
 ---
 
@@ -304,20 +284,7 @@ suspend fun traceId(): String? =
 
 입력 요소를 `n`개씩 묶어 `List`로 방출합니다. 마지막 불완전 청크도 방출(`partialWindow=true` 기본값).
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant C as chunked(3)
-        participant R as Collector
-    S ->> C: emit(1)
-    S ->> C: emit(2)
-    S ->> C: emit(3)
-    C ->> R: emit([1, 2, 3])
-    S ->> C: emit(4)
-    S ->> C: emit(5)
-    Note over C: 소스 완료, partialWindow=true
-    C ->> R: emit([4, 5])
-```
+![2. chunked(n) — Component Component Component 5](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-05.svg)
 
 ---
 
@@ -325,23 +292,7 @@ sequenceDiagram
 
 `size` 크기 윈도우를 `step`씩 이동하며 방출합니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant W as windowed(size=3, step=2)
-        participant R as Collector
-    S ->> W: emit(1)
-    S ->> W: emit(2)
-    S ->> W: emit(3)
-    W ->> R: emit([1, 2, 3])
-    Note over W: step=2이므로 앞 2개 버림 → 버퍼=[3]
-    S ->> W: emit(4)
-    S ->> W: emit(5)
-    W ->> R: emit([3, 4, 5])
-    Note over W: step=2이므로 앞 2개 버림 → 버퍼=[5]
-    Note over S: 소스 완료, partialWindow=false
-    Note over W: 불완전 윈도우 버림
-```
+![3. windowed(size, step) — Component Component 6](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-06.svg)
 
 ---
 
@@ -349,26 +300,7 @@ sequenceDiagram
 
 `sliding`은 `windowed(size, step=1)`과 동일합니다. `bufferedSliding`은 버퍼를 유지하며 매 요소마다 스냅샷을 방출합니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant SL as sliding(2)
-        participant BS as bufferedSliding(2)
-    S ->> SL: emit(1)
-    S ->> SL: emit(2)
-    SL -->> SL: 윈도우=[1,2] 가득 참
-    SL ->> SL: emit([1, 2])
-    S ->> SL: emit(3)
-    SL ->> SL: emit([2, 3])
-    S ->> BS: emit(1)
-    BS ->> BS: emit([1])
-    S ->> BS: emit(2)
-    BS ->> BS: emit([1, 2])
-    S ->> BS: emit(3)
-    BS ->> BS: emit([2, 3])
-    Note over BS: 소스 완료 후 버퍼 비움
-    BS ->> BS: emit([3])
-```
+![4. sliding(n) / bufferedSliding(n) — 1Component Component Component 7](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-07.svg)
 
 ---
 
@@ -378,27 +310,7 @@ sequenceDiagram
 
 > **성능 개선 (2026-04-21)**: `FlowParallel`과 `FlowSequential`을 레일별 `Channel` 버퍼와 `select` 기반 fan-in으로 재설계했습니다. 벤치마크 결과 전체 병렬 연산자 처리량이 **geomean +32.7%** 향상되었으며, `mapParallel`은 최대 **+506%** 성능이 개선되었습니다. `AsyncFlow`도 `LazyDeferred` 원자 래퍼 제거로 성능이 향상되었습니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant MP as mapParallel(parallelism=3)
-        participant R as Collector
-    S ->> MP: emit(1)
-    S ->> MP: emit(2)
-    S ->> MP: emit(3)
-    Note over MP: 코루틴 3개 동시 실행
-    par 병렬 변환
-        MP -->> MP: transform(1) → 10
-    and
-        MP -->> MP: transform(2) → 20
-    and
-        MP -->> MP: transform(3) → 30
-    end
-    MP ->> R: emit(10 or 20 or 30, 도착 순서)
-    MP ->> R: emit(...)
-    MP ->> R: emit(...)
-    Note over R: 결과 순서는 실행 속도에 따라 달라짐
-```
+![5. mapParallel(parallelism) — Component Component 8](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-08.svg)
 
 ---
 
@@ -406,25 +318,7 @@ sequenceDiagram
 
 inner Flow를 즉시(eager) 동시 실행하되, **출력은 source 순서**를 유지합니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant CM as concatMapEager
-        participant R as Collector
-    S ->> CM: emit(1) → transform → flowOf(1, 10)
-    S ->> CM: emit(2) → transform → flowOf(2, 20)
-    Note over CM: inner Flow 2개 동시 수집 시작
-    par eager 수집
-        CM -->> CM: 큐A에 1, 10 적재
-    and
-        CM -->> CM: 큐B에 2, 20 적재
-    end
-    Note over CM: source 순서(A→B)로 큐 비움
-    CM ->> R: emit(1)
-    CM ->> R: emit(10)
-    CM ->> R: emit(2)
-    CM ->> R: emit(20)
-```
+![6. concatMapEager { } — Component Component eager Component Component 9](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-09.svg)
 
 ---
 
@@ -432,21 +326,7 @@ sequenceDiagram
 
 `timeout` 동안 들어온 값을 버퍼링해 한 번에 `List`로 방출합니다. 연속 입력이 오면 타임아웃을 갱신합니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant BD as bufferingDebounce(200ms)
-        participant R as Collector
-    S ->> BD: emit(A) [t=0ms]
-    S ->> BD: emit(B) [t=50ms]
-    S ->> BD: emit(C) [t=80ms]
-    Note over BD: timeout 재계산 중...
-    Note over BD: t=280ms, timeout 만료
-    BD ->> R: emit([A, B, C])
-    S ->> BD: emit(D) [t=400ms]
-    Note over S: 소스 완료
-    BD ->> R: emit([D])
-```
+![7. bufferingDebounce(timeout) — Component Component 10](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-10.svg)
 
 ---
 
@@ -454,58 +334,13 @@ sequenceDiagram
 
 고정 윈도우 내에서 첫 요소(leading), 마지막 요소(trailing), 또는 둘 다(both)를 방출합니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Source (매 200ms 방출)
-        participant TL as throttleLeading(500ms)
-        participant TT as throttleTrailing(500ms)
-    Note over S, TT: 입력: 1(0ms) 2(200ms) 3(400ms) 4(600ms) 5(800ms) 6(1000ms)
-    S ->> TL: emit(1) [0ms] — 윈도우 시작
-    Note over TL: 2, 3 무시
-    S ->> TL: emit(4) [600ms] — 새 윈도우
-    Note over TL: 5 무시
-    S ->> TL: emit(7) [1200ms] — 새 윈도우
-    Note over TL: 결과: [1, 4, 7, ...]
-    S ->> TT: emit(1) [0ms] — 버퍼 시작
-    S ->> TT: emit(2) [200ms]
-    S ->> TT: emit(3) [400ms]
-    Note over TT: 500ms 윈도우 종료 → 마지막=3 방출
-    TT -->> TT: emit(3)
-    S ->> TT: emit(4) [600ms]
-    Note over TT: 결과: [3, 6, 9, ...]
-```
+![8. throttleLeading / throttleTrailing / throttleBoth — Throttle 11](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-11.svg)
 
 ---
 
 ### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — 게이트 제어
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant N as Notifier Flow
-        participant TU as takeUntil
-        participant SU as skipUntil
-        participant R as Collector
-    Note over S, R: takeUntil: notifier 첫 이벤트 전까지만 방출
-    S ->> TU: emit(1)
-    TU ->> R: emit(1)
-    S ->> TU: emit(2)
-    TU ->> R: emit(2)
-    N ->> TU: emit(signal) ← 중단 트리거
-    Note over TU: 이후 값 차단
-    S ->> TU: emit(3)
-    Note over TU: 차단됨 (방출 안 함)
-    Note over S, R: skipUntil: notifier 첫 이벤트 이후부터 방출
-    S ->> SU: emit(A)
-    Note over SU: 게이트 닫힘, 버림
-    S ->> SU: emit(B)
-    Note over SU: 버림
-    N ->> SU: emit(signal) ← 게이트 오픈
-    S ->> SU: emit(C)
-    SU ->> R: emit(C)
-    S ->> SU: emit(D)
-    SU ->> R: emit(D)
-```
+![9. takeUntil(notifier) / skipUntil(notifier) — Component Component 12](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-12.svg)
 
 ---
 
@@ -513,26 +348,7 @@ sequenceDiagram
 
 여러 Flow를 동시 수집해 도착 순서대로 방출합니다.
 
-```mermaid
-sequenceDiagram
-        participant F1 as Flow A
-        participant F2 as Flow B
-        participant M as merge()
-        participant R as Collector
-
-    par 동시 수집
-        F1 ->> M: emit(1)
-        F2 ->> M: emit(X)
-        F1 ->> M: emit(2)
-        F2 ->> M: emit(Y)
-    end
-    Note over M: 도착 순서대로 큐에 적재
-    M ->> R: emit(1 or X, 도착 순서)
-    M ->> R: emit(X or 1, ...)
-    M ->> R: emit(2 or Y, ...)
-    M ->> R: emit(Y or 2, ...)
-    Note over R: 개별 Flow 내부 순서(1→2, X→Y)는 유지됨
-```
+![10. merge(flows) — Component Component 13](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-13.svg)
 
 ---
 
@@ -540,20 +356,7 @@ sequenceDiagram
 
 인접한 두 요소를 `Pair`로 묶거나 변환 함수를 적용합니다. `zipWithNext`는 `pairwise`의 별칭입니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant P as pairwise()
-        participant R as Collector
-    S ->> P: emit(1)
-    Note over P: 버퍼=[1], 쌍 미완성
-    S ->> P: emit(2)
-    P ->> R: emit((1, 2))
-    S ->> P: emit(3)
-    P ->> R: emit((2, 3))
-    S ->> P: emit(4)
-    P ->> R: emit((3, 4))
-```
+![11. pairwise() / zipWithNext() — Component Component 14](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-14.svg)
 
 ---
 
@@ -561,20 +364,7 @@ sequenceDiagram
 
 collect 시점에 `initialSupplier`를 호출해 초기값을 생성한 뒤 누적 결과를 방출합니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant SW as scanWith({ 0 }) { acc, v -> acc + v }
-        participant R as Collector
-    Note over SW: collect 시작 → initialSupplier() 호출 → acc=0
-    SW ->> R: emit(0)
-    S ->> SW: emit(1)
-    SW ->> R: emit(1)
-    S ->> SW: emit(2)
-    SW ->> R: emit(3)
-    S ->> SW: emit(3)
-    SW ->> R: emit(6)
-```
+![12. scanWith(initial) { } — Component Component Component 15](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-15.svg)
 
 ---
 
@@ -582,26 +372,7 @@ sequenceDiagram
 
 각 요소를 `Deferred`로 비동기 시작하지만, **결과 방출 순서는 입력 순서를 유지**합니다. `mapParallel`과 달리 순서가 보장됩니다.
 
-```mermaid
-sequenceDiagram
-        participant S as Flow Source
-        participant AF as Flow.async { }
-        participant R as Collector
-    S ->> AF: emit(1) → LazyDeferred 시작
-    S ->> AF: emit(2) → LazyDeferred 시작
-    S ->> AF: emit(3) → LazyDeferred 시작
-    Note over AF: 3개 Deferred 동시 실행 중
-    par 비동기 계산
-        AF -->> AF: Deferred(1) 완료
-        AF -->> AF: Deferred(3) 완료 (더 빠를 수도 있음)
-        AF -->> AF: Deferred(2) 완료
-    end
-    Note over AF: 입력 순서대로 await()
-    AF ->> R: emit(result_1)
-    AF ->> R: emit(result_2)
-    AF ->> R: emit(result_3)
-    Note over R: 항상 1→2→3 순서 유지
-```
+![13. AsyncFlow — Component Component Async Component 16](../../docs/images/readme-diagrams/bluetape4k-coroutines-ko-diagram-16.svg)
 
 ---
 

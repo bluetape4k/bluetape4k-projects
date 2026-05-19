@@ -96,35 +96,7 @@ Typical usage includes:
 
 ### 2-Tier NearCache Flow
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as HazelcastNearCache
-    participant L1 as Caffeine (L1)
-    participant L2 as IMap (L2)
-
-    App->>NC: get("key")
-    NC->>L1: get("key")
-    alt L1 hit
-        L1-->>NC: value
-        NC-->>App: value
-    else L1 miss
-        L1-->>NC: null
-        NC->>L2: get("key")
-        alt L2 hit
-            L2-->>NC: value
-            NC->>L1: put("key", value)
-            NC-->>App: value
-        else L2 miss
-            L2-->>NC: null
-            NC-->>App: null
-        end
-    end
-
-    Note over L2,L1: Invalidation via EntryListener
-    L2-)NC: EntryEvent (updated/removed)
-    NC->>L1: invalidate("key")
-```
+![2-Tier NearCache Flow 2](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.svg)
 
 ## `HazelcastNearCacheConfig` Options
 
