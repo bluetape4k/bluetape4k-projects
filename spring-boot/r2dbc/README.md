@@ -127,27 +127,7 @@ Coroutine functions follow the `XyzSuspending` naming pattern.
 
 ### Coroutine Conversion Sequence
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant Ext as XyzSuspending Extension
-        participant Ops as R2dbcEntityOperations
-        participant DB as Database
-
-    App->>Ext: findOneByIdOrNullSuspending<Post>(id)
-    Ext->>Ops: selectOne(query, Post::class) → Mono<Post>
-    Ops->>DB: SELECT * FROM posts WHERE id=?
-    DB-->>Ops: Row data
-    Ops-->>Ext: Mono<Post>
-    Ext-->>App: Post? (suspend return)
-
-    App->>Ext: selectAllSuspending<Post>()
-    Ext->>Ops: select(Post::class) → Flux<Post>
-    Ops->>DB: SELECT * FROM posts
-    DB-->>Ops: Row stream
-    Ops-->>Ext: Flux<Post>
-    Ext-->>App: Flow<Post> (coroutine stream)
-```
+![Coroutine Conversion Sequence diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)
 
 ## References
 

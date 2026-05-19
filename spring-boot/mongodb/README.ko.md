@@ -119,27 +119,7 @@ val update = ("name" setTo "Alice")
 
 ### 코루틴 변환 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as 코루틴 확장
-        participant Ops as ReactiveMongoOperations
-        participant DB as MongoDB
-
-    App->>Ext: findAllAsFlow<User>()
-    Ext->>Ops: findAll(User::class) → Flux<User>
-    Ops->>DB: find({}) 쿼리
-    DB-->>Ops: 문서 스트림
-    Ops-->>Ext: Flux<User>
-    Ext-->>App: Flow<User> (코루틴 스트림)
-
-    App->>Ext: insertSuspending(user)
-    Ext->>Ops: insert(user) → Mono<User>
-    Ops->>DB: insertOne 요청
-    DB-->>Ops: 삽입된 문서
-    Ops-->>Ext: Mono<User>
-    Ext-->>App: User (suspend 결과)
-```
+![Coroutine diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
 
 ## 참고 자료
 

@@ -24,27 +24,7 @@
 
 ### suspend 함수 기반 HTTP 요청 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant API as Feign 인터페이스(suspend fun)
-        participant CB as CoroutineFeign.CoroutineBuilder
-        participant AC as AsyncClient
-        participant Codec as JacksonDecoder2
-        participant Server as HTTP 서버
-
-    App->>CB: coroutineFeignBuilderOf().client<MyApi>(baseUrl)
-    CB-->>App: MyApi 프록시 반환
-
-    App->>API: suspend fun someApi()
-    API->>AC: 비동기 HTTP 요청
-    AC->>Server: HTTP 요청
-    Server-->>AC: HTTP 응답
-    AC-->>API: Response
-    API->>Codec: decode(response, type)
-    Codec-->>API: 역직렬화된 객체
-    API-->>App: 결과 반환
-```
+![suspend HTTP Request diagram](../../docs/images/readme-diagrams/io-feign-sequence-01.png)
 
 ## 주요 기능
 

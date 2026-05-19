@@ -393,22 +393,7 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### R2DBC Query Execution Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant R2DBC as DatabaseClient Extension
-        participant Spring as Spring R2DBC
-        participant DB as Database
-
-    App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
-    R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
-    Spring->>DB: R2DBC query (non-blocking)
-    DB-->>Spring: Flux~Row~
-    Spring-->>R2DBC: Flux~Row~
-    R2DBC-->>App: Flow~T~ (coroutine conversion)
-
-    Note over App,DB: All I/O is non-blocking, executed in coroutine context
-```
+![R2DBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
 
 ### JDBC vs R2DBC Comparison
 

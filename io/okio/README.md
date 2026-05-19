@@ -435,140 +435,31 @@ The
 
 `CompressableSink` accumulates all data in an internal buffer and compresses everything at `close()`.
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant CS as CompressableSink
-        participant PB as plainBuffer
-        participant Comp as Compressor
-        participant D as delegate Sink
-
-    C->>CS: write(data, byteCount)
-    CS->>PB: write(data, byteCount)
-    Note over PB: Accumulated in internal buffer
-
-    C->>CS: write(data2, byteCount2)
-    CS->>PB: write(data2, byteCount2)
-
-    C->>CS: close()
-    CS->>PB: readByteArray()
-    PB-->>CS: plainBytes
-    CS->>Comp: compress(plainBytes)
-    Comp-->>CS: compressedBytes
-    CS->>D: write(compressedBytes)
-    CS->>D: flush()
-    CS->>D: close()
-```
+![Compression Sink (One-Shot) — compress on close diagram](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
 
 ### Compression Sink (Streaming) — compress incrementally
 
 `StreamingCompressSink` compresses data immediately as it arrives, making it ideal for large-scale streaming.
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant SS as StreamingCompressSink
-        participant CS as compressingStream
-        participant D as delegate Sink
-
-    Note over SS: On init, creates compressor.compressing(delegate.outputStream())
-
-    C->>SS: write(data, byteCount)
-    SS->>CS: write(bytes, 0, size)
-    CS->>D: Write compressed chunk
-
-    C->>SS: write(data2, byteCount2)
-    SS->>CS: write(bytes, 0, size)
-    CS->>D: Write compressed chunk
-
-    C->>SS: close()
-    SS->>CS: close()
-    Note over CS: Write footer/finalize
-    CS->>D: Write final chunk
-    SS->>D: close()
-```
+![Compression Sink (Streaming) — compress incrementally diagram](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
 
 ### Decompression Source (One-Shot) — decompress on first read
 
 `DecompressableSource` decompresses and caches all data on the first `read()` call.
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant DS as DecompressableSource
-        participant DB as decodedBuffer
-        participant Comp as Compressor
-        participant D as delegate Source
-
-    C->>DS: read(sink, byteCount)
-    alt First read (decodedReady == false)
-        DS->>D: readByteArray()
-        D-->>DS: compressedBytes
-        DS->>Comp: decompress(compressedBytes)
-        Comp-->>DS: plainBytes
-        DS->>DB: write(plainBytes)
-        Note over DS: decodedReady = true
-    end
-    DS->>DB: read(sink, min(byteCount, remaining))
-    DB-->>C: Decompressed data
-```
+![Decompression Source (One-Shot) — decompress on first read diagram](../../docs/images/readme-diagrams/io-okio-sequence-03.png)
 
 ### Tink Encryption + Compression Combined Flow
 
 Compression followed by encryption using chained Sink decorators.
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant CS as CompressableSink
-        participant ES as TinkEncryptSink
-        participant D as delegate Sink
-
-    Note over C: sink.asTinkEncryptSink(encryptor).asCompressSink(compressor)
-
-    C->>CS: write(plainData)
-    Note over CS: Accumulated in internal buffer
-
-    C->>CS: close()
-    CS->>CS: compress(plainData)
-    CS->>ES: write(compressedData)
-    ES->>ES: encrypt(compressedData)
-    ES->>D: write(encryptedData)
-    ES->>D: flush()
-    D-->>C: Compressed + encrypted data written
-```
+![Tink Encryption + Compression Combined Flow diagram](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
 
 ### Coroutines Async File I/O Flow
 
 Non-blocking file I/O using `AsynchronousFileChannel`.
 
-```mermaid
-sequenceDiagram
-        participant C as Coroutine
-        participant BS as BufferedSuspendedSink
-        participant RS as RealBufferedSuspendedSink
-        participant FS as SuspendedFileChannelSink
-        participant CH as AsynchronousFileChannel
-
-    C->>BS: write(buffer) [suspend]
-    BS->>RS: write(buffer) [suspend]
-    RS->>RS: Accumulate in buffer
-    C->>BS: emit() [suspend]
-    BS->>RS: emit() [suspend]
-    RS->>FS: write(buffer, byteCount) [suspend]
-    FS->>CH: write(ByteBuffer, position)
-    Note over FS,CH: CompletionHandler → suspendCoroutine conversion
-    CH-->>FS: bytesWritten
-    FS-->>RS: Complete
-    RS-->>C: Complete
-
-    C->>BS: close() [suspend]
-    BS->>RS: close() [suspend]
-    RS->>FS: flush() [suspend]
-    FS->>CH: force(false)
-    RS->>FS: close() [suspend]
-    FS->>CH: close()
-```
+![Coroutines Async File I / O Flow diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
 
 ## License
 

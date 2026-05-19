@@ -34,18 +34,7 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 ### Sequence Diagram — httpbin GET
 
-```mermaid
-sequenceDiagram
-    participant CLIENT as Test / Client
-    participant SERVER as BluetapeHttpServer (Docker)
-    participant CTRL as HttpbinController
-
-    CLIENT->>SERVER: GET http://host:80/httpbin/get
-    SERVER->>CTRL: dispatch /httpbin/get
-    CTRL->>CTRL: build HttpbinResponse\n(url, method, headers, origin)
-    CTRL-->>SERVER: HttpbinResponse JSON
-    SERVER-->>CLIENT: 200 OK + JSON body
-```
+![Sequence Diagram — httpbin GET diagram](../../docs/images/readme-diagrams/testing-mock-web-server-sequence-01.png)
 
 ## Features
 

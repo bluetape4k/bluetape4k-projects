@@ -484,25 +484,7 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### JDBC Query Execution Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant DS as DataSource Extension
-        participant Conn as Connection Extension
-        participant PS as PreparedStatement
-        participant DB as Database
-
-    App->>DS: withConnect { conn -> ... }
-    DS->>Conn: executeQuery(sql, params) { rs -> ... }
-    Conn->>PS: prepareStatement(sql)
-    Conn->>PS: setParameters(params)
-    PS->>DB: executeQuery()
-    DB-->>PS: ResultSet
-    PS-->>Conn: ResultSet
-    Conn-->>App: Processed result
-
-    Note over DS,DB: withTransaction handles auto commit/rollback
-```
+![JDBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
 
 ## References
 

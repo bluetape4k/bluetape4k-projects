@@ -30,39 +30,7 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 
 ### Rule Execution Sequence
 
-```mermaid
-sequenceDiagram
-    box "Consumer" #E8F5E9
-    participant Caller
-    end
-    box "Rule Engine" #E3F2FD
-    participant RuleEngine
-    participant RuleListener
-    end
-    box "Rules" #FFF3E0
-    participant Rule
-    participant Facts
-    end
-    Caller ->> RuleEngine: fire(ruleSet, facts)
-
-    loop each Rule (priority order)
-        RuleEngine ->> RuleListener: beforeEvaluate(rule, facts)
-        RuleEngine ->> Rule: evaluate(facts)
-        Rule -->> RuleEngine: true / false
-
-        alt condition = true
-            RuleEngine ->> Rule: execute(facts)
-            Rule ->> Facts: modify values
-            RuleEngine ->> RuleListener: onSuccess(rule, facts)
-            Note over RuleEngine: skipOnFirstAppliedRule → stop
-        else condition = false
-            RuleEngine ->> RuleListener: onFailure(rule, facts)
-            Note over RuleEngine: skipOnFirstNonTriggeredRule → stop
-        end
-    end
-
-    RuleEngine -->> Caller: done
-```
+![Rule Execution Sequence diagram](../../docs/images/readme-diagrams/utils-rule-engine-sequence-01.png)
 
 ### InferenceRuleEngine (Forward Chaining)
 

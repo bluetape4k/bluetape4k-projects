@@ -21,51 +21,11 @@ A Kotlin extension library for implementing gRPC servers and clients.
 
 ### gRPC Server-Client Communication Sequence
 
-```mermaid
-sequenceDiagram
-        participant C as GrpcClient
-        participant CH as ManagedChannel
-        participant S as GrpcServer
-        participant SVC as ServiceImpl
-
-    C->>CH: ManagedChannelBuilder.forAddress(host, port)
-    CH->>S: Establish TCP connection
-    S->>SVC: Register service
-
-    C->>CH: stub.doSomething(request)
-    CH->>S: Send HTTP/2 request
-    S->>SVC: Invoke method
-    SVC-->>S: Generate response
-    S-->>CH: HTTP/2 response
-    CH-->>C: Return Response
-
-    C->>CH: channel.shutdown()
-    CH->>S: Close connection
-```
+![gRPC Server-Client Communication Sequence diagram](../../docs/images/readme-diagrams/io-grpc-sequence-01.png)
 
 ### In-process Test Sequence
 
-```mermaid
-sequenceDiagram
-        participant T as Test code
-        participant IS as InprocessServer
-        participant SVC as ServiceImpl
-        participant IC as InprocessClient
-
-    T->>IS: InProcessServerBuilder.forName("test-server")
-    IS->>SVC: Register and start service
-    T->>IC: InProcessChannelBuilder.forName("test-server")
-    IC->>IS: Connect via in-memory channel
-
-    T->>IC: stub.call(request)
-    IC->>IS: In-memory transport (no network)
-    IS->>SVC: Invoke method
-    SVC-->>IC: Response
-    IC-->>T: Return Response
-
-    T->>IS: server.shutdown()
-    T->>IC: channel.shutdown()
-```
+![In-process Test Sequence diagram](../../docs/images/readme-diagrams/io-grpc-sequence-02.png)
 
 ## Key Features
 

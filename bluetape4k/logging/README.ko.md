@@ -20,31 +20,7 @@ Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라�
 
 ### KLoggingChannel 비동기 로깅 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션 코루틴
-        participant CH as KLoggingChannel
-        participant SF as MutableSharedFlow (버퍼 64)
-        participant BG as 백그라운드 코루틴
-        participant SLF as SLF4J Logger
-
-    App->>CH: log.debug { "Processing event: $id" }
-    CH->>CH: isDebugEnabled 확인
-    alt DEBUG 비활성화
-        CH-->>App: (Lambda 미실행, 즉시 반환)
-    else DEBUG 활성화
-        CH->>SF: emit(LogEvent(DEBUG, msg))
-        alt 버퍼 여유 있음
-            SF-->>App: 즉시 resume (non-blocking)
-        else 버퍼 꽉 참 (64개 초과)
-            SF-->>App: SUSPEND (BackPressure)
-        end
-        BG->>SF: collect LogEvent
-        BG->>SLF: log.debug(msg, error)
-    end
-
-    Note over App,SLF: JVM 종료 시 Shutdown Hook → job.cancel()
-```
+![KLoggingChannel diagram](../../docs/images/readme-diagrams/bluetape4k-logging-sequence-01.png)
 
 ## 주요 기능
 

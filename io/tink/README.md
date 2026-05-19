@@ -358,33 +358,7 @@ io.bluetape4k.tink
 
 ### AEAD encrypt/decrypt Flow
 
-```mermaid
-sequenceDiagram
-        participant Caller
-        participant TinkEncryptors
-        participant TinkAeadEncryptor
-        participant TinkAead
-        participant Aead
-
-    Note over Caller,Aead: Encryption (encrypt)
-    Caller->>TinkEncryptors: AES256_GCM.encrypt("plaintext")
-    TinkEncryptors->>TinkAeadEncryptor: encrypt("plaintext")
-    TinkAeadEncryptor->>TinkAead: encrypt("plaintext".toByteArray())
-    TinkAead->>Aead: encrypt(plainBytes, EMPTY_AD)
-    Aead-->>TinkAead: cipherBytes (nonce + ciphertext + tag)
-    TinkAead-->>TinkAeadEncryptor: Base64(cipherBytes)
-    TinkAeadEncryptor-->>TinkEncryptors: Base64 ciphertext
-    TinkEncryptors-->>Caller: Base64 ciphertext
-
-    Note over Caller,Aead: Decryption (decrypt)
-    Caller->>TinkEncryptors: AES256_GCM.decrypt(base64Cipher)
-    TinkEncryptors->>TinkAeadEncryptor: decrypt(base64Cipher)
-    TinkAeadEncryptor->>TinkAead: decrypt(base64Cipher)
-    TinkAead->>Aead: decrypt(cipherBytes, EMPTY_AD)
-    Aead-->>TinkAead: plainBytes (authentication verified)
-    TinkAead-->>TinkAeadEncryptor: plainBytes.toString(UTF-8)
-    TinkAeadEncryptor-->>Caller: "plaintext"
-```
+![AEAD encrypt / decrypt Flow diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
 
 ## Comparison with bluetape4k-crypto
 

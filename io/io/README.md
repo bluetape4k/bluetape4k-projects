@@ -18,42 +18,7 @@ English | [한국어](./README.ko.md)
 
 ### compress/decompress Flow
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant AC as AbstractCompressor
-        participant Impl as Implementation (e.g. LZ4Compressor)
-
-    C->>AC: compress(plain: ByteArray?)
-    AC->>AC: check plain.isNullOrEmpty()
-    alt null or empty
-        AC-->>C: emptyByteArray
-    else valid data
-        AC->>Impl: doCompress(plain)
-        alt success
-            Impl-->>AC: compressed: ByteArray
-            AC-->>C: compressed
-        else failure
-            Impl--xAC: IOException / IllegalArgumentException / library exception
-            AC--xC: throws same exception
-        end
-    end
-
-    C->>AC: decompress(compressed: ByteArray?)
-    AC->>AC: check compressed.isNullOrEmpty()
-    alt null or empty
-        AC-->>C: emptyByteArray
-    else valid data
-        AC->>Impl: doDecompress(compressed)
-        alt success
-            Impl-->>AC: plain: ByteArray
-            AC-->>C: plain
-        else failure
-            Impl--xAC: IOException / IllegalArgumentException / library exception
-            AC--xC: throws same exception
-        end
-    end
-```
+![compress / decompress Flow diagram](../../docs/images/readme-diagrams/io-io-sequence-01.png)
 
 `compress()` and `decompress()` are throwing APIs: null or empty input returns
 `emptyByteArray`, but implementation failures are propagated to the caller. Use
@@ -62,30 +27,7 @@ failure should be represented as `null` instead of an exception.
 
 ### serialize/deserialize Flow
 
-```mermaid
-sequenceDiagram
-        participant C as Caller
-        participant ABS as AbstractBinarySerializer
-        participant Impl as Implementation (e.g. KryoBinarySerializer)
-
-    C->>ABS: serialize(graph: Any?)
-    alt graph == null
-        ABS-->>C: emptyByteArray
-    else valid object
-        ABS->>Impl: doSerialize(graph)
-        Impl-->>ABS: bytes: ByteArray
-        ABS-->>C: bytes
-    end
-
-    C->>ABS: deserialize(bytes: ByteArray?)
-    alt null or empty
-        ABS-->>C: null
-    else valid data
-        ABS->>Impl: doDeserialize(bytes)
-        Impl-->>ABS: obj: T?
-        ABS-->>C: obj
-    end
-```
+![serialize / deserialize Flow diagram](../../docs/images/readme-diagrams/io-io-sequence-02.png)
 
 ## Key Features
 

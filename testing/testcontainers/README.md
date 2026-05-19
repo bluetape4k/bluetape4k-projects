@@ -8,31 +8,7 @@ A server wrapper and utility library for building integration tests quickly on t
 
 ### Container Lifecycle
 
-```mermaid
-sequenceDiagram
-        participant TEST as Test Class
-        participant SERVER as GenericServer (wrapper)
-        participant TC as Testcontainers
-        participant DOCKER as Docker Container
-        participant SPRING as Spring Boot
-
-    TEST->>SERVER: start()
-    SERVER->>TC: Request container start
-    TC->>DOCKER: Docker image pull & run
-    DOCKER-->>TC: Container ready
-    TC-->>SERVER: Port mapping info
-    SERVER->>SERVER: writeToSystemProperties()<br/>testcontainers.{name}.host/port/url registered
-    SERVER-->>TEST: Start complete
-
-    TEST->>SPRING: Begin test execution
-    SPRING->>SPRING: Load application-test.yml<br/>${testcontainers.mysql.jdbc-url} resolved
-    SPRING-->>TEST: ApplicationContext ready
-
-    TEST->>TEST: Execute test logic
-
-    TEST->>SERVER: stop() (or @AfterAll)
-    SERVER->>DOCKER: Container stop & remove
-```
+![Container Lifecycle diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-01.png)
 
 ### Supported Container Class Diagram
 
@@ -330,36 +306,7 @@ client.use {
 
 ### Toxiproxy (Chaos Testing)
 
-```mermaid
-sequenceDiagram
-    autonumber
-        participant TEST as Test Code
-        participant REDIS as RedisServer
-        participant TOXI as ToxiproxyServer
-        participant API as ToxiproxyClient
-        participant LETTUCE as Lettuce Client
-
-    TEST->>REDIS: start() withNetwork(network)
-    TEST->>TOXI: start() withNetwork(network)
-    TEST->>API: createProxy("redis-primary", "0.0.0.0:8666", "redis:6379")
-    API-->>TOXI: Proxy created with listen/upstream config
-
-    TEST->>LETTUCE: connect(toxiproxy.host, toxiproxy.getMappedPort(8666))
-    LETTUCE->>TOXI: PING / SET / GET requests
-    TOXI->>REDIS: Forward to redis:6379
-    REDIS-->>TOXI: Return response
-    TOXI-->>LETTUCE: Return proxy response
-
-    TEST->>API: proxy.toxics().latency(..., DOWNSTREAM, 250)
-    API-->>TOXI: Add downstream latency toxic
-    LETTUCE->>TOXI: GET request
-    TOXI-->>LETTUCE: Delayed response
-
-    TEST->>API: latency.remove()
-    API-->>TOXI: Remove toxic
-    LETTUCE->>TOXI: GET request
-    TOXI-->>LETTUCE: Normal speed response
-```
+![Toxiproxy (Chaos Testing) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)
 
 ### AWS Emulators
 

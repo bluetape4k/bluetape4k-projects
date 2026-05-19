@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Coroutines Async File I / O Flow Sequence">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
+  </filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
+    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
+  </marker>
+  <style>
+    .canvas { fill: #f7f9fc; }
+    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
+    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
+    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
+    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
+    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
+    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
+    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
+    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
+    .card { stroke-width: 2.2; filter: url(#shadow); }
+    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
+    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
+    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
+    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
+    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
+    .compartment { stroke-width: 1.6; fill: none; }
+    .chip { stroke-width: 1.5; rx: 16; }
+    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+  </style>
+</defs>
+<rect class="canvas" width="1600" height="1050"/>
+<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
+<text class="title" x="86" y="98">Coroutines Async File I / O Flow Sequence</text>
+<text class="subtitle" x="90" y="132">Lifelines remain while messages become readable pastel interaction bands</text>
+<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
+<text class="chipText" x="1075" y="88" text-anchor="middle">request</text>
+<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
+<text class="chipText" x="1223" y="88" text-anchor="middle">work</text>
+<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
+<text class="chipText" x="1371" y="88" text-anchor="middle">response</text>
+<g>
+  <rect class="card" x="98" y="220" width="224" height="70" rx="24" fill="#e8f3ff" stroke="#5b8def"/>
+  <text class="label" x="210" y="265" text-anchor="middle">Coroutine</text>
+  <line x1="210" y1="306" x2="210" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="393" y="220" width="224" height="70" rx="24" fill="#eaf7ef" stroke="#58a978"/>
+  <text class="label" x="505" y="265" text-anchor="middle">BufferedSuspend.</text>
+  <line x1="505" y1="306" x2="505" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="688" y="220" width="224" height="70" rx="24" fill="#fff3d9" stroke="#d6a441"/>
+  <text class="label" x="800" y="265" text-anchor="middle">RealBufferedSus.</text>
+  <line x1="800" y1="306" x2="800" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="983" y="220" width="224" height="70" rx="24" fill="#fdecef" stroke="#dc6b82"/>
+  <text class="label" x="1095" y="265" text-anchor="middle">SuspendedFileCh.</text>
+  <line x1="1095" y1="306" x2="1095" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="1278" y="220" width="224" height="70" rx="24" fill="#e9f7f6" stroke="#45a7a1"/>
+  <text class="label" x="1390" y="265" text-anchor="middle">AsynchronousFil.</text>
+  <line x1="1390" y1="306" x2="1390" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="150" y="360" width="415" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
+  <text class="strong" x="182" y="392">1</text>
+  <text class="strong" x="224" y="392">write(buffer) [suspend]</text>
+  <text class="small" x="224" y="416">interaction band</text>
+  <path class="line" d="M250 397 L465 397"/>
+</g>
+<g>
+  <rect class="card" x="445" y="452" width="415" height="74" rx="22" fill="#eaf7ef" stroke="#58a978"/>
+  <text class="strong" x="477" y="484">2</text>
+  <text class="strong" x="519" y="484">write(buffer) [suspend]</text>
+  <text class="small" x="519" y="508">interaction band</text>
+  <path class="line" d="M545 489 L760 489"/>
+</g>
+<g>
+  <rect class="card" x="740" y="544" width="120" height="74" rx="22" fill="#fff3d9" stroke="#d6a441"/>
+  <text class="strong" x="772" y="576">3</text>
+  <text class="strong" x="814" y="576">Accumulate in buffer</text>
+  <text class="small" x="814" y="600">interaction band</text>
+  <path class="line" d="M840 581 L760 581"/>
+</g>
+<g>
+  <rect class="card" x="150" y="636" width="415" height="74" rx="22" fill="#fdecef" stroke="#dc6b82"/>
+  <text class="strong" x="182" y="668">4</text>
+  <text class="strong" x="224" y="668">emit [suspend]</text>
+  <text class="small" x="224" y="692">interaction band</text>
+  <path class="line" d="M250 673 L465 673"/>
+</g>
+<g>
+  <rect class="card" x="445" y="728" width="415" height="74" rx="22" fill="#e9f7f6" stroke="#45a7a1"/>
+  <text class="strong" x="477" y="760">5</text>
+  <text class="strong" x="519" y="760">emit [suspend]</text>
+  <text class="small" x="519" y="784">interaction band</text>
+  <path class="line" d="M545 765 L760 765"/>
+</g>
+<g>
+  <rect class="card" x="740" y="820" width="415" height="74" rx="22" fill="#f1ecff" stroke="#8a72d6"/>
+  <text class="strong" x="772" y="852">6</text>
+  <text class="strong" x="814" y="852">write(buffer, byteCount) [suspend]</text>
+  <text class="small" x="814" y="876">interaction band</text>
+  <path class="line" d="M840 857 L1055 857"/>
+</g>
+<g>
+  <rect class="card" x="1035" y="912" width="415" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
+  <text class="strong" x="1067" y="944">7</text>
+  <text class="strong" x="1109" y="944">write(ByteBuffer, position)</text>
+  <text class="small" x="1109" y="968">interaction band</text>
+  <path class="line" d="M1135 949 L1350 949"/>
+</g>
+<g transform="translate(124,858)">
+  <rect class="card" x="0" y="0" width="1352" height="88" rx="18" fill="#0d2435" stroke="#0d2435"/>
+  <text class="smallLabel" x="28" y="42" fill="#ffffff">Reading rule</text>
+  <text class="small" x="250" y="38" fill="#dbeafe">Lifelines stay visible; messages are grouped into numbered pastel interaction bands.</text>
+  <text class="small" x="250" y="64" fill="#dbeafe">Dashed bands indicate compact return/response paths.</text>
+</g>
+</svg>

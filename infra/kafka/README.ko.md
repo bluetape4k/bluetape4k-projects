@@ -402,27 +402,7 @@ class KafkaIntegrationTest {
 
 ### Producer/Consumer 메시지 흐름
 
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant PT as SuspendKafkaProducerTemplate
-    participant CT as SuspendKafkaConsumerTemplate
-    participant Kafka as Kafka Broker
-    participant Handler as 메시지 핸들러
-
-    App->>+PT: send(topic, key, value)
-    Note over PT: Reactor Kafka SenderRecord 래핑
-    PT->>+Kafka: ProducerRecord 발행
-    Kafka-->>-PT: SenderResult (partition, offset)
-    PT-->>-App: SenderResult 반환
-
-    Kafka->>+CT: ReceiverRecord 스트림
-    CT->>+Handler: Flow.collect { record }
-    Handler->>Handler: 비즈니스 로직 처리
-    Handler->>Kafka: receiverOffset.commit()
-    Handler-->>-CT: 처리 완료
-    CT-->>-Kafka: ACK
-```
+![Producer / Consumer Message diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
 
 ### Kafka Streams 처리 흐름
 

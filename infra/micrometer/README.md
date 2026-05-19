@@ -246,40 +246,11 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ### Retrofit2 Metric Collection Sequence
 
-```mermaid
-sequenceDiagram
-    participant Client as Client
-    participant Retrofit as Retrofit2
-    participant Metrics as MicrometerRetrofitMetricsFactory
-    participant API as External API
-    participant Registry as MeterRegistry
-
-    Client->>+Retrofit: API call
-    Retrofit->>+Metrics: Create instrumented Call wrapper
-    Metrics->>+API: HTTP request
-    API-->>-Metrics: HTTP response
-    Metrics->>Registry: Record timer<br/>(method, uri, status_code, outcome)
-    Metrics-->>-Retrofit: Return response
-    Retrofit-->>-Client: Return result
-```
+![Retrofit2 Metric Collection Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
 
 ### Coroutine Observation Flow
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant Obs as withObservationContext
-    participant Registry as ObservationRegistry
-    participant Work as Async Work
-
-    App->>+Obs: withObservationContext("operation", registry)
-    Obs->>Registry: Observation.start()
-    Obs->>+Work: Execute coroutine block
-    Note over Work: suspend functions / delay, etc.
-    Work-->>-Obs: Return result
-    Obs->>Registry: Observation.stop()
-    Obs-->>-App: Return result
-```
+![Coroutine Observation Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
 
 ## Architecture
 

@@ -21,51 +21,11 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ### gRPC 서버-클라이언트 통신 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant C as GrpcClient
-        participant CH as ManagedChannel
-        participant S as GrpcServer
-        participant SVC as ServiceImpl
-
-    C->>CH: ManagedChannelBuilder.forAddress(host, port)
-    CH->>S: TCP 연결 수립
-    S->>SVC: 서비스 등록
-
-    C->>CH: stub.doSomething(request)
-    CH->>S: HTTP/2 요청 전송
-    S->>SVC: 메서드 호출
-    SVC-->>S: 응답 생성
-    S-->>CH: HTTP/2 응답
-    CH-->>C: Response 반환
-
-    C->>CH: channel.shutdown()
-    CH->>S: 연결 종료
-```
+![gRPC -Client diagram](../../docs/images/readme-diagrams/io-grpc-sequence-01.png)
 
 ### In-process 테스트 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant T as 테스트 코드
-        participant IS as InprocessServer
-        participant SVC as ServiceImpl
-        participant IC as InprocessClient
-
-    T->>IS: InProcessServerBuilder.forName("test-server")
-    IS->>SVC: 서비스 등록 및 시작
-    T->>IC: InProcessChannelBuilder.forName("test-server")
-    IC->>IS: 인메모리 채널 연결
-
-    T->>IC: stub.call(request)
-    IC->>IS: 인메모리 전송 (네트워크 없음)
-    IS->>SVC: 메서드 호출
-    SVC-->>IC: 응답
-    IC-->>T: Response 반환
-
-    T->>IS: server.shutdown()
-    T->>IC: channel.shutdown()
-```
+![In-process Test diagram](../../docs/images/readme-diagrams/io-grpc-sequence-02.png)
 
 ## 주요 기능
 

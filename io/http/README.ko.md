@@ -24,20 +24,7 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as executeSuspending()
-        participant HC5 as CloseableHttpAsyncClient
-        participant Server as HTTP 서버
-
-    App->>Ext: suspend fun executeSuspending(request)
-    Ext->>HC5: execute(request, FutureCallback)
-    HC5->>Server: HTTP 요청 (비동기)
-    Server-->>HC5: HTTP 응답
-    HC5-->>Ext: FutureCallback.completed(response)
-    Ext-->>App: SimpleHttpResponse
-```
+![HTTP Request (HC5 Async + Coroutines) diagram](../../docs/images/readme-diagrams/io-http-sequence-01.png)
 
 ## 주요 기능
 

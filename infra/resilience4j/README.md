@@ -18,82 +18,11 @@ This module provides extension functions and decorators that make it easy to use
 
 CLOSED → failures accumulate → OPEN → Half-Open → Recovery flow:
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant SuspendDecorators
-    participant Retry
-    participant CircuitBreaker
-    participant Service
-
-    Caller ->> SuspendDecorators: ofSupplier { service.call() }.withCircuitBreaker(cb).withRetry(retry).invoke()
-    Note over CircuitBreaker: State: CLOSED
-
-    loop Retry (up to maxAttempts)
-        SuspendDecorators ->> CircuitBreaker: executeSuspendFunction
-        CircuitBreaker ->> Service: call()
-
-        alt Success
-            Service -->> CircuitBreaker: result
-            CircuitBreaker -->> SuspendDecorators: result (success recorded)
-            SuspendDecorators -->> Caller: result
-        else Failure (below failure rate threshold)
-            Service -->> CircuitBreaker: Exception
-            CircuitBreaker -->> Retry: Exception (failure recorded)
-            Retry ->> Retry: Wait waitDuration and retry
-        else Failure rate threshold exceeded
-            Note over CircuitBreaker: State: CLOSED → OPEN
-            CircuitBreaker -->> SuspendDecorators: CallNotPermittedException
-            SuspendDecorators -->> Caller: CallNotPermittedException
-        end
-    end
-
-    Note over CircuitBreaker: waitDurationInOpenState elapsed
-    Note over CircuitBreaker: State: OPEN → HALF_OPEN
-    Caller ->> CircuitBreaker: Next call (probe)
-    CircuitBreaker ->> Service: call()
-    alt Probe success
-        Service -->> CircuitBreaker: result
-        Note over CircuitBreaker: State: HALF_OPEN → CLOSED
-    else Probe failure
-        Service -->> CircuitBreaker: Exception
-        Note over CircuitBreaker: State: HALF_OPEN → OPEN
-    end
-```
+![CircuitBreaker + Retry Combination Sequence Diagram diagram](../../docs/images/readme-diagrams/infra-resilience4j-sequence-01.png)
 
 #### SuspendCache Operation Sequence Diagram
 
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant SuspendCacheImpl
-    participant JCache
-    participant Loader
-
-    Caller ->> SuspendCacheImpl: computeIfAbsent("user:1") { loadUser() }
-    SuspendCacheImpl ->> JCache: containsKey("user:1")
-
-    alt Cache Hit
-        JCache -->> SuspendCacheImpl: true
-        SuspendCacheImpl ->> JCache: get("user:1")
-        JCache -->> SuspendCacheImpl: cachedValue
-        SuspendCacheImpl ->> SuspendCacheImpl: publish onCacheHit() event
-        SuspendCacheImpl -->> Caller: cachedValue
-    else Cache Miss
-        JCache -->> SuspendCacheImpl: false
-        SuspendCacheImpl ->> SuspendCacheImpl: publish onCacheMiss() event
-        SuspendCacheImpl ->> Loader: execute loader() as suspend
-        Loader -->> SuspendCacheImpl: loadedValue
-        SuspendCacheImpl ->> JCache: put("user:1", loadedValue)
-        SuspendCacheImpl -->> Caller: loadedValue
-    else Cache Error
-        JCache -->> SuspendCacheImpl: Exception
-        SuspendCacheImpl ->> SuspendCacheImpl: publish onError() event
-        SuspendCacheImpl ->> Loader: execute loader() as fallback
-        Loader -->> SuspendCacheImpl: loadedValue
-        SuspendCacheImpl -->> Caller: loadedValue
-    end
-```
+![SuspendCache Operation Sequence Diagram diagram](../../docs/images/readme-diagrams/infra-resilience4j-sequence-02.png)
 
 ## Features
 

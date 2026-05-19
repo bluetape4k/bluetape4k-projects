@@ -485,25 +485,7 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### JDBC 쿼리 실행 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant DS as DataSource 확장
-        participant Conn as Connection 확장
-        participant PS as PreparedStatement
-        participant DB as 데이터베이스
-
-    App->>DS: withConnect { conn -> ... }
-    DS->>Conn: executeQuery(sql, params) { rs -> ... }
-    Conn->>PS: prepareStatement(sql)
-    Conn->>PS: setParameters(params)
-    PS->>DB: executeQuery()
-    DB-->>PS: ResultSet
-    PS-->>Conn: ResultSet
-    Conn-->>App: ResultSet 처리 결과
-
-    Note over DS,DB: withTransaction 사용 시 자동 커밋/롤백 처리
-```
+![JDBC Execution diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
 
 ## 참고 자료
 

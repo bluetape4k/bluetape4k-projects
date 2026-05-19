@@ -339,33 +339,7 @@ io.bluetape4k.tink
 
 ### AEAD encrypt/decrypt 흐름
 
-```mermaid
-sequenceDiagram
-        participant Caller
-        participant TinkEncryptors
-        participant TinkAeadEncryptor
-        participant TinkAead
-        participant Aead
-
-    Note over Caller,Aead: 암호화 (encrypt)
-    Caller->>TinkEncryptors: AES256_GCM.encrypt("평문")
-    TinkEncryptors->>TinkAeadEncryptor: encrypt("평문")
-    TinkAeadEncryptor->>TinkAead: encrypt("평문".toByteArray())
-    TinkAead->>Aead: encrypt(plainBytes, EMPTY_AD)
-    Aead-->>TinkAead: cipherBytes (nonce + ciphertext + tag)
-    TinkAead-->>TinkAeadEncryptor: Base64(cipherBytes)
-    TinkAeadEncryptor-->>TinkEncryptors: Base64 암호문
-    TinkEncryptors-->>Caller: Base64 암호문
-
-    Note over Caller,Aead: 복호화 (decrypt)
-    Caller->>TinkEncryptors: AES256_GCM.decrypt(base64Cipher)
-    TinkEncryptors->>TinkAeadEncryptor: decrypt(base64Cipher)
-    TinkAeadEncryptor->>TinkAead: decrypt(base64Cipher)
-    TinkAead->>Aead: decrypt(cipherBytes, EMPTY_AD)
-    Aead-->>TinkAead: plainBytes (인증 검증 포함)
-    TinkAead-->>TinkAeadEncryptor: plainBytes.toString(UTF-8)
-    TinkAeadEncryptor-->>Caller: "평문"
-```
+![AEAD encrypt / decrypt diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
 
 ## bluetape4k-crypto 와의 차이
 

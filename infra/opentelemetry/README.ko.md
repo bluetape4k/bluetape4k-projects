@@ -363,27 +363,7 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### Span 생명주기 (Coroutines 환경)
 
-```mermaid
-sequenceDiagram
-    participant App as 애플리케이션
-    participant Builder as SpanBuilder
-    participant Span as Span
-    participant Context as CoroutineContext
-    participant Child as 하위 작업
-
-    App->>+Builder: tracer.spanBuilder("operation")
-    App->>Builder: useSpanSuspending { ... }
-    Builder->>+Span: startSpan()
-    Span->>+Context: makeCurrent() / withContext
-    Note over Context: Span Context 코루틴에 전파
-    Context->>+Child: 하위 코루틴 실행
-    Note over Child: withContext(Dispatchers.IO)<br/>에서도 Context 유지
-    Child-->>-Context: 결과 반환
-    Context-->>-Span: 블록 종료
-    Span->>Span: end()
-    Span-->>-Builder: Span 종료
-    Builder-->>-App: 결과 반환
-```
+![Span (Coroutines ) diagram](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
 
 ### 분산 추적 전파 흐름
 
