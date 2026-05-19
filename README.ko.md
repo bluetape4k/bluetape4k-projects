@@ -62,7 +62,7 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
-![Module Structure 1](docs/images/readme-diagrams/root-readme-ko-diagram-01.svg)
+![Module Structure 1](docs/images/readme-diagrams/root-readme-ko-diagram-01.png)
 
 ### Core 모듈 (`bluetape4k/`)
 
