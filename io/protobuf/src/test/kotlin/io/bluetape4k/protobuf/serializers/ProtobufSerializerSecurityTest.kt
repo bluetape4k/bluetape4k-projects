@@ -118,6 +118,33 @@ class ProtobufSerializerSecurityTest {
         restored shouldBeEqualTo message
     }
 
+    @Test
+    fun `커스텀 allowedClassPrefixes 는 패키지 prefix spoofing 을 차단한다`() {
+        val spoofedClass = "io.bluetape4kevil.Payload"
+        val craftedAny = Any.newBuilder()
+            .setTypeUrl("type.googleapis.com/$spoofedClass")
+            .setValue(com.google.protobuf.ByteString.copyFromUtf8("payload"))
+            .build()
+        val bytes = craftedAny.toByteArray()
+
+        val serializer = ProtobufSerializer(
+            allowedClassPrefixes = setOf("io.bluetape4k")
+        )
+
+        val ex = assertFailsWith<BinarySerializationException> {
+            serializer.deserialize<kotlin.Any>(bytes)
+        }
+        val secEx = generateSequence(ex.cause) { it.cause }.filterIsInstance<SecurityException>().firstOrNull()
+        (secEx?.message?.contains(spoofedClass) == true).shouldBeTrue()
+    }
+
+    @Test
+    fun `커스텀 allowedClassPrefixes 는 빈 접두사를 거부한다`() {
+        assertFailsWith<IllegalArgumentException> {
+            ProtobufSerializer(allowedClassPrefixes = setOf(""))
+        }
+    }
+
     // ────────────────────────────────────────────────────────────────────────────
     // DEFAULT_ALLOWED_PREFIXES 내용 검증
     // ────────────────────────────────────────────────────────────────────────────

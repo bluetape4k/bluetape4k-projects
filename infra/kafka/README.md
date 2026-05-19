@@ -131,6 +131,7 @@ while (true) {
 ### 4. Using Kafka Codecs
 
 ```kotlin
+import io.bluetape4k.kafka.codec.JacksonKafkaCodec
 import io.bluetape4k.kafka.codec.KafkaCodecs
 
 // String codec
@@ -138,8 +139,12 @@ val stringCodec = KafkaCodecs.String
 val bytes = stringCodec.serialize("test-topic", "Hello Kafka")
 val message = stringCodec.deserialize("test-topic", bytes)
 
-// Jackson JSON codec
-val jacksonCodec = KafkaCodecs.Jackson
+// Jackson JSON codec with an explicit allowlist
+class ExampleJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf("java.util")
+}
+
+val jacksonCodec = ExampleJacksonCodec()
 val data = mapOf("name" to "John", "age" to 30)
 val jsonBytes = jacksonCodec.serialize("test-topic", data)
 val decoded = jacksonCodec.deserialize("test-topic", jsonBytes)
@@ -195,6 +200,9 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 
 #### Security: Class Loading Allowlist
 
+Trust profile: `AllowListedTypes` by default. Use
+`UnsafeLegacyCompatibility` only through `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`.
+
 `AbstractKafkaCodec` loads the deserialization target class from the Kafka
 header `bluetape4k.kafka.codec.value.type`. If that header can be set by an
 attacker, arbitrary class loading (RCE) is possible.
@@ -215,6 +223,14 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 | `emptySet()` (default) | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics. |
 | Non-empty set | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`. |
 | `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | Bypass all checks — restores pre-1.8.0 allow-all behavior. Use only in fully trusted, internally controlled deployments. |
+
+Legacy migration example:
+
+```kotlin
+class LegacyTrustedJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+}
+```
 
 ### 5. Spring KafkaTemplate with Coroutines
 

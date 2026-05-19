@@ -111,9 +111,13 @@ non-null value type을 우선 사용하세요.
 ## Jackson 3 Codec
 
 ```kotlin
-import io.bluetape4k.kafka.codec.KafkaCodecs
+import io.bluetape4k.kafka.codec.JacksonKafkaCodec
 
-val codec = KafkaCodecs.Jackson
+class ExampleJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = setOf("java.util")
+}
+
+val codec = ExampleJacksonCodec()
 val bytes = codec.serialize("events", mapOf("name" to "spring-kafka-4"))
 val decoded = codec.deserialize("events", bytes)
 ```
@@ -182,6 +186,9 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 
 ### 보안: 클래스 로딩 허용 목록
 
+신뢰 프로필: 기본값은 `AllowListedTypes`입니다. `UnsafeLegacyCompatibility`는
+`AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`를 통해서만 사용하세요.
+
 `AbstractKafkaCodec` 은 Kafka 헤더 `bluetape4k.kafka.codec.value.type` 에서
 역직렬화 대상 클래스를 로드합니다. 이 헤더를 공격자가 조작할 수 있는 환경(신뢰할 수
 없는 브로커, 외부 네트워크)에서는 임의 클래스 로딩(RCE)이 가능합니다.
@@ -199,11 +206,17 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 
 | `allowedTypePackages` 값 | 동작 |
 |--------------------------|------|
-| `emptySet()` (기본값) | 모든 클래스 허용 — 하위 호환, 신뢰 환경 전용 |
-| 비어 있지 않은 집합 | 나열된 패키지 하위 클래스만 허용; 그 외 `IllegalArgumentException` → poison-pill (`null`) |
+| `emptySet()` (기본값) | **모든 클래스 차단** — 타입 헤더에서 클래스를 로드하지 않음. 신뢰할 수 없거나 공유된 토픽에 대한 안전한 기본값. |
+| 비어 있지 않은 집합 | 나열된 패키지 접두사와 일치하는 FQN 클래스만 허용; 그 외 poison-pill `null` 반환. |
+| `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | 모든 검사 우회 — 1.8.0 이전의 허용-전체 동작 복원. 완전히 신뢰할 수 있는 내부 환경에서만 사용. |
 
-> **경고:** 기본값 `emptySet()` 은 하위 호환성을 위해 모든 클래스 로딩을 허용합니다.
-> Kafka 브로커를 완전히 신뢰할 수 없는 프로덕션 환경에서는 반드시 명시적 패키지를 지정하십시오.
+레거시 마이그레이션 예시:
+
+```kotlin
+class LegacyTrustedJacksonCodec : JacksonKafkaCodec() {
+    override val allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE
+}
+```
 
 ### 보안: JdkKafkaCodec 지원 중단
 

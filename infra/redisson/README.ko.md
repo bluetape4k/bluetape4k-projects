@@ -148,6 +148,17 @@ Codec 클래스:
 - `ZstdCodec` — Zstd 압축 래퍼
 - `GzipCodec` — GZip 압축 래퍼
 
+#### Codec 신뢰 프로필
+
+공통 프로필 용어는 [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)를
+참고하세요.
+
+| Codec 계열 | 기본 프로필 | 공유 경계에서 더 안전한 선택 |
+|---|---|---|
+| `ForyCodec`, `Kryo5Codec`, 압축 변형 | `TrustedInternal` | 하나의 배포 경계가 제어하는 private Redis 데이터에만 사용하거나, 가능한 경우 secure serializer/factory를 선택합니다. |
+| `allowedPackagePrefixes = null`인 `Jackson3Codec` / `Fastjson2Codec` | `TrustedInternal` | `allowedPackagePrefixes`를 지정해 `AllowListedTypes`로 사용합니다. |
+| `Fastjson2Codec(allowedPackagePrefixes = setOf(...))` | `AllowListedTypes` | 저장 DTO 패키지 범위만큼만 좁게 접두사를 유지합니다. |
+
 #### 사용 목적별 팩토리 함수
 
 `RedissonCodecs`는 내부 구현을 몰라도 적절한 Codec을 쉽게 선택할 수 있는 사용 목적 기반 팩토리 함수를 제공합니다:

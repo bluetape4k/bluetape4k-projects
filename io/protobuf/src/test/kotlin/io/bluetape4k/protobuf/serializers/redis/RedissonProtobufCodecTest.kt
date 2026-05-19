@@ -1,17 +1,23 @@
 package io.bluetape4k.protobuf.serializers.redis
 
 import com.google.protobuf.timestamp
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.protobuf.redis.messages.copy
 import io.bluetape4k.protobuf.redis.messages.redisNestedMessage
 import io.bluetape4k.protobuf.redis.messages.redisSimpleMessage
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.netty.buffer.Unpooled
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.redisson.client.codec.BaseCodec
 import org.redisson.client.codec.Codec
 import org.redisson.client.handler.State
+import org.redisson.client.protocol.Decoder
+import org.redisson.client.protocol.Encoder
 import java.io.Serializable
 import java.time.Instant
 
@@ -36,7 +42,22 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
     data class CustomData(
         val id: Int,
         val name: String,
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
+
+    private class SentinelFallbackCodec(
+        private val decoded: Any,
+    ): BaseCodec() {
+        private val encoder = Encoder { Unpooled.EMPTY_BUFFER }
+        private val decoder = Decoder<Any> { _, _ -> decoded }
+
+        override fun getValueEncoder(): Encoder = encoder
+
+        override fun getValueDecoder(): Decoder<Any> = decoder
+    }
 
     private fun Instant.toProtobufTimestamp(): com.google.protobuf.Timestamp {
         val source = this
@@ -97,6 +118,71 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
     fun `codec for protobuf nested message`(codec: Codec) {
         repeat(REPEAT_SIZE) {
             codec.verifyCodec(newNestedMessage())
+        }
+    }
+
+    @Test
+    fun `default codec rejects untrusted protobuf typeUrl before class loading`() {
+        val bytes = AnyMessage.newBuilder()
+            .setTypeUrl("type.googleapis.com/untrusted.payload.UntrustedPayload")
+            .build()
+            .toByteArray()
+
+        val codec = RedissonProtobufCodec()
+
+        assertFailsWith<SecurityException> {
+            codec.valueDecoder.decode(Unpooled.wrappedBuffer(bytes), State())
+        }
+    }
+
+    @Test
+    fun `unsafe opt-in bypasses allowlist and keeps fallback behavior`() {
+        val fallbackValue = "fallback-after-legacy-class-lookup"
+        val bytes = AnyMessage.newBuilder()
+            .setTypeUrl("type.googleapis.com/untrusted.payload.MissingProtoMessage")
+            .build()
+            .toByteArray()
+
+        val codec = RedissonProtobufCodec(
+            fallbackCodec = SentinelFallbackCodec(fallbackValue),
+            allowedClassPrefixes = RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE,
+        )
+
+        val actual = codec.valueDecoder.decode(Unpooled.wrappedBuffer(bytes), State())
+
+        actual shouldBeEqualTo fallbackValue
+    }
+
+    @Test
+    fun `custom allowlist constructor supports named allowedClassPrefixes`() {
+        val codec = RedissonProtobufCodec(
+            allowedClassPrefixes = setOf("io.bluetape4k.protobuf.redis.messages")
+        )
+        val origin = newSimpleMessage()
+
+        codec.verifyCodec(origin)
+    }
+
+    @Test
+    fun `allowlist rejects prefix spoofing`() {
+        val bytes = AnyMessage.newBuilder()
+            .setTypeUrl("type.googleapis.com/io.bluetape4kevil.Payload")
+            .build()
+            .toByteArray()
+
+        val codec = RedissonProtobufCodec(
+            allowedClassPrefixes = setOf("io.bluetape4k")
+        )
+
+        assertFailsWith<SecurityException> {
+            codec.valueDecoder.decode(Unpooled.wrappedBuffer(bytes), State())
+        }
+    }
+
+    @Test
+    fun `allowlist rejects blank prefixes`() {
+        assertFailsWith<IllegalArgumentException> {
+            RedissonProtobufCodec(allowedClassPrefixes = setOf(""))
         }
     }
 }

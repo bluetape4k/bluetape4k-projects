@@ -4,6 +4,7 @@ import com.google.protobuf.Message
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.netty.buffer.getBytes
+import io.bluetape4k.protobuf.serializers.ProtobufSerializer
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
@@ -17,31 +18,69 @@ import java.util.concurrent.ConcurrentHashMap
 typealias AnyMessage = com.google.protobuf.Any
 
 /**
- * Protobuf 메시지를 Redisson에서 사용하기 위한 Codec입니다.
+ * Redisson codec for Protobuf messages.
  *
- * ## 동작/계약
- * - [com.google.protobuf.Message] 인스턴스는 `Any.pack(message).toByteArray()`로 직렬화합니다.
- * - 역직렬화 시 `typeUrl`의 클래스명을 기반으로 Message 타입을 캐시해 언패킹합니다.
- * - Protobuf 경로 실패 시 [fallbackCodec]에 위임합니다.
+ * ## Contract
+ * - [com.google.protobuf.Message] values are encoded with `Any.pack(message).toByteArray()`.
+ * - During decoding, the class name from `Any.typeUrl` is validated against [allowedClassPrefixes]
+ *   before class loading.
+ * - Non-Protobuf payloads are delegated to [fallbackCodec].
+ * - A trust-boundary violation throws [SecurityException] instead of falling back silently.
  *
  * ```kotlin
  * val codec = RedissonProtobufCodec()
- * // Redisson Config에 codec을 등록하면 Protobuf 직렬화가 적용됩니다.
+ * // Register the codec in Redisson Config to store Protobuf messages.
  * ```
  *
- * @property fallbackCodec Protobuf 처리 실패 시 사용하는 fallback Codec입니다.
+ * @property fallbackCodec fallback codec for non-Protobuf payloads.
+ * @property allowedClassPrefixes package prefixes allowed for Protobuf `Any.typeUrl` class names.
  */
-class RedissonProtobufCodec(
-    private val fallbackCodec: Codec = RedissonCodecs.Jdk,
+class RedissonProtobufCodec private constructor(
+    private val fallbackCodec: Codec = RedissonCodecs.Kryo5,
+    private val allowedClassPrefixes: Set<String> = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES,
+    private val classLoader: ClassLoader? = null,
 ): BaseCodec() {
-    // classLoader를 인자로 받는 보조 생성자는 Redisson에서 환경설정 정보를 바탕으로 동적으로 Codec 생성 시에 필요합니다.
-    @Suppress("UNUSED_PARAMETER")
-    constructor(classLoader: ClassLoader): this()
-    constructor(classLoader: ClassLoader, codec: RedissonProtobufCodec): this(copy(classLoader, codec.fallbackCodec))
+    init {
+        if (allowedClassPrefixes != ALLOW_ALL_CLASSES_UNSAFE) {
+            require(allowedClassPrefixes.all { it.isNotBlank() }) {
+                "allowedClassPrefixes must not contain blank entries."
+            }
+        }
+    }
+
+    constructor(): this(RedissonCodecs.Kryo5, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, null)
+
+    constructor(
+        fallbackCodec: Codec,
+    ): this(fallbackCodec, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, null)
+
+    constructor(
+        allowedClassPrefixes: Set<String>,
+    ): this(RedissonCodecs.Kryo5, allowedClassPrefixes, null)
+
+    constructor(
+        fallbackCodec: Codec,
+        allowedClassPrefixes: Set<String>,
+    ): this(fallbackCodec, allowedClassPrefixes, null)
+
+    // Redisson requires class-loader constructors for dynamic codec creation from configuration.
+    constructor(classLoader: ClassLoader): this(RedissonCodecs.Kryo5, ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES, classLoader)
+    constructor(classLoader: ClassLoader, codec: RedissonProtobufCodec): this(
+        fallbackCodec = copy(classLoader, codec.fallbackCodec),
+        allowedClassPrefixes = codec.allowedClassPrefixes,
+        classLoader = classLoader,
+    )
 
     companion object: KLogging() {
-        private val classCache = ConcurrentHashMap<String, Class<Message>>()
+        /**
+         * Explicit migration profile that restores legacy allow-all Protobuf class loading.
+         *
+         * Use only for fully trusted internal Redis deployments while migrating to an allowlist.
+         */
+        val ALLOW_ALL_CLASSES_UNSAFE: Set<String> = setOf("*")
     }
+
+    private val classCache = ConcurrentHashMap<String, Class<Message>>()
 
     private val encoder: Encoder =
         Encoder { graph ->
@@ -63,11 +102,15 @@ class RedissonProtobufCodec(
                 val bytes = buf.getBytes(copy = false)
                 val any = AnyMessage.parseFrom(bytes)
                 val className = any.typeUrl.substringAfterLast("/")
+                validateClassName(className)
                 val clazz =
                     classCache.computeIfAbsent(className) {
-                        Class.forName(it) as Class<Message>
+                        Class.forName(it, false, classLoader ?: Thread.currentThread().contextClassLoader)
+                            as Class<Message>
                     }
                 any.unpack(clazz)
+            } catch (e: SecurityException) {
+                throw e
             } catch (e: Throwable) {
                 log.debug(e) {
                     "Decoding: Protobuf 메시지가 아닙니다. fallbackCodec[$fallbackCodec] 사용."
@@ -79,4 +122,22 @@ class RedissonProtobufCodec(
     override fun getValueEncoder(): Encoder = encoder
 
     override fun getValueDecoder(): Decoder<Any> = decoder
+
+    private fun validateClassName(className: String) {
+        if (className.isBlank()) {
+            throw SecurityException("Protobuf Any typeUrl does not contain a class name.")
+        }
+        if (
+            allowedClassPrefixes != ALLOW_ALL_CLASSES_UNSAFE &&
+            allowedClassPrefixes.none { className.matchesAllowedPrefix(it) }
+        ) {
+            throw SecurityException("Untrusted Protobuf class: $className. Add the package to allowedClassPrefixes.")
+        }
+    }
+
+    private fun String.matchesAllowedPrefix(prefix: String): Boolean =
+        this == prefix || startsWith(prefix.ensurePackagePrefix())
+
+    private fun String.ensurePackagePrefix(): String =
+        if (endsWith(".")) this else "$this."
 }

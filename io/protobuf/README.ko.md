@@ -34,6 +34,8 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 ### 보안: ProtobufSerializer 허용 목록
 
+신뢰 프로필: `AllowListedTypes`.
+
 `ProtobufSerializer`는 역직렬화 전에 각 `Any` 메시지의 `typeUrl`을 허용 목록과 대조합니다.
 허용 목록에 없는 접두사를 가진 클래스는 `SecurityException`을 발생시킵니다 (`BinarySerializationException`으로 래핑).
 
@@ -59,6 +61,24 @@ val expandedSerializer = ProtobufSerializer(
 ```
 
 비 Protobuf 객체에 대한 폴백 직렬화기도 JDK 역직렬화 RCE 위험을 피하기 위해 `Jdk`에서 `Kryo`로 변경되었습니다.
+
+`RedissonProtobufCodec`도 Redis 값에 같은 기본 허용 목록을 사용하며, 비 Protobuf
+값의 fallback에는 Kryo5를 사용합니다. 레거시 신뢰 환경에서 이전 허용-전체 동작이
+임시로 필요하면 명시적으로 설정하세요:
+
+```kotlin
+val codec = RedissonProtobufCodec(
+    allowedClassPrefixes = RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE,
+)
+```
+
+프로덕션에서는 좁은 커스텀 허용 목록을 권장합니다:
+
+```kotlin
+val codec = RedissonProtobufCodec(
+    allowedClassPrefixes = ProtobufSerializer.DEFAULT_ALLOWED_PREFIXES + setOf("com.example.proto.")
+)
+```
 
 ## 사용 예시
 

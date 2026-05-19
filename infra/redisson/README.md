@@ -149,6 +149,17 @@ Codec classes:
 - `ZstdCodec` — Zstd compression wrapper.
 - `GzipCodec` — GZip compression wrapper.
 
+#### Codec Trust Profiles
+
+See [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)
+for the shared profile vocabulary.
+
+| Codec family | Default profile | Safer shared-boundary option |
+|---|---|---|
+| `ForyCodec`, `Kryo5Codec`, and compressed variants | `TrustedInternal` | Use only for private Redis data controlled by one deployment boundary, or choose a secure serializer/factory where available. |
+| `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = null` | `TrustedInternal` | Set `allowedPackagePrefixes` for `AllowListedTypes`. |
+| `Fastjson2Codec(allowedPackagePrefixes = setOf(...))` | `AllowListedTypes` | Keep prefixes as narrow as the stored DTO packages allow. |
+
 #### Use-Case Factory Functions
 
 `RedissonCodecs` provides use-case-oriented factory functions so you can select the right codec without knowing the internals:
