@@ -471,7 +471,7 @@ spring:
 - `GenericServer.writeToSystemProperties(...)`는 기본/추가 속성을 일관된 순서로 구성하여 일괄 등록합니다.
 - `KafkaServer.Launcher`의 문자열 producer/consumer 생성 시 serializer/deserializer 인스턴스를 호출마다 새로 생성해
   `close()` 이후 재사용 이슈를 방지합니다.
-- `TiDBServer`는 Testcontainers 2.x 미지원으로 deprecated 처리되었으며, 신규 테스트에서는 `MySQL8Server` 사용을 권장합니다.
+- `TiDBServer` 지원은 Testcontainers 2.x 미지원으로 제거되었으며, 신규 테스트에서는 `MySQL8Server` 사용을 권장합니다.
 
 ## 의존성 추가
 

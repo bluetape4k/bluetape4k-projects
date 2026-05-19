@@ -93,7 +93,7 @@
 </g>
 <g transform="translate(464,662)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="smallLabel" x="150" y="54" text-anchor="middle">RandomValueExtension (.</text>
+  <text class="smallLabel" x="150" y="54" text-anchor="middle">RandomExtension</text>
   <text class="small" x="150" y="84" text-anchor="middle">test</text>
 </g>
 <path class="line" d="M430 721 L464 721"/>
