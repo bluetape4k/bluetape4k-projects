@@ -25,16 +25,16 @@
 <text class="title" x="66" y="82">Jackson 3.x Module Registration Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
 <rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="197" text-anchor="middle">Application</text>
+<text class="smallLabel" x="140" y="209" text-anchor="middle">Application</text>
 <line x1="140" y1="252" x2="140" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="341.6666666666667" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="446.6666666666667" y="197" text-anchor="middle">Jackson</text>
+<text class="smallLabel" x="446.6666666666667" y="209" text-anchor="middle">Jackson</text>
 <line x1="446.6666666666667" y1="252" x2="446.6666666666667" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="648.3333333333334" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="753.3333333333334" y="197" text-anchor="middle">JsonMapper.Builder</text>
+<text class="smallLabel" x="753.3333333333334" y="209" text-anchor="middle">JsonMapper.Builder</text>
 <line x1="753.3333333333334" y1="252" x2="753.3333333333334" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="955" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1060" y="197" text-anchor="middle">JacksonModules</text>
+<text class="smallLabel" x="1060" y="209" text-anchor="middle">JacksonModules</text>
 <line x1="1060" y1="252" x2="1060" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect x="158" y="270" width="270.6666666666667" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="297" text-anchor="start">1. Jackson.createDefaultJsonMapper()</text>

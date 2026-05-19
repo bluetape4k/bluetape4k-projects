@@ -25,14 +25,14 @@
 <text class="title" x="66" y="82">Sequence Diagram — httpbin GET</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
 <rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="197" text-anchor="middle">Test / Client</text>
+<text class="smallLabel" x="140" y="209" text-anchor="middle">Test / Client</text>
 <line x1="140" y1="252" x2="140" y2="710" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="187" text-anchor="middle">Bluetape Webflux</text>
-<text class="smallLabel" x="520" y="208" text-anchor="middle">Server (Docker)</text>
+<text class="smallLabel" x="520" y="198.5" text-anchor="middle">Bluetape Webflux</text>
+<text class="smallLabel" x="520" y="219.5" text-anchor="middle">Server (Docker)</text>
 <line x1="520" y1="252" x2="520" y2="710" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="197" text-anchor="middle">HttpbinController</text>
+<text class="smallLabel" x="900" y="209" text-anchor="middle">HttpbinController</text>
 <line x1="900" y1="252" x2="900" y2="710" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="297" text-anchor="start">1. GET http://host:80/httpbin/get</text>
@@ -43,7 +43,7 @@
 <rect x="918" y="434" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="934" y="461" text-anchor="start">3. build</text>
 <text class="strong" x="934" y="484" text-anchor="start">HttpbinResponse</text>
-<path class="line" d="M900 474 L900 474"/>
+<path class="line" d="M900 474 C956 474 956 504 900 504"/>
 <rect x="538" y="516" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="554" y="543" text-anchor="start">4. HttpbinResponse JSON</text>
 <path class="dashed" d="M900 556 L520 556"/>

@@ -25,28 +25,28 @@
 <text class="title" x="66" y="82">Span Lifecycle in a Coroutine Context</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
 <rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="197" text-anchor="middle">Application</text>
+<text class="smallLabel" x="140" y="209" text-anchor="middle">Application</text>
 <line x1="140" y1="252" x2="140" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="297.85714285714283" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="402.85714285714283" y="197" text-anchor="middle">SpanBuilder</text>
+<text class="smallLabel" x="402.85714285714283" y="209" text-anchor="middle">SpanBuilder</text>
 <line x1="402.85714285714283" y1="252" x2="402.85714285714283" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="560.7142857142857" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="665.7142857142857" y="197" text-anchor="middle">Span</text>
+<text class="smallLabel" x="665.7142857142857" y="209" text-anchor="middle">Span</text>
 <line x1="665.7142857142857" y1="252" x2="665.7142857142857" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="823.5714285714284" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="928.5714285714284" y="197" text-anchor="middle">CoroutineContext</text>
+<text class="smallLabel" x="928.5714285714284" y="209" text-anchor="middle">CoroutineContext</text>
 <line x1="928.5714285714284" y1="252" x2="928.5714285714284" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="1086.4285714285713" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1191.4285714285713" y="197" text-anchor="middle">Child Work</text>
+<text class="smallLabel" x="1191.4285714285713" y="209" text-anchor="middle">Child Work</text>
 <line x1="1191.4285714285713" y1="252" x2="1191.4285714285713" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="1349.2857142857142" y="166" width="210" height="72" rx="20" fill="#F1ECFF" stroke="#8A72D6"/>
-<text class="smallLabel" x="1454.2857142857142" y="197" text-anchor="middle">-Context</text>
+<text class="smallLabel" x="1454.2857142857142" y="209" text-anchor="middle">-Context</text>
 <line x1="1454.2857142857142" y1="252" x2="1454.2857142857142" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="1612.1428571428569" y="166" width="210" height="72" rx="20" fill="#F7F1E7" stroke="#B88A44"/>
-<text class="smallLabel" x="1717.1428571428569" y="197" text-anchor="middle">-Span</text>
+<text class="smallLabel" x="1717.1428571428569" y="209" text-anchor="middle">-Span</text>
 <line x1="1717.1428571428569" y1="252" x2="1717.1428571428569" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="1874.9999999999998" y="166" width="210" height="72" rx="20" fill="#EEF6D9" stroke="#8BA84D"/>
-<text class="smallLabel" x="1979.9999999999998" y="197" text-anchor="middle">-Builder</text>
+<text class="smallLabel" x="1979.9999999999998" y="209" text-anchor="middle">-Builder</text>
 <line x1="1979.9999999999998" y1="252" x2="1979.9999999999998" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect x="158" y="270" width="226.85714285714283" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="297" text-anchor="start">1. tracer.spanBuilder(operation)</text>
@@ -71,7 +71,7 @@
 <path class="dashed" d="M928.5714285714284 802 L1717.1428571428569 802"/>
 <rect x="683.7142857142857" y="844" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="699.7142857142857" y="871" text-anchor="start">8. end()</text>
-<path class="line" d="M665.7142857142857 884 L665.7142857142857 884"/>
+<path class="line" d="M665.7142857142857 884 C721.7142857142857 884 721.7142857142857 914 665.7142857142857 914"/>
 <rect x="683.7142857142857" y="926" width="1278.2857142857142" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="699.7142857142857" y="953" text-anchor="start">9. Span finished</text>
 <path class="dashed" d="M665.7142857142857 966 L1979.9999999999998 966"/>
