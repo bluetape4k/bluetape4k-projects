@@ -388,8 +388,9 @@ inline fun <K, V> Map<K, V>?.assertNotEmpty(parameterName: String) = apply {
 inline fun <K, V> Map<K, V>?.assertHasKey(key: K, parameterName: String): Map<K, V> {
     @Suppress("DEPRECATION")
     assertNotEmpty(parameterName)
-    if (!this!!.containsKey(key)) throw AssertionError("$parameterName must contain key $key")
-    return this
+    val self = this ?: throw AssertionError("$parameterName must not be null or empty.")
+    if (!self.containsKey(key)) throw AssertionError("$parameterName must contain key $key")
+    return self
 }
 
 /**
@@ -405,8 +406,9 @@ inline fun <K, V> Map<K, V>?.assertHasKey(key: K, parameterName: String): Map<K,
 inline fun <K, V> Map<K, V>?.assertHasValue(value: V, parameterName: String): Map<K, V> {
     @Suppress("DEPRECATION")
     assertNotEmpty(parameterName)
-    if (!this!!.containsValue(value)) throw AssertionError("$parameterName must contain value $value")
-    return this
+    val self = this ?: throw AssertionError("$parameterName must not be null or empty.")
+    if (!self.containsValue(value)) throw AssertionError("$parameterName must contain value $value")
+    return self
 }
 
 /**
@@ -422,6 +424,7 @@ inline fun <K, V> Map<K, V>?.assertHasValue(value: V, parameterName: String): Ma
 inline fun <K, V> Map<K, V>?.assertContains(key: K, value: V, parameterName: String): Map<K, V> {
     @Suppress("DEPRECATION")
     assertNotEmpty(parameterName)
-    if (this!![key] != value) throw AssertionError("$parameterName must contain ($key, $value)")
-    return this
+    val self = this ?: throw AssertionError("$parameterName must not be null or empty.")
+    if (self[key] != value) throw AssertionError("$parameterName must contain ($key, $value)")
+    return self
 }

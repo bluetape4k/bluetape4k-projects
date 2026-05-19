@@ -50,7 +50,8 @@ fun <T: Any> Class<T>.findPrimaryConstructor(): Constructor<T>? =
  * ```kotlin
  * data class Point(val x: Int, val y: Int = 0)
  *
- * val ctor: Constructor<Point> = Point::class.java.findPrimaryConstructor()!!
+ * val ctor: Constructor<Point> = Point::class.java.findPrimaryConstructor()
+ *     ?: error("Primary constructor not found")
  * val p1: Point? = ctor.instantiateClass(3, 5)
  * // p1?.x == 3, p1?.y == 5
  *

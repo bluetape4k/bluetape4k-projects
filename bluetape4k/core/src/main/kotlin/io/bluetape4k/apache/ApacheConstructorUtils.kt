@@ -10,7 +10,8 @@ import java.lang.reflect.Constructor
  *
  * ```kotlin
  * data class Sample(val name: String, val value: Int)
- * val ctor = Sample::class.java.getAccessibleConstructor(String::class.java, Int::class.javaPrimitiveType!!)
+ * val intType = Int::class.javaPrimitiveType ?: error("Int primitive type is unavailable")
+ * val ctor = Sample::class.java.getAccessibleConstructor(String::class.java, intType)
  * // ctor != null
  * ```
  *
@@ -27,7 +28,8 @@ fun <T> Class<T>.getAccessibleConstructor(vararg parameterTypes: Class<*>): Cons
  *
  * ```kotlin
  * data class Sample(val name: String, val value: Int)
- * val ctor = Sample::class.java.getMatchingAccessibleConstructor(String::class.java, Int::class.javaPrimitiveType!!)
+ * val intType = Int::class.javaPrimitiveType ?: error("Int primitive type is unavailable")
+ * val ctor = Sample::class.java.getMatchingAccessibleConstructor(String::class.java, intType)
  * // ctor != null
  * ```
  *
@@ -64,7 +66,7 @@ fun <T> Class<T>.invokeConstructor(vararg args: Any?): T =
  * data class Sample(val name: String, val value: Int)
  * val instance = Sample::class.java.invokeConstructor(
  *     arrayOf("hello", 42),
- *     arrayOf(String::class.java, Int::class.javaPrimitiveType!!)
+ *     arrayOf(String::class.java, Int::class.javaPrimitiveType ?: error("Int primitive type is unavailable"))
  * )
  * // instance.name == "hello" && instance.value == 42
  * ```
@@ -102,7 +104,7 @@ fun <T> Class<T>.invokeExactConstructor(vararg args: Any?): T =
  * data class Sample(val name: String, val value: Int)
  * val instance = Sample::class.java.invokeExactConstructor(
  *     arrayOf("hello", 42),
- *     arrayOf(String::class.java, Int::class.javaPrimitiveType!!)
+ *     arrayOf(String::class.java, Int::class.javaPrimitiveType ?: error("Int primitive type is unavailable"))
  * )
  * // instance.name == "hello" && instance.value == 42
  * ```

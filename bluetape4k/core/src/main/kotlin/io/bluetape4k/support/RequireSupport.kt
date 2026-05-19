@@ -453,8 +453,9 @@ inline fun <K, V> Map<K, V>?.requireNotEmpty(parameterName: String) = apply {
  */
 inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    require(this!!.containsKey(key)) { "$parameterName must contain key $key" }
-    return this
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
+    require(self.containsKey(key)) { "$parameterName must contain key $key" }
+    return self
 }
 
 /**
@@ -472,8 +473,9 @@ inline fun <K, V> Map<K, V>?.requireHasKey(key: K, parameterName: String): Map<K
  */
 inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    require(this!!.containsValue(value)) { "$parameterName must contain value $value" }
-    return this
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
+    require(self.containsValue(value)) { "$parameterName must contain value $value" }
+    return self
 }
 
 /**
@@ -491,6 +493,7 @@ inline fun <K, V> Map<K, V>?.requireHasValue(value: V, parameterName: String): M
  */
 inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: String): Map<K, V> {
     requireNotEmpty(parameterName)
-    require(this!![key] == value) { "$parameterName must contain ($key, $value)" }
-    return this
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null or empty.")
+    require(self[key] == value) { "$parameterName must contain ($key, $value)" }
+    return self
 }

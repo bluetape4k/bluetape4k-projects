@@ -114,12 +114,15 @@ class AssertSupportTest {
     fun `assert map key and value operations`() {
         mapOf("a" to 1, "b" to 2).assertHasKey("a", "x")
         shouldFailAssert { mapOf("a" to 1).assertHasKey("b", "x") }
+        shouldFailAssert { (null as Map<String, Int>?).assertHasKey("a", "x") }
 
         mapOf("a" to 1, "b" to 2).assertHasValue(1, "x")
         shouldFailAssert { mapOf("a" to 1).assertHasValue(99, "x") }
+        shouldFailAssert { (null as Map<String, Int>?).assertHasValue(1, "x") }
 
         mapOf("a" to 1, "b" to 2).assertContains("a", 1, "x")
         shouldFailAssert { mapOf("a" to 1).assertContains("a", 99, "x") }
+        shouldFailAssert { (null as Map<String, Int>?).assertContains("a", 1, "x") }
     }
 
     /**

@@ -45,10 +45,10 @@ open class SingletonHolder<T: Any>(factory: () -> T) {
         lock.withLock {
             instance.value?.let { return it }
 
-            val created = _factory?.invoke()
+            val created = checkNotNull(_factory) { "Singleton factory has already been cleared." }.invoke()
             instance.compareAndSet(null, created)
             _factory = null
-            return created!!
+            return created
         }
     }
 }
