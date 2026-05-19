@@ -8,7 +8,7 @@ bluetape4k 생태계의 토대 계층이며, `bluetape4k/*`, `data/*`, `infra/*`
 
 ## Architecture
 
-![Architecture 1](../../docs/images/readme-diagrams/bluetape4k-bom-ko-diagram-01.svg)
+![Architecture 1](../../docs/images/readme-diagrams/bluetape4k-bom-diagram-01.png)
 
 BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 게시하며 런타임 클래스는 포함하지 않는다.
 `rootProject.subprojects` 를 동적으로 끌어오며 자기 자신, `*-demo`, `examples/*`, `workshop/*` 만 제외한다.

@@ -11,22 +11,22 @@ A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern 
 
 The three core building blocks and how they interact:
 
-![Concept Overview 1](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.svg)
+![Concept Overview 1](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
 
 A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `Facts`).  
 `RuleEngine.fire()` iterates rules in priority order, evaluates each condition, and runs matching actions.
 
 ### Core Class Diagram
 
-![Core Class Diagram 2](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.svg)
+![Core Class Diagram 2](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
 
 ### Rule Engine Class Diagram
 
-![Rule Engine Class Diagram 3](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.svg)
+![Rule Engine Class Diagram 3](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
 
 ### Composite Rules
 
-![Composite Rules 4](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.svg)
+![Composite Rules 4](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.png)
 
 ### Rule Execution Sequence
 
@@ -34,11 +34,11 @@ A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `
 
 ### InferenceRuleEngine (Forward Chaining)
 
-![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.svg)
+![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.png)
 
 ### Rule Engine Selection Guide
 
-![Rule Engine Selection Guide 6](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.svg)
+![Rule Engine Selection Guide 6](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.png)
 
 ## Core Features
 
@@ -185,7 +185,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### Script Engine Selection Guide
 
-![Script Engine Selection Guide 7](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.svg)
+![Script Engine Selection Guide 7](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.png)
 
 | Scenario | Recommended | Reason |
 |----------|-------------|--------|

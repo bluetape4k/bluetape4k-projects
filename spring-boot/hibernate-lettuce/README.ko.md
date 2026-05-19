@@ -10,11 +10,11 @@ Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 A
 
 ## UML
 
-![UML 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-ko-diagram-01.svg)
+![UML 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)
 
 ### Auto-Configuration 활성화 흐름
 
-![Auto-Configuration 활성화 흐름 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-ko-diagram-02.svg)
+![Auto-Configuration 활성화 흐름 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
 
 ## Spring Boot 4 고유 사항
 

@@ -335,7 +335,7 @@ io.bluetape4k.tink
 
 ### TinkEncryptor 클래스 계층
 
-![TinkEncryptor 클래스 계층 1](../../docs/images/readme-diagrams/io-tink-ko-diagram-01.svg)
+![TinkEncryptor 클래스 계층 1](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
 
 ### AEAD encrypt/decrypt 흐름
 

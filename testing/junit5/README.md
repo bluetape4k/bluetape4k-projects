@@ -8,11 +8,11 @@ An extension library that reduces repetitive boilerplate in JUnit 5 tests.
 
 ### Extension Component Overview
 
-![Extension Component Overview 1](../../docs/images/readme-diagrams/testing-junit5-diagram-01.svg)
+![Extension Component Overview 1](../../docs/images/readme-diagrams/testing-junit5-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/testing-junit5-diagram-02.svg)
+![Class Diagram 2](../../docs/images/readme-diagrams/testing-junit5-diagram-02.png)
 
 ## Key Features
 

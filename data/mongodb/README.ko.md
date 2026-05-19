@@ -177,15 +177,15 @@ class MyMongoTest : AbstractMongoTest() {
 
 ### 주요 클래스 구조
 
-![주요 클래스 구조 1](../../docs/images/readme-diagrams/data-mongodb-ko-diagram-01.svg)
+![주요 클래스 구조 1](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
 
 ### 모듈 API 구조
 
-![모듈 API 구조 2](../../docs/images/readme-diagrams/data-mongodb-ko-diagram-02.svg)
+![모듈 API 구조 2](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
 
 ### Aggregation Pipeline 데이터 흐름
 
-![Aggregation Pipeline 데이터 흐름 3](../../docs/images/readme-diagrams/data-mongodb-ko-diagram-03.svg)
+![Aggregation Pipeline 데이터 흐름 3](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
 
 ## 참고 자료
 

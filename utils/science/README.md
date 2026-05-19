@@ -27,15 +27,15 @@ Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF m
 
 ### Integrated Module Overview
 
-![Integrated Module Overview 1](../../docs/images/readme-diagrams/utils-science-diagram-01.svg)
+![Integrated Module Overview 1](../../docs/images/readme-diagrams/utils-science-diagram-01.png)
 
 ### Coordinate Transformation Flow
 
-![Coordinate Transformation Flow 2](../../docs/images/readme-diagrams/utils-science-diagram-02.svg)
+![Coordinate Transformation Flow 2](../../docs/images/readme-diagrams/utils-science-diagram-02.png)
 
 ### PostGIS + NetCDF Database Schema
 
-![PostGIS + NetCDF Database Schema 3](../../docs/images/readme-diagrams/utils-science-diagram-03.svg)
+![PostGIS + NetCDF Database Schema 3](../../docs/images/readme-diagrams/utils-science-diagram-03.png)
 
 ---
 

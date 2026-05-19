@@ -354,7 +354,7 @@ io.bluetape4k.tink
 
 ### TinkEncryptor Class Hierarchy
 
-![TinkEncryptor Class Hierarchy 1](../../docs/images/readme-diagrams/io-tink-diagram-01.svg)
+![TinkEncryptor Class Hierarchy 1](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
 
 ### AEAD encrypt/decrypt Flow
 

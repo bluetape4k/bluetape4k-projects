@@ -1,116 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Producer / Consumer Message Flow Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="2120" height="1180" viewBox="0 0 2120 1180" role="img" aria-label="Producer/Consumer Message Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
-  </filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
-  </marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
-    .canvas { fill: #f7f9fc; }
-    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
-    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
-    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
-    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
-    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
-    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
-    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
-    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
-    .card { stroke-width: 2.2; filter: url(#shadow); }
-    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
-    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
-    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
-    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
-    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
-    .compartment { stroke-width: 1.6; fill: none; }
-    .chip { stroke-width: 1.5; rx: 16; }
-    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
+    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
+    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1600" height="1050"/>
-<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">Producer / Consumer Message Flow Sequence</text>
-<text class="subtitle" x="90" y="132">Lifelines remain while messages become readable pastel interaction bands</text>
-<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
-<text class="chipText" x="1075" y="88" text-anchor="middle">request</text>
-<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
-<text class="chipText" x="1223" y="88" text-anchor="middle">work</text>
-<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
-<text class="chipText" x="1371" y="88" text-anchor="middle">response</text>
-<g>
-  <rect class="card" x="98" y="220" width="224" height="70" rx="24" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="label" x="210" y="265" text-anchor="middle">Application</text>
-  <line x1="210" y1="306" x2="210" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="393" y="220" width="224" height="70" rx="24" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="label" x="505" y="265" text-anchor="middle">SuspendKafkaPro.</text>
-  <line x1="505" y1="306" x2="505" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="688" y="220" width="224" height="70" rx="24" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="label" x="800" y="265" text-anchor="middle">SuspendKafkaCon.</text>
-  <line x1="800" y1="306" x2="800" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="983" y="220" width="224" height="70" rx="24" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="label" x="1095" y="265" text-anchor="middle">Kafka Broker</text>
-  <line x1="1095" y1="306" x2="1095" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="1278" y="220" width="224" height="70" rx="24" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="label" x="1390" y="265" text-anchor="middle">Message Handler</text>
-  <line x1="1390" y1="306" x2="1390" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="150" y="360" width="415" height="74" rx="22" fill="#f1ecff" stroke="#8a72d6"/>
-  <text class="strong" x="182" y="392">1</text>
-  <text class="strong" x="224" y="392">return</text>
-  <text class="small" x="224" y="416">SenderResult (partition, offset)</text>
-  <path class="dashed" d="M250 397 L465 397"/>
-</g>
-<g>
-  <rect class="card" x="150" y="452" width="415" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="strong" x="182" y="484">2</text>
-  <text class="strong" x="224" y="484">return</text>
-  <text class="small" x="224" y="508">Return SenderResult</text>
-  <path class="dashed" d="M250 489 L465 489"/>
-</g>
-<g>
-  <rect class="card" x="1330" y="544" width="120" height="74" rx="22" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="strong" x="1362" y="576">3</text>
-  <text class="strong" x="1404" y="576">Process business logic</text>
-  <text class="small" x="1404" y="600">interaction band</text>
-  <path class="line" d="M1430 581 L1350 581"/>
-</g>
-<g>
-  <rect class="card" x="1035" y="636" width="415" height="74" rx="22" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="strong" x="1067" y="668">4</text>
-  <text class="strong" x="1109" y="668">receiverOffset.commit</text>
-  <text class="small" x="1109" y="692">interaction band</text>
-  <path class="line" d="M1350 673 L1135 673"/>
-</g>
-<g>
-  <rect class="card" x="150" y="728" width="415" height="74" rx="22" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="strong" x="182" y="760">5</text>
-  <text class="strong" x="224" y="760">return</text>
-  <text class="small" x="224" y="784">Processing complete</text>
-  <path class="dashed" d="M250 765 L465 765"/>
-</g>
-<g>
-  <rect class="card" x="150" y="820" width="415" height="74" rx="22" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="strong" x="182" y="852">6</text>
-  <text class="strong" x="224" y="852">return</text>
-  <text class="small" x="224" y="876">ACK</text>
-  <path class="dashed" d="M250 857 L465 857"/>
-</g>
-<g transform="translate(124,858)">
-  <rect class="card" x="0" y="0" width="1352" height="88" rx="18" fill="#0d2435" stroke="#0d2435"/>
-  <text class="smallLabel" x="28" y="42" fill="#ffffff">Reading rule</text>
-  <text class="small" x="250" y="38" fill="#dbeafe">Lifelines stay visible; messages are grouped into numbered pastel interaction bands.</text>
-  <text class="small" x="250" y="64" fill="#dbeafe">Dashed bands indicate compact return/response paths.</text>
-</g>
+<rect class="canvas" width="2120" height="1180"/>
+<rect class="frame" x="32" y="28" width="2056" height="1124" rx="28"/>
+<text class="title" x="66" y="82">Producer/Consumer Message Flow</text>
+<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
+<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="140" y="197" text-anchor="middle">Application</text>
+<line x1="140" y1="252" x2="140" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="297.85714285714283" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="402.85714285714283" y="187" text-anchor="middle">Suspend Kafka</text>
+<text class="smallLabel" x="402.85714285714283" y="208" text-anchor="middle">Producer Template</text>
+<line x1="402.85714285714283" y1="252" x2="402.85714285714283" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="560.7142857142857" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="665.7142857142857" y="187" text-anchor="middle">Suspend Kafka</text>
+<text class="smallLabel" x="665.7142857142857" y="208" text-anchor="middle">Consumer Template</text>
+<line x1="665.7142857142857" y1="252" x2="665.7142857142857" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="823.5714285714284" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="928.5714285714284" y="197" text-anchor="middle">Kafka Broker</text>
+<line x1="928.5714285714284" y1="252" x2="928.5714285714284" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1086.4285714285713" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1191.4285714285713" y="197" text-anchor="middle">Message Handler</text>
+<line x1="1191.4285714285713" y1="252" x2="1191.4285714285713" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1349.2857142857142" y="166" width="210" height="72" rx="20" fill="#F1ECFF" stroke="#8A72D6"/>
+<text class="smallLabel" x="1454.2857142857142" y="197" text-anchor="middle">-PT</text>
+<line x1="1454.2857142857142" y1="252" x2="1454.2857142857142" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1612.1428571428569" y="166" width="210" height="72" rx="20" fill="#F7F1E7" stroke="#B88A44"/>
+<text class="smallLabel" x="1717.1428571428569" y="197" text-anchor="middle">-App</text>
+<line x1="1717.1428571428569" y1="252" x2="1717.1428571428569" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1874.9999999999998" y="166" width="210" height="72" rx="20" fill="#EEF6D9" stroke="#8BA84D"/>
+<text class="smallLabel" x="1979.9999999999998" y="197" text-anchor="middle">-CT</text>
+<line x1="1979.9999999999998" y1="252" x2="1979.9999999999998" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="158" y="270" width="226.85714285714283" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="297" text-anchor="start">1. send(topic, key, value)</text>
+<path class="line" d="M140 310 L402.85714285714283 310"/>
+<rect x="420.85714285714283" y="352" width="489.71428571428555" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="436.85714285714283" y="379" text-anchor="start">2. Publish ProducerRecord</text>
+<path class="line" d="M402.85714285714283 392 L928.5714285714284 392"/>
+<rect x="946.5714285714284" y="434" width="489.7142857142858" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="962.5714285714284" y="461" text-anchor="start">3. SenderResult (partition, offset)</text>
+<path class="dashed" d="M928.5714285714284 474 L1454.2857142857142 474"/>
+<rect x="420.85714285714283" y="516" width="1278.285714285714" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="436.85714285714283" y="543" text-anchor="start">4. Return SenderResult</text>
+<path class="dashed" d="M402.85714285714283 556 L1717.1428571428569 556"/>
+<rect x="683.7142857142857" y="598" width="226.85714285714278" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="699.7142857142857" y="625" text-anchor="start">5. ReceiverRecord stream</text>
+<path class="line" d="M928.5714285714284 638 L665.7142857142857 638"/>
+<rect x="683.7142857142857" y="680" width="489.71428571428567" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="699.7142857142857" y="707" text-anchor="start">6. Flow.collect { record }</text>
+<path class="line" d="M665.7142857142857 720 L1191.4285714285713 720"/>
+<rect x="1209.4285714285713" y="762" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1225.4285714285713" y="789" text-anchor="start">7. Process business</text>
+<text class="strong" x="1225.4285714285713" y="812" text-anchor="start">logic</text>
+<path class="line" d="M1191.4285714285713 802 L1191.4285714285713 802"/>
+<rect x="946.5714285714284" y="844" width="226.8571428571429" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="962.5714285714284" y="871" text-anchor="start">8. receiverOffset.commit()</text>
+<path class="line" d="M1191.4285714285713 884 L928.5714285714284 884"/>
+<rect x="1209.4285714285713" y="926" width="752.5714285714284" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1225.4285714285713" y="953" text-anchor="start">9. Processing complete</text>
+<path class="dashed" d="M1191.4285714285713 966 L1979.9999999999998 966"/>
 </svg>

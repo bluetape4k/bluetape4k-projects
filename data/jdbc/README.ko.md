@@ -477,11 +477,11 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### 확장 함수 API 개요
 
-![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-01.svg)
+![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
 
 ### 주요 API 구조
 
-![주요 API 구조 2](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-02.svg)
+![주요 API 구조 2](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
 
 ### JDBC 쿼리 실행 흐름
 

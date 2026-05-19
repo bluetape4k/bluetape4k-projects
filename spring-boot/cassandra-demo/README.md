@@ -6,7 +6,7 @@ A comprehensive set of examples for Apache Cassandra and Spring Data Cassandra (
 
 ## UML
 
-![UML 1](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.svg)
+![UML 1](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-diagram-01.png)
 
 > This is the versionless Spring Boot 4 example module.
 

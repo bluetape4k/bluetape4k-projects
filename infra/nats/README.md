@@ -8,7 +8,7 @@ This module provides Kotlin-idiomatic extension functions and DSLs for the NATS 
 
 ## Architecture
 
-![Architecture 1](../../docs/images/readme-diagrams/infra-nats-diagram-01.svg)
+![Architecture 1](../../docs/images/readme-diagrams/infra-nats-diagram-01.png)
 
 ## Features
 

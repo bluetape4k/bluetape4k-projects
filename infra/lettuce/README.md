@@ -399,7 +399,7 @@ dependencies {
 
 ### Distributed Primitive Class Hierarchy
 
-![Distributed Primitive Class Hierarchy 1](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.svg)
+![Distributed Primitive Class Hierarchy 1](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
 
 ### LettuceLoadedMap Read-Through / Write-Through Flow
 
@@ -407,7 +407,7 @@ dependencies {
 
 ### LettuceBinaryCodec Hierarchy
 
-![LettuceBinaryCodec Hierarchy 2](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.svg)
+![LettuceBinaryCodec Hierarchy 2](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## Probabilistic Data Structures
 

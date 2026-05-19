@@ -302,11 +302,11 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ### Jackson 2.x vs 3.x 모듈 비교
 
-![Jackson 2.x vs 3.x 모듈 비교 1](../../docs/images/readme-diagrams/io-jackson3-ko-diagram-01.svg)
+![Jackson 2.x vs 3.x 모듈 비교 1](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
 
 ### 클래스 구조
 
-![클래스 구조 2](../../docs/images/readme-diagrams/io-jackson3-ko-diagram-02.svg)
+![클래스 구조 2](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
 
 ### Jackson 3.x 모듈 등록 흐름
 

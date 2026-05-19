@@ -50,11 +50,11 @@ println(distance.toHuman())    // 50.0 m
 
 ## 클래스 다이어그램
 
-![클래스 다이어그램 1](../../docs/images/readme-diagrams/utils-measured-ko-diagram-01.svg)
+![클래스 다이어그램 1](../../docs/images/readme-diagrams/utils-measured-diagram-01.png)
 
 ## 단위 조합 흐름
 
-![단위 조합 흐름 2](../../docs/images/readme-diagrams/utils-measured-ko-diagram-02.svg)
+![단위 조합 흐름 2](../../docs/images/readme-diagrams/utils-measured-diagram-02.png)
 
 ## units 호환 어댑터
 

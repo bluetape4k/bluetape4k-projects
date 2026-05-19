@@ -57,7 +57,7 @@ Typical examples include:
 
 ### LettuceNearCache Class Hierarchy
 
-![LettuceNearCache Class Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
+![LettuceNearCache Class Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)
 
 ### RESP3 CLIENT TRACKING Flow
 

@@ -99,7 +99,7 @@ val value = memo("recover")      // recomputes and returns 7
 
 ### NearCache Interface Hierarchy
 
-![NearCache Interface Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
+![NearCache Interface Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.png)
 
 ## `testFixtures` Usage Guide
 

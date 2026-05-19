@@ -1,123 +1,155 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Class Hierarchy — Period Framework Classes">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1508" viewBox="0 0 1754 1508" role="img" aria-label="Class Hierarchy — Period Framework">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
-  </filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
-  </marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
-    .canvas { fill: #f7f9fc; }
-    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
-    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
-    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
-    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
-    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
-    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
-    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
-    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
-    .card { stroke-width: 2.2; filter: url(#shadow); }
-    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
-    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
-    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
-    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
-    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
-    .compartment { stroke-width: 1.6; fill: none; }
-    .chip { stroke-width: 1.5; rx: 16; }
-    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
+    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
+    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1600" height="1050"/>
-<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">Class Hierarchy — Period Framework Classes</text>
-<text class="subtitle" x="90" y="132">UML compartments with vertical inheritance and dependency direction</text>
-<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
-<text class="chipText" x="1075" y="88" text-anchor="middle">class</text>
-<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
-<text class="chipText" x="1223" y="88" text-anchor="middle">interface</text>
-<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
-<text class="chipText" x="1371" y="88" text-anchor="middle">use</text>
-<g transform="translate(612,190)">
-  <rect class="card" x="0" y="0" width="376" height="190" rx="4" fill="#fff3d9" stroke="#d6a441"/>
-  <line class="compartment" x1="0" y1="78" x2="376" y2="78" stroke="#d6a441"/>
-  <line class="compartment" x1="0" y1="142" x2="376" y2="142" stroke="#d6a441"/>
-  <text class="small" x="188" y="28" text-anchor="middle">«interface or base»</text>
-  <text class="label" x="188" y="62" text-anchor="middle">usesexcludePeriods</text>
-  <text class="mono" x="24" y="116">Item</text>
-<text class="mono" x="24" y="144">+ contract</text>
-<text class="mono" x="24" y="172">+ behavior</text>
-<text class="mono" x="24" y="200">Item</text>
+<rect class="canvas" width="1754" height="1508"/>
+<rect class="frame" x="32" y="28" width="1690" height="1452" rx="28"/>
+<text class="title" x="66" y="82">Class Hierarchy — Period Framework</text>
+<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
+<path class="dashed" d="M262 356 C262 427 1082 427 1082 498"/>
+<path class="inheritLine" d="M1082 1030 C1082 995 877 995 877 960"/>
+<path class="inheritLine" d="M672 1030 C672 995 877 995 877 960"/>
+<path class="inheritLine" d="M262 1030 C262 995 877 995 877 960"/>
+<path class="inheritLine" d="M672 1224 C672 1092 877 1092 877 960"/>
+<path class="inheritLine" d="M1492 1030 C1492 995 877 995 877 960"/>
+<path class="inheritLine" d="M1082 1224 C1082 1092 877 1092 877 960"/>
+<path class="inheritLine" d="M877 776 C877 741 1082 741 1082 706"/>
+<path class="inheritLine" d="M1082 498 C1082 463 1492 463 1492 428"/>
+<path class="inheritLine" d="M672 498 C672 463 1492 463 1492 428"/>
+<g transform="translate(92,180)">
+  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">DateAdd</text>
+  <text class="mono" x="18" y="108">+excludePeriods: List~TimeRange~</text>
+<text class="mono" x="18" y="132">+add(start, duration): ZonedDateTime</text>
+<text class="mono" x="18" y="156">+subtract(start, duration): ZonedDateTime</text>
 </g>
-<g transform="translate(342,462)">
-  <rect class="card" x="0" y="0" width="376" height="230" rx="4" fill="#e8f3ff" stroke="#5b8def"/>
-  <line class="compartment" x1="0" y1="78" x2="376" y2="78" stroke="#5b8def"/>
-  <line class="compartment" x1="0" y1="156" x2="376" y2="156" stroke="#5b8def"/>
-  <text class="small" x="188" y="28" text-anchor="middle">«class»</text>
-  <text class="label" x="188" y="62" text-anchor="middle">interface</text>
-  <text class="mono" x="24" y="116">Item</text>
-<text class="mono" x="24" y="144">+ contract</text>
-<text class="mono" x="24" y="172">+ behavior</text>
-<text class="mono" x="24" y="200">Item</text>
+<g transform="translate(502,180)">
+  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">DateDiff</text>
+  <text class="mono" x="18" y="108">+years: Int</text>
+<text class="mono" x="18" y="132">+months: Int</text>
+<text class="mono" x="18" y="156">+days: Int</text>
+<text class="mono" x="18" y="180">+hours: Int</text>
+<text class="mono" x="18" y="204">+minutes: Int</text>
+<text class="mono" x="18" y="228">+seconds: Int</text>
 </g>
-<g transform="translate(922,462)">
-  <rect class="card" x="0" y="0" width="376" height="230" rx="4" fill="#eaf7ef" stroke="#58a978"/>
-  <line class="compartment" x1="0" y1="78" x2="376" y2="78" stroke="#58a978"/>
-  <line class="compartment" x1="0" y1="156" x2="376" y2="156" stroke="#58a978"/>
-  <text class="small" x="188" y="28" text-anchor="middle">«class»</text>
-  <text class="label" x="188" y="62" text-anchor="middle">TimePeriod</text>
-  <text class="mono" x="24" y="116">Item</text>
-<text class="mono" x="24" y="144">+ contract</text>
-<text class="mono" x="24" y="172">+ behavior</text>
-<text class="mono" x="24" y="200">Item</text>
+<g transform="translate(912,180)">
+  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">TemporalInterval</text>
+  <text class="mono" x="18" y="108">+start: Instant</text>
+<text class="mono" x="18" y="132">+end: Instant</text>
+<text class="mono" x="18" y="156">+toDuration(): Duration</text>
+<text class="mono" x="18" y="180">+contains(instant): Boolean</text>
+<text class="mono" x="18" y="204">+overlaps(other): Boolean</text>
+<text class="mono" x="18" y="228">+windowedDays(size, step): List</text>
 </g>
-<g transform="translate(214,792)">
-  <rect class="card" x="0" y="0" width="330" height="128" rx="4" fill="#fdecef" stroke="#dc6b82"/>
-  <line class="compartment" x1="0" y1="78" x2="330" y2="78" stroke="#dc6b82"/>
-  <line class="compartment" x1="0" y1="80" x2="330" y2="80" stroke="#dc6b82"/>
-  <text class="small" x="165" y="28" text-anchor="middle">«class»</text>
-  <text class="label" x="165" y="62" text-anchor="middle">startZonedDateTime</text>
-  <text class="mono" x="24" y="116">Item</text>
-<text class="mono" x="24" y="144">+ contract</text>
-<text class="mono" x="24" y="172">+ behavior</text>
-<text class="mono" x="24" y="200">Item</text>
+<g transform="translate(1322,180)">
+  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="57" text-anchor="middle">TimePeriod</text>
+  <text class="mono" x="18" y="108">+start: ZonedDateTime</text>
+<text class="mono" x="18" y="132">+end: ZonedDateTime</text>
+<text class="mono" x="18" y="156">+duration: Duration</text>
+<text class="mono" x="18" y="180">+contains(dt): Boolean</text>
+<text class="mono" x="18" y="204">+overlaps(other): Boolean</text>
+<text class="mono" x="18" y="228">+relationWith(other): PeriodRelation</text>
 </g>
-<g transform="translate(624,792)">
-  <rect class="card" x="0" y="0" width="330" height="128" rx="4" fill="#e9f7f6" stroke="#45a7a1"/>
-  <line class="compartment" x1="0" y1="78" x2="330" y2="78" stroke="#45a7a1"/>
-  <line class="compartment" x1="0" y1="80" x2="330" y2="80" stroke="#45a7a1"/>
-  <text class="small" x="165" y="28" text-anchor="middle">«class»</text>
-  <text class="label" x="165" y="62" text-anchor="middle">endZonedDateTime</text>
-  <text class="mono" x="24" y="116">Item</text>
-<text class="mono" x="24" y="144">+ contract</text>
-<text class="mono" x="24" y="172">+ behavior</text>
-<text class="mono" x="24" y="200">Item</text>
+<g transform="translate(502,506)">
+  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">TimeBlock</text>
+  <text class="mono" x="18" y="108">+start: ZonedDateTime</text>
+<text class="mono" x="18" y="132">+duration: Duration</text>
+<text class="mono" x="18" y="156">+move(duration)</text>
+<text class="mono" x="18" y="180">+expandBy(duration)</text>
 </g>
-<g transform="translate(1034,792)">
-  <rect class="card" x="0" y="0" width="330" height="128" rx="4" fill="#f1ecff" stroke="#8a72d6"/>
-  <line class="compartment" x1="0" y1="78" x2="330" y2="78" stroke="#8a72d6"/>
-  <line class="compartment" x1="0" y1="80" x2="330" y2="80" stroke="#8a72d6"/>
-  <text class="small" x="165" y="28" text-anchor="middle">«class»</text>
-  <text class="label" x="165" y="62" text-anchor="middle">durationDuration</text>
-  <text class="mono" x="24" y="116">Item</text>
-<text class="mono" x="24" y="144">+ contract</text>
-<text class="mono" x="24" y="172">+ behavior</text>
-<text class="mono" x="24" y="200">Item</text>
+<g transform="translate(912,506)">
+  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">TimeRange</text>
+  <text class="mono" x="18" y="108">+start: ZonedDateTime</text>
+<text class="mono" x="18" y="132">+end: ZonedDateTime</text>
+<text class="mono" x="18" y="156">+move(duration)</text>
+<text class="mono" x="18" y="180">+expandBy(duration)</text>
 </g>
-<path class="implLine" d="M530 462 C590 410 690 386 800 380"/>
-<text class="small" x="612" y="408">implements / extends</text>
-<path class="dashed" d="M718 580 C780 580 860 580 922 580"/>
-<rect x="756" y="548" width="118" height="30" rx="15" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="770" y="568">uses</text>
-<path class="inheritLine" d="M379 792 L379 742 L530 742 L530 708"/>
-<path class="inheritLine" d="M789 792 L789 742 L1110 742 L1110 708"/>
-<path class="inheritLine" d="M1199 792 L1199 742 L530 742 L530 708"/>
-<g transform="translate(1088,806)">
-  <rect class="card" x="0" y="0" width="360" height="130" rx="18" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="smallLabel" x="28" y="48">Reading rule</text>
-  <text class="mono" x="30" y="84">Triangle points to parent/interface</text>
-  <text class="mono" x="30" y="112">Dashed arrow points to used type</text>
+<g transform="translate(707,784)">
+  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">CalendarTimeRange</text>
+  <text class="mono" x="18" y="108">+calendar: TimeCalendar</text>
+<text class="mono" x="18" y="132">+unmappedStart: ZonedDateTime</text>
+<text class="mono" x="18" y="156">+unmappedEnd: ZonedDateTime</text>
 </g>
+<g transform="translate(92,1038)">
+  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">DayRange</text>
+
+</g>
+<g transform="translate(502,1038)">
+  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">HourRange</text>
+
+</g>
+<g transform="translate(912,1038)">
+  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">MinuteRange</text>
+
+</g>
+<g transform="translate(1322,1038)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">MonthRange</text>
+  <text class="mono" x="18" y="108">+monthOfYear: Int</text>
+</g>
+<g transform="translate(502,1232)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">WeekRange</text>
+  <text class="mono" x="18" y="108">+weekOfYear: Int</text>
+</g>
+<g transform="translate(912,1232)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">YearRange</text>
+  <text class="mono" x="18" y="108">+year: Int</text>
+</g>
+<rect x="614" y="412" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
+<text class="small" x="672" y="430" text-anchor="middle">uses excludePerio.</text>
 </svg>

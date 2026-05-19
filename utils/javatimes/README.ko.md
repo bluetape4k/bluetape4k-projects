@@ -11,15 +11,15 @@ Java Time API (java.time)를 위한 고급 시간 연산 라이브러리입니�
 
 ### 기능 구조 개요
 
-![기능 구조 개요 1](../../docs/images/readme-diagrams/utils-javatimes-ko-diagram-01.svg)
+![기능 구조 개요 1](../../docs/images/readme-diagrams/utils-javatimes-diagram-01.png)
 
 ### 클래스 계층 — Period Framework
 
-![클래스 계층 — Period Framework 2](../../docs/images/readme-diagrams/utils-javatimes-ko-diagram-02.svg)
+![클래스 계층 — Period Framework 2](../../docs/images/readme-diagrams/utils-javatimes-diagram-02.png)
 
 ### PeriodRelation — 두 기간의 관계
 
-![PeriodRelation — 두 기간의 관계 3](../../docs/images/readme-diagrams/utils-javatimes-ko-diagram-03.svg)
+![PeriodRelation — 두 기간의 관계 3](../../docs/images/readme-diagrams/utils-javatimes-diagram-03.png)
 
 ## 기초 기능 (bluetape4k-core 제공)
 

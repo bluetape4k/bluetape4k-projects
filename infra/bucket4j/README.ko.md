@@ -22,7 +22,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 ### Bucket4j 통합 클래스 다이어그램
 
-![Bucket4j 통합 클래스 다이어그램 1](../../docs/images/readme-diagrams/infra-bucket4j-ko-diagram-01.svg)
+![Bucket4j 통합 클래스 다이어그램 1](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
 
 ### Rate Limiting 시퀀스 다이어그램
 

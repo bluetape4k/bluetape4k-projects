@@ -10,11 +10,11 @@ Simply add `bluetape4k.cache.lettuce-near.*` settings to your
 
 ## UML
 
-![UML 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
+![UML 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.png)
 
 ### Auto-Configuration Activation Flow
 
-![Auto-Configuration Activation Flow 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
+![Auto-Configuration Activation Flow 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
 
 ## Spring Boot 4-Specific Notes
 

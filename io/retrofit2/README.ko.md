@@ -13,11 +13,11 @@ OkHttp 기본 전송 외에 Apache HC5, Vert.x 등 다양한 HTTP 전송 계층�
 
 ### 전체 아키텍처: Retrofit2 + Coroutines + Result 패턴
 
-![전체 아키텍처: Retrofit2 + Coroutines + Result 패턴 1](../../docs/images/readme-diagrams/io-retrofit2-ko-diagram-01.svg)
+![전체 아키텍처: Retrofit2 + Coroutines + Result 패턴 1](../../docs/images/readme-diagrams/io-retrofit2-diagram-01.png)
 
 ### Retrofit2 + Result 패턴 통합 구조
 
-![Retrofit2 + Result 패턴 통합 구조 2](../../docs/images/readme-diagrams/io-retrofit2-ko-diagram-02.svg)
+![Retrofit2 + Result 패턴 통합 구조 2](../../docs/images/readme-diagrams/io-retrofit2-diagram-02.png)
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
 

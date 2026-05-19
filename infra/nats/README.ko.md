@@ -8,7 +8,7 @@
 
 ## 아키텍처
 
-![아키텍처 1](../../docs/images/readme-diagrams/infra-nats-ko-diagram-01.svg)
+![아키텍처 1](../../docs/images/readme-diagrams/infra-nats-diagram-01.png)
 
 ## 특징
 

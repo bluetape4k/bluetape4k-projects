@@ -1,102 +1,136 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Class Diagram Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1544" viewBox="0 0 1754 1544" role="img" aria-label="Class Diagram">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
-  </filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
-  </marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
-    .canvas { fill: #f7f9fc; }
-    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
-    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
-    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
-    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
-    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
-    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
-    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
-    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
-    .card { stroke-width: 2.2; filter: url(#shadow); }
-    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
-    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
-    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
-    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
-    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
-    .compartment { stroke-width: 1.6; fill: none; }
-    .chip { stroke-width: 1.5; rx: 16; }
-    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
+    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
+    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1600" height="1050"/>
-<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">Class Diagram Sequence</text>
-<text class="subtitle" x="90" y="132">Lifelines remain while messages become readable pastel interaction bands</text>
-<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
-<text class="chipText" x="1075" y="88" text-anchor="middle">request</text>
-<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
-<text class="chipText" x="1223" y="88" text-anchor="middle">work</text>
-<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
-<text class="chipText" x="1371" y="88" text-anchor="middle">response</text>
-<g>
-  <rect class="card" x="98" y="220" width="224" height="70" rx="24" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="label" x="210" y="265" text-anchor="middle">«interface»</text>
-  <line x1="210" y1="306" x2="210" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="canvas" width="1754" height="1544"/>
+<rect class="frame" x="32" y="28" width="1690" height="1488" rx="28"/>
+<text class="title" x="66" y="82">Class Diagram</text>
+<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
+<path class="line" d="M1082 982 C1082 826 877 826 877 670"/>
+<path class="line" d="M877 1236 C877 772 1082 772 1082 308"/>
+<path class="line" d="M1492 380 C1492 560 672 560 672 740"/>
+<path class="line" d="M1492 380 C1492 560 262 560 262 740"/>
+<path class="inheritLine" d="M672 740 C672 524 1082 524 1082 308"/>
+<path class="inheritLine" d="M262 740 C262 524 1082 524 1082 308"/>
+<path class="inheritLine" d="M1082 740 C1082 512 262 512 262 284"/>
+<path class="inheritLine" d="M672 982 C672 633 262 633 262 284"/>
+<path class="inheritLine" d="M1082 982 C1082 633 262 633 262 284"/>
+<path class="inheritLine" d="M877 1236 C877 1056 1492 1056 1492 876"/>
+<path class="inheritLine" d="M1492 740 C1492 512 262 512 262 284"/>
+<g transform="translate(92,180)">
+  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">IdGenerator</text>
+
 </g>
-<g>
-  <rect class="card" x="393" y="220" width="224" height="70" rx="24" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="label" x="505" y="265" text-anchor="middle">IdGenerator</text>
-  <line x1="505" y1="306" x2="505" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<g transform="translate(502,180)">
+  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="57" text-anchor="middle">IdGeneratorT</text>
+  <text class="mono" x="18" y="108">+nextId(): T</text>
+<text class="mono" x="18" y="132">+nextIds(count): Sequence~T~</text>
 </g>
-<g>
-  <rect class="card" x="688" y="220" width="224" height="70" rx="24" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="label" x="800" y="265" text-anchor="middle">+nextId : : T</text>
-  <line x1="800" y1="306" x2="800" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<g transform="translate(912,180)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="57" text-anchor="middle">Snowflake</text>
+  <text class="mono" x="18" y="108">+nextId(): Long</text>
 </g>
-<g>
-  <rect class="card" x="983" y="220" width="224" height="70" rx="24" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="label" x="1095" y="265" text-anchor="middle">+nextIds(count).</text>
-  <line x1="1095" y1="306" x2="1095" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<g transform="translate(1322,180)">
+  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
+  <text class="label" x="170" y="57" text-anchor="middle">Snowflakers</text>
+  <text class="mono" x="18" y="108">+Default: DefaultSnowflake</text>
+<text class="mono" x="18" y="132">+Global: GlobalSnowflake</text>
+<text class="mono" x="18" y="156">+default(machineId): DefaultSnowflake</text>
+<text class="mono" x="18" y="180">+global(): GlobalSnowflake</text>
 </g>
-<g>
-  <rect class="card" x="1278" y="220" width="224" height="70" rx="24" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="label" x="1390" y="265" text-anchor="middle">LongIdGenerator</text>
-  <line x1="1390" y1="306" x2="1390" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<g transform="translate(707,446)">
+  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
+  <text class="label" x="170" y="57" text-anchor="middle">Uuid</text>
+  <text class="mono" x="18" y="108">+V1: UuidStrategy</text>
+<text class="mono" x="18" y="132">+V4: UuidStrategy</text>
+<text class="mono" x="18" y="156">+V5: UuidStrategy</text>
+<text class="mono" x="18" y="180">+V6: UuidStrategy</text>
+<text class="mono" x="18" y="204">+V7: UuidStrategy</text>
 </g>
-<g>
-  <rect class="card" x="150" y="360" width="415" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="strong" x="182" y="392">1</text>
-  <text class="strong" x="224" y="392">IdGenerator</text>
-  <text class="small" x="224" y="416">interaction band</text>
-  <path class="line" d="M250 397 L465 397"/>
+<g transform="translate(92,748)">
+  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">DefaultSnowflake</text>
+  <text class="mono" x="18" y="108">-machineId: Int</text>
+<text class="mono" x="18" y="132">-timestamp: AtomicLong</text>
+<text class="mono" x="18" y="156">-sequence: Int</text>
 </g>
-<g>
-  <rect class="card" x="445" y="452" width="415" height="74" rx="22" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="strong" x="477" y="484">2</text>
-  <text class="strong" x="519" y="484">+nextId : : T</text>
-  <text class="small" x="519" y="508">interaction band</text>
-  <path class="line" d="M545 489 L760 489"/>
+<g transform="translate(502,748)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">GlobalSnowflake</text>
+  <text class="mono" x="18" y="108">-centralCounter: AtomicLong</text>
 </g>
-<g>
-  <rect class="card" x="740" y="544" width="415" height="74" rx="22" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="strong" x="772" y="576">3</text>
-  <text class="strong" x="814" y="576">+nextIds(count) : : Sequence</text>
-  <text class="small" x="814" y="600">interaction band</text>
-  <path class="line" d="M840 581 L1055 581"/>
+<g transform="translate(912,748)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">KsuidGenerator</text>
+  <text class="mono" x="18" y="108">+nextId(): String</text>
 </g>
-<g>
-  <rect class="card" x="1035" y="636" width="415" height="74" rx="22" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="strong" x="1067" y="668">4</text>
-  <text class="strong" x="1109" y="668">LongIdGenerator</text>
-  <text class="small" x="1109" y="692">interaction band</text>
-  <path class="line" d="M1135 673 L1350 673"/>
+<g transform="translate(1322,748)">
+  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="57" text-anchor="middle">LongIdGenerator</text>
+  <text class="mono" x="18" y="108">+nextId(): Long</text>
 </g>
-<g transform="translate(124,858)">
-  <rect class="card" x="0" y="0" width="1352" height="88" rx="18" fill="#0d2435" stroke="#0d2435"/>
-  <text class="smallLabel" x="28" y="42" fill="#ffffff">Reading rule</text>
-  <text class="small" x="250" y="38" fill="#dbeafe">Lifelines stay visible; messages are grouped into numbered pastel interaction bands.</text>
-  <text class="small" x="250" y="64" fill="#dbeafe">Dashed bands indicate compact return/response paths.</text>
+<g transform="translate(502,990)">
+  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">UlidGenerator</text>
+  <text class="mono" x="18" y="108">+nextId(): String</text>
+<text class="mono" x="18" y="132">+nextULID(): ULID</text>
+</g>
+<g transform="translate(912,990)">
+  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">UuidGenerator</text>
+  <text class="mono" x="18" y="108">+nextId(): UUID</text>
+<text class="mono" x="18" y="132">+nextUUID(): UUID</text>
+<text class="mono" x="18" y="156">+nextIdAsString(): String</text>
+</g>
+<g transform="translate(707,1244)">
+  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="57" text-anchor="middle">SnowflakeGenerator</text>
+  <text class="mono" x="18" y="108">+nextId(): Long</text>
+<text class="mono" x="18" y="132">+parse(id): SnowflakeId</text>
 </g>
 </svg>

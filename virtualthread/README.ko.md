@@ -8,13 +8,13 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### 모듈 구조 및 런타임 선택
 
-![모듈 구조 및 런타임 선택 1](../docs/images/readme-diagrams/virtualthread-ko-diagram-01.svg)
+![모듈 구조 및 런타임 선택 1](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
 
 ---
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../docs/images/readme-diagrams/virtualthread-ko-diagram-02.svg)
+![클래스 다이어그램 2](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
 
 ---
 

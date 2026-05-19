@@ -28,11 +28,11 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 
 ### Request Routing Overview
 
-![Request Routing Overview 1](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.svg)
+![Request Routing Overview 1](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.svg)
+![Class Diagram 2](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
 
 ### Sequence Diagram — httpbin GET
 
