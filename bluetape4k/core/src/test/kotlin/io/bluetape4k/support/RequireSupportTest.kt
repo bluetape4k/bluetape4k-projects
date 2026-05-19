@@ -129,11 +129,14 @@ class RequireSupportTest {
 
         mapOf("a" to 1, "b" to 2).requireHasKey("a", "x")
         shouldFailRequire { mapOf("a" to 1).requireHasKey("b", "x") }
+        shouldFailRequire { (null as Map<String, Int>?).requireHasKey("a", "x") }
 
         mapOf("a" to 1, "b" to 2).requireHasValue(1, "x")
         shouldFailRequire { mapOf("a" to 1).requireHasValue(99, "x") }
+        shouldFailRequire { (null as Map<String, Int>?).requireHasValue(1, "x") }
 
         mapOf("a" to 1, "b" to 2).requireContains("a", 1, "x")
         shouldFailRequire { mapOf("a" to 1).requireContains("a", 99, "x") }
+        shouldFailRequire { (null as Map<String, Int>?).requireContains("a", 1, "x") }
     }
 }
