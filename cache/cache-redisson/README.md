@@ -30,6 +30,16 @@ No user import migration is required for the reorganization.
 
 This module does not expose RESP3 hybrid near-cache classes. Use the actual `RedissonNearCache` / `RedissonSuspendNearCache` APIs when you want Redisson-managed local caching.
 
+## Near-Cache Capability
+
+Redisson native and JCache near-cache variants are fully supported by the shared
+conformance suites. Native `RedissonNearCache` and `RedissonSuspendNearCache`
+use Redisson `RLocalCachedMap` invalidation. JCache variants register
+cache-entry listeners; bulk propagation paths remove entries one by one where
+Redisson does not emit bulk events.
+
+See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
+
 ## Dependency
 
 ```kotlin

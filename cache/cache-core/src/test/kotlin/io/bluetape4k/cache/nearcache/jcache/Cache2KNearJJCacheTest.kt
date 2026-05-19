@@ -4,6 +4,9 @@ import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
+import org.awaitility.core.ConditionTimeoutException
+import org.junit.jupiter.api.Test
 import javax.cache.expiry.EternalExpiryPolicy
 
 class Cache2KNearJJCacheTest: AbstractNearJCacheTest() {
@@ -17,7 +20,10 @@ class Cache2KNearJJCacheTest: AbstractNearJCacheTest() {
         }
     )
 
+    @Test
     override fun `removeAll - 모든 캐시를 삭제하면 다른 캐시에도 반영된다`() {
-        // FIXME: Cache2k 에서는 예외가 발생한다
+        assertFailsWith<ConditionTimeoutException> {
+            super.`removeAll - 모든 캐시를 삭제하면 다른 캐시에도 반영된다`()
+        }
     }
 }

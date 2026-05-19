@@ -72,6 +72,17 @@ abstract class AbstractNearCacheOperationsTest<V: Any> {
     }
 
     @RepeatedTest(TEST_SIZE)
+    fun `put - value remains readable after local eviction`() {
+        val key = randomKey()
+        val value = sampleValue()
+
+        cache.put(key, value)
+        cache.clearLocal()
+
+        cache.get(key) shouldBeEqualTo value
+    }
+
+    @RepeatedTest(TEST_SIZE)
     fun `getAll - batch read`() {
         val entries = (1..5).associate { randomKey() to sampleValue() }
         cache.putAll(entries)
@@ -110,6 +121,19 @@ abstract class AbstractNearCacheOperationsTest<V: Any> {
 
         cache.put(key, value)
         cache.replace(key, newValue).shouldBeTrue()
+        cache.get(key) shouldBeEqualTo newValue
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `replace - updated value remains readable after local eviction`() {
+        val key = randomKey()
+        val value = sampleValue()
+        val newValue = anotherValue()
+
+        cache.put(key, value)
+        cache.replace(key, newValue).shouldBeTrue()
+        cache.clearLocal()
+
         cache.get(key) shouldBeEqualTo newValue
     }
 

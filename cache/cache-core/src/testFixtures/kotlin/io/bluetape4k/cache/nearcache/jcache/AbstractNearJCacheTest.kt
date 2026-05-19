@@ -18,7 +18,6 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.awaitility.kotlin.untilNull
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -79,23 +78,25 @@ abstract class AbstractNearJCacheTest {
         nearJCache2[key] shouldBeEqualTo value
     }
 
-    // TODO: 실제 시나리오를 만들기 힘듬 (시점 차이) -> Mockk 로 대체해야 함
-    @Disabled("시나리오 미비 -> Mockk 으로 대체해야 함")
     @RepeatedTest(TEST_SIZE)
     fun `getDeeply - front miss면 back cache에서 조회하고 front cache를 채운다`() {
         val key = randomKey()
         val value = randomValue()
+        val config = NearJCacheConfig<String, Any>(cacheName = "front-" + randomKey())
+        val frontCache =
+            config.cacheManagerFactory.create().createCache(config.cacheName, config.frontCacheConfiguration)
+        val nearJCache = NearJCache(frontCache, backCache, config)
 
-        backCache.put(key, value)
-        nearJCache1.clear()
-        nearJCache2.clear()
+        try {
+            backCache.put(key, value)
+            nearJCache.containsKey(key).shouldBeFalse()
 
-        nearJCache1[key].shouldBeNull()
-        nearJCache2[key].shouldBeNull()
-
-        nearJCache1.getDeeply(key) shouldBeEqualTo value
-        nearJCache1[key] shouldBeEqualTo value
-        backCache[key] shouldBeEqualTo value
+            nearJCache.getDeeply(key) shouldBeEqualTo value
+            nearJCache[key] shouldBeEqualTo value
+            backCache[key] shouldBeEqualTo value
+        } finally {
+            nearJCache.close()
+        }
     }
 
     @RepeatedTest(TEST_SIZE)

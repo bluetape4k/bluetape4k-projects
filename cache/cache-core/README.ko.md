@@ -44,6 +44,17 @@ dependencies {
 
 ## 제공 기능 (상세)
 
+## Near-Cache Capability Matrix
+
+Native/JCache NearCache 지원 경계는
+[Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)에 정리되어 있습니다.
+
+- Lettuce, Hazelcast IMap, Redisson native NearCache는 공통
+  `NearCacheOperations` / `SuspendNearCacheOperations` conformance fixture를 상속합니다.
+- Lettuce와 Redisson JCache NearCache는 listener 기반이며 공통 JCache conformance fixture를 상속합니다.
+- Hazelcast JCache factory는 listener 없이 생성되는 degraded 모드입니다. 직접 listener-backed 생성은 unsupported로 테스트합니다.
+- Caffeine과 Cache2k는 분산 back cache와 조합하지 않는 한 local provider입니다.
+
 ### NearCache 통일 인터페이스
 
 모든 NearCache 백엔드(Lettuce, Hazelcast, Redisson, JCache)가 공통 인터페이스를 구현합니다.
