@@ -13,104 +13,11 @@ Beyond the default OkHttp transport, it supports multiple HTTP backends includin
 
 ### Overall Architecture: Retrofit2 + Coroutines + Result Pattern
 
-```mermaid
-flowchart TD
-    subgraph Application["Application"]
-        APP[Application Code]
-        API[Retrofit Interface\nsuspend fun / Result~T~]
-    end
-
-    subgraph bluetape4k-retrofit2
-        RB[retrofitOf DSL]
-        RCA[ResultCallAdapterFactory]
-        RC[ResultCall]
-        RX[Reactive Adapters\nRxJava2/3 / Reactor]
-    end
-
-    subgraph CallFactory["Call.Factory (HTTP Backend)"]
-        OKH[OkHttpClient\ndefault]
-        HC5[Hc5CallFactory\nApache HC5]
-        VTX[VertxCallFactory\nVert.x]
-    end
-
-    subgraph Converter["Converter Factory"]
-        JCF[jacksonConverterFactoryOf\nJSON]
-        SCF[defaultScalarsConverterFactory\nScalars]
-    end
-
-    APP --> API
-    API --> RB
-    RB --> RCA
-    RCA --> RC
-    RB --> CallFactory
-    RB --> Converter
-    RB --> RX
-    OKH --> SERVER[(HTTP Server)]
-    HC5 --> SERVER
-    VTX --> SERVER
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    class APP,API coreStyle
-    class RB,RCA,RC serviceStyle
-    class OKH,HC5,VTX asyncStyle
-    class JCF,SCF utilStyle
-    class RX utilStyle
-```
+![Overall Architecture: Retrofit2 + Coroutines + Result Pattern 1](../../docs/images/readme-diagrams/io-retrofit2-diagram-01.svg)
 
 ### Retrofit2 + Result Pattern Integration
 
-```mermaid
-classDiagram
-    class Retrofit {
-        <<Retrofit2>>
-        +create(serviceClass) T
-        +baseUrl() HttpUrl
-    }
-
-    class CallAdapter {
-        <<interface>>
-        +responseType() Type
-        +adapt(call) T
-    }
-
-    class ResultCallAdapterFactory {
-        +get(returnType, annotations, retrofit) CallAdapter?
-    }
-
-    class ResultCall {
-        -delegate: Call~T~
-        +execute() Response~Result~T~~
-        +enqueue(callback)
-        +clone() Call~Result~T~~
-    }
-
-    class Hc5CallFactory {
-        -asyncClient: CloseableHttpAsyncClient
-        +newCall(request) Call
-        +close()
-    }
-
-    class VertxCallFactory {
-        +newCall(request) Call
-    }
-
-    CallAdapter <|.. ResultCallAdapterFactory
-    ResultCallAdapterFactory ..> ResultCall : creates
-    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
-    Retrofit --> Hc5CallFactory : callFactory
-    Retrofit --> VertxCallFactory : callFactory
-
-    style Retrofit fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style CallAdapter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ResultCallAdapterFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ResultCall fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Hc5CallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style VertxCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Retrofit2 + Result Pattern Integration 2](../../docs/images/readme-diagrams/io-retrofit2-diagram-02.svg)
 
 ### Suspend Function HTTP Request Flow (Result Pattern)
 

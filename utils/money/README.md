@@ -235,89 +235,11 @@ USD.isCurrencyConversionAvailable    // true
 
 ## Class Diagram
 
-```mermaid
-classDiagram
-    class MonetaryAmount {
-        <<interface>>
-        +currency: CurrencyUnit
-        +number: NumberValue
-        +add(other) MonetaryAmount
-        +subtract(other) MonetaryAmount
-        +multiply(n) MonetaryAmount
-        +divide(n) MonetaryAmount
-        +negate() MonetaryAmount
-    }
-
-    class Money {
-        -amount: BigDecimal
-        +of(amount, currency) Money
-        +round() Money
-        +defaultRound() Money
-    }
-
-    class FastMoney {
-        -amount: Long
-        +of(amount, currency) FastMoney
-    }
-
-    class CurrencyUnit {
-        <<interface>>
-        +currencyCode: String
-        +numericCode: Int
-        +defaultFractionDigits: Int
-    }
-
-    class CurrencyConvertor {
-        +getConversion(currency) CurrencyConversion
-        +USDConversion: CurrencyConversion
-    }
-
-    MonetaryAmount <|-- Money
-    MonetaryAmount <|-- FastMoney
-    MonetaryAmount --> CurrencyUnit
-    CurrencyConvertor --> MonetaryAmount : "convertTo()"
-
-    note for Money "BigDecimal-based<br/>unlimited precision<br/>recommended for finance"
-    note for FastMoney "Long-based<br/>5 decimal places<br/>high-volume operations"
-
-    style MonetaryAmount fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Money fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style FastMoney fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CurrencyUnit fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style CurrencyConvertor fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Class Diagram 1](../../docs/images/readme-diagrams/utils-money-diagram-01.svg)
 
 ## Currency Operation Flow
 
-```mermaid
-flowchart LR
-    subgraph Creation
-        A["moneyOf(1000, KRW)"] --> M1["Money(1000 KRW)"]
-        B["1.05.toMoney(USD)"] --> M2["Money(1.05 USD)"]
-        C["10000.inFastKRW()"] --> FM["FastMoney(10000 KRW)"]
-    end
-
-    subgraph Operations
-        M1 -->|"+ 500"| R1["1500 KRW"]
-        M1 -->|"* 2"| R2["2000 KRW"]
-        M2 -->|"convertTo(KRW)"| R3["converted KRW result"]
-    end
-
-    subgraph Aggregation
-        L["listOf(100.inKRW(), 200.inKRW())"] -->|"sum(KRW)"| TOTAL["300 KRW"]
-    end
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class A,B,C dataStyle
-    class M1,M2,FM coreStyle
-    class R1,R2,R3 serviceStyle
-    class L dataStyle
-    class TOTAL serviceStyle
-```
+![Currency Operation Flow 2](../../docs/images/readme-diagrams/utils-money-diagram-02.svg)
 
 > **Note**: For currency conversion, `Money` is recommended for accuracy.
 > `FastMoney` uses a default scale of 5, so values beyond 5 decimal places can lose precision.

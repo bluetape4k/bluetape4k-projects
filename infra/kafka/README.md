@@ -399,76 +399,7 @@ class KafkaIntegrationTest {
 
 ### Kafka Class Hierarchy
 
-```mermaid
-classDiagram
-    class KafkaCodec {
-        <<interface>>
-        +serialize(topic, data) ByteArray
-        +deserialize(topic, bytes) T
-    }
-
-    class JacksonKafkaCodec {
-        +serialize(topic, data) ByteArray
-        +deserialize(topic, bytes) T
-    }
-
-    class BinaryKafkaCodec {
-        +serialize(topic, data) ByteArray
-        +deserialize(topic, bytes) T
-    }
-
-    class StringKafkaCodec {
-        +serialize(topic, data) ByteArray
-        +deserialize(topic, bytes) String
-    }
-
-    class KafkaCodecs {
-        <<object>>
-        +String: StringKafkaCodec
-        +ByteArray: ByteArrayKafkaCodec
-        +Jackson: JacksonKafkaCodec
-        +Jdk: BinaryKafkaCodec
-        +Kryo: BinaryKafkaCodec
-        +Fory: BinaryKafkaCodec
-        +LZ4Jdk: BinaryKafkaCodec
-        +Lz4Kryo: BinaryKafkaCodec
-        +Lz4Fory: BinaryKafkaCodec
-        +SnappyJdk: BinaryKafkaCodec
-        +SnappyKryo: BinaryKafkaCodec
-        +SnappyFory: BinaryKafkaCodec
-        +ZstdJdk: BinaryKafkaCodec
-        +ZstdKryo: BinaryKafkaCodec
-        +ZstdFory: BinaryKafkaCodec
-    }
-
-    class SuspendKafkaProducerTemplate {
-        -senderOptions: SenderOptions
-        +send(topic, value) SenderResult
-        +send(topic, key, value) SenderResult
-        +send(record) SenderResult
-    }
-
-    class SuspendKafkaConsumerTemplate {
-        -receiverOptions: ReceiverOptions
-        +receive() Flow~ReceiverRecord~
-    }
-
-    KafkaCodec <|.. JacksonKafkaCodec
-    KafkaCodec <|.. BinaryKafkaCodec
-    KafkaCodec <|.. StringKafkaCodec
-    KafkaCodecs --> JacksonKafkaCodec
-    KafkaCodecs --> BinaryKafkaCodec
-    KafkaCodecs --> StringKafkaCodec
-
-    style KafkaCodec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style JacksonKafkaCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BinaryKafkaCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style StringKafkaCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style KafkaCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style SuspendKafkaProducerTemplate fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style SuspendKafkaConsumerTemplate fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-```
+![Kafka Class Hierarchy 1](../../docs/images/readme-diagrams/infra-kafka-diagram-01.svg)
 
 ### Producer/Consumer Message Flow
 
@@ -496,31 +427,7 @@ sequenceDiagram
 
 ### Kafka Streams Processing Flow
 
-```mermaid
-flowchart LR
-    IT[Input Topic] -->|consumedOf| KS[KStream]
-    KS -->|filter / map| KS2[Transformed KStream]
-    KS2 -->|groupByKey| KG[KGroupedStream]
-    KG -->|count / aggregate| KT[KTable]
-    KT -->|toStream| OS[Output KStream]
-    OS -->|producedOf| OT[Output Topic]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style IT fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style OT fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style KT fill:#F57F17,stroke:#E65100,color:#000000
-    style KS fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style KS2 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style KG fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style OS fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Kafka Streams Processing Flow 2](../../docs/images/readme-diagrams/infra-kafka-diagram-02.svg)
 
 ## Package Structure
 

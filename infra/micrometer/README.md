@@ -238,99 +238,11 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ### Core Class Structure
 
-```mermaid
-classDiagram
-    class TimerExtensions {
-        <<extensions>>
-        +recordSuspend(block) T
-        +withTimer(timer) Flow~T~
-    }
-
-    class ObservationExtensions {
-        <<extensions>>
-        +withObservation(name, registry, block) T
-        +withObservationContext(obs, block) T
-        +withObservationContextSuspending(name, registry, block) T
-    }
-
-    class MicrometerRetrofitMetricsFactory {
-        -registry: MeterRegistry
-        +create(returnType, annotations, retrofit) CallAdapter
-    }
-
-    class Cache2kCacheMetrics {
-        -cache: Cache
-        -tags: Tags
-        +monitor(registry, cache, tags)
-        +bindTo(registry)
-    }
-
-    class MeterRegistry {
-        <<interface>>
-        +timer(name, tags) Timer
-        +counter(name, tags) Counter
-        +gauge(name, tags, number) T
-        +find(name) Search
-    }
-
-    class ObservationRegistry {
-        <<interface>>
-        +observationConfig() ObservationConfig
-        +getCurrentObservation() Observation
-    }
-
-    TimerExtensions --> MeterRegistry: records to
-    ObservationExtensions --> ObservationRegistry: uses
-    MicrometerRetrofitMetricsFactory --> MeterRegistry: records to
-    Cache2kCacheMetrics --> MeterRegistry: binds to
-    ObservationRegistry --> MeterRegistry: delegates
-
-    style TimerExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style ObservationExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style MicrometerRetrofitMetricsFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Cache2kCacheMetrics fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style MeterRegistry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ObservationRegistry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-```
+![Core Class Structure 1](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.svg)
 
 ### Metric Collection Flow
 
-```mermaid
-flowchart TD
-    App[Application] --> TE[Timer Extensions<br/>recordSuspend / withTimer]
-    App --> OE[Observation Extensions<br/>withObservation]
-    App --> RM[Retrofit2 Metrics<br/>MicrometerRetrofitMetricsFactory]
-    App --> CM[Cache2k Metrics<br/>Cache2kCacheMetrics]
-
-    TE --> MR[MeterRegistry]
-    OE --> OR[ObservationRegistry]
-    RM --> MR
-    CM --> MR
-
-    OR --> MR
-
-    MR --> Prometheus[Prometheus Exporter]
-    MR --> Grafana[Grafana / Monitoring]
-    MR --> Log[Logging]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style MR fill:#F57F17,stroke:#E65100,color:#000000
-    style OR fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Grafana fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style TE fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style OE fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style RM fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style CM fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Metric Collection Flow 2](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.svg)
 
 ### Retrofit2 Metric Collection Sequence
 

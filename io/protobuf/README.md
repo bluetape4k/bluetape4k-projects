@@ -12,106 +12,11 @@ A Kotlin extension library for working with Google Protocol Buffers messages.
 
 ### Type Conversion Class Structure
 
-```mermaid
-classDiagram
-    class BinarySerializer {
-        <<interface>>
-        +serialize(obj: Any?) ByteArray
-        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
-    }
-
-    class ProtobufSerializer {
-        +serialize(message: ProtoMessage?) ByteArray
-        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
-    }
-
-    class TimestampSupport {
-        <<extensions>>
-        +Instant.toTimestamp() Timestamp
-        +Timestamp.toInstant() Instant
-        +String.toTimestamp() Timestamp
-    }
-
-    class DurationSupport {
-        <<extensions>>
-        +Duration.toProtoDuration() ProtoDuration
-        +ProtoDuration.toJavaDuration() Duration
-        +ProtoDuration.plus(other) ProtoDuration
-        +ProtoDuration.minus(other) ProtoDuration
-    }
-
-    class DateTimeSupport {
-        <<extensions>>
-        +LocalDate.toProtoDate() Date
-        +LocalTime.toProtoTimeOfDay() TimeOfDay
-        +LocalDateTime.toProtoDateTime() DateTime
-    }
-
-    class MoneySupport {
-        <<extensions>>
-        +JavaMoney.toProtoMoney() Money
-        +ProtoMoney.toJavaMoney() JavaMoney
-    }
-
-    class MessageSupport {
-        <<extensions>>
-        +packMessage(message) ByteArray
-        +unpackMessage(bytes) T?
-    }
-
-    BinarySerializer <|.. ProtobufSerializer
-
-    style BinarySerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ProtobufSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style TimestampSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style DurationSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style DateTimeSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style MoneySupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style MessageSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Type Conversion Class Structure 1](../../docs/images/readme-diagrams/io-protobuf-diagram-01.svg)
 
 ### Protobuf Type Conversion Flow
 
-```mermaid
-flowchart LR
-    subgraph Java_Types["Java/Kotlin Types"]
-        INS[java.time.Instant]
-        DUR[java.time.Duration]
-        LDT[LocalDateTime]
-        JM[JavaMoney]
-        MSG[ProtoMessage]
-    end
-
-    subgraph Proto_Types["Protobuf Types"]
-        TS[google.protobuf.Timestamp]
-        PD[google.protobuf.Duration]
-        DT[google.type.DateTime]
-        PM[google.type.Money]
-        ANY[google.protobuf.Any]
-    end
-
-    subgraph Serialization
-        BA[ByteArray]
-    end
-
-    INS <-->|toTimestamp / toInstant| TS
-    DUR <-->|toProtoDuration / toJavaDuration| PD
-    LDT <-->|toProtoDateTime| DT
-    JM <-->|toProtoMoney / toJavaMoney| PM
-    MSG -->|packMessage| ANY
-    ANY -->|unpackMessage| MSG
-    MSG -->|ProtobufSerializer.serialize| BA
-    BA -->|ProtobufSerializer.deserialize| MSG
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class INS,DUR,LDT,JM,MSG coreStyle
-    class TS,PD,DT,PM,ANY extStyle
-    class BA dataStyle
-```
+![Protobuf Type Conversion Flow 2](../../docs/images/readme-diagrams/io-protobuf-diagram-02.svg)
 
 ### Serialization Sequence
 

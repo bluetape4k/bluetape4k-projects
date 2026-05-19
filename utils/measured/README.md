@@ -51,96 +51,11 @@ println(distance.toHuman())    // 50.0 m
 
 ## Class Diagram
 
-```mermaid
-classDiagram
-    class Units {
-        <<interface>>
-        +suffix: String
-        +ratio: Double
-    }
-
-    class Measure~T : Units~ {
-        +amount: Double
-        +units: T
-        +as(target: T) Double
-        +toHuman() String
-        +times(other) UnitsProduct
-        +div(other) UnitsRatio
-    }
-
-    class UnitsProduct~A_Units_B_Units~ {
-        +left: Measure~A~
-        +right: Measure~B~
-    }
-
-    class UnitsRatio~N_Units_D_Units~ {
-        +numerator: Measure~N~
-        +denominator: Measure~D~
-    }
-
-    class Length {
-        +meters
-        +kilometers
-        +centimeters
-    }
-
-    class Time {
-        +seconds
-        +minutes
-        +hours
-    }
-
-    class Mass {
-        +kilograms
-        +grams
-        +pounds
-    }
-
-    class Velocity
-    class Acceleration
-
-    Units <|-- Length
-    Units <|-- Time
-    Units <|-- Mass
-    Measure --> Units
-    UnitsRatio --|> Measure : compound unit
-    UnitsProduct --|> Measure : compound unit
-    Velocity --> UnitsRatio : "Length / Time (m/s)"
-    Acceleration --> UnitsRatio : "Velocity / Time (m/s²)"
-
-    style Units fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Measure fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style UnitsProduct fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UnitsRatio fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Length fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Time fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Mass fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Velocity fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Acceleration fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Class Diagram 1](../../docs/images/readme-diagrams/utils-measured-diagram-01.svg)
 
 ## Unit Composition Flow
 
-```mermaid
-flowchart LR
-    L["10 * meters<br/>(Measure&lt;Length&gt;)"]
-    T["seconds<br/>(Time)"]
-    V["speed<br/>(UnitsRatio&lt;Length, Time&gt;)<br/>= 10 m/s"]
-    D["5 * seconds<br/>(Measure&lt;Time&gt;)"]
-    R["distance<br/>(Measure&lt;Length&gt;)<br/>= 50 m"]
-
-    L -->|"/ seconds"| V
-    V -->|"* duration"| R
-    D --> R
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class L,D dataStyle
-    class V,R coreStyle
-```
+![Unit Composition Flow 2](../../docs/images/readme-diagrams/utils-measured-diagram-02.svg)
 
 ## Compatibility Adapter for `units`
 

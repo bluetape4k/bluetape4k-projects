@@ -10,123 +10,11 @@ English | [한국어](./README.ko.md)
 
 ### Compressor Hierarchy
 
-```mermaid
-classDiagram
-    class Compressor {
-        <<interface>>
-        +compress(plain: ByteArray?) ByteArray
-        +decompress(compressed: ByteArray?) ByteArray
-        +compress(plain: String) String
-        +decompress(compressed: String) String
-        +compress(plainBuffer: ByteBuffer) ByteBuffer
-        +compress(plainStream: InputStream) InputStream
-    }
-
-    class AbstractCompressor {
-        <<abstract>>
-        #doCompress(plain: ByteArray) ByteArray
-        #doDecompress(compressed: ByteArray) ByteArray
-        +compress(plain: ByteArray?) ByteArray
-        +decompress(compressed: ByteArray?) ByteArray
-    }
-
-
-    class StreamingCompressor {
-        <<interface>>
-        +compressing(output: OutputStream) OutputStream
-        +decompressing(input: InputStream) InputStream
-        +compress(source: InputStream, sink: OutputStream) Long
-        +decompress(source: InputStream, sink: OutputStream) Long
-        +compress(plain: ByteArray?) ByteArray
-        +decompress(compressed: ByteArray?) ByteArray
-    }
-
-    Compressor <|.. AbstractCompressor
-    AbstractCompressor <|-- LZ4Compressor
-    AbstractCompressor <|-- BlockLZ4Compressor
-    AbstractCompressor <|-- FramedLZ4Compressor
-    AbstractCompressor <|-- SnappyCompressor
-    AbstractCompressor <|-- FramedSnappyCompressor
-    AbstractCompressor <|-- ZstdCompressor
-    AbstractCompressor <|-- GZipCompressor
-    AbstractCompressor <|-- DeflateCompressor
-    AbstractCompressor <|-- BZip2Compressor
-    AbstractCompressor <|-- ApacheGZipCompressor
-    AbstractCompressor <|-- ApacheDeflateCompressor
-    AbstractCompressor <|-- ApacheZstdCompressor
-    AbstractCompressor <|-- ZipCompressor
-
-    style Compressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StreamingCompressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractCompressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LZ4Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BlockLZ4Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style FramedLZ4Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SnappyCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style FramedSnappyCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ZstdCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GZipCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DeflateCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BZip2Compressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ApacheGZipCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ApacheDeflateCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ApacheZstdCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ZipCompressor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Compressor Hierarchy 1](../../docs/images/readme-diagrams/io-io-diagram-01.svg)
 
 ### BinarySerializer Hierarchy
 
-```mermaid
-classDiagram
-    class BinarySerializer {
-        <<interface>>
-        +serialize(graph: Any?) ByteArray
-        +deserialize(bytes: ByteArray?) T?
-    }
-
-    class AbstractBinarySerializer {
-        <<abstract>>
-        #doSerialize(graph: Any) ByteArray
-        #doDeserialize(bytes: ByteArray) T?
-        +serialize(graph: Any?) ByteArray
-        +deserialize(bytes: ByteArray?) T?
-    }
-
-    class BinarySerializerDecorator {
-        #serializer: BinarySerializer
-    }
-
-    class CompressableBinarySerializer {
-        +compressor: Compressor
-        +serialize(graph: Any?) ByteArray
-        +deserialize(bytes: ByteArray?) T?
-    }
-
-    class KryoBinarySerializer {
-        -bufferSize: Int
-        -kryoPool: Pool
-    }
-    class ForyBinarySerializer {
-        -fory: ThreadSafeFory
-    }
-
-    BinarySerializer <|.. AbstractBinarySerializer
-    BinarySerializer <|.. BinarySerializerDecorator
-    AbstractBinarySerializer <|-- JdkBinarySerializer
-    AbstractBinarySerializer <|-- KryoBinarySerializer
-    AbstractBinarySerializer <|-- ForyBinarySerializer
-    BinarySerializerDecorator <|-- CompressableBinarySerializer
-    CompressableBinarySerializer --> Compressor
-
-    style BinarySerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractBinarySerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style BinarySerializerDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style CompressableBinarySerializer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style JdkBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style KryoBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ForyBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Compressor fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![BinarySerializer Hierarchy 2](../../docs/images/readme-diagrams/io-io-diagram-02.svg)
 
 ### compress/decompress Flow
 
@@ -582,14 +470,7 @@ JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
 | Jdk | ~8,431 | — | Java standard |
 | Jackson | ~4,323 | — | Disadvantaged for binary data |
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#1565C0'}}}}%%
-xychart-beta horizontal
-    title "Serialization Throughput — 4096B ByteArray (ops/s)"
-    x-axis ["Jackson", "Jdk", "Kryo (std)", "Fory (std)", "Kryo fast()", "Fory fast()"]
-    y-axis "ops/s" 0 --> 130000
-    bar [4323, 8431, 34000, 68000, 68000, 116000]
-```
+![Serialization Performance Comparison 3](../../docs/images/readme-diagrams/io-io-diagram-03.svg)
 
 > `ForyBinarySerializer.fast()` is ~71% faster than standard Fory and supports nullable types.
 > `KryoBinarySerializer.fast()` is ~97% faster but does **not** support Kotlin nullable fields (`Type?`).
@@ -603,14 +484,7 @@ xychart-beta horizontal
 | Jackson | 39,510  | JSON-based                  |
 | Jdk     | 22,249  | Java standard               |
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#2E7D32'}}}}%%
-xychart-beta horizontal
-    title "Serialization Performance — No Byte Array (ops/s)"
-    x-axis ["Jdk", "Jackson", "Kryo", "Fory"]
-    y-axis "ops/s" 0 --> 320000
-    bar [22249, 39510, 81823, 305821]
-```
+![Serialization Performance Comparison 4](../../docs/images/readme-diagrams/io-io-diagram-04.svg)
 
 ### Compression Performance Comparison
 
@@ -624,14 +498,7 @@ Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.tx
 | GZip      | 1,195 | Excellent compatibility                |
 | Deflate   | 1,084 | GZip-based                             |
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'xyChart': {'backgroundColor': '#ffffff', 'plotColorPalette': '#E65100'}}}}%%
-xychart-beta horizontal
-    title "Compression Performance — 40KB UTF-8 Text (ops/s)"
-    x-axis ["Deflate", "GZip", "Zstd", "LZ4", "Snappy"]
-    y-axis "ops/s" 0 --> 9000
-    bar [1084, 1195, 5103, 6769, 8073]
-```
+![Compression Performance Comparison 5](../../docs/images/readme-diagrams/io-io-diagram-05.svg)
 
 ## Module Structure
 

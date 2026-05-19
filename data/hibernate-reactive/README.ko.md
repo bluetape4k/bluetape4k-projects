@@ -107,94 +107,15 @@ sf.withSessionSuspending { session ->
 
 ### Reactive Repository 클래스 구조
 
-```mermaid
-classDiagram
-    direction TB
-    class ReactiveHibernateRepository~ID_E~ {
-        <<abstractSuspend>>
-        +findByIdOrNull(id): E?
-        +findAll(): Flow~E~
-        +save(entity): E
-    }
-
-    style ReactiveHibernateRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![Reactive Repository 클래스 구조 1](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-01.svg)
 
 ### Hibernate Reactive API 구조
 
-```mermaid
-flowchart TD
-    A[EntityManagerFactory<br/>JPA 표준] -->|asMutinySessionFactory| B[Mutiny.SessionFactory]
-    A -->|asStageSessionFactory| C[Stage.SessionFactory]
-
-    subgraph Mutiny_API["Mutiny API (SmallRye)"]
-        B --> D[withSessionSuspending]
-        B --> E[withTransactionSuspending]
-        B --> F[withStatelessSessionSuspending]
-        D --> G[Mutiny.Session 확장<br/>findAs / getAs<br/>createSelectionQueryAs]
-        F --> H[Mutiny.StatelessSession 확장<br/>getAs / createQueryAs]
-    end
-
-    subgraph Stage_API["Stage API (CompletionStage)"]
-        C --> I[withSessionSuspending]
-        C --> J[withTransactionSuspending]
-        I --> K[Stage.Session 확장<br/>findAs / getAs]
-    end
-
-    subgraph Coroutines["Coroutines 연결"]
-        L[awaitSuspending] --> M[suspend 함수로 변환]
-        N[await] --> M
-    end
-
-    G --> L
-    H --> L
-    K --> N
-
-    classDef jpaStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef mutinyStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef stageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef coroutineStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    class A jpaStyle
-    class Mutiny_API mutinyStyle
-    class Stage_API stageStyle
-    class Coroutines coroutineStyle
-```
+![Hibernate Reactive API 구조 2](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-02.svg)
 
 ### 세션 유형 비교
 
-```mermaid
-classDiagram
-    class MutinySessionFactory {
-        +withSession(block): Uni~T~
-        +withTransaction(block): Uni~T~
-        +withStatelessSession(block): Uni~T~
-        +withSessionSuspending(block): T  ← 확장
-        +withTransactionSuspending(block): T  ← 확장
-    }
-    class StageSessionFactory {
-        +withSession(block): CompletionStage~T~
-        +withTransaction(block): CompletionStage~T~
-        +withSessionSuspending(block): T  ← 확장
-    }
-    class MutinySession {
-        +find(cls, id): Uni~T~
-        +findAs(id): Uni~T~  ← reified 확장
-        +persist(entity): Uni~Void~
-    }
-    class StageSession {
-        +find(cls, id): CompletionStage~T~
-        +findAs(id): CompletionStage~T~  ← reified 확장
-    }
-
-    MutinySessionFactory --> MutinySession : 생성
-    StageSessionFactory --> StageSession : 생성
-
-    style MutinySessionFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StageSessionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style MutinySession fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StageSession fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-```
+![세션 유형 비교 3](../../docs/images/readme-diagrams/data-hibernate-reactive-ko-diagram-03.svg)
 
 ## 버전 요구사항
 

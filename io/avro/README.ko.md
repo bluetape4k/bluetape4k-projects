@@ -121,61 +121,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Serializer 클래스 계층
 
-```mermaid
-classDiagram
-    class AvroSerializer {
-        <<interface>>
-        +serialize(schema, record) ByteArray
-        +deserialize(schema, bytes) GenericRecord
-        +serializeAsString(schema, record) String
-        +deserializeFromString(schema, text) GenericRecord
-    }
-
-    class AvroGenericRecordSerializer {
-        <<interface>>
-        +serialize(schema, record) ByteArray
-        +deserialize(schema, bytes) GenericRecord
-    }
-
-    class AvroSpecificRecordSerializer {
-        <<interface>>
-        +serialize(record) ByteArray
-        +deserialize(bytes) T
-        +serializeList(records) ByteArray
-        +deserializeList(bytes) List~T~
-    }
-
-    class AvroReflectSerializer {
-        <<interface>>
-        +serialize(obj) ByteArray
-        +deserialize(bytes) T
-    }
-
-    class DefaultAvroGenericRecordSerializer {
-        -codecFactory: CodecFactory
-    }
-
-    class DefaultAvroSpecificRecordSerializer {
-        -codecFactory: CodecFactory
-    }
-
-    class DefaultAvroReflectSerializer {
-        -codecFactory: CodecFactory
-        -schemaCache: Map~Class, Schema~
-    }
-
-    AvroGenericRecordSerializer <|.. DefaultAvroGenericRecordSerializer
-    AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
-    AvroReflectSerializer <|.. DefaultAvroReflectSerializer
-
-    style AvroSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AvroGenericRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AvroSpecificRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AvroReflectSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style DefaultAvroGenericRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultAvroSpecificRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultAvroReflectSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Serializer 클래스 계층 1](../../docs/images/readme-diagrams/io-avro-ko-diagram-01.svg)
 
 ### Avro 직렬화/역직렬화 흐름
 
@@ -203,32 +149,7 @@ sequenceDiagram
 
 ### 압축 코덱 선택 가이드
 
-```mermaid
-flowchart TD
-    시작([직렬화 시작]) --> 용도{사용 목적?}
-    용도 -->|고성능 온라인 처리| FAST[FAST_CODEC_FACTORY<br/>Zstd 레벨 -1]
-    용도 -->|Kafka/Hadoop 호환| SNAPPY[SNAPPY_CODEC_FACTORY]
-    용도 -->|Avro 기본값 호환| DEFAULT[DEFAULT_CODEC_FACTORY<br/>Deflate 기본]
-    용도 -->|균형형 압축| ZSTD[ZSTD_CODEC_FACTORY<br/>Zstd 기본]
-    용도 -->|장기 보관/최대 압축| ARCHIVE[ARCHIVE_CODEC_FACTORY<br/>Zstd 레벨 9]
-    용도 -->|압축 없이 최대 속도| NULL[NULL_CODEC_FACTORY]
-    FAST --> 직렬화([ByteArray 출력])
-    SNAPPY --> 직렬화
-    DEFAULT --> 직렬화
-    ZSTD --> 직렬화
-    ARCHIVE --> 직렬화
-    NULL --> 직렬화
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-
-    class 시작,직렬화 coreStyle
-    class 용도 serviceStyle
-    class FAST,SNAPPY,NULL utilStyle
-    class DEFAULT,ZSTD,ARCHIVE dataStyle
-```
+![압축 코덱 선택 가이드 2](../../docs/images/readme-diagrams/io-avro-ko-diagram-02.svg)
 
 ## 의존성
 

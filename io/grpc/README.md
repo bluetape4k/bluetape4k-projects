@@ -13,96 +13,11 @@ A Kotlin extension library for implementing gRPC servers and clients.
 
 ### Class Hierarchy
 
-```mermaid
-classDiagram
-    class GrpcServer {
-        <<interface>>
-        +start()
-        +stop()
-        +blockUntilShutdown()
-    }
-
-    class AbstractGrpcServer {
-        #server: Server?
-        +start()
-        +stop()
-        +blockUntilShutdown()
-    }
-
-    class AbstractGrpcClient {
-        #channel: ManagedChannel?
-        +connect()
-        +close()
-    }
-
-    class AbstractGrpcInprocessServer {
-        #serverName: String
-        +start()
-        +stop()
-    }
-
-    class AbstractGrpcInprocessClient {
-        #serverName: String
-        +connect()
-        +close()
-    }
-
-    GrpcServer <|.. AbstractGrpcServer
-    AbstractGrpcServer <|-- AbstractGrpcInprocessServer
-    AbstractGrpcClient <|-- AbstractGrpcInprocessClient
-
-    style GrpcServer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractGrpcServer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractGrpcClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractGrpcInprocessServer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style AbstractGrpcInprocessClient fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Class Hierarchy 1](../../docs/images/readme-diagrams/io-grpc-diagram-01.svg)
 
 ### Component Overview
 
-```mermaid
-flowchart TD
-    subgraph bluetape4k-grpc
-        subgraph Server["Server Side"]
-            GS[GrpcServer interface]
-            AGS[AbstractGrpcServer]
-            AGIS[AbstractGrpcInprocessServer]
-            SI[ServerInterceptorSupport]
-            SS[ServerSupport]
-        end
-
-        subgraph Client["Client Side"]
-            AGC[AbstractGrpcClient]
-            AGIC[AbstractGrpcInprocessClient]
-            MCS[ManagedChannelSupport]
-        end
-    end
-
-    subgraph External["External / gRPC Runtime"]
-        SB[ServerBuilder]
-        MCB[ManagedChannelBuilder]
-        IPSB[InProcessServerBuilder]
-        IPCB[InProcessChannelBuilder]
-    end
-
-    GS <|.. AGS
-    AGS <|-- AGIS
-    AGC <|-- AGIC
-    AGS --> SB
-    AGIS --> IPSB
-    AGC --> MCB
-    AGIC --> IPCB
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-
-    class GS serviceStyle
-    class AGS,AGC serviceStyle
-    class AGIS,AGIC coreStyle
-    class SB,MCB,IPSB,IPCB extStyle
-```
+![Component Overview 2](../../docs/images/readme-diagrams/io-grpc-diagram-02.svg)
 
 ### gRPC Server-Client Communication Sequence
 

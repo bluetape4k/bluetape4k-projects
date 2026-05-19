@@ -71,82 +71,11 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ### Core Class Structure
 
-```mermaid
-classDiagram
-    class ReactiveCassandraOperationsExt {
-        <<extension>>
-        +findOneOrNullSuspending(query): T?
-        +findAllAsFlow(): Flow~T~
-        +insertSuspending(entity): T
-        +countSuspending(query): Long
-        +existsSuspending(query): Boolean
-        +updateMultiSuspending(query, update): UpdateResult
-        +aggregateAsFlow(aggregation): Flow~O~
-    }
-    class ReactiveSessionExt {
-        <<extension>>
-        +executeSuspending(cql, args): ReactiveResultSet
-    }
-    class WriteOptionsDsl {
-        <<DSL>>
-        +ttl(duration)
-        +timestamp(millis)
-    }
-    class SchemaGenerator {
-        +createTables(operations, types)
-        +truncateTables(operations, types)
-    }
-    class UserRepository {
-        <<interface>>
-        +findByEmail(email): User?
-    }
-    class CoroutineUserRepository {
-        <<interface>>
-        +findByEmail(email): User?
-    }
-
-    ReactiveCassandraOperationsExt --> WriteOptionsDsl : uses
-    SchemaGenerator --> ReactiveCassandraOperationsExt : uses
-    ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
-    CoroutineUserRepository --> ReactiveCassandraOperationsExt : delegates
-
-    style ReactiveCassandraOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style ReactiveSessionExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style WriteOptionsDsl fill:#F57F17,stroke:#E65100,color:#000000
-    style SchemaGenerator fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style UserRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style CoroutineUserRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-```
+![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.svg)
 
 ### Cassandra Data Access Layer
 
-```mermaid
-flowchart TD
-    App["Application Code"] --> Ext["Coroutine Extension Functions<br/>(bluetape4k-spring-boot-cassandra)"]
-    Ext --> ROps["ReactiveCassandraOperations<br/>Coroutine Extensions"]
-    Ext --> RSession["ReactiveSession<br/>Coroutine Extensions"]
-    Ext --> AOps["AsyncCassandraOperations<br/>Coroutine Extensions"]
-    DSL["WriteOptions / QueryOptions DSL<br/>writeOptions { ttl / timestamp }"] --> ROps
-    ROps --> Driver["Cassandra Reactive Driver"]
-    RSession --> Driver
-    AOps --> Driver
-    Driver --> Cassandra[("Apache Cassandra")]
-    SchemaGen["SchemaGenerator<br/>Schema Creation / Truncation"] --> ROps
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef extStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef driverStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class Ext,ROps,RSession,AOps extStyle
-    class DSL dslStyle
-    class Driver driverStyle
-    class Cassandra dbStyle
-    class SchemaGen utilStyle
-```
+![Cassandra Data Access Layer 2](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.svg)
 
 ### Coroutine Conversion Sequence
 

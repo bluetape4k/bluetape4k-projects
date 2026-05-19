@@ -12,126 +12,15 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
 
-```mermaid
-flowchart TD
-    subgraph Application["애플리케이션"]
-        APP[애플리케이션 코드]
-        CO[Coroutines\nsuspend fun]
-    end
-
-    subgraph bluetape4k-http
-        EXT[executeSuspending\n확장 함수]
-        DSL[Builder DSL\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf / ktorCioHttpClientOf]
-    end
-
-    subgraph Backends["HTTP 클라이언트 백엔드"]
-        HC5A[HC5 Async\nhttpAsyncClient]
-        HC5C[HC5 Classic\nhttpClient]
-        HC5CA[HC5 캐싱\ncachingHttpAsyncClient]
-        OKH[OkHttp3\nokhttp3Client]
-        VTX[Vert.x HttpClient\nvertxHttpClientOf]
-        KTOR[Ktor CIO\nktorCioHttpClientOf]
-    end
-
-    APP --> CO
-    CO --> EXT
-    EXT --> DSL
-    DSL --> HC5A
-    DSL --> HC5C
-    DSL --> HC5CA
-    DSL --> OKH
-    DSL --> VTX
-    DSL --> KTOR
-    HC5A --> SERVER[(HTTP 서버)]
-    HC5C --> SERVER
-    HC5CA --> SERVER
-    OKH --> SERVER
-    VTX --> SERVER
-    KTOR --> SERVER
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-
-    class APP coreStyle
-    class CO asyncStyle
-    class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,VTX,KTOR serviceStyle
-    class SERVER extStyle
-```
+![전체 아키텍처: 다중 백엔드 HTTP 클라이언트 1](../../docs/images/readme-diagrams/io-http-ko-diagram-01.svg)
 
 ### HTTP 클라이언트 계층 (HC5)
 
-```mermaid
-classDiagram
-    class CloseableHttpAsyncClient {
-        <<ApacheHC5>>
-        +execute(request, callback) Future
-        +start()
-        +close()
-    }
-
-    class HttpAsyncClientCoroutines {
-        <<확장함수>>
-        +executeSuspending(request) SimpleHttpResponse
-    }
-
-    class CachingHttpAsyncClientBuilder {
-        <<DSL빌더>>
-        +setHttpCacheStorage(storage)
-        +build() CloseableHttpAsyncClient
-    }
-
-    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : 사용
-    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : 사용
-    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : 확장
-
-    style CloseableHttpAsyncClient fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style HttpAsyncClientCoroutines fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style CachingHttpAsyncClientBuilder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style InMemoryHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
-    style JavaCacheHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
-```
+![HTTP 클라이언트 계층 (HC5) 2](../../docs/images/readme-diagrams/io-http-ko-diagram-02.svg)
 
 ### OkHttp3 클라이언트 계층
 
-```mermaid
-classDiagram
-    class OkHttpClient {
-        <<OkHttp3>>
-        +newCall(request) Call
-    }
-
-    class LoggingInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingRequestInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingResponseInterceptor {
-        +intercept(chain) Response
-    }
-
-    class OkHttpClientExtensionsCoroutines {
-        <<확장함수>>
-        +executeSuspending(request) Response
-    }
-
-    OkHttpClient --> LoggingInterceptor : addInterceptor
-    OkHttpClient --> CachingRequestInterceptor : addInterceptor
-    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
-    OkHttpClient <.. OkHttpClientExtensionsCoroutines : 확장
-
-    style OkHttpClient fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style LoggingInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CachingRequestInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CachingResponseInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style OkHttpClientExtensionsCoroutines fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![OkHttp3 클라이언트 계층 3](../../docs/images/readme-diagrams/io-http-ko-diagram-03.svg)
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
@@ -391,13 +280,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
   - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
   - OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
 
-```mermaid
-bar
-    title HTTP 캐시 효과 (ops/s, @Threads=8, WireMock 10ms 지연)
-    "HC5 + MemCache" : 813906
-    "OkHttp + DiskCache" : 35359
-    "NoCache 기준" : 682
-```
+![3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과 4](../../docs/images/readme-diagrams/io-http-ko-diagram-04.svg)
 
 **권장 선택**:
 

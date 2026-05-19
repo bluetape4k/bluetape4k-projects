@@ -8,52 +8,7 @@
 
 ## 아키텍처
 
-```mermaid
-classDiagram
-    class AbstractNatsTest {
-        +connection: Connection
-        +NatsServer Testcontainer
-    }
-    class ConnectionExtensions {
-        +publish(subject, body)
-        +request(subject, body, timeout)
-        +requestAsync(subject, body)
-        +requestSuspending(subject, body)
-        +drainSuspending(timeout)
-        +createStream(name, subjects)
-    }
-    class JetStreamExtensions {
-        +publish(subject, body)
-        +publishAsync(subject, body)
-        +publishSuspending(subject, body)
-    }
-    class JetStreamManagementExtensions {
-        +createStream(name, subjects)
-        +createOrReplaceStream(name, subjects)
-        +streamExists(name)
-        +forcedDeleteStream(name)
-        +forcedPurgeStream(name)
-        +consumerExists(stream, consumer)
-        +forcedDeleteConsumer(stream, consumer)
-    }
-    class NatsServiceExtensions {
-        +natsServiceOf(nc, name, version, endpoints)
-        +natsService(block)
-        +serviceEndpointOf(name, subject, handler)
-    }
-    class DSLBuilders {
-        +streamConfiguration(block)
-        +consumerConfiguration(block)
-        +keyValueConfiguration(name, block)
-        +objectStoreConfiguration(block)
-    }
-
-    AbstractNatsTest --> ConnectionExtensions : 사용
-    ConnectionExtensions --> JetStreamExtensions
-    ConnectionExtensions --> JetStreamManagementExtensions
-    ConnectionExtensions --> NatsServiceExtensions
-    JetStreamExtensions --> DSLBuilders
-```
+![아키텍처 1](../../docs/images/readme-diagrams/infra-nats-ko-diagram-01.svg)
 
 ## 특징
 

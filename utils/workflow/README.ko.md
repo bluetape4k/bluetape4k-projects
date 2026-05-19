@@ -12,33 +12,7 @@ Kotlin DSL 기반 워크플로우 오케스트레이션 라이브러리입니다
 
 Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
 
-```mermaid
-flowchart LR
-    subgraph Flows["플로우 타입"]
-        SF["Sequential\n(순차)"]
-        PF["Parallel\n(병렬)"]
-        CF["Conditional\n(조건 분기)"]
-        RF["Repeat\n(반복)"]
-        RT["Retry\n(재시도)"]
-    end
-
-    User -->|"정의"| W["Work / SuspendWork\n(lambda: ctx → WorkReport)"]
-    User -->|"조합"| Flows
-    W -->|"조립"| Flows
-    Flows -->|"execute(ctx)"| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
-    WR -->|"읽기/쓰기"| WC["WorkContext\n(공유 Mutable Map)"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class SF,PF,CF,RF,RT dslStyle
-    class W serviceStyle
-    class WR dataStyle
-    class WC utilStyle
-```
+![개념 개요 1](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-01.svg)
 
 `Work` 단위는 `WorkContext`를 받아 `WorkReport`를 반환하는 이름 있는 람다입니다.  
 플로우는 여러 Work 단위를 실행 전략으로 조합합니다.  
@@ -46,49 +20,11 @@ flowchart LR
 
 ### WorkReport 상태
 
-```mermaid
-stateDiagram-v2
-    [*] --> Running : execute(ctx)
-
-    Running --> Success : 작업 정상 완료
-    Running --> Failure : 예외 발생 (STOP)
-    Running --> PartialSuccess : 일부 실패 (CONTINUE)
-    Running --> Aborted : WorkReport.Aborted 반환
-    Running --> Cancelled : 타임아웃 / 코루틴 취소
-
-    Success --> [*]
-    Failure --> [*]
-    PartialSuccess --> [*]
-    Aborted --> [*]
-    Cancelled --> [*]
-```
+![WorkReport 상태 2](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-02.svg)
 
 ### 실행 모델 선택
 
-```mermaid
-flowchart TD
-    A[실행 모델 선택] --> B{비동기 필요?}
-    B -->|yes| C["SuspendWork\nsuspendSequentialFlow\nsuspendParallelFlow\nsuspendRepeatFlow"]
-    B -->|no| D["Work\nsequentialFlow\nparallelFlow\nconditionalFlow\nrepeatFlow\nretryFlow"]
-
-    C --> E{플로우 타입}
-    D --> E
-    E --> F[Sequential]
-    E --> G[Parallel]
-    E --> H[Conditional]
-    E --> I[Repeat]
-    E --> J[Retry]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class A coreStyle
-    class C asyncStyle
-    class D serviceStyle
-    class F,G,H,I,J dslStyle
-```
+![실행 모델 선택 3](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-03.svg)
 
 ## 주요 특징
 
@@ -165,23 +101,7 @@ val report = suspendWork.execute(ctx)
 
 작업을 순서대로 실행; 에러 처리는 `ErrorStrategy` 제어:
 
-```mermaid
-flowchart LR
-    S([시작]) --> W1[Work 1] --> W2[Work 2] --> W3[Work 3] --> E([COMPLETED])
-    W1 -. "실패 + STOP" .-> F([FAILED])
-    W2 -. "실패 + STOP" .-> F
-    W1 -. "실패 + CONTINUE" .-> W2
-    W2 -. "실패 + CONTINUE" .-> W3
-    W3 -. "실패 누적" .-> P([PARTIAL])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class W1,W2,W3 serviceStyle
-    class S,E coreStyle
-    class F,P dataStyle
-```
+![순차 흐름 4](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-04.svg)
 
 ```kotlin
 // 동기 버전
@@ -215,16 +135,7 @@ val report = flow.execute(WorkContext())
 
 작업 동시 실행:
 
-```mermaid
-flowchart LR
-    S([시작]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-    class W1,W2,W3 serviceStyle
-    class S,E coreStyle
-```
+![병렬 흐름 5](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-05.svg)
 
 ```kotlin
 // 동기 (Virtual Threads)
@@ -247,20 +158,7 @@ val report = flow.execute(WorkContext())
 
 Predicate 기반 분기 실행:
 
-```mermaid
-flowchart LR
-    S([시작]) --> C{condition?}
-    C -->|true| T[then]
-    C -->|false| O[otherwise]
-    T --> E([완료])
-    O --> E
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-    class T,O serviceStyle
-    class S,E coreStyle
-```
+![조건 흐름 6](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-06.svg)
 
 ```kotlin
 val flow = conditionalFlow("check-valid") {
@@ -276,23 +174,7 @@ val report = flow.execute(ctx)
 
 조건이 참인 동안 작업 반복:
 
-```mermaid
-flowchart LR
-    S([시작]) --> W[Work]
-    W -->|success| C{repeatWhile\ntrue?}
-    C -->|yes| W
-    C -->|no| E([COMPLETED])
-    W -. ABORTED .-> A([ABORTED])
-    W -. FAILED .-> F([FAILED])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class W serviceStyle
-    class S,E coreStyle
-    class A,F dataStyle
-```
+![반복 흐름 7](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-07.svg)
 
 ```kotlin
 // 동기
@@ -320,23 +202,7 @@ val report = flow.execute(WorkContext())
 
 실패한 작업을 지수 백오프로 자동 재시도:
 
-```mermaid
-flowchart LR
-    S([시작]) --> W[Work]
-    W -->|success| E([COMPLETED])
-    W -->|failure| R{재시도\n가능?}
-    R -->|yes| D[백오프 대기]
-    D --> W
-    R -->|no| F([FAILED])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class W,D serviceStyle
-    class S,E coreStyle
-    class F dataStyle
-```
+![재시도 흐름 8](../../docs/images/readme-diagrams/utils-workflow-ko-diagram-08.svg)
 
 ```kotlin
 val flow = retryFlow("call-api") {

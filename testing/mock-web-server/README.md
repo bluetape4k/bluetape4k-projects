@@ -26,99 +26,11 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 ### Request Routing Overview
 
-```mermaid
-flowchart LR
-    C[Client] -->|HTTP 80| S[Spring MVC DispatcherServlet]
-    S --> A[AdminController]
-    S --> H[HttpbinController]
-    S --> J[Jsonplaceholder 6 Controllers]
-    S --> W[WebContentController]
-    J --> Svc[JsonplaceholderService] --> Repo[InMemoryRepository]
-    W --> L[WebContentLoader cacheable]
-```
+![Request Routing Overview 1](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.svg)
 
 ### Class Diagram
 
-```mermaid
-classDiagram
-    class MockServerApplication {
-        +main(args)
-    }
-
-    class HttpbinController {
-        +get(request) HttpbinResponse
-        +post(request, body) HttpbinResponse
-        +headers(request) Map
-        +ip(request) Map
-        +status(code) ResponseEntity
-        +bytes(n) ResponseEntity
-    }
-
-    class HttpbinAdvancedController {
-        +delay(seconds) HttpbinResponse
-        +image(format) ResponseEntity
-    }
-
-    class HttpbinStreamController {
-        +stream(n) StreamingResponseBody
-    }
-
-    class PostsController {
-        +list() List~PostRecord~
-        +get(id) PostRecord
-        +create(post) PostRecord
-        +update(id, post) PostRecord
-        +delete(id) ResponseEntity
-    }
-
-    class JsonplaceholderService {
-        +reloadFromFixtures()
-    }
-
-    class InMemoryRepository~T~ {
-        <<generic>>
-        +findAll() List~T~
-        +findById(id) T?
-        +save(entity) T
-        +deleteById(id)
-    }
-
-    class WebContentController {
-        +getContent(name) ResponseEntity
-    }
-
-    class WebContentLoader {
-        +load(name) String
-    }
-
-    class AdminController {
-        +reset() ResponseEntity
-    }
-
-    MockServerApplication --> HttpbinController
-    MockServerApplication --> HttpbinAdvancedController
-    MockServerApplication --> HttpbinStreamController
-    MockServerApplication --> PostsController
-    MockServerApplication --> WebContentController
-    MockServerApplication --> AdminController
-
-    PostsController --> JsonplaceholderService
-    AdminController --> JsonplaceholderService
-    JsonplaceholderService --> InMemoryRepository
-
-    WebContentController --> WebContentLoader
-
-    style MockServerApplication fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style HttpbinController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HttpbinAdvancedController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HttpbinStreamController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style PostsController fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JsonplaceholderService fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style InMemoryRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style WebContentController fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style WebContentLoader fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style AdminController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Class Diagram 2](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.svg)
 
 ### Sequence Diagram — httpbin GET
 

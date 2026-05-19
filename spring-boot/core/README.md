@@ -180,126 +180,19 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ### Core Class Structure
 
-```mermaid
-classDiagram
-    class UserController {
-        -service: UserService
-        +getUsers(): Flow~User~
-        +getUser(id): User
-        +createUser(request): ResponseEntity~User~
-    }
-    class UserService {
-        -restClient: RestClient
-        +findAllAsFlow(): Flow~User~
-        +findById(id): User
-        +create(user): User
-    }
-    class RestClientDsl {
-        <<extension>>
-        +suspendGet(uri): T
-        +suspendPost(uri, body): T
-        +suspendPut(uri, body): T
-        +suspendDelete(uri)
-    }
-    class WebTestClientExt {
-        <<extension>>
-        +httpGet(uri): ResponseSpec
-        +httpPost(uri, body): ResponseSpec
-    }
-    class Retrofit2Config {
-        +retrofit(): Retrofit
-        +okHttpClient(): OkHttpClient
-        +jacksonConverterFactory(): JacksonConverterFactory
-    }
-
-    UserController --> UserService
-    UserService --> RestClientDsl
-    Retrofit2Config --> UserService : inject
-    WebTestClientExt --> UserController : test
-
-    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    style RestClientDsl fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style WebTestClientExt fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Retrofit2Config fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.svg)
 
 ### Spring WebFlux + Coroutines Request Flow
 
-```mermaid
-flowchart LR
-    Client["HTTP Client"] --> Netty["Netty HTTP Server"]
-    Netty --> WebFlux["Spring WebFlux<br/>DispatcherHandler"]
-    WebFlux --> Handler["Coroutines Handler<br/>suspend fun / Flow"]
-    Handler --> Service["Service Layer"]
-    Service --> DB[("Database / External API")]
-    DB --> Service
-    Service --> Handler
-    Handler --> WebFlux
-    WebFlux --> Netty
-    Netty --> Client
-
-    classDef clientStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef serverStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef handlerStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serviceStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    classDef dataStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Client clientStyle
-    class Netty,WebFlux serverStyle
-    class Handler handlerStyle
-    class Service serviceStyle
-    class DB dataStyle
-```
+![Spring WebFlux + Coroutines Request Flow 2](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.svg)
 
 ### RestClient Coroutines DSL Structure
 
-```mermaid
-flowchart TD
-    App["Application Code"] --> DSL["RestClient Coroutines DSL<br/>suspendGet / suspendPost<br/>suspendPut / suspendPatch / suspendDelete"]
-    DSL --> RestClient["Spring RestClient"]
-    RestClient --> HTTP["HTTP Request"]
-    HTTP --> ExternalAPI["External REST API"]
-    ExternalAPI --> RestClient
-    RestClient --> DSL
-    DSL --> App
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef httpStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef externalStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class DSL dslStyle
-    class RestClient,HTTP httpStyle
-    class ExternalAPI externalStyle
-```
+![RestClient Coroutines DSL Structure 3](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.svg)
 
 ### Retrofit2 Integration Structure
 
-```mermaid
-flowchart TD
-    App["Application"] --> RetrofitBean["Retrofit Bean<br/>(@Bean retrofit.create<T>())"]
-    RetrofitBean --> Retrofit2["Retrofit2"]
-    Retrofit2 --> OkHttp["OkHttp3 Client"]
-    Retrofit2 --> HttpClient5["Apache HttpClient5"]
-    Retrofit2 --> Jackson["Jackson 2 Serialization/Deserialization"]
-    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>(suspend function support)"]
-    OkHttp --> ExternalAPI["External REST API"]
-    HttpClient5 --> ExternalAPI
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef retrofitStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef adapterStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serdeStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef externalStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class RetrofitBean,Retrofit2,OkHttp,HttpClient5 retrofitStyle
-    class CoroutinesAdapter adapterStyle
-    class Jackson serdeStyle
-    class ExternalAPI externalStyle
-```
+![Retrofit2 Integration Structure 4](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.svg)
 
 ## Build and Test
 

@@ -107,71 +107,11 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### Redis Serializer Class Hierarchy
 
-```mermaid
-classDiagram
-    class RedisSerializer {
-        <<interface>>
-        +serialize(T): ByteArray
-        +deserialize(ByteArray): T
-    }
-    class RedisBinarySerializer {
-        -serializer: BinarySerializer
-        +serialize(Any): ByteArray
-        +deserialize(ByteArray): Any
-    }
-    class RedisCompressSerializer {
-        -compressor: Compressor
-        +serialize(ByteArray): ByteArray
-        +deserialize(ByteArray): ByteArray
-    }
-    class RedisBinarySerializers {
-        <<object>>
-        +Jdk: RedisBinarySerializer
-        +Kryo: RedisBinarySerializer
-        +Fory: RedisBinarySerializer
-        +LZ4Fory: RedisBinarySerializer
-        +LZ4Kryo: RedisBinarySerializer
-        +ZstdFory: RedisBinarySerializer
-        +LZ4: RedisCompressSerializer
-        +Zstd: RedisCompressSerializer
-    }
-
-    RedisSerializer <|.. RedisBinarySerializer
-    RedisSerializer <|.. RedisCompressSerializer
-    RedisBinarySerializers --> RedisBinarySerializer : creates
-    RedisBinarySerializers --> RedisCompressSerializer : creates
-
-    style RedisSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style RedisBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RedisCompressSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RedisBinarySerializers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Redis Serializer Class Hierarchy 1](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.svg)
 
 ### ReactiveRedisTemplate Serialization Flow
 
-```mermaid
-flowchart LR
-    App["Application"] --> Template["ReactiveRedisTemplate<br/>(String, Any)"]
-    Template --> Context["RedisSerializationContext<br/>redisSerializationContext { }"]
-    Context --> KeySer["Key Serializer<br/>RedisSerializer.string()"]
-    Context --> ValSer["Value Serializer<br/>RedisBinarySerializers.LZ4Fory"]
-    ValSer --> Fory["Fory Serialization"]
-    ValSer --> LZ4["LZ4 Compression"]
-    LZ4 --> Redis[("Redis")]
-    KeySer --> Redis
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef templateStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef serdeStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef compressStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class Template,Context templateStyle
-    class KeySer,ValSer,Fory serdeStyle
-    class LZ4 compressStyle
-    class Redis dbStyle
-```
+![ReactiveRedisTemplate Serialization Flow 2](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.svg)
 
 ## Build and Test
 

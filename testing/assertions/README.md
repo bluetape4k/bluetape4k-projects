@@ -6,23 +6,7 @@ bluetape4k-assertions-compatible assertion DSL for JUnit 5. Zero `bluetape4k-*` 
 
 ## Architecture
 
-```mermaid
-graph TD
-    A["bluetape4k-assertions"] --> B["junit-jupiter-api"]
-    A --> C["opentest4j"]
-    A --> D["kotlinx-coroutines-core"]
-    A -.->|compileOnly| E["turbine"]
-    F["bluetape4k-junit5"] -->|api| A
-    G["bluetape4k-coroutines"] -.->|@Deprecated bridge| A
-    
-    classDef api fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef optional fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef consumer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    
-    class A,B,C,D api
-    class E optional
-    class F,G consumer
-```
+![Architecture 1](../../docs/images/readme-diagrams/testing-assertions-diagram-01.svg)
 
 ## Features
 

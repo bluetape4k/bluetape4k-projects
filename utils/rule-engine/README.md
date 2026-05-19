@@ -11,190 +11,22 @@ A lightweight rule engine library for Kotlin. It follows the Easy Rules pattern 
 
 The three core building blocks and how they interact:
 
-```mermaid
-flowchart LR
-    subgraph Facts["Facts (shared state)"]
-        KV["age: 20\namount: 1500\n..."]
-    end
-
-    subgraph RS["RuleSet (sorted by priority)"]
-        R1["Rule 1\ncondition → action"]
-        R2["Rule 2\ncondition → action"]
-        R3["Rule 3\ncondition → action"]
-    end
-
-    User -->|" 1. create "| Facts
-    User -->|" 2. build "| RS
-    User -->|" 3. fire(ruleSet, facts) "| RE[RuleEngine]
-    RE -->|" evaluate(facts) per rule "| RS
-    RS -->|" true → execute(facts) "| Facts
-    RE -.->|" 4. read results "| Facts
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class RE coreStyle
-    class R1,R2,R3 dslStyle
-    class KV dataStyle
-```
+![Concept Overview 1](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.svg)
 
 A `Rule` has a **condition** (predicate on `Facts`) and an **action** (mutates `Facts`).  
 `RuleEngine.fire()` iterates rules in priority order, evaluates each condition, and runs matching actions.
 
 ### Core Class Diagram
 
-```mermaid
-classDiagram
-    class Rule {
-        <<interface>>
-        +name: String
-        +priority: Int
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-    }
-
-    class SuspendRule {
-        <<interface>>
-        +name: String
-        +priority: Int
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-    }
-
-    class DefaultRule {
-        -condition: Condition
-        -actions: List~Action~
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-    }
-
-    class DefaultSuspendRule {
-        -condition: SuspendCondition
-        -actions: List~SuspendAction~
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-    }
-
-    class Condition {
-<<funinterface>>
-+evaluate(facts: Facts): Boolean
-}
-
-class Action {
-<<funinterface>>
-+execute(facts: Facts)
-}
-
-class Facts {
--map: ConcurrentHashMap~String, Any?~
-+get(name): T?
-+set(name, value)
-+contains(name): Boolean
-+of(vararg pairs)$
-}
-
-class RuleSet {
--rules: TreeSet~Rule~
-+add(rule: Rule)
-+iterator(): Iterator~Rule~
-}
-
-Rule <|.. DefaultRule
-SuspendRule <|.. DefaultSuspendRule
-DefaultRule ..> Condition: uses
-DefaultRule ..> Action: uses
-DefaultSuspendRule ..> Condition : uses
-DefaultSuspendRule ..> Action: uses
-RuleSet o-- Rule: sorted by priority
-DefaultRule ..> Facts: reads/writes
-
-    style Rule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendRule fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style DefaultRule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultSuspendRule fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Condition fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style Action fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style Facts fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style RuleSet fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-```
+![Core Class Diagram 2](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.svg)
 
 ### Rule Engine Class Diagram
 
-```mermaid
-classDiagram
-    class RuleEngine {
-        <<interface>>
-        +config: RuleEngineConfig
-        +fire(rules: RuleSet, facts: Facts)
-        +check(rules: RuleSet, facts: Facts): Map~Rule,Boolean~
-    }
-
-    class DefaultRuleEngine {
-        +fire(rules, facts)
-        +addRuleListener(listener)
-        +addRuleEngineListener(listener)
-    }
-
-    class InferenceRuleEngine {
-        +fire(rules, facts)
-    }
-
-    class DefaultSuspendRuleEngine {
-        +fire(rules, facts)
-    }
-
-    class RuleEngineConfig {
-        +skipOnFirstAppliedRule: Boolean
-        +skipOnFirstFailedRule: Boolean
-        +skipOnFirstNonTriggeredRule: Boolean
-        +priorityThreshold: Int
-    }
-
-    RuleEngine <|.. DefaultRuleEngine
-    RuleEngine <|.. InferenceRuleEngine
-    DefaultRuleEngine o-- RuleEngineConfig
-
-    style RuleEngine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style DefaultRuleEngine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style InferenceRuleEngine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultSuspendRuleEngine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style RuleEngineConfig fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-```
+![Rule Engine Class Diagram 3](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.svg)
 
 ### Composite Rules
 
-```mermaid
-classDiagram
-    class CompositeRule {
-        <<abstract>>
-        #rules: SortedSet~Rule~
-        +addRule(rule: Rule)
-    }
-
-    class ActivationRuleGroup {
-    }
-    note for ActivationRuleGroup "Executes only the highest-priority\nrule whose condition is true"
-
-    class ConditionalRuleGroup {
-    }
-    note for ConditionalRuleGroup "If the highest-priority rule fires,\nexecutes all remaining rules"
-
-    class UnitRuleGroup {
-    }
-    note for UnitRuleGroup "Executes all rules atomically\nonly if all conditions are true"
-    CompositeRule <|-- ActivationRuleGroup
-    CompositeRule <|-- ConditionalRuleGroup
-    CompositeRule <|-- UnitRuleGroup
-    CompositeRule o-- Rule: contains
-
-    style CompositeRule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ActivationRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ConditionalRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UnitRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Rule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![Composite Rules 4](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.svg)
 
 ### Rule Execution Sequence
 
@@ -234,51 +66,11 @@ sequenceDiagram
 
 ### InferenceRuleEngine (Forward Chaining)
 
-```mermaid
-flowchart TD
-    A[fire start] --> B[evaluate all rules]
-    B --> C{any condition\ntrue?}
-    C -->|yes| D[execute highest-priority matching rule]
-    D --> E[facts updated]
-    E --> B
-    C -->|no| F[done]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class A,B coreStyle
-    class D,E serviceStyle
-    class F dataStyle
-```
+![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.svg)
 
 ### Rule Engine Selection Guide
 
-```mermaid
-flowchart TD
-    A[Choose Rule Engine] --> B{async needed?}
-    B -->|yes| C[DefaultSuspendRuleEngine]
-    B -->|no| D{forward chaining?}
-    D -->|yes| E[InferenceRuleEngine]
-    D -->|no| F[DefaultRuleEngine]
-    C & E & F --> G{rule definition}
-    G --> H["DSL: rule{}"]
-    G --> I["Annotation: @Rule"]
-    G --> J["Script: MVEL2 / SpEL / Janino / Groovy"]
-    G --> K["File: YAML / JSON / HOCON"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class A coreStyle
-    class E,F serviceStyle
-    class C asyncStyle
-    class H,I dslStyle
-    class J,K dataStyle
-```
+![Rule Engine Selection Guide 6](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.svg)
 
 ## Core Features
 
@@ -425,25 +217,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### Script Engine Selection Guide
 
-```mermaid
-flowchart TD
-    A[Choose Script Engine] --> B{Expression complexity?}
-    B -->|"Simple (comparisons, assignments)"| C{Spring project?}
-    C -->|yes| D[SpEL]
-    C -->|no| E{Performance critical?}
-    E -->|yes| F[Janino]
-    E -->|no| G[MVEL2]
-    B -->|"Complex (collections, closures, branching)"| H[Groovy]
-    B -->|"Need Kotlin type safety"| I[Kotlin Script]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-
-    class A coreStyle
-    class D,F,G serviceStyle
-    class H,I extStyle
-```
+![Script Engine Selection Guide 7](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.svg)
 
 | Scenario | Recommended | Reason |
 |----------|-------------|--------|

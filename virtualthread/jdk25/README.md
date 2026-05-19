@@ -15,53 +15,7 @@ Because it has a higher priority than the JDK 21 implementation (
 
 ## UML
 
-```mermaid
-classDiagram
-    class VirtualThreadRuntime {
-        <<interface>>
-        +runtimeName: String
-        +priority: Int
-        +isSupported() Boolean
-        +threadFactory(prefix) ThreadFactory
-        +executorService() ExecutorService
-    }
-    class StructuredTaskScopeProvider {
-        <<interface>>
-        +providerName: String
-        +priority: Int
-        +isSupported() Boolean
-        +withAll(name, factory, block) T
-        +withAny(name, factory, block) T
-    }
-    class Jdk25VirtualThreadRuntime {
-        +runtimeName = "jdk25"
-        +priority = 25
-        +isSupported() Boolean
-        +threadFactory(prefix) ThreadFactory
-        +executorService() ExecutorService
-    }
-    class Jdk25StructuredTaskScopeProvider {
-        +providerName = "jdk25"
-        +priority = 25
-        +withAll(name, factory, block) T
-        +withAny(name, factory, block) T
-    }
-    class ServiceLoader {
-        +load(type) ServiceLoader
-        +findFirst() Optional
-    }
-
-    VirtualThreadRuntime <|.. Jdk25VirtualThreadRuntime
-    StructuredTaskScopeProvider <|.. Jdk25StructuredTaskScopeProvider
-    ServiceLoader --> Jdk25VirtualThreadRuntime : discovers
-    ServiceLoader --> Jdk25StructuredTaskScopeProvider : discovers
-
-    style VirtualThreadRuntime fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StructuredTaskScopeProvider fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Jdk25VirtualThreadRuntime fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jdk25StructuredTaskScopeProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ServiceLoader fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.svg)
 
 ## Main Implementations
 

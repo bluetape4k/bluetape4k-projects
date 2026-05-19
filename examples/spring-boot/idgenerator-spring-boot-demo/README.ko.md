@@ -7,18 +7,7 @@ Ktor 예제는 #419에서 별도로 다룹니다.
 
 ## 아키텍처
 
-```mermaid
-flowchart LR
-    C["IdGeneratorController"] --> S["IdGeneratorService"]
-    S --> R["IdGeneratorRegistry"]
-    R --> UV4["UuidGenerator\\nUUID v4"]
-    R --> UV7["UuidGenerator\\nUUID v7"]
-    R --> UL["UlidGenerator"]
-    R --> KS["KsuidGenerator"]
-    R --> SN["SnowflakeGenerator"]
-    R --> FL["Flake"]
-    P["IdGeneratorProperties"] --> S
-```
+![아키텍처 1](../../../docs/images/readme-diagrams/examples-spring-boot-idgenerator-spring-boot-demo-ko-diagram-01.svg)
 
 ## 설정
 

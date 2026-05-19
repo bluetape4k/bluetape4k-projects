@@ -117,119 +117,11 @@ sequenceDiagram
 
 #### NearCacheOperations (Blocking)
 
-```mermaid
-classDiagram
-    class NearCacheOperations {
-        <<interface>>
-        +cacheName: String
-        +isClosed: Boolean
-        +get(key: String) V?
-        +getAll(keys: Set~String~) Map
-        +put(key: String, value: V)
-        +putIfAbsent(key: String, value: V) V?
-        +replace(key: String, value: V) Boolean
-        +remove(key: String)
-        +getAndRemove(key: String) V?
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-    }
-
-    class NearCacheStatistics {
-        <<interface>>
-        +localHits: Long
-        +localMisses: Long
-        +localSize: Long
-        +localEvictions: Long
-        +backHits: Long
-        +backMisses: Long
-        +hitRate: Double
-    }
-
-    class ResilientNearCacheDecorator {
-        -delegate: NearCacheOperations~V~
-        -retry: Retry
-        -config: NearCacheResilienceConfig
-    }
-
-    class LettuceNearCache {
-        -redisClient: RedisClient
-        -trackingListener: TrackingInvalidationListener
-    }
-
-    class HazelcastNearCache {
-        -imap: IMap
-        -entryListener: EntryListener
-    }
-
-    class RedissonNearCache {
-        -localCachedMap: RLocalCachedMap
-    }
-
-    NearCacheOperations <|.. LettuceNearCache
-    NearCacheOperations <|.. HazelcastNearCache
-    NearCacheOperations <|.. RedissonNearCache
-    NearCacheOperations <|.. ResilientNearCacheDecorator
-    NearCacheOperations --o ResilientNearCacheDecorator : delegate
-    NearCacheOperations ..> NearCacheStatistics : stats()
-
-    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style NearCacheStatistics fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ResilientNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style LettuceNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HazelcastNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RedissonNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-
-```
+![NearCacheOperations (Blocking) 1](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-01.svg)
 
 #### SuspendNearCacheOperations (Coroutine)
 
-```mermaid
-classDiagram
-    class SuspendNearCacheOperations {
-        <<interface>>
-        +cacheName: String
-        +isClosed: Boolean
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +putIfAbsent(key: String, value: V) V?
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-        +close()
-    }
-
-    class ResilientSuspendNearCacheDecorator {
-        -delegate: SuspendNearCacheOperations~V~
-        -retry: Retry
-    }
-
-    class LettuceSuspendNearCache {
-        -commands: RedisCoroutinesCommands
-    }
-
-    class HazelcastSuspendNearCache {
-        -imap: IMap
-    }
-
-    class RedissonSuspendNearCache {
-        -localCachedMap: RLocalCachedMap
-    }
-
-    SuspendNearCacheOperations <|.. LettuceSuspendNearCache
-    SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
-    SuspendNearCacheOperations <|.. RedissonSuspendNearCache
-    SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
-    SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
-
-    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ResilientSuspendNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style LettuceSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style HazelcastSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style RedissonSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-```
+![SuspendNearCacheOperations (Coroutine) 2](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-02.svg)
 
 #### JCache 기반 NearCache (`nearcache.jcache` 패키지)
 
@@ -238,132 +130,15 @@ classDiagram
 
 ##### SuspendJCache 인터페이스
 
-```mermaid
-classDiagram
-    class SuspendJCache~K_V~ {
-        <<interface>>
-        +get(key: K) V?
-        +put(key: K, value: V)
-        +remove(key: K) Boolean
-        +putIfAbsent(key: K, value: V) Boolean
-        +replace(key: K, value: V) Boolean
-        +containsKey(key: K) Boolean
-        +getAndPut(key: K, value: V) V?
-        +getAndRemove(key: K) V?
-        +entries() Flow
-        +getAll(keys: Set~K~) Flow
-+putAll(map: Map)
-        +removeAll()
-        +clear()
-        +close()
-        +isClosed() Boolean
-    }
-
-class CaffeineSuspendJCache~K_V~ {
--cache: AsyncCache
-        +invoke(builder) CaffeineSuspendJCache
-    }
-
-    class LettuceSuspendJCache~V~ {
--cache: LettuceJCache
-        +invoke(cacheName, redisClient) LettuceSuspendJCache
-    }
-
-class HazelcastSuspendJCache~K_V~ {
-        -hazelcastInstance: HazelcastInstance
-        -cacheName: String
-    }
-
-class RedissonSuspendJCache~K_V~ {
-        -redisson: RedissonClient
-        -cacheName: String
-    }
-
-SuspendJCache <|.. CaffeineSuspendJCache
-SuspendJCache <|.. LettuceSuspendJCache
-SuspendJCache <|.. HazelcastSuspendJCache
-SuspendJCache <|.. RedissonSuspendJCache
-
-    style SuspendJCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style CaffeineSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style HazelcastSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style RedissonSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![SuspendJCache 인터페이스 3](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-03.svg)
 
 ##### NearJCache (동기)
 
-```mermaid
-classDiagram
-    class NearJCache~K_V~ {
-+frontCache: JCache
-+backCache: JCache
--config: NearJCacheConfig
-        +invoke(config, backCache) NearJCache
-    }
-
-class NearJCacheConfig~K_V~ {
-        +cacheName: String
-        +cacheManagerFactory: Factory
-+frontCacheConfiguration: MutableConfiguration
-        +isSynchronous: Boolean
-        +syncRemoteTimeout: Long
-    }
-
-class NearJCacheConfigBuilder~K_V~ {
-        +cacheName: String
-        +cacheManagerFactory: Factory
-+frontCacheConfiguration: MutableConfiguration
-        +isSynchronous: Boolean
-        +syncRemoteTimeout: Long
-        +build() NearJCacheConfig
-    }
-
-    NearJCache --> NearJCacheConfig: config
-    NearJCacheConfigBuilder ..> NearJCacheConfig: build()
-
-    style NearJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
-    style NearJCacheConfigBuilder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![NearJCache (동기) 4](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-04.svg)
 
 ##### SuspendNearJCache (코루틴)
 
-```mermaid
-classDiagram
-    class SuspendNearJCache~K_V~ {
--frontCache: SuspendJCache
--backCache: SuspendJCache
-        +invoke(front, back) SuspendNearJCache
-        +withoutListener(front, back) SuspendNearJCache
-        +get(key: K) V?
-        +put(key: K, value: V)
-        +remove(key: K) Boolean
-        +clear()
-        +close()
-    }
-
-class CaffeineSuspendJCache~K_V~ {
-        <<frontCache>>
-    }
-
-    class LettuceSuspendJCache~V~ {
-<<backCache_Lettuce>>
-    }
-
-class HazelcastSuspendJCache~K_V~ {
-<<backCache_Hazelcast>>
-    }
-
-SuspendNearJCache --> CaffeineSuspendJCache: frontCache
-SuspendNearJCache --> LettuceSuspendJCache: backCache (Lettuce)
-SuspendNearJCache --> HazelcastSuspendJCache: backCache (Hazelcast)
-
-    style SuspendNearJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style CaffeineSuspendJCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style LettuceSuspendJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HazelcastSuspendJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![SuspendNearJCache (코루틴) 5](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-05.svg)
 
 ##### NearJCacheConfig Builder DSL
 

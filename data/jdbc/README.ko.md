@@ -477,69 +477,11 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### 확장 함수 API 개요
 
-```mermaid
-classDiagram
-    direction LR
-    class JdbcExtensions {
-        <<extensionFunctions>>
-        +DataSource.execute(sql): Int
-        +DataSource.query~T~(sql): List~T~
-        +Connection.executeBatch(sqls): IntArray
-    }
-    class DataSourceExtensions {
-        <<extensionFunctions>>
-        +dataSourceOf(url, user, pw): DataSource
-        +HikariDataSource(block): DataSource
-    }
-
-    style JdbcExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DataSourceExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-01.svg)
 
 ### 주요 API 구조
 
-```mermaid
-classDiagram
-    class DataSourceExtensions {
-        +DataSource.withConnect(block): T
-        +DataSource.withStatement(block): T
-        +DataSource.withTransaction(block): T
-        +DataSource.withReadOnlyTransaction(block): T
-        +DataSource.runQuery(sql, block): T
-        +DataSource.executeBatch(sql, params): IntArray
-    }
-    class ConnectionExtensions {
-        +Connection.withStatement(block): T
-        +Connection.withTransaction(block): T
-        +Connection.withAutoCommit(flag, block): T
-        +Connection.withReadOnly(block): T
-        +Connection.withIsolationLevel(level, block): T
-        +Connection.executeQuery(sql, params, block): T
-        +Connection.executeUpdate(sql, params): Int
-        +Connection.executeBatch(sql, params): IntArray
-        +Connection.preparedStatement(sql, block): T
-    }
-    class ResultSetExtensions {
-        +ResultSet.toList(mapper): List~T~
-        +ResultSet.toSet(mapper): Set~T~
-        +ResultSet.toMap(keyMapper, valueMapper): Map~K,V~
-        +ResultSet.groupBy(keyMapper, valueMapper): Map~K,List~V~~
-        +ResultSet.mapFirst(mapper): T?
-        +ResultSet.mapSingle(mapper): T
-        +ResultSet.sequence(mapper): Sequence~T~
-        +ResultSet.filterMap(predicate, mapper): List~T~
-        +ResultSet.singleInt(): Int?
-        +ResultSet.singleLong(): Long?
-        +ResultSet.columnNames: List~String~
-    }
-
-    DataSourceExtensions --> ConnectionExtensions : 위임
-    ConnectionExtensions --> ResultSetExtensions : ResultSet 전달
-
-    style DataSourceExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style ConnectionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ResultSetExtensions fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![주요 API 구조 2](../../docs/images/readme-diagrams/data-jdbc-ko-diagram-02.svg)
 
 ### JDBC 쿼리 실행 흐름
 

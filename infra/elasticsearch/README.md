@@ -71,59 +71,7 @@ The module follows a layered design:
 
 ## Class Hierarchy
 
-```mermaid
-classDiagram
-    class ElasticsearchClients {
-        <<object>>
-        +asyncClientOf(host, port, scheme) ElasticsearchAsyncClient
-        +asyncClientOf(rest5Client) ElasticsearchAsyncClient
-        +clientOf(host, port, scheme) ElasticsearchClient
-        +transportOf(...) ElasticsearchTransport
-    }
-
-    class ElasticsearchClientConfig {
-        +host: String
-        +port: Int
-        +scheme: String
-        +username: String?
-        +password: String?
-        +sslContext: SSLContext?
-        +mapper: JsonpMapper?
-    }
-
-    class ElasticsearchAsyncClient {
-        +bulk(request) CompletableFuture
-        +search(request) CompletableFuture
-        +openPointInTime(request) CompletableFuture
-        +closePointInTime(request) CompletableFuture
-    }
-
-    class SearchApiCoroutines {
-        <<interface>>
-        +openPointInTimeSuspending() String
-        +closePointInTimeSuspending(pitId) Boolean
-        +searchAsFlow() Flow
-    }
-
-    class BulkApiCoroutines {
-        <<interface>>
-        +suspendBulk() BulkResponse
-        +bulkAsFlow() Flow
-    }
-
-    ElasticsearchClients --> ElasticsearchAsyncClient
-    ElasticsearchClients --> ElasticsearchClient
-    ElasticsearchClientConfig --> ElasticsearchAsyncClient
-    ElasticsearchAsyncClient --> SearchApiCoroutines
-    ElasticsearchAsyncClient --> BulkApiCoroutines
-
-    style ElasticsearchClients fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style ElasticsearchClientConfig fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ElasticsearchAsyncClient fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SearchApiCoroutines fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style BulkApiCoroutines fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-```
+![Class Hierarchy 1](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.svg)
 
 ## Usage Examples
 

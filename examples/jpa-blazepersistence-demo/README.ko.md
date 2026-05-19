@@ -34,20 +34,7 @@ Blaze Persistence는 JPA 위에 더 표현력 있는 Criteria API와 projection
 
 ## 도메인 모델
 
-```mermaid
-classDiagram
-    Team "1" --> "*" Member : members
-    class Team {
-        Long id
-        String name
-    }
-    class Member {
-        Long id
-        String name
-        Int age
-        Team team
-    }
-```
+![도메인 모델 1](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-ko-diagram-01.svg)
 
 ## 핵심 사용법
 

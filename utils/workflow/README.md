@@ -12,34 +12,7 @@ For additional reference, see [easy-flows](https://github.com/j-easy/easy-flows)
 
 How work units, context, and flows relate:
 
-```mermaid
-flowchart LR
-    subgraph Flows["Flow Types"]
-        SF["Sequential\n(ordered)"]
-        PF["Parallel\n(concurrent)"]
-        CF["Conditional\n(branching)"]
-        RF["Repeat\n(looping)"]
-        RT["Retry\n(backoff)"]
-    end
-
-    User -->|" defines "| W["Work / SuspendWork\n(lambda: ctx → WorkReport)"]
-    User -->|" composes "| Flows
-    W -->|" assembled into "| Flows
-    Flows -->|" execute(ctx) "| WR["WorkReport\n(Success / Failure / Partial\n/ Aborted / Cancelled)"]
-    WR -->|" reads/writes "| WC["WorkContext\n(shared mutable map)"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class SF,PF,CF,RF,RT dslStyle
-    class W serviceStyle
-    class WR dataStyle
-    class WC utilStyle
-```
+![Concept Overview 1](../../docs/images/readme-diagrams/utils-workflow-diagram-01.svg)
 
 A `Work` unit is a named lambda that receives a `WorkContext` and returns a `WorkReport`.  
 Flows compose multiple work units into an execution strategy.  
@@ -47,46 +20,11 @@ Flows compose multiple work units into an execution strategy.
 
 ### WorkReport States
 
-```mermaid
-stateDiagram-v2
-    [*] --> Running: execute(ctx)
-    Running --> Success: task completed normally
-    Running --> Failure: exception thrown (STOP)
-    Running --> PartialSuccess: some failed (CONTINUE)
-    Running --> Aborted: task called WorkReport.Aborted
-    Running --> Cancelled: timeout / coroutine cancel
-    Success --> [*]
-    Failure --> [*]
-    PartialSuccess --> [*]
-    Aborted --> [*]
-    Cancelled --> [*]
-```
+![WorkReport States 2](../../docs/images/readme-diagrams/utils-workflow-diagram-02.svg)
 
 ### Execution Model
 
-```mermaid
-flowchart TD
-    A[Choose Execution Model] --> B{async needed?}
-    B -->|yes| C["SuspendWork\nsuspendSequentialFlow\nsuspendParallelFlow\nsuspendRepeatFlow"]
-    B -->|no| D["Work\nsequentialFlow\nparallelFlow\nconditionalFlow\nrepeatFlow\nretryFlow"]
-    C --> E{flow type}
-    D --> E
-    E --> F[Sequential]
-    E --> G[Parallel]
-    E --> H[Conditional]
-    E --> I[Repeat]
-    E --> J[Retry]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class A coreStyle
-    class C asyncStyle
-    class D serviceStyle
-    class F,G,H,I,J dslStyle
-```
+![Execution Model 3](../../docs/images/readme-diagrams/utils-workflow-diagram-03.svg)
 
 ## Key Features
 
@@ -164,23 +102,7 @@ val report = suspendWork.execute(ctx)
 
 Execute tasks in order; error handling controlled by `ErrorStrategy`:
 
-```mermaid
-flowchart LR
-    S([Start]) --> W1[Work 1] --> W2[Work 2] --> W3[Work 3] --> E([COMPLETED])
-    W1 -. " failure + STOP " .-> F([FAILED])
-    W2 -. " failure + STOP " .-> F
-    W1 -. " failure + CONTINUE " .-> W2
-    W2 -. " failure + CONTINUE " .-> W3
-    W3 -. " any failure " .-> P([PARTIAL])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class W1,W2,W3 serviceStyle
-    class S,E coreStyle
-    class F,P dataStyle
-```
+![Sequential Flow 4](../../docs/images/readme-diagrams/utils-workflow-diagram-04.svg)
 
 ```kotlin
 // Sync version
@@ -214,16 +136,7 @@ val report = flow.execute(WorkContext())
 
 Execute tasks concurrently:
 
-```mermaid
-flowchart LR
-    S([Start]) --> W1[Work 1] & W2[Work 2] & W3[Work 3] --> E([COMPLETED])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-    class W1,W2,W3 serviceStyle
-    class S,E coreStyle
-```
+![Parallel Flow 5](../../docs/images/readme-diagrams/utils-workflow-diagram-05.svg)
 
 ```kotlin
 // Sync (Virtual Threads)
@@ -246,20 +159,7 @@ val report = flow.execute(WorkContext())
 
 Branch execution based on a predicate:
 
-```mermaid
-flowchart LR
-    S([Start]) --> C{condition?}
-    C -->|true| T[then]
-    C -->|false| O[otherwise]
-    T --> E([Done])
-    O --> E
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-    class T,O serviceStyle
-    class S,E coreStyle
-```
+![Conditional Flow 6](../../docs/images/readme-diagrams/utils-workflow-diagram-06.svg)
 
 ```kotlin
 val flow = conditionalFlow("check-valid") {
@@ -275,23 +175,7 @@ val report = flow.execute(ctx)
 
 Execute a task repeatedly until a condition is met:
 
-```mermaid
-flowchart LR
-    S([Start]) --> W[Work]
-    W -->|success| C{repeatWhile\ntrue?}
-    C -->|yes| W
-    C -->|no| E([COMPLETED])
-    W -. ABORTED .-> A([ABORTED])
-    W -. FAILED .-> F([FAILED])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class W serviceStyle
-    class S,E coreStyle
-    class A,F dataStyle
-```
+![Repeat Flow 7](../../docs/images/readme-diagrams/utils-workflow-diagram-07.svg)
 
 ```kotlin
 // Sync
@@ -319,23 +203,7 @@ val report = flow.execute(WorkContext())
 
 Automatically retry failed tasks with exponential backoff:
 
-```mermaid
-flowchart LR
-    S([Start]) --> W[Work]
-    W -->|success| E([COMPLETED])
-    W -->|failure| R{attempts\nleft?}
-    R -->|yes| D[backoff delay]
-    D --> W
-    R -->|no| F([FAILED])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class W,D serviceStyle
-    class S,E coreStyle
-    class F dataStyle
-```
+![Retry Flow 8](../../docs/images/readme-diagrams/utils-workflow-diagram-08.svg)
 
 ```kotlin
 val flow = retryFlow("call-api") {

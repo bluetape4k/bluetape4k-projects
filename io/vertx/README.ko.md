@@ -68,81 +68,11 @@ dependencies {
 
 ### 모듈 의존성 구조
 
-```mermaid
-flowchart TD
-    subgraph bluetape4k-vertx
-        CORE[Vert.x Core<br/>vertx-core]
-        KOTLIN[Vert.x Kotlin<br/>vertx-lang-kotlin]
-        COROUTINES[Vert.x Coroutines<br/>vertx-lang-kotlin-coroutines]
-        SQL[Vert.x SQL Client<br/>vertx-sql-client]
-        R4J[bluetape4k-resilience4j]
-    end
-
-    subgraph 선택적 런타임
-        MYSQL[vertx-mysql-client]
-        PG[vertx-pg-client]
-        WEB[vertx-web]
-        JDBC[vertx-jdbc-client]
-    end
-
-    CORE --> KOTLIN --> COROUTINES
-    CORE --> SQL
-    COROUTINES --> SQL
-    bluetape4k-vertx --> MYSQL
-    bluetape4k-vertx --> PG
-    bluetape4k-vertx -.->|compileOnly| WEB
-    bluetape4k-vertx -.->|compileOnly| JDBC
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-
-    class CORE,KOTLIN coreStyle
-    class COROUTINES asyncStyle
-    class SQL,R4J serviceStyle
-    class MYSQL,PG,WEB,JDBC extStyle
-```
+![모듈 의존성 구조 1](../../docs/images/readme-diagrams/io-vertx-ko-diagram-01.svg)
 
 ### Vert.x 이벤트 루프 + Coroutines 처리 흐름
 
-```mermaid
-flowchart LR
-    subgraph 이벤트 루프["Vert.x 이벤트 루프"]
-        EL[Event Loop Thread]
-        EB[EventBus]
-        VER[Verticle<br/>CoroutineVerticle]
-    end
-
-    subgraph Coroutines["Kotlin Coroutines"]
-        SC[suspend fun start]
-        COR[CoroutineScope<br/>vertxDispatcher]
-    end
-
-    subgraph SQL_Client["SQL 클라이언트"]
-        POOL[Connection Pool]
-        QUERY[preparedQuery.execute]
-        RS["RowSet&lt;Row&gt;"]
-    end
-
-    EL --> VER
-    VER --> SC
-    SC --> COR
-    COR -->|await| EB
-    COR -->|await| POOL
-    POOL --> QUERY --> RS
-    RS -->|await| COR
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-
-    class EL,EB coreStyle
-    class VER,SC,COR asyncStyle
-    class POOL,QUERY serviceStyle
-    class RS dataStyle
-```
+![Vert.x 이벤트 루프 + Coroutines 처리 흐름 2](../../docs/images/readme-diagrams/io-vertx-ko-diagram-02.svg)
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
@@ -171,51 +101,7 @@ sequenceDiagram
 
 ### Vert.x 핵심 컴포넌트 클래스 구조
 
-```mermaid
-classDiagram
-    class CoroutineVerticle {
-        <<VertxKotlin>>
-        +vertx: Vertx
-        +context: Context
-        +start()
-        +stop()
-    }
-
-    class EventBus {
-        +send(address, message)
-        +publish(address, message)
-        +consumer(address) MessageConsumer
-    }
-
-    class SqlClient {
-        <<interface>>
-        +preparedQuery(sql) PreparedQuery
-        +query(sql) Query
-        +close() Future
-    }
-
-    class Pool {
-        +withConnection(handler) Future
-        +withTransaction(handler) Future
-    }
-
-    class CircuitBreaker {
-        <<Resilience4j>>
-        +executeSuspend(block) T
-        +getState() State
-    }
-
-    CoroutineVerticle --> EventBus : 이벤트 수신/발행
-    CoroutineVerticle --> Pool : SQL 쿼리
-    Pool --|> SqlClient
-    CoroutineVerticle --> CircuitBreaker : 장애 격리
-
-    style CoroutineVerticle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style EventBus fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style SqlClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Pool fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CircuitBreaker fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Vert.x 핵심 컴포넌트 클래스 구조 3](../../docs/images/readme-diagrams/io-vertx-ko-diagram-03.svg)
 
 ## 사용 예시
 

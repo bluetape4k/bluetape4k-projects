@@ -71,82 +71,11 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ### 핵심 클래스 구조
 
-```mermaid
-classDiagram
-    class ReactiveCassandraOperationsExt {
-        <<extension>>
-        +findOneOrNullSuspending(query): T?
-        +findAllAsFlow(): Flow~T~
-        +insertSuspending(entity): T
-        +countSuspending(query): Long
-        +existsSuspending(query): Boolean
-        +updateMultiSuspending(query, update): UpdateResult
-        +aggregateAsFlow(aggregation): Flow~O~
-    }
-    class ReactiveSessionExt {
-        <<extension>>
-        +executeSuspending(cql, args): ReactiveResultSet
-    }
-    class WriteOptionsDsl {
-        <<DSL>>
-        +ttl(duration)
-        +timestamp(millis)
-    }
-    class SchemaGenerator {
-        +createTables(operations, types)
-        +truncateTables(operations, types)
-    }
-    class UserRepository {
-        <<interface>>
-        +findByEmail(email): User?
-    }
-    class CoroutineUserRepository {
-        <<interface>>
-        +findByEmail(email): User?
-    }
-
-    ReactiveCassandraOperationsExt --> WriteOptionsDsl : uses
-    SchemaGenerator --> ReactiveCassandraOperationsExt : uses
-    ReactiveSessionExt --> ReactiveCassandraOperationsExt : complements
-    CoroutineUserRepository --> ReactiveCassandraOperationsExt : delegates
-
-    style ReactiveCassandraOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style ReactiveSessionExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style WriteOptionsDsl fill:#F57F17,stroke:#E65100,color:#000000
-    style SchemaGenerator fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style UserRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style CoroutineUserRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-```
+![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-01.svg)
 
 ### Cassandra 데이터 접근 계층
 
-```mermaid
-flowchart TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(bluetape4k-spring-boot-cassandra)"]
-    Ext --> ROps["ReactiveCassandraOperations<br/>코루틴 확장"]
-    Ext --> RSession["ReactiveSession<br/>코루틴 확장"]
-    Ext --> AOps["AsyncCassandraOperations<br/>코루틴 확장"]
-    DSL["WriteOptions / QueryOptions DSL<br/>writeOptions { ttl / timestamp }"] --> ROps
-    ROps --> Driver["Cassandra Reactive Driver"]
-    RSession --> Driver
-    AOps --> Driver
-    Driver --> Cassandra[("Apache Cassandra")]
-    SchemaGen["SchemaGenerator<br/>스키마 생성 / 트렁케이트"] --> ROps
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef extStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef driverStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class Ext,ROps,RSession,AOps extStyle
-    class DSL dslStyle
-    class Driver driverStyle
-    class Cassandra dbStyle
-    class SchemaGen utilStyle
-```
+![Cassandra 데이터 접근 계층 2](../../docs/images/readme-diagrams/spring-boot-cassandra-ko-diagram-02.svg)
 
 ### 코루틴 변환 흐름
 

@@ -99,57 +99,7 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + LettuceJCache(back) 구조로,
 `NearJCacheConfig` Builder DSL로 설정합니다.
 
-```mermaid
-classDiagram
-    class NearJCache~K_V~ {
-+frontCache: JCache
-+backCache: JCache
--config: NearJCacheConfig
-        +invoke(config, backCache) NearJCache
-    }
-
-class SuspendNearJCache~K_V~ {
--frontCache: SuspendJCache
--backCache: SuspendJCache
-        +invoke(front, back) SuspendNearJCache
-        +get(key: K) V?
-        +put(key: K, value: V)
-        +close()
-    }
-
-class LettuceJCache~K_V~ {
--map: LettuceMap
--codec: LettuceBinaryCodec
-        -ttlSeconds: Long?
-    }
-
-    class LettuceSuspendJCache~V~ {
--cache: LettuceJCache
-        +invoke(cacheName, redisClient) LettuceSuspendJCache
-    }
-
-class CaffeineSuspendJCache~K_V~ {
-<<frontCache>>
-    }
-
-class NearJCacheConfig~K_V~ {
-        +cacheName: String
-        +isSynchronous: Boolean
-        +syncRemoteTimeout: Long
-    }
-
-    NearJCache --> LettuceJCache: backCache
-    SuspendNearJCache --> CaffeineSuspendJCache: frontCache
-    SuspendNearJCache --> LettuceSuspendJCache: backCache
-    NearJCache --> NearJCacheConfig
-
-    style NearJCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SuspendNearJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceJCache fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style LettuceSuspendJCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style CaffeineSuspendJCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style NearJCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
-```
+![JCache 기반 NearCache (nearcache.jcache 패키지) 1](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-01.svg)
 
 #### NearJCacheConfig DSL
 
@@ -194,107 +144,7 @@ cache.close()
 
 #### LettuceNearCache 계층
 
-```mermaid
-classDiagram
-    class NearCacheOperations {
-        <<interface>>
-        +cacheName: String
-        +isClosed: Boolean
-        +get(key: String) V?
-        +getAll(keys: Set~String~) Map
-        +put(key: String, value: V)
-        +putIfAbsent(key: String, value: V) V?
-        +replace(key: String, value: V) Boolean
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-        +close()
-    }
-
-    class SuspendNearCacheOperations {
-        <<interface>>
-        +cacheName: String
-        +isClosed: Boolean
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-        +close()
-    }
-
-    class LettuceNearCache {
-        -config: LettuceNearCacheConfig
-        -frontCache: LettuceCaffeineLocalCache
-        -connection: StatefulRedisConnection
-        -commands: RedisCommands
-        -trackingListener: TrackingInvalidationListener
-    }
-
-    class LettuceSuspendNearCache {
-        -config: LettuceNearCacheConfig
-        -frontCache: LettuceCaffeineLocalCache
-        -connection: StatefulRedisConnection
-        -commands: RedisCoroutinesCommands
-        -trackingListener: TrackingInvalidationListener
-    }
-
-    class LettuceLocalCache {
-        <<interface>>
-        +get(key: K) V?
-        +put(key: K, value: V)
-        +remove(key: K)
-        +clear()
-        +estimatedSize() Long
-        +stats() CacheStats?
-    }
-
-    class LettuceCaffeineLocalCache {
-        -cache: Cache
-        +invalidate(key: String)
-    }
-
-    class TrackingInvalidationListener {
-        -frontCache: LettuceLocalCache
-        -connection: StatefulRedisConnection
-        -cacheName: String
-        +start()
-        +close()
-    }
-
-    class LettuceNearCacheConfig {
-        +cacheName: String
-        +maxLocalSize: Int
-        +frontExpireAfterWrite: Duration
-        +redisTtl: Duration?
-        +useRespProtocol3: Boolean
-        +recordStats: Boolean
-        +redisKey(key: String) String
-    }
-
-    NearCacheOperations <|.. LettuceNearCache
-    SuspendNearCacheOperations <|.. LettuceSuspendNearCache
-    LettuceLocalCache <|.. LettuceCaffeineLocalCache
-    LettuceNearCache --> LettuceCaffeineLocalCache: frontCache
-    LettuceNearCache --> TrackingInvalidationListener: trackingListener
-    LettuceNearCache --> LettuceNearCacheConfig: config
-    LettuceSuspendNearCache --> LettuceCaffeineLocalCache: frontCache
-    LettuceSuspendNearCache --> TrackingInvalidationListener: trackingListener
-    LettuceSuspendNearCache --> LettuceNearCacheConfig: config
-    TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
-
-    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LettuceNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceLocalCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LettuceCaffeineLocalCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style TrackingInvalidationListener fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style LettuceNearCacheConfig fill:#F57F17,stroke:#E65100,color:#000000
-
-```
+![LettuceNearCache 계층 2](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-02.svg)
 
 #### RESP3 CLIENT TRACKING 기반 Invalidation 흐름
 
@@ -635,30 +485,4 @@ val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
 
 ### 변경 요약 Flowchart
 
-```mermaid
-flowchart LR
-    subgraph CAS["replace(k, old, new)"]
-        A1[EVALSHA sha1] -->|성공| A2[결과 반환]
-        A1 -.NOSCRIPT.-> A3[EVAL source]
-        A3 --> A2
-    end
-    subgraph Delete["remove / removeAll / clearBack"]
-        B1[UNLINK key...] --> B2[즉시 반환]
-        B2 -.-> B3[Redis background free]
-    end
-    subgraph Close["LettuceJCache.close()"]
-        C1[closed = true] --> C2[cacheManager.closeCache]
-        C2 --> C3[closeResource]
-        C1 -.x.-> CX[map.clear 삭제됨]
-    end
-    subgraph Memoizer["LettuceAsyncMemoizer.whenComplete"]
-        D1[complete] --> D2["inFlight.remove(key, promise)"]
-        D2 -->|key+value 일치| D3[제거]
-        D2 -->|일치 안 함| D4[보존]
-    end
-
-    style CAS fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Delete fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Close fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Memoizer fill:#FFF3E0,stroke:#FFB74D,color:#E65100
-```
+![변경 요약 Flowchart 3](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-03.svg)

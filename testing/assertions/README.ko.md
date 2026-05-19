@@ -6,23 +6,7 @@ JUnit 5용 bluetape4k-assertions 호환 assertion DSL. api scope에 `bluetape4k-
 
 ## 아키텍처
 
-```mermaid
-graph TD
-    A["bluetape4k-assertions"] --> B["junit-jupiter-api"]
-    A --> C["opentest4j"]
-    A --> D["kotlinx-coroutines-core"]
-    A -.->|compileOnly| E["turbine"]
-    F["bluetape4k-junit5"] -->|api| A
-    G["bluetape4k-coroutines"] -.->|@Deprecated bridge| A
-    
-    classDef api fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef optional fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef consumer fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    
-    class A,B,C,D api
-    class E optional
-    class F,G consumer
-```
+![아키텍처 1](../../docs/images/readme-diagrams/testing-assertions-ko-diagram-01.svg)
 
 ## 기능
 

@@ -355,122 +355,11 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### OpenTelemetry 핵심 클래스 구조
 
-```mermaid
-classDiagram
-    class OpenTelemetry {
-        <<interface>>
-        +getTracer(name) Tracer
-        +getMeter(name) Meter
-        +getPropagators() ContextPropagators
-    }
-
-    class Tracer {
-        <<interface>>
-        +spanBuilder(spanName) SpanBuilder
-    }
-
-    class SpanBuilder {
-        <<interface>>
-        +setSpanKind(kind) SpanBuilder
-        +setAttribute(key, value) SpanBuilder
-        +startSpan() Span
-        +useSpan(block) T
-        +useSpanSuspending(block) T
-    }
-
-    class Span {
-        <<interface>>
-        +addEvent(name) Span
-        +setAttribute(key, value) Span
-        +recordException(t) Span
-        +end()
-        +use(block) T
-        +useSuspending(block) T
-    }
-
-    class SdkTracerProvider {
-        +addSpanProcessor(sp) SdkTracerProviderBuilder
-        +setResource(resource) SdkTracerProviderBuilder
-        +get(instrumentationName) Tracer
-    }
-
-    class SdkMeterProvider {
-        +registerMetricReader(mr) SdkMeterProviderBuilder
-    }
-
-    class Meter {
-        <<interface>>
-        +counterBuilder(name) LongCounterBuilder
-        +timerBuilder(name) DoubleHistogramBuilder
-        +gaugeBuilder(name) ObservableDoubleGaugeBuilder
-    }
-
-    OpenTelemetry --> Tracer: provides
-    OpenTelemetry --> Meter: provides
-    Tracer --> SpanBuilder: creates
-    SpanBuilder --> Span: starts
-    SdkTracerProvider ..|> Tracer: implements
-    SdkMeterProvider ..|> Meter: implements
-
-    style OpenTelemetry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Tracer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SpanBuilder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Span fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Meter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SdkTracerProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SdkMeterProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-
-```
+![OpenTelemetry 핵심 클래스 구조 1](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-01.svg)
 
 ### OpenTelemetry 구성 요소
 
-```mermaid
-flowchart TD
-    App[애플리케이션] --> Tracer[Tracer<br/>Span 생성/관리]
-    App --> Meter[Meter<br/>메트릭 수집]
-    App --> Logger[Logger<br/>로그 수집]
-
-    Tracer --> TP[TracerProvider<br/>SdkTracerProvider]
-    Meter --> MP[MeterProvider<br/>SdkMeterProvider]
-
-    TP --> SP[SpanProcessor]
-    SP --> SE[SpanExporter]
-
-    MP --> MR[MetricReader]
-    MR --> ME[MetricExporter]
-
-    SE --> OTLP[OTLP gRPC/HTTP]
-    SE --> LogExp[Logging Exporter]
-    ME --> OTLP
-    ME --> InMem[InMemory Exporter<br/>테스트용]
-
-    OTLP --> Jaeger[Jaeger]
-    OTLP --> Zipkin[Zipkin]
-    OTLP --> OtelCol[OpenTelemetry Collector]
-
-    classDef appStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef providerStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef processorStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef exporterStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef backendStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Tracer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Meter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Logger fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style TP fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style MP fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SP fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style MR fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style SE fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style ME fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style OTLP fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style LogExp fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style InMem fill:#F57F17,stroke:#E65100,color:#000000
-    style OtelCol fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style Jaeger fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style Zipkin fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-```
+![OpenTelemetry 구성 요소 2](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-02.svg)
 
 ### Span 생명주기 (Coroutines 환경)
 
@@ -498,27 +387,7 @@ sequenceDiagram
 
 ### 분산 추적 전파 흐름
 
-```mermaid
-flowchart LR
-    ServiceA[서비스 A<br/>Parent Span] -->|HTTP Header<br/>traceparent: 00-traceId-spanId-01| ServiceB[서비스 B<br/>Child Span]
-    ServiceB -->|propagate| ServiceC[서비스 C<br/>Child Span]
-
-    ServiceA -->|export| Collector[OTel Collector]
-    ServiceB -->|export| Collector
-    ServiceC -->|export| Collector
-
-    Collector -->|store| Backend[Jaeger / Zipkin<br/>분산 추적 백엔드]
-
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef collectorStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef backendStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style ServiceA fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ServiceB fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ServiceC fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Collector fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Backend fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-```
+![분산 추적 전파 흐름 3](../../docs/images/readme-diagrams/infra-opentelemetry-ko-diagram-03.svg)
 
 ## 테스트 전략
 

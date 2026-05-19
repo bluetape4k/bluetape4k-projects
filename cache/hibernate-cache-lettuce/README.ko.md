@@ -30,65 +30,11 @@ artifact, Kotlin package는 유지됩니다.
 
 ### Near Cache 2-Tier 구조
 
-```mermaid
-flowchart LR
-    A[Hibernate 2nd Level Cache] --> B{LettuceNearCacheRegionFactory}
-    B --> C[L1: Caffeine\n로컬 인메모리]
-    B --> D[L2: Redis\nLettuce RESP3\nClient Tracking]
-    C --> E[캐시 히트 즉시 반환]
-    D --> F[원격 캐시 동기화]
-    F --> G[DB 쿼리 최소화]
-
-    classDef hibernateStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef factoryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef l1Style fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef l2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef resultStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    class A hibernateStyle
-    class B factoryStyle
-    class C l1Style
-    class D l2Style
-    class E resultStyle
-    class F l2Style
-    class G resultStyle
-```
+![Near Cache 2-Tier 구조 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-01.svg)
 
 ### 레이어 구조
 
-```mermaid
-flowchart TD
-    Hibernate["Hibernate ORM"]
-    Factory["LettuceNearCacheRegionFactory<br/>RegionFactoryTemplate 구현"]
-    Region["EntityRegion / CollectionRegion<br/>QueryResultsRegion"]
-    Storage["LettuceNearCacheStorageAccess<br/>DomainDataStorageAccess 구현<br/>key: {regionName}::{key}"]
-    NearCache["LettuceNearCache<br/>2-tier cache"]
-    L1["Caffeine (L1)<br/>로컬 인메모리"]
-    L2["Redis (L2, Lettuce)<br/>분산 캐시 + CLIENT TRACKING"]
-
-    Hibernate --> Factory
-    Factory --> Region
-    Region --> Storage
-    Storage --> NearCache
-    NearCache --> L1
-    NearCache --> L2
-
-    classDef hibernateStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef factoryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef regionStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef storageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef cacheStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    classDef l1Style fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef l2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-    class Hibernate hibernateStyle
-    class Factory factoryStyle
-    class Region regionStyle
-    class Storage storageStyle
-    class NearCache cacheStyle
-    class L1 l1Style
-    class L2 l2Style
-```
+![레이어 구조 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-02.svg)
 
 - **Region 격리**: 각 Region은 독립된 `LettuceNearCache` 인스턴스를 가짐
 - **키 prefix**: `{regionName}::{key}` 형식으로 Redis 키 충돌 방지

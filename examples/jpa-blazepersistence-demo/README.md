@@ -37,20 +37,7 @@ that are useful for larger read models:
 
 ## Domain Model
 
-```mermaid
-classDiagram
-    Team "1" --> "*" Member : members
-    class Team {
-        Long id
-        String name
-    }
-    class Member {
-        Long id
-        String name
-        Int age
-        Team team
-    }
-```
+![Domain Model 1](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.svg)
 
 ## Core Usage
 

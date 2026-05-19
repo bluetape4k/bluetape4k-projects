@@ -10,220 +10,22 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 세 가지 핵심 구성 요소와 상호 작용:
 
-```mermaid
-flowchart LR
-    subgraph Facts["Facts (공유 상태)"]
-        KV["age: 20\namount: 1500\n..."]
-    end
-
-    subgraph RS["RuleSet (우선순위 정렬)"]
-        R1["Rule 1\ncondition → action"]
-        R2["Rule 2\ncondition → action"]
-        R3["Rule 3\ncondition → action"]
-    end
-
-    User -->|" 1. 생성 "| Facts
-    User -->|" 2. 빌드 "| RS
-    User -->|" 3. fire(ruleSet, facts) "| RE[RuleEngine]
-    RE -->|" evaluate(facts) per rule "| RS
-    RS -->|" true → execute(facts) "| Facts
-    RE -.->|" 4. 결과 읽기 "| Facts
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class RE coreStyle
-    class R1,R2,R3 dslStyle
-    class KV dataStyle
-```
+![개념 개요 1](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-01.svg)
 
 `Rule`은 **condition** (`Facts` 검사 Predicate)과 **action** (`Facts` 수정 함수)으로 구성됩니다.  
 `RuleEngine.fire()`는 우선순위 순으로 Rule을 순회하며 조건을 평가하고, 만족하는 Rule의 Action을 실행합니다.
 
 ### 핵심 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class Rule {
-        <<interface>>
-        +name: String
-        +description: String
-        +priority: Int
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-        +compareTo(other: Rule): Int
-    }
-
-    class SuspendRule {
-        <<interface>>
-        +name: String
-        +description: String
-        +priority: Int
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-        +compareTo(other: SuspendRule): Int
-    }
-
-    class AbstractRule {
-        <<abstract>>
-        +name: String
-        +description: String
-        +priority: Int
-        +equals(other: Any?): Boolean
-        +hashCode(): Int
-    }
-
-    class DefaultRule {
-        -condition: Condition
-        -actions: List~Action~
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-    }
-
-    class DefaultSuspendRule {
-        -condition: SuspendCondition
-        -actions: List~SuspendAction~
-        +evaluate(facts: Facts): Boolean
-        +execute(facts: Facts)
-    }
-
-    class Condition {
-        <<fun interface>>
-        +evaluate(facts: Facts): Boolean
-        TRUE$
-        FALSE$
-    }
-
-    class Action {
-        <<fun interface>>
-        +execute(facts: Facts)
-    }
-
-    class Facts {
-        -facts: ConcurrentHashMap~String, Any?~
-        +get(name, type): T?
-        +set(name, value)
-        +contains(name): Boolean
-        +remove(name): Any?
-        +of(vararg pairs)$
-    }
-
-    class RuleSet {
-        -rules: TreeSet~Rule~
-        +size: Int
-        +add(rule: Rule): Boolean
-        +iterator(): Iterator~Rule~
-    }
-
-    Rule <|.. AbstractRule
-    AbstractRule <|-- DefaultRule
-    DefaultRule ..> Condition : uses
-    DefaultRule ..> Action : uses
-    SuspendRule <|.. DefaultSuspendRule
-    RuleSet o-- Rule : contains
-
-    style Rule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendRule fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style AbstractRule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style DefaultRule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultSuspendRule fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Condition fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style Action fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style Facts fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style RuleSet fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-```
+![핵심 클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-02.svg)
 
 ### Rule Engine 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class RuleEngine {
-        <<interface>>
-        +config: RuleEngineConfig
-        +check(rules: RuleSet, facts: Facts): Map~Rule, Boolean~
-        +fire(rules: RuleSet, facts: Facts)
-    }
-
-    class DefaultRuleEngine {
-        -ruleListeners: CopyOnWriteArrayList~RuleListener~
-        -engineListeners: CopyOnWriteArrayList~RuleEngineListener~
-        +fire(rules, facts)
-        +addRuleListener(listener)
-        +addRuleEngineListener(listener)
-    }
-
-    class DefaultSuspendRuleEngine {
-        +fire(rules, facts)
-    }
-
-    class InferenceRuleEngine {
-        +fire(rules: RuleSet, facts: Facts)
-    }
-
-    class RuleEngineConfig {
-        +skipOnFirstAppliedRule: Boolean
-        +skipOnFirstFailedRule: Boolean
-        +skipOnFirstNonTriggeredRule: Boolean
-        +priorityThreshold: Int
-        DEFAULT$
-    }
-
-    class RuleListener {
-        <<interface>>
-        +beforeEvaluate(rule, facts): Boolean
-        +onSuccess(rule, facts)
-        +onFailure(rule, facts, ex)
-    }
-
-    RuleEngine <|.. DefaultRuleEngine
-    RuleEngine <|.. InferenceRuleEngine
-    DefaultRuleEngine o-- RuleEngineConfig
-    DefaultRuleEngine o-- RuleListener : listeners
-
-    style RuleEngine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style DefaultRuleEngine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultSuspendRuleEngine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style InferenceRuleEngine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RuleEngineConfig fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style RuleListener fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![Rule Engine 클래스 다이어그램 3](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-03.svg)
 
 ### Composite Rule 다이어그램
 
-```mermaid
-classDiagram
-    class CompositeRule {
-        <<abstract>>
-        #rules: SortedSet~Rule~
-        +addRule(rule: Rule)
-        +removeRule(rule: Rule)
-    }
-
-    class ActivationRuleGroup {
-    }
-    note for ActivationRuleGroup "조건 만족하는 Rule 중\n우선순위 가장 높은 것만 실행"
-
-    class ConditionalRuleGroup {
-    }
-    note for ConditionalRuleGroup "최고 우선순위 Rule 조건 충족 시\n나머지 모든 Rule 실행"
-
-    class UnitRuleGroup {
-    }
-    note for UnitRuleGroup "모든 Rule 조건 충족 시\n전체 실행 (원자적 단위)"
-
-    CompositeRule <|-- ActivationRuleGroup
-    CompositeRule <|-- ConditionalRuleGroup
-    CompositeRule <|-- UnitRuleGroup
-    CompositeRule o-- Rule : contains
-
-    style CompositeRule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ActivationRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ConditionalRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UnitRuleGroup fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Rule fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![Composite Rule 다이어그램 4](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-04.svg)
 
 ### Rule 실행 시퀀스
 
@@ -263,51 +65,11 @@ sequenceDiagram
 
 ### InferenceRuleEngine (Forward Chaining)
 
-```mermaid
-flowchart TD
-    A[fire 시작] --> B[모든 Rule 평가]
-    B --> C{조건 만족하는\nRule 있음?}
-    C -->|yes| D[가장 높은 우선순위 Rule 실행]
-    D --> E[Facts 업데이트]
-    E --> B
-    C -->|no| F[종료]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class A,B coreStyle
-    class D,E serviceStyle
-    class F dataStyle
-```
+![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-05.svg)
 
 ### Rule Engine 선택 가이드
 
-```mermaid
-flowchart TD
-    A[Rule Engine 선택] --> B{비동기 처리 필요?}
-    B -->|yes| C[DefaultSuspendRuleEngine]
-    B -->|no| D{Forward Chaining?}
-    D -->|yes| E[InferenceRuleEngine]
-    D -->|no| F[DefaultRuleEngine]
-    C & E & F --> G{Rule 정의 방식}
-    G --> H["DSL: rule{}"]
-    G --> I["어노테이션: @Rule"]
-    G --> J["스크립트: MVEL2 / SpEL / Janino / Groovy"]
-    G --> K["파일: YAML / JSON / HOCON"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class A coreStyle
-    class E,F serviceStyle
-    class C asyncStyle
-    class H,I dslStyle
-    class J,K dataStyle
-```
+![Rule Engine 선택 가이드 6](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-06.svg)
 
 ## 핵심 기능
 
@@ -457,25 +219,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### 스크립트 엔진 선택 가이드
 
-```mermaid
-flowchart TD
-    A[스크립트 엔진 선택] --> B{표현식 복잡도?}
-    B -->|"단순 (변수 비교, 대입)"| C{Spring 프로젝트?}
-    C -->|yes| D[SpEL]
-    C -->|no| E{성능 최우선?}
-    E -->|yes| F[Janino]
-    E -->|no| G[MVEL2]
-    B -->|"복잡 (컬렉션, 클로저, 분기)"| H[Groovy]
-    B -->|"Kotlin 타입 안전 필요"| I[Kotlin Script]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-
-    class A coreStyle
-    class D,F,G serviceStyle
-    class H,I extStyle
-```
+![스크립트 엔진 선택 가이드 7](../../docs/images/readme-diagrams/utils-rule-engine-ko-diagram-07.svg)
 
 | 시나리오 | 추천 엔진 | 이유 |
 |---------|---------|------|

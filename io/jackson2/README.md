@@ -35,113 +35,11 @@ It provides convenient access to the Jackson ecosystem in Kotlin, covering defau
 
 ### Class Structure
 
-```mermaid
-classDiagram
-    class JsonSerializer {
-        <<interface>>
-        +serialize(graph) ByteArray
-        +deserialize(bytes, clazz) T?
-        +serializeAsString(graph) String
-        +deserializeFromString(text, clazz) T?
-    }
-
-    class JacksonSerializer {
-        -mapper: ObjectMapper
-    }
-
-    class Jackson {
-        <<singleton>>
-        +defaultJsonMapper: JsonMapper
-        +prettyJsonWriter: ObjectWriter
-    }
-
-    class AsyncJsonParser {
-        -callback: (JsonNode) -> Unit
-        +consume(bytes: ByteArray)
-        +endOfInput()
-    }
-
-    class SuspendJsonParser {
-        -callback: suspend (JsonNode) -> Unit
-        +consume(flow: Flow~ByteArray~)
-        +consumeComplete(flow: Flow~ByteArray~)
-        +endOfInput()
-    }
-
-    class JsonTinkEncrypt {
-        <<annotation>>
-        +algorithm: TinkEncryptAlgorithm
-    }
-
-    class JsonMasker {
-        <<annotation>>
-        +value: String
-    }
-
-    class JsonUuidEncoder {
-        <<annotation>>
-        +type: JsonUuidEncoderType
-    }
-
-    JsonSerializer <|.. JacksonSerializer
-    JacksonSerializer --> Jackson : uses
-    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style AsyncJsonParser fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style SuspendJsonParser fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style JsonTinkEncrypt fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style JsonMasker fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style JsonUuidEncoder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-```
+![Class Structure 1](../../docs/images/readme-diagrams/io-jackson2-diagram-01.svg)
 
 ### Jackson Serialization Pipeline
 
-```mermaid
-flowchart LR
-    subgraph DataClass["Data Class"]
-        OBJ[Kotlin Object]
-        ANN["@JsonTinkEncrypt<br/>@JsonMasker<br/>@JsonUuidEncoder"]
-    end
-
-    subgraph ObjectMapper["ObjectMapper Processing"]
-        SER[Serializer]
-        DES[Deserializer]
-        MOD[Jackson Module<br/>Registration]
-    end
-
-    subgraph OutputFormats["Output Formats"]
-        JSON[JSON Text]
-        CBOR[CBOR Binary]
-        YAML[YAML]
-        SMILE[Smile Binary]
-        CSV_FMT[CSV]
-    end
-
-    OBJ --> ANN
-    ANN --> SER
-    MOD --> SER
-    MOD --> DES
-    SER --> JSON
-    SER --> CBOR
-    SER --> YAML
-    SER --> SMILE
-    SER --> CSV_FMT
-    JSON --> DES --> OBJ
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class OBJ coreStyle
-    class ANN dataStyle
-    class SER serviceStyle
-    class DES serviceStyle
-    class MOD utilStyle
-    class JSON,CBOR,YAML,SMILE,CSV_FMT dataStyle
-```
+![Jackson Serialization Pipeline 2](../../docs/images/readme-diagrams/io-jackson2-diagram-02.svg)
 
 ### Field Encryption Flow (@JsonTinkEncrypt)
 

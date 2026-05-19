@@ -135,65 +135,7 @@ sequenceDiagram
 
 ### NearCache Interface Hierarchy
 
-```mermaid
-classDiagram
-    class NearCacheOperations {
-        <<interface>>
-        +cacheName: String
-        +isClosed: Boolean
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-        +close()
-    }
-
-    class SuspendNearCacheOperations {
-        <<interface>>
-        +cacheName: String
-        +isClosed: Boolean
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-        +close()
-    }
-
-    class NearCacheStatistics {
-        <<interface>>
-        +localHits: Long
-        +localMisses: Long
-        +localSize: Long
-        +hitRate: Double
-    }
-
-    class ResilientNearCacheDecorator {
-        -delegate: NearCacheOperations~V~
-        -retry: Retry
-        -config: NearCacheResilienceConfig
-    }
-
-    class ResilientSuspendNearCacheDecorator {
-        -delegate: SuspendNearCacheOperations~V~
-        -retry: Retry
-    }
-
-    NearCacheOperations <|.. ResilientNearCacheDecorator
-    NearCacheOperations --o ResilientNearCacheDecorator : delegate
-    NearCacheOperations ..> NearCacheStatistics : stats()
-    SuspendNearCacheOperations <|.. ResilientSuspendNearCacheDecorator
-    SuspendNearCacheOperations --o ResilientSuspendNearCacheDecorator : delegate
-
-    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style NearCacheStatistics fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ResilientNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style ResilientSuspendNearCacheDecorator fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-```
+![NearCache Interface Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.svg)
 
 ## `testFixtures` Usage Guide
 

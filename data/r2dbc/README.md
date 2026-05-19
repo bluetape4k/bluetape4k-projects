@@ -385,72 +385,11 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### Extension Function API Overview
 
-```mermaid
-classDiagram
-    direction LR
-    class R2dbcExtensions {
-        <<extensionFunctions>>
-        +ConnectionFactory.execute(sql): Mono~Long~
-        +Connection.createStatement(sql): Statement
-    }
-    class FlowExtensions {
-        <<extensionFunctions>>
-        +Result.toFlow~T~(): Flow~T~
-        +Publisher~T~.asFlow(): Flow~T~
-    }
-
-    style R2dbcExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style FlowExtensions fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.svg)
 
 ### Core API Structure
 
-```mermaid
-classDiagram
-    class DatabaseClientExtensions {
-        +DatabaseClient.flow(mapper): Flow~T~
-        +DatabaseClient.awaitSingle(mapper): T
-        +DatabaseClient.awaitSingleAsMap(): Map~String,Any~
-        +DatabaseClient.awaitList(mapper): List~T~
-        +DatabaseClient.awaitCount(): Long
-        +DatabaseClient.awaitExists(): Boolean
-        +DatabaseClient.awaitGeneratedKey(): Long?
-        +DatabaseClient.awaitRowsUpdated(): Long
-        +DatabaseClient.withTransactionSuspend(block): T
-    }
-    class BindSpecExtensions {
-        +bindMap(params: Map~String,Any~): BindSpec
-        +bindIndexedMap(params: Map~Int,Any~): BindSpec
-    }
-    class QueryBuilder {
-        +build(block): Query
-        +select(sql)
-        +where(condition)
-        +whereGroup(op, block)
-        +orderBy(clause)
-        +limit(n)
-        +parameter(name, value)
-    }
-    class Query {
-        +sql: String
-        +parameters: Map~String,Any~
-    }
-    class R2dbcClient {
-        +execute~T~(sql): ExecuteSpec~T~
-        +execute~T~(query): ExecuteSpec~T~
-    }
-
-    DatabaseClientExtensions --> BindSpecExtensions : parameter binding
-    QueryBuilder --> Query : creates
-    R2dbcClient --> DatabaseClientExtensions : delegates
-    R2dbcClient --> QueryBuilder : uses
-
-    style DatabaseClientExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BindSpecExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style QueryBuilder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Query fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style R2dbcClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![Core API Structure 2](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.svg)
 
 ### R2DBC Query Execution Flow
 
@@ -473,27 +412,7 @@ sequenceDiagram
 
 ### JDBC vs R2DBC Comparison
 
-```mermaid
-flowchart LR
-    subgraph JDBC
-        A1[DataSource] --> A2[Connection]
-        A2 --> A3[PreparedStatement]
-        A3 --> A4[ResultSet]
-        A4 --> A5[Synchronous]
-    end
-    subgraph R2DBC
-        B1[ConnectionFactory] --> B2[Connection]
-        B2 --> B3[Statement]
-        B3 --> B4["Result / Flux&lt;Row&gt;"]
-        B4 -->|asFlow| B5["Flow&lt;T&gt; Async"]
-    end
-
-    classDef jdbcStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef r2dbcStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    class JDBC jdbcStyle
-    class R2DBC r2dbcStyle
-```
+![JDBC vs R2DBC Comparison 3](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.svg)
 
 ## References
 

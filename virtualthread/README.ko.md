@@ -8,99 +8,13 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### 모듈 구조 및 런타임 선택
 
-```mermaid
-flowchart TD
-    APP["애플리케이션<br/>(API 모듈만 의존)"]
-
-    API["bluetape4k-virtualthread-api<br/>공통 인터페이스 + ServiceLoader"]
-
-    JDK21["bluetape4k-virtualthread-jdk21<br/>Java 21 구현체<br/>priority = 21"]
-    JDK25["bluetape4k-virtualthread-jdk25<br/>Java 25 구현체<br/>priority = 25"]
-    FALLBACK["Platform Thread Fallback<br/>(JDK 17 이하)<br/>priority = MIN_VALUE"]
-
-    RUNTIME{"런타임 JDK 버전<br/>ServiceLoader 선택"}
-
-    APP -->|"implementation"| API
-    APP -->|"runtimeOnly"| JDK21
-    APP -->|"runtimeOnly"| JDK25
-
-    API --> RUNTIME
-    RUNTIME -->|"JDK 25 환경<br/>priority 25 선택"| JDK25
-    RUNTIME -->|"JDK 21 환경<br/>priority 21 선택"| JDK21
-    RUNTIME -->|"JDK 17 이하<br/>isSupported() = false"| FALLBACK
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F,font-weight:bold
-    classDef apiStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef implStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef fallbackStyle fill:#F5F5F5,stroke:#BDBDBD,color:#424242
-    classDef runtimeStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class APP appStyle
-    class API apiStyle
-    class JDK21,JDK25 implStyle
-    class FALLBACK fallbackStyle
-    class RUNTIME runtimeStyle
-```
+![모듈 구조 및 런타임 선택 1](../docs/images/readme-diagrams/virtualthread-ko-diagram-01.svg)
 
 ---
 
 ### 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class VirtualThreadFactory {
-        <<interface>>
-        +isSupported() Boolean
-        +priority() Int
-        +newThread(runnable: Runnable) Thread
-        +executorService() ExecutorService
-        +scheduledExecutorService() ScheduledExecutorService
-    }
-
-    class VirtualThreads {
-        <<object>>
-        +isSupported() Boolean
-        +newThread(runnable: Runnable) Thread
-        +executorService() ExecutorService
-        +scheduledExecutorService() ScheduledExecutorService
-    }
-
-    class Jdk21VirtualThreadFactory {
-        <<class>>
-        +isSupported() Boolean
-        +priority() Int = 21
-        +newThread(runnable) Thread
-        +executorService() ExecutorService
-    }
-
-    class Jdk25VirtualThreadFactory {
-        <<class>>
-        +isSupported() Boolean
-        +priority() Int = 25
-        +newThread(runnable) Thread
-        +executorService() ExecutorService
-        +joinUntil(thread, instant) Boolean
-    }
-
-    class PlatformThreadFallback {
-        <<class>>
-        +isSupported() Boolean = false
-        +priority() Int = MIN_VALUE
-        +newThread(runnable) Thread
-        +executorService() ExecutorService
-    }
-
-    VirtualThreadFactory <|.. Jdk21VirtualThreadFactory
-    VirtualThreadFactory <|.. Jdk25VirtualThreadFactory
-    VirtualThreadFactory <|.. PlatformThreadFallback
-    VirtualThreads ..> VirtualThreadFactory: ServiceLoader가 최고 우선순위 선택
-
-    style VirtualThreadFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style VirtualThreads fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Jdk21VirtualThreadFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jdk25VirtualThreadFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style PlatformThreadFallback fill:#F5F5F5,stroke:#BDBDBD,color:#424242
-```
+![클래스 다이어그램 2](../docs/images/readme-diagrams/virtualthread-ko-diagram-02.svg)
 
 ---
 

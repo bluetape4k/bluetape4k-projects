@@ -378,72 +378,11 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### 확장 함수 API 개요
 
-```mermaid
-classDiagram
-    direction LR
-    class R2dbcExtensions {
-        <<extensionFunctions>>
-        +ConnectionFactory.execute(sql): Mono~Long~
-        +Connection.createStatement(sql): Statement
-    }
-    class FlowExtensions {
-        <<extensionFunctions>>
-        +Result.toFlow~T~(): Flow~T~
-        +Publisher~T~.asFlow(): Flow~T~
-    }
-
-    style R2dbcExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style FlowExtensions fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-01.svg)
 
 ### 주요 API 구조
 
-```mermaid
-classDiagram
-    class DatabaseClientExtensions {
-        +DatabaseClient.flow(mapper): Flow~T~
-        +DatabaseClient.awaitSingle(mapper): T
-        +DatabaseClient.awaitSingleAsMap(): Map~String,Any~
-        +DatabaseClient.awaitList(mapper): List~T~
-        +DatabaseClient.awaitCount(): Long
-        +DatabaseClient.awaitExists(): Boolean
-        +DatabaseClient.awaitGeneratedKey(): Long?
-        +DatabaseClient.awaitRowsUpdated(): Long
-        +DatabaseClient.withTransactionSuspend(block): T
-    }
-    class BindSpecExtensions {
-        +bindMap(params: Map~String,Any~): BindSpec
-        +bindIndexedMap(params: Map~Int,Any~): BindSpec
-    }
-    class QueryBuilder {
-        +build(block): Query
-        +select(sql)
-        +where(condition)
-        +whereGroup(op, block)
-        +orderBy(clause)
-        +limit(n)
-        +parameter(name, value)
-    }
-    class Query {
-        +sql: String
-        +parameters: Map~String,Any~
-    }
-    class R2dbcClient {
-        +execute~T~(sql): ExecuteSpec~T~
-        +execute~T~(query): ExecuteSpec~T~
-    }
-
-    DatabaseClientExtensions --> BindSpecExtensions : 파라미터 바인딩
-    QueryBuilder --> Query : 생성
-    R2dbcClient --> DatabaseClientExtensions : 위임
-    R2dbcClient --> QueryBuilder : 사용
-
-    style DatabaseClientExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BindSpecExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style QueryBuilder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Query fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style R2dbcClient fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![주요 API 구조 2](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-02.svg)
 
 ### R2DBC 쿼리 실행 흐름
 
@@ -466,27 +405,7 @@ sequenceDiagram
 
 ### JDBC vs R2DBC 비교
 
-```mermaid
-flowchart LR
-    subgraph JDBC
-        A1[DataSource] --> A2[Connection]
-        A2 --> A3[PreparedStatement]
-        A3 --> A4[ResultSet]
-        A4 --> A5[동기 처리]
-    end
-    subgraph R2DBC
-        B1[ConnectionFactory] --> B2[Connection]
-        B2 --> B3[Statement]
-        B3 --> B4["Result / Flux&lt;Row&gt;"]
-        B4 -->|asFlow| B5["Flow&lt;T&gt; 비동기"]
-    end
-
-    classDef jdbcStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef r2dbcStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    class JDBC jdbcStyle
-    class R2DBC r2dbcStyle
-```
+![JDBC vs R2DBC 비교 3](../../docs/images/readme-diagrams/data-r2dbc-ko-diagram-03.svg)
 
 ## 참고 자료
 

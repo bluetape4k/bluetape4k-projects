@@ -11,34 +11,7 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 
 상태, 이벤트, 상태 머신이 어떻게 상호 작용하는지:
 
-```mermaid
-flowchart LR
-    subgraph DSL["DSL 정의"]
-        S["States\n(enum / sealed)"]
-        E["Events\n(sealed class)"]
-        T["Transitions\nfrom → on<Event> → to"]
-        G["Guard 조건\n(선택적 Predicate)"]
-    end
-
-    User -->|"stateMachine { ... }"| DSL
-    DSL -->|"build()"| SM[StateMachine]
-    SM -->|"transition(event)"| TR["TransitionResult\n(prev, event, current)"]
-    SM -.->|"stateFlow (suspend)"| SF["StateFlow\n(관찰 가능한 상태)"]
-    TR -->|"onTransition 콜백"| CB["부수 효과 로직"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class S,E,T,G dslStyle
-    class SM coreStyle
-    class TR dataStyle
-    class SF asyncStyle
-    class CB utilStyle
-```
+![개념 개요 1](../../docs/images/readme-diagrams/utils-states-ko-diagram-01.svg)
 
 `StateMachine`은 타입화된 **전이 규칙** (출발 상태 + 이벤트 타입 → 도착 상태) 집합을 보유합니다.  
 각 전이는 상태 변경 전에 검사되는 선택적 **Guard 조건**을 가질 수 있습니다.  
@@ -46,133 +19,14 @@ flowchart LR
 
 ### 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class BaseStateMachine~S, E~ {
-        <<interface>>
-        +currentState: S
-        +initialState: S
-        +finalStates: Set~S~
-        +canTransition(event: E): Boolean
-        +allowedEvents(): Set~Class~E~~
-        +isInFinalState(): Boolean
-    }
-
-    class StateMachine~S, E~ {
-        <<interface>>
-        +transition(event: E): TransitionResult~S, E~
-    }
-
-    class SuspendStateMachineInterface~S, E~ {
-        <<interface>>
-        +stateFlow: StateFlow~S~
-        +transition(event: E): TransitionResult~S, E~
-    }
-
-    class DefaultStateMachine~S, E~ {
-        -_currentState: AtomicReference~S~
-        -transitions: Map~TransitionKey, TransitionTarget~
-        -onTransition: ((S, E, S) -> Unit)?
-        +transition(event: E): TransitionResult~S, E~
-        +canTransition(event: E): Boolean
-        +allowedEvents(): Set~Class~E~~
-    }
-
-    class SuspendStateMachine~S, E~ {
-        -mutex: Mutex
-        -_stateFlow: MutableStateFlow~S~
-        -transitions: Map~TransitionKey, TransitionTarget~
-        -onTransition: (suspend (S, E, S) -> Unit)?
-        +transition(event: E): TransitionResult~S, E~
-        +canTransition(event: E): Boolean
-        +allowedEvents(): Set~Class~E~~
-    }
-
-    class TransitionResult~S, E~ {
-        +previousState: S
-        +event: E
-        +currentState: S
-    }
-
-    class TransitionKey~S, E~ {
-        +state: S
-        +eventType: Class~E~
-    }
-
-    class TransitionTarget~S, E~ {
-        +state: S
-        +guard: ((S, E) -> Boolean)?
-    }
-
-    class StateMachineException {
-        +message: String
-    }
-
-    BaseStateMachine <|-- StateMachine
-    BaseStateMachine <|-- SuspendStateMachineInterface
-    StateMachine <|.. DefaultStateMachine
-    SuspendStateMachineInterface <|.. SuspendStateMachine
-    DefaultStateMachine ..> TransitionKey : uses
-    DefaultStateMachine ..> TransitionTarget : uses
-    SuspendStateMachine ..> TransitionKey : uses
-    SuspendStateMachine ..> TransitionTarget : uses
-    DefaultStateMachine ..> TransitionResult : returns
-    SuspendStateMachine ..> TransitionResult : returns
-    DefaultStateMachine ..> StateMachineException : throws
-    SuspendStateMachine ..> StateMachineException : throws
-
-    style BaseStateMachine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StateMachine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendStateMachineInterface fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style DefaultStateMachine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SuspendStateMachine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style TransitionResult fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style TransitionKey fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style TransitionTarget fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style StateMachineException fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-states-ko-diagram-02.svg)
 
 > `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과
 `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
 
 ### DSL 빌더 구조
 
-```mermaid
-classDiagram
-    class StateMachineBuilder~S, E~ {
-        +initialState: S?
-        +finalStates: Set~S~
-        +transition(from, eventType, to)
-        +transition(from, eventType, to, setup)
-        +onTransition(handler)
-        +build(): DefaultStateMachine~S, E~
-    }
-
-    class SuspendStateMachineBuilder~S, E~ {
-        +initialState: S?
-        +finalStates: Set~S~
-        +transition(from, eventType, to)
-        +transition(from, eventType, to, setup)
-        +onTransition(handler)
-        +build(): SuspendStateMachine~S, E~
-    }
-
-    class TransitionBuilder~S, E~ {
-        +guard: ((S, E) -> Boolean)?
-        +guard(predicate)
-    }
-
-    StateMachineBuilder ..> TransitionBuilder : creates
-    SuspendStateMachineBuilder ..> TransitionBuilder : creates
-    StateMachineBuilder ..> DefaultStateMachine : builds
-    SuspendStateMachineBuilder ..> SuspendStateMachine : builds
-
-    style StateMachineBuilder fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style SuspendStateMachineBuilder fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style TransitionBuilder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style DefaultStateMachine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SuspendStateMachine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![DSL 빌더 구조 3](../../docs/images/readme-diagrams/utils-states-ko-diagram-03.svg)
 
 ## 주요 특징
 
@@ -199,64 +53,15 @@ event/effect와 nested-state 아이디어의 참고 자료일 뿐, 이 모듈의
 
 ### 1. 회전문 (Turnstile) — 단순 FSM
 
-```mermaid
-stateDiagram-v2
-    [*] --> Locked : 초기 상태
-
-    Locked --> Unlocked : Coin (동전 투입)
-    Unlocked --> Locked : Push (통과)
-    Locked --> Locked : Push (잠긴 상태에서 통과 시도)
-    Unlocked --> Unlocked : Coin (이미 열린 상태에서 동전 투입)
-```
+![1. 회전문 (Turnstile) — 단순 FSM 4](../../docs/images/readme-diagrams/utils-states-ko-diagram-04.svg)
 
 ### 2. 주문 (Order) — 단방향 FSM
 
-```mermaid
-stateDiagram-v2
-    [*] --> CREATED : 주문 생성
-
-    CREATED --> PAID : Pay (결제)
-    CREATED --> CANCELLED : Cancel (취소)
-    PAID --> SHIPPED : Ship (배송 시작)
-    SHIPPED --> DELIVERED : Deliver (배송 완료)
-
-    DELIVERED --> [*]
-    CANCELLED --> [*]
-```
+![2. 주문 (Order) — 단방향 FSM 5](../../docs/images/readme-diagrams/utils-states-ko-diagram-05.svg)
 
 ### 3. 예약 (Appointment) — 복잡한 FSM (clinic-appointment)
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> PENDING : 예약 생성
-
-    PENDING --> REQUESTED : Request
-    PENDING --> CANCELLED : Cancel
-
-    REQUESTED --> CONFIRMED : Confirm
-    REQUESTED --> PENDING_RESCHEDULE : RequestReschedule
-    REQUESTED --> CANCELLED : Cancel
-
-    CONFIRMED --> CHECKED_IN : CheckIn
-    CONFIRMED --> NO_SHOW : MarkNoShow
-    CONFIRMED --> PENDING : Reschedule
-    CONFIRMED --> PENDING_RESCHEDULE : RequestReschedule
-    CONFIRMED --> CANCELLED : Cancel
-
-    PENDING_RESCHEDULE --> RESCHEDULED : ConfirmReschedule
-    PENDING_RESCHEDULE --> CANCELLED : Cancel
-
-    CHECKED_IN --> IN_PROGRESS : StartTreatment
-    CHECKED_IN --> CANCELLED : Cancel
-
-    IN_PROGRESS --> COMPLETED : Complete
-
-    COMPLETED --> [*]
-    NO_SHOW --> [*]
-    CANCELLED --> [*]
-    RESCHEDULED --> [*]
-```
+![3. 예약 (Appointment) — 복잡한 FSM (clinic-appointment) 6](../../docs/images/readme-diagrams/utils-states-ko-diagram-06.svg)
 
 ## Quick Start
 

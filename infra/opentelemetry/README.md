@@ -356,116 +356,11 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### Core Class Structure
 
-```mermaid
-classDiagram
-    class OpenTelemetry {
-        <<interface>>
-        +getTracer(name) Tracer
-        +getMeter(name) Meter
-        +getPropagators() ContextPropagators
-    }
-
-    class Tracer {
-        <<interface>>
-        +spanBuilder(spanName) SpanBuilder
-    }
-
-    class SpanBuilder {
-        <<interface>>
-        +setSpanKind(kind) SpanBuilder
-        +setAttribute(key, value) SpanBuilder
-        +startSpan() Span
-        +useSpan(block) T
-        +useSpanSuspending(block) T
-    }
-
-    class Span {
-        <<interface>>
-        +addEvent(name) Span
-        +setAttribute(key, value) Span
-        +recordException(t) Span
-        +end()
-        +use(block) T
-        +useSuspending(block) T
-    }
-
-    class SdkTracerProvider {
-        +addSpanProcessor(sp) SdkTracerProviderBuilder
-        +setResource(resource) SdkTracerProviderBuilder
-        +get(instrumentationName) Tracer
-    }
-
-    class SdkMeterProvider {
-        +registerMetricReader(mr) SdkMeterProviderBuilder
-    }
-
-    class Meter {
-        <<interface>>
-        +counterBuilder(name) LongCounterBuilder
-        +timerBuilder(name) DoubleHistogramBuilder
-        +gaugeBuilder(name) ObservableDoubleGaugeBuilder
-    }
-
-    OpenTelemetry --> Tracer: provides
-    OpenTelemetry --> Meter: provides
-    Tracer --> SpanBuilder: creates
-    SpanBuilder --> Span: starts
-    SdkTracerProvider ..|> Tracer: implements
-    SdkMeterProvider ..|> Meter: implements
-
-    style OpenTelemetry fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Tracer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SpanBuilder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Span fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Meter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SdkTracerProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SdkMeterProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-
-```
+![Core Class Structure 1](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.svg)
 
 ### Component Overview
 
-```mermaid
-flowchart TD
-    App[Application] --> Tracer[Tracer<br/>Span creation/management]
-    App --> Meter[Meter<br/>Metrics collection]
-    App --> Logger[Logger<br/>Log collection]
-
-    Tracer --> TP[TracerProvider<br/>SdkTracerProvider]
-    Meter --> MP[MeterProvider<br/>SdkMeterProvider]
-
-    TP --> SP[SpanProcessor]
-    SP --> SE[SpanExporter]
-
-    MP --> MR[MetricReader]
-    MR --> ME[MetricExporter]
-
-    SE --> OTLP[OTLP gRPC/HTTP]
-    SE --> LogExp[Logging Exporter]
-    ME --> OTLP
-    ME --> InMem[InMemory Exporter<br/>for testing]
-
-    OTLP --> Jaeger[Jaeger]
-    OTLP --> Zipkin[Zipkin]
-    OTLP --> OtelCol[OpenTelemetry Collector]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style TP fill:#F57F17,stroke:#E65100,color:#000000
-    style MP fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style OtelCol fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style SP fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style SE fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style MR fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style ME fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Component Overview 2](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.svg)
 
 ### Span Lifecycle in a Coroutine Context
 
@@ -493,31 +388,7 @@ sequenceDiagram
 
 ### Distributed Trace Propagation
 
-```mermaid
-flowchart LR
-    ServiceA[Service A<br/>Parent Span] -->|HTTP Header<br/>traceparent: 00-traceId-spanId-01| ServiceB[Service B<br/>Child Span]
-    ServiceB -->|propagate| ServiceC[Service C<br/>Child Span]
-
-    ServiceA -->|export| Collector[OTel Collector]
-    ServiceB -->|export| Collector
-    ServiceC -->|export| Collector
-
-    Collector -->|store| Backend[Jaeger / Zipkin<br/>Distributed tracing backend]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style ServiceA fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ServiceB fill:#F57F17,stroke:#E65100,color:#000000
-    style ServiceC fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Backend fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style Collector fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Distributed Trace Propagation 3](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.svg)
 
 ## Testing Strategy
 
