@@ -10,11 +10,11 @@
 
 ### Compressor 계층
 
-![Compressor 계층 1](../../docs/images/readme-diagrams/io-io-ko-diagram-01.svg)
+![Compressor 계층 1](../../docs/images/readme-diagrams/io-io-diagram-01.png)
 
 ### BinarySerializer 계층
 
-![BinarySerializer 계층 2](../../docs/images/readme-diagrams/io-io-ko-diagram-02.svg)
+![BinarySerializer 계층 2](../../docs/images/readme-diagrams/io-io-diagram-02.png)
 
 ### compress/decompress 흐름
 
@@ -414,7 +414,7 @@ JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 | Jdk | ~8,431 | — | ✅ | Java 표준 |
 | Jackson | ~4,323 | — | ✅ | 바이너리 데이터에 불리 |
 
-![직렬화 성능 비교 3](../../docs/images/readme-diagrams/io-io-ko-diagram-03.svg)
+![직렬화 성능 비교 3](../../docs/images/readme-diagrams/io-io-diagram-03.png)
 
 > `ForyBinarySerializer.fast()`는 nullable 타입을 지원하며 기본 Fory 대비 +71% 빠릅니다.
 > `KryoBinarySerializer.fast()`는 +97% 빠르지만 Kotlin nullable 필드(`Type?`)를 **지원하지 않습니다**.
@@ -428,7 +428,7 @@ JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 | Jackson | 39,510  | JSON 기반 |
 | Jdk     | 22,249  | Java 표준 |
 
-![직렬화 성능 비교 4](../../docs/images/readme-diagrams/io-io-ko-diagram-04.svg)
+![직렬화 성능 비교 4](../../docs/images/readme-diagrams/io-io-diagram-04.png)
 
 ### 압축 성능 비교
 
@@ -442,7 +442,7 @@ JMH 처리량 모드, 3초 측정 구간, 4회 워밍업.
 | GZip    | 1,195 | 호환성 우수           |
 | Deflate | 1,084 | GZip 기반          |
 
-![압축 성능 비교 5](../../docs/images/readme-diagrams/io-io-ko-diagram-05.svg)
+![압축 성능 비교 5](../../docs/images/readme-diagrams/io-io-diagram-05.png)
 
 ## 모듈 구조
 

@@ -10,11 +10,11 @@
 
 ### 모듈 구성
 
-![모듈 구성 1](../../docs/images/readme-diagrams/utils-geo-ko-diagram-01.svg)
+![모듈 구성 1](../../docs/images/readme-diagrams/utils-geo-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-geo-ko-diagram-02.svg)
+![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
 
 ### GeoHash 인코딩/디코딩 흐름
 

@@ -12,11 +12,11 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ### 지원 컨테이너 클래스 다이어그램
 
-![지원 컨테이너 클래스 다이어그램 1](../../docs/images/readme-diagrams/testing-testcontainers-ko-diagram-01.svg)
+![지원 컨테이너 클래스 다이어그램 1](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
 
 ### 지원 컨테이너 구조
 
-![지원 컨테이너 구조 2](../../docs/images/readme-diagrams/testing-testcontainers-ko-diagram-02.svg)
+![지원 컨테이너 구조 2](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ## 주요 기능
 

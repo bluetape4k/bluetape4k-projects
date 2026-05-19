@@ -10,11 +10,11 @@ English | [한국어](./README.ko.md)
 
 ### Compressor Hierarchy
 
-![Compressor Hierarchy 1](../../docs/images/readme-diagrams/io-io-diagram-01.svg)
+![Compressor Hierarchy 1](../../docs/images/readme-diagrams/io-io-diagram-01.png)
 
 ### BinarySerializer Hierarchy
 
-![BinarySerializer Hierarchy 2](../../docs/images/readme-diagrams/io-io-diagram-02.svg)
+![BinarySerializer Hierarchy 2](../../docs/images/readme-diagrams/io-io-diagram-02.png)
 
 ### compress/decompress Flow
 
@@ -412,7 +412,7 @@ JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
 | Jdk | ~8,431 | — | Java standard |
 | Jackson | ~4,323 | — | Disadvantaged for binary data |
 
-![Serialization Performance Comparison 3](../../docs/images/readme-diagrams/io-io-diagram-03.svg)
+![Serialization Performance Comparison 3](../../docs/images/readme-diagrams/io-io-diagram-03.png)
 
 > `ForyBinarySerializer.fast()` is ~71% faster than standard Fory and supports nullable types.
 > `KryoBinarySerializer.fast()` is ~97% faster but does **not** support Kotlin nullable fields (`Type?`).
@@ -426,7 +426,7 @@ JMH throughput mode, 3-second measurement intervals, 4 warmup iterations.
 | Jackson | 39,510  | JSON-based                  |
 | Jdk     | 22,249  | Java standard               |
 
-![Serialization Performance Comparison 4](../../docs/images/readme-diagrams/io-io-diagram-04.svg)
+![Serialization Performance Comparison 4](../../docs/images/readme-diagrams/io-io-diagram-04.png)
 
 ### Compression Performance Comparison
 
@@ -440,7 +440,7 @@ Throughput for compressing/decompressing a 40KB UTF-8 text file (`Utf8Samples.tx
 | GZip      | 1,195 | Excellent compatibility                |
 | Deflate   | 1,084 | GZip-based                             |
 
-![Compression Performance Comparison 5](../../docs/images/readme-diagrams/io-io-diagram-05.svg)
+![Compression Performance Comparison 5](../../docs/images/readme-diagrams/io-io-diagram-05.png)
 
 ## Module Structure
 

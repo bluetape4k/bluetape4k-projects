@@ -1,83 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Spring WebFlux + Coroutines Request Flow Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="526" viewBox="0 0 1378 526" role="img" aria-label="Spring WebFlux + Coroutines Request Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
-  </filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
-  </marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
-    .canvas { fill: #f7f9fc; }
-    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
-    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
-    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
-    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
-    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
-    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
-    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
-    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
-    .card { stroke-width: 2.2; filter: url(#shadow); }
-    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
-    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
-    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
-    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
-    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
-    .compartment { stroke-width: 1.6; fill: none; }
-    .chip { stroke-width: 1.5; rx: 16; }
-    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
+    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
+    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1600" height="1050"/>
-<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">Spring WebFlux + Coroutines Request Flow Diag.</text>
-<text class="subtitle" x="90" y="132">Pastel architecture infographic generated from README Mermaid</text>
-<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
-<text class="chipText" x="1075" y="88" text-anchor="middle">layer</text>
-<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
-<text class="chipText" x="1223" y="88" text-anchor="middle">module</text>
-<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
-<text class="chipText" x="1371" y="88" text-anchor="middle">flow</text>
-<g transform="translate(160,250)">
-  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">HTTP Client</text>
-  <text class="small" x="190" y="84" text-anchor="middle">entry</text>
+<rect class="canvas" width="1378" height="526"/>
+<rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
+<text class="title" x="66" y="82">Spring WebFlux + Coroutines Request Flow</text>
+<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
+<path class="line" d="M522 220 C522 220 188 220 188 220"/>
+<path class="line" d="M856 220 C856 220 522 220 522 220"/>
+<path class="line" d="M1190 220 C1190 220 856 220 856 220"/>
+<path class="line" d="M522 386 C522 303 1190 303 1190 220"/>
+<path class="line" d="M856 386 C856 386 522 386 522 386"/>
+<path class="line" d="M522 386 C522 386 856 386 856 386"/>
+<path class="line" d="M1190 220 C1190 303 522 303 522 386"/>
+<path class="line" d="M856 220 C856 220 1190 220 1190 220"/>
+<path class="line" d="M522 220 C522 220 856 220 856 220"/>
+<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<g transform="translate(48,170)">
+  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="140" y="45" text-anchor="middle">HTTP Client</text>
 </g>
-<g transform="translate(610,250)">
-  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">Netty HTTP Server</text>
-  <text class="small" x="190" y="84" text-anchor="middle">core</text>
+<g transform="translate(382,170)">
+  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="140" y="45" text-anchor="middle">Netty HTTP Server</text>
 </g>
-<path class="line" d="M548 309 L594 309"/>
-<g transform="translate(1060,250)">
-  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">Spring WebFlux DispatcherHand.</text>
-  <text class="small" x="190" y="84" text-anchor="middle">integration</text>
+<g transform="translate(716,170)">
+  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Spring WebFlux</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">DispatcherHandler</text>
 </g>
-<path class="line" d="M998 309 L1044 309"/>
-<g transform="translate(160,456)">
-  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">Coroutines Handler suspend fu.</text>
-  <text class="small" x="190" y="84" text-anchor="middle">storage</text>
+<g transform="translate(1050,170)">
+  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Coroutines Handler</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">suspend fun / Flow</text>
 </g>
-<g transform="translate(610,456)">
-  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">Service Layer</text>
-  <text class="small" x="190" y="84" text-anchor="middle">runtime</text>
+<g transform="translate(382,336)">
+  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="smallLabel" x="140" y="45" text-anchor="middle">Service Layer</text>
 </g>
-<path class="line" d="M548 515 L594 515"/>
-<g transform="translate(1060,456)">
-  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#f1ecff" stroke="#8a72d6"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">Database / External API</text>
-  <text class="small" x="190" y="84" text-anchor="middle">support</text>
-</g>
-<path class="line" d="M998 515 L1044 515"/>
-<g transform="translate(180,860)">
-  <rect class="card" x="0" y="0" width="1240" height="92" rx="18" fill="#f7fbff" stroke="#d8e0ea"/>
-  <text class="smallLabel" x="28" y="42">Reading rule</text>
-  <text class="mono" x="260" y="39">Pastel cards summarize the Mermaid graph as grouped README architecture blocks.</text>
-  <text class="small" x="260" y="66">Detailed Mermaid source remains represented by the generated SVG asset next to this PNG.</text>
+<g transform="translate(716,336)">
+  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">(Database / External</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">API)</text>
 </g>
 </svg>

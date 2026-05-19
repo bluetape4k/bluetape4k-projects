@@ -12,15 +12,15 @@ It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x 
 
 ### Overall Architecture: Multi-Backend HTTP Client
 
-![Overall Architecture: Multi-Backend HTTP Client 1](../../docs/images/readme-diagrams/io-http-diagram-01.svg)
+![Overall Architecture: Multi-Backend HTTP Client 1](../../docs/images/readme-diagrams/io-http-diagram-01.png)
 
 ### HTTP Client Hierarchy (HC5)
 
-![HTTP Client Hierarchy (HC5) 2](../../docs/images/readme-diagrams/io-http-diagram-02.svg)
+![HTTP Client Hierarchy (HC5) 2](../../docs/images/readme-diagrams/io-http-diagram-02.png)
 
 ### OkHttp3 Client Hierarchy
 
-![OkHttp3 Client Hierarchy 3](../../docs/images/readme-diagrams/io-http-diagram-03.svg)
+![OkHttp3 Client Hierarchy 3](../../docs/images/readme-diagrams/io-http-diagram-03.png)
 
 ### Async HTTP Request Flow (HC5 Async + Coroutines)
 

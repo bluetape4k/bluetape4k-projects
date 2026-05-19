@@ -398,7 +398,7 @@ class KafkaIntegrationTest {
 
 ### Kafka 클래스 계층
 
-![Kafka 클래스 계층 1](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-01.svg)
+![Kafka 클래스 계층 1](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
 
 ### Producer/Consumer 메시지 흐름
 
@@ -406,7 +406,7 @@ class KafkaIntegrationTest {
 
 ### Kafka Streams 처리 흐름
 
-![Kafka Streams 처리 흐름 2](../../docs/images/readme-diagrams/infra-kafka-ko-diagram-02.svg)
+![Kafka Streams 처리 흐름 2](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
 
 ## 패키지 구조
 

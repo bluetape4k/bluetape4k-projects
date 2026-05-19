@@ -13,7 +13,7 @@ JDK 21 구현체보다 높은 우선순위(`priority = 25`)를 가지므로, JDK
 
 ## UML
 
-![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk25-ko-diagram-01.svg)
+![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk25-diagram-01.png)
 
 ## 주요 구현체
 

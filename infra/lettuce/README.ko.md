@@ -395,7 +395,7 @@ dependencies {
 
 ### 분산 Primitive 클래스 계층
 
-![분산 Primitive 클래스 계층 1](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-01.svg)
+![분산 Primitive 클래스 계층 1](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
@@ -403,7 +403,7 @@ dependencies {
 
 ### LettuceBinaryCodec 계층
 
-![LettuceBinaryCodec 계층 2](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-02.svg)
+![LettuceBinaryCodec 계층 2](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## 확률 자료구조
 

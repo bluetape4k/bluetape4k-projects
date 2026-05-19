@@ -8,11 +8,11 @@ A library for creating and parsing [JSON Web Tokens (JWT)](https://jwt.io/). Bui
 
 ### JWT Create and Verify Flow
 
-![JWT Create and Verify Flow 1](../../docs/images/readme-diagrams/utils-jwt-diagram-01.svg)
+![JWT Create and Verify Flow 1](../../docs/images/readme-diagrams/utils-jwt-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/utils-jwt-diagram-02.svg)
+![Class Diagram 2](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
 
 ### JWT Token Structure
 

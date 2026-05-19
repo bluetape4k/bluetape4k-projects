@@ -8,13 +8,13 @@ A library that makes SLF4J logging in Kotlin easier and more efficient.
 
 ### Class Hierarchy Diagram
 
-![Class Hierarchy Diagram 1](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-01.svg)
+![Class Hierarchy Diagram 1](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-01.png)
 
 ---
 
 ### Logging Processing Flow
 
-![Logging Processing Flow 2](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-02.svg)
+![Logging Processing Flow 2](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-02.png)
 
 ---
 

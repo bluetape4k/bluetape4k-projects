@@ -1,123 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="compress / decompress Flow Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1672" viewBox="0 0 1040 1672" role="img" aria-label="compress/decompress Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
-  </filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
-  </marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
-    .canvas { fill: #f7f9fc; }
-    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
-    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
-    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
-    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
-    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
-    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
-    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
-    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
-    .card { stroke-width: 2.2; filter: url(#shadow); }
-    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
-    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
-    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
-    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
-    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
-    .compartment { stroke-width: 1.6; fill: none; }
-    .chip { stroke-width: 1.5; rx: 16; }
-    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
+    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
+    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1600" height="1050"/>
-<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">compress / decompress Flow Sequence</text>
-<text class="subtitle" x="90" y="132">Lifelines remain while messages become readable pastel interaction bands</text>
-<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
-<text class="chipText" x="1075" y="88" text-anchor="middle">request</text>
-<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
-<text class="chipText" x="1223" y="88" text-anchor="middle">work</text>
-<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
-<text class="chipText" x="1371" y="88" text-anchor="middle">response</text>
-<g>
-  <rect class="card" x="98" y="220" width="224" height="70" rx="24" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="label" x="210" y="265" text-anchor="middle">Caller</text>
-  <line x1="210" y1="306" x2="210" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="393" y="220" width="224" height="70" rx="24" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="label" x="505" y="265" text-anchor="middle">AbstractCompres.</text>
-  <line x1="505" y1="306" x2="505" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="688" y="220" width="224" height="70" rx="24" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="label" x="800" y="265" text-anchor="middle">Implementation.</text>
-  <line x1="800" y1="306" x2="800" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="983" y="220" width="224" height="70" rx="24" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="label" x="1095" y="265" text-anchor="middle">AC-</text>
-  <line x1="1095" y1="306" x2="1095" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="1278" y="220" width="224" height="70" rx="24" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="label" x="1390" y="265" text-anchor="middle">Impl-</text>
-  <line x1="1390" y1="306" x2="1390" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="150" y="360" width="415" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="strong" x="182" y="392">1</text>
-  <text class="strong" x="224" y="392">compress(plain: ByteArray?)</text>
-  <text class="small" x="224" y="416">interaction band</text>
-  <path class="line" d="M250 397 L465 397"/>
-</g>
-<g>
-  <rect class="card" x="445" y="452" width="120" height="74" rx="22" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="strong" x="477" y="484">2</text>
-  <text class="strong" x="519" y="484">check plain.isNullOrEmpty</text>
-  <text class="small" x="519" y="508">interaction band</text>
-  <path class="line" d="M545 489 L465 489"/>
-</g>
-<g>
-  <rect class="card" x="150" y="544" width="1005" height="74" rx="22" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="strong" x="182" y="576">3</text>
-  <text class="strong" x="224" y="576">return</text>
-  <text class="small" x="224" y="600">emptyByteArray</text>
-  <path class="dashed" d="M1055 581 L250 581"/>
-</g>
-<g>
-  <rect class="card" x="445" y="636" width="415" height="74" rx="22" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="strong" x="477" y="668">4</text>
-  <text class="strong" x="519" y="668">doCompress(plain)</text>
-  <text class="small" x="519" y="692">interaction band</text>
-  <path class="line" d="M545 673 L760 673"/>
-</g>
-<g>
-  <rect class="card" x="445" y="728" width="1005" height="74" rx="22" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="strong" x="477" y="760">5</text>
-  <text class="strong" x="519" y="760">return</text>
-  <text class="small" x="519" y="784">compressed: ByteArray</text>
-  <path class="dashed" d="M1350 765 L545 765"/>
-</g>
-<g>
-  <rect class="card" x="150" y="820" width="1005" height="74" rx="22" fill="#e9f7f6" stroke="#45a7a1"/>
-  <text class="strong" x="182" y="852">6</text>
-  <text class="strong" x="224" y="852">return</text>
-  <text class="small" x="224" y="876">compressed</text>
-  <path class="dashed" d="M1055 857 L250 857"/>
-</g>
-<g>
-  <rect class="card" x="445" y="912" width="1005" height="74" rx="22" fill="#f1ecff" stroke="#8a72d6"/>
-  <text class="strong" x="477" y="944">7</text>
-  <text class="strong" x="519" y="944">return</text>
-  <text class="small" x="519" y="968">IOException / IllegalArgumentException / libr.</text>
-  <path class="dashed" d="M1350 949 L545 949"/>
-</g>
-<g transform="translate(124,858)">
-  <rect class="card" x="0" y="0" width="1352" height="88" rx="18" fill="#0d2435" stroke="#0d2435"/>
-  <text class="smallLabel" x="28" y="42" fill="#ffffff">Reading rule</text>
-  <text class="small" x="250" y="38" fill="#dbeafe">Lifelines stay visible; messages are grouped into numbered pastel interaction bands.</text>
-  <text class="small" x="250" y="64" fill="#dbeafe">Dashed bands indicate compact return/response paths.</text>
-</g>
+<rect class="canvas" width="1040" height="1672"/>
+<rect class="frame" x="32" y="28" width="976" height="1616" rx="28"/>
+<text class="title" x="66" y="82">compress/decompress Flow</text>
+<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
+<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="140" y="197" text-anchor="middle">Caller</text>
+<line x1="140" y1="252" x2="140" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="520" y="197" text-anchor="middle">AbstractCompressor</text>
+<line x1="520" y1="252" x2="520" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="900" y="187" text-anchor="middle">Implementation</text>
+<text class="smallLabel" x="900" y="208" text-anchor="middle">(e.g.</text>
+<line x1="900" y1="252" x2="900" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="297" text-anchor="start">1. compress(plain: ByteArray?)</text>
+<path class="line" d="M140 310 L520 310"/>
+<rect x="538" y="352" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="379" text-anchor="start">2. check</text>
+<text class="strong" x="554" y="402" text-anchor="start">plain.isNullOrEmpty()</text>
+<path class="line" d="M520 392 L520 392"/>
+<rect x="158" y="434" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="461" text-anchor="start">3. emptyByteArray</text>
+<path class="dashed" d="M520 474 L140 474"/>
+<rect x="538" y="516" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="543" text-anchor="start">4. doCompress(plain)</text>
+<path class="line" d="M520 556 L900 556"/>
+<rect x="538" y="598" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="625" text-anchor="start">5. compressed: ByteArray</text>
+<path class="dashed" d="M900 638 L520 638"/>
+<rect x="158" y="680" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="707" text-anchor="start">6. compressed</text>
+<path class="dashed" d="M520 720 L140 720"/>
+<rect x="538" y="762" width="344" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="789" text-anchor="start">7. IOException / IllegalArgumentException / library</text>
+<text class="strong" x="554" y="812" text-anchor="start">exception</text>
+<path class="dashed" d="M900 802 L520 802"/>
+<rect x="158" y="844" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="871" text-anchor="start">8. throws same exception</text>
+<path class="dashed" d="M520 884 L140 884"/>
+<rect x="158" y="926" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="953" text-anchor="start">9. decompress(compressed: ByteArray?)</text>
+<path class="line" d="M140 966 L520 966"/>
+<rect x="538" y="1008" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="1035" text-anchor="start">10. check</text>
+<text class="strong" x="554" y="1058" text-anchor="start">compressed.is Null Or</text>
+<path class="line" d="M520 1048 L520 1048"/>
+<rect x="158" y="1090" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="1117" text-anchor="start">11. emptyByteArray</text>
+<path class="dashed" d="M520 1130 L140 1130"/>
+<rect x="538" y="1172" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="1199" text-anchor="start">12. doDecompress(compressed)</text>
+<path class="line" d="M520 1212 L900 1212"/>
+<rect x="538" y="1254" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="1281" text-anchor="start">13. plain: ByteArray</text>
+<path class="dashed" d="M900 1294 L520 1294"/>
+<rect x="158" y="1336" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="1363" text-anchor="start">14. plain</text>
+<path class="dashed" d="M520 1376 L140 1376"/>
+<rect x="538" y="1418" width="344" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="554" y="1445" text-anchor="start">15. IOException / IllegalArgumentException / library</text>
+<text class="strong" x="554" y="1468" text-anchor="start">exception</text>
+<path class="dashed" d="M900 1458 L520 1458"/>
+<rect x="158" y="1500" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="174" y="1527" text-anchor="start">16. throws same exception</text>
+<path class="dashed" d="M520 1540 L140 1540"/>
 </svg>

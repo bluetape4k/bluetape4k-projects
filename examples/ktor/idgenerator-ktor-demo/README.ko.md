@@ -6,7 +6,7 @@ bluetape4k `idgenerators`를 HTTP endpoint로 노출하는 실행 가능한 Ktor
 
 ## 구조
 
-![구조 1](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-ko-diagram-01.svg)
+![구조 1](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-diagram-01.png)
 
 명시적 `/ids/...` route와 generic `/idgen/{type}` route는 같은 registry를 공유합니다. route 스타일은 두 가지를 모두 보여주되 ID 생성 로직은 중복하지 않습니다.
 

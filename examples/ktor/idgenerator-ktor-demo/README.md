@@ -6,7 +6,7 @@ Runnable Ktor application that exposes bluetape4k `idgenerators` through HTTP en
 
 ## Architecture
 
-![Architecture 1](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-diagram-01.svg)
+![Architecture 1](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-diagram-01.png)
 
 The explicit `/ids/...` routes and generic `/idgen/{type}` routes share the same registry, so the example shows both route styles without duplicating ID generation logic.
 

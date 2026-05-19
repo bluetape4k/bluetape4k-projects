@@ -303,11 +303,11 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ### 클래스 구조
 
-![클래스 구조 1](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-01.svg)
+![클래스 구조 1](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
 
 ### Jackson 직렬화 파이프라인
 
-![Jackson 직렬화 파이프라인 2](../../docs/images/readme-diagrams/io-jackson2-ko-diagram-02.svg)
+![Jackson 직렬화 파이프라인 2](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
 
 ### 필드 암호화 흐름 (@JsonTinkEncrypt)
 

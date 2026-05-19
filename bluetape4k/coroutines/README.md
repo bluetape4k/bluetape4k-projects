@@ -16,13 +16,13 @@ It focuses on:
 
 ### Module Overview
 
-![Module Overview 1](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.svg)
+![Module Overview 1](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)
 
 ---
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.svg)
+![Class Diagram 2](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
 
 ---
 
@@ -276,7 +276,7 @@ These APIs read Reactor `Context`. They do not create Reactor publishers or brid
 
 ### 1. Flow Extension Categories
 
-![1. Flow Extension Categories 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.svg)
+![1. Flow Extension Categories 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)
 
 ---
 

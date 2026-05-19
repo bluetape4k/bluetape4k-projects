@@ -228,11 +228,11 @@ val result = totalAmount.await().indefinitely()
 
 ## Mutiny 타입 다이어그램
 
-![Mutiny 타입 다이어그램 1](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-01.svg)
+![Mutiny 타입 다이어그램 1](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.png)
 
 ## Mutiny 처리 흐름
 
-![Mutiny 처리 흐름 2](../../docs/images/readme-diagrams/utils-mutiny-ko-diagram-02.svg)
+![Mutiny 처리 흐름 2](../../docs/images/readme-diagrams/utils-mutiny-diagram-02.png)
 
 ## Coroutine 연동 흐름
 

@@ -30,11 +30,11 @@ artifact, Kotlin package는 유지됩니다.
 
 ### Near Cache 2-Tier 구조
 
-![Near Cache 2-Tier 구조 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-01.svg)
+![Near Cache 2-Tier 구조 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.png)
 
 ### 레이어 구조
 
-![레이어 구조 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-ko-diagram-02.svg)
+![레이어 구조 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
 
 - **Region 격리**: 각 Region은 독립된 `LettuceNearCache` 인스턴스를 가짐
 - **키 prefix**: `{regionName}::{key}` 형식으로 Redis 키 충돌 방지

@@ -13,11 +13,11 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ### 클래스 계층
 
-![클래스 계층 1](../../docs/images/readme-diagrams/io-grpc-ko-diagram-01.svg)
+![클래스 계층 1](../../docs/images/readme-diagrams/io-grpc-diagram-01.png)
 
 ### 컴포넌트 개요
 
-![컴포넌트 개요 2](../../docs/images/readme-diagrams/io-grpc-ko-diagram-02.svg)
+![컴포넌트 개요 2](../../docs/images/readme-diagrams/io-grpc-diagram-02.png)
 
 ### gRPC 서버-클라이언트 통신 시퀀스
 

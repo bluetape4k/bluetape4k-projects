@@ -68,11 +68,11 @@ dependencies {
 
 ### 모듈 의존성 구조
 
-![모듈 의존성 구조 1](../../docs/images/readme-diagrams/io-vertx-ko-diagram-01.svg)
+![모듈 의존성 구조 1](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
 
 ### Vert.x 이벤트 루프 + Coroutines 처리 흐름
 
-![Vert.x 이벤트 루프 + Coroutines 처리 흐름 2](../../docs/images/readme-diagrams/io-vertx-ko-diagram-02.svg)
+![Vert.x 이벤트 루프 + Coroutines 처리 흐름 2](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
@@ -80,7 +80,7 @@ dependencies {
 
 ### Vert.x 핵심 컴포넌트 클래스 구조
 
-![Vert.x 핵심 컴포넌트 클래스 구조 3](../../docs/images/readme-diagrams/io-vertx-ko-diagram-03.svg)
+![Vert.x 핵심 컴포넌트 클래스 구조 3](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
 
 ## 사용 예시
 

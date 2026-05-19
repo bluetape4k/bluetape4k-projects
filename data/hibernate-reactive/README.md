@@ -107,15 +107,15 @@ sf.withSessionSuspending { session ->
 
 ### Reactive Repository Class Structure
 
-![Reactive Repository Class Structure 1](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
+![Reactive Repository Class Structure 1](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.png)
 
 ### Hibernate Reactive API Structure
 
-![Hibernate Reactive API Structure 2](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
+![Hibernate Reactive API Structure 2](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.png)
 
 ### Session Type Comparison
 
-![Session Type Comparison 3](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
+![Session Type Comparison 3](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.png)
 
 ## Version Requirements
 

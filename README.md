@@ -60,7 +60,7 @@ Feel free to open an Issue if you need something that isn't here yet.
 
 Bluetape4k is a multi-module Gradle project organized by domain.
 
-![Module Structure 1](docs/images/readme-diagrams/root-readme-en-diagram-01.svg)
+![Module Structure 1](docs/images/readme-diagrams/root-readme-en-diagram-01.png)
 
 ### Core Modules (`bluetape4k/`)
 

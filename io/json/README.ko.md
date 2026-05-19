@@ -13,11 +13,11 @@
 
 ### JsonSerializer 인터페이스와 구현체
 
-![JsonSerializer 인터페이스와 구현체 1](../../docs/images/readme-diagrams/io-json-ko-diagram-01.svg)
+![JsonSerializer 인터페이스와 구현체 1](../../docs/images/readme-diagrams/io-json-diagram-01.png)
 
 ### 구현체 선택 흐름
 
-![구현체 선택 흐름 2](../../docs/images/readme-diagrams/io-json-ko-diagram-02.svg)
+![구현체 선택 흐름 2](../../docs/images/readme-diagrams/io-json-diagram-02.png)
 
 ## 주요 기능
 

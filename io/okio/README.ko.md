@@ -384,25 +384,25 @@ io.bluetape4k.okio
 
 Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등을 데코레이터 패턴으로 제공합니다.
 
-![Sink / Source 어댑터 계층 1](../../docs/images/readme-diagrams/io-okio-ko-diagram-01.svg)
+![Sink / Source 어댑터 계층 1](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
 
 ### NIO 채널 어댑터 계층
 
 Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
 
-![NIO 채널 어댑터 계층 2](../../docs/images/readme-diagrams/io-okio-ko-diagram-02.svg)
+![NIO 채널 어댑터 계층 2](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
 
 ### Coroutines 비동기 I/O 계층
 
 Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니다.
 
-![Coroutines 비동기 I/O 계층 3](../../docs/images/readme-diagrams/io-okio-ko-diagram-03.svg)
+![Coroutines 비동기 I/O 계층 3](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
 
 ### 압축 팩토리 (Compressable)
 
 `Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
 
-![압축 팩토리 (Compressable) 4](../../docs/images/readme-diagrams/io-okio-ko-diagram-04.svg)
+![압축 팩토리 (Compressable) 4](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
 
 ## 시퀀스 다이어그램
 

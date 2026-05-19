@@ -11,7 +11,7 @@ Java 21 Virtual Thread 구현체 모듈입니다.
 
 ## UML
 
-![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk21-ko-diagram-01.svg)
+![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk21-diagram-01.png)
 
 ## 주요 구현체
 

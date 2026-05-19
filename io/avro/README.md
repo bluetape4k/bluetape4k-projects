@@ -124,7 +124,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Serializer Class Hierarchy
 
-![Serializer Class Hierarchy 1](../../docs/images/readme-diagrams/io-avro-diagram-01.svg)
+![Serializer Class Hierarchy 1](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
 
 ### Avro Serialization/Deserialization Flow
 
@@ -132,7 +132,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Compression Codec Selection Guide
 
-![Compression Codec Selection Guide 2](../../docs/images/readme-diagrams/io-avro-diagram-02.svg)
+![Compression Codec Selection Guide 2](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
 
 ## Dependencies
 

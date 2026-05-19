@@ -190,15 +190,15 @@ buf.writeUIntSmart(100000) // 4 bytes
 
 ### ByteBuf Extension API Structure
 
-![ByteBuf Extension API Structure 1](../../docs/images/readme-diagrams/io-netty-diagram-01.svg)
+![ByteBuf Extension API Structure 1](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
 
 ### Smart Encoding Data Flow
 
-![Smart Encoding Data Flow 2](../../docs/images/readme-diagrams/io-netty-diagram-02.svg)
+![Smart Encoding Data Flow 2](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
 
 ### Netty Channel Pipeline Processing Flow
 
-![Netty Channel Pipeline Processing Flow 3](../../docs/images/readme-diagrams/io-netty-diagram-03.svg)
+![Netty Channel Pipeline Processing Flow 3](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## Testing
 

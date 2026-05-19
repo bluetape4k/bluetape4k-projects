@@ -234,11 +234,11 @@ val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
 
 ### 핵심 클래스 구조
 
-![핵심 클래스 구조 1](../../docs/images/readme-diagrams/infra-micrometer-ko-diagram-01.svg)
+![핵심 클래스 구조 1](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
 
 ### 메트릭 수집 흐름
 
-![메트릭 수집 흐름 2](../../docs/images/readme-diagrams/infra-micrometer-ko-diagram-02.svg)
+![메트릭 수집 흐름 2](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
 
 ### Retrofit2 메트릭 수집 시퀀스
 

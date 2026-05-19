@@ -356,11 +356,11 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### Core Class Structure
 
-![Core Class Structure 1](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.svg)
+![Core Class Structure 1](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
 
 ### Component Overview
 
-![Component Overview 2](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.svg)
+![Component Overview 2](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
 
 ### Span Lifecycle in a Coroutine Context
 
@@ -368,7 +368,7 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### Distributed Trace Propagation
 
-![Distributed Trace Propagation 3](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.svg)
+![Distributed Trace Propagation 3](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
 
 ## Testing Strategy
 

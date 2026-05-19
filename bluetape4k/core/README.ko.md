@@ -8,13 +8,13 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 
 ### 모듈 구성 개요
 
-![모듈 구성 개요 1](../../docs/images/readme-diagrams/bluetape4k-core-ko-diagram-01.svg)
+![모듈 구성 개요 1](../../docs/images/readme-diagrams/bluetape4k-core-diagram-01.png)
 
 ---
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/bluetape4k-core-ko-diagram-02.svg)
+![클래스 다이어그램 2](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
 
 ---
 

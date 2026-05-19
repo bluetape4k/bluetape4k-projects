@@ -107,11 +107,11 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### Redis Serializer Class Hierarchy
 
-![Redis Serializer Class Hierarchy 1](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.svg)
+![Redis Serializer Class Hierarchy 1](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
 
 ### ReactiveRedisTemplate Serialization Flow
 
-![ReactiveRedisTemplate Serialization Flow 2](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.svg)
+![ReactiveRedisTemplate Serialization Flow 2](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
 
 ## Build and Test
 

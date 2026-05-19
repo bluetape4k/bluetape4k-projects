@@ -181,15 +181,15 @@ class MyMongoTest : AbstractMongoTest() {
 
 ### Core Class Structure
 
-![Core Class Structure 1](../../docs/images/readme-diagrams/data-mongodb-diagram-01.svg)
+![Core Class Structure 1](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
 
 ### Module API Structure
 
-![Module API Structure 2](../../docs/images/readme-diagrams/data-mongodb-diagram-02.svg)
+![Module API Structure 2](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
 
 ### Aggregation Pipeline Data Flow
 
-![Aggregation Pipeline Data Flow 3](../../docs/images/readme-diagrams/data-mongodb-diagram-03.svg)
+![Aggregation Pipeline Data Flow 3](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
 
 ## References
 

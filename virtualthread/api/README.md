@@ -242,11 +242,11 @@ class VirtualThreadsTest {
 
 ## Class Diagram
 
-![Class Diagram 1](../../docs/images/readme-diagrams/virtualthread-api-diagram-01.svg)
+![Class Diagram 1](../../docs/images/readme-diagrams/virtualthread-api-diagram-01.png)
 
 ## `ServiceLoader`-Based Runtime Selection Flow
 
-![ServiceLoader-Based Runtime Selection Flow 2](../../docs/images/readme-diagrams/virtualthread-api-diagram-02.svg)
+![ServiceLoader-Based Runtime Selection Flow 2](../../docs/images/readme-diagrams/virtualthread-api-diagram-02.png)
 
 ## References
 

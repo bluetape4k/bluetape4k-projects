@@ -12,15 +12,15 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
 
-![전체 아키텍처: 다중 백엔드 HTTP 클라이언트 1](../../docs/images/readme-diagrams/io-http-ko-diagram-01.svg)
+![전체 아키텍처: 다중 백엔드 HTTP 클라이언트 1](../../docs/images/readme-diagrams/io-http-ko-diagram-01.png)
 
 ### HTTP 클라이언트 계층 (HC5)
 
-![HTTP 클라이언트 계층 (HC5) 2](../../docs/images/readme-diagrams/io-http-ko-diagram-02.svg)
+![HTTP 클라이언트 계층 (HC5) 2](../../docs/images/readme-diagrams/io-http-ko-diagram-02.png)
 
 ### OkHttp3 클라이언트 계층
 
-![OkHttp3 클라이언트 계층 3](../../docs/images/readme-diagrams/io-http-ko-diagram-03.svg)
+![OkHttp3 클라이언트 계층 3](../../docs/images/readme-diagrams/io-http-ko-diagram-03.png)
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
@@ -267,7 +267,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
   - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
   - OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
 
-![3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과 4](../../docs/images/readme-diagrams/io-http-ko-diagram-04.svg)
+![3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과 4](../../docs/images/readme-diagrams/io-http-ko-diagram-04.png)
 
 **권장 선택**:
 

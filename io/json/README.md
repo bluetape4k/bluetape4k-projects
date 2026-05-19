@@ -13,11 +13,11 @@ It provides the
 
 ### JsonSerializer Interface and Implementations
 
-![JsonSerializer Interface and Implementations 1](../../docs/images/readme-diagrams/io-json-diagram-01.svg)
+![JsonSerializer Interface and Implementations 1](../../docs/images/readme-diagrams/io-json-diagram-01.png)
 
 ### Implementation Selection Flow
 
-![Implementation Selection Flow 2](../../docs/images/readme-diagrams/io-json-diagram-02.svg)
+![Implementation Selection Flow 2](../../docs/images/readme-diagrams/io-json-diagram-02.png)
 
 ## Key Features
 

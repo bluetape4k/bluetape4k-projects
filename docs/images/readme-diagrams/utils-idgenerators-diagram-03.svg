@@ -1,90 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Snowflake Bit Layout Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="992" height="536" viewBox="0 0 992 536" role="img" aria-label="Snowflake Bit Layout">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
-  </filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
-    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
-    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
-  </marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
-    .canvas { fill: #f7f9fc; }
-    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
-    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
-    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
-    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
-    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
-    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
-    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
-    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
-    .card { stroke-width: 2.2; filter: url(#shadow); }
-    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
-    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
-    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
-    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
-    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
-    .compartment { stroke-width: 1.6; fill: none; }
-    .chip { stroke-width: 1.5; rx: 16; }
-    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
+    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
+    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1600" height="1050"/>
-<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">Snowflake Bit Layout Sequence</text>
-<text class="subtitle" x="90" y="132">Lifelines remain while messages become readable pastel interaction bands</text>
-<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
-<text class="chipText" x="1075" y="88" text-anchor="middle">request</text>
-<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
-<text class="chipText" x="1223" y="88" text-anchor="middle">work</text>
-<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
-<text class="chipText" x="1371" y="88" text-anchor="middle">response</text>
-<g>
-  <rect class="card" x="98" y="220" width="224" height="70" rx="24" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="label" x="210" y="265" text-anchor="middle">sign (1 bit)</text>
-  <line x1="210" y1="306" x2="210" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="canvas" width="992" height="536"/>
+<rect class="frame" x="32" y="28" width="928" height="480" rx="28"/>
+<text class="title" x="66" y="82">Snowflake Bit Layout</text>
+<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
+<g transform="translate(48,170)">
+  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="130" y="45" text-anchor="middle">sign (1 bit)</text>
 </g>
-<g>
-  <rect class="card" x="491.33333333333326" y="220" width="224" height="70" rx="24" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="label" x="603.3333333333333" y="265" text-anchor="middle">timestamp (41 b.</text>
-  <line x1="603.3333333333333" y1="306" x2="603.3333333333333" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<g transform="translate(366,170)">
+  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="130" y="33" text-anchor="middle">timestamp (41 bits) ~69</text>
+<text class="smallLabel" x="130" y="59" text-anchor="middle">years</text>
 </g>
-<g>
-  <rect class="card" x="884.6666666666666" y="220" width="224" height="70" rx="24" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="label" x="996.6666666666666" y="265" text-anchor="middle">machineId (10 b.</text>
-  <line x1="996.6666666666666" y1="306" x2="996.6666666666666" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<g transform="translate(684,170)">
+  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="smallLabel" x="130" y="33" text-anchor="middle">machineId (10 bits) up</text>
+<text class="smallLabel" x="130" y="59" text-anchor="middle">to 1,024</text>
 </g>
-<g>
-  <rect class="card" x="1278" y="220" width="224" height="70" rx="24" fill="#fdecef" stroke="#dc6b82"/>
-  <text class="label" x="1390" y="265" text-anchor="middle">sequence (12 bi.</text>
-  <line x1="1390" y1="306" x2="1390" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-</g>
-<g>
-  <rect class="card" x="150" y="360" width="513.3333333333333" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="strong" x="182" y="392">1</text>
-  <text class="strong" x="224" y="392">timestamp (41 bits) ~69 years</text>
-  <text class="small" x="224" y="416">interaction band</text>
-  <path class="line" d="M250 397 L563.3333333333333 397"/>
-</g>
-<g>
-  <rect class="card" x="543.3333333333333" y="452" width="513.3333333333333" height="74" rx="22" fill="#eaf7ef" stroke="#58a978"/>
-  <text class="strong" x="575.3333333333333" y="484">2</text>
-  <text class="strong" x="617.3333333333333" y="484">machineId (10 bits) up to 1,024</text>
-  <text class="small" x="617.3333333333333" y="508">interaction band</text>
-  <path class="line" d="M643.3333333333333 489 L956.6666666666666 489"/>
-</g>
-<g>
-  <rect class="card" x="936.6666666666666" y="544" width="513.3333333333334" height="74" rx="22" fill="#fff3d9" stroke="#d6a441"/>
-  <text class="strong" x="968.6666666666666" y="576">3</text>
-  <text class="strong" x="1010.6666666666666" y="576">sequence (12 bits) 4,096 / ms</text>
-  <text class="small" x="1010.6666666666666" y="600">interaction band</text>
-  <path class="line" d="M1036.6666666666665 581 L1350 581"/>
-</g>
-<g transform="translate(124,858)">
-  <rect class="card" x="0" y="0" width="1352" height="88" rx="18" fill="#0d2435" stroke="#0d2435"/>
-  <text class="smallLabel" x="28" y="42" fill="#ffffff">Reading rule</text>
-  <text class="small" x="250" y="38" fill="#dbeafe">Lifelines stay visible; messages are grouped into numbered pastel interaction bands.</text>
-  <text class="small" x="250" y="64" fill="#dbeafe">Dashed bands indicate compact return/response paths.</text>
+<g transform="translate(366,346)">
+  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="130" y="33" text-anchor="middle">sequence (12 bits)</text>
+<text class="smallLabel" x="130" y="59" text-anchor="middle">4,096/ms</text>
 </g>
 </svg>

@@ -34,7 +34,7 @@ Blaze Persistence는 JPA 위에 더 표현력 있는 Criteria API와 projection
 
 ## 도메인 모델
 
-![도메인 모델 1](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-ko-diagram-01.svg)
+![도메인 모델 1](../../docs/images/readme-diagrams/examples-jpa-blazepersistence-demo-diagram-01.png)
 
 ## 핵심 사용법
 
