@@ -53,6 +53,20 @@ dependencies {
 The Korean README includes the full class diagrams and listener-related notes, including why `SuspendNearJCache` uses
 `withoutListener(front, back)` for the Hazelcast client case.
 
+## Near-Cache Capability
+
+Hazelcast IMap native near caches are fully supported by the shared
+`NearCacheOperations` / `SuspendNearCacheOperations` conformance suites.
+
+Hazelcast JCache near-cache factories are intentionally listener-free because
+Hazelcast distributes JCache listener configuration through serialization and
+the current listener captures non-serializable front-cache state. Factory-created
+JCache near caches support read-through and write-through, but peer front-cache
+propagation is not promised. Direct listener-backed construction is unsupported
+and covered by explicit tests.
+
+See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
+
 ## Class Structure
 
 The main pieces are:

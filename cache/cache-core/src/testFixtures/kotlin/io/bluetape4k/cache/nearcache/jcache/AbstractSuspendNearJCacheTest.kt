@@ -23,7 +23,6 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -98,19 +97,22 @@ abstract class AbstractSuspendNearJCacheTest
         suspendNearJCache2.get(key) shouldBeEqualTo value
     }
 
-    // TODO: 실제 시나리오를 만들기 힘듬 (시점 차이) -> Mockk 로 대체해야 함
-    @Disabled("시나리오 미비 -> Mockk 으로 대체해야 함")
     @RepeatedTest(TEST_SIZE)
     fun `getDeeply - front miss면 back cache에서 조회하고 front cache를 채운다`() = runSuspendIO {
         val key = getKey()
         val value = getValue()
+        val frontCache = createFrontSuspendCache(Duration.ofMinutes(5))
+        val nearJCache = SuspendNearJCache.withoutListener(frontCache, backSuspendJCache)
 
-        backSuspendJCache.put(key, value)
-        suspendNearJCache1.clear()
+        try {
+            backSuspendJCache.put(key, value)
+            frontCache.get(key).shouldBeNull()
 
-        suspendNearJCache1.getDeeply(key) shouldBeEqualTo value
-        await atMost (awaitTimeout) untilSuspending { suspendNearJCache1.containsKey(key) }
-        suspendNearJCache1.get(key) shouldBeEqualTo value
+            nearJCache.getDeeply(key) shouldBeEqualTo value
+            frontCache.get(key) shouldBeEqualTo value
+        } finally {
+            nearJCache.close()
+        }
     }
 
     @RepeatedTest(TEST_SIZE)

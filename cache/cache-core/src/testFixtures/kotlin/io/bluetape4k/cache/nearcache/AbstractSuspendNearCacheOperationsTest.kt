@@ -75,6 +75,18 @@ abstract class AbstractSuspendNearCacheOperationsTest<V: Any> {
         }
 
     @RepeatedTest(TEST_SIZE)
+    fun `put - value remains readable after local eviction`() =
+        runSuspendIO {
+            val key = randomKey()
+            val value = sampleValue()
+
+            cache.put(key, value)
+            cache.clearLocal()
+
+            cache.get(key) shouldBeEqualTo value
+        }
+
+    @RepeatedTest(TEST_SIZE)
     fun `getAll - batch read`() =
         runSuspendIO {
             val entries = (1..5).associate { randomKey() to sampleValue() }
@@ -116,6 +128,20 @@ abstract class AbstractSuspendNearCacheOperationsTest<V: Any> {
 
             cache.put(key, value)
             cache.replace(key, newValue).shouldBeTrue()
+            cache.get(key) shouldBeEqualTo newValue
+        }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `replace - updated value remains readable after local eviction`() =
+        runSuspendIO {
+            val key = randomKey()
+            val value = sampleValue()
+            val newValue = anotherValue()
+
+            cache.put(key, value)
+            cache.replace(key, newValue).shouldBeTrue()
+            cache.clearLocal()
+
             cache.get(key) shouldBeEqualTo newValue
         }
 

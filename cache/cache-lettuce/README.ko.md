@@ -87,6 +87,14 @@ Caffeine(로컬) + Redis(분산) 2단계 캐시로, RESP3 CLIENT TRACKING을 통
 | `CaffeineLocalCache<K, V>`              | Caffeine 기반 LocalCache 구현                          |
 | `TrackingInvalidationListener<V>`       | RESP3 CLIENT TRACKING push 리스너                     |
 
+### Near-Cache Capability
+
+Lettuce native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다.
+Native `LettuceNearCache` / `LettuceSuspendNearCache`는 Redis RESP3 `CLIENT TRACKING`과 write-through를 사용합니다.
+JCache 변형은 cache-entry listener로 peer front-cache 전파를 지원합니다.
+
+전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
+
 `LettuceCacheConfig`/`LettuceNearCacheConfig` 사용 시:
 
 - 배치 크기, 큐 크기, 재시도 횟수, local cache 크기는 0보다 커야 합니다.

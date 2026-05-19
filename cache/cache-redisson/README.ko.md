@@ -30,6 +30,14 @@ Kotlin package는 유지됩니다.
 
 이 모듈은 RESP3 hybrid near-cache class를 제공하지 않습니다. Redisson-managed local caching이 필요하면 실제 public API인 `RedissonNearCache` / `RedissonSuspendNearCache`를 사용하세요.
 
+## Near-Cache Capability
+
+Redisson native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다.
+Native `RedissonNearCache` / `RedissonSuspendNearCache`는 Redisson `RLocalCachedMap` invalidation을 사용합니다.
+JCache 변형은 cache-entry listener를 등록하며, Redisson bulk event가 발생하지 않는 경로는 entry별 removal로 전파합니다.
+
+전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
+
 ## 의존성
 
 ```kotlin

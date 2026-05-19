@@ -32,6 +32,15 @@ dependencies {
 - JCache-based `NearJCache` / `SuspendNearJCache`
 - RESP3 `CLIENT TRACKING` invalidation support
 
+## Near-Cache Capability
+
+Lettuce native and JCache near-cache variants are fully supported by the shared
+conformance suites. Native `LettuceNearCache` and `LettuceSuspendNearCache` use
+Redis RESP3 `CLIENT TRACKING` plus explicit write-through. JCache variants
+register cache-entry listeners and support peer front-cache propagation.
+
+See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
+
 ## Factory (`LettuceCaches`)
 
 `LettuceCaches` exposes factory methods for:

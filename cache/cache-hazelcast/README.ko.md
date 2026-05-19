@@ -92,6 +92,17 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 
 > Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
 
+### Near-Cache Capability
+
+Hazelcast IMap native NearCache는 공통 `NearCacheOperations` /
+`SuspendNearCacheOperations` conformance suite에서 supported로 검증됩니다.
+
+Hazelcast JCache NearCache factory는 listener 없이 생성되는 degraded 모드입니다.
+read-through와 write-through는 지원하지만 peer front-cache propagation은 보장하지 않습니다.
+직접 listener-backed `NearJCache` / `SuspendNearJCache` 생성은 unsupported이며 active test로 고정합니다.
+
+전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
+
 ### NearJCache 사용 예
 
 ```kotlin

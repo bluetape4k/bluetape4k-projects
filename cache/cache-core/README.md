@@ -39,6 +39,21 @@ Add the appropriate provider module if you need distributed caching.
 
 ## Detailed Features
 
+## Near-Cache Capability Matrix
+
+The shared support boundary for native and JCache near-cache variants is tracked
+in [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
+
+- Lettuce, Hazelcast IMap, and Redisson native near caches are covered by the
+  shared `NearCacheOperations` / `SuspendNearCacheOperations` conformance
+  fixtures.
+- Lettuce and Redisson JCache near caches are listener-backed and covered by the
+  shared JCache conformance fixtures.
+- Hazelcast JCache factory methods are listener-free by design; direct
+  listener-backed construction is unsupported and tested explicitly.
+- Caffeine and Cache2k are local providers unless paired with a distributed back
+  cache through a supported near-cache implementation.
+
 ### Unified NearCache Interface
 
 All NearCache backends, including Lettuce, Hazelcast, Redisson, and JCache-based implementations, share a common interface.
