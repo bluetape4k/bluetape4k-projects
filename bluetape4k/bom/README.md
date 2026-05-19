@@ -23,7 +23,7 @@ The BOM is a Gradle `java-platform` that publishes only `<dependencyManagement>`
 
 | Group | Approximate count | Highlights |
 |-------|-------------------|-----------|
-| `bluetape4k/*` | 3 | `bluetape4k-core`, `bluetape4k-coroutines`, `bluetape4k-logging` |
+| `bluetape4k/*` | 4 | `bluetape4k-annotations`, `bluetape4k-core`, `bluetape4k-coroutines`, `bluetape4k-logging` |
 | `data/*` | 7 | `bluetape4k-jdbc`, `bluetape4k-r2dbc`, `bluetape4k-hibernate`, `bluetape4k-hibernate-reactive`, `bluetape4k-hibernate-cache-lettuce`, `bluetape4k-mongodb`, `bluetape4k-cassandra` |
 | `infra/*` | 18 | cache (`cache`, `cache-core`, `cache-lettuce`, `cache-redisson`, `cache-hazelcast`), `bucket4j`, `elasticsearch`, `kafka-logback`, etc. |
 | `io/*` | 16 | `jackson2`, `fastjson2`, `avro`, `csv`, `grpc`, `feign`, `http`, `io` |
