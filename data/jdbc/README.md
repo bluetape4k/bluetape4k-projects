@@ -476,69 +476,11 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### Extension Function API Overview
 
-```mermaid
-classDiagram
-    direction LR
-    class JdbcExtensions {
-        <<extensionFunctions>>
-        +DataSource.execute(sql): Int
-        +DataSource.query~T~(sql): List~T~
-        +Connection.executeBatch(sqls): IntArray
-    }
-    class DataSourceExtensions {
-        <<extensionFunctions>>
-        +dataSourceOf(url, user, pw): DataSource
-        +HikariDataSource(block): DataSource
-    }
-
-    style JdbcExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DataSourceExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-jdbc-diagram-01.svg)
 
 ### Core API Structure
 
-```mermaid
-classDiagram
-    class DataSourceExtensions {
-        +DataSource.withConnect(block): T
-        +DataSource.withStatement(block): T
-        +DataSource.withTransaction(block): T
-        +DataSource.withReadOnlyTransaction(block): T
-        +DataSource.runQuery(sql, block): T
-        +DataSource.executeBatch(sql, params): IntArray
-    }
-    class ConnectionExtensions {
-        +Connection.withStatement(block): T
-        +Connection.withTransaction(block): T
-        +Connection.withAutoCommit(flag, block): T
-        +Connection.withReadOnly(block): T
-        +Connection.withIsolationLevel(level, block): T
-        +Connection.executeQuery(sql, params, block): T
-        +Connection.executeUpdate(sql, params): Int
-        +Connection.executeBatch(sql, params): IntArray
-        +Connection.preparedStatement(sql, block): T
-    }
-    class ResultSetExtensions {
-        +ResultSet.toList(mapper): List~T~
-        +ResultSet.toSet(mapper): Set~T~
-        +ResultSet.toMap(keyMapper, valueMapper): Map~K,V~
-        +ResultSet.groupBy(keyMapper, valueMapper): Map~K,List~V~~
-        +ResultSet.mapFirst(mapper): T?
-        +ResultSet.mapSingle(mapper): T
-        +ResultSet.sequence(mapper): Sequence~T~
-        +ResultSet.filterMap(predicate, mapper): List~T~
-        +ResultSet.singleInt(): Int?
-        +ResultSet.singleLong(): Long?
-        +ResultSet.columnNames: List~String~
-    }
-
-    DataSourceExtensions --> ConnectionExtensions : delegates
-    ConnectionExtensions --> ResultSetExtensions : passes ResultSet
-
-    style DataSourceExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style ConnectionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ResultSetExtensions fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![Core API Structure 2](../../docs/images/readme-diagrams/data-jdbc-diagram-02.svg)
 
 ### JDBC Query Execution Flow
 

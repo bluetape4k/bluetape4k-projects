@@ -556,133 +556,15 @@ class Purchase {
 
 ### Repository 클래스 구조
 
-```mermaid
-classDiagram
-    direction TB
-    class HibernateRepository~ID_E~ {
-        <<abstract>>
-        +findByIdOrNull(id): E?
-        +save(entity): E
-        +deleteById(id): Int
-        +findAll(spec): List~E~
-    }
-    class AbstractHibernateRepository~ID_E~ {
-        #sessionFactory: SessionFactory
-    }
-    HibernateRepository <|-- AbstractHibernateRepository
-
-    style HibernateRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractHibernateRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-```
+![Repository 클래스 구조 1](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-01.svg)
 
 ### JPA 엔티티 클래스 계층 구조
 
-```mermaid
-classDiagram
-    class JpaEntity~ID~ {
-        <<interface>>
-        +id: ID?
-        +isPersisted(): Boolean
-        +equals(other): Boolean
-        +hashCode(): Int
-    }
-    class AbstractJpaEntity~ID~ {
-        <<abstract>>
-        +id: ID?
-        +equals(other): Boolean
-        +hashCode(): Int
-        +toString(): String
-    }
-    class IntJpaEntity {
-        +id: Int?
-    }
-    class LongJpaEntity {
-        +id: Long?
-    }
-    class UuidJpaEntity {
-        +id: UUID?
-    }
-    class JpaTreeEntity~T_ID~ {
-        <<interface>>
-        +parent: T?
-        +children: MutableList~T~
-        +addChildren(child)
-        +removeChildren(child)
-    }
-    class LongJpaTreeEntity~T~ {
-        +id: Long?
-        +parent: T?
-        +children: MutableList~T~
-    }
-    class IntJpaTreeEntity~T~ {
-        +id: Int?
-        +parent: T?
-        +children: MutableList~T~
-    }
-
-    JpaEntity <|.. AbstractJpaEntity
-    AbstractJpaEntity <|-- IntJpaEntity
-    AbstractJpaEntity <|-- LongJpaEntity
-    AbstractJpaEntity <|-- UuidJpaEntity
-    JpaTreeEntity <|.. LongJpaTreeEntity
-    JpaTreeEntity <|.. IntJpaTreeEntity
-    LongJpaEntity <|-- LongJpaTreeEntity
-    IntJpaEntity <|-- IntJpaTreeEntity
-
-    style JpaEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractJpaEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style IntJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LongJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UuidJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JpaTreeEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LongJpaTreeEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style IntJpaTreeEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![JPA 엔티티 클래스 계층 구조 2](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-02.svg)
 
 ### AttributeConverter 종류
 
-```mermaid
-flowchart LR
-    subgraph 직렬화_Converter
-        A1[JdkObjectAsByteArrayConverter]
-        A2[KryoObjectAsByteArrayConverter]
-        A3[ForyObjectAsByteArrayConverter]
-        A4[LZ4KryoObjectAsByteArrayConverter]
-        A5[ZstdForyObjectAsByteArrayConverter]
-    end
-    subgraph 암호화_Converter
-        B1[AESStringConverter<br/>AES-256-GCM]
-        B2[DeterministicAESStringConverter<br/>AES-256-SIV]
-    end
-    subgraph 압축_Converter
-        C1[LZ4StringConverter]
-        C2[ZstdStringConverter]
-        C3[GZipStringConverter]
-        C4[SnappyStringConverter]
-    end
-    subgraph 기타_Converter
-        D1[LocaleAsStringConverter]
-        D2[DurationAsTimestampConverter]
-        D3[AbstractObjectAsJsonConverter]
-    end
-
-    E[DB 컬럼] <-->|변환| 직렬화_Converter
-    E <-->|변환| 암호화_Converter
-    E <-->|변환| 압축_Converter
-    E <-->|변환| 기타_Converter
-
-    classDef dbStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef serStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef encStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef compStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef miscStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-
-    class E dbStyle
-    class 직렬화_Converter serStyle
-    class 암호화_Converter encStyle
-    class 압축_Converter compStyle
-    class 기타_Converter miscStyle
-```
+![AttributeConverter 종류 3](../../docs/images/readme-diagrams/data-hibernate-ko-diagram-03.svg)
 
 ## 참고
 

@@ -302,75 +302,11 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ### Jackson 2.x vs 3.x 모듈 비교
 
-```mermaid
-flowchart LR
-    subgraph JK2["bluetape4k-jackson2 (Jackson 2.x)"]
-        M2[com.fasterxml.jackson.*]
-        MOD2[Module SPI:<br/>com.fasterxml.jackson.databind.Module]
-        TK2["@JsonTinkEncrypt<br/>→ 자동 등록"]
-    end
-
-    subgraph JK3["bluetape4k-jackson3 (Jackson 3.x)"]
-        M3[tools.jackson.*]
-        MOD3[Module SPI:<br/>tools.jackson.databind.JacksonModule]
-        TK3["@JsonTinkEncrypt<br/>→ JsonTinkEncryptModule 수동 등록"]
-    end
-
-    JK2 -->|동일 기능, 다른 패키지| JK3
-
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    class JK2 serviceStyle
-    class JK3 serviceStyle
-```
+![Jackson 2.x vs 3.x 모듈 비교 1](../../docs/images/readme-diagrams/io-jackson3-ko-diagram-01.svg)
 
 ### 클래스 구조
 
-```mermaid
-classDiagram
-    class JsonSerializer {
-        <<interface>>
-        +serialize(graph) ByteArray
-        +deserialize(bytes, clazz) T?
-        +serializeAsString(graph) String
-        +deserializeFromString(text, clazz) T?
-    }
-
-    class JacksonSerializer {
-        -mapper: ObjectMapper
-    }
-
-    class Jackson {
-        <<singleton>>
-        +defaultJsonMapper: JsonMapper
-        +prettyJsonWriter: ObjectWriter
-        +createDefaultJsonMapper() JsonMapper
-    }
-
-    class JsonTinkEncryptModule {
-        +setupModule(context)
-    }
-
-    class JsonMaskerModule {
-        +setupModule(context)
-    }
-
-    class JsonUuidModule {
-        +setupModule(context)
-    }
-
-    JsonSerializer <|.. JacksonSerializer
-    JacksonSerializer --> Jackson : 사용
-    Jackson --> JsonTinkEncryptModule : 등록
-    Jackson --> JsonMaskerModule : 등록
-    Jackson --> JsonUuidModule : 등록
-
-    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JsonTinkEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JsonMaskerModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JsonUuidModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![클래스 구조 2](../../docs/images/readme-diagrams/io-jackson3-ko-diagram-02.svg)
 
 ### Jackson 3.x 모듈 등록 흐름
 

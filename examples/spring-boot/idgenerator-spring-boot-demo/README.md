@@ -7,18 +7,7 @@ The Ktor version is tracked separately in issue #419.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    C["IdGeneratorController"] --> S["IdGeneratorService"]
-    S --> R["IdGeneratorRegistry"]
-    R --> UV4["UuidGenerator\\nUUID v4"]
-    R --> UV7["UuidGenerator\\nUUID v7"]
-    R --> UL["UlidGenerator"]
-    R --> KS["KsuidGenerator"]
-    R --> SN["SnowflakeGenerator"]
-    R --> FL["Flake"]
-    P["IdGeneratorProperties"] --> S
-```
+![Architecture 1](../../../docs/images/readme-diagrams/examples-spring-boot-idgenerator-spring-boot-demo-diagram-01.svg)
 
 ## Configuration
 

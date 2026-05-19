@@ -92,78 +92,7 @@ Typical usage includes:
 
 ### HazelcastNearCache Class Hierarchy
 
-```mermaid
-classDiagram
-    class NearCacheOperations {
-        <<interface>>
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-    }
-
-    class SuspendNearCacheOperations {
-        <<interface>>
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-    }
-
-    class HazelcastNearCache {
-        -imap: IMap
-        -frontCache: CaffeineHazelcastLocalCache
-        -entryListener: HazelcastEntryEventListener
-        -config: HazelcastNearCacheConfig
-    }
-
-    class HazelcastSuspendNearCache {
-        -imap: IMap
-        -frontCache: CaffeineHazelcastLocalCache
-        -entryListener: HazelcastEntryEventListener
-        -config: HazelcastNearCacheConfig
-    }
-
-    class HazelcastLocalCache {
-        <<interface>>
-        +get(key: K) V?
-        +put(key: K, value: V)
-        +remove(key: K)
-        +clear()
-    }
-
-    class CaffeineHazelcastLocalCache {
-        -cache: Cache
-        +invalidate(key: String)
-    }
-
-    class HazelcastEntryEventListener {
-        -frontCache: HazelcastLocalCache
-        +entryUpdated(event)
-        +entryRemoved(event)
-    }
-
-    NearCacheOperations <|.. HazelcastNearCache
-    SuspendNearCacheOperations <|.. HazelcastSuspendNearCache
-    HazelcastLocalCache <|.. CaffeineHazelcastLocalCache
-    HazelcastNearCache --> CaffeineHazelcastLocalCache: frontCache
-    HazelcastNearCache --> HazelcastEntryEventListener: entryListener
-    HazelcastSuspendNearCache --> CaffeineHazelcastLocalCache: frontCache
-    HazelcastSuspendNearCache --> HazelcastEntryEventListener: entryListener
-    HazelcastEntryEventListener --> HazelcastLocalCache: invalidates
-
-    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style HazelcastNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HazelcastSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style HazelcastLocalCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style CaffeineHazelcastLocalCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style HazelcastEntryEventListener fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![HazelcastNearCache Class Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.svg)
 
 ### 2-Tier NearCache Flow
 

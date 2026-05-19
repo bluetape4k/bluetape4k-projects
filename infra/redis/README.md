@@ -109,114 +109,11 @@ election.runIfLeader {
 
 ## Module Dependency Structure
 
-```mermaid
-flowchart TD
-    A[bluetape4k-redis<br/>umbrella] --> B[bluetape4k-lettuce<br/>Lettuce client]
-    A --> C[bluetape4k-redisson<br/>Redisson client]
-
-    B --> B1[LettuceClients<br/>Connection factory / caching]
-    B --> B2["LettuceBinaryCodecs<br/>Serializer × compression codecs"]
-    B --> B3[RedisFuture.awaitSuspending<br/>Coroutines adapter]
-    B --> B4[LettuceLoadedMap<br/>Read-through / Write-through]
-    B --> B5[LettuceSuspendedLoadedMap<br/>Suspend variant]
-
-    C --> C1[redissonClient DSL<br/>Client creation]
-    C --> C2["RedissonCodecs<br/>Fory/Kryo5 × LZ4/Zstd"]
-    C --> C3[RedissonLeaderElection<br/>Distributed leader election]
-    C --> C4[RedissonNearCache<br/>2-tier Near Cache]
-    C --> C5[RedissonMemoizer<br/>Function result memoization]
-
-    classDef umbrellaStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef lettuceStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef redissonStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    style A fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style B fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style C fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style B1 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style B2 fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style B3 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style B4 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style B5 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style C1 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style C2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style C3 fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style C4 fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style C5 fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Module Dependency Structure 1](../../docs/images/readme-diagrams/infra-redis-diagram-01.svg)
 
 ## Core Class Diagram
 
-```mermaid
-classDiagram
-    class LettuceClients {
-        <<object>>
-        +clientOf(uri: String) RedisClient
-        +connect(client) StatefulRedisConnection
-        +commands(client) RedisCommands
-        +asyncCommands(client) RedisAsyncCommands
-        +coroutinesCommands(client) RedisCoroutinesCommands
-        +shutdown(client)
-    }
-
-    class LettuceBinaryCodecs {
-        <<object>>
-        +default~V~() LettuceBinaryCodec
-        +lz4Fory~V~() LettuceBinaryCodec
-        +zstdFory~V~() LettuceBinaryCodec
-        +kryo~V~() LettuceBinaryCodec
-        +fory~V~() LettuceBinaryCodec
-    }
-
-    class RedissonClientSupport {
-        <<object>>
-        +redissonClient(config) RedissonClient
-        +redissonReactiveClient(config) RedissonReactiveClient
-        +configFromYamlOf(input) Config
-    }
-
-    class RedissonCodecs {
-        <<object>>
-        +Default: Lz4Codec
-        +Fory: ForyCodec
-        +Kryo5: Kryo5Codec
-        +LZ4: Lz4Codec
-        +Zstd: ZstdCodec
-    }
-
-    class LettuceLoadedMap {
-        +get(key: String) V?
-        +set(key: String, value: V)
-        +load(key: String) V?
-        +write(entries: Map) Unit
-    }
-
-    class RedissonLeaderElection {
-        +runIfLeader(lockName, action) T
-        +runAsyncIfLeader(lockName, action) CompletableFuture~T~
-    }
-
-    class RedissonNearCache {
-        +get(key) V?
-        +put(key, value)
-        +clearLocalCache()
-    }
-
-    LettuceClients --> LettuceBinaryCodecs: uses codec
-    LettuceClients --> LettuceLoadedMap: creates
-    RedissonClientSupport --> RedissonCodecs: uses codec
-    RedissonClientSupport --> RedissonLeaderElection: creates
-    RedissonClientSupport --> RedissonNearCache: creates
-
-    style LettuceClients fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style LettuceBinaryCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style RedissonClientSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style LettuceLoadedMap fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style RedissonLeaderElection fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RedissonNearCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-```
+![Core Class Diagram 2](../../docs/images/readme-diagrams/infra-redis-diagram-02.svg)
 
 ## Spring Data Redis
 

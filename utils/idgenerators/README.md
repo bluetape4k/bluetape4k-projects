@@ -25,139 +25,15 @@ Pick the right algorithm for your use case:
 
 ### All Algorithms at a Glance
 
-```mermaid
-flowchart LR
-    IG["IdGenerator&lt;T&gt;\nnextId(): T\nnextIds(n): Sequence&lt;T&gt;"]
-
-    IG --> SG["SnowflakeGenerator\n→ Long\n(distributed, sortable)"]
-    IG --> UG["UuidGenerator\n→ UUID\n(v1/v4/v6/v7)"]
-    IG --> ULG["UlidGenerator\n→ String 26 chars\n(time-based, sortable)"]
-    IG --> KG["KsuidGenerator\n→ String 27 chars\n(Base62, URL-safe)"]
-
-    SG --> SF["Snowflakers.Default\n(per-machine, machineId)"]
-    SG --> GF["Snowflakers.Global\n(centralized, AtomicLong)"]
-
-    UG --> UV["Uuid.V7  V6  V4  V1  V5"]
-
-    H["Hashids\n(encode Long/UUID → short string)\nnot IdGenerator"]
-    FL["Flake\n→ ByteArray 128-bit\n(MAC-based node ID)"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class IG coreStyle
-    class SG,UG,ULG,KG serviceStyle
-    class SF,GF,UV utilStyle
-    class H,FL extStyle
-```
+![All Algorithms at a Glance 1](../../docs/images/readme-diagrams/utils-idgenerators-diagram-01.svg)
 
 ### Class Diagram
 
-```mermaid
-classDiagram
-    class IdGenerator~T~ {
-        <<interface>>
-        +nextId(): T
-        +nextIds(count): Sequence~T~
-    }
-
-    class LongIdGenerator {
-        <<interface>>
-        +nextId(): Long
-    }
-
-    class SnowflakeGenerator {
-        +nextId(): Long
-        +parse(id): SnowflakeId
-    }
-
-    class UuidGenerator {
-        +nextId(): UUID
-        +nextUUID(): UUID
-        +nextIdAsString(): String
-    }
-
-    class UlidGenerator {
-        +nextId(): String
-        +nextULID(): ULID
-    }
-
-    class KsuidGenerator {
-        +nextId(): String
-    }
-
-    class Snowflake {
-        <<interface>>
-        +nextId(): Long
-    }
-
-    class DefaultSnowflake {
-        -machineId: Int
-        -timestamp: AtomicLong
-        -sequence: Int
-    }
-
-    class GlobalSnowflake {
-        -centralCounter: AtomicLong
-    }
-
-    class Snowflakers {
-        <<object>>
-        +Default: DefaultSnowflake
-        +Global: GlobalSnowflake
-        +default(machineId): DefaultSnowflake
-        +global(): GlobalSnowflake
-    }
-
-    class Uuid {
-        <<object>>
-        +V1: UuidStrategy
-        +V4: UuidStrategy
-        +V5: UuidStrategy
-        +V6: UuidStrategy
-        +V7: UuidStrategy
-    }
-
-    IdGenerator <|-- LongIdGenerator
-    LongIdGenerator <|-- SnowflakeGenerator
-    IdGenerator <|-- UuidGenerator
-    IdGenerator <|-- UlidGenerator
-    IdGenerator <|-- KsuidGenerator
-    Snowflake <|-- DefaultSnowflake
-    Snowflake <|-- GlobalSnowflake
-    Snowflakers --> DefaultSnowflake
-    Snowflakers --> GlobalSnowflake
-    SnowflakeGenerator --> Snowflake
-    UuidGenerator --> Uuid
-
-    style IdGenerator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LongIdGenerator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Snowflake fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SnowflakeGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UuidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UlidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style KsuidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultSnowflake fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GlobalSnowflake fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Snowflakers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Uuid fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Class Diagram 2](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.svg)
 
 ### Snowflake Bit Layout
 
-```mermaid
-block-beta
-    columns 4
-    A["sign\n(1 bit)"]
-    B["timestamp\n(41 bits)\n~69 years"]
-    C["machineId\n(10 bits)\nup to 1,024"]
-    D["sequence\n(12 bits)\n4,096/ms"]
-```
+![Snowflake Bit Layout 3](../../docs/images/readme-diagrams/utils-idgenerators-diagram-03.svg)
 
 - **timestamp**: milliseconds since epoch, unique for ~69 years
 - **machineId**: supports up to 1,024 machines (0–1023)
@@ -234,41 +110,7 @@ val idString: String = uuidGen.nextIdAsString()  // Base62
    48 bits      80 bits
 ```
 
-```mermaid
-classDiagram
-    class ULID {
-        <<interface>>
-        +timestamp(): Long
-        +randomness(): ByteArray
-        +toBytes(): ByteArray
-        +toUuid(): Uuid
-        +compareTo(other): Int
-    }
-    class Factory {
-        <<interface>>
-        +nextULID(): ULID
-        +nextULID(timestamp): ULID
-    }
-    class Monotonic {
-        <<interface>>
-        +nextULID(previous): ULID
-        +nextULIDStrict(previous): ULID?
-    }
-    class StatefulMonotonic {
-        <<interface>>
-        +nextULID(): ULID
-    }
-
-    ULID --> Factory : created by
-    Monotonic --> ULID : produces
-    StatefulMonotonic --> ULID : produces
-    Monotonic <|-- StatefulMonotonic
-
-    style ULID fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Factory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Monotonic fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StatefulMonotonic fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![ULID (Universally Unique Lexicographically Sortable Identifier) 4](../../docs/images/readme-diagrams/utils-idgenerators-diagram-04.svg)
 
 ```kotlin
 // Random ULID
@@ -293,30 +135,7 @@ check(a < b)
 
 **Generator selection:**
 
-```mermaid
-flowchart TD
-    Start(["Need a ULID"])
-    Q1{"Ordering within\nsame ms?"}
-    Q2{"Manage previous\nvalue yourself?"}
-    Basic["ULID.nextULID()\nDefault random factory"]
-    Mono["ULID.monotonic()\nnextULID(previous)"]
-    State["ULID.statefulMonotonic()\nnextULID()"]
-
-    Start --> Q1
-    Q1 -->|No| Basic
-    Q1 -->|Yes| Q2
-    Q2 -->|Yes| Mono
-    Q2 -->|No| State
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class Start coreStyle
-    class Q1,Q2 serviceStyle
-    class Basic,Mono,State utilStyle
-```
+![ULID (Universally Unique Lexicographically Sortable Identifier) 5](../../docs/images/readme-diagrams/utils-idgenerators-diagram-05.svg)
 
 ### KSUID (K-Sortable Unique ID)
 

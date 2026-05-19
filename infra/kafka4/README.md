@@ -49,15 +49,7 @@ dependencies {
 
 ## Dependency Boundary
 
-```mermaid
-flowchart LR
-    app[Application] --> kafka4[bluetape4k-kafka4]
-    kafka4 --> clients[Kafka clients 4.2.x]
-    kafka4 --> spring[Spring Kafka 4.0.x]
-    kafka4 --> boot[Spring Boot 4 BOM]
-    kafka4 --> jackson[bluetape4k-jackson3]
-    kafka4 --> reactor[reactor-kafka]
-```
+![Dependency Boundary 1](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.svg)
 
 `infra/kafka4/build.gradle.kts` also aligns all `org.apache.kafka` artifacts to
 the Kafka 4 version used by this module. This prevents the root dependency

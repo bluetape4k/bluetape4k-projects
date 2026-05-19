@@ -57,77 +57,7 @@ Typical examples include:
 
 ### LettuceNearCache Class Hierarchy
 
-```mermaid
-classDiagram
-    class NearCacheOperations {
-        <<interface>>
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-    }
-
-    class SuspendNearCacheOperations {
-        <<interface>>
-        +get(key: String) V?
-        +put(key: String, value: V)
-        +remove(key: String)
-        +clearLocal()
-        +clearAll()
-        +stats() NearCacheStatistics
-    }
-
-    class LettuceNearCache {
-        -config: LettuceNearCacheConfig
-        -frontCache: LettuceCaffeineLocalCache
-        -trackingListener: TrackingInvalidationListener
-    }
-
-    class LettuceSuspendNearCache {
-        -config: LettuceNearCacheConfig
-        -frontCache: LettuceCaffeineLocalCache
-        -trackingListener: TrackingInvalidationListener
-    }
-
-    class LettuceLocalCache {
-        <<interface>>
-        +get(key: K) V?
-        +put(key: K, value: V)
-        +remove(key: K)
-        +clear()
-    }
-
-    class LettuceCaffeineLocalCache {
-        -cache: Cache
-        +invalidate(key: String)
-    }
-
-    class TrackingInvalidationListener {
-        -frontCache: LettuceLocalCache
-        -connection: StatefulRedisConnection
-        +start()
-        +close()
-    }
-
-    NearCacheOperations <|.. LettuceNearCache
-    SuspendNearCacheOperations <|.. LettuceSuspendNearCache
-    LettuceLocalCache <|.. LettuceCaffeineLocalCache
-    LettuceNearCache --> LettuceCaffeineLocalCache: frontCache
-    LettuceNearCache --> TrackingInvalidationListener: trackingListener
-    LettuceSuspendNearCache --> LettuceCaffeineLocalCache: frontCache
-    LettuceSuspendNearCache --> TrackingInvalidationListener: trackingListener
-    TrackingInvalidationListener --> LettuceCaffeineLocalCache: invalidates
-
-    style NearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendNearCacheOperations fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LettuceNearCache fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendNearCache fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceLocalCache fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LettuceCaffeineLocalCache fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style TrackingInvalidationListener fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![LettuceNearCache Class Hierarchy 1](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.svg)
 
 ### RESP3 CLIENT TRACKING Flow
 

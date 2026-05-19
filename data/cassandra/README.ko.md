@@ -364,65 +364,11 @@ class MyCassandraTest: AbstractCassandraTest() {
 
 ### 확장 함수 API 개요
 
-```mermaid
-classDiagram
-    direction LR
-    class CassandraExtensions {
-        <<extensionFunctions>>
-        +CqlSession.executeAsFlow~T~(stmt): Flow~T~
-        +CqlSession.executeAsync~T~(stmt): Deferred~T~
-    }
-
-    style CassandraExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-cassandra-ko-diagram-01.svg)
 
 ### 주요 API 구조
 
-```mermaid
-classDiagram
-    class CqlSession {
-        +execute(statement): ResultSet
-        +executeAsync(statement): CompletableFuture
-        +prepare(query): PreparedStatement
-    }
-    class AsyncCqlSession {
-        +executeAsync(statement): CompletableFuture
-        +prepareAsync(query): CompletableFuture
-    }
-    class CqlSessionExtensions {
-        +executeSuspending(query): AsyncResultSet
-        +prepareSuspending(query): PreparedStatement
-        +rowsFlow(): Flow~Row~
-    }
-    class CassandraAdmin {
-        +createKeyspace(session, keyspace, rf): Boolean
-        +dropKeyspace(session, keyspace): Boolean
-        +getReleaseVersion(session): String
-    }
-    class StatementBuilders {
-        +statementOf(query): SimpleStatement
-        +simpleStatementOf(query, block): SimpleStatement
-        +boundStatementOf(bound, block): BoundStatement
-        +batchStatementOf(type, block): BatchStatement
-    }
-    class QueryBuilderExtensions {
-        +String.bindMarker(): BindMarker
-        +String.raw(): Raw
-        +String.udt(): UserDefinedType
-    }
-    CqlSession <|-- AsyncCqlSession
-    CqlSessionExtensions --> CqlSession : 확장
-    CassandraAdmin --> CqlSession : 사용
-    StatementBuilders --> CqlSession : 생성된 Statement 전달
-    QueryBuilderExtensions --> StatementBuilders : 사용
-
-    style CqlSession fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style AsyncCqlSession fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style CqlSessionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CassandraAdmin fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style StatementBuilders fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style QueryBuilderExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![주요 API 구조 2](../../docs/images/readme-diagrams/data-cassandra-ko-diagram-02.svg)
 
 ### 비동기 쿼리 실행 흐름
 

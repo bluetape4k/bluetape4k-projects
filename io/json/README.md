@@ -13,62 +13,11 @@ It provides the
 
 ### JsonSerializer Interface and Implementations
 
-```mermaid
-classDiagram
-    class JsonSerializer {
-        <<interface>>
-        +serialize(graph: Any?) ByteArray
-        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
-        +serializeAsString(graph: Any?) String
-        +deserializeFromString(text: String?, clazz: Class~T~) T?
-    }
-
-    class JsonSerializationException {
-        +message: String
-        +cause: Throwable?
-    }
-
-    class JacksonSerializer_2 {
-        Jackson 2.x based
-        bluetape4k-jackson2
-    }
-
-    class JacksonSerializer_3 {
-        Jackson 3.x based
-        bluetape4k-jackson3
-    }
-
-    class FastjsonSerializer {
-        Fastjson2 JSONB based
-        bluetape4k-fastjson2
-    }
-
-    JsonSerializer <|.. JacksonSerializer_2
-    JsonSerializer <|.. JacksonSerializer_3
-    JsonSerializer <|.. FastjsonSerializer
-    JsonSerializer ..> JsonSerializationException : throws on failure
-```
+![JsonSerializer Interface and Implementations 1](../../docs/images/readme-diagrams/io-json-diagram-01.svg)
 
 ### Implementation Selection Flow
 
-```mermaid
-flowchart TD
-    Start([Choose JsonSerializer]) --> Requirements{Requirements?}
-    Requirements -->|Spring / standard compatibility| J2[JacksonSerializer<br/>Jackson 2.x]
-    Requirements -->|Spring Boot 4 / latest API| J3[JacksonSerializer<br/>Jackson 3.x]
-    Requirements -->|Maximum performance + binary| FJ[FastjsonSerializer<br/>Fastjson2 JSONB]
-
-    J2 -->|serialize| BA[ByteArray]
-    J3 -->|serialize| BA
-    FJ -->|serialize JSONB| BA
-
-    J2 -->|serializeAsString| STR[JSON String]
-    J3 -->|serializeAsString| STR
-    FJ -->|serializeAsString| STR
-
-    BA -->|deserialize| OBJ[Kotlin Object]
-    STR -->|deserializeFromString| OBJ
-```
+![Implementation Selection Flow 2](../../docs/images/readme-diagrams/io-json-diagram-02.svg)
 
 ## Key Features
 

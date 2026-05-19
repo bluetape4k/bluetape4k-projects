@@ -8,76 +8,7 @@ bluetape4k 생태계의 토대 계층이며, `bluetape4k/*`, `data/*`, `infra/*`
 
 ## Architecture
 
-```mermaid
-graph TB
-    Consumer[소비 프로젝트]
-    AggBom[bluetape4k-dependencies<br/>aggregator BOM]
-    BOM[bluetape4k-bom<br/>java-platform]
-
-    subgraph "Foundation (bluetape4k/*)"
-      Core[core]
-      Coro[coroutines]
-      Logging[logging]
-    end
-
-    subgraph "data/*"
-      Jdbc[jdbc]
-      R2dbc[r2dbc]
-      Hib[hibernate / hibernate-reactive]
-      Mongo[mongodb]
-      Cass[cassandra]
-    end
-
-    subgraph "infra/*"
-      Cache[cache / cache-lettuce / cache-redisson / cache-hazelcast]
-      Bucket[bucket4j]
-      Es[elasticsearch]
-      Kafka[kafka-logback]
-      More1[+ ~13 more]
-    end
-
-    subgraph "io/*"
-      Json[jackson2 / fastjson2]
-      Avro[avro / csv]
-      Rpc[grpc / feign / http]
-      More2[+ ~10 more]
-    end
-
-    subgraph "Spring Boot"
-      SB[spring-boot/* — 8개]
-    end
-
-    subgraph "testing/*"
-      Assert[assertions]
-      Ju5[junit5]
-      Mws[mock-web-server / mock-webflux-server]
-      Tc[testcontainers]
-    end
-
-    subgraph "utils/*"
-      Jwt[jwt]
-      Money[money]
-      Time[javatimes]
-      More3[+ ~10 more]
-    end
-
-    subgraph "virtualthread/*"
-      VtApi[api]
-      Vt21[jdk21]
-      Vt25[jdk25]
-    end
-
-    Consumer -->|platform import| AggBom
-    AggBom -->|api platform| BOM
-    BOM -.-> Core
-    BOM -.-> Jdbc
-    BOM -.-> Cache
-    BOM -.-> Json
-    BOM -.-> SB
-    BOM -.-> Assert
-    BOM -.-> Jwt
-    BOM -.-> VtApi
-```
+![Architecture 1](../../docs/images/readme-diagrams/bluetape4k-bom-ko-diagram-01.svg)
 
 BOM 은 Gradle `java-platform` 으로 `<dependencyManagement>` constraint 만 게시하며 런타임 클래스는 포함하지 않는다.
 `rootProject.subprojects` 를 동적으로 끌어오며 자기 자신, `*-demo`, `examples/*`, `workshop/*` 만 제외한다.

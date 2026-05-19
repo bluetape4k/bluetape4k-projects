@@ -10,92 +10,11 @@
 
 ### 모듈 구성
 
-```mermaid
-flowchart TD
-    subgraph bluetape4k-geo["bluetape4k-geo (통합 모듈)"]
-        direction TB
-        GC["Geocode<br/>(구 utils/geocode)"]
-        GH["GeoHash<br/>(구 utils/geohash)"]
-        GI["GeoIP2<br/>(구 utils/geoip2)"]
-    end
-
-    GC -->|"Google Maps API"| GOOGLE["Google Maps Services"]
-    GC -->|"Bing Maps API"| BING["Bing Maps API"]
-    GC -->|"HTTP 클라이언트"| FEIGN["Feign (Coroutines 지원)"]
-
-    GH -->|"Base32 인코딩"| COORD["위도/경도 ↔ GeoHash 문자열"]
-    GH --> NEIGHBOR["이웃 셀 계산<br/>(neighbors)"]
-    GH --> RADIUS["반경 내 셀 목록<br/>(precision 1~12)"]
-
-    GI -->|"MaxMind DB"| MMDB["GeoLite2-City.mmdb<br/>GeoLite2-Country.mmdb"]
-    GI --> IPINFO["IP → 국가/도시/위도경도"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class GC,GH,GI coreStyle
-    class GOOGLE,BING extStyle
-    class FEIGN serviceStyle
-    class COORD,NEIGHBOR,RADIUS,MMDB,IPINFO dataStyle
-```
+![모듈 구성 1](../../docs/images/readme-diagrams/utils-geo-ko-diagram-01.svg)
 
 ### 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class GeoHashUtils {
-        +encode(lat, lon, precision) String
-        +decode(hash) GeoPoint
-        +neighbors(hash) List~String~
-    }
-    class GeoHashCircleQuery {
-        +radiusMeters: Double
-        +centerHash: String
-        +getHashes() List~String~
-    }
-    class GeoPoint {
-        +latitude: Double
-        +longitude: Double
-    }
-    class GoogleGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class BingGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class GeoIp2Support {
-        +cityReader(path) DatabaseReader
-        +countryReader(path) DatabaseReader
-    }
-    class CityResponse {
-        +country: Country
-        +city: City
-        +location: Location
-    }
-
-    GeoHashCircleQuery --> GeoHashUtils : uses
-    GeoHashUtils --> GeoPoint : returns
-    GoogleGeocoder --> GeoPoint : returns
-    BingGeocoder --> GeoPoint : returns
-    GeoIp2Support --> CityResponse : returns
-
-    style GeoHashUtils fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style GeoHashCircleQuery fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GeoPoint fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style GoogleGeocoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BingGeocoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GeoIp2Support fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style CityResponse fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-```
+![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-geo-ko-diagram-02.svg)
 
 ### GeoHash 인코딩/디코딩 흐름
 

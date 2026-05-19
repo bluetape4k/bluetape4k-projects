@@ -8,126 +8,11 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 
 ### 확장 기능 구성 다이어그램
 
-```mermaid
-flowchart TD
-    JU5["bluetape4k-junit5\n(JUnit 5 확장 모음)"]
-
-    subgraph 실행관리["실행 관리"]
-        SW["StopwatchExtension\n(실행 시간 측정)"]
-        TF["TempFolderExtension\n(임시 파일/디렉토리)"]
-        OC["OutputCapturer\n(stdout/stderr 캡처)"]
-        SP["SystemProperty\n(시스템 속성 설정/복원)"]
-    end
-
-    subgraph 테스트데이터["테스트 데이터"]
-        FV["FakeValueExtension\n(Data Faker 주입)"]
-        RV["RandomValueExtension\n(랜덤 객체 생성)"]
-        FS["FieldSource\n(파라미터화 테스트 인자)"]
-    end
-
-    subgraph 비동기테스트["비동기/동시성 테스트"]
-        MT["MultithreadingTester\n(플랫폼 스레드)"]
-        SJT["SuspendedJobTester\n(코루틴)"]
-        STST["StructuredTaskScopeTester\n(Virtual Thread)"]
-        AW["suspendUntil / awaitSuspending\n(Awaitility + Coroutines)"]
-    end
-
-    subgraph 리포트["리포트"]
-        MR["Mermaid Gantt 리포트\n(테스트 타임라인)"]
-    end
-
-    JU5 --> 실행관리
-    JU5 --> 테스트데이터
-    JU5 --> 비동기테스트
-    JU5 --> 리포트
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef testStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class JU5 coreStyle
-    class SW testStyle
-    class TF testStyle
-    class OC testStyle
-    class SP testStyle
-    class FV dataStyle
-    class RV dataStyle
-    class FS dataStyle
-    class MT asyncStyle
-    class SJT asyncStyle
-    class STST asyncStyle
-    class AW asyncStyle
-    class MR testStyle
-```
+![확장 기능 구성 다이어그램 1](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-01.svg)
 
 ### 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class StopwatchExtension {
-        +beforeEach(context)
-        +afterEach(context)
-    }
-    class TempFolderExtension {
-        +beforeEach(context)
-        +afterEach(context)
-        +resolveParameter(context) TempFolder
-    }
-    class TempFolder {
-        +root: File
-        +rootPath: String
-        +createFile(name) File
-        +createDirectory(name) File
-        +close()
-    }
-    class OutputCapturer {
-        +capture() String
-        +expect(block)
-    }
-    class FakeValueExtension {
-        +beforeEach(context)
-        +resolveParameter(context) Any
-    }
-    class Fakers {
-        +randomString(min, max) String
-        +fixedString(length) String
-        +numberString(pattern) String
-        +randomUuid() String
-    }
-    class MultithreadingTester {
-        +workers(n) MultithreadingTester
-        +rounds(n) MultithreadingTester
-        +add(block) MultithreadingTester
-        +run()
-    }
-    class SuspendedJobTester {
-        +workers(n) SuspendedJobTester
-        +rounds(n) SuspendedJobTester
-        +add(block) SuspendedJobTester
-        +run()
-    }
-    class StructuredTaskScopeTester {
-        +rounds(n) StructuredTaskScopeTester
-        +add(block) StructuredTaskScopeTester
-        +withTimeout(duration) StructuredTaskScopeTester
-        +run()
-    }
-
-    TempFolderExtension --> TempFolder : provides
-    MultithreadingTester --> SuspendedJobTester : similar API
-    StructuredTaskScopeTester --> SuspendedJobTester : similar API
-
-    style StopwatchExtension fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style TempFolderExtension fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style TempFolder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style OutputCapturer fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style FakeValueExtension fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Fakers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style MultithreadingTester fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style SuspendedJobTester fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style StructuredTaskScopeTester fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![클래스 다이어그램 2](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-02.svg)
 
 ## 주요 기능
 
@@ -432,17 +317,7 @@ class FieldSourceTest {
 
 출력 예시:
 
-```mermaid
-gantt
-    title Test Execution Timeline
-    dateFormat X
-    axisFormat %s
-
-    section TestClass1
-        testMethod1: active, 0, 123
-        testMethod2: active, 123, 456
-        failingTest: crit, 456, 789
-```
+![테스트 실행 및 Mermaid 리포트 추출 3](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-03.svg)
 
 - `active`: 성공한 테스트
 - `crit`: 실패한 테스트

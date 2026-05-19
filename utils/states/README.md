@@ -12,34 +12,7 @@ transitions, and `StateFlow`-based state observation.
 
 How states, events, and the state machine interact:
 
-```mermaid
-flowchart LR
-    subgraph DSL["DSL Definition"]
-        S["States\n(enum / sealed)"]
-        E["Events\n(sealed class)"]
-        T["Transitions\nfrom → on<Event> → to"]
-        G["Guard Conditions\n(optional predicate)"]
-    end
-
-    User -->|" stateMachine { ... } "| DSL
-    DSL -->|" build() "| SM[StateMachine]
-    SM -->|" transition(event) "| TR["TransitionResult\n(prev, event, current)"]
-    SM -.->|" stateFlow (suspend) "| SF["StateFlow\n(observable state)"]
-    TR -->|" onTransition callback "| CB["Side-effect Logic"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class S,E,T,G dslStyle
-    class SM coreStyle
-    class TR dataStyle
-    class SF asyncStyle
-    class CB utilStyle
-```
+![Concept Overview 1](../../docs/images/readme-diagrams/utils-states-diagram-01.svg)
 
 A `StateMachine` holds a set of typed **transitions** (from-state + event-type → to-state).  
 Each transition can have an optional **guard condition** that must pass before the state changes.  
@@ -47,91 +20,7 @@ Each transition can have an optional **guard condition** that must pass before t
 
 ### Class Diagram
 
-```mermaid
-classDiagram
-    class BaseStateMachine~S, E~ {
-        <<interface>>
-        +currentState: S
-        +initialState: S
-        +finalStates: Set~S~
-        +canTransition(event: E): Boolean
-        +allowedEvents(): Set~Class~E~~
-        +isInFinalState(): Boolean
-    }
-
-    class StateMachine~S, E~ {
-        <<interface>>
-        +transition(event: E): TransitionResult~S, E~
-    }
-
-    class SuspendStateMachineInterface~S, E~ {
-        <<interface>>
-        +stateFlow: StateFlow~S~
-        +transition(event: E): TransitionResult~S, E~
-    }
-
-    class DefaultStateMachine~S, E~ {
-        -_currentState: AtomicReference~S~
-        -transitions: Map~TransitionKey, TransitionTarget~
-        -onTransition: ((S, E, S) -> Unit)?
-        +transition(event: E): TransitionResult~S, E~
-        +canTransition(event: E): Boolean
-        +allowedEvents(): Set~Class~E~~
-    }
-
-    class SuspendStateMachine~S, E~ {
-        -mutex: Mutex
-        -_stateFlow: MutableStateFlow~S~
-        -transitions: Map~TransitionKey, TransitionTarget~
-        -onTransition: (suspend (S, E, S) -> Unit)?
-        +transition(event: E): TransitionResult~S, E~
-        +canTransition(event: E): Boolean
-        +allowedEvents(): Set~Class~E~~
-    }
-
-    class TransitionResult~S, E~ {
-        +previousState: S
-        +event: E
-        +currentState: S
-    }
-
-    class TransitionKey~S, E~ {
-        +state: S
-        +eventType: Class~E~
-    }
-
-    class TransitionTarget~S, E~ {
-        +state: S
-        +guard: ((S, E) -> Boolean)?
-    }
-
-    class StateMachineException {
-        +message: String
-    }
-
-    BaseStateMachine <|-- StateMachine
-    BaseStateMachine <|-- SuspendStateMachineInterface
-    StateMachine <|.. DefaultStateMachine
-    SuspendStateMachineInterface <|.. SuspendStateMachine
-    DefaultStateMachine ..> TransitionKey : uses
-    DefaultStateMachine ..> TransitionTarget : uses
-    SuspendStateMachine ..> TransitionKey : uses
-    SuspendStateMachine ..> TransitionTarget : uses
-    DefaultStateMachine ..> TransitionResult : returns
-    SuspendStateMachine ..> TransitionResult : returns
-    DefaultStateMachine ..> StateMachineException : throws
-    SuspendStateMachine ..> StateMachineException : throws
-
-    style BaseStateMachine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StateMachine fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SuspendStateMachineInterface fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style DefaultStateMachine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SuspendStateMachine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style TransitionResult fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style TransitionKey fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style TransitionTarget fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style StateMachineException fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Class Diagram 2](../../docs/images/readme-diagrams/utils-states-diagram-02.svg)
 
 > `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between
 `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common
@@ -139,42 +28,7 @@ classDiagram
 
 ### DSL Builder Structure
 
-```mermaid
-classDiagram
-    class StateMachineBuilder~S, E~ {
-        +initialState: S?
-        +finalStates: Set~S~
-        +transition(from, eventType, to)
-        +transition(from, eventType, to, setup)
-        +onTransition(handler)
-        +build(): DefaultStateMachine~S, E~
-    }
-
-    class SuspendStateMachineBuilder~S, E~ {
-        +initialState: S?
-        +finalStates: Set~S~
-        +transition(from, eventType, to)
-        +transition(from, eventType, to, setup)
-        +onTransition(handler)
-        +build(): SuspendStateMachine~S, E~
-    }
-
-    class TransitionBuilder~S, E~ {
-        +guard: ((S, E) -> Boolean)?
-        +guard(predicate)
-    }
-
-    StateMachineBuilder ..> TransitionBuilder : creates
-    SuspendStateMachineBuilder ..> TransitionBuilder : creates
-    StateMachineBuilder ..> DefaultStateMachine : builds
-    SuspendStateMachineBuilder ..> SuspendStateMachine : builds
-
-    style StateMachineBuilder fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style SuspendStateMachineBuilder fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-    style TransitionBuilder fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style DefaultStateMachine fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style SuspendStateMachine fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![DSL Builder Structure 3](../../docs/images/readme-diagrams/utils-states-diagram-03.svg)
 
 ## Key Features
 
@@ -201,64 +55,15 @@ The comparison work is tracked through #436, #437, and #438.
 
 ### 1. Turnstile — Simple FSM
 
-```mermaid
-stateDiagram-v2
-    [*] --> Locked : initial state
-
-    Locked --> Unlocked : Coin
-    Unlocked --> Locked : Push
-    Locked --> Locked : Push while locked
-    Unlocked --> Unlocked : Coin while already unlocked
-```
+![1. Turnstile — Simple FSM 4](../../docs/images/readme-diagrams/utils-states-diagram-04.svg)
 
 ### 2. Order — One-Way FSM
 
-```mermaid
-stateDiagram-v2
-    [*] --> CREATED : order created
-
-    CREATED --> PAID : Pay
-    CREATED --> CANCELLED : Cancel
-    PAID --> SHIPPED : Ship
-    SHIPPED --> DELIVERED : Deliver
-
-    DELIVERED --> [*]
-    CANCELLED --> [*]
-```
+![2. Order — One-Way FSM 5](../../docs/images/readme-diagrams/utils-states-diagram-05.svg)
 
 ### 3. Appointment — Complex FSM (`clinic-appointment`)
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> PENDING : appointment created
-
-    PENDING --> REQUESTED : Request
-    PENDING --> CANCELLED : Cancel
-
-    REQUESTED --> CONFIRMED : Confirm
-    REQUESTED --> PENDING_RESCHEDULE : RequestReschedule
-    REQUESTED --> CANCELLED : Cancel
-
-    CONFIRMED --> CHECKED_IN : CheckIn
-    CONFIRMED --> NO_SHOW : MarkNoShow
-    CONFIRMED --> PENDING : Reschedule
-    CONFIRMED --> PENDING_RESCHEDULE : RequestReschedule
-    CONFIRMED --> CANCELLED : Cancel
-
-    PENDING_RESCHEDULE --> RESCHEDULED : ConfirmReschedule
-    PENDING_RESCHEDULE --> CANCELLED : Cancel
-
-    CHECKED_IN --> IN_PROGRESS : StartTreatment
-    CHECKED_IN --> CANCELLED : Cancel
-
-    IN_PROGRESS --> COMPLETED : Complete
-
-    COMPLETED --> [*]
-    NO_SHOW --> [*]
-    CANCELLED --> [*]
-    RESCHEDULED --> [*]
-```
+![3. Appointment — Complex FSM (clinic-appointment) 6](../../docs/images/readme-diagrams/utils-states-diagram-06.svg)
 
 ## Quick Start
 

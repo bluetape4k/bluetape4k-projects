@@ -395,63 +395,7 @@ dependencies {
 
 ### 분산 Primitive 클래스 계층
 
-```mermaid
-classDiagram
-    class LettuceAtomicLong {
-        +key: String
-        +get(): Long
-        +incrementAndGet(): Long
-        +addAndGet(delta): Long
-        +compareAndSet(expect, update): Boolean
-        +getAsync(): CompletableFuture~Long~
-    }
-    class LettuceSuspendAtomicLong {
-        +key: String
-        +get(): Long
-        +incrementAndGet(): Long
-        +compareAndSet(expect, update): Boolean
-    }
-
-    class LettuceLock {
-        +lockKey: String
-        +tryLock(waitTime, leaseTime): Boolean
-        +lock(leaseTime)
-        +unlock()
-        +tryLockAsync(): CompletableFuture~Boolean~
-    }
-    class LettuceSuspendLock {
-        +lockKey: String
-        +tryLock(waitTime, leaseTime): Boolean
-        +lock(leaseTime)
-        +unlock()
-    }
-
-    class LettuceSemaphore {
-        +semaphoreKey: String
-        +totalPermits: Int
-        +tryAcquire(permits): Boolean
-        +acquire(permits, waitTime)
-        +release(permits)
-    }
-    class LettuceSuspendSemaphore {
-        +semaphoreKey: String
-        +totalPermits: Int
-        +tryAcquire(permits): Boolean
-        +release(permits)
-    }
-
-    note for LettuceSuspendAtomicLong "suspend 전용"
-    note for LettuceSuspendLock "suspend 전용"
-    note for LettuceSuspendSemaphore "suspend 전용"
-
-    style LettuceAtomicLong fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendAtomicLong fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceLock fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendLock fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style LettuceSemaphore fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceSuspendSemaphore fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-```
+![분산 Primitive 클래스 계층 1](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-01.svg)
 
 ### LettuceLoadedMap Read-Through / Write-Through 흐름
 
@@ -485,70 +429,7 @@ sequenceDiagram
 
 ### LettuceBinaryCodec 계층
 
-```mermaid
-classDiagram
-    class RedisCodec {
-        <<interface>>
-        +encodeKey(key): ByteBuffer
-        +decodeKey(bytes): K
-        +encodeValue(value): ByteBuffer
-        +decodeValue(bytes): V
-    }
-    class ToByteBufEncoder {
-        <<interface>>
-        +encodeKey(key, target: ByteBuf)
-        +encodeValue(value, target: ByteBuf)
-        +estimateSize(keyOrValue): Int
-    }
-    class LettuceBinaryCodec {
-        +serializer: BinarySerializer
-        +encodeKey(key): ByteBuffer
-        +encodeValue(value): ByteBuffer
-        +decodeKey(bytes): String
-        +decodeValue(bytes): V
-        +estimateSize(keyOrValue): Int
-    }
-    class LettuceBinaryCodecs {
-        <<object>>
-        +default~V~(): LettuceBinaryCodec~V~
-        +jdk~V~(): LettuceBinaryCodec~V~
-        +kryo~V~(): LettuceBinaryCodec~V~
-        +fory~V~(): LettuceBinaryCodec~V~
-        +lz4Fory~V~(): LettuceBinaryCodec~V~
-        +zstdFory~V~(): LettuceBinaryCodec~V~
-        +snappyFory~V~(): LettuceBinaryCodec~V~
-        +gzipFory~V~(): LettuceBinaryCodec~V~
-        +fastFory~V~(): LettuceBinaryCodec~V~
-        +lz4FastFory~V~(): LettuceBinaryCodec~V~
-        +zstdFastFory~V~(): LettuceBinaryCodec~V~
-        +snappyFastFory~V~(): LettuceBinaryCodec~V~
-        +gzipFastFory~V~(): LettuceBinaryCodec~V~
-    }
-    class LettuceIntCodec {
-        <<object>>
-        +encodeValue(value: Int): ByteBuffer
-        +decodeValue(bytes): Int
-    }
-    class LettuceLongCodec {
-        <<object>>
-        +encodeValue(value: Long): ByteBuffer
-        +decodeValue(bytes): Long
-    }
-
-    RedisCodec <|.. LettuceBinaryCodec
-    ToByteBufEncoder <|.. LettuceBinaryCodec
-    RedisCodec <|.. LettuceIntCodec
-    RedisCodec <|.. LettuceLongCodec
-    LettuceBinaryCodecs ..> LettuceBinaryCodec: creates
-
-    style RedisCodec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ToByteBufEncoder fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LettuceBinaryCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceBinaryCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style LettuceIntCodec fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style LettuceLongCodec fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-```
+![LettuceBinaryCodec 계층 2](../../docs/images/readme-diagrams/infra-lettuce-ko-diagram-02.svg)
 
 ## 확률 자료구조
 

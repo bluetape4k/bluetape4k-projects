@@ -6,63 +6,7 @@ Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Ja
 
 ## Architecture
 
-```mermaid
-classDiagram
-    class PulsarClient {
-        +pulsarClient(serviceUrl, setup)
-        +withPulsarClient(serviceUrl, setup, block)
-    }
-
-    class ProducerSupport {
-        +PulsarClient.producer(schema, setup)
-        +PulsarClient.withProducer(schema, setup, block)
-    }
-
-    class ProducerExtensions {
-        +Producer.sendSuspend(message)
-        +Producer.sendSuspend(setup)
-        +Producer.sendAsFlow(messages)
-    }
-
-    class ConsumerSupport {
-        +PulsarClient.consumer(schema, setup)
-        +PulsarClient.withConsumer(schema, setup, block)
-    }
-
-    class ConsumerExtensions {
-        +Consumer.receiveSuspend()
-        +Consumer.receiveAsFlow()
-        +Consumer.acknowledgeSuspend(message)
-        +Consumer.acknowledgeCumulativeSuspend(message)
-    }
-
-    class ReaderSupport {
-        +PulsarClient.reader(schema, setup)
-        +PulsarClient.withReader(schema, setup, block)
-    }
-
-    class ReaderExtensions {
-        +Reader.readNextSuspend()
-        +Reader.readAsFlow()
-    }
-
-    class JacksonSchema {
-        +jacksonSchema~T~(type, mapper)
-        +jacksonSchema~T~(mapper)
-    }
-
-    class Jackson3Schema {
-        +jackson3Schema~T~(type, mapper)
-        +jackson3Schema~T~(mapper)
-    }
-
-    PulsarClient --> ProducerSupport
-    PulsarClient --> ConsumerSupport
-    PulsarClient --> ReaderSupport
-    ProducerSupport --> ProducerExtensions
-    ConsumerSupport --> ConsumerExtensions
-    ReaderSupport --> ReaderExtensions
-```
+![Architecture 1](../../docs/images/readme-diagrams/infra-pulsar-diagram-01.svg)
 
 ## Features
 

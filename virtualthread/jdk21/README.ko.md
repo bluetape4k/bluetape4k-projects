@@ -11,29 +11,7 @@ Java 21 Virtual Thread 구현체 모듈입니다.
 
 ## UML
 
-```mermaid
-classDiagram
-    class VirtualThreadRuntime {
-        <<interface>>
-    }
-    class StructuredTaskScopeProvider {
-        <<interface>>
-    }
-    class Jdk21VirtualThreadRuntime
-    class Jdk21StructuredTaskScopeProvider
-    class ServiceLoader
-
-    VirtualThreadRuntime <|.. Jdk21VirtualThreadRuntime
-    StructuredTaskScopeProvider <|.. Jdk21StructuredTaskScopeProvider
-    ServiceLoader --> Jdk21VirtualThreadRuntime
-    ServiceLoader --> Jdk21StructuredTaskScopeProvider
-
-    style VirtualThreadRuntime fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StructuredTaskScopeProvider fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Jdk21VirtualThreadRuntime fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jdk21StructuredTaskScopeProvider fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ServiceLoader fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![UML 1](../../docs/images/readme-diagrams/virtualthread-jdk21-ko-diagram-01.svg)
 
 ## 주요 구현체
 

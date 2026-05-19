@@ -11,92 +11,11 @@ A unified module for geographic information processing. Provides Geocode, GeoHas
 
 ### Module Overview
 
-```mermaid
-flowchart TD
-    subgraph bluetape4k-geo["bluetape4k-geo (unified module)"]
-        direction TB
-        GC["Geocode<br/>(formerly utils/geocode)"]
-        GH["GeoHash<br/>(formerly utils/geohash)"]
-        GI["GeoIP2<br/>(formerly utils/geoip2)"]
-    end
-
-    GC -->|"Google Maps API"| GOOGLE["Google Maps Services"]
-    GC -->|"Bing Maps API"| BING["Bing Maps API"]
-    GC -->|"HTTP client"| FEIGN["Feign (Coroutines support)"]
-
-    GH -->|"Base32 encoding"| COORD["Lat/Lon ↔ GeoHash string"]
-    GH --> NEIGHBOR["Neighbor cell computation<br/>(neighbors)"]
-    GH --> RADIUS["Cells within radius<br/>(precision 1~12)"]
-
-    GI -->|"MaxMind DB"| MMDB["GeoLite2-City.mmdb<br/>GeoLite2-Country.mmdb"]
-    GI --> IPINFO["IP → Country / City / Coordinates"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class GC,GH,GI coreStyle
-    class GOOGLE,BING extStyle
-    class FEIGN serviceStyle
-    class COORD,NEIGHBOR,RADIUS,MMDB,IPINFO dataStyle
-```
+![Module Overview 1](../../docs/images/readme-diagrams/utils-geo-diagram-01.svg)
 
 ### Class Diagram
 
-```mermaid
-classDiagram
-    class GeoHashUtils {
-        +encode(lat, lon, precision) String
-        +decode(hash) GeoPoint
-        +neighbors(hash) List~String~
-    }
-    class GeoHashCircleQuery {
-        +radiusMeters: Double
-        +centerHash: String
-        +getHashes() List~String~
-    }
-    class GeoPoint {
-        +latitude: Double
-        +longitude: Double
-    }
-    class GoogleGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class BingGeocoder {
-        +apiKey: String
-        +geocode(address) GeoPoint
-        +reverseGeocode(lat, lon) String
-    }
-    class GeoIp2Support {
-        +cityReader(path) DatabaseReader
-        +countryReader(path) DatabaseReader
-    }
-    class CityResponse {
-        +country: Country
-        +city: City
-        +location: Location
-    }
-
-    GeoHashCircleQuery --> GeoHashUtils : uses
-    GeoHashUtils --> GeoPoint : returns
-    GoogleGeocoder --> GeoPoint : returns
-    BingGeocoder --> GeoPoint : returns
-    GeoIp2Support --> CityResponse : returns
-
-    style GeoHashUtils fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style GeoHashCircleQuery fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GeoPoint fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    style GoogleGeocoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style BingGeocoder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GeoIp2Support fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style CityResponse fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-```
+![Class Diagram 2](../../docs/images/readme-diagrams/utils-geo-diagram-02.svg)
 
 ### GeoHash Encoding/Decoding Flow
 

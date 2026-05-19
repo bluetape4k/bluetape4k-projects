@@ -13,62 +13,11 @@
 
 ### JsonSerializer 인터페이스와 구현체
 
-```mermaid
-classDiagram
-    class JsonSerializer {
-        <<interface>>
-        +serialize(graph: Any?) ByteArray
-        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
-        +serializeAsString(graph: Any?) String
-        +deserializeFromString(text: String?, clazz: Class~T~) T?
-    }
-
-    class JsonSerializationException {
-        +message: String
-        +cause: Throwable?
-    }
-
-    class JacksonSerializer_2 {
-        Jackson 2.x 기반
-        bluetape4k-jackson2
-    }
-
-    class JacksonSerializer_3 {
-        Jackson 3.x 기반
-        bluetape4k-jackson3
-    }
-
-    class FastjsonSerializer {
-        Fastjson2 JSONB 기반
-        bluetape4k-fastjson2
-    }
-
-    JsonSerializer <|.. JacksonSerializer_2
-    JsonSerializer <|.. JacksonSerializer_3
-    JsonSerializer <|.. FastjsonSerializer
-    JsonSerializer ..> JsonSerializationException : 실패 시 throw
-```
+![JsonSerializer 인터페이스와 구현체 1](../../docs/images/readme-diagrams/io-json-ko-diagram-01.svg)
 
 ### 구현체 선택 흐름
 
-```mermaid
-flowchart TD
-    시작([JsonSerializer 선택]) --> 요구사항{요구사항?}
-    요구사항 -->|Spring/표준 호환| J2[JacksonSerializer<br/>Jackson 2.x]
-    요구사항 -->|Spring Boot 4 / 최신 API| J3[JacksonSerializer<br/>Jackson 3.x]
-    요구사항 -->|최고 성능 + 바이너리| FJ[FastjsonSerializer<br/>Fastjson2 JSONB]
-
-    J2 -->|serialize| BA[ByteArray]
-    J3 -->|serialize| BA
-    FJ -->|serialize JSONB| BA
-
-    J2 -->|serializeAsString| STR[JSON String]
-    J3 -->|serializeAsString| STR
-    FJ -->|serializeAsString| STR
-
-    BA -->|deserialize| OBJ[Kotlin 객체]
-    STR -->|deserializeFromString| OBJ
-```
+![구현체 선택 흐름 2](../../docs/images/readme-diagrams/io-json-ko-diagram-02.svg)
 
 ## 주요 기능
 

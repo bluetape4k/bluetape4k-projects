@@ -28,103 +28,11 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 
 ### Request Routing Overview
 
-```mermaid
-flowchart LR
-    C[Client] -->|HTTP 80| S[Spring WebFlux DispatcherHandler]
-    S --> A[AdminController]
-    S --> H[HttpbinController]
-    S --> HA[HttpbinAdvancedController]
-    S --> HS[HttpbinStreamController]
-    S --> J[Jsonplaceholder 6 Controllers]
-    S --> W[WebContentController]
-    J --> Svc[JsonplaceholderService] --> Repo[InMemoryRepository]
-    W --> L[WebContentLoader cacheable]
-```
+![Request Routing Overview 1](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.svg)
 
 ### Class Diagram
 
-```mermaid
-classDiagram
-    class MockWebfluxApplication {
-        +main(args)
-    }
-
-    class HttpbinController {
-        +get(request) HttpbinResponse
-        +post(request, body) HttpbinResponse
-        +headers(request) Map
-        +ip(request) Map
-        +status(code) ResponseEntity
-        +bytes(n) ResponseEntity
-    }
-
-    class HttpbinAdvancedController {
-        +delay(seconds) HttpbinResponse
-        +image(format) ResponseEntity
-        +gzip() HttpbinResponse
-    }
-
-    class HttpbinStreamController {
-        +stream(n) Flow~String~
-        +sse(n) Flow~ServerSentEvent~
-    }
-
-    class PostsController {
-        +list() List~PostRecord~
-        +get(id) PostRecord
-        +create(post) PostRecord
-        +update(id, post) PostRecord
-        +delete(id) ResponseEntity
-    }
-
-    class JsonplaceholderService {
-        +reloadFromFixtures()
-    }
-
-    class InMemoryRepository~T~ {
-        <<generic>>
-        +findAll() List~T~
-        +findById(id) T?
-        +save(entity) T
-        +deleteById(id)
-    }
-
-    class WebContentController {
-        +getContent(name) ResponseEntity
-    }
-
-    class WebContentLoader {
-        +load(name) String
-    }
-
-    class AdminController {
-        +reset() ResponseEntity
-    }
-
-    MockWebfluxApplication --> HttpbinController
-    MockWebfluxApplication --> HttpbinAdvancedController
-    MockWebfluxApplication --> HttpbinStreamController
-    MockWebfluxApplication --> PostsController
-    MockWebfluxApplication --> WebContentController
-    MockWebfluxApplication --> AdminController
-
-    PostsController --> JsonplaceholderService
-    AdminController --> JsonplaceholderService
-    JsonplaceholderService --> InMemoryRepository
-
-    WebContentController --> WebContentLoader
-
-    style MockWebfluxApplication fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style HttpbinController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HttpbinAdvancedController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HttpbinStreamController fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style PostsController fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JsonplaceholderService fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style InMemoryRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style WebContentController fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style WebContentLoader fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style AdminController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Class Diagram 2](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.svg)
 
 ### Sequence Diagram — httpbin GET
 

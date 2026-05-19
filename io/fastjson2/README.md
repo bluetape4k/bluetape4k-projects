@@ -126,95 +126,11 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ### Class Structure
 
-```mermaid
-classDiagram
-    class JsonSerializer {
-        <<interface>>
-        +serialize(graph: Any?) ByteArray
-        +deserialize(bytes: ByteArray?, clazz: Class~T~) T?
-        +serializeAsString(graph: Any?) String
-        +deserializeFromString(text: String?, clazz: Class~T~) T?
-    }
-
-    class FastjsonSerializer {
-        +serialize(graph) ByteArray
-        +deserialize(bytes, clazz) T?
-        +serializeAsString(graph) String
-        +deserializeFromString(text, clazz) T?
-    }
-
-    class JSONExtensions {
-        <<extensions>>
-        +Any.toJsonString() String
-        +String.readValueOrNull() T?
-        +String.readValueAsList() List~T~
-        +String.readAsJSONObject() JSONObject
-    }
-
-    class JSONBExtensions {
-        <<extensions>>
-        +Any.toJsonBytes() ByteArray
-        +ByteArray.readBytesOrNull() T?
-        +InputStream.readBytesOrNull() T?
-    }
-
-    class JSONArrayExtensions {
-        <<extensions>>
-        +JSONArray.readValueOrNull() T?
-        +JSONArray.readList() List~T~
-        +JSONArray.readArray() Array~T~
-    }
-
-    class JSONObjectExtensions {
-        <<extensions>>
-        +JSONObject.readValueOrNull() T?
-        +JSONObject.readValueOrNull(key) T?
-    }
-
-    JsonSerializer <|.. FastjsonSerializer
-    FastjsonSerializer ..> JSONBExtensions : used internally
-
-    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style FastjsonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JSONExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JSONBExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JSONArrayExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JSONObjectExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Class Structure 1](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.svg)
 
 ### JSON vs JSONB Serialization Flow
 
-```mermaid
-flowchart LR
-    OBJ[Kotlin object]
-
-    subgraph JSON["JSON Text (human-readable)"]
-        JS[toJsonString<br/>serializeAsString]
-        JD[readValueOrNull<br/>deserializeFromString]
-        JSTR[JSON String]
-    end
-
-    subgraph JSONB["JSONB Binary (high-performance)"]
-        BS[toJsonBytes<br/>serialize]
-        BD[readBytesOrNull<br/>deserialize]
-        BARR[ByteArray]
-    end
-
-    OBJ -->|serialize| JS --> JSTR
-    JSTR -->|deserialize| JD --> OBJ
-
-    OBJ -->|serialize| BS --> BARR
-    BARR -->|deserialize| BD --> OBJ
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class OBJ coreStyle
-    class JS,JD serviceStyle
-    class BS,BD serviceStyle
-    class JSTR,BARR dataStyle
-```
+![JSON vs JSONB Serialization Flow 2](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.svg)
 
 ## Dependencies
 

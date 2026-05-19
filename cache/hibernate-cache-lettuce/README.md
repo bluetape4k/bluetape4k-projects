@@ -31,65 +31,11 @@ No user import migration is required for the reorganization.
 
 ### Near Cache 2-Tier Structure
 
-```mermaid
-flowchart LR
-    A[Hibernate 2nd Level Cache] --> B{LettuceNearCacheRegionFactory}
-    B --> C[L1: Caffeine\nLocal In-Memory]
-    B --> D[L2: Redis\nLettuce RESP3\nClient Tracking]
-    C --> E[Instant cache hit]
-    D --> F[Remote cache sync]
-    F --> G[Minimizes DB queries]
-
-    classDef hibernateStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef factoryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef l1Style fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef l2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef resultStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    class A hibernateStyle
-    class B factoryStyle
-    class C l1Style
-    class D l2Style
-    class E resultStyle
-    class F l2Style
-    class G resultStyle
-```
+![Near Cache 2-Tier Structure 1](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-01.svg)
 
 ### Layer Structure
 
-```mermaid
-flowchart TD
-    Hibernate["Hibernate ORM"]
-    Factory["LettuceNearCacheRegionFactory<br/>Implements RegionFactoryTemplate"]
-    Region["EntityRegion / CollectionRegion<br/>QueryResultsRegion"]
-    Storage["LettuceNearCacheStorageAccess<br/>Implements DomainDataStorageAccess<br/>key: {regionName}::{key}"]
-    NearCache["LettuceNearCache<br/>2-tier cache"]
-    L1["Caffeine (L1)<br/>Local In-Memory"]
-    L2["Redis (L2, Lettuce)<br/>Distributed Cache + CLIENT TRACKING"]
-
-    Hibernate --> Factory
-    Factory --> Region
-    Region --> Storage
-    Storage --> NearCache
-    NearCache --> L1
-    NearCache --> L2
-
-    classDef hibernateStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef factoryStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef regionStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef storageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef cacheStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    classDef l1Style fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef l2Style fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-
-    class Hibernate hibernateStyle
-    class Factory factoryStyle
-    class Region regionStyle
-    class Storage storageStyle
-    class NearCache cacheStyle
-    class L1 l1Style
-    class L2 l2Style
-```
+![Layer Structure 2](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.svg)
 
 - **Region Isolation**: Each region gets its own `LettuceNearCache` instance
 - **Key Prefix**: Redis key collision is prevented using the `{regionName}::{key}` format

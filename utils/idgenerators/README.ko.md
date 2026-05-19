@@ -25,139 +25,15 @@
 
 ### 전체 알고리즘 구조
 
-```mermaid
-flowchart LR
-    IG["IdGenerator&lt;T&gt;\nnextId(): T\nnextIds(n): Sequence&lt;T&gt;"]
-
-    IG --> SG["SnowflakeGenerator\n→ Long\n(분산, 정렬 가능)"]
-    IG --> UG["UuidGenerator\n→ UUID\n(v1/v4/v6/v7)"]
-    IG --> ULG["UlidGenerator\n→ String 26자\n(시간 기반, 정렬 가능)"]
-    IG --> KG["KsuidGenerator\n→ String 27자\n(Base62, URL Safe)"]
-
-    SG --> SF["Snowflakers.Default\n(기계별, machineId)"]
-    SG --> GF["Snowflakers.Global\n(중앙집중, AtomicLong)"]
-
-    UG --> UV["Uuid.V7  V6  V4  V1  V5"]
-
-    H["Hashids\n(Long/UUID → 짧은 문자열)\nIdGenerator 아님"]
-    FL["Flake\n→ ByteArray 128-bit\n(MAC 기반 노드 ID)"]
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef dslStyle fill:#E0F7FA,stroke:#80DEEA,color:#00695C
-
-    class IG coreStyle
-    class SG,UG,ULG,KG serviceStyle
-    class SF,GF,UV utilStyle
-    class H,FL extStyle
-```
+![전체 알고리즘 구조 1](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-01.svg)
 
 ### 클래스 다이어그램
 
-```mermaid
-classDiagram
-    class IdGenerator~T~ {
-        <<interface>>
-        +nextId(): T
-        +nextIds(count): Sequence~T~
-    }
-
-    class LongIdGenerator {
-        <<interface>>
-        +nextId(): Long
-    }
-
-    class SnowflakeGenerator {
-        +nextId(): Long
-        +parse(id): SnowflakeId
-    }
-
-    class UuidGenerator {
-        +nextId(): UUID
-        +nextUUID(): UUID
-        +nextIdAsString(): String
-    }
-
-    class UlidGenerator {
-        +nextId(): String
-        +nextULID(): ULID
-    }
-
-    class KsuidGenerator {
-        +nextId(): String
-    }
-
-    class Snowflake {
-        <<interface>>
-        +nextId(): Long
-    }
-
-    class DefaultSnowflake {
-        -machineId: Int
-        -timestamp: AtomicLong
-        -sequence: Int
-    }
-
-    class GlobalSnowflake {
-        -centralCounter: AtomicLong
-    }
-
-    class Snowflakers {
-        <<object>>
-        +Default: DefaultSnowflake
-        +Global: GlobalSnowflake
-        +default(machineId): DefaultSnowflake
-        +global(): GlobalSnowflake
-    }
-
-    class Uuid {
-        <<object>>
-        +V1: UuidStrategy
-        +V4: UuidStrategy
-        +V5: UuidStrategy
-        +V6: UuidStrategy
-        +V7: UuidStrategy
-    }
-
-    IdGenerator <|-- LongIdGenerator
-    LongIdGenerator <|-- SnowflakeGenerator
-    IdGenerator <|-- UuidGenerator
-    IdGenerator <|-- UlidGenerator
-    IdGenerator <|-- KsuidGenerator
-    Snowflake <|-- DefaultSnowflake
-    Snowflake <|-- GlobalSnowflake
-    Snowflakers --> DefaultSnowflake
-    Snowflakers --> GlobalSnowflake
-    SnowflakeGenerator --> Snowflake
-    UuidGenerator --> Uuid
-
-    style IdGenerator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LongIdGenerator fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Snowflake fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style SnowflakeGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UuidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UlidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style KsuidGenerator fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultSnowflake fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style GlobalSnowflake fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Snowflakers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Uuid fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-02.svg)
 
 ### Snowflake 비트 구조
 
-```mermaid
-block-beta
-    columns 4
-    A["sign\n(1 bit)"]
-    B["timestamp\n(41 bits)\n~69년 범위"]
-    C["machineId\n(10 bits)\n최대 1024대"]
-    D["sequence\n(12 bits)\n밀리초당 4096개"]
-```
+![Snowflake 비트 구조 3](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-03.svg)
 
 - **timestamp**: 41 bits, epoch 이후 약 69년간 유일성 보장
 - **machineId**: 10 bits, 최대 1,024개 기계 지원 (0–1023)
@@ -234,41 +110,7 @@ val idString: String = uuidGen.nextIdAsString()  // Base62
    48bits       80bits
 ```
 
-```mermaid
-classDiagram
-    class ULID {
-        <<interface>>
-        +timestamp(): Long
-        +randomness(): ByteArray
-        +toBytes(): ByteArray
-        +toUuid(): Uuid
-        +compareTo(other): Int
-    }
-    class Factory {
-        <<interface>>
-        +nextULID(): ULID
-        +nextULID(timestamp): ULID
-    }
-    class Monotonic {
-        <<interface>>
-        +nextULID(previous): ULID
-        +nextULIDStrict(previous): ULID?
-    }
-    class StatefulMonotonic {
-        <<interface>>
-        +nextULID(): ULID
-    }
-
-    ULID --> Factory : created by
-    Monotonic --> ULID : produces
-    StatefulMonotonic --> ULID : produces
-    Monotonic <|-- StatefulMonotonic
-
-    style ULID fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Factory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style Monotonic fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StatefulMonotonic fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![ULID (Universally Unique Lexicographically Sortable Identifier) 4](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-04.svg)
 
 ```kotlin
 // 랜덤 ULID 생성
@@ -293,30 +135,7 @@ check(a < b)
 
 **생성기 선택 가이드:**
 
-```mermaid
-flowchart TD
-    Start(["ULID 생성 필요"])
-    Q1{"같은 ms 내\n순서 보장 필요?"}
-    Q2{"이전 값을\n직접 관리?"}
-    Basic["ULID.nextULID()\n기본 랜덤 팩토리"]
-    Mono["ULID.monotonic()\nnextULID(previous)"]
-    State["ULID.statefulMonotonic()\nnextULID()"]
-
-    Start --> Q1
-    Q1 -->|No| Basic
-    Q1 -->|Yes| Q2
-    Q2 -->|Yes| Mono
-    Q2 -->|No| State
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class Start coreStyle
-    class Q1,Q2 serviceStyle
-    class Basic,Mono,State utilStyle
-```
+![ULID (Universally Unique Lexicographically Sortable Identifier) 5](../../docs/images/readme-diagrams/utils-idgenerators-ko-diagram-05.svg)
 
 ### KSUID (K-Sortable Unique ID)
 

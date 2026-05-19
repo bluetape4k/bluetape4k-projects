@@ -106,71 +106,11 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### Redis Serializer 클래스 계층
 
-```mermaid
-classDiagram
-    class RedisSerializer {
-        <<interface>>
-        +serialize(T): ByteArray
-        +deserialize(ByteArray): T
-    }
-    class RedisBinarySerializer {
-        -serializer: BinarySerializer
-        +serialize(Any): ByteArray
-        +deserialize(ByteArray): Any
-    }
-    class RedisCompressSerializer {
-        -compressor: Compressor
-        +serialize(ByteArray): ByteArray
-        +deserialize(ByteArray): ByteArray
-    }
-    class RedisBinarySerializers {
-        <<object>>
-        +Jdk: RedisBinarySerializer
-        +Kryo: RedisBinarySerializer
-        +Fory: RedisBinarySerializer
-        +LZ4Fory: RedisBinarySerializer
-        +LZ4Kryo: RedisBinarySerializer
-        +ZstdFory: RedisBinarySerializer
-        +LZ4: RedisCompressSerializer
-        +Zstd: RedisCompressSerializer
-    }
-
-    RedisSerializer <|.. RedisBinarySerializer
-    RedisSerializer <|.. RedisCompressSerializer
-    RedisBinarySerializers --> RedisBinarySerializer : 생성
-    RedisBinarySerializers --> RedisCompressSerializer : 생성
-
-    style RedisSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style RedisBinarySerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RedisCompressSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style RedisBinarySerializers fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![Redis Serializer 클래스 계층 1](../../docs/images/readme-diagrams/spring-boot-redis-ko-diagram-01.svg)
 
 ### ReactiveRedisTemplate 직렬화 흐름
 
-```mermaid
-flowchart LR
-    App["애플리케이션"] --> Template["ReactiveRedisTemplate<br/>(String, Any)"]
-    Template --> Context["RedisSerializationContext<br/>redisSerializationContext { }"]
-    Context --> KeySer["키 Serializer<br/>RedisSerializer.string()"]
-    Context --> ValSer["값 Serializer<br/>RedisBinarySerializers.LZ4Fory"]
-    ValSer --> Fory["Fory 직렬화"]
-    ValSer --> LZ4["LZ4 압축"]
-    LZ4 --> Redis[("Redis")]
-    KeySer --> Redis
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef templateStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef serdeStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef compressStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class Template,Context templateStyle
-    class KeySer,ValSer,Fory serdeStyle
-    class LZ4 compressStyle
-    class Redis dbStyle
-```
+![ReactiveRedisTemplate 직렬화 흐름 2](../../docs/images/readme-diagrams/spring-boot-redis-ko-diagram-02.svg)
 
 ## 빌드 및 테스트
 

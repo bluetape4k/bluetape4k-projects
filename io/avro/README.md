@@ -124,61 +124,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Serializer Class Hierarchy
 
-```mermaid
-classDiagram
-    class AvroSerializer {
-        <<interface>>
-        +serialize(schema, record) ByteArray
-        +deserialize(schema, bytes) GenericRecord
-        +serializeAsString(schema, record) String
-        +deserializeFromString(schema, text) GenericRecord
-    }
-
-    class AvroGenericRecordSerializer {
-        <<interface>>
-        +serialize(schema, record) ByteArray
-        +deserialize(schema, bytes) GenericRecord
-    }
-
-    class AvroSpecificRecordSerializer {
-        <<interface>>
-        +serialize(record) ByteArray
-        +deserialize(bytes) T
-        +serializeList(records) ByteArray
-        +deserializeList(bytes) List~T~
-    }
-
-    class AvroReflectSerializer {
-        <<interface>>
-        +serialize(obj) ByteArray
-        +deserialize(bytes) T
-    }
-
-    class DefaultAvroGenericRecordSerializer {
-        -codecFactory: CodecFactory
-    }
-
-    class DefaultAvroSpecificRecordSerializer {
-        -codecFactory: CodecFactory
-    }
-
-    class DefaultAvroReflectSerializer {
-        -codecFactory: CodecFactory
-        -schemaCache: Map~Class, Schema~
-    }
-
-    AvroGenericRecordSerializer <|.. DefaultAvroGenericRecordSerializer
-    AvroSpecificRecordSerializer <|.. DefaultAvroSpecificRecordSerializer
-    AvroReflectSerializer <|.. DefaultAvroReflectSerializer
-
-    style AvroSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AvroGenericRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AvroSpecificRecordSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AvroReflectSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style DefaultAvroGenericRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultAvroSpecificRecordSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DefaultAvroReflectSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Serializer Class Hierarchy 1](../../docs/images/readme-diagrams/io-avro-diagram-01.svg)
 
 ### Avro Serialization/Deserialization Flow
 
@@ -206,32 +152,7 @@ sequenceDiagram
 
 ### Compression Codec Selection Guide
 
-```mermaid
-flowchart TD
-    Start([Start Serialization]) --> Purpose{Use case?}
-    Purpose -->|High-performance online| FAST[FAST_CODEC_FACTORY<br/>Zstd level -1]
-    Purpose -->|Kafka/Hadoop compatible| SNAPPY[SNAPPY_CODEC_FACTORY]
-    Purpose -->|Avro default compatible| DEFAULT[DEFAULT_CODEC_FACTORY<br/>Deflate default]
-    Purpose -->|Balanced compression| ZSTD[ZSTD_CODEC_FACTORY<br/>Zstd default]
-    Purpose -->|Long-term storage/max compression| ARCHIVE[ARCHIVE_CODEC_FACTORY<br/>Zstd level 9]
-    Purpose -->|Maximum speed, no compression| NULL[NULL_CODEC_FACTORY]
-    FAST --> Output([ByteArray output])
-    SNAPPY --> Output
-    DEFAULT --> Output
-    ZSTD --> Output
-    ARCHIVE --> Output
-    NULL --> Output
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-
-    class Start,Output coreStyle
-    class Purpose serviceStyle
-    class FAST,SNAPPY,NULL utilStyle
-    class DEFAULT,ZSTD,ARCHIVE dataStyle
-```
+![Compression Codec Selection Guide 2](../../docs/images/readme-diagrams/io-avro-diagram-02.svg)
 
 ## Dependencies
 

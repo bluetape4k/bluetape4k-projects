@@ -49,15 +49,7 @@ dependencies {
 
 ## 의존성 경계
 
-```mermaid
-flowchart LR
-    app[Application] --> kafka4[bluetape4k-kafka4]
-    kafka4 --> clients[Kafka clients 4.2.x]
-    kafka4 --> spring[Spring Kafka 4.0.x]
-    kafka4 --> boot[Spring Boot 4 BOM]
-    kafka4 --> jackson[bluetape4k-jackson3]
-    kafka4 --> reactor[reactor-kafka]
-```
+![의존성 경계 1](../../docs/images/readme-diagrams/infra-kafka4-ko-diagram-01.svg)
 
 `infra/kafka4/build.gradle.kts`는 모든 `org.apache.kafka` artifact를 이 모듈의
 Kafka 4 버전으로 정렬합니다. root dependency management가 Kafka 3 artifact를

@@ -13,104 +13,11 @@ OkHttp 기본 전송 외에 Apache HC5, Vert.x 등 다양한 HTTP 전송 계층�
 
 ### 전체 아키텍처: Retrofit2 + Coroutines + Result 패턴
 
-```mermaid
-flowchart TD
-    subgraph Application["애플리케이션"]
-        APP[애플리케이션 코드]
-        API[Retrofit 인터페이스\nsuspend fun / Result~T~]
-    end
-
-    subgraph bluetape4k-retrofit2
-        RB[retrofitOf DSL]
-        RCA[ResultCallAdapterFactory]
-        RC[ResultCall]
-        RX[리액티브 어댑터\nRxJava2/3 / Reactor]
-    end
-
-    subgraph CallFactory["Call.Factory (HTTP 백엔드)"]
-        OKH[OkHttpClient\n기본값]
-        HC5[Hc5CallFactory\nApache HC5]
-        VTX[VertxCallFactory\nVert.x]
-    end
-
-    subgraph Converter["Converter Factory"]
-        JCF[jacksonConverterFactoryOf\nJSON]
-        SCF[defaultScalarsConverterFactory\nScalars]
-    end
-
-    APP --> API
-    API --> RB
-    RB --> RCA
-    RCA --> RC
-    RB --> CallFactory
-    RB --> Converter
-    RB --> RX
-    OKH --> SERVER[(HTTP 서버)]
-    HC5 --> SERVER
-    VTX --> SERVER
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    class APP,API coreStyle
-    class RB,RCA,RC serviceStyle
-    class OKH,HC5,VTX asyncStyle
-    class JCF,SCF utilStyle
-    class RX utilStyle
-```
+![전체 아키텍처: Retrofit2 + Coroutines + Result 패턴 1](../../docs/images/readme-diagrams/io-retrofit2-ko-diagram-01.svg)
 
 ### Retrofit2 + Result 패턴 통합 구조
 
-```mermaid
-classDiagram
-    class Retrofit {
-        <<Retrofit2>>
-        +create(serviceClass) T
-        +baseUrl() HttpUrl
-    }
-
-    class CallAdapter {
-        <<interface>>
-        +responseType() Type
-        +adapt(call) T
-    }
-
-    class ResultCallAdapterFactory {
-        +get(returnType, annotations, retrofit) CallAdapter?
-    }
-
-    class ResultCall {
-        -delegate: Call~T~
-        +execute() Response~Result~T~~
-        +enqueue(callback)
-        +clone() Call~Result~T~~
-    }
-
-    class Hc5CallFactory {
-        -asyncClient: CloseableHttpAsyncClient
-        +newCall(request) Call
-        +close()
-    }
-
-    class VertxCallFactory {
-        +newCall(request) Call
-    }
-
-    CallAdapter <|.. ResultCallAdapterFactory
-    ResultCallAdapterFactory ..> ResultCall : 생성
-    Retrofit --> ResultCallAdapterFactory : addCallAdapterFactory
-    Retrofit --> Hc5CallFactory : callFactory
-    Retrofit --> VertxCallFactory : callFactory
-
-    style Retrofit fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style CallAdapter fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ResultCallAdapterFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ResultCall fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Hc5CallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style VertxCallFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Retrofit2 + Result 패턴 통합 구조 2](../../docs/images/readme-diagrams/io-retrofit2-ko-diagram-02.svg)
 
 ### suspend 함수 기반 HTTP 요청 흐름 (Result 패턴)
 

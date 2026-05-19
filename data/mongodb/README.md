@@ -181,117 +181,15 @@ class MyMongoTest : AbstractMongoTest() {
 
 ### Core Class Structure
 
-```mermaid
-classDiagram
-    direction TB
-    class MongoClientExtensions {
-        <<extensionFunctions>>
-        +mongoClient(block): MongoClient
-        +MongoDatabase.getCollectionAsFlow~T~(): Flow~T~
-    }
-    class AggregationDSL {
-        <<DSL>>
-        +pipeline~T~(block): List~Bson~
-        +match(filter): Bson
-        +group(id, accumulators): Bson
-    }
-    class FlowExtensions {
-        +MongoCollection.findAsFlow~T~(filter): Flow~T~
-        +MongoCollection.insertMany(docs): Flow~InsertManyResult~
-    }
-    AggregationDSL --> FlowExtensions : builds pipeline
-
-    style MongoClientExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style AggregationDSL fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style FlowExtensions fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![Core Class Structure 1](../../docs/images/readme-diagrams/data-mongodb-diagram-01.svg)
 
 ### Module API Structure
 
-```mermaid
-classDiagram
-    class MongoClientSupport {
-        +mongoClient(block): MongoClient
-        +mongoClientOf(connectionString): MongoClient
-    }
-    class MongoClientProvider {
-        -cache: Map~String, MongoClient~
-        +getOrCreate(connectionString): MongoClient
-    }
-    class MongoDatabaseExtensions {
-        +MongoDatabase.getCollectionOf~T~(name): MongoCollection~T~
-        +MongoDatabase.listCollectionNamesList(): List~String~
-    }
-    class MongoCollectionExtensions {
-        +findFirst(filter): T?
-        +findFirstOrNull(filter): T?
-        +exists(filter): Boolean
-        +upsert(filter, update): UpdateResult
-        +findAsFlow(filter, sort, skip, limit): Flow~T~
-    }
-    class DocumentExtensions {
-        +documentOf(vararg pairs): Document
-        +documentOf(block): Document
-        +Document.getAs~T~(key): T?
-    }
-    class AggregationSupport {
-        +pipeline(block): List~Bson~
-        +matchStage(filter): Bson
-        +groupStage(id, accumulators): Bson
-        +sortStage(sort): Bson
-        +limitStage(n): Bson
-        +skipStage(n): Bson
-        +projectStage(projection): Bson
-        +unwindStage(field): Bson
-    }
-
-    MongoClientSupport --> MongoClientProvider : can delegate
-    MongoDatabaseExtensions --> MongoCollectionExtensions : provides Collection
-    AggregationSupport --> MongoCollectionExtensions : passes pipeline
-    DocumentExtensions --> MongoCollectionExtensions : creates BSON
-
-    style MongoClientSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style MongoClientProvider fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style MongoDatabaseExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style MongoCollectionExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DocumentExtensions fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style AggregationSupport fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![Module API Structure 2](../../docs/images/readme-diagrams/data-mongodb-diagram-02.svg)
 
 ### Aggregation Pipeline Data Flow
 
-```mermaid
-flowchart LR
-    A["pipeline { ... } DSL"] -->|compose stages| B["List&lt;Bson&gt;"]
-    B -->|collection.aggregate| C["AggregateFlow&lt;T&gt;"]
-    C -->|Flow conversion| D["Flow&lt;T&gt;"]
-
-    subgraph Stage_Types
-        E[matchStage - filter]
-        F[groupStage - group]
-        G[sortStage - sort]
-        H[limitStage - limit]
-        I[skipStage - skip]
-        J[projectStage - project]
-        K[unwindStage - unwind array]
-    end
-
-    A --> E
-    A --> F
-    A --> G
-    A --> H
-
-    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef bsonStyle fill:#FFFDE7,stroke:#FFF176,color:#F57F17
-    classDef flowStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef stageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-
-    class A dslStyle
-    class B bsonStyle
-    class C flowStyle
-    class D flowStyle
-    class Stage_Types stageStyle
-```
+![Aggregation Pipeline Data Flow 3](../../docs/images/readme-diagrams/data-mongodb-diagram-03.svg)
 
 ## References
 

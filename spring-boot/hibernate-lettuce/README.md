@@ -10,80 +10,11 @@ Simply add `bluetape4k.cache.lettuce-near.*` settings to your
 
 ## UML
 
-```mermaid
-classDiagram
-    class LettuceNearCacheHibernateAutoConfiguration {
-        +hibernatePropertiesCustomizer(): HibernatePropertiesCustomizer
-    }
-    class LettuceNearCacheMetricsAutoConfiguration {
-        +lettuceNearCacheMetricsBinder(): LettuceNearCacheMetricsBinder
-    }
-    class LettuceNearCacheActuatorAutoConfiguration {
-        +lettuceNearCacheEndpoint(): LettuceNearCacheEndpoint
-    }
-    class HibernatePropertiesCustomizer {
-        <<interface>>
-        +customize(hibernateProperties): void
-    }
-    class LettuceNearCacheRegionFactory {
-        +buildCache(regionName, config): RegionAccessStrategy
-        +getL1Cache(region): CaffeineCache
-        +getL2Cache(region): RedisCache
-    }
-    class LettuceNearCacheMetricsBinder {
-        +bindTo(registry): void
-    }
-    class LettuceNearCacheEndpoint {
-        +stats(): Map~String, CacheStats~
-    }
-
-    LettuceNearCacheHibernateAutoConfiguration --> HibernatePropertiesCustomizer
-    HibernatePropertiesCustomizer --> LettuceNearCacheRegionFactory
-    LettuceNearCacheMetricsAutoConfiguration --> LettuceNearCacheMetricsBinder
-    LettuceNearCacheActuatorAutoConfiguration --> LettuceNearCacheEndpoint
-    LettuceNearCacheMetricsBinder --> LettuceNearCacheRegionFactory
-    LettuceNearCacheEndpoint --> LettuceNearCacheRegionFactory
-
-    style LettuceNearCacheHibernateAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style LettuceNearCacheMetricsAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style LettuceNearCacheActuatorAutoConfiguration fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    style HibernatePropertiesCustomizer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LettuceNearCacheRegionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LettuceNearCacheMetricsBinder fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style LettuceNearCacheEndpoint fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![UML 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-01.svg)
 
 ### Auto-Configuration Activation Flow
 
-```mermaid
-flowchart TD
-    Props["application.yml<br/>bluetape4k.cache.lettuce-near.*"]
-    AutoConfig["Spring Boot 4<br/>Auto Configuration"]
-    Customizer["HibernatePropertiesCustomizer"]
-    RegionFactory["Lettuce Near Cache<br/>RegionFactory"]
-    L1["L1 Cache<br/>Caffeine"]
-    L2["L2 Cache<br/>Redis"]
-    DB[("Database")]
-
-    Props --> AutoConfig
-    AutoConfig --> Customizer
-    Customizer --> RegionFactory
-    RegionFactory --> L1
-    RegionFactory --> L2
-    L2 --> DB
-
-    classDef configStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef autoStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    classDef customizerStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef cacheStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Props configStyle
-    class AutoConfig autoStyle
-    class Customizer customizerStyle
-    class RegionFactory,L1,L2 cacheStyle
-    class DB dbStyle
-```
+![Auto-Configuration Activation Flow 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.svg)
 
 ## Spring Boot 4-Specific Notes
 

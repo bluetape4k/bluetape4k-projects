@@ -12,126 +12,15 @@ It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x 
 
 ### Overall Architecture: Multi-Backend HTTP Client
 
-```mermaid
-flowchart TD
-    subgraph Application["Application"]
-        APP[Application Code]
-        CO[Coroutines\nsuspend fun]
-    end
-
-    subgraph bluetape4k-http
-        EXT[executeSuspending\nextension functions]
-        DSL[Builder DSLs\nhttpAsyncClient / okhttp3Client / vertxHttpClientOf / ktorCioHttpClientOf]
-    end
-
-    subgraph Backends["HTTP Client Backends"]
-        HC5A[HC5 Async\nhttpAsyncClient]
-        HC5C[HC5 Classic\nhttpClient]
-        HC5CA[HC5 Caching\ncachingHttpAsyncClient]
-        OKH[OkHttp3\nokhttp3Client]
-        VTX[Vert.x HttpClient\nvertxHttpClientOf]
-        KTOR[Ktor CIO\nktorCioHttpClientOf]
-    end
-
-    APP --> CO
-    CO --> EXT
-    EXT --> DSL
-    DSL --> HC5A
-    DSL --> HC5C
-    DSL --> HC5CA
-    DSL --> OKH
-    DSL --> VTX
-    DSL --> KTOR
-    HC5A --> SERVER[(HTTP Server)]
-    HC5C --> SERVER
-    HC5CA --> SERVER
-    OKH --> SERVER
-    VTX --> SERVER
-    KTOR --> SERVER
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-
-    class APP coreStyle
-    class CO asyncStyle
-    class EXT,DSL utilStyle
-    class HC5A,HC5C,HC5CA,OKH,VTX,KTOR serviceStyle
-    class SERVER extStyle
-```
+![Overall Architecture: Multi-Backend HTTP Client 1](../../docs/images/readme-diagrams/io-http-diagram-01.svg)
 
 ### HTTP Client Hierarchy (HC5)
 
-```mermaid
-classDiagram
-    class CloseableHttpAsyncClient {
-        <<ApacheHC5>>
-        +execute(request, callback) Future
-        +start()
-        +close()
-    }
-
-    class HttpAsyncClientCoroutines {
-        <<extension functions>>
-        +executeSuspending(request) SimpleHttpResponse
-    }
-
-    class CachingHttpAsyncClientBuilder {
-        <<DSL builder>>
-        +setHttpCacheStorage(storage)
-        +build() CloseableHttpAsyncClient
-    }
-
-    CachingHttpAsyncClientBuilder --> InMemoryHttpCacheStorage : uses
-    CachingHttpAsyncClientBuilder --> JavaCacheHttpCacheStorage : uses
-    CloseableHttpAsyncClient <.. HttpAsyncClientCoroutines : extends
-
-    style CloseableHttpAsyncClient fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style HttpAsyncClientCoroutines fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style CachingHttpAsyncClientBuilder fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style InMemoryHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
-    style JavaCacheHttpCacheStorage fill:#F57F17,stroke:#E65100,color:#000000
-```
+![HTTP Client Hierarchy (HC5) 2](../../docs/images/readme-diagrams/io-http-diagram-02.svg)
 
 ### OkHttp3 Client Hierarchy
 
-```mermaid
-classDiagram
-    class OkHttpClient {
-        <<OkHttp3>>
-        +newCall(request) Call
-    }
-
-    class LoggingInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingRequestInterceptor {
-        +intercept(chain) Response
-    }
-
-    class CachingResponseInterceptor {
-        +intercept(chain) Response
-    }
-
-    class OkHttpClientExtensionsCoroutines {
-        <<extension functions>>
-        +executeSuspending(request) Response
-    }
-
-    OkHttpClient --> LoggingInterceptor : addInterceptor
-    OkHttpClient --> CachingRequestInterceptor : addInterceptor
-    OkHttpClient --> CachingResponseInterceptor : addNetworkInterceptor
-    OkHttpClient <.. OkHttpClientExtensionsCoroutines : extends
-
-    style OkHttpClient fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style LoggingInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CachingRequestInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CachingResponseInterceptor fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style OkHttpClientExtensionsCoroutines fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![OkHttp3 Client Hierarchy 3](../../docs/images/readme-diagrams/io-http-diagram-03.svg)
 
 ### Async HTTP Request Flow (HC5 Async + Coroutines)
 

@@ -11,156 +11,15 @@ Java Time API (java.time)를 위한 고급 시간 연산 라이브러리입니�
 
 ### 기능 구조 개요
 
-```mermaid
-flowchart TD
-    subgraph CORE["bluetape4k-core (항상 사용 가능)"]
-        DSL["Duration/Period DSL\n5.days() 3.hours() 2.yearPeriod()"]
-        EXT["Temporal 확장\nstartOfYear() toEpochMillis() nowInstant()"]
-    end
-
-    subgraph JT["bluetape4k-javatimes"]
-        INT["Temporal Interval\n(interval/)"]
-        PER["Period Framework\n(period/)"]
-        CAL["Calendar Ranges\n(period/ranges/)"]
-        RNG["Temporal Range\n(range/)"]
-    end
-
-    JT -->|의존| CORE
-    INT -->|" contains()\noverlaps()\nwindowed / chunked "| IntOp(["Interval 연산"])
-    PER -->|" TimeBlock / TimeRange\nDateAdd / DateDiff\nPeriodRelation "| PerOp(["Period 연산"])
-    CAL -->|" YearRange → MonthRange\n→ WeekRange → DayRange\n→ HourRange → MinuteRange "| CalOp(["캘린더 쿼리"])
-    RNG -->|" start..end\nstep() asFlow()\nwindowedFlowMonths() "| RngOp(["Range + Flow"])
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class DSL,EXT coreStyle
-    class INT,PER,CAL,RNG serviceStyle
-    class IntOp,PerOp,CalOp,RngOp dataStyle
-```
+![기능 구조 개요 1](../../docs/images/readme-diagrams/utils-javatimes-ko-diagram-01.svg)
 
 ### 클래스 계층 — Period Framework
 
-```mermaid
-classDiagram
-    class TimePeriod {
-        <<interface>>
-        +start: ZonedDateTime
-        +end: ZonedDateTime
-        +duration: Duration
-        +contains(dt): Boolean
-        +overlaps(other): Boolean
-        +relationWith(other): PeriodRelation
-    }
-
-    class TimeBlock {
-        +start: ZonedDateTime
-        +duration: Duration
-        +move(duration)
-        +expandBy(duration)
-    }
-
-    class TimeRange {
-        +start: ZonedDateTime
-        +end: ZonedDateTime
-        +move(duration)
-        +expandBy(duration)
-    }
-
-    class CalendarTimeRange {
-        +calendar: TimeCalendar
-        +unmappedStart: ZonedDateTime
-        +unmappedEnd: ZonedDateTime
-    }
-
-    class YearRange {
-        +year: Int
-    }
-    class MonthRange {
-        +monthOfYear: Int
-    }
-    class WeekRange {
-        +weekOfYear: Int
-    }
-    class DayRange
-    class HourRange
-    class MinuteRange
-
-    class DateAdd {
-        +excludePeriods: List~TimeRange~
-        +add(start, duration): ZonedDateTime
-        +subtract(start, duration): ZonedDateTime
-    }
-
-    class DateDiff {
-        +years: Int
-        +months: Int
-        +days: Int
-        +hours: Int
-        +minutes: Int
-        +seconds: Int
-    }
-
-    class TemporalInterval {
-        +start: Instant
-        +end: Instant
-        +toDuration(): Duration
-        +contains(instant): Boolean
-        +overlaps(other): Boolean
-        +windowedDays(size, step): List
-        +chunkMonths(size): List
-    }
-
-    TimePeriod <|-- TimeBlock
-    TimePeriod <|-- TimeRange
-    TimeRange <|-- CalendarTimeRange
-    CalendarTimeRange <|-- YearRange
-    CalendarTimeRange <|-- MonthRange
-    CalendarTimeRange <|-- WeekRange
-    CalendarTimeRange <|-- DayRange
-    CalendarTimeRange <|-- HourRange
-    CalendarTimeRange <|-- MinuteRange
-    DateAdd ..> TimeRange: uses excludePeriods
-
-    style TimePeriod fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style TimeBlock fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style TimeRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style CalendarTimeRange fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style YearRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style MonthRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style WeekRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DayRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HourRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style MinuteRange fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style DateAdd fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style DateDiff fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style TemporalInterval fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![클래스 계층 — Period Framework 2](../../docs/images/readme-diagrams/utils-javatimes-ko-diagram-02.svg)
 
 ### PeriodRelation — 두 기간의 관계
 
-```mermaid
-flowchart LR
-    subgraph rel["PeriodRelation (A vs B)"]
-        direction TB
-        R1["Before: A──┤ ├──B"]
-        R2["StartTouching: A──┤B──┤"]
-        R3["Overlap: A──┤──B┤"]
-        R4["Inside: ├─A─┤ (B 내부)"]
-        R5["ExactMatch: A ═══ B"]
-        R6["Covers: A가 B를 완전히 포함"]
-        R7["After: B──┤ ├──A"]
-    end
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-
-    class R1,R2,R3,R4,R5,R6,R7 serviceStyle
-```
+![PeriodRelation — 두 기간의 관계 3](../../docs/images/readme-diagrams/utils-javatimes-ko-diagram-03.svg)
 
 ## 기초 기능 (bluetape4k-core 제공)
 

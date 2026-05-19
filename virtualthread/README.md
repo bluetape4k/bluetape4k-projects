@@ -8,99 +8,13 @@ This structure supports Java 21 and Java 25 in the same project by splitting the
 
 ### Module Structure and Runtime Selection
 
-```mermaid
-flowchart TD
-    APP["Application<br/>(depends only on the API module)"]
-
-    API["bluetape4k-virtualthread-api<br/>Common interfaces + ServiceLoader"]
-
-    JDK21["bluetape4k-virtualthread-jdk21<br/>Java 21 implementation<br/>priority = 21"]
-    JDK25["bluetape4k-virtualthread-jdk25<br/>Java 25 implementation<br/>priority = 25"]
-    FALLBACK["Platform Thread Fallback<br/>(JDK 17 or lower)<br/>priority = MIN_VALUE"]
-
-    RUNTIME{"Runtime JDK version<br/>selected by ServiceLoader"}
-
-    APP -->|"implementation"| API
-    APP -->|"runtimeOnly"| JDK21
-    APP -->|"runtimeOnly"| JDK25
-
-    API --> RUNTIME
-    RUNTIME -->|"JDK 25 runtime<br/>select priority 25"| JDK25
-    RUNTIME -->|"JDK 21 runtime<br/>select priority 21"| JDK21
-    RUNTIME -->|"JDK 17 or lower<br/>isSupported() = false"| FALLBACK
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F,font-weight:bold
-    classDef apiStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef implStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef fallbackStyle fill:#F5F5F5,stroke:#BDBDBD,color:#424242
-    classDef runtimeStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class APP appStyle
-    class API apiStyle
-    class JDK21,JDK25 implStyle
-    class FALLBACK fallbackStyle
-    class RUNTIME runtimeStyle
-```
+![Module Structure and Runtime Selection 1](../docs/images/readme-diagrams/virtualthread-diagram-01.svg)
 
 ---
 
 ### Class Diagram
 
-```mermaid
-classDiagram
-    class VirtualThreadFactory {
-        <<interface>>
-        +isSupported() Boolean
-        +priority() Int
-        +newThread(runnable: Runnable) Thread
-        +executorService() ExecutorService
-        +scheduledExecutorService() ScheduledExecutorService
-    }
-
-    class VirtualThreads {
-        <<object>>
-        +isSupported() Boolean
-        +newThread(runnable: Runnable) Thread
-        +executorService() ExecutorService
-        +scheduledExecutorService() ScheduledExecutorService
-    }
-
-    class Jdk21VirtualThreadFactory {
-        <<class>>
-        +isSupported() Boolean
-        +priority() Int = 21
-        +newThread(runnable) Thread
-        +executorService() ExecutorService
-    }
-
-    class Jdk25VirtualThreadFactory {
-        <<class>>
-        +isSupported() Boolean
-        +priority() Int = 25
-        +newThread(runnable) Thread
-        +executorService() ExecutorService
-        +joinUntil(thread, instant) Boolean
-    }
-
-    class PlatformThreadFallback {
-        <<class>>
-        +isSupported() Boolean = false
-        +priority() Int = MIN_VALUE
-        +newThread(runnable) Thread
-        +executorService() ExecutorService
-    }
-
-    VirtualThreadFactory <|.. Jdk21VirtualThreadFactory
-    VirtualThreadFactory <|.. Jdk25VirtualThreadFactory
-    VirtualThreadFactory <|.. PlatformThreadFallback
-    VirtualThreads ..> VirtualThreadFactory: ServiceLoader selects highest priority
-
-    style VirtualThreadFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style VirtualThreads fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style Jdk21VirtualThreadFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jdk25VirtualThreadFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style PlatformThreadFallback fill:#F5F5F5,stroke:#BDBDBD,color:#424242
-```
+![Class Diagram 2](../docs/images/readme-diagrams/virtualthread-diagram-02.svg)
 
 ---
 

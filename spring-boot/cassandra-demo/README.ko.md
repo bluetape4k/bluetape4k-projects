@@ -6,33 +6,7 @@ Apache Cassandra와 Spring Data Cassandra를 활용하는 종합 예제입니다
 
 ## UML
 
-```mermaid
-flowchart TD
-    Entity["@Table Entity"]
-    Repo["CassandraRepository /<br/>CoroutineCrudRepository"]
-    Template["CassandraTemplate /<br/>CassandraOperations"]
-    Reactive["Reactive / Coroutine APIs"]
-    Cassandra[("Apache Cassandra")]
-
-    Entity --> Repo
-    Entity --> Template
-    Repo --> Cassandra
-    Template --> Cassandra
-    Reactive --> Repo
-    Reactive --> Template
-
-    classDef entityStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    classDef templateStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef reactiveStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Entity entityStyle
-    class Repo repoStyle
-    class Template templateStyle
-    class Reactive reactiveStyle
-    class Cassandra dbStyle
-```
+![UML 1](../../docs/images/readme-diagrams/spring-boot-cassandra-demo-ko-diagram-01.svg)
 
 > Spring Boot 4 기반 versionless 표준 예제 모듈입니다.
 

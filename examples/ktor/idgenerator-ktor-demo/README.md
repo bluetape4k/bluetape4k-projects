@@ -6,16 +6,7 @@ Runnable Ktor application that exposes bluetape4k `idgenerators` through HTTP en
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    Client[HTTP client] --> Routes[Ktor routes]
-    Routes --> Registry[IdGeneratorRegistry]
-    Registry --> UUID[UUID v4/v7]
-    Registry --> ULID[ULID]
-    Registry --> KSUID[KSUID]
-    Registry --> Snowflake[Snowflake]
-    Registry --> Flake[Flake]
-```
+![Architecture 1](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-diagram-01.svg)
 
 The explicit `/ids/...` routes and generic `/idgen/{type}` routes share the same registry, so the example shows both route styles without duplicating ID generation logic.
 

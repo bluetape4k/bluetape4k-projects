@@ -9,48 +9,7 @@ An example of enabling Hibernate 2nd Level Cache with zero additional code using
 
 ## UML Diagram
 
-```mermaid
-classDiagram
-    class ProductController {
-        -productRepository: ProductRepository
-        +findAll(): List~Product~
-        +findById(id): ResponseEntity~Product~
-        +create(product): ResponseEntity~Product~
-        +update(id, product): ResponseEntity~Product~
-        +delete(id): ResponseEntity~Void~
-    }
-    class ProductRepository {
-        <<interface>>
-        +findByName(name): List~Product~
-        +findByPriceLessThan(price): List~Product~
-    }
-    class Product {
-        +id: Long?
-        +name: String
-        +description: String?
-        +price: Double
-    }
-    class LettuceNearCacheRegionFactory {
-        +buildCache(regionName, config): RegionAccessStrategy
-        +getL1Cache(region): CaffeineCache
-        +getL2Cache(region): RedisCache
-    }
-    class HibernateSessionFactory {
-        +openSession(): Session
-        +getCurrentSession(): Session
-    }
-
-    ProductController --> ProductRepository
-    ProductRepository --> Product
-    HibernateSessionFactory --> LettuceNearCacheRegionFactory
-    ProductRepository --> HibernateSessionFactory
-
-    style ProductController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style ProductRepository fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    style Product fill:#F57F17,stroke:#E65100,color:#000000
-    style LettuceNearCacheRegionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style HibernateSessionFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-```
+![UML Diagram 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.svg)
 
 ## Architecture
 
@@ -81,35 +40,7 @@ Hibernate Session Factory
 H2 Database
 ```
 
-```mermaid
-flowchart TD
-    Client["Client HTTP Request"]
-    Controller["ProductController"]
-    Repo["ProductRepository"]
-    Hibernate["Hibernate Session Factory"]
-    RegionFactory["Lettuce Near Cache<br/>Region Factory"]
-    L1["L1 Cache<br/>Caffeine"]
-    L2["L2 Cache<br/>Redis"]
-    DB[("H2 Database")]
-
-    Client --> Controller --> Repo --> Hibernate --> RegionFactory
-    RegionFactory --> L1
-    RegionFactory --> L2
-    Repo --> DB
-
-    classDef clientStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef controllerStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef repoStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    classDef hibernateStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef cacheStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Client,Controller clientStyle
-    class Repo repoStyle
-    class Hibernate hibernateStyle
-    class RegionFactory,L1,L2 cacheStyle
-    class DB dbStyle
-```
+![Architecture 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.svg)
 
 ## Domain Model
 

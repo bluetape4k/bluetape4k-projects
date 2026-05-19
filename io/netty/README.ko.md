@@ -190,106 +190,15 @@ buf.writeUIntSmart(100000) // 4바이트
 
 ### ByteBuf 확장 API 구조
 
-```mermaid
-classDiagram
-    class ByteBuf {
-        <<Netty>>
-        +readByte() Byte
-        +writeByte(value: Int)
-        +readableBytes() Int
-    }
-
-    class ByteBufExtensions {
-        <<extensions>>
-        +readUByteNeg() UByte
-        +readUShortAdd() UShort
-        +readShortSmart() Short
-        +readIntSmart() Int
-        +readUIntSmart() Int
-        +readVarInt() Int
-        +readBytesReversed(length) ByteArray
-        +writeShortSmart(value: Short)
-        +writeIntSmart(value: Int)
-        +writeVarInt(value: Int)
-        +writeString(value: String)
-    }
-
-    class BitBuf {
-        -buf: ByteBuf
-        +readBit() Boolean
-        +writeBit(value: Boolean)
-    }
-
-    class ReferenceCountedSupport {
-        <<extensions>>
-        +safeRelease()
-        +refCnt() Int
-    }
-
-    ByteBuf <-- ByteBufExtensions : 확장
-    ByteBuf <-- BitBuf : 래핑
-    ByteBuf <-- ReferenceCountedSupport : 확장
-
-    style ByteBuf fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style ByteBufExtensions fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style BitBuf fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style ReferenceCountedSupport fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-```
+![ByteBuf 확장 API 구조 1](../../docs/images/readme-diagrams/io-netty-ko-diagram-01.svg)
 
 ### Smart 인코딩 데이터 흐름
 
-```mermaid
-flowchart LR
-    subgraph 값 범위별 인코딩
-        V1["작은 값<br/>0 ~ 127"]
-        V2["중간 값<br/>128 ~ 32767"]
-        V3["큰 값<br/>32768+"]
-    end
-
-    subgraph ByteBuf 인코딩
-        B1["1바이트<br/>0xxx xxxx"]
-        B2["2바이트<br/>1xxx xxxx xxxx xxxx"]
-        B3["4바이트<br/>(부호 확장)"]
-    end
-
-    V1 -->|writeShortSmart / writeUShortSmart| B1
-    V2 -->|writeShortSmart / writeUShortSmart| B2
-    V3 -->|writeIntSmart / writeUIntSmart| B3
-
-    B1 -->|readShortSmart / readUShortSmart| V1
-    B2 -->|readShortSmart / readUShortSmart| V2
-    B3 -->|readIntSmart / readUIntSmart| V3
-
-    classDef dataStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class V1,V2,V3 dataStyle
-    class B1,B2,B3 utilStyle
-```
+![Smart 인코딩 데이터 흐름 2](../../docs/images/readme-diagrams/io-netty-ko-diagram-02.svg)
 
 ### Netty 채널 파이프라인 처리 흐름
 
-```mermaid
-flowchart TD
-    NET[네트워크 계층] -->|수신 바이트| CH[Channel]
-    CH --> P1[ChannelHandler 1<br/>바이트 디코딩]
-    P1 --> P2[ChannelHandler 2<br/>ByteBuf 확장 처리<br/>readVarInt / readShortSmart]
-    P2 --> P3[ChannelHandler 3<br/>비즈니스 로직]
-    P3 -->|응답 생성| W1[ChannelHandler<br/>writeVarInt / writeString]
-    W1 -->|인코딩| CH
-    CH -->|송신 바이트| NET
-
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-
-    class NET extStyle
-    class CH coreStyle
-    class P1,W1 utilStyle
-    class P2 utilStyle
-    class P3 serviceStyle
-```
+![Netty 채널 파이프라인 처리 흐름 3](../../docs/images/readme-diagrams/io-netty-ko-diagram-03.svg)
 
 ## 테스트
 

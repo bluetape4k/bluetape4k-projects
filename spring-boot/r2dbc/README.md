@@ -115,103 +115,15 @@ Coroutine functions follow the `XyzSuspending` naming pattern.
 
 ### Core Class Structure
 
-```mermaid
-classDiagram
-    class PostRepository {
-        -operations: R2dbcEntityOperations
-        +findById(id): Post?
-        +findAll(): Flow~Post~
-        +save(post): Post
-        +update(id, title): Int
-        +delete(id): Int
-        +count(): Long
-    }
-    class R2dbcEntityOperationsExt {
-        <<extension>>
-        +findOneByIdOrNullSuspending(id): T?
-        +selectAllSuspending(): Flow~T~
-        +selectSuspending(query): Flow~T~
-        +selectOneSuspending(query): T
-        +insertSuspending(entity): T
-        +updateSuspending(query, update): Int
-        +deleteSuspending(query): Int
-        +deleteAllSuspending(): Int
-        +countAllSuspending(): Long
-        +existsSuspending(query): Boolean
-    }
-    class Post {
-        +id: Long?
-        +title: String
-        +content: String
-        +authorId: Long
-        +createdAt: Instant
-    }
-    class R2dbcConfig {
-        +connectionFactory(): ConnectionFactory
-        +r2dbcEntityOperations(): R2dbcEntityOperations
-    }
-
-    PostRepository --> R2dbcEntityOperationsExt
-    PostRepository --> Post
-    R2dbcConfig --> PostRepository : inject
-
-    style PostRepository fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    style R2dbcEntityOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Post fill:#F57F17,stroke:#E65100,color:#000000
-    style R2dbcConfig fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.svg)
 
 ### R2DBC + Coroutines Data Flow
 
-```mermaid
-flowchart TD
-    App["Application Code"] --> Ext["Coroutine Extension Functions<br/>(XyzSuspending / Flow)"]
-    Ext --> ROps["R2dbcEntityOperations"]
-    ROps --> R2DBC["Spring Data R2DBC"]
-    R2DBC --> Driver["R2DBC Driver<br/>(H2 / PostgreSQL / MySQL)"]
-    Driver --> DB[("Relational Database")]
-    Ext -- "Mono → suspend" --> App
-    Ext -- "Flux → Flow" --> App
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef extStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef springStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    classDef driverStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class Ext,ROps extStyle
-    class R2DBC springStyle
-    class Driver driverStyle
-    class DB dbStyle
-```
+![R2DBC + Coroutines Data Flow 2](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.svg)
 
 ### CRUD Operation Hierarchy
 
-```mermaid
-flowchart LR
-    Service["Service / Repository"] --> Select["selectAllSuspending()<br/>selectSuspending(query)<br/>findOneByIdOrNullSuspending(id)"]
-    Service --> Insert["insertSuspending(entity)<br/>insertOrNullSuspending(entity)"]
-    Service --> Update["updateSuspending(query, update)"]
-    Service --> Delete["deleteSuspending(query)<br/>deleteAllSuspending()"]
-    Service --> Count["countAllSuspending()<br/>countSuspending(query)<br/>existsSuspending(query)"]
-    Select --> ROps["R2dbcEntityOperations"]
-    Insert --> ROps
-    Update --> ROps
-    Delete --> ROps
-    Count --> ROps
-    ROps --> DB[("Database")]
-
-    classDef serviceStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    classDef opStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef opsStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Service serviceStyle
-    class Select,Insert,Update,Delete,Count opStyle
-    class ROps opsStyle
-    class DB dbStyle
-```
+![CRUD Operation Hierarchy 3](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.svg)
 
 ### Coroutine Conversion Sequence
 

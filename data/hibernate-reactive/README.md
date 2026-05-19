@@ -107,94 +107,15 @@ sf.withSessionSuspending { session ->
 
 ### Reactive Repository Class Structure
 
-```mermaid
-classDiagram
-    direction TB
-    class ReactiveHibernateRepository~ID_E~ {
-        <<abstractSuspend>>
-        +findByIdOrNull(id): E?
-        +findAll(): Flow~E~
-        +save(entity): E
-    }
-
-    style ReactiveHibernateRepository fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-```
+![Reactive Repository Class Structure 1](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-01.svg)
 
 ### Hibernate Reactive API Structure
 
-```mermaid
-flowchart TD
-    A[EntityManagerFactory<br/>JPA Standard] -->|asMutinySessionFactory| B[Mutiny.SessionFactory]
-    A -->|asStageSessionFactory| C[Stage.SessionFactory]
-
-    subgraph Mutiny_API["Mutiny API (SmallRye)"]
-        B --> D[withSessionSuspending]
-        B --> E[withTransactionSuspending]
-        B --> F[withStatelessSessionSuspending]
-        D --> G[Mutiny.Session extensions<br/>findAs / getAs<br/>createSelectionQueryAs]
-        F --> H[Mutiny.StatelessSession extensions<br/>getAs / createQueryAs]
-    end
-
-    subgraph Stage_API["Stage API (CompletionStage)"]
-        C --> I[withSessionSuspending]
-        C --> J[withTransactionSuspending]
-        I --> K[Stage.Session extensions<br/>findAs / getAs]
-    end
-
-    subgraph Coroutines["Coroutines Bridge"]
-        L[awaitSuspending] --> M[Converts to suspend function]
-        N[await] --> M
-    end
-
-    G --> L
-    H --> L
-    K --> N
-
-    classDef jpaStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef mutinyStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef stageStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef coroutineStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-
-    class A jpaStyle
-    class Mutiny_API mutinyStyle
-    class Stage_API stageStyle
-    class Coroutines coroutineStyle
-```
+![Hibernate Reactive API Structure 2](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-02.svg)
 
 ### Session Type Comparison
 
-```mermaid
-classDiagram
-    class MutinySessionFactory {
-        +withSession(block): Uni~T~
-        +withTransaction(block): Uni~T~
-        +withStatelessSession(block): Uni~T~
-        +withSessionSuspending(block): T  ← extension
-        +withTransactionSuspending(block): T  ← extension
-    }
-    class StageSessionFactory {
-        +withSession(block): CompletionStage~T~
-        +withTransaction(block): CompletionStage~T~
-        +withSessionSuspending(block): T  ← extension
-    }
-    class MutinySession {
-        +find(cls, id): Uni~T~
-        +findAs(id): Uni~T~  ← reified extension
-        +persist(entity): Uni~Void~
-    }
-    class StageSession {
-        +find(cls, id): CompletionStage~T~
-        +findAs(id): CompletionStage~T~  ← reified extension
-    }
-
-    MutinySessionFactory --> MutinySession : creates
-    StageSessionFactory --> StageSession : creates
-
-    style MutinySessionFactory fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StageSessionFactory fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style MutinySession fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style StageSession fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-```
+![Session Type Comparison 3](../../docs/images/readme-diagrams/data-hibernate-reactive-diagram-03.svg)
 
 ## Version Requirements
 

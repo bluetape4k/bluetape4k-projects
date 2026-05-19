@@ -265,95 +265,7 @@ val value = nearCache.get("key")   // Checks local cache first
 
 ### Codec Hierarchy
 
-```mermaid
-classDiagram
-    class Codec {
-        <<interface>>
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class ForyCodec {
-        -fallbackCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Kryo5Codec {
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Lz4Codec {
-        -innerCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class ZstdCodec {
-        -innerCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class GzipCodec {
-        -innerCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Jackson3Codec {
-        -objectMapper: ObjectMapper
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Fastjson2Codec {
-        -fallbackCodec: Codec
-        -allowedPackagePrefixes: Set~String~
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class RedissonCodecs {
-        <<object>>
-        +Default: Lz4Codec
-        +Fory: ForyCodec
-        +Kryo5: Kryo5Codec
-        +LZ4: Lz4Codec
-        +Zstd: ZstdCodec
-        +Jackson3: Jackson3Codec
-        +Fastjson2: Fastjson2Codec
-    }
-
-    Codec <|.. ForyCodec
-    Codec <|.. Kryo5Codec
-    Codec <|.. Lz4Codec
-    Codec <|.. ZstdCodec
-    Codec <|.. GzipCodec
-    Codec <|.. Jackson3Codec
-    Codec <|.. Fastjson2Codec
-    Lz4Codec --> ForyCodec : innerCodec
-    ZstdCodec --> ForyCodec : innerCodec
-    ForyCodec --> Kryo5Codec : fallback
-    Fastjson2Codec --> ForyCodec : fallback
-    RedissonCodecs --> Lz4Codec
-    RedissonCodecs --> ForyCodec
-    RedissonCodecs --> Kryo5Codec
-    RedissonCodecs --> Jackson3Codec
-    RedissonCodecs --> Fastjson2Codec
-
-    style Codec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ForyCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Kryo5Codec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Lz4Codec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style ZstdCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style GzipCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Jackson3Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
-    style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
-    style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-```
+![Codec Hierarchy 1](../../docs/images/readme-diagrams/infra-redisson-diagram-01.svg)
 
 ### NearCache 2-Tier Cache Flow
 
@@ -382,38 +294,7 @@ sequenceDiagram
 
 ### Batch / Transaction Processing Flow
 
-```mermaid
-flowchart TD
-    App[Application] -->|withBatch| Batch[RBatch]
-    Batch -->|setAsync| Op1[bucket.setAsync]
-    Batch -->|incrementAndGetAsync| Op2[atomicLong.incrementAsync]
-    Batch -->|putAsync| Op3[map.putAsync]
-    Op1 & Op2 & Op3 -->|execute| Redis[Redis<br/>Pipeline execution]
-    Redis -->|BatchResult| App
-
-    App2[Coroutine context] -->|withSuspendedTransaction| Tx[RTransaction]
-    Tx -->|set/put operations| TxOps[Transaction ops]
-    TxOps -->|on success: commitAsync| Redis
-    TxOps -->|on exception: rollbackAsync| Redis
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style App2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Redis fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Batch fill:#F57F17,stroke:#E65100,color:#000000
-    style Tx fill:#F57F17,stroke:#E65100,color:#000000
-    style Op1 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Op2 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Op3 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Batch / Transaction Processing Flow 2](../../docs/images/readme-diagrams/infra-redisson-diagram-02.svg)
 
 ## High-Performance Batch Pattern — Mega-Batch
 

@@ -181,126 +181,19 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ### 핵심 클래스 구조
 
-```mermaid
-classDiagram
-    class UserController {
-        -service: UserService
-        +getUsers(): Flow~User~
-        +getUser(id): User
-        +createUser(request): ResponseEntity~User~
-    }
-    class UserService {
-        -restClient: RestClient
-        +findAllAsFlow(): Flow~User~
-        +findById(id): User
-        +create(user): User
-    }
-    class RestClientDsl {
-        <<extension>>
-        +suspendGet(uri): T
-        +suspendPost(uri, body): T
-        +suspendPut(uri, body): T
-        +suspendDelete(uri)
-    }
-    class WebTestClientExt {
-        <<extension>>
-        +httpGet(uri): ResponseSpec
-        +httpPost(uri, body): ResponseSpec
-    }
-    class Retrofit2Config {
-        +retrofit(): Retrofit
-        +okHttpClient(): OkHttpClient
-        +jacksonConverterFactory(): JacksonConverterFactory
-    }
-
-    UserController --> UserService
-    UserService --> RestClientDsl
-    Retrofit2Config --> UserService : inject
-    WebTestClientExt --> UserController : test
-
-    style UserController fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style UserService fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    style RestClientDsl fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style WebTestClientExt fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Retrofit2Config fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-01.svg)
 
 ### Spring WebFlux + Coroutines 요청 흐름
 
-```mermaid
-flowchart LR
-    Client["HTTP 클라이언트"] --> Netty["Netty HTTP 서버"]
-    Netty --> WebFlux["Spring WebFlux<br/>DispatcherHandler"]
-    WebFlux --> Handler["Coroutines 핸들러<br/>suspend fun / Flow"]
-    Handler --> Service["서비스 계층"]
-    Service --> DB[("데이터베이스 / 외부 API")]
-    DB --> Service
-    Service --> Handler
-    Handler --> WebFlux
-    WebFlux --> Netty
-    Netty --> Client
-
-    classDef clientStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef serverStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef handlerStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serviceStyle fill:#E0F7FA,stroke:#80DEEA,color:#00838F
-    classDef dataStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Client clientStyle
-    class Netty,WebFlux serverStyle
-    class Handler handlerStyle
-    class Service serviceStyle
-    class DB dataStyle
-```
+![Spring WebFlux + Coroutines 요청 흐름 2](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-02.svg)
 
 ### RestClient Coroutines DSL 구조
 
-```mermaid
-flowchart TD
-    App["애플리케이션 코드"] --> DSL["RestClient Coroutines DSL<br/>suspendGet / suspendPost<br/>suspendPut / suspendPatch / suspendDelete"]
-    DSL --> RestClient["Spring RestClient"]
-    RestClient --> HTTP["HTTP 요청"]
-    HTTP --> ExternalAPI["외부 REST API"]
-    ExternalAPI --> RestClient
-    RestClient --> DSL
-    DSL --> App
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dslStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef httpStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef externalStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class DSL dslStyle
-    class RestClient,HTTP httpStyle
-    class ExternalAPI externalStyle
-```
+![RestClient Coroutines DSL 구조 3](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-03.svg)
 
 ### Retrofit2 통합 구조
 
-```mermaid
-flowchart TD
-    App["애플리케이션"] --> RetrofitBean["Retrofit Bean<br/>(@Bean retrofit.create<T>())"]
-    RetrofitBean --> Retrofit2["Retrofit2"]
-    Retrofit2 --> OkHttp["OkHttp3 클라이언트"]
-    Retrofit2 --> HttpClient5["Apache HttpClient5"]
-    Retrofit2 --> Jackson["Jackson 2 직렬화/역직렬화"]
-    Retrofit2 --> CoroutinesAdapter["Coroutines Adapter<br/>(suspend 함수 지원)"]
-    OkHttp --> ExternalAPI["외부 REST API"]
-    HttpClient5 --> ExternalAPI
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef retrofitStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef adapterStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef serdeStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef externalStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class RetrofitBean,Retrofit2,OkHttp,HttpClient5 retrofitStyle
-    class CoroutinesAdapter adapterStyle
-    class Jackson serdeStyle
-    class ExternalAPI externalStyle
-```
+![Retrofit2 통합 구조 4](../../docs/images/readme-diagrams/spring-boot-core-ko-diagram-04.svg)
 
 ## 빌드 및 테스트
 

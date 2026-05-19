@@ -559,133 +559,15 @@ class Purchase {
 
 ### Repository Class Structure
 
-```mermaid
-classDiagram
-    direction TB
-    class HibernateRepository~ID_E~ {
-        <<abstract>>
-        +findByIdOrNull(id): E?
-        +save(entity): E
-        +deleteById(id): Int
-        +findAll(spec): List~E~
-    }
-    class AbstractHibernateRepository~ID_E~ {
-        #sessionFactory: SessionFactory
-    }
-    HibernateRepository <|-- AbstractHibernateRepository
-
-    style HibernateRepository fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractHibernateRepository fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-```
+![Repository Class Structure 1](../../docs/images/readme-diagrams/data-hibernate-diagram-01.svg)
 
 ### JPA Entity Class Hierarchy
 
-```mermaid
-classDiagram
-    class JpaEntity~ID~ {
-        <<interface>>
-        +id: ID?
-        +isPersisted(): Boolean
-        +equals(other): Boolean
-        +hashCode(): Int
-    }
-    class AbstractJpaEntity~ID~ {
-        <<abstract>>
-        +id: ID?
-        +equals(other): Boolean
-        +hashCode(): Int
-        +toString(): String
-    }
-    class IntJpaEntity {
-        +id: Int?
-    }
-    class LongJpaEntity {
-        +id: Long?
-    }
-    class UuidJpaEntity {
-        +id: UUID?
-    }
-    class JpaTreeEntity~T_ID~ {
-        <<interface>>
-        +parent: T?
-        +children: MutableList~T~
-        +addChildren(child)
-        +removeChildren(child)
-    }
-    class LongJpaTreeEntity~T~ {
-        +id: Long?
-        +parent: T?
-        +children: MutableList~T~
-    }
-    class IntJpaTreeEntity~T~ {
-        +id: Int?
-        +parent: T?
-        +children: MutableList~T~
-    }
-
-    JpaEntity <|.. AbstractJpaEntity
-    AbstractJpaEntity <|-- IntJpaEntity
-    AbstractJpaEntity <|-- LongJpaEntity
-    AbstractJpaEntity <|-- UuidJpaEntity
-    JpaTreeEntity <|.. LongJpaTreeEntity
-    JpaTreeEntity <|.. IntJpaTreeEntity
-    LongJpaEntity <|-- LongJpaTreeEntity
-    IntJpaEntity <|-- IntJpaTreeEntity
-
-    style JpaEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style AbstractJpaEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style IntJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style LongJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style UuidJpaEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JpaTreeEntity fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style LongJpaTreeEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style IntJpaTreeEntity fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![JPA Entity Class Hierarchy 2](../../docs/images/readme-diagrams/data-hibernate-diagram-02.svg)
 
 ### AttributeConverter Types
 
-```mermaid
-flowchart LR
-    subgraph Serialization_Converters
-        A1[JdkObjectAsByteArrayConverter]
-        A2[KryoObjectAsByteArrayConverter]
-        A3[ForyObjectAsByteArrayConverter]
-        A4[LZ4KryoObjectAsByteArrayConverter]
-        A5[ZstdForyObjectAsByteArrayConverter]
-    end
-    subgraph Encryption_Converters
-        B1[AESStringConverter<br/>AES-256-GCM]
-        B2[DeterministicAESStringConverter<br/>AES-256-SIV]
-    end
-    subgraph Compression_Converters
-        C1[LZ4StringConverter]
-        C2[ZstdStringConverter]
-        C3[GZipStringConverter]
-        C4[SnappyStringConverter]
-    end
-    subgraph Misc_Converters
-        D1[LocaleAsStringConverter]
-        D2[DurationAsTimestampConverter]
-        D3[AbstractObjectAsJsonConverter]
-    end
-
-    E[DB Column] <-->|convert| Serialization_Converters
-    E <-->|convert| Encryption_Converters
-    E <-->|convert| Compression_Converters
-    E <-->|convert| Misc_Converters
-
-    classDef dbStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef serStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef encStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef compStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef miscStyle fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-
-    class E dbStyle
-    class Serialization_Converters serStyle
-    class Encryption_Converters encStyle
-    class Compression_Converters compStyle
-    class Misc_Converters miscStyle
-```
+![AttributeConverter Types 3](../../docs/images/readme-diagrams/data-hibernate-diagram-03.svg)
 
 ## References
 

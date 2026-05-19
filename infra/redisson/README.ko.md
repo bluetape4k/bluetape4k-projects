@@ -262,95 +262,7 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ### Codec 계층 구조
 
-```mermaid
-classDiagram
-    class Codec {
-        <<interface>>
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class ForyCodec {
-        -fallbackCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Kryo5Codec {
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Lz4Codec {
-        -innerCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class ZstdCodec {
-        -innerCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class GzipCodec {
-        -innerCodec: Codec
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Jackson3Codec {
-        -objectMapper: ObjectMapper
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class Fastjson2Codec {
-        -fallbackCodec: Codec
-        -allowedPackagePrefixes: Set~String~
-        +getValueEncoder() Encoder
-        +getValueDecoder() Decoder
-    }
-
-    class RedissonCodecs {
-        <<object>>
-        +Default: Lz4Codec
-        +Fory: ForyCodec
-        +Kryo5: Kryo5Codec
-        +LZ4: Lz4Codec
-        +Zstd: ZstdCodec
-        +Jackson3: Jackson3Codec
-        +Fastjson2: Fastjson2Codec
-    }
-
-    Codec <|.. ForyCodec
-    Codec <|.. Kryo5Codec
-    Codec <|.. Lz4Codec
-    Codec <|.. ZstdCodec
-    Codec <|.. GzipCodec
-    Codec <|.. Jackson3Codec
-    Codec <|.. Fastjson2Codec
-    Lz4Codec --> ForyCodec : innerCodec
-    ZstdCodec --> ForyCodec : innerCodec
-    ForyCodec --> Kryo5Codec : fallback
-    Fastjson2Codec --> ForyCodec : fallback
-    RedissonCodecs --> Lz4Codec
-    RedissonCodecs --> ForyCodec
-    RedissonCodecs --> Kryo5Codec
-    RedissonCodecs --> Jackson3Codec
-    RedissonCodecs --> Fastjson2Codec
-
-    style Codec fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style ForyCodec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Kryo5Codec fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Lz4Codec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style ZstdCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style GzipCodec fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-    style Jackson3Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
-    style Fastjson2Codec fill:#EDE7F6,stroke:#B39DDB,color:#4527A0
-    style RedissonCodecs fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-```
+![Codec 계층 구조 1](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-01.svg)
 
 ### NearCache 2-Tier 캐시 흐름
 
@@ -379,38 +291,7 @@ sequenceDiagram
 
 ### Batch / Transaction 처리 흐름
 
-```mermaid
-flowchart TD
-    App[애플리케이션] -->|withBatch| Batch[RBatch]
-    Batch -->|setAsync| Op1[bucket.setAsync]
-    Batch -->|incrementAndGetAsync| Op2[atomicLong.incrementAsync]
-    Batch -->|putAsync| Op3[map.putAsync]
-    Op1 & Op2 & Op3 -->|execute| Redis[Redis<br/>파이프라인 실행]
-    Redis -->|BatchResult| App
-
-    App2[코루틴 환경] -->|withSuspendedTransaction| Tx[RTransaction]
-    Tx -->|set/put 작업| TxOps[트랜잭션 연산]
-    TxOps -->|성공 시 commitAsync| Redis
-    TxOps -->|예외 시 rollbackAsync| Redis
-
-    classDef coreStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32,font-weight:bold
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef utilStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    classDef asyncStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dataStyle fill:#F57F17,stroke:#F57F17,color:#000000
-    classDef cacheStyle fill:#E8F5E9,stroke:#A5D6A7,color:#2E7D32
-
-    style App fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style App2 fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style Redis fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Batch fill:#F57F17,stroke:#E65100,color:#000000
-    style Tx fill:#F57F17,stroke:#E65100,color:#000000
-    style Op1 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Op2 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style Op3 fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    style TxOps fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-```
+![Batch / Transaction 처리 흐름 2](../../docs/images/readme-diagrams/infra-redisson-ko-diagram-02.svg)
 
 ## 고성능 Batch 패턴 — 메가배치
 

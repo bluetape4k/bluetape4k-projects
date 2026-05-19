@@ -107,113 +107,15 @@ val update = ("name" setTo "Alice")
 
 ### 핵심 클래스 구조
 
-```mermaid
-classDiagram
-    class ReactiveMongoOperationsExt {
-        <<extension>>
-        +findAsFlow(query): Flow~T~
-        +findAllAsFlow(): Flow~T~
-        +findOneOrNullSuspending(query): T?
-        +countSuspending(query?): Long
-        +existsSuspending(query): Boolean
-        +insertSuspending(entity): T
-        +insertAllAsFlow(entities): Flow~T~
-        +saveSuspending(entity): T
-        +updateMultiSuspending(query, update): UpdateResult
-        +removeSuspending(query): DeleteResult
-        +aggregateAsFlow(aggregation): Flow~O~
-    }
-    class CriteriaDsl {
-        <<DSL>>
-        +criteria() gt value
-        +criteria() eq value
-        +criteria() inValues list
-        +criteria().isNull()
-        +andWith(other)
-    }
-    class QueryBuilderExt {
-        <<extension>>
-        +queryOf(criteria): Query
-        +sortAscBy(field): Query
-        +paginate(page, size): Query
-    }
-    class UpdateDsl {
-        <<DSL>>
-        +setTo(value): Update
-        +andSet(field, value): Update
-        +incBy(delta): Update
-    }
-    class UserRepository {
-        -operations: ReactiveMongoOperations
-        +findAllUsers(): Flow~User~
-        +findByName(name): User?
-        +save(user): User
-        +delete(query): DeleteResult
-    }
-
-    UserRepository --> ReactiveMongoOperationsExt
-    UserRepository --> CriteriaDsl
-    UserRepository --> QueryBuilderExt
-    UserRepository --> UpdateDsl
-
-    style ReactiveMongoOperationsExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style QueryBuilderExt fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    style CriteriaDsl fill:#F57F17,stroke:#E65100,color:#000000
-    style UpdateDsl fill:#F57F17,stroke:#E65100,color:#000000
-    style UserRepository fill:#FCE4EC,stroke:#F48FB1,color:#AD1457
-```
+![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-01.svg)
 
 ### ReactiveMongoOperations 코루틴 확장 흐름
 
-```mermaid
-flowchart TD
-    App["애플리케이션 코드"] --> Ext["코루틴 확장 함수<br/>(bluetape4k-spring-boot-mongodb)"]
-    Ext --> ROps["ReactiveMongoOperations"]
-    ROps --> Reactor["Reactor<br/>Mono / Flux"]
-    Reactor --> Driver["MongoDB Reactive Driver"]
-    Driver --> MongoDB[("MongoDB")]
-    Ext -- "Mono → suspend" --> App
-    Ext -- "Flux → Flow" --> App
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef extStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef reactorStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef driverStyle fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class App appStyle
-    class Ext,ROps extStyle
-    class Reactor reactorStyle
-    class Driver driverStyle
-    class MongoDB dbStyle
-```
+![ReactiveMongoOperations 코루틴 확장 흐름 2](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-02.svg)
 
 ### Criteria / Query / Update DSL 흐름
 
-```mermaid
-flowchart LR
-    Code["애플리케이션 코드"] --> CriteriaDSL["Criteria infix DSL<br/>age.criteria() gt 20"]
-    Code --> QueryBuilder["Query 빌더 확장<br/>queryOf() / paginate()"]
-    Code --> UpdateDSL["Update DSL<br/>field setTo value"]
-    CriteriaDSL --> Query["Query 객체"]
-    QueryBuilder --> Query
-    UpdateDSL --> Update["Update 객체"]
-    Query --> ROps["ReactiveMongoOperations<br/>코루틴 확장"]
-    Update --> ROps
-    ROps --> MongoDB[("MongoDB")]
-
-    classDef appStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    classDef dslStyle fill:#F57F17,stroke:#E65100,color:#000000
-    classDef queryStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef opsStyle fill:#F3E5F5,stroke:#CE93D8,color:#6A1B9A
-    classDef dbStyle fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-
-    class Code appStyle
-    class CriteriaDSL,QueryBuilder,UpdateDSL dslStyle
-    class Query,Update queryStyle
-    class ROps opsStyle
-    class MongoDB dbStyle
-```
+![Criteria / Query / Update DSL 흐름 3](../../docs/images/readme-diagrams/spring-boot-mongodb-ko-diagram-03.svg)
 
 ### 코루틴 변환 시퀀스
 

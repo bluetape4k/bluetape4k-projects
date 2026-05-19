@@ -6,52 +6,7 @@ Logback Appender that delivers log events to Apache Kafka topics. Supports both 
 
 ## Architecture
 
-```mermaid
-classDiagram
-    direction LR
-
-    class AbstractKafkaAppender {
-        +bootstrapServers: String
-        +topic: String
-        +partition: Int?
-        +keyProvider: KafkaKeyProvider
-        +exporter: KafkaExporter
-        +encoder: Encoder
-        +addProducerConfigValue(key, value)
-        #checkOptions(): Boolean
-    }
-
-    class KafkaAppender {
-        -producer: KafkaProducer
-        +start()
-        +stop()
-        #append(event)
-    }
-
-    class KafkaExporter {
-        <<interface>>
-        +export(producer, topic, partition, key, body)
-    }
-
-    class DefaultKafkaExporter {
-        +export(...)
-    }
-
-    class KafkaKeyProvider {
-        <<interface>>
-        +getKey(event): ByteArray?
-    }
-
-    AbstractKafkaAppender <|-- KafkaAppender
-    KafkaExporter <|.. DefaultKafkaExporter
-    KafkaKeyProvider <|.. HostnameKafkaKeyProvider
-    KafkaKeyProvider <|.. LoggerNameKafkaKeyProvider
-    KafkaKeyProvider <|.. ThreadNameKafkaKeyProvider
-    KafkaKeyProvider <|.. ContextNameKafkaKeyProvider
-    KafkaKeyProvider <|.. NullKafkaKeyProvider
-    KafkaAppender --> KafkaExporter
-    KafkaAppender --> KafkaKeyProvider
-```
+![Architecture 1](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.svg)
 
 ## Features
 

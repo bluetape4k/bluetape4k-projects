@@ -307,76 +307,11 @@ val restored = yamlMapper.readValue<User>(yaml)     // deserialization
 
 ### Jackson 2.x vs 3.x Module Comparison
 
-```mermaid
-flowchart LR
-    subgraph JK2["bluetape4k-jackson2 (Jackson 2.x)"]
-        M2[com.fasterxml.jackson.*]
-        MOD2[Module SPI:<br/>com.fasterxml.jackson.databind.Module]
-        TK2["@JsonTinkEncrypt<br/>→ auto-registered"]
-    end
-
-    subgraph JK3["bluetape4k-jackson3 (Jackson 3.x)"]
-        M3[tools.jackson.*]
-        MOD3[Module SPI:<br/>tools.jackson.databind.JacksonModule]
-        TK3["@JsonTinkEncrypt<br/>→ manual JsonTinkEncryptModule registration"]
-    end
-
-    JK2 -->|same features, different package| JK3
-
-    classDef serviceStyle fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    classDef extStyle fill:#ECEFF1,stroke:#B0BEC5,color:#37474F
-    class JK2 serviceStyle
-    class JK3 serviceStyle
-```
+![Jackson 2.x vs 3.x Module Comparison 1](../../docs/images/readme-diagrams/io-jackson3-diagram-01.svg)
 
 ### Class Structure
 
-```mermaid
-classDiagram
-    class JsonSerializer {
-        <<interface>>
-        +serialize(graph) ByteArray
-        +deserialize(bytes, clazz) T?
-        +serializeAsString(graph) String
-        +deserializeFromString(text, clazz) T?
-    }
-
-    class JacksonSerializer {
-        -mapper: ObjectMapper
-    }
-
-    class Jackson {
-        <<singleton>>
-        +defaultJsonMapper: JsonMapper
-        +prettyJsonWriter: ObjectWriter
-        +createDefaultJsonMapper() JsonMapper
-    }
-
-    class JsonTinkEncryptModule {
-        +setupModule(context)
-    }
-
-    class JsonMaskerModule {
-        +setupModule(context)
-    }
-
-    class JsonUuidModule {
-        +setupModule(context)
-    }
-
-    JsonSerializer <|.. JacksonSerializer
-    JacksonSerializer --> Jackson : uses
-    Jackson --> JsonTinkEncryptModule : registers
-    Jackson --> JsonMaskerModule : registers
-    Jackson --> JsonUuidModule : registers
-
-    style JsonSerializer fill:#E3F2FD,stroke:#90CAF9,color:#1565C0
-    style JacksonSerializer fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style Jackson fill:#FFF3E0,stroke:#FFCC80,color:#E65100
-    style JsonTinkEncryptModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JsonMaskerModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-    style JsonUuidModule fill:#E0F2F1,stroke:#80CBC4,color:#00695C
-```
+![Class Structure 2](../../docs/images/readme-diagrams/io-jackson3-diagram-02.svg)
 
 ### Jackson 3.x Module Registration Flow
 
