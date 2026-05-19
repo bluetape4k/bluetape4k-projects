@@ -25,19 +25,19 @@
 <text class="title" x="66" y="82">9. takeUntil(notifier) / skipUntil(notifier) — Gate Control</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
 <rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="197" text-anchor="middle">Flow Source</text>
+<text class="smallLabel" x="140" y="209" text-anchor="middle">Flow Source</text>
 <line x1="140" y1="252" x2="140" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="322.5" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="427.5" y="197" text-anchor="middle">Notifier Flow</text>
+<text class="smallLabel" x="427.5" y="209" text-anchor="middle">Notifier Flow</text>
 <line x1="427.5" y1="252" x2="427.5" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="610" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="715" y="197" text-anchor="middle">takeUntil</text>
+<text class="smallLabel" x="715" y="209" text-anchor="middle">takeUntil</text>
 <line x1="715" y1="252" x2="715" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="897.5" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1002.5" y="197" text-anchor="middle">skipUntil</text>
+<text class="smallLabel" x="1002.5" y="209" text-anchor="middle">skipUntil</text>
 <line x1="1002.5" y1="252" x2="1002.5" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="1185" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1290" y="197" text-anchor="middle">Collector</text>
+<text class="smallLabel" x="1290" y="209" text-anchor="middle">Collector</text>
 <line x1="1290" y1="252" x2="1290" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect x="158" y="270" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="297" text-anchor="start">1. emit(1)</text>

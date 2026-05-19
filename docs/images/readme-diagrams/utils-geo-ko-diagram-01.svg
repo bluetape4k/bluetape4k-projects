@@ -50,19 +50,19 @@
   <text class="smallLabel" x="150" y="54" text-anchor="middle">Google Maps API</text>
   <text class="small" x="150" y="84" text-anchor="middle">core</text>
 </g>
-<path class="line" d="M438 309 L448 309"/>
+<path class="line" d="M430 309 L464 309"/>
 <g transform="translate(798,250)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#fff3d9" stroke="#d6a441"/>
   <text class="smallLabel" x="150" y="54" text-anchor="middle">Bing Maps API</text>
   <text class="small" x="150" y="84" text-anchor="middle">integration</text>
 </g>
-<path class="line" d="M772 309 L782 309"/>
+<path class="line" d="M764 309 L798 309"/>
 <g transform="translate(1132,250)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#fdecef" stroke="#dc6b82"/>
   <text class="smallLabel" x="150" y="54" text-anchor="middle">HTTP Client</text>
   <text class="small" x="150" y="84" text-anchor="middle">storage</text>
 </g>
-<path class="line" d="M1106 309 L1116 309"/>
+<path class="line" d="M1098 309 L1132 309"/>
 <g transform="translate(130,456)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#e9f7f6" stroke="#45a7a1"/>
   <text class="smallLabel" x="150" y="54" text-anchor="middle">Base32</text>
@@ -73,19 +73,19 @@
   <text class="smallLabel" x="150" y="54" text-anchor="middle">MaxMind DB</text>
   <text class="small" x="150" y="84" text-anchor="middle">support</text>
 </g>
-<path class="line" d="M438 515 L448 515"/>
+<path class="line" d="M430 515 L464 515"/>
 <g transform="translate(798,456)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#e8f3ff" stroke="#5b8def"/>
   <text class="smallLabel" x="150" y="54" text-anchor="middle">Geocode ( utils / geoco.</text>
   <text class="small" x="150" y="84" text-anchor="middle">example</text>
 </g>
-<path class="line" d="M772 515 L782 515"/>
+<path class="line" d="M764 515 L798 515"/>
 <g transform="translate(1132,456)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#eaf7ef" stroke="#58a978"/>
   <text class="smallLabel" x="150" y="54" text-anchor="middle">GeoHash ( utils / geoha.</text>
   <text class="small" x="150" y="84" text-anchor="middle">tooling</text>
 </g>
-<path class="line" d="M1106 515 L1116 515"/>
+<path class="line" d="M1098 515 L1132 515"/>
 <g transform="translate(130,662)">
   <rect class="card" x="0" y="0" width="300" height="118" rx="14" fill="#fff3d9" stroke="#d6a441"/>
   <text class="smallLabel" x="150" y="54" text-anchor="middle">GeoIP2 ( utils / geoip2)</text>
@@ -96,7 +96,7 @@
   <text class="smallLabel" x="150" y="54" text-anchor="middle">Google Maps Services</text>
   <text class="small" x="150" y="84" text-anchor="middle">test</text>
 </g>
-<path class="line" d="M438 721 L448 721"/>
+<path class="line" d="M430 721 L464 721"/>
 <g transform="translate(180,860)">
   <rect class="card" x="0" y="0" width="1240" height="92" rx="18" fill="#f7fbff" stroke="#d8e0ea"/>
   <text class="smallLabel" x="28" y="42">Reading rule</text>

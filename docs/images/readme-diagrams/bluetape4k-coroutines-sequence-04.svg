@@ -25,13 +25,13 @@
 <text class="title" x="66" y="82">4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
 <rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="197" text-anchor="middle">Flow Source</text>
+<text class="smallLabel" x="140" y="209" text-anchor="middle">Flow Source</text>
 <line x1="140" y1="252" x2="140" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="197" text-anchor="middle">sliding(2)</text>
+<text class="smallLabel" x="520" y="209" text-anchor="middle">sliding(2)</text>
 <line x1="520" y1="252" x2="520" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="197" text-anchor="middle">bufferedSliding(2)</text>
+<text class="smallLabel" x="900" y="209" text-anchor="middle">bufferedSliding(2)</text>
 <line x1="900" y1="252" x2="900" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
 <rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="297" text-anchor="start">1. emit(1)</text>
@@ -41,35 +41,35 @@
 <path class="line" d="M140 392 L520 392"/>
 <rect x="538" y="434" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="554" y="461" text-anchor="start">3. window=[1,2] full</text>
-<path class="dashed" d="M520 474 L520 474"/>
+<path class="dashed" d="M520 474 C576 474 576 504 520 504"/>
 <rect x="538" y="516" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="554" y="543" text-anchor="start">4. emit([1, 2])</text>
-<path class="line" d="M520 556 L520 556"/>
+<path class="line" d="M520 556 C576 556 576 586 520 586"/>
 <rect x="158" y="598" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="625" text-anchor="start">5. emit(3)</text>
 <path class="line" d="M140 638 L520 638"/>
 <rect x="538" y="680" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="554" y="707" text-anchor="start">6. emit([2, 3])</text>
-<path class="line" d="M520 720 L520 720"/>
+<path class="line" d="M520 720 C576 720 576 750 520 750"/>
 <rect x="158" y="762" width="724" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="789" text-anchor="start">7. emit(1)</text>
 <path class="line" d="M140 802 L900 802"/>
 <rect x="918" y="844" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="934" y="871" text-anchor="start">8. emit([1])</text>
-<path class="line" d="M900 884 L900 884"/>
+<path class="line" d="M900 884 C956 884 956 914 900 914"/>
 <rect x="158" y="926" width="724" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="953" text-anchor="start">9. emit(2)</text>
 <path class="line" d="M140 966 L900 966"/>
 <rect x="918" y="1008" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="934" y="1035" text-anchor="start">10. emit([1, 2])</text>
-<path class="line" d="M900 1048 L900 1048"/>
+<path class="line" d="M900 1048 C956 1048 956 1078 900 1078"/>
 <rect x="158" y="1090" width="724" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="174" y="1117" text-anchor="start">11. emit(3)</text>
 <path class="line" d="M140 1130 L900 1130"/>
 <rect x="918" y="1172" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="934" y="1199" text-anchor="start">12. emit([2, 3])</text>
-<path class="line" d="M900 1212 L900 1212"/>
+<path class="line" d="M900 1212 C956 1212 956 1242 900 1242"/>
 <rect x="918" y="1254" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
 <text class="strong" x="934" y="1281" text-anchor="start">13. emit([3])</text>
-<path class="line" d="M900 1294 L900 1294"/>
+<path class="line" d="M900 1294 C956 1294 956 1324 900 1324"/>
 </svg>
