@@ -18,42 +18,7 @@
 
 ### compress/decompress 흐름
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant AC as AbstractCompressor
-        participant Impl as 구현체(e.g. LZ4Compressor)
-
-    C->>AC: compress(plain: ByteArray?)
-    AC->>AC: plain.isNullOrEmpty() 검사
-    alt null 또는 빈 배열
-        AC-->>C: emptyByteArray
-    else 유효한 데이터
-        AC->>Impl: doCompress(plain)
-        alt 성공
-            Impl-->>AC: compressed: ByteArray
-            AC-->>C: compressed
-        else 실패
-            Impl--xAC: IOException / IllegalArgumentException / 라이브러리 예외
-            AC--xC: 동일 예외 전파
-        end
-    end
-
-    C->>AC: decompress(compressed: ByteArray?)
-    AC->>AC: compressed.isNullOrEmpty() 검사
-    alt null 또는 빈 배열
-        AC-->>C: emptyByteArray
-    else 유효한 데이터
-        AC->>Impl: doDecompress(compressed)
-        alt 성공
-            Impl-->>AC: plain: ByteArray
-            AC-->>C: plain
-        else 실패
-            Impl--xAC: IOException / IllegalArgumentException / 라이브러리 예외
-            AC--xC: 동일 예외 전파
-        end
-    end
-```
+![compress / decompress diagram](../../docs/images/readme-diagrams/io-io-sequence-01.png)
 
 `compress()`와 `decompress()`는 예외 전파 API입니다. null 또는 empty 입력은
 `emptyByteArray`를 반환하지만, 구현체 압축/복원 실패는 호출자에게 그대로 전파됩니다.
@@ -62,30 +27,7 @@ sequenceDiagram
 
 ### serialize/deserialize 흐름
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant ABS as AbstractBinarySerializer
-        participant Impl as 구현체(e.g. KryoBinarySerializer)
-
-    C->>ABS: serialize(graph: Any?)
-    alt graph == null
-        ABS-->>C: emptyByteArray
-    else 유효한 객체
-        ABS->>Impl: doSerialize(graph)
-        Impl-->>ABS: bytes: ByteArray
-        ABS-->>C: bytes
-    end
-
-    C->>ABS: deserialize(bytes: ByteArray?)
-    alt null 또는 빈 배열
-        ABS-->>C: null
-    else 유효한 데이터
-        ABS->>Impl: doDeserialize(bytes)
-        Impl-->>ABS: obj: T?
-        ABS-->>C: obj
-    end
-```
+![serialize / deserialize diagram](../../docs/images/readme-diagrams/io-io-sequence-02.png)
 
 ## 주요 기능
 

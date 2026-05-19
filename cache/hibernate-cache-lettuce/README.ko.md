@@ -146,31 +146,7 @@ val products: MutableList<Product> = mutableListOf()
 
 #### getFromCache / putIntoCache 흐름
 
-```mermaid
-sequenceDiagram
-        participant Hibernate
-        participant Storage as LettuceNearCacheStorageAccess
-        participant L1 as Caffeine (L1)
-        participant L2 as Redis (L2)
-
-    Note over Hibernate,L2: getFromCache
-    Hibernate->>Storage: getFromCache(key)
-    Storage->>L1: get(key)
-    alt L1 Hit
-        L1-->>Storage: value
-    else L1 Miss
-        L1-->>Storage: null
-        Storage->>L2: GET regionName::key
-        L2-->>Storage: value
-        Storage->>L1: put(key, value)
-    end
-    Storage-->>Hibernate: value
-
-    Note over Hibernate,L2: putIntoCache
-    Hibernate->>Storage: putIntoCache(key, value)
-    Storage->>L1: put(key, value)
-    Storage->>L2: SET regionName::key value
-```
+![getFromCache / putIntoCache diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-sequence-01.png)
 
 | 연산                        | 동작                                                        |
 |---------------------------|-----------------------------------------------------------|

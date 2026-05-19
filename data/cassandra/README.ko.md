@@ -372,22 +372,7 @@ class MyCassandraTest: AbstractCassandraTest() {
 
 ### 비동기 쿼리 실행 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as CqlSession 확장
-        participant Session as CqlSession
-        participant DB as Cassandra
-
-    App->>Ext: executeSuspending(query)
-    Ext->>Session: executeAsync(statement)
-    Session->>DB: CQL 실행
-    DB-->>Session: AsyncResultSet
-    Session-->>Ext: CompletionStage
-    Ext-->>App: suspend (Flow<Row>)
-    App->>Ext: rowsFlow()
-    Ext-->>App: Flow<Row>
-```
+![Execution diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## 참고 자료
 

@@ -269,28 +269,7 @@ val value = nearCache.get("key")   // Checks local cache first
 
 ### NearCache 2-Tier Cache Flow
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant Local as Local Cache<br/>(RLocalCachedMap)
-    participant Redis as Redis<br/>(Remote Store)
-    participant Other as Other Node
-
-    App->>+Local: get("key")
-    alt Local cache hit
-        Local-->>App: Return value immediately
-    else Local cache miss
-        Local->>+Redis: GET "key"
-        Redis-->>-Local: Return value
-        Local->>Local: Store in local cache
-        Local-->>-App: Return value
-    end
-
-    App->>Redis: put("key", newValue)
-    Redis->>Local: Propagate invalidation
-    Redis->>Other: Propagate invalidation (Pub/Sub)
-    Other->>Other: Invalidate local cache
-```
+![NearCache 2-Tier Cache Flow diagram](../../docs/images/readme-diagrams/infra-redisson-sequence-01.png)
 
 ### Batch / Transaction Processing Flow
 

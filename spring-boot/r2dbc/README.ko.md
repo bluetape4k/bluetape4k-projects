@@ -127,27 +127,7 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 
 ### 코루틴 변환 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant Ext as XyzSuspending 확장
-        participant Ops as R2dbcEntityOperations
-        participant DB as 데이터베이스
-
-    App->>Ext: findOneByIdOrNullSuspending<Post>(id)
-    Ext->>Ops: selectOne(query, Post::class) → Mono<Post>
-    Ops->>DB: SELECT * FROM posts WHERE id=?
-    DB-->>Ops: 행 데이터
-    Ops-->>Ext: Mono<Post>
-    Ext-->>App: Post? (suspend 반환)
-
-    App->>Ext: selectAllSuspending<Post>()
-    Ext->>Ops: select(Post::class) → Flux<Post>
-    Ops->>DB: SELECT * FROM posts
-    DB-->>Ops: 행 스트림
-    Ops-->>Ext: Flux<Post>
-    Ext-->>App: Flow<Post> (코루틴 스트림)
-```
+![Coroutine diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)
 
 ## 참고
 

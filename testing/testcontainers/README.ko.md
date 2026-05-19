@@ -8,31 +8,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ### 컨테이너 생명주기 다이어그램
 
-```mermaid
-sequenceDiagram
-        participant TEST as 테스트 클래스
-        participant SERVER as GenericServer (래퍼)
-        participant TC as Testcontainers
-        participant DOCKER as Docker 컨테이너
-        participant SPRING as Spring Boot
-
-    TEST->>SERVER: start()
-    SERVER->>TC: 컨테이너 시작 요청
-    TC->>DOCKER: Docker 이미지 pull & run
-    DOCKER-->>TC: 컨테이너 준비 완료
-    TC-->>SERVER: 포트 매핑 정보 반환
-    SERVER->>SERVER: writeToSystemProperties()<br/>testcontainers.{name}.host/port/url 등록
-    SERVER-->>TEST: 시작 완료
-
-    TEST->>SPRING: 테스트 실행 시작
-    SPRING->>SPRING: application-test.yml 로드<br/>${testcontainers.mysql.jdbc-url} 치환
-    SPRING-->>TEST: ApplicationContext 준비 완료
-
-    TEST->>TEST: 테스트 로직 실행
-
-    TEST->>SERVER: stop() (또는 @AfterAll)
-    SERVER->>DOCKER: 컨테이너 종료 & 제거
-```
+![testcontainers diagram diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-01.png)
 
 ### 지원 컨테이너 클래스 다이어그램
 
@@ -338,36 +314,7 @@ client.use {
 
 ### 카오스 테스트 (Toxiproxy)
 
-```mermaid
-sequenceDiagram
-    autonumber
-        participant TEST as 테스트 코드
-        participant REDIS as RedisServer
-        participant TOXI as ToxiproxyServer
-        participant API as ToxiproxyClient
-        participant LETTUCE as Lettuce Client
-
-    TEST->>REDIS: start() withNetwork(network)
-    TEST->>TOXI: start() withNetwork(network)
-    TEST->>API: createProxy("redis-primary", "0.0.0.0:8666", "redis:6379")
-    API-->>TOXI: 프록시 생성 및 listen/upstream 구성
-
-    TEST->>LETTUCE: connect(toxiproxy.host, toxiproxy.getMappedPort(8666))
-    LETTUCE->>TOXI: PING / SET / GET 요청
-    TOXI->>REDIS: redis:6379 로 요청 전달
-    REDIS-->>TOXI: 응답 반환
-    TOXI-->>LETTUCE: 프록시 응답 반환
-
-    TEST->>API: proxy.toxics().latency(..., DOWNSTREAM, 250)
-    API-->>TOXI: downstream latency toxic 추가
-    LETTUCE->>TOXI: GET 요청
-    TOXI-->>LETTUCE: 지연 후 응답 반환
-
-    TEST->>API: latency.remove()
-    API-->>TOXI: toxic 제거
-    LETTUCE->>TOXI: GET 요청
-    TOXI-->>LETTUCE: 정상 속도로 응답 반환
-```
+![Test (Toxiproxy) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)
 
 - `RedisServer`는 실제 Upstream 서버입니다.
 - `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트(`8474`)와 프록시 포트 범위(`8666~8697`)를 노출합니다.

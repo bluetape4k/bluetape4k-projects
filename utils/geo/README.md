@@ -19,35 +19,7 @@ A unified module for geographic information processing. Provides Geocode, GeoHas
 
 ### GeoHash Encoding/Decoding Flow
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant GH as GeoHashUtils
-    participant Grid as GeoHash Grid
-
-    box "Application Layer" #E8F5E9
-    participant App as Application
-    end
-    box "Utility Layer" #FFF3E0
-    participant GH as GeoHashUtils
-    end
-    box "Data Layer" #E3F2FD
-    participant Grid as GeoHash Grid
-    end
-
-    App->>GH: encode(lat=37.5665, lon=126.9780, precision=9)
-    GH->>Grid: divide into Base32 cells
-    Grid-->>GH: "wydm9mufd"
-    GH-->>App: hash string
-
-    App->>GH: decode("wydm9mufd")
-    GH->>Grid: reverse lookup bounding box
-    Grid-->>GH: GeoPoint(37.5665, 126.9780)
-    GH-->>App: GeoPoint
-
-    App->>GH: neighbors("wydm9mufd")
-    GH-->>App: List of 8 adjacent hashes
-```
+![GeoHash Encoding / Decoding Flow diagram](../../docs/images/readme-diagrams/utils-geo-sequence-01.png)
 
 ## Key Features
 

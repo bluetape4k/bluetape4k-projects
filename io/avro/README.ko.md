@@ -125,27 +125,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Avro 직렬화/역직렬화 흐름
 
-```mermaid
-sequenceDiagram
-        participant 앱 as 애플리케이션
-        participant S as AvroSerializer
-        participant C as CodecFactory
-        participant A as Avro 런타임
-
-    Note over 앱,A: 직렬화 흐름
-    앱->>S: serialize(record)
-    S->>C: 압축 코덱 선택 (Zstd/Snappy/Deflate)
-    S->>A: DatumWriter로 인코딩
-    A-->>S: 압축된 ByteArray
-    S-->>앱: ByteArray
-
-    Note over 앱,A: 역직렬화 흐름 (스키마 진화 포함)
-    앱->>S: deserialize(bytes)
-    S->>A: Writer Schema + Reader Schema 비교
-    A->>A: 필드 호환성 검증
-    A-->>S: 역직렬화된 객체
-    S-->>앱: T (실패 시 null 반환)
-```
+![Avro Serialization / Serialization diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
 
 ### 압축 코덱 선택 가이드
 

@@ -29,39 +29,7 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 ### Rule 실행 시퀀스
 
-```mermaid
-sequenceDiagram
-    box "소비자" #E8F5E9
-    participant Caller
-    end
-    box "Rule Engine" #E3F2FD
-    participant RuleEngine
-    participant RuleListener
-    end
-    box "Rules" #FFF3E0
-    participant Rule
-    participant Facts
-    end
-    Caller ->> RuleEngine: fire(ruleSet, facts)
-
-    loop rules (우선순위 순)
-        RuleEngine ->> RuleListener: beforeEvaluate(rule, facts)
-        RuleEngine ->> Rule: evaluate(facts)
-        Rule -->> RuleEngine: true / false
-
-        alt condition = true
-            RuleEngine ->> Rule: execute(facts)
-            Rule ->> Facts: 값 수정
-            RuleEngine ->> RuleListener: onSuccess(rule, facts)
-            Note over RuleEngine: skipOnFirstAppliedRule → 중단
-        else condition = false
-            RuleEngine ->> RuleListener: onFailure(rule, facts)
-            Note over RuleEngine: skipOnFirstNonTriggeredRule → 중단
-        end
-    end
-
-    RuleEngine -->> Caller: (완료)
-```
+![Rule Execution diagram](../../docs/images/readme-diagrams/utils-rule-engine-sequence-01.png)
 
 ### InferenceRuleEngine (Forward Chaining)
 

@@ -73,47 +73,11 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 #### NearCache get() 동작 시퀀스 (front miss → back lookup → front fill)
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as NearCache
-    participant Front as Front Cache (Caffeine)
-    participant Back as Back Cache (Redis/IMap/Redisson)
-    App ->> NC: get("key")
-    NC ->> Front: get("key")
-    alt front hit
-        Front -->> NC: value
-        NC -->> App: value (즉시 반환)
-    else front miss
-        Front -->> NC: null
-        NC ->> Back: get("key")
-        alt back hit
-            Back -->> NC: value
-            NC ->> Front: put("key", value)
-            Front -->> NC: ok
-            NC -->> App: value
-        else back miss
-            Back -->> NC: null
-            NC -->> App: null
-        end
-    end
-```
+![NearCache get (front miss → back lookup → front fill) diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-01.png)
 
 #### NearCache put() 동작 시퀀스 (write-through)
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as NearCache
-    participant Front as Front Cache (Caffeine)
-    participant Back as Back Cache (Redis/IMap/Redisson)
-    App ->> NC: put("key", value)
-    NC ->> Back: set("key", value)
-    Back -->> NC: ok
-    NC ->> Front: put("key", value)
-    Front -->> NC: ok
-    NC -->> App: (완료)
-```
+![NearCache put (write-through) diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-02.png)
 
 #### NearCacheOperations (Blocking)
 

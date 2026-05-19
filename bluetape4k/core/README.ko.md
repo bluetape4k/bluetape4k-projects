@@ -20,33 +20,7 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 
 ### Validation 체이닝 흐름
 
-```mermaid
-sequenceDiagram
-        participant C as 호출자
-        participant R as RequireSupport
-        participant V as 유효한 값
-
-    C->>R: username.requireNotBlank("username")
-    alt 빈 문자열 또는 null
-        R-->>C: IllegalArgumentException
-    else 유효
-        R->>C: username (non-null)
-    end
-
-    C->>R: .requireStartsWith("user_", "username")
-    alt 접두사 불일치
-        R-->>C: IllegalArgumentException
-    else 유효
-        R->>V: username (검증 완료)
-    end
-
-    C->>R: age.requireGe(18, "age")
-    alt 18 미만
-        R-->>C: IllegalArgumentException
-    else 유효
-        R->>C: age (체이닝 반환)
-    end
-```
+![Validation diagram](../../docs/images/readme-diagrams/bluetape4k-core-sequence-01.png)
 
 ## 주요 기능
 

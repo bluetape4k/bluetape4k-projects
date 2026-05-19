@@ -310,27 +310,7 @@ val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 
 ### Jackson 3.x 모듈 등록 흐름
 
-```mermaid
-sequenceDiagram
-        participant 앱 as 애플리케이션
-        participant J as Jackson
-        participant M as JsonMapper.Builder
-        participant MOD as JacksonModule들
-
-    앱->>J: Jackson.createDefaultJsonMapper()
-    J->>M: jsonMapper { findAndAddModules() }
-    M->>MOD: JsonTinkEncryptModule 등록
-    M->>MOD: JsonMaskerModule 등록
-    M->>MOD: JsonUuidModule 등록
-    MOD-->>M: Introspector / Serializer / Deserializer 연결
-    M-->>J: JsonMapper 생성
-    J-->>앱: 구성된 ObjectMapper
-
-    앱->>J: mapper.writeValueAsString(obj)
-    J->>MOD: @JsonTinkEncrypt 필드 탐지
-    MOD-->>J: 암호화된 값
-    J-->>앱: JSON 문자열
-```
+![Jackson 3.x Module diagram](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
 
 ## 의존성
 

@@ -403,33 +403,7 @@ dependencies {
 
 ### LettuceLoadedMap Read-Through / Write-Through Flow
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant LettuceLoadedMap
-    participant Redis
-    participant MapLoader
-    participant MapWriter
-    Note over Client, MapWriter: Read-Through (cache miss)
-    Client ->> LettuceLoadedMap: get(key)
-    LettuceLoadedMap ->> Redis: GET prefix:key
-    Redis -->> LettuceLoadedMap: null (cache miss)
-    LettuceLoadedMap ->> MapLoader: load(key)
-    MapLoader -->> LettuceLoadedMap: value
-    LettuceLoadedMap ->> Redis: SETEX prefix:key value ttl
-    LettuceLoadedMap -->> Client: value
-    Note over Client, MapWriter: Read-Through (cache hit)
-    Client ->> LettuceLoadedMap: get(key)
-    LettuceLoadedMap ->> Redis: GET prefix:key
-    Redis -->> LettuceLoadedMap: value (cache hit)
-    LettuceLoadedMap -->> Client: value
-    Note over Client, MapWriter: Write-Through
-    Client ->> LettuceLoadedMap: set(key, value)
-    LettuceLoadedMap ->> MapWriter: write({key: value})
-    MapWriter -->> LettuceLoadedMap: ok
-    LettuceLoadedMap ->> Redis: SETEX prefix:key value ttl
-    LettuceLoadedMap -->> Client: ok
-```
+![LettuceLoadedMap Read-Through / Write-Through Flow diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
 
 ### LettuceBinaryCodec Hierarchy
 

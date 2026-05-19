@@ -123,27 +123,7 @@ suspendNearJCache.close()
 
 ### IMap EntryListener 기반 Invalidation 흐름
 
-```mermaid
-sequenceDiagram
-    participant App1 as Application (인스턴스 1)
-    participant NC1 as HazelcastNearCache (인스턴스 1)
-    participant Front1 as Caffeine (인스턴스 1)
-    participant IMap as Hazelcast IMap (분산)
-    participant Listener2 as EntryListener (인스턴스 2)
-    participant Front2 as Caffeine (인스턴스 2)
-    Note over NC1, IMap: 초기화 — IMap.addEntryListener 등록
-    NC1 ->> IMap: addEntryListener(entryListener, true)
-    Listener2 ->> IMap: addEntryListener(entryListener, true)
-    Note over App1, Front1: 인스턴스 1이 키를 수정
-    App1 ->> NC1: put("key", newValue)
-    NC1 ->> Front1: put("key", newValue)
-    NC1 ->> IMap: set("key", newValue)
-    Note over IMap, Front2: IMap이 EntryUpdated 이벤트 발행
-    IMap ->> Listener2: entryUpdated("key", newValue)
-    Listener2 ->> Front2: invalidate("key")
-    Front2 -->> Listener2: (로컬 캐시에서 제거)
-    Note over Front2: 다음 get("key") 시 IMap에서 최신값 조회
-```
+![IMap EntryListener Invalidation diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)
 
 ## NearCache 아키텍처
 

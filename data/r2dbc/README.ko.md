@@ -386,22 +386,7 @@ class UserRepositoryTest: AbstractR2dbcTest() {
 
 ### R2DBC 쿼리 실행 흐름
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant R2DBC as DatabaseClient 확장
-        participant Spring as Spring R2DBC
-        participant DB as 데이터베이스
-
-    App->>R2DBC: sql("SELECT ...").bind(...).fetch().flow { row, _ -> }
-    R2DBC->>Spring: DatabaseClient.sql().bind().fetch()
-    Spring->>DB: R2DBC 쿼리 실행 (논블로킹)
-    DB-->>Spring: Flux~Row~
-    Spring-->>R2DBC: Flux~Row~
-    R2DBC-->>App: Flow~T~ (코루틴 변환)
-
-    Note over App,DB: 모든 I/O가 논블로킹, 코루틴 컨텍스트에서 실행
-```
+![R2DBC Execution diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
 
 ### JDBC vs R2DBC 비교
 

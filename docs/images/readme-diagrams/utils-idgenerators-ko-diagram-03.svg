@@ -1,1 +1,90 @@
-<svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-width: 496.375px; background-color: transparent;" viewBox="-5 -45 496.375 90" role="graphics-document document" aria-roledescription="block"><style>#my-svg{font-size:16px;fill:#102033;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#FFF3D9;}#my-svg .error-text{fill:#102033;stroke:#102033;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#7A8794;stroke:#7A8794;}#my-svg .marker.cross{stroke:#7A8794;}#my-svg svg{font-size:16px;}#my-svg p{margin:0;}#my-svg .label{color:#102033;}#my-svg .cluster-label text{fill:#102033;}#my-svg .cluster-label span,#my-svg p{color:#102033;}#my-svg .label text,#my-svg span,#my-svg p{fill:#102033;color:#102033;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#E8F3FF;stroke:#5B8DEF;stroke-width:1px;}#my-svg .flowchart-label text{text-anchor:middle;}#my-svg .node .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .arrowheadPath{fill:rgba(255, 255, 255, 0);}#my-svg .edgePath .path{stroke:#7A8794;stroke-width:2.0px;}#my-svg .flowchart-link{stroke:#7A8794;fill:none;}#my-svg .edgeLabel{background-color:#FFFFFF;text-align:center;}#my-svg .edgeLabel p{margin:0;padding:0;display:inline;}#my-svg .edgeLabel rect{opacity:0.5;background-color:#FFFFFF;fill:#FFFFFF;}#my-svg .labelBkg{background-color:#FFFFFF;}#my-svg .node .cluster{fill:rgba(248, 250, 252, 0.5);stroke:rgba(203, 213, 225, 0.2);box-shadow:rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;stroke-width:1px;}#my-svg .cluster text{fill:#102033;}#my-svg .cluster span,#my-svg p{color:#102033;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-size:12px;background:#FFF3D9;border:1px solid #D6A441;border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#102033;}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#5B8DEF;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#5B8DEF;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g/><marker id="my-svg_block-pointEnd" class="marker block" viewBox="0 0 10 10" refX="6" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_block-pointStart" class="marker block" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_block-circleEnd" class="marker block" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_block-circleStart" class="marker block" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_block-crossEnd" class="marker cross block" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_block-crossStart" class="marker cross block" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><g class="block"><g class="node default default flowchart-label" id="my-svg-A" transform="translate(57.796875, 0)"><rect class="basic label-container" style="" rx="0" ry="0" x="-57.796875" y="-40" width="115.59375" height="80"/><g class="label" style="" transform="translate(-22.390625, -24)"><rect/><foreignObject width="44.78125" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>sign<br />(1 bit)</p></span></div></foreignObject></g></g><g class="node default default flowchart-label" id="my-svg-B" transform="translate(181.390625, 0)"><rect class="basic label-container" style="" rx="0" ry="0" x="-57.796875" y="-40" width="115.59375" height="80"/><g class="label" style="" transform="translate(-38.171875, -36)"><rect/><foreignObject width="76.34375" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>timestamp<br />(41 bits)<br />~69년 범위</p></span></div></foreignObject></g></g><g class="node default default flowchart-label" id="my-svg-C" transform="translate(304.984375, 0)"><rect class="basic label-container" style="" rx="0" ry="0" x="-57.796875" y="-40" width="115.59375" height="80"/><g class="label" style="" transform="translate(-39.953125, -36)"><rect/><foreignObject width="79.90625" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>machineId<br />(10 bits)<br />최대 1024대</p></span></div></foreignObject></g></g><g class="node default default flowchart-label" id="my-svg-D" transform="translate(428.578125, 0)"><rect class="basic label-container" style="" rx="0" ry="0" x="-57.796875" y="-40" width="115.59375" height="80"/><g class="label" style="" transform="translate(-53.796875, -36)"><rect/><foreignObject width="107.59375" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5;"><span class="nodeLabel"><p>sequence<br />(12 bits)<br />밀리초당 4096개</p></span></div></foreignObject></g></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Snowflake Structure Sequence">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
+  </filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
+    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
+  </marker>
+  <style>
+    .canvas { fill: #f7f9fc; }
+    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
+    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
+    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
+    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
+    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
+    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
+    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
+    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
+    .card { stroke-width: 2.2; filter: url(#shadow); }
+    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
+    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
+    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
+    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
+    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
+    .compartment { stroke-width: 1.6; fill: none; }
+    .chip { stroke-width: 1.5; rx: 16; }
+    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+  </style>
+</defs>
+<rect class="canvas" width="1600" height="1050"/>
+<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
+<text class="title" x="86" y="98">Snowflake Structure Sequence</text>
+<text class="subtitle" x="90" y="132">Lifelines remain while messages become readable pastel interaction bands</text>
+<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
+<text class="chipText" x="1075" y="88" text-anchor="middle">request</text>
+<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
+<text class="chipText" x="1223" y="88" text-anchor="middle">work</text>
+<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
+<text class="chipText" x="1371" y="88" text-anchor="middle">response</text>
+<g>
+  <rect class="card" x="98" y="220" width="224" height="70" rx="24" fill="#e8f3ff" stroke="#5b8def"/>
+  <text class="label" x="210" y="265" text-anchor="middle">sign (1 bit)</text>
+  <line x1="210" y1="306" x2="210" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="491.33333333333326" y="220" width="224" height="70" rx="24" fill="#eaf7ef" stroke="#58a978"/>
+  <text class="label" x="603.3333333333333" y="265" text-anchor="middle">timestamp (41 b.</text>
+  <line x1="603.3333333333333" y1="306" x2="603.3333333333333" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="884.6666666666666" y="220" width="224" height="70" rx="24" fill="#fff3d9" stroke="#d6a441"/>
+  <text class="label" x="996.6666666666666" y="265" text-anchor="middle">machineId (10 b.</text>
+  <line x1="996.6666666666666" y1="306" x2="996.6666666666666" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="1278" y="220" width="224" height="70" rx="24" fill="#fdecef" stroke="#dc6b82"/>
+  <text class="label" x="1390" y="265" text-anchor="middle">sequence (12 bi.</text>
+  <line x1="1390" y1="306" x2="1390" y2="820" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+</g>
+<g>
+  <rect class="card" x="150" y="360" width="513.3333333333333" height="74" rx="22" fill="#e8f3ff" stroke="#5b8def"/>
+  <text class="strong" x="182" y="392">1</text>
+  <text class="strong" x="224" y="392">timestamp (41 bits) ~69</text>
+  <text class="small" x="224" y="416">interaction band</text>
+  <path class="line" d="M250 397 L563.3333333333333 397"/>
+</g>
+<g>
+  <rect class="card" x="543.3333333333333" y="452" width="513.3333333333333" height="74" rx="22" fill="#eaf7ef" stroke="#58a978"/>
+  <text class="strong" x="575.3333333333333" y="484">2</text>
+  <text class="strong" x="617.3333333333333" y="484">machineId (10 bits) 1024</text>
+  <text class="small" x="617.3333333333333" y="508">interaction band</text>
+  <path class="line" d="M643.3333333333333 489 L956.6666666666666 489"/>
+</g>
+<g>
+  <rect class="card" x="936.6666666666666" y="544" width="513.3333333333334" height="74" rx="22" fill="#fff3d9" stroke="#d6a441"/>
+  <text class="strong" x="968.6666666666666" y="576">3</text>
+  <text class="strong" x="1010.6666666666666" y="576">sequence (12 bits) 4096</text>
+  <text class="small" x="1010.6666666666666" y="600">interaction band</text>
+  <path class="line" d="M1036.6666666666665 581 L1350 581"/>
+</g>
+<g transform="translate(124,858)">
+  <rect class="card" x="0" y="0" width="1352" height="88" rx="18" fill="#0d2435" stroke="#0d2435"/>
+  <text class="smallLabel" x="28" y="42" fill="#ffffff">Reading rule</text>
+  <text class="small" x="250" y="38" fill="#dbeafe">Lifelines stay visible; messages are grouped into numbered pastel interaction bands.</text>
+  <text class="small" x="250" y="64" fill="#dbeafe">Dashed bands indicate compact return/response paths.</text>
+</g>
+</svg>

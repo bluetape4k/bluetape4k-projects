@@ -20,24 +20,7 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### ServiceLoader 선택 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant App as 애플리케이션
-        participant VT as VirtualThreads
-        participant SL as ServiceLoader
-        participant F21 as Jdk21VirtualThreadFactory
-        participant F25 as Jdk25VirtualThreadFactory
-    App ->> VT: VirtualThreads.executorService()
-    VT ->> SL: ServiceLoader.load(VirtualThreadFactory)
-    SL -->> VT: [Jdk21Factory(21), Jdk25Factory(25), Fallback(MIN)]
-    VT ->> VT: isSupported() 필터링 후 priority 내림차순 정렬
-    Note over VT: JDK 25 환경 → Jdk25Factory 선택
-    VT ->> F25: executorService()
-    F25 -->> App: VirtualThreadExecutorService (JDK 25)
-    Note over App, F25: JDK 21 환경이면 → Jdk21Factory 선택
-    VT ->> F21: executorService()
-    F21 -->> App: VirtualThreadExecutorService (JDK 21)
-```
+![ServiceLoader diagram](../docs/images/readme-diagrams/virtualthread-sequence-01.png)
 
 ---
 

@@ -61,36 +61,7 @@ Typical examples include:
 
 ### RESP3 CLIENT TRACKING Flow
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant NC as LettuceNearCache
-    participant L1 as Caffeine (L1)
-    participant TL as TrackingInvalidationListener
-    participant R as Redis Server
-
-    App->>NC: get("key")
-    NC->>L1: get("key")
-    alt L1 hit
-        L1-->>NC: value
-        NC-->>App: value
-    else L1 miss
-        L1-->>NC: null
-        NC->>R: GET key
-        alt hit
-            R-->>NC: value
-            NC->>L1: put("key", value)
-            NC-->>App: value
-        else miss
-            R-->>NC: null
-            NC-->>App: null
-        end
-    end
-
-    Note over R,TL: Server-pushed invalidation (CLIENT TRACKING)
-    R-)TL: INVALIDATE ["key"]
-    TL->>L1: invalidate("key")
-```
+![RESP3 CLIENT TRACKING Flow diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)
 
 ## `ResilientLettuceNearCacheConfig` Options
 

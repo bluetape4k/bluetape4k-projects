@@ -20,31 +20,7 @@ A library that makes SLF4J logging in Kotlin easier and more efficient.
 
 ### KLoggingChannel Async Logging Sequence
 
-```mermaid
-sequenceDiagram
-        participant App as Application Coroutine
-        participant CH as KLoggingChannel
-        participant SF as MutableSharedFlow (buffer 64)
-        participant BG as Background Coroutine
-        participant SLF as SLF4J Logger
-
-    App->>CH: log.debug { "Processing event: $id" }
-    CH->>CH: check isDebugEnabled
-    alt DEBUG disabled
-        CH-->>App: (Lambda not executed, returns immediately)
-    else DEBUG enabled
-        CH->>SF: emit(LogEvent(DEBUG, msg))
-        alt buffer has space
-            SF-->>App: resumes immediately (non-blocking)
-        else buffer full (>64)
-            SF-->>App: SUSPEND (backpressure)
-        end
-        BG->>SF: collect LogEvent
-        BG->>SLF: log.debug(msg, error)
-    end
-
-    Note over App,SLF: On JVM shutdown: Shutdown Hook → job.cancel()
-```
+![KLoggingChannel Async Logging Sequence diagram](../../docs/images/readme-diagrams/bluetape4k-logging-sequence-01.png)
 
 ## Features
 

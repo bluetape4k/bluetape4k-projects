@@ -76,28 +76,7 @@ dependencies {
 
 ### Circuit Breaker + Resilience4j 통합 흐름
 
-```mermaid
-sequenceDiagram
-        participant 앱 as Verticle (Coroutines)
-        participant CB as CircuitBreaker
-        participant SVC as 원격 서비스
-
-    앱->>CB: cb.executeSuspend { remoteCall() }
-    CB->>CB: 상태 확인 (CLOSED/OPEN/HALF_OPEN)
-
-    alt CLOSED (정상)
-        CB->>SVC: 원격 호출
-        SVC-->>CB: 응답
-        CB-->>앱: 성공 결과
-    else OPEN (차단)
-        CB-->>앱: CallNotPermittedException
-    else HALF_OPEN (테스트)
-        CB->>SVC: 테스트 호출
-        SVC-->>CB: 성공/실패
-        CB->>CB: 상태 전환 (CLOSED/OPEN)
-        CB-->>앱: 결과 반환
-    end
-```
+![Circuit Breaker + Resilience4j diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
 
 ### Vert.x 핵심 컴포넌트 클래스 구조
 

@@ -128,27 +128,7 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Avro Serialization/Deserialization Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant S as AvroSerializer
-        participant C as CodecFactory
-        participant A as Avro Runtime
-
-    Note over App,A: Serialization flow
-    App->>S: serialize(record)
-    S->>C: Select compression codec (Zstd/Snappy/Deflate)
-    S->>A: Encode with DatumWriter
-    A-->>S: Compressed ByteArray
-    S-->>App: ByteArray
-
-    Note over App,A: Deserialization flow (with Schema Evolution)
-    App->>S: deserialize(bytes)
-    S->>A: Compare Writer Schema + Reader Schema
-    A->>A: Validate field compatibility
-    A-->>S: Deserialized object
-    S-->>App: T (returns null on failure)
-```
+![Avro Serialization / Deserialization Flow diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
 
 ### Compression Codec Selection Guide
 

@@ -76,28 +76,7 @@ dependencies {
 
 ### Circuit Breaker + Resilience4j Integration Flow
 
-```mermaid
-sequenceDiagram
-        participant App as Verticle (Coroutines)
-        participant CB as CircuitBreaker
-        participant SVC as Remote Service
-
-    App->>CB: cb.executeSuspend { remoteCall() }
-    CB->>CB: Check state (CLOSED/OPEN/HALF_OPEN)
-
-    alt CLOSED (normal)
-        CB->>SVC: Remote call
-        SVC-->>CB: Response
-        CB-->>App: Successful result
-    else OPEN (blocked)
-        CB-->>App: CallNotPermittedException
-    else HALF_OPEN (probing)
-        CB->>SVC: Test call
-        SVC-->>CB: Success / failure
-        CB->>CB: Transition state (CLOSED/OPEN)
-        CB-->>App: Return result
-    end
-```
+![Circuit Breaker + Resilience4j Integration Flow diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
 
 ### Vert.x Core Component Class Structure
 

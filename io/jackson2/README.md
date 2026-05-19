@@ -43,29 +43,7 @@ It provides convenient access to the Jackson ecosystem in Kotlin, covering defau
 
 ### Field Encryption Flow (@JsonTinkEncrypt)
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant M as ObjectMapper
-        participant S as JsonTinkEncryptSerializer
-        participant T as Google Tink AEAD
-
-    Note over App,T: Serialization (Encryption)
-    App->>M: writeValueAsString(user)
-    M->>S: serialize(@JsonTinkEncrypt field)
-    S->>T: AEAD.encrypt(plaintext)
-    T-->>S: Base64 ciphertext
-    S-->>M: Encrypted JSON field
-    M-->>App: JSON string
-
-    Note over App,T: Deserialization (Decryption)
-    App->>M: readValue(json, User::class)
-    M->>S: deserialize(@JsonTinkEncrypt field)
-    S->>T: AEAD.decrypt(ciphertext)
-    T-->>S: plaintext
-    S-->>M: Decrypted value
-    M-->>App: User object
-```
+![Field Encryption Flow (@JsonTinkEncrypt) diagram](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
 
 ## Key Features
 

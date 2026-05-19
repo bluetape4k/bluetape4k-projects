@@ -36,18 +36,7 @@
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 
-```mermaid
-sequenceDiagram
-    participant CLIENT as 테스트 / 클라이언트
-    participant SERVER as BluetapeWebfluxServer (Docker)
-    participant CTRL as HttpbinController
-
-    CLIENT->>SERVER: GET http://host:80/httpbin/get
-    SERVER->>CTRL: /httpbin/get 디스패치
-    CTRL->>CTRL: HttpbinResponse 생성 (suspend)\n(url, method, headers, origin)
-    CTRL-->>SERVER: HttpbinResponse JSON
-    SERVER-->>CLIENT: 200 OK + JSON body
-```
+![— httpbin GET Request diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-sequence-01.png)
 
 ## Features
 

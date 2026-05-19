@@ -1,1 +1,83 @@
-<svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-width: 700px; background-color: transparent;" viewBox="0 0 700 500" role="graphics-document document" aria-roledescription="xychart"><style>#my-svg{font-size:16px;fill:#102033;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#FFF3D9;}#my-svg .error-text{fill:#102033;stroke:#102033;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#7A8794;stroke:#7A8794;}#my-svg .marker.cross{stroke:#7A8794;}#my-svg svg{font-size:16px;}#my-svg p{margin:0;}#my-svg .node .neo-node{stroke:#5B8DEF;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#5B8DEF;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g/><g class="main"><rect width="700" height="500" class="background" fill="transparent"/><g class="chart-title"><text x="0" y="0" fill="#131300" font-size="20" dominant-baseline="middle" text-anchor="middle" transform="translate(350, 21.58984375) rotate(0)">직렬화 성능 비교 — Byte Array 없음 (ops/s)</text></g><g class="plot"><g class="bar-plot-0"><rect x="65.859375" y="106.82968940734864" width="63.05827563476561" height="62.699999999999996" fill="#5B8DEF" stroke="#5B8DEF" stroke-width="0"/><rect x="65.859375" y="216.4364596048991" width="94.88745849609376" height="62.699999999999996" fill="#5B8DEF" stroke="#5B8DEF" stroke-width="0"/><rect x="65.859375" y="326.04322980244956" width="172.91238256835936" height="62.699999999999996" fill="#5B8DEF" stroke="#5B8DEF" stroke-width="0"/><rect x="65.859375" y="435.65" width="585.9633820800782" height="62.699999999999996" fill="#5B8DEF" stroke="#5B8DEF" stroke-width="0"/></g></g><g class="left-axis"><g class="axisl-line"><path d="M 64.859375,105.17968940734863 L 64.859375,500" fill="none" stroke="#131300" stroke-width="2"/></g><g class="label"><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="middle" text-anchor="end" transform="translate(53.859375, 138.17968940734863) rotate(0)">Jdk</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="middle" text-anchor="end" transform="translate(53.859375, 247.7864596048991) rotate(0)">Jackson</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="middle" text-anchor="end" transform="translate(53.859375, 357.3932298024496) rotate(0)">Kryo</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="middle" text-anchor="end" transform="translate(53.859375, 467) rotate(0)">Fory</text></g><g class="ticks"><path d="M 63.859375,138.17968940734863 L 58.859375,138.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 63.859375,247.7864596048991 L 58.859375,247.7864596048991" fill="none" stroke="#131300" stroke-width="2"/><path d="M 63.859375,357.3932298024496 L 58.859375,357.3932298024496" fill="none" stroke="#131300" stroke-width="2"/><path d="M 63.859375,467 L 58.859375,467" fill="none" stroke="#131300" stroke-width="2"/></g></g><g class="top-axis"><g class="axis-line"><path d="M 65.859375,104.17968940734863 L 700,104.17968940734863" fill="none" stroke="#131300" stroke-width="2"/></g><g class="label"><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(87.890625, 77.17968940734863) rotate(0)">0</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(180.09033203125, 77.17968940734863) rotate(0)">50000</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(272.2900390625, 77.17968940734863) rotate(0)">100000</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(364.48974609375, 77.17968940734863) rotate(0)">150000</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(456.689453125, 77.17968940734863) rotate(0)">200000</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(548.88916015625, 77.17968940734863) rotate(0)">250000</text><text x="0" y="0" fill="#131300" font-size="14" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(641.0888671875, 77.17968940734863) rotate(0)">300000</text></g><g class="ticks"><path d="M 87.890625,103.17968940734863 L 87.890625,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 180.09033203125,103.17968940734863 L 180.09033203125,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 272.2900390625,103.17968940734863 L 272.2900390625,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 364.48974609375,103.17968940734863 L 364.48974609375,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 456.689453125,103.17968940734863 L 456.689453125,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 548.88916015625,103.17968940734863 L 548.88916015625,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/><path d="M 641.0888671875,103.17968940734863 L 641.0888671875,98.17968940734863" fill="none" stroke="#131300" stroke-width="2"/></g><g class="title"><text x="0" y="0" fill="#131300" font-size="16" dominant-baseline="text-before-edge" text-anchor="middle" transform="translate(382.9296875, 48.1796875) rotate(0)">ops/s</text></g></g></g><g class="mermaid-tmp-group"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-label="Serialization Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
+  </filter>
+  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#8a97a8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
+    <path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#8a97a8" stroke-width="1.7"/>
+  </marker>
+  <style>
+    .canvas { fill: #f7f9fc; }
+    .frame { fill: #ffffff; stroke: #d8e0ea; stroke-width: 1.5; }
+    .title { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 54px; font-weight: 400; fill: #102033; }
+    .subtitle { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 18px; fill: #536273; }
+    .label { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 30px; font-weight: 400; fill: #102033; }
+    .smallLabel { font-family: "Architects Daughter", "Comic Mono", cursive; font-size: 24px; font-weight: 400; fill: #102033; }
+    .mono { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; fill: #102033; }
+    .small { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; fill: #536273; }
+    .strong { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; fill: #102033; }
+    .card { stroke-width: 2.2; filter: url(#shadow); }
+    .line { stroke: #8a97a8; stroke-width: 2.1; fill: none; marker-end: url(#openArrow); }
+    .softLine { stroke: #8a97a8; stroke-width: 2.1; fill: none; }
+    .dashed { stroke: #8a97a8; stroke-width: 2.1; stroke-dasharray: 7 6; fill: none; marker-end: url(#openArrow); }
+    .inheritLine { stroke: #8a97a8; stroke-width: 2.2; fill: none; marker-end: url(#inherit); }
+    .implLine { stroke: #8a97a8; stroke-width: 2.2; stroke-dasharray: 8 7; fill: none; marker-end: url(#inherit); }
+    .compartment { stroke-width: 1.6; fill: none; }
+    .chip { stroke-width: 1.5; rx: 16; }
+    .chipText { font-family: "Comic Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; fill: #102033; }
+  </style>
+</defs>
+<rect class="canvas" width="1600" height="1050"/>
+<rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
+<text class="title" x="86" y="98">Serialization Diagram</text>
+<text class="subtitle" x="90" y="132">Pastel architecture infographic generated from README Mermaid</text>
+<rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
+<text class="chipText" x="1075" y="88" text-anchor="middle">layer</text>
+<rect class="chip" x="1158" y="64" width="130" height="36" fill="#eaf7ef" stroke="#58a978"/>
+<text class="chipText" x="1223" y="88" text-anchor="middle">module</text>
+<rect class="chip" x="1306" y="64" width="130" height="36" fill="#fff3d9" stroke="#d6a441"/>
+<text class="chipText" x="1371" y="88" text-anchor="middle">flow</text>
+<g transform="translate(160,250)">
+  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#e8f3ff" stroke="#5b8def"/>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">Serialization — Byte Array (o.</text>
+  <text class="small" x="190" y="84" text-anchor="middle">entry</text>
+</g>
+<g transform="translate(610,250)">
+  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#eaf7ef" stroke="#58a978"/>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">Jdk</text>
+  <text class="small" x="190" y="84" text-anchor="middle">core</text>
+</g>
+<path class="line" d="M548 309 L594 309"/>
+<g transform="translate(1060,250)">
+  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#fff3d9" stroke="#d6a441"/>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">Jackson</text>
+  <text class="small" x="190" y="84" text-anchor="middle">integration</text>
+</g>
+<path class="line" d="M998 309 L1044 309"/>
+<g transform="translate(160,456)">
+  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#fdecef" stroke="#dc6b82"/>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">Kryo</text>
+  <text class="small" x="190" y="84" text-anchor="middle">storage</text>
+</g>
+<g transform="translate(610,456)">
+  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#e9f7f6" stroke="#45a7a1"/>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">Fory</text>
+  <text class="small" x="190" y="84" text-anchor="middle">runtime</text>
+</g>
+<path class="line" d="M548 515 L594 515"/>
+<g transform="translate(1060,456)">
+  <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#f1ecff" stroke="#8a72d6"/>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">ops / s</text>
+  <text class="small" x="190" y="84" text-anchor="middle">support</text>
+</g>
+<path class="line" d="M998 515 L1044 515"/>
+<g transform="translate(180,860)">
+  <rect class="card" x="0" y="0" width="1240" height="92" rx="18" fill="#f7fbff" stroke="#d8e0ea"/>
+  <text class="smallLabel" x="28" y="42">Reading rule</text>
+  <text class="mono" x="260" y="39">Pastel cards summarize the Mermaid graph as grouped README architecture blocks.</text>
+  <text class="small" x="260" y="66">Detailed Mermaid source remains represented by the generated SVG asset next to this PNG.</text>
+</g>
+</svg>

@@ -20,24 +20,7 @@ Google Protocol Buffers 메시지 처리를 위한 Kotlin 확장 라이브러리
 
 ### 직렬화 시퀀스
 
-```mermaid
-sequenceDiagram
-        participant 앱 as 애플리케이션
-        participant S as ProtobufSerializer
-        participant P as Protobuf 런타임
-
-    Note over 앱,P: 직렬화
-    앱->>S: serialize(protoMessage)
-    S->>P: message.toByteArray()
-    P-->>S: ByteArray (바이너리 Protobuf)
-    S-->>앱: ByteArray
-
-    Note over 앱,P: 역직렬화
-    앱->>S: deserialize(bytes, MyMessage::class.java)
-    S->>P: MyMessage.parseFrom(bytes)
-    P-->>S: MyMessage 객체
-    S-->>앱: MyMessage (실패 시 null)
-```
+![Serialization diagram](../../docs/images/readme-diagrams/io-protobuf-sequence-01.png)
 
 ## 주요 기능
 

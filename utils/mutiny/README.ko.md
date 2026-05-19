@@ -236,23 +236,7 @@ val result = totalAmount.await().indefinitely()
 
 ## Coroutine 연동 흐름
 
-```mermaid
-sequenceDiagram
-    box "코루틴" #F3E5F5
-    participant CS as CoroutineScope
-    end
-    box "반응형" #E3F2FD
-    participant UNI as "Uni~T~"
-    end
-    box "소비자" #E8F5E9
-    participant SUB as Subscriber
-    end
-
-    CS->>UNI: asUni { suspend 블록 }
-    Note over UNI: 별도 코루틴에서 실행
-    UNI->>SUB: onItem(result)
-    SUB->>SUB: await().atMost(5.seconds)
-```
+![Coroutine diagram](../../docs/images/readme-diagrams/utils-mutiny-sequence-01.png)
 
 ## Mutiny vs 다른 반응형 라이브러리
 

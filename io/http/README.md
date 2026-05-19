@@ -24,20 +24,7 @@ It provides a consistent interface for Apache HttpComponents 5, OkHttp3, Vert.x 
 
 ### Async HTTP Request Flow (HC5 Async + Coroutines)
 
-```mermaid
-sequenceDiagram
-        participant App as Application
-        participant Ext as executeSuspending()
-        participant HC5 as CloseableHttpAsyncClient
-        participant Server as HTTP Server
-
-    App->>Ext: suspend fun executeSuspending(request)
-    Ext->>HC5: execute(request, FutureCallback)
-    HC5->>Server: HTTP request (async)
-    Server-->>HC5: HTTP response
-    HC5-->>Ext: FutureCallback.completed(response)
-    Ext-->>App: SimpleHttpResponse
-```
+![Async HTTP Request Flow (HC5 Async + Coroutines) diagram](../../docs/images/readme-diagrams/io-http-sequence-01.png)
 
 ## Key Features
 
