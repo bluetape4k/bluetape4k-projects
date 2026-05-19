@@ -154,7 +154,11 @@ class ResilientNearCacheDecorator<V: Any>(
     // -- Lifecycle --
 
     override fun close() {
-        runCatching { delegate.close() }
+        try {
+            delegate.close()
+        } catch (e: Exception) {
+            log.warn(e) { "Ignoring close() failure. cacheName=$cacheName" }
+        }
     }
 }
 
