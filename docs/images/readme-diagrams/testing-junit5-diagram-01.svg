@@ -73,7 +73,7 @@
 </g>
 <g transform="translate(525,568)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">RandomValueExtension</text>
+  <text class="smallLabel" x="130" y="42" text-anchor="middle">RandomExtension</text>
 <text class="smallLabel" x="130" y="63" text-anchor="middle">(Random Object</text>
 <text class="smallLabel" x="130" y="84" text-anchor="middle">Generation)</text>
 </g>
