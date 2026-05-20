@@ -22,6 +22,7 @@ An extension library that reduces repetitive boilerplate in JUnit 5 tests.
 - Random/Faker data injection — inject fake or randomized objects into test fields/parameters
 - System property helpers — set properties before a test and restore them after
 - Awaitility + coroutine helpers — `suspendUntil` / `awaitSuspending`
+- Coroutine cancellation contracts — verify propagation, waiter cleanup, and resource cancellation
 - Stress-testing utilities — `MultithreadingTester`, `SuspendedJobTester`, `StructuredTaskScopeTester`
 - Parameter-source extensions — `FieldSource` for parameterized tests
 - Mermaid-based reporting — Gantt timeline of test execution
@@ -150,6 +151,43 @@ fun `io dispatcher test`() = runSuspendIO {
 }
 ```
 
+### Coroutine Cancellation Contracts
+
+Use the cancellation contract helpers when a suspend API wraps callbacks, futures, HTTP calls, or shared waiters.
+
+```kotlin
+@Test
+fun `wrapper rethrows cancellation`() = runTest {
+    assertCancellationPropagates {
+        client.tryFetchSuspending {
+            delay(Long.MAX_VALUE)
+        }
+    }
+}
+
+@Test
+fun `cancelled waiter does not block the next waiter`() = runTest {
+    assertCancellationClearsWaiter(
+        awaiter = { gate.await() },
+        releaser = { gate.resume() },
+    )
+}
+
+@Test
+fun `cancellation cancels the underlying call`() = runSuspendIO {
+    assertResourceCancelledOnCoroutineCancellation(
+        beforeCancel = { waitUntilRequestStarted() },
+        resourceCancelled = { call.isCanceled },
+    ) {
+        call.suspendExecute()
+    }
+}
+```
+
+Do not wrap suspend APIs in plain `runCatching` when cancellation must propagate. `CancellationException` is the
+structured concurrency signal and must be rethrown. Use `runCatchingNonCancellation` or `resultOfNonCancellation`
+when an API intentionally returns `Result` for non-cancellation failures.
+
 ### SystemProperty
 
 ```kotlin
@@ -194,6 +232,8 @@ class FieldSourceTest {
 - Capture stdout/stderr when assertions depend on console output.
 - Prefer `FakeValue` / `Fakers` providers for sample values instead of hardcoded data.
 - Use the provided stress-testing helpers for concurrency-heavy tests — they maintain a stable worker pool regardless of round count.
+- For suspend APIs, rethrow `CancellationException`, clear registered waiters/continuations on cancellation, and cancel wrapped futures or HTTP calls.
+- Avoid plain `runCatching` around suspend APIs unless `CancellationException` is caught and rethrown before producing `Result.failure`.
 
 ## Adding the Dependency
 

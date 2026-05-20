@@ -1,6 +1,10 @@
 package io.bluetape4k.micrometer.observation.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.junit5.coroutines.assertCancellationPropagates
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -9,15 +13,10 @@ import io.bluetape4k.micrometer.observation.AbstractObservationTest
 import io.bluetape4k.micrometer.observation.start
 import io.micrometer.observation.Observation
 import io.micrometer.observation.tck.ObservationRegistryAssert
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class ObservationCoroutinesSupportTest: AbstractObservationTest() {
@@ -180,51 +179,31 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
         val name = Base58.randomString(8)
         val observation = observationRegistry.start(name)
 
-        var cancelled = false
-        var result: Result<String>? = null
-        val job = launch {
-            try {
-                result = observation.tryObserveSuspending<String> { _ ->
-                    delay(100.milliseconds)  // arbitrary under runTest virtual time
-                    "never"
-                }
-            } catch (e: CancellationException) {
-                cancelled = true
-                throw e
+        assertCancellationPropagates {
+            observation.tryObserveSuspending<String> { _ ->
+                delay(100.milliseconds)  // arbitrary under runTest virtual time
+                "never"
             }
         }
 
         yield()
-        job.cancel()
-        job.join()
-
-        cancelled shouldBeEqualTo true
-        result shouldBeEqualTo null  // wrapper must not return Result.failure; it must rethrow
+        ObservationRegistryAssert.assertThat(observationRegistry)
+            .doesNotHaveAnyRemainingCurrentObservation()
     }
 
     @Test
     fun `tryWithObservationSuspending - cancellation propagates to parent job`() = runTest {
         val name = "observer.cancel." + Base58.randomString(8)
 
-        var cancelled = false
-        var result: Result<String>? = null
-        val job = launch {
-            try {
-                result = tryWithObservationSuspending<String>(name, observationRegistry) {
-                    delay(100.milliseconds)  // arbitrary under runTest virtual time
-                    "never"
-                }
-            } catch (e: CancellationException) {
-                cancelled = true
-                throw e
+        assertCancellationPropagates {
+            tryWithObservationSuspending<String>(name, observationRegistry) {
+                delay(100.milliseconds)  // arbitrary under runTest virtual time
+                "never"
             }
         }
 
         yield()
-        job.cancel()
-        job.join()
-
-        cancelled shouldBeEqualTo true
-        result shouldBeEqualTo null  // wrapper must not return Result.failure; it must rethrow
+        ObservationRegistryAssert.assertThat(observationRegistry)
+            .doesNotHaveAnyRemainingCurrentObservation()
     }
 }

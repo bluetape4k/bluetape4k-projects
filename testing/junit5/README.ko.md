@@ -22,6 +22,7 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 - **Random/Faker 확장**: 랜덤/가짜 데이터 주입
 - **System Property 확장**: 테스트 중 시스템 속성 설정/복원
 - **Awaitility + Coroutines**: suspend 조건 대기 유틸
+- **Coroutine Cancellation Contracts**: cancellation 전파, waiter 정리, resource cancellation 검증
 - **Stress Tester**: 멀티스레드/가상스레드/코루틴 기반 스트레스 테스트
 - **Parameter Source 확장**: FieldSource 기반 인자 제공
 - **Mermaid 리포트**: 테스트 실행 결과를 Mermaid Gantt 타임라인으로 출력
@@ -219,7 +220,45 @@ fun `suspend 조건 대기`() = runSuspendTest {
 }
 ```
 
-### 8. Stress Tester
+### 8. Coroutine Cancellation Contracts
+
+callback, future, HTTP call, 공유 waiter를 감싸는 suspend API는 cancellation 계약을 명시적으로 테스트하세요.
+
+```kotlin
+@Test
+fun `wrapper rethrows cancellation`() = runTest {
+    assertCancellationPropagates {
+        client.tryFetchSuspending {
+            delay(Long.MAX_VALUE)
+        }
+    }
+}
+
+@Test
+fun `cancelled waiter does not block the next waiter`() = runTest {
+    assertCancellationClearsWaiter(
+        awaiter = { gate.await() },
+        releaser = { gate.resume() },
+    )
+}
+
+@Test
+fun `cancellation cancels the underlying call`() = runSuspendIO {
+    assertResourceCancelledOnCoroutineCancellation(
+        beforeCancel = { waitUntilRequestStarted() },
+        resourceCancelled = { call.isCanceled },
+    ) {
+        call.suspendExecute()
+    }
+}
+```
+
+suspend API에서 cancellation 전파가 필요하다면 plain `runCatching`으로 감싸면 안 됩니다.
+`CancellationException`은 structured concurrency의 cancellation 신호이므로 반드시 다시 던져야 합니다.
+non-cancellation 실패만 `Result`로 반환하려면 `runCatchingNonCancellation` 또는
+`resultOfNonCancellation`을 사용하세요.
+
+### 9. Stress Tester
 
 #### 실행 모델 요약
 
@@ -260,7 +299,7 @@ StructuredTaskScopeTester()
     .run()
 ```
 
-### 9. Coroutine Support
+### 10. Coroutine Support
 
 ```kotlin
 @Test
@@ -288,7 +327,7 @@ fun `Virtual Thread 환경 테스트`() = runSuspendVT {
 }
 ```
 
-### 10. FieldSource (Parameterized Test)
+### 11. FieldSource (Parameterized Test)
 
 ```kotlin
 class FieldSourceTest {
@@ -308,7 +347,7 @@ class FieldSourceTest {
 }
 ```
 
-### 11. Mermaid 리포트
+### 12. Mermaid 리포트
 
 ```bash
 # 테스트 실행 및 Mermaid 리포트 추출
@@ -330,6 +369,8 @@ class FieldSourceTest {
 - 콘솔 출력을 검증해야 할 때는 `OutputCapture`를 사용하세요.
 - 샘플 값에는 하드코딩 대신 `FakeValue`/`Fakers` 프로바이더를 활용하세요.
 - 동시성 테스트에는 제공되는 Stress Tester 헬퍼를 재사용하세요 — 라운드 수가 증가해도 worker 수를 일정하게 유지합니다.
+- suspend API는 `CancellationException`을 다시 던지고, cancellation 시 등록된 waiter/continuation을 정리하며, 감싼 future 또는 HTTP call을 취소해야 합니다.
+- suspend API를 plain `runCatching`으로 감싸지 마세요. 필요하다면 cancellation을 다시 던지는 `runCatchingNonCancellation`을 사용하세요.
 
 ## 의존성 추가
 
