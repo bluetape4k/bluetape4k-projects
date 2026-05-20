@@ -8,7 +8,7 @@ package io.bluetape4k.annotations
  * integration code that accepts that maintenance cost.
  *
  * ```kotlin
- * @OptIn(InternalBluetapeApi::class)
+ * @OptIn(BluetapeInternalApi::class)
  * fun bridgeInternalApi() {
  *     // Use a public-for-technical-reasons declaration here.
  * }
@@ -28,4 +28,4 @@ package io.bluetape4k.annotations
     AnnotationTarget.TYPEALIAS,
 )
 @MustBeDocumented
-annotation class InternalBluetapeApi
+annotation class BluetapeInternalApi

@@ -8,7 +8,7 @@ package io.bluetape4k.annotations
  * promoted to the stable surface.
  *
  * ```kotlin
- * @OptIn(BetaBluetapeApi::class)
+ * @OptIn(BluetapeBetaApi::class)
  * fun callBetaApi() {
  *     // Use a beta Bluetape declaration here.
  * }
@@ -28,4 +28,4 @@ package io.bluetape4k.annotations
     AnnotationTarget.TYPEALIAS,
 )
 @MustBeDocumented
-annotation class BetaBluetapeApi
+annotation class BluetapeBetaApi

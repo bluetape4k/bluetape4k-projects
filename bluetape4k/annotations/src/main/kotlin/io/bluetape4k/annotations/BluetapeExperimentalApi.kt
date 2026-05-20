@@ -8,7 +8,7 @@ package io.bluetape4k.annotations
  * accepting that contract.
  *
  * ```kotlin
- * @OptIn(ExperimentalBluetapeApi::class)
+ * @OptIn(BluetapeExperimentalApi::class)
  * fun callExperimentalApi() {
  *     // Use an experimental Bluetape declaration here.
  * }
@@ -28,4 +28,4 @@ package io.bluetape4k.annotations
     AnnotationTarget.TYPEALIAS,
 )
 @MustBeDocumented
-annotation class ExperimentalBluetapeApi
+annotation class BluetapeExperimentalApi

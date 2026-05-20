@@ -26,10 +26,11 @@ low-level module with no bluetape4k module dependencies.
    - Skill: apply `$bluetape4k-patterns` for Kotlin API, KDoc, tests, and
      diagnostics.
    - Expected files:
-     - `ExperimentalBluetapeApi.kt`
-     - `BetaBluetapeApi.kt`
-     - `InternalBluetapeApi.kt`
-     - `DelicateBluetapeApi.kt`
+     - `BluetapeExperimentalApi.kt`
+     - `BluetapeBetaApi.kt`
+     - `BluetapeInternalApi.kt`
+     - `BluetapeDelicateApi.kt`
+     - `BluetapeObsoleteApi.kt`
      - `BluetapeImplementationApi.kt`
    - Package: `io.bluetape4k.annotations`.
    - Shared requirements:
@@ -39,10 +40,11 @@ low-level module with no bluetape4k module dependencies.
      - no constructor parameters;
      - English KDoc with contract and usage guidance.
    - Marker levels:
-     - `ExperimentalBluetapeApi`: `RequiresOptIn.Level.ERROR`;
-     - `BetaBluetapeApi`: `RequiresOptIn.Level.WARNING`;
-     - `InternalBluetapeApi`: `RequiresOptIn.Level.ERROR`;
-     - `DelicateBluetapeApi`: `RequiresOptIn.Level.WARNING`;
+     - `BluetapeExperimentalApi`: `RequiresOptIn.Level.ERROR`;
+     - `BluetapeBetaApi`: `RequiresOptIn.Level.WARNING`;
+     - `BluetapeInternalApi`: `RequiresOptIn.Level.ERROR`;
+     - `BluetapeDelicateApi`: `RequiresOptIn.Level.WARNING`;
+     - `BluetapeObsoleteApi`: `RequiresOptIn.Level.ERROR`;
      - `BluetapeImplementationApi`: `RequiresOptIn.Level.WARNING`.
    - Normal use-site marker targets:
      - `CLASS`, `ANNOTATION_CLASS`, `CONSTRUCTOR`, `FUNCTION`, `PROPERTY`,
@@ -61,7 +63,7 @@ low-level module with no bluetape4k module dependencies.
    - Expected files:
      - `bluetape4k/annotations/src/test/kotlin/io/bluetape4k/annotations/BluetapeApiMarkersTest.kt`
    - Test requirements:
-     - reference all five marker types;
+     - reference all six marker types;
      - prove `@OptIn` compiles for normal markers;
      - prove `@SubclassOptInRequired(BluetapeImplementationApi::class)` compiles
        with a local opt-in implementation.

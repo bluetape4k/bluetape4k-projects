@@ -8,8 +8,9 @@ package io.bluetape4k.annotations
  * implement or subclass without an explicit opt-in.
  *
  * This marker is not a generic function or property opt-in marker. Use
- * [ExperimentalBluetapeApi], [BetaBluetapeApi], [InternalBluetapeApi], or
- * [DelicateBluetapeApi] for ordinary unstable use-site APIs.
+ * [BluetapeExperimentalApi], [BluetapeBetaApi], [BluetapeInternalApi],
+ * [BluetapeDelicateApi], or [BluetapeObsoleteApi] for ordinary use-site API
+ * maturity markers.
  *
  * ```kotlin
  * @SubclassOptInRequired(BluetapeImplementationApi::class)
