@@ -364,15 +364,15 @@ class MyCassandraTest: AbstractCassandraTest() {
 
 ### 확장 함수 API 개요
 
-![확장 함수 API 개요 1](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
 
 ### 주요 API 구조
 
-![주요 API 구조 2](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
 
 ### 비동기 쿼리 실행 흐름
 
-![Execution diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
+![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## 참고 자료
 

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="858" viewBox="0 0 1378 858" role="img" aria-label="Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="858" viewBox="0 0 1378 858" role="img" aria-label="Mermaid">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -22,20 +22,22 @@
 </defs>
 <rect class="canvas" width="1378" height="858"/>
 <rect class="frame" x="32" y="28" width="1314" height="802" rx="28"/>
-<text class="title" x="66" y="82">Diagram</text>
+<text class="title" x="66" y="82">Mermaid</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">bluetape4k-junit5 (JUnit</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">5 )</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">bluetape4k-junit5</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">(JUnit 5 )</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">StopwatchExtension ( )</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">StopwatchExtension (</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">)</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">TempFolderExtension ( /)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">TempFolderExtension</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">( /)</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
@@ -48,12 +50,13 @@
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">FakeValueExtension (Data</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Faker )</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">FakeValueExtension</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">(Data Faker )</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">RandomExtension</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">RandomValueExtension</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">( )</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
@@ -61,16 +64,19 @@
 </g>
 <g transform="translate(48,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">MultithreadingTester ( )</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">MultithreadingTester</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">( )</text>
 </g>
 <g transform="translate(382,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">SuspendedJobTester ()</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">SuspendedJobTester</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">()</text>
 </g>
 <g transform="translate(716,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Structured Task Scope</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Tester (Virtual Thread)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Structured Task</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Scope Tester</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">(Virtual Thread)</text>
 </g>
 <g transform="translate(1050,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>

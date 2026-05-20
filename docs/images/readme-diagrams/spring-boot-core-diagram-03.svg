@@ -24,22 +24,22 @@
 <rect class="frame" x="32" y="28" width="980" height="470" rx="28"/>
 <text class="title" x="66" y="82">RestClient Coroutines DSL Structure</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 220 C522 220 188 220 188 220"/>
-<path class="line" d="M856 220 C856 220 522 220 522 220"/>
-<path class="line" d="M689 386 C689 303 856 303 856 220"/>
-<path class="line" d="M355 386 C355 386 689 386 689 386"/>
-<path class="line" d="M856 220 C856 303 355 303 355 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M372 220 C372 220 338 220 338 220"/>
+<path class="line" d="M706 220 C706 220 672 220 672 220"/>
+<path class="line" d="M839 386 C839 303 706 303 706 220"/>
+<path class="line" d="M505 386 C505 386 539 386 539 386"/>
+<path class="line" d="M706 220 C706 303 505 303 505 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application Code</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">RestClient Coroutines</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">DSL suspendGet /</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">suspendPost suspendPut /</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">RestClient</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Coroutines DSL</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">suspendGet /</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1180" viewBox="0 0 1040 1180" role="img" aria-label="GeoHash Encoding/Decoding Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1078" height="1456" viewBox="0 0 1078 1456" role="img" aria-label="GeoHash Encoding/Decoding Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,47 +20,47 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1040" height="1180"/>
-<rect class="frame" x="32" y="28" width="976" height="1124" rx="28"/>
+<rect class="canvas" width="1078" height="1456"/>
+<rect class="frame" x="32" y="28" width="1014" height="1400" rx="28"/>
 <text class="title" x="66" y="82">GeoHash Encoding/Decoding Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Application</text>
-<line x1="140" y1="252" x2="140" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="209" text-anchor="middle">GeoHashUtils</text>
-<line x1="520" y1="252" x2="520" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="209" text-anchor="middle">GeoHash Grid</text>
-<line x1="900" y1="252" x2="900" y2="1120" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. encode(lat=37.5665, lon=126.9780, precision=9)</text>
-<path class="line" d="M140 310 L520 310"/>
-<rect x="538" y="352" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="379" text-anchor="start">2. divide into Base32 cells</text>
-<path class="line" d="M520 392 L900 392"/>
-<rect x="538" y="434" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="461" text-anchor="start">3. wydm9mufd</text>
-<path class="dashed" d="M900 474 L520 474"/>
-<rect x="158" y="516" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="543" text-anchor="start">4. hash string</text>
-<path class="dashed" d="M520 556 L140 556"/>
-<rect x="158" y="598" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="625" text-anchor="start">5. decode(wydm9mufd)</text>
-<path class="line" d="M140 638 L520 638"/>
-<rect x="538" y="680" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="707" text-anchor="start">6. reverse lookup bounding box</text>
-<path class="line" d="M520 720 L900 720"/>
-<rect x="538" y="762" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="789" text-anchor="start">7. GeoPoint(37.5665, 126.9780)</text>
-<path class="dashed" d="M900 802 L520 802"/>
-<rect x="158" y="844" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="871" text-anchor="start">8. GeoPoint</text>
-<path class="dashed" d="M520 884 L140 884"/>
-<rect x="158" y="926" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="953" text-anchor="start">9. neighbors(wydm9mufd)</text>
-<path class="line" d="M140 966 L520 966"/>
-<rect x="158" y="1008" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1035" text-anchor="start">10. List of 8 adjacent hashes</text>
-<path class="dashed" d="M520 1048 L140 1048"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="424" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="539" y="209" text-anchor="middle">GeoHashUtils</text>
+<line class="lifeline" x1="539" y1="252" x2="539" y2="1396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="823" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="938" y="209" text-anchor="middle">GeoHash Grid</text>
+<line class="lifeline" x1="938" y1="252" x2="938" y2="1396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="124" y="286" width="431" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="142" y="313" text-anchor="start">1. encode(lat=37.5665, lon=126.9780, precision=9)</text>
+<path class="line" d="M140 344 L539 344"/>
+<rect x="611.5" y="396" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="629.5" y="423" text-anchor="start">2. divide into Base32 cells</text>
+<path class="line" d="M539 454 L938 454"/>
+<rect x="633.5" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="651.5" y="533" text-anchor="start">3. wydm9mufd</text>
+<path class="dashed" d="M938 564 L539 564"/>
+<rect x="234.5" y="616" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="252.5" y="643" text-anchor="start">4. hash string</text>
+<path class="dashed" d="M539 674 L140 674"/>
+<rect x="234.5" y="726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="252.5" y="753" text-anchor="start">5. decode(wydm9mufd)</text>
+<path class="line" d="M140 784 L539 784"/>
+<rect x="599.5" y="836" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="617.5" y="863" text-anchor="start">6. reverse lookup bounding box</text>
+<path class="line" d="M539 894 L938 894"/>
+<rect x="599.5" y="946" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="617.5" y="973" text-anchor="start">7. GeoPoint(37.5665, 126.9780)</text>
+<path class="dashed" d="M938 1004 L539 1004"/>
+<rect x="234.5" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="252.5" y="1083" text-anchor="start">8. GeoPoint</text>
+<path class="dashed" d="M539 1114 L140 1114"/>
+<rect x="228.5" y="1166" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="246.5" y="1193" text-anchor="start">9. neighbors(wydm9mufd)</text>
+<path class="line" d="M140 1224 L539 1224"/>
+<rect x="204.5" y="1276" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="222.5" y="1303" text-anchor="start">10. List of 8 adjacent hashes</text>
+<path class="dashed" d="M539 1334 L140 1334"/>
 </svg>

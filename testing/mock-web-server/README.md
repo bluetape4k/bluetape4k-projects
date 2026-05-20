@@ -26,11 +26,11 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 ### Request Routing Overview
 
-![Request Routing Overview 1](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.png)
+![Request Routing Overview diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
+![mock web server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
 
 ### Sequence Diagram — httpbin GET
 

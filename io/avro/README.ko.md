@@ -121,15 +121,15 @@ val itemV1 = serializer.deserialize<ItemV1>(bytes)
 
 ### Serializer 클래스 계층
 
-![Serializer 클래스 계층 1](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
+![Serializer diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
 
 ### Avro 직렬화/역직렬화 흐름
 
-![Avro Serialization / Serialization diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
+![Avro / diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
 
 ### 압축 코덱 선택 가이드
 
-![압축 코덱 선택 가이드 2](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
+![avro Architecture 3 diagram](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
 
 ## 의존성
 

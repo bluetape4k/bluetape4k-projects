@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="758" viewBox="0 0 1754 758" role="img" aria-label="Serializer Class Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="937" viewBox="0 0 1754 937" role="img" aria-label="Serializer Class Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,69 +20,75 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="758"/>
-<rect class="frame" x="32" y="28" width="1690" height="702" rx="28"/>
+<rect class="canvas" width="1754" height="937"/>
+<rect class="frame" x="32" y="28" width="1690" height="881" rx="28"/>
 <text class="title" x="66" y="82">Serializer Class Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M877 450 C877 391 672 391 672 332"/>
-<path class="implLine" d="M1287 450 C1287 415 1492 415 1492 380"/>
-<path class="implLine" d="M467 450 C467 391 262 391 262 332"/>
+<path class="implLine" d="M877 539 C877 440.5 672 440.5 672 342"/>
+<path class="implLine" d="M1287 539 C1287 469.5 1492 469.5 1492 400"/>
+<path class="implLine" d="M467 539 C467 448.5 262 448.5 262 358"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AvroGenericRecordSerializer</text>
-  <text class="mono" x="18" y="108">+serialize(schema, record) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(schema, bytes) GenericRecord</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Avro Generic Record</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Serializer</text>
+  <text class="mono" x="18" y="124">+serialize(schema, record) ByteArray</text>
+<text class="mono" x="18" y="145">+deserialize(schema, bytes) GenericRecord</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AvroReflectSerializer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AvroReflectSerializer</text>
   <text class="mono" x="18" y="108">+serialize(obj) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(bytes) T</text>
+<text class="mono" x="18" y="129">+deserialize(bytes) T</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AvroSerializer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AvroSerializer</text>
   <text class="mono" x="18" y="108">+serialize(schema, record) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(schema, bytes) GenericRecord</text>
-<text class="mono" x="18" y="156">+serializeAsString(schema, record) String</text>
-<text class="mono" x="18" y="180">+deserializeFromString(schema, text) GenericRecord</text>
+<text class="mono" x="18" y="129">+deserialize(schema, bytes) GenericRecord</text>
+<text class="mono" x="18" y="150">+serializeAsString(schema, record) String</text>
+<text class="mono" x="18" y="171">+deserializeFromString(schema, text)</text>
+<text class="mono" x="18" y="192">GenericRecord</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="212" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AvroSpecificRecordSerializer</text>
-  <text class="mono" x="18" y="108">+serialize(record) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(bytes) T</text>
-<text class="mono" x="18" y="156">+serializeList(records) ByteArray</text>
-<text class="mono" x="18" y="180">+deserializeList(bytes) List~T~</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Avro Specific Record</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Serializer</text>
+  <text class="mono" x="18" y="124">+serialize(record) ByteArray</text>
+<text class="mono" x="18" y="145">+deserialize(bytes) T</text>
+<text class="mono" x="18" y="166">+serializeList(records) ByteArray</text>
+<text class="mono" x="18" y="187">+deserializeList(bytes) List~T~</text>
 </g>
-<g transform="translate(297,458)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
+<g transform="translate(297,547)">
+  <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultAvroGenericRecordSerializer</text>
-  <text class="mono" x="18" y="108">-codecFactory: CodecFactory</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Default Avro Generic</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Record Serializer</text>
+  <text class="mono" x="18" y="124">-codecFactory: CodecFactory</text>
 </g>
-<g transform="translate(707,458)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
+<g transform="translate(707,547)">
+  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultAvroReflectSerializer</text>
-  <text class="mono" x="18" y="108">-codecFactory: CodecFactory</text>
-<text class="mono" x="18" y="132">-schemaCache: Map~Class, Schema~</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Default Avro Reflect</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Serializer</text>
+  <text class="mono" x="18" y="124">-codecFactory: CodecFactory</text>
+<text class="mono" x="18" y="145">-schemaCache: Map~Class, Schema~</text>
 </g>
-<g transform="translate(1117,458)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
+<g transform="translate(1117,547)">
+  <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultAvroSpecificRecordSerializer</text>
-  <text class="mono" x="18" y="108">-codecFactory: CodecFactory</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Default Avro Specific</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Record Serializer</text>
+  <text class="mono" x="18" y="124">-codecFactory: CodecFactory</text>
 </g>
 </svg>

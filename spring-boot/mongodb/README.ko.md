@@ -107,19 +107,19 @@ val update = ("name" setTo "Alice")
 
 ### 핵심 클래스 구조
 
-![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)
+![mongodb Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)
 
 ### ReactiveMongoOperations 코루틴 확장 흐름
 
-![ReactiveMongoOperations 코루틴 확장 흐름 2](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)
+![ReactiveMongoOperations diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)
 
 ### Criteria / Query / Update DSL 흐름
 
-![Criteria / Query / Update DSL 흐름 3](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)
+![Criteria / Query / Update DSL diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)
 
 ### 코루틴 변환 시퀀스
 
-![Coroutine diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
+![mongodb Sequence Flow 4 diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
 
 ## 참고 자료
 

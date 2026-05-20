@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1000" viewBox="0 0 1754 1000" role="img" aria-label="Type Conversion Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1243" viewBox="0 0 1754 1243" role="img" aria-label="Type Conversion Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,69 +20,72 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1000"/>
-<rect class="frame" x="32" y="28" width="1690" height="944" rx="28"/>
+<rect class="canvas" width="1754" height="1243"/>
+<rect class="frame" x="32" y="28" width="1690" height="1187" rx="28"/>
 <text class="title" x="66" y="82">Type Conversion Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M877 692 C877 512 262 512 262 332"/>
+<path class="implLine" d="M877 819 C877 591 262 591 262 363"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">BinarySerializer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BinarySerializer</text>
   <text class="mono" x="18" y="108">+serialize(obj: Any?) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(bytes: ByteArray?, clazz: Class~T~) T?</text>
+<text class="mono" x="18" y="129">+deserialize(bytes: ByteArray?, clazz:</text>
+<text class="mono" x="18" y="150">Class~T~) T?</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">DateTimeSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DateTimeSupport</text>
   <text class="mono" x="18" y="108">+LocalDate.toProtoDate() Date</text>
-<text class="mono" x="18" y="132">+LocalTime.toProtoTimeOfDay() TimeOfDay</text>
-<text class="mono" x="18" y="156">+LocalDateTime.toProtoDateTime() DateTime</text>
+<text class="mono" x="18" y="129">+LocalTime.toProtoTimeOfDay() TimeOfDay</text>
+<text class="mono" x="18" y="150">+LocalDateTime.toProtoDateTime() DateTime</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">DurationSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DurationSupport</text>
   <text class="mono" x="18" y="108">+Duration.toProtoDuration() ProtoDuration</text>
-<text class="mono" x="18" y="132">+ProtoDuration.toJavaDuration() Duration</text>
-<text class="mono" x="18" y="156">+ProtoDuration.plus(other) ProtoDuration</text>
-<text class="mono" x="18" y="180">+ProtoDuration.minus(other) ProtoDuration</text>
+<text class="mono" x="18" y="129">+ProtoDuration.toJavaDuration() Duration</text>
+<text class="mono" x="18" y="150">+ProtoDuration.plus(other) ProtoDuration</text>
+<text class="mono" x="18" y="171">+ProtoDuration.minus(other) ProtoDuration</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">MessageSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MessageSupport</text>
   <text class="mono" x="18" y="108">+packMessage(message) ByteArray</text>
-<text class="mono" x="18" y="132">+unpackMessage(bytes) T?</text>
+<text class="mono" x="18" y="129">+unpackMessage(bytes) T?</text>
 </g>
-<g transform="translate(502,446)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,502)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">MoneySupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MoneySupport</text>
   <text class="mono" x="18" y="108">+JavaMoney.toProtoMoney() Money</text>
-<text class="mono" x="18" y="132">+ProtoMoney.toJavaMoney() JavaMoney</text>
+<text class="mono" x="18" y="129">+ProtoMoney.toJavaMoney() JavaMoney</text>
 </g>
-<g transform="translate(912,446)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,502)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">TimestampSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">TimestampSupport</text>
   <text class="mono" x="18" y="108">+Instant.toTimestamp() Timestamp</text>
-<text class="mono" x="18" y="132">+Timestamp.toInstant() Instant</text>
-<text class="mono" x="18" y="156">+String.toTimestamp() Timestamp</text>
+<text class="mono" x="18" y="129">+Timestamp.toInstant() Instant</text>
+<text class="mono" x="18" y="150">+String.toTimestamp() Timestamp</text>
 </g>
-<g transform="translate(707,700)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(707,827)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ProtobufSerializer</text>
-  <text class="mono" x="18" y="108">+serialize(message: ProtoMessage?) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(bytes: ByteArray?, clazz: Class~T~) T?</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ProtobufSerializer</text>
+  <text class="mono" x="18" y="108">+serialize(message: ProtoMessage?)</text>
+<text class="mono" x="18" y="129">ByteArray</text>
+<text class="mono" x="18" y="150">+deserialize(bytes: ByteArray?, clazz:</text>
+<text class="mono" x="18" y="171">Class~T~) T?</text>
 </g>
 </svg>

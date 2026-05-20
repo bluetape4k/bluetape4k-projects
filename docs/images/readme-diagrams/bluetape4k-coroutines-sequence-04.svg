@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1426" viewBox="0 0 1040 1426" role="img" aria-label="4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window">
+<svg xmlns="http://www.w3.org/2000/svg" width="1219" height="1926" viewBox="0 0 1219 1926" role="img" aria-label="4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,56 +20,56 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1040" height="1426"/>
-<rect class="frame" x="32" y="28" width="976" height="1370" rx="28"/>
-<text class="title" x="66" y="82">4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window</text>
+<rect class="canvas" width="1219" height="1926"/>
+<rect class="frame" x="32" y="28" width="1155" height="1870" rx="28"/>
+<text class="title" x="66" y="82">4. sliding</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="1.5" y="166" width="277" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Flow Source</text>
-<line x1="140" y1="252" x2="140" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="209" text-anchor="middle">sliding(2)</text>
-<line x1="520" y1="252" x2="520" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="209" text-anchor="middle">bufferedSliding(2)</text>
-<line x1="900" y1="252" x2="900" y2="1366" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. emit(1)</text>
-<path class="line" d="M140 310 L520 310"/>
-<rect x="158" y="352" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="379" text-anchor="start">2. emit(2)</text>
-<path class="line" d="M140 392 L520 392"/>
-<rect x="538" y="434" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="461" text-anchor="start">3. window=[1,2] full</text>
-<path class="dashed" d="M520 474 C576 474 576 504 520 504"/>
-<rect x="538" y="516" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="543" text-anchor="start">4. emit([1, 2])</text>
-<path class="line" d="M520 556 C576 556 576 586 520 586"/>
-<rect x="158" y="598" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="625" text-anchor="start">5. emit(3)</text>
-<path class="line" d="M140 638 L520 638"/>
-<rect x="538" y="680" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="707" text-anchor="start">6. emit([2, 3])</text>
-<path class="line" d="M520 720 C576 720 576 750 520 750"/>
-<rect x="158" y="762" width="724" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="789" text-anchor="start">7. emit(1)</text>
-<path class="line" d="M140 802 L900 802"/>
-<rect x="918" y="844" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="934" y="871" text-anchor="start">8. emit([1])</text>
-<path class="line" d="M900 884 C956 884 956 914 900 914"/>
-<rect x="158" y="926" width="724" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="953" text-anchor="start">9. emit(2)</text>
-<path class="line" d="M140 966 L900 966"/>
-<rect x="918" y="1008" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="934" y="1035" text-anchor="start">10. emit([1, 2])</text>
-<path class="line" d="M900 1048 C956 1048 956 1078 900 1078"/>
-<rect x="158" y="1090" width="724" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1117" text-anchor="start">11. emit(3)</text>
-<path class="line" d="M140 1130 L900 1130"/>
-<rect x="918" y="1172" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="934" y="1199" text-anchor="start">12. emit([2, 3])</text>
-<path class="line" d="M900 1212 C956 1212 956 1242 900 1242"/>
-<rect x="918" y="1254" width="190" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="934" y="1281" text-anchor="start">13. emit([3])</text>
-<path class="line" d="M900 1294 C956 1294 956 1324 900 1324"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1866" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="471" y="166" width="277" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="609.5" y="209" text-anchor="middle">sliding(2)</text>
+<line class="lifeline" x1="609.5" y1="252" x2="609.5" y2="1866" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="940.5" y="166" width="277" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="1079" y="209" text-anchor="middle">bufferedSliding(2)</text>
+<line class="lifeline" x1="1079" y1="252" x2="1079" y2="1866" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="269.75" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="287.75" y="313" text-anchor="start">1. emit(1)</text>
+<path class="line" d="M140 344 L609.5 344"/>
+<rect x="269.75" y="396" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="287.75" y="423" text-anchor="start">2. emit(2)</text>
+<path class="line" d="M140 454 L609.5 454"/>
+<rect x="552.5" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="570.5" y="533" text-anchor="start">3. window=[1,2] full</text>
+<path class="dashed" d="M609.5 564 C673.5 564 673.5 598 609.5 598"/>
+<rect x="552.5" y="636" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="570.5" y="663" text-anchor="start">4. emit([1, 2])</text>
+<path class="line" d="M609.5 694 C673.5 694 673.5 728 609.5 728"/>
+<rect x="269.75" y="766" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="287.75" y="793" text-anchor="start">5. emit(3)</text>
+<path class="line" d="M140 824 L609.5 824"/>
+<rect x="552.5" y="876" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="570.5" y="903" text-anchor="start">6. emit([2, 3])</text>
+<path class="line" d="M609.5 934 C673.5 934 673.5 968 609.5 968"/>
+<rect x="504.5" y="1006" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="522.5" y="1033" text-anchor="start">7. emit(1)</text>
+<path class="line" d="M140 1064 L1079 1064"/>
+<rect x="949" y="1116" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="967" y="1143" text-anchor="start">8. emit([1])</text>
+<path class="line" d="M1079 1174 C1143 1174 1143 1208 1079 1208"/>
+<rect x="504.5" y="1246" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="522.5" y="1273" text-anchor="start">9. emit(2)</text>
+<path class="line" d="M140 1304 L1079 1304"/>
+<rect x="949" y="1356" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="967" y="1383" text-anchor="start">10. emit([1, 2])</text>
+<path class="line" d="M1079 1414 C1143 1414 1143 1448 1079 1448"/>
+<rect x="504.5" y="1486" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="522.5" y="1513" text-anchor="start">11. emit(3)</text>
+<path class="line" d="M140 1544 L1079 1544"/>
+<rect x="949" y="1596" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="967" y="1623" text-anchor="start">12. emit([2, 3])</text>
+<path class="line" d="M1079 1654 C1143 1654 1143 1688 1079 1688"/>
+<rect x="949" y="1726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="967" y="1753" text-anchor="start">13. emit([3])</text>
+<path class="line" d="M1079 1784 C1143 1784 1143 1818 1079 1818"/>
 </svg>

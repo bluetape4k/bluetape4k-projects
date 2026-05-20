@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1036" viewBox="0 0 1754 1036" role="img" aria-label="JCache NearCache (nearcache.jcache )">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1240" viewBox="0 0 1754 1240" role="img" aria-label="JCache NearCache (nearcache.jcache )">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,109 +20,110 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1036"/>
-<rect class="frame" x="32" y="28" width="1690" height="980" rx="28"/>
+<rect class="canvas" width="1754" height="1240"/>
+<rect class="frame" x="32" y="28" width="1690" height="1184" rx="28"/>
 <text class="title" x="66" y="82">JCache NearCache (nearcache.jcache )</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1082 414 C1082 470 1492 470 1492 526"/>
-<path class="line" d="M1082 632 C1082 579 262 579 262 526"/>
-<path class="line" d="M1082 632 C1082 458 262 458 262 284"/>
-<path class="line" d="M1082 414 C1082 349 1082 349 1082 284"/>
+<path class="line" d="M1082 473 C1082 537 1492 537 1492 601"/>
+<path class="line" d="M1082 774 C1082 687.5 262 687.5 262 601"/>
+<path class="line" d="M1082 774 C1082 537 262 537 262 300"/>
+<path class="line" d="M1082 473 C1082 386.5 1082 386.5 1082 300"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">CaffeineSuspendJCache</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CaffeineSuspendJCache</text>
 
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«frontCache»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CaffeineSuspendJCacheK_V</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CaffeineSuspendJCacheK_V</text>
 
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LettuceJCache</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LettuceJCache</text>
 
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LettuceJCacheK_V</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LettuceJCacheK_V</text>
   <text class="mono" x="18" y="108">-map: LettuceMap</text>
-<text class="mono" x="18" y="132">-codec: LettuceBinaryCodec</text>
-<text class="mono" x="18" y="156">-ttlSeconds: Long?</text>
+<text class="mono" x="18" y="129">-codec: LettuceBinaryCodec</text>
+<text class="mono" x="18" y="150">-ttlSeconds: Long?</text>
 </g>
-<g transform="translate(92,422)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(92,481)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LettuceSuspendJCache</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LettuceSuspendJCache</text>
 
 </g>
-<g transform="translate(502,422)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(502,481)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LettuceSuspendJCacheV</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LettuceSuspendJCacheV</text>
   <text class="mono" x="18" y="108">-cache: LettuceJCache</text>
-<text class="mono" x="18" y="132">+invoke(cacheName, redisClient) LettuceSuspendJCac.</text>
+<text class="mono" x="18" y="129">+invoke(cacheName, redisClient)</text>
+<text class="mono" x="18" y="150">LettuceSuspendJCache</text>
 </g>
-<g transform="translate(912,422)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(912,481)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NearJCache</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NearJCache</text>
 
 </g>
-<g transform="translate(1322,422)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(1322,481)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NearJCacheConfig</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NearJCacheConfig</text>
 
 </g>
-<g transform="translate(92,640)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(92,782)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NearJCacheConfigK_V</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NearJCacheConfigK_V</text>
   <text class="mono" x="18" y="108">+cacheName: String</text>
-<text class="mono" x="18" y="132">+isSynchronous: Boolean</text>
-<text class="mono" x="18" y="156">+syncRemoteTimeout: Long</text>
+<text class="mono" x="18" y="129">+isSynchronous: Boolean</text>
+<text class="mono" x="18" y="150">+syncRemoteTimeout: Long</text>
 </g>
-<g transform="translate(502,640)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(502,782)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NearJCacheK_V</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NearJCacheK_V</text>
   <text class="mono" x="18" y="108">+frontCache: JCache</text>
-<text class="mono" x="18" y="132">+backCache: JCache</text>
-<text class="mono" x="18" y="156">-config: NearJCacheConfig</text>
-<text class="mono" x="18" y="180">+invoke(config, backCache) NearJCache</text>
+<text class="mono" x="18" y="129">+backCache: JCache</text>
+<text class="mono" x="18" y="150">-config: NearJCacheConfig</text>
+<text class="mono" x="18" y="171">+invoke(config, backCache) NearJCache</text>
 </g>
-<g transform="translate(912,640)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(912,782)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SuspendNearJCache</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SuspendNearJCache</text>
 
 </g>
-<g transform="translate(1322,640)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(1322,782)">
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SuspendNearJCacheK_V</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SuspendNearJCacheK_V</text>
   <text class="mono" x="18" y="108">-frontCache: SuspendJCache</text>
-<text class="mono" x="18" y="132">-backCache: SuspendJCache</text>
-<text class="mono" x="18" y="156">+invoke(front, back) SuspendNearJCache</text>
-<text class="mono" x="18" y="180">+get(key: K) V?</text>
-<text class="mono" x="18" y="204">+put(key: K, value: V)</text>
-<text class="mono" x="18" y="228">+close()</text>
+<text class="mono" x="18" y="129">-backCache: SuspendJCache</text>
+<text class="mono" x="18" y="150">+invoke(front, back) SuspendNearJCache</text>
+<text class="mono" x="18" y="171">+get(key: K) V?</text>
+<text class="mono" x="18" y="192">+put(key: K, value: V)</text>
+<text class="mono" x="18" y="213">+close()</text>
 </g>
 </svg>

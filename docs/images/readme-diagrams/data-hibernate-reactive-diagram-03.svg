@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="552" viewBox="0 0 1754 552" role="img" aria-label="Session Type Comparison">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="659" viewBox="0 0 1754 659" role="img" aria-label="Session Type Comparison">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,47 +20,52 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="552"/>
-<rect class="frame" x="32" y="28" width="1690" height="496" rx="28"/>
+<rect class="canvas" width="1754" height="659"/>
+<rect class="frame" x="32" y="28" width="1690" height="603" rx="28"/>
 <text class="title" x="66" y="82">Session Type Comparison</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1492 172 C1492 252 1082 252 1082 332"/>
-<path class="line" d="M672 172 C672 264 262 264 262 356"/>
+<path class="line" d="M1492 172 C1492 267.5 1082 267.5 1082 363"/>
+<path class="line" d="M672 172 C672 267.5 262 267.5 262 363"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MutinySession</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MutinySession</text>
   <text class="mono" x="18" y="108">+find(cls, id): Uni~T~</text>
-<text class="mono" x="18" y="132">+findAs(id): Uni~T~ ← reified extension</text>
-<text class="mono" x="18" y="156">+persist(entity): Uni~Void~</text>
+<text class="mono" x="18" y="129">+findAs(id): Uni~T~ ← reified extension</text>
+<text class="mono" x="18" y="150">+persist(entity): Uni~Void~</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="259" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MutinySessionFactory</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MutinySessionFactory</text>
   <text class="mono" x="18" y="108">+withSession(block): Uni~T~</text>
-<text class="mono" x="18" y="132">+withTransaction(block): Uni~T~</text>
-<text class="mono" x="18" y="156">+withStatelessSession(block): Uni~T~</text>
-<text class="mono" x="18" y="180">+withSessionSuspending(block): T ← extension</text>
-<text class="mono" x="18" y="204">+withTransactionSuspending(block): T ← extension</text>
+<text class="mono" x="18" y="129">+withTransaction(block): Uni~T~</text>
+<text class="mono" x="18" y="150">+withStatelessSession(block): Uni~T~</text>
+<text class="mono" x="18" y="171">+withSessionSuspending(block): T ←</text>
+<text class="mono" x="18" y="192">extension</text>
+<text class="mono" x="18" y="213">+withTransactionSuspending(block): T ←</text>
+<text class="mono" x="18" y="234">extension</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">StageSession</text>
+  <text class="label" x="170" y="61" text-anchor="middle">StageSession</text>
   <text class="mono" x="18" y="108">+find(cls, id): CompletionStage~T~</text>
-<text class="mono" x="18" y="132">+findAs(id): CompletionStage~T~ ← reified extension</text>
+<text class="mono" x="18" y="129">+findAs(id): CompletionStage~T~ ← reified</text>
+<text class="mono" x="18" y="150">extension</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">StageSessionFactory</text>
+  <text class="label" x="170" y="61" text-anchor="middle">StageSessionFactory</text>
   <text class="mono" x="18" y="108">+withSession(block): CompletionStage~T~</text>
-<text class="mono" x="18" y="132">+withTransaction(block): CompletionStage~T~</text>
-<text class="mono" x="18" y="156">+withSessionSuspending(block): T ← extension</text>
+<text class="mono" x="18" y="129">+withTransaction(block):</text>
+<text class="mono" x="18" y="150">CompletionStage~T~</text>
+<text class="mono" x="18" y="171">+withSessionSuspending(block): T ←</text>
+<text class="mono" x="18" y="192">extension</text>
 </g>
 </svg>

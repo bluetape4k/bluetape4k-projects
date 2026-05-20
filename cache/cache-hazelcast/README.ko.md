@@ -88,7 +88,7 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 `NearJCache<K,V>` /
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + Hazelcast IMap(back) 구조입니다.
 
-![JCache 기반 NearCache (nearcache.jcache 패키지) 1](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-01.png)
+![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-01.png)
 
 > Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
 
@@ -130,7 +130,7 @@ suspendNearJCache.close()
 
 ### HazelcastNearCache 계층
 
-![HazelcastNearCache 계층 2](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-02.png)
+![HazelcastNearCache diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-02.png)
 
 ### IMap EntryListener 기반 Invalidation 흐름
 

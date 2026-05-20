@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1024" viewBox="0 0 1754 1024" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1264" viewBox="0 0 1754 1264" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,78 +20,82 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1024"/>
-<rect class="frame" x="32" y="28" width="1690" height="968" rx="28"/>
+<rect class="canvas" width="1754" height="1264"/>
+<rect class="frame" x="32" y="28" width="1690" height="1208" rx="28"/>
 <text class="title" x="66" y="82">Core Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M672 692 C672 524 262 524 262 356"/>
-<path class="implLine" d="M1082 692 C1082 657 877 657 877 622"/>
-<path class="line" d="M1492 172 C1492 300 1082 300 1082 428"/>
-<path class="line" d="M877 486 C877 445 1492 445 1492 404"/>
-<path class="line" d="M672 172 C672 264 262 264 262 356"/>
-<path class="line" d="M672 356 C672 421 877 421 877 486"/>
+<path class="implLine" d="M672 819 C672 601.5 262 601.5 262 384"/>
+<path class="implLine" d="M1082 819 C1082 752 877 752 877 685"/>
+<path class="line" d="M1492 172 C1492 299 1082 299 1082 426"/>
+<path class="line" d="M877 536 C877 470.5 1492 470.5 1492 405"/>
+<path class="line" d="M672 172 C672 278 262 278 262 384"/>
+<path class="line" d="M672 363 C672 449.5 877 449.5 877 536"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Meter</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Meter</text>
   <text class="mono" x="18" y="108">+counterBuilder(name) LongCounterBuilder</text>
-<text class="mono" x="18" y="132">+timerBuilder(name) DoubleHistogramBuilder</text>
-<text class="mono" x="18" y="156">+gaugeBuilder(name) ObservableDoubleGaugeBuilder</text>
+<text class="mono" x="18" y="129">+timerBuilder(name) DoubleHistogramBuilder</text>
+<text class="mono" x="18" y="150">+gaugeBuilder(name)</text>
+<text class="mono" x="18" y="171">ObservableDoubleGaugeBuilder</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">OpenTelemetry</text>
+  <text class="label" x="170" y="61" text-anchor="middle">OpenTelemetry</text>
   <text class="mono" x="18" y="108">+getTracer(name) Tracer</text>
-<text class="mono" x="18" y="132">+getMeter(name) Meter</text>
-<text class="mono" x="18" y="156">+getPropagators() ContextPropagators</text>
+<text class="mono" x="18" y="129">+getMeter(name) Meter</text>
+<text class="mono" x="18" y="150">+getPropagators() ContextPropagators</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Span</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Span</text>
   <text class="mono" x="18" y="108">+addEvent(name) Span</text>
-<text class="mono" x="18" y="132">+setAttribute(key, value) Span</text>
-<text class="mono" x="18" y="156">+recordException(t) Span</text>
-<text class="mono" x="18" y="180">+end()</text>
-<text class="mono" x="18" y="204">+use(block) T</text>
-<text class="mono" x="18" y="228">+useSuspending(block) T</text>
+<text class="mono" x="18" y="129">+setAttribute(key, value) Span</text>
+<text class="mono" x="18" y="150">+recordException(t) Span</text>
+<text class="mono" x="18" y="171">+end()</text>
+<text class="mono" x="18" y="192">+use(block) T</text>
+<text class="mono" x="18" y="213">+useSuspending(block) T</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpanBuilder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpanBuilder</text>
   <text class="mono" x="18" y="108">+setSpanKind(kind) SpanBuilder</text>
-<text class="mono" x="18" y="132">+setAttribute(key, value) SpanBuilder</text>
-<text class="mono" x="18" y="156">+startSpan() Span</text>
-<text class="mono" x="18" y="180">+useSpan(block) T</text>
-<text class="mono" x="18" y="204">+useSpanSuspending(block) T</text>
+<text class="mono" x="18" y="129">+setAttribute(key, value) SpanBuilder</text>
+<text class="mono" x="18" y="150">+startSpan() Span</text>
+<text class="mono" x="18" y="171">+useSpan(block) T</text>
+<text class="mono" x="18" y="192">+useSpanSuspending(block) T</text>
 </g>
-<g transform="translate(707,494)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,544)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Tracer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Tracer</text>
   <text class="mono" x="18" y="108">+spanBuilder(spanName) SpanBuilder</text>
 </g>
-<g transform="translate(502,700)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(502,827)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SdkMeterProvider</text>
-  <text class="mono" x="18" y="108">+registerMetricReader(mr) SdkMeterProviderBuilder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SdkMeterProvider</text>
+  <text class="mono" x="18" y="108">+registerMetricReader(mr)</text>
+<text class="mono" x="18" y="129">SdkMeterProviderBuilder</text>
 </g>
-<g transform="translate(912,700)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(912,827)">
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SdkTracerProvider</text>
-  <text class="mono" x="18" y="108">+addSpanProcessor(sp) SdkTracerProviderBuilder</text>
-<text class="mono" x="18" y="132">+setResource(resource) SdkTracerProviderBuilder</text>
-<text class="mono" x="18" y="156">+get(instrumentationName) Tracer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SdkTracerProvider</text>
+  <text class="mono" x="18" y="108">+addSpanProcessor(sp)</text>
+<text class="mono" x="18" y="129">SdkTracerProviderBuilder</text>
+<text class="mono" x="18" y="150">+setResource(resource)</text>
+<text class="mono" x="18" y="171">SdkTracerProviderBuilder</text>
+<text class="mono" x="18" y="192">+get(instrumentationName) Tracer</text>
 </g>
 </svg>

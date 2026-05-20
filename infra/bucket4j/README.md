@@ -26,7 +26,7 @@ A wrapper and utility module for building application-level rate limiters using 
 
 ### Bucket4j Integration Class Diagram
 
-![Bucket4j Integration Class Diagram 1](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
+![Bucket4j Integration Class Diagram diagram](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
 
 ### Rate Limiting Sequence Diagrams
 
@@ -36,7 +36,7 @@ A wrapper and utility module for building application-level rate limiters using 
 
 #### Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow
 
-![Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow diagram](../../docs/images/readme-diagrams/infra-bucket4j-sequence-02.png)
+![Distributed Suspend Rate Limiter — Redis-Based Coroutine Fl. diagram](../../docs/images/readme-diagrams/infra-bucket4j-sequence-02.png)
 
 ## What This Module Adds Over Raw Bucket4j
 

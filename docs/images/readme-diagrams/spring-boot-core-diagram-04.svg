@@ -24,22 +24,23 @@
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
 <text class="title" x="66" y="82">Retrofit2 Integration Structure</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 386 C522 469 689 469 689 552"/>
-<path class="line" d="M188 386 C188 469 689 469 689 552"/>
-<path class="line" d="M856 220 C856 386 355 386 355 552"/>
-<path class="line" d="M856 220 C856 303 856 303 856 386"/>
-<path class="line" d="M856 220 C856 303 522 303 522 386"/>
-<path class="line" d="M856 220 C856 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M672 386 C672 469 539 469 539 552"/>
+<path class="line" d="M338 386 C338 469 539 469 539 552"/>
+<path class="line" d="M706 220 C706 386 505 386 505 552"/>
+<path class="line" d="M856 280 C856 303 856 303 856 326"/>
+<path class="line" d="M706 220 C706 303 672 303 672 386"/>
+<path class="line" d="M706 220 C706 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Retrofit Bean (@Bean</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">retrofit.create&lt;T&gt;())</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Retrofit Bean (@Bean</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">retrofit.create&lt;T&gt;()</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">)</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
@@ -55,8 +56,9 @@
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Jackson 2</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Serialization/Deserialization</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Jackson 2</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Serialization/Deseri</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">alization</text>
 </g>
 <g transform="translate(215,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>

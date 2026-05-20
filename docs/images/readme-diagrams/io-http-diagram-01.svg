@@ -22,7 +22,7 @@
 </defs>
 <rect class="canvas" width="1310" height="1162"/>
 <rect class="frame" x="32" y="28" width="1246" height="1106" rx="28"/>
-<text class="title" x="66" y="82">Overall Architecture: Multi-Backend HTTP Client</text>
+<text class="title" x="66" y="82">Overall Architecture: Multi-Backend HTTP Clie.</text>
 <text class="subtitle" x="70" y="118">Grouped architecture from the original Mermaid source</text>
 <g transform="translate(60,160)">
   <rect x="0" y="0" width="350" height="364" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>

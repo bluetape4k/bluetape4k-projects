@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="854" viewBox="0 0 1366 854" role="img" aria-label="Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="1005" viewBox="0 0 1366 1005" role="img" aria-label="virtualthread Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,64 +20,66 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="854"/>
-<rect class="frame" x="32" y="28" width="1302" height="798" rx="28"/>
-<text class="title" x="66" y="82">Class Diagram</text>
+<rect class="canvas" width="1366" height="1005"/>
+<rect class="frame" x="32" y="28" width="1302" height="949" rx="28"/>
+<text class="title" x="66" y="82">virtualthread Class Structure 2</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M893 172 C893 288 473 288 473 404"/>
-<path class="implLine" d="M1103 474 C1103 439 473 439 473 404"/>
-<path class="implLine" d="M683 474 C683 439 473 439 473 404"/>
-<path class="implLine" d="M263 474 C263 439 473 439 473 404"/>
+<path class="dashed" d="M893 172 C893 299 473 299 473 426"/>
+<path class="implLine" d="M1103 560 C1103 493 473 493 473 426"/>
+<path class="implLine" d="M683 560 C683 493 473 493 473 426"/>
+<path class="implLine" d="M263 560 C263 493 473 493 473 426"/>
 <g transform="translate(298,180)">
-  <rect class="card" x="0" y="0" width="350" height="216" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">VirtualThreadFactory</text>
+  <text class="label" x="175" y="61" text-anchor="middle">VirtualThreadFactory</text>
   <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="132">+priority() Int</text>
-<text class="mono" x="18" y="156">+newThread(runnable: Runnable) Thread</text>
-<text class="mono" x="18" y="180">+executorService() ExecutorService</text>
-<text class="mono" x="18" y="204">+scheduledExecutorService() ScheduledExecutorService</text>
+<text class="mono" x="18" y="129">+priority() Int</text>
+<text class="mono" x="18" y="150">+newThread(runnable: Runnable) Thread</text>
+<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="192">+scheduledExecutorService()</text>
+<text class="mono" x="18" y="213">ScheduledExecutorService</text>
 </g>
 <g transform="translate(718,180)">
-  <rect class="card" x="0" y="0" width="350" height="192" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">VirtualThreads</text>
+  <text class="label" x="175" y="61" text-anchor="middle">VirtualThreads</text>
   <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="132">+newThread(runnable: Runnable) Thread</text>
-<text class="mono" x="18" y="156">+executorService() ExecutorService</text>
-<text class="mono" x="18" y="180">+scheduledExecutorService() ScheduledExecutorService</text>
+<text class="mono" x="18" y="129">+newThread(runnable: Runnable) Thread</text>
+<text class="mono" x="18" y="150">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="171">+scheduledExecutorService()</text>
+<text class="mono" x="18" y="192">ScheduledExecutorService</text>
 </g>
-<g transform="translate(88,482)">
-  <rect class="card" x="0" y="0" width="350" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(88,568)">
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">Jdk21VirtualThreadFactory</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Jdk21VirtualThreadFactory</text>
   <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="132">+priority() Int = 21</text>
-<text class="mono" x="18" y="156">+newThread(runnable) Thread</text>
-<text class="mono" x="18" y="180">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="129">+priority() Int = 21</text>
+<text class="mono" x="18" y="150">+newThread(runnable) Thread</text>
+<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
 </g>
-<g transform="translate(508,482)">
-  <rect class="card" x="0" y="0" width="350" height="216" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(508,568)">
+  <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
   <text class="small" x="175" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">Jdk25VirtualThreadFactory</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Jdk25VirtualThreadFactory</text>
   <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="132">+priority() Int = 25</text>
-<text class="mono" x="18" y="156">+newThread(runnable) Thread</text>
-<text class="mono" x="18" y="180">+executorService() ExecutorService</text>
-<text class="mono" x="18" y="204">+joinUntil(thread, instant) Boolean</text>
+<text class="mono" x="18" y="129">+priority() Int = 25</text>
+<text class="mono" x="18" y="150">+newThread(runnable) Thread</text>
+<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="192">+joinUntil(thread, instant) Boolean</text>
 </g>
-<g transform="translate(928,482)">
-  <rect class="card" x="0" y="0" width="350" height="192" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(928,568)">
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
   <text class="small" x="175" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">PlatformThreadFallback</text>
+  <text class="label" x="175" y="61" text-anchor="middle">PlatformThreadFallback</text>
   <text class="mono" x="18" y="108">+isSupported() Boolean = false</text>
-<text class="mono" x="18" y="132">+priority() Int = MIN_VALUE</text>
-<text class="mono" x="18" y="156">+newThread(runnable) Thread</text>
-<text class="mono" x="18" y="180">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="129">+priority() Int = MIN_VALUE</text>
+<text class="mono" x="18" y="150">+newThread(runnable) Thread</text>
+<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
 </g>
 </svg>

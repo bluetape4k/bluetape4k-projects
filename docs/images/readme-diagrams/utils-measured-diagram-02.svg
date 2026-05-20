@@ -24,13 +24,14 @@
 <rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
 <text class="title" x="66" y="82">Unit Composition Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M1190 220 C1190 303 689 303 689 386"/>
-<path class="line" d="M856 220 C856 303 689 303 689 386"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
+<path class="line" d="M1040 220 C1040 303 839 303 839 386"/>
+<path class="line" d="M706 220 C706 303 839 303 839 386"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">10 * meters</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">(Measure&amp;lt;Length&amp;gt;)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">10 * meters</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Length&amp;g</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">t;)</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -38,21 +39,20 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">speed</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">(UnitsRatio&amp;lt;Length,</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">speed (Units</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Ratio&amp;lt;Length,</text>
 <text class="smallLabel" x="140" y="73" text-anchor="middle">Time&amp;gt;) = 10 m/s</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">5 * seconds</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">(Measure&amp;lt;Time&amp;gt;)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">5 * seconds</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Time&amp;gt;</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">)</text>
 </g>
 <g transform="translate(549,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
   <text class="smallLabel" x="140" y="21" text-anchor="middle">distance</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Length&amp;gt;)</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">= 50 m</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Length&amp;g</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">t;) = 50 m</text>
 </g>
-<text class="small" x="522" y="212" text-anchor="middle">/ seconds</text>
-<text class="small" x="772.5" y="295" text-anchor="middle">* duration</text>
 </svg>

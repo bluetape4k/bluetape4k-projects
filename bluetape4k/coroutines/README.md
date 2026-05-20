@@ -16,13 +16,13 @@ It focuses on:
 
 ### Module Overview
 
-![Module Overview 1](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)
+![Module Overview diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-01.png)
 
 ---
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
+![coroutines Class Structure 2 diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
 
 ---
 
@@ -276,7 +276,7 @@ These APIs read Reactor `Context`. They do not create Reactor publishers or brid
 
 ### 1. Flow Extension Categories
 
-![1. Flow Extension Categories 3](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)
+![1. Flow Extension Categories diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-03.png)
 
 ---
 
@@ -284,7 +284,7 @@ These APIs read Reactor `Context`. They do not create Reactor publishers or brid
 
 Groups input elements into `List`s of size `n`. Emits the final partial chunk as well (`partialWindow=true` by default).
 
-![2. `chunked(n)` — Fixed-Size Chunks diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)
+![2. chunked(n) — Fixed-Size Chunks diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-02.png)
 
 ---
 
@@ -292,7 +292,7 @@ Groups input elements into `List`s of size `n`. Emits the final partial chunk as
 
 Emits windows of size `size`, advancing by `step` each time.
 
-![3. `windowed(size, step)` — Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)
+![3. windowed(size, step) — Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-03.png)
 
 ---
 
@@ -301,7 +301,7 @@ Emits windows of size `size`, advancing by `step` each time.
 `sliding` is equivalent to `windowed(size, step=1)`.
 `bufferedSliding` maintains a buffer and emits a snapshot on every element.
 
-![4. `sliding(n)` / `bufferedSliding(n)` — One-Step Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)
+![4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-04.png)
 
 ---
 
@@ -311,7 +311,7 @@ Runs the transform function on up to `parallelism` elements concurrently. Result
 
 > **Performance (2026-04-21)**: `FlowParallel` and `FlowSequential` were redesigned with per-rail `Channel` buffers and a `select`-based fan-in. Benchmark results show a **+32.7% geomean** throughput gain across all parallel operators, with `mapParallel` showing up to **+506%** improvement. `AsyncFlow` also benefits from removing the `LazyDeferred` atomic wrapper.
 
-![5. `mapParallel(parallelism)` — Parallel Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)
+![5. mapParallel(parallelism) — Parallel Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-05.png)
 
 ---
 
@@ -319,7 +319,7 @@ Runs the transform function on up to `parallelism` elements concurrently. Result
 
 Starts inner Flows eagerly and concurrently, but **emits results in source order**.
 
-![6. `concatMapEager { }` — Order-Preserving Eager Parallel Collection diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)
+![6. concatMapEager { } — Order-Preserving Eager Parallel Col. diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-06.png)
 
 ---
 
@@ -327,7 +327,7 @@ Starts inner Flows eagerly and concurrently, but **emits results in source order
 
 Buffers values arriving within `timeout` and emits them together as a `List`. Resets the timeout on each new arrival.
 
-![7. `bufferingDebounce(timeout)` — Debounced Batching diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)
+![7. bufferingDebounce(timeout) — Debounced Batching diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-07.png)
 
 ---
 
@@ -335,13 +335,13 @@ Buffers values arriving within `timeout` and emits them together as a `List`. Re
 
 Within a fixed window, emits the first element (leading), last element (trailing), or both.
 
-![8. `throttleLeading` / `throttleTrailing` / `throttleBoth` — Throttle diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)
+![8. throttleLeading / throttleTrailing / throttleBoth — Thro. diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-08.png)
 
 ---
 
 ### 9. `takeUntil(notifier)` / `skipUntil(notifier)` — Gate Control
 
-![9. `takeUntil(notifier)` / `skipUntil(notifier)` — Gate Control diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
+![9. takeUntil(notifier) / skipUntil(notifier) — Gate Control diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-09.png)
 
 ---
 
@@ -349,7 +349,7 @@ Within a fixed window, emits the first element (leading), last element (trailing
 
 Collects multiple Flows concurrently and emits values in arrival order.
 
-![10. `merge(flows)` — Unordered Merge diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)
+![10. merge(flows) — Unordered Merge diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-10.png)
 
 ---
 
@@ -357,7 +357,7 @@ Collects multiple Flows concurrently and emits values in arrival order.
 
 Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext` is an alias for `pairwise`.
 
-![11. `pairwise` / `zipWithNext` — Adjacent Pairs diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)
+![11. pairwise() / zipWithNext() — Adjacent Pairs diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-11.png)
 
 ---
 
@@ -365,7 +365,7 @@ Pairs adjacent elements as `Pair`, optionally applying a transform. `zipWithNext
 
 Calls `initialSupplier` at collect time to produce the seed, then emits each accumulated result.
 
-![12. `scanWith(initial) { }` — Lazy Initial Value Accumulation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
+![12. scanWith(initial) { } — Lazy Initial Value Accumulation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-12.png)
 
 ---
 
@@ -374,7 +374,7 @@ Calls `initialSupplier` at collect time to produce the seed, then emits each acc
 Starts each element as a `Deferred` asynchronously, but **emits results in input order**. Unlike
 `mapParallel`, output order is guaranteed.
 
-![13. `AsyncFlow` — Order-Preserving Async Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)
+![13. AsyncFlow — Order-Preserving Async Transformation diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-sequence-13.png)
 
 ---
 

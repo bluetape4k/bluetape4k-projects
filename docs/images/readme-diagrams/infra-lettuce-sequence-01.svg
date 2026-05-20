@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1430" height="1672" viewBox="0 0 1430 1672" role="img" aria-label="LettuceLoadedMap Read-Through / Write-Through Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1715" height="2116" viewBox="0 0 1715 2116" role="img" aria-label="LettuceLoadedMap Read-Through / Write-Through Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,71 +20,71 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1430" height="1672"/>
-<rect class="frame" x="32" y="28" width="1366" height="1616" rx="28"/>
+<rect class="canvas" width="1715" height="2116"/>
+<rect class="frame" x="32" y="28" width="1651" height="2060" rx="28"/>
 <text class="title" x="66" y="82">LettuceLoadedMap Read-Through / Write-Through Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="14.5" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Client</text>
-<line x1="140" y1="252" x2="140" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="322.5" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="427.5" y="209" text-anchor="middle">LettuceLoadedMap</text>
-<line x1="427.5" y1="252" x2="427.5" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="610" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="715" y="209" text-anchor="middle">Redis</text>
-<line x1="715" y1="252" x2="715" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="897.5" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1002.5" y="209" text-anchor="middle">MapLoader</text>
-<line x1="1002.5" y1="252" x2="1002.5" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1185" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1290" y="209" text-anchor="middle">MapWriter</text>
-<line x1="1290" y1="252" x2="1290" y2="1612" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. get(key)</text>
-<path class="line" d="M140 310 L427.5 310"/>
-<rect x="445.5" y="352" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="379" text-anchor="start">2. GET prefix:key</text>
-<path class="line" d="M427.5 392 L715 392"/>
-<rect x="445.5" y="434" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="461" text-anchor="start">3. null (cache miss)</text>
-<path class="dashed" d="M715 474 L427.5 474"/>
-<rect x="445.5" y="516" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="543" text-anchor="start">4. load(key)</text>
-<path class="line" d="M427.5 556 L1002.5 556"/>
-<rect x="445.5" y="598" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="625" text-anchor="start">5. value</text>
-<path class="dashed" d="M1002.5 638 L427.5 638"/>
-<rect x="445.5" y="680" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="707" text-anchor="start">6. SETEX prefix:key value ttl</text>
-<path class="line" d="M427.5 720 L715 720"/>
-<rect x="158" y="762" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="789" text-anchor="start">7. value</text>
-<path class="dashed" d="M427.5 802 L140 802"/>
-<rect x="158" y="844" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="871" text-anchor="start">8. get(key)</text>
-<path class="line" d="M140 884 L427.5 884"/>
-<rect x="445.5" y="926" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="953" text-anchor="start">9. GET prefix:key</text>
-<path class="line" d="M427.5 966 L715 966"/>
-<rect x="445.5" y="1008" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1035" text-anchor="start">10. value (cache hit)</text>
-<path class="dashed" d="M715 1048 L427.5 1048"/>
-<rect x="158" y="1090" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1117" text-anchor="start">11. value</text>
-<path class="dashed" d="M427.5 1130 L140 1130"/>
-<rect x="158" y="1172" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1199" text-anchor="start">12. set(key, value)</text>
-<path class="line" d="M140 1212 L427.5 1212"/>
-<rect x="445.5" y="1254" width="826.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1281" text-anchor="start">13. write({key: value})</text>
-<path class="line" d="M427.5 1294 L1290 1294"/>
-<rect x="445.5" y="1336" width="826.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1363" text-anchor="start">14. ok</text>
-<path class="dashed" d="M1290 1376 L427.5 1376"/>
-<rect x="445.5" y="1418" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1445" text-anchor="start">15. SETEX prefix:key value ttl</text>
-<path class="line" d="M427.5 1458 L715 1458"/>
-<rect x="158" y="1500" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1527" text-anchor="start">16. ok</text>
-<path class="dashed" d="M427.5 1540 L140 1540"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="2056" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="373.25" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="498.75" y="209" text-anchor="middle">LettuceLoadedMap</text>
+<line class="lifeline" x1="498.75" y1="252" x2="498.75" y2="2056" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="732" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="857.5" y="209" text-anchor="middle">Redis</text>
+<line class="lifeline" x1="857.5" y1="252" x2="857.5" y2="2056" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1090.75" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1216.25" y="209" text-anchor="middle">MapLoader</text>
+<line class="lifeline" x1="1216.25" y1="252" x2="1216.25" y2="2056" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1449.5" y="166" width="251" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1575" y="209" text-anchor="middle">MapWriter</text>
+<line class="lifeline" x1="1575" y1="252" x2="1575" y2="2056" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="214.375" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="313" text-anchor="start">1. get(key)</text>
+<path class="line" d="M140 344 L498.75 344"/>
+<rect x="573.125" y="396" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="591.125" y="423" text-anchor="start">2. GET prefix:key</text>
+<path class="line" d="M498.75 454 L857.5 454"/>
+<rect x="573.125" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="591.125" y="533" text-anchor="start">3. null (cache miss)</text>
+<path class="dashed" d="M857.5 564 L498.75 564"/>
+<rect x="752.5" y="616" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="770.5" y="643" text-anchor="start">4. load(key)</text>
+<path class="line" d="M498.75 674 L1216.25 674"/>
+<rect x="752.5" y="726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="770.5" y="753" text-anchor="start">5. value</text>
+<path class="dashed" d="M1216.25 784 L498.75 784"/>
+<rect x="543.125" y="836" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="561.125" y="863" text-anchor="start">6. SETEX prefix:key value ttl</text>
+<path class="line" d="M498.75 894 L857.5 894"/>
+<rect x="214.375" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="973" text-anchor="start">7. value</text>
+<path class="dashed" d="M498.75 1004 L140 1004"/>
+<rect x="214.375" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="1083" text-anchor="start">8. get(key)</text>
+<path class="line" d="M140 1114 L498.75 1114"/>
+<rect x="573.125" y="1166" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="591.125" y="1193" text-anchor="start">9. GET prefix:key</text>
+<path class="line" d="M498.75 1224 L857.5 1224"/>
+<rect x="573.125" y="1276" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="591.125" y="1303" text-anchor="start">10. value (cache hit)</text>
+<path class="dashed" d="M857.5 1334 L498.75 1334"/>
+<rect x="214.375" y="1386" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="1413" text-anchor="start">11. value</text>
+<path class="dashed" d="M498.75 1444 L140 1444"/>
+<rect x="214.375" y="1496" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="1523" text-anchor="start">12. set(key, value)</text>
+<path class="line" d="M140 1554 L498.75 1554"/>
+<rect x="925.875" y="1606" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="943.875" y="1633" text-anchor="start">13. write({key: value})</text>
+<path class="line" d="M498.75 1664 L1575 1664"/>
+<rect x="931.875" y="1716" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="949.875" y="1743" text-anchor="start">14. ok</text>
+<path class="dashed" d="M1575 1774 L498.75 1774"/>
+<rect x="539.125" y="1826" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="557.125" y="1853" text-anchor="start">15. SETEX prefix:key value ttl</text>
+<path class="line" d="M498.75 1884 L857.5 1884"/>
+<rect x="214.375" y="1936" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="1963" text-anchor="start">16. ok</text>
+<path class="dashed" d="M498.75 1994 L140 1994"/>
 </svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1364" viewBox="0 0 1754 1364" role="img" aria-label="JPA Entity Class Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1725" viewBox="0 0 1754 1725" role="img" aria-label="JPA Entity Class Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,120 +20,120 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1364"/>
-<rect class="frame" x="32" y="28" width="1690" height="1308" rx="28"/>
+<rect class="canvas" width="1754" height="1725"/>
+<rect class="frame" x="32" y="28" width="1690" height="1669" rx="28"/>
 <text class="title" x="66" y="82">JPA Entity Class Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="inheritLine" d="M672 1104 C672 1069 467 1069 467 1034"/>
-<path class="inheritLine" d="M1082 1104 C1082 1069 877 1069 877 1034"/>
-<path class="implLine" d="M672 1104 C672 827 467 827 467 550"/>
-<path class="implLine" d="M1082 1104 C1082 827 467 827 467 550"/>
-<path class="inheritLine" d="M1287 898 C1287 863 877 863 877 828"/>
-<path class="inheritLine" d="M877 898 C877 863 877 863 877 828"/>
-<path class="inheritLine" d="M467 898 C467 863 877 863 877 828"/>
-<path class="implLine" d="M877 716 C877 500 1082 500 1082 284"/>
+<path class="inheritLine" d="M672 1385 C672 1318 467 1318 467 1251"/>
+<path class="inheritLine" d="M1082 1385 C1082 1318 877 1318 877 1251"/>
+<path class="implLine" d="M672 1385 C672 1003.5 467 1003.5 467 622"/>
+<path class="implLine" d="M1082 1385 C1082 1003.5 467 1003.5 467 622"/>
+<path class="inheritLine" d="M1287 1102 C1287 1035 877 1035 877 968"/>
+<path class="inheritLine" d="M877 1102 C877 1035 877 1035 877 968"/>
+<path class="inheritLine" d="M467 1102 C467 1035 877 1035 877 968"/>
+<path class="implLine" d="M877 840 C877 570 1082 570 1082 300"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«abstract»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AbstractJpaEntityID</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AbstractJpaEntityID</text>
   <text class="mono" x="18" y="108">+id: ID?</text>
-<text class="mono" x="18" y="132">+equals(other): Boolean</text>
-<text class="mono" x="18" y="156">+hashCode(): Int</text>
-<text class="mono" x="18" y="180">+toString(): String</text>
+<text class="mono" x="18" y="129">+equals(other): Boolean</text>
+<text class="mono" x="18" y="150">+hashCode(): Int</text>
+<text class="mono" x="18" y="171">+toString(): String</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">IntJpaTreeEntityT</text>
+  <text class="label" x="170" y="61" text-anchor="middle">IntJpaTreeEntityT</text>
   <text class="mono" x="18" y="108">+id: Int?</text>
-<text class="mono" x="18" y="132">+parent: T?</text>
-<text class="mono" x="18" y="156">+children: MutableList~T~</text>
+<text class="mono" x="18" y="129">+parent: T?</text>
+<text class="mono" x="18" y="150">+children: MutableList~T~</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JpaEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JpaEntity</text>
 
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">JpaEntityID</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JpaEntityID</text>
   <text class="mono" x="18" y="108">+id: ID?</text>
-<text class="mono" x="18" y="132">+isPersisted(): Boolean</text>
-<text class="mono" x="18" y="156">+equals(other): Boolean</text>
-<text class="mono" x="18" y="180">+hashCode(): Int</text>
+<text class="mono" x="18" y="129">+isPersisted(): Boolean</text>
+<text class="mono" x="18" y="150">+equals(other): Boolean</text>
+<text class="mono" x="18" y="171">+hashCode(): Int</text>
 </g>
-<g transform="translate(297,446)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(297,502)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JpaTreeEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JpaTreeEntity</text>
 
 </g>
-<g transform="translate(707,446)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,502)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">JpaTreeEntityT_ID</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JpaTreeEntityT_ID</text>
   <text class="mono" x="18" y="108">+parent: T?</text>
-<text class="mono" x="18" y="132">+children: MutableList~T~</text>
-<text class="mono" x="18" y="156">+addChildren(child)</text>
-<text class="mono" x="18" y="180">+removeChildren(child)</text>
+<text class="mono" x="18" y="129">+children: MutableList~T~</text>
+<text class="mono" x="18" y="150">+addChildren(child)</text>
+<text class="mono" x="18" y="171">+removeChildren(child)</text>
 </g>
-<g transform="translate(1117,446)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1117,502)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LongJpaTreeEntityT</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LongJpaTreeEntityT</text>
   <text class="mono" x="18" y="108">+id: Long?</text>
-<text class="mono" x="18" y="132">+parent: T?</text>
-<text class="mono" x="18" y="156">+children: MutableList~T~</text>
+<text class="mono" x="18" y="129">+parent: T?</text>
+<text class="mono" x="18" y="150">+children: MutableList~T~</text>
 </g>
-<g transform="translate(707,724)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(707,848)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">AbstractJpaEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AbstractJpaEntity</text>
 
 </g>
-<g transform="translate(297,906)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(297,1110)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">IntJpaEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">IntJpaEntity</text>
   <text class="mono" x="18" y="108">+id: Int?</text>
 </g>
-<g transform="translate(707,906)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(707,1110)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LongJpaEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LongJpaEntity</text>
   <text class="mono" x="18" y="108">+id: Long?</text>
 </g>
-<g transform="translate(1117,906)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(1117,1110)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">UuidJpaEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UuidJpaEntity</text>
   <text class="mono" x="18" y="108">+id: UUID?</text>
 </g>
-<g transform="translate(502,1112)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(502,1393)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">IntJpaTreeEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">IntJpaTreeEntity</text>
 
 </g>
-<g transform="translate(912,1112)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(912,1393)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LongJpaTreeEntity</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LongJpaTreeEntity</text>
 
 </g>
 </svg>

@@ -11,15 +11,15 @@ An advanced time-operations library for the Java Time API (java.time). Supports 
 
 ### Feature Overview
 
-![Feature Overview 1](../../docs/images/readme-diagrams/utils-javatimes-diagram-01.png)
+![Feature Overview diagram](../../docs/images/readme-diagrams/utils-javatimes-diagram-01.png)
 
 ### Class Hierarchy — Period Framework
 
-![Class Hierarchy — Period Framework 2](../../docs/images/readme-diagrams/utils-javatimes-diagram-02.png)
+![Class Hierarchy — Period Framework diagram](../../docs/images/readme-diagrams/utils-javatimes-diagram-02.png)
 
 ### PeriodRelation — How Two Periods Relate
 
-![PeriodRelation — How Two Periods Relate 3](../../docs/images/readme-diagrams/utils-javatimes-diagram-03.png)
+![PeriodRelation — How Two Periods Relate diagram](../../docs/images/readme-diagrams/utils-javatimes-diagram-03.png)
 
 ## Core Features (from `bluetape4k-core`)
 

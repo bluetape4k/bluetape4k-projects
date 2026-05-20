@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="782" viewBox="0 0 1366 782" role="img" aria-label="Rule Engine Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="921" viewBox="0 0 1366 921" role="img" aria-label="Rule Engine Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,52 +20,53 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="782"/>
-<rect class="frame" x="32" y="28" width="1302" height="726" rx="28"/>
+<rect class="canvas" width="1366" height="921"/>
+<rect class="frame" x="32" y="28" width="1302" height="865" rx="28"/>
 <text class="title" x="66" y="82">Rule Engine Class Diagram</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M893 450 C893 403 683 403 683 356"/>
-<path class="implLine" d="M473 450 C473 403 683 403 683 356"/>
+<path class="implLine" d="M893 518 C893 451 683 451 683 384"/>
+<path class="implLine" d="M473 518 C473 451 683 451 683 384"/>
 <g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">DefaultSuspendRuleEngine</text>
+  <text class="label" x="175" y="61" text-anchor="middle">DefaultSuspendRuleEngine</text>
   <text class="mono" x="18" y="108">+fire(rules, facts)</text>
 </g>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">RuleEngine</text>
+  <text class="label" x="175" y="61" text-anchor="middle">RuleEngine</text>
   <text class="mono" x="18" y="108">+config: RuleEngineConfig</text>
-<text class="mono" x="18" y="132">+fire(rules: RuleSet, facts: Facts)</text>
-<text class="mono" x="18" y="156">+check(rules: RuleSet, facts: Facts): Map~Rule,Bool.</text>
+<text class="mono" x="18" y="129">+fire(rules: RuleSet, facts: Facts)</text>
+<text class="mono" x="18" y="150">+check(rules: RuleSet, facts: Facts):</text>
+<text class="mono" x="18" y="171">Map~Rule,Boolean~</text>
 </g>
 <g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">RuleEngineConfig</text>
+  <text class="label" x="175" y="61" text-anchor="middle">RuleEngineConfig</text>
   <text class="mono" x="18" y="108">+skipOnFirstAppliedRule: Boolean</text>
-<text class="mono" x="18" y="132">+skipOnFirstFailedRule: Boolean</text>
-<text class="mono" x="18" y="156">+skipOnFirstNonTriggeredRule: Boolean</text>
-<text class="mono" x="18" y="180">+priorityThreshold: Int</text>
+<text class="mono" x="18" y="129">+skipOnFirstFailedRule: Boolean</text>
+<text class="mono" x="18" y="150">+skipOnFirstNonTriggeredRule: Boolean</text>
+<text class="mono" x="18" y="171">+priorityThreshold: Int</text>
 </g>
-<g transform="translate(298,458)">
-  <rect class="card" x="0" y="0" width="350" height="168" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(298,526)">
+  <rect class="card" x="0" y="0" width="350" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">DefaultRuleEngine</text>
+  <text class="label" x="175" y="61" text-anchor="middle">DefaultRuleEngine</text>
   <text class="mono" x="18" y="108">+fire(rules, facts)</text>
-<text class="mono" x="18" y="132">+addRuleListener(listener)</text>
-<text class="mono" x="18" y="156">+addRuleEngineListener(listener)</text>
+<text class="mono" x="18" y="129">+addRuleListener(listener)</text>
+<text class="mono" x="18" y="150">+addRuleEngineListener(listener)</text>
 </g>
-<g transform="translate(718,458)">
-  <rect class="card" x="0" y="0" width="350" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(718,526)">
+  <rect class="card" x="0" y="0" width="350" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">InferenceRuleEngine</text>
+  <text class="label" x="175" y="61" text-anchor="middle">InferenceRuleEngine</text>
   <text class="mono" x="18" y="108">+fire(rules, facts)</text>
 </g>
 </svg>

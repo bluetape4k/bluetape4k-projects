@@ -24,12 +24,12 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Aggregation Pipeline Data Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M188 220 C188 303 1190 303 1190 386"/>
-<path class="line" d="M188 220 C188 303 856 303 856 386"/>
-<path class="line" d="M188 220 C188 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M856 220 C856 220 1190 220 1190 220"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
+<path class="line" d="M338 220 C338 303 1040 303 1040 386"/>
+<path class="line" d="M338 220 C338 303 706 303 706 386"/>
+<path class="line" d="M338 220 C338 303 372 303 372 386"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M1006 220 C1006 220 1040 220 1040 220"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">pipeline { ... } DSL</text>
@@ -40,7 +40,8 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">AggregateFlow&amp;lt;T&amp;gt;</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Aggregate</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Flow&amp;lt;T&amp;gt;</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
@@ -68,13 +69,12 @@
 </g>
 <g transform="translate(549,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">projectStage - project</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">projectStage -</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">project</text>
 </g>
 <g transform="translate(883,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
   <text class="smallLabel" x="140" y="33" text-anchor="middle">unwindStage - unwind</text>
 <text class="smallLabel" x="140" y="59" text-anchor="middle">array</text>
 </g>
-<text class="small" x="689" y="212" text-anchor="middle">collection.aggreg.</text>
-<text class="small" x="1023" y="212" text-anchor="middle">Flow conversion</text>
 </svg>

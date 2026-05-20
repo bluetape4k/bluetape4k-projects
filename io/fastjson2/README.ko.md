@@ -126,11 +126,11 @@ val user = jsonObject.readValueOrNull<User>("key")
 
 ### 클래스 구조
 
-![클래스 구조 1](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
+![fastjson2 Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
 
 ### JSON vs JSONB 직렬화 흐름
 
-![JSON vs JSONB 직렬화 흐름 2](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
+![JSON vs JSONB diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
 
 ## 의존성
 

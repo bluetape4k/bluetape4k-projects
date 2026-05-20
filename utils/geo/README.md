@@ -11,15 +11,15 @@ A unified module for geographic information processing. Provides Geocode, GeoHas
 
 ### Module Overview
 
-![Module Overview 1](../../docs/images/readme-diagrams/utils-geo-diagram-01.png)
+![Module Overview diagram](../../docs/images/readme-diagrams/utils-geo-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
+![geo Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
 
 ### GeoHash Encoding/Decoding Flow
 
-![GeoHash Encoding / Decoding Flow diagram](../../docs/images/readme-diagrams/utils-geo-sequence-01.png)
+![GeoHash Encoding/Decoding Flow diagram](../../docs/images/readme-diagrams/utils-geo-sequence-01.png)
 
 ## Key Features
 

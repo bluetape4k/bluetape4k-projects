@@ -30,7 +30,8 @@
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">StartTouching: A──┤B──┤</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">StartTouching:</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">A──┤B──┤</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
@@ -38,7 +39,8 @@
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Inside: ├─A─┤ (inside B)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Inside: ├─A─┤</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">(inside B)</text>
 </g>
 <g transform="translate(215,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>

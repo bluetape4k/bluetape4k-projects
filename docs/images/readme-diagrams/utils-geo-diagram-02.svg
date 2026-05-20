@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="746" viewBox="0 0 1754 746" role="img" aria-label="Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="876" viewBox="0 0 1754 876" role="img" aria-label="geo Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,82 +20,74 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="746"/>
-<rect class="frame" x="32" y="28" width="1690" height="690" rx="28"/>
-<text class="title" x="66" y="82">Class Diagram</text>
+<rect class="canvas" width="1754" height="876"/>
+<rect class="frame" x="32" y="28" width="1690" height="820" rx="28"/>
+<text class="title" x="66" y="82">geo Class Structure 2</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M467 414 C467 385 672 385 672 356"/>
-<path class="line" d="M262 356 C262 385 877 385 877 414"/>
-<path class="line" d="M1287 414 C1287 494 877 494 877 574"/>
-<path class="line" d="M1492 356 C1492 385 877 385 877 414"/>
-<path class="line" d="M1082 172 C1082 264 1492 264 1492 356"/>
+<path class="line" d="M467 473 C467 418 672 418 672 363"/>
+<path class="line" d="M262 363 C262 418 877 418 877 473"/>
+<path class="line" d="M1287 473 C1287 558 877 558 877 643"/>
+<path class="line" d="M1492 363 C1492 418 877 418 877 473"/>
+<path class="line" d="M1082 172 C1082 267.5 1492 267.5 1492 363"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">BingGeocoder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BingGeocoder</text>
   <text class="mono" x="18" y="108">+apiKey: String</text>
-<text class="mono" x="18" y="132">+geocode(address) GeoPoint</text>
-<text class="mono" x="18" y="156">+reverseGeocode(lat, lon) String</text>
+<text class="mono" x="18" y="129">+geocode(address) GeoPoint</text>
+<text class="mono" x="18" y="150">+reverseGeocode(lat, lon) String</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">CityResponse</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CityResponse</text>
   <text class="mono" x="18" y="108">+country: Country</text>
-<text class="mono" x="18" y="132">+city: City</text>
-<text class="mono" x="18" y="156">+location: Location</text>
+<text class="mono" x="18" y="129">+city: City</text>
+<text class="mono" x="18" y="150">+location: Location</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GeoHashCircleQuery</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GeoHashCircleQuery</text>
   <text class="mono" x="18" y="108">+radiusMeters: Double</text>
-<text class="mono" x="18" y="132">+centerHash: String</text>
-<text class="mono" x="18" y="156">+getHashes() List~String~</text>
+<text class="mono" x="18" y="129">+centerHash: String</text>
+<text class="mono" x="18" y="150">+getHashes() List~String~</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GeoHashUtils</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GeoHashUtils</text>
   <text class="mono" x="18" y="108">+encode(lat, lon, precision) String</text>
-<text class="mono" x="18" y="132">+decode(hash) GeoPoint</text>
-<text class="mono" x="18" y="156">+neighbors(hash) List~String~</text>
+<text class="mono" x="18" y="129">+decode(hash) GeoPoint</text>
+<text class="mono" x="18" y="150">+neighbors(hash) List~String~</text>
 </g>
-<g transform="translate(297,422)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(297,481)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GeoIp2Support</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GeoIp2Support</text>
   <text class="mono" x="18" y="108">+cityReader(path) DatabaseReader</text>
-<text class="mono" x="18" y="132">+countryReader(path) DatabaseReader</text>
+<text class="mono" x="18" y="129">+countryReader(path) DatabaseReader</text>
 </g>
-<g transform="translate(707,422)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,481)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GeoPoint</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GeoPoint</text>
   <text class="mono" x="18" y="108">+latitude: Double</text>
-<text class="mono" x="18" y="132">+longitude: Double</text>
+<text class="mono" x="18" y="129">+longitude: Double</text>
 </g>
-<g transform="translate(1117,422)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1117,481)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GoogleGeocoder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GoogleGeocoder</text>
   <text class="mono" x="18" y="108">+apiKey: String</text>
-<text class="mono" x="18" y="132">+geocode(address) GeoPoint</text>
-<text class="mono" x="18" y="156">+reverseGeocode(lat, lon) String</text>
+<text class="mono" x="18" y="129">+geocode(address) GeoPoint</text>
+<text class="mono" x="18" y="150">+reverseGeocode(lat, lon) String</text>
 </g>
-<rect x="1126.5" y="370" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1184.5" y="388" text-anchor="middle">returns</text>
-<rect x="1024" y="479" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1082" y="497" text-anchor="middle">returns</text>
-<rect x="511.5" y="370" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="569.5" y="388" text-anchor="middle">returns</text>
-<rect x="511.5" y="370" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="569.5" y="388" text-anchor="middle">returns</text>
 </svg>

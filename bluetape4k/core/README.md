@@ -8,13 +8,13 @@ A foundational utility library for Kotlin backend development. It provides the c
 
 ### Module Overview
 
-![Module Overview 1](../../docs/images/readme-diagrams/bluetape4k-core-diagram-01.png)
+![Module Overview diagram](../../docs/images/readme-diagrams/bluetape4k-core-diagram-01.png)
 
 ---
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
+![core Class Structure 2 diagram](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
 
 ---
 

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1098" viewBox="0 0 1040 1098" role="img" aria-label="Validation Chaining Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1078" height="1754" viewBox="0 0 1078 1754" role="img" aria-label="Validation Chaining Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,44 +20,56 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1040" height="1098"/>
-<rect class="frame" x="32" y="28" width="976" height="1042" rx="28"/>
+<rect class="canvas" width="1078" height="1754"/>
+<rect class="frame" x="32" y="28" width="1014" height="1698" rx="28"/>
 <text class="title" x="66" y="82">Validation Chaining Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line x1="140" y1="252" x2="140" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="209" text-anchor="middle">RequireSupport</text>
-<line x1="520" y1="252" x2="520" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="209" text-anchor="middle">Valid Value</text>
-<line x1="900" y1="252" x2="900" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. username.requireNotBlank(username)</text>
-<path class="line" d="M140 310 L520 310"/>
-<rect x="158" y="352" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="379" text-anchor="start">2. IllegalArgumentException</text>
-<path class="dashed" d="M520 392 L140 392"/>
-<rect x="158" y="434" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="461" text-anchor="start">3. username (non-null)</text>
-<path class="line" d="M520 474 L140 474"/>
-<rect x="158" y="516" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="543" text-anchor="start">4. .requireStartsWith(user_, username)</text>
-<path class="line" d="M140 556 L520 556"/>
-<rect x="158" y="598" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="625" text-anchor="start">5. IllegalArgumentException</text>
-<path class="dashed" d="M520 638 L140 638"/>
-<rect x="538" y="680" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="707" text-anchor="start">6. username (validated)</text>
-<path class="line" d="M520 720 L900 720"/>
-<rect x="158" y="762" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="789" text-anchor="start">7. age.requireGe(18, age)</text>
-<path class="line" d="M140 802 L520 802"/>
-<rect x="158" y="844" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="871" text-anchor="start">8. IllegalArgumentException</text>
-<path class="dashed" d="M520 884 L140 884"/>
-<rect x="158" y="926" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="953" text-anchor="start">9. age (chained return)</text>
-<path class="line" d="M520 966 L140 966"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1694" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="424" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="539" y="209" text-anchor="middle">RequireSupport</text>
+<line class="lifeline" x1="539" y1="252" x2="539" y2="1694" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="823" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="938" y="209" text-anchor="middle">Valid Value</text>
+<line class="lifeline" x1="938" y1="252" x2="938" y2="1694" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="172" y="286" width="335" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="190" y="313" text-anchor="start">1. username.requireNotBlank(username)</text>
+<path class="line" d="M140 344 L539 344"/>
+<rect x="70" y="396" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="423" text-anchor="start">ALT: blank or null</text>
+<rect x="212.5" y="464" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="230.5" y="491" text-anchor="start">3. IllegalArgumentException</text>
+<path class="dashed" d="M539 522 L140 522"/>
+<rect x="70" y="574" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="601" text-anchor="start">ELSE: valid</text>
+<rect x="232.5" y="642" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="250.5" y="669" text-anchor="start">5. username (non-null)</text>
+<path class="line" d="M539 700 L140 700"/>
+<rect x="168" y="752" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="186" y="779" text-anchor="start">6. .requireStartsWith(user_, username)</text>
+<path class="line" d="M140 810 L539 810"/>
+<rect x="70" y="862" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="889" text-anchor="start">ALT: prefix mismatch</text>
+<rect x="212.5" y="930" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="230.5" y="957" text-anchor="start">8. IllegalArgumentException</text>
+<path class="dashed" d="M539 988 L140 988"/>
+<rect x="70" y="1040" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="1067" text-anchor="start">ELSE: valid</text>
+<rect x="623.5" y="1108" width="230" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="641.5" y="1135" text-anchor="start">10. username (validated)</text>
+<path class="line" d="M539 1166 L938 1166"/>
+<rect x="216.5" y="1218" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="234.5" y="1245" text-anchor="start">11. age.requireGe(18, age)</text>
+<path class="line" d="M140 1276 L539 1276"/>
+<rect x="70" y="1328" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="1355" text-anchor="start">ALT: less than 18</text>
+<rect x="208.5" y="1396" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="226.5" y="1423" text-anchor="start">13. IllegalArgumentException</text>
+<path class="dashed" d="M539 1454 L140 1454"/>
+<rect x="70" y="1506" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="1533" text-anchor="start">ELSE: valid</text>
+<rect x="224.5" y="1574" width="230" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="242.5" y="1601" text-anchor="start">15. age (chained return)</text>
+<path class="line" d="M539 1632 L140 1632"/>
 </svg>

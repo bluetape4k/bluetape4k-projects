@@ -24,12 +24,12 @@
 <rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
 <text class="title" x="66" y="82">Dependency Boundary</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 220 C522 303 1023 303 1023 386"/>
-<path class="line" d="M522 220 C522 303 689 303 689 386"/>
-<path class="line" d="M522 220 C522 303 355 303 355 386"/>
-<path class="line" d="M522 220 C522 220 1190 220 1190 220"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M672 220 C672 303 873 303 873 386"/>
+<path class="line" d="M672 220 C672 303 539 303 539 386"/>
+<path class="line" d="M372 220 C372 303 505 303 505 386"/>
+<path class="line" d="M672 220 C672 220 1040 220 1040 220"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application</text>

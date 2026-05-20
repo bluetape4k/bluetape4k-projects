@@ -10,7 +10,7 @@ This module provides extension functions and decorators that make it easy to use
 
 ### Resilience4j Coroutines Integration Class Diagram
 
-![Resilience4j Coroutines Integration Class Diagram 1](../../docs/images/readme-diagrams/infra-resilience4j-diagram-01.png)
+![Resilience4j Coroutines Integration Class Diagram diagram](../../docs/images/readme-diagrams/infra-resilience4j-diagram-01.png)
 
 ### Architecture
 

@@ -25,15 +25,15 @@ Pick the right algorithm for your use case:
 
 ### All Algorithms at a Glance
 
-![All Algorithms at a Glance 1](../../docs/images/readme-diagrams/utils-idgenerators-diagram-01.png)
+![All Algorithms at a Glance diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)
+![idgenerators Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)
 
 ### Snowflake Bit Layout
 
-![Snowflake Bit Layout 3](../../docs/images/readme-diagrams/utils-idgenerators-diagram-03.png)
+![Snowflake Bit Layout diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-03.png)
 
 - **timestamp**: milliseconds since epoch, unique for ~69 years
 - **machineId**: supports up to 1,024 machines (0–1023)
@@ -110,7 +110,7 @@ val idString: String = uuidGen.nextIdAsString()  // Base62
    48 bits      80 bits
 ```
 
-![ULID (Universally Unique Lexicographically Sortable Identifier) 4](../../docs/images/readme-diagrams/utils-idgenerators-diagram-04.png)
+![ULID (Universally Unique Lexicographically Sortable Identif. diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-04.png)
 
 ```kotlin
 // Random ULID
@@ -135,7 +135,7 @@ check(a < b)
 
 **Generator selection:**
 
-![ULID (Universally Unique Lexicographically Sortable Identifier) 5](../../docs/images/readme-diagrams/utils-idgenerators-diagram-05.png)
+![ULID (Universally Unique Lexicographically Sortable Identif. diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-05.png)
 
 ### KSUID (K-Sortable Unique ID)
 

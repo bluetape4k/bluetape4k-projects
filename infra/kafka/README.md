@@ -415,15 +415,15 @@ class KafkaIntegrationTest {
 
 ### Kafka Class Hierarchy
 
-![Kafka Class Hierarchy 1](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
+![Kafka Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
 
 ### Producer/Consumer Message Flow
 
-![Producer / Consumer Message Flow diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
+![Producer/Consumer Message Flow diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
 
 ### Kafka Streams Processing Flow
 
-![Kafka Streams Processing Flow 2](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
+![Kafka Streams Processing Flow diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
 
 ## Package Structure
 

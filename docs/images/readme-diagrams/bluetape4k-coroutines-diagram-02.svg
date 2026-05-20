@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1144" viewBox="0 0 1754 1144" role="img" aria-label="Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1348" viewBox="0 0 1754 1348" role="img" aria-label="coroutines Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,114 +20,113 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1144"/>
-<rect class="frame" x="32" y="28" width="1690" height="1088" rx="28"/>
-<text class="title" x="66" y="82">Class Diagram</text>
+<rect class="canvas" width="1754" height="1348"/>
+<rect class="frame" x="32" y="28" width="1690" height="1292" rx="28"/>
+<text class="title" x="66" y="82">coroutines Class Structure 2</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M877 486 C877 397 262 397 262 308"/>
-<path class="implLine" d="M1492 812 C1492 548 672 548 672 284"/>
-<path class="implLine" d="M1082 812 C1082 548 672 548 672 284"/>
-<path class="implLine" d="M672 812 C672 548 672 548 672 284"/>
-<path class="implLine" d="M262 812 C262 548 672 548 672 284"/>
-<path class="dashed" d="M1082 172 C1082 276 1492 276 1492 380"/>
-<path class="dashed" d="M1492 380 C1492 433 467 433 467 486"/>
+<path class="dashed" d="M877 536 C877 428.5 262 428.5 262 321"/>
+<path class="implLine" d="M1492 945 C1492 622.5 672 622.5 672 300"/>
+<path class="implLine" d="M1082 945 C1082 622.5 672 622.5 672 300"/>
+<path class="implLine" d="M672 945 C672 622.5 672 622.5 672 300"/>
+<path class="implLine" d="M262 945 C262 622.5 672 622.5 672 300"/>
+<path class="dashed" d="M1082 172 C1082 278 1492 278 1492 384"/>
+<path class="dashed" d="M1492 384 C1492 460 467 460 467 536"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensionFunction»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AsyncFlow</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AsyncFlow</text>
   <text class="mono" x="18" y="108">+Flow.async(dispatcher, transform) Flow~R~</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineScope</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineScope</text>
 
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensionFunctions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">DeferredSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DeferredSupport</text>
   <text class="mono" x="18" y="108">+zip(a, b, transform) Deferred~R~</text>
-<text class="mono" x="18" y="132">+awaitAny(vararg deferred) T</text>
-<text class="mono" x="18" y="156">+awaitAnyAndCancelOthers() T</text>
-<text class="mono" x="18" y="180">+map(transform) Deferred~R~</text>
-<text class="mono" x="18" y="204">+mapAll(transform) Deferred~List~R~~</text>
-<text class="mono" x="18" y="228">+concatMap(transform) Deferred~R~</text>
+<text class="mono" x="18" y="129">+awaitAny(vararg deferred) T</text>
+<text class="mono" x="18" y="150">+awaitAnyAndCancelOthers() T</text>
+<text class="mono" x="18" y="171">+map(transform) Deferred~R~</text>
+<text class="mono" x="18" y="192">+mapAll(transform) Deferred~List~R~~</text>
+<text class="mono" x="18" y="213">+concatMap(transform) Deferred~R~</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">DeferredValue</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DeferredValue</text>
   <text class="mono" x="18" y="108">+await() T</text>
-<text class="mono" x="18" y="132">+value: T (blocking)</text>
-<text class="mono" x="18" y="156">+map(transform) DeferredValue~R~</text>
-<text class="mono" x="18" y="180">+flatMap(transform) DeferredValue~R~</text>
+<text class="mono" x="18" y="129">+value: T (blocking)</text>
+<text class="mono" x="18" y="150">+map(transform) DeferredValue~R~</text>
+<text class="mono" x="18" y="171">+flatMap(transform) DeferredValue~R~</text>
 </g>
-<g transform="translate(297,494)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(297,544)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«factoryFunction»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">deferredValueOf</text>
+  <text class="label" x="170" y="61" text-anchor="middle">deferredValueOf</text>
   <text class="mono" x="18" y="108">+deferredValueOf(block) DeferredValue~T~</text>
 </g>
-<g transform="translate(707,494)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,544)">
+  <rect class="card" x="0" y="0" width="340" height="259" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensionFunctions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">FlowExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">FlowExtensions</text>
   <text class="mono" x="18" y="108">+chunked(n) Flow~List~T~~</text>
-<text class="mono" x="18" y="132">+windowed(size, step) Flow~List~T~~</text>
-<text class="mono" x="18" y="156">+sliding(n) Flow~List~T~~</text>
-<text class="mono" x="18" y="180">+mapParallel(parallelism, transform) Flow~R~</text>
-<text class="mono" x="18" y="204">+concatMapEager(transform) Flow~R~</text>
-<text class="mono" x="18" y="228">+bufferingDebounce(timeout) Flow~List~T~~</text>
+<text class="mono" x="18" y="129">+windowed(size, step) Flow~List~T~~</text>
+<text class="mono" x="18" y="150">+sliding(n) Flow~List~T~~</text>
+<text class="mono" x="18" y="171">+mapParallel(parallelism, transform)</text>
+<text class="mono" x="18" y="192">Flow~R~</text>
+<text class="mono" x="18" y="213">+concatMapEager(transform) Flow~R~</text>
+<text class="mono" x="18" y="234">+bufferingDebounce(timeout) Flow~List~T~~</text>
 </g>
-<g transform="translate(1117,494)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1117,544)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensionFunctions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ReactorContextHelpers</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ReactorContextHelpers</text>
   <text class="mono" x="18" y="108">+currentReactiveContext() Context?</text>
-<text class="mono" x="18" y="132">+Context.getOrNull(key) V?</text>
+<text class="mono" x="18" y="129">+Context.getOrNull(key) V?</text>
 </g>
-<g transform="translate(92,820)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(92,953)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultCoroutineScope</text>
-  <text class="mono" x="18" y="108">+coroutineContext: Dispatchers.Default + Superviso.</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DefaultCoroutineScope</text>
+  <text class="mono" x="18" y="108">+coroutineContext: Dispatchers.Default +</text>
+<text class="mono" x="18" y="129">SupervisorJob</text>
 </g>
-<g transform="translate(502,820)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(502,953)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">IoCoroutineScope</text>
-  <text class="mono" x="18" y="108">+coroutineContext: Dispatchers.IO + SupervisorJob</text>
+  <text class="label" x="170" y="61" text-anchor="middle">IoCoroutineScope</text>
+  <text class="mono" x="18" y="108">+coroutineContext: Dispatchers.IO +</text>
+<text class="mono" x="18" y="129">SupervisorJob</text>
 </g>
-<g transform="translate(912,820)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(912,953)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ThreadPoolCoroutineScope</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ThreadPoolCoroutineScope</text>
   <text class="mono" x="18" y="108">+poolSize: Int</text>
-<text class="mono" x="18" y="132">+name: String</text>
-<text class="mono" x="18" y="156">+close()</text>
+<text class="mono" x="18" y="129">+name: String</text>
+<text class="mono" x="18" y="150">+close()</text>
 </g>
-<g transform="translate(1322,820)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+<g transform="translate(1322,953)">
+  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">VirtualThreadCoroutineScope</text>
-  <text class="mono" x="18" y="108">+coroutineContext: VirtualThread dispatcher + Supe.</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Virtual Thread Coroutine</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Scope</text>
+  <text class="mono" x="18" y="124">+coroutineContext: VirtualThread</text>
+<text class="mono" x="18" y="145">dispatcher + SupervisorJob</text>
 </g>
-<rect x="921.5" y="418" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="979.5" y="436" text-anchor="middle">created by</text>
-<rect x="1229" y="261" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1287" y="279" text-anchor="middle">wraps</text>
-<rect x="511.5" y="382" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="569.5" y="400" text-anchor="middle">includes</text>
 </svg>

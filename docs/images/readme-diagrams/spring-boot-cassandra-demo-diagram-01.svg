@@ -24,18 +24,19 @@
 <rect class="frame" x="32" y="28" width="980" height="470" rx="28"/>
 <text class="title" x="66" y="82">UML</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M355 386 C355 303 856 303 856 220"/>
-<path class="line" d="M355 386 C355 303 522 303 522 220"/>
-<path class="line" d="M856 220 C856 303 689 303 689 386"/>
-<path class="line" d="M522 220 C522 303 689 303 689 386"/>
+<path class="line" d="M505 386 C505 303 706 303 706 220"/>
+<path class="line" d="M505 386 C505 303 372 303 372 220"/>
+<path class="line" d="M706 220 C706 303 839 303 839 386"/>
+<path class="line" d="M672 220 C672 303 539 303 539 386"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">@Table Entity</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">CassandraRepository /</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">CoroutineCrudRepository</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">CassandraRepository</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">/ Coroutine Crud</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Repository</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>

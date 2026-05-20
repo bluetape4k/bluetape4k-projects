@@ -24,16 +24,16 @@
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
 <text class="title" x="66" y="82">Cassandra Data Access Layer</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 552 C856 386 856 386 856 220"/>
-<path class="line" d="M188 552 C188 552 522 552 522 552"/>
-<path class="line" d="M522 386 C522 469 188 469 188 552"/>
-<path class="line" d="M188 386 C188 469 188 469 188 552"/>
-<path class="line" d="M856 220 C856 386 188 386 188 552"/>
-<path class="line" d="M856 386 C856 303 856 303 856 220"/>
-<path class="line" d="M522 220 C522 303 522 303 522 386"/>
-<path class="line" d="M522 220 C522 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M856 492 C856 386 856 386 856 280"/>
+<path class="line" d="M338 552 C338 552 372 552 372 552"/>
+<path class="line" d="M372 386 C372 469 338 469 338 552"/>
+<path class="line" d="M188 446 C188 469 188 469 188 492"/>
+<path class="line" d="M706 220 C706 386 338 386 338 552"/>
+<path class="line" d="M856 326 C856 303 856 303 856 280"/>
+<path class="line" d="M522 280 C522 303 522 303 522 326"/>
+<path class="line" d="M372 220 C372 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application Code</text>
@@ -42,7 +42,7 @@
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
   <text class="smallLabel" x="140" y="21" text-anchor="middle">Coroutine Extension</text>
 <text class="smallLabel" x="140" y="47" text-anchor="middle">Functions</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">(bluetape4k-spring-boot-cassandra)</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">(bluetape4k-spring-b</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
@@ -57,8 +57,9 @@
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">AsyncCassandraOperations</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Coroutine Extensions</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Async Cassandra</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Operations Coroutine</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Extensions</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
@@ -77,7 +78,8 @@
 </g>
 <g transform="translate(716,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">SchemaGenerator Schema</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Creation / Truncation</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">SchemaGenerator</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Schema Creation /</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Truncation</text>
 </g>
 </svg>

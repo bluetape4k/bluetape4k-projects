@@ -14,11 +14,11 @@ Since v1.5.0 the internal engine has been replaced from univocity-parsers to a s
 
 ### Class Structure
 
-![Class Structure 1](../../docs/images/readme-diagrams/io-csv-diagram-01.png)
+![Class Structure diagram](../../docs/images/readme-diagrams/io-csv-diagram-01.png)
 
 ### CSV/TSV Processing Flow
 
-![CSV/TSV Processing Flow 2](../../docs/images/readme-diagrams/io-csv-diagram-02.png)
+![CSV/TSV Processing Flow diagram](../../docs/images/readme-diagrams/io-csv-diagram-02.png)
 
 ## Key Features
 

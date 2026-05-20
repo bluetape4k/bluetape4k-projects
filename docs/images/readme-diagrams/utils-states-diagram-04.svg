@@ -22,12 +22,12 @@
 </defs>
 <rect class="canvas" width="674" height="430"/>
 <rect class="frame" x="32" y="28" width="610" height="374" rx="28"/>
-<text class="title" x="66" y="82">1. Turnstile — Simple FSM</text>
+<text class="title" x="66" y="82">Turnstile FSM</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M496 220 C496 220 496 220 496 220"/>
-<path class="line" d="M178 220 C178 220 178 220 178 220"/>
-<path class="line" d="M496 220 C496 220 178 220 178 220"/>
-<path class="line" d="M178 220 C178 220 496 220 496 220"/>
+<path class="line" d="M636 220 C636 220 356 220 356 220"/>
+<path class="line" d="M318 220 C318 220 38 220 38 220"/>
+<path class="line" d="M356 220 C356 220 318 220 318 220"/>
+<path class="line" d="M318 220 C318 220 356 220 356 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="130" y="45" text-anchor="middle">Locked</text>

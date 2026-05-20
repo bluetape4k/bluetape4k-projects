@@ -24,19 +24,20 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Execution Model</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M188 386 C188 469 856 469 856 552"/>
-<path class="line" d="M188 386 C188 469 522 469 522 552"/>
-<path class="line" d="M188 386 C188 386 1190 386 1190 386"/>
-<path class="line" d="M188 386 C188 386 856 386 856 386"/>
-<path class="line" d="M188 386 C188 386 522 386 522 386"/>
-<path class="line" d="M1190 220 C1190 303 188 303 188 386"/>
-<path class="line" d="M856 220 C856 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 1190 220 1190 220"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M338 386 C338 469 706 469 706 552"/>
+<path class="line" d="M338 386 C338 469 372 469 372 552"/>
+<path class="line" d="M338 386 C338 386 1040 386 1040 386"/>
+<path class="line" d="M338 386 C338 386 706 386 706 386"/>
+<path class="line" d="M338 386 C338 386 372 386 372 386"/>
+<path class="line" d="M1040 220 C1040 303 338 303 338 386"/>
+<path class="line" d="M706 220 C706 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 1040 220 1040 220"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Choose Execution Model</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Choose Execution</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Model</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -44,8 +45,8 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">SuspendWork</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">suspendSequentialFlow</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">SuspendWork suspend</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Sequential Flow</text>
 <text class="smallLabel" x="140" y="73" text-anchor="middle">suspendParallelFlow</text>
 </g>
 <g transform="translate(1050,170)">
@@ -78,6 +79,4 @@
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Retry</text>
 </g>
-<text class="small" x="689" y="212" text-anchor="middle">yes</text>
-<text class="small" x="856" y="212" text-anchor="middle">no</text>
 </svg>

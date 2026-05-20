@@ -6,7 +6,7 @@ Kotlin을 위한 Apache Pulsar 클라이언트 확장 — 코루틴 우선, DSL 
 
 ## 아키텍처
 
-![아키텍처 1](../../docs/images/readme-diagrams/infra-pulsar-diagram-01.png)
+![pulsar Class Structure diagram](../../docs/images/readme-diagrams/infra-pulsar-diagram-01.png)
 
 ## 주요 기능
 

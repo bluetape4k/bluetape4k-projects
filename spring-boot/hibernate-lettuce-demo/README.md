@@ -9,7 +9,7 @@ An example of enabling Hibernate 2nd Level Cache with zero additional code using
 
 ## UML Diagram
 
-![UML Diagram 1](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.png)
+![UML Diagram diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-01.png)
 
 ## Architecture
 
@@ -40,7 +40,7 @@ Hibernate Session Factory
 H2 Database
 ```
 
-![Architecture 2](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
+![hibernate lettuce demo Architecture 2 diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
 
 ## Domain Model
 

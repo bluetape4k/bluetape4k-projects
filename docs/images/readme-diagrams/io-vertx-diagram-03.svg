@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="758" viewBox="0 0 1754 758" role="img" aria-label="Vert.x Core Component Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="900" viewBox="0 0 1754 900" role="img" aria-label="Vert.x Core Component Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,62 +20,56 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="758"/>
-<rect class="frame" x="32" y="28" width="1690" height="702" rx="28"/>
+<rect class="canvas" width="1754" height="900"/>
+<rect class="frame" x="32" y="28" width="1690" height="844" rx="28"/>
 <text class="title" x="66" y="82">Vert.x Core Component Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M672 172 C672 252 262 252 262 332"/>
-<path class="inheritLine" d="M877 450 C877 403 1492 403 1492 356"/>
-<path class="line" d="M672 380 C672 415 877 415 877 450"/>
-<path class="line" d="M672 172 C672 264 1082 264 1082 356"/>
+<path class="line" d="M672 172 C672 257 262 257 262 342"/>
+<path class="inheritLine" d="M877 518 C877 440.5 1492 440.5 1492 363"/>
+<path class="line" d="M672 384 C672 451 877 451 877 518"/>
+<path class="line" d="M672 172 C672 267.5 1082 267.5 1082 363"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«Resilience4j»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CircuitBreaker</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CircuitBreaker</text>
   <text class="mono" x="18" y="108">+executeSuspend(block) T</text>
-<text class="mono" x="18" y="132">+getState() State</text>
+<text class="mono" x="18" y="129">+getState() State</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«VertxKotlin»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineVerticle</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineVerticle</text>
   <text class="mono" x="18" y="108">+vertx: Vertx</text>
-<text class="mono" x="18" y="132">+context: Context</text>
-<text class="mono" x="18" y="156">+start()</text>
-<text class="mono" x="18" y="180">+stop()</text>
+<text class="mono" x="18" y="129">+context: Context</text>
+<text class="mono" x="18" y="150">+start()</text>
+<text class="mono" x="18" y="171">+stop()</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">EventBus</text>
+  <text class="label" x="170" y="61" text-anchor="middle">EventBus</text>
   <text class="mono" x="18" y="108">+send(address, message)</text>
-<text class="mono" x="18" y="132">+publish(address, message)</text>
-<text class="mono" x="18" y="156">+consumer(address) MessageConsumer</text>
+<text class="mono" x="18" y="129">+publish(address, message)</text>
+<text class="mono" x="18" y="150">+consumer(address) MessageConsumer</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">SqlClient</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SqlClient</text>
   <text class="mono" x="18" y="108">+preparedQuery(sql) PreparedQuery</text>
-<text class="mono" x="18" y="132">+query(sql) Query</text>
-<text class="mono" x="18" y="156">+close() Future</text>
+<text class="mono" x="18" y="129">+query(sql) Query</text>
+<text class="mono" x="18" y="150">+close() Future</text>
 </g>
-<g transform="translate(707,458)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,526)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Pool</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Pool</text>
   <text class="mono" x="18" y="108">+withConnection(handler) Future</text>
-<text class="mono" x="18" y="132">+withTransaction(handler) Future</text>
+<text class="mono" x="18" y="129">+withTransaction(handler) Future</text>
 </g>
-<rect x="819" y="249" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="877" y="267" text-anchor="middle">publish / consume.</text>
-<rect x="716.5" y="400" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="774.5" y="418" text-anchor="middle">SQL queries</text>
-<rect x="409" y="237" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="467" y="255" text-anchor="middle">fault isolation</text>
 </svg>

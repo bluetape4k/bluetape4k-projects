@@ -35,11 +35,11 @@ It provides convenient access to the Jackson ecosystem in Kotlin, covering defau
 
 ### Class Structure
 
-![Class Structure 1](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
+![Class Structure diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
 
 ### Jackson Serialization Pipeline
 
-![Jackson Serialization Pipeline 2](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
+![Jackson Serialization Pipeline diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
 
 ### Field Encryption Flow (@JsonTinkEncrypt)
 

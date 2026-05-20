@@ -10,7 +10,7 @@
 
 ### Resilience4j Coroutines 통합 클래스 다이어그램
 
-![Resilience4j Coroutines 통합 클래스 다이어그램 1](../../docs/images/readme-diagrams/infra-resilience4j-diagram-01.png)
+![Resilience4j Coroutines diagram](../../docs/images/readme-diagrams/infra-resilience4j-diagram-01.png)
 
 ### 아키텍처
 

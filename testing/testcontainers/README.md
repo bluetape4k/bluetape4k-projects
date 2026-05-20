@@ -12,11 +12,11 @@ A server wrapper and utility library for building integration tests quickly on t
 
 ### Supported Container Class Diagram
 
-![Supported Container Class Diagram 1](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
+![Supported Container Class Diagram diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
 
 ### Supported Container Structure
 
-![Supported Container Structure 2](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
+![Supported Container Structure diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ## Key Features
 

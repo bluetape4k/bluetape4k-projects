@@ -24,14 +24,14 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Module Overview</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 220 C856 386 1023 386 1023 552"/>
-<path class="line" d="M856 220 C856 386 689 386 689 552"/>
-<path class="line" d="M522 220 C522 386 355 386 355 552"/>
-<path class="line" d="M522 220 C522 303 1190 303 1190 386"/>
-<path class="line" d="M522 220 C522 303 856 303 856 386"/>
-<path class="line" d="M188 220 C188 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
+<path class="line" d="M856 280 C856 386 1023 386 1023 492"/>
+<path class="line" d="M856 280 C856 386 689 386 689 492"/>
+<path class="line" d="M522 280 C522 386 355 386 355 492"/>
+<path class="line" d="M672 220 C672 303 1040 303 1040 386"/>
+<path class="line" d="M672 220 C672 303 706 303 706 386"/>
+<path class="line" d="M338 220 C338 303 372 303 372 386"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="33" text-anchor="middle">Geocode (formerly</text>
@@ -62,12 +62,14 @@
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Lat/Lon ↔ GeoHash string</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Lat/Lon ↔ GeoHash</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">string</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Neighbor cell</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">computation (neighbors)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Neighbor cell</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">computation</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">(neighbors)</text>
 </g>
 <g transform="translate(215,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
@@ -76,17 +78,13 @@
 </g>
 <g transform="translate(549,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">GeoLite2-City.mmdb</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">GeoLite2-Country.mmdb</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">GeoLite2-City.mmdb</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Geo</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Lite2-Country.mmdb</text>
 </g>
 <g transform="translate(883,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">IP → Country / City /</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Coordinates</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">IP → Country / City</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">/ Coordinates</text>
 </g>
-<text class="small" x="689" y="212" text-anchor="middle">Google Maps API</text>
-<text class="small" x="188" y="295" text-anchor="middle">Bing Maps API</text>
-<text class="small" x="355" y="295" text-anchor="middle">HTTP client</text>
-<text class="small" x="689" y="295" text-anchor="middle">Base32 encoding</text>
-<text class="small" x="772.5" y="378" text-anchor="middle">MaxMind DB</text>
 </svg>

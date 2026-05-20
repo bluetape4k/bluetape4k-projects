@@ -8,11 +8,11 @@ A library providing a wide range of mathematical capabilities including statisti
 
 ### Feature Structure
 
-![Feature Structure 1](../../docs/images/readme-diagrams/utils-math-diagram-01.png)
+![Feature Structure diagram](../../docs/images/readme-diagrams/utils-math-diagram-01.png)
 
 ### Class Diagram
 
-![Class Diagram 2](../../docs/images/readme-diagrams/utils-math-diagram-02.png)
+![math Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-math-diagram-02.png)
 
 ## Key Features
 

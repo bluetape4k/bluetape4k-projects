@@ -115,15 +115,15 @@ Coroutine functions follow the `XyzSuspending` naming pattern.
 
 ### Core Class Structure
 
-![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)
+![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)
 
 ### R2DBC + Coroutines Data Flow
 
-![R2DBC + Coroutines Data Flow 2](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)
+![R2DBC + Coroutines Data Flow diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)
 
 ### CRUD Operation Hierarchy
 
-![CRUD Operation Hierarchy 3](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)
+![CRUD Operation Hierarchy diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)
 
 ### Coroutine Conversion Sequence
 

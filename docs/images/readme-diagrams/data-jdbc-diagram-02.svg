@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="576" viewBox="0 0 1366 576" role="img" aria-label="Core API Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="680" viewBox="0 0 1366 680" role="img" aria-label="Core API Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,50 +20,52 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="576"/>
-<rect class="frame" x="32" y="28" width="1302" height="520" rx="28"/>
+<rect class="canvas" width="1366" height="680"/>
+<rect class="frame" x="32" y="28" width="1302" height="624" rx="28"/>
 <text class="title" x="66" y="82">Core API Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M263 172 C263 300 1103 300 1103 428"/>
-<path class="line" d="M683 172 C683 300 263 300 263 428"/>
+<path class="line" d="M263 172 C263 320 1103 320 1103 468"/>
+<path class="line" d="M683 172 C683 320 263 320 263 468"/>
 <g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">ConnectionExtensions</text>
+  <text class="label" x="175" y="61" text-anchor="middle">ConnectionExtensions</text>
   <text class="mono" x="18" y="108">+Connection.withStatement(block): T</text>
-<text class="mono" x="18" y="132">+Connection.withTransaction(block): T</text>
-<text class="mono" x="18" y="156">+Connection.withAutoCommit(flag, block): T</text>
-<text class="mono" x="18" y="180">+Connection.withReadOnly(block): T</text>
-<text class="mono" x="18" y="204">+Connection.withIsolationLevel(level, block): T</text>
-<text class="mono" x="18" y="228">+Connection.executeQuery(sql, params, block): T</text>
+<text class="mono" x="18" y="129">+Connection.withTransaction(block): T</text>
+<text class="mono" x="18" y="150">+Connection.withAutoCommit(flag, block): T</text>
+<text class="mono" x="18" y="171">+Connection.withReadOnly(block): T</text>
+<text class="mono" x="18" y="192">+Connection.withIsolationLevel(level,</text>
+<text class="mono" x="18" y="213">block): T</text>
+<text class="mono" x="18" y="234">+Connection.executeQuery(sql, params,</text>
+<text class="mono" x="18" y="255">block): T</text>
 </g>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">DataSourceExtensions</text>
+  <text class="label" x="175" y="61" text-anchor="middle">DataSourceExtensions</text>
   <text class="mono" x="18" y="108">+DataSource.withConnect(block): T</text>
-<text class="mono" x="18" y="132">+DataSource.withStatement(block): T</text>
-<text class="mono" x="18" y="156">+DataSource.withTransaction(block): T</text>
-<text class="mono" x="18" y="180">+DataSource.withReadOnlyTransaction(block): T</text>
-<text class="mono" x="18" y="204">+DataSource.runQuery(sql, block): T</text>
-<text class="mono" x="18" y="228">+DataSource.executeBatch(sql, params): IntArray</text>
+<text class="mono" x="18" y="129">+DataSource.withStatement(block): T</text>
+<text class="mono" x="18" y="150">+DataSource.withTransaction(block): T</text>
+<text class="mono" x="18" y="171">+DataSource.withReadOnlyTransaction(block):</text>
+<text class="mono" x="18" y="192">T</text>
+<text class="mono" x="18" y="213">+DataSource.runQuery(sql, block): T</text>
+<text class="mono" x="18" y="234">+DataSource.executeBatch(sql, params):</text>
+<text class="mono" x="18" y="255">IntArray</text>
 </g>
 <g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">ResultSetExtensions</text>
+  <text class="label" x="175" y="61" text-anchor="middle">ResultSetExtensions</text>
   <text class="mono" x="18" y="108">+ResultSet.toList(mapper): List~T~</text>
-<text class="mono" x="18" y="132">+ResultSet.toSet(mapper): Set~T~</text>
-<text class="mono" x="18" y="156">+ResultSet.toMap(keyMapper, valueMapper): Map~K,V~</text>
-<text class="mono" x="18" y="180">+ResultSet.groupBy(keyMapper, valueMapper): Map~K,L.</text>
-<text class="mono" x="18" y="204">+ResultSet.mapFirst(mapper): T?</text>
-<text class="mono" x="18" y="228">+ResultSet.mapSingle(mapper): T</text>
+<text class="mono" x="18" y="129">+ResultSet.toSet(mapper): Set~T~</text>
+<text class="mono" x="18" y="150">+ResultSet.toMap(keyMapper, valueMapper):</text>
+<text class="mono" x="18" y="171">Map~K,V~</text>
+<text class="mono" x="18" y="192">+ResultSet.groupBy(keyMapper, valueMapper):</text>
+<text class="mono" x="18" y="213">Map~K,List~V~~</text>
+<text class="mono" x="18" y="234">+ResultSet.mapFirst(mapper): T?</text>
+<text class="mono" x="18" y="255">+ResultSet.mapSingle(mapper): T</text>
 </g>
-<rect x="415" y="285" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="473" y="303" text-anchor="middle">delegates</text>
-<rect x="625" y="285" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="683" y="303" text-anchor="middle">passes ResultSet</text>
 </svg>

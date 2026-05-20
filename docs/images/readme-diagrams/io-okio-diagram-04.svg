@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="576" viewBox="0 0 1366 576" role="img" aria-label="Compression Factory (Compressable)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="680" viewBox="0 0 1366 680" role="img" aria-label="Compression Factory (Compressable)">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,39 +20,43 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="576"/>
-<rect class="frame" x="32" y="28" width="1302" height="520" rx="28"/>
+<rect class="canvas" width="1366" height="680"/>
+<rect class="frame" x="32" y="28" width="1302" height="624" rx="28"/>
 <text class="title" x="66" y="82">Compression Factory (Compressable)</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
 <g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">Compressable</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Compressable</text>
 
 </g>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">Sinks</text>
-  <text class="mono" x="18" y="108">+compressableSink(Sink, Compressor) CompressableSink</text>
-<text class="mono" x="18" y="132">+compressableSink(Sink, StreamingCompressor) Stream.</text>
-<text class="mono" x="18" y="156">+deflate(Sink) CompressableSink</text>
-<text class="mono" x="18" y="180">+gzip(Sink) CompressableSink</text>
-<text class="mono" x="18" y="204">+lz4(Sink) CompressableSink</text>
-<text class="mono" x="18" y="228">+snappy(Sink) CompressableSink</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Sinks</text>
+  <text class="mono" x="18" y="108">+compressableSink(Sink, Compressor)</text>
+<text class="mono" x="18" y="129">CompressableSink</text>
+<text class="mono" x="18" y="150">+compressableSink(Sink,</text>
+<text class="mono" x="18" y="171">StreamingCompressor) StreamingCompressSink</text>
+<text class="mono" x="18" y="192">+deflate(Sink) CompressableSink</text>
+<text class="mono" x="18" y="213">+gzip(Sink) CompressableSink</text>
+<text class="mono" x="18" y="234">+lz4(Sink) CompressableSink</text>
+<text class="mono" x="18" y="255">+snappy(Sink) CompressableSink</text>
 </g>
 <g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">Sources</text>
-  <text class="mono" x="18" y="108">+decompressableSource(Source, Compressor) Decompres.</text>
-<text class="mono" x="18" y="132">+decompressableSource(Source, StreamingCompressor).</text>
-<text class="mono" x="18" y="156">+deflate(Source) DecompressableSource</text>
-<text class="mono" x="18" y="180">+gzip(Source) DecompressableSource</text>
-<text class="mono" x="18" y="204">+lz4(Source) DecompressableSource</text>
-<text class="mono" x="18" y="228">+snappy(Source) DecompressableSource</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Sources</text>
+  <text class="mono" x="18" y="108">+decompressableSource(Source, Compressor)</text>
+<text class="mono" x="18" y="129">DecompressableSource</text>
+<text class="mono" x="18" y="150">+decompressableSource(Source,</text>
+<text class="mono" x="18" y="171">StreamingCompressor)</text>
+<text class="mono" x="18" y="192">+deflate(Source) DecompressableSource</text>
+<text class="mono" x="18" y="213">+gzip(Source) DecompressableSource</text>
+<text class="mono" x="18" y="234">+lz4(Source) DecompressableSource</text>
+<text class="mono" x="18" y="255">+snappy(Source) DecompressableSource</text>
 </g>
 </svg>

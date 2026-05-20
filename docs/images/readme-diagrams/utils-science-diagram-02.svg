@@ -24,20 +24,20 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Coordinate Transformation Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 552 C522 552 856 552 856 552"/>
-<path class="line" d="M1190 386 C1190 469 522 469 522 552"/>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M522 386 C522 386 856 386 856 386"/>
-<path class="line" d="M188 386 C188 386 522 386 522 386"/>
-<path class="line" d="M1190 220 C1190 303 522 303 522 386"/>
-<path class="line" d="M856 220 C856 303 188 303 188 386"/>
-<path class="line" d="M856 220 C856 220 1190 220 1190 220"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M672 552 C672 552 706 552 706 552"/>
+<path class="line" d="M1040 386 C1040 469 672 469 672 552"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M672 386 C672 386 706 386 706 386"/>
+<path class="line" d="M338 386 C338 386 372 386 372 386"/>
+<path class="line" d="M1040 220 C1040 303 672 303 672 386"/>
+<path class="line" d="M706 220 C706 303 338 303 338 386"/>
+<path class="line" d="M1006 220 C1006 220 1040 220 1040 220"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">WGS84 GeoLocation lat,</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">lon</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">WGS84 GeoLocation</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">lat, lon</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -58,12 +58,13 @@
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">BasicCoordinateTransform</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Basic Coordinate</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Transform</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">UTM coordinates easting,</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">northing</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">UTM coordinates</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">easting, northing</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
@@ -71,15 +72,11 @@
 </g>
 <g transform="translate(382,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">BasicCoordinateTransform</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">reverse</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Basic Coordinate</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Transform reverse</text>
 </g>
 <g transform="translate(716,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">WGS84 GeoLocation</text>
 </g>
-<text class="small" x="355" y="212" text-anchor="middle">wgs84ToUtm</text>
-<text class="small" x="1023" y="212" text-anchor="middle">latBand &lt; N</text>
-<text class="small" x="522" y="295" text-anchor="middle">latBand &gt;= N</text>
-<text class="small" x="1023" y="378" text-anchor="middle">utmToWgs84</text>
 </svg>

@@ -24,17 +24,18 @@
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
 <text class="title" x="66" y="82">Compression Codec Selection Guide</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 220 C856 386 856 386 856 552"/>
-<path class="line" d="M522 220 C522 386 522 386 522 552"/>
-<path class="line" d="M522 220 C522 386 188 386 188 552"/>
-<path class="line" d="M522 220 C522 303 856 303 856 386"/>
-<path class="line" d="M522 220 C522 303 522 303 522 386"/>
-<path class="line" d="M522 220 C522 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M856 280 C856 386 856 386 856 492"/>
+<path class="line" d="M522 280 C522 386 522 386 522 492"/>
+<path class="line" d="M372 220 C372 386 338 386 338 552"/>
+<path class="line" d="M672 220 C672 303 706 303 706 386"/>
+<path class="line" d="M522 280 C522 303 522 303 522 326"/>
+<path class="line" d="M372 220 C372 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[Start Serialization]</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">[Start</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Serialization]</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -42,8 +43,8 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">FAST_CODEC_FACTORY Zstd</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">level -1</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">FAST_CODEC_FACTORY</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Zstd level -1</text>
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
@@ -51,18 +52,18 @@
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">DEFAULT_CODEC_FACTORY</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Deflate default</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">DEFAULT_CODEC_FACTOR</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Y Deflate default</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">ZSTD_CODEC_FACTORY Zstd</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">default</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">ZSTD_CODEC_FACTORY</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Zstd default</text>
 </g>
 <g transform="translate(48,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">ARCHIVE_CODEC_FACTORY</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Zstd level 9</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">ARCHIVE_CODEC_FACTOR</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Y Zstd level 9</text>
 </g>
 <g transform="translate(382,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
@@ -72,10 +73,4 @@
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">[ByteArray output]</text>
 </g>
-<text class="small" x="689" y="212" text-anchor="middle">High-performance.</text>
-<text class="small" x="355" y="295" text-anchor="middle">Kafka/Hadoop comp.</text>
-<text class="small" x="522" y="295" text-anchor="middle">Avro default comp.</text>
-<text class="small" x="689" y="295" text-anchor="middle">Balanced compress.</text>
-<text class="small" x="355" y="378" text-anchor="middle">Long-term storage.</text>
-<text class="small" x="522" y="378" text-anchor="middle">Maximum speed, no.</text>
 </svg>

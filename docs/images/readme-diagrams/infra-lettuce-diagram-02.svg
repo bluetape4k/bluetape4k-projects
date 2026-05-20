@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="902" viewBox="0 0 1366 902" role="img" aria-label="LettuceBinaryCodec Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="1026" viewBox="0 0 1366 1026" role="img" aria-label="LettuceBinaryCodec Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,72 +20,72 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="902"/>
-<rect class="frame" x="32" y="28" width="1302" height="846" rx="28"/>
+<rect class="canvas" width="1366" height="1026"/>
+<rect class="frame" x="32" y="28" width="1302" height="970" rx="28"/>
 <text class="title" x="66" y="82">LettuceBinaryCodec Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M263 428 C263 463 263 463 263 498"/>
-<path class="implLine" d="M1103 498 C1103 439 683 439 683 380"/>
-<path class="implLine" d="M683 498 C683 439 683 439 683 380"/>
-<path class="implLine" d="M263 498 C263 427 1103 427 1103 356"/>
-<path class="implLine" d="M263 498 C263 439 683 439 683 380"/>
+<path class="dashed" d="M263 426 C263 493 263 493 263 560"/>
+<path class="implLine" d="M1103 560 C1103 472 683 472 683 384"/>
+<path class="implLine" d="M683 560 C683 472 683 472 683 384"/>
+<path class="implLine" d="M263 560 C263 461.5 1103 461.5 1103 363"/>
+<path class="implLine" d="M263 560 C263 472 683 472 683 384"/>
 <g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">LettuceBinaryCodecs</text>
+  <text class="label" x="175" y="61" text-anchor="middle">LettuceBinaryCodecs</text>
   <text class="mono" x="18" y="108">+default~V~(): LettuceBinaryCodec~V~</text>
-<text class="mono" x="18" y="132">+jdk~V~(): LettuceBinaryCodec~V~</text>
-<text class="mono" x="18" y="156">+kryo~V~(): LettuceBinaryCodec~V~</text>
-<text class="mono" x="18" y="180">+fory~V~(): LettuceBinaryCodec~V~</text>
-<text class="mono" x="18" y="204">+lz4Fory~V~(): LettuceBinaryCodec~V~</text>
-<text class="mono" x="18" y="228">+zstdFory~V~(): LettuceBinaryCodec~V~</text>
+<text class="mono" x="18" y="129">+jdk~V~(): LettuceBinaryCodec~V~</text>
+<text class="mono" x="18" y="150">+kryo~V~(): LettuceBinaryCodec~V~</text>
+<text class="mono" x="18" y="171">+fory~V~(): LettuceBinaryCodec~V~</text>
+<text class="mono" x="18" y="192">+lz4Fory~V~(): LettuceBinaryCodec~V~</text>
+<text class="mono" x="18" y="213">+zstdFory~V~(): LettuceBinaryCodec~V~</text>
 </g>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="192" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">RedisCodec</text>
+  <text class="label" x="175" y="61" text-anchor="middle">RedisCodec</text>
   <text class="mono" x="18" y="108">+encodeKey(key): ByteBuffer</text>
-<text class="mono" x="18" y="132">+decodeKey(bytes): K</text>
-<text class="mono" x="18" y="156">+encodeValue(value): ByteBuffer</text>
-<text class="mono" x="18" y="180">+decodeValue(bytes): V</text>
+<text class="mono" x="18" y="129">+decodeKey(bytes): K</text>
+<text class="mono" x="18" y="150">+encodeValue(value): ByteBuffer</text>
+<text class="mono" x="18" y="171">+decodeValue(bytes): V</text>
 </g>
 <g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="168" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="350" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">ToByteBufEncoder</text>
+  <text class="label" x="175" y="61" text-anchor="middle">ToByteBufEncoder</text>
   <text class="mono" x="18" y="108">+encodeKey(key, target: ByteBuf)</text>
-<text class="mono" x="18" y="132">+encodeValue(value, target: ByteBuf)</text>
-<text class="mono" x="18" y="156">+estimateSize(keyOrValue): Int</text>
+<text class="mono" x="18" y="129">+encodeValue(value, target: ByteBuf)</text>
+<text class="mono" x="18" y="150">+estimateSize(keyOrValue): Int</text>
 </g>
-<g transform="translate(88,506)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(88,568)">
+  <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">LettuceBinaryCodec</text>
+  <text class="label" x="175" y="61" text-anchor="middle">LettuceBinaryCodec</text>
   <text class="mono" x="18" y="108">+serializer: BinarySerializer</text>
-<text class="mono" x="18" y="132">+encodeKey(key): ByteBuffer</text>
-<text class="mono" x="18" y="156">+encodeValue(value): ByteBuffer</text>
-<text class="mono" x="18" y="180">+decodeKey(bytes): String</text>
-<text class="mono" x="18" y="204">+decodeValue(bytes): V</text>
-<text class="mono" x="18" y="228">+estimateSize(keyOrValue): Int</text>
+<text class="mono" x="18" y="129">+encodeKey(key): ByteBuffer</text>
+<text class="mono" x="18" y="150">+encodeValue(value): ByteBuffer</text>
+<text class="mono" x="18" y="171">+decodeKey(bytes): String</text>
+<text class="mono" x="18" y="192">+decodeValue(bytes): V</text>
+<text class="mono" x="18" y="213">+estimateSize(keyOrValue): Int</text>
 </g>
-<g transform="translate(508,506)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(508,568)">
+  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">LettuceIntCodec</text>
+  <text class="label" x="175" y="61" text-anchor="middle">LettuceIntCodec</text>
   <text class="mono" x="18" y="108">+encodeValue(value: Int): ByteBuffer</text>
-<text class="mono" x="18" y="132">+decodeValue(bytes): Int</text>
+<text class="mono" x="18" y="129">+decodeValue(bytes): Int</text>
 </g>
-<g transform="translate(928,506)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(928,568)">
+  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#8A72D6"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">LettuceLongCodec</text>
+  <text class="label" x="175" y="61" text-anchor="middle">LettuceLongCodec</text>
   <text class="mono" x="18" y="108">+encodeValue(value: Long): ByteBuffer</text>
-<text class="mono" x="18" y="132">+decodeValue(bytes): Long</text>
+<text class="mono" x="18" y="129">+decodeValue(bytes): Long</text>
 </g>
 </svg>

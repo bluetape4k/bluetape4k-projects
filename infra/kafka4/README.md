@@ -49,7 +49,7 @@ dependencies {
 
 ## Dependency Boundary
 
-![Dependency Boundary 1](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.png)
+![Dependency Boundary diagram](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.png)
 
 `infra/kafka4/build.gradle.kts` also aligns all `org.apache.kafka` artifacts to
 the Kafka 4 version used by this module. This prevents the root dependency

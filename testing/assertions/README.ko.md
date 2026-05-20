@@ -6,7 +6,7 @@ JUnit 5용 bluetape4k-assertions 호환 assertion DSL. api scope에 `bluetape4k-
 
 ## 아키텍처
 
-![아키텍처 1](../../docs/images/readme-diagrams/testing-assertions-diagram-01.png)
+![assertions Architecture diagram](../../docs/images/readme-diagrams/testing-assertions-diagram-01.png)
 
 ## 기능
 

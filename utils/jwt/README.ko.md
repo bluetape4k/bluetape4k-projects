@@ -9,11 +9,11 @@
 
 ### JWT 생성 및 검증 흐름
 
-![JWT 생성 및 검증 흐름 1](../../docs/images/readme-diagrams/utils-jwt-diagram-01.png)
+![JWT diagram](../../docs/images/readme-diagrams/utils-jwt-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
+![jwt Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
 
 ### JWT 토큰 구조
 

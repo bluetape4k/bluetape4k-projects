@@ -24,15 +24,15 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Module Overview</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M188 220 C188 386 856 386 856 552"/>
-<path class="line" d="M188 220 C188 386 522 386 522 552"/>
-<path class="line" d="M188 220 C188 303 1190 303 1190 386"/>
-<path class="line" d="M188 220 C188 303 856 303 856 386"/>
-<path class="line" d="M188 220 C188 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M338 220 C338 386 706 386 706 552"/>
+<path class="line" d="M338 220 C338 386 372 386 372 552"/>
+<path class="line" d="M338 220 C338 303 1040 303 1040 386"/>
+<path class="line" d="M338 220 C338 303 706 303 706 386"/>
+<path class="line" d="M338 220 C338 303 372 303 372 386"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">bluetape4k-core</text>
@@ -44,8 +44,9 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Codec</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Base58/Base62/Hex/Url62</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Codec</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Base58/Base62/Hex/Ur</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">l62</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
@@ -53,21 +54,21 @@
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">Ranges</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">ClosedClosed/ClosedOpen</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Ranges Closed</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Closed/Closed Open</text>
 <text class="smallLabel" x="140" y="73" text-anchor="middle">OpenClosed/OpenOpen</text>
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">Collections</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">BoundedStack/RingBuffer</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Collections Bounded</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Stack/Ring Buffer</text>
 <text class="smallLabel" x="140" y="73" text-anchor="middle">Paginated</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">Concurrent Utils Virtual</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Thread/Completable</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Future</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Concurrent Utils</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Virtual</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Thread/Completable</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
@@ -76,8 +77,9 @@
 </g>
 <g transform="translate(382,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Java Time DSL</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Duration/Period/Quarter</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Java Time DSL</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Duration/Period/Quar</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">ter</text>
 </g>
 <g transform="translate(716,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>

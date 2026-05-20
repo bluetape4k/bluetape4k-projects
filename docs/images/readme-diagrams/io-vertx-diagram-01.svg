@@ -40,8 +40,9 @@
 </g>
 <g transform="translate(105,520)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">Vert.x Coroutines</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">vertx-lang-kotlin-coroutines</text>
+  <text class="smallLabel" x="130" y="42" text-anchor="middle">Vert.x Coroutines</text>
+<text class="smallLabel" x="130" y="63" text-anchor="middle">vertx-lang-kotlin-co</text>
+<text class="smallLabel" x="130" y="84" text-anchor="middle">routines</text>
 </g>
 <g transform="translate(105,662)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
@@ -50,7 +51,8 @@
 </g>
 <g transform="translate(105,804)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">bluetape4k-resilience4j</text>
+  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">bluetape4k-resilienc</text>
+<text class="smallLabel" x="130" y="73.5" text-anchor="middle">e4j</text>
 </g>
 <g transform="translate(480,160)">
   <rect x="0" y="0" width="350" height="648" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>

@@ -476,11 +476,11 @@ class MyJdbcTest : AbstractJdbcTest() {
 
 ### Extension Function API Overview
 
-![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
 
 ### Core API Structure
 
-![Core API Structure 2](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
 
 ### JDBC Query Execution Flow
 

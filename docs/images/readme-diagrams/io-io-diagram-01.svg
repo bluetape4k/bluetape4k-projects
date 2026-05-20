@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1546" viewBox="0 0 1754 1546" role="img" aria-label="Compressor Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="2107" viewBox="0 0 1754 2107" role="img" aria-label="Compressor Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,147 +20,157 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1546"/>
-<rect class="frame" x="32" y="28" width="1690" height="1490" rx="28"/>
+<rect class="canvas" width="1754" height="2107"/>
+<rect class="frame" x="32" y="28" width="1690" height="2051" rx="28"/>
 <text class="title" x="66" y="82">Compressor Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="inheritLine" d="M1492 1116 C1492 911 877 911 877 706"/>
-<path class="inheritLine" d="M1082 776 C1082 741 877 741 877 706"/>
-<path class="inheritLine" d="M262 776 C262 741 877 741 877 706"/>
-<path class="inheritLine" d="M672 776 C672 741 877 741 877 706"/>
-<path class="inheritLine" d="M262 946 C262 826 877 826 877 706"/>
-<path class="inheritLine" d="M672 946 C672 826 877 826 877 706"/>
-<path class="inheritLine" d="M262 1116 C262 911 877 911 877 706"/>
-<path class="inheritLine" d="M877 1286 C877 996 877 996 877 706"/>
-<path class="inheritLine" d="M1492 946 C1492 826 877 826 877 706"/>
-<path class="inheritLine" d="M1082 1116 C1082 911 877 911 877 706"/>
-<path class="inheritLine" d="M1082 946 C1082 826 877 826 877 706"/>
-<path class="inheritLine" d="M1492 776 C1492 741 877 741 877 706"/>
-<path class="inheritLine" d="M672 1116 C672 911 877 911 877 706"/>
-<path class="implLine" d="M877 498 C877 463 672 463 672 428"/>
+<path class="inheritLine" d="M1492 1529 C1492 1224 877 1224 877 919"/>
+<path class="inheritLine" d="M1082 1053 C1082 986 877 986 877 919"/>
+<path class="inheritLine" d="M262 1053 C262 986 877 986 877 919"/>
+<path class="inheritLine" d="M672 1053 C672 986 877 986 877 919"/>
+<path class="inheritLine" d="M262 1291 C262 1105 877 1105 877 919"/>
+<path class="inheritLine" d="M672 1291 C672 1105 877 1105 877 919"/>
+<path class="inheritLine" d="M262 1529 C262 1224 877 1224 877 919"/>
+<path class="inheritLine" d="M877 1767 C877 1343 877 1343 877 919"/>
+<path class="inheritLine" d="M1492 1291 C1492 1105 877 1105 877 919"/>
+<path class="inheritLine" d="M1082 1529 C1082 1224 877 1224 877 919"/>
+<path class="inheritLine" d="M1082 1291 C1082 1105 877 1105 877 919"/>
+<path class="inheritLine" d="M1492 1053 C1492 986 877 986 877 919"/>
+<path class="inheritLine" d="M672 1529 C672 1224 877 1224 877 919"/>
+<path class="implLine" d="M877 665 C877 577 672 577 672 489"/>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="301" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Compressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Compressor</text>
   <text class="mono" x="18" y="108">+compress(plain: ByteArray?) ByteArray</text>
-<text class="mono" x="18" y="132">+decompress(compressed: ByteArray?) ByteArray</text>
-<text class="mono" x="18" y="156">+compress(plain: String) String</text>
-<text class="mono" x="18" y="180">+decompress(compressed: String) String</text>
-<text class="mono" x="18" y="204">+compress(plainBuffer: ByteBuffer) ByteBuffer</text>
-<text class="mono" x="18" y="228">+compress(plainStream: InputStream) InputStream</text>
+<text class="mono" x="18" y="129">+decompress(compressed: ByteArray?)</text>
+<text class="mono" x="18" y="150">ByteArray</text>
+<text class="mono" x="18" y="171">+compress(plain: String) String</text>
+<text class="mono" x="18" y="192">+decompress(compressed: String) String</text>
+<text class="mono" x="18" y="213">+compress(plainBuffer: ByteBuffer)</text>
+<text class="mono" x="18" y="234">ByteBuffer</text>
+<text class="mono" x="18" y="255">+compress(plainStream: InputStream)</text>
+<text class="mono" x="18" y="276">InputStream</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="343" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">StreamingCompressor</text>
-  <text class="mono" x="18" y="108">+compressing(output: OutputStream) OutputStream</text>
-<text class="mono" x="18" y="132">+decompressing(input: InputStream) InputStream</text>
-<text class="mono" x="18" y="156">+compress(source: InputStream, sink: OutputStream).</text>
-<text class="mono" x="18" y="180">+decompress(source: InputStream, sink: OutputStrea.</text>
-<text class="mono" x="18" y="204">+compress(plain: ByteArray?) ByteArray</text>
-<text class="mono" x="18" y="228">+decompress(compressed: ByteArray?) ByteArray</text>
+  <text class="label" x="170" y="61" text-anchor="middle">StreamingCompressor</text>
+  <text class="mono" x="18" y="108">+compressing(output: OutputStream)</text>
+<text class="mono" x="18" y="129">OutputStream</text>
+<text class="mono" x="18" y="150">+decompressing(input: InputStream)</text>
+<text class="mono" x="18" y="171">InputStream</text>
+<text class="mono" x="18" y="192">+compress(source: InputStream, sink:</text>
+<text class="mono" x="18" y="213">OutputStream) Long</text>
+<text class="mono" x="18" y="234">+decompress(source: InputStream, sink:</text>
+<text class="mono" x="18" y="255">OutputStream) Long</text>
+<text class="mono" x="18" y="276">+compress(plain: ByteArray?) ByteArray</text>
+<text class="mono" x="18" y="297">+decompress(compressed: ByteArray?)</text>
+<text class="mono" x="18" y="318">ByteArray</text>
 </g>
-<g transform="translate(707,506)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(707,673)">
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«abstract»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AbstractCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AbstractCompressor</text>
   <text class="mono" x="18" y="108">#doCompress(plain: ByteArray) ByteArray</text>
-<text class="mono" x="18" y="132">#doDecompress(compressed: ByteArray) ByteArray</text>
-<text class="mono" x="18" y="156">+compress(plain: ByteArray?) ByteArray</text>
-<text class="mono" x="18" y="180">+decompress(compressed: ByteArray?) ByteArray</text>
+<text class="mono" x="18" y="129">#doDecompress(compressed: ByteArray)</text>
+<text class="mono" x="18" y="150">ByteArray</text>
+<text class="mono" x="18" y="171">+compress(plain: ByteArray?) ByteArray</text>
+<text class="mono" x="18" y="192">+decompress(compressed: ByteArray?)</text>
+<text class="mono" x="18" y="213">ByteArray</text>
 </g>
-<g transform="translate(92,784)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(92,1061)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ApacheDeflateCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ApacheDeflateCompressor</text>
 
 </g>
-<g transform="translate(502,784)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,1061)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ApacheGZipCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ApacheGZipCompressor</text>
 
 </g>
-<g transform="translate(912,784)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,1061)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ApacheZstdCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ApacheZstdCompressor</text>
 
 </g>
-<g transform="translate(1322,784)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1322,1061)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">BlockLZ4Compressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BlockLZ4Compressor</text>
 
 </g>
-<g transform="translate(92,954)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(92,1299)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">BZip2Compressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BZip2Compressor</text>
 
 </g>
-<g transform="translate(502,954)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(502,1299)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DeflateCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DeflateCompressor</text>
 
 </g>
-<g transform="translate(912,954)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(912,1299)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">FramedLZ4Compressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">FramedLZ4Compressor</text>
 
 </g>
-<g transform="translate(1322,954)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(1322,1299)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">FramedSnappyCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">FramedSnappyCompressor</text>
 
 </g>
-<g transform="translate(92,1124)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(92,1537)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GZipCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GZipCompressor</text>
 
 </g>
-<g transform="translate(502,1124)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,1537)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LZ4Compressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LZ4Compressor</text>
 
 </g>
-<g transform="translate(912,1124)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,1537)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SnappyCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SnappyCompressor</text>
 
 </g>
-<g transform="translate(1322,1124)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1322,1537)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ZipCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ZipCompressor</text>
 
 </g>
-<g transform="translate(707,1294)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(707,1775)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ZstdCompressor</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ZstdCompressor</text>
 
 </g>
 </svg>

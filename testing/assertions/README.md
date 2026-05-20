@@ -6,7 +6,7 @@ bluetape4k-assertions-compatible assertion DSL for JUnit 5. Zero `bluetape4k-*` 
 
 ## Architecture
 
-![Architecture 1](../../docs/images/readme-diagrams/testing-assertions-diagram-01.png)
+![assertions Architecture diagram](../../docs/images/readme-diagrams/testing-assertions-diagram-01.png)
 
 ## Features
 

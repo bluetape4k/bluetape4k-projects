@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="928" viewBox="0 0 1754 928" role="img" aria-label="Retrofit2 + Result Pattern Integration">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1159" viewBox="0 0 1754 1159" role="img" aria-label="Retrofit2 + Result Pattern Integration">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,68 +20,63 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="928"/>
-<rect class="frame" x="32" y="28" width="1690" height="872" rx="28"/>
+<rect class="canvas" width="1754" height="1159"/>
+<rect class="frame" x="32" y="28" width="1690" height="1103" rx="28"/>
 <text class="title" x="66" y="82">Retrofit2 + Result Pattern Integration</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1492 332 C1492 385 877 385 877 438"/>
-<path class="line" d="M1492 172 C1492 264 672 264 672 356"/>
-<path class="line" d="M1492 332 C1492 488 877 488 877 644"/>
-<path class="dashed" d="M877 644 C877 512 1082 512 1082 380"/>
-<path class="implLine" d="M877 644 C877 488 262 488 262 332"/>
+<path class="line" d="M1492 342 C1492 418 877 418 877 494"/>
+<path class="line" d="M1492 172 C1492 267.5 672 267.5 672 363"/>
+<path class="line" d="M1492 342 C1492 559.5 877 559.5 877 777"/>
+<path class="dashed" d="M877 777 C877 580.5 1082 580.5 1082 384"/>
+<path class="implLine" d="M877 777 C877 559.5 262 559.5 262 342"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CallAdapter</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CallAdapter</text>
   <text class="mono" x="18" y="108">+responseType() Type</text>
-<text class="mono" x="18" y="132">+adapt(call) T</text>
+<text class="mono" x="18" y="129">+adapt(call) T</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Hc5CallFactory</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Hc5CallFactory</text>
   <text class="mono" x="18" y="108">-asyncClient: CloseableHttpAsyncClient</text>
-<text class="mono" x="18" y="132">+newCall(request) Call</text>
-<text class="mono" x="18" y="156">+close()</text>
+<text class="mono" x="18" y="129">+newCall(request) Call</text>
+<text class="mono" x="18" y="150">+close()</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ResultCall</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ResultCall</text>
   <text class="mono" x="18" y="108">-delegate: Call~T~</text>
-<text class="mono" x="18" y="132">+execute() Response~Result~T~~</text>
-<text class="mono" x="18" y="156">+enqueue(callback)</text>
-<text class="mono" x="18" y="180">+clone() Call~Result~T~~</text>
+<text class="mono" x="18" y="129">+execute() Response~Result~T~~</text>
+<text class="mono" x="18" y="150">+enqueue(callback)</text>
+<text class="mono" x="18" y="171">+clone() Call~Result~T~~</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«Retrofit2»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Retrofit</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Retrofit</text>
   <text class="mono" x="18" y="108">+create(serviceClass) T</text>
-<text class="mono" x="18" y="132">+baseUrl() HttpUrl</text>
+<text class="mono" x="18" y="129">+baseUrl() HttpUrl</text>
 </g>
-<g transform="translate(707,446)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,502)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">VertxCallFactory</text>
+  <text class="label" x="170" y="61" text-anchor="middle">VertxCallFactory</text>
   <text class="mono" x="18" y="108">+newCall(request) Call</text>
 </g>
-<g transform="translate(707,652)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,785)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ResultCallAdapterFactory</text>
-  <text class="mono" x="18" y="108">+get(returnType, annotations, retrofit) CallAdapte.</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ResultCallAdapterFactory</text>
+  <text class="mono" x="18" y="108">+get(returnType, annotations, retrofit)</text>
+<text class="mono" x="18" y="129">CallAdapter?</text>
 </g>
-<rect x="1126.5" y="473" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1184.5" y="491" text-anchor="middle">addCallAdapterFac.</text>
-<rect x="1024" y="249" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1082" y="267" text-anchor="middle">callFactory</text>
-<rect x="1126.5" y="370" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1184.5" y="388" text-anchor="middle">callFactory</text>
 </svg>

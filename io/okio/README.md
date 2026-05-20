@@ -408,26 +408,26 @@ io.bluetape4k.okio
 Compression, encryption, and Base64 encoding are layered on top of Okio's `Sink`/
 `Source` abstractions using the decorator pattern.
 
-![Sink / Source Adapter Hierarchy 1](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
+![Sink / Source Adapter Hierarchy diagram](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
 
 ### NIO Channel Adapter Hierarchy
 
 Converts Java NIO `FileChannel`/`ByteChannel` to Okio `Sink`/`Source`.
 
-![NIO Channel Adapter Hierarchy 2](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
+![NIO Channel Adapter Hierarchy diagram](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
 
 ### Coroutines Async I/O Hierarchy
 
 Async Sink/Source abstraction based on Kotlin Coroutines `suspend` functions.
 
-![Coroutines Async I/O Hierarchy 3](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
+![Coroutines Async I/O Hierarchy diagram](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
 
 ### Compression Factory (Compressable)
 
 The
 `Compressable` object provides a convenient way to create compression/decompression Sink/Source for various algorithms.
 
-![Compression Factory (Compressable) 4](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
+![Compression Factory (Compressable) diagram](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
 
 ## Sequence Diagrams
 
@@ -459,7 +459,7 @@ Compression followed by encryption using chained Sink decorators.
 
 Non-blocking file I/O using `AsynchronousFileChannel`.
 
-![Coroutines Async File I / O Flow diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
+![Coroutines Async File I/O Flow diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
 
 ## License
 

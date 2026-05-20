@@ -30,11 +30,11 @@
 </g>
 <g transform="translate(105,236)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">spring-boot/core</text>
+  <text class="smallLabel" x="130" y="63" text-anchor="middle">spring-boot3</text>
 </g>
 <g transform="translate(105,378)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">spring-boot modules</text>
+  <text class="smallLabel" x="130" y="63" text-anchor="middle">spring-boot4</text>
 </g>
 <g transform="translate(480,160)">
   <rect x="0" y="0" width="350" height="1216" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
