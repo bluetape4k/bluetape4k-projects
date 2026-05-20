@@ -6,7 +6,7 @@
 
 주요 기능:
 
-- experimental, beta, internal, delicate API를 위한 명시적 Kotlin opt-in 계약
+- experimental, beta, internal, delicate, obsolete API를 위한 명시적 Kotlin opt-in 계약
 - `@SubclassOptInRequired` 기반 구현 전용 SPI 계약
 - 낮은 수준의 모듈도 공개 시그니처에 안전하게 노출할 수 있는 최소 의존성 artifact
 
@@ -18,10 +18,11 @@
 
 ## 주요 기능
 
-- **ExperimentalBluetapeApi**: 호환성 보장 없이 변경 또는 제거될 수 있는 API용 error-level 마커
-- **BetaBluetapeApi**: 안정화를 목표로 하지만 minor source, binary, behavior 변경 가능성이 남은 API용 warning-level 마커
-- **InternalBluetapeApi**: 기술적 이유로 public이지만 외부 사용자 API가 아닌 선언용 error-level 마커
-- **DelicateBluetapeApi**: lifecycle, concurrency, resource-management, security 계약 이해가 필요한 API용 warning-level 마커
+- **BluetapeExperimentalApi**: 호환성 보장 없이 변경 또는 제거될 수 있는 API용 error-level 마커
+- **BluetapeBetaApi**: 안정화를 목표로 하지만 minor source, binary, behavior 변경 가능성이 남은 API용 warning-level 마커
+- **BluetapeInternalApi**: 기술적 이유로 public이지만 외부 사용자 API가 아닌 선언용 error-level 마커
+- **BluetapeDelicateApi**: lifecycle, concurrency, resource-management, security 계약 이해가 필요한 API용 warning-level 마커
+- **BluetapeObsoleteApi**: migration 또는 compatibility 목적으로만 남은 API용 error-level 마커
 - **BluetapeImplementationApi**: 사용은 안정적이지만 구현 또는 상속은 안정화되지 않은 SPI class/interface에 `@SubclassOptInRequired`로 붙이는 warning-level 마커
 
 ## 사용 예시
@@ -37,12 +38,12 @@ dependencies {
 ### 불안정한 사용 지점 API 표시
 
 ```kotlin
-import io.bluetape4k.annotations.ExperimentalBluetapeApi
+import io.bluetape4k.annotations.BluetapeExperimentalApi
 
-@ExperimentalBluetapeApi
+@BluetapeExperimentalApi
 fun experimentalFeature(): String = "value"
 
-@OptIn(ExperimentalBluetapeApi::class)
+@OptIn(BluetapeExperimentalApi::class)
 fun caller(): String = experimentalFeature()
 ```
 
@@ -65,10 +66,11 @@ class CustomStorageProvider : StorageProvider
 
 | Marker | Level | 사용 기준 |
 |---|---:|---|
-| `ExperimentalBluetapeApi` | Error | 안정화 전 변경 또는 제거될 수 있는 API |
-| `BetaBluetapeApi` | Warning | 안정화에 가깝지만 minor 변경 가능성이 남은 API |
-| `InternalBluetapeApi` | Error | 기술적 이유로 public이지만 지원되는 사용자 API가 아닌 선언 |
-| `DelicateBluetapeApi` | Warning | lifecycle, concurrency, resource, security 지식이 필요한 API |
+| `BluetapeExperimentalApi` | Error | 안정화 전 변경 또는 제거될 수 있는 API |
+| `BluetapeBetaApi` | Warning | 안정화에 가깝지만 minor 변경 가능성이 남은 API |
+| `BluetapeInternalApi` | Error | 기술적 이유로 public이지만 지원되는 사용자 API가 아닌 선언 |
+| `BluetapeDelicateApi` | Warning | lifecycle, concurrency, resource, security 지식이 필요한 API |
+| `BluetapeObsoleteApi` | Error | migration 또는 compatibility 목적으로만 남아 새 코드에서 쓰지 않아야 하는 API |
 | `BluetapeImplementationApi` | Warning | 호출은 가능하지만 구현 또는 상속에는 명시적 opt-in이 필요한 SPI |
 
 ## 호환성 메모

@@ -8,7 +8,7 @@ package io.bluetape4k.annotations
  * API documentation and its failure modes.
  *
  * ```kotlin
- * @OptIn(DelicateBluetapeApi::class)
+ * @OptIn(BluetapeDelicateApi::class)
  * fun callDelicateApi() {
  *     // Use a delicate Bluetape declaration here.
  * }
@@ -28,4 +28,4 @@ package io.bluetape4k.annotations
     AnnotationTarget.TYPEALIAS,
 )
 @MustBeDocumented
-annotation class DelicateBluetapeApi
+annotation class BluetapeDelicateApi

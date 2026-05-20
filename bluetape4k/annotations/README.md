@@ -6,7 +6,7 @@ English | [한국어](./README.ko.md)
 
 It focuses on:
 
-- explicit Kotlin opt-in contracts for experimental, beta, internal, and delicate APIs
+- explicit Kotlin opt-in contracts for experimental, beta, internal, delicate, and obsolete APIs
 - implementation-only SPI contracts through `@SubclassOptInRequired`
 - a dependency-light artifact that low-level modules can expose in public signatures
 
@@ -18,10 +18,11 @@ All marker annotations use Kotlin `@RequiresOptIn`, `AnnotationRetention.BINARY`
 
 ## Key Features
 
-- **ExperimentalBluetapeApi**: Error-level marker for APIs that may change or be removed without compatibility guarantees.
-- **BetaBluetapeApi**: Warning-level marker for APIs intended to stabilize, while minor source, binary, or behavior changes are still possible.
-- **InternalBluetapeApi**: Error-level marker for declarations that are public only for technical reasons.
-- **DelicateBluetapeApi**: Warning-level marker for APIs with lifecycle, concurrency, resource-management, or security contracts.
+- **BluetapeExperimentalApi**: Error-level marker for APIs that may change or be removed without compatibility guarantees.
+- **BluetapeBetaApi**: Warning-level marker for APIs intended to stabilize, while minor source, binary, or behavior changes are still possible.
+- **BluetapeInternalApi**: Error-level marker for declarations that are public only for technical reasons.
+- **BluetapeDelicateApi**: Warning-level marker for APIs with lifecycle, concurrency, resource-management, or security contracts.
+- **BluetapeObsoleteApi**: Error-level marker for APIs retained only for migration or compatibility.
 - **BluetapeImplementationApi**: Warning-level marker for `@SubclassOptInRequired` on SPI classes and interfaces that are stable to use but not stable to implement.
 
 ## Usage Examples
@@ -37,12 +38,12 @@ dependencies {
 ### Marking unstable use-site APIs
 
 ```kotlin
-import io.bluetape4k.annotations.ExperimentalBluetapeApi
+import io.bluetape4k.annotations.BluetapeExperimentalApi
 
-@ExperimentalBluetapeApi
+@BluetapeExperimentalApi
 fun experimentalFeature(): String = "value"
 
-@OptIn(ExperimentalBluetapeApi::class)
+@OptIn(BluetapeExperimentalApi::class)
 fun caller(): String = experimentalFeature()
 ```
 
@@ -65,10 +66,11 @@ Use `BluetapeImplementationApi` only with `@SubclassOptInRequired`. It is not a 
 
 | Marker | Level | Use when |
 |---|---:|---|
-| `ExperimentalBluetapeApi` | Error | The API may change or disappear before stabilization. |
-| `BetaBluetapeApi` | Warning | The API is close to stable but may still receive minor changes. |
-| `InternalBluetapeApi` | Error | The declaration is public for technical reasons, not as supported user API. |
-| `DelicateBluetapeApi` | Warning | Correct usage requires extra lifecycle, concurrency, resource, or security knowledge. |
+| `BluetapeExperimentalApi` | Error | The API may change or disappear before stabilization. |
+| `BluetapeBetaApi` | Warning | The API is close to stable but may still receive minor changes. |
+| `BluetapeInternalApi` | Error | The declaration is public for technical reasons, not as supported user API. |
+| `BluetapeDelicateApi` | Warning | Correct usage requires extra lifecycle, concurrency, resource, or security knowledge. |
+| `BluetapeObsoleteApi` | Error | The API is retained only for migration or compatibility and should not be used in new code. |
 | `BluetapeImplementationApi` | Warning | Users may call the SPI but should explicitly opt in before implementing or subclassing it. |
 
 ## Compatibility Notes

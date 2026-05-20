@@ -64,7 +64,7 @@ Bluetape4k is a multi-module Gradle project organized by domain.
 
 ### Core Modules (`bluetape4k/`)
 
-- **[annotations](./bluetape4k/annotations/README.md)**: API maturity annotations — experimental, beta, internal, delicate, and implementation-only opt-in markers
+- **[annotations](./bluetape4k/annotations/README.md)**: API maturity annotations — experimental, beta, internal, delicate, obsolete, and implementation-only opt-in markers
 - **[core](./bluetape4k/core/README.md)**: Core utilities — assertions, required helpers, collections (BoundedStack, RingBuffer, PaginatedList, Permutation), wildcard pattern matching, XXHasher, and more
 - **[coroutines](./bluetape4k/coroutines/README.md)**: Kotlin Coroutines extensions — DeferredValue, Flow extensions, AsyncFlow
 - **[logging](./bluetape4k/logging/README.md)**: Logging utilities

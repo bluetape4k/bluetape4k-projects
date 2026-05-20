@@ -4,17 +4,20 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.SubclassOptInRequired
 
-@ExperimentalBluetapeApi
+@BluetapeExperimentalApi
 private class ExperimentalDeclaration
 
-@BetaBluetapeApi
+@BluetapeBetaApi
 private class BetaDeclaration
 
-@InternalBluetapeApi
+@BluetapeInternalApi
 private class InternalDeclaration
 
-@DelicateBluetapeApi
+@BluetapeDelicateApi
 private class DelicateDeclaration
+
+@BluetapeObsoleteApi
+private class ObsoleteDeclaration
 
 @SubclassOptInRequired(BluetapeImplementationApi::class)
 private interface ImplementationSensitiveSpi
@@ -26,16 +29,18 @@ class BluetapeApiMarkersTest {
 
     @Test
     @OptIn(
-        ExperimentalBluetapeApi::class,
-        BetaBluetapeApi::class,
-        InternalBluetapeApi::class,
-        DelicateBluetapeApi::class,
+        BluetapeExperimentalApi::class,
+        BluetapeBetaApi::class,
+        BluetapeInternalApi::class,
+        BluetapeDelicateApi::class,
+        BluetapeObsoleteApi::class,
     )
     fun `normal markers compile with explicit opt-in`() {
         ExperimentalDeclaration::class.simpleName shouldBeEqualTo "ExperimentalDeclaration"
         BetaDeclaration::class.simpleName shouldBeEqualTo "BetaDeclaration"
         InternalDeclaration::class.simpleName shouldBeEqualTo "InternalDeclaration"
         DelicateDeclaration::class.simpleName shouldBeEqualTo "DelicateDeclaration"
+        ObsoleteDeclaration::class.simpleName shouldBeEqualTo "ObsoleteDeclaration"
     }
 
     @Test
@@ -45,10 +50,11 @@ class BluetapeApiMarkersTest {
 
     @Test
     fun `marker annotation type names are stable`() {
-        ExperimentalBluetapeApi::class.simpleName shouldBeEqualTo "ExperimentalBluetapeApi"
-        BetaBluetapeApi::class.simpleName shouldBeEqualTo "BetaBluetapeApi"
-        InternalBluetapeApi::class.simpleName shouldBeEqualTo "InternalBluetapeApi"
-        DelicateBluetapeApi::class.simpleName shouldBeEqualTo "DelicateBluetapeApi"
+        BluetapeExperimentalApi::class.simpleName shouldBeEqualTo "BluetapeExperimentalApi"
+        BluetapeBetaApi::class.simpleName shouldBeEqualTo "BluetapeBetaApi"
+        BluetapeInternalApi::class.simpleName shouldBeEqualTo "BluetapeInternalApi"
+        BluetapeDelicateApi::class.simpleName shouldBeEqualTo "BluetapeDelicateApi"
+        BluetapeObsoleteApi::class.simpleName shouldBeEqualTo "BluetapeObsoleteApi"
         BluetapeImplementationApi::class.simpleName shouldBeEqualTo "BluetapeImplementationApi"
     }
 }

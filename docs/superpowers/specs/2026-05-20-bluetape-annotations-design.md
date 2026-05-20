@@ -10,8 +10,8 @@ such as `bluetape.io` and non-Kotlin libraries.
 ## Goals
 
 - Add a dependency-light `:bluetape4k-annotations` module.
-- Provide opt-in markers for experimental, beta, internal, delicate, and
-  implementation-only API contracts.
+- Provide opt-in markers for experimental, beta, internal, delicate, obsolete,
+  and implementation-only API contracts.
 - Keep annotation names brand-oriented (`Bluetape`) instead of Kotlin-artifact
   oriented (`Bluetape4k`).
 - Make the module usable by low-level modules such as logging, virtualthread,
@@ -45,14 +45,16 @@ Rationale:
 
 Package: `io.bluetape4k.annotations`.
 
-- `@ExperimentalBluetapeApi`: error-level opt-in for APIs that may change or be
+- `@BluetapeExperimentalApi`: error-level opt-in for APIs that may change or be
   removed without compatibility guarantees.
-- `@BetaBluetapeApi`: warning-level opt-in for APIs intended to stabilize, but
+- `@BluetapeBetaApi`: warning-level opt-in for APIs intended to stabilize, but
   still subject to minor source or behavior changes.
-- `@InternalBluetapeApi`: error-level opt-in for public declarations exposed
+- `@BluetapeInternalApi`: error-level opt-in for public declarations exposed
   only for technical reasons.
-- `@DelicateBluetapeApi`: warning-level opt-in for APIs requiring lifecycle,
+- `@BluetapeDelicateApi`: warning-level opt-in for APIs requiring lifecycle,
   concurrency, security, or resource-management expertise.
+- `@BluetapeObsoleteApi`: error-level opt-in for APIs retained only for
+  migration or compatibility and not intended for new code.
 - `@BluetapeImplementationApi`: warning-level marker intended for
   `@SubclassOptInRequired` on public SPI that is stable to use but not stable to
   implement or subclass.
@@ -76,10 +78,11 @@ The normal use-site marker target set is:
 
 This target set applies to:
 
-- `ExperimentalBluetapeApi`
-- `BetaBluetapeApi`
-- `InternalBluetapeApi`
-- `DelicateBluetapeApi`
+- `BluetapeExperimentalApi`
+- `BluetapeBetaApi`
+- `BluetapeInternalApi`
+- `BluetapeDelicateApi`
+- `BluetapeObsoleteApi`
 
 `BluetapeImplementationApi` is different. It exists for
 `@SubclassOptInRequired` on public SPI classes and interfaces. Its target set

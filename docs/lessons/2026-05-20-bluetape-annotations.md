@@ -9,13 +9,14 @@ artifacts.
 
 ## Decision
 
-Add `:bluetape4k-annotations` under `bluetape4k/annotations` with five marker
+Add `:bluetape4k-annotations` under `bluetape4k/annotations` with six marker
 annotations:
 
-- `ExperimentalBluetapeApi`
-- `BetaBluetapeApi`
-- `InternalBluetapeApi`
-- `DelicateBluetapeApi`
+- `BluetapeExperimentalApi`
+- `BluetapeBetaApi`
+- `BluetapeInternalApi`
+- `BluetapeDelicateApi`
+- `BluetapeObsoleteApi`
 - `BluetapeImplementationApi`
 
 `BluetapeImplementationApi` is intentionally class-oriented and documented for
