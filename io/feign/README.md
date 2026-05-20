@@ -115,6 +115,13 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 | VertxHttpClient        | Event loop-based, lightweight | Vert.x ecosystem integration         |
 | AsyncVertxHttpClient   | Vert.x async client           | Vert.x async communication           |
 
+Transport contract guarantees:
+
+- Apache HC5 and Vert.x sync clients complete delayed local responses and honor per-request read timeouts instead of hanging.
+- `AsyncApacheHttp5Client` and `AsyncVertxHttpClient` complete delayed responses, complete exceptionally on read timeout, and expose cancellable `CompletableFuture` results.
+- `VertxHttpClient` is guarded against blocking calls from Vert.x event-loop threads; use `AsyncVertxHttpClient` inside event-loop code.
+- Conformance tests use `MockWebServer` and do not depend on public `httpbin` services.
+
 ```kotlin
 // Vert.x-based Feign client
 val api = feignBuilderOf(

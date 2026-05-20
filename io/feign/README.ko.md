@@ -115,6 +115,13 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 | VertxHttpClient        | 이벤트 루프 기반, 경량      | Vert.x 생태계 통합 |
 | AsyncVertxHttpClient   | Vert.x 비동기 클라이언트   | Vert.x 비동기 통신 |
 
+전송 계층 계약:
+
+- Apache HC5와 Vert.x 동기 클라이언트는 로컬 지연 응답을 완료하고, 요청별 read timeout을 지켜 hang을 방지합니다.
+- `AsyncApacheHttp5Client`와 `AsyncVertxHttpClient`는 지연 응답을 완료하고, read timeout 시 exceptionally 완료하며, 취소 가능한 `CompletableFuture` 결과를 노출합니다.
+- `VertxHttpClient`는 Vert.x 이벤트 루프 스레드에서 blocking 호출되지 않도록 보호합니다. 이벤트 루프 안에서는 `AsyncVertxHttpClient`를 사용하세요.
+- Conformance 테스트는 `MockWebServer`를 사용하며 공개 `httpbin` 서비스에 의존하지 않습니다.
+
 ```kotlin
 // Vert.x 기반 Feign 클라이언트
 val api = feignBuilderOf(

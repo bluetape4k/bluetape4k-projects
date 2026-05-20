@@ -113,6 +113,14 @@ Use HTTP clients other than OkHttp3 as a `Call.Factory`.
 | Hc5CallFactory         | Apache HttpComponents 5 | Rich configuration, enterprise environments |
 | VertxCallFactory       | Vert.x                  | Event-loop based, high performance          |
 
+Transport contract guarantees:
+
+- HC5 and Vert.x `Call.Factory` adapters propagate `cancel()` to the underlying request handle.
+- `isCanceled()` reports caller intent immediately, including cancellation before `enqueue()` or `execute()`.
+- `tag(type)` reads request-seeded tags, and `tag(type, computeIfAbsent)` stores computed tags for later reads.
+- Delayed responses complete through local test fixtures without public network access, and response bodies remain caller-closeable.
+- Adapter `timeout()` values expose the same 30-second deadline used by blocking `execute()`.
+
 ```kotlin
 // Retrofit with Apache HC5
 val retrofit = retrofitOf(

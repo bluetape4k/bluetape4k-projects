@@ -111,6 +111,14 @@ OkHttp3 외에 다양한 HTTP 클라이언트를 `Call.Factory`로 사용할 수
 | Hc5CallFactory    | Apache HttpComponents 5 | 풍부한 설정, 엔터프라이즈 환경   |
 | VertxCallFactory  | Vert.x                  | 이벤트 루프 기반, 고성능      |
 
+전송 계층 계약:
+
+- HC5와 Vert.x `Call.Factory` 어댑터는 `cancel()`을 실제 하위 요청 핸들까지 전파합니다.
+- `isCanceled()`는 `enqueue()`나 `execute()` 전에 취소한 경우를 포함해 호출자의 취소 의도를 즉시 반영합니다.
+- `tag(type)`은 요청에 미리 저장된 tag를 읽고, `tag(type, computeIfAbsent)`는 계산된 tag를 이후 조회용으로 보존합니다.
+- 지연 응답은 외부 네트워크 없이 로컬 테스트 fixture로 검증하며, 응답 body는 호출자가 닫을 수 있는 상태로 유지됩니다.
+- 어댑터 `timeout()` 값은 blocking `execute()`가 사용하는 30초 deadline과 동일합니다.
+
 ```kotlin
 // Apache HC5 기반 Retrofit
 val retrofit = retrofitOf(
