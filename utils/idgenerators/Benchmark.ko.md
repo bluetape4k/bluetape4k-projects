@@ -61,54 +61,9 @@ SingleThreadIdGeneratorBenchmark.flake                      478 ±     3 ops/s
 SingleThreadIdGeneratorBenchmark.snowflake                  410 ±     1 ops/s
 ```
 
-### 그래프: 단일 스레드
+### Throughput Chart
 
-#### Performance Chart (Batch=100)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **429,584** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🌸 ULID | **270,825** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">████████████████████████████</span> |
-| 🟢 UUID-V4 | **105,645** | <span style="background-color: #10B981; color: white; padding: 2px 4px">██████████</span> |
-| 🟠 KSUID-Ms | **59,896** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████</span> |
-| 🟡 KSUID-S | **53,884** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">██████</span> |
-| 🟣 Flake | **52,840** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">██████</span> |
-| 🔴 Snowflake | **40,972** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">█████</span> |
-
-**Single-Thread (Batch=100) 분석:**
-- **1위: UUID V7** (429K ops/s) - 절대 강자, 무잠금 구현
-- **2위: ULID** (270K ops/s) - 단일스레드에서 우수하지만 멀티스레드에서 성능 하락
-- **3위: UUID V4** (105K ops/s) - 무작위 기반
-
-#### Performance Chart (Batch=10,000)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **4,278** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🌸 ULID | **2,553** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">█████████████████████████</span> |
-| 🟢 UUID-V4 | **1,037** | <span style="background-color: #10B981; color: white; padding: 2px 4px">██████████</span> |
-| 🟠 KSUID-Ms | **582** | <span style="background-color: #F97316; color: white; padding: 2px 4px">██████</span> |
-| 🟡 KSUID-S | **521** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">█████</span> |
-| 🟣 Flake | **478** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">█████</span> |
-| 🔴 Snowflake | **410** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">████</span> |
-
-**Single-Thread (Batch=10,000) 분석:**
-- 배치 크기 증가 시 모든 생성기가 ~100배 성능 하락
-- UUID V7의 우위는 일관되게 유지
-
-**Batch=10000 성능 비교:**
-
-| Generator | ops/s |
-|-----------|-------|
-| UUID V7   | 4,278 (🔵 파랑) |
-| ULID      | 2,553 (🔵 파랑 → 🔵 하강) |
-| UUID V4   | 1,037 (🟢 초록) |
-| KSUID(Ms) | 582 (🟠 주황) |
-| KSUID(S)  | 521 (🟡 노랑) |
-| Flake     | 478 (🟣 보라) |
-| Snowflake | 410 (🔴 빨강) |
-
----
+![ID generator throughput chart](../../docs/images/readme-charts/idgenerators-throughput-chart-01.png)
 
 ## 결과: 멀티 스레드 (Concurrent - 16 Threads)
 
@@ -150,54 +105,9 @@ ConcurrentIdGeneratorBenchmark.ksuidMillis              241 ±    88 ops/s
 ConcurrentIdGeneratorBenchmark.ulid                     223 ±    43 ops/s
 ```
 
-### 그래프: 멀티 스레드 (16 Threads)
+### Throughput Chart
 
-#### Performance Chart (Batch=100, 16 Threads)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **83,431** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🟣 Flake | **32,011** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">████████████████</span> |
-| 🟢 UUID-V4 | **30,217** | <span style="background-color: #10B981; color: white; padding: 2px 4px">███████████████</span> |
-| 🔴 Snowflake | **27,016** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">███████████</span> |
-| 🟡 KSUID-S | **25,810** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">███████████</span> |
-| 🟠 KSUID-Ms | **25,768** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████████</span> |
-| 🌸 ULID | **22,580** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">███████████</span> |
-
-**Concurrent (16 Threads, Batch=100) 분석:**
-- **1위: UUID V7** (83K ops/s) - **압도적 우위**, 무잠금 구현의 장점
-- **2~7위 (22K~32K)**: 경합대 형성
-- **ULID 성능 하락**: 단일스레드 270K → 멀티스레드 22K (**70% 감소**)
-
-#### Performance Chart (Batch=10,000, 16 Threads)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **795** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🟣 Flake | **317** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">████████████████</span> |
-| 🟢 UUID-V4 | **290** | <span style="background-color: #10B981; color: white; padding: 2px 4px">███████████████</span> |
-| 🔴 Snowflake | **253** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">███████████</span> |
-| 🟡 KSUID-S | **252** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">███████████</span> |
-| 🟠 KSUID-Ms | **241** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████████</span> |
-| 🌸 ULID | **223** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">███████████</span> |
-
-**Concurrent (16 Threads, Batch=10,000) 분석:**
-- UUID V7의 우위는 배치 크기 증가에도 **일관되게 유지**
-- ULID는 대규모 배치에서도 7번째 위치 지속
-
-**Batch=10000 성능 비교 (16 Threads):**
-
-| Generator | ops/s | Color |
-|-----------|-------|-------|
-| UUID V7   | 795   | 🔵 파랑 |
-| Flake     | 317   | 🟣 보라 |
-| UUID V4   | 290   | 🟢 초록 |
-| Snowflake | 253   | 🔴 빨강 |
-| KSUID(S)  | 252   | 🟠 주황 |
-| KSUID(Ms) | 241   | 🟡 노랑 |
-| ULID      | 223   | 🔵 파랑 |
-
----
+![ID generator throughput chart](../../docs/images/readme-charts/idgenerators-throughput-chart-01.png)
 
 ## 성능 분석
 

@@ -75,16 +75,9 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 ### Performance Chart: L1 Hit vs L2 Operations
 
-| Operation | ops/ms (512B) | Throughput |
-|-----------|:------------:|-----------|
-| ⚡ l1Hit | **65,560** | `████████████████████████████████████████` |
-| 🔄 removeSingle | 4.2 | `░` |
-| 🔄 l2Hit | 4.1 | `░` |
-| 🔍 l2Miss | 4.0 | `░` |
-| ✍️ putSingle | 2.1 | `░` |
-| 📦 putAll×100 | 1.0 | `░` |
+![Lettuce Near Cache throughput chart](../../docs/images/readme-charts/cache-lettuce-near-cache-throughput-chart-01.png)
 
-> **16,000× gap** between L1 hit (65,560 ops/ms) and L2 operations (~4 ops/ms).
+> Higher is better. Log scale keeps the L1 hit and Redis-backed operations readable.
 
 ---
 

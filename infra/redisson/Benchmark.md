@@ -60,21 +60,7 @@ RedissonCodecBenchmark.gzipFastForyEncodeDecode  thrpt    5   107.558 ±   0.963
 
 ### Performance Chart
 
-| Codec | ops/ms | Throughput |
-|-------|--------|-----------|
-| 🟢 fastFory | **3,084** | <span style="background-color: #10B981; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🟣 fory | **2,504** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">████████████████████████████████</span> |
-| 🔵 fastjson2 | **1,928** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">█████████████████████████</span> |
-| 🟠 kryo5 | **1,225** | <span style="background-color: #F97316; color: white; padding: 2px 4px">████████████████</span> |
-| 🩵 lz4FastFory | **829** | <span style="background-color: #14B8A6; color: white; padding: 2px 4px">███████████</span> |
-| 🌸 lz4Fory | **774** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">██████████</span> |
-| 🔴 lz4Kryo5 | **518** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">███████</span> |
-| 🟡 jackson3 | **474** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">██████</span> |
-| 🎀 zstdFory | **196** | <span style="background-color: #F43F5E; color: white; padding: 2px 4px">███</span> |
-| 🌿 zstdFastFory | **193** | <span style="background-color: #059669; color: white; padding: 2px 4px">███</span> |
-| 💜 zstdKryo5 | **139** | <span style="background-color: #6366F1; color: white; padding: 2px 4px">██</span> |
-| ☁️ jdk | **128** | <span style="background-color: #64748B; color: white; padding: 2px 4px">██</span> |
-| 🧡 gzipFastFory | **108** | <span style="background-color: #D97706; color: white; padding: 2px 4px">█</span> |
+![Redisson codec throughput chart](../../docs/images/readme-charts/infra-redisson-codec-throughput-chart-01.png)
 
 ---
 

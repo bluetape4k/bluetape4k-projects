@@ -43,6 +43,8 @@ data class SimpleData(
 | jdk     | 8,431  |
 | jackson | 4,323  |
 
+![Binary serializer throughput chart](../../docs/images/readme-charts/io-serializer-throughput-chart-01.png)
+
 > Fury 가 홍보하는 정도까지는 아니지만, 기존에 가장 많이 사용하는 Kryo 보다 3배 이상 빠르다.
 > ByteArray 직렬화 하는 경우, Jackson 이 가장 느리다.
 
@@ -57,3 +59,5 @@ resources/files/Utf8Samples.txt (40kb) 파일을 압축/복원 성능 테스트
 | lz4        | 6,769 |
 | snappy     | 8,073 |
 | zstd       | 5,103 |
+
+![Compressor throughput chart](../../docs/images/readme-charts/io-compressor-throughput-chart-01.png)

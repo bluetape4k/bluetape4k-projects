@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460">
+<style>
+.title{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:34px;font-weight:400;fill:#273043}
+.subtitle,.axis,.legend,.note{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#6b7280;font-weight:400}
+.label{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#273043;font-weight:400}
+.value{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#273043;font-weight:400;font-size:18px}
+.axis{font-size:16px}.legend{font-size:18px}.note{font-size:17px}.label{font-size:18px}
+</style>
+<rect width="1280" height="460" rx="0" fill="#f6f8fb"/>
+<rect x="24" y="24" width="1232" height="412" rx="18" fill="#ffffff" stroke="#d7e3ee" stroke-width="2"/>
+<text class="title" x="56" y="72">Compressor Round-Trip Throughput</text><text class="subtitle" x="58" y="104" font-size="18">Utf8Samples.txt compression + decompression</text><line x1="260" y1="118" x2="1120" y2="118" stroke="#dbe7f0" stroke-width="2"/><text class="label" x="56" y="155">Snappy</text><rect x="260" y="136" width="767.8571428571427" height="24" rx="8" fill="#8ecae6"/><text class="value" x="1039.8571428571427" y="154">8,073 ops/s</text><text class="label" x="56" y="197">LZ4</text><rect x="260" y="178" width="643.8281927412362" height="24" rx="8" fill="#ffb3c7"/><text class="value" x="915.8281927412362" y="196">6,769 ops/s</text><text class="label" x="56" y="239">Zstd</text><rect x="260" y="220" width="485.36789297658856" height="24" rx="8" fill="#b8e0d2"/><text class="value" x="757.3678929765886" y="238">5,103 ops/s</text><text class="label" x="56" y="281">GZip</text><rect x="260" y="262" width="113.66149953106475" height="24" rx="8" fill="#ffd166"/><text class="value" x="385.66149953106475" y="280">1,195 ops/s</text><text class="label" x="56" y="323">Deflate</text><rect x="260" y="304" width="103.10382049512486" height="24" rx="8" fill="#cdb4db"/><text class="value" x="375.10382049512486" y="322">1,084 ops/s</text></svg>
