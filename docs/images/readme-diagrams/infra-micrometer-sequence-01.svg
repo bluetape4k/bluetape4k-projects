@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2120" height="934" viewBox="0 0 2120 934" role="img" aria-label="Retrofit2 Metric Collection Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="2968" height="1126" viewBox="0 0 2968 1126" role="img" aria-label="Retrofit2 Metric Collection Sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,54 +20,54 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="2120" height="934"/>
-<rect class="frame" x="32" y="28" width="2056" height="878" rx="28"/>
+<rect class="canvas" width="2968" height="1126"/>
+<rect class="frame" x="32" y="28" width="2904" height="1070" rx="28"/>
 <text class="title" x="66" y="82">Retrofit2 Metric Collection Sequence</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="-10" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Client</text>
-<line x1="140" y1="252" x2="140" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="297.85714285714283" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="402.85714285714283" y="209" text-anchor="middle">Retrofit2</text>
-<line x1="402.85714285714283" y1="252" x2="402.85714285714283" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="560.7142857142857" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="665.7142857142857" y="198.5" text-anchor="middle">Micrometer Retrofit</text>
-<text class="smallLabel" x="665.7142857142857" y="219.5" text-anchor="middle">Metrics Factory</text>
-<line x1="665.7142857142857" y1="252" x2="665.7142857142857" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="823.5714285714284" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="928.5714285714284" y="209" text-anchor="middle">External API</text>
-<line x1="928.5714285714284" y1="252" x2="928.5714285714284" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1086.4285714285713" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1191.4285714285713" y="209" text-anchor="middle">MeterRegistry</text>
-<line x1="1191.4285714285713" y1="252" x2="1191.4285714285713" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1349.2857142857142" y="166" width="210" height="72" rx="20" fill="#F1ECFF" stroke="#8A72D6"/>
-<text class="smallLabel" x="1454.2857142857142" y="209" text-anchor="middle">-Metrics</text>
-<line x1="1454.2857142857142" y1="252" x2="1454.2857142857142" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1612.1428571428569" y="166" width="210" height="72" rx="20" fill="#F7F1E7" stroke="#B88A44"/>
-<text class="smallLabel" x="1717.1428571428569" y="209" text-anchor="middle">-Retrofit</text>
-<line x1="1717.1428571428569" y1="252" x2="1717.1428571428569" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1874.9999999999998" y="166" width="210" height="72" rx="20" fill="#EEF6D9" stroke="#8BA84D"/>
-<text class="smallLabel" x="1979.9999999999998" y="209" text-anchor="middle">-Client</text>
-<line x1="1979.9999999999998" y1="252" x2="1979.9999999999998" y2="874" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="226.85714285714283" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. API call</text>
-<path class="line" d="M140 310 L402.85714285714283 310"/>
-<rect x="420.85714285714283" y="352" width="226.85714285714283" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="436.85714285714283" y="379" text-anchor="start">2. Create instrumented Call wrapper</text>
-<path class="line" d="M402.85714285714283 392 L665.7142857142857 392"/>
-<rect x="683.7142857142857" y="434" width="226.85714285714278" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="699.7142857142857" y="461" text-anchor="start">3. HTTP request</text>
-<path class="line" d="M665.7142857142857 474 L928.5714285714284 474"/>
-<rect x="946.5714285714284" y="516" width="489.7142857142858" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="962.5714285714284" y="543" text-anchor="start">4. HTTP response</text>
-<path class="dashed" d="M928.5714285714284 556 L1454.2857142857142 556"/>
-<rect x="683.7142857142857" y="598" width="489.71428571428567" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="699.7142857142857" y="625" text-anchor="start">5. Record timer (method, uri, status_code, outcome)</text>
-<path class="line" d="M665.7142857142857 638 L1191.4285714285713 638"/>
-<rect x="683.7142857142857" y="680" width="1015.4285714285711" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="699.7142857142857" y="707" text-anchor="start">6. Return response</text>
-<path class="dashed" d="M665.7142857142857 720 L1717.1428571428569 720"/>
-<rect x="420.85714285714283" y="762" width="1541.1428571428569" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="436.85714285714283" y="789" text-anchor="start">7. Return result</text>
-<path class="dashed" d="M402.85714285714283 802 L1979.9999999999998 802"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="374" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="524" y="209" text-anchor="middle">Retrofit2</text>
+<line class="lifeline" x1="524" y1="252" x2="524" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="758" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="908" y="198.5" text-anchor="middle">Micrometer Retrofit</text>
+<text class="smallLabel" x="908" y="219.5" text-anchor="middle">Metrics Factory</text>
+<line class="lifeline" x1="908" y1="252" x2="908" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1142" y="166" width="300" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1292" y="209" text-anchor="middle">External API</text>
+<line class="lifeline" x1="1292" y1="252" x2="1292" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1526" y="166" width="300" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1676" y="209" text-anchor="middle">MeterRegistry</text>
+<line class="lifeline" x1="1676" y1="252" x2="1676" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1910" y="166" width="300" height="72" rx="20" fill="#F1ECFF" stroke="#8A72D6"/>
+<text class="smallLabel" x="2060" y="209" text-anchor="middle">-Metrics</text>
+<line class="lifeline" x1="2060" y1="252" x2="2060" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="2294" y="166" width="300" height="72" rx="20" fill="#F7F1E7" stroke="#B88A44"/>
+<text class="smallLabel" x="2444" y="209" text-anchor="middle">-Retrofit</text>
+<line class="lifeline" x1="2444" y1="252" x2="2444" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="2678" y="166" width="300" height="72" rx="20" fill="#EEF6D9" stroke="#8BA84D"/>
+<text class="smallLabel" x="2828" y="209" text-anchor="middle">-Client</text>
+<line class="lifeline" x1="2828" y1="252" x2="2828" y2="1066" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="227" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="245" y="313" text-anchor="start">1. API call</text>
+<path class="line" d="M140 344 L524 344"/>
+<rect x="556.5" y="396" width="319" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="574.5" y="423" text-anchor="start">2. Create instrumented Call wrapper</text>
+<path class="line" d="M524 454 L908 454"/>
+<rect x="995" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1013" y="533" text-anchor="start">3. HTTP request</text>
+<path class="line" d="M908 564 L1292 564"/>
+<rect x="1571" y="616" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1589" y="643" text-anchor="start">4. HTTP response</text>
+<path class="dashed" d="M1292 674 L2060 674"/>
+<rect x="1068" y="726" width="448" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1086" y="753" text-anchor="start">5. Record timer (method, uri, status_code, outcome)</text>
+<path class="line" d="M908 784 L1676 784"/>
+<rect x="1571" y="836" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1589" y="863" text-anchor="start">6. Return response</text>
+<path class="dashed" d="M908 894 L2444 894"/>
+<rect x="1571" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1589" y="973" text-anchor="start">7. Return result</text>
+<path class="dashed" d="M524 1004 L2828 1004"/>
 </svg>

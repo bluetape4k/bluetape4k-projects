@@ -8,13 +8,13 @@ This structure supports Java 21 and Java 25 in the same project by splitting the
 
 ### Module Structure and Runtime Selection
 
-![Module Structure and Runtime Selection 1](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
+![Module Structure and Runtime Selection diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
 
 ---
 
 ### Class Diagram
 
-![Class Diagram 2](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
+![virtualthread Class Structure 2 diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
 
 ---
 

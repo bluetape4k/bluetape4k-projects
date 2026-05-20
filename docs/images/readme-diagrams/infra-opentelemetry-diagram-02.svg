@@ -24,22 +24,22 @@
 <rect class="frame" x="32" y="28" width="1314" height="802" rx="28"/>
 <text class="title" x="66" y="82">Component Overview</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 552 C856 635 1190 635 1190 718"/>
-<path class="line" d="M856 552 C856 635 856 635 856 718"/>
-<path class="line" d="M856 552 C856 635 522 635 522 718"/>
-<path class="line" d="M522 552 C522 635 188 635 188 718"/>
-<path class="line" d="M522 552 C522 552 856 552 856 552"/>
-<path class="line" d="M1190 386 C1190 469 1190 469 1190 552"/>
-<path class="line" d="M1190 386 C1190 469 856 469 856 552"/>
-<path class="line" d="M188 552 C188 552 522 552 522 552"/>
-<path class="line" d="M522 386 C522 469 188 469 188 552"/>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M188 386 C188 386 856 386 856 386"/>
-<path class="line" d="M856 220 C856 303 522 303 522 386"/>
-<path class="line" d="M522 220 C522 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M1006 552 C1006 635 1040 635 1040 718"/>
+<path class="line" d="M856 612 C856 635 856 635 856 658"/>
+<path class="line" d="M706 552 C706 635 672 635 672 718"/>
+<path class="line" d="M372 552 C372 635 338 635 338 718"/>
+<path class="line" d="M672 552 C672 552 706 552 706 552"/>
+<path class="line" d="M1190 446 C1190 469 1190 469 1190 492"/>
+<path class="line" d="M1040 386 C1040 469 1006 469 1006 552"/>
+<path class="line" d="M338 552 C338 552 372 552 372 552"/>
+<path class="line" d="M372 386 C372 469 338 469 338 552"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M338 386 C338 386 706 386 706 386"/>
+<path class="line" d="M706 220 C706 303 672 303 672 386"/>
+<path class="line" d="M372 220 C372 303 338 303 338 386"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application</text>
@@ -51,11 +51,13 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Meter Metrics collection</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Meter Metrics</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">collection</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Logger Log collection</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Logger Log</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">collection</text>
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
@@ -93,8 +95,8 @@
 </g>
 <g transform="translate(48,668)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">InMemory Exporter for</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">testing</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">InMemory Exporter</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">for testing</text>
 </g>
 <g transform="translate(382,668)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
@@ -106,6 +108,7 @@
 </g>
 <g transform="translate(1050,668)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">OpenTelemetry Collector</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">OpenTelemetry</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Collector</text>
 </g>
 </svg>

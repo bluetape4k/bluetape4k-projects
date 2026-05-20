@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="692" viewBox="0 0 1378 692" role="img" aria-label="Architecture">
+<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="692" viewBox="0 0 1378 692" role="img" aria-label="assertions Architecture">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -22,17 +22,18 @@
 </defs>
 <rect class="canvas" width="1378" height="692"/>
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
-<text class="title" x="66" y="82">Architecture</text>
+<text class="title" x="66" y="82">assertions Architecture</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 552 C522 552 856 552 856 552"/>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M188 220 C188 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
+<path class="line" d="M672 552 C672 552 706 552 706 552"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M338 220 C338 303 372 303 372 386"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">bluetape4k-assertions</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">bluetape4k-assertion</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">s</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -48,7 +49,8 @@
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">kotlinx-coroutines-core</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">kotlinx-coroutines-c</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">ore</text>
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
@@ -64,11 +66,11 @@
 </g>
 <g transform="translate(382,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">bluetape4k-coroutines</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">bluetape4k-coroutine</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">s</text>
 </g>
 <g transform="translate(716,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">coroutines</text>
 </g>
-<text class="small" x="355" y="295" text-anchor="middle">compileOnly</text>
 </svg>

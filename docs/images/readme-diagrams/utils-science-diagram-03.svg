@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1156" viewBox="0 0 1754 1156" role="img" aria-label="PostGIS + NetCDF Database Schema">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1324" viewBox="0 0 1754 1324" role="img" aria-label="PostGIS + NetCDF Database Schema">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,120 +20,117 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1156"/>
-<rect class="frame" x="32" y="28" width="1690" height="1100" rx="28"/>
+<rect class="canvas" width="1754" height="1324"/>
+<rect class="frame" x="32" y="28" width="1690" height="1268" rx="28"/>
 <text class="title" x="66" y="82">PostGIS + NetCDF Database Schema</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1492 172 C1492 276 1082 276 1082 380"/>
-<path class="line" d="M1492 622 C1492 699 1287 699 1287 776"/>
-<path class="line" d="M262 428 C262 457 262 457 262 486"/>
-<path class="line" d="M672 172 C672 300 262 300 262 428"/>
-<path class="line" d="M672 172 C672 276 1082 276 1082 380"/>
-<path class="line" d="M1082 486 C1082 602 672 602 672 718"/>
-<path class="line" d="M1082 486 C1082 554 1492 554 1492 622"/>
-<path class="line" d="M877 776 C877 892 467 892 467 1008"/>
-<path class="line" d="M877 776 C877 844 1287 844 1287 912"/>
+<path class="line" d="M1492 172 C1492 278 1082 278 1082 384"/>
+<path class="line" d="M1492 706 C1492 792.5 1287 792.5 1287 879"/>
+<path class="line" d="M262 426 C262 481 262 481 262 536"/>
+<path class="line" d="M672 172 C672 299 262 299 262 426"/>
+<path class="line" d="M672 172 C672 278 1082 278 1082 384"/>
+<path class="line" d="M1082 536 C1082 652.5 672 652.5 672 769"/>
+<path class="line" d="M1082 536 C1082 621 1492 621 1492 706"/>
+<path class="line" d="M877 879 C877 995.5 467 995.5 467 1112"/>
+<path class="line" d="M877 879 C877 953.5 1287 953.5 1287 1028"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NetCdfFileRecord</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NetCdfFileRecord</text>
   <text class="mono" x="18" y="108">+id: Long</text>
-<text class="mono" x="18" y="132">+filename: String</text>
-<text class="mono" x="18" y="156">+filePath: String</text>
-<text class="mono" x="18" y="180">+fileSize: Long</text>
-<text class="mono" x="18" y="204">+variables: List~NetCdfVariableInfo~</text>
-<text class="mono" x="18" y="228">+dimensions: Map~String,Int~</text>
+<text class="mono" x="18" y="129">+filename: String</text>
+<text class="mono" x="18" y="150">+filePath: String</text>
+<text class="mono" x="18" y="171">+fileSize: Long</text>
+<text class="mono" x="18" y="192">+variables: List~NetCdfVariableInfo~</text>
+<text class="mono" x="18" y="213">+dimensions: Map~String,Int~</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NetCdfFileRepository</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NetCdfFileRepository</text>
 
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«AuditableLongIdTable»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">NetCdfFileTable</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NetCdfFileTable</text>
   <text class="mono" x="18" y="108">filename, filePath, fileSize</text>
-<text class="mono" x="18" y="132">variables(JSONB), dimensions(JSONB)</text>
-<text class="mono" x="18" y="156">globalAttrs(JSONB), bbox(PostGIS?)</text>
-<text class="mono" x="18" y="180">timeStart, timeEnd</text>
+<text class="mono" x="18" y="129">variables(JSONB), dimensions(JSONB)</text>
+<text class="mono" x="18" y="150">globalAttrs(JSONB), bbox(PostGIS?)</text>
+<text class="mono" x="18" y="171">timeStart, timeEnd</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«LongIdTable»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">NetCdfGridValueTable</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NetCdfGridValueTable</text>
   <text class="mono" x="18" y="108">fileId, variableName</text>
-<text class="mono" x="18" y="132">location(PostGIS POINT)</text>
-<text class="mono" x="18" y="156">timeIdx, levelIdx, value</text>
-<text class="mono" x="18" y="180">attrs(JSONB?)</text>
+<text class="mono" x="18" y="129">location(PostGIS POINT)</text>
+<text class="mono" x="18" y="150">timeIdx, levelIdx, value</text>
+<text class="mono" x="18" y="171">attrs(JSONB?)</text>
 </g>
-<g transform="translate(92,494)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(92,544)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">NetCdfVariableInfo</text>
+  <text class="label" x="170" y="61" text-anchor="middle">NetCdfVariableInfo</text>
   <text class="mono" x="18" y="108">+name: String</text>
-<text class="mono" x="18" y="132">+dataType: String</text>
-<text class="mono" x="18" y="156">+shape: List~Int~</text>
-<text class="mono" x="18" y="180">+attributes: Map~String,String~</text>
+<text class="mono" x="18" y="129">+dataType: String</text>
+<text class="mono" x="18" y="150">+shape: List~Int~</text>
+<text class="mono" x="18" y="171">+attributes: Map~String,String~</text>
 </g>
-<g transform="translate(502,494)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(502,544)">
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpatialFeatureRecord</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpatialFeatureRecord</text>
   <text class="mono" x="18" y="108">+id: Long</text>
-<text class="mono" x="18" y="132">+layerId: Long</text>
-<text class="mono" x="18" y="156">+featureType: String</text>
-<text class="mono" x="18" y="180">+geom: Geometry</text>
-<text class="mono" x="18" y="204">+properties: Map~String,Any?~</text>
+<text class="mono" x="18" y="129">+layerId: Long</text>
+<text class="mono" x="18" y="150">+featureType: String</text>
+<text class="mono" x="18" y="171">+geom: Geometry</text>
+<text class="mono" x="18" y="192">+properties: Map~String,Any?~</text>
 </g>
-<g transform="translate(912,494)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(912,544)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpatialFeatureRepository</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpatialFeatureRepository</text>
 
 </g>
-<g transform="translate(1322,494)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(1322,544)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle">«AuditableLongIdTable»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpatialFeatureTable</text>
-  <text class="mono" x="18" y="108">layerId, geom(PGGeometry), properties(JSONB)</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpatialFeatureTable</text>
+  <text class="mono" x="18" y="108">layerId, geom(PGGeometry),</text>
+<text class="mono" x="18" y="129">properties(JSONB)</text>
 </g>
-<g transform="translate(297,784)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(297,887)">
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpatialLayerRecord</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpatialLayerRecord</text>
   <text class="mono" x="18" y="108">+id: Long</text>
-<text class="mono" x="18" y="132">+name: String</text>
-<text class="mono" x="18" y="156">+srid: Int</text>
-<text class="mono" x="18" y="180">+geometryType: String?</text>
-<text class="mono" x="18" y="204">+recordCount: Int</text>
+<text class="mono" x="18" y="129">+name: String</text>
+<text class="mono" x="18" y="150">+srid: Int</text>
+<text class="mono" x="18" y="171">+geometryType: String?</text>
+<text class="mono" x="18" y="192">+recordCount: Int</text>
 </g>
-<g transform="translate(707,784)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(707,887)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpatialLayerRepository</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpatialLayerRepository</text>
 
 </g>
-<g transform="translate(1117,784)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(1117,887)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«AuditableLongIdTable»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">SpatialLayerTable</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SpatialLayerTable</text>
   <text class="mono" x="18" y="108">name, srid, geometryType</text>
 </g>
-<rect x="1331.5" y="684" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1389.5" y="702" text-anchor="middle">references</text>
-<rect x="1229" y="261" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1287" y="279" text-anchor="middle">references</text>
 </svg>

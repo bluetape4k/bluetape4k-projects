@@ -6,7 +6,7 @@ Apache Pulsar client extensions for Kotlin — coroutine-first, DSL-friendly, Ja
 
 ## Architecture
 
-![Architecture 1](../../docs/images/readme-diagrams/infra-pulsar-diagram-01.png)
+![pulsar Class Structure diagram](../../docs/images/readme-diagrams/infra-pulsar-diagram-01.png)
 
 ## Features
 

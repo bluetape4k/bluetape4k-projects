@@ -24,16 +24,17 @@
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
 <text class="title" x="66" y="82">Auto-Configuration Activation Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 386 C856 469 522 469 522 552"/>
-<path class="line" d="M188 386 C188 386 856 386 856 386"/>
-<path class="line" d="M188 386 C188 386 522 386 522 386"/>
-<path class="line" d="M856 220 C856 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M706 386 C706 469 672 469 672 552"/>
+<path class="line" d="M338 386 C338 386 706 386 706 386"/>
+<path class="line" d="M338 386 C338 386 372 386 372 386"/>
+<path class="line" d="M706 220 C706 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">application.yml</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">bluetape4k.cache.lettuce-near.*</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">application.yml</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">bluetape4k.cache.let</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">tuce-near.*</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>

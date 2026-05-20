@@ -384,25 +384,25 @@ io.bluetape4k.okio
 
 Okio의 `Sink`/`Source` 추상화 위에 압축, 암호화, Base64 인코딩 등을 데코레이터 패턴으로 제공합니다.
 
-![Sink / Source 어댑터 계층 1](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
+![Sink / Source diagram](../../docs/images/readme-diagrams/io-okio-diagram-01.png)
 
 ### NIO 채널 어댑터 계층
 
 Java NIO `FileChannel`/`ByteChannel`을 Okio `Sink`/`Source`로 변환합니다.
 
-![NIO 채널 어댑터 계층 2](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
+![NIO diagram](../../docs/images/readme-diagrams/io-okio-diagram-02.png)
 
 ### Coroutines 비동기 I/O 계층
 
 Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니다.
 
-![Coroutines 비동기 I/O 계층 3](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
+![Coroutines I/O diagram](../../docs/images/readme-diagrams/io-okio-diagram-03.png)
 
 ### 압축 팩토리 (Compressable)
 
 `Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
 
-![압축 팩토리 (Compressable) 4](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
+![(Compressable) diagram](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
 
 ## 시퀀스 다이어그램
 
@@ -410,13 +410,13 @@ Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니�
 
 `CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
 
-![Compression Sink (One-Shot) — compress on close diagram](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
+![Sink (One-Shot) — compress on close diagram](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
 
 ### 압축 Sink (Streaming) — compress incrementally
 
 `StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
 
-![Compression Sink (Streaming) — compress incrementally diagram](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
+![Sink (Streaming) — compress incrementally diagram](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
 
 ### 복원 Source (One-Shot) — decompress on first read
 
@@ -428,13 +428,13 @@ Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니�
 
 `Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
 
-![Tink Encryption + Compression diagram](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
+![Tink + diagram](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
 
 ### Coroutines 비동기 파일 I/O 흐름
 
 `AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
 
-![Coroutines I / O diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
+![Coroutines I/O diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
 
 ## 라이선스
 

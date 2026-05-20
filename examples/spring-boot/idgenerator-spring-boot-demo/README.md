@@ -7,7 +7,7 @@ The Ktor version is tracked separately in issue #419.
 
 ## Architecture
 
-![Architecture 1](../../../docs/images/readme-diagrams/examples-spring-boot-idgenerator-spring-boot-demo-diagram-01.png)
+![idgenerator spring boot demo Architecture diagram](../../../docs/images/readme-diagrams/examples-spring-boot-idgenerator-spring-boot-demo-diagram-01.png)
 
 ## Configuration
 

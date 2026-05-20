@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1430" height="1098" viewBox="0 0 1430 1098" role="img" aria-label="Rule Execution Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="1610" height="1550" viewBox="0 0 1610 1550" role="img" aria-label="Rule Execution Sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,50 +20,56 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1430" height="1098"/>
-<rect class="frame" x="32" y="28" width="1366" height="1042" rx="28"/>
+<rect class="canvas" width="1610" height="1550"/>
+<rect class="frame" x="32" y="28" width="1546" height="1494" rx="28"/>
 <text class="title" x="66" y="82">Rule Execution Sequence</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line x1="140" y1="252" x2="140" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="322.5" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="427.5" y="209" text-anchor="middle">RuleEngine</text>
-<line x1="427.5" y1="252" x2="427.5" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="610" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="715" y="209" text-anchor="middle">RuleListener</text>
-<line x1="715" y1="252" x2="715" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="897.5" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1002.5" y="209" text-anchor="middle">Rule</text>
-<line x1="1002.5" y1="252" x2="1002.5" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1185" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1290" y="209" text-anchor="middle">Facts</text>
-<line x1="1290" y1="252" x2="1290" y2="1038" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. fire(ruleSet, facts)</text>
-<path class="line" d="M140 310 L427.5 310"/>
-<rect x="445.5" y="352" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="379" text-anchor="start">2. beforeEvaluate(rule, facts)</text>
-<path class="line" d="M427.5 392 L715 392"/>
-<rect x="445.5" y="434" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="461" text-anchor="start">3. evaluate(facts)</text>
-<path class="line" d="M427.5 474 L1002.5 474"/>
-<rect x="445.5" y="516" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="543" text-anchor="start">4. true / false</text>
-<path class="dashed" d="M1002.5 556 L427.5 556"/>
-<rect x="445.5" y="598" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="625" text-anchor="start">5. execute(facts)</text>
-<path class="line" d="M427.5 638 L1002.5 638"/>
-<rect x="1020.5" y="680" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="707" text-anchor="start">6. modify values</text>
-<path class="line" d="M1002.5 720 L1290 720"/>
-<rect x="445.5" y="762" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="789" text-anchor="start">7. onSuccess(rule, facts)</text>
-<path class="line" d="M427.5 802 L715 802"/>
-<rect x="445.5" y="844" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="871" text-anchor="start">8. onFailure(rule, facts)</text>
-<path class="line" d="M427.5 884 L715 884"/>
-<rect x="158" y="926" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="953" text-anchor="start">9. done</text>
-<path class="dashed" d="M427.5 966 L140 966"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1490" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="357.5" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="472.5" y="209" text-anchor="middle">RuleEngine</text>
+<line class="lifeline" x1="472.5" y1="252" x2="472.5" y2="1490" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="690" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="805" y="209" text-anchor="middle">RuleListener</text>
+<line class="lifeline" x1="805" y1="252" x2="805" y2="1490" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1022.5" y="166" width="230" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1137.5" y="209" text-anchor="middle">Rule</text>
+<line class="lifeline" x1="1137.5" y1="252" x2="1137.5" y2="1490" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1355" y="166" width="230" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1470" y="209" text-anchor="middle">Facts</text>
+<line class="lifeline" x1="1470" y1="252" x2="1470" y2="1490" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="195.25" y="286" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="213.25" y="313" text-anchor="start">1. fire(ruleSet, facts)</text>
+<path class="line" d="M140 344 L472.5 344"/>
+<rect x="70" y="396" width="1470" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="423" text-anchor="start">LOOP: each Rule (priority order)</text>
+<rect x="499.75" y="464" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="517.75" y="491" text-anchor="start">3. beforeEvaluate(rule, facts)</text>
+<path class="line" d="M472.5 522 L805 522"/>
+<rect x="700" y="574" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="718" y="601" text-anchor="start">4. evaluate(facts)</text>
+<path class="line" d="M472.5 632 L1137.5 632"/>
+<rect x="700" y="684" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="718" y="711" text-anchor="start">5. true / false</text>
+<path class="dashed" d="M1137.5 742 L472.5 742"/>
+<rect x="70" y="794" width="1470" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="821" text-anchor="start">ALT: condition = true</text>
+<rect x="700" y="862" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="718" y="889" text-anchor="start">7. execute(facts)</text>
+<path class="line" d="M472.5 920 L1137.5 920"/>
+<rect x="1198.75" y="972" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1216.75" y="999" text-anchor="start">8. modify values</text>
+<path class="line" d="M1137.5 1030 L1470 1030"/>
+<rect x="519.75" y="1082" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="537.75" y="1109" text-anchor="start">9. onSuccess(rule, facts)</text>
+<path class="line" d="M472.5 1140 L805 1140"/>
+<rect x="70" y="1192" width="1470" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="1219" text-anchor="start">ELSE: condition = false</text>
+<rect x="515.75" y="1260" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="533.75" y="1287" text-anchor="start">11. onFailure(rule, facts)</text>
+<path class="line" d="M472.5 1318 L805 1318"/>
+<rect x="201.25" y="1370" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="219.25" y="1397" text-anchor="start">12. done</text>
+<path class="dashed" d="M472.5 1428 L140 1428"/>
 </svg>

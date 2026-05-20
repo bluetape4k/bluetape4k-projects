@@ -12,19 +12,19 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### 전체 아키텍처: 다중 백엔드 HTTP 클라이언트
 
-![전체 아키텍처: 다중 백엔드 HTTP 클라이언트 1](../../docs/images/readme-diagrams/io-http-ko-diagram-01.png)
+![: HTTP diagram](../../docs/images/readme-diagrams/io-http-ko-diagram-01.png)
 
 ### HTTP 클라이언트 계층 (HC5)
 
-![HTTP 클라이언트 계층 (HC5) 2](../../docs/images/readme-diagrams/io-http-ko-diagram-02.png)
+![HTTP (HC5) diagram](../../docs/images/readme-diagrams/io-http-ko-diagram-02.png)
 
 ### OkHttp3 클라이언트 계층
 
-![OkHttp3 클라이언트 계층 3](../../docs/images/readme-diagrams/io-http-ko-diagram-03.png)
+![OkHttp3 diagram](../../docs/images/readme-diagrams/io-http-ko-diagram-03.png)
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 
-![HTTP Request (HC5 Async + Coroutines) diagram](../../docs/images/readme-diagrams/io-http-sequence-01.png)
+![HTTP (HC5 Async + Coroutines) diagram](../../docs/images/readme-diagrams/io-http-sequence-01.png)
 
 ## 주요 기능
 

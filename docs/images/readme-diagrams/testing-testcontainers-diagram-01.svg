@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1496" viewBox="0 0 1754 1496" role="img" aria-label="Supported Container Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1869" viewBox="0 0 1754 1869" role="img" aria-label="Supported Container Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,153 +20,157 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1496"/>
-<rect class="frame" x="32" y="28" width="1690" height="1440" rx="28"/>
+<rect class="canvas" width="1754" height="1869"/>
+<rect class="frame" x="32" y="28" width="1690" height="1813" rx="28"/>
 <text class="title" x="66" y="82">Supported Container Class Diagram</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M1082 740 C1082 572 467 572 467 404"/>
-<path class="implLine" d="M1082 474 C1082 439 467 439 467 404"/>
-<path class="implLine" d="M262 740 C262 572 467 572 467 404"/>
-<path class="inheritLine" d="M672 1212 C672 1165 672 1165 672 1118"/>
-<path class="inheritLine" d="M1082 1212 C1082 1165 672 1165 672 1118"/>
-<path class="inheritLine" d="M672 474 C672 439 1287 439 1287 404"/>
-<path class="inheritLine" d="M262 474 C262 439 1287 439 1287 404"/>
-<path class="inheritLine" d="M672 740 C672 572 1287 572 1287 404"/>
-<path class="inheritLine" d="M1082 740 C1082 572 1287 572 1287 404"/>
-<path class="inheritLine" d="M1082 474 C1082 439 1287 439 1287 404"/>
-<path class="inheritLine" d="M262 740 C262 572 1287 572 1287 404"/>
-<path class="inheritLine" d="M1492 474 C1492 439 1287 439 1287 404"/>
-<path class="inheritLine" d="M1082 982 C1082 693 1287 693 1287 404"/>
-<path class="inheritLine" d="M1492 740 C1492 572 1287 572 1287 404"/>
-<path class="inheritLine" d="M672 1212 C672 808 1287 808 1287 404"/>
-<path class="inheritLine" d="M1082 1212 C1082 808 1287 808 1287 404"/>
-<path class="inheritLine" d="M672 982 C672 693 1287 693 1287 404"/>
+<path class="implLine" d="M1082 882 C1082 654 467 654 467 426"/>
+<path class="implLine" d="M1082 560 C1082 493 467 493 467 426"/>
+<path class="implLine" d="M262 882 C262 654 467 654 467 426"/>
+<path class="inheritLine" d="M672 1487 C672 1420 672 1420 672 1353"/>
+<path class="inheritLine" d="M1082 1487 C1082 1420 672 1420 672 1353"/>
+<path class="inheritLine" d="M672 560 C672 482.5 1287 482.5 1287 405"/>
+<path class="inheritLine" d="M262 560 C262 482.5 1287 482.5 1287 405"/>
+<path class="inheritLine" d="M672 882 C672 643.5 1287 643.5 1287 405"/>
+<path class="inheritLine" d="M1082 882 C1082 643.5 1287 643.5 1287 405"/>
+<path class="inheritLine" d="M1082 560 C1082 482.5 1287 482.5 1287 405"/>
+<path class="inheritLine" d="M262 882 C262 643.5 1287 643.5 1287 405"/>
+<path class="inheritLine" d="M1492 560 C1492 482.5 1287 482.5 1287 405"/>
+<path class="inheritLine" d="M1082 1183 C1082 794 1287 794 1287 405"/>
+<path class="inheritLine" d="M1492 882 C1492 643.5 1287 643.5 1287 405"/>
+<path class="inheritLine" d="M672 1487 C672 946 1287 946 1287 405"/>
+<path class="inheritLine" d="M1082 1487 C1082 946 1287 946 1287 405"/>
+<path class="inheritLine" d="M672 1183 C672 794 1287 794 1287 405"/>
 <g transform="translate(297,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AwsEmulatorServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AwsEmulatorServer</text>
   <text class="mono" x="18" y="108">+awsEndpoint: URI</text>
-<text class="mono" x="18" y="132">+awsAccessKey: String</text>
-<text class="mono" x="18" y="156">+awsSecretKey: String</text>
-<text class="mono" x="18" y="180">+regionName: String</text>
-<text class="mono" x="18" y="204">+withServices(vararg services) AwsEmulatorServer</text>
+<text class="mono" x="18" y="129">+awsAccessKey: String</text>
+<text class="mono" x="18" y="150">+awsSecretKey: String</text>
+<text class="mono" x="18" y="171">+regionName: String</text>
+<text class="mono" x="18" y="192">+withServices(vararg services)</text>
+<text class="mono" x="18" y="213">AwsEmulatorServer</text>
 </g>
 <g transform="translate(707,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ElasticMqServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ElasticMqServer</text>
   <text class="mono" x="18" y="108">+sqsEndpoint: URI</text>
-<text class="mono" x="18" y="132">+host: String</text>
-<text class="mono" x="18" y="156">+port: Int</text>
+<text class="mono" x="18" y="129">+host: String</text>
+<text class="mono" x="18" y="150">+port: Int</text>
 </g>
 <g transform="translate(1117,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«abstract»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">GenericServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GenericServer</text>
   <text class="mono" x="18" y="108">+useDefaultPort: Boolean</text>
-<text class="mono" x="18" y="132">+start()</text>
-<text class="mono" x="18" y="156">+stop()</text>
-<text class="mono" x="18" y="180">+writeToSystemProperties(name)</text>
-<text class="mono" x="18" y="204">+exposeCustomPorts(vararg ports)</text>
+<text class="mono" x="18" y="129">+start()</text>
+<text class="mono" x="18" y="150">+stop()</text>
+<text class="mono" x="18" y="171">+writeToSystemProperties(name)</text>
+<text class="mono" x="18" y="192">+exposeCustomPorts(vararg ports)</text>
 </g>
-<g transform="translate(92,482)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(92,568)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">BluetapeHttpServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BluetapeHttpServer</text>
   <text class="mono" x="18" y="108">+url: String</text>
-<text class="mono" x="18" y="132">+httpbinUrl: String</text>
-<text class="mono" x="18" y="156">+jsonplaceholderUrl: String</text>
-<text class="mono" x="18" y="180">+webUrl: String</text>
+<text class="mono" x="18" y="129">+httpbinUrl: String</text>
+<text class="mono" x="18" y="150">+jsonplaceholderUrl: String</text>
+<text class="mono" x="18" y="171">+webUrl: String</text>
 </g>
-<g transform="translate(502,482)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,568)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">BluetapeWebfluxServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BluetapeWebfluxServer</text>
   <text class="mono" x="18" y="108">+url: String</text>
-<text class="mono" x="18" y="132">+httpbinUrl: String</text>
-<text class="mono" x="18" y="156">+jsonplaceholderUrl: String</text>
-<text class="mono" x="18" y="180">+webUrl: String</text>
+<text class="mono" x="18" y="129">+httpbinUrl: String</text>
+<text class="mono" x="18" y="150">+jsonplaceholderUrl: String</text>
+<text class="mono" x="18" y="171">+webUrl: String</text>
 </g>
-<g transform="translate(912,482)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,568)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">FlociServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">FlociServer</text>
   <text class="mono" x="18" y="108">+awsEndpoint: URI</text>
-<text class="mono" x="18" y="132">+withServices() FlociServer (no-op)</text>
-<text class="mono" x="18" y="156">@Deprecated</text>
+<text class="mono" x="18" y="129">+withServices() FlociServer (no-op)</text>
+<text class="mono" x="18" y="150">@Deprecated</text>
 </g>
-<g transform="translate(1322,482)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1322,568)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">KafkaServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">KafkaServer</text>
   <text class="mono" x="18" y="108">+bootstrapServers: String</text>
 </g>
-<g transform="translate(92,748)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(92,890)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">LocalStackServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LocalStackServer</text>
   <text class="mono" x="18" y="108">+awsEndpoint: URI</text>
-<text class="mono" x="18" y="132">@Deprecated</text>
+<text class="mono" x="18" y="129">@Deprecated</text>
 </g>
-<g transform="translate(502,748)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(502,890)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MailpitServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MailpitServer</text>
   <text class="mono" x="18" y="108">+smtpPort: Int</text>
-<text class="mono" x="18" y="132">+uiPort: Int</text>
-<text class="mono" x="18" y="156">+uiUrl: String</text>
+<text class="mono" x="18" y="129">+uiPort: Int</text>
+<text class="mono" x="18" y="150">+uiUrl: String</text>
 </g>
-<g transform="translate(912,748)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(912,890)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MiniStackServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MiniStackServer</text>
   <text class="mono" x="18" y="108">+awsEndpoint: URI</text>
-<text class="mono" x="18" y="132">+withServices() MiniStackServer (no-op)</text>
+<text class="mono" x="18" y="129">+withServices() MiniStackServer (no-op)</text>
 </g>
-<g transform="translate(1322,748)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(1322,890)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MySQL8Server</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MySQL8Server</text>
   <text class="mono" x="18" y="108">+getDataSource() DataSource</text>
 </g>
-<g transform="translate(502,990)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(502,1191)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">PostgreSQLServer</text>
-  <text class="mono" x="18" y="108">+withExtensions(vararg names) PostgreSQLServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">PostgreSQLServer</text>
+  <text class="mono" x="18" y="108">+withExtensions(vararg names)</text>
+<text class="mono" x="18" y="129">PostgreSQLServer</text>
 </g>
-<g transform="translate(912,990)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(912,1191)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">RedisServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">RedisServer</text>
   <text class="mono" x="18" y="108">+host: String</text>
-<text class="mono" x="18" y="132">+port: Int</text>
+<text class="mono" x="18" y="129">+port: Int</text>
 </g>
-<g transform="translate(502,1220)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(502,1495)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">PgvectorServer</text>
-  <text class="mono" x="18" y="108">+withExtensions(vararg names) PgvectorServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">PgvectorServer</text>
+  <text class="mono" x="18" y="108">+withExtensions(vararg names)</text>
+<text class="mono" x="18" y="129">PgvectorServer</text>
 </g>
-<g transform="translate(912,1220)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(912,1495)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">PostgisServer</text>
-  <text class="mono" x="18" y="108">+withExtensions(vararg names) PostgisServer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">PostgisServer</text>
+  <text class="mono" x="18" y="108">+withExtensions(vararg names)</text>
+<text class="mono" x="18" y="129">PostgisServer</text>
 </g>
 </svg>

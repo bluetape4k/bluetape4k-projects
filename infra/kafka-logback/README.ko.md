@@ -6,7 +6,7 @@
 
 ## 아키텍처
 
-![아키텍처 1](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.png)
+![kafka logback Class Structure diagram](../../docs/images/readme-diagrams/infra-kafka-logback-diagram-01.png)
 
 ## 기능
 

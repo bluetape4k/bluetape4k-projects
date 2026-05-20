@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1544" viewBox="0 0 1754 1544" role="img" aria-label="Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1869" viewBox="0 0 1754 1869" role="img" aria-label="idgenerators Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,117 +20,117 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1544"/>
-<rect class="frame" x="32" y="28" width="1690" height="1488" rx="28"/>
-<text class="title" x="66" y="82">Class Diagram</text>
+<rect class="canvas" width="1754" height="1869"/>
+<rect class="frame" x="32" y="28" width="1690" height="1813" rx="28"/>
+<text class="title" x="66" y="82">idgenerators Class Structure 2</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1082 982 C1082 826 877 826 877 670"/>
-<path class="line" d="M877 1236 C877 772 1082 772 1082 308"/>
-<path class="line" d="M1492 380 C1492 560 672 560 672 740"/>
-<path class="line" d="M1492 380 C1492 560 262 560 262 740"/>
-<path class="inheritLine" d="M672 740 C672 524 1082 524 1082 308"/>
-<path class="inheritLine" d="M262 740 C262 524 1082 524 1082 308"/>
-<path class="inheritLine" d="M1082 740 C1082 512 262 512 262 284"/>
-<path class="inheritLine" d="M672 982 C672 633 262 633 262 284"/>
-<path class="inheritLine" d="M1082 982 C1082 633 262 633 262 284"/>
-<path class="inheritLine" d="M877 1236 C877 1056 1492 1056 1492 876"/>
-<path class="inheritLine" d="M1492 740 C1492 512 262 512 262 284"/>
+<path class="line" d="M1082 1162 C1082 944.5 877 944.5 877 727"/>
+<path class="line" d="M877 1487 C877 904 1082 904 1082 321"/>
+<path class="line" d="M1492 384 C1492 622.5 672 622.5 672 861"/>
+<path class="line" d="M1492 384 C1492 622.5 262 622.5 262 861"/>
+<path class="inheritLine" d="M672 861 C672 591 1082 591 1082 321"/>
+<path class="inheritLine" d="M262 861 C262 591 1082 591 1082 321"/>
+<path class="inheritLine" d="M1082 861 C1082 580.5 262 580.5 262 300"/>
+<path class="inheritLine" d="M672 1162 C672 731 262 731 262 300"/>
+<path class="inheritLine" d="M1082 1162 C1082 731 262 731 262 300"/>
+<path class="inheritLine" d="M877 1487 C877 1248.5 1492 1248.5 1492 1010"/>
+<path class="inheritLine" d="M1492 861 C1492 580.5 262 580.5 262 300"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">IdGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">IdGenerator</text>
 
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">IdGeneratorT</text>
+  <text class="label" x="170" y="61" text-anchor="middle">IdGeneratorT</text>
   <text class="mono" x="18" y="108">+nextId(): T</text>
-<text class="mono" x="18" y="132">+nextIds(count): Sequence~T~</text>
+<text class="mono" x="18" y="129">+nextIds(count): Sequence~T~</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Snowflake</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Snowflake</text>
   <text class="mono" x="18" y="108">+nextId(): Long</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Snowflakers</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Snowflakers</text>
   <text class="mono" x="18" y="108">+Default: DefaultSnowflake</text>
-<text class="mono" x="18" y="132">+Global: GlobalSnowflake</text>
-<text class="mono" x="18" y="156">+default(machineId): DefaultSnowflake</text>
-<text class="mono" x="18" y="180">+global(): GlobalSnowflake</text>
+<text class="mono" x="18" y="129">+Global: GlobalSnowflake</text>
+<text class="mono" x="18" y="150">+default(machineId): DefaultSnowflake</text>
+<text class="mono" x="18" y="171">+global(): GlobalSnowflake</text>
 </g>
-<g transform="translate(707,446)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,502)">
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Uuid</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Uuid</text>
   <text class="mono" x="18" y="108">+V1: UuidStrategy</text>
-<text class="mono" x="18" y="132">+V4: UuidStrategy</text>
-<text class="mono" x="18" y="156">+V5: UuidStrategy</text>
-<text class="mono" x="18" y="180">+V6: UuidStrategy</text>
-<text class="mono" x="18" y="204">+V7: UuidStrategy</text>
+<text class="mono" x="18" y="129">+V4: UuidStrategy</text>
+<text class="mono" x="18" y="150">+V5: UuidStrategy</text>
+<text class="mono" x="18" y="171">+V6: UuidStrategy</text>
+<text class="mono" x="18" y="192">+V7: UuidStrategy</text>
 </g>
-<g transform="translate(92,748)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(92,869)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultSnowflake</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DefaultSnowflake</text>
   <text class="mono" x="18" y="108">-machineId: Int</text>
-<text class="mono" x="18" y="132">-timestamp: AtomicLong</text>
-<text class="mono" x="18" y="156">-sequence: Int</text>
+<text class="mono" x="18" y="129">-timestamp: AtomicLong</text>
+<text class="mono" x="18" y="150">-sequence: Int</text>
 </g>
-<g transform="translate(502,748)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(502,869)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">GlobalSnowflake</text>
+  <text class="label" x="170" y="61" text-anchor="middle">GlobalSnowflake</text>
   <text class="mono" x="18" y="108">-centralCounter: AtomicLong</text>
 </g>
-<g transform="translate(912,748)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(912,869)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">KsuidGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">KsuidGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): String</text>
 </g>
-<g transform="translate(1322,748)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(1322,869)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">LongIdGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LongIdGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): Long</text>
 </g>
-<g transform="translate(502,990)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(502,1170)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">UlidGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UlidGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): String</text>
-<text class="mono" x="18" y="132">+nextULID(): ULID</text>
+<text class="mono" x="18" y="129">+nextULID(): ULID</text>
 </g>
-<g transform="translate(912,990)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(912,1170)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">UuidGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UuidGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): UUID</text>
-<text class="mono" x="18" y="132">+nextUUID(): UUID</text>
-<text class="mono" x="18" y="156">+nextIdAsString(): String</text>
+<text class="mono" x="18" y="129">+nextUUID(): UUID</text>
+<text class="mono" x="18" y="150">+nextIdAsString(): String</text>
 </g>
-<g transform="translate(707,1244)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(707,1495)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SnowflakeGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SnowflakeGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): Long</text>
-<text class="mono" x="18" y="132">+parse(id): SnowflakeId</text>
+<text class="mono" x="18" y="129">+parse(id): SnowflakeId</text>
 </g>
 </svg>

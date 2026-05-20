@@ -109,11 +109,11 @@ election.runIfLeader {
 
 ## Module Dependency Structure
 
-![Module Dependency Structure 1](../../docs/images/readme-diagrams/infra-redis-diagram-01.png)
+![Module Dependency Structure diagram](../../docs/images/readme-diagrams/infra-redis-diagram-01.png)
 
 ## Core Class Diagram
 
-![Core Class Diagram 2](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
+![Core Class Diagram diagram](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
 
 ## Spring Data Redis
 

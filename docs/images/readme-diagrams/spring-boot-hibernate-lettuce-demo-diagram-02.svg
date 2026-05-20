@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1044" height="692" viewBox="0 0 1044 692" role="img" aria-label="Architecture">
+<svg xmlns="http://www.w3.org/2000/svg" width="1044" height="692" viewBox="0 0 1044 692" role="img" aria-label="hibernate lettuce demo Architecture 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -22,12 +22,12 @@
 </defs>
 <rect class="canvas" width="1044" height="692"/>
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
-<text class="title" x="66" y="82">Architecture</text>
+<text class="title" x="66" y="82">hibernate lettuce demo Architectur.</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 220 C856 386 689 386 689 552"/>
-<path class="line" d="M522 386 C522 469 355 469 355 552"/>
-<path class="line" d="M522 386 C522 386 856 386 856 386"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M856 280 C856 386 689 386 689 492"/>
+<path class="line" d="M372 386 C372 469 505 469 505 552"/>
+<path class="line" d="M672 386 C672 386 706 386 706 386"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Client HTTP Request</text>

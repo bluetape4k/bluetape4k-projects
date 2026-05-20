@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1016" viewBox="0 0 1040 1016" role="img" aria-label="6. concatMapEager { } — Order-Preserving Eager Parallel Collection">
+<svg xmlns="http://www.w3.org/2000/svg" width="1078" height="1412" viewBox="0 0 1078 1412" role="img" aria-label="6. concatMapEager { } — Order-Preserving Eager Parallel Collection">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,43 +20,45 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1040" height="1016"/>
-<rect class="frame" x="32" y="28" width="976" height="960" rx="28"/>
-<text class="title" x="66" y="82">6. concatMapEager { } — Order-Preserving Eager Parallel Collection</text>
+<rect class="canvas" width="1078" height="1412"/>
+<rect class="frame" x="32" y="28" width="1014" height="1356" rx="28"/>
+<text class="title" x="66" y="82">6. concatMapEager { } — Order-Preser.</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Flow Source</text>
-<line x1="140" y1="252" x2="140" y2="956" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="209" text-anchor="middle">concatMapEager</text>
-<line x1="520" y1="252" x2="520" y2="956" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="209" text-anchor="middle">Collector</text>
-<line x1="900" y1="252" x2="900" y2="956" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. emit(1) → transform → flowOf(1, 10)</text>
-<path class="line" d="M140 310 L520 310"/>
-<rect x="158" y="352" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="379" text-anchor="start">2. emit(2) → transform → flowOf(2, 20)</text>
-<path class="line" d="M140 392 L520 392"/>
-<rect x="538" y="434" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="461" text-anchor="start">3. queue A receives 1,</text>
-<text class="strong" x="554" y="484" text-anchor="start">10</text>
-<path class="dashed" d="M520 474 C576 474 576 504 520 504"/>
-<rect x="538" y="516" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="543" text-anchor="start">4. queue B receives 2,</text>
-<text class="strong" x="554" y="566" text-anchor="start">20</text>
-<path class="dashed" d="M520 556 C576 556 576 586 520 586"/>
-<rect x="538" y="598" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="625" text-anchor="start">5. emit(1)</text>
-<path class="line" d="M520 638 L900 638"/>
-<rect x="538" y="680" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="707" text-anchor="start">6. emit(10)</text>
-<path class="line" d="M520 720 L900 720"/>
-<rect x="538" y="762" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="789" text-anchor="start">7. emit(2)</text>
-<path class="line" d="M520 802 L900 802"/>
-<rect x="538" y="844" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="871" text-anchor="start">8. emit(20)</text>
-<path class="line" d="M520 884 L900 884"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1352" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="424" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="539" y="209" text-anchor="middle">concatMapEager</text>
+<line class="lifeline" x1="539" y1="252" x2="539" y2="1352" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="823" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="938" y="209" text-anchor="middle">Collector</text>
+<line class="lifeline" x1="938" y1="252" x2="938" y2="1352" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="168" y="286" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="186" y="313" text-anchor="start">1. emit(1) → transform → flowOf(1, 10)</text>
+<path class="line" d="M140 344 L539 344"/>
+<rect x="168" y="396" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="186" y="423" text-anchor="start">2. emit(2) → transform → flowOf(2, 20)</text>
+<path class="line" d="M140 454 L539 454"/>
+<rect x="70" y="506" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="533" text-anchor="start">PAR: eager collection</text>
+<rect x="468" y="574" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="486" y="601" text-anchor="start">4. queue A receives 1, 10</text>
+<path class="dashed" d="M539 632 C603 632 603 666 539 666"/>
+<rect x="70" y="704" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="731" text-anchor="start">AND: and</text>
+<rect x="468" y="772" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="486" y="799" text-anchor="start">6. queue B receives 2, 20</text>
+<path class="dashed" d="M539 830 C603 830 603 864 539 864"/>
+<rect x="633.5" y="902" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="651.5" y="929" text-anchor="start">7. emit(1)</text>
+<path class="line" d="M539 960 L938 960"/>
+<rect x="633.5" y="1012" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="651.5" y="1039" text-anchor="start">8. emit(10)</text>
+<path class="line" d="M539 1070 L938 1070"/>
+<rect x="633.5" y="1122" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="651.5" y="1149" text-anchor="start">9. emit(2)</text>
+<path class="line" d="M539 1180 L938 1180"/>
+<rect x="633.5" y="1232" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="651.5" y="1259" text-anchor="start">10. emit(20)</text>
+<path class="line" d="M539 1290 L938 1290"/>
 </svg>

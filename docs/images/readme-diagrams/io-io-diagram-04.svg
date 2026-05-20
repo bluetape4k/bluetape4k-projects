@@ -22,16 +22,17 @@
 </defs>
 <rect class="canvas" width="1044" height="526"/>
 <rect class="frame" x="32" y="28" width="980" height="470" rx="28"/>
-<text class="title" x="66" y="82">Serialization Performance Comparison</text>
+<text class="title" x="66" y="82">Serialization Performance Comparis.</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 220 C856 303 355 303 355 386"/>
+<path class="line" d="M706 220 C706 303 505 303 505 386"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">ops/s</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Jdk, Jackson, Kryo, Fory</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Jdk, Jackson, Kryo,</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Fory</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>

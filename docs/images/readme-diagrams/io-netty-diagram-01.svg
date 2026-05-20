@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="576" viewBox="0 0 1754 576" role="img" aria-label="ByteBuf Extension API Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="638" viewBox="0 0 1754 638" role="img" aria-label="ByteBuf Extension API Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,51 +20,49 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="576"/>
-<rect class="frame" x="32" y="28" width="1690" height="520" rx="28"/>
+<rect class="canvas" width="1754" height="638"/>
+<rect class="frame" x="32" y="28" width="1690" height="582" rx="28"/>
 <text class="title" x="66" y="82">ByteBuf Extension API Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M672 172 C672 252 1492 252 1492 332"/>
-<path class="line" d="M672 172 C672 264 262 264 262 356"/>
-<path class="line" d="M672 172 C672 300 1082 300 1082 428"/>
+<path class="line" d="M672 172 C672 257 1492 257 1492 342"/>
+<path class="line" d="M672 172 C672 267.5 262 267.5 262 363"/>
+<path class="line" d="M672 172 C672 299 1082 299 1082 426"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">BitBuf</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BitBuf</text>
   <text class="mono" x="18" y="108">-buf: ByteBuf</text>
-<text class="mono" x="18" y="132">+readBit() Boolean</text>
-<text class="mono" x="18" y="156">+writeBit(value: Boolean)</text>
+<text class="mono" x="18" y="129">+readBit() Boolean</text>
+<text class="mono" x="18" y="150">+writeBit(value: Boolean)</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«Netty»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ByteBuf</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ByteBuf</text>
   <text class="mono" x="18" y="108">+readByte() Byte</text>
-<text class="mono" x="18" y="132">+writeByte(value: Int)</text>
-<text class="mono" x="18" y="156">+readableBytes() Int</text>
+<text class="mono" x="18" y="129">+writeByte(value: Int)</text>
+<text class="mono" x="18" y="150">+readableBytes() Int</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ByteBufExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ByteBufExtensions</text>
   <text class="mono" x="18" y="108">+readUByteNeg() UByte</text>
-<text class="mono" x="18" y="132">+readUShortAdd() UShort</text>
-<text class="mono" x="18" y="156">+readShortSmart() Short</text>
-<text class="mono" x="18" y="180">+readIntSmart() Int</text>
-<text class="mono" x="18" y="204">+readUIntSmart() Int</text>
-<text class="mono" x="18" y="228">+readVarInt() Int</text>
+<text class="mono" x="18" y="129">+readUShortAdd() UShort</text>
+<text class="mono" x="18" y="150">+readShortSmart() Short</text>
+<text class="mono" x="18" y="171">+readIntSmart() Int</text>
+<text class="mono" x="18" y="192">+readUIntSmart() Int</text>
+<text class="mono" x="18" y="213">+readVarInt() Int</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ReferenceCountedSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ReferenceCountedSupport</text>
   <text class="mono" x="18" y="108">+safeRelease()</text>
-<text class="mono" x="18" y="132">+refCnt() Int</text>
+<text class="mono" x="18" y="129">+refCnt() Int</text>
 </g>
-<rect x="409" y="249" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="467" y="267" text-anchor="middle">wraps</text>
 </svg>

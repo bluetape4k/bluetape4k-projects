@@ -24,19 +24,20 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">ServiceLoader-Based Runtime Selection Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M1190 386 C1190 469 1023 469 1023 552"/>
-<path class="line" d="M1190 386 C1190 469 689 469 689 552"/>
-<path class="line" d="M1190 386 C1190 469 355 469 355 552"/>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M522 386 C522 386 856 386 856 386"/>
-<path class="line" d="M188 386 C188 386 522 386 522 386"/>
-<path class="line" d="M1190 220 C1190 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
+<path class="line" d="M1040 386 C1040 469 1173 469 1173 552"/>
+<path class="line" d="M1040 386 C1040 469 839 469 839 552"/>
+<path class="line" d="M1040 386 C1040 469 505 469 505 552"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M672 386 C672 386 706 386 706 386"/>
+<path class="line" d="M338 386 C338 386 372 386 372 386"/>
+<path class="line" d="M1040 220 C1040 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Virtual Threads.executor</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Service()</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Virtual</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Threads.executor</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Service()</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -50,14 +51,15 @@
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">Collect implementations</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">(all implementations on</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">the classpath)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Collect</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">implementations (all</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">implementations on</text>
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Filter by isSupported()</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">== true</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Filter by</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">isSupported() ==</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">true</text>
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
@@ -66,8 +68,9 @@
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Select highest-priority</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">implementation</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Select</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">highest-priority</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">implementation</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
@@ -75,20 +78,20 @@
 </g>
 <g transform="translate(215,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Jdk25 Virtual Thread</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Runtime (priority=25)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Jdk25 Virtual Thread</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Runtime</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">(priority=25)</text>
 </g>
 <g transform="translate(549,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Jdk21 Virtual Thread</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Runtime (priority=21)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Jdk21 Virtual Thread</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Runtime</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">(priority=21)</text>
 </g>
 <g transform="translate(883,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">PlatformThreadFallback</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">(CachedThreadPool)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Platform Thread</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Fallback</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">(CachedThreadPool)</text>
 </g>
-<text class="small" x="772.5" y="461" text-anchor="middle">Yes</text>
-<text class="small" x="939.5" y="461" text-anchor="middle">No, JDK 21</text>
-<text class="small" x="1106.5" y="461" text-anchor="middle">No, JDK 17-</text>
 </svg>

@@ -30,13 +30,13 @@
 </g>
 <g transform="translate(366,170)">
   <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="33" text-anchor="middle">timestamp (41 bits) ~69</text>
-<text class="smallLabel" x="130" y="59" text-anchor="middle">years</text>
+  <text class="smallLabel" x="130" y="33" text-anchor="middle">timestamp (41 bits)</text>
+<text class="smallLabel" x="130" y="59" text-anchor="middle">~69 years</text>
 </g>
 <g transform="translate(684,170)">
   <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="33" text-anchor="middle">machineId (10 bits) up</text>
-<text class="smallLabel" x="130" y="59" text-anchor="middle">to 1,024</text>
+  <text class="smallLabel" x="130" y="33" text-anchor="middle">machineId (10 bits)</text>
+<text class="smallLabel" x="130" y="59" text-anchor="middle">up to 1,024</text>
 </g>
 <g transform="translate(366,346)">
   <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>

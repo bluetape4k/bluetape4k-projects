@@ -26,15 +26,15 @@ GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이�
 
 ### 통합 모듈 구조
 
-![통합 모듈 구조 1](../../docs/images/readme-diagrams/utils-science-diagram-01.png)
+![science Architecture diagram](../../docs/images/readme-diagrams/utils-science-diagram-01.png)
 
 ### 좌표 변환 흐름
 
-![좌표 변환 흐름 2](../../docs/images/readme-diagrams/utils-science-diagram-02.png)
+![science Architecture 2 diagram](../../docs/images/readme-diagrams/utils-science-diagram-02.png)
 
 ### PostGIS + NetCDF 데이터베이스 스키마
 
-![PostGIS + NetCDF 데이터베이스 스키마 3](../../docs/images/readme-diagrams/utils-science-diagram-03.png)
+![PostGIS + NetCDF diagram](../../docs/images/readme-diagrams/utils-science-diagram-03.png)
 
 ---
 

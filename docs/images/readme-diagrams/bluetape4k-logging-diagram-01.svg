@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1120" viewBox="0 0 1754 1120" role="img" aria-label="Class Hierarchy Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1306" viewBox="0 0 1754 1306" role="img" aria-label="Class Hierarchy Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,99 +20,88 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1120"/>
-<rect class="frame" x="32" y="28" width="1690" height="1064" rx="28"/>
+<rect class="canvas" width="1754" height="1306"/>
+<rect class="frame" x="32" y="28" width="1690" height="1250" rx="28"/>
 <text class="title" x="66" y="82">Class Hierarchy Diagram</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M877 390 C877 349 262 349 262 308"/>
-<path class="dashed" d="M877 390 C877 458 1287 458 1287 526"/>
-<path class="dashed" d="M1082 172 C1082 252 672 252 672 332"/>
-<path class="line" d="M672 332 C672 361 877 361 877 390"/>
-<path class="line" d="M1492 332 C1492 361 877 361 877 390"/>
-<path class="line" d="M877 716 C877 681 877 681 877 646"/>
-<path class="line" d="M877 716 C877 645 467 645 467 574"/>
-<path class="inheritLine" d="M877 716 C877 512 1082 512 1082 308"/>
-<path class="line" d="M1082 308 C1082 349 877 349 877 390"/>
+<path class="dashed" d="M877 452 C877 397 262 397 262 342"/>
+<path class="dashed" d="M877 452 C877 526.5 1287 526.5 1287 601"/>
+<path class="dashed" d="M1082 172 C1082 257 672 257 672 342"/>
+<path class="line" d="M672 342 C672 397 877 397 877 452"/>
+<path class="line" d="M1492 342 C1492 397 877 397 877 452"/>
+<path class="line" d="M877 840 C877 773 877 773 877 706"/>
+<path class="line" d="M877 840 C877 741.5 467 741.5 467 643"/>
+<path class="inheritLine" d="M877 840 C877 580.5 1082 580.5 1082 321"/>
+<path class="line" d="M1082 321 C1082 386.5 877 386.5 877 452"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«utility»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineMDC</text>
-  <text class="mono" x="18" y="108">+withCoroutineLoggingContext(vararg pairs, block)</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineMDC</text>
+  <text class="mono" x="18" y="108">+withCoroutineLoggingContext(vararg pairs,</text>
+<text class="mono" x="18" y="129">block)</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«internalObject»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">KLoggerFactory</text>
+  <text class="label" x="170" y="61" text-anchor="middle">KLoggerFactory</text>
   <text class="mono" x="18" y="108">+logger(clazz: Class~*~) Logger</text>
-<text class="mono" x="18" y="132">+logger(name: String) Logger</text>
+<text class="mono" x="18" y="129">+logger(name: String) Logger</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«openClass»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">KLogging</text>
+  <text class="label" x="170" y="61" text-anchor="middle">KLogging</text>
   <text class="mono" x="18" y="108">+log: Logger (lazy)</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">KotlinLogging</text>
+  <text class="label" x="170" y="61" text-anchor="middle">KotlinLogging</text>
   <text class="mono" x="18" y="108">+logger(block: () -&gt; Unit) Logger</text>
-<text class="mono" x="18" y="132">+logger(name: String) Logger</text>
+<text class="mono" x="18" y="129">+logger(name: String) Logger</text>
 </g>
-<g transform="translate(297,398)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(297,460)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«dataClass_JvmRecord»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">LogEvent</text>
+  <text class="label" x="170" y="61" text-anchor="middle">LogEvent</text>
   <text class="mono" x="18" y="108">+level: Level</text>
-<text class="mono" x="18" y="132">+msg: String?</text>
-<text class="mono" x="18" y="156">+error: Throwable?</text>
+<text class="mono" x="18" y="129">+msg: String?</text>
+<text class="mono" x="18" y="150">+error: Throwable?</text>
 </g>
-<g transform="translate(707,398)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,460)">
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface_SLF4J»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Logger</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Logger</text>
   <text class="mono" x="18" y="108">+isTraceEnabled: Boolean</text>
-<text class="mono" x="18" y="132">+isDebugEnabled: Boolean</text>
-<text class="mono" x="18" y="156">+trace(msg: () -&gt; Any?)</text>
-<text class="mono" x="18" y="180">+debug(msg: () -&gt; Any?)</text>
-<text class="mono" x="18" y="204">+info(msg: () -&gt; Any?)</text>
-<text class="mono" x="18" y="228">+warn(t: Throwable?, msg: () -&gt; Any?)</text>
+<text class="mono" x="18" y="129">+isDebugEnabled: Boolean</text>
+<text class="mono" x="18" y="150">+trace(msg: () -&gt; Any?)</text>
+<text class="mono" x="18" y="171">+debug(msg: () -&gt; Any?)</text>
+<text class="mono" x="18" y="192">+info(msg: () -&gt; Any?)</text>
+<text class="mono" x="18" y="213">+warn(t: Throwable?, msg: () -&gt; Any?)</text>
 </g>
-<g transform="translate(1117,398)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1117,460)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle">«utility»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">MDC</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MDC</text>
   <text class="mono" x="18" y="108">+withLoggingContext(vararg pairs, block)</text>
 </g>
-<g transform="translate(707,724)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(707,848)">
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle">«openClass»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">KLoggingChannel</text>
+  <text class="label" x="170" y="61" text-anchor="middle">KLoggingChannel</text>
   <text class="mono" x="18" y="108">-sharedFlow: MutableSharedFlow~LogEvent~</text>
-<text class="mono" x="18" y="132">-scope: CoroutineScope</text>
-<text class="mono" x="18" y="156">-job: Job (lazy)</text>
-<text class="mono" x="18" y="180">+send(event: LogEvent)</text>
-<text class="mono" x="18" y="204">+trace(error, msg)</text>
-<text class="mono" x="18" y="228">+debug(error, msg)</text>
+<text class="mono" x="18" y="129">-scope: CoroutineScope</text>
+<text class="mono" x="18" y="150">-job: Job (lazy)</text>
+<text class="mono" x="18" y="171">+send(event: LogEvent)</text>
+<text class="mono" x="18" y="192">+trace(error, msg)</text>
+<text class="mono" x="18" y="213">+debug(error, msg)</text>
 </g>
-<rect x="921.5" y="334" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="979.5" y="352" text-anchor="middle">static log proper.</text>
-<rect x="614" y="630" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="672" y="648" text-anchor="middle">publishes events</text>
-<rect x="819" y="666" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="877" y="684" text-anchor="middle">writes in backgro.</text>
-<rect x="1126.5" y="346" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1184.5" y="364" text-anchor="middle">factory creation</text>
-<rect x="1024" y="443" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1082" y="461" text-anchor="middle">regular blocking.</text>
-<rect x="511.5" y="334" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="569.5" y="352" text-anchor="middle">coroutine context</text>
 </svg>

@@ -24,12 +24,12 @@
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
 <text class="title" x="66" y="82">Layer Structure</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 386 C522 469 522 469 522 552"/>
-<path class="line" d="M522 386 C522 386 856 386 856 386"/>
-<path class="line" d="M188 386 C188 386 522 386 522 386"/>
-<path class="line" d="M856 220 C856 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M522 446 C522 469 522 469 522 492"/>
+<path class="line" d="M672 386 C672 386 706 386 706 386"/>
+<path class="line" d="M338 386 C338 386 372 386 372 386"/>
+<path class="line" d="M706 220 C706 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Hibernate ORM</text>
@@ -38,7 +38,7 @@
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
   <text class="smallLabel" x="140" y="21" text-anchor="middle">Lettuce Near Cache</text>
 <text class="smallLabel" x="140" y="47" text-anchor="middle">Region Factory</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Implements</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Implements Region</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
@@ -50,12 +50,12 @@
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
   <text class="smallLabel" x="140" y="21" text-anchor="middle">Lettuce Near Cache</text>
 <text class="smallLabel" x="140" y="47" text-anchor="middle">Storage Access</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Implements</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Implements Domain</text>
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">LettuceNearCache 2-tier</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">cache</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">LettuceNearCache</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">2-tier cache</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>

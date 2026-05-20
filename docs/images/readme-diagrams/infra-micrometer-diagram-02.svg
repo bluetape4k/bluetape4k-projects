@@ -24,18 +24,18 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Metric Collection Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 386 C522 469 856 469 856 552"/>
-<path class="line" d="M522 386 C522 469 522 469 522 552"/>
-<path class="line" d="M522 386 C522 386 1190 386 1190 386"/>
-<path class="line" d="M856 386 C856 386 522 386 522 386"/>
-<path class="line" d="M188 386 C188 386 522 386 522 386"/>
-<path class="line" d="M1190 220 C1190 303 522 303 522 386"/>
-<path class="line" d="M856 220 C856 303 856 303 856 386"/>
-<path class="line" d="M522 220 C522 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M672 386 C672 469 706 469 706 552"/>
+<path class="line" d="M522 446 C522 469 522 469 522 492"/>
+<path class="line" d="M672 386 C672 386 1040 386 1040 386"/>
+<path class="line" d="M706 386 C706 386 672 386 672 386"/>
+<path class="line" d="M338 386 C338 386 372 386 372 386"/>
+<path class="line" d="M1040 220 C1040 303 672 303 672 386"/>
+<path class="line" d="M856 280 C856 303 856 303 856 326"/>
+<path class="line" d="M522 280 C522 303 522 303 522 326"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application</text>
@@ -48,8 +48,9 @@
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Observation Extensions</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">withObservation</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Observation</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Extensions</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">withObservation</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>

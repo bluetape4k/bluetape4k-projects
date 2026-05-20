@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="988" viewBox="0 0 1754 988" role="img" aria-label="Architecture">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1219" viewBox="0 0 1754 1219" role="img" aria-label="pulsar Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,89 +20,94 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="988"/>
-<rect class="frame" x="32" y="28" width="1690" height="932" rx="28"/>
-<text class="title" x="66" y="82">Architecture</text>
+<rect class="canvas" width="1754" height="1219"/>
+<rect class="frame" x="32" y="28" width="1690" height="1163" rx="28"/>
+<text class="title" x="66" y="82">pulsar Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M877 680 C877 639 1492 639 1492 598"/>
-<path class="line" d="M672 172 C672 276 262 276 262 380"/>
-<path class="line" d="M672 438 C672 530 262 530 262 622"/>
-<path class="line" d="M1082 598 C1082 639 877 639 877 680"/>
-<path class="line" d="M1082 438 C1082 385 672 385 672 332"/>
-<path class="line" d="M1082 438 C1082 518 672 518 672 598"/>
+<path class="line" d="M877 816 C877 750.5 1492 750.5 1492 685"/>
+<path class="line" d="M672 172 C672 288.5 262 288.5 262 405"/>
+<path class="line" d="M672 515 C672 610.5 262 610.5 262 706"/>
+<path class="line" d="M1082 706 C1082 761 877 761 877 816"/>
+<path class="line" d="M1082 515 C1082 439 672 439 672 363"/>
+<path class="line" d="M1082 515 C1082 610.5 672 610.5 672 706"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ConsumerExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ConsumerExtensions</text>
   <text class="mono" x="18" y="108">+Consumer.receiveSuspend()</text>
-<text class="mono" x="18" y="132">+Consumer.receiveAsFlow()</text>
-<text class="mono" x="18" y="156">+Consumer.acknowledgeSuspend(message)</text>
-<text class="mono" x="18" y="180">+Consumer.acknowledgeCumulativeSuspend(message)</text>
+<text class="mono" x="18" y="129">+Consumer.receiveAsFlow()</text>
+<text class="mono" x="18" y="150">+Consumer.acknowledgeSuspend(message)</text>
+<text class="mono" x="18" y="171">+Consumer.acknowledge Cumulative</text>
+<text class="mono" x="18" y="192">Suspend(message)</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ConsumerSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ConsumerSupport</text>
   <text class="mono" x="18" y="108">+PulsarClient.consumer(schema, setup)</text>
-<text class="mono" x="18" y="132">+PulsarClient.withConsumer(schema, setup, block)</text>
+<text class="mono" x="18" y="129">+PulsarClient.withConsumer(schema, setup,</text>
+<text class="mono" x="18" y="150">block)</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Jackson3Schema</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Jackson3Schema</text>
   <text class="mono" x="18" y="108">+jackson3Schema~T~(type, mapper)</text>
-<text class="mono" x="18" y="132">+jackson3Schema~T~(mapper)</text>
+<text class="mono" x="18" y="129">+jackson3Schema~T~(mapper)</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JacksonSchema</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JacksonSchema</text>
   <text class="mono" x="18" y="108">+jacksonSchema~T~(type, mapper)</text>
-<text class="mono" x="18" y="132">+jacksonSchema~T~(mapper)</text>
+<text class="mono" x="18" y="129">+jacksonSchema~T~(mapper)</text>
 </g>
-<g transform="translate(92,446)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(92,523)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ProducerExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ProducerExtensions</text>
   <text class="mono" x="18" y="108">+Producer.sendSuspend(message)</text>
-<text class="mono" x="18" y="132">+Producer.sendSuspend(setup)</text>
-<text class="mono" x="18" y="156">+Producer.sendAsFlow(messages)</text>
+<text class="mono" x="18" y="129">+Producer.sendSuspend(setup)</text>
+<text class="mono" x="18" y="150">+Producer.sendAsFlow(messages)</text>
 </g>
-<g transform="translate(502,446)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(502,523)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ProducerSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ProducerSupport</text>
   <text class="mono" x="18" y="108">+PulsarClient.producer(schema, setup)</text>
-<text class="mono" x="18" y="132">+PulsarClient.withProducer(schema, setup, block)</text>
+<text class="mono" x="18" y="129">+PulsarClient.withProducer(schema, setup,</text>
+<text class="mono" x="18" y="150">block)</text>
 </g>
-<g transform="translate(912,446)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(912,523)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">PulsarClient</text>
+  <text class="label" x="170" y="61" text-anchor="middle">PulsarClient</text>
   <text class="mono" x="18" y="108">+pulsarClient(serviceUrl, setup)</text>
-<text class="mono" x="18" y="132">+withPulsarClient(serviceUrl, setup, block)</text>
+<text class="mono" x="18" y="129">+withPulsarClient(serviceUrl, setup,</text>
+<text class="mono" x="18" y="150">block)</text>
 </g>
-<g transform="translate(1322,446)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(1322,523)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ReaderExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ReaderExtensions</text>
   <text class="mono" x="18" y="108">+Reader.readNextSuspend()</text>
-<text class="mono" x="18" y="132">+Reader.readAsFlow()</text>
+<text class="mono" x="18" y="129">+Reader.readAsFlow()</text>
 </g>
-<g transform="translate(707,688)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(707,824)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">ReaderSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ReaderSupport</text>
   <text class="mono" x="18" y="108">+PulsarClient.reader(schema, setup)</text>
-<text class="mono" x="18" y="132">+PulsarClient.withReader(schema, setup, block)</text>
+<text class="mono" x="18" y="129">+PulsarClient.withReader(schema, setup,</text>
+<text class="mono" x="18" y="150">block)</text>
 </g>
 </svg>

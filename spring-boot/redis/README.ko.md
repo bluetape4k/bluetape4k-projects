@@ -106,11 +106,11 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 ### Redis Serializer 클래스 계층
 
-![Redis Serializer 클래스 계층 1](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
+![Redis Serializer diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
 
 ### ReactiveRedisTemplate 직렬화 흐름
 
-![ReactiveRedisTemplate 직렬화 흐름 2](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
+![ReactiveRedisTemplate diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
 
 ## 빌드 및 테스트
 

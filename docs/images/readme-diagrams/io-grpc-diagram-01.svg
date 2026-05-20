@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="998" height="1036" viewBox="0 0 998 1036" role="img" aria-label="Class Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="998" height="1246" viewBox="0 0 998 1246" role="img" aria-label="Class Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,57 +20,57 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="998" height="1036"/>
-<rect class="frame" x="32" y="28" width="934" height="980" rx="28"/>
+<rect class="canvas" width="998" height="1246"/>
+<rect class="frame" x="32" y="28" width="934" height="1190" rx="28"/>
 <text class="title" x="66" y="82">Class Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="inheritLine" d="M274 426 C274 391 274 391 274 356"/>
-<path class="inheritLine" d="M499 704 C499 669 724 669 724 634"/>
-<path class="implLine" d="M724 426 C724 391 724 391 724 356"/>
+<path class="inheritLine" d="M274 497 C274 430 274 430 274 363"/>
+<path class="inheritLine" d="M499 843 C499 776 724 776 724 709"/>
+<path class="implLine" d="M724 497 C724 430 724 430 724 363"/>
 <g transform="translate(84,180)">
-  <rect class="card" x="0" y="0" width="380" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="57" text-anchor="middle">AbstractGrpcClient</text>
+  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcClient</text>
   <text class="mono" x="18" y="108">#channel: ManagedChannel?</text>
-<text class="mono" x="18" y="132">+connect()</text>
-<text class="mono" x="18" y="156">+close()</text>
+<text class="mono" x="18" y="129">+connect()</text>
+<text class="mono" x="18" y="150">+close()</text>
 </g>
 <g transform="translate(534,180)">
-  <rect class="card" x="0" y="0" width="380" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#58A978"/>
   <text class="small" x="190" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="190" y="57" text-anchor="middle">GrpcServer</text>
+  <text class="label" x="190" y="61" text-anchor="middle">GrpcServer</text>
   <text class="mono" x="18" y="108">+start()</text>
-<text class="mono" x="18" y="132">+stop()</text>
-<text class="mono" x="18" y="156">+blockUntilShutdown()</text>
+<text class="mono" x="18" y="129">+stop()</text>
+<text class="mono" x="18" y="150">+blockUntilShutdown()</text>
 </g>
-<g transform="translate(84,434)">
-  <rect class="card" x="0" y="0" width="380" height="168" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(84,505)">
+  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#D6A441"/>
   <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="57" text-anchor="middle">AbstractGrpcInprocessClient</text>
+  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcInprocessClient</text>
   <text class="mono" x="18" y="108">#serverName: String</text>
-<text class="mono" x="18" y="132">+connect()</text>
-<text class="mono" x="18" y="156">+close()</text>
+<text class="mono" x="18" y="129">+connect()</text>
+<text class="mono" x="18" y="150">+close()</text>
 </g>
-<g transform="translate(534,434)">
-  <rect class="card" x="0" y="0" width="380" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(534,505)">
+  <rect class="card" x="0" y="0" width="380" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#DC6B82"/>
   <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="57" text-anchor="middle">AbstractGrpcServer</text>
+  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcServer</text>
   <text class="mono" x="18" y="108">#server: Server?</text>
-<text class="mono" x="18" y="132">+start()</text>
-<text class="mono" x="18" y="156">+stop()</text>
-<text class="mono" x="18" y="180">+blockUntilShutdown()</text>
+<text class="mono" x="18" y="129">+start()</text>
+<text class="mono" x="18" y="150">+stop()</text>
+<text class="mono" x="18" y="171">+blockUntilShutdown()</text>
 </g>
-<g transform="translate(309,712)">
-  <rect class="card" x="0" y="0" width="380" height="168" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(309,851)">
+  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#45A7A1"/>
   <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="57" text-anchor="middle">AbstractGrpcInprocessServer</text>
+  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcInprocessServer</text>
   <text class="mono" x="18" y="108">#serverName: String</text>
-<text class="mono" x="18" y="132">+start()</text>
-<text class="mono" x="18" y="156">+stop()</text>
+<text class="mono" x="18" y="129">+start()</text>
+<text class="mono" x="18" y="150">+stop()</text>
 </g>
 </svg>

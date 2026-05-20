@@ -355,11 +355,11 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### OpenTelemetry 핵심 클래스 구조
 
-![OpenTelemetry 핵심 클래스 구조 1](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
+![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
 
 ### OpenTelemetry 구성 요소
 
-![OpenTelemetry 구성 요소 2](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
+![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
 
 ### Span 생명주기 (Coroutines 환경)
 
@@ -367,7 +367,7 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 
 ### 분산 추적 전파 흐름
 
-![분산 추적 전파 흐름 3](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
+![opentelemetry Architecture 4 diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
 
 ## 테스트 전략
 

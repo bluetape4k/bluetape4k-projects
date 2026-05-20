@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="928" viewBox="0 0 1754 928" role="img" aria-label="Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1138" viewBox="0 0 1754 1138" role="img" aria-label="Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,66 +20,60 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="928"/>
-<rect class="frame" x="32" y="28" width="1690" height="872" rx="28"/>
+<rect class="canvas" width="1754" height="1138"/>
+<rect class="frame" x="32" y="28" width="1690" height="1082" rx="28"/>
 <text class="title" x="66" y="82">Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M262 356 C262 397 877 397 877 438"/>
-<path class="line" d="M262 172 C262 240 672 240 672 308"/>
-<path class="line" d="M262 172 C262 240 1492 240 1492 308"/>
-<path class="line" d="M877 644 C877 500 262 500 262 356"/>
-<path class="implLine" d="M877 644 C877 512 1082 512 1082 380"/>
+<path class="line" d="M262 363 C262 428.5 877 428.5 877 494"/>
+<path class="line" d="M262 172 C262 246.5 672 246.5 672 321"/>
+<path class="line" d="M262 172 C262 246.5 1492 246.5 1492 321"/>
+<path class="line" d="M877 777 C877 570 262 570 262 363"/>
+<path class="implLine" d="M877 777 C877 580.5 1082 580.5 1082 384"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«singleton»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Jackson</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Jackson</text>
   <text class="mono" x="18" y="108">+defaultJsonMapper: JsonMapper</text>
-<text class="mono" x="18" y="132">+prettyJsonWriter: ObjectWriter</text>
-<text class="mono" x="18" y="156">+createDefaultJsonMapper() JsonMapper</text>
+<text class="mono" x="18" y="129">+prettyJsonWriter: ObjectWriter</text>
+<text class="mono" x="18" y="150">+createDefaultJsonMapper() JsonMapper</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JsonMaskerModule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JsonMaskerModule</text>
   <text class="mono" x="18" y="108">+setupModule(context)</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">JsonSerializer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JsonSerializer</text>
   <text class="mono" x="18" y="108">+serialize(graph) ByteArray</text>
-<text class="mono" x="18" y="132">+deserialize(bytes, clazz) T?</text>
-<text class="mono" x="18" y="156">+serializeAsString(graph) String</text>
-<text class="mono" x="18" y="180">+deserializeFromString(text, clazz) T?</text>
+<text class="mono" x="18" y="129">+deserialize(bytes, clazz) T?</text>
+<text class="mono" x="18" y="150">+serializeAsString(graph) String</text>
+<text class="mono" x="18" y="171">+deserializeFromString(text, clazz) T?</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JsonTinkEncryptModule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JsonTinkEncryptModule</text>
   <text class="mono" x="18" y="108">+setupModule(context)</text>
 </g>
-<g transform="translate(707,446)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,502)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JsonUuidModule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JsonUuidModule</text>
   <text class="mono" x="18" y="108">+setupModule(context)</text>
 </g>
-<g transform="translate(707,652)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,785)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JacksonSerializer</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JacksonSerializer</text>
   <text class="mono" x="18" y="108">-mapper: ObjectMapper</text>
 </g>
-<rect x="819" y="225" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="877" y="243" text-anchor="middle">registers</text>
-<rect x="409" y="225" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="467" y="243" text-anchor="middle">registers</text>
-<rect x="511.5" y="382" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="569.5" y="400" text-anchor="middle">registers</text>
 </svg>

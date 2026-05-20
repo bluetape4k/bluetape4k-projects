@@ -8,15 +8,15 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ### 컨테이너 생명주기 다이어그램
 
-![testcontainers diagram diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-01.png)
+![testcontainers Sequence Flow diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-01.png)
 
 ### 지원 컨테이너 클래스 다이어그램
 
-![지원 컨테이너 클래스 다이어그램 1](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
+![testcontainers Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-01.png)
 
 ### 지원 컨테이너 구조
 
-![지원 컨테이너 구조 2](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
+![testcontainers Architecture 3 diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ## 주요 기능
 
@@ -314,7 +314,7 @@ client.use {
 
 ### 카오스 테스트 (Toxiproxy)
 
-![Test (Toxiproxy) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)
+![(Toxiproxy) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)
 
 - `RedisServer`는 실제 Upstream 서버입니다.
 - `ToxiproxyServer`는 프록시 컨테이너입니다. Control API 포트(`8474`)와 프록시 포트 범위(`8666~8697`)를 노출합니다.

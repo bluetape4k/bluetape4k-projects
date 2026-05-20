@@ -28,15 +28,15 @@
 
 ### 요청 라우팅 개요
 
-![요청 라우팅 개요 1](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.png)
+![mock webflux server Architecture diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
+![mock webflux server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 
-![— httpbin GET Request diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-sequence-01.png)
+![— httpbin GET diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-sequence-01.png)
 
 ## Features
 

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="976" viewBox="0 0 1754 976" role="img" aria-label="Class Hierarchy: Feign + Coroutines">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1180" viewBox="0 0 1754 1180" role="img" aria-label="Class Hierarchy: Feign + Coroutines">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,91 +20,85 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="976"/>
-<rect class="frame" x="32" y="28" width="1690" height="920" rx="28"/>
+<rect class="canvas" width="1754" height="1180"/>
+<rect class="frame" x="32" y="28" width="1690" height="1124" rx="28"/>
 <text class="title" x="66" y="82">Class Hierarchy: Feign + Coroutines</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M262 668 C262 476 1492 476 1492 284"/>
-<path class="implLine" d="M672 668 C672 633 877 633 877 598"/>
-<path class="implLine" d="M1082 668 C1082 476 1492 476 1492 284"/>
-<path class="implLine" d="M1492 668 C1492 633 877 633 877 598"/>
-<path class="line" d="M672 172 C672 228 1492 228 1492 284"/>
-<path class="line" d="M672 428 C672 457 877 457 877 486"/>
-<path class="line" d="M672 172 C672 228 262 228 262 284"/>
+<path class="implLine" d="M262 798 C262 549 1492 549 1492 300"/>
+<path class="implLine" d="M672 798 C672 731 877 731 877 664"/>
+<path class="implLine" d="M1082 798 C1082 549 1492 549 1492 300"/>
+<path class="implLine" d="M1492 798 C1492 731 877 731 877 664"/>
+<path class="line" d="M672 172 C672 236 1492 236 1492 300"/>
+<path class="line" d="M672 426 C672 481 877 481 877 536"/>
+<path class="line" d="M672 172 C672 236 262 236 262 300"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">AsyncClient</text>
+  <text class="label" x="170" y="61" text-anchor="middle">AsyncClient</text>
 
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineBuilder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineBuilder</text>
   <text class="mono" x="18" y="108">+client(asyncClient) CoroutineBuilder</text>
-<text class="mono" x="18" y="132">+encoder(encoder) CoroutineBuilder</text>
-<text class="mono" x="18" y="156">+decoder(decoder) CoroutineBuilder</text>
-<text class="mono" x="18" y="180">+options(options) CoroutineBuilder</text>
-<text class="mono" x="18" y="204">+logLevel(level) CoroutineBuilder</text>
-<text class="mono" x="18" y="228">+target(type, url) T</text>
+<text class="mono" x="18" y="129">+encoder(encoder) CoroutineBuilder</text>
+<text class="mono" x="18" y="150">+decoder(decoder) CoroutineBuilder</text>
+<text class="mono" x="18" y="171">+options(options) CoroutineBuilder</text>
+<text class="mono" x="18" y="192">+logLevel(level) CoroutineBuilder</text>
+<text class="mono" x="18" y="213">+target(type, url) T</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«feign_kotlin»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineFeign</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineFeign</text>
 
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Decoder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Decoder</text>
 
 </g>
-<g transform="translate(707,494)">
-  <rect class="card" x="0" y="0" width="340" height="96" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,544)">
+  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Encoder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Encoder</text>
 
 </g>
-<g transform="translate(92,676)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(92,806)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">FeignFastjsonDecoder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">FeignFastjsonDecoder</text>
   <text class="mono" x="18" y="108">+decode(response, type) Any?</text>
 </g>
-<g transform="translate(502,676)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(502,806)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">FeignFastjsonEncoder</text>
+  <text class="label" x="170" y="61" text-anchor="middle">FeignFastjsonEncoder</text>
   <text class="mono" x="18" y="108">+encode(object, bodyType, template)</text>
 </g>
-<g transform="translate(912,676)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(912,806)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JacksonDecoder2</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JacksonDecoder2</text>
   <text class="mono" x="18" y="108">-mapper: JsonMapper</text>
-<text class="mono" x="18" y="132">+decode(response, type) Any?</text>
+<text class="mono" x="18" y="129">+decode(response, type) Any?</text>
 </g>
-<g transform="translate(1322,676)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+<g transform="translate(1322,806)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">JacksonEncoder2</text>
+  <text class="label" x="170" y="61" text-anchor="middle">JacksonEncoder2</text>
   <text class="mono" x="18" y="108">-mapper: JsonMapper</text>
-<text class="mono" x="18" y="132">+encode(object, bodyType, template)</text>
+<text class="mono" x="18" y="129">+encode(object, bodyType, template)</text>
 </g>
-<rect x="409" y="213" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="467" y="231" text-anchor="middle">configures</text>
-<rect x="716.5" y="442" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="774.5" y="460" text-anchor="middle">configures</text>
-<rect x="1024" y="213" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1082" y="231" text-anchor="middle">configures</text>
 </svg>

@@ -236,11 +236,11 @@ USD.isCurrencyConversionAvailable    // true
 
 ## 클래스 다이어그램
 
-![클래스 다이어그램 1](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
+![money Class Structure diagram](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
 
 ## 통화 연산 흐름
 
-![통화 연산 흐름 2](../../docs/images/readme-diagrams/utils-money-diagram-02.png)
+![money Architecture 2 diagram](../../docs/images/readme-diagrams/utils-money-diagram-02.png)
 
 > **참고**: 환전 작업은 정확성을 위해 `Money`를 사용하는 것을 권장합니다.
 > `FastMoney`는 기본 스케일이 5이므로, 소수점 5자리 이하의 값은 손실될 수 있습니다.

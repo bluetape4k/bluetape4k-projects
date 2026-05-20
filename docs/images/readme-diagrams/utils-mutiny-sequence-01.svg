@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="606" viewBox="0 0 1040 606" role="img" aria-label="Coroutine Interop Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1078" height="706" viewBox="0 0 1078 706" role="img" aria-label="Coroutine Interop Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,27 +20,26 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1040" height="606"/>
-<rect class="frame" x="32" y="28" width="976" height="550" rx="28"/>
+<rect class="canvas" width="1078" height="706"/>
+<rect class="frame" x="32" y="28" width="1014" height="650" rx="28"/>
 <text class="title" x="66" y="82">Coroutine Interop Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">CoroutineScope</text>
-<line x1="140" y1="252" x2="140" y2="546" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="415" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="520" y="209" text-anchor="middle">Uni~T~</text>
-<line x1="520" y1="252" x2="520" y2="546" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="795" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="900" y="209" text-anchor="middle">Subscriber</text>
-<line x1="900" y1="252" x2="900" y2="546" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. asUni { suspend block }</text>
-<path class="line" d="M140 310 L520 310"/>
-<rect x="538" y="352" width="344" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="554" y="379" text-anchor="start">2. onItem(result)</text>
-<path class="line" d="M520 392 L900 392"/>
-<rect x="918" y="434" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="934" y="461" text-anchor="start">3. await().at</text>
-<text class="strong" x="934" y="484" text-anchor="start">Most(5.seconds)</text>
-<path class="line" d="M900 474 C956 474 956 504 900 504"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="646" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="424" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="539" y="209" text-anchor="middle">Uni~T~</text>
+<line class="lifeline" x1="539" y1="252" x2="539" y2="646" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="823" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="938" y="209" text-anchor="middle">Subscriber</text>
+<line class="lifeline" x1="938" y1="252" x2="938" y2="646" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="216.5" y="286" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="234.5" y="313" text-anchor="start">1. asUni { suspend block }</text>
+<path class="line" d="M140 344 L539 344"/>
+<rect x="633.5" y="396" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="651.5" y="423" text-anchor="start">2. onItem(result)</text>
+<path class="line" d="M539 454 L938 454"/>
+<rect x="756" y="506" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="774" y="533" text-anchor="start">3. await().atMost(5.seconds)</text>
+<path class="line" d="M938 564 C1002 564 1002 598 938 598"/>
 </svg>

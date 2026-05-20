@@ -32,7 +32,7 @@
 </defs>
 <rect class="canvas" width="1600" height="1050"/>
 <rect class="frame" x="46" y="34" width="1508" height="982" rx="32"/>
-<text class="title" x="86" y="98">3. HttpClientCompressionCacheBenchmark — Cach.</text>
+<text class="title" x="86" y="98">HTTP Cache Benchmark</text>
 <text class="subtitle" x="90" y="132">Pastel architecture infographic generated from README Mermaid</text>
 <rect class="chip" x="1010" y="64" width="130" height="36" fill="#e8f3ff" stroke="#5b8def"/>
 <text class="chipText" x="1075" y="88" text-anchor="middle">layer</text>
@@ -42,7 +42,7 @@
 <text class="chipText" x="1371" y="88" text-anchor="middle">flow</text>
 <g transform="translate(160,250)">
   <rect class="card" x="0" y="0" width="380" height="118" rx="14" fill="#e8f3ff" stroke="#5b8def"/>
-  <text class="smallLabel" x="190" y="54" text-anchor="middle">HTTP Cache (ops / s, @Threads.</text>
+  <text class="smallLabel" x="190" y="54" text-anchor="middle">HTTP Cache Benchmark</text>
   <text class="small" x="190" y="84" text-anchor="middle">entry</text>
 </g>
 <g transform="translate(610,250)">

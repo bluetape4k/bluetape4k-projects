@@ -10,34 +10,34 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 세 가지 핵심 구성 요소와 상호 작용:
 
-![개념 개요 1](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
+![rule engine Architecture diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-01.png)
 
 `Rule`은 **condition** (`Facts` 검사 Predicate)과 **action** (`Facts` 수정 함수)으로 구성됩니다.  
 `RuleEngine.fire()`는 우선순위 순으로 Rule을 순회하며 조건을 평가하고, 만족하는 Rule의 Action을 실행합니다.
 
 ### 핵심 클래스 다이어그램
 
-![핵심 클래스 다이어그램 2](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
+![rule engine Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
 
 ### Rule Engine 클래스 다이어그램
 
-![Rule Engine 클래스 다이어그램 3](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
+![Rule Engine diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-03.png)
 
 ### Composite Rule 다이어그램
 
-![Composite Rule 다이어그램 4](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.png)
+![Composite Rule diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-04.png)
 
 ### Rule 실행 시퀀스
 
-![Rule Execution diagram](../../docs/images/readme-diagrams/utils-rule-engine-sequence-01.png)
+![Rule diagram](../../docs/images/readme-diagrams/utils-rule-engine-sequence-01.png)
 
 ### InferenceRuleEngine (Forward Chaining)
 
-![InferenceRuleEngine (Forward Chaining) 5](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.png)
+![InferenceRuleEngine (Forward Chaining) diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-05.png)
 
 ### Rule Engine 선택 가이드
 
-![Rule Engine 선택 가이드 6](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.png)
+![Rule Engine diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-06.png)
 
 ## 핵심 기능
 
@@ -187,7 +187,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### 스크립트 엔진 선택 가이드
 
-![스크립트 엔진 선택 가이드 7](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.png)
+![rule engine Architecture 8 diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.png)
 
 | 시나리오 | 추천 엔진 | 이유 |
 |---------|---------|------|

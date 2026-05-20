@@ -24,16 +24,16 @@
 <rect class="frame" x="32" y="28" width="980" height="636" rx="28"/>
 <text class="title" x="66" y="82">Batch / Transaction Processing Flow</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 552 C856 469 856 469 856 386"/>
-<path class="line" d="M856 552 C856 469 856 469 856 386"/>
-<path class="line" d="M522 552 C522 552 856 552 856 552"/>
-<path class="line" d="M188 552 C188 552 522 552 522 552"/>
-<path class="line" d="M856 386 C856 303 188 303 188 220"/>
-<path class="line" d="M856 220 C856 303 856 303 856 386"/>
-<path class="line" d="M522 220 C522 303 522 303 522 386"/>
-<path class="line" d="M522 220 C522 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M856 492 C856 469 856 469 856 446"/>
+<path class="line" d="M856 492 C856 469 856 469 856 446"/>
+<path class="line" d="M672 552 C672 552 706 552 706 552"/>
+<path class="line" d="M338 552 C338 552 372 552 372 552"/>
+<path class="line" d="M706 386 C706 303 338 303 338 220"/>
+<path class="line" d="M856 280 C856 303 856 303 856 326"/>
+<path class="line" d="M522 280 C522 303 522 303 522 326"/>
+<path class="line" d="M372 220 C372 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application</text>
@@ -48,8 +48,8 @@
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">atomic Long.increment</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Async</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">atomic</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Long.increment Async</text>
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
@@ -57,7 +57,8 @@
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Redis Pipeline execution</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Redis Pipeline</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">execution</text>
 </g>
 <g transform="translate(48,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
@@ -71,14 +72,4 @@
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Transaction ops</text>
 </g>
-<text class="small" x="355" y="212" text-anchor="middle">withBatch</text>
-<text class="small" x="689" y="212" text-anchor="middle">setAsync</text>
-<text class="small" x="355" y="295" text-anchor="middle">incrementAndGetAs.</text>
-<text class="small" x="522" y="295" text-anchor="middle">putAsync</text>
-<text class="small" x="856" y="295" text-anchor="middle">execute</text>
-<text class="small" x="522" y="295" text-anchor="middle">BatchResult</text>
-<text class="small" x="355" y="544" text-anchor="middle">withSuspendedTran.</text>
-<text class="small" x="689" y="544" text-anchor="middle">set/put operations</text>
-<text class="small" x="856" y="461" text-anchor="middle">on success: commi.</text>
-<text class="small" x="856" y="461" text-anchor="middle">on exception: rol.</text>
 </svg>

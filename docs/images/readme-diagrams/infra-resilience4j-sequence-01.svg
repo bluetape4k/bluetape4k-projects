@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1430" height="1590" viewBox="0 0 1430 1590" role="img" aria-label="CircuitBreaker + Retry Combination Sequence Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="2456" viewBox="0 0 1780 2456" role="img" aria-label="CircuitBreaker + Retry Combination Sequence Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,70 +20,81 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1430" height="1590"/>
-<rect class="frame" x="32" y="28" width="1366" height="1534" rx="28"/>
+<rect class="canvas" width="1780" height="2456"/>
+<rect class="frame" x="32" y="28" width="1716" height="2400" rx="28"/>
 <text class="title" x="66" y="82">CircuitBreaker + Retry Combination Sequence Diagram</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="8" y="166" width="264" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line x1="140" y1="252" x2="140" y2="1530" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="322.5" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="427.5" y="209" text-anchor="middle">SuspendDecorators</text>
-<line x1="427.5" y1="252" x2="427.5" y2="1530" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="610" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="715" y="209" text-anchor="middle">Retry</text>
-<line x1="715" y1="252" x2="715" y2="1530" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="897.5" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1002.5" y="209" text-anchor="middle">CircuitBreaker</text>
-<line x1="1002.5" y1="252" x2="1002.5" y2="1530" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1185" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1290" y="209" text-anchor="middle">Service</text>
-<line x1="1290" y1="252" x2="1290" y2="1530" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="251.5" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. ofSupplier { service.call() }.with</text>
-<text class="strong" x="174" y="320" text-anchor="start">Circuit Breaker(cb).with</text>
-<path class="line" d="M140 310 L427.5 310"/>
-<rect x="445.5" y="352" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="379" text-anchor="start">2. executeSuspendFunction</text>
-<path class="line" d="M427.5 392 L1002.5 392"/>
-<rect x="1020.5" y="434" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="461" text-anchor="start">3. call()</text>
-<path class="line" d="M1002.5 474 L1290 474"/>
-<rect x="1020.5" y="516" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="543" text-anchor="start">4. result</text>
-<path class="dashed" d="M1290 556 L1002.5 556"/>
-<rect x="445.5" y="598" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="625" text-anchor="start">5. result (success recorded)</text>
-<path class="dashed" d="M1002.5 638 L427.5 638"/>
-<rect x="158" y="680" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="707" text-anchor="start">6. result</text>
-<path class="dashed" d="M427.5 720 L140 720"/>
-<rect x="1020.5" y="762" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="789" text-anchor="start">7. Exception</text>
-<path class="dashed" d="M1290 802 L1002.5 802"/>
-<rect x="733" y="844" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="749" y="871" text-anchor="start">8. Exception (failure recorded)</text>
-<path class="dashed" d="M1002.5 884 L715 884"/>
-<rect x="733" y="926" width="190" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="749" y="953" text-anchor="start">9. Wait waitDuration</text>
-<text class="strong" x="749" y="976" text-anchor="start">and retry</text>
-<path class="line" d="M715 966 C771 966 771 996 715 996"/>
-<rect x="445.5" y="1008" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1035" text-anchor="start">10. CallNotPermittedException</text>
-<path class="dashed" d="M1002.5 1048 L427.5 1048"/>
-<rect x="158" y="1090" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1117" text-anchor="start">11. CallNotPermittedException</text>
-<path class="dashed" d="M427.5 1130 L140 1130"/>
-<rect x="158" y="1172" width="826.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1199" text-anchor="start">12. Next call (probe)</text>
-<path class="line" d="M140 1212 L1002.5 1212"/>
-<rect x="1020.5" y="1254" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="1281" text-anchor="start">13. call()</text>
-<path class="line" d="M1002.5 1294 L1290 1294"/>
-<rect x="1020.5" y="1336" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="1363" text-anchor="start">14. result</text>
-<path class="dashed" d="M1290 1376 L1002.5 1376"/>
-<rect x="1020.5" y="1418" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1036.5" y="1445" text-anchor="start">15. Exception</text>
-<path class="dashed" d="M1290 1458 L1002.5 1458"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="2396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="383" y="166" width="264" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="515" y="209" text-anchor="middle">SuspendDecorators</text>
+<line class="lifeline" x1="515" y1="252" x2="515" y2="2396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="758" y="166" width="264" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="890" y="209" text-anchor="middle">Retry</text>
+<line class="lifeline" x1="890" y1="252" x2="890" y2="2396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1133" y="166" width="264" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1265" y="209" text-anchor="middle">CircuitBreaker</text>
+<line class="lifeline" x1="1265" y1="252" x2="1265" y2="2396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1508" y="166" width="264" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1640" y="209" text-anchor="middle">Service</text>
+<line class="lifeline" x1="1640" y1="252" x2="1640" y2="2396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="108" y="286" width="439" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="126" y="313" text-anchor="start">1. ofSupplier { service.call()</text>
+<text class="strong" x="126" y="335" text-anchor="start">}.withCircuitBreaker(cb).withRetry(retry).invoke()</text>
+<path class="line" d="M140 366 L515 366"/>
+<rect x="70" y="418" width="1640" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="445" text-anchor="start">LOOP: Retry (up to maxAttempts)</text>
+<rect x="771" y="486" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="789" y="513" text-anchor="start">3. executeSuspendFunction</text>
+<path class="line" d="M515 544 L1265 544"/>
+<rect x="1347.5" y="596" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1365.5" y="623" text-anchor="start">4. call()</text>
+<path class="line" d="M1265 654 L1640 654"/>
+<rect x="70" y="706" width="1640" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="733" text-anchor="start">ALT: Success</text>
+<rect x="1347.5" y="774" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1365.5" y="801" text-anchor="start">6. result</text>
+<path class="dashed" d="M1640 832 L1265 832"/>
+<rect x="759" y="884" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="777" y="911" text-anchor="start">7. result (success recorded)</text>
+<path class="dashed" d="M1265 942 L515 942"/>
+<rect x="222.5" y="994" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="240.5" y="1021" text-anchor="start">8. result</text>
+<path class="dashed" d="M515 1052 L140 1052"/>
+<rect x="70" y="1104" width="1640" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="1131" text-anchor="start">ELSE: Failure (below failure rate threshold)</text>
+<rect x="1347.5" y="1172" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1365.5" y="1199" text-anchor="start">10. Exception</text>
+<path class="dashed" d="M1640 1230 L1265 1230"/>
+<rect x="930.5" y="1282" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="948.5" y="1309" text-anchor="start">11. Exception (failure recorded)</text>
+<path class="dashed" d="M1265 1340 L890 1340"/>
+<rect x="795" y="1392" width="286" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="813" y="1419" text-anchor="start">12. Wait waitDuration and retry</text>
+<path class="line" d="M890 1450 C954 1450 954 1484 890 1484"/>
+<rect x="70" y="1522" width="1640" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="1549" text-anchor="start">ELSE: Failure rate threshold exceeded</text>
+<rect x="755" y="1590" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="773" y="1617" text-anchor="start">14. CallNotPermittedException</text>
+<path class="dashed" d="M1265 1648 L515 1648"/>
+<rect x="192.5" y="1700" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="210.5" y="1727" text-anchor="start">15. CallNotPermittedException</text>
+<path class="dashed" d="M515 1758 L140 1758"/>
+<rect x="597.5" y="1810" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="615.5" y="1837" text-anchor="start">16. Next call (probe)</text>
+<path class="line" d="M140 1868 L1265 1868"/>
+<rect x="1347.5" y="1920" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1365.5" y="1947" text-anchor="start">17. call()</text>
+<path class="line" d="M1265 1978 L1640 1978"/>
+<rect x="70" y="2030" width="1640" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="2057" text-anchor="start">ALT: Probe success</text>
+<rect x="1347.5" y="2098" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1365.5" y="2125" text-anchor="start">19. result</text>
+<path class="dashed" d="M1640 2156 L1265 2156"/>
+<rect x="70" y="2208" width="1640" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="92" y="2235" text-anchor="start">ELSE: Probe failure</text>
+<rect x="1347.5" y="2276" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1365.5" y="2303" text-anchor="start">21. Exception</text>
+<path class="dashed" d="M1640 2334 L1265 2334"/>
 </svg>

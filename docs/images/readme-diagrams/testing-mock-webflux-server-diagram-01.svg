@@ -24,15 +24,15 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Request Routing Overview</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M1190 386 C1190 469 1023 469 1023 552"/>
-<path class="line" d="M856 386 C856 469 355 469 355 552"/>
-<path class="line" d="M522 220 C522 303 1190 303 1190 386"/>
-<path class="line" d="M522 220 C522 303 856 303 856 386"/>
-<path class="line" d="M522 220 C522 303 522 303 522 386"/>
-<path class="line" d="M522 220 C522 303 188 303 188 386"/>
-<path class="line" d="M522 220 C522 220 1190 220 1190 220"/>
-<path class="line" d="M522 220 C522 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M1040 386 C1040 469 1173 469 1173 552"/>
+<path class="line" d="M706 386 C706 469 505 469 505 552"/>
+<path class="line" d="M672 220 C672 303 1040 303 1040 386"/>
+<path class="line" d="M672 220 C672 303 706 303 706 386"/>
+<path class="line" d="M522 280 C522 303 522 303 522 326"/>
+<path class="line" d="M372 220 C372 303 338 303 338 386"/>
+<path class="line" d="M672 220 C672 220 1040 220 1040 220"/>
+<path class="line" d="M672 220 C672 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Client</text>
@@ -57,7 +57,8 @@
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">HttpbinStreamController</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Httpbin Stream</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Controller</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
@@ -70,7 +71,8 @@
 </g>
 <g transform="translate(215,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">JsonplaceholderService</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Jsonplaceholder</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Service</text>
 </g>
 <g transform="translate(549,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -81,5 +83,4 @@
   <text class="smallLabel" x="140" y="33" text-anchor="middle">WebContentLoader</text>
 <text class="smallLabel" x="140" y="59" text-anchor="middle">cacheable</text>
 </g>
-<text class="small" x="355" y="212" text-anchor="middle">HTTP 80</text>
 </svg>

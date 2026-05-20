@@ -24,10 +24,10 @@
 <rect class="frame" x="32" y="28" width="980" height="470" rx="28"/>
 <text class="title" x="66" y="82">2. Order — One-Way FSM</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M355 386 C355 386 689 386 689 386"/>
-<path class="line" d="M522 220 C522 303 355 303 355 386"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M505 386 C505 386 539 386 539 386"/>
+<path class="line" d="M372 220 C372 303 505 303 505 386"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">CREATED</text>

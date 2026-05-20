@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="854" viewBox="0 0 1366 854" role="img" aria-label="Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="984" viewBox="0 0 1366 984" role="img" aria-label="money Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,61 +20,59 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="854"/>
-<rect class="frame" x="32" y="28" width="1302" height="798" rx="28"/>
-<text class="title" x="66" y="82">Class Diagram</text>
+<rect class="canvas" width="1366" height="984"/>
+<rect class="frame" x="32" y="28" width="1302" height="928" rx="28"/>
+<text class="title" x="66" y="82">money Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M263 172 C263 300 1103 300 1103 428"/>
-<path class="line" d="M1103 172 C1103 264 683 264 683 356"/>
-<path class="inheritLine" d="M473 498 C473 463 1103 463 1103 428"/>
-<path class="inheritLine" d="M893 498 C893 463 1103 463 1103 428"/>
+<path class="line" d="M263 172 C263 299 1103 299 1103 426"/>
+<path class="line" d="M1103 172 C1103 267.5 683 267.5 683 363"/>
+<path class="inheritLine" d="M473 560 C473 493 1103 493 1103 426"/>
+<path class="inheritLine" d="M893 560 C893 493 1103 493 1103 426"/>
 <g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">CurrencyConvertor</text>
+  <text class="label" x="175" y="61" text-anchor="middle">CurrencyConvertor</text>
   <text class="mono" x="18" y="108">+getConversion(currency) CurrencyConversion</text>
-<text class="mono" x="18" y="132">+USDConversion: CurrencyConversion</text>
+<text class="mono" x="18" y="129">+USDConversion: CurrencyConversion</text>
 </g>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="168" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">CurrencyUnit</text>
+  <text class="label" x="175" y="61" text-anchor="middle">CurrencyUnit</text>
   <text class="mono" x="18" y="108">+currencyCode: String</text>
-<text class="mono" x="18" y="132">+numericCode: Int</text>
-<text class="mono" x="18" y="156">+defaultFractionDigits: Int</text>
+<text class="mono" x="18" y="129">+numericCode: Int</text>
+<text class="mono" x="18" y="150">+defaultFractionDigits: Int</text>
 </g>
 <g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">MonetaryAmount</text>
+  <text class="label" x="175" y="61" text-anchor="middle">MonetaryAmount</text>
   <text class="mono" x="18" y="108">+currency: CurrencyUnit</text>
-<text class="mono" x="18" y="132">+number: NumberValue</text>
-<text class="mono" x="18" y="156">+add(other) MonetaryAmount</text>
-<text class="mono" x="18" y="180">+subtract(other) MonetaryAmount</text>
-<text class="mono" x="18" y="204">+multiply(n) MonetaryAmount</text>
-<text class="mono" x="18" y="228">+divide(n) MonetaryAmount</text>
+<text class="mono" x="18" y="129">+number: NumberValue</text>
+<text class="mono" x="18" y="150">+add(other) MonetaryAmount</text>
+<text class="mono" x="18" y="171">+subtract(other) MonetaryAmount</text>
+<text class="mono" x="18" y="192">+multiply(n) MonetaryAmount</text>
+<text class="mono" x="18" y="213">+divide(n) MonetaryAmount</text>
 </g>
-<g transform="translate(298,506)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(298,568)">
+  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">FastMoney</text>
+  <text class="label" x="175" y="61" text-anchor="middle">FastMoney</text>
   <text class="mono" x="18" y="108">-amount: Long</text>
-<text class="mono" x="18" y="132">+of(amount, currency) FastMoney</text>
+<text class="mono" x="18" y="129">+of(amount, currency) FastMoney</text>
 </g>
-<g transform="translate(718,506)">
-  <rect class="card" x="0" y="0" width="350" height="192" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(718,568)">
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">Money</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Money</text>
   <text class="mono" x="18" y="108">-amount: BigDecimal</text>
-<text class="mono" x="18" y="132">+of(amount, currency) Money</text>
-<text class="mono" x="18" y="156">+round() Money</text>
-<text class="mono" x="18" y="180">+defaultRound() Money</text>
+<text class="mono" x="18" y="129">+of(amount, currency) Money</text>
+<text class="mono" x="18" y="150">+round() Money</text>
+<text class="mono" x="18" y="171">+defaultRound() Money</text>
 </g>
-<rect x="625" y="285" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="683" y="303" text-anchor="middle">convertTo()</text>
 </svg>

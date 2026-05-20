@@ -24,27 +24,28 @@
 <rect class="frame" x="32" y="28" width="1314" height="968" rx="28"/>
 <text class="title" x="66" y="82">1. Flow Extension Categories</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M1190 220 C1190 552 856 552 856 884"/>
-<path class="line" d="M1190 220 C1190 552 522 552 522 884"/>
-<path class="line" d="M1190 220 C1190 469 1190 469 1190 718"/>
-<path class="line" d="M856 220 C856 469 856 469 856 718"/>
-<path class="line" d="M856 220 C856 469 522 469 522 718"/>
-<path class="line" d="M522 220 C522 469 188 469 188 718"/>
-<path class="line" d="M522 220 C522 386 1190 386 1190 552"/>
-<path class="line" d="M522 220 C522 386 856 386 856 552"/>
-<path class="line" d="M522 220 C522 386 522 386 522 552"/>
-<path class="line" d="M522 220 C522 386 188 386 188 552"/>
-<path class="line" d="M188 220 C188 303 1190 303 1190 386"/>
-<path class="line" d="M188 220 C188 303 856 303 856 386"/>
-<path class="line" d="M188 220 C188 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M1190 280 C1190 552 856 552 856 824"/>
+<path class="line" d="M1040 220 C1040 552 672 552 672 884"/>
+<path class="line" d="M1190 280 C1190 469 1190 469 1190 658"/>
+<path class="line" d="M856 280 C856 469 856 469 856 658"/>
+<path class="line" d="M856 280 C856 469 522 469 522 658"/>
+<path class="line" d="M522 280 C522 469 188 469 188 658"/>
+<path class="line" d="M672 220 C672 386 1040 386 1040 552"/>
+<path class="line" d="M672 220 C672 386 706 386 706 552"/>
+<path class="line" d="M522 280 C522 386 522 386 522 492"/>
+<path class="line" d="M372 220 C372 386 338 386 338 552"/>
+<path class="line" d="M338 220 C338 303 1040 303 1040 386"/>
+<path class="line" d="M338 220 C338 303 706 303 706 386"/>
+<path class="line" d="M338 220 C338 303 372 303 372 386"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Flow Extensions</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">io.bluetape4k.coroutines.flow.extensions</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">Flow Extensions</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">io.bluetape4k.corout</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">ines.flow.extensions</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
@@ -68,7 +69,8 @@
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Accumulate / Transform</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Accumulate /</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Transform</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
@@ -97,7 +99,9 @@
 </g>
 <g transform="translate(382,668)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">mapParallel(parallelism)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">map</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Parallel(parallelism</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">)</text>
 </g>
 <g transform="translate(716,668)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
@@ -115,6 +119,7 @@
 </g>
 <g transform="translate(716,834)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">throttleBoth(duration)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">throttle</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Both(duration)</text>
 </g>
 </svg>

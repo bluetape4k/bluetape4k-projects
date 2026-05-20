@@ -22,7 +22,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 ### Bucket4j 통합 클래스 다이어그램
 
-![Bucket4j 통합 클래스 다이어그램 1](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
+![Bucket4j diagram](../../docs/images/readme-diagrams/infra-bucket4j-diagram-01.png)
 
 ### Rate Limiting 시퀀스 다이어그램
 
@@ -32,7 +32,7 @@ Bucket4j 기반으로 애플리케이션 레벨 Rate Limiter를 구성하기 위
 
 #### 분산 Suspend Rate Limiter — Redis 기반 코루틴 흐름
 
-![Suspend Rate Limiter — Redis Coroutine diagram](../../docs/images/readme-diagrams/infra-bucket4j-sequence-02.png)
+![Suspend Rate Limiter — Redis diagram](../../docs/images/readme-diagrams/infra-bucket4j-sequence-02.png)
 
 ## Bucket4j 직접 사용 대비 추가 기능
 

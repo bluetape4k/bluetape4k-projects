@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="746" viewBox="0 0 1754 746" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="876" viewBox="0 0 1754 876" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,66 +20,69 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="746"/>
-<rect class="frame" x="32" y="28" width="1690" height="690" rx="28"/>
+<rect class="canvas" width="1754" height="876"/>
+<rect class="frame" x="32" y="28" width="1690" height="820" rx="28"/>
 <text class="title" x="66" y="82">Core Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M672 438 C672 409 672 409 672 380"/>
-<path class="line" d="M262 172 C262 276 672 276 672 380"/>
-<path class="line" d="M1082 172 C1082 276 672 276 672 380"/>
-<path class="line" d="M1492 356 C1492 397 672 397 672 438"/>
-<path class="line" d="M1082 438 C1082 409 672 409 672 380"/>
+<path class="line" d="M672 494 C672 439 672 439 672 384"/>
+<path class="line" d="M262 172 C262 278 672 278 672 384"/>
+<path class="line" d="M1082 172 C1082 278 672 278 672 384"/>
+<path class="line" d="M1492 384 C1492 439 672 439 672 494"/>
+<path class="line" d="M1082 494 C1082 439 672 439 672 384"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Cache2kCacheMetrics</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Cache2kCacheMetrics</text>
   <text class="mono" x="18" y="108">-cache: Cache</text>
-<text class="mono" x="18" y="132">-tags: Tags</text>
-<text class="mono" x="18" y="156">+monitor(registry, cache, tags)</text>
-<text class="mono" x="18" y="180">+bindTo(registry)</text>
+<text class="mono" x="18" y="129">-tags: Tags</text>
+<text class="mono" x="18" y="150">+monitor(registry, cache, tags)</text>
+<text class="mono" x="18" y="171">+bindTo(registry)</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">MeterRegistry</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MeterRegistry</text>
   <text class="mono" x="18" y="108">+timer(name, tags) Timer</text>
-<text class="mono" x="18" y="132">+counter(name, tags) Counter</text>
-<text class="mono" x="18" y="156">+gauge(name, tags, number) T</text>
-<text class="mono" x="18" y="180">+find(name) Search</text>
+<text class="mono" x="18" y="129">+counter(name, tags) Counter</text>
+<text class="mono" x="18" y="150">+gauge(name, tags, number) T</text>
+<text class="mono" x="18" y="171">+find(name) Search</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="191" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MicrometerRetrofitMetricsFactory</text>
-  <text class="mono" x="18" y="108">-registry: MeterRegistry</text>
-<text class="mono" x="18" y="132">+create(returnType, annotations, retrofit) CallAda.</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Micrometer Retrofit</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Metrics Factory</text>
+  <text class="mono" x="18" y="124">-registry: MeterRegistry</text>
+<text class="mono" x="18" y="145">+create(returnType, annotations, retrofit)</text>
+<text class="mono" x="18" y="166">CallAdapter</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ObservationExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ObservationExtensions</text>
   <text class="mono" x="18" y="108">+withObservation(name, registry, block) T</text>
-<text class="mono" x="18" y="132">+withObservationContext(obs, block) T</text>
-<text class="mono" x="18" y="156">+withObservationContextSuspending(name, registry,.</text>
+<text class="mono" x="18" y="129">+withObservationContext(obs, block) T</text>
+<text class="mono" x="18" y="150">+withObservationContextSuspending(name,</text>
+<text class="mono" x="18" y="171">registry, block) T</text>
 </g>
-<g transform="translate(502,446)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,502)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ObservationRegistry</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ObservationRegistry</text>
   <text class="mono" x="18" y="108">+observationConfig() ObservationConfig</text>
-<text class="mono" x="18" y="132">+getCurrentObservation() Observation</text>
+<text class="mono" x="18" y="129">+getCurrentObservation() Observation</text>
 </g>
-<g transform="translate(912,446)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,502)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">TimerExtensions</text>
+  <text class="label" x="170" y="61" text-anchor="middle">TimerExtensions</text>
   <text class="mono" x="18" y="108">+recordSuspend(block) T</text>
-<text class="mono" x="18" y="132">+withTimer(timer) Flow~T~</text>
+<text class="mono" x="18" y="129">+withTimer(timer) Flow~T~</text>
 </g>
 </svg>

@@ -24,18 +24,20 @@
 <rect class="frame" x="32" y="28" width="1314" height="802" rx="28"/>
 <text class="title" x="66" y="82">Concept Overview</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M522 552 C522 635 689 635 689 718"/>
-<path class="line" d="M1190 386 C1190 469 1190 469 1190 552"/>
-<path class="line" d="M1190 386 C1190 469 522 469 522 552"/>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M522 386 C522 386 856 386 856 386"/>
+<path class="line" d="M672 552 C672 635 539 635 539 718"/>
+<path class="line" d="M1190 446 C1190 469 1190 469 1190 492"/>
+<path class="line" d="M1040 386 C1040 469 672 469 672 552"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M672 386 C672 386 706 386 706 386"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">States (enum / sealed)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">States (enum /</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">sealed)</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Events (sealed class)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Events (sealed</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">class)</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
@@ -69,8 +71,9 @@
 </g>
 <g transform="translate(382,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">TransitionResult (prev,</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">event, current)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">TransitionResult</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">(prev, event,</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">current)</text>
 </g>
 <g transform="translate(716,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
@@ -78,16 +81,11 @@
 </g>
 <g transform="translate(1050,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">StateFlow (observable</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">state)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">StateFlow</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">(observable state)</text>
 </g>
 <g transform="translate(549,668)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Side-effect Logic</text>
 </g>
-<text class="small" x="689" y="378" text-anchor="middle">stateMachine { ...</text>
-<text class="small" x="1023" y="378" text-anchor="middle">build()</text>
-<text class="small" x="856" y="461" text-anchor="middle">transition(event)</text>
-<text class="small" x="1190" y="461" text-anchor="middle">stateFlow (suspen.</text>
-<text class="small" x="605.5" y="627" text-anchor="middle">onTransition call.</text>
 </svg>

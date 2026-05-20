@@ -25,15 +25,15 @@
 
 ### 요청 라우팅 개요
 
-![요청 라우팅 개요 1](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.png)
+![mock web server Architecture diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-01.png)
 
 ### 클래스 다이어그램
 
-![클래스 다이어그램 2](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
+![mock web server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 
-![— httpbin GET Request diagram](../../docs/images/readme-diagrams/testing-mock-web-server-sequence-01.png)
+![— httpbin GET diagram](../../docs/images/readme-diagrams/testing-mock-web-server-sequence-01.png)
 
 ## Features
 

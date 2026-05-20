@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1096" viewBox="0 0 1754 1096" role="img" aria-label="Core Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1285" viewBox="0 0 1754 1285" role="img" aria-label="Core Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,89 +20,89 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1096"/>
-<rect class="frame" x="32" y="28" width="1690" height="1040" rx="28"/>
+<rect class="canvas" width="1754" height="1285"/>
+<rect class="frame" x="32" y="28" width="1690" height="1229" rx="28"/>
 <text class="title" x="66" y="82">Core Class Diagram</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M672 740 C672 572 1082 572 1082 404"/>
-<path class="dashed" d="M1082 740 C1082 524 262 524 262 308"/>
-<path class="dashed" d="M1082 740 C1082 524 672 524 672 308"/>
-<path class="dashed" d="M672 740 C672 524 262 524 262 308"/>
-<path class="dashed" d="M672 740 C672 524 672 524 672 308"/>
-<path class="implLine" d="M1082 740 C1082 705 1082 705 1082 670"/>
-<path class="implLine" d="M672 740 C672 560 1492 560 1492 380"/>
+<path class="dashed" d="M672 861 C672 633 1082 633 1082 405"/>
+<path class="dashed" d="M1082 861 C1082 591 262 591 262 321"/>
+<path class="dashed" d="M1082 861 C1082 591 672 591 672 321"/>
+<path class="dashed" d="M672 861 C672 591 262 591 262 321"/>
+<path class="dashed" d="M672 861 C672 591 672 591 672 321"/>
+<path class="implLine" d="M1082 861 C1082 794 1082 794 1082 727"/>
+<path class="implLine" d="M672 861 C672 622.5 1492 622.5 1492 384"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«funinterface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Action</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Action</text>
   <text class="mono" x="18" y="108">+execute(facts: Facts)</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«funinterface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Condition</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Condition</text>
   <text class="mono" x="18" y="108">+evaluate(facts: Facts): Boolean</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Facts</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Facts</text>
   <text class="mono" x="18" y="108">-map: ConcurrentHashMap~String, Any?~</text>
-<text class="mono" x="18" y="132">+get(name): T?</text>
-<text class="mono" x="18" y="156">+set(name, value)</text>
-<text class="mono" x="18" y="180">+contains(name): Boolean</text>
-<text class="mono" x="18" y="204">+of(vararg pairs)$</text>
+<text class="mono" x="18" y="129">+get(name): T?</text>
+<text class="mono" x="18" y="150">+set(name, value)</text>
+<text class="mono" x="18" y="171">+contains(name): Boolean</text>
+<text class="mono" x="18" y="192">+of(vararg pairs)$</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">Rule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Rule</text>
   <text class="mono" x="18" y="108">+name: String</text>
-<text class="mono" x="18" y="132">+priority: Int</text>
-<text class="mono" x="18" y="156">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="180">+execute(facts: Facts)</text>
+<text class="mono" x="18" y="129">+priority: Int</text>
+<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
+<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
 </g>
-<g transform="translate(502,470)">
-  <rect class="card" x="0" y="0" width="340" height="168" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,523)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">RuleSet</text>
+  <text class="label" x="170" y="61" text-anchor="middle">RuleSet</text>
   <text class="mono" x="18" y="108">-rules: TreeSet~Rule~</text>
-<text class="mono" x="18" y="132">+add(rule: Rule)</text>
-<text class="mono" x="18" y="156">+iterator(): Iterator~Rule~</text>
+<text class="mono" x="18" y="129">+add(rule: Rule)</text>
+<text class="mono" x="18" y="150">+iterator(): Iterator~Rule~</text>
 </g>
-<g transform="translate(912,470)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,523)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">SuspendRule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SuspendRule</text>
   <text class="mono" x="18" y="108">+name: String</text>
-<text class="mono" x="18" y="132">+priority: Int</text>
-<text class="mono" x="18" y="156">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="180">+execute(facts: Facts)</text>
+<text class="mono" x="18" y="129">+priority: Int</text>
+<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
+<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
 </g>
-<g transform="translate(502,748)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(502,869)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultRule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DefaultRule</text>
   <text class="mono" x="18" y="108">-condition: Condition</text>
-<text class="mono" x="18" y="132">-actions: List~Action~</text>
-<text class="mono" x="18" y="156">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="180">+execute(facts: Facts)</text>
+<text class="mono" x="18" y="129">-actions: List~Action~</text>
+<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
+<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
 </g>
-<g transform="translate(912,748)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+<g transform="translate(912,869)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">DefaultSuspendRule</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DefaultSuspendRule</text>
   <text class="mono" x="18" y="108">-condition: SuspendCondition</text>
-<text class="mono" x="18" y="132">-actions: List~SuspendAction~</text>
-<text class="mono" x="18" y="156">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="180">+execute(facts: Facts)</text>
+<text class="mono" x="18" y="129">-actions: List~SuspendAction~</text>
+<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
+<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
 </g>
 </svg>

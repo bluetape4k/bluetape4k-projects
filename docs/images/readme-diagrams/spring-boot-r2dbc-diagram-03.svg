@@ -24,52 +24,55 @@
 <rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
 <text class="title" x="66" y="82">CRUD Operation Hierarchy</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M522 386 C522 386 856 386 856 386"/>
-<path class="line" d="M188 386 C188 386 856 386 856 386"/>
-<path class="line" d="M1190 220 C1190 303 856 303 856 386"/>
-<path class="line" d="M856 220 C856 303 856 303 856 386"/>
-<path class="line" d="M522 220 C522 303 856 303 856 386"/>
-<path class="line" d="M188 220 C188 303 522 303 522 386"/>
-<path class="line" d="M188 220 C188 303 188 303 188 386"/>
-<path class="line" d="M188 220 C188 220 1190 220 1190 220"/>
-<path class="line" d="M188 220 C188 220 856 220 856 220"/>
-<path class="line" d="M188 220 C188 220 522 220 522 220"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M672 386 C672 386 706 386 706 386"/>
+<path class="line" d="M338 386 C338 386 706 386 706 386"/>
+<path class="line" d="M1040 220 C1040 303 1006 303 1006 386"/>
+<path class="line" d="M856 280 C856 303 856 303 856 326"/>
+<path class="line" d="M672 220 C672 303 706 303 706 386"/>
+<path class="line" d="M338 220 C338 303 372 303 372 386"/>
+<path class="line" d="M188 280 C188 303 188 303 188 326"/>
+<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
+<path class="line" d="M338 220 C338 220 706 220 706 220"/>
+<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Service / Repository</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">selectAllSuspending()</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">selectSuspending(query)</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">find One By Id Or Null</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">select All</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending() select</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Suspending(query)</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">insertSuspending(entity)</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">insert Or Null</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Suspending(entity)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">insert</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending(entity)</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">insert Or Null</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">updateSuspending(query,</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">update)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">update</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending(query,</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">update)</text>
 </g>
 <g transform="translate(48,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">deleteSuspending(query)</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">deleteAllSuspending()</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">delete</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending(query)</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">delete All</text>
 </g>
 <g transform="translate(382,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
   <text class="smallLabel" x="140" y="21" text-anchor="middle">countAllSuspending()</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">countSuspending(query)</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">existsSuspending(query)</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">count</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">Suspending(query)</text>
 </g>
 <g transform="translate(716,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">R2dbcEntityOperations</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">R2dbc Entity</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">Operations</text>
 </g>
 <g transform="translate(1050,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>

@@ -24,22 +24,24 @@
 <rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
 <text class="title" x="66" y="82">Concept Overview</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M689 552 C689 552 1023 552 1023 552"/>
-<path class="line" d="M1190 386 C1190 469 689 469 689 552"/>
-<path class="line" d="M522 386 C522 386 1190 386 1190 386"/>
-<path class="line" d="M856 386 C856 386 1190 386 1190 386"/>
-<path class="line" d="M856 386 C856 386 522 386 522 386"/>
+<path class="line" d="M839 552 C839 552 873 552 873 552"/>
+<path class="line" d="M1040 386 C1040 469 839 469 839 552"/>
+<path class="line" d="M672 386 C672 386 1040 386 1040 386"/>
+<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
+<path class="line" d="M706 386 C706 386 672 386 672 386"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Sequential (ordered)</text>
 </g>
 <g transform="translate(382,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Parallel (concurrent)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Parallel</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">(concurrent)</text>
 </g>
 <g transform="translate(716,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Conditional (branching)</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">Conditional</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">(branching)</text>
 </g>
 <g transform="translate(1050,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
@@ -69,18 +71,13 @@
 </g>
 <g transform="translate(549,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">WorkReport (Success /</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Failure / Partial /</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Aborted / Cancelled)</text>
+  <text class="smallLabel" x="140" y="21" text-anchor="middle">WorkReport (Success</text>
+<text class="smallLabel" x="140" y="47" text-anchor="middle">/ Failure / Partial</text>
+<text class="smallLabel" x="140" y="73" text-anchor="middle">/ Aborted /</text>
 </g>
 <g transform="translate(883,502)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
   <text class="smallLabel" x="140" y="33" text-anchor="middle">WorkContext (shared</text>
 <text class="smallLabel" x="140" y="59" text-anchor="middle">mutable map)</text>
 </g>
-<text class="small" x="689" y="378" text-anchor="middle">defines</text>
-<text class="small" x="1023" y="378" text-anchor="middle">composes</text>
-<text class="small" x="856" y="378" text-anchor="middle">assembled into</text>
-<text class="small" x="939.5" y="461" text-anchor="middle">execute(ctx)</text>
-<text class="small" x="856" y="544" text-anchor="middle">reads/writes</text>
 </svg>

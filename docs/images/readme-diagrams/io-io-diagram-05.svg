@@ -24,7 +24,7 @@
 <rect class="frame" x="32" y="28" width="980" height="470" rx="28"/>
 <text class="title" x="66" y="82">Compression Performance Comparison</text>
 <text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M856 220 C856 303 355 303 355 386"/>
+<path class="line" d="M706 220 C706 303 505 303 505 386"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">ops/s</text>
@@ -44,7 +44,7 @@
 </g>
 <g transform="translate(549,336)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">1084, 1195, 5103, 6769,</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">8073</text>
+  <text class="smallLabel" x="140" y="33" text-anchor="middle">1084, 1195, 5103,</text>
+<text class="smallLabel" x="140" y="59" text-anchor="middle">6769, 8073</text>
 </g>
 </svg>

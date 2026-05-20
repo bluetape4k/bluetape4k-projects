@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="520" viewBox="0 0 1366 520" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="596" viewBox="0 0 1366 596" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,36 +20,37 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="520"/>
-<rect class="frame" x="32" y="28" width="1302" height="464" rx="28"/>
+<rect class="canvas" width="1366" height="596"/>
+<rect class="frame" x="32" y="28" width="1302" height="540" rx="28"/>
 <text class="title" x="66" y="82">Core Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M263 172 C263 252 683 252 683 332"/>
+<path class="line" d="M263 172 C263 278 683 278 683 384"/>
 <g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="168" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«DSL»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">AggregationDSL</text>
+  <text class="label" x="175" y="61" text-anchor="middle">AggregationDSL</text>
   <text class="mono" x="18" y="108">+pipeline~T~(block): List~Bson~</text>
-<text class="mono" x="18" y="132">+match(filter): Bson</text>
-<text class="mono" x="18" y="156">+group(id, accumulators): Bson</text>
+<text class="mono" x="18" y="129">+match(filter): Bson</text>
+<text class="mono" x="18" y="150">+group(id, accumulators): Bson</text>
 </g>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">FlowExtensions</text>
-  <text class="mono" x="18" y="108">+MongoCollection.findAsFlow~T~(filter): Flow~T~</text>
-<text class="mono" x="18" y="132">+MongoCollection.insertMany(docs): Flow~InsertManyR.</text>
+  <text class="label" x="175" y="61" text-anchor="middle">FlowExtensions</text>
+  <text class="mono" x="18" y="108">+MongoCollection.findAsFlow~T~(filter):</text>
+<text class="mono" x="18" y="129">Flow~T~</text>
+<text class="mono" x="18" y="150">+MongoCollection.insertMany(docs):</text>
+<text class="mono" x="18" y="171">Flow~InsertManyResult~</text>
 </g>
 <g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="350" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«extensionFunctions»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">MongoClientExtensions</text>
+  <text class="label" x="175" y="61" text-anchor="middle">MongoClientExtensions</text>
   <text class="mono" x="18" y="108">+mongoClient(block): MongoClient</text>
-<text class="mono" x="18" y="132">+MongoDatabase.getCollectionAsFlow~T~(): Flow~T~</text>
+<text class="mono" x="18" y="129">+MongoDatabase.getCollectionAsFlow~T~():</text>
+<text class="mono" x="18" y="150">Flow~T~</text>
 </g>
-<rect x="415" y="237" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="473" y="255" text-anchor="middle">builds pipeline</text>
 </svg>

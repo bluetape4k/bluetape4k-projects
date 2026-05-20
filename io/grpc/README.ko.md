@@ -13,19 +13,19 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ### 클래스 계층
 
-![클래스 계층 1](../../docs/images/readme-diagrams/io-grpc-diagram-01.png)
+![grpc Class Structure diagram](../../docs/images/readme-diagrams/io-grpc-diagram-01.png)
 
 ### 컴포넌트 개요
 
-![컴포넌트 개요 2](../../docs/images/readme-diagrams/io-grpc-diagram-02.png)
+![grpc Architecture 2 diagram](../../docs/images/readme-diagrams/io-grpc-diagram-02.png)
 
 ### gRPC 서버-클라이언트 통신 시퀀스
 
-![gRPC -Client diagram](../../docs/images/readme-diagrams/io-grpc-sequence-01.png)
+![gRPC - diagram](../../docs/images/readme-diagrams/io-grpc-sequence-01.png)
 
 ### In-process 테스트 시퀀스
 
-![In-process Test diagram](../../docs/images/readme-diagrams/io-grpc-sequence-02.png)
+![In-process diagram](../../docs/images/readme-diagrams/io-grpc-sequence-02.png)
 
 ## 주요 기능
 

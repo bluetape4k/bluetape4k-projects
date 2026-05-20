@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="794" viewBox="0 0 1754 794" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="955" viewBox="0 0 1754 955" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,65 +20,64 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="794"/>
-<rect class="frame" x="32" y="28" width="1690" height="738" rx="28"/>
+<rect class="canvas" width="1754" height="955"/>
+<rect class="frame" x="32" y="28" width="1690" height="899" rx="28"/>
 <text class="title" x="66" y="82">Core Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M262 172 C262 300 672 300 672 428"/>
-<path class="line" d="M1082 172 C1082 300 672 300 672 428"/>
-<path class="line" d="M1492 172 C1492 300 672 300 672 428"/>
-<path class="line" d="M672 428 C672 457 1082 457 1082 486"/>
+<path class="line" d="M262 172 C262 317.5 672 317.5 672 463"/>
+<path class="line" d="M1082 172 C1082 317.5 672 317.5 672 463"/>
+<path class="line" d="M1492 172 C1492 317.5 672 317.5 672 463"/>
+<path class="line" d="M672 463 C672 518 1082 518 1082 573"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineUserRepository</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineUserRepository</text>
   <text class="mono" x="18" y="108">+findByEmail(email): User?</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="275" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extension»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ReactiveCassandraOperationsExt</text>
-  <text class="mono" x="18" y="108">+findOneOrNullSuspending(query): T?</text>
-<text class="mono" x="18" y="132">+findAllAsFlow(): Flow~T~</text>
-<text class="mono" x="18" y="156">+insertSuspending(entity): T</text>
-<text class="mono" x="18" y="180">+countSuspending(query): Long</text>
-<text class="mono" x="18" y="204">+existsSuspending(query): Boolean</text>
-<text class="mono" x="18" y="228">+updateMultiSuspending(query, update): UpdateResult</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Reactive Cassandra</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Operations Ext</text>
+  <text class="mono" x="18" y="124">+findOneOrNullSuspending(query): T?</text>
+<text class="mono" x="18" y="145">+findAllAsFlow(): Flow~T~</text>
+<text class="mono" x="18" y="166">+insertSuspending(entity): T</text>
+<text class="mono" x="18" y="187">+countSuspending(query): Long</text>
+<text class="mono" x="18" y="208">+existsSuspending(query): Boolean</text>
+<text class="mono" x="18" y="229">+updateMultiSuspending(query, update):</text>
+<text class="mono" x="18" y="250">UpdateResult</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extension»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">ReactiveSessionExt</text>
-  <text class="mono" x="18" y="108">+executeSuspending(cql, args): ReactiveResultSet</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ReactiveSessionExt</text>
+  <text class="mono" x="18" y="108">+executeSuspending(cql, args):</text>
+<text class="mono" x="18" y="129">ReactiveResultSet</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">SchemaGenerator</text>
+  <text class="label" x="170" y="61" text-anchor="middle">SchemaGenerator</text>
   <text class="mono" x="18" y="108">+createTables(operations, types)</text>
-<text class="mono" x="18" y="132">+truncateTables(operations, types)</text>
+<text class="mono" x="18" y="129">+truncateTables(operations, types)</text>
 </g>
-<g transform="translate(502,494)">
-  <rect class="card" x="0" y="0" width="340" height="120" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(502,581)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">UserRepository</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UserRepository</text>
   <text class="mono" x="18" y="108">+findByEmail(email): User?</text>
 </g>
-<g transform="translate(912,494)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(912,581)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«DSL»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">WriteOptionsDsl</text>
+  <text class="label" x="170" y="61" text-anchor="middle">WriteOptionsDsl</text>
   <text class="mono" x="18" y="108">+ttl(duration)</text>
-<text class="mono" x="18" y="132">+timestamp(millis)</text>
+<text class="mono" x="18" y="129">+timestamp(millis)</text>
 </g>
-<rect x="819" y="285" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="877" y="303" text-anchor="middle">complements</text>
-<rect x="409" y="285" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="467" y="303" text-anchor="middle">delegates</text>
 </svg>

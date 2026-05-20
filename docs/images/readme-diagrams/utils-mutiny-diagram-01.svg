@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="866" viewBox="0 0 1754 866" role="img" aria-label="Mutiny Type Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="981" viewBox="0 0 1754 981" role="img" aria-label="Mutiny Type Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,65 +20,63 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="866"/>
-<rect class="frame" x="32" y="28" width="1690" height="810" rx="28"/>
+<rect class="canvas" width="1754" height="981"/>
+<rect class="frame" x="32" y="28" width="1690" height="925" rx="28"/>
 <text class="title" x="66" y="82">Mutiny Type Diagram</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M877 462 C877 433 1082 433 1082 404"/>
-<path class="line" d="M262 332 C262 397 877 397 877 462"/>
-<path class="line" d="M672 172 C672 288 1082 288 1082 404"/>
-<path class="line" d="M1492 380 C1492 421 877 421 877 462"/>
+<path class="line" d="M877 515 C877 460 1082 460 1082 405"/>
+<path class="line" d="M262 342 C262 428.5 877 428.5 877 515"/>
+<path class="line" d="M672 172 C672 288.5 1082 288.5 1082 405"/>
+<path class="line" d="M1492 384 C1492 449.5 877 449.5 877 515"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">CoroutineSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineSupport</text>
   <text class="mono" x="18" y="108">+CoroutineScope.asUni(block) Uni~T~</text>
-<text class="mono" x="18" y="132">+CompletableFuture.asUni() Uni~T~</text>
+<text class="mono" x="18" y="129">+CompletableFuture.asUni() Uni~T~</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">MultiSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MultiSupport</text>
   <text class="mono" x="18" y="108">+multiOf(vararg items) Multi~T~</text>
-<text class="mono" x="18" y="132">+multiRangeOf(start, end) Multi~Int~</text>
-<text class="mono" x="18" y="156">+List.asMulti() Multi~T~</text>
-<text class="mono" x="18" y="180">+Sequence.asMulti() Multi~T~</text>
+<text class="mono" x="18" y="129">+multiRangeOf(start, end) Multi~Int~</text>
+<text class="mono" x="18" y="150">+List.asMulti() Multi~T~</text>
+<text class="mono" x="18" y="171">+Sequence.asMulti() Multi~T~</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«MultiT»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">MultiT</text>
+  <text class="label" x="170" y="61" text-anchor="middle">MultiT</text>
   <text class="mono" x="18" y="108">+onItem() MultiOnItem</text>
-<text class="mono" x="18" y="132">+onFailure() MultiOnFailure</text>
-<text class="mono" x="18" y="156">+filter(predicate) Multi~T~</text>
-<text class="mono" x="18" y="180">+map(mapper) Multi~U~</text>
-<text class="mono" x="18" y="204">+collect() MultiCollect</text>
+<text class="mono" x="18" y="129">+onFailure() MultiOnFailure</text>
+<text class="mono" x="18" y="150">+filter(predicate) Multi~T~</text>
+<text class="mono" x="18" y="171">+map(mapper) Multi~U~</text>
+<text class="mono" x="18" y="192">+collect() MultiCollect</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">UniSupport</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UniSupport</text>
   <text class="mono" x="18" y="108">+uniOf(value) Uni~T~</text>
-<text class="mono" x="18" y="132">+nullUni() Uni~T~</text>
-<text class="mono" x="18" y="156">+voidUni() Uni~Void~</text>
-<text class="mono" x="18" y="180">+uniFailureOf(ex) Uni~T~</text>
+<text class="mono" x="18" y="129">+nullUni() Uni~T~</text>
+<text class="mono" x="18" y="150">+voidUni() Uni~Void~</text>
+<text class="mono" x="18" y="171">+uniFailureOf(ex) Uni~T~</text>
 </g>
-<g transform="translate(707,470)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+<g transform="translate(707,523)">
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«UniT»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">UniT</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UniT</text>
   <text class="mono" x="18" y="108">+onItem() UniOnItem</text>
-<text class="mono" x="18" y="132">+onFailure() UniOnFailure</text>
-<text class="mono" x="18" y="156">+await() UniAwait</text>
-<text class="mono" x="18" y="180">+flatMap(mapper) Uni~U~</text>
-<text class="mono" x="18" y="204">+map(mapper) Uni~U~</text>
-<text class="mono" x="18" y="228">+toMulti() Multi~T~</text>
+<text class="mono" x="18" y="129">+onFailure() UniOnFailure</text>
+<text class="mono" x="18" y="150">+await() UniAwait</text>
+<text class="mono" x="18" y="171">+flatMap(mapper) Uni~U~</text>
+<text class="mono" x="18" y="192">+map(mapper) Uni~U~</text>
+<text class="mono" x="18" y="213">+toMulti() Multi~T~</text>
 </g>
-<rect x="921.5" y="418" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="979.5" y="436" text-anchor="middle">toMulti()</text>
 </svg>

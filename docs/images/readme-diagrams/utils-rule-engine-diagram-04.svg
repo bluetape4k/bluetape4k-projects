@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="662" viewBox="0 0 1366 662" role="img" aria-label="Composite Rules">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="816" viewBox="0 0 1366 816" role="img" aria-label="Composite Rules">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,40 +20,40 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="662"/>
-<rect class="frame" x="32" y="28" width="1302" height="606" rx="28"/>
+<rect class="canvas" width="1366" height="816"/>
+<rect class="frame" x="32" y="28" width="1302" height="760" rx="28"/>
 <text class="title" x="66" y="82">Composite Rules</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="inheritLine" d="M1103 402 C1103 367 683 367 683 332"/>
-<path class="inheritLine" d="M683 402 C683 367 683 367 683 332"/>
-<path class="inheritLine" d="M263 402 C263 367 683 367 683 332"/>
+<path class="inheritLine" d="M1103 476 C1103 409 683 409 683 342"/>
+<path class="inheritLine" d="M683 476 C683 409 683 409 683 342"/>
+<path class="inheritLine" d="M263 476 C263 409 683 409 683 342"/>
 <g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«abstract»</text>
-  <text class="label" x="175" y="57" text-anchor="middle">CompositeRule</text>
+  <text class="label" x="175" y="61" text-anchor="middle">CompositeRule</text>
   <text class="mono" x="18" y="108">#rules: SortedSet~Rule~</text>
-<text class="mono" x="18" y="132">+addRule(rule: Rule)</text>
+<text class="mono" x="18" y="129">+addRule(rule: Rule)</text>
 </g>
-<g transform="translate(88,410)">
-  <rect class="card" x="0" y="0" width="350" height="96" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(88,484)">
+  <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">ActivationRuleGroup</text>
+  <text class="label" x="175" y="61" text-anchor="middle">ActivationRuleGroup</text>
 
 </g>
-<g transform="translate(508,410)">
-  <rect class="card" x="0" y="0" width="350" height="96" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+<g transform="translate(508,484)">
+  <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">ConditionalRuleGroup</text>
+  <text class="label" x="175" y="61" text-anchor="middle">ConditionalRuleGroup</text>
 
 </g>
-<g transform="translate(928,410)">
-  <rect class="card" x="0" y="0" width="350" height="96" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+<g transform="translate(928,484)">
+  <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
   <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="57" text-anchor="middle">UnitRuleGroup</text>
+  <text class="label" x="175" y="61" text-anchor="middle">UnitRuleGroup</text>
 
 </g>
 </svg>

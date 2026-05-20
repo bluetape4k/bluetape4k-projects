@@ -71,15 +71,15 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 
 ### 핵심 클래스 구조
 
-![핵심 클래스 구조 1](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
+![cassandra Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
 
 ### Cassandra 데이터 접근 계층
 
-![Cassandra 데이터 접근 계층 2](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
+![Cassandra diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
 
 ### 코루틴 변환 흐름
 
-![Coroutine diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
+![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
 
 ## 참고
 

@@ -180,19 +180,19 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 
 ### Core Class Structure
 
-![Core Class Structure 1](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
+![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
 
 ### Spring WebFlux + Coroutines Request Flow
 
-![Spring WebFlux + Coroutines Request Flow 2](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.png)
+![Spring WebFlux + Coroutines Request Flow diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.png)
 
 ### RestClient Coroutines DSL Structure
 
-![RestClient Coroutines DSL Structure 3](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
+![RestClient Coroutines DSL Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
 
 ### Retrofit2 Integration Structure
 
-![Retrofit2 Integration Structure 4](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
+![Retrofit2 Integration Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
 
 ## Build and Test
 

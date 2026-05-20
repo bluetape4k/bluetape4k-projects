@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1430" height="1344" viewBox="0 0 1430 1344" role="img" aria-label="Compression Sink (One-Shot) — compress on close">
+<svg xmlns="http://www.w3.org/2000/svg" width="1715" height="1676" viewBox="0 0 1715 1676" role="img" aria-label="Compression Sink (One-Shot) — compress on close">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,59 +20,59 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1430" height="1344"/>
-<rect class="frame" x="32" y="28" width="1366" height="1288" rx="28"/>
+<rect class="canvas" width="1715" height="1676"/>
+<rect class="frame" x="32" y="28" width="1651" height="1620" rx="28"/>
 <text class="title" x="66" y="82">Compression Sink (One-Shot) — compress on close</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="14.5" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line x1="140" y1="252" x2="140" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="322.5" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="427.5" y="209" text-anchor="middle">CompressableSink</text>
-<line x1="427.5" y1="252" x2="427.5" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="610" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="715" y="209" text-anchor="middle">plainBuffer</text>
-<line x1="715" y1="252" x2="715" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="897.5" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1002.5" y="209" text-anchor="middle">Compressor</text>
-<line x1="1002.5" y1="252" x2="1002.5" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1185" y="166" width="210" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1290" y="209" text-anchor="middle">delegate Sink</text>
-<line x1="1290" y1="252" x2="1290" y2="1284" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1. write(data, byteCount)</text>
-<path class="line" d="M140 310 L427.5 310"/>
-<rect x="445.5" y="352" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="379" text-anchor="start">2. write(data, byteCount)</text>
-<path class="line" d="M427.5 392 L715 392"/>
-<rect x="158" y="434" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="461" text-anchor="start">3. write(data2, byteCount2)</text>
-<path class="line" d="M140 474 L427.5 474"/>
-<rect x="445.5" y="516" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="543" text-anchor="start">4. write(data2, byteCount2)</text>
-<path class="line" d="M427.5 556 L715 556"/>
-<rect x="158" y="598" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="625" text-anchor="start">5. close()</text>
-<path class="line" d="M140 638 L427.5 638"/>
-<rect x="445.5" y="680" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="707" text-anchor="start">6. readByteArray()</text>
-<path class="line" d="M427.5 720 L715 720"/>
-<rect x="445.5" y="762" width="251.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="789" text-anchor="start">7. plainBytes</text>
-<path class="dashed" d="M715 802 L427.5 802"/>
-<rect x="445.5" y="844" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="871" text-anchor="start">8. compress(plainBytes)</text>
-<path class="line" d="M427.5 884 L1002.5 884"/>
-<rect x="445.5" y="926" width="539" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="953" text-anchor="start">9. compressedBytes</text>
-<path class="dashed" d="M1002.5 966 L427.5 966"/>
-<rect x="445.5" y="1008" width="826.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1035" text-anchor="start">10. write(compressedBytes)</text>
-<path class="line" d="M427.5 1048 L1290 1048"/>
-<rect x="445.5" y="1090" width="826.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1117" text-anchor="start">11. flush()</text>
-<path class="line" d="M427.5 1130 L1290 1130"/>
-<rect x="445.5" y="1172" width="826.5" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="461.5" y="1199" text-anchor="start">12. close()</text>
-<path class="line" d="M427.5 1212 L1290 1212"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="373.25" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="498.75" y="209" text-anchor="middle">CompressableSink</text>
+<line class="lifeline" x1="498.75" y1="252" x2="498.75" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="732" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="857.5" y="209" text-anchor="middle">plainBuffer</text>
+<line class="lifeline" x1="857.5" y1="252" x2="857.5" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1090.75" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1216.25" y="209" text-anchor="middle">Compressor</text>
+<line class="lifeline" x1="1216.25" y1="252" x2="1216.25" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1449.5" y="166" width="251" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1575" y="209" text-anchor="middle">delegate Sink</text>
+<line class="lifeline" x1="1575" y1="252" x2="1575" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="200.375" y="286" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="218.375" y="313" text-anchor="start">1. write(data, byteCount)</text>
+<path class="line" d="M140 344 L498.75 344"/>
+<rect x="559.125" y="396" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="577.125" y="423" text-anchor="start">2. write(data, byteCount)</text>
+<path class="line" d="M498.75 454 L857.5 454"/>
+<rect x="192.375" y="506" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="210.375" y="533" text-anchor="start">3. write(data2, byteCount2)</text>
+<path class="line" d="M140 564 L498.75 564"/>
+<rect x="551.125" y="616" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="569.125" y="643" text-anchor="start">4. write(data2, byteCount2)</text>
+<path class="line" d="M498.75 674 L857.5 674"/>
+<rect x="214.375" y="726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="232.375" y="753" text-anchor="start">5. close()</text>
+<path class="line" d="M140 784 L498.75 784"/>
+<rect x="573.125" y="836" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="591.125" y="863" text-anchor="start">6. readByteArray()</text>
+<path class="line" d="M498.75 894 L857.5 894"/>
+<rect x="573.125" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="591.125" y="973" text-anchor="start">7. plainBytes</text>
+<path class="dashed" d="M857.5 1004 L498.75 1004"/>
+<rect x="746.5" y="1056" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="764.5" y="1083" text-anchor="start">8. compress(plainBytes)</text>
+<path class="line" d="M498.75 1114 L1216.25 1114"/>
+<rect x="752.5" y="1166" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="770.5" y="1193" text-anchor="start">9. compressedBytes</text>
+<path class="dashed" d="M1216.25 1224 L498.75 1224"/>
+<rect x="913.875" y="1276" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="931.875" y="1303" text-anchor="start">10. write(compressedBytes)</text>
+<path class="line" d="M498.75 1334 L1575 1334"/>
+<rect x="931.875" y="1386" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="949.875" y="1413" text-anchor="start">11. flush()</text>
+<path class="line" d="M498.75 1444 L1575 1444"/>
+<rect x="931.875" y="1496" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="949.875" y="1523" text-anchor="start">12. close()</text>
+<path class="line" d="M498.75 1554 L1575 1554"/>
 </svg>

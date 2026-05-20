@@ -12,19 +12,19 @@
 
 ### 전체 아키텍처: Feign + Coroutines 통합
 
-![전체 아키텍처: Feign + Coroutines 통합 1](../../docs/images/readme-diagrams/io-feign-diagram-01.png)
+![: Feign + Coroutines diagram](../../docs/images/readme-diagrams/io-feign-diagram-01.png)
 
 ### 클래스 계층: Feign + Coroutines 통합 구조
 
-![클래스 계층: Feign + Coroutines 통합 구조 2](../../docs/images/readme-diagrams/io-feign-diagram-02.png)
+![: Feign + Coroutines diagram](../../docs/images/readme-diagrams/io-feign-diagram-02.png)
 
 ### HTTP 전송 계층 옵션
 
-![HTTP 전송 계층 옵션 3](../../docs/images/readme-diagrams/io-feign-diagram-03.png)
+![HTTP diagram](../../docs/images/readme-diagrams/io-feign-diagram-03.png)
 
 ### suspend 함수 기반 HTTP 요청 흐름
 
-![suspend HTTP Request diagram](../../docs/images/readme-diagrams/io-feign-sequence-01.png)
+![suspend HTTP diagram](../../docs/images/readme-diagrams/io-feign-sequence-01.png)
 
 ## 주요 기능
 

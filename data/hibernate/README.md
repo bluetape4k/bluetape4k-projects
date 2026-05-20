@@ -559,15 +559,15 @@ class Purchase {
 
 ### Repository Class Structure
 
-![Repository Class Structure 1](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
+![Repository Class Structure diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
 
 ### JPA Entity Class Hierarchy
 
-![JPA Entity Class Hierarchy 2](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
+![JPA Entity Class Hierarchy diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
 
 ### AttributeConverter Types
 
-![AttributeConverter Types 3](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
+![AttributeConverter Types diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
 
 ## References
 

@@ -71,7 +71,7 @@ The module follows a layered design:
 
 ## Class Hierarchy
 
-![Class Hierarchy 1](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
+![Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-01.png)
 
 ## Usage Examples
 

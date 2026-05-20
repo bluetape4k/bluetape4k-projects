@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1120" viewBox="0 0 1754 1120" role="img" aria-label="Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1380" viewBox="0 0 1754 1380" role="img" aria-label="api Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,120 +20,124 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1120"/>
-<rect class="frame" x="32" y="28" width="1690" height="1064" rx="28"/>
-<text class="title" x="66" y="82">Class Diagram</text>
+<rect class="canvas" width="1754" height="1380"/>
+<rect class="frame" x="32" y="28" width="1690" height="1324" rx="28"/>
+<text class="title" x="66" y="82">api Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1082 428 C1082 457 467 457 467 486"/>
-<path class="line" d="M1492 172 C1492 300 1082 300 1082 428"/>
-<path class="line" d="M1287 486 C1287 602 877 602 877 718"/>
-<path class="inheritLine" d="M1287 812 C1287 765 877 765 877 718"/>
-<path class="inheritLine" d="M877 812 C877 765 877 765 877 718"/>
-<path class="inheritLine" d="M467 812 C467 765 877 765 877 718"/>
+<path class="line" d="M1082 442 C1082 499.5 467 499.5 467 557"/>
+<path class="line" d="M1492 172 C1492 307 1082 307 1082 442"/>
+<path class="line" d="M1287 557 C1287 673.5 877 673.5 877 790"/>
+<path class="inheritLine" d="M1287 982 C1287 886 877 886 877 790"/>
+<path class="inheritLine" d="M877 982 C877 886 877 886 877 790"/>
+<path class="inheritLine" d="M467 982 C467 886 877 886 877 790"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="259" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">StructuredTaskScopeAll</text>
+  <text class="label" x="170" y="61" text-anchor="middle">StructuredTaskScopeAll</text>
   <text class="mono" x="18" y="108">+fork(task) StructuredSubtask~T~</text>
-<text class="mono" x="18" y="132">+join() StructuredTaskScopeAll</text>
-<text class="mono" x="18" y="156">+joinUntil(deadline) StructuredTaskScopeAll</text>
-<text class="mono" x="18" y="180">+throwIfFailed(handler) StructuredTaskScopeAll</text>
-<text class="mono" x="18" y="204">+close()</text>
+<text class="mono" x="18" y="129">+join() StructuredTaskScopeAll</text>
+<text class="mono" x="18" y="150">+joinUntil(deadline)</text>
+<text class="mono" x="18" y="171">StructuredTaskScopeAll</text>
+<text class="mono" x="18" y="192">+throwIfFailed(handler)</text>
+<text class="mono" x="18" y="213">StructuredTaskScopeAll</text>
+<text class="mono" x="18" y="234">+close()</text>
 </g>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">StructuredTaskScopeAnyT</text>
+  <text class="label" x="170" y="61" text-anchor="middle">StructuredTaskScopeAnyT</text>
   <text class="mono" x="18" y="108">+fork(task) StructuredSubtask~T~</text>
-<text class="mono" x="18" y="132">+join() StructuredTaskScopeAny~T~</text>
-<text class="mono" x="18" y="156">+joinUntil(deadline) StructuredTaskScopeAny~T~</text>
-<text class="mono" x="18" y="180">+result(mapper) T</text>
-<text class="mono" x="18" y="204">+close()</text>
+<text class="mono" x="18" y="129">+join() StructuredTaskScopeAny~T~</text>
+<text class="mono" x="18" y="150">+joinUntil(deadline)</text>
+<text class="mono" x="18" y="171">StructuredTaskScopeAny~T~</text>
+<text class="mono" x="18" y="192">+result(mapper) T</text>
+<text class="mono" x="18" y="213">+close()</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="254" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">StructuredTaskScopeProvider</text>
-  <text class="mono" x="18" y="108">+providerName: String</text>
-<text class="mono" x="18" y="132">+priority: Int</text>
-<text class="mono" x="18" y="156">+isSupported() Boolean</text>
-<text class="mono" x="18" y="180">+withFailFast(name, factory, block) T</text>
-<text class="mono" x="18" y="204">+withFirstSuccess(name, factory, block) T</text>
-<text class="mono" x="18" y="228">+withSupervised(name, factory, block) R</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Structured Task Scope</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Provider</text>
+  <text class="mono" x="18" y="124">+providerName: String</text>
+<text class="mono" x="18" y="145">+priority: Int</text>
+<text class="mono" x="18" y="166">+isSupported() Boolean</text>
+<text class="mono" x="18" y="187">+withFailFast(name, factory, block) T</text>
+<text class="mono" x="18" y="208">+withFirstSuccess(name, factory, block) T</text>
+<text class="mono" x="18" y="229">+withSupervised(name, factory, block) R</text>
 </g>
 <g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">StructuredTaskScopes</text>
+  <text class="label" x="170" y="61" text-anchor="middle">StructuredTaskScopes</text>
   <text class="mono" x="18" y="108">+failFast(name, factory, block) T</text>
-<text class="mono" x="18" y="132">+firstSuccess(name, factory, block) T</text>
-<text class="mono" x="18" y="156">+supervised(name, factory, block) R</text>
-<text class="mono" x="18" y="180">+all(name, factory, block) T ~~deprecated~~</text>
-<text class="mono" x="18" y="204">+any(name, factory, block) T ~~deprecated~~</text>
+<text class="mono" x="18" y="129">+firstSuccess(name, factory, block) T</text>
+<text class="mono" x="18" y="150">+supervised(name, factory, block) R</text>
+<text class="mono" x="18" y="171">+all(name, factory, block) T «deprecated»</text>
+<text class="mono" x="18" y="192">+any(name, factory, block) T «deprecated»</text>
 </g>
-<g transform="translate(297,494)">
-  <rect class="card" x="0" y="0" width="340" height="240" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
+<g transform="translate(297,565)">
+  <rect class="card" x="0" y="0" width="340" height="275" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">StructuredTaskScopeSupervised</text>
-  <text class="mono" x="18" y="108">+fork(task) StructuredSubtask~T~</text>
-<text class="mono" x="18" y="132">+join() StructuredTaskScopeSupervised~T~</text>
-<text class="mono" x="18" y="156">+joinUntil(deadline) StructuredTaskScopeSupervised.</text>
-<text class="mono" x="18" y="180">+successfulResults() List~T~</text>
-<text class="mono" x="18" y="204">+failedExceptions() List~Throwable~</text>
-<text class="mono" x="18" y="228">+close()</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Structured Task Scope</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Supervised</text>
+  <text class="mono" x="18" y="124">+fork(task) StructuredSubtask~T~</text>
+<text class="mono" x="18" y="145">+join() StructuredTaskScopeSupervised~T~</text>
+<text class="mono" x="18" y="166">+joinUntil(deadline)</text>
+<text class="mono" x="18" y="187">StructuredTaskScopeSupervised~T~</text>
+<text class="mono" x="18" y="208">+successfulResults() List~T~</text>
+<text class="mono" x="18" y="229">+failedExceptions() List~Throwable~</text>
+<text class="mono" x="18" y="250">+close()</text>
 </g>
-<g transform="translate(707,494)">
-  <rect class="card" x="0" y="0" width="340" height="216" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+<g transform="translate(707,565)">
+  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">VirtualThreadRuntime</text>
+  <text class="label" x="170" y="61" text-anchor="middle">VirtualThreadRuntime</text>
   <text class="mono" x="18" y="108">+runtimeName: String</text>
-<text class="mono" x="18" y="132">+priority: Int</text>
-<text class="mono" x="18" y="156">+isSupported() Boolean</text>
-<text class="mono" x="18" y="180">+threadFactory(prefix) ThreadFactory</text>
-<text class="mono" x="18" y="204">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="129">+priority: Int</text>
+<text class="mono" x="18" y="150">+isSupported() Boolean</text>
+<text class="mono" x="18" y="171">+threadFactory(prefix) ThreadFactory</text>
+<text class="mono" x="18" y="192">+executorService() ExecutorService</text>
 </g>
-<g transform="translate(1117,494)">
-  <rect class="card" x="0" y="0" width="340" height="192" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+<g transform="translate(1117,565)">
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="170" y="57" text-anchor="middle">VirtualThreads</text>
+  <text class="label" x="170" y="61" text-anchor="middle">VirtualThreads</text>
   <text class="mono" x="18" y="108">+runtime() VirtualThreadRuntime</text>
-<text class="mono" x="18" y="132">+runtimeName() String</text>
-<text class="mono" x="18" y="156">+threadFactory(prefix) ThreadFactory</text>
-<text class="mono" x="18" y="180">+executorService() ExecutorService</text>
+<text class="mono" x="18" y="129">+runtimeName() String</text>
+<text class="mono" x="18" y="150">+threadFactory(prefix) ThreadFactory</text>
+<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
 </g>
-<g transform="translate(297,820)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
+<g transform="translate(297,990)">
+  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8BA84D"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Jdk21VirtualThreadRuntime</text>
-  <text class="mono" x="18" y="108">+runtimeName = jdk21</text>
-<text class="mono" x="18" y="132">+priority = 21</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Jdk21 Virtual Thread</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Runtime</text>
+  <text class="mono" x="18" y="124">+runtimeName = jdk21</text>
+<text class="mono" x="18" y="145">+priority = 21</text>
 </g>
-<g transform="translate(707,820)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+<g transform="translate(707,990)">
+  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">Jdk25VirtualThreadRuntime</text>
-  <text class="mono" x="18" y="108">+runtimeName = jdk25</text>
-<text class="mono" x="18" y="132">+priority = 25</text>
+  <text class="label" x="170" y="56.5" text-anchor="middle">Jdk25 Virtual Thread</text>
+<text class="label" x="170" y="81.5" text-anchor="middle">Runtime</text>
+  <text class="mono" x="18" y="124">+runtimeName = jdk25</text>
+<text class="mono" x="18" y="145">+priority = 25</text>
 </g>
-<g transform="translate(1117,820)">
-  <rect class="card" x="0" y="0" width="340" height="144" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+<g transform="translate(1117,990)">
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="57" text-anchor="middle">PlatformThreadFallback</text>
+  <text class="label" x="170" y="61" text-anchor="middle">PlatformThreadFallback</text>
   <text class="mono" x="18" y="108">+runtimeName = platform-fallback</text>
-<text class="mono" x="18" y="132">+priority = MIN_VALUE</text>
+<text class="mono" x="18" y="129">+priority = MIN_VALUE</text>
 </g>
-<rect x="1024" y="587" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1082" y="605" text-anchor="middle">selected via Serv.</text>
-<rect x="1229" y="285" width="116" height="26" rx="13" fill="#ffffff" opacity="0.94"/>
-<text class="small" x="1287" y="303" text-anchor="middle">selected via Serv.</text>
 </svg>

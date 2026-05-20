@@ -364,11 +364,11 @@ More examples are available in the `src/test/kotlin/io/bluetape4k/cassandra` pac
 
 ### Extension Function API Overview
 
-![Extension Function API Overview 1](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
 
 ### Core API Structure
 
-![Core API Structure 2](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
 
 ### Asynchronous Query Execution Flow
 

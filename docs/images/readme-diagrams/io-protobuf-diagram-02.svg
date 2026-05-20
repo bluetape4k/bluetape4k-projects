@@ -54,11 +54,13 @@
 </g>
 <g transform="translate(525,236)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">google.protobuf.Timestamp</text>
+  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">google.protobuf.Time</text>
+<text class="smallLabel" x="130" y="73.5" text-anchor="middle">stamp</text>
 </g>
 <g transform="translate(525,378)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">google.protobuf.Duration</text>
+  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">google.protobuf.Dura</text>
+<text class="smallLabel" x="130" y="73.5" text-anchor="middle">tion</text>
 </g>
 <g transform="translate(525,520)">
   <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1262" viewBox="0 0 1200 1262" role="img" aria-label="In-process Test Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="1566" viewBox="0 0 1376 1566" role="img" aria-label="In-process Test Sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,54 +20,53 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1200" height="1262"/>
-<rect class="frame" x="32" y="28" width="1136" height="1206" rx="28"/>
+<rect class="canvas" width="1376" height="1566"/>
+<rect class="frame" x="32" y="28" width="1312" height="1510" rx="28"/>
 <text class="title" x="66" y="82">In-process Test Sequence</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="35" y="166" width="210" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<rect class="card" x="21" y="166" width="238" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
 <text class="smallLabel" x="140" y="209" text-anchor="middle">Test code</text>
-<line x1="140" y1="252" x2="140" y2="1202" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="341.6666666666667" y="166" width="210" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="446.6666666666667" y="209" text-anchor="middle">InprocessServer</text>
-<line x1="446.6666666666667" y1="252" x2="446.6666666666667" y2="1202" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="648.3333333333334" y="166" width="210" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="753.3333333333334" y="209" text-anchor="middle">ServiceImpl</text>
-<line x1="753.3333333333334" y1="252" x2="753.3333333333334" y2="1202" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="955" y="166" width="210" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1060" y="209" text-anchor="middle">InprocessClient</text>
-<line x1="1060" y1="252" x2="1060" y2="1202" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="158" y="270" width="270.6666666666667" height="62" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="297" text-anchor="start">1.</text>
-<text class="strong" x="174" y="320" text-anchor="start">InProcessServerBuilder.forName(test-server)</text>
-<path class="line" d="M140 310 L446.6666666666667 310"/>
-<rect x="464.6666666666667" y="352" width="270.6666666666667" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="480.6666666666667" y="379" text-anchor="start">2. Register and start service</text>
-<path class="line" d="M446.6666666666667 392 L753.3333333333334 392"/>
-<rect x="158" y="434" width="884" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="461" text-anchor="start">3. InProcessChannelBuilder.forName(test-server)</text>
-<path class="line" d="M140 474 L1060 474"/>
-<rect x="464.6666666666667" y="516" width="577.3333333333333" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="480.6666666666667" y="543" text-anchor="start">4. Connect via in-memory channel</text>
-<path class="line" d="M1060 556 L446.6666666666667 556"/>
-<rect x="158" y="598" width="884" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="625" text-anchor="start">5. stub.call(request)</text>
-<path class="line" d="M140 638 L1060 638"/>
-<rect x="464.6666666666667" y="680" width="577.3333333333333" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="480.6666666666667" y="707" text-anchor="start">6. In-memory transport (no network)</text>
-<path class="line" d="M1060 720 L446.6666666666667 720"/>
-<rect x="464.6666666666667" y="762" width="270.6666666666667" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="480.6666666666667" y="789" text-anchor="start">7. Invoke method</text>
-<path class="line" d="M446.6666666666667 802 L753.3333333333334 802"/>
-<rect x="771.3333333333334" y="844" width="270.66666666666663" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="787.3333333333334" y="871" text-anchor="start">8. Response</text>
-<path class="dashed" d="M753.3333333333334 884 L1060 884"/>
-<rect x="158" y="926" width="884" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="953" text-anchor="start">9. Return Response</text>
-<path class="dashed" d="M1060 966 L140 966"/>
-<rect x="158" y="1008" width="270.6666666666667" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1035" text-anchor="start">10. server.shutdown()</text>
-<path class="line" d="M140 1048 L446.6666666666667 1048"/>
-<rect x="158" y="1090" width="884" height="39" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="174" y="1117" text-anchor="start">11. channel.shutdown()</text>
-<path class="line" d="M140 1130 L1060 1130"/>
+<line class="lifeline" x1="140" y1="252" x2="140" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="386.3333333333333" y="166" width="238" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="505.3333333333333" y="209" text-anchor="middle">InprocessServer</text>
+<line class="lifeline" x1="505.3333333333333" y1="252" x2="505.3333333333333" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="751.6666666666666" y="166" width="238" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="870.6666666666666" y="209" text-anchor="middle">ServiceImpl</text>
+<line class="lifeline" x1="870.6666666666666" y1="252" x2="870.6666666666666" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1117" y="166" width="238" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1236" y="209" text-anchor="middle">InprocessClient</text>
+<line class="lifeline" x1="1236" y1="252" x2="1236" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="119.16666666666663" y="286" width="407" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="137.16666666666663" y="313" text-anchor="start">1. InProcessServerBuilder.forName(test-server)</text>
+<path class="line" d="M140 344 L505.3333333333333 344"/>
+<rect x="553" y="396" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="571" y="423" text-anchor="start">2. Register and start service</text>
+<path class="line" d="M505.3333333333333 454 L870.6666666666666 454"/>
+<rect x="480.5" y="506" width="415" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="498.5" y="533" text-anchor="start">3. InProcessChannelBuilder.forName(test-server)</text>
+<path class="line" d="M140 564 L1236 564"/>
+<rect x="723.6666666666666" y="616" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="741.6666666666666" y="643" text-anchor="start">4. Connect via in-memory channel</text>
+<path class="line" d="M1236 674 L505.3333333333333 674"/>
+<rect x="583" y="726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="601" y="753" text-anchor="start">5. stub.call(request)</text>
+<path class="line" d="M140 784 L1236 784"/>
+<rect x="711.1666666666666" y="836" width="319" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="729.1666666666666" y="863" text-anchor="start">6. In-memory transport (no network)</text>
+<path class="line" d="M1236 894 L505.3333333333333 894"/>
+<rect x="583" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="601" y="973" text-anchor="start">7. Invoke method</text>
+<path class="line" d="M505.3333333333333 1004 L870.6666666666666 1004"/>
+<rect x="948.3333333333333" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="966.3333333333333" y="1083" text-anchor="start">8. Response</text>
+<path class="dashed" d="M870.6666666666666 1114 L1236 1114"/>
+<rect x="583" y="1166" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="601" y="1193" text-anchor="start">9. Return Response</text>
+<path class="dashed" d="M1236 1224 L140 1224"/>
+<rect x="217.66666666666663" y="1276" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="235.66666666666663" y="1303" text-anchor="start">10. server.shutdown()</text>
+<path class="line" d="M140 1334 L505.3333333333333 1334"/>
+<rect x="581" y="1386" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="599" y="1413" text-anchor="start">11. channel.shutdown()</text>
+<path class="line" d="M140 1444 L1236 1444"/>
 </svg>
