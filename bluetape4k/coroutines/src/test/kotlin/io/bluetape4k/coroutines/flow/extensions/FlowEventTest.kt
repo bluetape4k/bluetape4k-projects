@@ -1,11 +1,11 @@
 package io.bluetape4k.coroutines.flow.extensions
 
-import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class FlowEventTest: AbstractFlowTest() {
 
@@ -30,6 +30,15 @@ class FlowEventTest: AbstractFlowTest() {
     }
 
     @Test
+    fun `Value keeps data class source conveniences`() {
+        val event = FlowEvent.Value(1)
+        val (value) = event
+
+        value shouldBeEqualTo 1
+        event.copy(value = 2) shouldBeEqualTo FlowEvent.Value(2)
+    }
+
+    @Test
     fun `toString ofFlowEvent Error`() {
         val error = RuntimeException("Boom!")
         FlowEvent.Error(error).toString() shouldBeEqualTo "FlowEvent.Error($error)"
@@ -43,6 +52,16 @@ class FlowEventTest: AbstractFlowTest() {
         FlowEvent.Error(e).hashCode() shouldBeEqualTo FlowEvent.Error(e).hashCode()
 
         e.hashCode() shouldBeEqualTo FlowEvent.Error(e).hashCode()
+    }
+
+    @Test
+    fun `Error keeps data class source conveniences`() {
+        val e = RuntimeException("Boom!")
+        val event = FlowEvent.Error(e)
+        val (error) = event
+
+        error shouldBeEqualTo e
+        event.copy(error = IllegalStateException("next")).error.message shouldBeEqualTo "next"
     }
 
     @Test
