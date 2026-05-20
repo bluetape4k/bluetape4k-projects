@@ -18,21 +18,23 @@ import io.bluetape4k.coroutines.flow.exceptions.FlowNoElementException
 sealed interface FlowEvent<out T> {
 
     /**
-     * 값을 가진 이벤트입니다.
+     * Event containing a value.
      *
-     * > **성능 개선 TODO**: Kotlin 2.x에서 `@JvmInline value class Value<out T>(val value: T): FlowEvent<T>`로
-     * > 변환하면 hot-path per-event 객체 할당을 제거할 수 있습니다. 단, `componentN()` 소거와
-     * > 구조 분해 호환성을 사전에 확인해야 합니다.
+     * Keep this as a data class. `FlowEvent.Value` is normally emitted as the
+     * `FlowEvent<T>` interface type, where Kotlin/JVM value classes are boxed,
+     * so `@JvmInline` would not remove the hot-path allocation. It would also
+     * remove data-class source conveniences such as destructuring and `copy()`.
      */
     data class Value<out T>(val value: T): FlowEvent<T> {
         override fun toString(): String = "FlowEvent.Value($value)"
     }
 
     /**
-     * 오류를 가진 이벤트입니다.
+     * Event containing an error.
      *
-     * > **성능 개선 TODO**: Kotlin 2.x에서 `@JvmInline value class Error(val error: Throwable): FlowEvent<Nothing>`으로
-     * > 변환하면 per-event 객체 할당을 줄일 수 있습니다.
+     * Keep this as a data class for the same compatibility and boxing reasons
+     * as [Value]. When used as `FlowEvent<Nothing>`, a value-class variant would
+     * still be boxed by the JVM backend.
      */
     data class Error(val error: Throwable): FlowEvent<Nothing> {
         override fun toString(): String = "FlowEvent.Error($error)"
