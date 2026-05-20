@@ -288,10 +288,12 @@ class AsyncService {
 - Log writes happen in a separate coroutine
 - Minimal impact on main logic performance
 
-**3. Automatic Resource Management**
+**3. Lifecycle Management**
 
-- Shutdown Hook cleans up resources on JVM exit
-- Drains all buffered log events before terminating
+- Default channels share one JVM shutdown hook
+- `close()` cancels this channel's background collector
+- `closeAndJoin()` waits for collector cancellation in suspend shutdown or tests
+- Custom `CoroutineScope` injection is supported, but the caller still owns that scope
 
 #### Real-World Example
 
@@ -386,19 +388,29 @@ class DataImporter {
 - Writing ordinary synchronous code
 - Log volume is low
 - Immediate log output is required
+- The logger belongs to a long-lived companion object and async delivery is not needed
 
-#### Caveats
+#### Lifecycle
 
 ```kotlin
-// ⚠️ On application shutdown, waits until all buffered logs are flushed
-// The Shutdown Hook handles this automatically, but forced termination may lose some logs
+class ManagedProcessor: KLoggingChannel() {
+    suspend fun process() {
+        info { "processing" }
+    }
+}
 
-// ✅ For critical logs, give the buffer time to drain
-suspend fun criticalOperation() {
-    log.error { "Critical error occurred!" }
-    delay(100)  // allow time for the log to be processed
+suspend fun runProcessor() {
+    val processor = ManagedProcessor()
+    try {
+        processor.process()
+    } finally {
+        processor.closeAndJoin()
+    }
 }
 ```
+
+For ordinary companion-object loggers, prefer `KLogging()` unless coroutine-heavy or
+high-volume async logging justifies the lifecycle cost.
 
 ### 7. Logback Configuration
 

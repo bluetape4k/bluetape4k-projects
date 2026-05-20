@@ -4,11 +4,15 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.WARN_ERROR_PREFIX
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.logMessageSafe
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
@@ -16,25 +20,34 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.slf4j.event.Level
+import java.io.Serializable
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 /**
- * `MutableSharedFlow` 기반 비동기 로깅 채널을 제공하는 베이스 클래스입니다.
+ * Base logger that publishes log events to a background coroutine collector.
  *
- * ## 동작/계약
- * - `send(LogEvent)`로 전달된 이벤트를 백그라운드 코루틴이 순차 소비해 실제 로그로 기록합니다.
- * - 버퍼는 `extraBufferCapacity=64`, `BufferOverflow.SUSPEND` 정책을 사용합니다.
- * - JVM 종료 훅에서 로깅 잡을 취소합니다.
- * - 로그 이벤트 처리 중 예외는 개별적으로 포착되어 Flow 전체가 중단되지 않습니다.
+ * ## Contract
+ * - `send(LogEvent)` publishes to an internal `MutableSharedFlow`.
+ * - The default constructor uses a shared IO coroutine scope and one JVM shutdown hook for all instances.
+ * - `close()` cancels only this channel's collector job and is idempotent.
+ * - `closeAndJoin()` is the suspend shutdown path for tests and lifecycle owners that need deterministic cleanup.
+ * - A custom [CoroutineScope] remains owned by the caller; closing the channel does not cancel the injected scope.
+ * - Events sent after close are dropped.
  *
  * ```kotlin
  * class Service {
  *   companion object : KLoggingChannel()
  * }
- * // suspend fun 안에서 trace/debug/... 호출
+ *
+ * suspend fun Service.load() {
+ *     info { "loading" }
+ * }
  * ```
  */
-open class KLoggingChannel: KLogging() {
+open class KLoggingChannel(
+    private val channelScope: CoroutineScope = KLoggingChannelRuntime.scope,
+): KLogging(), AutoCloseable {
 
     private companion object {
         private const val DEFAULT_BUFFER_CAPACITY = 64
@@ -46,14 +59,17 @@ open class KLoggingChannel: KLogging() {
         onBufferOverflow = BufferOverflow.SUSPEND
     )
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + CoroutineName("logchannel"))
+    private val closed = AtomicBoolean(false)
 
     /**
-     * 로그 이벤트를 소비하는 백그라운드 Job입니다.
-     * 최초 접근 시 한 번만 thread-safe하게 초기화됩니다.
+     * Whether this channel has been explicitly closed.
      */
+    val isClosed: Boolean get() = closed.get()
+
+    internal val collectorActive: Boolean get() = job.isActive
+
     private val job: Job by lazy {
-        scope.launch {
+        channelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             sharedFlow
                 .onEach { event ->
                     try {
@@ -64,11 +80,16 @@ open class KLoggingChannel: KLogging() {
                             Level.WARN  -> log.warn(WARN_ERROR_PREFIX + event.msg, event.error)
                             Level.ERROR -> log.error(WARN_ERROR_PREFIX + event.msg, event.error)
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Throwable) {
-                        log.error(e) { "로그 이벤트 처리 중 오류가 발생했습니다." }
+                        log.error(e) { "Failed to process a log event." }
                     }
                 }
                 .catch { error ->
+                    if (error is CancellationException) {
+                        throw error
+                    }
                     log.error(error) { "Error during logging channel." }
                 }
                 .collect()
@@ -76,36 +97,57 @@ open class KLoggingChannel: KLogging() {
     }
 
     init {
-        job // lazy 초기화를 트리거합니다.
-        try {
-            Runtime.getRuntime().addShutdownHook(
-                thread(start = false, isDaemon = true) {
-                    job.cancel()
-                }
-            )
-        } catch (_: IllegalStateException) {
+        job
+    }
+
+    /**
+     * Publishes a log event to the internal channel.
+     *
+     * Events sent after [close] are ignored so callers do not block on a stopped collector.
+     *
+     * ```kotlin
+     * send(LogEvent(Level.INFO, "service started"))
+     * ```
+     *
+     * @param event event to publish.
+     */
+    suspend fun send(event: LogEvent) {
+        if (!isClosed) {
+            sharedFlow.emit(event)
+        }
+    }
+
+    /**
+     * Closes this channel and waits until the collector job has stopped.
+     *
+     * Use this from tests, application shutdown hooks, or lifecycle callbacks when the caller
+     * needs deterministic evidence that the collector no longer runs.
+     */
+    suspend fun closeAndJoin() {
+        if (closed.compareAndSet(false, true)) {
+            job.cancelAndJoin()
+        } else {
+            job.join()
+        }
+    }
+
+    /**
+     * Cancels this channel's collector job.
+     *
+     * This method is idempotent. It does not cancel a custom [CoroutineScope] supplied to the
+     * constructor because the caller owns that scope.
+     */
+    override fun close() {
+        if (closed.compareAndSet(false, true)) {
             job.cancel()
         }
     }
 
     /**
-     * 로그 이벤트를 내부 채널에 발행합니다.
+     * Publishes a TRACE event when TRACE logging is enabled.
      *
      * ```kotlin
-     * send(LogEvent(Level.INFO, "직접 이벤트 발행"))
-     * ```
-     *
-     * @param event 발행할 로그 이벤트입니다.
-     */
-    suspend fun send(event: LogEvent) {
-        sharedFlow.emit(event)
-    }
-
-    /**
-     * TRACE 활성화 시 이벤트를 채널에 발행합니다.
-     *
-     * ```kotlin
-     * trace { "TRACE 이벤트" }
+     * trace { "trace event" }
      * ```
      */
     suspend inline fun trace(error: Throwable? = null, msg: () -> Any?) {
@@ -115,10 +157,10 @@ open class KLoggingChannel: KLogging() {
     }
 
     /**
-     * DEBUG 활성화 시 이벤트를 채널에 발행합니다.
+     * Publishes a DEBUG event when DEBUG logging is enabled.
      *
      * ```kotlin
-     * debug { "DEBUG 이벤트" }
+     * debug { "debug event" }
      * ```
      */
     suspend inline fun debug(error: Throwable? = null, msg: () -> Any?) {
@@ -128,10 +170,10 @@ open class KLoggingChannel: KLogging() {
     }
 
     /**
-     * INFO 활성화 시 이벤트를 채널에 발행합니다.
+     * Publishes an INFO event when INFO logging is enabled.
      *
      * ```kotlin
-     * info { "INFO 이벤트" }
+     * info { "info event" }
      * ```
      */
     suspend inline fun info(error: Throwable? = null, msg: () -> Any?) {
@@ -141,10 +183,10 @@ open class KLoggingChannel: KLogging() {
     }
 
     /**
-     * WARN 활성화 시 이벤트를 채널에 발행합니다.
+     * Publishes a WARN event when WARN logging is enabled.
      *
      * ```kotlin
-     * warn { "WARN 이벤트" }
+     * warn { "warn event" }
      * ```
      */
     suspend inline fun warn(error: Throwable? = null, msg: () -> Any?) {
@@ -154,10 +196,10 @@ open class KLoggingChannel: KLogging() {
     }
 
     /**
-     * ERROR 활성화 시 이벤트를 채널에 발행합니다.
+     * Publishes an ERROR event when ERROR logging is enabled.
      *
      * ```kotlin
-     * error(exception) { "ERROR 이벤트" }
+     * error(exception) { "error event" }
      * ```
      */
     suspend inline fun error(error: Throwable? = null, msg: () -> Any?) {
@@ -167,22 +209,44 @@ open class KLoggingChannel: KLogging() {
     }
 
     /**
-     * 비동기 채널에 전달되는 로그 이벤트 모델입니다.
+     * Log event passed through the asynchronous channel.
      *
      * ```kotlin
-     * val event = LogEvent(Level.INFO, "서버 시작", null)
+     * val event = LogEvent(Level.INFO, "server started", null)
      * // event.level == Level.INFO
-     * // event.msg == "서버 시작"
+     * // event.msg == "server started"
      * ```
      *
-     * @property level 로그 레벨입니다.
-     * @property msg 로그 메시지입니다.
-     * @property error 함께 기록할 예외입니다.
+     * @property level log level.
+     * @property msg log message.
+     * @property error optional error to log with the message.
      */
     @JvmRecord
     data class LogEvent(
         val level: Level = Level.DEBUG,
         val msg: String? = null,
         val error: Throwable? = null,
-    )
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = -581771429847270896L
+        }
+    }
+}
+
+private object KLoggingChannelRuntime {
+    private val job = SupervisorJob()
+
+    val scope: CoroutineScope = CoroutineScope(job + Dispatchers.IO + CoroutineName("logchannel"))
+
+    init {
+        try {
+            Runtime.getRuntime().addShutdownHook(
+                thread(start = false, isDaemon = true, name = "bluetape4k-logchannel-shutdown") {
+                    job.cancel(CancellationException("JVM shutdown"))
+                }
+            )
+        } catch (_: IllegalStateException) {
+            job.cancel(CancellationException("JVM shutdown already in progress"))
+        }
+    }
 }
