@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -79,6 +80,29 @@ class InMemorySuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         }
 
         memo("recover") shouldBeEqualTo 7
+        evalCount.get() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `clear 중 진행 중인 suspend 결과는 캐시에 저장되지 않는다`() = runSuspendDefault {
+        val evalStarted = CompletableDeferred<Unit>()
+        val evalProceed = CompletableDeferred<Unit>()
+        val evalCount = AtomicInteger(0)
+        val memo = InMemorySuspendMemoizer<String, Int> { key ->
+            evalCount.incrementAndGet()
+            evalStarted.complete(Unit)
+            evalProceed.await()
+            key.length
+        }
+
+        val first = async { memo("hello") }
+        evalStarted.await()
+
+        memo.clear()
+        evalProceed.complete(Unit)
+
+        first.await() shouldBeEqualTo 5
+        memo("hello") shouldBeEqualTo 5
         evalCount.get() shouldBeEqualTo 2
     }
 }
