@@ -1,9 +1,12 @@
 package io.bluetape4k.concurrent
 
+import io.bluetape4k.utils.ShutdownQueue
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 /**
@@ -38,27 +41,42 @@ fun <T> Future<T>.asCompletableFuture(): CompletableFuture<T> = when (this@asCom
 }
 
 /**
- * [Future]를 [CompletableFuture]로 변환하는 래퍼.
- * Virtual thread에서 [Future.get]으로 블로킹 대기하여 폴링 오버헤드를 제거합니다.
- * [cancel]은 래핑된 Future에도 전파되어 불필요한 작업을 중단시킵니다.
+ * Wraps a [Future] as a [CompletableFuture].
+ *
+ * The wrapper waits for [Future.get] on a shared virtual-thread executor so callers do not
+ * allocate a new thread builder and unnamed watcher for every conversion. [cancel] still
+ * propagates to the wrapped [Future] and cancels the watcher task.
  */
 private class FutureToCompletableFutureWrapper<T>(private val wrapped: Future<T>): CompletableFuture<T>() {
-    init {
-        Thread.ofVirtual().name("future-wrapper").start {
-            try {
-                complete(wrapped.get())
-            } catch (e: CancellationException) {
-                cancel(true)
-            } catch (e: ExecutionException) {
-                completeExceptionally(e.cause ?: e)
-            } catch (e: InterruptedException) {
-                completeExceptionally(e)
-            }
+    private val watcher: Future<*> = FutureWrapperExecutor.submit {
+        try {
+            complete(wrapped.get())
+        } catch (e: CancellationException) {
+            super.cancel(true)
+        } catch (e: ExecutionException) {
+            completeExceptionally(e.cause ?: e)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            completeExceptionally(e)
         }
     }
 
     override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
         wrapped.cancel(mayInterruptIfRunning)
+        watcher.cancel(true)
         return super.cancel(mayInterruptIfRunning)
     }
+}
+
+private object FutureWrapperExecutor {
+    private val executor: ExecutorService = Executors.newThreadPerTaskExecutor(
+        Thread.ofVirtual().name("future-wrapper-", 0).factory()
+    )
+
+    init {
+        ShutdownQueue.register(executor)
+    }
+
+    fun submit(task: Runnable): Future<*> =
+        executor.submit(task)
 }
