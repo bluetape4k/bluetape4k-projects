@@ -20,37 +20,6 @@ import java.util.concurrent.Executor
 suspend inline fun <T> RedisFuture<T>.awaitSuspending(): T = await()
 
 /**
- * [RedisFuture] 완료를 스레드 블로킹 없이 suspend 방식으로 대기합니다.
- *
- * @see awaitSuspending
- *
- * ```kotlin
- * val value: String? = redisAsyncCommands.get("user:1").suspendAwait()
- * ```
- */
-@Deprecated(
-    message = "Use awaitSuspending() instead.",
-    replaceWith = ReplaceWith("awaitSuspending()"),
-)
-suspend inline fun <T> RedisFuture<T>.suspendAwait(): T = await()
-
-
-/**
- * [RedisFuture] 완료를 스레드 블로킹 없이 suspend 방식으로 대기합니다.
- *
- * @see awaitSuspending
- *
- * ```kotlin
- * val value: String? = redisAsyncCommands.get("user:1").coAwait()
- * ```
- */
-@Deprecated(
-    message = "Use awaitSuspending() instead.",
-    replaceWith = ReplaceWith("awaitSuspending()"),
-)
-suspend inline fun <T> RedisFuture<T>.coAwait(): T = await()
-
-/**
  * [RedisFuture] 컬렉션의 모든 요소가 완료될 때까지 스레드 블로킹 없이 대기합니다.
  *
  * 입력 순서대로 결과를 반환합니다. 하나라도 실패하면 반환 [List]를 만들지 않고 해당 예외가 전파됩니다.

@@ -30,10 +30,4 @@ object LettuceConst {
     const val DEFAULT_CHARSET = "UTF-8"
     const val DEFAULT_LOGBACK_CHANNEL = "channel:logback:logs"
     const val DEFAULT_DELIMITER = ":"
-
-    @Deprecated(
-        "오타 수정: DEFAULT_DELIMETER → DEFAULT_DELIMITER",
-        replaceWith = ReplaceWith("DEFAULT_DELIMITER")
-    )
-    const val DEFAULT_DELIMETER = DEFAULT_DELIMITER
 }

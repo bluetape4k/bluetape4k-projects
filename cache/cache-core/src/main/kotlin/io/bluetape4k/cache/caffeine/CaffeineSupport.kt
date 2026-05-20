@@ -254,39 +254,3 @@ inline fun <K: Any, V: Any> AsyncCache<K, V>.suspendGet(
         }
     }
 }
-
-/**
- * [AsyncCache]에 값이 없으면 [loader]를 이용하여 값을 채우고, 반환합니다.
- *
- * ```kotlin
- * val cache = caffeine<Any, Any> {
- *   maximumSize(1000)
- *   expireAfterWrite(5, TimeUnit.MINUTES)
- * }
- * val asyncCache: AsyncCache<String, Int> = cache.asyncCache()
- *
- * runBlocking {
- *      val future:CompletableFuture<Int> = asyncCache.getSuspending("hello") { key ->
- *          // suspend function
- *          delay(10)
- *          key.length
- *      }
- *      future.await()  // 5
- * }
- * ```
- *
- * @param key     cache key
- * @param loader  캐시 값을 Coroutines 환경에서 로딩하는 함수
- * @return [CompletableFuture] for cache value
- */
-@Deprecated("use suspendGet instead", ReplaceWith("this.suspendGet(key, loader)"))
-inline fun <K: Any, V: Any> AsyncCache<K, V>.getSuspending(
-    key: K,
-    crossinline loader: suspend (key: K) -> V,
-): CompletableFuture<V> {
-    return this.get(key) { k: K, executor: Executor ->
-        CoroutineScope(executor.asCoroutineDispatcher()).future {
-            loader(k)
-        }
-    }
-}

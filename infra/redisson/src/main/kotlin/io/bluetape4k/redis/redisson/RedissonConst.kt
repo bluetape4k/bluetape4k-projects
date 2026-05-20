@@ -32,13 +32,6 @@ object RedissonConst {
     const val DEFAULT_LOGBACK_CHANNEL = "channel:logback:logs"
     const val DEFAULT_DELIMITER = ":"
 
-    @Deprecated(
-        message = "오타 수정: DEFAULT_DELIMETER → DEFAULT_DELIMITER",
-        replaceWith = ReplaceWith("DEFAULT_DELIMITER"),
-        level = DeprecationLevel.WARNING
-    )
-    const val DEFAULT_DELIMETER = DEFAULT_DELIMITER
-
     /**
      * 고동시성 환경용 Connection Pool 크기: CPU × 8 (범위 64~256)
      */
