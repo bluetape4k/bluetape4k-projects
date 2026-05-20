@@ -287,10 +287,12 @@ class AsyncService {
 - 로깅 작업이 별도의 Coroutine에서 처리됨
 - 메인 로직의 성능에 영향 최소화
 
-**3. 자동 리소스 관리**
+**3. 수명주기 관리**
 
-- Shutdown Hook으로 종료 시 자동 정리
-- 모든 버퍼링된 로그 처리 후 종료
+- 기본 채널들은 JVM shutdown hook 하나를 공유
+- `close()`는 해당 채널의 백그라운드 collector를 취소
+- `closeAndJoin()`은 suspend 종료 경계나 테스트에서 collector 취소 완료까지 대기
+- 직접 주입한 `CoroutineScope`는 호출자가 계속 소유하며, 채널 close가 그 scope를 취소하지 않음
 
 #### 실전 예시
 
@@ -385,19 +387,29 @@ class DataImporter {
 - 일반 동기 코드
 - 로그 양이 적은 경우
 - 즉시 로그 출력이 필요한 경우
+- companion object 로거가 장수 객체이고 비동기 전달이 꼭 필요하지 않은 경우
 
-#### 주의사항
+#### 수명주기
 
 ```kotlin
-// ⚠️ 애플리케이션 종료 시 버퍼의 로그가 모두 처리될 때까지 대기
-// Shutdown Hook이 자동으로 처리하지만, 강제 종료 시 일부 로그 유실 가능
+class ManagedProcessor: KLoggingChannel() {
+    suspend fun process() {
+        info { "processing" }
+    }
+}
 
-// ✅ 중요한 로그는 명시적으로 flush
-suspend fun criticalOperation() {
-    log.error { "Critical error occurred!" }
-    delay(100)  // 로그가 처리될 시간 제공
+suspend fun runProcessor() {
+    val processor = ManagedProcessor()
+    try {
+        processor.process()
+    } finally {
+        processor.closeAndJoin()
+    }
 }
 ```
+
+일반 companion object 로거는 coroutine 중심 또는 대량 비동기 로깅이 실제로 필요할 때만
+`KLoggingChannel()`을 사용하고, 그 외에는 `KLogging()`을 우선 사용하세요.
 
 ### 7. Logback 설정
 
