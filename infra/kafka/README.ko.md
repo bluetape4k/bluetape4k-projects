@@ -162,16 +162,12 @@ val compressed = lz4ForyCodec.serialize("test-topic", largeObject)
 | `KafkaCodecs.String`    | UTF-8 문자열 직렬화        |
 | `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달         |
 | `KafkaCodecs.Jackson`   | JSON 직렬화             |
-| `KafkaCodecs.Jdk`       | **Obsolete / 컴파일 오류 게이트** — Java 직렬화 (RCE 위험, Fory 사용 권장) |
 | `KafkaCodecs.Kryo`      | Kryo 바이너리 직렬화        |
 | `KafkaCodecs.Fory`      | Fory 바이너리 직렬화 (고성능, 권장) |
-| `KafkaCodecs.LZ4Jdk`    | **Obsolete / 컴파일 오류 게이트** — LZ4 압축 + Java 직렬화 |
 | `KafkaCodecs.Lz4Kryo`   | LZ4 압축 + Kryo 직렬화    |
 | `KafkaCodecs.Lz4Fory`   | LZ4 압축 + Fory 직렬화    |
-| `KafkaCodecs.SnappyJdk` | **Obsolete / 컴파일 오류 게이트** — Snappy 압축 + Java 직렬화 |
 | `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화 |
 | `KafkaCodecs.SnappyFory` | Snappy 압축 + Fory 직렬화 |
-| `KafkaCodecs.ZstdJdk`   | **Obsolete / 컴파일 오류 게이트** — Zstd 압축 + Java 직렬화 |
 | `KafkaCodecs.ZstdKryo`  | Zstd 압축 + Kryo 직렬화   |
 | `KafkaCodecs.ZstdFory`  | Zstd 압축 + Fory 직렬화   |
 
@@ -432,7 +428,7 @@ io.bluetape4k.kafka
 │   ├── KafkaCodec.kt         # 기본 Codec 인터페이스
 │   ├── KafkaCodecs.kt        # Codec 인스턴스 제공
 │   ├── JacksonKafkaCodec.kt  # JSON 직렬화
-│   ├── BinaryKafkaCodecs.kt  # 바이너리 직렬화 (Kryo, Fory; obsolete JDK 호환)
+│   ├── BinaryKafkaCodecs.kt  # 바이너리 직렬화 (Kryo, Fory)
 │   ├── StringKafkaCodec.kt   # 문자열 직렬화
 │   └── ByteArrayKafkaCodec.kt # 바이트 배열 직렬화
 ├── coroutines/               # Coroutine 지원

@@ -162,16 +162,12 @@ Available codecs:
 | `KafkaCodecs.String`    | UTF-8 string serialization              |
 | `KafkaCodecs.ByteArray` | Raw byte array passthrough              |
 | `KafkaCodecs.Jackson`   | JSON serialization                      |
-| `KafkaCodecs.Jdk`       | **Obsolete / compile-error gated** — JDK serialization (RCE risk, use Fory) |
 | `KafkaCodecs.Kryo`      | Kryo binary serialization               |
 | `KafkaCodecs.Fory`      | Fory binary serialization               |
-| `KafkaCodecs.LZ4Jdk`    | **Obsolete / compile-error gated** — LZ4 compression + Java serialization |
 | `KafkaCodecs.Lz4Kryo`   | LZ4 compression + Kryo serialization    |
 | `KafkaCodecs.Lz4Fory`   | LZ4 compression + Fory serialization    |
-| `KafkaCodecs.SnappyJdk` | **Obsolete / compile-error gated** — Snappy compression + Java serialization |
 | `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
 | `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization |
-| `KafkaCodecs.ZstdJdk`   | **Obsolete / compile-error gated** — Zstd compression + Java serialization |
 | `KafkaCodecs.ZstdKryo`  | Zstd compression + Kryo serialization   |
 | `KafkaCodecs.ZstdFory`  | Zstd compression + Fory serialization   |
 
@@ -433,7 +429,7 @@ io.bluetape4k.kafka
 │   ├── KafkaCodec.kt         # Base codec interface
 │   ├── KafkaCodecs.kt        # Codec instances
 │   ├── JacksonKafkaCodec.kt  # JSON serialization
-│   ├── BinaryKafkaCodecs.kt  # Binary serialization (Kryo, Fory; obsolete JDK compatibility)
+│   ├── BinaryKafkaCodecs.kt  # Binary serialization (Kryo, Fory)
 │   ├── StringKafkaCodec.kt   # String serialization
 │   └── ByteArrayKafkaCodec.kt # Byte array serialization
 ├── coroutines/               # Coroutine support

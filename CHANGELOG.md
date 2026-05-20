@@ -10,6 +10,11 @@
 
 ### Changed
 
+### Breaking Changes
+
+- Removed the deprecated Kafka/Kafka4 JDK-backed codecs (`JdkKafkaCodec`, `LZ4JdkKafkaCodec`, `SnappyJdkKafkaCodec`, `ZstdJdkKafkaCodec`) and the corresponding `KafkaCodecs.*Jdk` registry entries. Use the Fory or Kryo codec variants instead ([#474](https://github.com/bluetape4k/bluetape4k-projects/issues/474)).
+- Removed the deprecated Kafka/Kafka4 Spring send aliases (`sendAndAwait`, `awaitSend`, `awaitSendDefault`, `sendSuspending`) and metrics aliases (`getMetricValue`). Use `suspendSend`, `suspendSendDefault`, and `getMetricValueOrNull` instead ([#474](https://github.com/bluetape4k/bluetape4k-projects/issues/474)).
+
 ### Fixed
 
 ---

@@ -1,6 +1,5 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.annotations.BluetapeObsoleteApi
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import org.apache.kafka.common.header.Headers
@@ -30,30 +29,6 @@ abstract class BinaryKafkaCodec(
 }
 
 /**
- * Kafka codec backed by JDK serialization.
- *
- * ## Security
- *
- * JDK deserialization can execute attacker-controlled object graphs when
- * untrusted bytes are decoded. Use [ForyKafkaCodec] for new code.
- *
- * ```kotlin
- * val codec = ForyKafkaCodec()
- * val bytes = codec.serialize("topic", null, "hello")
- * val result = codec.deserialize("topic", null, bytes)
- * // result == "hello"
- * ```
- */
-@BluetapeObsoleteApi
-@Deprecated(
-    message = "JDK serialization is unsafe for untrusted bytes. Use ForyKafkaCodec instead.",
-    replaceWith = ReplaceWith("ForyKafkaCodec()"),
-    level = DeprecationLevel.ERROR,
-)
-@Suppress("DEPRECATION")
-class JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.Jdk)
-
-/**
  * Kryo 직렬화를 이용한 Kafka Codec
  *
  * ```kotlin
@@ -76,29 +51,6 @@ class KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.Kryo)
  * ```
  */
 class ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fory)
-
-/**
- * Kafka codec backed by LZ4-compressed JDK serialization.
- *
- * ## Security
- *
- * JDK deserialization can execute attacker-controlled object graphs when
- * untrusted bytes are decoded. Use [LZ4ForyKafkaCodec] for new code.
- *
- * ```kotlin
- * val codec = LZ4ForyKafkaCodec()
- * val bytes = codec.serialize("topic", null, "hello")
- * val result = codec.deserialize("topic", null, bytes)
- * // result == "hello"
- * ```
- */
-@BluetapeObsoleteApi
-@Deprecated(
-    message = "JDK serialization is unsafe for untrusted bytes. Use LZ4ForyKafkaCodec instead.",
-    replaceWith = ReplaceWith("LZ4ForyKafkaCodec()"),
-    level = DeprecationLevel.ERROR,
-)
-class LZ4JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Jdk)
 
 /**
  * LZ4 압축 + Kryo 직렬화를 이용한 Kafka Codec
@@ -125,29 +77,6 @@ class LZ4KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Kryo)
 class LZ4ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fory)
 
 /**
- * Kafka codec backed by Snappy-compressed JDK serialization.
- *
- * ## Security
- *
- * JDK deserialization can execute attacker-controlled object graphs when
- * untrusted bytes are decoded. Use [SnappyForyKafkaCodec] for new code.
- *
- * ```kotlin
- * val codec = SnappyForyKafkaCodec()
- * val bytes = codec.serialize("topic", null, "hello")
- * val result = codec.deserialize("topic", null, bytes)
- * // result == "hello"
- * ```
- */
-@BluetapeObsoleteApi
-@Deprecated(
-    message = "JDK serialization is unsafe for untrusted bytes. Use SnappyForyKafkaCodec instead.",
-    replaceWith = ReplaceWith("SnappyForyKafkaCodec()"),
-    level = DeprecationLevel.ERROR,
-)
-class SnappyJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyJdk)
-
-/**
  * Snappy 압축 + Kryo 직렬화를 이용한 Kafka Codec
  *
  * ```kotlin
@@ -170,29 +99,6 @@ class SnappyKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyKryo)
  * ```
  */
 class SnappyForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFory)
-
-/**
- * Kafka codec backed by Zstd-compressed JDK serialization.
- *
- * ## Security
- *
- * JDK deserialization can execute attacker-controlled object graphs when
- * untrusted bytes are decoded. Use [ZstdForyKafkaCodec] for new code.
- *
- * ```kotlin
- * val codec = ZstdForyKafkaCodec()
- * val bytes = codec.serialize("topic", null, "hello")
- * val result = codec.deserialize("topic", null, bytes)
- * // result == "hello"
- * ```
- */
-@BluetapeObsoleteApi
-@Deprecated(
-    message = "JDK serialization is unsafe for untrusted bytes. Use ZstdForyKafkaCodec instead.",
-    replaceWith = ReplaceWith("ZstdForyKafkaCodec()"),
-    level = DeprecationLevel.ERROR,
-)
-class ZstdJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdJdk)
 
 /**
  * Zstd 압축 + Kryo 직렬화를 이용한 Kafka Codec

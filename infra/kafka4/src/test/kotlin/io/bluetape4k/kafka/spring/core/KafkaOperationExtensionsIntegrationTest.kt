@@ -1,9 +1,6 @@
-@file:Suppress("removal", "DEPRECATION")
-
 package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.kafka.AbstractKafkaTest
@@ -23,7 +20,7 @@ import org.springframework.kafka.core.ProducerFactory
 /**
  * Integration tests for [KafkaOperationExtensions] using a real Kafka broker (Testcontainers).
  *
- * Covers: suspendSend, awaitSend, sendSuspending, sendFlowAsParallel, sendAndForget.
+ * Covers: suspendSend, sendFlowAsParallel, sendAndForget.
  */
 class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
 
@@ -52,28 +49,6 @@ class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
         val record = ProducerRecord<String, String>(TOPIC, "key-1", "value-${System.currentTimeMillis()}")
 
         val result = kafkaTemplate.suspendSend(record)
-
-        result.shouldNotBeNull()
-        result.recordMetadata.topic() shouldBeEqualTo TOPIC
-    }
-
-    @RepeatedTest(REPEAT_SIZE)
-    fun `awaitSend deprecated - ProducerRecord 로 메시지 발송`() = runSuspendIO {
-        val record = ProducerRecord<String, String>(TOPIC, "key-await", "value-${System.currentTimeMillis()}")
-
-        @Suppress("DEPRECATION")
-        val result = kafkaTemplate.awaitSend(record)
-
-        result.shouldNotBeNull()
-        result.recordMetadata.topic() shouldBeEqualTo TOPIC
-    }
-
-    @RepeatedTest(REPEAT_SIZE)
-    fun `sendSuspending deprecated - ProducerRecord 로 메시지 발송`() = runSuspendIO {
-        val record = ProducerRecord<String, String>(TOPIC, "key-suspending", "value-${System.currentTimeMillis()}")
-
-        @Suppress("DEPRECATION")
-        val result = kafkaTemplate.sendSuspending(record)
 
         result.shouldNotBeNull()
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
@@ -116,15 +91,4 @@ class KafkaOperationExtensionsIntegrationTest: AbstractKafkaTest() {
         kafkaTemplate.sendAndForget(records, needFlush = true)
     }
 
-    @Test
-    fun `getMetricValue deprecated - 존재하는 메트릭 이름으로 double 값 반환`() = runSuspendIO {
-        // Trigger a send to ensure metrics are populated
-        val record = ProducerRecord<String, String>(TOPIC, "metric-key", "metric-value")
-        kafkaTemplate.suspendSend(record)
-
-        @Suppress("DEPRECATION")
-        val value: Double = kafkaTemplate.getMetricValue("record-send-total")
-
-        value shouldBeGreaterOrEqualTo 0.0
-    }
 }
