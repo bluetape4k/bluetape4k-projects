@@ -32,16 +32,6 @@ fun spanExporterOf(vararg exporters: SpanExporter): SpanExporter =
     SpanExporter.composite(*exporters)
 
 /**
- * [spanExporterOf]의 이전 이름입니다.
- */
-@Deprecated(
-    message = "use spanExporterOf instead.",
-    replaceWith = ReplaceWith("spanExporterOf(*exporters)")
-)
-fun spanExportOf(vararg exporters: SpanExporter): SpanExporter =
-    spanExporterOf(*exporters)
-
-/**
  * 지정된 [SpanData]들을 내보냅니다.
  *
  * @param spanDatas 내보낼 [SpanData] 목록

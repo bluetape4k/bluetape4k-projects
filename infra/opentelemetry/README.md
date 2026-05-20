@@ -130,7 +130,7 @@ suspend fun withExplicitContext() {
   }
 }
 
-// Prefer useSpanSuspending over the deprecated useSuspendSpan
+// Use useSpanSuspending to create and scope a Span around suspend work
 tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
   doAsyncWork()
 }

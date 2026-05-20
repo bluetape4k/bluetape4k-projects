@@ -151,12 +151,12 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
     }
 
     @Test
-    fun `deprecated useSuspendSpan should preserve original exception type`() = runSuspendIO {
+    fun `useSpanSuspending should preserve original exception type`() = runSuspendIO {
         spanExporter.reset()
-        val failure = IllegalStateException("deprecated")
+        val failure = IllegalStateException("canonical")
 
         val ex = kotlin.runCatching {
-            tracer.spanBuilder("deprecated-error-span").useSpanSuspending {
+            tracer.spanBuilder("canonical-error-span").useSpanSuspending {
                 throw failure
             }
         }.exceptionOrNull()
@@ -169,7 +169,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
-        finished[0].name shouldBeEqualTo "deprecated-error-span"
+        finished[0].name shouldBeEqualTo "canonical-error-span"
         finished[0].status.statusCode.name shouldBeEqualTo "ERROR"
         finished[0].events.any { it.name == "exception" }.shouldBeTrue()
     }

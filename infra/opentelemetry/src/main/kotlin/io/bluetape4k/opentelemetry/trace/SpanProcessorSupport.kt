@@ -43,16 +43,3 @@ inline fun batchSpanProcessorOf(
 ): BatchSpanProcessor {
     return BatchSpanProcessor.builder(exporter).apply(builder).build()
 }
-
-/**
- * [batchSpanProcessorOf]의 이전 이름입니다.
- */
-@Deprecated(
-    message = "use batchSpanProcessorOf instead.",
-    replaceWith = ReplaceWith("batchSpanProcessorOf(exporter, builder)")
-)
-inline fun batchSpanProcess(
-    exporter: SpanExporter,
-    builder: BatchSpanProcessorBuilder.() -> Unit,
-): BatchSpanProcessor =
-    batchSpanProcessorOf(exporter, builder)

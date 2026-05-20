@@ -81,15 +81,6 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
     block(span)
 }
 
-@Deprecated(
-    "use useSpanSuspending instead.",
-    replaceWith = ReplaceWith("useSpanSuspending(coroutineContext, block)")
-)
-suspend inline fun <T> SpanBuilder.useSuspendSpan(
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    crossinline block: suspend (Span) -> T,
-): T = useSpanSuspending(coroutineContext, block)
-
 /**
  * `waitTimeout` 기반 overload 입니다.
  *
@@ -103,38 +94,12 @@ suspend inline fun <T> SpanBuilder.useSpanSuspending(
     block(span)
 }
 
-@Deprecated(
-    "use useSpanSuspending instead.",
-    replaceWith = ReplaceWith("useSpanSuspending(waitTimeout, coroutineContext, block)")
-)
-suspend inline fun <T> SpanBuilder.useSuspendSpan(
-    waitTimeout: Long? = null,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    crossinline block: suspend (Span) -> T,
-): T = startSpan().useSuspending(waitTimeout, coroutineContext) { span ->
-    block(span)
-}
-
 /**
  * [Duration] 기반 overload 입니다.
  *
  * `waitDuration` 역시 하위 호환용 인자이며 종료 시각을 미래로 밀어 쓰지 않습니다.
  */
 suspend inline fun <T> SpanBuilder.useSpanSuspending(
-    waitDuration: Duration,
-    coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    crossinline block: suspend (Span) -> T,
-): T = useSpanSuspending(
-    waitDuration.toMillis().coerceAtLeast(0L),
-    coroutineContext,
-    block,
-)
-
-@Deprecated(
-    "use useSpanSuspending instead.",
-    replaceWith = ReplaceWith("useSpanSuspending(waitDuration, coroutineContext, block)")
-)
-suspend inline fun <T> SpanBuilder.useSuspendSpan(
     waitDuration: Duration,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     crossinline block: suspend (Span) -> T,

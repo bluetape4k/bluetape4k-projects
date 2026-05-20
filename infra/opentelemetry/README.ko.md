@@ -129,7 +129,7 @@ suspend fun withExplicitContext() {
   }
 }
 
-// deprecated 된 useSuspendSpan 대신 useSpanSuspending 사용 권장
+// suspend 작업 주위에 Span을 생성하고 범위를 지정할 때 useSpanSuspending 사용
 tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
   doAsyncWork()
 }

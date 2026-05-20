@@ -12,8 +12,8 @@ inventory.
 
 | Decision | Count | Meaning |
 |---|---:|---|
-| Delete | 7 files | Deprecated API has a direct replacement and should not remain in the next cleanup line. |
-| Replace call sites first | 2 files | Repo-local tests or samples still exercise the deprecated API and must move first. |
+| Delete | 5 files | Deprecated API has a direct replacement and should not remain in the next cleanup line. |
+| Replace call sites first | 1 file | Repo-local tests or samples still exercise the deprecated API and must move first. |
 | Keep | 0 files | No deprecated `infra/` API needs long-term retention. |
 
 `infra/kafka4` mirrors several `infra/kafka` deprecated APIs, so the current
@@ -23,6 +23,10 @@ scope is larger than the original 12-file issue comment.
 Kafka codecs were removed from the active inventory in the issue #474 PR A
 cleanup wave.
 
+2026-05-20 update: OpenTelemetry aliases `SpanBuilder.useSuspendSpan`,
+`spanExportOf`, and `batchSpanProcess` were removed; use `useSpanSuspending`,
+`spanExporterOf`, and `batchSpanProcessorOf`.
+
 ## Inventory
 
 | # | Module | File | Deprecated API | Current usage | Decision | Replacement |
@@ -31,11 +35,8 @@ cleanup wave.
 | 2 | `cache-lettuce` | `cache/lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
 | 3 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
 | 4 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt` | `suspendAwait()`, `coAwait()` | `RedisFutureSupportTest` compatibility tests | Replace tests, then delete | `awaitSuspending()` |
-| 5 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/coroutines/SpanCoroutineSupport.kt` | `SpanBuilder.useSuspendSpan(...)` overloads | One compatibility test path | Replace tests, then delete | `useSpanSuspending(...)` |
-| 6 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanExporterSupport.kt` | `spanExportOf(...)` | Definition only | Delete | `spanExporterOf(...)` |
-| 7 | `opentelemetry` | `infra/opentelemetry/src/main/kotlin/io/bluetape4k/opentelemetry/trace/SpanProcessorSupport.kt` | `batchSpanProcess(...)` | Definition only | Delete | `batchSpanProcessorOf(...)` |
-| 8 | `redisson` | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
-| 9 | `resilience4j` | `infra/resilience4j/src/main/kotlin/io/bluetape4k/resilience4j/SuspendDecorators.kt` | `decoreate()` typo overloads | Definition only | Delete | `decorate()` |
+| 5 | `redisson` | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
+| 6 | `resilience4j` | `infra/resilience4j/src/main/kotlin/io/bluetape4k/resilience4j/SuspendDecorators.kt` | `decoreate()` typo overloads | Definition only | Delete | `decorate()` |
 
 ## Follow-Up PR Split
 
@@ -61,7 +62,25 @@ Validation:
 
 - `./gradlew :bluetape4k-kafka:test :bluetape4k-kafka4:test --no-daemon`
 
-### PR B: Cache, Redis, OpenTelemetry, and Resilience4j aliases
+### PR B: OpenTelemetry aliases
+
+Status: Done in issue #474 PR B.
+
+Scope:
+
+- `infra/opentelemetry`
+
+Tasks:
+
+- Remove coroutine alias APIs: `useSuspendSpan`.
+- Remove naming aliases: `spanExportOf`, `batchSpanProcess`.
+- Rewrite compatibility tests to exercise the canonical APIs only.
+
+Validation:
+
+- `./gradlew :bluetape4k-opentelemetry:test --no-daemon`
+
+### Later PRs: Cache, Redis, and Resilience4j aliases
 
 Scope:
 
@@ -69,20 +88,18 @@ Scope:
 - `cache/lettuce`
 - `infra/lettuce`
 - `infra/redisson`
-- `infra/opentelemetry`
 - `infra/resilience4j`
 
 Tasks:
 
 - Remove typo aliases: `DEFAULT_DELIMETER`, `decoreate()`.
 - Remove coroutine alias APIs: `getSuspending`, `clearFrontCache`,
-  `suspendAwait`, `coAwait`, `useSuspendSpan`.
-- Remove naming aliases: `spanExportOf`, `batchSpanProcess`.
+  `suspendAwait`, `coAwait`.
 - Rewrite compatibility tests to exercise the canonical APIs only.
 
 Validation:
 
-- `./gradlew :bluetape4k-cache-core:test :bluetape4k-cache-lettuce:test :bluetape4k-lettuce:test :bluetape4k-redisson:test :bluetape4k-opentelemetry:test :bluetape4k-resilience4j:test --no-daemon`
+- `./gradlew :bluetape4k-cache-core:test :bluetape4k-cache-lettuce:test :bluetape4k-lettuce:test :bluetape4k-redisson:test :bluetape4k-resilience4j:test --no-daemon`
 
 ## Notes For Follow-Up Work
 
