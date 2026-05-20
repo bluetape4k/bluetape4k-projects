@@ -153,11 +153,11 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         }
         flush()
 
-        spanInsideAction.shouldNotBeNull()
+        val collectedSpan = spanInsideAction.shouldNotBeNull()
         // collect 안에서의 Span이 종료된 traced Span과 동일한 traceId
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
-        finished[0].traceId shouldBeEqualTo spanInsideAction!!.spanContext.traceId
+        finished[0].traceId shouldBeEqualTo collectedSpan.spanContext.traceId
     }
 
     @Test
