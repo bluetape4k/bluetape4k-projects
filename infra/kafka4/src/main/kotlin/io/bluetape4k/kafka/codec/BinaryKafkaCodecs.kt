@@ -98,6 +98,7 @@ class ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fory)
     replaceWith = ReplaceWith("LZ4ForyKafkaCodec()"),
     level = DeprecationLevel.ERROR,
 )
+@Suppress("DEPRECATION")
 class LZ4JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Jdk)
 
 /**
@@ -145,6 +146,7 @@ class LZ4ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fory)
     replaceWith = ReplaceWith("SnappyForyKafkaCodec()"),
     level = DeprecationLevel.ERROR,
 )
+@Suppress("DEPRECATION")
 class SnappyJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyJdk)
 
 /**
@@ -192,6 +194,7 @@ class SnappyForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFory)
     replaceWith = ReplaceWith("ZstdForyKafkaCodec()"),
     level = DeprecationLevel.ERROR,
 )
+@Suppress("DEPRECATION")
 class ZstdJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdJdk)
 
 /**
