@@ -23,8 +23,9 @@ per application.
 - Spring Kafka extensions for `KafkaTemplate`, producer factories, listener
   containers, and test utilities.
 - Kafka Streams helpers and test coverage compiled against Kafka 4.
-- Codecs for string, byte array, Jackson 3 JSON, JDK serialization, Kryo, Fory,
-  and compressed payloads with LZ4, Snappy, or Zstd.
+- Codecs for string, byte array, Jackson 3 JSON, Kryo, Fory, and compressed
+  payloads with LZ4, Snappy, or Zstd. JDK serialization codecs are obsolete
+  compatibility APIs and require explicit opt-in.
 - Embedded Kafka test support through Spring Kafka 4's KRaft-only broker.
 
 ## Dependency
@@ -132,16 +133,16 @@ Available codecs:
 | `KafkaCodecs.String` | UTF-8 string serialization |
 | `KafkaCodecs.ByteArray` | Raw byte array passthrough |
 | `KafkaCodecs.Jackson` | Jackson 3 JSON serialization |
-| `KafkaCodecs.Jdk` | **Deprecated** — JDK serialization (RCE risk, use Fory) |
+| `KafkaCodecs.Jdk` | **Obsolete / compile-error gated** — JDK serialization (RCE risk, use Fory) |
 | `KafkaCodecs.Kryo` | Kryo binary serialization |
 | `KafkaCodecs.Fory` | Fory binary serialization |
-| `KafkaCodecs.LZ4Jdk` | LZ4 compression + Java serialization |
+| `KafkaCodecs.LZ4Jdk` | **Obsolete / compile-error gated** — LZ4 compression + Java serialization |
 | `KafkaCodecs.Lz4Kryo` | LZ4 compression + Kryo serialization |
 | `KafkaCodecs.Lz4Fory` | LZ4 compression + Fory serialization |
-| `KafkaCodecs.SnappyJdk` | Snappy compression + Java serialization |
+| `KafkaCodecs.SnappyJdk` | **Obsolete / compile-error gated** — Snappy compression + Java serialization |
 | `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
 | `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization |
-| `KafkaCodecs.ZstdJdk` | Zstd compression + Java serialization |
+| `KafkaCodecs.ZstdJdk` | **Obsolete / compile-error gated** — Zstd compression + Java serialization |
 | `KafkaCodecs.ZstdKryo` | Zstd compression + Kryo serialization |
 | `KafkaCodecs.ZstdFory` | Zstd compression + Fory serialization |
 
@@ -220,10 +221,11 @@ class LegacyTrustedJacksonCodec : JacksonKafkaCodec() {
 }
 ```
 
-### Security: JdkKafkaCodec Deprecated
+### Security: JDK Kafka Codecs Obsolete
 
-`JdkKafkaCodec` is deprecated due to JDK deserialization RCE risks. Use
-`ForyKafkaCodec` instead — it is both faster and safer.
+`JdkKafkaCodec` and compressed JDK-backed codecs are obsolete due to JDK
+deserialization RCE risks. They are marked with `@BluetapeObsoleteApi` and
+`DeprecationLevel.ERROR`; use the Fory variants instead.
 
 ## Embedded Kafka Tests
 

@@ -12,11 +12,15 @@ work should happen in follow-up PRs.
 | Decision | Count | Meaning |
 |---|---:|---|
 | Delete | 17 files | Deprecated API has a direct replacement and should not remain in the next cleanup line. |
-| Replace call sites first | 6 files | Repo-local tests or samples still exercise the deprecated API and must move first. |
+| Replace call sites first | 4 files | Repo-local tests or samples still exercise the deprecated API and must move first. |
 | Keep | 0 files | No deprecated `infra/` API needs long-term retention. |
 
 `infra/kafka4` mirrors several `infra/kafka` deprecated APIs, so the current
 scope is larger than the original 12-file issue comment.
+
+2026-05-20 update: `kafka`/`kafka4` JDK-backed Kafka codecs are now staged as
+`@BluetapeObsoleteApi` + `DeprecationLevel.ERROR`; final API removal remains the
+next breaking cleanup step.
 
 ## Inventory
 
@@ -25,11 +29,11 @@ scope is larger than the original 12-file issue comment.
 | 1 | `cache-core` | `cache/core/src/main/kotlin/io/bluetape4k/cache/caffeine/CaffeineSupport.kt` | `AsyncCache.getSuspending(...)` | KDoc sample only | Delete | `AsyncCache.suspendGet(...)` |
 | 2 | `cache-lettuce` | `cache/lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
 | 3 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
-| 4 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
+| 4 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | Definition only; compile-error gated | Delete in breaking cleanup | `ForyKafkaCodec` or `KryoKafkaCodec` |
 | 5 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
 | 6 | `kafka` | `infra/kafka/src/main/kotlin/io/bluetape4k/kafka/spring/core/KafkaOperationExtensions.kt` | `awaitSend(...)`, `sendSuspending(...)`, `getMetricValue(...)` | KDoc/definition only | Delete | `suspendSend(...)`, `getMetricValueOrNull(...).asDouble()` |
 | 7 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/ProducerSupport.kt` | `Producer.getMetricValue(...)` | Definition only | Delete | `getMetricValueOrNull(...).asDouble()` |
-| 8 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | `KafkaCodecTest` still tests `KafkaCodecs.Jdk` | Replace tests, then delete | `ForyKafkaCodec` or `KryoKafkaCodec` |
+| 8 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/codec/BinaryKafkaCodecs.kt` | `JdkKafkaCodec` | Definition only; compile-error gated | Delete in breaking cleanup | `ForyKafkaCodec` or `KryoKafkaCodec` |
 | 9 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/spring/KafkaOperationsExtensions.kt` | `sendAndAwait(...)`, `awaitSendDefault(...)` overloads | Definition only | Delete | `suspendSend(...)` / `suspendSendDefault(...)` |
 | 10 | `kafka4` | `infra/kafka4/src/main/kotlin/io/bluetape4k/kafka/spring/core/KafkaOperationExtensions.kt` | `awaitSend(...)`, `sendSuspending(...)`, `getMetricValue(...)` | Definition only | Delete | `suspendSend(...)`, `getMetricValueOrNull(...).asDouble()` |
 | 11 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
@@ -54,11 +58,9 @@ Tasks:
 - Remove `sendAndAwait`, `awaitSend`, `awaitSendDefault`, and `sendSuspending`
   aliases after confirming no repo-local callers remain.
 - Remove `getMetricValue(...)` aliases.
-- Replace `KafkaCodecs.Jdk` compatibility tests with supported codecs or remove
-  the JDK-only compatibility case.
-- Remove `JdkKafkaCodec` and any public factory/registry entry that exposes it,
-  while keeping compressed JDK-backed codecs only if they are intentionally still
-  supported outside this issue.
+- Remove `JdkKafkaCodec` and compressed JDK-backed public factory/registry
+  entries after the `@BluetapeObsoleteApi` + `DeprecationLevel.ERROR` staging
+  period.
 
 Validation:
 

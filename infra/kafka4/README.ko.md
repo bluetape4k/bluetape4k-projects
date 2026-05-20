@@ -23,8 +23,8 @@ Spring Kafka 4.x, Spring Boot 4, Jackson 3 기준으로 컴파일합니다.
 - `KafkaTemplate`, producer factory, listener container, test utility를 위한
   Spring Kafka 확장 함수.
 - Kafka 4 기준으로 컴파일되는 Kafka Streams helper와 테스트.
-- 문자열, 바이트 배열, Jackson 3 JSON, JDK 직렬화, Kryo, Fory, LZ4/Snappy/Zstd
-  압축 payload codec.
+- 문자열, 바이트 배열, Jackson 3 JSON, Kryo, Fory, LZ4/Snappy/Zstd 압축 payload
+  codec. JDK 직렬화 codec은 obsolete 호환 API이며 명시적 opt-in이 필요합니다.
 - Spring Kafka 4의 KRaft 전용 embedded broker 테스트 지원.
 
 ## 의존성
@@ -131,16 +131,16 @@ Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니�
 | `KafkaCodecs.String` | UTF-8 문자열 직렬화 |
 | `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달 |
 | `KafkaCodecs.Jackson` | Jackson 3 JSON 직렬화 |
-| `KafkaCodecs.Jdk` | **사용 중단** — Java 직렬화 (RCE 위험, Fory 사용 권장) |
+| `KafkaCodecs.Jdk` | **Obsolete / 컴파일 오류 게이트** — Java 직렬화 (RCE 위험, Fory 사용 권장) |
 | `KafkaCodecs.Kryo` | Kryo 바이너리 직렬화 |
 | `KafkaCodecs.Fory` | Fory 바이너리 직렬화 |
-| `KafkaCodecs.LZ4Jdk` | LZ4 압축 + Java 직렬화 |
+| `KafkaCodecs.LZ4Jdk` | **Obsolete / 컴파일 오류 게이트** — LZ4 압축 + Java 직렬화 |
 | `KafkaCodecs.Lz4Kryo` | LZ4 압축 + Kryo 직렬화 |
 | `KafkaCodecs.Lz4Fory` | LZ4 압축 + Fory 직렬화 |
-| `KafkaCodecs.SnappyJdk` | Snappy 압축 + Java 직렬화 |
+| `KafkaCodecs.SnappyJdk` | **Obsolete / 컴파일 오류 게이트** — Snappy 압축 + Java 직렬화 |
 | `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화 |
 | `KafkaCodecs.SnappyFory` | Snappy 압축 + Fory 직렬화 |
-| `KafkaCodecs.ZstdJdk` | Zstd 압축 + Java 직렬화 |
+| `KafkaCodecs.ZstdJdk` | **Obsolete / 컴파일 오류 게이트** — Zstd 압축 + Java 직렬화 |
 | `KafkaCodecs.ZstdKryo` | Zstd 압축 + Kryo 직렬화 |
 | `KafkaCodecs.ZstdFory` | Zstd 압축 + Fory 직렬화 |
 
@@ -218,10 +218,11 @@ class LegacyTrustedJacksonCodec : JacksonKafkaCodec() {
 }
 ```
 
-### 보안: JdkKafkaCodec 지원 중단
+### 보안: JDK Kafka Codec Obsolete
 
-`JdkKafkaCodec` 은 JDK 역직렬화 RCE 위험으로 인해 `@Deprecated` 처리되었습니다.
-성능과 보안 모두 우수한 `ForyKafkaCodec` 을 사용하세요.
+`JdkKafkaCodec` 과 압축 JDK 기반 codec은 JDK 역직렬화 RCE 위험 때문에 obsolete
+API입니다. `@BluetapeObsoleteApi` 와 `DeprecationLevel.ERROR` 로 표시되며,
+Fory 계열 codec을 사용하세요.
 
 ## Embedded Kafka 테스트
 

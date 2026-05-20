@@ -1,5 +1,6 @@
 package io.bluetape4k.kafka.codec
 
+import io.bluetape4k.annotations.BluetapeObsoleteApi
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import org.apache.kafka.common.header.Headers
@@ -29,22 +30,27 @@ abstract class BinaryKafkaCodec(
 }
 
 /**
- * JDK 직렬화를 이용한 Kafka Codec
+ * Kafka codec backed by JDK serialization.
  *
- * **보안 경고**: JDK 직렬화는 역직렬화 과정에서 임의 코드 실행(RCE) 취약점이 있습니다.
- * 성능과 보안 모두 우수한 [ForyKafkaCodec]을 사용하십시오.
+ * ## Security
+ *
+ * JDK deserialization can execute attacker-controlled object graphs when
+ * untrusted bytes are decoded. Use [ForyKafkaCodec] for new code.
  *
  * ```kotlin
- * val codec = JdkKafkaCodec()
+ * val codec = ForyKafkaCodec()
  * val bytes = codec.serialize("topic", null, "hello")
  * val result = codec.deserialize("topic", null, bytes)
  * // result == "hello"
  * ```
  */
+@BluetapeObsoleteApi
 @Deprecated(
-    message = "JDK 직렬화는 역직렬화 과정에서 임의 코드 실행(RCE) 취약점이 있습니다. 성능과 보안 모두 우수한 ForyKafkaCodec을 사용하세요.",
-    replaceWith = ReplaceWith("ForyKafkaCodec()")
+    message = "JDK serialization is unsafe for untrusted bytes. Use ForyKafkaCodec instead.",
+    replaceWith = ReplaceWith("ForyKafkaCodec()"),
+    level = DeprecationLevel.ERROR,
 )
+@Suppress("DEPRECATION")
 class JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.Jdk)
 
 /**
@@ -72,15 +78,26 @@ class KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.Kryo)
 class ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fory)
 
 /**
- * LZ4 압축 + JDK 직렬화를 이용한 Kafka Codec
+ * Kafka codec backed by LZ4-compressed JDK serialization.
+ *
+ * ## Security
+ *
+ * JDK deserialization can execute attacker-controlled object graphs when
+ * untrusted bytes are decoded. Use [LZ4ForyKafkaCodec] for new code.
  *
  * ```kotlin
- * val codec = LZ4JdkKafkaCodec()
+ * val codec = LZ4ForyKafkaCodec()
  * val bytes = codec.serialize("topic", null, "hello")
  * val result = codec.deserialize("topic", null, bytes)
  * // result == "hello"
  * ```
  */
+@BluetapeObsoleteApi
+@Deprecated(
+    message = "JDK serialization is unsafe for untrusted bytes. Use LZ4ForyKafkaCodec instead.",
+    replaceWith = ReplaceWith("LZ4ForyKafkaCodec()"),
+    level = DeprecationLevel.ERROR,
+)
 class LZ4JdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Jdk)
 
 /**
@@ -108,15 +125,26 @@ class LZ4KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Kryo)
 class LZ4ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fory)
 
 /**
- * Snappy 압축 + JDK 직렬화를 이용한 Kafka Codec
+ * Kafka codec backed by Snappy-compressed JDK serialization.
+ *
+ * ## Security
+ *
+ * JDK deserialization can execute attacker-controlled object graphs when
+ * untrusted bytes are decoded. Use [SnappyForyKafkaCodec] for new code.
  *
  * ```kotlin
- * val codec = SnappyJdkKafkaCodec()
+ * val codec = SnappyForyKafkaCodec()
  * val bytes = codec.serialize("topic", null, "hello")
  * val result = codec.deserialize("topic", null, bytes)
  * // result == "hello"
  * ```
  */
+@BluetapeObsoleteApi
+@Deprecated(
+    message = "JDK serialization is unsafe for untrusted bytes. Use SnappyForyKafkaCodec instead.",
+    replaceWith = ReplaceWith("SnappyForyKafkaCodec()"),
+    level = DeprecationLevel.ERROR,
+)
 class SnappyJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyJdk)
 
 /**
@@ -143,17 +171,27 @@ class SnappyKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyKryo)
  */
 class SnappyForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFory)
 
-
 /**
- * Zstd 압축 + JDK 직렬화를 이용한 Kafka Codec
+ * Kafka codec backed by Zstd-compressed JDK serialization.
+ *
+ * ## Security
+ *
+ * JDK deserialization can execute attacker-controlled object graphs when
+ * untrusted bytes are decoded. Use [ZstdForyKafkaCodec] for new code.
  *
  * ```kotlin
- * val codec = ZstdJdkKafkaCodec()
+ * val codec = ZstdForyKafkaCodec()
  * val bytes = codec.serialize("topic", null, "hello")
  * val result = codec.deserialize("topic", null, bytes)
  * // result == "hello"
  * ```
  */
+@BluetapeObsoleteApi
+@Deprecated(
+    message = "JDK serialization is unsafe for untrusted bytes. Use ZstdForyKafkaCodec instead.",
+    replaceWith = ReplaceWith("ZstdForyKafkaCodec()"),
+    level = DeprecationLevel.ERROR,
+)
 class ZstdJdkKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdJdk)
 
 /**
