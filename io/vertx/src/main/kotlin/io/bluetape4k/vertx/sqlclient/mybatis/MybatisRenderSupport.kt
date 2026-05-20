@@ -12,13 +12,14 @@ import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider
 import org.mybatis.dynamic.sql.insert.render.InsertSelectStatementProvider
 import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider
 import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider
+import org.mybatis.dynamic.sql.render.RenderingContext
 import org.mybatis.dynamic.sql.render.TableAliasCalculator
 import org.mybatis.dynamic.sql.select.SelectModel
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider
 import org.mybatis.dynamic.sql.update.UpdateModel
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider
+import org.mybatis.dynamic.sql.util.FragmentAndParameters
 import org.mybatis.dynamic.sql.where.WhereModel
-import org.mybatis.dynamic.sql.where.render.WhereClauseProvider
 import java.util.*
 
 /**
@@ -59,7 +60,7 @@ fun DeleteModel.renderForVertx(): DeleteStatementProvider = render(VERTX_SQL_CLI
  * // provider.insertStatement == "INSERT INTO Person (id, first_name) VALUES (#{id}, #{firstName})"
  * ```
  */
-fun <T> InsertModel<T>.renderForVertx(): InsertStatementProvider<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+fun <T : Any> InsertModel<T>.renderForVertx(): InsertStatementProvider<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]를 사용하여 General Insert 구문을 렌더링합니다.
@@ -87,7 +88,7 @@ fun GeneralInsertModel.renderForVertx(): GeneralInsertStatementProvider = render
  * // batchInsert.insertStatementSQL == "INSERT INTO Person (id, first_name) VALUES (#{id}, #{firstName})"
  * ```
  */
-fun <T> BatchInsertModel<T>.renderForVertx(): BatchInsert<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+fun <T : Any> BatchInsertModel<T>.renderForVertx(): BatchInsert<T> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]를 사용하여 Insert Select 구문을 렌더링합니다.
@@ -118,7 +119,7 @@ fun InsertSelectModel.renderForVertx(): InsertSelectStatementProvider = render(V
  * // provider.insertStatement == "INSERT INTO Person (id, first_name) VALUES (#{id0}, #{firstName0}), (#{id1}, #{firstName1})"
  * ```
  */
-fun <T> MultiRowInsertModel<T>.renderForVertx(): MultiRowInsertStatementProvider<T> =
+fun <T : Any> MultiRowInsertModel<T>.renderForVertx(): MultiRowInsertStatementProvider<T> =
     render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
 
 /**
@@ -143,7 +144,8 @@ fun UpdateModel.renderForVertx(): UpdateStatementProvider = render(VERTX_SQL_CLI
  * // whereClause.get().whereClause == "WHERE id = #{id}"
  * ```
  */
-fun WhereModel.renderForVertx(): Optional<WhereClauseProvider> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+fun WhereModel.renderForVertx(): Optional<FragmentAndParameters> =
+    render(RenderingContext.withRenderingStrategy(VERTX_SQL_CLIENT_RENDERING_STRATEGY).build())
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]와 [tableAliasCalculator]를 사용하여 Where 절을 렌더링합니다.
@@ -154,30 +156,41 @@ fun WhereModel.renderForVertx(): Optional<WhereClauseProvider> = render(VERTX_SQ
  * // whereClause.get().whereClause == "WHERE p.id = #{id}"
  * ```
  */
-fun WhereModel.renderForVertx(tableAliasCalculator: TableAliasCalculator): Optional<WhereClauseProvider> =
-    render(VERTX_SQL_CLIENT_RENDERING_STRATEGY, tableAliasCalculator)
+fun WhereModel.renderForVertx(tableAliasCalculator: TableAliasCalculator): Optional<FragmentAndParameters> =
+    render(
+        RenderingContext.withRenderingStrategy(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
+            .withTableAliasCalculator(tableAliasCalculator)
+            .build(),
+    )
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]와 [parameterName]을 사용하여 Where 절을 렌더링합니다.
  *
+ * MyBatis Dynamic SQL 2.0 no longer exposes independent where rendering with a
+ * custom parameter name. The [parameterName] argument is retained only for
+ * source compatibility.
+ *
  * ```kotlin
  * val whereClause = where { person.id isEqualTo 1 }.renderForVertx("p")
- * // whereClause.get().whereClause == "WHERE id = #{p.id}"
+ * // whereClause.get().fragment == "WHERE id = #{id}"
  * ```
  */
-fun WhereModel.renderForVertx(parameterName: String): Optional<WhereClauseProvider> =
-    render(VERTX_SQL_CLIENT_RENDERING_STRATEGY, parameterName)
+fun WhereModel.renderForVertx(parameterName: String): Optional<FragmentAndParameters> = renderForVertx()
 
 /**
  * [VERTX_SQL_CLIENT_RENDERING_STRATEGY]와 [tableAliasCalculator], [parameterName]을 사용하여 Where 절을 렌더링합니다.
  *
+ * MyBatis Dynamic SQL 2.0 no longer exposes independent where rendering with a
+ * custom parameter name. The [parameterName] argument is retained only for
+ * source compatibility.
+ *
  * ```kotlin
  * val aliasCalculator = TableAliasCalculator.of(person, "p")
  * val whereClause = where { person.id isEqualTo 1 }.renderForVertx(aliasCalculator, "rec")
- * // whereClause.get().whereClause == "WHERE p.id = #{rec.id}"
+ * // whereClause.get().fragment == "WHERE p.id = #{id}"
  * ```
  */
 fun WhereModel.renderForVertx(
     tableAliasCalculator: TableAliasCalculator,
     parameterName: String,
-): Optional<WhereClauseProvider> = render(VERTX_SQL_CLIENT_RENDERING_STRATEGY, tableAliasCalculator, parameterName)
+): Optional<FragmentAndParameters> = renderForVertx(tableAliasCalculator)

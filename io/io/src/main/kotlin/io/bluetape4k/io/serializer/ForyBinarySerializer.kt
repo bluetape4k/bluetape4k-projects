@@ -5,7 +5,6 @@ import org.apache.fory.Fory
 import org.apache.fory.ThreadSafeFory
 import org.apache.fory.config.CompatibleMode
 import org.apache.fory.config.Language
-import java.util.concurrent.TimeUnit
 
 /**
  * [Fory](https://fory.apache.org/) 를 이용한 Binary 직렬화/역직렬화를 수행하는 [BinarySerializer]
@@ -36,12 +35,7 @@ class ForyBinarySerializer(
                 .withCodegen(true)
                 .withStringCompressed(true)
                 .requireClassRegistration(false)
-                .buildThreadSafeForyPool(
-                    2,
-                    2 * Runtime.getRuntime().availableProcessors(),
-                    30L,
-                    TimeUnit.MINUTES
-                )
+                .buildThreadSafeForyPool(threadSafeForyPoolSize())
         }
 
         // SCHEMA_CONSISTENT: 필드명 대신 위치 기반 ID 직렬화 — COMPATIBLE 대비 페이로드 크기 및 CPU 절감
@@ -58,12 +52,7 @@ class ForyBinarySerializer(
                 .withCodegen(true)
                 .withStringCompressed(false)
                 .requireClassRegistration(false)
-                .buildThreadSafeForyPool(
-                    2,
-                    2 * Runtime.getRuntime().availableProcessors(),
-                    30L,
-                    TimeUnit.MINUTES
-                )
+                .buildThreadSafeForyPool(threadSafeForyPoolSize())
         }
 
         /**
@@ -132,14 +121,12 @@ class ForyBinarySerializer(
                 .withCodegen(true)
                 .withStringCompressed(true)
                 .requireClassRegistration(true)   // 보안: 등록된 클래스만 허용
-                .buildThreadSafeForyPool(
-                    2,
-                    2 * Runtime.getRuntime().availableProcessors(),
-                    30L,
-                    TimeUnit.MINUTES
-                ).also { fory ->
+                .buildThreadSafeForyPool(threadSafeForyPoolSize()).also { fory ->
                     classes.forEach { fory.register(it) }
                 }
+
+        private fun threadSafeForyPoolSize(): Int =
+            maxOf(2, 2 * Runtime.getRuntime().availableProcessors())
     }
 
     /**

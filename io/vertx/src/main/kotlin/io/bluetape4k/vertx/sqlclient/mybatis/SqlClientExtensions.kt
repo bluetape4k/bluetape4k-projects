@@ -15,6 +15,8 @@ import org.mybatis.dynamic.sql.BasicColumn
 import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.SqlTable
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider
+import org.mybatis.dynamic.sql.dsl.CountDSL
+import org.mybatis.dynamic.sql.dsl.DeleteDSL as ModelDeleteDSL
 import org.mybatis.dynamic.sql.insert.render.BatchInsert
 import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider
 import org.mybatis.dynamic.sql.insert.render.InsertSelectStatementProvider
@@ -79,7 +81,7 @@ suspend fun SqlClient.count(
     column: BasicColumn,
     completer: CountCompleter,
 ): Long {
-    val model = KotlinCountBuilder(SqlBuilder.countColumn(column)).apply(completer).build()
+    val model = KotlinCountBuilder(CountDSL.count(column)).apply(completer).build()
     val provider = model.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
     return count(provider)
 }
@@ -101,7 +103,7 @@ suspend fun SqlClient.countDistinct(
     column: BasicColumn,
     completer: CountCompleter,
 ): Long {
-    val model = KotlinCountBuilder(SqlBuilder.countDistinctColumn(column)).apply(completer).build()
+    val model = KotlinCountBuilder(CountDSL.countDistinct(column)).apply(completer).build()
     val provider = model.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
     return count(provider)
 }
@@ -118,7 +120,7 @@ suspend fun SqlClient.countDistinct(
  */
 suspend fun SqlClient.countFrom(table: SqlTable, completer: CountCompleter): Long {
     val model =
-        KotlinCountBuilder(SqlBuilder.countColumn(SqlBuilder.constant<Long>("*"))).from(table).apply(completer)
+        KotlinCountBuilder(CountDSL.count(SqlBuilder.constant<Long>("*"))).from(table).apply(completer)
             .build()
     val provider = model.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
     return count(provider)
@@ -154,7 +156,7 @@ suspend fun SqlClient.delete(deleteProvider: DeleteStatementProvider): SqlResult
  * ```
  */
 suspend fun SqlClient.deleteFrom(table: SqlTable, completer: DeleteCompleter): SqlResult<Void> {
-    val model = KotlinDeleteBuilder(SqlBuilder.deleteFrom(table)).apply(completer).build()
+    val model = KotlinDeleteBuilder(ModelDeleteDSL.deleteFrom(table)).apply(completer).build()
     val provider = model.render(VERTX_SQL_CLIENT_RENDERING_STRATEGY)
     return delete(provider)
 }

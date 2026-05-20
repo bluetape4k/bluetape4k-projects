@@ -54,29 +54,27 @@ class VertxSqlClientRenderingStrategy: RenderingStrategy() {
     }
 
     override fun getFormattedJdbcPlaceholder(
-        column: BindableColumn<*>?,
-        prefix: String?,
-        parameterName: String?,
+        column: BindableColumn<*>,
+        prefix: String,
+        parameterName: String,
     ): String {
         log.debug { "Get formatted jdbc placeholder. prefix=$prefix, parameterName=$parameterName" }
 
         var placeHolder = parameterName
-        if (prefix != null) {
-            if (prefix == "record") {
-                placeHolder = "$parameterName"
-            } else if (prefix == "records[%s]") {
-                placeHolder = "${parameterName}%s"
-            }
+        if (prefix == "record") {
+            placeHolder = parameterName
+        } else if (prefix == "records[%s]") {
+            placeHolder = "${parameterName}%s"
         }
         return "#{$placeHolder}"
     }
 
-    override fun getFormattedJdbcPlaceholder(prefix: String?, parameterName: String?): String {
+    override fun getFormattedJdbcPlaceholder(prefix: String, parameterName: String): String {
         log.debug { "parameterName=$parameterName" }
         return "#{$parameterName}"
     }
 
-    override fun getRecordBasedInsertBinding(column: BindableColumn<*>?, parameterName: String?): String {
+    override fun getRecordBasedInsertBinding(column: BindableColumn<*>, parameterName: String): String {
         return getFormattedJdbcPlaceholder(column, "record", parameterName)
     }
 }
