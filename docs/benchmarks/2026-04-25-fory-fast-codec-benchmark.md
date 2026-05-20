@@ -83,5 +83,7 @@
 | redisson |         2,538 |             3,208 | **+26.4%** |
 | lettuce  |         2,596 |             3,300 | **+27.1%** |
 
+![FastFory uplift chart](../images/readme-charts/fory-fast-codec-uplift-chart-01.png)
+
 > spec §1.3 예측(+70%)과 차이가 있는 이유: 벤치마크 payload가 소형(512B description + 소수 필드)이며,
 `refTracking=false` 효과는 순환 참조가 많은 대형 객체 그래프에서 더 두드러짐. 실 서비스의 복잡한 엔티티에서는 더 큰 향상이 기대됨.

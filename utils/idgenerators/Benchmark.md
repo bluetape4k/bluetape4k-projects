@@ -63,54 +63,9 @@ SingleThreadIdGeneratorBenchmark.flake                      478 ±     3 ops/s
 SingleThreadIdGeneratorBenchmark.snowflake                  410 ±     1 ops/s
 ```
 
-### Graphs: Single-Thread
+### Throughput Chart
 
-#### Performance Chart (Batch=100)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **429,584** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🌸 ULID | **270,825** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">████████████████████████████</span> |
-| 🟢 UUID-V4 | **105,645** | <span style="background-color: #10B981; color: white; padding: 2px 4px">██████████</span> |
-| 🟠 KSUID-Ms | **59,896** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████</span> |
-| 🟡 KSUID-S | **53,884** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">██████</span> |
-| 🟣 Flake | **52,840** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">██████</span> |
-| 🔴 Snowflake | **40,972** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">█████</span> |
-
-**Single-Thread (Batch=100) Analysis:**
-- **1st Place: UUID V7** (429K ops/s) - absolute leader with lock-free implementation
-- **2nd Place: ULID** (270K ops/s) - excellent single-thread performance but degradation in multi-thread
-- **3rd Place: UUID V4** (105K ops/s) - purely random
-
-#### Performance Chart (Batch=10,000)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **4,278** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🌸 ULID | **2,553** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">█████████████████████████</span> |
-| 🟢 UUID-V4 | **1,037** | <span style="background-color: #10B981; color: white; padding: 2px 4px">██████████</span> |
-| 🟠 KSUID-Ms | **582** | <span style="background-color: #F97316; color: white; padding: 2px 4px">██████</span> |
-| 🟡 KSUID-S | **521** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">█████</span> |
-| 🟣 Flake | **478** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">█████</span> |
-| 🔴 Snowflake | **410** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">████</span> |
-
-**Single-Thread (Batch=10,000) Analysis:**
-- All generators experience ~100x performance degradation with increased batch size
-- UUID V7's superiority consistently maintained
-
-**Batch=10,000 Performance Comparison:**
-
-| Generator | ops/s |
-|-----------|-------|
-| UUID V7   | 4,278 (🔵 blue) |
-| ULID      | 2,553 (🌸 pink) |
-| UUID V4   | 1,037 (🟢 green) |
-| KSUID(Ms) | 582 (🟠 orange) |
-| KSUID(S)  | 521 (🟡 yellow) |
-| Flake     | 478 (🟣 violet) |
-| Snowflake | 410 (🔴 red) |
-
----
+![ID generator throughput chart](../../docs/images/readme-charts/idgenerators-throughput-chart-01.png)
 
 ## Results: Multi-Thread (Concurrent - 16 Threads)
 
@@ -152,54 +107,9 @@ ConcurrentIdGeneratorBenchmark.ksuidMillis              241 ±    88 ops/s
 ConcurrentIdGeneratorBenchmark.ulid                     223 ±    43 ops/s
 ```
 
-### Graphs: Multi-Thread (16 Threads)
+### Throughput Chart
 
-#### Performance Chart (Batch=100, 16 Threads)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **83,431** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🟣 Flake | **32,011** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">████████████████</span> |
-| 🟢 UUID-V4 | **30,217** | <span style="background-color: #10B981; color: white; padding: 2px 4px">███████████████</span> |
-| 🔴 Snowflake | **27,016** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">███████████</span> |
-| 🟡 KSUID-S | **25,810** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">███████████</span> |
-| 🟠 KSUID-Ms | **25,768** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████████</span> |
-| 🌸 ULID | **22,580** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">███████████</span> |
-
-**Concurrent (16 Threads, Batch=100) Analysis:**
-- **1st Place: UUID V7** (83K ops/s) - **overwhelming advantage**, benefits from lock-free implementation
-- **2nd-7th Place (22K~32K)**: competitive tier
-- **ULID Performance Degradation**: 270K single-thread → 22K multi-thread (**70% drop**)
-
-#### Performance Chart (Batch=10,000, 16 Threads)
-
-| Generator | Throughput (ops/s) | Bar Chart |
-|-----------|-------------------|-----------|
-| 🔵 UUID-V7 | **795** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🟣 Flake | **317** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">████████████████</span> |
-| 🟢 UUID-V4 | **290** | <span style="background-color: #10B981; color: white; padding: 2px 4px">███████████████</span> |
-| 🔴 Snowflake | **253** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">███████████</span> |
-| 🟡 KSUID-S | **252** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">███████████</span> |
-| 🟠 KSUID-Ms | **241** | <span style="background-color: #F97316; color: white; padding: 2px 4px">███████████</span> |
-| 🌸 ULID | **223** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">███████████</span> |
-
-**Concurrent (16 Threads, Batch=10,000) Analysis:**
-- UUID V7's advantage **consistently maintained** even with increased batch size
-- ULID remains in 7th position across large batches
-
-**Batch=10,000 Performance Comparison (16 Threads):**
-
-| Generator | ops/s | Color |
-|-----------|-------|-------|
-| UUID V7   | 795   | 🔵 blue |
-| Flake     | 317   | 🟣 violet |
-| UUID V4   | 290   | 🟢 green |
-| Snowflake | 253   | 🔴 red |
-| KSUID(S)  | 252   | 🟡 yellow |
-| KSUID(Ms) | 241   | 🟠 orange |
-| ULID      | 223   | 🌸 pink |
-
----
+![ID generator throughput chart](../../docs/images/readme-charts/idgenerators-throughput-chart-01.png)
 
 ## Performance Analysis
 

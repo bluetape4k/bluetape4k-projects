@@ -58,23 +58,9 @@ LettuceCodecBenchmark.jdkEncodeDecode           thrpt    5   131.508 ±   12.928
 LettuceCodecBenchmark.gzipFastForyEncodeDecode  thrpt    5   110.057 ±    2.378  ops/ms
 ```
 
-### 성능 차트
+### Performance Chart
 
-| 코덱 | ops/ms | 처리량 |
-|------|--------|--------|
-| 🔵 fastjson2 | **6,379** | <span style="background-color: #0EA5E9; color: white; padding: 2px 4px">████████████████████████████████████████</span> |
-| 🟢 fastFory | **3,286** | <span style="background-color: #10B981; color: white; padding: 2px 4px">████████████████████</span> |
-| 🟣 fory | **2,551** | <span style="background-color: #8B5CF6; color: white; padding: 2px 4px">████████████████</span> |
-| 🟠 kryo | **963** | <span style="background-color: #F97316; color: white; padding: 2px 4px">██████</span> |
-| 🩵 lz4FastFory | **906** | <span style="background-color: #14B8A6; color: white; padding: 2px 4px">██████</span> |
-| 🌸 lz4Fory | **852** | <span style="background-color: #EC4899; color: white; padding: 2px 4px">██████</span> |
-| 🟡 jackson3 | **834** | <span style="background-color: #EAB308; color: black; padding: 2px 4px">█████</span> |
-| 🔴 lz4Kryo | **535** | <span style="background-color: #EF4444; color: white; padding: 2px 4px">████</span> |
-| 🌿 zstdFastFory | **206** | <span style="background-color: #059669; color: white; padding: 2px 4px">██</span> |
-| 🎀 zstdFory | **203** | <span style="background-color: #F43F5E; color: white; padding: 2px 4px">██</span> |
-| 💜 zstdKryo | **136** | <span style="background-color: #6366F1; color: white; padding: 2px 4px">█</span> |
-| ☁️ jdk | **132** | <span style="background-color: #64748B; color: white; padding: 2px 4px">█</span> |
-| 🧡 gzipFastFory | **110** | <span style="background-color: #D97706; color: white; padding: 2px 4px">█</span> |
+![Lettuce codec throughput chart](../../docs/images/readme-charts/infra-lettuce-codec-throughput-chart-01.png)
 
 ---
 

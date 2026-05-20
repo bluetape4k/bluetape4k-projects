@@ -75,16 +75,9 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 ### 성능 차트: L1 적중 vs L2 연산
 
-| 연산 | ops/ms (512B) | 처리량 |
-|-----|:------------:|-------|
-| ⚡ l1Hit | **65,560** | `████████████████████████████████████████` |
-| 🔄 removeSingle | 4.2 | `░` |
-| 🔄 l2Hit | 4.1 | `░` |
-| 🔍 l2Miss | 4.0 | `░` |
-| ✍️ putSingle | 2.1 | `░` |
-| 📦 putAll×100 | 1.0 | `░` |
+![Lettuce Near Cache throughput chart](../../docs/images/readme-charts/cache-lettuce-near-cache-throughput-chart-01.png)
 
-> L1 적중(65,560 ops/ms)과 L2 연산(~4 ops/ms) 사이 **16,000배 격차**.
+> Higher is better. Log scale keeps the L1 hit and Redis-backed operations readable.
 
 ---
 
