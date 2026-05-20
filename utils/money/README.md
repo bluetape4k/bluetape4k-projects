@@ -25,6 +25,10 @@ dependencies {
 - **Exchange-rate conversion**: convert currencies using ECB and IMF exchange-rate data
 - **Aggregation**: `Collection<MonetaryAmount>.sum()` extension
 
+## Class Diagram
+
+![money Class Structure diagram](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
+
 ## Usage Examples
 
 ### Create Currency Units
@@ -232,10 +236,6 @@ USD.isCurrencyConversionAvailable    // true
 | Performance         | moderate                               | very fast                                           |
 | Exchange conversion | accurate                               | may lose precision                                  |
 | Recommended use     | financial calculations, high precision | high-volume operations, performance-sensitive paths |
-
-## Class Diagram
-
-![money Class Structure diagram](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
 
 ## Currency Operation Flow
 

@@ -144,6 +144,20 @@ dependencies {
 }
 ```
 
+## Diagrams
+
+### Distributed Primitive Class Hierarchy
+
+![Distributed Primitive Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
+
+### LettuceLoadedMap Read-Through / Write-Through Flow
+
+![LettuceLoadedMap Read-Through / Write-Through Flow diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
+
+### LettuceBinaryCodec Hierarchy
+
+![LettuceBinaryCodec Hierarchy diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
+
 ## Usage Examples
 
 ### Creating a RedisClient and Connecting
@@ -394,20 +408,6 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-cache-lettuce:$bluetape4kVersion")
 }
 ```
-
-## Diagrams
-
-### Distributed Primitive Class Hierarchy
-
-![Distributed Primitive Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
-
-### LettuceLoadedMap Read-Through / Write-Through Flow
-
-![LettuceLoadedMap Read-Through / Write-Through Flow diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
-
-### LettuceBinaryCodec Hierarchy
-
-![LettuceBinaryCodec Hierarchy diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## Probabilistic Data Structures
 

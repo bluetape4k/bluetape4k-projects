@@ -23,6 +23,10 @@ dependencies {
 - **Coroutine 연동**: suspend 함수와 Uni 변환
 - **Kotlin 친화적 API**: 확장 함수 제공
 
+## Mutiny 타입 다이어그램
+
+![Mutiny diagram](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.png)
+
 ## 사용 예시
 
 ### Uni 생성
@@ -225,10 +229,6 @@ val result = totalAmount.await().indefinitely()
 | `UniSupport.kt`       | Uni 생성 및 변환 확장 함수    |
 | `MultiSupport.kt`     | Multi 생성 및 변환 확장 함수  |
 | `CoroutineSupport.kt` | Coroutine과 Mutiny 연동 |
-
-## Mutiny 타입 다이어그램
-
-![Mutiny diagram](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.png)
 
 ## Mutiny 처리 흐름
 

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="998" height="963" viewBox="0 0 998 963" role="img" aria-label="Redis Serializer Class Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -24,10 +24,10 @@
 <rect class="frame" x="32" y="28" width="934" height="907" rx="28"/>
 <text class="title" x="66" y="82">Redis Serializer Class Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M274 426 C274 493 724 493 724 560"/>
-<path class="line" d="M274 426 C274 493 274 493 274 560"/>
-<path class="implLine" d="M724 560 C724 451 724 451 724 342"/>
-<path class="implLine" d="M274 560 C274 451 724 451 724 342"/>
+<path class="line" d="M274 418 L274 501 L724 501 L724 568"/>
+<path class="line" d="M274 418 L274 568"/>
+<path class="implLine" d="M724 568 L724 334"/>
+<path class="implLine" d="M274 568 L274 477 L724 477 L724 334"/>
 <g transform="translate(84,180)">
   <rect class="card" x="0" y="0" width="380" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#5B8DEF"/>

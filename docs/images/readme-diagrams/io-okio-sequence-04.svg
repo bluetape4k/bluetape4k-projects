@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1428" height="1276" viewBox="0 0 1428 1276" role="img" aria-label="Tink Encryption + Compression Combined Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="680" viewBox="0 0 1366 680" role="img" aria-label="Compression Factory (Compressable)">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -20,44 +20,43 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1428" height="1276"/>
-<rect class="frame" x="32" y="28" width="1364" height="1220" rx="28"/>
-<text class="title" x="66" y="82">Tink Encryption + Compression Combined Flow</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="14.5" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1216" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="397.16666666666674" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="522.6666666666667" y="209" text-anchor="middle">CompressableSink</text>
-<line class="lifeline" x1="522.6666666666667" y1="252" x2="522.6666666666667" y2="1216" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="779.8333333333334" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="905.3333333333334" y="209" text-anchor="middle">TinkEncryptSink</text>
-<line class="lifeline" x1="905.3333333333334" y1="252" x2="905.3333333333334" y2="1216" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1162.5" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1288" y="209" text-anchor="middle">delegate Sink</text>
-<line class="lifeline" x1="1288" y1="252" x2="1288" y2="1216" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="226.33333333333337" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="244.33333333333337" y="313" text-anchor="start">1. write(plainData)</text>
-<path class="line" d="M140 344 L522.6666666666667 344"/>
-<rect x="226.33333333333337" y="396" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="244.33333333333337" y="423" text-anchor="start">2. close()</text>
-<path class="line" d="M140 454 L522.6666666666667 454"/>
-<rect x="463.66666666666674" y="506" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="481.66666666666674" y="533" text-anchor="start">3. compress(plainData)</text>
-<path class="line" d="M522.6666666666667 564 C586.6666666666667 564 586.6666666666667 598 522.6666666666667 598"/>
-<rect x="599" y="636" width="230" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="617" y="663" text-anchor="start">4. write(compressedData)</text>
-<path class="line" d="M522.6666666666667 694 L905.3333333333334 694"/>
-<rect x="830.3333333333334" y="746" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="848.3333333333334" y="773" text-anchor="start">5. encrypt(compressedData)</text>
-<path class="line" d="M905.3333333333334 804 C969.3333333333334 804 969.3333333333334 838 905.3333333333334 838"/>
-<rect x="985.6666666666667" y="876" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1003.6666666666667" y="903" text-anchor="start">6. write(encryptedData)</text>
-<path class="line" d="M905.3333333333334 934 L1288 934"/>
-<rect x="991.6666666666667" y="986" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1009.6666666666667" y="1013" text-anchor="start">7. flush()</text>
-<path class="line" d="M905.3333333333334 1044 L1288 1044"/>
-<rect x="542.5" y="1096" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="560.5" y="1123" text-anchor="start">8. Compressed + encrypted data written</text>
-<path class="dashed" d="M1288 1154 L140 1154"/>
+<rect class="canvas" width="1366" height="680"/>
+<rect class="frame" x="32" y="28" width="1302" height="624" rx="28"/>
+<text class="title" x="66" y="82">Compression Factory (Compressable)</text>
+<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
+<g transform="translate(88,180)">
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Sinks</text>
+  <text class="mono" x="18" y="108">+compressableSink(Sink, Compressor)</text>
+<text class="mono" x="18" y="129">CompressableSink</text>
+<text class="mono" x="18" y="150">+compressableSink(Sink,</text>
+<text class="mono" x="18" y="171">StreamingCompressor) StreamingCompressSink</text>
+<text class="mono" x="18" y="192">+deflate(Sink) CompressableSink</text>
+<text class="mono" x="18" y="213">+gzip(Sink) CompressableSink</text>
+<text class="mono" x="18" y="234">+lz4(Sink) CompressableSink</text>
+<text class="mono" x="18" y="255">+snappy(Sink) CompressableSink</text>
+</g>
+<g transform="translate(508,180)">
+  <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
+  <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Compressable</text>
+
+</g>
+<g transform="translate(928,180)">
+  <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
+  <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Sources</text>
+  <text class="mono" x="18" y="108">+decompressableSource(Source, Compressor)</text>
+<text class="mono" x="18" y="129">DecompressableSource</text>
+<text class="mono" x="18" y="150">+decompressableSource(Source,</text>
+<text class="mono" x="18" y="171">StreamingCompressor)</text>
+<text class="mono" x="18" y="192">+deflate(Source) DecompressableSource</text>
+<text class="mono" x="18" y="213">+gzip(Source) DecompressableSource</text>
+<text class="mono" x="18" y="234">+lz4(Source) DecompressableSource</text>
+<text class="mono" x="18" y="255">+snappy(Source) DecompressableSource</text>
+</g>
 </svg>

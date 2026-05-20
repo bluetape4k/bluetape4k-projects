@@ -17,6 +17,20 @@ It provides the same feature set as Jackson 2.x (
 - Security extensions: Tink-backed field encryption and field masking can be attached to Jackson models through annotations.
 - Format flexibility: binary/text format modules are compile-only here, so applications can add only the runtime formats they use.
 
+## Architecture Diagrams
+
+### Jackson 2.x vs 3.x Module Comparison
+
+![Jackson 2.x vs 3.x Module Comparison diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
+
+### Class Structure
+
+![Class Structure diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
+
+### Jackson 3.x Module Registration Flow
+
+![Jackson 3.x Module Registration Flow diagram](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
+
 ## Recommended Usage Scenarios
 
 - Prefer this module for new Kotlin code that already targets Jackson 3.x and `tools.jackson.*` packages.
@@ -302,20 +316,6 @@ val yamlMapper = ObjectMapper(YAMLFactory())
 val yaml = yamlMapper.writeValueAsString(user)      // YAML serialization
 val restored = yamlMapper.readValue<User>(yaml)     // deserialization
 ```
-
-## Architecture Diagrams
-
-### Jackson 2.x vs 3.x Module Comparison
-
-![Jackson 2.x vs 3.x Module Comparison diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
-
-### Class Structure
-
-![Class Structure diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
-
-### Jackson 3.x Module Registration Flow
-
-![Jackson 3.x Module Registration Flow diagram](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
 
 ## Dependencies
 

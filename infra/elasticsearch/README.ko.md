@@ -13,6 +13,26 @@ Elasticsearch 클라이언트 라이브러리 (Kotlin + Coroutines 지원). Elas
 - **Virtual Thread 안전성**: 동기화 블록 없음, 필요시 ReentrantLock 사용
 - **Elasticsearch 9.x 호환**: Rest5ClientTransport(HC5 기반)를 기본값으로 사용
 
+## 아키텍처
+
+모듈은 계층화된 설계를 따릅니다:
+
+```
+┌─────────────────────────────────────────────────┐
+│  사용자 애플리케이션 (suspend 함수)              │
+├─────────────────────────────────────────────────┤
+│  Coroutines 계층 (suspendBulk, searchAsFlow)    │
+├─────────────────────────────────────────────────┤
+│  DSL 빌더 (elasticsearchAsyncClient)            │
+├─────────────────────────────────────────────────┤
+│  클라이언트 팩토리 (ElasticsearchClients)        │
+├─────────────────────────────────────────────────┤
+│  Rest5ClientTransport (HC5 기반)                │
+├─────────────────────────────────────────────────┤
+│  Elasticsearch 서버                             │
+└─────────────────────────────────────────────────┘
+```
+
 ## 설치
 
 ### Gradle (Kotlin DSL)
@@ -48,26 +68,6 @@ dependencies {
 - `co.elastic.clients:elasticsearch-java:9.3.3` - 공식 Elasticsearch Java API 클라이언트
 - `io.github.bluetape4k:bluetape4k-coroutines` - Coroutines 유틸리티
 - `org.apache.httpcomponents.client5:httpclient5` - HTTP 클라이언트 (HC5)
-
-## 아키텍처
-
-모듈은 계층화된 설계를 따릅니다:
-
-```
-┌─────────────────────────────────────────────────┐
-│  사용자 애플리케이션 (suspend 함수)              │
-├─────────────────────────────────────────────────┤
-│  Coroutines 계층 (suspendBulk, searchAsFlow)    │
-├─────────────────────────────────────────────────┤
-│  DSL 빌더 (elasticsearchAsyncClient)            │
-├─────────────────────────────────────────────────┤
-│  클라이언트 팩토리 (ElasticsearchClients)        │
-├─────────────────────────────────────────────────┤
-│  Rest5ClientTransport (HC5 기반)                │
-├─────────────────────────────────────────────────┤
-│  Elasticsearch 서버                             │
-└─────────────────────────────────────────────────┘
-```
 
 ## 클래스 계층
 

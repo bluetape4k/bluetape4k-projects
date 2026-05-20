@@ -12,6 +12,24 @@ Spring Data R2DBC를 Kotlin Coroutines 기반으로 사용하기 편하게 확�
 - **ReactiveInsert/Update/Delete/Select 확장**: 타입 안전한 코루틴 연산
 - **네이밍 규칙**: `XyzSuspending` 형식의 일관된 함수명
 
+## 아키텍처 다이어그램
+
+### 핵심 클래스 구조
+
+![r2dbc Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)
+
+### R2DBC + Coroutines 데이터 흐름
+
+![R2DBC + Coroutines diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)
+
+### CRUD 연산 계층 구조
+
+![CRUD diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)
+
+### 코루틴 변환 시퀀스
+
+![r2dbc Sequence Flow 4 diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)
+
 ## 설치
 
 ```kotlin
@@ -110,24 +128,6 @@ class PostRepository(private val operations: R2dbcEntityOperations) {
 ```bash
 ./gradlew :bluetape4k-spring-boot-r2dbc:test
 ```
-
-## 아키텍처 다이어그램
-
-### 핵심 클래스 구조
-
-![r2dbc Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-01.png)
-
-### R2DBC + Coroutines 데이터 흐름
-
-![R2DBC + Coroutines diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-02.png)
-
-### CRUD 연산 계층 구조
-
-![CRUD diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-diagram-03.png)
-
-### 코루틴 변환 시퀀스
-
-![r2dbc Sequence Flow 4 diagram](../../docs/images/readme-diagrams/spring-boot-r2dbc-sequence-01.png)
 
 ## 참고
 

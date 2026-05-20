@@ -19,6 +19,16 @@ Provides a convenient way to configure `Serializer` and `RedisSerializationConte
 | `redisSerializationContext {}`     | DSL-based `RedisSerializationContext` builder                                                |
 | `redisSerializationContextOf(...)` | Convenience function to specify key/value serializers directly                               |
 
+## Architecture Diagrams
+
+### Redis Serializer Class Hierarchy
+
+![Redis Serializer Class Hierarchy diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
+
+### ReactiveRedisTemplate Serialization Flow
+
+![ReactiveRedisTemplate Serialization Flow diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
+
 ## Installation
 
 ```kotlin
@@ -102,16 +112,6 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 | `RedisBinarySerializers.Zstd`   | Zstd                  |
 | `RedisBinarySerializers.Snappy` | Snappy                |
 | `RedisBinarySerializers.Gzip`   | GZip                  |
-
-## Architecture Diagrams
-
-### Redis Serializer Class Hierarchy
-
-![Redis Serializer Class Hierarchy diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
-
-### ReactiveRedisTemplate Serialization Flow
-
-![ReactiveRedisTemplate Serialization Flow diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
 
 ## Build and Test
 

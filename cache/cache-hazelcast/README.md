@@ -33,6 +33,31 @@ No user import migration is required for the reorganization.
 - `HazelcastEntryEventListener`
 - sync / async / suspend memoizers based on `IMap`
 
+## NearCache Architecture
+
+Two main modes are supported:
+
+- **Write-through**
+  - front-cache hit returns immediately
+  - front-cache miss reads from IMap and repopulates the front cache
+  - writes update both front cache and IMap synchronously
+  - invalidation is handled through `IMap` `EntryListener`
+
+- **Write-behind (Resilient)**
+  - front cache is updated immediately
+  - remote writes are processed asynchronously through a queue
+  - stale-read prevention and retry handling are built in
+
+## Architecture Diagrams
+
+### HazelcastNearCache Class Hierarchy
+
+![HazelcastNearCache Class Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)
+
+### 2-Tier NearCache Flow
+
+![2-Tier NearCache Flow diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)
+
 ## Installation
 
 ```kotlin
@@ -77,21 +102,6 @@ The main pieces are:
 - `HazelcastEntryEventListener` for invalidation
 - `HazelcastNearCacheConfig` for sizing and expiration rules
 
-## NearCache Architecture
-
-Two main modes are supported:
-
-- **Write-through**
-  - front-cache hit returns immediately
-  - front-cache miss reads from IMap and repopulates the front cache
-  - writes update both front cache and IMap synchronously
-  - invalidation is handled through `IMap` `EntryListener`
-
-- **Write-behind (Resilient)**
-  - front cache is updated immediately
-  - remote writes are processed asynchronously through a queue
-  - stale-read prevention and retry handling are built in
-
 ## Usage Examples
 
 Typical usage includes:
@@ -101,16 +111,6 @@ Typical usage includes:
 - `HazelcastSuspendNearCache`
 - resilient near-cache variants with retry configuration
 - factory-based cache creation through `HazelcastCaches`
-
-## Architecture Diagrams
-
-### HazelcastNearCache Class Hierarchy
-
-![HazelcastNearCache Class Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)
-
-### 2-Tier NearCache Flow
-
-![2-Tier NearCache Flow diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)
 
 ## `HazelcastNearCacheConfig` Options
 

@@ -38,6 +38,20 @@ dependencies {
 }
 ```
 
+## Architecture Diagrams
+
+### Codec Hierarchy
+
+![Codec Hierarchy diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
+
+### NearCache 2-Tier Cache Flow
+
+![NearCache 2-Tier Cache Flow diagram](../../docs/images/readme-diagrams/infra-redisson-sequence-01.png)
+
+### Batch / Transaction Processing Flow
+
+![Batch / Transaction Processing Flow diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-02.png)
+
 ## Usage Examples
 
 ### 1. Creating a RedissonClient
@@ -271,20 +285,6 @@ val value = nearCache.get("key")   // Checks local cache first
 `bluetape4k-cache-redisson` module.
 
 ---
-
-## Architecture Diagrams
-
-### Codec Hierarchy
-
-![Codec Hierarchy diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
-
-### NearCache 2-Tier Cache Flow
-
-![NearCache 2-Tier Cache Flow diagram](../../docs/images/readme-diagrams/infra-redisson-sequence-01.png)
-
-### Batch / Transaction Processing Flow
-
-![Batch / Transaction Processing Flow diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-02.png)
 
 ## High-Performance Batch Pattern — Mega-Batch
 

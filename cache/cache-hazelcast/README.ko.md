@@ -43,6 +43,51 @@ Kotlin package는 유지됩니다.
 - `maxLocalSize`는 0보다 커야 합니다.
 - `frontExpireAfterWrite`, `frontExpireAfterAccess`는 지정 시 0보다 커야 합니다.
 
+## NearCache 아키텍처
+
+### Write-through (기본)
+
+```
+Application
+    |
+[HazelcastNearCache / HazelcastSuspendNearCache]
+    |
++--------+--------+-----------+
+|        |        |           |
+Front   Back    Listener
+Caffeine  IMap   EntryListener
+(local) (remote)  (invalidation)
+```
+
+- **Read**: front hit → 즉시 반환 / front miss → IMap GET → front populate → 반환
+- **Write**: front put + IMap PUT (write-through, 동기)
+- **Invalidation**: IMap EntryListener → 로컬 캐시 자동 무효화
+
+### Write-behind (Resilient)
+
+```
+Application
+    |
+[ResilientHazelcastNearCache / ResilientHazelcastSuspendNearCache]
+    |
++---+----------+
+|              |
+Front          Write Queue (LinkedBlockingQueue / Channel)
+Caffeine           |
+(즉시 반영)    Consumer (virtualThread / coroutine)
+               (retry { imap.set/delete })
+```
+
+- **Write**: front 즉시 반영 + IMap 쓰기는 queue/channel로 비동기 처리 (write-behind)
+- **tombstones**: remove 후 write-behind 완료 전 stale read 방지
+- **clearPending**: clearAll 후 IMap read 차단
+- **retry**: Resilience4j Retry로 IMap 쓰기 실패 시 재시도
+- **GetFailureStrategy**: IMap GET 실패 시 null 반환 또는 예외 전파
+
+> JCache `registerCacheEntryListener`는 리스너 factory를 서버로 직렬화해 전송하므로
+> non-serializable 리스너가 실패한다. `IMap.addEntryListener`는 클라이언트 JVM에서 리스너를
+> 실행하므로 직렬화가 불필요하다.
+
 ## 설치
 
 ```kotlin
@@ -88,7 +133,7 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 `NearJCache<K,V>` /
 `SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + Hazelcast IMap(back) 구조입니다.
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-01.png)
+![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-01.png)
 
 > Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
 
@@ -135,51 +180,6 @@ suspendNearJCache.close()
 ### IMap EntryListener 기반 Invalidation 흐름
 
 ![IMap EntryListener Invalidation diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-sequence-01.png)
-
-## NearCache 아키텍처
-
-### Write-through (기본)
-
-```
-Application
-    |
-[HazelcastNearCache / HazelcastSuspendNearCache]
-    |
-+--------+--------+-----------+
-|        |        |           |
-Front   Back    Listener
-Caffeine  IMap   EntryListener
-(local) (remote)  (invalidation)
-```
-
-- **Read**: front hit → 즉시 반환 / front miss → IMap GET → front populate → 반환
-- **Write**: front put + IMap PUT (write-through, 동기)
-- **Invalidation**: IMap EntryListener → 로컬 캐시 자동 무효화
-
-### Write-behind (Resilient)
-
-```
-Application
-    |
-[ResilientHazelcastNearCache / ResilientHazelcastSuspendNearCache]
-    |
-+---+----------+
-|              |
-Front          Write Queue (LinkedBlockingQueue / Channel)
-Caffeine           |
-(즉시 반영)    Consumer (virtualThread / coroutine)
-               (retry { imap.set/delete })
-```
-
-- **Write**: front 즉시 반영 + IMap 쓰기는 queue/channel로 비동기 처리 (write-behind)
-- **tombstones**: remove 후 write-behind 완료 전 stale read 방지
-- **clearPending**: clearAll 후 IMap read 차단
-- **retry**: Resilience4j Retry로 IMap 쓰기 실패 시 재시도
-- **GetFailureStrategy**: IMap GET 실패 시 null 반환 또는 예외 전파
-
-> JCache `registerCacheEntryListener`는 리스너 factory를 서버로 직렬화해 전송하므로
-> non-serializable 리스너가 실패한다. `IMap.addEntryListener`는 클라이언트 JVM에서 리스너를
-> 실행하므로 직렬화가 불필요하다.
 
 ## 사용 예시
 

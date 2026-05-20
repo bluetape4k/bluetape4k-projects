@@ -82,6 +82,20 @@ Key methods:
 - `find(clazz, id)` — find by ID (throws `IllegalArgumentException` if `id` is null)
 - `remove(entity)` — remove (auto-merges detached entities)
 
+## Architecture Diagrams
+
+### Repository Class Structure
+
+![Repository Class Structure diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
+
+### JPA Entity Class Hierarchy
+
+![JPA Entity Class Hierarchy diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
+
+### AttributeConverter Types
+
+![AttributeConverter Types diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
+
 ## Basic Usage
 
 ### 1. JPA Entity Base Classes
@@ -554,20 +568,6 @@ class Purchase {
 # Run converter unit tests
 ./gradlew :bluetape4k-hibernate:test --tests "io.bluetape4k.hibernate.converter.*"
 ```
-
-## Architecture Diagrams
-
-### Repository Class Structure
-
-![Repository Class Structure diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
-
-### JPA Entity Class Hierarchy
-
-![JPA Entity Class Hierarchy diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
-
-### AttributeConverter Types
-
-![AttributeConverter Types diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
 
 ## References
 

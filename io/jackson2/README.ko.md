@@ -15,6 +15,20 @@
 - 콜백 기반 바이트 청크와 코루틴 `Flow<ByteArray>` 파이프라인을 모두 처리하는 스트리밍 파서를 제공합니다.
 - 비동기 파서에 명시적인 EOF API를 제공해 마지막 JSON이 잘렸을 때 "추가 입력 대기"가 아니라 빠르게 실패하도록 합니다.
 
+## 아키텍처 다이어그램
+
+### 클래스 구조
+
+![jackson2 Class Structure diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
+
+### Jackson 직렬화 파이프라인
+
+![Jackson diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
+
+### 필드 암호화 흐름 (@JsonTinkEncrypt)
+
+![(@JsonTinkEncrypt) diagram](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
+
 ## 추천 사용 시나리오
 
 - 서비스 전반에서 Kotlin-ready `JsonMapper`가 필요하면 `Jackson.defaultJsonMapper`를 사용합니다.
@@ -298,20 +312,6 @@ val yamlMapper = ObjectMapper(YAMLFactory())
 val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
 val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 ```
-
-## 아키텍처 다이어그램
-
-### 클래스 구조
-
-![jackson2 Class Structure diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
-
-### Jackson 직렬화 파이프라인
-
-![Jackson diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
-
-### 필드 암호화 흐름 (@JsonTinkEncrypt)
-
-![(@JsonTinkEncrypt) diagram](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
 
 ## 의존성
 

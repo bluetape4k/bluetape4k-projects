@@ -30,6 +30,16 @@ and primitive selection.
 - **Testable wrappers**: wrappers are small enough to validate with ordinary
   round-trip, associated-data, tamper, rotation, and concurrency tests.
 
+## Diagrams
+
+### TinkEncryptor Class Hierarchy
+
+![TinkEncryptor Class Hierarchy diagram](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
+
+### AEAD encrypt/decrypt Flow
+
+![AEAD encrypt/decrypt Flow diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
+
 ## Recommended Usage Scenarios
 
 Use this module when:
@@ -349,16 +359,6 @@ io.bluetape4k.tink
     ├── TinkEncryptors.kt                   # Factory singleton
     └── TinkEncryptorExtensions.kt          # Extension functions
 ```
-
-## Diagrams
-
-### TinkEncryptor Class Hierarchy
-
-![TinkEncryptor Class Hierarchy diagram](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
-
-### AEAD encrypt/decrypt Flow
-
-![AEAD encrypt/decrypt Flow diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
 
 ## Comparison with bluetape4k-crypto
 

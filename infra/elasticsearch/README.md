@@ -13,6 +13,26 @@ Elasticsearch client library for Kotlin with Coroutines support. Provides idioma
 - **Virtual Thread safe**: No synchronized blocks; uses ReentrantLock where needed
 - **Elasticsearch 9.x compatible**: Uses Rest5ClientTransport (HC5-based) as default
 
+## Architecture
+
+The module follows a layered design:
+
+```
+┌─────────────────────────────────────────────────┐
+│  User Application (suspend functions)           │
+├─────────────────────────────────────────────────┤
+│  Coroutines Layer (suspendBulk, searchAsFlow)   │
+├─────────────────────────────────────────────────┤
+│  DSL Builders (elasticsearchAsyncClient)        │
+├─────────────────────────────────────────────────┤
+│  Client Factories (ElasticsearchClients)        │
+├─────────────────────────────────────────────────┤
+│  Rest5ClientTransport (HC5-based)               │
+├─────────────────────────────────────────────────┤
+│  Elasticsearch Server                           │
+└─────────────────────────────────────────────────┘
+```
+
 ## Installation
 
 ### Gradle (Kotlin DSL)
@@ -48,26 +68,6 @@ This module depends on:
 - `co.elastic.clients:elasticsearch-java:9.3.3` - Official Elasticsearch Java API Client
 - `io.github.bluetape4k:bluetape4k-coroutines` - Coroutines utilities
 - `org.apache.httpcomponents.client5:httpclient5` - HTTP client (HC5)
-
-## Architecture
-
-The module follows a layered design:
-
-```
-┌─────────────────────────────────────────────────┐
-│  User Application (suspend functions)           │
-├─────────────────────────────────────────────────┤
-│  Coroutines Layer (suspendBulk, searchAsFlow)   │
-├─────────────────────────────────────────────────┤
-│  DSL Builders (elasticsearchAsyncClient)        │
-├─────────────────────────────────────────────────┤
-│  Client Factories (ElasticsearchClients)        │
-├─────────────────────────────────────────────────┤
-│  Rest5ClientTransport (HC5-based)               │
-├─────────────────────────────────────────────────┤
-│  Elasticsearch Server                           │
-└─────────────────────────────────────────────────┘
-```
 
 ## Class Hierarchy
 

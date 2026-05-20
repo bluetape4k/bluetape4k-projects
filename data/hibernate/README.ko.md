@@ -82,6 +82,20 @@ class UserRepositoryTest {
 - `find(clazz, id)` — ID로 엔티티 조회 (`id`가 null이면 `IllegalArgumentException` 발생)
 - `remove(entity)` — 엔티티 제거 (분리 상태인 경우 자동 merge)
 
+## 아키텍처 다이어그램
+
+### Repository 클래스 구조
+
+![Repository diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
+
+### JPA 엔티티 클래스 계층 구조
+
+![JPA diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
+
+### AttributeConverter 종류
+
+![AttributeConverter diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
+
 ## 기본 사용법
 
 ### 1. JPA 엔티티 베이스 클래스
@@ -551,20 +565,6 @@ class Purchase {
 # Converter 단위 테스트
 ./gradlew :bluetape4k-hibernate:test --tests "io.bluetape4k.hibernate.converter.*"
 ```
-
-## 아키텍처 다이어그램
-
-### Repository 클래스 구조
-
-![Repository diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-01.png)
-
-### JPA 엔티티 클래스 계층 구조
-
-![JPA diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-02.png)
-
-### AttributeConverter 종류
-
-![AttributeConverter diagram](../../docs/images/readme-diagrams/data-hibernate-diagram-03.png)
 
 ## 참고
 

@@ -12,6 +12,20 @@ A utility library for using Apache Kafka efficiently in a Kotlin environment. Pr
 - **Kafka Streams support**: Convenience functions for KStream and KTable operations
 - **Test utilities**: Testing support using Embedded Kafka
 
+## Architecture Diagrams
+
+### Kafka Class Hierarchy
+
+![Kafka Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
+
+### Producer/Consumer Message Flow
+
+![Producer/Consumer Message Flow diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
+
+### Kafka Streams Processing Flow
+
+![Kafka Streams Processing Flow diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
+
 ## Installation
 
 ### Gradle (Kotlin DSL)
@@ -406,20 +420,6 @@ class KafkaIntegrationTest {
     }
 }
 ```
-
-## Architecture Diagrams
-
-### Kafka Class Hierarchy
-
-![Kafka Class Hierarchy diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
-
-### Producer/Consumer Message Flow
-
-![Producer/Consumer Message Flow diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
-
-### Kafka Streams Processing Flow
-
-![Kafka Streams Processing Flow diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
 
 ## Package Structure
 

@@ -26,6 +26,10 @@ dependencies {
 - **환율 변환**: ECB, IMF 환율 데이터를 이용한 통화 변환
 - **합산**: `Collection<MonetaryAmount>.sum()` 확장 함수
 
+## 클래스 다이어그램
+
+![money Class Structure diagram](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
+
 ## 사용 예시
 
 ### 통화 단위 생성
@@ -233,10 +237,6 @@ USD.isCurrencyConversionAvailable    // true
 | 성능    | 보통               | 매우 빠름        |
 | 환전    | 정확               | 정밀도 손실 가능    |
 | 사용 예시 | 금융 계산, 높은 정밀도 필요 | 대량 연산, 성능 중요 |
-
-## 클래스 다이어그램
-
-![money Class Structure diagram](../../docs/images/readme-diagrams/utils-money-diagram-01.png)
 
 ## 통화 연산 흐름
 

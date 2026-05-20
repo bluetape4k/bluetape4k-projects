@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1243" viewBox="0 0 1754 1243" role="img" aria-label="Type Conversion Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -24,34 +24,34 @@
 <rect class="frame" x="32" y="28" width="1690" height="1187" rx="28"/>
 <text class="title" x="66" y="82">Type Conversion Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M877 819 C877 591 262 591 262 363"/>
+<path class="implLine" d="M877 827 L877 423 L672 423 L672 355"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">BinarySerializer</text>
-  <text class="mono" x="18" y="108">+serialize(obj: Any?) ByteArray</text>
-<text class="mono" x="18" y="129">+deserialize(bytes: ByteArray?, clazz:</text>
-<text class="mono" x="18" y="150">Class~T~) T?</text>
-</g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">DateTimeSupport</text>
-  <text class="mono" x="18" y="108">+LocalDate.toProtoDate() Date</text>
-<text class="mono" x="18" y="129">+LocalTime.toProtoTimeOfDay() TimeOfDay</text>
-<text class="mono" x="18" y="150">+LocalDateTime.toProtoDateTime() DateTime</text>
-</g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
   <text class="label" x="170" y="61" text-anchor="middle">DurationSupport</text>
   <text class="mono" x="18" y="108">+Duration.toProtoDuration() ProtoDuration</text>
 <text class="mono" x="18" y="129">+ProtoDuration.toJavaDuration() Duration</text>
 <text class="mono" x="18" y="150">+ProtoDuration.plus(other) ProtoDuration</text>
 <text class="mono" x="18" y="171">+ProtoDuration.minus(other) ProtoDuration</text>
+</g>
+<g transform="translate(502,180)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="61" text-anchor="middle">BinarySerializer</text>
+  <text class="mono" x="18" y="108">+serialize(obj: Any?) ByteArray</text>
+<text class="mono" x="18" y="129">+deserialize(bytes: ByteArray?, clazz:</text>
+<text class="mono" x="18" y="150">Class~T~) T?</text>
+</g>
+<g transform="translate(912,180)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
+  <text class="label" x="170" y="61" text-anchor="middle">DateTimeSupport</text>
+  <text class="mono" x="18" y="108">+LocalDate.toProtoDate() Date</text>
+<text class="mono" x="18" y="129">+LocalTime.toProtoTimeOfDay() TimeOfDay</text>
+<text class="mono" x="18" y="150">+LocalDateTime.toProtoDateTime() DateTime</text>
 </g>
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>

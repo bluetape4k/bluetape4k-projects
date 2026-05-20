@@ -24,6 +24,10 @@ dependencies {
 - **Coroutine interop**: convert suspend functions and coroutine blocks into `Uni`
 - **Kotlin-friendly API**: extension functions for idiomatic usage
 
+## Mutiny Type Diagram
+
+![Mutiny Type Diagram diagram](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.png)
+
 ## Usage Examples
 
 ### Create `Uni`
@@ -226,10 +230,6 @@ val result = totalAmount.await().indefinitely()
 | `UniSupport.kt`       | extensions for creating and converting `Uni`   |
 | `MultiSupport.kt`     | extensions for creating and converting `Multi` |
 | `CoroutineSupport.kt` | interop between coroutines and Mutiny          |
-
-## Mutiny Type Diagram
-
-![Mutiny Type Diagram diagram](../../docs/images/readme-diagrams/utils-mutiny-diagram-01.png)
 
 ## Mutiny Processing Flow
 

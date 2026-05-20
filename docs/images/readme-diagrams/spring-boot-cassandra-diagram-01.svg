@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1754" height="955" viewBox="0 0 1754 955" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -24,16 +24,17 @@
 <rect class="frame" x="32" y="28" width="1690" height="899" rx="28"/>
 <text class="title" x="66" y="82">Core Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M262 172 C262 317.5 672 317.5 672 463"/>
-<path class="line" d="M1082 172 C1082 317.5 672 317.5 672 463"/>
-<path class="line" d="M1492 172 C1492 317.5 672 317.5 672 463"/>
-<path class="line" d="M672 463 C672 518 1082 518 1082 573"/>
+<path class="line" d="M1082 313 L1082 112 L672 112 L672 180"/>
+<path class="line" d="M262 334 L262 122 L672 122 L672 180"/>
+<path class="line" d="M1492 334 L1492 132 L672 132 L672 180"/>
+<path class="line" d="M672 455 L672 581"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">CoroutineUserRepository</text>
-  <text class="mono" x="18" y="108">+findByEmail(email): User?</text>
+  <text class="small" x="170" y="26" text-anchor="middle">«extension»</text>
+  <text class="label" x="170" y="61" text-anchor="middle">ReactiveSessionExt</text>
+  <text class="mono" x="18" y="108">+executeSuspending(cql, args):</text>
+<text class="mono" x="18" y="129">ReactiveResultSet</text>
 </g>
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="275" rx="5" fill="#EAF7EF" stroke="#58A978"/>
@@ -50,12 +51,11 @@
 <text class="mono" x="18" y="250">UpdateResult</text>
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extension»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">ReactiveSessionExt</text>
-  <text class="mono" x="18" y="108">+executeSuspending(cql, args):</text>
-<text class="mono" x="18" y="129">ReactiveResultSet</text>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="61" text-anchor="middle">CoroutineUserRepository</text>
+  <text class="mono" x="18" y="108">+findByEmail(email): User?</text>
 </g>
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
@@ -66,18 +66,18 @@
 <text class="mono" x="18" y="129">+truncateTables(operations, types)</text>
 </g>
 <g transform="translate(502,581)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">UserRepository</text>
-  <text class="mono" x="18" y="108">+findByEmail(email): User?</text>
-</g>
-<g transform="translate(912,581)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
   <text class="small" x="170" y="26" text-anchor="middle">«DSL»</text>
   <text class="label" x="170" y="61" text-anchor="middle">WriteOptionsDsl</text>
   <text class="mono" x="18" y="108">+ttl(duration)</text>
 <text class="mono" x="18" y="129">+timestamp(millis)</text>
+</g>
+<g transform="translate(912,581)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UserRepository</text>
+  <text class="mono" x="18" y="108">+findByEmail(email): User?</text>
 </g>
 </svg>

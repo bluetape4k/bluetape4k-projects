@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1366" height="900" viewBox="0 0 1366 900" role="img" aria-label="ULID (Universally Unique Lexicographically Sortable Identifier)">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -24,29 +24,21 @@
 <rect class="frame" x="32" y="28" width="1302" height="844" rx="28"/>
 <text class="title" x="66" y="82">ULID</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="inheritLine" d="M683 539 C683 440.5 683 440.5 683 342"/>
-<path class="line" d="M683 539 C683 472 1103 472 1103 405"/>
-<path class="line" d="M683 172 C683 288.5 1103 288.5 1103 405"/>
-<path class="line" d="M1103 172 C1103 257 263 257 263 342"/>
+<path class="inheritLine" d="M683 547 L683 480 L263 480 L263 334"/>
+<path class="line" d="M683 547 L683 397"/>
+<path class="line" d="M263 334 L263 132 L683 132 L683 180"/>
+<path class="line" d="M683 180 L683 456 L1103 456 L1103 334"/>
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">Factory</text>
-  <text class="mono" x="18" y="108">+nextULID(): ULID</text>
-<text class="mono" x="18" y="129">+nextULID(timestamp): ULID</text>
-</g>
-<g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="175" y="61" text-anchor="middle">Monotonic</text>
   <text class="mono" x="18" y="108">+nextULID(previous): ULID</text>
 <text class="mono" x="18" y="129">+nextULIDStrict(previous): ULID?</text>
 </g>
-<g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
+<g transform="translate(508,180)">
+  <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="175" y="61" text-anchor="middle">ULID</text>
   <text class="mono" x="18" y="108">+timestamp(): Long</text>
@@ -54,6 +46,14 @@
 <text class="mono" x="18" y="150">+toBytes(): ByteArray</text>
 <text class="mono" x="18" y="171">+toUuid(): Uuid</text>
 <text class="mono" x="18" y="192">+compareTo(other): Int</text>
+</g>
+<g transform="translate(928,180)">
+  <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
+  <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="175" y="61" text-anchor="middle">Factory</text>
+  <text class="mono" x="18" y="108">+nextULID(): ULID</text>
+<text class="mono" x="18" y="129">+nextULID(timestamp): ULID</text>
 </g>
 <g transform="translate(508,547)">
   <rect class="card" x="0" y="0" width="350" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>

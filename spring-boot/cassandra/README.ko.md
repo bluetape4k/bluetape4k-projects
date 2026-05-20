@@ -12,6 +12,20 @@ Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장, 편의
 - CQL 옵션(`QueryOptions`, `WriteOptions` 등) DSL 헬퍼
 - 스키마 생성/트렁케이트 유틸 (`SchemaGenerator`)
 
+## 아키텍처 다이어그램
+
+### 핵심 클래스 구조
+
+![cassandra Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
+
+### Cassandra 데이터 접근 계층
+
+![Cassandra diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
+
+### 코루틴 변환 흐름
+
+![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
+
 ## 설치
 
 ```kotlin
@@ -66,20 +80,6 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 ```bash
 ./gradlew :bluetape4k-spring-boot-cassandra:test
 ```
-
-## 아키텍처 다이어그램
-
-### 핵심 클래스 구조
-
-![cassandra Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
-
-### Cassandra 데이터 접근 계층
-
-![Cassandra diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
-
-### 코루틴 변환 흐름
-
-![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
 
 ## 참고
 

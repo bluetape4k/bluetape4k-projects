@@ -345,6 +345,20 @@ class MyCassandraTest: AbstractCassandraTest() {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### 확장 함수 API 개요
+
+![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+
+### 주요 API 구조
+
+![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+
+### 비동기 쿼리 실행 흐름
+
+![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
+
 ## 예제
 
 더 많은 예제는 `src/test/kotlin/io/bluetape4k/cassandra` 패키지에서 확인할 수 있습니다:
@@ -359,20 +373,6 @@ class MyCassandraTest: AbstractCassandraTest() {
     - `UpateStatementExamples.kt`: UPDATE 구문
     - `DeleteFromStatementExamples.kt`: DELETE 구문
     - `schema/`: 스키마 관리 예제 (Keyspace, Table, Index, UDT 등)
-
-## 아키텍처 다이어그램
-
-### 확장 함수 API 개요
-
-![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
-
-### 주요 API 구조
-
-![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
-
-### 비동기 쿼리 실행 흐름
-
-![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## 참고 자료
 

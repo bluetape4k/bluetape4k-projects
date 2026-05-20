@@ -16,6 +16,20 @@ It provides convenient access to the Jackson ecosystem in Kotlin, covering defau
 - Exposes streaming parsers that work with callback-style byte chunks and coroutine `Flow<ByteArray>` pipelines.
 - Uses explicit EOF APIs for non-blocking parsing so truncated final JSON fails fast instead of being treated as "more input may arrive later".
 
+## Architecture
+
+### Class Structure
+
+![Class Structure diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
+
+### Jackson Serialization Pipeline
+
+![Jackson Serialization Pipeline diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
+
+### Field Encryption Flow (@JsonTinkEncrypt)
+
+![Field Encryption Flow (@JsonTinkEncrypt) diagram](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
+
 ## Recommended Usage Scenarios
 
 - Use `Jackson.defaultJsonMapper` when services need a shared Kotlin-ready `JsonMapper`.
@@ -30,20 +44,6 @@ It provides convenient access to the Jackson ecosystem in Kotlin, covering defau
 - Do not reuse a parser after `endOfInput()` or `consumeComplete(flow)`. Create a new parser for each logical stream.
 - Do not use field encryption as a replacement for transport security, database access control, key rotation, or audit policy.
 - Do not add every Jackson dataformat dependency by default. Add only the runtime formats the application actually reads or writes.
-
-## Architecture
-
-### Class Structure
-
-![Class Structure diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-01.png)
-
-### Jackson Serialization Pipeline
-
-![Jackson Serialization Pipeline diagram](../../docs/images/readme-diagrams/io-jackson2-diagram-02.png)
-
-### Field Encryption Flow (@JsonTinkEncrypt)
-
-![Field Encryption Flow (@JsonTinkEncrypt) diagram](../../docs/images/readme-diagrams/io-jackson2-sequence-01.png)
 
 ## Key Features
 

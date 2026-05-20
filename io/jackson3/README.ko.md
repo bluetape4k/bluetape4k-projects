@@ -16,6 +16,20 @@ Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서
 - 보안 확장: Tink 기반 필드 암호화와 필드 마스킹을 Jackson 모델 애너테이션으로 연결할 수 있습니다.
 - 포맷 선택성: 바이너리/텍스트 포맷은 `compileOnly`로 두고, 애플리케이션이 필요한 런타임 포맷만 추가합니다.
 
+## 아키텍처 다이어그램
+
+### Jackson 2.x vs 3.x 모듈 비교
+
+![Jackson 2.x vs 3.x diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
+
+### 클래스 구조
+
+![jackson3 Class Structure 2 diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
+
+### Jackson 3.x 모듈 등록 흐름
+
+![Jackson 3.x diagram](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
+
 ## 추천 사용 시나리오
 
 - 새 Kotlin 코드가 Jackson 3.x와 `tools.jackson.*` 패키지를 기준으로 작성될 때 사용하세요.
@@ -297,20 +311,6 @@ val yamlMapper = ObjectMapper(YAMLFactory())
 val yaml = yamlMapper.writeValueAsString(user)      // YAML 직렬화
 val restored = yamlMapper.readValue<User>(yaml)     // 역직렬화
 ```
-
-## 아키텍처 다이어그램
-
-### Jackson 2.x vs 3.x 모듈 비교
-
-![Jackson 2.x vs 3.x diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-01.png)
-
-### 클래스 구조
-
-![jackson3 Class Structure 2 diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
-
-### Jackson 3.x 모듈 등록 흐름
-
-![Jackson 3.x diagram](../../docs/images/readme-diagrams/io-jackson3-sequence-01.png)
 
 ## 의존성
 

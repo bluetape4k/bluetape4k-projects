@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1715" height="1676" viewBox="0 0 1715 1676" role="img" aria-label="Compression Sink (One-Shot) — compress on close">
+<svg xmlns="http://www.w3.org/2000/svg" width="2222" height="2611" viewBox="0 0 2222 2611" role="img" aria-label="Sink / Source Adapter Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -20,59 +20,196 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1715" height="1676"/>
-<rect class="frame" x="32" y="28" width="1651" height="1620" rx="28"/>
-<text class="title" x="66" y="82">Compression Sink (One-Shot) — compress on close</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="14.5" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="373.25" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="498.75" y="209" text-anchor="middle">CompressableSink</text>
-<line class="lifeline" x1="498.75" y1="252" x2="498.75" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="732" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="857.5" y="209" text-anchor="middle">plainBuffer</text>
-<line class="lifeline" x1="857.5" y1="252" x2="857.5" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1090.75" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1216.25" y="209" text-anchor="middle">Compressor</text>
-<line class="lifeline" x1="1216.25" y1="252" x2="1216.25" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1449.5" y="166" width="251" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1575" y="209" text-anchor="middle">delegate Sink</text>
-<line class="lifeline" x1="1575" y1="252" x2="1575" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="200.375" y="286" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="218.375" y="313" text-anchor="start">1. write(data, byteCount)</text>
-<path class="line" d="M140 344 L498.75 344"/>
-<rect x="559.125" y="396" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="577.125" y="423" text-anchor="start">2. write(data, byteCount)</text>
-<path class="line" d="M498.75 454 L857.5 454"/>
-<rect x="192.375" y="506" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="210.375" y="533" text-anchor="start">3. write(data2, byteCount2)</text>
-<path class="line" d="M140 564 L498.75 564"/>
-<rect x="551.125" y="616" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="569.125" y="643" text-anchor="start">4. write(data2, byteCount2)</text>
-<path class="line" d="M498.75 674 L857.5 674"/>
-<rect x="214.375" y="726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="232.375" y="753" text-anchor="start">5. close()</text>
-<path class="line" d="M140 784 L498.75 784"/>
-<rect x="573.125" y="836" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="591.125" y="863" text-anchor="start">6. readByteArray()</text>
-<path class="line" d="M498.75 894 L857.5 894"/>
-<rect x="573.125" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="591.125" y="973" text-anchor="start">7. plainBytes</text>
-<path class="dashed" d="M857.5 1004 L498.75 1004"/>
-<rect x="746.5" y="1056" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="764.5" y="1083" text-anchor="start">8. compress(plainBytes)</text>
-<path class="line" d="M498.75 1114 L1216.25 1114"/>
-<rect x="752.5" y="1166" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="770.5" y="1193" text-anchor="start">9. compressedBytes</text>
-<path class="dashed" d="M1216.25 1224 L498.75 1224"/>
-<rect x="913.875" y="1276" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="931.875" y="1303" text-anchor="start">10. write(compressedBytes)</text>
-<path class="line" d="M498.75 1334 L1575 1334"/>
-<rect x="931.875" y="1386" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="949.875" y="1413" text-anchor="start">11. flush()</text>
-<path class="line" d="M498.75 1444 L1575 1444"/>
-<rect x="931.875" y="1496" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="949.875" y="1523" text-anchor="start">12. close()</text>
-<path class="line" d="M498.75 1554 L1575 1554"/>
+<rect class="canvas" width="2222" height="2611"/>
+<rect class="frame" x="32" y="28" width="2158" height="2555" rx="28"/>
+<text class="title" x="66" y="82">Sink / Source Adapter Hierarchy</text>
+<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
+<path class="inheritLine" d="M267 1825 L267 1300 L689 1300 L689 1132"/>
+<path class="inheritLine" d="M689 1825 L689 1705 L70 1705 L70 1292 L689 1292 L689 1132"/>
+<path class="inheritLine" d="M689 999 L689 871 L1322 871 L1322 733"/>
+<path class="inheritLine" d="M1533 1825 L1533 1729 L2182 1729 L2182 1316 L1111 1316 L1111 1132"/>
+<path class="inheritLine" d="M1111 1825 L1111 1721 L50 1721 L50 1308 L1111 1308 L1111 1132"/>
+<path class="inheritLine" d="M1111 999 L1111 887 L900 887 L900 733"/>
+<path class="inheritLine" d="M1955 999 L1955 879 L1322 879 L1322 733"/>
+<path class="inheritLine" d="M1111 1384 L1111 1284 L900 1284 L900 733"/>
+<path class="inheritLine" d="M689 1384 L689 1316 L1322 1316 L1322 733"/>
+<path class="inheritLine" d="M1533 1384 L1533 1308 L900 1308 L900 733"/>
+<path class="inheritLine" d="M1111 2147 L1111 2063 L60 2063 L60 1713 L267 1713 L267 1174"/>
+<path class="inheritLine" d="M267 999 L267 879 L1322 879 L1322 733"/>
+<path class="inheritLine" d="M1955 1825 L1955 1284 L1533 1284 L1533 1216"/>
+<path class="inheritLine" d="M1533 999 L1533 903 L900 903 L900 733"/>
+<path class="implLine" d="M1744 600 L1744 496 L900 496 L900 376"/>
+<path class="implLine" d="M478 600 L478 488 L1322 488 L1322 355"/>
+<path class="implLine" d="M1322 600 L1322 355"/>
+<path class="implLine" d="M900 600 L900 376"/>
+<g transform="translate(745,180)">
+  <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«interface_okio»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">Sink</text>
+  <text class="mono" x="18" y="108">+write(source: Buffer, byteCount:</text>
+<text class="mono" x="18" y="129">Long)</text>
+<text class="mono" x="18" y="150">+flush()</text>
+<text class="mono" x="18" y="171">+close()</text>
+</g>
+<g transform="translate(1167,180)">
+  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«interface_okio»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">Source</text>
+  <text class="mono" x="18" y="108">+read(sink: Buffer, byteCount: Long)</text>
+<text class="mono" x="18" y="129">Long</text>
+<text class="mono" x="18" y="150">+close()</text>
+</g>
+<g transform="translate(323,600)">
+  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">InputStreamSource</text>
+  <text class="mono" x="18" y="108">-input: InputStream</text>
+<text class="mono" x="18" y="129">+read(sink: Buffer, byteCount: Long)</text>
+<text class="mono" x="18" y="150">Long</text>
+</g>
+<g transform="translate(745,600)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«okio»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">ForwardingSink</text>
+  <text class="mono" x="18" y="108">#delegate: Sink</text>
+</g>
+<g transform="translate(1167,600)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«okio»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">ForwardingSource</text>
+  <text class="mono" x="18" y="108">#delegate: Source</text>
+</g>
+<g transform="translate(1589,600)">
+  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">OutputStreamSink</text>
+  <text class="mono" x="18" y="108">-output: OutputStream</text>
+<text class="mono" x="18" y="129">+write(source: Buffer, byteCount:</text>
+<text class="mono" x="18" y="150">Long)</text>
+</g>
+<g transform="translate(112,999)">
+  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">DecompressableSource</text>
+  <text class="mono" x="18" y="108">-decodedBuffer: Buffer</text>
+<text class="mono" x="18" y="129">-compressor: Compressor</text>
+<text class="mono" x="18" y="150">-ensureDecoded()</text>
+</g>
+<g transform="translate(534,999)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«abstract»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">AbstractBase64Source</text>
+  <text class="mono" x="18" y="108">#decodeBase64Bytes(String) ByteString</text>
+</g>
+<g transform="translate(956,999)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«abstract»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">AbstractBase64Sink</text>
+  <text class="mono" x="18" y="108">#getEncodedBuffer(ByteString) Buffer</text>
+</g>
+<g transform="translate(1378,999)">
+  <rect class="card" x="0" y="0" width="310" height="217" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">CompressableSink</text>
+  <text class="mono" x="18" y="108">-plainBuffer: Buffer</text>
+<text class="mono" x="18" y="129">-compressor: Compressor</text>
+<text class="mono" x="18" y="150">+write(source: Buffer, byteCount:</text>
+<text class="mono" x="18" y="171">Long)</text>
+<text class="mono" x="18" y="192">+close()</text>
+</g>
+<g transform="translate(1800,999)">
+  <rect class="card" x="0" y="0" width="310" height="212" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#D6A441"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Daead Chunk Decrypt</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Source</text>
+  <text class="mono" x="18" y="124">-daead: TinkDeterministicAead</text>
+<text class="mono" x="18" y="145">-plainBuffer: Buffer</text>
+<text class="mono" x="18" y="166">+read(sink: Buffer, byteCount: Long)</text>
+<text class="mono" x="18" y="187">Long</text>
+</g>
+<g transform="translate(534,1384)">
+  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">TinkDecryptSource</text>
+  <text class="mono" x="18" y="108">-encryptor: TinkEncryptor</text>
+<text class="mono" x="18" y="129">-decryptedBuffer: Buffer</text>
+<text class="mono" x="18" y="150">-ensureDecrypted()</text>
+</g>
+<g transform="translate(956,1384)">
+  <rect class="card" x="0" y="0" width="310" height="217" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">DaeadChunkEncryptSink</text>
+  <text class="mono" x="18" y="108">-daead: TinkDeterministicAead</text>
+<text class="mono" x="18" y="129">-plainBuffer: Buffer</text>
+<text class="mono" x="18" y="150">+write(source: Buffer, byteCount:</text>
+<text class="mono" x="18" y="171">Long)</text>
+<text class="mono" x="18" y="192">+close()</text>
+</g>
+<g transform="translate(1378,1384)">
+  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">TinkEncryptSink</text>
+  <text class="mono" x="18" y="108">-encryptor: TinkEncryptor</text>
+<text class="mono" x="18" y="129">+write(source: Buffer, byteCount:</text>
+<text class="mono" x="18" y="150">Long)</text>
+</g>
+<g transform="translate(112,1825)">
+  <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">OkioBase64Source</text>
+
+</g>
+<g transform="translate(534,1825)">
+  <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">ApacheBase64Source</text>
+
+</g>
+<g transform="translate(956,1825)">
+  <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">ApacheBase64Sink</text>
+
+</g>
+<g transform="translate(1378,1825)">
+  <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">OkioBase64Sink</text>
+
+</g>
+<g transform="translate(1800,1825)">
+  <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">StreamingCompressSink</text>
+  <text class="mono" x="18" y="108">-compressingStream: OutputStream</text>
+<text class="mono" x="18" y="129">-compressor: StreamingCompressor</text>
+</g>
+<g transform="translate(956,2147)">
+  <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#DC6B82"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Streaming Decompress</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Source</text>
+  <text class="mono" x="18" y="124">-decompressingStream: InputStream</text>
+<text class="mono" x="18" y="145">-compressor: StreamingCompressor</text>
+</g>
 </svg>

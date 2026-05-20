@@ -12,6 +12,20 @@ Provides coroutine extensions, convenience DSLs, and schema utilities for Spring
 - DSL helpers for CQL options (`QueryOptions`, `WriteOptions`, etc.)
 - Schema creation and truncation utilities (`SchemaGenerator`)
 
+## Architecture Diagrams
+
+### Core Class Structure
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
+
+### Cassandra Data Access Layer
+
+![Cassandra Data Access Layer diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
+
+### Coroutine Conversion Sequence
+
+![Coroutine Conversion Sequence diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
+
 ## Installation
 
 ```kotlin
@@ -66,20 +80,6 @@ interface CoroutineUserRepository : CoroutineCrudRepository<User, UUID> {
 ```bash
 ./gradlew :bluetape4k-spring-boot-cassandra:test
 ```
-
-## Architecture Diagrams
-
-### Core Class Structure
-
-![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-01.png)
-
-### Cassandra Data Access Layer
-
-![Cassandra Data Access Layer diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-diagram-02.png)
-
-### Coroutine Conversion Sequence
-
-![Coroutine Conversion Sequence diagram](../../docs/images/readme-diagrams/spring-boot-cassandra-sequence-01.png)
 
 ## References
 

@@ -50,6 +50,16 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 앞으로도 필요한 기능들이 있다면 Issue 에 제안 주시기 바랍니다.
 
+<!-- README_VISUAL_OVERVIEW:START -->
+## Overview Diagram
+
+![Bluetape4k framework overview diagram](docs/images/readme-diagrams/root-readme-overview-01.png)
+
+## Module Composition Chart
+
+![Bluetape4k framework module composition chart](docs/images/readme-charts/root-readme-module-chart-01.png)
+<!-- README_VISUAL_OVERVIEW:END -->
+
 ## 기술 스택
 
 - **Java**: 21 (JVM Toolchain)
@@ -148,8 +158,8 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 
 ### Spring Boot 모듈 (`spring-boot/`)
 
-이 저장소는 Spring Boot 4.x만 지원합니다. 기존 `spring-boot3/*` 모듈은 제거했고,
-기존 `spring-boot4/*` 모듈은 versionless `spring-boot/*` 모듈로 게시합니다.
+이 저장소는 Spring Boot 4.x만 지원합니다. versionless `spring-boot/*` 모듈은
+현재 Spring Boot 4 아티팩트로 게시합니다.
 
 > **BOM 적용 주의**: `dependencyManagement { imports }` 대신 `implementation(platform(...))` 방식으로 적용해야 KGP 2.3.x와 충돌 없이 빌드됩니다.
 

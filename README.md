@@ -48,6 +48,16 @@ Bluetape4k was born out of real-world backend development with Kotlin — fillin
 
 Feel free to open an Issue if you need something that isn't here yet.
 
+<!-- README_VISUAL_OVERVIEW:START -->
+## Overview Diagram
+
+![Bluetape4k framework overview diagram](docs/images/readme-diagrams/root-readme-overview-01.png)
+
+## Module Composition Chart
+
+![Bluetape4k framework module composition chart](docs/images/readme-charts/root-readme-module-chart-01.png)
+<!-- README_VISUAL_OVERVIEW:END -->
+
 ## Tech Stack
 
 - **Java**: 21 (JVM Toolchain)
@@ -144,9 +154,8 @@ A pluggable cache abstraction layer — swap backends without changing applicati
 
 ### Spring Boot Modules (`spring-boot/`)
 
-Spring Boot 4.x is the only supported Spring Boot line in this repo. Former `spring-boot3/*`
-modules were removed and former `spring-boot4/*` modules now publish as versionless
-`spring-boot/*` modules.
+Spring Boot 4.x is the only supported Spring Boot line in this repo. The
+versionless `spring-boot/*` modules publish the current Spring Boot 4 artifacts.
 
 > **BOM note**: Apply via `implementation(platform(...))` rather than `dependencyManagement { imports }` to avoid conflicts with KGP 2.3.x.
 

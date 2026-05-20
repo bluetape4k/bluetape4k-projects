@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1222" viewBox="0 0 1754 1222" role="img" aria-label="math Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -24,12 +24,28 @@
 <rect class="frame" x="32" y="28" width="1690" height="1166" rx="28"/>
 <text class="title" x="66" y="82">math Class Structure 2</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M1287 819 C1287 570 1492 570 1492 321"/>
-<path class="implLine" d="M877 819 C877 570 1492 570 1492 321"/>
-<path class="implLine" d="M467 819 C467 622.5 262 622.5 262 426"/>
+<path class="implLine" d="M1287 827 L1287 481 L672 481 L672 313"/>
+<path class="implLine" d="M467 827 L467 473 L672 473 L672 313"/>
+<path class="implLine" d="M877 827 L877 736 L1082 736 L1082 418"/>
 <g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="61" text-anchor="middle">Histogram</text>
+  <text class="mono" x="18" y="108">+add(value)</text>
+<text class="mono" x="18" y="129">+binCount: Int</text>
+<text class="mono" x="18" y="150">+bins: List~Bin~</text>
+</g>
+<g transform="translate(502,180)">
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
+  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Interpolator</text>
+  <text class="mono" x="18" y="108">+interpolate(x) Double</text>
+</g>
+<g transform="translate(912,180)">
+  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="170" y="61" text-anchor="middle">Descriptives</text>
   <text class="mono" x="18" y="108">+mean: Double</text>
@@ -39,28 +55,12 @@
 <text class="mono" x="18" y="192">+kurtosis: Double</text>
 <text class="mono" x="18" y="213">+min: Double</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Histogram</text>
-  <text class="mono" x="18" y="108">+add(value)</text>
-<text class="mono" x="18" y="129">+binCount: Int</text>
-<text class="mono" x="18" y="150">+bins: List~Bin~</text>
-</g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Integrator</text>
-  <text class="mono" x="18" y="108">+integrate(f, a, b) Double</text>
-</g>
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Interpolator</text>
-  <text class="mono" x="18" y="108">+interpolate(x) Double</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Integrator</text>
+  <text class="mono" x="18" y="108">+integrate(f, a, b) Double</text>
 </g>
 <g transform="translate(707,544)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
@@ -70,20 +70,20 @@
   <text class="mono" x="18" y="108">+roll() T</text>
 </g>
 <g transform="translate(297,827)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="170" y="26" text-anchor="middle"></text>
+  <text class="label" x="170" y="61" text-anchor="middle">LinearInterpolator</text>
+  <text class="mono" x="18" y="108">+interpolate(x) Double</text>
+</g>
+<g transform="translate(707,827)">
+  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
   <text class="label" x="170" y="61" text-anchor="middle">DoubleStatistics</text>
   <text class="mono" x="18" y="108">+descriptives() Descriptives</text>
 <text class="mono" x="18" y="129">+aggregateBy(keySelector, valueTransform,</text>
 <text class="mono" x="18" y="150">aggregator)</text>
-</g>
-<g transform="translate(707,827)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LinearInterpolator</text>
-  <text class="mono" x="18" y="108">+interpolate(x) Double</text>
 </g>
 <g transform="translate(1117,827)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>

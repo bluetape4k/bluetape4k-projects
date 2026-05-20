@@ -47,6 +47,24 @@ A unified module providing common features for Spring Boot 4.x applications.
 - `WebTestClient` test extensions (`httpGet`, `httpPost`, etc.)
 - Testcontainers integration
 
+## Architecture Diagrams
+
+### Core Class Structure
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
+
+### Spring WebFlux + Coroutines Request Flow
+
+![Spring WebFlux + Coroutines Request Flow diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.png)
+
+### RestClient Coroutines DSL Structure
+
+![RestClient Coroutines DSL Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
+
+### Retrofit2 Integration Structure
+
+![Retrofit2 Integration Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
+
 ## Installation
 
 ```kotlin
@@ -175,24 +193,6 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 support                 |
 | `spring-boot-starter-web`     | `compileOnly` | Optional servlet support          |
 | `resilience4j-*`              | `compileOnly` | Optional Resilience4j             |
-
-## Architecture Diagrams
-
-### Core Class Structure
-
-![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
-
-### Spring WebFlux + Coroutines Request Flow
-
-![Spring WebFlux + Coroutines Request Flow diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.png)
-
-### RestClient Coroutines DSL Structure
-
-![RestClient Coroutines DSL Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
-
-### Retrofit2 Integration Structure
-
-![Retrofit2 Integration Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
 
 ## Build and Test
 

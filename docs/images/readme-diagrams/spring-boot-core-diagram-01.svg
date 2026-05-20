@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1754" height="876" viewBox="0 0 1754 876" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -24,10 +24,10 @@
 <rect class="frame" x="32" y="28" width="1690" height="820" rx="28"/>
 <text class="title" x="66" y="82">Core Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M877 494 C877 439 1082 439 1082 384"/>
-<path class="line" d="M672 172 C672 278 1492 278 1492 384"/>
-<path class="line" d="M1492 172 C1492 278 262 278 262 384"/>
-<path class="line" d="M1082 172 C1082 278 1492 278 1492 384"/>
+<path class="line" d="M877 502 L877 447 L1082 447 L1082 376"/>
+<path class="line" d="M1492 376 L1492 122 L672 122 L672 180"/>
+<path class="line" d="M672 376 L672 132 L262 132 L262 180"/>
+<path class="line" d="M1082 376 L1082 423 L672 423 L672 180"/>
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
@@ -42,11 +42,11 @@
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Retrofit2Config</text>
-  <text class="mono" x="18" y="108">+retrofit(): Retrofit</text>
-<text class="mono" x="18" y="129">+okHttpClient(): OkHttpClient</text>
-<text class="mono" x="18" y="150">+jacksonConverterFactory():</text>
-<text class="mono" x="18" y="171">JacksonConverterFactory</text>
+  <text class="label" x="170" y="61" text-anchor="middle">UserService</text>
+  <text class="mono" x="18" y="108">-restClient: RestClient</text>
+<text class="mono" x="18" y="129">+findAllAsFlow(): Flow~User~</text>
+<text class="mono" x="18" y="150">+findById(id): User</text>
+<text class="mono" x="18" y="171">+create(user): User</text>
 </g>
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
@@ -62,11 +62,11 @@
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
   <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">UserService</text>
-  <text class="mono" x="18" y="108">-restClient: RestClient</text>
-<text class="mono" x="18" y="129">+findAllAsFlow(): Flow~User~</text>
-<text class="mono" x="18" y="150">+findById(id): User</text>
-<text class="mono" x="18" y="171">+create(user): User</text>
+  <text class="label" x="170" y="61" text-anchor="middle">Retrofit2Config</text>
+  <text class="mono" x="18" y="108">+retrofit(): Retrofit</text>
+<text class="mono" x="18" y="129">+okHttpClient(): OkHttpClient</text>
+<text class="mono" x="18" y="150">+jacksonConverterFactory():</text>
+<text class="mono" x="18" y="171">JacksonConverterFactory</text>
 </g>
 <g transform="translate(707,502)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
