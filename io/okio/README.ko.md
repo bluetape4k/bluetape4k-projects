@@ -31,6 +31,38 @@ read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델�
 - **이 모듈의 coroutine 확장**: `SuspendedSource`, `SuspendedSink`, suspended file/socket channel,
   `SuspendedPipe`를 통해 Okio 스타일 pipeline을 structured concurrency 코드에서도 사용할 수 있습니다.
 
+## 시퀀스 다이어그램
+
+### 압축 Sink (One-Shot) — compress on close
+
+`CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
+
+![Sink (One-Shot) — compress on close diagram](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
+
+### 압축 Sink (Streaming) — compress incrementally
+
+`StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
+
+![Sink (Streaming) — compress incrementally diagram](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
+
+### 복원 Source (One-Shot) — decompress on first read
+
+`DecompressableSource`는 첫 번째 `read()` 호출 시 전체 데이터를 복원하고 캐싱합니다.
+
+![Source (One-Shot) — decompress on first read diagram](../../docs/images/readme-diagrams/io-okio-sequence-03.png)
+
+### Tink 암호화 + 압축 조합 흐름
+
+`Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
+
+![Tink + diagram](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
+
+### Coroutines 비동기 파일 I/O 흐름
+
+`AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
+
+![Coroutines I/O diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
+
 ## 추천 사용 시나리오
 
 다음 요구가 있다면 `bluetape4k-okio` 사용을 권장합니다:
@@ -403,38 +435,6 @@ Kotlin Coroutines `suspend` 함수 기반 비동기 Sink/Source 추상화입니�
 `Compressable` 오브젝트를 통해 다양한 알고리즘의 압축/복원 Sink/Source를 편리하게 생성할 수 있습니다.
 
 ![(Compressable) diagram](../../docs/images/readme-diagrams/io-okio-diagram-04.png)
-
-## 시퀀스 다이어그램
-
-### 압축 Sink (One-Shot) — compress on close
-
-`CompressableSink`는 모든 데이터를 내부 버퍼에 축적한 뒤, `close()` 시점에 한 번에 압축합니다.
-
-![Sink (One-Shot) — compress on close diagram](../../docs/images/readme-diagrams/io-okio-sequence-01.png)
-
-### 압축 Sink (Streaming) — compress incrementally
-
-`StreamingCompressSink`는 데이터를 수신할 때마다 즉시 압축하여 대용량 스트리밍에 적합합니다.
-
-![Sink (Streaming) — compress incrementally diagram](../../docs/images/readme-diagrams/io-okio-sequence-02.png)
-
-### 복원 Source (One-Shot) — decompress on first read
-
-`DecompressableSource`는 첫 번째 `read()` 호출 시 전체 데이터를 복원하고 캐싱합니다.
-
-![Source (One-Shot) — decompress on first read diagram](../../docs/images/readme-diagrams/io-okio-sequence-03.png)
-
-### Tink 암호화 + 압축 조합 흐름
-
-`Sink` 데코레이터를 체이닝하여 압축 후 암호화를 적용합니다.
-
-![Tink + diagram](../../docs/images/readme-diagrams/io-okio-sequence-04.png)
-
-### Coroutines 비동기 파일 I/O 흐름
-
-`AsynchronousFileChannel`을 사용하여 논블로킹 파일 I/O를 수행합니다.
-
-![Coroutines I/O diagram](../../docs/images/readme-diagrams/io-okio-sequence-05.png)
 
 ## 라이선스
 

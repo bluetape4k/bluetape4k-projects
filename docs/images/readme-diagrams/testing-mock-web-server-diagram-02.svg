@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1303" viewBox="0 0 1754 1303" role="img" aria-label="mock web server Class Structure 2">
+<svg xmlns="http://www.w3.org/2000/svg" width="2222" height="1461" viewBox="0 0 2222 1461" role="img" aria-label="mock web server Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -20,41 +20,71 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1303"/>
-<rect class="frame" x="32" y="28" width="1690" height="1247" rx="28"/>
+<rect class="canvas" width="2222" height="1461"/>
+<rect class="frame" x="32" y="28" width="2158" height="1405" rx="28"/>
 <text class="title" x="66" y="82">mock web server Class Structure 2</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M877 858 C877 932.5 1287 932.5 1287 1007"/>
-<path class="line" d="M1082 536 C1082 600 262 600 262 664"/>
-<path class="line" d="M262 321 C262 428.5 1082 428.5 1082 536"/>
-<path class="line" d="M467 858 C467 771.5 1082 771.5 1082 685"/>
-<path class="line" d="M1492 536 C1492 428.5 262 428.5 262 321"/>
-<path class="line" d="M1492 685 C1492 771.5 877 771.5 877 858"/>
-<path class="line" d="M1492 685 C1492 771.5 467 771.5 467 858"/>
-<path class="line" d="M1492 536 C1492 428.5 1492 428.5 1492 321"/>
-<path class="line" d="M1492 536 C1492 447 672 447 672 358"/>
-<path class="line" d="M1492 536 C1492 481 1082 481 1082 426"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">AdminController</text>
+<path class="line" d="M1955 313 L1955 565"/>
+<path class="line" d="M689 313 L689 489 L267 489 L267 565"/>
+<path class="line" d="M1533 313 L1533 122 L689 122 L689 180"/>
+<path class="line" d="M267 180 L267 132 L689 132 L689 313"/>
+<path class="line" d="M1111 313 L1111 465 L1533 465 L1533 180"/>
+<path class="line" d="M1111 313 L1111 102 L1955 102 L1955 180"/>
+<path class="line" d="M1111 313 L1111 112 L267 112 L267 180"/>
+<path class="line" d="M1111 313 L1111 481 L1533 481 L1533 565"/>
+<path class="line" d="M1111 313 L1111 565"/>
+<path class="line" d="M1111 313 L1111 465 L689 465 L689 565"/>
+<g transform="translate(112,180)">
+  <rect class="card" x="0" y="0" width="310" height="217" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">PostsController</text>
+  <text class="mono" x="18" y="108">+list() List~PostRecord~</text>
+<text class="mono" x="18" y="129">+get(id) PostRecord</text>
+<text class="mono" x="18" y="150">+create(post) PostRecord</text>
+<text class="mono" x="18" y="171">+update(id, post) PostRecord</text>
+<text class="mono" x="18" y="192">+delete(id) ResponseEntity</text>
+</g>
+<g transform="translate(534,180)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">JsonplaceholderService</text>
+  <text class="mono" x="18" y="108">+reloadFromFixtures()</text>
+</g>
+<g transform="translate(956,180)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">MockServerApplication</text>
+  <text class="mono" x="18" y="108">+main(args)</text>
+</g>
+<g transform="translate(1378,180)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">AdminController</text>
   <text class="mono" x="18" y="108">+reset() ResponseEntity</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Httpbin Advanced</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Controller</text>
-  <text class="mono" x="18" y="124">+delay(seconds) HttpbinResponse</text>
-<text class="mono" x="18" y="145">+image(format) ResponseEntity</text>
+<g transform="translate(1800,180)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">WebContentController</text>
+  <text class="mono" x="18" y="108">+getContent(name) ResponseEntity</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">HttpbinController</text>
+<g transform="translate(112,565)">
+  <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">InMemoryRepository</text>
+
+</g>
+<g transform="translate(534,565)">
+  <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">HttpbinController</text>
   <text class="mono" x="18" y="108">+get(request) HttpbinResponse</text>
 <text class="mono" x="18" y="129">+post(request, body) HttpbinResponse</text>
 <text class="mono" x="18" y="150">+headers(request) Map</text>
@@ -62,67 +92,38 @@
 <text class="mono" x="18" y="192">+status(code) ResponseEntity</text>
 <text class="mono" x="18" y="213">+bytes(n) ResponseEntity</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">HttpbinStreamController</text>
-  <text class="mono" x="18" y="108">+stream(n) StreamingResponseBody</text>
+<g transform="translate(956,565)">
+  <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8BA84D"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Httpbin Advanced</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Controller</text>
+  <text class="mono" x="18" y="124">+delay(seconds) HttpbinResponse</text>
+<text class="mono" x="18" y="145">+image(format) ResponseEntity</text>
 </g>
-<g transform="translate(92,544)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">InMemoryRepository</text>
-
+<g transform="translate(1378,565)">
+  <rect class="card" x="0" y="0" width="310" height="149" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Httpbin Stream</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Controller</text>
+  <text class="mono" x="18" y="124">+stream(n) StreamingResponseBody</text>
 </g>
-<g transform="translate(502,544)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«generic»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">InMemoryRepositoryT</text>
+<g transform="translate(1800,565)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">WebContentLoader</text>
+  <text class="mono" x="18" y="108">+load(name) String</text>
+</g>
+<g transform="translate(956,971)">
+  <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«generic»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">InMemoryRepositoryT</text>
   <text class="mono" x="18" y="108">+findAll() List~T~</text>
 <text class="mono" x="18" y="129">+findById(id) T?</text>
 <text class="mono" x="18" y="150">+save(entity) T</text>
 <text class="mono" x="18" y="171">+deleteById(id)</text>
-</g>
-<g transform="translate(912,544)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonplaceholderService</text>
-  <text class="mono" x="18" y="108">+reloadFromFixtures()</text>
-</g>
-<g transform="translate(1322,544)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MockServerApplication</text>
-  <text class="mono" x="18" y="108">+main(args)</text>
-</g>
-<g transform="translate(297,866)">
-  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">PostsController</text>
-  <text class="mono" x="18" y="108">+list() List~PostRecord~</text>
-<text class="mono" x="18" y="129">+get(id) PostRecord</text>
-<text class="mono" x="18" y="150">+create(post) PostRecord</text>
-<text class="mono" x="18" y="171">+update(id, post) PostRecord</text>
-<text class="mono" x="18" y="192">+delete(id) ResponseEntity</text>
-</g>
-<g transform="translate(707,866)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">WebContentController</text>
-  <text class="mono" x="18" y="108">+getContent(name) ResponseEntity</text>
-</g>
-<g transform="translate(1117,866)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">WebContentLoader</text>
-  <text class="mono" x="18" y="108">+load(name) String</text>
 </g>
 </svg>

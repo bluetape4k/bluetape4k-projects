@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1238" viewBox="0 0 1754 1238" role="img" aria-label="kafka logback Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="2222" height="1428" viewBox="0 0 2222 1428" role="img" aria-label="kafka logback Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -20,24 +20,39 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1238"/>
-<rect class="frame" x="32" y="28" width="1690" height="1182" rx="28"/>
+<rect class="canvas" width="2222" height="1428"/>
+<rect class="frame" x="32" y="28" width="2158" height="1372" rx="28"/>
 <text class="title" x="66" y="82">kafka logback Class Structure</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1492 560 C1492 440.5 1287 440.5 1287 321"/>
-<path class="line" d="M1492 560 C1492 451 877 451 877 342"/>
-<path class="implLine" d="M877 882 C877 601.5 1287 601.5 1287 321"/>
-<path class="implLine" d="M262 560 C262 440.5 1287 440.5 1287 321"/>
-<path class="implLine" d="M1287 882 C1287 601.5 1287 601.5 1287 321"/>
-<path class="implLine" d="M467 882 C467 601.5 1287 601.5 1287 321"/>
-<path class="implLine" d="M1082 560 C1082 440.5 1287 440.5 1287 321"/>
-<path class="implLine" d="M672 560 C672 451 877 451 877 342"/>
-<path class="inheritLine" d="M1492 560 C1492 493 467 493 467 426"/>
-<g transform="translate(297,180)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">AbstractKafkaAppender</text>
+<path class="line" d="M1111 642 L1111 313"/>
+<path class="line" d="M1111 642 L1111 530 L689 530 L689 334"/>
+<path class="implLine" d="M900 1006 L900 522 L1111 522 L1111 313"/>
+<path class="implLine" d="M689 642 L689 514 L1111 514 L1111 313"/>
+<path class="implLine" d="M1322 1006 L1322 546 L1111 546 L1111 313"/>
+<path class="implLine" d="M1955 642 L1955 538 L1111 538 L1111 313"/>
+<path class="implLine" d="M267 642 L267 530 L1111 530 L1111 313"/>
+<path class="implLine" d="M1533 642 L1533 522 L689 522 L689 334"/>
+<path class="inheritLine" d="M1111 642 L1111 514 L1533 514 L1533 418"/>
+<g transform="translate(534,180)">
+  <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">KafkaExporter</text>
+  <text class="mono" x="18" y="108">+export(producer, topic, partition,</text>
+<text class="mono" x="18" y="129">key, body)</text>
+</g>
+<g transform="translate(956,180)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle">«interface»</text>
+  <text class="label" x="155" y="61" text-anchor="middle">KafkaKeyProvider</text>
+  <text class="mono" x="18" y="108">+getKey(event): ByteArray?</text>
+</g>
+<g transform="translate(1378,180)">
+  <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">AbstractKafkaAppender</text>
   <text class="mono" x="18" y="108">+bootstrapServers: String</text>
 <text class="mono" x="18" y="129">+topic: String</text>
 <text class="mono" x="18" y="150">+partition: Int?</text>
@@ -45,74 +60,60 @@
 <text class="mono" x="18" y="192">+exporter: KafkaExporter</text>
 <text class="mono" x="18" y="213">+encoder: Encoder</text>
 </g>
-<g transform="translate(707,180)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">KafkaExporter</text>
-  <text class="mono" x="18" y="108">+export(producer, topic, partition, key,</text>
-<text class="mono" x="18" y="129">body)</text>
-</g>
-<g transform="translate(1117,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">KafkaKeyProvider</text>
-  <text class="mono" x="18" y="108">+getKey(event): ByteArray?</text>
-</g>
-<g transform="translate(92,568)">
-  <rect class="card" x="0" y="0" width="340" height="128" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Context Name Kafka Key</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Provider</text>
+<g transform="translate(112,642)">
+  <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#DC6B82"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Hostname Kafka Key</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Provider</text>
 
 </g>
-<g transform="translate(502,568)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">DefaultKafkaExporter</text>
-  <text class="mono" x="18" y="108">+export(...)</text>
-</g>
-<g transform="translate(912,568)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">HostnameKafkaKeyProvider</text>
+<g transform="translate(534,642)">
+  <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#45A7A1"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Context Name Kafka Key</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Provider</text>
 
 </g>
-<g transform="translate(1322,568)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">KafkaAppender</text>
+<g transform="translate(956,642)">
+  <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">KafkaAppender</text>
   <text class="mono" x="18" y="108">-producer: KafkaProducer</text>
 <text class="mono" x="18" y="129">+start()</text>
 <text class="mono" x="18" y="150">+stop()</text>
 <text class="mono" x="18" y="171">#append(event)</text>
 </g>
-<g transform="translate(297,890)">
-  <rect class="card" x="0" y="0" width="340" height="128" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Logger Name Kafka Key</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Provider</text>
+<g transform="translate(1378,642)">
+  <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">DefaultKafkaExporter</text>
+  <text class="mono" x="18" y="108">+export(...)</text>
+</g>
+<g transform="translate(1800,642)">
+  <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8BA84D"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Logger Name Kafka Key</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Provider</text>
 
 </g>
-<g transform="translate(707,890)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">NullKafkaKeyProvider</text>
+<g transform="translate(745,1006)">
+  <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="61" text-anchor="middle">NullKafkaKeyProvider</text>
 
 </g>
-<g transform="translate(1117,890)">
-  <rect class="card" x="0" y="0" width="340" height="128" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Thread Name Kafka Key</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Provider</text>
+<g transform="translate(1167,1006)">
+  <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#58A978"/>
+  <text class="small" x="155" y="26" text-anchor="middle"></text>
+  <text class="label" x="155" y="56.5" text-anchor="middle">Thread Name Kafka Key</text>
+<text class="label" x="155" y="81.5" text-anchor="middle">Provider</text>
 
 </g>
 </svg>

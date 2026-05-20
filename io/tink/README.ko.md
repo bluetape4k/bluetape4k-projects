@@ -27,6 +27,16 @@ raw JCA/JCE API를 직접 사용할 때 실수하기 쉬운 nonce 처리, cipher
 - **테스트하기 쉬운 wrapper**: round-trip, associated-data, tamper, rotation, concurrency 테스트로 검증하기 쉬운
   작은 API surface를 유지합니다.
 
+## 다이어그램
+
+### TinkEncryptor 클래스 계층
+
+![TinkEncryptor diagram](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
+
+### AEAD encrypt/decrypt 흐름
+
+![AEAD encrypt/decrypt diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
+
 ## 추천 사용 시나리오
 
 다음 경우 이 모듈을 사용하세요:
@@ -330,16 +340,6 @@ io.bluetape4k.tink
     ├── TinkEncryptors.kt                   # 팩토리 싱글턴
     └── TinkEncryptorExtensions.kt          # 확장 함수
 ```
-
-## 다이어그램
-
-### TinkEncryptor 클래스 계층
-
-![TinkEncryptor diagram](../../docs/images/readme-diagrams/io-tink-diagram-01.png)
-
-### AEAD encrypt/decrypt 흐름
-
-![AEAD encrypt/decrypt diagram](../../docs/images/readme-diagrams/io-tink-sequence-01.png)
 
 ## bluetape4k-crypto 와의 차이
 

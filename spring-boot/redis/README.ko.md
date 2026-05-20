@@ -18,6 +18,16 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 | `redisSerializationContext {}`     | DSL 기반 `RedisSerializationContext` 빌더                    |
 | `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수                            |
 
+## 아키텍처 다이어그램
+
+### Redis Serializer 클래스 계층
+
+![Redis Serializer diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
+
+### ReactiveRedisTemplate 직렬화 흐름
+
+![ReactiveRedisTemplate diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
+
 ## 설치
 
 ```kotlin
@@ -101,16 +111,6 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 | `RedisBinarySerializers.Zstd`   | Zstd    |
 | `RedisBinarySerializers.Snappy` | Snappy  |
 | `RedisBinarySerializers.Gzip`   | GZip    |
-
-## 아키텍처 다이어그램
-
-### Redis Serializer 클래스 계층
-
-![Redis Serializer diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-01.png)
-
-### ReactiveRedisTemplate 직렬화 흐름
-
-![ReactiveRedisTemplate diagram](../../docs/images/readme-diagrams/spring-boot-redis-diagram-02.png)
 
 ## 빌드 및 테스트
 

@@ -28,6 +28,24 @@ Vert.x 기반 비동기/Coroutines 개발을 위한 단일 통합 모듈입니�
 - Vert.x + Resilience4j Circuit Breaker 통합
 - Resilience4j Micrometer 메트릭 연동 (선택적)
 
+## 아키텍처 다이어그램
+
+### 모듈 의존성 구조
+
+![vertx Architecture diagram](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
+
+### Vert.x 이벤트 루프 + Coroutines 처리 흐름
+
+![Vert.x + Coroutines diagram](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
+
+### Circuit Breaker + Resilience4j 통합 흐름
+
+![Circuit Breaker + Resilience4j diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
+
+### Vert.x 핵심 컴포넌트 클래스 구조
+
+![Vert.x diagram](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
+
 ## 설치
 
 ```kotlin
@@ -63,24 +81,6 @@ dependencies {
 | `vertx-pg-client`              | `implementation` | PostgreSQL 드라이버 |
 | `vertx-web`                    | `compileOnly`    | 선택적 Web 지원      |
 | `vertx-jdbc-client`            | `compileOnly`    | 선택적 JDBC        |
-
-## 아키텍처 다이어그램
-
-### 모듈 의존성 구조
-
-![vertx Architecture diagram](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
-
-### Vert.x 이벤트 루프 + Coroutines 처리 흐름
-
-![Vert.x + Coroutines diagram](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
-
-### Circuit Breaker + Resilience4j 통합 흐름
-
-![Circuit Breaker + Resilience4j diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
-
-### Vert.x 핵심 컴포넌트 클래스 구조
-
-![Vert.x diagram](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
 
 ## 사용 예시
 

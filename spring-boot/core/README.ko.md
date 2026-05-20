@@ -48,6 +48,24 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 - `WebTestClient` 테스트 확장 (`httpGet`, `httpPost` 등)
 - Testcontainers 통합
 
+## 아키텍처 다이어그램
+
+### 핵심 클래스 구조
+
+![core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
+
+### Spring WebFlux + Coroutines 요청 흐름
+
+![Spring WebFlux + Coroutines diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.png)
+
+### RestClient Coroutines DSL 구조
+
+![RestClient Coroutines DSL diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
+
+### Retrofit2 통합 구조
+
+![Retrofit2 diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
+
 ## 설치
 
 ```kotlin
@@ -176,24 +194,6 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 지원            |
 | `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
 | `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
-
-## 아키텍처 다이어그램
-
-### 핵심 클래스 구조
-
-![core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-01.png)
-
-### Spring WebFlux + Coroutines 요청 흐름
-
-![Spring WebFlux + Coroutines diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-02.png)
-
-### RestClient Coroutines DSL 구조
-
-![RestClient Coroutines DSL diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-03.png)
-
-### Retrofit2 통합 구조
-
-![Retrofit2 diagram](../../docs/images/readme-diagrams/spring-boot-core-diagram-04.png)
 
 ## 빌드 및 테스트
 

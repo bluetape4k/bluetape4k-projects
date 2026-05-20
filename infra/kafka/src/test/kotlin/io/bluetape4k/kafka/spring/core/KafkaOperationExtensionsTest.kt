@@ -2,13 +2,13 @@
 
 package io.bluetape4k.kafka.spring.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.testcontainers.mq.Spring
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import kotlinx.coroutines.flow.flow
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.AfterEach

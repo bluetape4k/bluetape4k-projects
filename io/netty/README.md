@@ -26,6 +26,20 @@ dependencies {
 }
 ```
 
+## Architecture Diagrams
+
+### ByteBuf Extension API Structure
+
+![ByteBuf Extension API Structure diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
+
+### Smart Encoding Data Flow
+
+![Smart Encoding Data Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
+
+### Netty Channel Pipeline Processing Flow
+
+![Netty Channel Pipeline Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
+
 ## Basic Usage
 
 ### 1. Reading from ByteBuf
@@ -185,20 +199,6 @@ buf.writeUIntSmart(100000) // 4 bytes
 | File                       | Description             |
 |----------------------------|-------------------------|
 | `NettyTransportSupport.kt` | Netty transport support |
-
-## Architecture Diagrams
-
-### ByteBuf Extension API Structure
-
-![ByteBuf Extension API Structure diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
-
-### Smart Encoding Data Flow
-
-![Smart Encoding Data Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
-
-### Netty Channel Pipeline Processing Flow
-
-![Netty Channel Pipeline Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## Testing
 

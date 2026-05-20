@@ -28,6 +28,24 @@ A unified module for async and Coroutines-based development with Vert.x.
 - Vert.x + Resilience4j Circuit Breaker integration
 - Resilience4j Micrometer metrics integration (optional)
 
+## Architecture Diagrams
+
+### Module Dependency Structure
+
+![Module Dependency Structure diagram](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
+
+### Vert.x Event Loop + Coroutines Processing Flow
+
+![Vert.x Event Loop + Coroutines Processing Flow diagram](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
+
+### Circuit Breaker + Resilience4j Integration Flow
+
+![Circuit Breaker + Resilience4j Integration Flow diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
+
+### Vert.x Core Component Class Structure
+
+![Vert.x Core Component Class Structure diagram](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
+
 ## Installation
 
 ```kotlin
@@ -63,24 +81,6 @@ dependencies {
 | `vertx-pg-client`              | `implementation` | PostgreSQL driver        |
 | `vertx-web`                    | `compileOnly`    | Optional web support     |
 | `vertx-jdbc-client`            | `compileOnly`    | Optional JDBC            |
-
-## Architecture Diagrams
-
-### Module Dependency Structure
-
-![Module Dependency Structure diagram](../../docs/images/readme-diagrams/io-vertx-diagram-01.png)
-
-### Vert.x Event Loop + Coroutines Processing Flow
-
-![Vert.x Event Loop + Coroutines Processing Flow diagram](../../docs/images/readme-diagrams/io-vertx-diagram-02.png)
-
-### Circuit Breaker + Resilience4j Integration Flow
-
-![Circuit Breaker + Resilience4j Integration Flow diagram](../../docs/images/readme-diagrams/io-vertx-sequence-01.png)
-
-### Vert.x Core Component Class Structure
-
-![Vert.x Core Component Class Structure diagram](../../docs/images/readme-diagrams/io-vertx-diagram-03.png)
 
 ## Usage Examples
 

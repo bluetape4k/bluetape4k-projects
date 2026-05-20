@@ -1,18 +1,18 @@
 package io.bluetape4k.kafka
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.support.asDouble
-import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.asDouble
+import io.bluetape4k.testcontainers.mq.KafkaServer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import java.util.Properties
+import java.util.*
 
 /**
  * [ProducerSupport] 및 Producer 관련 유틸리티 함수에 대한 테스트 클래스입니다.

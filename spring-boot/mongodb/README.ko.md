@@ -16,6 +16,24 @@
 - **Query 빌더 확장**: `queryOf()`, `sortAscBy()`, `paginate()` 등
 - **Update DSL**: `"field" setTo value`, `"field".incBy()` 등
 
+## 아키텍처 다이어그램
+
+### 핵심 클래스 구조
+
+![mongodb Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)
+
+### ReactiveMongoOperations 코루틴 확장 흐름
+
+![ReactiveMongoOperations diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)
+
+### Criteria / Query / Update DSL 흐름
+
+![Criteria / Query / Update DSL diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)
+
+### 코루틴 변환 시퀀스
+
+![mongodb Sequence Flow 4 diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
+
 ## 설치
 
 ```kotlin
@@ -102,24 +120,6 @@ val update = ("name" setTo "Alice")
 ```bash
 ./gradlew :bluetape4k-spring-boot-mongodb:test
 ```
-
-## 아키텍처 다이어그램
-
-### 핵심 클래스 구조
-
-![mongodb Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)
-
-### ReactiveMongoOperations 코루틴 확장 흐름
-
-![ReactiveMongoOperations diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)
-
-### Criteria / Query / Update DSL 흐름
-
-![Criteria / Query / Update DSL diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)
-
-### 코루틴 변환 시퀀스
-
-![mongodb Sequence Flow 4 diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
 
 ## 참고 자료
 

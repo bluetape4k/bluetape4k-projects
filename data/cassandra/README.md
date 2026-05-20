@@ -345,6 +345,20 @@ class MyCassandraTest: AbstractCassandraTest() {
 }
 ```
 
+## Architecture Diagrams
+
+### Extension Function API Overview
+
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+
+### Core API Structure
+
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+
+### Asynchronous Query Execution Flow
+
+![Asynchronous Query Execution Flow diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
+
 ## Examples
 
 More examples are available in the `src/test/kotlin/io/bluetape4k/cassandra` package:
@@ -359,20 +373,6 @@ More examples are available in the `src/test/kotlin/io/bluetape4k/cassandra` pac
     - `UpateStatementExamples.kt`: UPDATE statements
     - `DeleteFromStatementExamples.kt`: DELETE statements
     - `schema/`: Schema management examples (Keyspace, Table, Index, UDT, etc.)
-
-## Architecture Diagrams
-
-### Extension Function API Overview
-
-![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
-
-### Core API Structure
-
-![Core API Structure diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
-
-### Asynchronous Query Execution Flow
-
-![Asynchronous Query Execution Flow diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## References
 

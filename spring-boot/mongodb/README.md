@@ -16,6 +16,24 @@ Provides extension functions that convert `Flux`/`Mono` return types from `React
 - **Query builder extensions**: `queryOf()`, `sortAscBy()`, `paginate()`, etc.
 - **Update DSL**: `"field" setTo value`, `"field".incBy()`, etc.
 
+## Architecture Diagrams
+
+### Core Class Structure
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)
+
+### ReactiveMongoOperations Coroutine Extension Flow
+
+![ReactiveMongoOperations Coroutine Extension Flow diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)
+
+### Criteria / Query / Update DSL Flow
+
+![Criteria / Query / Update DSL Flow diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)
+
+### Coroutine Conversion Sequence
+
+![Coroutine Conversion Sequence diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
+
 ## Installation
 
 ```kotlin
@@ -102,24 +120,6 @@ val update = ("name" setTo "Alice")
 ```bash
 ./gradlew :bluetape4k-spring-boot-mongodb:test
 ```
-
-## Architecture Diagrams
-
-### Core Class Structure
-
-![Core Class Structure diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-01.png)
-
-### ReactiveMongoOperations Coroutine Extension Flow
-
-![ReactiveMongoOperations Coroutine Extension Flow diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-02.png)
-
-### Criteria / Query / Update DSL Flow
-
-![Criteria / Query / Update DSL Flow diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-diagram-03.png)
-
-### Coroutine Conversion Sequence
-
-![Coroutine Conversion Sequence diagram](../../docs/images/readme-diagrams/spring-boot-mongodb-sequence-01.png)
 
 ## References
 

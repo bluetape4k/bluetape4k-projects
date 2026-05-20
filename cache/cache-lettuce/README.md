@@ -15,6 +15,16 @@ but the Gradle project name, Maven artifact ID, and Kotlin packages remain stabl
 
 No user import migration is required for the reorganization.
 
+## Architecture Diagrams
+
+### LettuceNearCache Class Hierarchy
+
+![LettuceNearCache Class Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)
+
+### RESP3 CLIENT TRACKING Flow
+
+![RESP3 CLIENT TRACKING Flow diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)
+
 ## Installation
 
 ```kotlin
@@ -61,16 +71,6 @@ Typical examples include:
 - `NearJCacheConfig` DSL usage
 - sync / suspend JCache-backed near caches
 - native `LettuceNearCache` / `LettuceSuspendNearCache`
-
-## Architecture Diagrams
-
-### LettuceNearCache Class Hierarchy
-
-![LettuceNearCache Class Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-01.png)
-
-### RESP3 CLIENT TRACKING Flow
-
-![RESP3 CLIENT TRACKING Flow diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-sequence-01.png)
 
 ## `ResilientLettuceNearCacheConfig` Options
 

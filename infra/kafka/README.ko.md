@@ -12,6 +12,20 @@ Apache Kafka를 Kotlin 환경에서 효율적으로 사용하기 위한 유틸�
 - **Kafka Streams 지원**: KStream, KTable 작업을 위한 편의 함수들
 - **테스트 유틸리티**: Embedded Kafka를 활용한 테스트 지원
 
+## 아키텍처 다이어그램
+
+### Kafka 클래스 계층
+
+![Kafka diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
+
+### Producer/Consumer 메시지 흐름
+
+![Producer/Consumer diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
+
+### Kafka Streams 처리 흐름
+
+![Kafka Streams diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
+
 ## 설치
 
 ### Gradle (Kotlin DSL)
@@ -409,20 +423,6 @@ class KafkaIntegrationTest {
     }
 }
 ```
-
-## 아키텍처 다이어그램
-
-### Kafka 클래스 계층
-
-![Kafka diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-01.png)
-
-### Producer/Consumer 메시지 흐름
-
-![Producer/Consumer diagram](../../docs/images/readme-diagrams/infra-kafka-sequence-01.png)
-
-### Kafka Streams 처리 흐름
-
-![Kafka Streams diagram](../../docs/images/readme-diagrams/infra-kafka-diagram-02.png)
 
 ## 패키지 구조
 

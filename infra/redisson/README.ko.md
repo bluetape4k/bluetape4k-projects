@@ -37,6 +37,20 @@ dependencies {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### Codec 계층 구조
+
+![Codec diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
+
+### NearCache 2-Tier 캐시 흐름
+
+![NearCache 2-Tier diagram](../../docs/images/readme-diagrams/infra-redisson-sequence-01.png)
+
+### Batch / Transaction 처리 흐름
+
+![Batch / Transaction diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-02.png)
+
 ## 사용 예시
 
 ### 1. RedissonClient 생성
@@ -268,20 +282,6 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 > JCache 기반의 고급 NearCache (RESP3 하이브리드, Resilient write-behind 등)는 `bluetape4k-cache-redisson` 모듈을 사용하세요.
 
 ---
-
-## 아키텍처 다이어그램
-
-### Codec 계층 구조
-
-![Codec diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-01.png)
-
-### NearCache 2-Tier 캐시 흐름
-
-![NearCache 2-Tier diagram](../../docs/images/readme-diagrams/infra-redisson-sequence-01.png)
-
-### Batch / Transaction 처리 흐름
-
-![Batch / Transaction diagram](../../docs/images/readme-diagrams/infra-redisson-diagram-02.png)
 
 ## 고성능 Batch 패턴 — 메가배치
 

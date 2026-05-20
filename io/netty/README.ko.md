@@ -26,6 +26,20 @@ dependencies {
 }
 ```
 
+## 아키텍처 다이어그램
+
+### ByteBuf 확장 API 구조
+
+![ByteBuf API diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
+
+### Smart 인코딩 데이터 흐름
+
+![Smart diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
+
+### Netty 채널 파이프라인 처리 흐름
+
+![Netty diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
+
 ## 기본 사용법
 
 ### 1. ByteBuf 읽기
@@ -185,20 +199,6 @@ buf.writeUIntSmart(100000) // 4바이트
 | 파일                         | 설명          |
 |----------------------------|-------------|
 | `NettyTransportSupport.kt` | Netty 전송 지원 |
-
-## 아키텍처 다이어그램
-
-### ByteBuf 확장 API 구조
-
-![ByteBuf API diagram](../../docs/images/readme-diagrams/io-netty-diagram-01.png)
-
-### Smart 인코딩 데이터 흐름
-
-![Smart diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
-
-### Netty 채널 파이프라인 처리 흐름
-
-![Netty diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## 테스트
 

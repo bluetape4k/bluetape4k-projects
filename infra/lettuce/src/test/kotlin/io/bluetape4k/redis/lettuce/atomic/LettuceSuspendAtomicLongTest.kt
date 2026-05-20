@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.lettuce.atomic
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -10,8 +12,6 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

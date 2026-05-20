@@ -16,11 +16,11 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ### HTTP 클라이언트 계층 (HC5)
 
-![HTTP (HC5) diagram](../../docs/images/readme-diagrams/io-http-ko-diagram-02.png)
+![HTTP (HC5) diagram](../../docs/images/readme-diagrams/io-http-diagram-02.png)
 
 ### OkHttp3 클라이언트 계층
 
-![OkHttp3 diagram](../../docs/images/readme-diagrams/io-http-ko-diagram-03.png)
+![OkHttp3 diagram](../../docs/images/readme-diagrams/io-http-diagram-03.png)
 
 ### 비동기 HTTP 요청 흐름 (HC5 Async + Coroutines)
 

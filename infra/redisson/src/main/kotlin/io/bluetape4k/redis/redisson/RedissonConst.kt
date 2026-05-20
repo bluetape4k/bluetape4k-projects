@@ -2,6 +2,7 @@ package io.bluetape4k.redis.redisson
 
 import io.bluetape4k.redis.redisson.RedissonConst.DEFAULT_HOST
 import io.bluetape4k.redis.redisson.RedissonConst.DEFAULT_PORT
+import io.bluetape4k.redis.redisson.RedissonConst.DEFAULT_TIMEOUT_MILLIS
 
 /**
  * Redisson 연결 및 키 네이밍에 사용하는 공통 상수 모음입니다.

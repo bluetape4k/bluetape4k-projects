@@ -27,6 +27,20 @@ No user import migration is required for the reorganization.
 - **Memoizer abstractions** for sync, async, and suspend flows
 - **Local cache providers**: Caffeine, Cache2k, and Ehcache
 
+## Architecture Diagrams
+
+### NearCache get() Sequence (front miss → back lookup → front fill)
+
+![NearCache get() Sequence (front miss → back lookup → front. diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-01.png)
+
+### NearCache put() Sequence (write-through)
+
+![NearCache put() Sequence (write-through) diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-02.png)
+
+### NearCache Interface Hierarchy
+
+![NearCache Interface Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.png)
+
 ## Installation
 
 ```kotlin
@@ -101,20 +115,6 @@ val value = memo("recover")      // recomputes and returns 7
 - Prefer the newer `Memoizer` / `AsyncMemoizer` / `SuspendMemoizer` abstractions for new code.
 - Use `NearCacheOperations` / `SuspendNearCacheOperations` for provider-neutral two-tier cache contracts.
 - Suspend resilience decorators do not retry `CancellationException`; coroutine cancellation is propagated immediately.
-
-## Architecture Diagrams
-
-### NearCache get() Sequence (front miss → back lookup → front fill)
-
-![NearCache get() Sequence (front miss → back lookup → front. diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-01.png)
-
-### NearCache put() Sequence (write-through)
-
-![NearCache put() Sequence (write-through) diagram](../../docs/images/readme-diagrams/cache-cache-core-sequence-02.png)
-
-### NearCache Interface Hierarchy
-
-![NearCache Interface Hierarchy diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-01.png)
 
 ## `testFixtures` Usage Guide
 

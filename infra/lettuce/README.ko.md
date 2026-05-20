@@ -142,6 +142,20 @@ dependencies {
 }
 ```
 
+## 다이어그램
+
+### 분산 Primitive 클래스 계층
+
+![Primitive diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
+
+### LettuceLoadedMap Read-Through / Write-Through 흐름
+
+![LettuceLoadedMap Read-Through / Write-Through diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
+
+### LettuceBinaryCodec 계층
+
+![LettuceBinaryCodec diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
+
 ## 사용 예시
 
 ### RedisClient 생성 및 연결
@@ -390,20 +404,6 @@ dependencies {
     implementation("io.github.bluetape4k:bluetape4k-cache-lettuce:$bluetape4kVersion")
 }
 ```
-
-## 다이어그램
-
-### 분산 Primitive 클래스 계층
-
-![Primitive diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-01.png)
-
-### LettuceLoadedMap Read-Through / Write-Through 흐름
-
-![LettuceLoadedMap Read-Through / Write-Through diagram](../../docs/images/readme-diagrams/infra-lettuce-sequence-01.png)
-
-### LettuceBinaryCodec 계층
-
-![LettuceBinaryCodec diagram](../../docs/images/readme-diagrams/infra-lettuce-diagram-02.png)
 
 ## 확률 자료구조
 
