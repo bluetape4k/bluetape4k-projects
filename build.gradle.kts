@@ -1,6 +1,7 @@
 import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
+import io.bluetape4k.gradle.DisabledTestReportTask
 import io.bluetape4k.gradle.resolveCentralPublishingConfig
 import io.bluetape4k.gradle.resolvePublishingSigningConfig
 import io.gitlab.arturbosch.detekt.Detekt
@@ -8,6 +9,7 @@ import io.gitlab.arturbosch.detekt.report.ReportMergeTask
 import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.gradle.api.Project
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.File
 
@@ -749,4 +751,22 @@ dependencies {
                     !sub.isSampleOrBenchmarkProject()
         }
         .forEach { sub -> kover(project(sub.path)) }
+}
+
+// ── Disabled Test Release Gate ──────────────────────────────────────────────
+val checkDisabledTests by tasks.registering(DisabledTestReportTask::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Scans JUnit disabled tests and fails known-bug skips without GitHub issue references."
+    sourceRoot.set(layout.projectDirectory)
+    sourceFiles.from(
+        fileTree(layout.projectDirectory) {
+            include("**/src/test/**/*.kt", "**/src/test/**/*.java")
+            exclude("**/build/**", ".gradle/**", ".git/**", ".worktrees/**", "buildSrc/**")
+        },
+    )
+    reportFile.set(layout.buildDirectory.file("reports/disabled-tests/disabled-tests.md"))
+}
+
+tasks.named("check") {
+    dependsOn(checkDisabledTests)
 }
