@@ -1,9 +1,6 @@
-@file:Suppress("removal", "DEPRECATION")
-
 package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.coroutines.flow.async
-import io.bluetape4k.support.asDouble
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.last
@@ -23,7 +20,7 @@ import kotlin.coroutines.resumeWithException
  *
  * ```
  * val kafkaOperations: KafkaOperations<String, String> = ...
- * val result = kafkaOperations.sendSuspending(ProducerRecord("topic", "key", "value"))
+ * val result = kafkaOperations.suspendSend(ProducerRecord("topic", "key", "value"))
  * ```
  *
  * @param K Key type   메시지 키 타입
@@ -32,48 +29,6 @@ import kotlin.coroutines.resumeWithException
  * @return 발송 결과 정보 [SendResult]
  */
 suspend inline fun <K, V> KafkaOperations<K, V>.suspendSend(record: ProducerRecord<K, V>): SendResult<K, V> =
-    suspendCancellableCoroutine { cont ->
-        val result: Future<RecordMetadata>? =
-            execute { producer ->
-                producer.send(record) { metadata, exception ->
-                    if (exception != null) {
-                        cont.resumeWithException(exception)
-                    } else {
-                        cont.resume(SendResult(record, metadata))
-                    }
-                }
-            }
-        cont.invokeOnCancellation {
-            result?.cancel(true)
-        }
-    }
-
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(record)")
-)
-suspend inline fun <K, V> KafkaOperations<K, V>.awaitSend(record: ProducerRecord<K, V>): SendResult<K, V> =
-    suspendCancellableCoroutine { cont ->
-        val result: Future<RecordMetadata>? =
-            execute { producer ->
-                producer.send(record) { metadata, exception ->
-                    if (exception != null) {
-                        cont.resumeWithException(exception)
-                    } else {
-                        cont.resume(SendResult(record, metadata))
-                    }
-                }
-            }
-        cont.invokeOnCancellation {
-            result?.cancel(true)
-        }
-    }
-
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(record)")
-)
-suspend inline fun <K, V> KafkaOperations<K, V>.sendSuspending(record: ProducerRecord<K, V>): SendResult<K, V> =
     suspendCancellableCoroutine { cont ->
         val result: Future<RecordMetadata>? =
             execute { producer ->
@@ -154,25 +109,6 @@ suspend inline fun <K, V> KafkaOperations<K, V>.sendAndForget(
  */
 fun <K, V> KafkaOperations<K, V>.getMetric(metricName: String): Metric? =
     metrics().entries.find { it.key.name() == metricName }?.value
-
-/**
- * Producer 의 metrics 측정 값을 조회합니다.
- *
- * **경고**: 메트릭 이름이 없거나 오타인 경우 `0.0`을 반환하여 실제 `0.0` 값과 구별할 수 없습니다.
- * 대신 [getMetricValueOrNull]을 사용하세요.
- *
- * ```
- * val sendCount = producer.getMetricValueOrNull("record-send-total").asDouble()
- * ```
- * @param metricName metric name to retrieve
- * @return metric 값 (메트릭이 없으면 0.0 — 실제 0과 구별 불가)
- */
-@Deprecated(
-    message = "메트릭 이름이 없거나 오타인 경우 0.0을 반환하여 실제 0.0 값과 구별할 수 없습니다. getMetricValueOrNull()을 사용하세요.",
-    replaceWith = ReplaceWith("getMetricValueOrNull(metricName).asDouble()", "io.bluetape4k.support.asDouble")
-)
-fun <K, V> KafkaOperations<K, V>.getMetricValue(metricName: String): Double =
-    getMetric(metricName)?.metricValue().asDouble(0.0)
 
 /**
  * Producer 의 metrics 측정 값을 조회합니다. 메트릭이 없으면 `null`을 반환합니다.

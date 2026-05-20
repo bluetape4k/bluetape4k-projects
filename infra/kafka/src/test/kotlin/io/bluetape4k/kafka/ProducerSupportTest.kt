@@ -109,10 +109,4 @@ class ProducerSupportTest: AbstractKafkaTest() {
         customProducer.close()
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun `getMetricValue deprecated - 존재하지 않는 메트릭은 0_0을 반환한다`() {
-        val value = producer.getMetricValue("nonexistent-metric-xyz")
-        assert(value == 0.0) { "Nonexistent metric should return 0.0, got $value" }
-    }
 }

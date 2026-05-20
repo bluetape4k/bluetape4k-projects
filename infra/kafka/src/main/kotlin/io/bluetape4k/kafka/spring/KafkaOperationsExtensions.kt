@@ -20,13 +20,6 @@ import org.springframework.messaging.Message
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSend(record: ProducerRecord<K, V>): SendResult<K, V> =
     send(record).await()
 
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(record)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(record: ProducerRecord<K, V>): SendResult<K, V> =
-    send(record).await()
-
 /**
  * [KafkaOperations] 발송을 suspend 함수로 실행합니다.
  *
@@ -40,13 +33,6 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(record: Producer
  * @see Message
  */
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSend(message: Message<*>): SendResult<K, V> =
-    send(message).await()
-
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(message)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(message: Message<*>): SendResult<K, V> =
     send(message).await()
 
 /**
@@ -63,13 +49,6 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(message: Message
  * @return [SendResult] 발송 결과
  */
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSend(topic: String, value: V): SendResult<K, V> =
-    send(topic, value).await()
-
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(topic, value)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, value: V): SendResult<K, V> =
     send(topic, value).await()
 
 /**
@@ -89,13 +68,6 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, v
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSend(topic: String, key: K, value: V): SendResult<K, V> =
     send(topic, key, value).await()
 
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(topic, key, value)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, key: K, value: V): SendResult<K, V> =
-    send(topic, key, value).await()
-
 /**
  * [KafkaOperations] 발송을 suspend 함수로 실행합니다.
  *
@@ -112,18 +84,6 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(topic: String, k
  * @return [SendResult] 발송 결과
  */
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSend(
-    topic: String,
-    partition: Int,
-    key: K,
-    value: V,
-): SendResult<K, V> =
-    send(topic, partition, key, value).await()
-
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(topic, partition, key, value)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(
     topic: String,
     partition: Int,
     key: K,
@@ -162,20 +122,6 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSend(
 ): SendResult<K, V> =
     send(topic, partition, timestamp, key, value).await()
 
-@Deprecated(
-    message = "Use `suspendSend` instead.",
-    replaceWith = ReplaceWith("suspendSend(topic, partition, timestamp, key, value)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(
-    topic: String,
-    partition: Int,
-    timestamp: Long,
-    key: K,
-    value: V,
-): SendResult<K, V> =
-    send(topic, partition, timestamp, key, value).await()
-
-
 /**
  * [KafkaOperations] 기본 Topic으로 발송하는 작업을 suspend 함수로 실행합니다.
  *
@@ -184,13 +130,6 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.sendAndAwait(
  * @see KafkaOperations.sendDefault
  */
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSendDefault(value: V): SendResult<K, V> =
-    sendDefault(value).await()
-
-@Deprecated(
-    message = "Use `suspendSendDefault` instead.",
-    replaceWith = ReplaceWith("suspendSendDefault(value)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSendDefault(value: V): SendResult<K, V> =
     sendDefault(value).await()
 
 /**
@@ -202,11 +141,4 @@ suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSendDefault(value: V): S
  * @see KafkaOperations.sendDefault
  */
 suspend fun <K: Any, V: Any> KafkaOperations<K, V>.suspendSendDefault(key: K, value: V): SendResult<K, V> =
-    sendDefault(key, value).await()
-
-@Deprecated(
-    message = "Use `suspendSendDefault` instead.",
-    replaceWith = ReplaceWith("suspendSendDefault(key, value)")
-)
-suspend fun <K: Any, V: Any> KafkaOperations<K, V>.awaitSendDefault(key: K, value: V): SendResult<K, V> =
     sendDefault(key, value).await()

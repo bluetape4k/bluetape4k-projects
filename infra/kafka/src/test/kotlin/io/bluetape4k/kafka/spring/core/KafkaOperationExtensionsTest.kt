@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package io.bluetape4k.kafka.spring.core
 
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -57,26 +55,6 @@ class KafkaOperationExtensionsTest: AbstractKafkaTest() {
     }
 
     @Test
-    fun `awaitSend - deprecated ProducerRecord로 메시지를 발송한다`() = runSuspendIO {
-        val record = ProducerRecord<String, String>(TOPIC, "key-2", "value-${System.currentTimeMillis()}")
-
-        val result = kafkaTemplate.awaitSend(record)
-
-        result.shouldNotBeNull()
-        result.recordMetadata.topic() shouldBeEqualTo TOPIC
-    }
-
-    @Test
-    fun `sendSuspending - deprecated ProducerRecord로 메시지를 발송한다`() = runSuspendIO {
-        val record = ProducerRecord<String, String>(TOPIC, "key-3", "value-${System.currentTimeMillis()}")
-
-        val result = kafkaTemplate.sendSuspending(record)
-
-        result.shouldNotBeNull()
-        result.recordMetadata.topic() shouldBeEqualTo TOPIC
-    }
-
-    @Test
     fun `sendFlowAsParallel - Flow로 여러 메시지를 병렬 발송하고 마지막 결과를 반환한다`() = runSuspendIO {
         val records = flow {
             repeat(3) { i ->
@@ -122,12 +100,6 @@ class KafkaOperationExtensionsTest: AbstractKafkaTest() {
     fun `getMetricValueOrNull - 존재하지 않는 메트릭은 null을 반환한다`() {
         val value = kafkaTemplate.getMetricValueOrNull("nonexistent-metric-xyz-${System.nanoTime()}")
         assert(value == null) { "Nonexistent metric should return null" }
-    }
-
-    @Test
-    fun `getMetricValue - deprecated 존재하지 않는 메트릭은 0_0을 반환한다`() {
-        val value = kafkaTemplate.getMetricValue("nonexistent-metric-xyz-${System.nanoTime()}")
-        assert(value == 0.0) { "Nonexistent metric should return 0.0" }
     }
 
     @Test
