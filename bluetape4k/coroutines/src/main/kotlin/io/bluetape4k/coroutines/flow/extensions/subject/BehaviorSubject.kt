@@ -196,7 +196,7 @@ class BehaviorSubject<T> private constructor(
             } catch (e: CancellationException) {
                 currentCoroutineContext().ensureActive()
             } catch (e: Throwable) {
-                log.error(e) { "BehaviorSubject.emitError 알림 실패. innerCollector=$innerCollector" }
+                log.error(e) { "BehaviorSubject.emitError notification failed. innerCollector=$innerCollector" }
             }
         }
     }
