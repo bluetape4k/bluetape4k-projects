@@ -21,7 +21,6 @@ import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.SQSTest]에 대응합니다.
  */
-@Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FlociSQSTest : AbstractFlociServiceTest() {
 

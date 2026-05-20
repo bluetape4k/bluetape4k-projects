@@ -19,7 +19,6 @@ import software.amazon.awssdk.services.sts.StsClient
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.STSTest]에 대응합니다.
  */
-@Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FlociSTSTest : AbstractFlociServiceTest() {
 

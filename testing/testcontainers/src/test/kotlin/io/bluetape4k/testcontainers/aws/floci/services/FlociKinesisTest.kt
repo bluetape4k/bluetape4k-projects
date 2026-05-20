@@ -29,7 +29,6 @@ import java.time.Duration
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.KinesisTest]에 대응합니다.
  */
-@Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FlociKinesisTest : AbstractFlociServiceTest() {
 

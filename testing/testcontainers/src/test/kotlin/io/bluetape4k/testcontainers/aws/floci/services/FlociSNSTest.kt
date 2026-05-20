@@ -20,7 +20,6 @@ import software.amazon.awssdk.services.sns.SnsClient
  *
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.SNSTest]에 대응합니다.
  */
-@Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FlociSNSTest : AbstractFlociServiceTest() {
 

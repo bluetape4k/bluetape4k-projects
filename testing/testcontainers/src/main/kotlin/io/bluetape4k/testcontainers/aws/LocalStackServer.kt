@@ -12,24 +12,25 @@ import org.testcontainers.utility.DockerImageName
 import java.net.URI
 
 /**
- * LocalStackServer : 'a fully funcational local AWS cloud stack'
+ * Testcontainers wrapper for LocalStack.
  *
- * ```
- * // Run S3 Server
- * val s3Server = LocalStackServer().start()
- * ```
+ * LocalStack Community edition was archived on 2026-03-23. New open-source AWS
+ * emulator tests should use [FlociServer]. Keep this wrapper only for migration
+ * compatibility or for paid LocalStack Pro deployments that still require the
+ * LocalStack image.
  *
- * ```
+ * ```kotlin
  * val server = LocalStackServer()
  *    .withNetwork(network)
  *    .withNetworkAliases("notthis", "localstack")
- *    .start()
+ * server.start()
  * ```
  *
- * [Locakstack docker image](https://hub.docker.com/r/localstack/localstack/tags)
+ * [LocalStack Docker image](https://hub.docker.com/r/localstack/localstack/tags)
  */
+@Suppress("DEPRECATION")
 @Deprecated(
-    message = "LocalStack Community edition은 2026-03-23에 archived 되었습니다. FlociServer 또는 유료 LocalStack Pro 사용을 검토하세요.",
+    message = "LocalStack Community edition was archived on 2026-03-23. Use FlociServer for open-source AWS emulator tests.",
     replaceWith = ReplaceWith("FlociServer", "io.bluetape4k.testcontainers.aws.FlociServer"),
     level = DeprecationLevel.WARNING
 )
@@ -46,12 +47,12 @@ class LocalStackServer private constructor(
         const val PORT = 4566
 
         /**
-         * [LocalStackServer]를 생성합니다.
+         * Creates a [LocalStackServer].
          *
-         * @param image docker image (기본: `localstack/localstack`)
-         * @param tag docker image tag (기본: `3.6`)
-         * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse 재사용 여부 (기본: `true`)
+         * @param image Docker image repository.
+         * @param tag Docker image tag.
+         * @param useDefaultPort Whether to bind the default port 4566 directly.
+         * @param reuse Whether to enable Testcontainers reuse.
          */
         @JvmStatic
         operator fun invoke(
@@ -68,11 +69,11 @@ class LocalStackServer private constructor(
         }
 
         /**
-         * [LocalStackServer]를 생성합니다.
+         * Creates a [LocalStackServer] from a [DockerImageName].
          *
-         * @param imageName docker image name
-         * @param useDefaultPort 기본 포트를 사용할지 여부 (기본: `false`)
-         * @param reuse 재사용 여부 (기본: `true`)
+         * @param imageName Docker image name.
+         * @param useDefaultPort Whether to bind the default port 4566 directly.
+         * @param reuse Whether to enable Testcontainers reuse.
          */
         @JvmStatic
         operator fun invoke(
@@ -87,8 +88,8 @@ class LocalStackServer private constructor(
     override val port: Int get() = getMappedPort(PORT)
     override val url: String get() = "http://$host:$port"
 
-    // AwsEmulatorServer 프로퍼티 구현
-    // 프로퍼티 이름에 `aws` 접두어를 붙여 LocalStackContainer 의 Java getter 와의 JVM 시그니처 충돌을 방지한다.
+    // Prefix AwsEmulatorServer properties with `aws` to avoid JVM signature
+    // collisions with LocalStackContainer Java getters.
     override val awsEndpoint: URI get() = this.getEndpoint()
     override val awsAccessKey: String get() = this.getAccessKey()
     override val awsSecretKey: String get() = this.getSecretKey()
@@ -131,7 +132,7 @@ class LocalStackServer private constructor(
     }
 
     /**
-     * [LocalStackServer]용 Launcher
+     * Provides reusable [LocalStackServer] instances for tests.
      */
     object Launcher {
 
@@ -149,14 +150,14 @@ class LocalStackServer private constructor(
         )
 
         /**
-         * [LocalStackServer] 인스턴스를 생성하고 시작합니다.
+         * Creates and starts the default [LocalStackServer] instance.
          */
         val localStack: LocalStackServer by lazy {
             getLocalStack(*services.toTypedArray())
         }
 
         /**
-         * [LocalStackServer] 인스턴스를 생성하고 시작합니다.
+         * Creates and starts a [LocalStackServer] with the requested services.
          */
         fun getLocalStack(vararg services: String): LocalStackServer {
             return LocalStackServer().apply {

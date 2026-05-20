@@ -1,10 +1,11 @@
 package io.bluetape4k.testcontainers.aws
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
@@ -17,12 +18,10 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [FlociServer] 테스트
  */
-@Suppress("DEPRECATION")
 class FlociServerTest: AbstractContainerTest() {
 
     companion object: KLogging()
@@ -31,6 +30,11 @@ class FlociServerTest: AbstractContainerTest() {
     fun `blank image tag 는 허용하지 않는다`() {
         assertFailsWith<IllegalArgumentException> { FlociServer(image = " ") }
         assertFailsWith<IllegalArgumentException> { FlociServer(tag = " ") }
+    }
+
+    @Test
+    fun `Floci server uses the current stable image tag`() {
+        FlociServer.TAG shouldBeEqualTo "1.5.17"
     }
 
     @Test
