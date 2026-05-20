@@ -1,8 +1,8 @@
 package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.junit5.coroutines.assertCancellationClearsWaiter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -38,27 +38,10 @@ class ResumableTest {
     fun `cancelled await clears slot so subsequent await succeeds`() = runTest {
         val resumable = Resumable()
 
-        // Cancel a waiting coroutine before resume() is called.
-        val job = launch {
-            resumable.await()
-        }
-
-        yield() // let the launched coroutine install its continuation
-        job.cancel()
-        job.join() // wait until cancellation is processed
-
-        // The slot must be cleared. A new await() + resume() must not throw
-        // "Only one thread can await a Resumable".
-        var reached = false
-        launch {
-            resumable.await()
-            reached = true
-        }
-        yield()
-        resumable.resume()
-        yield()
-
-        reached shouldBeEqualTo true
+        assertCancellationClearsWaiter(
+            awaiter = { resumable.await() },
+            releaser = { resumable.resume() },
+        )
     }
 
     @Test

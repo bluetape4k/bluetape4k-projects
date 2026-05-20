@@ -1,20 +1,23 @@
 package io.bluetape4k.retrofit2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.okhttp3.mock.baseUrl
+import io.bluetape4k.junit5.coroutines.assertResourceCancelledOnCoroutineCancellation
+import io.bluetape4k.junit5.coroutines.runCatchingNonCancellation
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.retrofit2.services.TestService
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import retrofit2.Call
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.concurrent.TimeUnit
 
 /**
  * [suspendExecute] 확장 함수 단위 테스트입니다.
@@ -61,7 +64,7 @@ class SuspendRetrofitCallSupportTest {
     fun `suspendExecute with network error propagates exception`() = runSuspendIO {
         server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START))
 
-        runCatching {
+        runCatchingNonCancellation {
             api.get().suspendExecute()
         }.isFailure.shouldBeTrue()
     }
@@ -88,19 +91,23 @@ class SuspendRetrofitCallSupportTest {
     }
 
     @Test
-    fun `suspendExecute invokes cancelHandler on cancelled call`() = runSuspendIO {
-        // Enqueue a response so the call has something to resolve
-        server.enqueue(MockResponse().setBody("ok"))
+    fun `suspendExecute cancels underlying call when coroutine is cancelled`() = runSuspendIO {
+        server.enqueue(
+            MockResponse()
+                .setBody("late")
+                .setBodyDelay(5, TimeUnit.SECONDS)
+        )
 
-        val call = api.get()
-        // Cancel before executing - should trigger cancel path
-        call.cancel()
+        lateinit var call: Call<String>
 
-        var cancelHandlerCalled = false
-        runCatching {
-            call.suspendExecute(cancelHandler = { cancelHandlerCalled = true })
+        assertResourceCancelledOnCoroutineCancellation(
+            beforeCancel = {
+                server.takeRequest(1, TimeUnit.SECONDS).shouldNotBeNull()
+            },
+            resourceCancelled = { call.isCanceled },
+        ) {
+            call = api.get()
+            call.suspendExecute()
         }
-        // Either the handler was called or an exception was thrown for the cancelled call
-        // Both are valid outcomes; the key is no unhandled exception propagation
     }
 }
