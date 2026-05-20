@@ -29,9 +29,9 @@ bucket4j = "8.18.0"  # https://mvnrepository.com/artifact/com.bucket4j/bucket4j_
 resilience4j = "2.4.0"  # https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
 netty = "4.2.13.Final"  # https://mvnrepository.com/artifact/io.netty/netty-bom
 
-aws2 = "2.44.7"  # https://mvnrepository.com/artifact/software.amazon.awssdk/bom
+aws2 = "2.44.9"  # https://mvnrepository.com/artifact/software.amazon.awssdk/bom
 aws2-crt = "0.45.3"  # https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-aws-kotlin = "1.6.72"  # https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-core
+aws-kotlin = "1.6.77"  # https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-core
 aws-smithy-kotlin = "1.6.14"  # https://mvnrepository.com/artifact/aws.smithy.kotlin/http-jvm
 
 grpc = "1.81.0"  # https://mvnrepository.com/artifact/io.grpc/grpc-bom
@@ -113,7 +113,7 @@ kafka4 = "4.2.0"  # https://mvnrepository.com/artifact/org.apache.kafka/kafka-cl
 spring-kafka = "3.3.13"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 spring-kafka4 = "4.0.5"  # https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
 
-timefold-solver = "1.33.0"  # https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-bom
+timefold-solver = "2.1.0"   # https://mvnrepository.com/artifact/ai.timefold.solver/timefold-solver-bom
 
 eclipse-collections = "13.0.0"  # https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
 jctools = "4.0.6"  # https://mvnrepository.com/artifact/org.jctools/jctools-core
@@ -329,7 +329,7 @@ jctools-core = { module = "org.jctools:jctools-core", version.ref = "jctools" }
 
 kryo = { module = "com.esotericsoftware:kryo", version = "5.6.2" }  # https://mvnrepository.com/artifact/com.esotericsoftware/kryo
 kryo5 = { module = "com.esotericsoftware:kryo", version = "5.6.2" }  # https://mvnrepository.com/artifact/com.esotericsoftware/kryo
-fory-kotlin = { module = "org.apache.fory:fory-kotlin", version = "0.15.0" }  # https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
+fory-kotlin = { module = "org.apache.fory:fory-kotlin", version = "0.17.0" }  # https://mvnrepository.com/artifact/org.apache.fory/fory-kotlin
 
 # Spring Boot
 spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
@@ -841,10 +841,7 @@ timefold-solver-bom = { module = "ai.timefold.solver:timefold-solver-bom", versi
 timefold-solver-benchmark = { module = "ai.timefold.solver:timefold-solver-benchmark", version.ref = "timefold-solver" }
 timefold-solver-core = { module = "ai.timefold.solver:timefold-solver-core", version.ref = "timefold-solver" }
 timefold-solver-jackson = { module = "ai.timefold.solver:timefold-solver-jackson", version.ref = "timefold-solver" }
-timefold-solver-persistence-common = { module = "ai.timefold.solver:timefold-solver-persistence-common", version.ref = "timefold-solver" }
-timefold-solver-persistence-jpa = { module = "ai.timefold.solver:timefold-solver-persistence-jpa", version.ref = "timefold-solver" }
 timefold-solver-spring-boot-starter = { module = "ai.timefold.solver:timefold-solver-spring-boot-starter", version.ref = "timefold-solver" }
-timefold-solver-test = { module = "ai.timefold.solver:timefold-solver-test", version.ref = "timefold-solver" }
 
 # Zipkin
 zipkin-brave = { module = "io.zipkin.brave:brave", version = "6.3.1" }  # https://mvnrepository.com/artifact/io.zipkin.brave/brave
@@ -912,7 +909,7 @@ querydsl-kotlin-codegen = { module = "com.querydsl:querydsl-kotlin-codegen", ver
 # MyBatis
 mybatis = { module = "org.mybatis:mybatis", version = "3.5.19" }  # https://mvnrepository.com/artifact/org.mybatis/mybatis
 mybatis-spring = { module = "org.mybatis:mybatis-spring", version = "3.0.5" }  # https://mvnrepository.com/artifact/org.mybatis/mybatis-spring
-mybatis-dynamic-sql = { module = "org.mybatis.dynamic-sql:mybatis-dynamic-sql", version = "1.5.2" }  # https://mvnrepository.com/artifact/org.mybatis.dynamic-sql/mybatis-dynamic-sql
+mybatis-dynamic-sql = { module = "org.mybatis.dynamic-sql:mybatis-dynamic-sql", version = "2.0.0" }  # https://mvnrepository.com/artifact/org.mybatis.dynamic-sql/mybatis-dynamic-sql
 
 # Agroal
 agroal-api = { module = "io.agroal:agroal-api", version.ref = "agroal" }
