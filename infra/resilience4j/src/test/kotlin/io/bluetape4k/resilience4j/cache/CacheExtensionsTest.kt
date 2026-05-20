@@ -25,7 +25,7 @@ class CacheExtensionsTest {
     companion object: KLogging()
 
     @Test
-    fun `decoreate function1 for Cache`() {
+    fun `decorate function1 for Cache`() {
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("function1")
         val cache = Cache.of(jcache)
 

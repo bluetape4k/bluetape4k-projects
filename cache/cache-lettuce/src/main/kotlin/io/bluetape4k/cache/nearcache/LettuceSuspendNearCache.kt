@@ -313,11 +313,6 @@ class LettuceSuspendNearCache<V: Any>(
         frontCache.clear()
     }
 
-    @Deprecated("clearLocal()로 통일됨", replaceWith = ReplaceWith("clearLocal()"))
-    fun clearFrontCache() {
-        clearLocal()
-    }
-
     private suspend fun clearBackCache() {
         val pattern = "${config.cacheName}:*"
         var cursor: ScanCursor = ScanCursor.INITIAL

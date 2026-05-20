@@ -28,19 +28,18 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
         asyncCommands.del(keyName).await()
     }
 
-    @Suppress("DEPRECATION")
     @Test
-    fun `suspendAwait - deprecated 버전도 정상 동작`() = runSuspendIO {
+    fun `awaitSuspending should handle set command`() = runSuspendIO {
         val keyName = randomName()
-        asyncCommands.set(keyName, "hello").suspendAwait() shouldBeEqualTo "OK"
+        asyncCommands.set(keyName, "hello").awaitSuspending() shouldBeEqualTo "OK"
         asyncCommands.del(keyName).await()
     }
 
-    @Suppress("DEPRECATION")
     @Test
-    fun `coAwait - deprecated 버전도 정상 동작`() = runSuspendIO {
+    fun `awaitSuspending should handle get command`() = runSuspendIO {
         val keyName = randomName()
-        asyncCommands.set(keyName, "world").coAwait() shouldBeEqualTo "OK"
+        asyncCommands.set(keyName, "world").awaitSuspending() shouldBeEqualTo "OK"
+        asyncCommands.get(keyName).awaitSuspending() shouldBeEqualTo "world"
         asyncCommands.del(keyName).await()
     }
 

@@ -361,14 +361,6 @@ object SuspendDecorators: KLoggingChannel() {
         fun decorate(): suspend () -> T = supplier
 
         /**
-         * 현재까지 적용된 모든 데코레이터를 조합한 suspend 함수를 반환합니다.
-         *
-         * @deprecated [decorate]를 사용하세요. 이 함수는 오타였습니다.
-         */
-        @Deprecated("오타 수정됨. decorate()를 사용하세요.", ReplaceWith("decorate()"))
-        fun decoreate(): suspend () -> T = supplier
-
-        /**
          * 조합된 suspend 함수를 실행하고 결과를 반환합니다.
          *
          * @return 실행 결과
@@ -480,14 +472,6 @@ object SuspendDecorators: KLoggingChannel() {
         fun decorate(): suspend (T) -> R = func
 
         /**
-         * 현재까지 적용된 모든 데코레이터를 조합한 suspend 함수를 반환합니다.
-         *
-         * @deprecated [decorate]를 사용하세요. 이 함수는 오타였습니다.
-         */
-        @Deprecated("오타 수정됨. decorate()를 사용하세요.", ReplaceWith("decorate()"))
-        fun decoreate(): suspend (T) -> R = func
-
-        /**
          * 조합된 suspend 함수를 [input]과 함께 실행하고 결과를 반환합니다.
          *
          * @param input 함수 입력값
@@ -570,14 +554,6 @@ object SuspendDecorators: KLoggingChannel() {
          * @return 조합된 suspend 함수
          */
         fun decorate(): suspend (T, U) -> R = func
-
-        /**
-         * 현재까지 적용된 모든 데코레이터를 조합한 suspend 함수를 반환합니다.
-         *
-         * @deprecated [decorate]를 사용하세요. 이 함수는 오타였습니다.
-         */
-        @Deprecated("오타 수정됨. decorate()를 사용하세요.", ReplaceWith("decorate()"))
-        fun decoreate(): suspend (T, U) -> R = func
 
         /**
          * 조합된 suspend 함수를 [t], [u]와 함께 실행하고 결과를 반환합니다.

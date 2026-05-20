@@ -37,7 +37,7 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
     // =========================================================================
 
     @Test
-    fun `getSuspending and setSuspending`() = runSuspendIO {
+    fun `get and set`() = runSuspendIO {
         val counter = suspendAtomicLong()
         counter.set(42L)
         counter.get() shouldBeEqualTo 42L

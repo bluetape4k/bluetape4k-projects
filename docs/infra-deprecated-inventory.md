@@ -2,7 +2,8 @@
 
 Snapshot: 2026-05-09 KST
 Updated: 2026-05-20 KST
-Issue: [#110](https://github.com/bluetape4k/bluetape4k-projects/issues/110)
+Issues: [#110](https://github.com/bluetape4k/bluetape4k-projects/issues/110),
+[#474](https://github.com/bluetape4k/bluetape4k-projects/issues/474)
 
 This inventory records tracked `infra/` and related cache source files that
 still declare `@Deprecated`. Completed cleanup waves are removed from the active
@@ -12,8 +13,8 @@ inventory.
 
 | Decision | Count | Meaning |
 |---|---:|---|
-| Delete | 5 files | Deprecated API has a direct replacement and should not remain in the next cleanup line. |
-| Replace call sites first | 1 file | Repo-local tests or samples still exercise the deprecated API and must move first. |
+| Delete | 0 files | No tracked deprecated API remains in the current cleanup inventory. |
+| Replace call sites first | 0 files | No repo-local compatibility tests or samples remain on tracked deprecated APIs. |
 | Keep | 0 files | No deprecated `infra/` API needs long-term retention. |
 
 `infra/kafka4` mirrors several `infra/kafka` deprecated APIs, so the current
@@ -27,16 +28,16 @@ cleanup wave.
 `spanExportOf`, and `batchSpanProcess` were removed; use `useSpanSuspending`,
 `spanExporterOf`, and `batchSpanProcessorOf`.
 
+2026-05-20 update: cache, Redis, and Resilience4j aliases were removed:
+`AsyncCache.getSuspending`, `LettuceSuspendNearCache.clearFrontCache`,
+`RedisFuture.suspendAwait`, `RedisFuture.coAwait`, Redis/Redisson
+`DEFAULT_DELIMETER`, and `SuspendDecorators.decoreate`.
+
 ## Inventory
 
 | # | Module | File | Deprecated API | Current usage | Decision | Replacement |
 |---:|---|---|---|---|---|---|
-| 1 | `cache-core` | `cache/core/src/main/kotlin/io/bluetape4k/cache/caffeine/CaffeineSupport.kt` | `AsyncCache.getSuspending(...)` | KDoc sample only | Delete | `AsyncCache.suspendGet(...)` |
-| 2 | `cache-lettuce` | `cache/lettuce/src/main/kotlin/io/bluetape4k/cache/nearcache/LettuceSuspendNearCache.kt` | `clearFrontCache()` | Definition only | Delete | `clearLocal()` |
-| 3 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/LettuceConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
-| 4 | `lettuce` | `infra/lettuce/src/main/kotlin/io/bluetape4k/redis/lettuce/RedisFutureSupport.kt` | `suspendAwait()`, `coAwait()` | `RedisFutureSupportTest` compatibility tests | Replace tests, then delete | `awaitSuspending()` |
-| 5 | `redisson` | `infra/redisson/src/main/kotlin/io/bluetape4k/redis/redisson/RedissonConst.kt` | `DEFAULT_DELIMETER` typo | Definition only | Delete | `DEFAULT_DELIMITER` |
-| 6 | `resilience4j` | `infra/resilience4j/src/main/kotlin/io/bluetape4k/resilience4j/SuspendDecorators.kt` | `decoreate()` typo overloads | Definition only | Delete | `decorate()` |
+| - | - | - | - | - | - | - |
 
 ## Follow-Up PR Split
 
@@ -80,12 +81,14 @@ Validation:
 
 - `./gradlew :bluetape4k-opentelemetry:test --no-daemon`
 
-### Later PRs: Cache, Redis, and Resilience4j aliases
+### PR C: Cache, Redis, and Resilience4j aliases
+
+Status: Done in issue #474 PR C.
 
 Scope:
 
-- `cache/core`
-- `cache/lettuce`
+- `cache/cache-core`
+- `cache/cache-lettuce`
 - `infra/lettuce`
 - `infra/redisson`
 - `infra/resilience4j`
@@ -105,7 +108,8 @@ Validation:
 
 - Bucket4j `RateLimitResult(consumedTokens, availableTokens)` cleanup was
   completed by issue #434.
-- This inventory intentionally does not delete the remaining code.
+- This inventory now records the completed cleanup waves; no tracked active
+  rows remain.
 - Keep each cleanup PR small enough to review API removal and test migration
   separately.
 - When a cleanup PR removes public API, add the migration note to
