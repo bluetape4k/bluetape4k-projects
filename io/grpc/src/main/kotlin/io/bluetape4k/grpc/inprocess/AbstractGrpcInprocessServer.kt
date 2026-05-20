@@ -5,7 +5,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.ifTrue
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.utils.ShutdownQueue
@@ -22,7 +21,7 @@ import kotlin.concurrent.withLock
  *
  * ## 동작/계약
  * - [start]는 서버를 시작하고 JVM shutdown hook 큐에 종료 작업을 등록합니다.
- * - [stop]은 `shutdown + awaitTermination(5s)`를 수행합니다.
+ * - [stop] performs `shutdown + awaitTermination(5s)`, then calls `shutdownNow()` if termination times out.
  * - 생성 시 전달한 서비스들을 서버 builder에 등록합니다.
  *
  * ```kotlin
@@ -31,8 +30,8 @@ import kotlin.concurrent.withLock
  * ```
  */
 abstract class AbstractGrpcInprocessServer(
-    builder: InProcessServerBuilder,
-    vararg services: BindableService,
+    protected val builder: InProcessServerBuilder,
+    private vararg val services: BindableService,
 ): GrpcServer {
     constructor(name: String, vararg services: BindableService):
             this(InProcessServerBuilder.forName(name.requireNotBlank("name")), *services)
@@ -42,15 +41,23 @@ abstract class AbstractGrpcInprocessServer(
 
     companion object: KLogging()
 
-    private val server: Server by lazy {
-        builder.apply { services.forEach { addService(it) } }.build()
-    }
+    private val server: Server by lazy { createServer() }
 
     private val running = atomic(false)
     private val lock = reentrantLock()
 
     override val isRunning: Boolean by running
     override val isShutdown: Boolean get() = server.isShutdown
+
+    /**
+     * Creates the underlying in-process gRPC [Server].
+     *
+     * Subclasses may override this in tests or specialized servers to customize
+     * lifecycle behavior while keeping [start] and [stop] semantics unchanged.
+     */
+    protected open fun createServer(): Server {
+        return builder.apply { services.forEach { addService(it) } }.build()
+    }
 
     override fun start() {
         lock.withLock {
@@ -74,11 +81,11 @@ abstract class AbstractGrpcInprocessServer(
             if (!isShutdown) {
                 running.value = false
                 runCatching { server.shutdown() }
-                runCatching { server.awaitTermination(5, TimeUnit.SECONDS) }
-                    .isFailure
-                    .ifTrue {
-                        log.warn { "Timed out waiting for server shutdown" }
-                    }
+                val terminated = runCatching { server.awaitTermination(5, TimeUnit.SECONDS) }.getOrDefault(false)
+                if (!terminated) {
+                    log.warn { "InProcess gRPC server did not terminate within 5 seconds. Forcing shutdownNow()." }
+                    runCatching { server.shutdownNow() }
+                }
             }
         }
     }
