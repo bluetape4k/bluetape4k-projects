@@ -6,7 +6,6 @@ import io.bluetape4k.testcontainers.aws.FlociServer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 
-@Suppress("DEPRECATION")
 abstract class AbstractFlociServiceTest: AbstractContainerTest() {
 
     companion object: KLogging()

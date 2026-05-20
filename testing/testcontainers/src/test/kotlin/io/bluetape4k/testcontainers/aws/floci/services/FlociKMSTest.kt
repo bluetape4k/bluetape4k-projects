@@ -38,7 +38,6 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
  * > **알려진 제한사항 2**: `DisableKey`, `EnableKey`, `CreateGrant`, `ListGrants`, `RevokeGrant` 미지원 (Status 400).
  * > 해당 테스트는 `@Disabled`로 표시합니다.
  */
-@Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FlociKMSTest : AbstractFlociServiceTest() {
 

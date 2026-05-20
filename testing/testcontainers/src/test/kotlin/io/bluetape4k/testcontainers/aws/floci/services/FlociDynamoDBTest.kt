@@ -37,7 +37,6 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
  * > **알려진 제한사항**: Floci #587 — GSI Query 페이지네이션 무한루프 버그로 인해
  * > GSI 관련 테스트는 포함하지 않습니다.
  */
-@Suppress("DEPRECATION")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class FlociDynamoDBTest : AbstractFlociServiceTest() {
 
