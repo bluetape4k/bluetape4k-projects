@@ -25,12 +25,12 @@ data class SimpleData(
 
 | Library | ops/s   |
 |---------|---------|
-| fury    | 305,821 |
+| Fory    | 305,821 |
 | kryo    | 81,823  |
 | jdk     | 22,249  |
 | jackson | 39,510  |
 
-> Fury 가 홍보하는 정도까지는 아니지만, 기존에 가장 많이 사용하는 Kryo 보다 3배 이상 빠르다.
+> Fory 가 홍보하는 정도까지는 아니지만, 기존에 가장 많이 사용하는 Kryo 보다 3배 이상 빠르다.
 > 단순 수형에 대한 처리는 의외로 JDK 가 가장 느리다.
 >
 
@@ -38,14 +38,14 @@ data class SimpleData(
 
 | Library | ops/s  |
 |---------|--------|
-| fury    | 59,192 |
+| Fory    | 59,192 |
 | kryo    | 29,329 |
 | jdk     | 8,431  |
 | jackson | 4,323  |
 
 ![Binary serializer throughput chart](../../docs/images/readme-charts/io-serializer-throughput-chart-01.png)
 
-> Fury 가 홍보하는 정도까지는 아니지만, 기존에 가장 많이 사용하는 Kryo 보다 3배 이상 빠르다.
+> Fory 가 홍보하는 정도까지는 아니지만, 기존에 가장 많이 사용하는 Kryo 보다 3배 이상 빠르다.
 > ByteArray 직렬화 하는 경우, Jackson 이 가장 느리다.
 
 ## Compressor
