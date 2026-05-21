@@ -84,6 +84,7 @@ local.properties
 .DS_Store
 Thumbs.db
 /.profileconfig.json
+/buildSrc/.profileconfig.json
 
 # Logging
 logs/
