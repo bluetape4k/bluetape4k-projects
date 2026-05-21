@@ -22,6 +22,8 @@ Flows compose multiple work units into an execution strategy.
 
 ![WorkReport States diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-02.png)
 
+The state diagram shows transient paths explicitly: a `Failure` can either return immediately under `STOP` or pass through the failure accumulator under `CONTINUE`, while `Aborted` and `Cancelled` exit the flow regardless of strategy.
+
 ### Execution Model
 
 ![Execution Model diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-03.png)
@@ -104,6 +106,8 @@ Execute tasks in order; error handling controlled by `ErrorStrategy`:
 
 ![Sequential Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-04.png)
 
+`STOP` returns the first failure immediately; `CONTINUE` keeps running later work and returns `PartialSuccess` after the last work if any failure was accumulated.
+
 ```kotlin
 // Sync version
 val flow = sequentialFlow("order-processing") {
@@ -138,6 +142,8 @@ Execute tasks concurrently:
 
 ![Parallel Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
 
+`ALL` waits for every forked task and fails fast on failure; `ANY` returns the first successful task and cancels the remaining tasks.
+
 ```kotlin
 // Sync (Virtual Threads)
 val flow = parallelFlow("fetch-data") {
@@ -161,6 +167,8 @@ Branch execution based on a predicate:
 
 ![Conditional Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-06.png)
 
+The predicate chooses exactly one branch. If `otherwise` is omitted and the predicate is false, the flow returns `Success(context)`.
+
 ```kotlin
 val flow = conditionalFlow("check-valid") {
     condition { ctx -> ctx.get<Boolean>("valid") == true }
@@ -176,6 +184,8 @@ val report = flow.execute(ctx)
 Execute a task repeatedly until a condition is met:
 
 ![Repeat Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-07.png)
+
+Each iteration's `WorkReport` is passed to the repeat predicate; `maxIterations` is the safety guard that prevents an unbounded loop.
 
 ```kotlin
 // Sync
@@ -204,6 +214,8 @@ val report = flow.execute(WorkContext())
 Automatically retry failed tasks with exponential backoff:
 
 ![Retry Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-08.png)
+
+Only `Failure` follows the retry path. `Success`, `Aborted`, and `Cancelled` are terminal for the retry flow.
 
 ```kotlin
 val flow = retryFlow("call-api") {

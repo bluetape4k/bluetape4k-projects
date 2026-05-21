@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="526" viewBox="0 0 1378 526" role="img" aria-label="Repeat Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="900" viewBox="0 0 1450 900" role="img" aria-label="Repeat Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="smallArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -12,44 +12,74 @@
     .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
     .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
     .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .card{stroke-width:2.1;filter:url(#shadow)}.soft{stroke-width:1.7}.line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .thinLine{stroke:#758297;stroke-width:1.8;fill:none;marker-end:url(#smallArrow)}
+    .dashed{stroke:#758297;stroke-width:2;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
     .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1378" height="526"/>
-<rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
+<rect class="canvas" width="1450" height="900"/>
+<rect class="frame" x="32" y="28" width="1386" height="844" rx="28"/>
 <text class="title" x="66" y="82">Repeat Flow</text>
-<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M1006 220 C1006 220 1040 220 1040 220"/>
-<path class="line" d="M706 220 C706 220 672 220 672 220"/>
-<path class="line" d="M672 220 C672 220 706 220 706 220"/>
-<path class="line" d="M338 220 C338 220 372 220 372 220"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[Start]</text>
+<text class="subtitle" x="70" y="118">Each iteration returns a WorkReport; the predicate and maxIterations decide whether to loop again.</text><g>
+  <rect class="card" x="90" y="355" width="220" height="108" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="200" y="391" text-anchor="middle">Start</text>
+  <text class="small" x="200" y="421" text-anchor="middle">iteration = 0</text>
 </g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Work</text>
+<g>
+  <rect class="card" x="460" y="330" width="250" height="128" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="585" y="366" text-anchor="middle">Work</text>
+  <text class="small" x="585" y="396" text-anchor="middle">run one iteration</text>
+<text class="small" x="585" y="414" text-anchor="middle">return WorkReport</text>
 </g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">repeatWhile true?</text>
+<g>
+  <rect class="card" x="825" y="315" width="285" height="148" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="smallLabel" x="967.5" y="351" text-anchor="middle">repeat predicate</text>
+  <text class="small" x="967.5" y="381" text-anchor="middle">repeatWhile(report)</text>
+<text class="small" x="967.5" y="399" text-anchor="middle">or until(report)</text>
+<text class="small" x="967.5" y="417" text-anchor="middle">maxIterations guard</text>
 </g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[COMPLETED]</text>
+<g>
+  <rect class="card" x="1180" y="290" width="220" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="smallLabel" x="1290" y="326" text-anchor="middle">Return Last</text>
+  <text class="small" x="1290" y="356" text-anchor="middle">predicate false</text>
+<text class="small" x="1290" y="374" text-anchor="middle">or max reached</text>
 </g>
-<g transform="translate(382,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[ABORTED]</text>
+<g>
+  <rect class="card" x="600" y="640" width="240" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="smallLabel" x="720" y="676" text-anchor="middle">Aborted</text>
+  <text class="small" x="720" y="706" text-anchor="middle">break immediately</text>
 </g>
-<g transform="translate(716,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[FAILED]</text>
+<g>
+  <rect class="card" x="930" y="640" width="240" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="smallLabel" x="1050" y="676" text-anchor="middle">Cancelled</text>
+  <text class="small" x="1050" y="706" text-anchor="middle">timeout/cancel</text>
 </g>
-</svg>
+<g>
+  <rect class="card" x="250" y="640" width="240" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="370" y="676" text-anchor="middle">Failure</text>
+  <text class="small" x="370" y="706" text-anchor="middle">returned if predicate stops</text>
+<text class="small" x="370" y="724" text-anchor="middle">or next layer handles it</text>
+</g>
+<path class="line" d="M310 409 H460"/>
+<text class="edgeLabel" x="385" y="399" text-anchor="middle">execute</text>
+<path class="line" d="M710 394 H825"/>
+<text class="edgeLabel" x="768" y="384" text-anchor="middle">report</text>
+<path class="line" d="M1110 389 H1180"/>
+<text class="edgeLabel" x="1145" y="379" text-anchor="middle">stop</text>
+<path class="line" d="M968 315 C930 180 600 180 585 330"/>
+<text class="edgeLabel" x="760" y="178" text-anchor="middle">repeat true</text>
+<path class="line" d="M585 330 H460"/>
+
+<path class="line" d="M560 458 C540 545 570 615 600 696"/>
+<text class="edgeLabel" x="606" y="557" text-anchor="middle">Aborted</text>
+<path class="line" d="M655 458 C765 535 845 604 930 696"/>
+<text class="edgeLabel" x="823" y="572" text-anchor="middle">Cancelled</text>
+<path class="line" d="M505 458 C430 530 340 598 370 640"/>
+<text class="edgeLabel" x="407" y="546" text-anchor="middle">Failure</text>
+<g>
+  <rect class="soft" x="92" y="560" width="330" height="70" rx="12" fill="#F7F1E7" stroke="#B88A44" opacity="0.92"/>
+  <text class="small" x="110" y="585" text-anchor="start">Repeat does not apply ErrorStrategy by itself.</text>
+<text class="small" x="110" y="603" text-anchor="start">The predicate controls whether a failed report loops.</text>
+</g></svg>

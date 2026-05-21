@@ -22,6 +22,8 @@ Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
 
 ![WorkReport diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-02.png)
 
+상태도는 transient path를 명시적으로 보여줍니다. `Failure`는 `STOP`에서는 즉시 반환되고, `CONTINUE`에서는 failure accumulator를 거쳐 다음 작업으로 이어집니다. `Aborted`와 `Cancelled`는 전략과 무관하게 즉시 종료됩니다.
+
 ### 실행 모델 선택
 
 ![workflow Architecture 3 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-03.png)
@@ -103,6 +105,8 @@ val report = suspendWork.execute(ctx)
 
 ![workflow Architecture 4 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-04.png)
 
+`STOP`은 첫 실패를 즉시 반환합니다. `CONTINUE`는 이후 작업을 계속 실행하고, 누적 실패가 있으면 마지막에 `PartialSuccess`를 반환합니다.
+
 ```kotlin
 // 동기 버전
 val flow = sequentialFlow("order-processing") {
@@ -137,6 +141,8 @@ val report = flow.execute(WorkContext())
 
 ![workflow Architecture 5 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
 
+`ALL`은 모든 fork 작업을 기다리고 실패 시 fail-fast로 처리합니다. `ANY`는 첫 성공 결과를 반환하고 나머지 작업을 취소합니다.
+
 ```kotlin
 // 동기 (Virtual Threads)
 val flow = parallelFlow("fetch-data") {
@@ -160,6 +166,8 @@ Predicate 기반 분기 실행:
 
 ![workflow Architecture 6 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-06.png)
 
+Predicate는 정확히 하나의 branch를 선택합니다. `otherwise`가 없고 predicate가 false이면 `Success(context)`를 반환합니다.
+
 ```kotlin
 val flow = conditionalFlow("check-valid") {
     condition { ctx -> ctx.get<Boolean>("valid") == true }
@@ -175,6 +183,8 @@ val report = flow.execute(ctx)
 조건이 참인 동안 작업 반복:
 
 ![workflow Architecture 7 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-07.png)
+
+각 반복의 `WorkReport`가 repeat predicate로 전달됩니다. `maxIterations`는 무한 루프를 막는 안전 장치입니다.
 
 ```kotlin
 // 동기
@@ -203,6 +213,8 @@ val report = flow.execute(WorkContext())
 실패한 작업을 지수 백오프로 자동 재시도:
 
 ![workflow Architecture 8 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-08.png)
+
+`Failure`만 retry path를 탑니다. `Success`, `Aborted`, `Cancelled`는 retry flow의 terminal 결과입니다.
 
 ```kotlin
 val flow = retryFlow("call-api") {

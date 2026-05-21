@@ -14,6 +14,28 @@ Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 
 - **Cache2k 메트릭**: 캐시 성능 메트릭 수집
 - **KeyValue 유틸리티**: Micrometer KeyValue 생성을 위한 확장 함수
 
+## 아키텍처
+
+![Micrometer Module Architecture diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-03.png)
+
+이 모듈은 Micrometer의 기존 registry 위에 Kotlin 친화적인 timing, observation, Retrofit2, Cache2k, KeyValue 헬퍼를 더합니다.
+
+### 핵심 클래스 구조
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
+
+### 메트릭 수집 흐름
+
+![Metric Collection Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
+
+### Retrofit2 메트릭 수집 시퀀스
+
+![Retrofit2 Metric Collection Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
+
+### Coroutine Observation 흐름
+
+![Coroutine Observation Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
+
 ## 의존성
 
 ```kotlin
@@ -228,48 +250,6 @@ val kvs3 = keyValueOf(mapOf("x" to "1", "y" to "2"))
 
 // KeyValue 컬렉션으로 생성
 val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
-```
-
-## 아키텍처 다이어그램
-
-### 핵심 클래스 구조
-
-![micrometer Class Structure diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
-
-### 메트릭 수집 흐름
-
-![micrometer Architecture 2 diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
-
-### Retrofit2 메트릭 수집 시퀀스
-
-![Retrofit2 diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
-
-### Coroutine Observation 흐름
-
-![Coroutine Observation diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
-
-## 아키텍처
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    bluetape4k-micrometer                     │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │   Timer      │  │ Observation  │  │   KeyValue   │       │
-│  │  Extensions  │  │  Extensions  │  │   Support    │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │              Instrumentation Modules                  │   │
-│  ├────────────────────┬──────────────────────────────────┤   │
-│  │  Retrofit2 Metrics │       Cache2k Metrics            │   │
-│  │  - HTTP 호출 측정   │  - 캐시 히트/미스 측정            │   │
-│  │  - 응답 시간 기록   │  - 로딩 시간 측정                 │   │
-│  │  - 상태 코드 태그   │  - 만료/제거 카운트               │   │
-│  └────────────────────┴──────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│                    Micrometer Core                          │
-└─────────────────────────────────────────────────────────────┘
 ```
 
 ## 테스트

@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="526" viewBox="0 0 1378 526" role="img" aria-label="Sequential Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="870" viewBox="0 0 1450 870" role="img" aria-label="Sequential Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="smallArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
@@ -12,45 +12,70 @@
     .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
     .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
     .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .card{stroke-width:2.1;filter:url(#shadow)}.soft{stroke-width:1.7}.line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .thinLine{stroke:#758297;stroke-width:1.8;fill:none;marker-end:url(#smallArrow)}
+    .dashed{stroke:#758297;stroke-width:2;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
     .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1378" height="526"/>
-<rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
+<rect class="canvas" width="1450" height="870"/>
+<rect class="frame" x="32" y="28" width="1386" height="814" rx="28"/>
 <text class="title" x="66" y="82">Sequential Flow</text>
-<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M338 220 C338 220 372 220 372 220"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[Start]</text>
+<text class="subtitle" x="70" y="118">Tasks run one by one; ErrorStrategy decides whether a failure stops immediately or is accumulated for PartialSuccess.</text><g>
+  <rect class="card" x="80" y="260" width="210" height="105" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="185" y="296" text-anchor="middle">Start</text>
+  <text class="small" x="185" y="326" text-anchor="middle">initial context</text>
 </g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Work 1</text>
+<g>
+  <rect class="card" x="390" y="235" width="230" height="128" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="505" y="271" text-anchor="middle">Work 1</text>
+  <text class="small" x="505" y="301" text-anchor="middle">mutates context</text>
+<text class="small" x="505" y="319" text-anchor="middle">returns WorkReport</text>
 </g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Work 2</text>
+<g>
+  <rect class="card" x="735" y="235" width="230" height="128" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="850" y="271" text-anchor="middle">Work 2</text>
+  <text class="small" x="850" y="301" text-anchor="middle">receives same</text>
+<text class="small" x="850" y="319" text-anchor="middle">WorkContext</text>
 </g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Work 3</text>
+<g>
+  <rect class="card" x="1080" y="235" width="230" height="128" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="1195" y="271" text-anchor="middle">Work 3</text>
+  <text class="small" x="1195" y="301" text-anchor="middle">last step</text>
 </g>
-<g transform="translate(215,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[COMPLETED]</text>
+<g>
+  <rect class="card" x="1040" y="530" width="255" height="118" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="smallLabel" x="1167.5" y="566" text-anchor="middle">Completed</text>
+  <text class="small" x="1167.5" y="596" text-anchor="middle">all reports Success</text>
 </g>
-<g transform="translate(549,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[FAILED]</text>
+<g>
+  <rect class="card" x="382" y="548" width="260" height="118" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="512" y="584" text-anchor="middle">Failure</text>
+  <text class="small" x="512" y="614" text-anchor="middle">STOP returns now</text>
 </g>
-<g transform="translate(883,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">[PARTIAL]</text>
+<g>
+  <rect class="card" x="735" y="565" width="270" height="118" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
+  <text class="smallLabel" x="870" y="601" text-anchor="middle">PartialSuccess</text>
+  <text class="small" x="870" y="631" text-anchor="middle">CONTINUE collected</text>
+<text class="small" x="870" y="649" text-anchor="middle">one or more failures</text>
 </g>
-</svg>
+<path class="line" d="M290 312 H390"/>
+<text class="edgeLabel" x="340" y="302" text-anchor="middle">execute</text>
+<path class="line" d="M620 299 H735"/>
+<text class="edgeLabel" x="678" y="289" text-anchor="middle">Success</text>
+<path class="line" d="M965 299 H1080"/>
+<text class="edgeLabel" x="1022" y="289" text-anchor="middle">Success</text>
+<path class="line" d="M1195 363 V530"/>
+<text class="edgeLabel" x="1255" y="454" text-anchor="middle">final Success</text>
+<path class="line" d="M505 363 V548"/>
+<text class="edgeLabel" x="578" y="458" text-anchor="middle">Failure + STOP</text>
+<path class="line" d="M850 363 V565"/>
+<text class="edgeLabel" x="940" y="466" text-anchor="middle">Failure + CONTINUE</text>
+<path class="dashed" d="M1005 624 C1095 624 1118 575 1195 530"/>
+<text class="edgeLabel" x="1120" y="615" text-anchor="middle">after last work</text>
+<g>
+  <rect class="soft" x="90" y="535" width="240" height="80" rx="12" fill="#F7F1E7" stroke="#B88A44" opacity="0.92"/>
+  <text class="small" x="108" y="560" text-anchor="start">CONTINUE does not hide failure.</text>
+<text class="small" x="108" y="578" text-anchor="start">It delays the terminal report.</text>
+</g></svg>
