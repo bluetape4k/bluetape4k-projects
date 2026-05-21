@@ -14,6 +14,28 @@ This module extends [Micrometer](https://micrometer.io/) and Spring Boot's Obser
 - **Cache2k metrics**: Cache performance metric collection
 - **KeyValue utilities**: Extension functions for creating Micrometer KeyValues
 
+## Architecture
+
+![Micrometer Module Architecture diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-03.png)
+
+The module adds Kotlin-friendly timing, observation, Retrofit2, Cache2k, and KeyValue helpers around Micrometer's existing registries.
+
+### Core Class Structure
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
+
+### Metric Collection Flow
+
+![Metric Collection Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
+
+### Retrofit2 Metric Collection Sequence
+
+![Retrofit2 Metric Collection Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
+
+### Coroutine Observation Flow
+
+![Coroutine Observation Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
+
 ## Dependency
 
 ```kotlin
@@ -232,48 +254,6 @@ val kvs3 = keyValueOf(mapOf("x" to "1", "y" to "2"))
 
 // From a collection of KeyValues
 val kvs4 = keyValueOf(listOf(KeyValue.of("a", "1")))
-```
-
-## Architecture Diagrams
-
-### Core Class Structure
-
-![Core Class Structure diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-01.png)
-
-### Metric Collection Flow
-
-![Metric Collection Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-diagram-02.png)
-
-### Retrofit2 Metric Collection Sequence
-
-![Retrofit2 Metric Collection Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-01.png)
-
-### Coroutine Observation Flow
-
-![Coroutine Observation Flow diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-02.png)
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    bluetape4k-micrometer                     │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │   Timer      │  │ Observation  │  │   KeyValue   │       │
-│  │  Extensions  │  │  Extensions  │  │   Support    │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │              Instrumentation Modules                  │   │
-│  ├────────────────────┬──────────────────────────────────┤   │
-│  │  Retrofit2 Metrics │       Cache2k Metrics            │   │
-│  │  - HTTP call timing│  - Cache hit/miss measurement    │   │
-│  │  - Response time   │  - Load time measurement        │   │
-│  │  - Status code tag │  - Expiry/eviction count        │   │
-│  └────────────────────┴──────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────────┤
-│                    Micrometer Core                          │
-└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Testing

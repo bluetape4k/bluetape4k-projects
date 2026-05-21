@@ -15,23 +15,9 @@ Elasticsearch 클라이언트 라이브러리 (Kotlin + Coroutines 지원). Elas
 
 ## 아키텍처
 
-모듈은 계층화된 설계를 따릅니다:
+모듈은 클라이언트 구성, transport 설정, coroutine search/bulk 파이프라인을 분리합니다.
 
-```
-┌─────────────────────────────────────────────────┐
-│  사용자 애플리케이션 (suspend 함수)              │
-├─────────────────────────────────────────────────┤
-│  Coroutines 계층 (suspendBulk, searchAsFlow)    │
-├─────────────────────────────────────────────────┤
-│  DSL 빌더 (elasticsearchAsyncClient)            │
-├─────────────────────────────────────────────────┤
-│  클라이언트 팩토리 (ElasticsearchClients)        │
-├─────────────────────────────────────────────────┤
-│  Rest5ClientTransport (HC5 기반)                │
-├─────────────────────────────────────────────────┤
-│  Elasticsearch 서버                             │
-└─────────────────────────────────────────────────┘
-```
+![Elasticsearch Module Architecture diagram](../../docs/images/readme-diagrams/infra-elasticsearch-diagram-02.png)
 
 ## 설치
 

@@ -243,6 +243,8 @@ Async / coroutine modes can exceed this ceiling without blocking threads.
 | HC5 Classic VirtualThread (no cache) | — | 668 | — |
 | OkHttp3 (no cache) | — | 661 | — |
 
+![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
+
 **Key Insights**:
 - **Cache effect**: Eliminating a 10 ms network RTT alone achieves 35K–813K ops/s
 - **HC5 MemCache vs OkHttp DiskCache (23× gap)**:

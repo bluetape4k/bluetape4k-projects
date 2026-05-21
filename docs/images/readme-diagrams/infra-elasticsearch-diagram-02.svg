@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-label="Elasticsearch Module Architecture">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="smallArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <style>
+    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .card{stroke-width:2.1;filter:url(#shadow)}.soft{stroke-width:1.7}.line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
+    .thinLine{stroke:#758297;stroke-width:1.8;fill:none;marker-end:url(#smallArrow)}
+    .dashed{stroke:#758297;stroke-width:2;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
+    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="900"/>
+<rect class="frame" x="32" y="28" width="1436" height="844" rx="28"/>
+<text class="title" x="66" y="82">Elasticsearch Module Architecture</text>
+<text class="subtitle" x="70" y="118">Kotlin DSLs build ES 9 clients; coroutine extensions expose async Java API calls as suspend functions and Flow pipelines.</text><g>
+  <rect class="card" x="90" y="185" width="280" height="118" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="230" y="221" text-anchor="middle">User Application</text>
+  <text class="small" x="230" y="251" text-anchor="middle">DSL config</text>
+<text class="small" x="230" y="269" text-anchor="middle">suspend functions</text>
+<text class="small" x="230" y="287" text-anchor="middle">Flow pipelines</text>
+</g>
+<g>
+  <rect class="card" x="445" y="170" width="310" height="148" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="600" y="206" text-anchor="middle">Client Builder DSL</text>
+  <text class="small" x="600" y="236" text-anchor="middle">ElasticsearchClientConfig</text>
+<text class="small" x="600" y="254" text-anchor="middle">elasticsearchAsyncClient</text>
+<text class="small" x="600" y="272" text-anchor="middle">elasticsearchClient</text>
+</g>
+<g>
+  <rect class="card" x="830" y="170" width="310" height="148" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="smallLabel" x="985" y="206" text-anchor="middle">ElasticsearchClients</text>
+  <text class="small" x="985" y="236" text-anchor="middle">asyncClientOf / clientOf</text>
+<text class="small" x="985" y="254" text-anchor="middle">transportOf</text>
+<text class="small" x="985" y="272" text-anchor="middle">validation + factory methods</text>
+</g>
+<g>
+  <rect class="card" x="1190" y="180" width="230" height="128" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="1305" y="216" text-anchor="middle">ES Java Clients</text>
+  <text class="small" x="1305" y="246" text-anchor="middle">Async client</text>
+<text class="small" x="1305" y="264" text-anchor="middle">Blocking client</text>
+</g>
+<g>
+  <rect class="card" x="1175" y="392" width="260" height="128" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="smallLabel" x="1305" y="428" text-anchor="middle">Elasticsearch Cluster</text>
+  <text class="small" x="1305" y="458" text-anchor="middle">Search API</text>
+<text class="small" x="1305" y="476" text-anchor="middle">Bulk API</text>
+<text class="small" x="1305" y="494" text-anchor="middle">PIT lifecycle</text>
+</g>
+<g>
+  <rect class="card" x="132" y="462" width="330" height="158" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="smallLabel" x="297" y="498" text-anchor="middle">Search Flow</text>
+  <text class="small" x="297" y="528" text-anchor="middle">open PIT</text>
+<text class="small" x="297" y="546" text-anchor="middle">page with search_after</text>
+<text class="small" x="297" y="564" text-anchor="middle">emit documents</text>
+<text class="small" x="297" y="582" text-anchor="middle">close PIT in finally</text>
+</g>
+<g>
+  <rect class="card" x="565" y="490" width="330" height="138" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
+  <text class="smallLabel" x="730" y="526" text-anchor="middle">Bulk Flow</text>
+  <text class="small" x="730" y="556" text-anchor="middle">Flow&lt;BulkOperation&gt;</text>
+<text class="small" x="730" y="574" text-anchor="middle">chunked requests</text>
+<text class="small" x="730" y="592" text-anchor="middle">suspendBulk</text>
+<text class="small" x="730" y="610" text-anchor="middle">item error callback</text>
+</g>
+<g>
+  <rect class="card" x="792" y="660" width="330" height="118" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="smallLabel" x="957" y="696" text-anchor="middle">Transport Support</text>
+  <text class="small" x="957" y="726" text-anchor="middle">Rest5ClientTransport</text>
+<text class="small" x="957" y="744" text-anchor="middle">HTTP client 5</text>
+<text class="small" x="957" y="762" text-anchor="middle">Basic Auth / SSL</text>
+</g>
+<g>
+  <rect class="card" x="1135" y="660" width="300" height="118" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="1285" y="696" text-anchor="middle">JSON Mapping</text>
+  <text class="small" x="1285" y="726" text-anchor="middle">explicit JsonpMapper</text>
+<text class="small" x="1285" y="744" text-anchor="middle">Jackson mapper fallback</text>
+</g>
+<path class="line" d="M370 244 H445"/>
+<text class="edgeLabel" x="408" y="234" text-anchor="middle">configure</text>
+<path class="line" d="M755 244 H830"/>
+<text class="edgeLabel" x="792" y="234" text-anchor="middle">factory call</text>
+<path class="line" d="M1140 244 H1190"/>
+<text class="edgeLabel" x="1165" y="234" text-anchor="middle">wraps</text>
+<path class="line" d="M1305 308 V392"/>
+<text class="edgeLabel" x="1336" y="354" text-anchor="middle">requests</text>
+<path class="line" d="M985 318 V660"/>
+<text class="edgeLabel" x="1048" y="486" text-anchor="middle">creates transport</text>
+<path class="line" d="M462 541 H565"/>
+<text class="edgeLabel" x="514" y="531" text-anchor="middle">bulk operations</text>
+<path class="line" d="M895 559 H1175"/>
+<text class="edgeLabel" x="1035" y="549" text-anchor="middle">bulk()</text>
+<path class="dashed" d="M462 541 C650 386 1010 372 1175 456"/>
+<text class="edgeLabel" x="795" y="407" text-anchor="middle">search()</text>
+<path class="dashed" d="M297 462 V303 C297 268 345 244 445 244"/>
+<text class="edgeLabel" x="360" y="367" text-anchor="middle">client from DSL</text>
+<path class="line" d="M1122 719 H1135"/>
+
+<g>
+  <rect class="soft" x="90" y="700" width="570" height="78" rx="12" fill="#FDECEF" stroke="#DC6B82" opacity="0.92"/>
+  <text class="small" x="108" y="725" text-anchor="start">Cancellation closes only the coroutine wait path.</text>
+<text class="small" x="108" y="743" text-anchor="start">Server-side Elasticsearch work may already be in flight.</text>
+</g></svg>

@@ -260,14 +260,14 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 | HC5 Classic VirtualThread (캐시 없음) | — | 668 | — |
 | OkHttp3 (캐시 없음) | — | 661 | — |
 
+![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
+
 **인사이트**:
 - **캐시 효과**: 10ms 네트워크 지연 제거만으로 35K–813K ops/s 달성
 - **HC5 MemCache vs OkHttp DiskCache (23배 차이)**:
   - HC5: `ConcurrentHashMap` 직접 조회 → ~1–10 μs/op
   - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
-  - OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
-
-![3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과 4](../../docs/images/readme-diagrams/io-http-ko-diagram-04.png)
+- OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
 
 **권장 선택**:
 
