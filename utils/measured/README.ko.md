@@ -54,7 +54,7 @@ println(distance.toHuman())    // 50.0 m
 
 ## 단위 조합 흐름
 
-![measured Architecture 2 diagram](../../docs/images/readme-diagrams/utils-measured-diagram-02.png)
+![Unit Composition Flow diagram](../../docs/images/readme-diagrams/utils-measured-diagram-02.png)
 
 ## units 호환 어댑터
 

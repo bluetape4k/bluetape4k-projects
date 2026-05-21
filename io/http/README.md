@@ -267,7 +267,7 @@ See [the benchmark report](../../docs/benchmarks/2026-05-21-io-http-client-bench
 | HC5 Classic VirtualThread (no cache) | — | 668 | — |
 | OkHttp3 (no cache) | — | 661 | — |
 
-![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
+![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-charts/io-http-cache-throughput-chart-01.png)
 
 **Key Insights**:
 - **Cache effect**: Eliminating a 10 ms network RTT alone achieves 35K–813K ops/s

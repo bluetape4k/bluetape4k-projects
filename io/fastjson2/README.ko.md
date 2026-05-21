@@ -9,6 +9,16 @@
 JSONB(바이너리 JSON) 형식을 활용한 고성능 직렬화와, JSON 문자열/`InputStream`/`JSONObject`/
 `JSONArray` 등 다양한 데이터 소스에 대한 타입 안전한 역직렬화 확장 함수를 제공합니다.
 
+## 아키텍처 다이어그램
+
+### 클래스 구조
+
+![fastjson2 Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
+
+### JSON vs JSONB 직렬화 흐름
+
+![JSON vs JSONB diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
+
 ## 주요 기능
 
 ### 1. FastjsonSerializer
@@ -121,16 +131,6 @@ val user = jsonObject.readValueOrNull<User>("key")
 |--------------|----|----|-----|-----------------|
 | JSONB (바이너리) | 빠름 | 작음 | 불가  | 내부 직렬화, 캐시, RPC |
 | JSON (텍스트)   | 보통 | 보통 | 가능  | API 응답, 로깅, 디버깅 |
-
-## 아키텍처 다이어그램
-
-### 클래스 구조
-
-![fastjson2 Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
-
-### JSON vs JSONB 직렬화 흐름
-
-![JSON vs JSONB diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
 
 ## 의존성
 

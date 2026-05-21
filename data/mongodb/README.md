@@ -17,6 +17,20 @@ Since the MongoDB Kotlin Coroutine Driver (v5.x) already provides native `suspen
 - **BSON Document DSL**: `documentOf {}` builder, type-safe `getAs<T>()` accessor
 - **Aggregation Pipeline DSL**: `pipeline {}` + `matchStage`, `groupStage`, `sortStage`, and more
 
+## Architecture Diagrams
+
+### Core Class Structure
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
+
+### Module API Structure
+
+![Module API Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
+
+### Aggregation Pipeline Data Flow
+
+![Aggregation Pipeline Data Flow diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
+
 ## Dependency
 
 ```kotlin
@@ -176,20 +190,6 @@ class MyMongoTest : AbstractMongoTest() {
 | Filter/Sort/Update/Projection string DSL      | The KProperty-based DSL in `mongodb-driver-kotlin-extensions` is more type-safe |
 | `createIndex/dropIndex` wrappers              | Already `suspend`                                                               |
 | `aggregateAsFlow()`                           | Native `aggregate()` already returns `AggregateFlow<T>` (= `Flow`)              |
-
-## Architecture Diagrams
-
-### Core Class Structure
-
-![Core Class Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
-
-### Module API Structure
-
-![Module API Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
-
-### Aggregation Pipeline Data Flow
-
-![Aggregation Pipeline Data Flow diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
 
 ## References
 

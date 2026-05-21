@@ -16,6 +16,24 @@
   Spring WebFlux API를 대상으로 하며, 마이그레이션 참고용으로만 유지합니다.
 - **Spring Boot Starter 지원**: 자동 설정 OpenTelemetry SDK
 
+## 아키텍처 다이어그램
+
+### OpenTelemetry 핵심 클래스 구조
+
+![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
+
+### OpenTelemetry 구성 요소
+
+![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
+
+### Span 생명주기 (Coroutines 환경)
+
+![Span (Coroutines ) diagram](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
+
+### 분산 추적 전파 흐름
+
+![Distributed Trace Propagation diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
+
 ## 의존성
 
 ```kotlin
@@ -350,24 +368,6 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 - `createTracingWebFilter()`는 `ApplicationContext`당 1회만 호출하세요. 내부적으로 Reactor `Hooks.onEachOperator`를 전역 등록합니다. 중복 호출 시 훅이 중첩되어 예측 불가능한 동작이 발생합니다.
 - 테스트에서는 `@AfterAll`에서 `Hooks.resetOnEachOperator()`를 호출하여 훅 누수를 방지하세요.
 - `Authorization` 등 민감 헤더는 기본적으로 캡처되지 않습니다. 특정 헤더를 허용하려면 환경변수 `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`를 설정하세요. **PII를 포함하는 헤더는 절대 추가하지 마세요.**
-
-## 아키텍처 다이어그램
-
-### OpenTelemetry 핵심 클래스 구조
-
-![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
-
-### OpenTelemetry 구성 요소
-
-![OpenTelemetry diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
-
-### Span 생명주기 (Coroutines 환경)
-
-![Span (Coroutines ) diagram](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
-
-### 분산 추적 전파 흐름
-
-![opentelemetry Architecture 4 diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
 
 ## 테스트 전략
 

@@ -13,6 +13,20 @@ A Kotlin extension library that makes it easier to use the [Apache Cassandra](ht
 - **Statement Support**: DSL for creating SimpleStatement, BoundStatement, and BatchStatement
 - **Admin Utilities**: Keyspace creation/deletion, version checks, and other administrative tasks
 
+## Architecture Diagrams
+
+### Extension Function API Overview
+
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+
+### Core API Structure
+
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+
+### Asynchronous Query Execution Flow
+
+![Asynchronous Query Execution Flow diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
+
 ## Dependency
 
 ```kotlin
@@ -344,20 +358,6 @@ class MyCassandraTest: AbstractCassandraTest() {
     }
 }
 ```
-
-## Architecture Diagrams
-
-### Extension Function API Overview
-
-![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
-
-### Core API Structure
-
-![Core API Structure diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
-
-### Asynchronous Query Execution Flow
-
-![Asynchronous Query Execution Flow diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## Examples
 

@@ -13,6 +13,20 @@
 - **Statement 지원**: SimpleStatement, BoundStatement, BatchStatement 생성 DSL
 - **Admin 유틸**: Keyspace 생성/삭제, 버전 확인 등 관리 작업 지원
 
+## 아키텍처 다이어그램
+
+### 확장 함수 API 개요
+
+![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
+
+### 주요 API 구조
+
+![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
+
+### 비동기 쿼리 실행 흐름
+
+![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
+
 ## 의존성 추가
 
 ```kotlin
@@ -344,20 +358,6 @@ class MyCassandraTest: AbstractCassandraTest() {
     }
 }
 ```
-
-## 아키텍처 다이어그램
-
-### 확장 함수 API 개요
-
-![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-01.png)
-
-### 주요 API 구조
-
-![API diagram](../../docs/images/readme-diagrams/data-cassandra-diagram-02.png)
-
-### 비동기 쿼리 실행 흐름
-
-![cassandra Sequence Flow 3 diagram](../../docs/images/readme-diagrams/data-cassandra-sequence-01.png)
 
 ## 예제
 

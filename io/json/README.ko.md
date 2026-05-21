@@ -17,7 +17,7 @@
 
 ### 구현체 선택 흐름
 
-![json Architecture 2 diagram](../../docs/images/readme-diagrams/io-json-diagram-02.png)
+![JSON Serialization Flow diagram](../../docs/images/readme-diagrams/io-json-diagram-02.png)
 
 ## 주요 기능
 

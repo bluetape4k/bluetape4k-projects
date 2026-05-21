@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-label="Lettuce Cache Stability Contracts Diagram">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M1 1 L9 4 L1 7" fill="none" stroke="#667085" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <style>
+    .canvas{fill:#f6f8fb}.frame{fill:#fff;stroke:#d7e3ee;stroke-width:2}.title{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:40px;font-weight:400;fill:#273043}.subtitle,.small{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#64748b;font-weight:400}.subtitle{font-size:18px}.small{font-size:15px}.label{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;font-size:18px;font-weight:400;fill:#273043}.head{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:24px;font-weight:400;fill:#273043}.card{filter:url(#shadow);stroke-width:2}.line{fill:none;stroke:#667085;stroke-width:2;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="900"/>
+<rect class="frame" x="32" y="28" width="1436" height="844" rx="24"/>
+<text class="title" x="66" y="82">Lettuce Cache Stability Contracts</text>
+<text class="subtitle" x="70" y="118">Operational guarantees shared by NearCache, JCache, and memoizer implementations.</text>
+<g transform="translate(70,170)">
+  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
+  <text class="head" x="157" y="44" text-anchor="middle">CAS replace()</text>
+  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="label" x="157" y="116" text-anchor="middle">EVALSHA compare-and-set</text>
+  <text class="small" x="157" y="140" text-anchor="middle">20-byte script digest</text>
+  <path class="line" d="M157 168 L157 222"/>
+  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="label" x="157" y="260" text-anchor="middle">NOSCRIPT fallback</text>
+  <text class="small" x="157" y="284" text-anchor="middle">retry with EVAL source</text>
+  <path class="line" d="M157 312 L157 366"/>
+  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="label" x="157" y="404" text-anchor="middle">Same semantics</text>
+  <text class="small" x="157" y="428" text-anchor="middle">transparent to callers</text>
+</g>
+<g transform="translate(420,170)">
+  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
+  <text class="head" x="157" y="44" text-anchor="middle">Bulk removal</text>
+  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="label" x="157" y="116" text-anchor="middle">UNLINK keys</text>
+  <text class="small" x="157" y="140" text-anchor="middle">non-blocking delete</text>
+  <path class="line" d="M157 168 L157 222"/>
+  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="label" x="157" y="260" text-anchor="middle">Redis background free</text>
+  <text class="small" x="157" y="284" text-anchor="middle">large values do not block</text>
+  <path class="line" d="M157 312 L157 366"/>
+  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="label" x="157" y="404" text-anchor="middle">O(1) round trip</text>
+  <text class="small" x="157" y="428" text-anchor="middle">DEL semantics preserved</text>
+</g>
+<g transform="translate(770,170)">
+  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
+  <text class="head" x="157" y="44" text-anchor="middle">JCache close()</text>
+  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="label" x="157" y="116" text-anchor="middle">Close wrappers</text>
+  <text class="small" x="157" y="140" text-anchor="middle">listeners and resources</text>
+  <path class="line" d="M157 168 L157 222"/>
+  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="label" x="157" y="260" text-anchor="middle">Keep cache data</text>
+  <text class="small" x="157" y="284" text-anchor="middle">JSR-107 contract</text>
+  <path class="line" d="M157 312 L157 366"/>
+  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="label" x="157" y="404" text-anchor="middle">Explicit clear()</text>
+  <text class="small" x="157" y="428" text-anchor="middle">only when caller asks</text>
+</g>
+<g transform="translate(1120,170)">
+  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
+  <text class="head" x="157" y="44" text-anchor="middle">Memoizer recovery</text>
+  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="label" x="157" y="116" text-anchor="middle">In-flight promise</text>
+  <text class="small" x="157" y="140" text-anchor="middle">coordination only</text>
+  <path class="line" d="M157 168 L157 222"/>
+  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="label" x="157" y="260" text-anchor="middle">Failure or cancellation</text>
+  <text class="small" x="157" y="284" text-anchor="middle">remove exact promise</text>
+  <path class="line" d="M157 312 L157 366"/>
+  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="label" x="157" y="404" text-anchor="middle">Next call recomputes</text>
+  <text class="small" x="157" y="428" text-anchor="middle">failed value is not cached</text>
+</g>
+<text class="small" x="70" y="835">Read from left to right within each contract. All paths preserve caller-visible cache semantics while reducing latency or improving failure recovery.</text>
+</svg>

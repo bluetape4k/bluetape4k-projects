@@ -12,6 +12,20 @@ A Kotlin extension library that eliminates boilerplate when working with JDBC (J
 - **Batch Processing**: High-throughput bulk insert support
 - **Object Mapping**: Easily convert ResultSet rows to objects
 
+## Architecture Diagrams
+
+### Extension Function API Overview
+
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
+
+### Core API Structure
+
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
+
+### JDBC Query Execution Flow
+
+![JDBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
+
 ## Dependency
 
 ```kotlin
@@ -471,20 +485,6 @@ class MyJdbcTest : AbstractJdbcTest() {
     }
 }
 ```
-
-## Architecture Diagrams
-
-### Extension Function API Overview
-
-![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
-
-### Core API Structure
-
-![Core API Structure diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
-
-### JDBC Query Execution Flow
-
-![JDBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
 
 ## References
 

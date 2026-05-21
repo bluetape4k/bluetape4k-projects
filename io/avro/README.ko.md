@@ -8,6 +8,20 @@ Apache Avro 직렬화/역직렬화를 위한 고수준 API를 제공하는 모�
 
 다양한 압축 코덱(Zstandard, Snappy, Deflate 등)을 지원하며, Base64 문자열 변환, 리스트 직렬화, 스키마 진화(Schema Evolution)를 포함한 완전한 Avro 직렬화 솔루션을 제공합니다.
 
+## 아키텍처 다이어그램
+
+### Serializer 클래스 계층
+
+![Serializer diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
+
+### Avro 직렬화/역직렬화 흐름
+
+![Avro / diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
+
+### 압축 코덱 선택 가이드
+
+![Compression Codec Selection Guide diagram](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
+
 ## Serializer 종류
 
 용도에 따라 3가지 Serializer를 제공합니다:
@@ -116,20 +130,6 @@ val itemV2 = serializer.deserialize<ItemV2>(bytes)
 val bytes = serializer.serialize(itemV2)
 val itemV1 = serializer.deserialize<ItemV1>(bytes)
 ```
-
-## 아키텍처 다이어그램
-
-### Serializer 클래스 계층
-
-![Serializer diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
-
-### Avro 직렬화/역직렬화 흐름
-
-![Avro / diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
-
-### 압축 코덱 선택 가이드
-
-![avro Architecture 3 diagram](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
 
 ## 의존성
 

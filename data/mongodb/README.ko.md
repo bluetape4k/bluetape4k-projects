@@ -15,6 +15,20 @@ MongoDB Kotlin Coroutine Driver(v5.x)는 이미 네이티브 `suspend` 함수와
 - **BSON Document DSL**: `documentOf {}` 빌더, `getAs<T>()` 타입 안전 조회
 - **Aggregation Pipeline DSL**: `pipeline {}` + `matchStage`, `groupStage`, `sortStage` 등
 
+## 아키텍처 다이어그램
+
+### 주요 클래스 구조
+
+![mongodb Class Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
+
+### 모듈 API 구조
+
+![API diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
+
+### Aggregation Pipeline 데이터 흐름
+
+![Aggregation Pipeline diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
+
 ## 의존성 추가
 
 ```kotlin
@@ -172,20 +186,6 @@ class MyMongoTest : AbstractMongoTest() {
 | Filter/Sort/Update/Projection 문자열 DSL   | `mongodb-driver-kotlin-extensions`의 KProperty 기반 DSL이 더 타입 안전 |
 | `createIndex/dropIndex` 래퍼              | 이미 `suspend`                                                  |
 | `aggregateAsFlow()`                     | 네이티브 `aggregate()`가 이미 `AggregateFlow<T>` (= `Flow`) 반환       |
-
-## 아키텍처 다이어그램
-
-### 주요 클래스 구조
-
-![mongodb Class Structure diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-01.png)
-
-### 모듈 API 구조
-
-![API diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-02.png)
-
-### Aggregation Pipeline 데이터 흐름
-
-![Aggregation Pipeline diagram](../../docs/images/readme-diagrams/data-mongodb-diagram-03.png)
 
 ## 참고 자료
 

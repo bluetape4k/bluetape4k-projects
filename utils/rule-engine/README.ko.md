@@ -187,7 +187,7 @@ val tierRule = GroovyRule(name = "tier")
 
 ### 스크립트 엔진 선택 가이드
 
-![rule engine Architecture 8 diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.png)
+![Rule Engine Performance Path diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-07.png)
 
 | 시나리오 | 추천 엔진 | 이유 |
 |---------|---------|------|

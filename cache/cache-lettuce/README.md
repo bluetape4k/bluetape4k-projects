@@ -116,11 +116,15 @@ Redis keys are namespaced through the configured cache name and key prefix so mu
 | putAll (×100) | 1.04 ops/ms | 0.93 ops/ms | 0.41 ops/ms |
 | removeSingle | 4.21 ops/ms | 4.24 ops/ms | 4.16 ops/ms |
 
+![Lettuce Near Cache Throughput chart](../../docs/images/readme-charts/cache-lettuce-near-cache-throughput-chart-01.png)
+
 > L1 cache hit is **~16,000× faster** than any L2 (Redis) operation.
 > Full results & analysis: [Benchmark.md](./Benchmark.md) · [벤치마크 결과 (한국어)](./Benchmark.ko.md)
 > Run: `./gradlew :bluetape4k-cache-lettuce:benchmark` (requires Docker)
 
 ## Performance / Stability Notes
+
+![Lettuce Cache Stability Contracts diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.png)
 
 These contracts are guaranteed across the `LettuceNearCache`, `LettuceSuspendNearCache`, `LettuceAsyncMemoizer`, and `LettuceJCache` implementations.
 

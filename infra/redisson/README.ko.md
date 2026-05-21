@@ -354,6 +354,8 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 | JDK | 128 | ± 14 |
 | GzipFastFory | 108 | ± 1 |
 
+![Redisson Codec Throughput chart](../../docs/images/readme-charts/infra-redisson-codec-throughput-chart-01.png)
+
 > 전체 결과 및 분석: [Benchmark.md](./Benchmark.md) · [한국어](./Benchmark.ko.md)
 > 실행: `./gradlew :bluetape4k-redisson:benchmark`
 
@@ -370,6 +372,8 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 | RBatch 파이프라이닝 | 28,571 | +143% |
 | **메가배치 (코루틴당 1 RBatch)** | 78,125 | +566% |
 | **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+
+![Redisson Batch Optimization Throughput chart](../../docs/images/readme-charts/infra-redisson-batch-throughput-chart-01.png)
 
 > 벤치마크 실행: `./gradlew :bluetape4k-redisson:test --tests "*.RedissonConcurrencyBenchmark"`
 

@@ -14,7 +14,7 @@ Kotlin에서 SLF4J 로깅을 더 쉽고 효율적으로 사용하기 위한 라�
 
 ### 로깅 처리 흐름
 
-![logging Architecture 2 diagram](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-02.png)
+![Logging Configuration Flow diagram](../../docs/images/readme-diagrams/bluetape4k-logging-diagram-02.png)
 
 ---
 
