@@ -204,7 +204,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 
 ### 1. HttpClientBenchmark — 기본 처리량 (`GET /ping`)
 
-**환경**: `BluetapeHttpServer` (Docker) · `@Threads(8)` · warmup 1×2s · measurement 3×3s
+**환경**: `BluetapeWebfluxServer` (Docker) · `@Threads(8)` · warmup 1×1s · measurement 1×1s
 
 경량 `/ping` 응답으로 순수 연결 처리량을 측정합니다.
 
@@ -221,14 +221,14 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 | HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
 | HC5 Async Coroutines | 비동기 | `executeSuspending()` |
 | Vert.x WebClient Coroutines | 비동기 | 이벤트 루프 |
-| Ktor CIO Coroutines | 코루틴 | 제한 행; 이 fixture에서 CIO는 HTTP/1 dedicated request를 생성 |
+| Ktor CIO Coroutines | 코루틴 | CIO 3.5는 pipelining 비활성 시 dedicated HTTP/1 request를 생성 |
 
 > **참고**: 지연 없는 경량 응답이므로 동기/비동기 방식 모두 유사한 처리량을 냅니다.
 > 차이는 주로 커넥션 풀 설정과 스레드 모델에서 발생합니다.
 
 ### 2. HttpClientLatencyBenchmark — 고지연 환경 처리량 (`GET /httpbin/delay/0.05`)
 
-**환경**: `BluetapeHttpServer` (Docker, 50ms 지연) · `@Threads(100)` · warmup 1×3s · measurement 3×5s
+**환경**: `BluetapeWebfluxServer` (Docker, 50ms 지연) · `@Threads(100)` · warmup 1×1s · measurement 1×1s
 
 **이론값**: 100 threads × (1000ms / 50ms) = **2,000 ops/s** (동기 상한)
 비동기/코루틴 방식은 스레드 블로킹 없이 이 상한을 초과합니다.
@@ -246,29 +246,59 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 | HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
 | HC5 Async Coroutines | 비동기 | `executeSuspending()` |
 | Vert.x WebClient Coroutines | 비동기 | — |
-| Ktor CIO Coroutines | 코루틴 | 제한 행; 1 JMH thread로 측정 |
+| Ktor CIO Coroutines | 코루틴 | 동일 `@Threads(100)` 조건으로 측정 |
 
 ### 2026-05-21 HTTP 클라이언트 벤치마크 스냅샷
 
-환경: 로컬 Colima Docker, `bluetape4k/mock-web-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
+환경: 로컬 Colima Docker, `bluetape4k/mock-webflux-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
 명령, 실패한 접근, 원시 근거는 [벤치마크 리포트](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md)에 기록했습니다.
 
-| 벤치마크 행 | Before ops/s | After ops/s | 변화 |
-|-------------|-------------:|------------:|-----:|
-| `HttpClientBenchmark.vertxWebClientCoroutines` | 12,278.843 | 13,491.266 | +9.9% |
-| `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 87.844 | 1,818.508 | +1,970.2% |
-| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,826.352 | 1,789.987 | -2.0% |
-| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,831.756 | 1,759.273 | -4.0% |
-| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 376.241 | 383.605 | +2.0% |
-| `HttpClientBenchmark.ktorCioCoroutines` | n/a | 659.071 | 제한 |
-| `HttpClientLatencyBenchmark.ktorCioCoroutines` | n/a | 16.501 | 제한 |
+각 벤치마크 안의 모든 행은 같은 JMH thread 수로 측정했습니다.
+Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining 비활성 시 dedicated HTTP/1 connection을 열기 때문에 전체 행을 짧은 동일 조건 window로 맞췄습니다.
+
+#### 기본 처리량 스냅샷
+
+| 벤치마크 행 | ops/s |
+|-------------|------:|
+| `HttpClientBenchmark.javaHttpSync` | 7,276.492 |
+| `HttpClientBenchmark.hc5ClassicVirtualThread` | 7,246.690 |
+| `HttpClientBenchmark.okhttp3VirtualThread` | 6,955.796 |
+| `HttpClientBenchmark.javaHttpVirtualThread` | 6,562.497 |
+| `HttpClientBenchmark.hc5Classic` | 6,490.422 |
+| `HttpClientBenchmark.javaHttpH2VirtualThread` | 6,275.262 |
+| `HttpClientBenchmark.hc5ClassicCoroutines` | 6,230.735 |
+| `HttpClientBenchmark.vertxWebClientCoroutines` | 6,043.906 |
+| `HttpClientBenchmark.javaHttpH2Sync` | 6,027.618 |
+| `HttpClientBenchmark.okhttp3Sync` | 5,771.310 |
+| `HttpClientBenchmark.okhttp3Coroutines` | 5,752.350 |
+| `HttpClientBenchmark.hc5AsyncCoroutines` | 5,520.183 |
+| `HttpClientBenchmark.javaHttpH2Coroutines` | 5,481.592 |
+| `HttpClientBenchmark.javaHttpCoroutines` | 4,739.894 |
+| `HttpClientBenchmark.ktorCioCoroutines` | 2,052.281 |
+
+#### 고지연 처리량 스냅샷
+
+| 벤치마크 행 | ops/s |
+|-------------|------:|
+| `HttpClientLatencyBenchmark.okhttp3VirtualThread` | 1,902.171 |
+| `HttpClientLatencyBenchmark.hc5ClassicVirtualThread` | 1,888.018 |
+| `HttpClientLatencyBenchmark.javaHttpVirtualThread` | 1,883.634 |
+| `HttpClientLatencyBenchmark.hc5Classic` | 1,880.023 |
+| `HttpClientLatencyBenchmark.okhttp3Sync` | 1,870.124 |
+| `HttpClientLatencyBenchmark.javaHttpSync` | 1,865.997 |
+| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 1,863.948 |
+| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,860.655 |
+| `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 1,859.003 |
+| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,856.895 |
+| `HttpClientLatencyBenchmark.ktorCioCoroutines` | 1,515.026 |
+| `HttpClientLatencyBenchmark.hc5ClassicCoroutines` | 1,216.306 |
 
 ![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.svg)
 
 **메모**:
-- 핵심 개선은 50ms 지연 워크로드의 Vert.x WebClient입니다. Vert.x 5 기본 HTTP/1 풀은 작으므로, 벤치마크에서 `PoolOptions`를 명시해 다른 클라이언트와 같은 조건으로 맞췄습니다.
-- Ktor CIO 행은 1 JMH thread로 제한한 비교입니다. 전체 클래스 동시성에서는 로컬 ephemeral port가 고갈됐고, HTTP/1 pipelining은 unexpected EOF를 만들었습니다.
-- `/ping` 기본 처리량은 로컬 Docker 환경에서 분산이 큽니다. 결정 근거로는 고지연 Vert.x 결과가 더 강합니다.
+- 이전 Vert.x 결과는 주로 Vert.x 5 기본 HTTP/1 pool cap을 측정했습니다. 이제 `PoolOptions`를 명시해 다른 클라이언트와 조건을 맞췄습니다.
+- Ktor CIO 기본 경로는 `/ping`에서 여전히 느립니다. CIO pipelining을 강제하면 mock fixture에서 EOF 또는 hang이 발생했으므로, 비교 가능한 실행은 기본 CIO 동작을 유지하고 모든 행의 측정 window를 동일하게 짧게 둡니다.
+- `/ping` 기본 처리량은 로컬 Docker 환경에서 분산이 큽니다. 결정 근거로는 고지연 표가 더 강합니다.
 
 ### 3. HttpClientCompressionCacheBenchmark — 캐시 + gzip 효과
 

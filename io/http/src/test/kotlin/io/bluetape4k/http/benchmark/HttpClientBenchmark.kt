@@ -5,9 +5,9 @@ import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.jdk.sendAwait
 import io.bluetape4k.http.ktor.ktorCioHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
-import io.bluetape4k.testcontainers.http.BluetapeHttpServer
+import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
 import io.ktor.client.HttpClient as KtorHttpClient
-import io.ktor.client.request.prepareGet
+import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
 import io.vertx.core.Vertx
 import io.vertx.core.http.PoolOptions
@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit
 /**
  * 다양한 HTTP Client 의 throughput 을 비교하는 JMH 벤치마크.
  *
- * Docker 기반 [BluetapeHttpServer] 를 외부 프로세스로 사용하므로
+ * Docker 기반 [BluetapeWebfluxServer] 를 외부 프로세스로 사용하므로
  * 서버 JVM 이 벤치마크 JVM 과 분리되어 클라이언트 단독 성능을 측정합니다.
  *
  * 엔드포인트: `GET /ping` → HTTP 200 (경량 응답, 순수 연결 처리량 측정)
@@ -61,16 +61,20 @@ import java.util.concurrent.TimeUnit
  * - Apache HC5 Async + Coroutines
  * - Ktor CIO + Coroutines
  * - Vert.x WebClient + Coroutines
+ *
+ * Ktor CIO 3.5 opens dedicated HTTP/1 connections when its pipeline path is
+ * disabled. The benchmark therefore keeps a short equal-thread measurement
+ * window for every client instead of limiting only the CIO row to one thread.
  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
-@Warmup(iterations = 1, time = 2, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Threads(8)
 open class HttpClientBenchmark {
 
     // 별도 Docker 프로세스 — 벤치마크 JVM 과 자원 경쟁 없음
-    private val server = BluetapeHttpServer.Launcher.bluetapeHttpServer
+    private val server = BluetapeWebfluxServer.Launcher.bluetapeWebfluxServer
 
     private lateinit var pingUrl: String
     private lateinit var serverHost: String
@@ -154,9 +158,9 @@ open class HttpClientBenchmark {
 
         ktorCioClient = ktorCioHttpClientOf {
             engine {
-                maxConnectionsCount = n
+                maxConnectionsCount = maxConnections
                 requestTimeout = 5_000
-                endpoint.maxConnectionsPerRoute = n
+                endpoint.maxConnectionsPerRoute = maxConnections
                 endpoint.connectTimeout = 5_000
                 endpoint.socketTimeout = 5_000
                 endpoint.keepAliveTime = 5_000
@@ -297,16 +301,10 @@ open class HttpClientBenchmark {
     }
 
     @Benchmark
-    @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
-    @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
-    @Threads(1)
     fun ktorCioCoroutines(): Int = runBlocking {
-        // CIO makes dedicated HTTP/1 requests for this fixture; keep this row bounded
-        // to avoid local port exhaustion.
-        ktorCioClient.prepareGet(pingUrl).execute { response ->
-            response.bodyAsBytes()
-            response.status.value
-        }
+        val response = ktorCioClient.get(pingUrl)
+        response.bodyAsBytes()
+        response.status.value
     }
 
     @Benchmark

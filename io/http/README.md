@@ -202,7 +202,7 @@ All benchmarks target a separate Docker container server, isolating the server J
 
 ### 1. HttpClientBenchmark — Base Throughput (`GET /ping`)
 
-**Setup**: `BluetapeHttpServer` (Docker) · `@Threads(8)` · warmup 1×2s · measurement 3×3s
+**Setup**: `BluetapeWebfluxServer` (Docker) · `@Threads(8)` · warmup 1×1s · measurement 1×1s
 
 Lightweight `/ping` responses to measure pure connection throughput.
 
@@ -219,39 +219,69 @@ Lightweight `/ping` responses to measure pure connection throughput.
 | HC5 Classic Coroutines | coroutine | `Dispatchers.IO` |
 | HC5 Async Coroutines | async | `executeSuspending()` |
 | Vert.x WebClient Coroutines | async | Event loop |
-| Ktor CIO Coroutines | coroutine | Bounded row; CIO opens dedicated HTTP/1 requests in this fixture |
+| Ktor CIO Coroutines | coroutine | CIO 3.5 opens dedicated HTTP/1 requests when pipelining is disabled |
 
 > **Note**: With no simulated latency all modes produce similar throughput.
 > Differences arise mainly from connection pool configuration and thread model.
 
 ### 2. HttpClientLatencyBenchmark — High-Latency Throughput (`GET /httpbin/delay/0.05`)
 
-**Setup**: `BluetapeHttpServer` (Docker, 50 ms delay) · `@Threads(100)` · warmup 1×3s · measurement 3×5s
+**Setup**: `BluetapeWebfluxServer` (Docker, 50 ms delay) · `@Threads(100)` · warmup 1×1s · measurement 1×1s
 
 **Theoretical sync ceiling**: 100 threads × (1000 ms / 50 ms) = **2,000 ops/s**
 Async / coroutine modes can exceed this ceiling without blocking threads.
 
 ### 2026-05-21 HTTP client benchmark snapshot
 
-Environment: local Colima Docker, `bluetape4k/mock-web-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
+Environment: local Colima Docker, `bluetape4k/mock-webflux-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
 See [the benchmark report](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md) for commands, rejected approaches, and raw evidence notes.
 
-| Benchmark row | Before ops/s | After ops/s | Change |
-|---------------|-------------:|------------:|-------:|
-| `HttpClientBenchmark.vertxWebClientCoroutines` | 12,278.843 | 13,491.266 | +9.9% |
-| `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 87.844 | 1,818.508 | +1,970.2% |
-| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,826.352 | 1,789.987 | -2.0% |
-| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,831.756 | 1,759.273 | -4.0% |
-| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 376.241 | 383.605 | +2.0% |
-| `HttpClientBenchmark.ktorCioCoroutines` | n/a | 659.071 | bounded |
-| `HttpClientLatencyBenchmark.ktorCioCoroutines` | n/a | 16.501 | bounded |
+The snapshot uses the same JMH thread count for every row in each benchmark.
+Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a short equal-thread window because CIO 3.5 opens dedicated HTTP/1 connections unless its pipeline path is enabled.
+
+#### Base throughput snapshot
+
+| Benchmark row | ops/s |
+|---------------|------:|
+| `HttpClientBenchmark.javaHttpSync` | 7,276.492 |
+| `HttpClientBenchmark.hc5ClassicVirtualThread` | 7,246.690 |
+| `HttpClientBenchmark.okhttp3VirtualThread` | 6,955.796 |
+| `HttpClientBenchmark.javaHttpVirtualThread` | 6,562.497 |
+| `HttpClientBenchmark.hc5Classic` | 6,490.422 |
+| `HttpClientBenchmark.javaHttpH2VirtualThread` | 6,275.262 |
+| `HttpClientBenchmark.hc5ClassicCoroutines` | 6,230.735 |
+| `HttpClientBenchmark.vertxWebClientCoroutines` | 6,043.906 |
+| `HttpClientBenchmark.javaHttpH2Sync` | 6,027.618 |
+| `HttpClientBenchmark.okhttp3Sync` | 5,771.310 |
+| `HttpClientBenchmark.okhttp3Coroutines` | 5,752.350 |
+| `HttpClientBenchmark.hc5AsyncCoroutines` | 5,520.183 |
+| `HttpClientBenchmark.javaHttpH2Coroutines` | 5,481.592 |
+| `HttpClientBenchmark.javaHttpCoroutines` | 4,739.894 |
+| `HttpClientBenchmark.ktorCioCoroutines` | 2,052.281 |
+
+#### High-latency snapshot
+
+| Benchmark row | ops/s |
+|---------------|------:|
+| `HttpClientLatencyBenchmark.okhttp3VirtualThread` | 1,902.171 |
+| `HttpClientLatencyBenchmark.hc5ClassicVirtualThread` | 1,888.018 |
+| `HttpClientLatencyBenchmark.javaHttpVirtualThread` | 1,883.634 |
+| `HttpClientLatencyBenchmark.hc5Classic` | 1,880.023 |
+| `HttpClientLatencyBenchmark.okhttp3Sync` | 1,870.124 |
+| `HttpClientLatencyBenchmark.javaHttpSync` | 1,865.997 |
+| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 1,863.948 |
+| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,860.655 |
+| `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 1,859.003 |
+| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,856.895 |
+| `HttpClientLatencyBenchmark.ktorCioCoroutines` | 1,515.026 |
+| `HttpClientLatencyBenchmark.hc5ClassicCoroutines` | 1,216.306 |
 
 ![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.svg)
 
 **Notes**:
-- The main improvement is Vert.x WebClient under the 50 ms delay workload. Vert.x 5 defaults to a small HTTP/1 pool; the benchmark now configures `PoolOptions` to match peer clients.
-- The Ktor CIO rows are intentionally bounded to one JMH thread. Full class concurrency exhausted local ephemeral ports against this Docker fixture, and HTTP/1 pipelining produced unexpected EOFs.
-- Base `/ping` measurements have high variance on this local Docker setup. Treat the high-latency Vert.x result as the strongest decision signal.
+- The previous Vert.x result mainly measured the Vert.x 5 default HTTP/1 pool cap. The benchmark now configures `PoolOptions` to match peer clients.
+- Ktor CIO's default path remains slower on `/ping` because it uses dedicated HTTP/1 connections. Forcing CIO pipelining produced EOFs or hangs against the mock fixtures, so the comparable run keeps default CIO behavior and shortens the window for every row.
+- Base `/ping` measurements have high variance on this local Docker setup. Treat the high-latency table as the stronger comparison signal.
 
 ### 3. HttpClientCompressionCacheBenchmark — Cache + gzip Effect
 

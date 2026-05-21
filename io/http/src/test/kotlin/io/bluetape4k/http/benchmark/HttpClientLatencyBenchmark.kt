@@ -5,9 +5,9 @@ import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.jdk.sendAwait
 import io.bluetape4k.http.ktor.ktorCioHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
-import io.bluetape4k.testcontainers.http.BluetapeHttpServer
+import io.bluetape4k.testcontainers.http.BluetapeWebfluxServer
 import io.ktor.client.HttpClient as KtorHttpClient
-import io.ktor.client.request.prepareGet
+import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
 import io.vertx.core.Vertx
 import io.vertx.core.http.PoolOptions
@@ -49,7 +49,7 @@ import okhttp3.Dispatcher as OkHttpDispatcher
 /**
  * 고지연(~50 ms) 환경에서 동기 vs 비동기 HTTP 클라이언트 처리량 비교.
  *
- * Docker 기반 [BluetapeHttpServer] 의 `/httpbin/delay/0.05` 엔드포인트를 사용해
+ * Docker 기반 [BluetapeWebfluxServer] 의 `/httpbin/delay/0.05` 엔드포인트를 사용해
  * 서버 JVM 분리 + 50ms 지연을 시뮬레이션합니다.
  *
  * 동기 클라이언트 이론 상한: threads × (1000 / 50ms) = 2,000 ops/s
@@ -58,15 +58,19 @@ import okhttp3.Dispatcher as OkHttpDispatcher
  * Vert.x 5 defaults to a 5-connection HTTP/1 pool. This benchmark configures
  * the pool to match the other clients so the high-latency test compares client
  * behavior instead of the default connection cap.
+ *
+ * Ktor CIO 3.5 opens dedicated HTTP/1 connections when its pipeline path is
+ * disabled. The benchmark therefore keeps a short equal-thread measurement
+ * window for every client instead of limiting only the CIO row to one thread.
  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
-@Warmup(iterations = 1, time = 3, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 3, time = 5, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Threads(100)
 open class HttpClientLatencyBenchmark {
 
-    private val server = BluetapeHttpServer.Launcher.bluetapeHttpServer
+    private val server = BluetapeWebfluxServer.Launcher.bluetapeWebfluxServer
 
     private lateinit var delayUrl: String
     private lateinit var serverHost: String
@@ -146,11 +150,9 @@ open class HttpClientLatencyBenchmark {
 
         ktorCioClient = ktorCioHttpClientOf {
             engine {
-                val ktorConnections = 1
-
-                maxConnectionsCount = ktorConnections
+                maxConnectionsCount = connPerHost
                 requestTimeout = 10_000
-                endpoint.maxConnectionsPerRoute = ktorConnections
+                endpoint.maxConnectionsPerRoute = connPerHost
                 endpoint.connectTimeout = 5_000
                 endpoint.socketTimeout = 10_000
                 endpoint.keepAliveTime = 5_000
@@ -266,14 +268,10 @@ open class HttpClientLatencyBenchmark {
     }
 
     @Benchmark
-    @Threads(1)
     fun ktorCioCoroutines(): Int = runBlocking {
-        // CIO is intentionally measured as a bounded row; full class concurrency
-        // exhausts local ephemeral ports.
-        ktorCioClient.prepareGet(delayUrl).execute { response ->
-            response.bodyAsBytes()
-            response.status.value
-        }
+        val response = ktorCioClient.get(delayUrl)
+        response.bodyAsBytes()
+        response.status.value
     }
 
     @Benchmark
