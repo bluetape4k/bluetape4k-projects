@@ -12,6 +12,24 @@ R2DBC(Reactive Relational Database Connectivity) 환경에서 코루틴과 Flow�
 - **Transaction 지원**: R2DBC 트랜잭션 관리
 - **Spring Boot Auto Configuration**: Spring 환경 자동 구성
 
+## 아키텍처 다이어그램
+
+### 확장 함수 API 개요
+
+![API diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
+
+### 주요 API 구조
+
+![API diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
+
+### R2DBC 쿼리 실행 흐름
+
+![R2DBC diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
+
+### JDBC vs R2DBC 비교
+
+![JDBC vs R2DBC diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
+
 ## 의존성 추가
 
 ```kotlin
@@ -79,12 +97,16 @@ val pool = r2dbcConnectionPool("r2dbc:postgresql://user:secret@localhost:5432/ap
 | MySQL 8.4 Testcontainer     | 1 ms  | 4,305 ops/s   | 4,339 ops/s   |
 | MySQL 8.4 Testcontainer     | 5 ms  | 1,183 ops/s   | 1,177 ops/s   |
 
+![R2DBC Pool Acquire Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-acquire-throughput-chart-01.png)
+
 contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`를 사용합니다. 이 경우에는 풀 크기의 영향이 뚜렷하게 나타납니다.
 
 | 점유 시간 | maxSize=4 | maxSize=8 | maxSize=16  |
 |-------|-----------|-----------|-------------|
 | 10 ms | 365 ops/s | 733 ops/s | 1,470 ops/s |
 | 50 ms | 78 ops/s  | 156 ops/s | 311 ops/s   |
+
+![R2DBC Pool Contention Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-contention-throughput-chart-01.png)
 
 #### 실측 기반 튜닝 가이드
 
@@ -373,24 +395,6 @@ class UserRepositoryTest: AbstractR2dbcTest() {
     }
 }
 ```
-
-## 아키텍처 다이어그램
-
-### 확장 함수 API 개요
-
-![API diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
-
-### 주요 API 구조
-
-![API diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
-
-### R2DBC 쿼리 실행 흐름
-
-![R2DBC diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
-
-### JDBC vs R2DBC 비교
-
-![JDBC vs R2DBC diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
 
 ## 참고 자료
 

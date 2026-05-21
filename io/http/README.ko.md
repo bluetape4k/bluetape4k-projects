@@ -260,7 +260,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 | HC5 Classic VirtualThread (캐시 없음) | — | 668 | — |
 | OkHttp3 (캐시 없음) | — | 661 | — |
 
-![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
+![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-charts/io-http-cache-throughput-chart-01.png)
 
 **인사이트**:
 - **캐시 효과**: 10ms 네트워크 지연 제거만으로 35K–813K ops/s 달성

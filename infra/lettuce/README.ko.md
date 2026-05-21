@@ -71,6 +71,8 @@ Protobuf Codec은 `bluetape4k-protobuf` 모듈의
 | JDK | 132 | ± 13 |
 | GzipFastFory | 110 | ± 2 |
 
+![Lettuce Codec Throughput chart](../../docs/images/readme-charts/infra-lettuce-codec-throughput-chart-01.png)
+
 > 전체 결과 및 분석: [Benchmark.md](./Benchmark.md) · [한국어](./Benchmark.ko.md)
 > 실행: `./gradlew :bluetape4k-lettuce:benchmark`
 
@@ -83,6 +85,8 @@ Protobuf Codec은 `bluetape4k-protobuf` 모듈의
 | + 전체 파이프라이닝 (`withPipeline{}` SET+GET) | 40,816 | +28% |
 | + `SocketOptions` (keepAlive + tcpNoDelay) | 46,728 | +47% |
 | **+ 통합 파이프라인 + `awaitAll()`** | **81,967** | **+157%** |
+
+![Lettuce Connection Optimization Throughput chart](../../docs/images/readme-charts/infra-lettuce-connection-throughput-chart-01.png)
 
 ### 핵심 기법
 

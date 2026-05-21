@@ -12,6 +12,24 @@ A library that supports reactive data access using Coroutines and Flow in an R2D
 - **Transaction Support**: R2DBC transaction management
 - **Spring Boot Auto Configuration**: Automatic configuration in a Spring environment
 
+## Architecture Diagrams
+
+### Extension Function API Overview
+
+![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
+
+### Core API Structure
+
+![Core API Structure diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
+
+### R2DBC Query Execution Flow
+
+![R2DBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
+
+### JDBC vs R2DBC Comparison
+
+![JDBC vs R2DBC Comparison diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
+
 ## Dependency
 
 ```kotlin
@@ -80,12 +98,16 @@ Recent local acquire benchmark (`8` JMH threads, `3` measurement iterations,
 | MySQL 8.4 Testcontainer     | 1 ms      | 4,305 ops/s   | 4,339 ops/s     |
 | MySQL 8.4 Testcontainer     | 5 ms      | 1,183 ops/s   | 1,177 ops/s     |
 
+![R2DBC Pool Acquire Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-acquire-throughput-chart-01.png)
+
 The contention benchmark uses `64` JMH threads with `maxSize` below concurrency. It shows when pool size matters:
 
 | Hold time | maxSize=4 | maxSize=8 | maxSize=16  |
 |-----------|-----------|-----------|-------------|
 | 10 ms     | 365 ops/s | 733 ops/s | 1,470 ops/s |
 | 50 ms     | 78 ops/s  | 156 ops/s | 311 ops/s   |
+
+![R2DBC Pool Contention Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-contention-throughput-chart-01.png)
 
 #### Tuning guide from the measurement
 
@@ -380,24 +402,6 @@ class UserRepositoryTest: AbstractR2dbcTest() {
     }
 }
 ```
-
-## Architecture Diagrams
-
-### Extension Function API Overview
-
-![Extension Function API Overview diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-01.png)
-
-### Core API Structure
-
-![Core API Structure diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-02.png)
-
-### R2DBC Query Execution Flow
-
-![R2DBC Query Execution Flow diagram](../../docs/images/readme-diagrams/data-r2dbc-sequence-01.png)
-
-### JDBC vs R2DBC Comparison
-
-![JDBC vs R2DBC Comparison diagram](../../docs/images/readme-diagrams/data-r2dbc-diagram-03.png)
 
 ## References
 

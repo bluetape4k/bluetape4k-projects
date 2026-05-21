@@ -40,7 +40,7 @@ Hibernate Session Factory
 H2 Database
 ```
 
-![hibernate lettuce demo Architecture 2 diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
+![Hibernate Lettuce Demo Runtime Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-demo-diagram-02.png)
 
 ## Domain Model
 

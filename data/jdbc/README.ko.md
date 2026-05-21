@@ -12,6 +12,20 @@ JDBC(Java Database Connectivity) 사용 시 반복 코드를 줄이는 Kotlin �
 - **배치 처리**: 대량 데이터 삽입 지원
 - **객체 매핑**: ResultSet을 객체로 쉽게 변환
 
+## 아키텍처 다이어그램
+
+### 확장 함수 API 개요
+
+![API diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
+
+### 주요 API 구조
+
+![API diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
+
+### JDBC 쿼리 실행 흐름
+
+![JDBC diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
+
 ## 의존성 추가
 
 ```kotlin
@@ -472,20 +486,6 @@ class MyJdbcTest : AbstractJdbcTest() {
     }
 }
 ```
-
-## 아키텍처 다이어그램
-
-### 확장 함수 API 개요
-
-![API diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-01.png)
-
-### 주요 API 구조
-
-![API diagram](../../docs/images/readme-diagrams/data-jdbc-diagram-02.png)
-
-### JDBC 쿼리 실행 흐름
-
-![JDBC diagram](../../docs/images/readme-diagrams/data-jdbc-sequence-01.png)
 
 ## 참고 자료
 

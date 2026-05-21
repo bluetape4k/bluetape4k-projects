@@ -34,7 +34,7 @@ artifact, Kotlin package는 유지됩니다.
 
 ### 레이어 구조
 
-![hibernate cache lettuce Architecture 2 diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
+![Layer Structure diagram](../../docs/images/readme-diagrams/cache-hibernate-cache-lettuce-diagram-02.png)
 
 - **Region 격리**: 각 Region은 독립된 `LettuceNearCache` 인스턴스를 가짐
 - **키 prefix**: `{regionName}::{key}` 형식으로 Redis 키 충돌 방지

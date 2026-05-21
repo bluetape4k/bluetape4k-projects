@@ -30,7 +30,7 @@ GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이�
 
 ### 좌표 변환 흐름
 
-![science Architecture 2 diagram](../../docs/images/readme-diagrams/utils-science-diagram-02.png)
+![Coordinate Transformation Flow diagram](../../docs/images/readme-diagrams/utils-science-diagram-02.png)
 
 ### PostGIS + NetCDF 데이터베이스 스키마
 

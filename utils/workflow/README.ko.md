@@ -26,7 +26,7 @@ Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
 
 ### 실행 모델 선택
 
-![workflow Architecture 3 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-03.png)
+![Workflow Execution Model diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-03.png)
 
 ## 주요 특징
 
@@ -103,7 +103,7 @@ val report = suspendWork.execute(ctx)
 
 작업을 순서대로 실행; 에러 처리는 `ErrorStrategy` 제어:
 
-![workflow Architecture 4 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-04.png)
+![Sequential Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-04.png)
 
 `STOP`은 첫 실패를 즉시 반환합니다. `CONTINUE`는 이후 작업을 계속 실행하고, 누적 실패가 있으면 마지막에 `PartialSuccess`를 반환합니다.
 
@@ -139,7 +139,7 @@ val report = flow.execute(WorkContext())
 
 작업 동시 실행:
 
-![workflow Architecture 5 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
+![Parallel Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-05.png)
 
 `ALL`은 모든 fork 작업을 기다리고 실패 시 fail-fast로 처리합니다. `ANY`는 첫 성공 결과를 반환하고 나머지 작업을 취소합니다.
 
@@ -164,7 +164,7 @@ val report = flow.execute(WorkContext())
 
 Predicate 기반 분기 실행:
 
-![workflow Architecture 6 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-06.png)
+![Conditional Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-06.png)
 
 Predicate는 정확히 하나의 branch를 선택합니다. `otherwise`가 없고 predicate가 false이면 `Success(context)`를 반환합니다.
 
@@ -182,7 +182,7 @@ val report = flow.execute(ctx)
 
 조건이 참인 동안 작업 반복:
 
-![workflow Architecture 7 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-07.png)
+![Repeat Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-07.png)
 
 각 반복의 `WorkReport`가 repeat predicate로 전달됩니다. `maxIterations`는 무한 루프를 막는 안전 장치입니다.
 
@@ -212,7 +212,7 @@ val report = flow.execute(WorkContext())
 
 실패한 작업을 지수 백오프로 자동 재시도:
 
-![workflow Architecture 8 diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-08.png)
+![Retry Flow diagram](../../docs/images/readme-diagrams/utils-workflow-diagram-08.png)
 
 `Failure`만 retry path를 탑니다. `Success`, `Aborted`, `Cancelled`는 retry flow의 terminal 결과입니다.
 

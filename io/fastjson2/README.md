@@ -9,6 +9,16 @@ English | [한국어](./README.ko.md)
 It provides high-performance serialization using JSONB (binary JSON) format, as well as type-safe deserialization extension functions for various data sources including JSON strings,
 `InputStream`, `JSONObject`, and `JSONArray`.
 
+## Architecture Diagrams
+
+### Class Structure
+
+![Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
+
+### JSON vs JSONB Serialization Flow
+
+![JSON vs JSONB Serialization Flow diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
+
 ## Key Features
 
 ### 1. FastjsonSerializer
@@ -121,16 +131,6 @@ val user = jsonObject.readValueOrNull<User>("key")
 |----------------|----------|--------|-------------|------------------------------------|
 | JSONB (binary) | Fast     | Small  | No          | Internal serialization, cache, RPC |
 | JSON (text)    | Moderate | Medium | Yes         | API responses, logging, debugging  |
-
-## Architecture Diagrams
-
-### Class Structure
-
-![Class Structure diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-01.png)
-
-### JSON vs JSONB Serialization Flow
-
-![JSON vs JSONB Serialization Flow diagram](../../docs/images/readme-diagrams/io-fastjson2-diagram-02.png)
 
 ## Dependencies
 

@@ -8,6 +8,20 @@ A module providing a high-level API for Apache Avro serialization and deserializ
 
 It supports various compression codecs (Zstandard, Snappy, Deflate, etc.) and offers a complete Avro serialization solution including Base64 string conversion, list serialization, and Schema Evolution.
 
+## Architecture Diagrams
+
+### Serializer Class Hierarchy
+
+![Serializer Class Hierarchy diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
+
+### Avro Serialization/Deserialization Flow
+
+![Avro Serialization/Deserialization Flow diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
+
+### Compression Codec Selection Guide
+
+![Compression Codec Selection Guide diagram](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
+
 ## Serializer Types
 
 Three serializers are available depending on your use case:
@@ -119,20 +133,6 @@ val itemV2 = serializer.deserialize<ItemV2>(bytes)
 val bytes = serializer.serialize(itemV2)
 val itemV1 = serializer.deserialize<ItemV1>(bytes)
 ```
-
-## Architecture Diagrams
-
-### Serializer Class Hierarchy
-
-![Serializer Class Hierarchy diagram](../../docs/images/readme-diagrams/io-avro-diagram-01.png)
-
-### Avro Serialization/Deserialization Flow
-
-![Avro Serialization/Deserialization Flow diagram](../../docs/images/readme-diagrams/io-avro-sequence-01.png)
-
-### Compression Codec Selection Guide
-
-![Compression Codec Selection Guide diagram](../../docs/images/readme-diagrams/io-avro-diagram-02.png)
 
 ## Dependencies
 

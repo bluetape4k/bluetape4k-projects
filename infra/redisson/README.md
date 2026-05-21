@@ -357,6 +357,8 @@ Based on `RedissonCodecBenchmark` (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s
 | JDK | 128 | ± 14 |
 | GzipFastFory | 108 | ± 1 |
 
+![Redisson Codec Throughput chart](../../docs/images/readme-charts/infra-redisson-codec-throughput-chart-01.png)
+
 > Full results & analysis: [Benchmark.md](./Benchmark.md) · [벤치마크 결과 (한국어)](./Benchmark.ko.md)
 > Run: `./gradlew :bluetape4k-redisson:benchmark`
 
@@ -373,6 +375,8 @@ Based on `RedissonConcurrencyBenchmark` (50 coroutines, 100 ops/coroutine):
 | RBatch pipelining | 28,571 | +143% |
 | **Mega-batch (1 RBatch per coroutine)** | 78,125 | +566% |
 | **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+
+![Redisson Batch Optimization Throughput chart](../../docs/images/readme-charts/infra-redisson-batch-throughput-chart-01.png)
 
 > Run benchmark: `./gradlew :bluetape4k-redisson:test --tests "*.RedissonConcurrencyBenchmark"`
 

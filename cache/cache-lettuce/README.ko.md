@@ -419,11 +419,15 @@ cacheName="orders", key="user:123" → Redis key: "orders:user:123"
 | putAll (×100) | 1.04 ops/ms | 0.93 ops/ms | 0.41 ops/ms |
 | removeSingle | 4.21 ops/ms | 4.24 ops/ms | 4.16 ops/ms |
 
+![Lettuce Near Cache Throughput chart](../../docs/images/readme-charts/cache-lettuce-near-cache-throughput-chart-01.png)
+
 > L1 캐시 적중은 L2(Redis) 연산 대비 **~16,000배 빠름**.
 > 전체 결과 및 분석: [Benchmark.md](./Benchmark.md) · [한국어](./Benchmark.ko.md)
 > 실행: `./gradlew :bluetape4k-cache-lettuce:benchmark` (Docker 필요)
 
 ## 성능 · 안정성 계약 (Performance / Stability Notes)
+
+![Lettuce Cache Stability Contracts diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-diagram-03.png)
 
 아래 계약은 `LettuceNearCache`, `LettuceSuspendNearCache`, `LettuceAsyncMemoizer`, `LettuceJCache` 모든 구현에 공통 적용됩니다.
 
@@ -465,7 +469,3 @@ val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
 ### `LettuceAsyncMemoizer` — in-flight 레이스 수정
 
 같은 키에 대해 evaluator 완료 직후 다른 호출이 재진입하며 새 promise 를 심는 경우, 기존 `inFlight.remove(key)` 가 재진입 promise 까지 함께 삭제하는 버그가 있었습니다. 현재는 `ConcurrentHashMap.remove(key, promise)` 로 **정확히 내가 생성한 key+value 쌍** 만 제거합니다.
-
-### 변경 요약 Flowchart
-
-![Flowchart diagram](../../docs/images/readme-diagrams/cache-cache-lettuce-ko-diagram-03.png)

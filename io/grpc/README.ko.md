@@ -17,7 +17,7 @@ gRPC 서버/클라이언트 구현을 위한 Kotlin 확장 라이브러리입니
 
 ### 컴포넌트 개요
 
-![grpc Architecture 2 diagram](../../docs/images/readme-diagrams/io-grpc-diagram-02.png)
+![gRPC Component Overview diagram](../../docs/images/readme-diagrams/io-grpc-diagram-02.png)
 
 ### gRPC 서버-클라이언트 통신 시퀀스
 

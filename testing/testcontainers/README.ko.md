@@ -16,7 +16,7 @@ Testcontainers `2.0.3` 기반 통합 테스트를 빠르게 구성하기 위한 
 
 ### 지원 컨테이너 구조
 
-![testcontainers Architecture 3 diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
+![Supported Container Structure diagram](../../docs/images/readme-diagrams/testing-testcontainers-diagram-02.png)
 
 ## 주요 기능
 

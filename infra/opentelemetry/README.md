@@ -16,6 +16,24 @@ English | [한국어](./README.ko.md)
   older Spring WebFlux API and is retained for migration reference only
 - **Spring Boot Starter support**: Auto-configured OpenTelemetry SDK
 
+## Architecture Diagrams
+
+### Core Class Structure
+
+![Core Class Structure diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
+
+### Component Overview
+
+![Component Overview diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
+
+### Span Lifecycle in a Coroutine Context
+
+![Span Lifecycle in a Coroutine Context diagram](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
+
+### Distributed Trace Propagation
+
+![Distributed Trace Propagation diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
+
 ## Dependency
 
 ```kotlin
@@ -351,24 +369,6 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 - Call `createTracingWebFilter()` exactly once per `ApplicationContext`. It registers a global Reactor `Hooks.onEachOperator`. Multiple calls nest the hook and cause unpredictable behavior.
 - In tests, call `Hooks.resetOnEachOperator()` in `@AfterAll` to prevent hook leakage between test classes.
 - Sensitive headers (`Authorization`, etc.) are **not** captured by default. To allow specific headers, set the environment variable `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`. **Never add headers containing PII.**
-
-## Architecture Diagrams
-
-### Core Class Structure
-
-![Core Class Structure diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-01.png)
-
-### Component Overview
-
-![Component Overview diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-02.png)
-
-### Span Lifecycle in a Coroutine Context
-
-![Span Lifecycle in a Coroutine Context diagram](../../docs/images/readme-diagrams/infra-opentelemetry-sequence-01.png)
-
-### Distributed Trace Propagation
-
-![Distributed Trace Propagation diagram](../../docs/images/readme-diagrams/infra-opentelemetry-diagram-03.png)
 
 ## Testing Strategy
 
