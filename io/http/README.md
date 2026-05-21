@@ -183,6 +183,7 @@ val vertxClient = vertxHttpClientOf(options)
 | HC5 Async         | HTTP/1.1, HTTP/2 | Async, Coroutines integration       | High-performance async       |
 | OkHttp3           | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client  |
 | Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem integration |
+| Ktor CIO          | HTTP/1.x         | Suspend-native, lightweight         | Ktor-based apps / coroutine-first calls |
 
 ## Performance Benchmark
 
@@ -194,9 +195,9 @@ All benchmarks target a separate Docker container server, isolating the server J
 ./gradlew :bluetape4k-http:testBenchmark
 
 # Run a specific benchmark
-./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientBenchmark"
-./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientLatencyBenchmark"
-./gradlew :bluetape4k-http:testBenchmark -Pbenchmark.include="HttpClientCompressionCacheBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -PbenchmarkInclude="HttpClientBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -PbenchmarkInclude="HttpClientLatencyBenchmark"
+./gradlew :bluetape4k-http:testBenchmark -PbenchmarkInclude="HttpClientCompressionCacheBenchmark"
 ```
 
 ### 1. HttpClientBenchmark — Base Throughput (`GET /ping`)
@@ -218,6 +219,7 @@ Lightweight `/ping` responses to measure pure connection throughput.
 | HC5 Classic Coroutines | coroutine | `Dispatchers.IO` |
 | HC5 Async Coroutines | async | `executeSuspending()` |
 | Vert.x WebClient Coroutines | async | Event loop |
+| Ktor CIO Coroutines | coroutine | Bounded row; CIO opens dedicated HTTP/1 requests in this fixture |
 
 > **Note**: With no simulated latency all modes produce similar throughput.
 > Differences arise mainly from connection pool configuration and thread model.
@@ -228,6 +230,28 @@ Lightweight `/ping` responses to measure pure connection throughput.
 
 **Theoretical sync ceiling**: 100 threads × (1000 ms / 50 ms) = **2,000 ops/s**
 Async / coroutine modes can exceed this ceiling without blocking threads.
+
+### 2026-05-21 HTTP client benchmark snapshot
+
+Environment: local Colima Docker, `bluetape4k/mock-web-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
+See [the benchmark report](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md) for commands, rejected approaches, and raw evidence notes.
+
+| Benchmark row | Before ops/s | After ops/s | Change |
+|---------------|-------------:|------------:|-------:|
+| `HttpClientBenchmark.vertxWebClientCoroutines` | 12,278.843 | 13,491.266 | +9.9% |
+| `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 87.844 | 1,818.508 | +1,970.2% |
+| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,826.352 | 1,789.987 | -2.0% |
+| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,831.756 | 1,759.273 | -4.0% |
+| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 376.241 | 383.605 | +2.0% |
+| `HttpClientBenchmark.ktorCioCoroutines` | n/a | 659.071 | bounded |
+| `HttpClientLatencyBenchmark.ktorCioCoroutines` | n/a | 16.501 | bounded |
+
+![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.svg)
+
+**Notes**:
+- The main improvement is Vert.x WebClient under the 50 ms delay workload. Vert.x 5 defaults to a small HTTP/1 pool; the benchmark now configures `PoolOptions` to match peer clients.
+- The Ktor CIO rows are intentionally bounded to one JMH thread. Full class concurrency exhausted local ephemeral ports against this Docker fixture, and HTTP/1 pipelining produced unexpected EOFs.
+- Base `/ping` measurements have high variance on this local Docker setup. Treat the high-latency Vert.x result as the strongest decision signal.
 
 ### 3. HttpClientCompressionCacheBenchmark — Cache + gzip Effect
 

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="390" viewBox="0 0 1040 390" role="img" aria-labelledby="title desc">
+  <title id="title">HTTP client high-latency benchmark throughput</title>
+  <desc id="desc">After tuning, Vert.x WebClient reaches 1818.508 ops/s compared with 87.844 ops/s before tuning.</desc>
+  <rect width="1040" height="390" fill="#ffffff"/>
+  <text x="40" y="42" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#172033">HTTP client high-latency throughput</text>
+  <text x="40" y="70" font-family="Arial, sans-serif" font-size="14" fill="#526070">GET /httpbin/delay/0.05, ops/s higher is better. Ktor CIO is a bounded 1-thread row.</text>
+  <line x1="250" y1="320" x2="960" y2="320" stroke="#d6dbe4" stroke-width="1"/>
+  <line x1="250" y1="108" x2="250" y2="320" stroke="#d6dbe4" stroke-width="1"/>
+  <text x="250" y="345" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">0</text>
+  <text x="485" y="345" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">500</text>
+  <text x="724" y="345" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">1,000</text>
+  <text x="940" y="345" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">1,800</text>
+  <text x="40" y="126" font-family="Arial, sans-serif" font-size="14" fill="#172033">Vert.x before</text>
+  <rect x="250" y="110" width="44" height="22" rx="3" fill="#8b95a5"/>
+  <text x="304" y="126" font-family="Arial, sans-serif" font-size="13" fill="#172033">87.844</text>
+  <text x="40" y="166" font-family="Arial, sans-serif" font-size="14" fill="#172033">Vert.x after</text>
+  <rect x="250" y="150" width="710" height="22" rx="3" fill="#2563eb"/>
+  <text x="970" y="166" font-family="Arial, sans-serif" font-size="13" fill="#172033">1,818.508</text>
+  <text x="40" y="206" font-family="Arial, sans-serif" font-size="14" fill="#172033">HC5 Async after</text>
+  <rect x="250" y="190" width="699" height="22" rx="3" fill="#059669"/>
+  <text x="959" y="206" font-family="Arial, sans-serif" font-size="13" fill="#172033">1,789.987</text>
+  <text x="40" y="246" font-family="Arial, sans-serif" font-size="14" fill="#172033">OkHttp Coroutines after</text>
+  <rect x="250" y="230" width="687" height="22" rx="3" fill="#7c3aed"/>
+  <text x="947" y="246" font-family="Arial, sans-serif" font-size="13" fill="#172033">1,759.273</text>
+  <text x="40" y="286" font-family="Arial, sans-serif" font-size="14" fill="#172033">JDK Coroutines after</text>
+  <rect x="250" y="270" width="150" height="22" rx="3" fill="#f59e0b"/>
+  <text x="410" y="286" font-family="Arial, sans-serif" font-size="13" fill="#172033">383.605</text>
+  <text x="40" y="326" font-family="Arial, sans-serif" font-size="14" fill="#172033">Ktor CIO bounded</text>
+  <rect x="250" y="310" width="6" height="22" rx="3" fill="#dc2626"/>
+  <text x="266" y="326" font-family="Arial, sans-serif" font-size="13" fill="#172033">16.501</text>
+</svg>

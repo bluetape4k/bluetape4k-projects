@@ -3,9 +3,14 @@ package io.bluetape4k.http.benchmark
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
 import io.bluetape4k.http.jdk.sendAwait
+import io.bluetape4k.http.ktor.ktorCioHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
+import io.ktor.client.HttpClient as KtorHttpClient
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsBytes
 import io.vertx.core.Vertx
+import io.vertx.core.http.PoolOptions
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
 import io.vertx.kotlin.coroutines.coAwait
@@ -49,6 +54,10 @@ import okhttp3.Dispatcher as OkHttpDispatcher
  *
  * 동기 클라이언트 이론 상한: threads × (1000 / 50ms) = 2,000 ops/s
  * 비동기는 스레드 블로킹 없이 더 높은 동시성 확보 가능.
+ *
+ * Vert.x 5 defaults to a 5-connection HTTP/1 pool. This benchmark configures
+ * the pool to match the other clients so the high-latency test compares client
+ * behavior instead of the default connection cap.
  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Mode.Throughput)
@@ -70,6 +79,7 @@ open class HttpClientLatencyBenchmark {
     private lateinit var hc5Classic: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
+    private lateinit var ktorCioClient: KtorHttpClient
     private lateinit var vertx: Vertx
     private lateinit var vertxWebClient: WebClient
 
@@ -134,20 +144,36 @@ open class HttpClientLatencyBenchmark {
             .build()
             .also { it.start() }
 
+        ktorCioClient = ktorCioHttpClientOf {
+            engine {
+                val ktorConnections = 1
+
+                maxConnectionsCount = ktorConnections
+                requestTimeout = 10_000
+                endpoint.maxConnectionsPerRoute = ktorConnections
+                endpoint.connectTimeout = 5_000
+                endpoint.socketTimeout = 10_000
+                endpoint.keepAliveTime = 5_000
+            }
+        }
+
         vertx = Vertx.vertx()
         vertxWebClient = WebClient.create(
             vertx,
             WebClientOptions()
-                // .setMaxPoolSize(connPerHost)  // 5.x 에서 없어졌다.
                 .setKeepAlive(true)
                 .setConnectTimeout(5_000)
                 .setIdleTimeout(10)
-                .setDecompressionSupported(true)
+                .setDecompressionSupported(true),
+            PoolOptions()
+                .setHttp1MaxSize(connPerHost)
+                .setHttp2MaxSize(connPerHost)
         )
     }
 
     @TearDown
     fun teardown() {
+        runCatching { ktorCioClient.close() }
         runCatching { vertxWebClient.close() }
         runCatching { runBlocking { vertx.close().coAwait() } }
         runCatching { hc5Async.close() }
@@ -237,6 +263,17 @@ open class HttpClientLatencyBenchmark {
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.IO) {
         val request = SimpleRequestBuilder.get(delayUrl).build()
         hc5Async.executeSuspending(request).code
+    }
+
+    @Benchmark
+    @Threads(1)
+    fun ktorCioCoroutines(): Int = runBlocking {
+        // CIO is intentionally measured as a bounded row; full class concurrency
+        // exhausts local ephemeral ports.
+        ktorCioClient.prepareGet(delayUrl).execute { response ->
+            response.bodyAsBytes()
+            response.status.value
+        }
     }
 
     @Benchmark

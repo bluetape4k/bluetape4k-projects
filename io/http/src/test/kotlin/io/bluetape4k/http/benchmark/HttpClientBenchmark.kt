@@ -1,12 +1,16 @@
 package io.bluetape4k.http.benchmark
 
 import io.bluetape4k.http.hc5.async.executeSuspending
-import io.bluetape4k.http.jdk.sendAwait
-import okhttp3.coroutines.executeAsync
 import io.bluetape4k.http.hc5.classic.virtualThreadHttpClientOf
+import io.bluetape4k.http.jdk.sendAwait
+import io.bluetape4k.http.ktor.ktorCioHttpClientOf
 import io.bluetape4k.http.okhttp3.okhttp3DispatcherWithVirtualThread
 import io.bluetape4k.testcontainers.http.BluetapeHttpServer
+import io.ktor.client.HttpClient as KtorHttpClient
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsBytes
 import io.vertx.core.Vertx
+import io.vertx.core.http.PoolOptions
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
 import io.vertx.kotlin.coroutines.coAwait
@@ -26,7 +30,7 @@ import okhttp3.ConnectionPool
 import okhttp3.Dispatcher as OkHttpDispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.apache.hc.client5.http.async.methods.SimpleHttpRequest
+import okhttp3.coroutines.executeAsync
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
@@ -55,6 +59,7 @@ import java.util.concurrent.TimeUnit
  * - java.net.http 동기 / Virtual Thread / HTTP2 / Coroutines
  * - Apache HC5 Classic 동기 / Coroutines / Virtual Thread
  * - Apache HC5 Async + Coroutines
+ * - Ktor CIO + Coroutines
  * - Vert.x WebClient + Coroutines
  */
 @State(Scope.Benchmark)
@@ -81,12 +86,14 @@ open class HttpClientBenchmark {
     private lateinit var hc5Classic: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5ClassicVt: org.apache.hc.client5.http.impl.classic.CloseableHttpClient
     private lateinit var hc5Async: org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
+    private lateinit var ktorCioClient: KtorHttpClient
     private lateinit var vertx: Vertx
     private lateinit var vertxWebClient: WebClient
 
     @Setup
     fun setup() {
         val n = Runtime.getRuntime().availableProcessors()
+        val maxConnections = n * 50
 
         pingUrl = "${server.url}/ping"
         serverHost = server.host
@@ -145,18 +152,33 @@ open class HttpClientBenchmark {
 
         hc5Async = HttpAsyncClients.createDefault().also { it.start() }
 
+        ktorCioClient = ktorCioHttpClientOf {
+            engine {
+                maxConnectionsCount = n
+                requestTimeout = 5_000
+                endpoint.maxConnectionsPerRoute = n
+                endpoint.connectTimeout = 5_000
+                endpoint.socketTimeout = 5_000
+                endpoint.keepAliveTime = 5_000
+            }
+        }
+
         vertx = Vertx.vertx()
         vertxWebClient = WebClient.create(
             vertx,
             WebClientOptions()
                 .setKeepAlive(true)
                 .setConnectTimeout(5_000)
-                .setIdleTimeout(5)
+                .setIdleTimeout(5),
+            PoolOptions()
+                .setHttp1MaxSize(maxConnections)
+                .setHttp2MaxSize(maxConnections)
         )
     }
 
     @TearDown
     fun teardown() {
+        runCatching { ktorCioClient.close() }
         runCatching { vertxWebClient.close() }
         runCatching { runBlocking { vertx.close().coAwait() } }
         runCatching { hc5Async.close() }
@@ -272,6 +294,19 @@ open class HttpClientBenchmark {
     fun hc5AsyncCoroutines(): Int = runBlocking(Dispatchers.IO) {
         val request = SimpleRequestBuilder.get(pingUrl).build()
         hc5Async.executeSuspending(request).code
+    }
+
+    @Benchmark
+    @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Threads(1)
+    fun ktorCioCoroutines(): Int = runBlocking {
+        // CIO makes dedicated HTTP/1 requests for this fixture; keep this row bounded
+        // to avoid local port exhaustion.
+        ktorCioClient.prepareGet(pingUrl).execute { response ->
+            response.bodyAsBytes()
+            response.status.value
+        }
     }
 
     @Benchmark
