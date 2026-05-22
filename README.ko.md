@@ -117,7 +117,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 #### Exposed 모듈
 
 > **이동됨**: Exposed ORM 관련 모듈(38개)은 독립 레포 **[bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed)**로 분리됐습니다.
-> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.8.0-SNAPSHOT`
+> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.9.0-SNAPSHOT`
 
 #### 기타 데이터 모듈
 
@@ -306,7 +306,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.7.0
+baseVersion=1.9.0
 snapshotVersion=-SNAPSHOT
 ```
 
