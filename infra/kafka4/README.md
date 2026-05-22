@@ -133,13 +133,25 @@ Available codecs:
 | `KafkaCodecs.ByteArray` | Raw byte array passthrough |
 | `KafkaCodecs.Jackson` | Jackson 3 JSON serialization |
 | `KafkaCodecs.Kryo` | Kryo binary serialization |
-| `KafkaCodecs.Fory` | Fory binary serialization |
+| `KafkaCodecs.Fory` | Fory binary serialization for trusted inputs |
 | `KafkaCodecs.Lz4Kryo` | LZ4 compression + Kryo serialization |
-| `KafkaCodecs.Lz4Fory` | LZ4 compression + Fory serialization |
+| `KafkaCodecs.Lz4Fory` | LZ4 compression + Fory serialization for trusted inputs |
 | `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
-| `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization |
+| `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization for trusted inputs |
 | `KafkaCodecs.ZstdKryo` | Zstd compression + Kryo serialization |
-| `KafkaCodecs.ZstdFory` | Zstd compression + Fory serialization |
+| `KafkaCodecs.ZstdFory` | Zstd compression + Fory serialization for trusted inputs |
+
+### Security: Fory Trust Boundary
+
+Fory-backed Kafka codecs are marked with `@BluetapeDelicateApi`. They use the
+default `ForyBinarySerializer`, which allows unregistered classes during
+deserialization. Opt in only for trusted topics and brokers. For shared or
+external inputs, prefer a custom codec backed by `ForyBinarySerializer.secureFory(...)`
+with explicit class registration.
+
+The same trust boundary applies if you subclass `BinaryKafkaCodec` directly with
+`BinarySerializers.Fory`, `LZ4Fory`, `SnappyFory`, or `ZstdFory`; those lower-level
+serializers do not add a Kafka-specific opt-in marker by themselves.
 
 ### Poison-pill Policy
 
@@ -165,7 +177,10 @@ It also widens the class-loading attack surface described below.
 If your consumer already knows the value type statically, disable the header:
 
 ```kotlin
-// Fory/Kryo codecs work safely without the header
+import io.bluetape4k.annotations.BluetapeDelicateApi
+
+// Fory/Kryo codecs do not need the value-type header
+@OptIn(BluetapeDelicateApi::class)
 class NoHeaderForyCodec : ForyKafkaCodec() {
     override val writeValueTypeHeader = false
 }
@@ -174,7 +189,7 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 > **Note for `JacksonKafkaCodec`:** Jackson uses the header to determine the target type at
 > deserialization time. Setting `writeValueTypeHeader = false` without also overriding
 > `doDeserialize` causes it to fall back to `LinkedHashMap` (silent type corruption).
-> Use `ForyKafkaCodec` or `KryoKafkaCodec` when you want to disable the header safely.
+> Use `ForyKafkaCodec` or `KryoKafkaCodec` when you want to disable the header.
 
 | `writeValueTypeHeader` | Effect |
 |------------------------|--------|

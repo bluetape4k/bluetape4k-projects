@@ -25,6 +25,10 @@
 
 ### Fixed
 
+- Fory-backed Kafka and Kafka4 codecs now carry `@BluetapeDelicateApi` and
+  explicit trust-boundary documentation so callers are warned about the default
+  Fory deserialization risk for shared or external topics ([#580](https://github.com/bluetape4k/bluetape4k-projects/issues/580)).
+
 ---
 
 ## [Unreleased]

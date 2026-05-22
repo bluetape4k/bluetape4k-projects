@@ -22,6 +22,7 @@ configurations {
 
 dependencies {
     implementation(platform(libs.spring.boot.dependencies))
+    api(project(":bluetape4k-annotations"))
     api(project(":bluetape4k-core"))
     api(project(":bluetape4k-io"))
     compileOnly(project(":bluetape4k-resilience4j"))
