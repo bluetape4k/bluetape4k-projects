@@ -6,9 +6,9 @@ Open count: 6 issues.
 
 ## Refresh Notes
 
-Verified with `gh issue list --state open --assignee debop` on 2026-05-22 KST.
-All remaining open assigned issues are in the `backlog` milestone. The `1.9.0`
-milestone has no open issues.
+Verified with `gh issue list --state open --assignee debop` on 2026-05-22 KST
+after closing duplicate issue `#603`. All remaining open assigned issues are in
+the `backlog` milestone. The `1.9.0` milestone has no open issues.
 
 ## Recently Completed
 
@@ -16,18 +16,21 @@ milestone has no open issues.
 - `#474` removed deprecated Kafka, OpenTelemetry, cache, Redis, and Resilience4j aliases for the 1.9.0 breaking-change line.
 - `#596` added a reusable `EtcdServer` Testcontainers launcher.
 - `#595` fixed the Nightly failures in IO HTTP, Elasticsearch-backed search messaging, and Memgraph-backed graph tests.
+- `#602` / PR #604 stabilized the Memgraph Bolt nightly test, Full Nightly
+  passed, and the `1.9.0` release workflow completed successfully.
 - `#580` marked Fory-backed Kafka/Kafka4 codecs as `@BluetapeDelicateApi` and documented the deserialization trust boundary.
 - PR #600 prepared the source version for `1.9.0-SNAPSHOT`, and the snapshot publish workflow completed successfully.
 
 ## Current Direction
 
-The repository is in the 1.9.0 release-prep lane. Do not start backlog feature
-work until the release is tagged, Maven Central propagation is verified, and the
-post-release snapshot bump PR is created.
+The repository is in the post-1.9.0 cleanup lane. Open the next development
+cycle by moving the committed base version to `1.10.0`; keep
+`snapshotVersion=` empty in `gradle.properties` and pass
+`-PsnapshotVersion=-SNAPSHOT` only for SNAPSHOT publishing.
 
-After 1.9.0, resume the IO HTTP performance/design backlog. Prioritize API and
-architecture decisions before benchmark polish so later performance work does
-not lock in the wrong client surface.
+After the snapshot bump PR lands, resume the IO HTTP performance/design backlog.
+Prioritize API and architecture decisions before benchmark polish so later
+performance work does not lock in the wrong client surface.
 
 ## Priority Queue
 
@@ -57,7 +60,7 @@ not lock in the wrong client surface.
 
 | Lane | Limit | Current next |
 |---|---:|---|
-| Release prep | 1 | Finish 1.9.0 release, Central verification, and next snapshot bump. |
+| Release prep | 1 | Done; keep only post-release snapshot bump and Central propagation checks. |
 | IO HTTP API/design | 1 | `#586` first. |
 | IO HTTP feature | 1 | `#582`, then `#583`. |
 | IO HTTP performance | 1 | `#589` umbrella; execute `#584/#585` after design decisions. |
@@ -66,6 +69,6 @@ not lock in the wrong client surface.
 
 | Candidate | Action |
 |---|---|
-| `1.9.0` milestone | Keep closed; do not add backlog IO HTTP work to this release. |
+| `1.9.0` milestone | Keep closed; duplicate `#603` was closed after PR #604 and the release workflow succeeded. |
 | `backlog` milestone | Keep `#582/#583/#584/#585/#586/#589` open for the next development lane. |
 | release worktrees | Remove release-prep worktrees after PR merge and final verification. |
