@@ -223,6 +223,34 @@ fun String.toUtf8Bytes(): ByteArray = toByteArray(UTF_8)
 fun ByteArray.toUtf8String(): String = toString(UTF_8)
 
 /**
+ * Truncates this string to at most [maxBytes] UTF-8 encoded bytes.
+ *
+ * ## Behavior / Contract
+ * The truncation point is aligned to a valid UTF-8 character boundary, so the
+ * returned value never contains an incomplete multi-byte sequence. Grapheme
+ * cluster boundaries are out of scope: a multi-codepoint grapheme may be split
+ * when it crosses the byte limit.
+ *
+ * [maxBytes] must be greater than or equal to zero.
+ *
+ * ```kotlin
+ * "Hello, 세계".truncateUtf8(8) // "Hello, "
+ * "abc".truncateUtf8(100)      // "abc"
+ * ```
+ */
+fun String.truncateUtf8(maxBytes: Int): String {
+    maxBytes.requireGe(0, "maxBytes")
+    val bytes = toUtf8Bytes()
+    if (bytes.size <= maxBytes) return this
+
+    var cutoff = maxBytes
+    while (cutoff > 0 && (bytes[cutoff].toInt() and 0xC0) == 0x80) {
+        cutoff--
+    }
+    return String(bytes, 0, cutoff, UTF_8)
+}
+
+/**
  * 문자열을 UTF-8 인코딩의 [ByteBuffer]로 변환합니다.
  *
  * ## 동작/계약

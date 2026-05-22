@@ -26,6 +26,7 @@ A foundational utility library for Kotlin backend development. It provides the c
 
 - **Validation (RequireSupport)**: Contract-based parameter validation functions
 - **Encoding/Decoding (Codec)**: Multiple encoding schemes — Base58, Base62, Hex, URL62
+- **String Support**: UTF-8 byte conversion and byte-safe `truncateUtf8(maxBytes)`
 - **Type Extensions**: Kotlin-style extension functions for all primitive types
 - **Ranges**: Various range types (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
 - **Collections**: Collection utilities — BoundedStack, RingBuffer, PaginatedList, lazy Permutation sequences

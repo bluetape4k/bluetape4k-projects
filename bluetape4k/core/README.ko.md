@@ -26,6 +26,7 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 
 - **Validation (RequireSupport)**: 파라미터 검증을 위한 Contract 기반 함수들
 - **Encoding/Decoding (Codec)**: Base58, Base62, Hex, URL62 등 다양한 인코딩
+- **String Support**: UTF-8 바이트 변환과 바이트 경계 안전 `truncateUtf8(maxBytes)`
 - **Type Extensions**: 모든 기본 타입에 대한 Kotlin 스타일 확장 함수
 - **Ranges**: 다양한 Range 타입 (OpenOpen, ClosedOpen, OpenClosed, ClosedClosed)
 - **Collections**: 컬렉션 유틸리티 (BoundedStack, RingBuffer, PaginatedList, Permutation 지연 평가 순열)
