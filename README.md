@@ -63,7 +63,7 @@ Feel free to open an Issue if you need something that isn't here yet.
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
 - **Spring Boot**: 4.x
-- **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts use this repo's `exposedVersion`)
+- **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts are released from the standalone repository)
 - **Databases**: H2, PostgreSQL, MySQL
 
 ## Module Structure
@@ -116,7 +116,7 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 #### Exposed Modules
 
 > **이동됨**: Exposed ORM 관련 모듈(38개)은 독립 레포 **[bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed)**로 분리됐습니다.
-> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.9.0-SNAPSHOT`
+> 그룹 ID: `io.bluetape4k.exposed`; use the latest release from the standalone repository.
 
 #### Other Data Modules
 
@@ -305,17 +305,17 @@ Check `gradle.properties` for the current version:
 ```properties
 projectGroup=io.github.bluetape4k
 baseVersion=1.9.0
-snapshotVersion=-SNAPSHOT
+snapshotVersion=
 ```
 
 ### Maven Central SNAPSHOT
 
 ```bash
 # Publish a SNAPSHOT with default parallelism (centralSnapshotsParallelism=8)
-./gradlew publishAggregationToCentralSnapshots
+./gradlew publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
 
 # Reduce parallelism to lower server load
-./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots
+./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
 ```
 
 - The root aggregation task is `publishAggregationToCentralSnapshots`.
@@ -327,8 +327,8 @@ snapshotVersion=-SNAPSHOT
 ### Maven Central RELEASE
 
 ```bash
-# Remove snapshotVersion to publish a RELEASE
-./gradlew publishAggregationToCentralPortal -PsnapshotVersion= --no-daemon --no-configuration-cache
+# Publish a RELEASE from a commit where snapshotVersion is empty
+./gradlew publishAggregationToCentralPortal --no-daemon --no-configuration-cache
 ```
 
 - The root aggregation task is `publishAggregationToCentralPortal`.

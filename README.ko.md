@@ -65,7 +65,7 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
 - **Spring Boot**: 4.x
-- **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 이 repo의 `exposedVersion`을 따름)
+- **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 독립 레포에서 별도 릴리즈됨)
 - **데이터베이스**: H2, PostgreSQL, MySQL
 
 ## 모듈 구조
@@ -117,7 +117,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 #### Exposed 모듈
 
 > **이동됨**: Exposed ORM 관련 모듈(38개)은 독립 레포 **[bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed)**로 분리됐습니다.
-> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.9.0-SNAPSHOT`
+> 그룹 ID: `io.bluetape4k.exposed`; 독립 레포의 최신 릴리즈 버전을 사용하세요.
 
 #### 기타 데이터 모듈
 
@@ -307,17 +307,17 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 ```properties
 projectGroup=io.github.bluetape4k
 baseVersion=1.9.0
-snapshotVersion=-SNAPSHOT
+snapshotVersion=
 ```
 
 ### Maven Central SNAPSHOT 배포
 
 ```bash
 # 기본 병렬도(centralSnapshotsParallelism=8)로 SNAPSHOT 배포
-./gradlew publishAggregationToCentralSnapshots
+./gradlew publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
 
 # 병렬도를 낮춰 서버 부담을 줄이고 싶을 때
-./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots
+./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
 ```
 
 - 루트 집계 task는 `publishAggregationToCentralSnapshots` 입니다.
@@ -330,8 +330,8 @@ snapshotVersion=-SNAPSHOT
 ### Maven Central RELEASE 배포
 
 ```bash
-# snapshotVersion을 제거하고 RELEASE 배포
-./gradlew publishAggregationToCentralPortal -PsnapshotVersion= --no-daemon --no-configuration-cache
+# snapshotVersion이 비어 있는 커밋에서 RELEASE 배포
+./gradlew publishAggregationToCentralPortal --no-daemon --no-configuration-cache
 ```
 
 - 루트 집계 task는 `publishAggregationToCentralPortal` 입니다.
