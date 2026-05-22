@@ -132,7 +132,7 @@ class ElasticsearchServer private constructor(
          * 기본 [ElasticsearchServer]를 제공합니다.
          */
         val elasticsearch: ElasticsearchServer by lazy {
-            ElasticsearchServer().apply {
+            ElasticsearchServer(reuse = false).apply {
                 start()
                 ShutdownQueue.register(this)
             }

@@ -134,7 +134,7 @@ class MemgraphServer private constructor(
         withReuse(reuse)
         withStartupAttempts(1)
         addEnv("MEMGRAPH", "--telemetry-enabled=false")
-        withCommand("--telemetry-enabled=false")
+        withCommand("--telemetry-enabled=false", "--bolt-address=0.0.0.0")
         waitingFor(
             WaitAllStrategy(WITH_OUTER_TIMEOUT)
                 .withStrategy(Wait.forLogMessage(READY_LOG_REGEX, 1))
