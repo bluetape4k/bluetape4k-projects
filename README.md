@@ -116,7 +116,7 @@ Each service follows a **3-tier API** pattern: `sync` → `async (CompletableFut
 #### Exposed Modules
 
 > **이동됨**: Exposed ORM 관련 모듈(38개)은 독립 레포 **[bluetape4k-exposed](https://github.com/bluetape4k/bluetape4k-exposed)**로 분리됐습니다.
-> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.8.0-SNAPSHOT`
+> 그룹 ID: `io.bluetape4k.exposed`, 버전: `1.9.0-SNAPSHOT`
 
 #### Other Data Modules
 
@@ -304,7 +304,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.7.0
+baseVersion=1.9.0
 snapshotVersion=-SNAPSHOT
 ```
 
