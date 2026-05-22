@@ -32,7 +32,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mybatis.dynamic.sql.util.kotlin.KInvalidSQLException
+import org.mybatis.dynamic.sql.exception.InvalidSqlException
 import org.mybatis.dynamic.sql.util.kotlin.elements.invoke
 import org.mybatis.dynamic.sql.util.kotlin.elements.max
 import org.mybatis.dynamic.sql.util.kotlin.model.select
@@ -728,14 +728,15 @@ abstract class AbstractJoinTest: AbstractVertxSqlClientTest() {
         @Test
         fun `join with no on condition`(vertx: Vertx, testContext: VertxTestContext) = runSuspendIO {
             vertx.testWithSuspendRollback(testContext, pool) { conn: SqlConnection ->
-                assertFailsWith<KInvalidSQLException> {
+                assertFailsWith<InvalidSqlException> {
                     val user2 = user.withAlias("other_user")
                     conn.select(
                         listOf(user.userId, user.userName, user.parentId),
                         UserRowMapper
                     ) {
                         from(user, "u1")
-                        join(user2, "u2") { and(user.userId) equalTo user2.parentId }
+                        val join = join(user2, "u2")
+                        join on {}
                         where { user2.userId isEqualTo 4 }
                     }
                 }
