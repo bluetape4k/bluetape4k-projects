@@ -1,5 +1,6 @@
 package io.bluetape4k.kafka.codec
 
+import io.bluetape4k.annotations.BluetapeDelicateApi
 import org.junit.jupiter.api.Nested
 
 class KafkaCodecTest {
@@ -17,6 +18,7 @@ class KafkaCodecTest {
     }
 
     @Nested
+    @OptIn(BluetapeDelicateApi::class)
     inner class ForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.Fory
     }
@@ -27,6 +29,7 @@ class KafkaCodecTest {
     }
 
     @Nested
+    @OptIn(BluetapeDelicateApi::class)
     inner class Lz4ForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.Lz4Fory
     }
@@ -37,6 +40,7 @@ class KafkaCodecTest {
     }
 
     @Nested
+    @OptIn(BluetapeDelicateApi::class)
     inner class SnappyForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.SnappyFory
     }
@@ -47,6 +51,7 @@ class KafkaCodecTest {
     }
 
     @Nested
+    @OptIn(BluetapeDelicateApi::class)
     inner class ZstdForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.ZstdFory
     }

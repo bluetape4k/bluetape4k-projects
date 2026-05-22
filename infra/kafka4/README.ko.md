@@ -132,13 +132,25 @@ Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니�
 | `KafkaCodecs.ByteArray` | 바이트 배열 직접 전달 |
 | `KafkaCodecs.Jackson` | Jackson 3 JSON 직렬화 |
 | `KafkaCodecs.Kryo` | Kryo 바이너리 직렬화 |
-| `KafkaCodecs.Fory` | Fory 바이너리 직렬화 |
+| `KafkaCodecs.Fory` | 신뢰된 입력용 Fory 바이너리 직렬화 |
 | `KafkaCodecs.Lz4Kryo` | LZ4 압축 + Kryo 직렬화 |
-| `KafkaCodecs.Lz4Fory` | LZ4 압축 + Fory 직렬화 |
+| `KafkaCodecs.Lz4Fory` | 신뢰된 입력용 LZ4 압축 + Fory 직렬화 |
 | `KafkaCodecs.SnappyKryo` | Snappy 압축 + Kryo 직렬화 |
-| `KafkaCodecs.SnappyFory` | Snappy 압축 + Fory 직렬화 |
+| `KafkaCodecs.SnappyFory` | 신뢰된 입력용 Snappy 압축 + Fory 직렬화 |
 | `KafkaCodecs.ZstdKryo` | Zstd 압축 + Kryo 직렬화 |
-| `KafkaCodecs.ZstdFory` | Zstd 압축 + Fory 직렬화 |
+| `KafkaCodecs.ZstdFory` | 신뢰된 입력용 Zstd 압축 + Fory 직렬화 |
+
+### 보안: Fory 신뢰 경계
+
+Fory 기반 Kafka codec은 `@BluetapeDelicateApi`로 표시됩니다. 이 codec들은 기본
+`ForyBinarySerializer`를 사용하며, 기본 Fory 설정은 역직렬화 시 등록되지 않은 클래스도
+허용합니다. 완전히 신뢰할 수 있는 토픽과 브로커에서만 opt-in 하세요. 공유 토픽이나
+외부 입력에는 `ForyBinarySerializer.secureFory(...)`로 명시적 클래스 등록을 강제한
+커스텀 codec을 사용하세요.
+
+`BinaryKafkaCodec`을 직접 상속하면서 `BinarySerializers.Fory`, `LZ4Fory`,
+`SnappyFory`, `ZstdFory`를 주입하는 경우에도 같은 신뢰 경계가 적용됩니다. 이 하위
+serializer들은 Kafka 전용 opt-in marker를 직접 제공하지 않습니다.
 
 ### Poison-pill 정책
 
@@ -164,7 +176,10 @@ Jackson codec은 `bluetape4k-jackson3`와 `tools.jackson.*` API를 사용합니�
 컨슈머가 타입을 정적으로 이미 알고 있다면 헤더 쓰기를 비활성화할 수 있습니다:
 
 ```kotlin
-// Fory/Kryo 기반 코덱은 헤더 없이 안전하게 작동합니다
+import io.bluetape4k.annotations.BluetapeDelicateApi
+
+// Fory/Kryo 기반 코덱은 value-type 헤더가 필요하지 않습니다
+@OptIn(BluetapeDelicateApi::class)
 class NoHeaderForyCodec : ForyKafkaCodec() {
     override val writeValueTypeHeader = false
 }
@@ -173,7 +188,7 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 > **`JacksonKafkaCodec` 주의**: Jackson은 역직렬화 시 헤더에서 대상 타입을 결정합니다.
 > `doDeserialize`를 함께 오버라이드하지 않고 `writeValueTypeHeader = false`만 설정하면
 > `LinkedHashMap`으로 역직렬화되어 타입 손상이 발생합니다.
-> 헤더를 안전하게 비활성화하려면 `ForyKafkaCodec` 또는 `KryoKafkaCodec`을 사용하세요.
+> 헤더를 비활성화하려면 `ForyKafkaCodec` 또는 `KryoKafkaCodec`을 사용하세요.
 
 | `writeValueTypeHeader` | 동작 |
 |------------------------|------|
