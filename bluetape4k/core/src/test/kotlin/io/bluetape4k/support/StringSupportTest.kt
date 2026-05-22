@@ -119,6 +119,54 @@ class StringSupportTest: AbstractCoreTest() {
     }
 
     @Test
+    fun `truncate utf8 does not split multi byte characters`() {
+        val input = "Hello, 세계"
+
+        val truncated = input.truncateUtf8(8)
+        val bytes = truncated.toUtf8Bytes()
+
+        bytes.size shouldBeLessOrEqualTo 8
+        truncated shouldBeEqualTo "Hello, "
+        bytes.toUtf8String() shouldBeEqualTo truncated
+    }
+
+    @Test
+    fun `truncate utf8 returns original string when it already fits`() {
+        val input = "abc"
+
+        input.truncateUtf8(100) shouldBeEqualTo input
+    }
+
+    @Test
+    fun `truncate utf8 allows exact byte boundary`() {
+        val input = "세계"
+
+        input.truncateUtf8(3) shouldBeEqualTo "세"
+        input.truncateUtf8(6) shouldBeEqualTo input
+    }
+
+    @Test
+    fun `truncate utf8 handles supplementary plane code points`() {
+        val input = "😀"
+
+        input.truncateUtf8(3) shouldBeEqualTo EMPTY_STRING
+        input.truncateUtf8(4) shouldBeEqualTo input
+    }
+
+    @Test
+    fun `truncate utf8 returns empty string when max bytes is zero`() {
+        "abc".truncateUtf8(0) shouldBeEqualTo EMPTY_STRING
+        "세".truncateUtf8(0) shouldBeEqualTo EMPTY_STRING
+    }
+
+    @Test
+    fun `truncate utf8 rejects negative max bytes`() {
+        assertFailsWith<IllegalArgumentException> {
+            "abc".truncateUtf8(-1)
+        }
+    }
+
+    @Test
     fun `convert string to utf8 byte buffer and back`() {
         emptyValue.toUtf8ByteBuffer().toUtf8String() shouldBeEqualTo emptyValue
         blankValue.toUtf8ByteBuffer().toUtf8String() shouldBeEqualTo blankValue
