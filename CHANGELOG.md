@@ -4,11 +4,15 @@
 
 ---
 
-## [1.9.0] — Unreleased
+## [1.9.0] — 2026-05-22
 
 ### Added
 
-### Changed
+- Added a reusable `EtcdServer` Testcontainers launcher and coverage for etcd
+  readiness behavior ([#596](https://github.com/bluetape4k/bluetape4k-projects/issues/596)).
+- Added the near-cache backend capability matrix and strengthened near-cache
+  conformance tests across cache backends
+  ([#493](https://github.com/bluetape4k/bluetape4k-projects/issues/493)).
 
 ### Breaking Changes
 
@@ -25,6 +29,9 @@
 
 ### Fixed
 
+- Stabilized Nightly slices for IO HTTP, Elasticsearch-backed search messaging,
+  and Memgraph-backed graph tests by tightening shared external test service
+  setup ([#595](https://github.com/bluetape4k/bluetape4k-projects/issues/595)).
 - Fory-backed Kafka and Kafka4 codecs now carry `@BluetapeDelicateApi` and
   explicit trust-boundary documentation so callers are warned about the default
   Fory deserialization risk for shared or external topics ([#580](https://github.com/bluetape4k/bluetape4k-projects/issues/580)).

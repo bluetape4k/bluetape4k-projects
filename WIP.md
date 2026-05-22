@@ -1,149 +1,71 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-18 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01. Open count: 17 issues.
+Snapshot: 2026-05-22 KST
+Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01.
+Open count: 6 issues.
 
 ## Refresh Notes
 
-Verified with `gh` and `qmd query ... --no-rerank` on 2026-05-18 KST.
-
-New issues from the qmd-backed audit:
-
-| Issue | Title | Priority | Evidence |
-|---|---|---:|---|
-| [#543](https://github.com/bluetape4k/bluetape4k-projects/issues/543) | bug: BehaviorSubject.emitError aborts notification on collector cancellation | P1 | qmd Wave5 Subject cancellation review plus current `BehaviorSubject.emitError()` mismatch with `emit()` / `complete()` cancellation guard. |
-| [#544](https://github.com/bluetape4k/bluetape4k-projects/issues/544) | perf: evaluate FlowEvent value-class wrappers for Kotlin 2 hot paths | P2 | Current `FlowEvent.kt` TODO for Kotlin 2.x value classes and hot-path allocation reduction. |
+Verified with `gh issue list --state open --assignee debop` on 2026-05-22 KST.
+All remaining open assigned issues are in the `backlog` milestone. The `1.9.0`
+milestone has no open issues.
 
 ## Recently Completed
 
-- `#471` 1.8.0 Hard Blockers resolved: PRs #512 (coroutine/Lettuce/Retrofit batch), #513 (CacheCoroutineLocks mutex ref-count), #514 (NearCache suspend event propagation) merged to develop. Nightly CI: 39/39 SUCCESS.
-- PR #515 fixed `CustomKafkaExamples > send greeting()` Nightly flaky failure — root cause: `JacksonKafkaCodec` class-reference config bypasses `allowedTypePackages` (1.8.0 security feature).
-- `#483` Resumable stale waiter + FutureToCompletableFutureWrapper cancel propagation — fixed in PR #512.
-- `#476` Lettuce write-behind retry drop — fixed in PR #512.
-- `#484` Retrofit HC5 cancel race + tag fallback — fixed in PR #512.
-- `#489` Retrofit Vert.x pre-cancel hang + tag seeding — fixed in PR #512.
-- `#499` CacheCoroutineLocks per-key Mutex race — fixed in PR #513.
-- `#490` NearCache suspend event propagation — fixed in PR #514.
-- `#416` Spring Boot idgenerator example closed by PR #422.
-- `#419` Ktor idgenerator example closed by PR #421.
-- `#420` Examples workflow split closed by PR #423.
-- PR #424 aligned the `graphdb-memgraph` Nightly timeout/retry policy with the other graphdb jobs.
-- PR #429 synchronized the top-level README image with the bluetape4k organization profile image.
-- `#257` monorepo split epic and `#364` Spring annotation reified utility follow-up are now closed.
-- PR #417 refreshed WIP after adding the idgenerator example lane; this refresh removes the now-completed example items from the active queue.
+- `#493` added the near-cache backend capability matrix and conformance coverage.
+- `#474` removed deprecated Kafka, OpenTelemetry, cache, Redis, and Resilience4j aliases for the 1.9.0 breaking-change line.
+- `#596` added a reusable `EtcdServer` Testcontainers launcher.
+- `#595` fixed the Nightly failures in IO HTTP, Elasticsearch-backed search messaging, and Memgraph-backed graph tests.
+- `#580` marked Fory-backed Kafka/Kafka4 codecs as `@BluetapeDelicateApi` and documented the deserialization trust boundary.
+- PR #600 prepared the source version for `1.9.0-SNAPSHOT`, and the snapshot publish workflow completed successfully.
 
 ## Current Direction
 
-This repo is now the core/shared library baseline after several domain groups were split into independent repositories. Active work should keep repository-facing docs aligned with the current module graph, promote small shared utilities that remove duplicate downstream code, and avoid reopening completed extraction lanes without a fresh issue.
+The repository is in the 1.9.0 release-prep lane. Do not start backlog feature
+work until the release is tagged, Maven Central propagation is verified, and the
+post-release snapshot bump PR is created.
 
-The next high-leverage implementation item is `#543` because it is coroutine terminal-notification correctness in the core shared module. `#418` remains the next feature/API item because it extends the existing optional HTTP backend model without introducing a new common abstraction. Infra resilience work is split under umbrella `#433`: execute Bucket4j facade hardening in `#434` and Resilience4j coroutine facade hardening in `#435`. Keep both as JVM engine wrappers; do not port upstream internals. The docs lane should first close the top-level README/module graph drift and then continue with `#354` cache README/KDoc cross-link checks plus the compressor docs trio `#323/#324/#325`.
-
-Examples now have a dedicated `Examples` GitHub Actions workflow. Do not reopen the idgenerator example lane unless a new follow-up issue is created.
-
-Historical completed items from the old monorepo TODO are intentionally omitted from this active WIP. Use closed issues and `CHANGELOG.md` for completed work.
+After 1.9.0, resume the IO HTTP performance/design backlog. Prioritize API and
+architecture decisions before benchmark polish so later performance work does
+not lock in the wrong client surface.
 
 ## Priority Queue
 
 | Priority | Issue | Difficulty | Notes |
 |---|---|---:|---|
-| P1 | [#543](https://github.com/bluetape4k/bluetape4k-projects/issues/543) BehaviorSubject emitError collector cancellation | S | Fix terminal-notification cancellation semantics; add parent-timeout and collector-local cancellation tests. |
-| P1 | [#542](https://github.com/bluetape4k/bluetape4k-projects/issues/542) ResilientNearCacheDecorator.close() discards delegate failure | S | Resource-safety bug; close path should log or propagate delegate close failure. |
-| P1 | [#539](https://github.com/bluetape4k/bluetape4k-projects/issues/539) remove deprecated BinaryKafkaCodecs | M | Security cleanup for JDK serialization RCE risk. |
-| P1 | [#540](https://github.com/bluetape4k/bluetape4k-projects/issues/540) GrpcServer lifecycle tests | M | Add lifecycle and integration tests for `GrpcServer` / `AbstractGrpcServer`. |
-| P1 | [#418](https://github.com/bluetape4k/bluetape4k-projects/issues/418) optional Ktor client helpers for `io/http` | S | Thin optional backend; keep Ktor lifecycle explicit and do not introduce a common HTTP abstraction. |
-| P1 | [#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434) Bucket4j Kotlin rate-limit facade hardening | M | Standardize consumption result helpers, duration APIs, provider lifecycle, cancellation expectations, and README guidance. |
-| P1 | [#435](https://github.com/bluetape4k/bluetape4k-projects/issues/435) Resilience4j coroutine facade hardening | M | Standardize retry/circuit breaker/bulkhead/time limiter composition, cancellation propagation, Flow contracts, and README guidance. |
-| P2 | [#544](https://github.com/bluetape4k/bluetape4k-projects/issues/544) FlowEvent value-class wrappers | M | Evaluate public API/source compatibility before changing `data class` wrappers to value classes. |
-| P2 | [#541](https://github.com/bluetape4k/bluetape4k-projects/issues/541) FutureToCompletableFutureWrapper virtual-thread pressure | M | Avoid one virtual thread per wrapper object; reduce GC/scheduling pressure at scale. |
-| P2 | [#519](https://github.com/bluetape4k/bluetape4k-projects/issues/519) promote FlociServer to stable | M | Remove `@Deprecated`, replace LocalStackServer where appropriate. |
-| P2 | [#433](https://github.com/bluetape4k/bluetape4k-projects/issues/433) Kotlin JVM resilience/rate-limit wrapper umbrella | S | Decision record only; implementation belongs to `#434/#435`. |
-| P2 | [#354](https://github.com/bluetape4k/bluetape4k-projects/issues/354) cache README/KDoc cross-link audit | S | Follow-up after cache folder reorganization; check English/Korean README import paths and KDoc links. |
-| P2 | [#149](https://github.com/bluetape4k/bluetape4k-projects/issues/149) utils/vector | M | Foundation for AI utilities. |
-| P2 | [#151](https://github.com/bluetape4k/bluetape4k-projects/issues/151) LLM/vector Testcontainers | L | Test foundation for AI/vector work. |
-| P2 | [#148](https://github.com/bluetape4k/bluetape4k-projects/issues/148) utils/ai epic | XL | Split after `#149/#151` scope is clear. |
-| P3 | [#108](https://github.com/bluetape4k/bluetape4k-projects/issues/108) QueryDSL demo completion | S | Low cross-project leverage; good small closure. |
-| P3 | [#323](https://github.com/bluetape4k/bluetape4k-projects/issues/323) io README Mermaid | S | Pair with `#324/#325`. |
-| P3 | [#324](https://github.com/bluetape4k/bluetape4k-projects/issues/324) AbstractCompressor KDoc throws | S | Pair with `#323/#325`. |
-| P3 | [#325](https://github.com/bluetape4k/bluetape4k-projects/issues/325) compressor breaking-change changelog | S | Pair with `#323/#324`. |
+| P1 | [#586](https://github.com/bluetape4k/bluetape4k-projects/issues/586) HC5-first HTTP client surface | M | Architecture/API decision with migration risk; settle before adding more tuning helpers. |
+| P1 | [#582](https://github.com/bluetape4k/bluetape4k-projects/issues/582) production HTTP client tuning defaults | M | Feature work that can become the shared default surface for IO HTTP users. |
+| P1 | [#583](https://github.com/bluetape4k/bluetape4k-projects/issues/583) cache configuration DSL and cache metrics helpers | M | User-facing feature that depends on the tuning/defaults shape. |
+| P2 | [#589](https://github.com/bluetape4k/bluetape4k-projects/issues/589) benchmark-driven HTTP component performance epic | L | Umbrella for the IO HTTP performance lane; split execution through child issues. |
+| P2 | [#584](https://github.com/bluetape4k/bluetape4k-projects/issues/584) HTTP benchmarks against WebFlux mock server | S | Benchmark realism; useful after the target client surface is clear. |
+| P2 | [#585](https://github.com/bluetape4k/bluetape4k-projects/issues/585) CPU and GC profiling for HTTP benchmarks | S | Profiling depth; pair with benchmark scenarios to avoid isolated numbers. |
 
 ## Dependency Map
 
 ```text
-#280 Boot 4-only policy decision (documented)
-  -> dependencies repo #8 first official Spring Boot aliases (closed)
-  -> #263 Spring Boot 3 removal + spring-boot4 -> spring-boot rename (closed)
-      -> exposed repo #3 Spring Boot 3 removal + spring-boot4 -> spring-boot rename (closed)
+#586 HC5-first HTTP client surface
+  -> informs #582 production tuning defaults
+  -> informs #583 cache DSL and metrics helper shape
 
-#257 monorepo split tracker (closed)
-  -> #333 cache in-repo folder reorganization (closed)
-  -> #354 cache README/KDoc cross-link audit
-
-#418 Ktor client helpers
-  -> io/http README pair documents Ktor CIO as an optional suspend-native backend
-  -> compileOnly Ktor client dependencies plus targeted tests
-
-#433 Kotlin JVM resilience/rate-limit wrapper standardization
-  -> #434 infra/bucket4j owns token-bucket rate limiting and distributed bucket provider ergonomics
-  -> #435 infra/resilience4j owns retry, circuit breaker, bulkhead, time limiter, cache, and decorator composition
-  -> shared contract: cancellation must propagate, duration APIs must be consistent, README pairs must explain when to use each limiter
-
-#416 Spring Boot idgenerator example (closed by PR #422)
-#419 Ktor idgenerator example (closed by PR #421)
-  -> #420 Examples workflow split (closed by PR #423)
-
-#110 infra deprecated inventory (documented in docs/infra-deprecated-inventory.md)
-  -> follow-up deprecated cleanup PRs
-  -> safer extraction/refactor planning
-
-#149 vector utilities
-#151 LLM/vector Testcontainers
-  -> #148 utils/ai
-
-#323 README
-#324 KDoc
-#325 CHANGELOG
-  -> one small docs PR is preferred
-
-#539 remove deprecated BinaryKafkaCodecs (JDK RCE)
-  -> related: #492 serialization trust profiles
-  -> audit usages -> escalate to ERROR -> remove
-
-#540 GrpcServer / AbstractGrpcServer lifecycle tests
-  -> core infrastructure; zero test coverage currently
-
-#541 FutureToCompletableFutureWrapper virtual thread per object
-  -> replace with shared Executors.newVirtualThreadPerTaskExecutor()
-
-#542 ResilientNearCacheDecorator.close() swallows exception
-  -> replace runCatching{} with logged try/catch
-  -> check ResilientSuspendNearCacheDecorator for same pattern
-
-#543 BehaviorSubject.emitError collector cancellation
-  -> align terminal notification semantics with emit()/complete()
-  -> test parent cancellation separately from collector-local cancellation
-
-#544 FlowEvent value-class wrappers
-  -> evaluate Kotlin 2 hot-path allocation win
-  -> prove source/binary compatibility before changing public wrapper types
+#589 IO HTTP performance epic
+  -> #584 WebFlux mock-server benchmark scenarios
+  -> #585 CPU/GC profiling
+  -> should consume decisions from #586/#582/#583 before broad optimization
 ```
 
 ## WIP Limits
 
-| Lane                      | Limit | Current next                               |
-|---------------------------|------:|--------------------------------------------|
-| Optional HTTP backend     |     1 | `#418` Ktor client helpers.                |
-| Infra resilience facade   |     1 | `#434` first, then `#435`; `#433` is umbrella only. |
-| Cache/docs audit          |     1 | `#354` after current top-level docs sync.  |
-| AI/vector                 |     1 | `#149` or `#151`, not `#148` first.        |
-| Docs polish               |  1 PR | `#323/#324/#325` together.                 |
+| Lane | Limit | Current next |
+|---|---:|---|
+| Release prep | 1 | Finish 1.9.0 release, Central verification, and next snapshot bump. |
+| IO HTTP API/design | 1 | `#586` first. |
+| IO HTTP feature | 1 | `#582`, then `#583`. |
+| IO HTTP performance | 1 | `#589` umbrella; execute `#584/#585` after design decisions. |
 
 ## Cleanup Actions
 
-| Candidate        | Action                                                                                        |
-|------------------|-----------------------------------------------------------------------------------------------|
-| `#280` vs `#263` | Resolved direction documented in PR #348; both are removed from the active queue.             |
-| `#110`           | Inventory documented in `docs/infra-deprecated-inventory.md`; close after this PR merges.     |
-| `#333`           | Closed; keep completion in issue/PR history, not active WIP.                                  |
-| `#257`           | Closed; keep split status in README/CHANGELOG and standalone repo history, not active WIP.    |
-| `#364`           | Closed; remove from active queue and let downstream repos adopt the shared utility as needed. |
-| `#251`           | Closed by the states comparison and follow-up split; keep research notes, not an active WIP row. |
+| Candidate | Action |
+|---|---|
+| `1.9.0` milestone | Keep closed; do not add backlog IO HTTP work to this release. |
+| `backlog` milestone | Keep `#582/#583/#584/#585/#586/#589` open for the next development lane. |
+| release worktrees | Remove release-prep worktrees after PR merge and final verification. |
