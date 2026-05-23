@@ -306,7 +306,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.9.0
+baseVersion=1.9.1
 snapshotVersion=
 ```
 

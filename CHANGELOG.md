@@ -4,6 +4,20 @@
 
 ---
 
+## [1.9.1] — 2026-05-23
+
+### Added
+
+- `bluetape4k-core` now publishes `io.bluetape4k.support.truncateUtf8(maxBytes)`,
+  a UTF-8 byte-boundary-safe string truncation helper used to unblock downstream
+  `bluetape4k-leader` migration work ([#607](https://github.com/bluetape4k/bluetape4k-projects/issues/607)).
+
+### Fixed
+
+- Apache Fory was kept on the 0.17.0-compatible `buildThreadSafeForyPool(int)`
+  API so Fory-backed serializers and Redisson codecs do not hit the removed
+  legacy pool-builder signature at runtime ([#608](https://github.com/bluetape4k/bluetape4k-projects/issues/608)).
+
 ## [1.9.0] — 2026-05-22
 
 ### Added
