@@ -22,7 +22,7 @@ and `/health` readiness.
 ## Verification
 
 - PullMD research saved to
-  `~/work/bluetape4k/wiki/research/2026-05-22-issue-596-etcd-container-pullmd.md`
+  `~/work/bluetape4k/bluetape4k-wiki/research/2026-05-22-issue-596-etcd-container-pullmd.md`
   and verified with qmd.
 - `./gradlew :bluetape4k-testcontainers:compileKotlin :bluetape4k-testcontainers:compileTestKotlin --no-daemon --console=plain`
   passed.
