@@ -10,7 +10,41 @@ pluginManagement {
     }
 }
 
-val bluetape4kDependenciesVersion = providers.gradleProperty("bluetape4kDependenciesVersion").get()
+val bluetape4kDependenciesCatalogRef = providers.gradleProperty("bluetape4kDependenciesCatalogRef")
+    .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_REF"))
+    .orElse("develop")
+    .get()
+
+fun resolveBluetape4kDependenciesCatalogFile(): File {
+    providers.gradleProperty("bluetape4kDependenciesCatalogPath")
+        .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_PATH"))
+        .orNull
+        ?.let(::file)
+        ?.let { return it }
+
+    listOf(
+        "../bluetape4k-dependencies/gradle/libs.versions.toml",
+        "bluetape4k-dependencies/gradle/libs.versions.toml",
+    ).map(::file).firstOrNull { it.isFile }?.let { return it }
+
+    val catalogFile = file(".gradle/bluetape4k-dependencies/libs.versions.toml")
+    if (!catalogFile.isFile) {
+        catalogFile.parentFile.mkdirs()
+        val catalogUrl =
+            "https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/$bluetape4kDependenciesCatalogRef/gradle/libs.versions.toml"
+        uri(catalogUrl).toURL().openStream().use { input ->
+            catalogFile.outputStream().use { output -> input.copyTo(output) }
+        }
+    }
+    return catalogFile
+}
+
+val bluetape4kDependenciesCatalogFile = resolveBluetape4kDependenciesCatalogFile()
+
+require(bluetape4kDependenciesCatalogFile.isFile) {
+    "bluetape4k-dependencies catalog not found: $bluetape4kDependenciesCatalogFile. " +
+        "Checkout bluetape4k-dependencies at the release-train tag or set bluetape4kDependenciesCatalogPath."
+}
 
 dependencyResolutionManagement {
     repositories {
@@ -19,7 +53,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("bt4k") {
-            from("io.github.bluetape4k:bluetape4k-version-catalog:$bluetape4kDependenciesVersion")
+            from(files(bluetape4kDependenciesCatalogFile))
         }
     }
 }
