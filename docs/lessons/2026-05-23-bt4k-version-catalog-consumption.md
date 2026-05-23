@@ -17,14 +17,15 @@ the direct Fory version from `libs`.
 ## Outcome
 
 `libs.fory.kotlin` is now versionless. The managed Fory version is supplied by
-dependency management from `bt4k.fory.kotlin`, so future Fory version changes
-start in `bluetape4k-dependencies`.
+dependency management through the `bt4kVersion("fory-kotlin")` catalog lookup,
+so future Fory version changes start in `bluetape4k-dependencies`.
 
 ## Verification
 
 - `./gradlew help --no-daemon --no-configuration-cache`
 - `./gradlew :bluetape4k-io:dependencyInsight --configuration compileClasspath --dependency org.apache.fory:fory-kotlin --no-daemon --no-configuration-cache`
 - `./gradlew :bluetape4k-io:compileKotlin --no-daemon --no-configuration-cache`
+- `./gradlew compileKotlin --no-daemon --no-configuration-cache`
 
 ## Future Guidance
 
