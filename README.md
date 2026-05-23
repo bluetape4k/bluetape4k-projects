@@ -304,7 +304,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.9.1
+baseVersion=1.9.2
 snapshotVersion=
 ```
 
