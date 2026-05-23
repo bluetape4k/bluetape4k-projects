@@ -79,6 +79,7 @@ allprojects {
 // Capture root-project catalog reference once; used inside subprojects {} closures
 // where `libs` is not in scope (different receiver type in the lambda).
 val rootLibs = libs
+val rootBt4k = bt4k
 
 fun Project.isSampleOrBenchmarkProject(): Boolean {
     val relativeProjectDir = rootDir.toPath()
@@ -442,6 +443,7 @@ subprojects {
             dependency(rootLibs.guava.get().toString())
 
             dependency(rootLibs.kryo.get().toString())
+            dependency(rootBt4k.fory.kotlin.get().toString())
 
             // HINT: Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
             dependency(rootLibs.jackson.bom.get().toString())
