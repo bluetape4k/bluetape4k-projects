@@ -81,6 +81,15 @@ allprojects {
 val rootLibs = libs
 val rootBt4k = bt4k
 
+val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
+fun bt4kVersion(alias: String): String {
+    val version = bt4kCatalog.findVersion(alias).get()
+    return version.requiredVersion
+        .ifBlank { version.preferredVersion }
+        .ifBlank { version.strictVersion }
+}
+
+
 fun Project.isSampleOrBenchmarkProject(): Boolean {
     val relativeProjectDir = rootDir.toPath()
         .relativize(projectDir.toPath())
@@ -443,7 +452,7 @@ subprojects {
             dependency(rootLibs.guava.get().toString())
 
             dependency(rootLibs.kryo.get().toString())
-            dependency(rootBt4k.fory.kotlin.get().toString())
+            dependency("org.apache.fory:fory-kotlin:${bt4kVersion("fory-kotlin")}")
 
             // HINT: Jackson (이상하게 mavenBom 에 적용이 안되어서 강제로 추가하였다)
             dependency(rootLibs.jackson.bom.get().toString())
