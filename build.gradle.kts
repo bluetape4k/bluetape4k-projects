@@ -79,8 +79,6 @@ allprojects {
 // Capture root-project catalog reference once; used inside subprojects {} closures
 // where `libs` is not in scope (different receiver type in the lambda).
 val rootLibs = libs
-val rootBt4k = bt4k
-
 val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
 fun bt4kVersion(alias: String): String {
     val version = bt4kCatalog.findVersion(alias).get()
