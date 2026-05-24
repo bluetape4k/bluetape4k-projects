@@ -223,15 +223,35 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
+## 주요 권장 클라이언트
+
+> 전체 설계 근거: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
+
+**Apache HttpComponents 5 (HC5)** 가 `bluetape4k-http`의 **1순위 권장 프로덕션 HTTP 클라이언트**입니다. 프로덕션 튜닝 팩토리, RFC 7234 인메모리 캐싱, Virtual Thread 지원, Coroutines 통합 등 가장 풍부한 기능을 제공합니다.
+
+| 시나리오 | 권장 클라이언트 | 팩토리 함수 |
+|---------|--------------|-----------|
+| 고처리량 동기 백엔드 호출 | HC5 Classic + VirtualThread | `productionVirtualThreadHttpClientOf()` |
+| 코루틴 기반 비동기 호출 | HC5 Async + Coroutines | `productionHttpAsyncClientOf()` |
+| 캐싱 가능한 GET 최고 처리량 | HC5 CachingHttpClient (인메모리) | `memoryCachingHttpClientOf()` |
+| 재시작 간 캐시 유지 | OkHttp3 + DiskLruCache | `okhttp3ClientWithCache()` |
+| Ktor 기반 앱 | Ktor CIO | — |
+| Vert.x 기반 앱 | Vert.x WebClient | — |
+| 의존성 없는 JVM 서비스 | JDK HttpClient | — |
+
+비-HC5 백엔드는 해당 생태계에서 **완전 지원**되는 1등급 옵션입니다. 기존 코드나 API는 deprecated 되지 않습니다.
+
 ## HTTP 클라이언트 비교
 
-| 클라이언트             | 프로토콜             | 특성                    | 용도            |
-|-------------------|------------------|-----------------------|---------------|
-| HC5 Classic       | HTTP/1.1         | 안정적, 풍부한 설정           | 동기 API 호출     |
-| HC5 Async         | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합    | 고성능 비동기 통신    |
-| OkHttp3           | HTTP/1.1, HTTP/2 | 경량, Virtual Thread 기본 | 범용 HTTP 클라이언트 |
-| Vert.x HttpClient | HTTP/1.1, HTTP/2 | 이벤트 루프 기반             | Vert.x 생태계 통합 |
-| Ktor CIO          | HTTP/1.x         | suspend-native, 경량, Ktor 플러그인 생태계 | Ktor 기반 앱 / 코루틴 우선 호출 |
+| 클라이언트             | 역할       | 프로토콜             | 특성                                 | 용도                  |
+|-------------------|----------|------------------|------------------------------------|---------------------|
+| HC5 Classic       | **주요**   | HTTP/1.1         | 프로덕션 튜닝, 재시도, keep-alive          | 동기 백엔드 호출           |
+| HC5 Async         | **주요**   | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합                 | 고성능 비동기 통신          |
+| HC5 CachingClient | **주요**   | HTTP/1.1         | RFC 7234 인메모리 캐시 (813K ops/s)     | 캐싱 가능한 GET 집중 워크로드  |
+| OkHttp3           | 호환성      | HTTP/1.1, HTTP/2 | 디스크 캐시, 인터셉터, Android 호환          | 캐시 영속성, Android     |
+| JDK HttpClient    | 호환성      | HTTP/1.1, HTTP/2 | 추가 의존성 없음                          | 의존성 최소화 서비스         |
+| Vert.x HttpClient | 생태계 전용   | HTTP/1.1, HTTP/2 | 이벤트 루프 기반                          | Vert.x 생태계          |
+| Ktor CIO          | 생태계 전용   | HTTP/1.x         | suspend-native, Ktor 플러그인 생태계     | Ktor 기반 앱           |
 
 > **참고**: Ktor CIO는 HTTP/2를 지원하지 않습니다. HTTP/2가 필요한 경우 HC5 Async, JDK, 또는 OkHttp3를 사용하세요.
 
@@ -371,14 +391,14 @@ Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining �
   - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
 - OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
 
-**권장 선택**:
+**권장 선택** ([주요 권장 클라이언트](#주요-권장-클라이언트) 전체 표 참조):
 
-| 상황 | 권장 |
-|------|------|
-| 반복 GET + 캐시 최우선 | HC5 CachingHttpClient (MemCache) |
-| 재시작 후 캐시 유지 필요 | OkHttp3 + DiskLruCache |
-| 범용 고성능 (캐시 불필요) | HC5 Classic VirtualThread 또는 OkHttp3 |
-| 고지연 비동기 대량 요청 | HC5 Async Coroutines 또는 Vert.x WebClient |
+| 상황 | 권장 | 팩토리 |
+|------|------|--------|
+| 반복 GET + 캐시 최우선 | **HC5 CachingHttpClient (MemCache)** | `memoryCachingHttpClientOf()` |
+| 재시작 후 캐시 유지 필요 | OkHttp3 + DiskLruCache | `okhttp3ClientWithCache()` |
+| 범용 고성능 동기 | **HC5 Classic VirtualThread** | `productionVirtualThreadHttpClientOf()` |
+| 고지연 비동기 대량 요청 | **HC5 Async Coroutines** | `productionHttpAsyncClientOf()` |
 
 ## Coroutines 지원
 

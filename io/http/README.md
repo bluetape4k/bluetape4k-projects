@@ -224,15 +224,35 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
+## Primary Recommendations
+
+> See the full design rationale: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
+
+**Apache HttpComponents 5 (HC5) is the primary recommended production HTTP client** in `bluetape4k-http`. It provides the deepest feature set: production-tuned factories, in-memory RFC 7234 caching, virtual-thread support, and coroutine integration.
+
+| Scenario | Recommended client | Factory |
+|----------|--------------------|---------|
+| Sync backend calls (high-throughput) | HC5 Classic + VirtualThread | `productionVirtualThreadHttpClientOf()` |
+| Async backend calls (coroutine-first) | HC5 Async + Coroutines | `productionHttpAsyncClientOf()` |
+| Repeated cacheable GETs (max throughput) | HC5 CachingHttpClient (in-memory) | `memoryCachingHttpClientOf()` |
+| Cache persistence across restarts | OkHttp3 + DiskLruCache | `okhttp3ClientWithCache()` |
+| Ktor-based applications | Ktor CIO | — |
+| Vert.x-based applications | Vert.x WebClient | — |
+| Zero-dependency JVM services | JDK HttpClient | — |
+
+All non-HC5 backends are **fully supported** as first-class options for their target ecosystems. No existing code or API is deprecated.
+
 ## HTTP Client Comparison
 
-| Client            | Protocol         | Characteristics                     | Use Case                     |
-|-------------------|------------------|-------------------------------------|------------------------------|
-| HC5 Classic       | HTTP/1.1         | Stable, rich configuration          | Synchronous API calls        |
-| HC5 Async         | HTTP/1.1, HTTP/2 | Async, Coroutines integration       | High-performance async       |
-| OkHttp3           | HTTP/1.1, HTTP/2 | Lightweight, Virtual Thread default | General-purpose HTTP client  |
-| Vert.x HttpClient | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem integration |
-| Ktor CIO          | HTTP/1.x         | Suspend-native, lightweight         | Ktor-based apps / coroutine-first calls |
+| Client            | Role             | Protocol         | Characteristics                     | Use Case                     |
+|-------------------|------------------|------------------|-------------------------------------|------------------------------|
+| HC5 Classic       | **Primary**      | HTTP/1.1         | Production-tuned, retry, keep-alive | Sync backend calls           |
+| HC5 Async         | **Primary**      | HTTP/1.1, HTTP/2 | Async, Coroutines integration       | High-performance async       |
+| HC5 CachingClient | **Primary**      | HTTP/1.1         | RFC 7234 in-memory cache (813K ops/s) | Cacheable GET-heavy workloads |
+| OkHttp3           | Compatibility    | HTTP/1.1, HTTP/2 | Disk cache, interceptors, Android   | Cache persistence, Android   |
+| JDK HttpClient    | Compatibility    | HTTP/1.1, HTTP/2 | No extra dependency                 | Zero-dependency services     |
+| Vert.x HttpClient | Ecosystem        | HTTP/1.1, HTTP/2 | Event loop-based                    | Vert.x ecosystem             |
+| Ktor CIO          | Ecosystem        | HTTP/1.x         | Suspend-native, Ktor plugins        | Ktor-based apps              |
 
 ## Performance Benchmark
 
@@ -356,14 +376,14 @@ Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a sho
   - The 1 KB cache file fits in a single 4 KB OS page, so after warmup reads are purely from page cache (RAM), not real disk I/O — but the filesystem call overhead remains
 - **OkHttp DiskCache at 35K ops/s is correct**: test-verified with `networkResponse == null` and `cacheResponse != null` on every cache hit
 
-**Recommended client by use case**:
+**Recommended client by use case** (see [Primary Recommendations](#primary-recommendations) for the full table):
 
 | Scenario | Recommendation |
 |----------|----------------|
-| Repeated GET + maximum cache throughput | HC5 CachingHttpClient (MemCache) |
-| Cache persistence across restarts | OkHttp3 + DiskLruCache |
-| General high-throughput (no caching needed) | HC5 Classic VirtualThread or OkHttp3 |
-| High-latency async bulk requests | HC5 Async Coroutines or Vert.x WebClient |
+| Repeated GET + maximum cache throughput | **HC5 CachingHttpClient (MemCache)** — `memoryCachingHttpClientOf()` |
+| Cache persistence across restarts | OkHttp3 + DiskLruCache — `okhttp3ClientWithCache()` |
+| General high-throughput (sync) | **HC5 Classic VirtualThread** — `productionVirtualThreadHttpClientOf()` |
+| High-latency async bulk requests | **HC5 Async Coroutines** — `productionHttpAsyncClientOf()` |
 | Ktor-based apps / coroutine-first calls | Ktor CIO |
 
 ## Backend Comparison
