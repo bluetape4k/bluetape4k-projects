@@ -330,6 +330,8 @@ Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a sho
 | `HttpClientBenchmark.javaHttpCoroutines` | 4,739.894 |
 | `HttpClientBenchmark.ktorCioCoroutines` | 2,052.281 |
 
+![HTTP client base throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
+
 #### High-latency snapshot
 
 | Benchmark row | ops/s |
