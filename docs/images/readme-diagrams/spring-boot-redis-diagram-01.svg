@@ -51,8 +51,7 @@
 <g transform="translate(84,568)">
   <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#D6A441"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">RedisBinarySerializer</text>
+    <text class="label" x="190" y="49" text-anchor="middle">RedisBinarySerializer</text>
   <text class="mono" x="18" y="108">-serializer: BinarySerializer</text>
 <text class="mono" x="18" y="129">+serialize(Any): ByteArray</text>
 <text class="mono" x="18" y="150">+deserialize(ByteArray): Any</text>
@@ -60,8 +59,7 @@
 <g transform="translate(534,568)">
   <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">RedisCompressSerializer</text>
+    <text class="label" x="190" y="49" text-anchor="middle">RedisCompressSerializer</text>
   <text class="mono" x="18" y="108">-compressor: Compressor</text>
 <text class="mono" x="18" y="129">+serialize(ByteArray): ByteArray</text>
 <text class="mono" x="18" y="150">+deserialize(ByteArray): ByteArray</text>

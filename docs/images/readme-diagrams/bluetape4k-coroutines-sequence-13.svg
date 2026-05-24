@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1078" height="1474" viewBox="0 0 1078 1474" role="img" aria-label="13. AsyncFlow — Order-Preserving Async Transformation">
+<svg xmlns="http://www.w3.org/2000/svg" width="1188" height="1062" viewBox="0 0 1188 1062" role="img" aria-label="13. AsyncFlow — Order-Preserving Async Transformation">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,46 +20,46 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1078" height="1474"/>
-<rect class="frame" x="32" y="28" width="1014" height="1418" rx="28"/>
+<rect class="canvas" width="1188" height="1062"/>
+<rect class="frame" x="32" y="28" width="1124" height="1006" rx="28"/>
 <text class="title" x="66" y="82">13. AsyncFlow — Order-Preserving Asy.</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Flow Source</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1414" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="424" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="539" y="209" text-anchor="middle">Flow.async { }</text>
-<line class="lifeline" x1="539" y1="252" x2="539" y2="1414" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="823" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="938" y="209" text-anchor="middle">Collector</text>
-<line class="lifeline" x1="938" y1="252" x2="938" y2="1414" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="188.5" y="286" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="206.5" y="313" text-anchor="start">1. emit(1) → LazyDeferred started</text>
-<path class="line" d="M140 344 L539 344"/>
-<rect x="188.5" y="396" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="206.5" y="423" text-anchor="start">2. emit(2) → LazyDeferred started</text>
-<path class="line" d="M140 454 L539 454"/>
-<rect x="188.5" y="506" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="206.5" y="533" text-anchor="start">3. emit(3) → LazyDeferred started</text>
-<path class="line" d="M140 564 L539 564"/>
-<rect x="70" y="616" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="92" y="643" text-anchor="start">PAR: async computation</text>
-<rect x="476" y="684" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="494" y="711" text-anchor="start">5. Deferred(1) complete</text>
-<path class="dashed" d="M539 742 C603 742 603 776 539 776"/>
-<rect x="399.5" y="814" width="375" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="417.5" y="841" text-anchor="start">6. Deferred(3) complete (may finish first)</text>
-<path class="dashed" d="M539 872 C603 872 603 906 539 906"/>
-<rect x="476" y="944" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="494" y="971" text-anchor="start">7. Deferred(2) complete</text>
-<path class="dashed" d="M539 1002 C603 1002 603 1036 539 1036"/>
-<rect x="633.5" y="1074" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="651.5" y="1101" text-anchor="start">8. emit(result_1)</text>
-<path class="line" d="M539 1132 L938 1132"/>
-<rect x="633.5" y="1184" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="651.5" y="1211" text-anchor="start">9. emit(result_2)</text>
-<path class="line" d="M539 1242 L938 1242"/>
-<rect x="633.5" y="1294" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="651.5" y="1321" text-anchor="start">10. emit(result_3)</text>
-<path class="line" d="M539 1352 L938 1352"/>
+<rect class="card" x="80" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="195" y="209" text-anchor="middle">Flow Source</text>
+<line class="lifeline" x1="195" y1="252" x2="195" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="479" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="594" y="209" text-anchor="middle">Flow.async { }</text>
+<line class="lifeline" x1="594" y1="252" x2="594" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="878" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="993" y="209" text-anchor="middle">Collector</text>
+<line class="lifeline" x1="993" y1="252" x2="993" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="243.5" y="286" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="261.5" y="313" text-anchor="start">1. emit(1) → LazyDeferred started</text>
+<path class="line" d="M195 332 L594 332"/>
+<rect x="243.5" y="362" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="261.5" y="389" text-anchor="start">2. emit(2) → LazyDeferred started</text>
+<path class="line" d="M195 408 L594 408"/>
+<rect x="243.5" y="438" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="261.5" y="465" text-anchor="start">3. emit(3) → LazyDeferred started</text>
+<path class="line" d="M195 484 L594 484"/>
+<rect x="125" y="616" width="938" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
+<text class="strong" x="147" y="643" text-anchor="start">PAR: async computation</text>
+<rect x="531" y="514" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="549" y="541" text-anchor="start">5. Deferred(1) complete</text>
+<path class="dashed" d="M594 560 C658 560 658 594 594 594"/>
+<rect x="454.5" y="590" width="375" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="472.5" y="617" text-anchor="start">6. Deferred(3) complete (may finish first)</text>
+<path class="dashed" d="M594 636 C658 636 658 670 594 670"/>
+<rect x="531" y="666" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="549" y="693" text-anchor="start">7. Deferred(2) complete</text>
+<path class="dashed" d="M594 712 C658 712 658 746 594 746"/>
+<rect x="688.5" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="706.5" y="769" text-anchor="start">8. emit(result_1)</text>
+<path class="line" d="M594 788 L993 788"/>
+<rect x="688.5" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="706.5" y="845" text-anchor="start">9. emit(result_2)</text>
+<path class="line" d="M594 864 L993 864"/>
+<rect x="688.5" y="894" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="706.5" y="921" text-anchor="start">10. emit(result_3)</text>
+<path class="line" d="M594 940 L993 940"/>
 </svg>

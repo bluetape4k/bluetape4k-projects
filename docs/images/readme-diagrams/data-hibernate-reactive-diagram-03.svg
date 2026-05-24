@@ -29,8 +29,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">StageSession</text>
+    <text class="label" x="170" y="49" text-anchor="middle">StageSession</text>
   <text class="mono" x="18" y="108">+find(cls, id): CompletionStage~T~</text>
 <text class="mono" x="18" y="129">+findAs(id): CompletionStage~T~ ← reified</text>
 <text class="mono" x="18" y="150">extension</text>
@@ -38,8 +37,7 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MutinySession</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MutinySession</text>
   <text class="mono" x="18" y="108">+find(cls, id): Uni~T~</text>
 <text class="mono" x="18" y="129">+findAs(id): Uni~T~ ← reified extension</text>
 <text class="mono" x="18" y="150">+persist(entity): Uni~Void~</text>
@@ -47,8 +45,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="259" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MutinySessionFactory</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MutinySessionFactory</text>
   <text class="mono" x="18" y="108">+withSession(block): Uni~T~</text>
 <text class="mono" x="18" y="129">+withTransaction(block): Uni~T~</text>
 <text class="mono" x="18" y="150">+withStatelessSession(block): Uni~T~</text>
@@ -60,8 +57,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">StageSessionFactory</text>
+    <text class="label" x="170" y="49" text-anchor="middle">StageSessionFactory</text>
   <text class="mono" x="18" y="108">+withSession(block): CompletionStage~T~</text>
 <text class="mono" x="18" y="129">+withTransaction(block):</text>
 <text class="mono" x="18" y="150">CompletionStage~T~</text>

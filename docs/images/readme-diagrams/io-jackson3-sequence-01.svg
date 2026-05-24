@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1532" height="1676" viewBox="0 0 1532 1676" role="img" aria-label="Jackson 3.x Module Registration Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1689" height="1290" viewBox="0 0 1689 1290" role="img" aria-label="Jackson 3.x Module Registration Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,56 +20,56 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1532" height="1676"/>
-<rect class="frame" x="32" y="28" width="1468" height="1620" rx="28"/>
+<rect class="canvas" width="1689" height="1290"/>
+<rect class="frame" x="32" y="28" width="1625" height="1234" rx="28"/>
 <text class="title" x="66" y="82">Jackson 3.x Module Registration Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="1.5" y="166" width="277" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Application</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="418.83333333333326" y="166" width="277" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="557.3333333333333" y="209" text-anchor="middle">Jackson</text>
-<line class="lifeline" x1="557.3333333333333" y1="252" x2="557.3333333333333" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="836.1666666666666" y="166" width="277" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="974.6666666666666" y="209" text-anchor="middle">JsonMapper.Builder</text>
-<line class="lifeline" x1="974.6666666666666" y1="252" x2="974.6666666666666" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1253.5" y="166" width="277" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1392" y="209" text-anchor="middle">JacksonModules</text>
-<line class="lifeline" x1="1392" y1="252" x2="1392" y2="1616" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="185.16666666666663" y="286" width="327" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="203.16666666666663" y="313" text-anchor="start">1. Jackson.createDefaultJsonMapper()</text>
-<path class="line" d="M140 344 L557.3333333333333 344"/>
-<rect x="598.5" y="396" width="335" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="616.5" y="423" text-anchor="start">2. jsonMapper { findAndAddModules() }</text>
-<path class="line" d="M557.3333333333333 454 L974.6666666666666 454"/>
-<rect x="1032.3333333333333" y="506" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1050.3333333333333" y="533" text-anchor="start">3. Register JsonTinkEncryptModule</text>
-<path class="line" d="M974.6666666666666 564 L1392 564"/>
-<rect x="1052.3333333333333" y="616" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1070.3333333333333" y="643" text-anchor="start">4. Register JsonMaskerModule</text>
-<path class="line" d="M974.6666666666666 674 L1392 674"/>
-<rect x="1060.3333333333333" y="726" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1078.3333333333333" y="753" text-anchor="start">5. Register JsonUuidModule</text>
-<path class="line" d="M974.6666666666666 784 L1392 784"/>
-<rect x="971.8333333333333" y="836" width="423" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="989.8333333333333" y="863" text-anchor="start">6. Wire Introspector / Serializer / Deserializer</text>
-<path class="dashed" d="M1392 894 L974.6666666666666 894"/>
-<rect x="661" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="679" y="973" text-anchor="start">7. Build JsonMapper</text>
-<path class="dashed" d="M974.6666666666666 1004 L557.3333333333333 1004"/>
-<rect x="225.66666666666663" y="1056" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="243.66666666666663" y="1083" text-anchor="start">8. Configured ObjectMapper</text>
-<path class="dashed" d="M557.3333333333333 1114 L140 1114"/>
-<rect x="197.66666666666663" y="1166" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="215.66666666666663" y="1193" text-anchor="start">9. mapper.writeValueAsString(obj)</text>
-<path class="line" d="M140 1224 L557.3333333333333 1224"/>
-<rect x="819.1666666666666" y="1276" width="311" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="837.1666666666666" y="1303" text-anchor="start">10. Detect @JsonTinkEncrypt fields</text>
-<path class="line" d="M557.3333333333333 1334 L1392 1334"/>
-<rect x="869.6666666666666" y="1386" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="887.6666666666666" y="1413" text-anchor="start">11. Encrypted value</text>
-<path class="dashed" d="M1392 1444 L557.3333333333333 1444"/>
-<rect x="243.66666666666663" y="1496" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="261.66666666666663" y="1523" text-anchor="start">12. JSON string</text>
-<path class="dashed" d="M557.3333333333333 1554 L140 1554"/>
+<rect class="card" x="80" y="166" width="277" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="218.5" y="209" text-anchor="middle">Application</text>
+<line class="lifeline" x1="218.5" y1="252" x2="218.5" y2="1230" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="497.3" y="166" width="277" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="635.8" y="209" text-anchor="middle">Jackson</text>
+<line class="lifeline" x1="635.8" y1="252" x2="635.8" y2="1230" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="914.7" y="166" width="277" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="1053.2" y="209" text-anchor="middle">JsonMapper.Builder</text>
+<line class="lifeline" x1="1053.2" y1="252" x2="1053.2" y2="1230" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1332" y="166" width="277" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1470.5" y="209" text-anchor="middle">JacksonModules</text>
+<line class="lifeline" x1="1470.5" y1="252" x2="1470.5" y2="1230" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="263.7" y="286" width="327" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="281.7" y="313" text-anchor="start">1. Jackson.createDefaultJsonMapper()</text>
+<path class="line" d="M218.5 332 L635.8 332"/>
+<rect x="677" y="362" width="335" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="695" y="389" text-anchor="start">2. jsonMapper { findAndAddModules() }</text>
+<path class="line" d="M635.8 408 L1053.2 408"/>
+<rect x="1110.8" y="438" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1128.8" y="465" text-anchor="start">3. Register JsonTinkEncryptModule</text>
+<path class="line" d="M1053.2 484 L1470.5 484"/>
+<rect x="1130.8" y="514" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1148.8" y="541" text-anchor="start">4. Register JsonMaskerModule</text>
+<path class="line" d="M1053.2 560 L1470.5 560"/>
+<rect x="1138.8" y="590" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1156.8" y="617" text-anchor="start">5. Register JsonUuidModule</text>
+<path class="line" d="M1053.2 636 L1470.5 636"/>
+<rect x="1050.3" y="666" width="423" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1068.3" y="693" text-anchor="start">6. Wire Introspector / Serializer / Deserializer</text>
+<path class="dashed" d="M1470.5 712 L1053.2 712"/>
+<rect x="739.5" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="757.5" y="769" text-anchor="start">7. Build JsonMapper</text>
+<path class="dashed" d="M1053.2 788 L635.8 788"/>
+<rect x="304.2" y="818" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="322.2" y="845" text-anchor="start">8. Configured ObjectMapper</text>
+<path class="dashed" d="M635.8 864 L218.5 864"/>
+<rect x="276.2" y="894" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="294.2" y="921" text-anchor="start">9. mapper.writeValueAsString(obj)</text>
+<path class="line" d="M218.5 940 L635.8 940"/>
+<rect x="897.7" y="970" width="311" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="915.7" y="997" text-anchor="start">10. Detect @JsonTinkEncrypt fields</text>
+<path class="line" d="M635.8 1016 L1470.5 1016"/>
+<rect x="948.2" y="1046" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="966.2" y="1073" text-anchor="start">11. Encrypted value</text>
+<path class="dashed" d="M1470.5 1092 L635.8 1092"/>
+<rect x="322.2" y="1122" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="340.2" y="1149" text-anchor="start">12. JSON string</text>
+<path class="dashed" d="M635.8 1168 L218.5 1168"/>
 </svg>

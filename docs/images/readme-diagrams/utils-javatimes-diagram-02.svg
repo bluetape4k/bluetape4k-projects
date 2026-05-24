@@ -37,8 +37,7 @@
 <g transform="translate(323,180)">
   <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DateDiff</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DateDiff</text>
   <text class="mono" x="18" y="108">+years: Int</text>
 <text class="mono" x="18" y="129">+months: Int</text>
 <text class="mono" x="18" y="150">+days: Int</text>
@@ -61,8 +60,7 @@
 <g transform="translate(1167,180)">
   <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DateAdd</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DateAdd</text>
   <text class="mono" x="18" y="108">+excludePeriods: List~TimeRange~</text>
 <text class="mono" x="18" y="129">+add(start, duration): ZonedDateTime</text>
 <text class="mono" x="18" y="150">+subtract(start, duration):</text>
@@ -71,8 +69,7 @@
 <g transform="translate(1589,180)">
   <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TemporalInterval</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TemporalInterval</text>
   <text class="mono" x="18" y="108">+start: Instant</text>
 <text class="mono" x="18" y="129">+end: Instant</text>
 <text class="mono" x="18" y="150">+toDuration(): Duration</text>
@@ -83,8 +80,7 @@
 <g transform="translate(745,642)">
   <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TimeRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TimeRange</text>
   <text class="mono" x="18" y="108">+start: ZonedDateTime</text>
 <text class="mono" x="18" y="129">+end: ZonedDateTime</text>
 <text class="mono" x="18" y="150">+move(duration)</text>
@@ -93,8 +89,7 @@
 <g transform="translate(1167,642)">
   <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TimeBlock</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TimeBlock</text>
   <text class="mono" x="18" y="108">+start: ZonedDateTime</text>
 <text class="mono" x="18" y="129">+duration: Duration</text>
 <text class="mono" x="18" y="150">+move(duration)</text>
@@ -103,8 +98,7 @@
 <g transform="translate(956,1062)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">CalendarTimeRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">CalendarTimeRange</text>
   <text class="mono" x="18" y="108">+calendar: TimeCalendar</text>
 <text class="mono" x="18" y="129">+unmappedStart: ZonedDateTime</text>
 <text class="mono" x="18" y="150">+unmappedEnd: ZonedDateTime</text>
@@ -112,43 +106,37 @@
 <g transform="translate(112,1461)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">MonthRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">MonthRange</text>
   <text class="mono" x="18" y="108">+monthOfYear: Int</text>
 </g>
 <g transform="translate(534,1461)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">HourRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">HourRange</text>
 
 </g>
 <g transform="translate(956,1461)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DayRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DayRange</text>
 
 </g>
 <g transform="translate(1378,1461)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">MinuteRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">MinuteRange</text>
 
 </g>
 <g transform="translate(1800,1461)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">WeekRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">WeekRange</text>
   <text class="mono" x="18" y="108">+weekOfYear: Int</text>
 </g>
 <g transform="translate(956,1762)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">YearRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">YearRange</text>
   <text class="mono" x="18" y="108">+year: Int</text>
 </g>
 </svg>

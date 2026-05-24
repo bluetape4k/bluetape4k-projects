@@ -31,8 +31,7 @@
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">CurrencyConvertor</text>
+    <text class="label" x="175" y="49" text-anchor="middle">CurrencyConvertor</text>
   <text class="mono" x="18" y="108">+getConversion(currency) CurrencyConversion</text>
 <text class="mono" x="18" y="129">+USDConversion: CurrencyConversion</text>
 </g>
@@ -60,16 +59,14 @@
 <g transform="translate(298,568)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">FastMoney</text>
+    <text class="label" x="175" y="49" text-anchor="middle">FastMoney</text>
   <text class="mono" x="18" y="108">-amount: Long</text>
 <text class="mono" x="18" y="129">+of(amount, currency) FastMoney</text>
 </g>
 <g transform="translate(718,568)">
   <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">Money</text>
+    <text class="label" x="175" y="49" text-anchor="middle">Money</text>
   <text class="mono" x="18" y="108">-amount: BigDecimal</text>
 <text class="mono" x="18" y="129">+of(amount, currency) Money</text>
 <text class="mono" x="18" y="150">+round() Money</text>

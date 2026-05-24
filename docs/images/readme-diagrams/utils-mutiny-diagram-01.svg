@@ -31,8 +31,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">CoroutineSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">CoroutineSupport</text>
   <text class="mono" x="18" y="108">+CoroutineScope.asUni(block) Uni~T~</text>
 <text class="mono" x="18" y="129">+CompletableFuture.asUni() Uni~T~</text>
 </g>
@@ -62,8 +61,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MultiSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MultiSupport</text>
   <text class="mono" x="18" y="108">+multiOf(vararg items) Multi~T~</text>
 <text class="mono" x="18" y="129">+multiRangeOf(start, end) Multi~Int~</text>
 <text class="mono" x="18" y="150">+List.asMulti() Multi~T~</text>
@@ -72,8 +70,7 @@
 <g transform="translate(707,544)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">UniSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">UniSupport</text>
   <text class="mono" x="18" y="108">+uniOf(value) Uni~T~</text>
 <text class="mono" x="18" y="129">+nullUni() Uni~T~</text>
 <text class="mono" x="18" y="150">+voidUni() Uni~Void~</text>

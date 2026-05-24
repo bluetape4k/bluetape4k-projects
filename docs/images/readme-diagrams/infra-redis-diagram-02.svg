@@ -66,8 +66,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceLoadedMap</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceLoadedMap</text>
   <text class="mono" x="18" y="108">+get(key: String) V?</text>
 <text class="mono" x="18" y="129">+set(key: String, value: V)</text>
 <text class="mono" x="18" y="150">+load(key: String) V?</text>
@@ -76,8 +75,7 @@
 <g transform="translate(297,565)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">RedissonLeaderElection</text>
+    <text class="label" x="170" y="49" text-anchor="middle">RedissonLeaderElection</text>
   <text class="mono" x="18" y="108">+runIfLeader(lockName, action) T</text>
 <text class="mono" x="18" y="129">+runAsyncIfLeader(lockName, action)</text>
 <text class="mono" x="18" y="150">CompletableFuture~T~</text>
@@ -96,8 +94,7 @@
 <g transform="translate(1117,565)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">RedissonNearCache</text>
+    <text class="label" x="170" y="49" text-anchor="middle">RedissonNearCache</text>
   <text class="mono" x="18" y="108">+get(key) V?</text>
 <text class="mono" x="18" y="129">+put(key, value)</text>
 <text class="mono" x="18" y="150">+clearLocalCache()</text>

@@ -57,16 +57,14 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">InMemoryHttpCacheStorage</text>
+    <text class="label" x="170" y="49" text-anchor="middle">InMemoryHttpCacheStorage</text>
 
 </g>
 <g transform="translate(707,481)">
   <rect class="card" x="0" y="0" width="340" height="128" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Java Cache Http Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Storage</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Java Cache Http Cache</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Storage</text>
 
 </g>
 </svg>

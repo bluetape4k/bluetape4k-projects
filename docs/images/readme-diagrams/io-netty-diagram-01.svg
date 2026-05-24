@@ -51,8 +51,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">BitBuf</text>
+    <text class="label" x="170" y="49" text-anchor="middle">BitBuf</text>
   <text class="mono" x="18" y="108">-buf: ByteBuf</text>
 <text class="mono" x="18" y="129">+readBit() Boolean</text>
 <text class="mono" x="18" y="150">+writeBit(value: Boolean)</text>

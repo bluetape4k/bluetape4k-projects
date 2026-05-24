@@ -31,8 +31,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">AsyncApacheHttp5Client</text>
+    <text class="label" x="170" y="49" text-anchor="middle">AsyncApacheHttp5Client</text>
   <text class="mono" x="18" y="108">+execute(request, options, callback)</text>
 </g>
 <g transform="translate(502,180)">
@@ -45,22 +44,19 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ApacheHttp5Client</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ApacheHttp5Client</text>
   <text class="mono" x="18" y="108">+execute(request, options) Response</text>
 </g>
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">AsyncVertxHttpClient</text>
+    <text class="label" x="170" y="49" text-anchor="middle">AsyncVertxHttpClient</text>
   <text class="mono" x="18" y="108">+execute(request, options, callback)</text>
 </g>
 <g transform="translate(707,439)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">VertxHttpClient</text>
+    <text class="label" x="170" y="49" text-anchor="middle">VertxHttpClient</text>
   <text class="mono" x="18" y="108">+execute(request, options) Response</text>
 </g>
 </svg>

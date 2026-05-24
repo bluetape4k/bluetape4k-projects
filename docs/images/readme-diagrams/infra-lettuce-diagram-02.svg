@@ -71,8 +71,7 @@
 <g transform="translate(508,568)">
   <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">LettuceBinaryCodec</text>
+    <text class="label" x="175" y="49" text-anchor="middle">LettuceBinaryCodec</text>
   <text class="mono" x="18" y="108">+serializer: BinarySerializer</text>
 <text class="mono" x="18" y="129">+encodeKey(key): ByteBuffer</text>
 <text class="mono" x="18" y="150">+encodeValue(value): ByteBuffer</text>

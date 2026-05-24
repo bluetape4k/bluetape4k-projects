@@ -28,16 +28,14 @@
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="149" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="350" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="56.5" text-anchor="middle">Abstract Hibernate</text>
-<text class="label" x="175" y="81.5" text-anchor="middle">Repository ID_E</text>
+    <text class="label" x="175" y="44.5" text-anchor="middle">Abstract Hibernate</text>
+<text class="label" x="175" y="69.5" text-anchor="middle">Repository ID_E</text>
   <text class="mono" x="18" y="124">#sessionFactory: SessionFactory</text>
 </g>
 <g transform="translate(508,180)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">HibernateRepository</text>
+    <text class="label" x="175" y="49" text-anchor="middle">HibernateRepository</text>
 
 </g>
 <g transform="translate(928,180)">
@@ -53,9 +51,8 @@
 <g transform="translate(508,526)">
   <rect class="card" x="0" y="0" width="350" height="128" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="94" x2="350" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="56.5" text-anchor="middle">Abstract Hibernate</text>
-<text class="label" x="175" y="81.5" text-anchor="middle">Repository</text>
+    <text class="label" x="175" y="44.5" text-anchor="middle">Abstract Hibernate</text>
+<text class="label" x="175" y="69.5" text-anchor="middle">Repository</text>
 
 </g>
 </svg>

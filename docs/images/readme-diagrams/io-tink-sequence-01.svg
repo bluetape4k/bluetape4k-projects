@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="2006" viewBox="0 0 1780 2006" role="img" aria-label="AEAD encrypt/decrypt Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1924" height="1518" viewBox="0 0 1924 1518" role="img" aria-label="AEAD encrypt/decrypt Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,68 +20,68 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1780" height="2006"/>
-<rect class="frame" x="32" y="28" width="1716" height="1950" rx="28"/>
+<rect class="canvas" width="1924" height="1518"/>
+<rect class="frame" x="32" y="28" width="1860" height="1462" rx="28"/>
 <text class="title" x="66" y="82">AEAD encrypt/decrypt Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="8" y="166" width="264" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1946" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="383" y="166" width="264" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="515" y="209" text-anchor="middle">TinkEncryptors</text>
-<line class="lifeline" x1="515" y1="252" x2="515" y2="1946" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="758" y="166" width="264" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="890" y="209" text-anchor="middle">TinkAeadEncryptor</text>
-<line class="lifeline" x1="890" y1="252" x2="890" y2="1946" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1133" y="166" width="264" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1265" y="209" text-anchor="middle">TinkAead</text>
-<line class="lifeline" x1="1265" y1="252" x2="1265" y2="1946" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1508" y="166" width="264" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1640" y="209" text-anchor="middle">Aead</text>
-<line class="lifeline" x1="1640" y1="252" x2="1640" y2="1946" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="180.5" y="286" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="198.5" y="313" text-anchor="start">1. AES256_GCM.encrypt(plaintext)</text>
-<path class="line" d="M140 344 L515 344"/>
-<rect x="597.5" y="396" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="615.5" y="423" text-anchor="start">2. encrypt(plaintext)</text>
-<path class="line" d="M515 454 L890 454"/>
-<rect x="918" y="506" width="319" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="936" y="533" text-anchor="start">3. encrypt(plaintext.toByteArray())</text>
-<path class="line" d="M890 564 L1265 564"/>
-<rect x="1305.5" y="616" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1323.5" y="643" text-anchor="start">4. encrypt(plainBytes, EMPTY_AD)</text>
-<path class="line" d="M1265 674 L1640 674"/>
-<rect x="1269" y="726" width="367" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1287" y="753" text-anchor="start">5. cipherBytes (nonce + ciphertext + tag)</text>
-<path class="dashed" d="M1640 784 L1265 784"/>
-<rect x="970.5" y="836" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="988.5" y="863" text-anchor="start">6. Base64(cipherBytes)</text>
-<path class="dashed" d="M1265 894 L890 894"/>
-<rect x="597.5" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="615.5" y="973" text-anchor="start">7. Base64 ciphertext</text>
-<path class="dashed" d="M890 1004 L515 1004"/>
-<rect x="222.5" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="240.5" y="1083" text-anchor="start">8. Base64 ciphertext</text>
-<path class="dashed" d="M515 1114 L140 1114"/>
-<rect x="168" y="1166" width="319" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="186" y="1193" text-anchor="start">9. AES256_GCM.decrypt(base64Cipher)</text>
-<path class="line" d="M140 1224 L515 1224"/>
-<rect x="583.5" y="1276" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="601.5" y="1303" text-anchor="start">10. decrypt(base64Cipher)</text>
-<path class="line" d="M515 1334 L890 1334"/>
-<rect x="958.5" y="1386" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="976.5" y="1413" text-anchor="start">11. decrypt(base64Cipher)</text>
-<path class="line" d="M890 1444 L1265 1444"/>
-<rect x="1297" y="1496" width="311" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1315" y="1523" text-anchor="start">12. decrypt(cipherBytes, EMPTY_AD)</text>
-<path class="line" d="M1265 1554 L1640 1554"/>
-<rect x="1273" y="1606" width="359" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1291" y="1633" text-anchor="start">13. plainBytes (authentication verified)</text>
-<path class="dashed" d="M1640 1664 L1265 1664"/>
-<rect x="938.5" y="1716" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="956.5" y="1743" text-anchor="start">14. plainBytes.toString(UTF-8)</text>
-<path class="dashed" d="M1265 1774 L890 1774"/>
-<rect x="410" y="1826" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="428" y="1853" text-anchor="start">15. plaintext</text>
-<path class="dashed" d="M890 1884 L140 1884"/>
+<rect class="card" x="80" y="166" width="264" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="212" y="209" text-anchor="middle">Caller</text>
+<line class="lifeline" x1="212" y1="252" x2="212" y2="1458" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="455" y="166" width="264" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="587" y="209" text-anchor="middle">TinkEncryptors</text>
+<line class="lifeline" x1="587" y1="252" x2="587" y2="1458" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="830" y="166" width="264" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="962" y="209" text-anchor="middle">TinkAeadEncryptor</text>
+<line class="lifeline" x1="962" y1="252" x2="962" y2="1458" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1205" y="166" width="264" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1337" y="209" text-anchor="middle">TinkAead</text>
+<line class="lifeline" x1="1337" y1="252" x2="1337" y2="1458" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1580" y="166" width="264" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1712" y="209" text-anchor="middle">Aead</text>
+<line class="lifeline" x1="1712" y1="252" x2="1712" y2="1458" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="252.5" y="286" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="270.5" y="313" text-anchor="start">1. AES256_GCM.encrypt(plaintext)</text>
+<path class="line" d="M212 332 L587 332"/>
+<rect x="669.5" y="362" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="687.5" y="389" text-anchor="start">2. encrypt(plaintext)</text>
+<path class="line" d="M587 408 L962 408"/>
+<rect x="990" y="438" width="319" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1008" y="465" text-anchor="start">3. encrypt(plaintext.toByteArray())</text>
+<path class="line" d="M962 484 L1337 484"/>
+<rect x="1377.5" y="514" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1395.5" y="541" text-anchor="start">4. encrypt(plainBytes, EMPTY_AD)</text>
+<path class="line" d="M1337 560 L1712 560"/>
+<rect x="1341" y="590" width="367" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1359" y="617" text-anchor="start">5. cipherBytes (nonce + ciphertext + tag)</text>
+<path class="dashed" d="M1712 636 L1337 636"/>
+<rect x="1042.5" y="666" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1060.5" y="693" text-anchor="start">6. Base64(cipherBytes)</text>
+<path class="dashed" d="M1337 712 L962 712"/>
+<rect x="669.5" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="687.5" y="769" text-anchor="start">7. Base64 ciphertext</text>
+<path class="dashed" d="M962 788 L587 788"/>
+<rect x="294.5" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="312.5" y="845" text-anchor="start">8. Base64 ciphertext</text>
+<path class="dashed" d="M587 864 L212 864"/>
+<rect x="240" y="894" width="319" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="258" y="921" text-anchor="start">9. AES256_GCM.decrypt(base64Cipher)</text>
+<path class="line" d="M212 940 L587 940"/>
+<rect x="655.5" y="970" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="673.5" y="997" text-anchor="start">10. decrypt(base64Cipher)</text>
+<path class="line" d="M587 1016 L962 1016"/>
+<rect x="1030.5" y="1046" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1048.5" y="1073" text-anchor="start">11. decrypt(base64Cipher)</text>
+<path class="line" d="M962 1092 L1337 1092"/>
+<rect x="1369" y="1122" width="311" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1387" y="1149" text-anchor="start">12. decrypt(cipherBytes, EMPTY_AD)</text>
+<path class="line" d="M1337 1168 L1712 1168"/>
+<rect x="1345" y="1198" width="359" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1363" y="1225" text-anchor="start">13. plainBytes (authentication verified)</text>
+<path class="dashed" d="M1712 1244 L1337 1244"/>
+<rect x="1010.5" y="1274" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1028.5" y="1301" text-anchor="start">14. plainBytes.toString(UTF-8)</text>
+<path class="dashed" d="M1337 1320 L962 1320"/>
+<rect x="482" y="1350" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="500" y="1377" text-anchor="start">15. plaintext</text>
+<path class="dashed" d="M962 1396 L212 1396"/>
 </svg>

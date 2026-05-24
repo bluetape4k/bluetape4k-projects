@@ -276,7 +276,7 @@ Ktor CIO is no longer a one-thread exception, but the whole benchmark uses a sho
 | `HttpClientLatencyBenchmark.ktorCioCoroutines` | 1,515.026 |
 | `HttpClientLatencyBenchmark.hc5ClassicCoroutines` | 1,216.306 |
 
-![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.svg)
+![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.png)
 
 **Notes**:
 - The previous Vert.x result mainly measured the Vert.x 5 default HTTP/1 pool cap. The benchmark now configures `PoolOptions` to match peer clients.

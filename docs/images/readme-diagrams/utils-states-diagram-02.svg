@@ -39,122 +39,105 @@
 <g transform="translate(112,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TransitionResult</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TransitionResult</text>
 
 </g>
 <g transform="translate(534,180)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">StateMachineException</text>
+  <text class="label" x="155" y="49" text-anchor="middle">StateMachineException</text>
   <text class="mono" x="18" y="108">+message: String</text>
 </g>
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">BaseStateMachine</text>
+  <text class="label" x="155" y="49" text-anchor="middle">BaseStateMachine</text>
 
 </g>
 <g transform="translate(1378,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TransitionKey</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TransitionKey</text>
 
 </g>
 <g transform="translate(1800,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TransitionTarget</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TransitionTarget</text>
 
 </g>
 <g transform="translate(112,481)">
   <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Suspend State Machine</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Interface S</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Suspend State Machine</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Interface S</text>
 
 </g>
 <g transform="translate(534,481)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DefaultStateMachineS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DefaultStateMachineS</text>
 
 </g>
 <g transform="translate(956,481)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">BaseStateMachineS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">BaseStateMachineS</text>
 
 </g>
 <g transform="translate(1378,481)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">StateMachineS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">StateMachineS</text>
 
 </g>
 <g transform="translate(1800,481)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SuspendStateMachineS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SuspendStateMachineS</text>
 
 </g>
 <g transform="translate(534,777)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TransitionResultS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TransitionResultS</text>
 
 </g>
 <g transform="translate(956,777)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TransitionKeyS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TransitionKeyS</text>
 
 </g>
 <g transform="translate(1378,777)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TransitionTargetS</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TransitionTargetS</text>
 
 </g>
 <g transform="translate(745,1113)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">StateMachine</text>
+  <text class="label" x="155" y="49" text-anchor="middle">StateMachine</text>
 
 </g>
 <g transform="translate(1167,1113)">
   <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Suspend State Machine</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Interface</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Suspend State Machine</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Interface</text>
 
 </g>
 <g transform="translate(745,1465)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DefaultStateMachine</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DefaultStateMachine</text>
 
 </g>
 <g transform="translate(1167,1465)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SuspendStateMachine</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SuspendStateMachine</text>
 
 </g>
 </svg>

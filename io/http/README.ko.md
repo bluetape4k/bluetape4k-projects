@@ -293,7 +293,7 @@ Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining �
 | `HttpClientLatencyBenchmark.ktorCioCoroutines` | 1,515.026 |
 | `HttpClientLatencyBenchmark.hc5ClassicCoroutines` | 1,216.306 |
 
-![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.svg)
+![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.png)
 
 **메모**:
 - 이전 Vert.x 결과는 주로 Vert.x 5 기본 HTTP/1 pool cap을 측정했습니다. 이제 `PoolOptions`를 명시해 다른 클라이언트와 조건을 맞췄습니다.

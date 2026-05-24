@@ -60,8 +60,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">SchemaGenerator</text>
+    <text class="label" x="170" y="49" text-anchor="middle">SchemaGenerator</text>
   <text class="mono" x="18" y="108">+createTables(operations, types)</text>
 <text class="mono" x="18" y="129">+truncateTables(operations, types)</text>
 </g>

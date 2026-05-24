@@ -69,26 +69,23 @@
 <g transform="translate(297,547)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Default Avro Reflect</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Serializer</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Default Avro Reflect</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Serializer</text>
   <text class="mono" x="18" y="124">-codecFactory: CodecFactory</text>
 <text class="mono" x="18" y="145">-schemaCache: Map~Class, Schema~</text>
 </g>
 <g transform="translate(707,547)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Default Avro Generic</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Record Serializer</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Default Avro Generic</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Record Serializer</text>
   <text class="mono" x="18" y="124">-codecFactory: CodecFactory</text>
 </g>
 <g transform="translate(1117,547)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Default Avro Specific</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Record Serializer</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Default Avro Specific</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Record Serializer</text>
   <text class="mono" x="18" y="124">-codecFactory: CodecFactory</text>
 </g>
 </svg>

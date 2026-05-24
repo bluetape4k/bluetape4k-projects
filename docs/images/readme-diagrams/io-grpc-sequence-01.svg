@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="1566" viewBox="0 0 1344 1566" role="img" aria-label="gRPC Server-Client Communication Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="1454" height="1214" viewBox="0 0 1454 1214" role="img" aria-label="gRPC Server-Client Communication Sequence">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,53 +20,53 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1344" height="1566"/>
-<rect class="frame" x="32" y="28" width="1280" height="1510" rx="28"/>
+<rect class="canvas" width="1454" height="1214"/>
+<rect class="frame" x="32" y="28" width="1390" height="1158" rx="28"/>
 <text class="title" x="66" y="82">gRPC Server-Client Communication Sequence</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="25" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">GrpcClient</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="379.6666666666667" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="494.6666666666667" y="209" text-anchor="middle">ManagedChannel</text>
-<line class="lifeline" x1="494.6666666666667" y1="252" x2="494.6666666666667" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="734.3333333333334" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="849.3333333333334" y="209" text-anchor="middle">GrpcServer</text>
-<line class="lifeline" x1="849.3333333333334" y1="252" x2="849.3333333333334" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1089" y="166" width="230" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1204" y="209" text-anchor="middle">ServiceImpl</text>
-<line class="lifeline" x1="1204" y1="252" x2="1204" y2="1506" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="109.83333333333337" y="286" width="415" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="127.83333333333337" y="313" text-anchor="start">1. ManagedChannelBuilder.forAddress(host, port)</text>
-<path class="line" d="M140 344 L494.6666666666667 344"/>
-<rect x="545" y="396" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="563" y="423" text-anchor="start">2. Establish TCP connection</text>
-<path class="line" d="M494.6666666666667 454 L849.3333333333334 454"/>
-<rect x="921.6666666666667" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="939.6666666666667" y="533" text-anchor="start">3. Register service</text>
-<path class="line" d="M849.3333333333334 564 L1204 564"/>
-<rect x="186.33333333333337" y="616" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="204.33333333333337" y="643" text-anchor="start">4. stub.doSomething(request)</text>
-<path class="line" d="M140 674 L494.6666666666667 674"/>
-<rect x="565" y="726" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="583" y="753" text-anchor="start">5. Send HTTP/2 request</text>
-<path class="line" d="M494.6666666666667 784 L849.3333333333334 784"/>
-<rect x="921.6666666666667" y="836" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="939.6666666666667" y="863" text-anchor="start">6. Invoke method</text>
-<path class="line" d="M849.3333333333334 894 L1204 894"/>
-<rect x="921.6666666666667" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="939.6666666666667" y="973" text-anchor="start">7. Generate response</text>
-<path class="dashed" d="M1204 1004 L849.3333333333334 1004"/>
-<rect x="567" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="585" y="1083" text-anchor="start">8. HTTP/2 response</text>
-<path class="dashed" d="M849.3333333333334 1114 L494.6666666666667 1114"/>
-<rect x="212.33333333333337" y="1166" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="230.33333333333337" y="1193" text-anchor="start">9. Return Response</text>
-<path class="dashed" d="M494.6666666666667 1224 L140 1224"/>
-<rect x="210.33333333333337" y="1276" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="228.33333333333337" y="1303" text-anchor="start">10. channel.shutdown()</text>
-<path class="line" d="M140 1334 L494.6666666666667 1334"/>
-<rect x="567" y="1386" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="585" y="1413" text-anchor="start">11. Close connection</text>
-<path class="line" d="M494.6666666666667 1444 L849.3333333333334 1444"/>
+<rect class="card" x="80" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="195" y="209" text-anchor="middle">GrpcClient</text>
+<line class="lifeline" x1="195" y1="252" x2="195" y2="1154" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="434.7" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="549.7" y="209" text-anchor="middle">ManagedChannel</text>
+<line class="lifeline" x1="549.7" y1="252" x2="549.7" y2="1154" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="789.3" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="904.3" y="209" text-anchor="middle">GrpcServer</text>
+<line class="lifeline" x1="904.3" y1="252" x2="904.3" y2="1154" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1144" y="166" width="230" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1259" y="209" text-anchor="middle">ServiceImpl</text>
+<line class="lifeline" x1="1259" y1="252" x2="1259" y2="1154" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="164.8" y="286" width="415" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="182.8" y="313" text-anchor="start">1. ManagedChannelBuilder.forAddress(host, port)</text>
+<path class="line" d="M195 332 L549.7 332"/>
+<rect x="600" y="362" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="618" y="389" text-anchor="start">2. Establish TCP connection</text>
+<path class="line" d="M549.7 408 L904.3 408"/>
+<rect x="976.7" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="994.7" y="465" text-anchor="start">3. Register service</text>
+<path class="line" d="M904.3 484 L1259 484"/>
+<rect x="241.3" y="514" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="259.3" y="541" text-anchor="start">4. stub.doSomething(request)</text>
+<path class="line" d="M195 560 L549.7 560"/>
+<rect x="620" y="590" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="638" y="617" text-anchor="start">5. Send HTTP/2 request</text>
+<path class="line" d="M549.7 636 L904.3 636"/>
+<rect x="976.7" y="666" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="994.7" y="693" text-anchor="start">6. Invoke method</text>
+<path class="line" d="M904.3 712 L1259 712"/>
+<rect x="976.7" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="994.7" y="769" text-anchor="start">7. Generate response</text>
+<path class="dashed" d="M1259 788 L904.3 788"/>
+<rect x="622" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="640" y="845" text-anchor="start">8. HTTP/2 response</text>
+<path class="dashed" d="M904.3 864 L549.7 864"/>
+<rect x="267.3" y="894" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="285.3" y="921" text-anchor="start">9. Return Response</text>
+<path class="dashed" d="M549.7 940 L195 940"/>
+<rect x="265.3" y="970" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="283.3" y="997" text-anchor="start">10. channel.shutdown()</text>
+<path class="line" d="M195 1016 L549.7 1016"/>
+<rect x="622" y="1046" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="640" y="1073" text-anchor="start">11. Close connection</text>
+<path class="line" d="M549.7 1092 L904.3 1092"/>
 </svg>

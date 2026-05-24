@@ -49,8 +49,7 @@
 <g transform="translate(534,180)">
   <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">LettuceNearCacheConfig</text>
+  <text class="label" x="155" y="49" text-anchor="middle">LettuceNearCacheConfig</text>
   <text class="mono" x="18" y="108">+cacheName: String</text>
 <text class="mono" x="18" y="129">+maxLocalSize: Int</text>
 <text class="mono" x="18" y="150">+frontExpireAfterWrite: Duration</text>
@@ -61,9 +60,8 @@
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="233" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Tracking Invalidation</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Listener</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Tracking Invalidation</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Listener</text>
   <text class="mono" x="18" y="124">-frontCache: LettuceLocalCache</text>
 <text class="mono" x="18" y="145">-connection: StatefulRedisConnection</text>
 <text class="mono" x="18" y="166">-cacheName: String</text>
@@ -98,8 +96,7 @@
 <g transform="translate(534,658)">
   <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">LettuceNearCache</text>
+  <text class="label" x="155" y="49" text-anchor="middle">LettuceNearCache</text>
   <text class="mono" x="18" y="108">-config: LettuceNearCacheConfig</text>
 <text class="mono" x="18" y="129">-frontCache: LettuceCaffeineLocalCache</text>
 <text class="mono" x="18" y="150">-connection: StatefulRedisConnection</text>
@@ -110,18 +107,16 @@
 <g transform="translate(956,658)">
   <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Lettuce Caffeine Local</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Cache</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Lettuce Caffeine Local</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Cache</text>
   <text class="mono" x="18" y="124">-cache: Cache</text>
 <text class="mono" x="18" y="145">+invalidate(key: String)</text>
 </g>
 <g transform="translate(1378,658)">
   <rect class="card" x="0" y="0" width="310" height="254" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Lettuce Suspend Near</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Cache</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Lettuce Suspend Near</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Cache</text>
   <text class="mono" x="18" y="124">-config: LettuceNearCacheConfig</text>
 <text class="mono" x="18" y="145">-frontCache: LettuceCaffeineLocalCache</text>
 <text class="mono" x="18" y="166">-connection: StatefulRedisConnection</text>

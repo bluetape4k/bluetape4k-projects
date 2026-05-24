@@ -55,8 +55,7 @@
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">CsvSettings</text>
+  <text class="label" x="155" y="49" text-anchor="middle">CsvSettings</text>
   <text class="mono" x="18" y="108">+delimiter: Char</text>
 <text class="mono" x="18" y="129">+quote: Char</text>
 <text class="mono" x="18" y="150">+lineSeparator: String</text>
@@ -85,8 +84,7 @@
 <g transform="translate(956,565)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TsvSettings</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TsvSettings</text>
   <text class="mono" x="18" y="108">+lineSeparator: String</text>
 <text class="mono" x="18" y="129">+trimValues: Boolean</text>
 <text class="mono" x="18" y="150">+emptyValueAsNull: Boolean</text>
@@ -94,57 +92,49 @@
 <g transform="translate(112,964)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TsvRecordWriter</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TsvRecordWriter</text>
 
 </g>
 <g transform="translate(534,964)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">CsvRecordWriter</text>
+  <text class="label" x="155" y="49" text-anchor="middle">CsvRecordWriter</text>
 
 </g>
 <g transform="translate(956,964)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">CsvRecordReader</text>
+  <text class="label" x="155" y="49" text-anchor="middle">CsvRecordReader</text>
 
 </g>
 <g transform="translate(1378,964)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">TsvRecordReader</text>
+  <text class="label" x="155" y="49" text-anchor="middle">TsvRecordReader</text>
 
 </g>
 <g transform="translate(1800,964)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SuspendCsvRecordReader</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SuspendCsvRecordReader</text>
 
 </g>
 <g transform="translate(534,1244)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SuspendTsvRecordReader</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SuspendTsvRecordReader</text>
 
 </g>
 <g transform="translate(956,1244)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SuspendCsvRecordWriter</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SuspendCsvRecordWriter</text>
 
 </g>
 <g transform="translate(1378,1244)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SuspendTsvRecordWriter</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SuspendTsvRecordWriter</text>
 
 </g>
 </svg>

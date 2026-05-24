@@ -30,9 +30,8 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="233" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Structured Task Scope</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Tester</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Structured Task Scope</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Tester</text>
   <text class="mono" x="18" y="124">+rounds(n) StructuredTaskScopeTester</text>
 <text class="mono" x="18" y="145">+add(block) StructuredTaskScopeTester</text>
 <text class="mono" x="18" y="166">+withTimeout(duration)</text>
@@ -42,8 +41,7 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">SuspendedJobTester</text>
+    <text class="label" x="170" y="49" text-anchor="middle">SuspendedJobTester</text>
   <text class="mono" x="18" y="108">+workers(n) SuspendedJobTester</text>
 <text class="mono" x="18" y="129">+rounds(n) SuspendedJobTester</text>
 <text class="mono" x="18" y="150">+add(block) SuspendedJobTester</text>
@@ -52,8 +50,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MultithreadingTester</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MultithreadingTester</text>
   <text class="mono" x="18" y="108">+workers(n) MultithreadingTester</text>
 <text class="mono" x="18" y="129">+rounds(n) MultithreadingTester</text>
 <text class="mono" x="18" y="150">+add(block) MultithreadingTester</text>
@@ -62,8 +59,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">TempFolder</text>
+    <text class="label" x="170" y="49" text-anchor="middle">TempFolder</text>
   <text class="mono" x="18" y="108">+root: File</text>
 <text class="mono" x="18" y="129">+rootPath: String</text>
 <text class="mono" x="18" y="150">+createFile(name) File</text>
@@ -73,16 +69,14 @@
 <g transform="translate(92,539)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">FakeValueExtension</text>
+    <text class="label" x="170" y="49" text-anchor="middle">FakeValueExtension</text>
   <text class="mono" x="18" y="108">+beforeEach(context)</text>
 <text class="mono" x="18" y="129">+resolveParameter(context) Any</text>
 </g>
 <g transform="translate(502,539)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">TempFolderExtension</text>
+    <text class="label" x="170" y="49" text-anchor="middle">TempFolderExtension</text>
   <text class="mono" x="18" y="108">+beforeEach(context)</text>
 <text class="mono" x="18" y="129">+afterEach(context)</text>
 <text class="mono" x="18" y="150">+resolveParameter(context) TempFolder</text>
@@ -90,8 +84,7 @@
 <g transform="translate(912,539)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Fakers</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Fakers</text>
   <text class="mono" x="18" y="108">+randomString(min, max) String</text>
 <text class="mono" x="18" y="129">+fixedString(length) String</text>
 <text class="mono" x="18" y="150">+numberString(pattern) String</text>
@@ -100,16 +93,14 @@
 <g transform="translate(1322,539)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">OutputCapturer</text>
+    <text class="label" x="170" y="49" text-anchor="middle">OutputCapturer</text>
   <text class="mono" x="18" y="108">+capture() String</text>
 <text class="mono" x="18" y="129">+expect(block)</text>
 </g>
 <g transform="translate(707,861)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">StopwatchExtension</text>
+    <text class="label" x="170" y="49" text-anchor="middle">StopwatchExtension</text>
   <text class="mono" x="18" y="108">+beforeEach(context)</text>
 <text class="mono" x="18" y="129">+afterEach(context)</text>
 </g>

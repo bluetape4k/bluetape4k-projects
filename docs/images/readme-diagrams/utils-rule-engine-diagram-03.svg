@@ -29,8 +29,7 @@
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">DefaultSuspendRuleEngine</text>
+    <text class="label" x="175" y="49" text-anchor="middle">DefaultSuspendRuleEngine</text>
   <text class="mono" x="18" y="108">+fire(rules, facts)</text>
 </g>
 <g transform="translate(508,180)">
@@ -46,8 +45,7 @@
 <g transform="translate(928,180)">
   <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">RuleEngineConfig</text>
+    <text class="label" x="175" y="49" text-anchor="middle">RuleEngineConfig</text>
   <text class="mono" x="18" y="108">+skipOnFirstAppliedRule: Boolean</text>
 <text class="mono" x="18" y="129">+skipOnFirstFailedRule: Boolean</text>
 <text class="mono" x="18" y="150">+skipOnFirstNonTriggeredRule: Boolean</text>
@@ -56,8 +54,7 @@
 <g transform="translate(298,526)">
   <rect class="card" x="0" y="0" width="350" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">DefaultRuleEngine</text>
+    <text class="label" x="175" y="49" text-anchor="middle">DefaultRuleEngine</text>
   <text class="mono" x="18" y="108">+fire(rules, facts)</text>
 <text class="mono" x="18" y="129">+addRuleListener(listener)</text>
 <text class="mono" x="18" y="150">+addRuleEngineListener(listener)</text>
@@ -65,8 +62,7 @@
 <g transform="translate(718,526)">
   <rect class="card" x="0" y="0" width="350" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">InferenceRuleEngine</text>
+    <text class="label" x="175" y="49" text-anchor="middle">InferenceRuleEngine</text>
   <text class="mono" x="18" y="108">+fire(rules, facts)</text>
 </g>
 </svg>

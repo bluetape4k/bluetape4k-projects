@@ -33,16 +33,14 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceNearCacheEndpoint</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceNearCacheEndpoint</text>
   <text class="mono" x="18" y="108">+stats(): Map~String, CacheStats~</text>
 </g>
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="212" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Lettuce Near Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Region Factory</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Lettuce Near Cache</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Region Factory</text>
   <text class="mono" x="18" y="124">+buildCache(regionName, config):</text>
 <text class="mono" x="18" y="145">RegionAccessStrategy</text>
 <text class="mono" x="18" y="166">+getL1Cache(region): CaffeineCache</text>
@@ -59,35 +57,31 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Lettuce Near Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Metrics Binder</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Lettuce Near Cache</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Metrics Binder</text>
   <text class="mono" x="18" y="124">+bindTo(registry): void</text>
 </g>
 <g transform="translate(297,518)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Lettuce Near Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Hibernate Auto</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Lettuce Near Cache</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Hibernate Auto</text>
   <text class="mono" x="18" y="124">+hibernatePropertiesCustomizer():</text>
 <text class="mono" x="18" y="145">HibernatePropertiesCustomizer</text>
 </g>
 <g transform="translate(707,518)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Lettuce Near Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Actuator Auto</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Lettuce Near Cache</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Actuator Auto</text>
   <text class="mono" x="18" y="124">+lettuceNearCacheEndpoint():</text>
 <text class="mono" x="18" y="145">LettuceNearCacheEndpoint</text>
 </g>
 <g transform="translate(1117,518)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Lettuce Near Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Metrics Auto</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Lettuce Near Cache</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Metrics Auto</text>
   <text class="mono" x="18" y="124">+lettuceNearCacheMetricsBinder():</text>
 <text class="mono" x="18" y="145">LettuceNearCacheMetricsBinder</text>
 </g>

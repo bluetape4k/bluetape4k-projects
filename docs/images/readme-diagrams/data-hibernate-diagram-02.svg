@@ -35,8 +35,7 @@
 <g transform="translate(112,180)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">IntJpaTreeEntityT</text>
+  <text class="label" x="155" y="49" text-anchor="middle">IntJpaTreeEntityT</text>
   <text class="mono" x="18" y="108">+id: Int?</text>
 <text class="mono" x="18" y="129">+parent: T?</text>
 <text class="mono" x="18" y="150">+children: MutableList~T~</text>
@@ -44,15 +43,13 @@
 <g transform="translate(534,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">JpaEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">JpaEntity</text>
 
 </g>
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">JpaTreeEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">JpaTreeEntity</text>
 
 </g>
 <g transform="translate(1378,180)">
@@ -88,8 +85,7 @@
 <g transform="translate(1167,544)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">LongJpaTreeEntityT</text>
+  <text class="label" x="155" y="49" text-anchor="middle">LongJpaTreeEntityT</text>
   <text class="mono" x="18" y="108">+id: Long?</text>
 <text class="mono" x="18" y="129">+parent: T?</text>
 <text class="mono" x="18" y="150">+children: MutableList~T~</text>
@@ -97,43 +93,37 @@
 <g transform="translate(956,964)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">AbstractJpaEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">AbstractJpaEntity</text>
 
 </g>
 <g transform="translate(534,1300)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">LongJpaEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">LongJpaEntity</text>
   <text class="mono" x="18" y="108">+id: Long?</text>
 </g>
 <g transform="translate(956,1300)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">IntJpaEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">IntJpaEntity</text>
   <text class="mono" x="18" y="108">+id: Int?</text>
 </g>
 <g transform="translate(1378,1300)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">UuidJpaEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">UuidJpaEntity</text>
   <text class="mono" x="18" y="108">+id: UUID?</text>
 </g>
 <g transform="translate(745,1657)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">IntJpaTreeEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">IntJpaTreeEntity</text>
 
 </g>
 <g transform="translate(1167,1657)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">LongJpaTreeEntity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">LongJpaTreeEntity</text>
 
 </g>
 </svg>

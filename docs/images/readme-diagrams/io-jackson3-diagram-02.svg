@@ -51,29 +51,25 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonMaskerModule</text>
+    <text class="label" x="170" y="49" text-anchor="middle">JsonMaskerModule</text>
   <text class="mono" x="18" y="108">+setupModule(context)</text>
 </g>
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonTinkEncryptModule</text>
+    <text class="label" x="170" y="49" text-anchor="middle">JsonTinkEncryptModule</text>
   <text class="mono" x="18" y="108">+setupModule(context)</text>
 </g>
 <g transform="translate(707,502)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonUuidModule</text>
+    <text class="label" x="170" y="49" text-anchor="middle">JsonUuidModule</text>
   <text class="mono" x="18" y="108">+setupModule(context)</text>
 </g>
 <g transform="translate(707,785)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JacksonSerializer</text>
+    <text class="label" x="170" y="49" text-anchor="middle">JacksonSerializer</text>
   <text class="mono" x="18" y="108">-mapper: ObjectMapper</text>
 </g>
 </svg>

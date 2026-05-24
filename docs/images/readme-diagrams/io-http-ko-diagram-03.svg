@@ -31,9 +31,8 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Caching Response</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Interceptor</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Caching Response</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Interceptor</text>
   <text class="mono" x="18" y="124">+intercept(chain) Response</text>
 </g>
 <g transform="translate(502,180)">
@@ -46,24 +45,21 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Caching Request</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Interceptor</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Caching Request</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Interceptor</text>
   <text class="mono" x="18" y="124">+intercept(chain) Response</text>
 </g>
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LoggingInterceptor</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LoggingInterceptor</text>
   <text class="mono" x="18" y="108">+intercept(chain) Response</text>
 </g>
 <g transform="translate(707,455)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Ok Http Client</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Extensions Coroutines</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Ok Http Client</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Extensions Coroutines</text>
   <text class="mono" x="18" y="124">+executeSuspending(request) Response</text>
 </g>
 </svg>

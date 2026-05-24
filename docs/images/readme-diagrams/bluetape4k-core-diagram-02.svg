@@ -89,16 +89,14 @@
 <g transform="translate(112,1048)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ClosedOpenRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ClosedOpenRange</text>
   <text class="mono" x="18" y="108">+isStartInclusive = true</text>
 <text class="mono" x="18" y="129">+isEndInclusive = false</text>
 </g>
 <g transform="translate(534,1048)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Base64StringEncoder</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Base64StringEncoder</text>
   <text class="mono" x="18" y="108">+encode(bytes) String</text>
 <text class="mono" x="18" y="129">+decode(encoded) ByteArray</text>
 </g>
@@ -114,32 +112,28 @@
 <g transform="translate(1378,1048)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ClosedClosedRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ClosedClosedRange</text>
   <text class="mono" x="18" y="108">+isStartInclusive = true</text>
 <text class="mono" x="18" y="129">+isEndInclusive = true</text>
 </g>
 <g transform="translate(1800,1048)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">HexStringEncoder</text>
+  <text class="label" x="155" y="49" text-anchor="middle">HexStringEncoder</text>
   <text class="mono" x="18" y="108">+encode(bytes) String</text>
 <text class="mono" x="18" y="129">+decode(encoded) ByteArray</text>
 </g>
 <g transform="translate(745,1391)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">OpenClosedRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">OpenClosedRange</text>
   <text class="mono" x="18" y="108">+isStartInclusive = false</text>
 <text class="mono" x="18" y="129">+isEndInclusive = true</text>
 </g>
 <g transform="translate(1167,1391)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">OpenOpenRange</text>
+  <text class="label" x="155" y="49" text-anchor="middle">OpenOpenRange</text>
   <text class="mono" x="18" y="108">+isStartInclusive = false</text>
 <text class="mono" x="18" y="129">+isEndInclusive = false</text>
 </g>

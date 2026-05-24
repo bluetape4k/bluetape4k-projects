@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1288" height="926" viewBox="0 0 1288 926" role="img" aria-label="Sequence Diagram — httpbin GET">
+<svg xmlns="http://www.w3.org/2000/svg" width="1468" height="758" viewBox="0 0 1468 758" role="img" aria-label="Sequence Diagram — httpbin GET">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,33 +20,33 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1288" height="926"/>
-<rect class="frame" x="32" y="28" width="1224" height="870" rx="28"/>
+<rect class="canvas" width="1468" height="758"/>
+<rect class="frame" x="32" y="28" width="1404" height="702" rx="28"/>
 <text class="title" x="66" y="82">Sequence Diagram — httpbin GET</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="-10" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Test / Client</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="866" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="494" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="644" y="198.5" text-anchor="middle">Bluetape Webflux</text>
-<text class="smallLabel" x="644" y="219.5" text-anchor="middle">Server (Docker)</text>
-<line class="lifeline" x1="644" y1="252" x2="644" y2="866" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="998" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="1148" y="209" text-anchor="middle">HttpbinController</text>
-<line class="lifeline" x1="1148" y1="252" x2="1148" y2="866" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="241" y="286" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="259" y="313" text-anchor="start">1. GET http://host:80/httpbin/get</text>
-<path class="line" d="M140 344 L644 344"/>
-<rect x="781" y="396" width="230" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="799" y="423" text-anchor="start">2. dispatch /httpbin/get</text>
-<path class="line" d="M644 454 L1148 454"/>
-<rect x="668" y="506" width="560" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="686" y="533" text-anchor="start">3. build HttpbinResponse (suspend) (url, method, headers, origin)</text>
-<path class="line" d="M1148 564 C1212 564 1212 598 1148 598"/>
-<rect x="785" y="636" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="803" y="663" text-anchor="start">4. HttpbinResponse JSON</text>
-<path class="dashed" d="M1148 694 L644 694"/>
-<rect x="287" y="746" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="305" y="773" text-anchor="start">5. 200 OK + JSON body</text>
-<path class="dashed" d="M644 804 L140 804"/>
+<rect class="card" x="80" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="230" y="209" text-anchor="middle">Test / Client</text>
+<line class="lifeline" x1="230" y1="252" x2="230" y2="698" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="584" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="734" y="198.5" text-anchor="middle">Bluetape Webflux</text>
+<text class="smallLabel" x="734" y="219.5" text-anchor="middle">Server (Docker)</text>
+<line class="lifeline" x1="734" y1="252" x2="734" y2="698" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1088" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="1238" y="209" text-anchor="middle">HttpbinController</text>
+<line class="lifeline" x1="1238" y1="252" x2="1238" y2="698" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="331" y="286" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="349" y="313" text-anchor="start">1. GET http://host:80/httpbin/get</text>
+<path class="line" d="M230 332 L734 332"/>
+<rect x="871" y="362" width="230" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="889" y="389" text-anchor="start">2. dispatch /httpbin/get</text>
+<path class="line" d="M734 408 L1238 408"/>
+<rect x="758" y="438" width="560" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="776" y="465" text-anchor="start">3. build HttpbinResponse (suspend) (url, method, headers, origin)</text>
+<path class="line" d="M1238 484 C1302 484 1302 518 1238 518"/>
+<rect x="875" y="514" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="893" y="541" text-anchor="start">4. HttpbinResponse JSON</text>
+<path class="dashed" d="M1238 560 L734 560"/>
+<rect x="377" y="590" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="395" y="617" text-anchor="start">5. 200 OK + JSON body</text>
+<path class="dashed" d="M734 636 L230 636"/>
 </svg>

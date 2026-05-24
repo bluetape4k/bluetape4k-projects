@@ -86,93 +86,80 @@
 <g transform="translate(112,1230)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">BlockLZ4Compressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">BlockLZ4Compressor</text>
 
 </g>
 <g transform="translate(534,1230)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ApacheGZipCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ApacheGZipCompressor</text>
 
 </g>
 <g transform="translate(956,1230)">
   <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Apache Deflate</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Compressor</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Apache Deflate</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Compressor</text>
 
 </g>
 <g transform="translate(1378,1230)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ApacheZstdCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ApacheZstdCompressor</text>
 
 </g>
 <g transform="translate(1800,1230)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">BZip2Compressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">BZip2Compressor</text>
 
 </g>
 <g transform="translate(112,1526)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">GZipCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">GZipCompressor</text>
 
 </g>
 <g transform="translate(534,1526)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">FramedLZ4Compressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">FramedLZ4Compressor</text>
 
 </g>
 <g transform="translate(956,1526)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DeflateCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DeflateCompressor</text>
 
 </g>
 <g transform="translate(1378,1526)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">FramedSnappyCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">FramedSnappyCompressor</text>
 
 </g>
 <g transform="translate(1800,1526)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">LZ4Compressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">LZ4Compressor</text>
 
 </g>
 <g transform="translate(534,1806)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ZipCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ZipCompressor</text>
 
 </g>
 <g transform="translate(956,1806)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SnappyCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SnappyCompressor</text>
 
 </g>
 <g transform="translate(1378,1806)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ZstdCompressor</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ZstdCompressor</text>
 
 </g>
 </svg>

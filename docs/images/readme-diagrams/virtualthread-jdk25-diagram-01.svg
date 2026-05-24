@@ -43,8 +43,7 @@
 <g transform="translate(508,180)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">ServiceLoader</text>
+    <text class="label" x="175" y="49" text-anchor="middle">ServiceLoader</text>
   <text class="mono" x="18" y="108">+load(type) ServiceLoader</text>
 <text class="mono" x="18" y="129">+findFirst() Optional</text>
 </g>
@@ -62,9 +61,8 @@
 <g transform="translate(298,563)">
   <rect class="card" x="0" y="0" width="350" height="212" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="94" x2="350" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="56.5" text-anchor="middle">Jdk25 Structured Task</text>
-<text class="label" x="175" y="81.5" text-anchor="middle">Scope Provider</text>
+    <text class="label" x="175" y="44.5" text-anchor="middle">Jdk25 Structured Task</text>
+<text class="label" x="175" y="69.5" text-anchor="middle">Scope Provider</text>
   <text class="mono" x="18" y="124">+providerName = jdk25</text>
 <text class="mono" x="18" y="145">+priority = 25</text>
 <text class="mono" x="18" y="166">+withAll(name, factory, block) T</text>
@@ -73,8 +71,7 @@
 <g transform="translate(718,563)">
   <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">Jdk25VirtualThreadRuntime</text>
+    <text class="label" x="175" y="49" text-anchor="middle">Jdk25VirtualThreadRuntime</text>
   <text class="mono" x="18" y="108">+runtimeName = jdk25</text>
 <text class="mono" x="18" y="129">+priority = 25</text>
 <text class="mono" x="18" y="150">+isSupported() Boolean</text>

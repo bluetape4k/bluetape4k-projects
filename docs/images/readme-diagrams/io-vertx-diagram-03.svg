@@ -31,8 +31,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">EventBus</text>
+    <text class="label" x="170" y="49" text-anchor="middle">EventBus</text>
   <text class="mono" x="18" y="108">+send(address, message)</text>
 <text class="mono" x="18" y="129">+publish(address, message)</text>
 <text class="mono" x="18" y="150">+consumer(address) MessageConsumer</text>
@@ -67,8 +66,7 @@
 <g transform="translate(707,526)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Pool</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Pool</text>
   <text class="mono" x="18" y="108">+withConnection(handler) Future</text>
 <text class="mono" x="18" y="129">+withTransaction(handler) Future</text>
 </g>
