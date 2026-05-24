@@ -61,4 +61,18 @@ class CachingHttpClientBuilderTest: AbstractHc5Test() {
             response.code shouldBeEqualTo 200
         }
     }
+
+    @Test
+    fun `memoryCachingHttpClientOf 파라미터 커스텀 생성`() {
+        val client: CloseableHttpClient = memoryCachingHttpClientOf(maxEntries = 500, maxObjectSizeBytes = 32 * 1024L)
+        client.shouldNotBeNull()
+        client.close()
+    }
+
+    @Test
+    fun `fileCachingHttpClientOf 파라미터 커스텀 생성`(@TempDir tempDir: File) {
+        val client: CloseableHttpClient = fileCachingHttpClientOf(tempDir, maxCacheMb = 50L, maxObjectSizeBytes = 512 * 1024L)
+        client.shouldNotBeNull()
+        client.close()
+    }
 }
