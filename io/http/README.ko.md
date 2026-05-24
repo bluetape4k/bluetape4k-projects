@@ -346,6 +346,8 @@ Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining �
 | `HttpClientBenchmark.javaHttpCoroutines` | 4,739.894 |
 | `HttpClientBenchmark.ktorCioCoroutines` | 2,052.281 |
 
+![HTTP client base throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
+
 #### 고지연 처리량 스냅샷
 
 | 벤치마크 행 | ops/s |
