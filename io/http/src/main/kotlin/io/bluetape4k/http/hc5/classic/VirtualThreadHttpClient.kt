@@ -56,6 +56,12 @@ fun virtualThreadHttpClientOf(
  * Combines [virtualThreadHttpClientOf] connection pool sizing with the full production tuning
  * from [productionHttpClientOf]: eviction, keep-alive fallback, retry, and request timeouts.
  *
+ * ## Virtual Thread note
+ * HC5 5.x does not expose a `setThreadFactory` API on `PoolingHttpClientConnectionManagerBuilder`.
+ * "VirtualThread" in this function name refers to the **calling context**: this client is
+ * intended to be invoked from virtual threads (e.g. Spring Boot's virtual-thread executor).
+ * Internal HC5 background threads (connection eviction, pool housekeeping) remain platform threads.
+ *
  * ## Defaults
  * - Connection pool: 200 total / 100 per route
  * - Evicts expired connections automatically
