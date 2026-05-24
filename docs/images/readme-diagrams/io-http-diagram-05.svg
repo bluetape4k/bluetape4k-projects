@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 660" width="820" height="660">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&amp;family=Comic+Neue:wght@400;700&amp;display=swap');
+      .title { font-family: 'Architects Daughter', cursive; font-size: 18px; fill: #1e3a5f; }
+      .label { font-family: 'Architects Daughter', cursive; font-size: 14px; fill: #1e3a5f; }
+      .mono  { font-family: 'Comic Neue', 'Comic Sans MS', cursive; font-size: 11px; fill: #374151; }
+      .mono-sm { font-family: 'Comic Neue', 'Comic Sans MS', cursive; font-size: 10px; fill: #374151; }
+      .caption { font-family: 'Comic Neue', 'Comic Sans MS', cursive; font-size: 11px; fill: #6b7280; }
+    </style>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M1,1 L8,4.5 L1,8 Z" fill="#64748b"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M1,1 L8,4.5 L1,8 Z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arr-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M1,1 L8,4.5 L1,8 Z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas -->
+  <rect width="820" height="660" rx="14" fill="#f7f9fc"/>
+  <rect x="8" y="8" width="804" height="644" rx="10" fill="white" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <rect x="24" y="18" width="772" height="40" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="410" y="44" text-anchor="middle" class="title">HTTP Client Benchmark — Profiling Workflow</text>
+
+  <!-- Step 1: Gradle Command -->
+  <rect x="230" y="78" width="360" height="62" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="410" y="98" text-anchor="middle" class="label">Gradle Command</text>
+  <text x="410" y="116" text-anchor="middle" class="mono">./gradlew :bluetape4k-http:testBenchmark</text>
+  <text x="410" y="130" text-anchor="middle" class="mono" fill="#b45309">-PbenchmarkProfile=&lt;gc | jfr | async&gt;</text>
+
+  <!-- Arrow 1 -->
+  <line x1="410" y1="140" x2="410" y2="162" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Step 2: Gradle Configuration Phase -->
+  <rect x="150" y="162" width="520" height="76" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="410" y="182" text-anchor="middle" class="label">Gradle Configuration Phase</text>
+  <text x="410" y="199" text-anchor="middle" class="mono">tasks.withType&lt;JavaExec&gt;().configureEach {</text>
+  <text x="410" y="214" text-anchor="middle" class="mono">    if (name.endsWith("Benchmark")) { ... }</text>
+  <text x="410" y="229" text-anchor="middle" class="mono">}   →   testBenchmark (JavaExec)</text>
+
+  <!-- Arrow 2 -->
+  <line x1="410" y1="238" x2="410" y2="260" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Step 3: JVM Args Injection -->
+  <rect x="100" y="260" width="620" height="90" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="410" y="280" text-anchor="middle" class="label">JVM Args Injected into testBenchmark</text>
+  <text x="240" y="299" text-anchor="middle" class="mono-sm" fill="#166534">gc:</text>
+  <text x="310" y="299" text-anchor="start" class="mono-sm">-Xlog:gc*,safepoint:file=.../gc.log</text>
+  <text x="240" y="315" text-anchor="middle" class="mono-sm" fill="#b45309">jfr:</text>
+  <text x="310" y="315" text-anchor="start" class="mono-sm">-XX:StartFlightRecording=filename=.../benchmark.jfr</text>
+  <text x="240" y="331" text-anchor="middle" class="mono-sm" fill="#7c3aed">async:</text>
+  <text x="310" y="331" text-anchor="start" class="mono-sm">-agentpath:libasyncProfiler.so=start,event=cpu,...</text>
+  <text x="410" y="345" text-anchor="middle" class="caption">Output dir: build/benchmark-profiling/</text>
+
+  <!-- Arrow 3 -->
+  <line x1="410" y1="350" x2="410" y2="372" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Step 4: JMH Benchmark Execution -->
+  <rect x="200" y="372" width="420" height="56" rx="8" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="410" y="394" text-anchor="middle" class="label">JMH Benchmark Execution</text>
+  <text x="410" y="412" text-anchor="middle" class="mono">HttpClientBenchmark · HttpClientLatencyBenchmark</text>
+  <text x="410" y="426" text-anchor="middle" class="mono">HttpClientCompressionCacheBenchmark</text>
+
+  <!-- Arrow to 3 outputs
+       3 boxes × 238px + 2 gaps × 14px = 714px; left margin=53, right margin=53
+       centers: 53+119=172, 53+238+14+119=424, 53+238+14+238+14+119=676
+  -->
+  <line x1="410" y1="428" x2="410" y2="456" stroke="#64748b" stroke-width="2"/>
+  <line x1="172" y1="456" x2="676" y2="456" stroke="#64748b" stroke-width="2"/>
+  <line x1="172" y1="456" x2="172" y2="476" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="410" y1="456" x2="410" y2="476" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="676" y1="456" x2="676" y2="476" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Output: gc  x=53 w=238 center=172 right=291 -->
+  <rect x="53" y="476" width="238" height="80" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="172" y="496" text-anchor="middle" class="label" fill="#166534">gc</text>
+  <text x="172" y="512" text-anchor="middle" class="mono">benchmark-profiling/gc.log</text>
+  <text x="172" y="527" text-anchor="middle" class="caption">GC pause time · allocation</text>
+  <text x="172" y="541" text-anchor="middle" class="caption">events · safepoints</text>
+
+  <!-- Output: jfr  x=305 w=238 center=424 right=543 -->
+  <rect x="305" y="476" width="238" height="80" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="424" y="496" text-anchor="middle" class="label" fill="#b45309">jfr</text>
+  <text x="424" y="512" text-anchor="middle" class="mono">benchmark-profiling/</text>
+  <text x="424" y="525" text-anchor="middle" class="mono">benchmark.jfr</text>
+  <text x="424" y="540" text-anchor="middle" class="caption">CPU flame graph · GC events</text>
+  <text x="424" y="553" text-anchor="middle" class="caption">Open with jmc / IntelliJ</text>
+
+  <!-- Output: async  x=557 w=238 center=676 right=795 -->
+  <rect x="557" y="476" width="238" height="80" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="676" y="496" text-anchor="middle" class="label" fill="#5b21b6">async</text>
+  <text x="676" y="512" text-anchor="middle" class="mono">benchmark-profiling/</text>
+  <text x="676" y="525" text-anchor="middle" class="mono">async-cpu.html</text>
+  <text x="676" y="540" text-anchor="middle" class="caption">CPU flame graph (sampling)</text>
+  <text x="676" y="553" text-anchor="middle" class="caption">Open in browser</text>
+
+  <!-- Note at bottom -->
+  <rect x="53" y="574" width="714" height="48" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="410" y="594" text-anchor="middle" class="caption">ℹ async-profiler requires -PasyncProfilerLib=/path/to/libasyncProfiler.so</text>
+  <text x="410" y="612" text-anchor="middle" class="caption">kotlinx-benchmark runtime auto-detects the agent and sets JMH forks=0</text>
+</svg>

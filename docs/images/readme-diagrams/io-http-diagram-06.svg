@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&amp;family=Comic+Neue:wght@400;700&amp;display=swap');
+      .title  { font-family: 'Architects Daughter', cursive; font-size: 18px; fill: #1e3a5f; }
+      .panel  { font-family: 'Architects Daughter', cursive; font-size: 20px; }
+      .sub    { font-family: 'Architects Daughter', cursive; font-size: 13px; }
+      .mono   { font-family: 'Comic Neue', 'Comic Sans MS', cursive; font-size: 11px; fill: #374151; }
+      .mono-b { font-family: 'Comic Neue', 'Comic Sans MS', cursive; font-size: 11px; font-weight: 700; fill: #374151; }
+      .cap    { font-family: 'Comic Neue', 'Comic Sans MS', cursive; font-size: 11px; fill: #6b7280; }
+    </style>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M1,1 L8,4.5 L1,8 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas -->
+  <rect width="960" height="460" rx="14" fill="#f7f9fc"/>
+  <rect x="8" y="8" width="944" height="444" rx="10" fill="white" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <rect x="24" y="18" width="912" height="40" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="480" y="44" text-anchor="middle" class="title">HTTP Client Benchmark — Profiling Mode Comparison</text>
+
+  <!-- ── Panel 1: gc (blue) ── -->
+  <rect x="28" y="78" width="284" height="356" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <!-- header -->
+  <rect x="28" y="78" width="284" height="52" rx="10" fill="#3b82f6"/>
+  <rect x="28" y="108" width="284" height="22" fill="#3b82f6"/>
+  <text x="170" y="111" text-anchor="middle" class="panel" fill="white">gc</text>
+
+  <!-- badge -->
+  <rect x="90" y="142" width="160" height="26" rx="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="170" y="160" text-anchor="middle" class="sub" fill="#1d4ed8">JVM GC Logging</text>
+
+  <!-- description -->
+  <text x="170" y="192" text-anchor="middle" class="mono">Records GC pause times,</text>
+  <text x="170" y="207" text-anchor="middle" class="mono">allocation events, and</text>
+  <text x="170" y="222" text-anchor="middle" class="mono">safepoint stops.</text>
+
+  <!-- command -->
+  <rect x="44" y="238" width="252" height="36" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="170" y="253" text-anchor="middle" class="mono-b">-PbenchmarkProfile=gc</text>
+  <text x="170" y="267" text-anchor="middle" class="cap">No extra dependency</text>
+
+  <!-- output -->
+  <rect x="44" y="284" width="252" height="28" rx="5" fill="white" stroke="#93c5fd" stroke-width="1"/>
+  <text x="170" y="303" text-anchor="middle" class="mono">📄  gc.log</text>
+
+  <!-- tool -->
+  <text x="170" y="334" text-anchor="middle" class="cap">Open with any text editor</text>
+  <text x="170" y="349" text-anchor="middle" class="cap">or GC analysis tools</text>
+  <text x="170" y="364" text-anchor="middle" class="cap">(GCEasy, GCViewer)</text>
+
+  <!-- flag detail -->
+  <rect x="44" y="380" width="252" height="44" rx="5" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="170" y="397" text-anchor="middle" class="mono">-Xlog:gc*,safepoint:</text>
+  <text x="170" y="412" text-anchor="middle" class="mono">file=.../gc.log:time,uptime</text>
+
+  <!-- ── Panel 2: jfr (amber) ── -->
+  <rect x="338" y="78" width="284" height="356" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <!-- header -->
+  <rect x="338" y="78" width="284" height="52" rx="10" fill="#d97706"/>
+  <rect x="338" y="108" width="284" height="22" fill="#d97706"/>
+  <text x="480" y="111" text-anchor="middle" class="panel" fill="white">jfr</text>
+
+  <!-- badge -->
+  <rect x="400" y="142" width="160" height="26" rx="13" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
+  <text x="480" y="160" text-anchor="middle" class="sub" fill="#92400e">Java Flight Recorder</text>
+
+  <!-- description -->
+  <text x="480" y="192" text-anchor="middle" class="mono">CPU flame graph, GC events,</text>
+  <text x="480" y="207" text-anchor="middle" class="mono">lock contention, and</text>
+  <text x="480" y="222" text-anchor="middle" class="mono">memory allocation analysis.</text>
+
+  <!-- command -->
+  <rect x="354" y="238" width="252" height="36" rx="6" fill="#fffbeb" stroke="#fcd34d" stroke-width="1"/>
+  <text x="480" y="253" text-anchor="middle" class="mono-b">-PbenchmarkProfile=jfr</text>
+  <text x="480" y="267" text-anchor="middle" class="cap">JDK 11+ (built-in)</text>
+
+  <!-- output -->
+  <rect x="354" y="284" width="252" height="28" rx="5" fill="white" stroke="#fcd34d" stroke-width="1"/>
+  <text x="480" y="303" text-anchor="middle" class="mono">📦  benchmark.jfr</text>
+
+  <!-- tool -->
+  <text x="480" y="334" text-anchor="middle" class="cap">Open with JDK Mission Control</text>
+  <text x="480" y="349" text-anchor="middle" class="cap">or IntelliJ IDEA JFR viewer</text>
+  <text x="480" y="364" text-anchor="middle" class="cap">for CPU flame graph</text>
+
+  <!-- flag detail -->
+  <rect x="354" y="380" width="252" height="44" rx="5" fill="#fffbeb" stroke="#fcd34d" stroke-width="1"/>
+  <text x="480" y="397" text-anchor="middle" class="mono">-XX:StartFlightRecording=</text>
+  <text x="480" y="412" text-anchor="middle" class="mono">dumponexit=true,settings=profile</text>
+
+  <!-- ── Panel 3: async (purple) ── -->
+  <rect x="648" y="78" width="284" height="356" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <!-- header -->
+  <rect x="648" y="78" width="284" height="52" rx="10" fill="#7c3aed"/>
+  <rect x="648" y="108" width="284" height="22" fill="#7c3aed"/>
+  <text x="790" y="111" text-anchor="middle" class="panel" fill="white">async</text>
+
+  <!-- badge -->
+  <rect x="710" y="142" width="160" height="26" rx="13" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="790" y="160" text-anchor="middle" class="sub" fill="#4c1d95">async-profiler</text>
+
+  <!-- description -->
+  <text x="790" y="192" text-anchor="middle" class="mono">Low-overhead CPU flame</text>
+  <text x="790" y="207" text-anchor="middle" class="mono">graph via native agent.</text>
+  <text x="790" y="222" text-anchor="middle" class="mono">Sampling-based profiler.</text>
+
+  <!-- command -->
+  <rect x="664" y="238" width="252" height="48" rx="6" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="790" y="252" text-anchor="middle" class="mono-b">-PbenchmarkProfile=async</text>
+  <text x="790" y="266" text-anchor="middle" class="cap">+  -PasyncProfilerLib=</text>
+  <text x="790" y="279" text-anchor="middle" class="cap">/path/to/libasyncProfiler.so</text>
+
+  <!-- output -->
+  <rect x="664" y="296" width="252" height="28" rx="5" fill="white" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="790" y="315" text-anchor="middle" class="mono">🔥  async-cpu.html</text>
+
+  <!-- tool -->
+  <text x="790" y="346" text-anchor="middle" class="cap">Open in any web browser.</text>
+  <text x="790" y="361" text-anchor="middle" class="cap">Interactive flame graph.</text>
+  <text x="790" y="376" text-anchor="middle" class="cap">kotlinx-benchmark sets forks=0</text>
+
+  <!-- flag detail -->
+  <rect x="664" y="392" width="252" height="32" rx="5" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="790" y="407" text-anchor="middle" class="mono">Download from</text>
+  <text x="790" y="420" text-anchor="middle" class="mono">async-profiler/releases</text>
+</svg>
