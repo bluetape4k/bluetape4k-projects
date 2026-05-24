@@ -1,9 +1,17 @@
 package io.bluetape4k.http.hc5.classic
 
+import io.bluetape4k.http.hc5.http.defaultKeepAliveStrategy
+import io.bluetape4k.http.hc5.http.defaultRetryStrategy
+import io.bluetape4k.http.hc5.http.productionRequestConfigOf
 import io.bluetape4k.logging.KLogging
+import org.apache.hc.client5.http.ConnectionKeepAliveStrategy
+import org.apache.hc.client5.http.HttpRequestRetryStrategy
+import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
+import org.apache.hc.core5.util.TimeValue
 
 /**
  * Virtual Threads 기반 HC5 Classic HTTP 클라이언트를 생성합니다.
@@ -12,9 +20,9 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 object VirtualThreadHttpClients: KLogging()
 
 /**
- * Virtual Threads 기반 HC5 Classic [CloseableHttpClient]를 생성합니다.
+ * Creates an HC5 Classic [CloseableHttpClient] backed by a Virtual Thread connection pool.
  *
- * 블로킹 I/O 경로에서도 Virtual Thread의 경량 스케줄링을 활용하여 높은 동시성을 달성합니다.
+ * Blocking I/O runs on virtual threads, achieving high concurrency without platform thread overhead.
  *
  * ```kotlin
  * val client = virtualThreadHttpClientOf(maxConnTotal = 200, maxConnPerRoute = 50)
@@ -24,9 +32,9 @@ object VirtualThreadHttpClients: KLogging()
  * }
  * ```
  *
- * @param maxConnTotal 전체 최대 커넥션 수 (기본값: 200)
- * @param maxConnPerRoute 라우트당 최대 커넥션 수 (기본값: 100)
- * @return 생성된 [CloseableHttpClient] 인스턴스
+ * @param maxConnTotal total maximum pooled connections (default: 200)
+ * @param maxConnPerRoute maximum pooled connections per route (default: 100)
+ * @return [CloseableHttpClient] backed by a Virtual Thread connection pool
  */
 fun virtualThreadHttpClientOf(
     maxConnTotal: Int = 200,
@@ -40,3 +48,54 @@ fun virtualThreadHttpClientOf(
         .setConnectionManager(connManager)
         .build()
 }
+
+/**
+ * Creates a production-ready HC5 Classic [CloseableHttpClient] backed by a Virtual Thread
+ * connection pool with all recommended tuning defaults applied.
+ *
+ * Combines [virtualThreadHttpClientOf] connection pool sizing with the full production tuning
+ * from [productionHttpClientOf]: eviction, keep-alive fallback, retry, and request timeouts.
+ *
+ * ## Defaults
+ * - Connection pool: 200 total / 100 per route
+ * - Evicts expired connections automatically
+ * - Evicts connections idle longer than [maxIdleTime] (default: 60 s)
+ * - Keep-alive fallback: 60 s when server omits `Keep-Alive` header
+ * - Retry: up to 3 times with 1 s interval on transient failures
+ * - Request timeouts: pool-wait 5 s, connect 10 s, response 30 s
+ *
+ * ```kotlin
+ * val client = productionVirtualThreadHttpClientOf()
+ *
+ * val client = productionVirtualThreadHttpClientOf(
+ *     maxConnTotal = 500,
+ *     requestConfig = productionRequestConfigOf(responseTimeout = Timeout.ofSeconds(60)),
+ * )
+ * ```
+ *
+ * @param maxConnTotal total maximum pooled connections (default: 200)
+ * @param maxConnPerRoute maximum pooled connections per route (default: 100)
+ * @param requestConfig request timeout config (default: [productionRequestConfigOf])
+ * @param keepAliveStrategy keep-alive fallback strategy (default: [defaultKeepAliveStrategy])
+ * @param retryStrategy retry strategy (default: [defaultRetryStrategy])
+ * @param maxIdleTime maximum idle time before a pooled connection is evicted (default: 60 s)
+ * @param builder optional [org.apache.hc.client5.http.impl.classic.HttpClientBuilder] customisation applied last
+ * @return production-tuned [CloseableHttpClient] backed by Virtual Threads
+ */
+fun productionVirtualThreadHttpClientOf(
+    maxConnTotal: Int = 200,
+    maxConnPerRoute: Int = 100,
+    requestConfig: RequestConfig = productionRequestConfigOf(),
+    keepAliveStrategy: ConnectionKeepAliveStrategy = defaultKeepAliveStrategy(),
+    retryStrategy: HttpRequestRetryStrategy = defaultRetryStrategy(),
+    maxIdleTime: TimeValue = TimeValue.ofSeconds(60),
+    builder: HttpClientBuilder.() -> Unit = {},
+): CloseableHttpClient = productionHttpClientOf(
+    maxConnTotal = maxConnTotal,
+    maxConnPerRoute = maxConnPerRoute,
+    requestConfig = requestConfig,
+    keepAliveStrategy = keepAliveStrategy,
+    retryStrategy = retryStrategy,
+    maxIdleTime = maxIdleTime,
+    builder = builder,
+)

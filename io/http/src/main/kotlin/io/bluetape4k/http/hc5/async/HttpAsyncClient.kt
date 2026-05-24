@@ -1,11 +1,19 @@
 package io.bluetape4k.http.hc5.async
 
+import io.bluetape4k.http.hc5.http.defaultKeepAliveStrategy
+import io.bluetape4k.http.hc5.http.defaultRetryStrategy
+import io.bluetape4k.http.hc5.http.productionRequestConfigOf
+import org.apache.hc.client5.http.ConnectionKeepAliveStrategy
+import org.apache.hc.client5.http.HttpRequestRetryStrategy
+import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
 import org.apache.hc.client5.http.impl.async.H2AsyncClientBuilder
 import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder
 import org.apache.hc.client5.http.nio.AsyncClientConnectionManager
 import org.apache.hc.core5.http2.config.H2Config
+import org.apache.hc.core5.util.TimeValue
 
 /**
  * 기본 설정으로 [CloseableHttpAsyncClient]를 생성합니다.
@@ -153,3 +161,57 @@ inline fun h2AsyncClientOf(
  */
 fun h2AsyncClientSystemOf(): CloseableHttpAsyncClient =
     HttpAsyncClients.createHttp2System().apply { start() }
+
+/**
+ * Creates a production-ready [CloseableHttpAsyncClient] with all recommended tuning defaults:
+ * pooled connections, eviction, keep-alive fallback, retry strategy, and request timeouts.
+ *
+ * ## Defaults
+ * - Connection pool: 200 total / 100 per route
+ * - Evicts expired connections automatically
+ * - Evicts connections idle longer than [maxIdleTime] (default: 60 s)
+ * - Keep-alive fallback: 60 s when server omits `Keep-Alive` header
+ * - Retry: up to 3 times with 1 s interval on transient failures
+ * - Request timeouts: pool-wait 5 s, connect 10 s, response 30 s
+ *
+ * ```kotlin
+ * val client = productionHttpAsyncClientOf()
+ *
+ * val client = productionHttpAsyncClientOf(
+ *     maxConnTotal = 500,
+ *     requestConfig = productionRequestConfigOf(responseTimeout = Timeout.ofSeconds(60)),
+ * )
+ * ```
+ *
+ * @param maxConnTotal total maximum pooled connections (default: 200)
+ * @param maxConnPerRoute maximum pooled connections per route (default: 100)
+ * @param requestConfig request timeout config (default: [io.bluetape4k.http.hc5.http.productionRequestConfigOf])
+ * @param keepAliveStrategy keep-alive fallback strategy (default: [io.bluetape4k.http.hc5.http.defaultKeepAliveStrategy])
+ * @param retryStrategy retry strategy (default: [io.bluetape4k.http.hc5.http.defaultRetryStrategy])
+ * @param maxIdleTime maximum idle time before a pooled connection is evicted (default: 60 s)
+ * @param builder optional [HttpAsyncClientBuilder] customisation applied last
+ * @return production-tuned [CloseableHttpAsyncClient] (already started)
+ */
+fun productionHttpAsyncClientOf(
+    maxConnTotal: Int = 200,
+    maxConnPerRoute: Int = 100,
+    requestConfig: RequestConfig = productionRequestConfigOf(),
+    keepAliveStrategy: ConnectionKeepAliveStrategy = defaultKeepAliveStrategy(),
+    retryStrategy: HttpRequestRetryStrategy = defaultRetryStrategy(),
+    maxIdleTime: TimeValue = TimeValue.ofSeconds(60),
+    builder: HttpAsyncClientBuilder.() -> Unit = {},
+): CloseableHttpAsyncClient {
+    val connManager = PoolingAsyncClientConnectionManagerBuilder.create()
+        .setMaxConnTotal(maxConnTotal)
+        .setMaxConnPerRoute(maxConnPerRoute)
+        .build()
+    return httpAsyncClient {
+        setConnectionManager(connManager)
+        setDefaultRequestConfig(requestConfig)
+        setKeepAliveStrategy(keepAliveStrategy)
+        setRetryStrategy(retryStrategy)
+        evictExpiredConnections()
+        evictIdleConnections(maxIdleTime)
+        builder()
+    }
+}

@@ -85,6 +85,54 @@ client.use {
 }
 ```
 
+**운영 환경용 HttpClient (Production-tuned):**
+
+권장 설정이 모두 적용된 클라이언트를 한 번에 생성합니다: 커넥션 풀, 만료/유휴 커넥션 자동 제거,
+`Keep-Alive` 헤더가 없는 서버를 위한 폴백, 일시적 장애 재시도, 보수적 요청 타임아웃.
+
+```kotlin
+import io.bluetape4k.http.hc5.classic.*
+import io.bluetape4k.http.hc5.http.*
+
+// 기본 설정: pool 200/100, eviction 60초, keep-alive 60초 폴백, 재시도 3회, 타임아웃 5/10/30초
+val client = productionHttpClientOf()
+
+// 커넥션 풀 크기 및 응답 타임아웃 커스터마이징
+val client = productionHttpClientOf(
+    maxConnTotal = 500,
+    maxConnPerRoute = 200,
+    requestConfig = productionRequestConfigOf(responseTimeout = Timeout.ofSeconds(60)),
+)
+
+// Virtual Thread 변형 (동일 설정, Virtual Thread 커넥션 풀)
+val client = productionVirtualThreadHttpClientOf()
+```
+
+| 파라미터 | 기본값 | 설명 |
+|---------|--------|------|
+| `maxConnTotal` | 200 | 전체 풀 커넥션 수 |
+| `maxConnPerRoute` | 100 | 라우트별 풀 커넥션 수 |
+| `connectionRequestTimeout` | 5초 | 풀에서 커넥션 획득 대기 시간 |
+| `connectTimeout` | 10초 | TCP 연결 시간 |
+| `responseTimeout` | 30초 | 첫 응답 바이트 수신 시간 |
+| `maxIdleTime` | 60초 | 유휴 커넥션 제거 임계값 |
+| keep-alive 폴백 | 60초 | `Keep-Alive` 헤더 없는 서버에 적용 |
+| `maxRetries` | 3 | 일시적 장애 재시도 횟수 |
+
+**비동기 운영 환경용 클라이언트:**
+
+```kotlin
+import io.bluetape4k.http.hc5.async.*
+
+val asyncClient = productionHttpAsyncClientOf()
+
+// 커스터마이징
+val asyncClient = productionHttpAsyncClientOf(
+    maxConnTotal = 500,
+    retryStrategy = defaultRetryStrategy(maxRetries = 5),
+)
+```
+
 **캐싱 HttpClient:**
 
 ```kotlin
