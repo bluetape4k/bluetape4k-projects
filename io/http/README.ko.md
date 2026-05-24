@@ -227,6 +227,8 @@ val vertxClient = vertxHttpClientOf(options)
 
 > 전체 설계 근거: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
 
+![HTTP 클라이언트 주요 권장 다이어그램](../../docs/images/readme-diagrams/io-http-ko-diagram-04.png)
+
 **Apache HttpComponents 5 (HC5)** 가 `bluetape4k-http`의 **1순위 권장 프로덕션 HTTP 클라이언트**입니다. 프로덕션 튜닝 팩토리, RFC 7234 인메모리 캐싱, Virtual Thread 지원, Coroutines 통합 등 가장 풍부한 기능을 제공합니다.
 
 | 시나리오 | 권장 클라이언트 | 팩토리 함수 |

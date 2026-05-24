@@ -228,6 +228,8 @@ val vertxClient = vertxHttpClientOf(options)
 
 > See the full design rationale: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
 
+![HTTP Client Primary Recommendations diagram](../../docs/images/readme-diagrams/io-http-diagram-04.png)
+
 **Apache HttpComponents 5 (HC5) is the primary recommended production HTTP client** in `bluetape4k-http`. It provides the deepest feature set: production-tuned factories, in-memory RFC 7234 caching, virtual-thread support, and coroutine integration.
 
 | Scenario | Recommended client | Factory |
