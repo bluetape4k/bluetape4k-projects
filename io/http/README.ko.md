@@ -274,6 +274,8 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 
 ### CPU 및 GC 프로파일링
 
+![Profiling mode comparison](../../docs/images/readme-diagrams/io-http-diagram-06.png)
+
 `-PbenchmarkProfile=<profiler>` 를 추가하면 벤치마크 실행 중 프로파일링이 활성화됩니다.
 출력 파일은 `build/benchmark-profiling/` 에 저장됩니다.
 
@@ -307,6 +309,8 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 > kotlinx-benchmark 런타임이 에이전트를 자동 감지하여 JMH forks를 0으로 설정합니다.
 
 > **요구 사항**: 모든 프로파일러는 프로젝트 툴체인인 JDK 21에서 동작합니다. 추가 Gradle 의존성 불필요.
+
+![Profiling workflow](../../docs/images/readme-diagrams/io-http-diagram-05.png)
 
 ### 1. HttpClientBenchmark — 기본 처리량 (`GET /ping`)
 

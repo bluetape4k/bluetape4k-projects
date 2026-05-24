@@ -273,6 +273,8 @@ All benchmarks target a separate Docker container server, isolating the server J
 
 ### CPU and GC Profiling
 
+![Profiling mode comparison](../../docs/images/readme-diagrams/io-http-diagram-06.png)
+
 Add `-PbenchmarkProfile=<profiler>` to enable profiling during the benchmark run.
 Output files are written to `build/benchmark-profiling/`.
 
@@ -306,6 +308,8 @@ Output files are written to `build/benchmark-profiling/`.
 > The kotlinx-benchmark runtime detects the agent and automatically sets JMH forks to 0.
 
 > **Requirements**: All profilers run on JDK 21 (the project toolchain). No extra Gradle dependencies needed.
+
+![Profiling workflow](../../docs/images/readme-diagrams/io-http-diagram-05.png)
 
 ### 1. HttpClientBenchmark — Base Throughput (`GET /ping`)
 
