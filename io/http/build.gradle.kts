@@ -28,6 +28,67 @@ benchmark {
     }
 }
 
+// ---------------------------------------------------------------------------
+// CPU / GC profiling support
+//
+// Add -PbenchmarkProfile=<profiler> to the Gradle command to enable profiling.
+//
+//   gc    → JVM GC logging  (-Xlog:gc*)
+//             Output: build/benchmark-profiling/gc.log
+//
+//   jfr   → Java Flight Recorder  (-XX:StartFlightRecording)
+//             Output: build/benchmark-profiling/benchmark.jfr
+//             Open with JDK Mission Control (jmc) or IntelliJ IDEA JFR viewer.
+//
+//   async → async-profiler flame graph  (-agentpath:libasyncProfiler.so)
+//             Also requires: -PasyncProfilerLib=/path/to/libasyncProfiler.so
+//             Output: build/benchmark-profiling/async-cpu.html
+//             kotlinx-benchmark runtime auto-detects the agent and sets forks=0.
+//
+// Examples:
+//   ./gradlew :bluetape4k-http:testBenchmark -PbenchmarkProfile=gc
+//   ./gradlew :bluetape4k-http:testBenchmark -PbenchmarkProfile=jfr \
+//       -PbenchmarkInclude="HttpClientBenchmark"
+//   ./gradlew :bluetape4k-http:testBenchmark -PbenchmarkProfile=async \
+//       -PasyncProfilerLib=/path/to/libasyncProfiler.so \
+//       -PbenchmarkInclude="HttpClientBenchmark"
+// ---------------------------------------------------------------------------
+val benchmarkProfiler = (project.findProperty("benchmarkProfile") as String?)
+if (!benchmarkProfiler.isNullOrBlank()) {
+    tasks.withType<JavaExec>().configureEach {
+        // kotlinx-benchmark generates a JavaExec task named "{target}{capitalizedConfig}Benchmark".
+        // For target="test" + config="main", capitalizedName() returns "" → task is "testBenchmark".
+        if (name.endsWith("Benchmark")) {
+            val profilingDir = layout.buildDirectory.dir("benchmark-profiling").get().asFile
+            doFirst { profilingDir.mkdirs() }
+            when (benchmarkProfiler.lowercase()) {
+                "gc" -> jvmArgs(
+                    "-Xlog:gc*,safepoint:file=${profilingDir}/gc.log:time,uptime,level,tags"
+                )
+                "jfr" -> jvmArgs(
+                    "-XX:StartFlightRecording=" +
+                    "filename=${profilingDir}/benchmark.jfr," +
+                    "dumponexit=true,settings=profile,duration=600s"
+                )
+                "async" -> {
+                    val profilerLib = (project.findProperty("asyncProfilerLib") as String?)
+                        ?: error(
+                            "async-profiler requires -PasyncProfilerLib=/path/to/libasyncProfiler.so"
+                        )
+                    jvmArgs(
+                        "-agentpath:$profilerLib=start,event=cpu," +
+                        "file=${profilingDir}/async-cpu.html,flamegraph,interval=1ms"
+                    )
+                }
+                else -> logger.warn(
+                    "[bluetape4k-http] Unknown benchmarkProfile='$benchmarkProfiler'. " +
+                    "Valid values: gc, jfr, async"
+                )
+            }
+        }
+    }
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }

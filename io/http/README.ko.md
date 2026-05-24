@@ -272,6 +272,42 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 ./gradlew :bluetape4k-http:testBenchmark -PbenchmarkInclude="HttpClientCompressionCacheBenchmark"
 ```
 
+### CPU 및 GC 프로파일링
+
+`-PbenchmarkProfile=<profiler>` 를 추가하면 벤치마크 실행 중 프로파일링이 활성화됩니다.
+출력 파일은 `build/benchmark-profiling/` 에 저장됩니다.
+
+| 속성 값 | 방식 | 출력 파일 | 측정 항목 |
+|--------|------|---------|----------|
+| `gc` | JVM GC 로깅 (`-Xlog:gc*`) | `gc.log` | GC 일시 정지 시간, 할당 이벤트, 세이프포인트 |
+| `jfr` | Java Flight Recorder (`-XX:StartFlightRecording`) | `benchmark.jfr` | CPU 플레임 그래프, GC 이벤트, 락 경합, 메모리 할당 |
+| `async` | async-profiler 에이전트 (`-PasyncProfilerLib=` 필요) | `async-cpu.html` | CPU 플레임 그래프 (저오버헤드 샘플링) |
+
+```bash
+# 전체 벤치마크의 GC 로깅
+./gradlew :bluetape4k-http:testBenchmark -PbenchmarkProfile=gc
+
+# 특정 벤치마크 클래스에 JFR CPU + GC 레코딩 적용
+./gradlew :bluetape4k-http:testBenchmark \
+  -PbenchmarkProfile=jfr \
+  -PbenchmarkInclude="HttpClientBenchmark"
+
+# async-profiler CPU 플레임 그래프 (네이티브 에이전트 라이브러리 필요)
+./gradlew :bluetape4k-http:testBenchmark \
+  -PbenchmarkProfile=async \
+  -PasyncProfilerLib=/path/to/libasyncProfiler.so \
+  -PbenchmarkInclude="HttpClientBenchmark"
+```
+
+> **JFR**: `build/benchmark-profiling/benchmark.jfr` 파일을 JDK Mission Control(`jmc`) 또는
+> IntelliJ IDEA 내장 JFR 뷰어로 열어 CPU 플레임 그래프와 메모리 할당 분석을 확인하세요.
+
+> **async-profiler**: [async-profiler 릴리스](https://github.com/async-profiler/async-profiler/releases)에서
+> 다운로드 후 `-PasyncProfilerLib` 에 네이티브 `libasyncProfiler.so` / `libasyncProfiler.dylib` 경로를 지정하세요.
+> kotlinx-benchmark 런타임이 에이전트를 자동 감지하여 JMH forks를 0으로 설정합니다.
+
+> **요구 사항**: 모든 프로파일러는 프로젝트 툴체인인 JDK 21에서 동작합니다. 추가 Gradle 의존성 불필요.
+
 ### 1. HttpClientBenchmark — 기본 처리량 (`GET /ping`)
 
 **환경**: `BluetapeWebfluxServer` (Docker) · `@Threads(8)` · warmup 1×1s · measurement 1×1s

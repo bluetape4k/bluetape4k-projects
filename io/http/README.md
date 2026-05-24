@@ -271,6 +271,42 @@ All benchmarks target a separate Docker container server, isolating the server J
 ./gradlew :bluetape4k-http:testBenchmark -PbenchmarkInclude="HttpClientCompressionCacheBenchmark"
 ```
 
+### CPU and GC Profiling
+
+Add `-PbenchmarkProfile=<profiler>` to enable profiling during the benchmark run.
+Output files are written to `build/benchmark-profiling/`.
+
+| Property value | Mechanism | Output | What it measures |
+|---|---|---|---|
+| `gc` | JVM GC logging (`-Xlog:gc*`) | `gc.log` | GC pause time, allocation events, safepoints |
+| `jfr` | Java Flight Recorder (`-XX:StartFlightRecording`) | `benchmark.jfr` | CPU flame graph, GC events, lock contention, allocations |
+| `async` | async-profiler agent (requires `-PasyncProfilerLib=`) | `async-cpu.html` | CPU flame graph (low-overhead sampling) |
+
+```bash
+# GC logging for all benchmarks
+./gradlew :bluetape4k-http:testBenchmark -PbenchmarkProfile=gc
+
+# JFR CPU + GC recording for a single benchmark class
+./gradlew :bluetape4k-http:testBenchmark \
+  -PbenchmarkProfile=jfr \
+  -PbenchmarkInclude="HttpClientBenchmark"
+
+# async-profiler CPU flame graph (requires the native agent library)
+./gradlew :bluetape4k-http:testBenchmark \
+  -PbenchmarkProfile=async \
+  -PasyncProfilerLib=/path/to/libasyncProfiler.so \
+  -PbenchmarkInclude="HttpClientBenchmark"
+```
+
+> **JFR**: Open `build/benchmark-profiling/benchmark.jfr` with JDK Mission Control (`jmc`)
+> or IntelliJ IDEA's built-in JFR viewer for a CPU flame graph and memory allocation analysis.
+
+> **async-profiler**: Download from [async-profiler releases](https://github.com/async-profiler/async-profiler/releases)
+> and point `-PasyncProfilerLib` at the native `libasyncProfiler.so` / `libasyncProfiler.dylib`.
+> The kotlinx-benchmark runtime detects the agent and automatically sets JMH forks to 0.
+
+> **Requirements**: All profilers run on JDK 21 (the project toolchain). No extra Gradle dependencies needed.
+
 ### 1. HttpClientBenchmark — Base Throughput (`GET /ping`)
 
 **Setup**: `BluetapeWebfluxServer` (Docker) · `@Threads(8)` · warmup 1×1s · measurement 1×1s
