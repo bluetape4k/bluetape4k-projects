@@ -123,26 +123,23 @@
 <g transform="translate(534,1127)">
   <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Jdk25 Virtual Thread</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Runtime</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Jdk25 Virtual Thread</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Runtime</text>
   <text class="mono" x="18" y="124">+runtimeName = jdk25</text>
 <text class="mono" x="18" y="145">+priority = 25</text>
 </g>
 <g transform="translate(956,1127)">
   <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Jdk21 Virtual Thread</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Runtime</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Jdk21 Virtual Thread</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Runtime</text>
   <text class="mono" x="18" y="124">+runtimeName = jdk21</text>
 <text class="mono" x="18" y="145">+priority = 21</text>
 </g>
 <g transform="translate(1378,1127)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">PlatformThreadFallback</text>
+  <text class="label" x="155" y="49" text-anchor="middle">PlatformThreadFallback</text>
   <text class="mono" x="18" y="108">+runtimeName = platform-fallback</text>
 <text class="mono" x="18" y="129">+priority = MIN_VALUE</text>
 </g>

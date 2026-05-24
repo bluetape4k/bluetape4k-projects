@@ -63,8 +63,7 @@
 <g transform="translate(112,642)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Lz4Codec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Lz4Codec</text>
   <text class="mono" x="18" y="108">-innerCodec: Codec</text>
 <text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
 <text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
@@ -72,8 +71,7 @@
 <g transform="translate(534,642)">
   <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Fastjson2Codec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Fastjson2Codec</text>
   <text class="mono" x="18" y="108">-fallbackCodec: Codec</text>
 <text class="mono" x="18" y="129">-allowedPackagePrefixes: Set~String~</text>
 <text class="mono" x="18" y="150">+getValueEncoder() Encoder</text>
@@ -82,8 +80,7 @@
 <g transform="translate(956,642)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ForyCodec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ForyCodec</text>
   <text class="mono" x="18" y="108">-fallbackCodec: Codec</text>
 <text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
 <text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
@@ -91,16 +88,14 @@
 <g transform="translate(1378,642)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Kryo5Codec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Kryo5Codec</text>
   <text class="mono" x="18" y="108">+getValueEncoder() Encoder</text>
 <text class="mono" x="18" y="129">+getValueDecoder() Decoder</text>
 </g>
 <g transform="translate(1800,642)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Jackson3Codec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Jackson3Codec</text>
   <text class="mono" x="18" y="108">-objectMapper: ObjectMapper</text>
 <text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
 <text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
@@ -108,8 +103,7 @@
 <g transform="translate(745,1006)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">ZstdCodec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">ZstdCodec</text>
   <text class="mono" x="18" y="108">-innerCodec: Codec</text>
 <text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
 <text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
@@ -117,8 +111,7 @@
 <g transform="translate(1167,1006)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">GzipCodec</text>
+  <text class="label" x="155" y="49" text-anchor="middle">GzipCodec</text>
   <text class="mono" x="18" y="108">-innerCodec: Codec</text>
 <text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
 <text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>

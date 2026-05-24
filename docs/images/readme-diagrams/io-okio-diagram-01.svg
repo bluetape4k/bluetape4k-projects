@@ -76,16 +76,14 @@
 <g transform="translate(912,505)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">InputStreamSource</text>
+    <text class="label" x="170" y="49" text-anchor="middle">InputStreamSource</text>
   <text class="mono" x="18" y="108">-input: InputStream</text>
 <text class="mono" x="18" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
 </g>
 <g transform="translate(1322,505)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">OutputStreamSink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">OutputStreamSink</text>
   <text class="mono" x="18" y="108">-output: OutputStream</text>
 <text class="mono" x="18" y="129">+write(source: Buffer, byteCount: Long)</text>
 </g>
@@ -106,8 +104,7 @@
 <g transform="translate(912,809)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">CompressableSink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">CompressableSink</text>
   <text class="mono" x="18" y="108">-plainBuffer: Buffer</text>
 <text class="mono" x="18" y="129">-compressor: Compressor</text>
 <text class="mono" x="18" y="150">+write(source: Buffer, byteCount: Long)</text>
@@ -116,8 +113,7 @@
 <g transform="translate(1322,809)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">DaeadChunkDecryptSource</text>
+    <text class="label" x="170" y="49" text-anchor="middle">DaeadChunkDecryptSource</text>
   <text class="mono" x="18" y="108">-daead: TinkDeterministicAead</text>
 <text class="mono" x="18" y="129">-plainBuffer: Buffer</text>
 <text class="mono" x="18" y="150">+read(sink: Buffer, byteCount: Long) Long</text>
@@ -125,8 +121,7 @@
 <g transform="translate(92,1131)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">DaeadChunkEncryptSink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">DaeadChunkEncryptSink</text>
   <text class="mono" x="18" y="108">-daead: TinkDeterministicAead</text>
 <text class="mono" x="18" y="129">-plainBuffer: Buffer</text>
 <text class="mono" x="18" y="150">+write(source: Buffer, byteCount: Long)</text>
@@ -135,8 +130,7 @@
 <g transform="translate(502,1131)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">DecompressableSource</text>
+    <text class="label" x="170" y="49" text-anchor="middle">DecompressableSource</text>
   <text class="mono" x="18" y="108">-decodedBuffer: Buffer</text>
 <text class="mono" x="18" y="129">-compressor: Compressor</text>
 <text class="mono" x="18" y="150">-ensureDecoded()</text>
@@ -144,8 +138,7 @@
 <g transform="translate(912,1131)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">TinkDecryptSource</text>
+    <text class="label" x="170" y="49" text-anchor="middle">TinkDecryptSource</text>
   <text class="mono" x="18" y="108">-encryptor: TinkEncryptor</text>
 <text class="mono" x="18" y="129">-decryptedBuffer: Buffer</text>
 <text class="mono" x="18" y="150">-ensureDecrypted()</text>
@@ -153,53 +146,46 @@
 <g transform="translate(1322,1131)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">TinkEncryptSink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">TinkEncryptSink</text>
   <text class="mono" x="18" y="108">-encryptor: TinkEncryptor</text>
 <text class="mono" x="18" y="129">+write(source: Buffer, byteCount: Long)</text>
 </g>
 <g transform="translate(92,1477)">
   <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ApacheBase64Sink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ApacheBase64Sink</text>
 
 </g>
 <g transform="translate(502,1477)">
   <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ApacheBase64Source</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ApacheBase64Source</text>
 
 </g>
 <g transform="translate(912,1477)">
   <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">OkioBase64Sink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">OkioBase64Sink</text>
 
 </g>
 <g transform="translate(1322,1477)">
   <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">OkioBase64Source</text>
+    <text class="label" x="170" y="49" text-anchor="middle">OkioBase64Source</text>
 
 </g>
 <g transform="translate(502,1715)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">StreamingCompressSink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">StreamingCompressSink</text>
   <text class="mono" x="18" y="108">-compressingStream: OutputStream</text>
 <text class="mono" x="18" y="129">-compressor: StreamingCompressor</text>
 </g>
 <g transform="translate(912,1715)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Streaming Decompress</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Source</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Streaming Decompress</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Source</text>
   <text class="mono" x="18" y="124">-decompressingStream: InputStream</text>
 <text class="mono" x="18" y="145">-compressor: StreamingCompressor</text>
 </g>

@@ -38,22 +38,19 @@
 <g transform="translate(88,484)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">ConditionalRuleGroup</text>
+    <text class="label" x="175" y="49" text-anchor="middle">ConditionalRuleGroup</text>
 
 </g>
 <g transform="translate(508,484)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">ActivationRuleGroup</text>
+    <text class="label" x="175" y="49" text-anchor="middle">ActivationRuleGroup</text>
 
 </g>
 <g transform="translate(928,484)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">UnitRuleGroup</text>
+    <text class="label" x="175" y="49" text-anchor="middle">UnitRuleGroup</text>
 
 </g>
 </svg>

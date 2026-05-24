@@ -27,8 +27,7 @@
 <g transform="translate(84,180)">
   <rect class="card" x="0" y="0" width="380" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">Member</text>
+    <text class="label" x="190" y="49" text-anchor="middle">Member</text>
   <text class="mono" x="18" y="108">Long id</text>
 <text class="mono" x="18" y="129">String name</text>
 <text class="mono" x="18" y="150">Int age</text>
@@ -37,8 +36,7 @@
 <g transform="translate(534,180)">
   <rect class="card" x="0" y="0" width="380" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#58A978"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">Team</text>
+    <text class="label" x="190" y="49" text-anchor="middle">Team</text>
   <text class="mono" x="18" y="108">Long id</text>
 <text class="mono" x="18" y="129">String name</text>
 </g>

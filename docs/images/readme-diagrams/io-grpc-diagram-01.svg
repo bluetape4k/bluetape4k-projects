@@ -30,8 +30,7 @@
 <g transform="translate(84,180)">
   <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcClient</text>
+    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcClient</text>
   <text class="mono" x="18" y="108">#channel: ManagedChannel?</text>
 <text class="mono" x="18" y="129">+connect()</text>
 <text class="mono" x="18" y="150">+close()</text>
@@ -48,8 +47,7 @@
 <g transform="translate(84,505)">
   <rect class="card" x="0" y="0" width="380" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#D6A441"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcServer</text>
+    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcServer</text>
   <text class="mono" x="18" y="108">#server: Server?</text>
 <text class="mono" x="18" y="129">+start()</text>
 <text class="mono" x="18" y="150">+stop()</text>
@@ -58,8 +56,7 @@
 <g transform="translate(534,505)">
   <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcInprocessClient</text>
+    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcInprocessClient</text>
   <text class="mono" x="18" y="108">#serverName: String</text>
 <text class="mono" x="18" y="129">+connect()</text>
 <text class="mono" x="18" y="150">+close()</text>
@@ -67,8 +64,7 @@
 <g transform="translate(309,851)">
   <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="190" y="26" text-anchor="middle"></text>
-  <text class="label" x="190" y="61" text-anchor="middle">AbstractGrpcInprocessServer</text>
+    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcInprocessServer</text>
   <text class="mono" x="18" y="108">#serverName: String</text>
 <text class="mono" x="18" y="129">+start()</text>
 <text class="mono" x="18" y="150">+stop()</text>

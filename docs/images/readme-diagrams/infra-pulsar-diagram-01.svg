@@ -33,8 +33,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ProducerSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ProducerSupport</text>
   <text class="mono" x="18" y="108">+PulsarClient.producer(schema, setup)</text>
 <text class="mono" x="18" y="129">+PulsarClient.withProducer(schema, setup,</text>
 <text class="mono" x="18" y="150">block)</text>
@@ -42,8 +41,7 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">PulsarClient</text>
+    <text class="label" x="170" y="49" text-anchor="middle">PulsarClient</text>
   <text class="mono" x="18" y="108">+pulsarClient(serviceUrl, setup)</text>
 <text class="mono" x="18" y="129">+withPulsarClient(serviceUrl, setup,</text>
 <text class="mono" x="18" y="150">block)</text>
@@ -51,8 +49,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ConsumerSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ConsumerSupport</text>
   <text class="mono" x="18" y="108">+PulsarClient.consumer(schema, setup)</text>
 <text class="mono" x="18" y="129">+PulsarClient.withConsumer(schema, setup,</text>
 <text class="mono" x="18" y="150">block)</text>
@@ -60,8 +57,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ReaderSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ReaderSupport</text>
   <text class="mono" x="18" y="108">+PulsarClient.reader(schema, setup)</text>
 <text class="mono" x="18" y="129">+PulsarClient.withReader(schema, setup,</text>
 <text class="mono" x="18" y="150">block)</text>
@@ -69,16 +65,14 @@
 <g transform="translate(92,481)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ReaderExtensions</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ReaderExtensions</text>
   <text class="mono" x="18" y="108">+Reader.readNextSuspend()</text>
 <text class="mono" x="18" y="129">+Reader.readAsFlow()</text>
 </g>
 <g transform="translate(502,481)">
   <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ConsumerExtensions</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ConsumerExtensions</text>
   <text class="mono" x="18" y="108">+Consumer.receiveSuspend()</text>
 <text class="mono" x="18" y="129">+Consumer.receiveAsFlow()</text>
 <text class="mono" x="18" y="150">+Consumer.acknowledgeSuspend(message)</text>
@@ -88,8 +82,7 @@
 <g transform="translate(912,481)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ProducerExtensions</text>
+    <text class="label" x="170" y="49" text-anchor="middle">ProducerExtensions</text>
   <text class="mono" x="18" y="108">+Producer.sendSuspend(message)</text>
 <text class="mono" x="18" y="129">+Producer.sendSuspend(setup)</text>
 <text class="mono" x="18" y="150">+Producer.sendAsFlow(messages)</text>
@@ -97,16 +90,14 @@
 <g transform="translate(1322,481)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Jackson3Schema</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Jackson3Schema</text>
   <text class="mono" x="18" y="108">+jackson3Schema~T~(type, mapper)</text>
 <text class="mono" x="18" y="129">+jackson3Schema~T~(mapper)</text>
 </g>
 <g transform="translate(707,824)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JacksonSchema</text>
+    <text class="label" x="170" y="49" text-anchor="middle">JacksonSchema</text>
   <text class="mono" x="18" y="108">+jacksonSchema~T~(type, mapper)</text>
 <text class="mono" x="18" y="129">+jacksonSchema~T~(mapper)</text>
 </g>

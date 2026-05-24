@@ -31,8 +31,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">DocumentExtensions</text>
+    <text class="label" x="170" y="49" text-anchor="middle">DocumentExtensions</text>
   <text class="mono" x="18" y="108">+documentOf(vararg pairs): Document</text>
 <text class="mono" x="18" y="129">+documentOf(block): Document</text>
 <text class="mono" x="18" y="150">+Document.getAs~T~(key): T?</text>
@@ -40,9 +39,8 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="254" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Mongo Collection</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Extensions</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Mongo Collection</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Extensions</text>
   <text class="mono" x="18" y="124">+findFirst(filter): T?</text>
 <text class="mono" x="18" y="145">+findFirstOrNull(filter): T?</text>
 <text class="mono" x="18" y="166">+exists(filter): Boolean</text>
@@ -53,8 +51,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">AggregationSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">AggregationSupport</text>
   <text class="mono" x="18" y="108">+pipeline(block): List~Bson~</text>
 <text class="mono" x="18" y="129">+matchStage(filter): Bson</text>
 <text class="mono" x="18" y="150">+groupStage(id, accumulators): Bson</text>
@@ -65,8 +62,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MongoClientProvider</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MongoClientProvider</text>
   <text class="mono" x="18" y="108">-cache: Map~String, MongoClient~</text>
 <text class="mono" x="18" y="129">+getOrCreate(connectionString):</text>
 <text class="mono" x="18" y="150">MongoClient</text>
@@ -74,8 +70,7 @@
 <g transform="translate(502,560)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MongoClientSupport</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MongoClientSupport</text>
   <text class="mono" x="18" y="108">+mongoClient(block): MongoClient</text>
 <text class="mono" x="18" y="129">+mongoClientOf(connectionString):</text>
 <text class="mono" x="18" y="150">MongoClient</text>
@@ -83,8 +78,7 @@
 <g transform="translate(912,560)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">MongoDatabaseExtensions</text>
+    <text class="label" x="170" y="49" text-anchor="middle">MongoDatabaseExtensions</text>
   <text class="mono" x="18" y="108">+MongoDatabase.getCollectionOf~T~(name):</text>
 <text class="mono" x="18" y="129">MongoCollection~T~</text>
 <text class="mono" x="18" y="150">+MongoDatabase.listCollectionNamesList():</text>

@@ -41,8 +41,7 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">UserService</text>
+    <text class="label" x="170" y="49" text-anchor="middle">UserService</text>
   <text class="mono" x="18" y="108">-restClient: RestClient</text>
 <text class="mono" x="18" y="129">+findAllAsFlow(): Flow~User~</text>
 <text class="mono" x="18" y="150">+findById(id): User</text>
@@ -51,8 +50,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">UserController</text>
+    <text class="label" x="170" y="49" text-anchor="middle">UserController</text>
   <text class="mono" x="18" y="108">-service: UserService</text>
 <text class="mono" x="18" y="129">+getUsers(): Flow~User~</text>
 <text class="mono" x="18" y="150">+getUser(id): User</text>
@@ -61,8 +59,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Retrofit2Config</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Retrofit2Config</text>
   <text class="mono" x="18" y="108">+retrofit(): Retrofit</text>
 <text class="mono" x="18" y="129">+okHttpClient(): OkHttpClient</text>
 <text class="mono" x="18" y="150">+jacksonConverterFactory():</text>

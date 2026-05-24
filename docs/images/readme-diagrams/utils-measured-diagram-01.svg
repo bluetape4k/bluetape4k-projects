@@ -35,15 +35,13 @@
 <g transform="translate(112,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Velocity</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Velocity</text>
 
 </g>
 <g transform="translate(534,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Measure</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Measure</text>
 
 </g>
 <g transform="translate(956,180)">
@@ -57,40 +55,35 @@
 <g transform="translate(1378,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Acceleration</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Acceleration</text>
 
 </g>
 <g transform="translate(1800,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">MeasureT</text>
+  <text class="label" x="155" y="49" text-anchor="middle">MeasureT</text>
 
 </g>
 <g transform="translate(745,502)">
   <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Units Product</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">A_Units_B_Units</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Units Product</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">A_Units_B_Units</text>
   <text class="mono" x="18" y="124">+left: Measure~A~</text>
 <text class="mono" x="18" y="145">+right: Measure~B~</text>
 </g>
 <g transform="translate(1167,502)">
   <rect class="card" x="0" y="0" width="310" height="170" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Units Ratio</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">N_Units_D_Units</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Units Ratio</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">N_Units_D_Units</text>
   <text class="mono" x="18" y="124">+numerator: Measure~N~</text>
 <text class="mono" x="18" y="145">+denominator: Measure~D~</text>
 </g>
 <g transform="translate(112,896)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Time</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Time</text>
   <text class="mono" x="18" y="108">+seconds</text>
 <text class="mono" x="18" y="129">+minutes</text>
 <text class="mono" x="18" y="150">+hours</text>
@@ -98,8 +91,7 @@
 <g transform="translate(534,896)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Length</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Length</text>
   <text class="mono" x="18" y="108">+meters</text>
 <text class="mono" x="18" y="129">+kilometers</text>
 <text class="mono" x="18" y="150">+centimeters</text>
@@ -107,15 +99,13 @@
 <g transform="translate(956,896)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">UnitsRatio</text>
+  <text class="label" x="155" y="49" text-anchor="middle">UnitsRatio</text>
 
 </g>
 <g transform="translate(1378,896)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">Mass</text>
+  <text class="label" x="155" y="49" text-anchor="middle">Mass</text>
   <text class="mono" x="18" y="108">+kilograms</text>
 <text class="mono" x="18" y="129">+grams</text>
 <text class="mono" x="18" y="150">+pounds</text>
@@ -123,8 +113,7 @@
 <g transform="translate(1800,896)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">UnitsProduct</text>
+  <text class="label" x="155" y="49" text-anchor="middle">UnitsProduct</text>
 
 </g>
 </svg>

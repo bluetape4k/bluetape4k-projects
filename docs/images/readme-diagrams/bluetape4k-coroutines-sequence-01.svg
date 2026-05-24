@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1288" height="1456" viewBox="0 0 1288 1456" role="img" aria-label="DeferredValue Usage Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1468" height="1138" viewBox="0 0 1468 1138" role="img" aria-label="DeferredValue Usage Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,48 +20,48 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1288" height="1456"/>
-<rect class="frame" x="32" y="28" width="1224" height="1400" rx="28"/>
+<rect class="canvas" width="1468" height="1138"/>
+<rect class="frame" x="32" y="28" width="1404" height="1082" rx="28"/>
 <text class="title" x="66" y="82">DeferredValue Usage Flow</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="-10" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Caller</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="494" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="644" y="209" text-anchor="middle">DeferredValue</text>
-<line class="lifeline" x1="644" y1="252" x2="644" y2="1396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="998" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="1148" y="198.5" text-anchor="middle">Coroutine</text>
-<text class="smallLabel" x="1148" y="219.5" text-anchor="middle">(background)</text>
-<line class="lifeline" x1="1148" y1="252" x2="1148" y2="1396" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="273" y="286" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="291" y="313" text-anchor="start">1. deferredValueOf(block)</text>
-<path class="line" d="M140 344 L644 344"/>
-<rect x="720.5" y="396" width="351" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="738.5" y="423" text-anchor="start">2. starts coroutine immediately (eager)</text>
-<path class="line" d="M644 454 L1148 454"/>
-<rect x="287" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="305" y="533" text-anchor="start">3. .map(transform)</text>
-<path class="line" d="M140 564 L644 564"/>
-<rect x="220.5" y="616" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="238.5" y="643" text-anchor="start">4. returns new DeferredValue (doubled)</text>
-<path class="dashed" d="M644 674 L140 674"/>
-<rect x="287" y="726" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="305" y="753" text-anchor="start">5. doubled.await()</text>
-<path class="line" d="M140 784 L644 784"/>
-<rect x="757" y="836" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="775" y="863" text-anchor="start">6. suspends waiting for result</text>
-<path class="line" d="M644 894 L1148 894"/>
-<rect x="791" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="809" y="973" text-anchor="start">7. 42</text>
-<path class="dashed" d="M1148 1004 L644 1004"/>
-<rect x="287" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="305" y="1083" text-anchor="start">8. 42</text>
-<path class="dashed" d="M644 1114 L140 1114"/>
-<rect x="287" y="1166" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="305" y="1193" text-anchor="start">9. doubled.value</text>
-<path class="line" d="M140 1224 L644 1224"/>
-<rect x="285" y="1276" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="303" y="1303" text-anchor="start">10. 42 (blocks thread)</text>
-<path class="dashed" d="M644 1334 L140 1334"/>
+<rect class="card" x="80" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="230" y="209" text-anchor="middle">Caller</text>
+<line class="lifeline" x1="230" y1="252" x2="230" y2="1078" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="584" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="734" y="209" text-anchor="middle">DeferredValue</text>
+<line class="lifeline" x1="734" y1="252" x2="734" y2="1078" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1088" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="1238" y="198.5" text-anchor="middle">Coroutine</text>
+<text class="smallLabel" x="1238" y="219.5" text-anchor="middle">(background)</text>
+<line class="lifeline" x1="1238" y1="252" x2="1238" y2="1078" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="363" y="286" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="381" y="313" text-anchor="start">1. deferredValueOf(block)</text>
+<path class="line" d="M230 332 L734 332"/>
+<rect x="810.5" y="362" width="351" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="828.5" y="389" text-anchor="start">2. starts coroutine immediately (eager)</text>
+<path class="line" d="M734 408 L1238 408"/>
+<rect x="377" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="395" y="465" text-anchor="start">3. .map(transform)</text>
+<path class="line" d="M230 484 L734 484"/>
+<rect x="310.5" y="514" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="328.5" y="541" text-anchor="start">4. returns new DeferredValue (doubled)</text>
+<path class="dashed" d="M734 560 L230 560"/>
+<rect x="377" y="590" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="395" y="617" text-anchor="start">5. doubled.await()</text>
+<path class="line" d="M230 636 L734 636"/>
+<rect x="847" y="666" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="865" y="693" text-anchor="start">6. suspends waiting for result</text>
+<path class="line" d="M734 712 L1238 712"/>
+<rect x="881" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="899" y="769" text-anchor="start">7. 42</text>
+<path class="dashed" d="M1238 788 L734 788"/>
+<rect x="377" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="395" y="845" text-anchor="start">8. 42</text>
+<path class="dashed" d="M734 864 L230 864"/>
+<rect x="377" y="894" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="395" y="921" text-anchor="start">9. doubled.value</text>
+<path class="line" d="M230 940 L734 940"/>
+<rect x="375" y="970" width="214" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="393" y="997" text-anchor="start">10. 42 (blocks thread)</text>
+<path class="dashed" d="M734 1016 L230 1016"/>
 </svg>

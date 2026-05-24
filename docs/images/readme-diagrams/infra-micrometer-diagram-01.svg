@@ -32,8 +32,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Cache2kCacheMetrics</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Cache2kCacheMetrics</text>
   <text class="mono" x="18" y="108">-cache: Cache</text>
 <text class="mono" x="18" y="129">-tags: Tags</text>
 <text class="mono" x="18" y="150">+monitor(registry, cache, tags)</text>
@@ -60,9 +59,8 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="191" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Micrometer Retrofit</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Metrics Factory</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Micrometer Retrofit</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Metrics Factory</text>
   <text class="mono" x="18" y="124">-registry: MeterRegistry</text>
 <text class="mono" x="18" y="145">+create(returnType, annotations, retrofit)</text>
 <text class="mono" x="18" y="166">CallAdapter</text>

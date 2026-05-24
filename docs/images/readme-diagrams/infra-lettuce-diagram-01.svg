@@ -27,8 +27,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceSemaphore</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceSemaphore</text>
   <text class="mono" x="18" y="108">+semaphoreKey: String</text>
 <text class="mono" x="18" y="129">+totalPermits: Int</text>
 <text class="mono" x="18" y="150">+tryAcquire(permits): Boolean</text>
@@ -38,8 +37,7 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceAtomicLong</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceAtomicLong</text>
   <text class="mono" x="18" y="108">+key: String</text>
 <text class="mono" x="18" y="129">+get(): Long</text>
 <text class="mono" x="18" y="150">+incrementAndGet(): Long</text>
@@ -50,8 +48,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceLock</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceLock</text>
   <text class="mono" x="18" y="108">+lockKey: String</text>
 <text class="mono" x="18" y="129">+tryLock(waitTime, leaseTime): Boolean</text>
 <text class="mono" x="18" y="150">+lock(leaseTime)</text>
@@ -62,8 +59,7 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceSuspendAtomicLong</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceSuspendAtomicLong</text>
   <text class="mono" x="18" y="108">+key: String</text>
 <text class="mono" x="18" y="129">+get(): Long</text>
 <text class="mono" x="18" y="150">+incrementAndGet(): Long</text>
@@ -72,8 +68,7 @@
 <g transform="translate(502,544)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceSuspendLock</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceSuspendLock</text>
   <text class="mono" x="18" y="108">+lockKey: String</text>
 <text class="mono" x="18" y="129">+tryLock(waitTime, leaseTime): Boolean</text>
 <text class="mono" x="18" y="150">+lock(leaseTime)</text>
@@ -82,8 +77,7 @@
 <g transform="translate(912,544)">
   <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LettuceSuspendSemaphore</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LettuceSuspendSemaphore</text>
   <text class="mono" x="18" y="108">+semaphoreKey: String</text>
 <text class="mono" x="18" y="129">+totalPermits: Int</text>
 <text class="mono" x="18" y="150">+tryAcquire(permits): Boolean</text>

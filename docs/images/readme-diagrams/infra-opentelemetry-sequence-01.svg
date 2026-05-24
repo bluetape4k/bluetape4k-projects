@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2576" height="1366" viewBox="0 0 2576 1366" role="img" aria-label="Span Lifecycle in a Coroutine Context">
+<svg xmlns="http://www.w3.org/2000/svg" width="2707" height="1062" viewBox="0 0 2707 1062" role="img" aria-label="Span Lifecycle in a Coroutine Context">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,59 +20,59 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="2576" height="1366"/>
-<rect class="frame" x="32" y="28" width="2512" height="1310" rx="28"/>
+<rect class="canvas" width="2707" height="1062"/>
+<rect class="frame" x="32" y="28" width="2643" height="1006" rx="28"/>
 <text class="title" x="66" y="82">Span Lifecycle in a Coroutine Context</text>
 <text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="14.5" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="140" y="209" text-anchor="middle">Application</text>
-<line class="lifeline" x1="140" y1="252" x2="140" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="342.5" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="468" y="209" text-anchor="middle">SpanBuilder</text>
-<line class="lifeline" x1="468" y1="252" x2="468" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="670.5" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="796" y="209" text-anchor="middle">Span</text>
-<line class="lifeline" x1="796" y1="252" x2="796" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="998.5" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1124" y="209" text-anchor="middle">CoroutineContext</text>
-<line class="lifeline" x1="1124" y1="252" x2="1124" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1326.5" y="166" width="251" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1452" y="209" text-anchor="middle">Child Work</text>
-<line class="lifeline" x1="1452" y1="252" x2="1452" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1654.5" y="166" width="251" height="72" rx="20" fill="#F1ECFF" stroke="#8A72D6"/>
-<text class="smallLabel" x="1780" y="209" text-anchor="middle">-Context</text>
-<line class="lifeline" x1="1780" y1="252" x2="1780" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1982.5" y="166" width="251" height="72" rx="20" fill="#F7F1E7" stroke="#B88A44"/>
-<text class="smallLabel" x="2108" y="209" text-anchor="middle">-Span</text>
-<line class="lifeline" x1="2108" y1="252" x2="2108" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="2310.5" y="166" width="251" height="72" rx="20" fill="#EEF6D9" stroke="#8BA84D"/>
-<text class="smallLabel" x="2436" y="209" text-anchor="middle">-Builder</text>
-<line class="lifeline" x1="2436" y1="252" x2="2436" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="157" y="286" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="175" y="313" text-anchor="start">1. tracer.spanBuilder(operation)</text>
-<path class="line" d="M140 344 L468 344"/>
-<rect x="173" y="396" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="191" y="423" text-anchor="start">2. useSpanSuspending { ... }</text>
-<path class="line" d="M140 454 L468 454"/>
-<rect x="527" y="506" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="545" y="533" text-anchor="start">3. startSpan()</text>
-<path class="line" d="M468 564 L796 564"/>
-<rect x="821" y="616" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="839" y="643" text-anchor="start">4. makeCurrent() / withContext</text>
-<path class="line" d="M796 674 L1124 674"/>
-<rect x="1169" y="726" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1187" y="753" text-anchor="start">5. Launch child coroutine</text>
-<path class="line" d="M1124 784 L1452 784"/>
-<rect x="1511" y="836" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1529" y="863" text-anchor="start">6. Return result</text>
-<path class="dashed" d="M1452 894 L1780 894"/>
-<rect x="1511" y="946" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1529" y="973" text-anchor="start">7. Block exits</text>
-<path class="dashed" d="M1124 1004 L2108 1004"/>
-<rect x="739" y="1056" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="757" y="1083" text-anchor="start">8. end()</text>
-<path class="line" d="M796 1114 C860 1114 860 1148 796 1148"/>
-<rect x="1511" y="1186" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1529" y="1213" text-anchor="start">9. Span finished</text>
-<path class="dashed" d="M796 1244 L2436 1244"/>
+<rect class="card" x="80" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="smallLabel" x="205.5" y="209" text-anchor="middle">Application</text>
+<line class="lifeline" x1="205.5" y1="252" x2="205.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="408" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
+<text class="smallLabel" x="533.5" y="209" text-anchor="middle">SpanBuilder</text>
+<line class="lifeline" x1="533.5" y1="252" x2="533.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="736" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="smallLabel" x="861.5" y="209" text-anchor="middle">Span</text>
+<line class="lifeline" x1="861.5" y1="252" x2="861.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1064" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="smallLabel" x="1189.5" y="209" text-anchor="middle">CoroutineContext</text>
+<line class="lifeline" x1="1189.5" y1="252" x2="1189.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1392" y="166" width="251" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
+<text class="smallLabel" x="1517.5" y="209" text-anchor="middle">Child Work</text>
+<line class="lifeline" x1="1517.5" y1="252" x2="1517.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="1720" y="166" width="251" height="72" rx="20" fill="#F1ECFF" stroke="#8A72D6"/>
+<text class="smallLabel" x="1845.5" y="209" text-anchor="middle">-Context</text>
+<line class="lifeline" x1="1845.5" y1="252" x2="1845.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="2048" y="166" width="251" height="72" rx="20" fill="#F7F1E7" stroke="#B88A44"/>
+<text class="smallLabel" x="2173.5" y="209" text-anchor="middle">-Span</text>
+<line class="lifeline" x1="2173.5" y1="252" x2="2173.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect class="card" x="2376" y="166" width="251" height="72" rx="20" fill="#EEF6D9" stroke="#8BA84D"/>
+<text class="smallLabel" x="2501.5" y="209" text-anchor="middle">-Builder</text>
+<line class="lifeline" x1="2501.5" y1="252" x2="2501.5" y2="1002" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
+<rect x="222.5" y="286" width="294" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="240.5" y="313" text-anchor="start">1. tracer.spanBuilder(operation)</text>
+<path class="line" d="M205.5 332 L533.5 332"/>
+<rect x="238.5" y="362" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="256.5" y="389" text-anchor="start">2. useSpanSuspending { ... }</text>
+<path class="line" d="M205.5 408 L533.5 408"/>
+<rect x="592.5" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="610.5" y="465" text-anchor="start">3. startSpan()</text>
+<path class="line" d="M533.5 484 L861.5 484"/>
+<rect x="886.5" y="514" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="904.5" y="541" text-anchor="start">4. makeCurrent() / withContext</text>
+<path class="line" d="M861.5 560 L1189.5 560"/>
+<rect x="1234.5" y="590" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1252.5" y="617" text-anchor="start">5. Launch child coroutine</text>
+<path class="line" d="M1189.5 636 L1517.5 636"/>
+<rect x="1576.5" y="666" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1594.5" y="693" text-anchor="start">6. Return result</text>
+<path class="dashed" d="M1517.5 712 L1845.5 712"/>
+<rect x="1576.5" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1594.5" y="769" text-anchor="start">7. Block exits</text>
+<path class="dashed" d="M1189.5 788 L2173.5 788"/>
+<rect x="804.5" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="822.5" y="845" text-anchor="start">8. end()</text>
+<path class="line" d="M861.5 864 C925.5 864 925.5 898 861.5 898"/>
+<rect x="1576.5" y="894" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
+<text class="strong" x="1594.5" y="921" text-anchor="start">9. Span finished</text>
+<path class="dashed" d="M861.5 940 L2501.5 940"/>
 </svg>

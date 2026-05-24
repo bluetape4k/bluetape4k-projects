@@ -56,8 +56,7 @@
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">CoroutineScope</text>
+  <text class="label" x="155" y="49" text-anchor="middle">CoroutineScope</text>
 
 </g>
 <g transform="translate(1378,180)">

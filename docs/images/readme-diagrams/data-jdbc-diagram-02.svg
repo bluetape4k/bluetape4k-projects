@@ -29,8 +29,7 @@
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">DataSourceExtensions</text>
+    <text class="label" x="175" y="49" text-anchor="middle">DataSourceExtensions</text>
   <text class="mono" x="18" y="108">+DataSource.withConnect(block): T</text>
 <text class="mono" x="18" y="129">+DataSource.withStatement(block): T</text>
 <text class="mono" x="18" y="150">+DataSource.withTransaction(block): T</text>
@@ -43,8 +42,7 @@
 <g transform="translate(508,180)">
   <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">ConnectionExtensions</text>
+    <text class="label" x="175" y="49" text-anchor="middle">ConnectionExtensions</text>
   <text class="mono" x="18" y="108">+Connection.withStatement(block): T</text>
 <text class="mono" x="18" y="129">+Connection.withTransaction(block): T</text>
 <text class="mono" x="18" y="150">+Connection.withAutoCommit(flag, block): T</text>
@@ -57,8 +55,7 @@
 <g transform="translate(928,180)">
   <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">ResultSetExtensions</text>
+    <text class="label" x="175" y="49" text-anchor="middle">ResultSetExtensions</text>
   <text class="mono" x="18" y="108">+ResultSet.toList(mapper): List~T~</text>
 <text class="mono" x="18" y="129">+ResultSet.toSet(mapper): Set~T~</text>
 <text class="mono" x="18" y="150">+ResultSet.toMap(keyMapper, valueMapper):</text>

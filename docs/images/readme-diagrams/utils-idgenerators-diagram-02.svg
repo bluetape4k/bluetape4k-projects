@@ -56,8 +56,7 @@
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">IdGenerator</text>
+  <text class="label" x="155" y="49" text-anchor="middle">IdGenerator</text>
 
 </g>
 <g transform="translate(1378,180)">
@@ -81,8 +80,7 @@
 <g transform="translate(112,621)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">UuidGenerator</text>
+  <text class="label" x="155" y="49" text-anchor="middle">UuidGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): UUID</text>
 <text class="mono" x="18" y="129">+nextUUID(): UUID</text>
 <text class="mono" x="18" y="150">+nextIdAsString(): String</text>
@@ -90,15 +88,13 @@
 <g transform="translate(534,621)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">GlobalSnowflake</text>
+  <text class="label" x="155" y="49" text-anchor="middle">GlobalSnowflake</text>
   <text class="mono" x="18" y="108">-centralCounter: AtomicLong</text>
 </g>
 <g transform="translate(956,621)">
   <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">DefaultSnowflake</text>
+  <text class="label" x="155" y="49" text-anchor="middle">DefaultSnowflake</text>
   <text class="mono" x="18" y="108">-machineId: Int</text>
 <text class="mono" x="18" y="129">-timestamp: AtomicLong</text>
 <text class="mono" x="18" y="150">-sequence: Int</text>
@@ -113,23 +109,20 @@
 <g transform="translate(1800,621)">
   <rect class="card" x="0" y="0" width="310" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">KsuidGenerator</text>
+  <text class="label" x="155" y="49" text-anchor="middle">KsuidGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): String</text>
 </g>
 <g transform="translate(956,964)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">UlidGenerator</text>
+  <text class="label" x="155" y="49" text-anchor="middle">UlidGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): String</text>
 <text class="mono" x="18" y="129">+nextULID(): ULID</text>
 </g>
 <g transform="translate(956,1342)">
   <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SnowflakeGenerator</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SnowflakeGenerator</text>
   <text class="mono" x="18" y="108">+nextId(): Long</text>
 <text class="mono" x="18" y="129">+parse(id): SnowflakeId</text>
 </g>

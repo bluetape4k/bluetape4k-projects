@@ -30,8 +30,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Histogram</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Histogram</text>
   <text class="mono" x="18" y="108">+add(value)</text>
 <text class="mono" x="18" y="129">+binCount: Int</text>
 <text class="mono" x="18" y="150">+bins: List~Bin~</text>
@@ -65,22 +64,19 @@
 <g transform="translate(707,544)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">WeightedDice</text>
+    <text class="label" x="170" y="49" text-anchor="middle">WeightedDice</text>
   <text class="mono" x="18" y="108">+roll() T</text>
 </g>
 <g transform="translate(297,827)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">LinearInterpolator</text>
+    <text class="label" x="170" y="49" text-anchor="middle">LinearInterpolator</text>
   <text class="mono" x="18" y="108">+interpolate(x) Double</text>
 </g>
 <g transform="translate(707,827)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">DoubleStatistics</text>
+    <text class="label" x="170" y="49" text-anchor="middle">DoubleStatistics</text>
   <text class="mono" x="18" y="108">+descriptives() Descriptives</text>
 <text class="mono" x="18" y="129">+aggregateBy(keySelector, valueTransform,</text>
 <text class="mono" x="18" y="150">aggregator)</text>
@@ -88,8 +84,7 @@
 <g transform="translate(1117,827)">
   <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">SplineInterpolator</text>
+    <text class="label" x="170" y="49" text-anchor="middle">SplineInterpolator</text>
   <text class="mono" x="18" y="108">+interpolate(x) Double</text>
 </g>
 </svg>

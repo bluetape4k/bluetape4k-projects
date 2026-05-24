@@ -28,8 +28,7 @@
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle"></text>
-  <text class="label" x="175" y="61" text-anchor="middle">FlowExtensions</text>
+    <text class="label" x="175" y="49" text-anchor="middle">FlowExtensions</text>
   <text class="mono" x="18" y="108">+MongoCollection.findAsFlow~T~(filter):</text>
 <text class="mono" x="18" y="129">Flow~T~</text>
 <text class="mono" x="18" y="150">+MongoCollection.insertMany(docs):</text>

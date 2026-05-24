@@ -36,23 +36,20 @@
 <g transform="translate(112,180)">
   <rect class="card" x="0" y="0" width="310" height="128" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="310" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="56.5" text-anchor="middle">Spatial Feature</text>
-<text class="label" x="155" y="81.5" text-anchor="middle">Repository</text>
+    <text class="label" x="155" y="44.5" text-anchor="middle">Spatial Feature</text>
+<text class="label" x="155" y="69.5" text-anchor="middle">Repository</text>
 
 </g>
 <g transform="translate(534,180)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">NetCdfFileRepository</text>
+  <text class="label" x="155" y="49" text-anchor="middle">NetCdfFileRepository</text>
 
 </g>
 <g transform="translate(956,180)">
   <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">NetCdfFileRecord</text>
+  <text class="label" x="155" y="49" text-anchor="middle">NetCdfFileRecord</text>
   <text class="mono" x="18" y="108">+id: Long</text>
 <text class="mono" x="18" y="129">+filename: String</text>
 <text class="mono" x="18" y="150">+filePath: String</text>
@@ -81,8 +78,7 @@
 <g transform="translate(112,586)">
   <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">NetCdfVariableInfo</text>
+  <text class="label" x="155" y="49" text-anchor="middle">NetCdfVariableInfo</text>
   <text class="mono" x="18" y="108">+name: String</text>
 <text class="mono" x="18" y="129">+dataType: String</text>
 <text class="mono" x="18" y="150">+shape: List~Int~</text>
@@ -98,8 +94,7 @@
 <g transform="translate(956,586)">
   <rect class="card" x="0" y="0" width="310" height="112" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SpatialLayerRepository</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SpatialLayerRepository</text>
 
 </g>
 <g transform="translate(1378,586)">
@@ -115,8 +110,7 @@
 <g transform="translate(1800,586)">
   <rect class="card" x="0" y="0" width="310" height="217" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SpatialFeatureRecord</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SpatialFeatureRecord</text>
   <text class="mono" x="18" y="108">+id: Long</text>
 <text class="mono" x="18" y="129">+layerId: Long</text>
 <text class="mono" x="18" y="150">+featureType: String</text>
@@ -126,8 +120,7 @@
 <g transform="translate(956,971)">
   <rect class="card" x="0" y="0" width="310" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="small" x="155" y="26" text-anchor="middle"></text>
-  <text class="label" x="155" y="61" text-anchor="middle">SpatialLayerRecord</text>
+  <text class="label" x="155" y="49" text-anchor="middle">SpatialLayerRecord</text>
   <text class="mono" x="18" y="108">+id: Long</text>
 <text class="mono" x="18" y="129">+name: String</text>
 <text class="mono" x="18" y="150">+srid: Int</text>

@@ -33,9 +33,8 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Suspend Kafka Consumer</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Template</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Suspend Kafka Consumer</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Template</text>
   <text class="mono" x="18" y="124">-receiverOptions: ReceiverOptions</text>
 <text class="mono" x="18" y="145">+receive() Flow~ReceiverRecord~</text>
 </g>
@@ -62,9 +61,8 @@
 <g transform="translate(1322,180)">
   <rect class="card" x="0" y="0" width="340" height="212" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Suspend Kafka Producer</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Template</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Suspend Kafka Producer</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Template</text>
   <text class="mono" x="18" y="124">-senderOptions: SenderOptions</text>
 <text class="mono" x="18" y="145">+send(topic, value) SenderResult</text>
 <text class="mono" x="18" y="166">+send(topic, key, value) SenderResult</text>
@@ -73,24 +71,21 @@
 <g transform="translate(297,568)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">JacksonKafkaCodec</text>
+    <text class="label" x="170" y="49" text-anchor="middle">JacksonKafkaCodec</text>
   <text class="mono" x="18" y="108">+serialize(topic, data) ByteArray</text>
 <text class="mono" x="18" y="129">+deserialize(topic, bytes) T</text>
 </g>
 <g transform="translate(707,568)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">BinaryKafkaCodec</text>
+    <text class="label" x="170" y="49" text-anchor="middle">BinaryKafkaCodec</text>
   <text class="mono" x="18" y="108">+serialize(topic, data) ByteArray</text>
 <text class="mono" x="18" y="129">+deserialize(topic, bytes) T</text>
 </g>
 <g transform="translate(1117,568)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">StringKafkaCodec</text>
+    <text class="label" x="170" y="49" text-anchor="middle">StringKafkaCodec</text>
   <text class="mono" x="18" y="108">+serialize(topic, data) ByteArray</text>
 <text class="mono" x="18" y="129">+deserialize(topic, bytes) String</text>
 </g>

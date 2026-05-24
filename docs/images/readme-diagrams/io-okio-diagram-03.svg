@@ -37,8 +37,7 @@
 <g transform="translate(297,180)">
   <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">SuspendedPipe</text>
+    <text class="label" x="170" y="49" text-anchor="middle">SuspendedPipe</text>
   <text class="mono" x="18" y="108">+sink: BufferedSuspendedSink</text>
 <text class="mono" x="18" y="129">+source: BufferedSuspendedSource</text>
 </g>
@@ -89,8 +88,7 @@
 <g transform="translate(912,526)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">SuspendedFileChannelSink</text>
+    <text class="label" x="170" y="49" text-anchor="middle">SuspendedFileChannelSink</text>
   <text class="mono" x="18" y="108">-channel: AsynchronousFileChannel</text>
 <text class="mono" x="18" y="129">-position: Long</text>
 <text class="mono" x="18" y="150">-writeBuffer: ByteBuffer</text>
@@ -98,9 +96,8 @@
 <g transform="translate(1322,526)">
   <rect class="card" x="0" y="0" width="340" height="191" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#B88A44"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Suspended File Channel</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Source</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Suspended File Channel</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Source</text>
   <text class="mono" x="18" y="124">-channel: AsynchronousFileChannel</text>
 <text class="mono" x="18" y="145">-position: Long</text>
 <text class="mono" x="18" y="166">-readBuffer: ByteBuffer</text>
@@ -108,34 +105,30 @@
 <g transform="translate(502,890)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8BA84D"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Suspended Socket Channel</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Sink</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Suspended Socket Channel</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Sink</text>
   <text class="mono" x="18" y="124">-channel: AsynchronousSocketChannel</text>
 </g>
 <g transform="translate(912,890)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Suspended Socket Channel</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Source</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Suspended Socket Channel</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Source</text>
   <text class="mono" x="18" y="124">-channel: AsynchronousSocketChannel</text>
 </g>
 <g transform="translate(502,1189)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Real Buffered Suspended</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Sink</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Real Buffered Suspended</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Sink</text>
   <text class="mono" x="18" y="124">-sink: SuspendedSink</text>
 <text class="mono" x="18" y="145">-closed: AtomicBoolean</text>
 </g>
 <g transform="translate(912,1189)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Real Buffered Suspended</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Source</text>
+    <text class="label" x="170" y="44.5" text-anchor="middle">Real Buffered Suspended</text>
+<text class="label" x="170" y="69.5" text-anchor="middle">Source</text>
   <text class="mono" x="18" y="124">-source: SuspendedSource</text>
 <text class="mono" x="18" y="145">-closed: AtomicBoolean</text>
 </g>

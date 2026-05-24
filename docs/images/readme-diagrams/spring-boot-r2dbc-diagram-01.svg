@@ -30,8 +30,7 @@
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">R2dbcConfig</text>
+    <text class="label" x="170" y="49" text-anchor="middle">R2dbcConfig</text>
   <text class="mono" x="18" y="108">+connectionFactory(): ConnectionFactory</text>
 <text class="mono" x="18" y="129">+r2dbcEntityOperations():</text>
 <text class="mono" x="18" y="150">R2dbcEntityOperations</text>
@@ -39,8 +38,7 @@
 <g transform="translate(502,180)">
   <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">PostRepository</text>
+    <text class="label" x="170" y="49" text-anchor="middle">PostRepository</text>
   <text class="mono" x="18" y="108">-operations: R2dbcEntityOperations</text>
 <text class="mono" x="18" y="129">+findById(id): Post?</text>
 <text class="mono" x="18" y="150">+findAll(): Flow~Post~</text>
@@ -51,8 +49,7 @@
 <g transform="translate(912,180)">
   <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">Post</text>
+    <text class="label" x="170" y="49" text-anchor="middle">Post</text>
   <text class="mono" x="18" y="108">+id: Long?</text>
 <text class="mono" x="18" y="129">+title: String</text>
 <text class="mono" x="18" y="150">+content: String</text>

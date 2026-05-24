@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="837" viewBox="0 0 1754 837" role="img" aria-label="NIO Channel Adapter Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1834" height="837" viewBox="0 0 1834 837" role="img" aria-label="NIO Channel Adapter Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
   <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
@@ -20,8 +20,8 @@
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="837"/>
-<rect class="frame" x="32" y="28" width="1690" height="781" rx="28"/>
+<rect class="canvas" width="1834" height="837"/>
+<rect class="frame" x="32" y="28" width="1770" height="781" rx="28"/>
 <text class="title" x="66" y="82">NIO Channel Adapter Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
 <path class="implLine" d="M1082 442 L1082 292"/>
@@ -29,52 +29,52 @@
 <path class="implLine" d="M672 442 L672 292"/>
 <path class="implLine" d="M262 442 L262 351 L672 351 L672 292"/>
 <g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface_okio»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Sink</text>
+  <rect class="card" x="80" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#5B8DEF"/>
+  <text class="small" x="250" y="26" text-anchor="middle">«interface_okio»</text>
+  <text class="label" x="250" y="61" text-anchor="middle">Sink</text>
 
 </g>
 <g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface_okio»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Source</text>
+  <rect class="card" x="80" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
+  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#58A978"/>
+  <text class="small" x="250" y="26" text-anchor="middle">«interface_okio»</text>
+  <text class="label" x="250" y="61" text-anchor="middle">Source</text>
 
 </g>
 <g transform="translate(92,442)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">FileChannelSink</text>
-  <text class="mono" x="18" y="108">-channel: FileChannel</text>
-<text class="mono" x="18" y="129">+write(source: Buffer, byteCount: Long)</text>
-<text class="mono" x="18" y="150">+flush()</text>
+  <rect class="card" x="80" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
+  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#D6A441"/>
+  <text class="small" x="250" y="26" text-anchor="middle"></text>
+  <text class="label" x="250" y="61" text-anchor="middle">FileChannelSink</text>
+  <text class="mono" x="98" y="108">-channel: FileChannel</text>
+<text class="mono" x="98" y="129">+write(source: Buffer, byteCount: Long)</text>
+<text class="mono" x="98" y="150">+flush()</text>
 </g>
 <g transform="translate(502,442)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ByteChannelSink</text>
-  <text class="mono" x="18" y="108">-channel: ByteChannel</text>
-<text class="mono" x="18" y="129">+write(source: Buffer, byteCount: Long)</text>
+  <rect class="card" x="80" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
+  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#DC6B82"/>
+  <text class="small" x="250" y="26" text-anchor="middle"></text>
+  <text class="label" x="250" y="61" text-anchor="middle">ByteChannelSink</text>
+  <text class="mono" x="98" y="108">-channel: ByteChannel</text>
+<text class="mono" x="98" y="129">+write(source: Buffer, byteCount: Long)</text>
 </g>
 <g transform="translate(912,442)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">ByteChannelSource</text>
-  <text class="mono" x="18" y="108">-channel: ByteChannel</text>
-<text class="mono" x="18" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
-<text class="mono" x="18" y="150">+readAll(sink: Buffer) Long</text>
+  <rect class="card" x="80" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
+  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#45A7A1"/>
+  <text class="small" x="250" y="26" text-anchor="middle"></text>
+  <text class="label" x="250" y="61" text-anchor="middle">ByteChannelSource</text>
+  <text class="mono" x="98" y="108">-channel: ByteChannel</text>
+<text class="mono" x="98" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
+<text class="mono" x="98" y="150">+readAll(sink: Buffer) Long</text>
 </g>
 <g transform="translate(1322,442)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle"></text>
-  <text class="label" x="170" y="61" text-anchor="middle">FileChannelSource</text>
-  <text class="mono" x="18" y="108">-channel: FileChannel</text>
-<text class="mono" x="18" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
-<text class="mono" x="18" y="150">+readAll(sink: Buffer) Long</text>
+  <rect class="card" x="80" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
+  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#8A72D6"/>
+  <text class="small" x="250" y="26" text-anchor="middle"></text>
+  <text class="label" x="250" y="61" text-anchor="middle">FileChannelSource</text>
+  <text class="mono" x="98" y="108">-channel: FileChannel</text>
+<text class="mono" x="98" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
+<text class="mono" x="98" y="150">+readAll(sink: Buffer) Long</text>
 </g>
 </svg>
