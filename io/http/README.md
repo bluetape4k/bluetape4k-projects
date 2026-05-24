@@ -85,6 +85,55 @@ client.use {
 }
 ```
 
+**Production-tuned HttpClient:**
+
+One-call factory that applies all recommended defaults: pooled connections, eviction of
+expired/idle connections, keep-alive fallback for servers that omit the `Keep-Alive` header,
+retry on transient failures, and conservative request timeouts.
+
+```kotlin
+import io.bluetape4k.http.hc5.classic.*
+import io.bluetape4k.http.hc5.http.*
+
+// All defaults: pool 200/100, eviction 60 s, keep-alive 60 s fallback, 3 retries, timeouts 5/10/30 s
+val client = productionHttpClientOf()
+
+// Custom pool size + longer response timeout
+val client = productionHttpClientOf(
+    maxConnTotal = 500,
+    maxConnPerRoute = 200,
+    requestConfig = productionRequestConfigOf(responseTimeout = Timeout.ofSeconds(60)),
+)
+
+// Virtual Thread variant (same tuning, virtual-thread connection pool)
+val client = productionVirtualThreadHttpClientOf()
+```
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `maxConnTotal` | 200 | Total pooled connections |
+| `maxConnPerRoute` | 100 | Pooled connections per route |
+| `connectionRequestTimeout` | 5 s | Wait for connection from pool |
+| `connectTimeout` | 10 s | TCP connect handshake |
+| `responseTimeout` | 30 s | First response byte deadline |
+| `maxIdleTime` | 60 s | Idle connection eviction threshold |
+| keep-alive fallback | 60 s | Used when server omits `Keep-Alive` |
+| `maxRetries` | 3 | Retry count on transient failures |
+
+**Async production-tuned client:**
+
+```kotlin
+import io.bluetape4k.http.hc5.async.*
+
+val asyncClient = productionHttpAsyncClientOf()
+
+// Customised
+val asyncClient = productionHttpAsyncClientOf(
+    maxConnTotal = 500,
+    retryStrategy = defaultRetryStrategy(maxRetries = 5),
+)
+```
+
 **Caching HttpClient:**
 
 ```kotlin
