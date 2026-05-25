@@ -8,7 +8,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import java.io.File
 
 /**
- * 캐시를 지원하는 [CloseableHttpClient]를 생성합니다.
+ * Creates a caching [CloseableHttpClient] using the supplied builder customisation.
  *
  * ```kotlin
  * val client = cachingHttpClient {
@@ -25,7 +25,7 @@ inline fun cachingHttpClient(
         .build()
 
 /**
- * 캐시를 지원하는 [CloseableHttpClient]를 생성합니다.
+ * Creates a caching [CloseableHttpClient] backed by the given [cacheStorage].
  *
  * ```kotlin
  * val client = cachingHttpClient(cacheStorage) {
@@ -43,31 +43,31 @@ inline fun cachingHttpClient(
         .build()
 
 /**
- * 메모리에 캐시하는 [CloseableHttpClient]를 생성합니다.
+ * Creates an in-memory caching [CloseableHttpClient].
  *
  * ```kotlin
  * val client = memoryCachingHttpClientOf()
  * val response = client.execute(HttpGet("https://example.com"))
- * // HTTP 응답을 메모리에 캐시하는 클라이언트
+ * // Client that caches HTTP responses in memory
  * ```
  *
- * @return [CloseableHttpClient] 인스턴스
+ * @return in-memory caching [CloseableHttpClient]
  */
 fun memoryCachingHttpClientOf(): CloseableHttpClient =
     cachingHttpClient(InMemoryHttpCacheStorage.createObjectCache())
 
 /**
- * 파일에 캐시하는 [CloseableHttpClient]를 생성합니다.
+ * Creates a file-backed caching [CloseableHttpClient].
  *
  * ```kotlin
  * val cacheDir = File("/tmp/http-cache")
  * val client = fileCachingHttpClientOf(cacheDir)
  * val response = client.execute(HttpGet("https://example.com"))
- * // HTTP 응답을 파일에 캐시하는 클라이언트
+ * // Client that caches HTTP responses on disk
  * ```
  *
- * @param cacheDir 캐시 파일을 저장할 디렉토리
- * @return [CloseableHttpClient] 인스턴스
+ * @param cacheDir directory to store cache files
+ * @return file-backed caching [CloseableHttpClient]
  */
 fun fileCachingHttpClientOf(cacheDir: File): CloseableHttpClient =
     CachingHttpClients.createFileBound(cacheDir)
