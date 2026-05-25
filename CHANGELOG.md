@@ -4,6 +4,38 @@
 
 ---
 
+## [1.9.2] — 2026-05-26
+
+### Added
+
+- `bluetape4k-testcontainers` now provides a reusable DynamoDB Local launcher
+  for AWS-compatible local integration tests.
+- `io-http` HC5 clients gained production tuning defaults, a cache
+  configuration DSL, and cache metrics helpers for cache-aware HTTP clients
+  ([#582](https://github.com/bluetape4k/bluetape4k-projects/issues/582),
+  [#583](https://github.com/bluetape4k/bluetape4k-projects/issues/583)).
+- HTTP client benchmarks now include WebFlux-backed comparison charts plus
+  CPU/GC profiling support for the 1.9.2 performance lane
+  ([#584](https://github.com/bluetape4k/bluetape4k-projects/issues/584),
+  [#585](https://github.com/bluetape4k/bluetape4k-projects/issues/585),
+  [#589](https://github.com/bluetape4k/bluetape4k-projects/issues/589)).
+
+### Changed
+
+- The `io-http` README guidance now recommends Apache HC5 as the primary HTTP
+  client surface after the 1.9.2 design evaluation
+  ([#586](https://github.com/bluetape4k/bluetape4k-projects/issues/586)).
+- The default bluetape4k dependency catalog source was pinned to the current
+  release-train catalog ref for repeatable snapshot and release validation.
+
+### Fixed
+
+- Redisson container smoke tests avoid the Fory codec path that is unnecessary
+  for the test support launcher.
+- Remaining Korean KDoc in HTTP cache builders was converted to English for
+  public API documentation consistency
+  ([#633](https://github.com/bluetape4k/bluetape4k-projects/issues/633)).
+
 ## [1.9.1] — 2026-05-23
 
 ### Added

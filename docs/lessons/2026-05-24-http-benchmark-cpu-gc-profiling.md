@@ -1,7 +1,7 @@
 # Lesson: CPU/GC Profiling for kotlinx-benchmark JMH Benchmarks
 
-**Date**: 2026-05-24  
-**Issue**: #585 — perf(io-http): add CPU and GC profiling to HTTP client benchmarks  
+**Date**: 2026-05-24
+**Issue**: #585 — perf(io-http): add CPU and GC profiling to HTTP client benchmarks
 **Branch**: perf/http-benchmark-profiling-20260524
 
 ---
