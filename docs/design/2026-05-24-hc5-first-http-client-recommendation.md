@@ -1,7 +1,7 @@
 # Design Note: HC5-First HTTP Client Recommendation
 
-**Date**: 2026-05-24  
-**Issue**: #586  
+**Date**: 2026-05-24
+**Issue**: #586
 **Status**: Accepted
 
 ---
