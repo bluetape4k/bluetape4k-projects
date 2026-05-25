@@ -56,6 +56,10 @@ configurations.all {
 // NOTE: implementation 로 지정된 Dependency를 testImplementation 으로도 지정하도록 합니다.
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+    kaptTest {
+        exclude(group = "org.hibernate.orm", module = "hibernate-jpamodelgen")
+        exclude(group = "org.hibernate.orm", module = "hibernate-processor")
+    }
 }
 
 dependencies {
@@ -71,7 +75,6 @@ dependencies {
 
     // hibernate-reactive 는 querydsl 을 사용하지 못한다. 대신 jpamodelgen 을 사용합니다.
     kapt(libs.hibernate.jpamodelgen)
-    kaptTest(libs.hibernate.jpamodelgen)
 
     api(libs.jakarta.validation.api)
     implementation(libs.hibernate.validator)
