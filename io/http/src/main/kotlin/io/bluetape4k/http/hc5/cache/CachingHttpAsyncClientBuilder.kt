@@ -8,7 +8,7 @@ import org.apache.hc.client5.http.impl.cache.CachingHttpAsyncClients
 import java.io.File
 
 /**
- * 캐시를 지원하는 [CloseableHttpAsyncClient]를 생성합니다.
+ * Creates a caching [CloseableHttpAsyncClient] using the supplied builder customisation.
  *
  * ```kotlin
  * val client = cachingHttpAsyncClient {
@@ -24,7 +24,7 @@ inline fun cachingHttpAsyncClient(
 }
 
 /**
- * 캐시를 지원하는 [CloseableHttpAsyncClient]를 생성합니다.
+ * Creates a caching [CloseableHttpAsyncClient] backed by the given [cacheStorage].
  *
  * ```kotlin
  * val client = cachingHttpAsyncClient(cacheStorage) {
@@ -43,31 +43,31 @@ inline fun cachingHttpAsyncClient(
 }
 
 /**
- * 메모리에 캐시하는 [CloseableHttpAsyncClient]를 생성합니다.
+ * Creates an in-memory caching [CloseableHttpAsyncClient].
  *
  * ```kotlin
  * val client = memoryCachingHttpAsyncClientOf()
  * client.start()
- * // HTTP 응답을 메모리에 캐시하는 클라이언트
+ * // Client that caches HTTP responses in memory
  * ```
  *
- * @return [CloseableHttpAsyncClient] 인스턴스
+ * @return in-memory caching [CloseableHttpAsyncClient] (call [CloseableHttpAsyncClient.start] before use)
  */
 fun memoryCachingHttpAsyncClientOf(): CloseableHttpAsyncClient =
     CachingHttpAsyncClients.createMemoryBound()
 
 /**
- * 파일에 캐시하는 [CloseableHttpAsyncClient]를 생성합니다.
+ * Creates a file-backed caching [CloseableHttpAsyncClient].
  *
  * ```kotlin
  * val cacheDir = File("/tmp/http-cache")
  * val client = fileCachingHttpAsyncClientOf(cacheDir)
  * client.start()
- * // HTTP 응답을 파일에 캐시하는 클라이언트
+ * // Client that caches HTTP responses on disk
  * ```
  *
- * @param cacheDir 캐시 파일을 저장할 디렉토리
- * @return [CloseableHttpAsyncClient] 인스턴스
+ * @param cacheDir directory to store cache files
+ * @return file-backed caching [CloseableHttpAsyncClient] (call [CloseableHttpAsyncClient.start] before use)
  */
 fun fileCachingHttpAsyncClientOf(cacheDir: File): CloseableHttpAsyncClient =
     CachingHttpAsyncClients.createFileBound(cacheDir)
