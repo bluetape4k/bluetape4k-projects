@@ -113,3 +113,5 @@ out/
 **/cache-ignite2/ignite/
 .worktrees/
 .claude/lib-sources/
+
+.codegraph/
