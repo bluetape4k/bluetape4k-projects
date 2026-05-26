@@ -29,9 +29,9 @@ bucket4j = "8.18.0"  # https://mvnrepository.com/artifact/com.bucket4j/bucket4j_
 resilience4j = "2.4.0"  # https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
 netty = "4.2.13.Final"  # https://mvnrepository.com/artifact/io.netty/netty-bom
 
-aws2 = "2.44.9"  # https://mvnrepository.com/artifact/software.amazon.awssdk/bom
+aws2 = "2.44.12"  # https://mvnrepository.com/artifact/software.amazon.awssdk/bom
 aws2-crt = "0.45.3"  # https://mvnrepository.com/artifact/software.amazon.awssdk.crt/aws-crt
-aws-kotlin = "1.6.77"  # https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-core
+aws-kotlin = "1.6.80"  # https://mvnrepository.com/artifact/aws.sdk.kotlin/aws-core
 aws-smithy-kotlin = "1.6.14"  # https://mvnrepository.com/artifact/aws.smithy.kotlin/http-jvm
 
 grpc = "1.81.0"  # https://mvnrepository.com/artifact/io.grpc/grpc-bom
@@ -117,7 +117,7 @@ timefold-solver = "2.1.0"   # https://mvnrepository.com/artifact/ai.timefold.sol
 
 eclipse-collections = "13.0.0"  # https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
 jctools = "4.0.6"  # https://mvnrepository.com/artifact/org.jctools/jctools-core
-ow2-asm = "9.10"  # https://mvnrepository.com/artifact/org.ow2.asm/asm
+ow2-asm = "9.10.1"  # https://mvnrepository.com/artifact/org.ow2.asm/asm
 
 junit-jupiter = "6.0.3"  # https://mvnrepository.com/artifact/org.junit/junit-bom
 junit-platform = "6.0.3"  # https://mvnrepository.com/artifact/org.junit.platform/junit-platform-commons
@@ -650,7 +650,7 @@ lz4-java = { module = "at.yawk.lz4:lz4-java", version.ref = "lz4" }
 brotli4j = { module = "com.aayushatharva.brotli4j:brotli4j", version = "1.20.0" }  # https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j
 brotli4j-native = { module = "com.aayushatharva.brotli4j:native-linux-x86_64", version = "1.20.0" }  # https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/native-linux-x86_64
 brotli-dec = { module = "org.brotli:dec", version = "0.1.2" }  # https://mvnrepository.com/artifact/org.brotli/dec
-zstd-jni = { module = "com.github.luben:zstd-jni", version = "1.5.7-8" }  # https://mvnrepository.com/artifact/com.github.luben/zstd-jni
+zstd-jni = { module = "com.github.luben:zstd-jni", version = "1.5.7-9" }  # https://mvnrepository.com/artifact/com.github.luben/zstd-jni
 xz = { module = "org.tukaani:xz", version = "1.12" }  # https://mvnrepository.com/artifact/org.tukaani/xz
 
 # Cryptography
@@ -1089,7 +1089,7 @@ wiremock = { module = "org.wiremock:wiremock", version = "3.13.2" }  # https://m
 
 # Kubernetes
 fabric8-kubernetes-client-bom = { module = "io.fabric8:kubernetes-client-bom", version = "7.6.1" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-bom
-fabric8-kubernetes-client = { module = "io.fabric8:kubernetes-client", version = "7.6.1" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
+fabric8-kubernetes-client = { module = "io.fabric8:kubernetes-client", version = "7.7.0" }  # https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
 kubernetes-client-java = { module = "io.kubernetes:client-java", version = "24.0.0" }  # https://mvnrepository.com/artifact/io.kubernetes/client-java
 
 # Rest Assured
