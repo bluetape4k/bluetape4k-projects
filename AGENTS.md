@@ -80,3 +80,13 @@ Full reference may live under `.codex/references/module-groups.md`.
 - Auditable update paths must use `auditedUpdate*`.
 - Keep top-level `README.md` and `README.ko.md` synchronized with
   `settings.gradle.kts` when modules are added, moved, removed, or split out.
+
+## Cross-Repo Lesson Guards
+
+- Before issue, PR, workflow, release, or module-registration work, query GNO
+  for this repo in both `bluetape4k-github` and `bluetape4k-docs`.
+- For module moves, splits, additions, or removals, verify auto-registration,
+  README locale sets, repo-local module lists, CI/Nightly coverage, coverage
+  artifacts, generated catalog/check scripts, and `./gradlew projects`.
+- Keep Kover XML/Codecov visible without hard gates unless explicitly decided.
+  Run Testcontainers-backed verification sequentially across modules/worktrees.
