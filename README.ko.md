@@ -174,6 +174,14 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[mongodb](./spring-boot/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
+### Ktor 모듈 (`ktor/`)
+
+서버 측 Ktor 3.x 기반 공통 모듈입니다. 첫 범위에서는 plugin 설치를 명시적으로 유지하고, client, resilience, OpenAPI, auth helper는 서버 확장 지점이 검증될 때까지 backlog 모듈로 둡니다.
+
+- **[core](./ktor/core/README.ko.md)**: JSON, 오류 응답, health/readiness route를 위한 기본 Ktor 서버 helper
+- **[observability](./ktor/observability/README.ko.md)**: Call logging, correlation-id, metrics, Prometheus route helper
+- **[testing](./ktor/testing/README.ko.md)**: Ktor `testApplication` 및 JSON client 테스트 helper
+
 ### 텍스트 처리 → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
 
 > 이 모듈들은 독립 저장소 **[bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)**로 분리되었습니다.

@@ -3,9 +3,9 @@
 Core bluetape4k Kotlin/JVM backend libraries. This repo improves Java library
 ergonomics and provides coroutine-first, non-blocking infrastructure modules.
 `settings.gradle.kts` auto-registers module directories. Most groups publish as
-`bluetape4k-{name}`; `spring-boot/*`, `virtualthread/*`, and `examples/*` keep
-their base directory in the Gradle project name, while `examples/ktor/*` uses
-the leaf directory name directly.
+`bluetape4k-{name}`; `ktor/*`, `spring-boot/*`, `virtualthread/*`, and
+`examples/*` keep their base directory in the Gradle project name, while
+`examples/ktor/*` uses the leaf directory name directly.
 
 ## Commands
 
@@ -32,6 +32,7 @@ repo-test-summary -- ./gradlew :module:test
 | `data/` | Cassandra, Hibernate, MongoDB, JDBC, R2DBC; Exposed lives in `bluetape4k-exposed` |
 | `infra/` | Redis/Lettuce/Redisson, Kafka 3/4, Elasticsearch, NATS, Pulsar, Bucket4j, Micrometer, OpenTelemetry, Resilience4j |
 | `cache/` | Cache umbrella/core/backend modules and Hibernate Lettuce cache bridge |
+| `ktor/` | Ktor server foundation modules: core, observability, and testing helpers |
 | `spring-boot/` | Spring Boot 4.x modules and demos; no `spring-boot3/*` line remains |
 | `testing/` | `assertions`, `junit5`, `testcontainers`, mock web server images |
 | `utils/` | Geo, ID generators, date/time, JWT, math, measured, money, mutiny, probabilistic, rule-engine, science, states, workflow |
