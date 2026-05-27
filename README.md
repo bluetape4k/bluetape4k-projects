@@ -171,6 +171,16 @@ versionless `spring-boot/*` modules publish the current Spring Boot 4 artifacts.
 - **[mongodb](./spring-boot/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 
+### Ktor Modules (`ktor/`)
+
+Server-side Ktor 3.x foundation modules. The first slice keeps plugin
+installation explicit and leaves client, resilience, OpenAPI, and auth helpers
+in backlog modules until the server extension points are proven.
+
+- **[core](./ktor/core/README.md)**: Baseline Ktor server helpers for JSON, error responses, and health/readiness routes
+- **[observability](./ktor/observability/README.md)**: Call logging, correlation-id, metrics, and Prometheus route helpers
+- **[testing](./ktor/testing/README.md)**: Ktor `testApplication` and JSON client test helpers
+
 ### Text Processing → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
 
 > These modules have moved to the standalone **[bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)** repository.
