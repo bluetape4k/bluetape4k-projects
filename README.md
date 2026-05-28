@@ -167,7 +167,7 @@ versionless `spring-boot/*` modules publish the current Spring Boot 4 artifacts.
   `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
 - **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.md)**: Hibernate Lettuce NearCache + Spring MVC integration demo
-- **[idgenerator-demo](./spring-boot/idgenerator-demo/README.md)**: Spring Boot REST demo for `bluetape4k-idgenerators`
+- **[idgenerator-spring-boot-demo](./examples/spring-boot/idgenerator-spring-boot-demo/README.md)**: Spring Boot REST demo for `bluetape4k-idgenerators`
 - **[mongodb](./spring-boot/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 

@@ -1,0 +1,19 @@
+digraph G {
+  graph [rankdir=LR, splines=ortho, nodesep=0.7, ranksep=0.9, outputorder=edgesfirst];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=18, margin="0.18,0.10"];
+  edge [fontname="Arial", fontsize=12, color="#758297", arrowsize=0.8];
+  test [label="JUnit test", fillcolor="#E8F3FF", color="#5B8DEF"];
+  setup [label="Core test setup", fillcolor="#EAF7EF", color="#58A978"];
+  client [label="JSON client", fillcolor="#E9F7F6", color="#45A7A1"];
+  route [label="Ktor route", fillcolor="#FFF3D9", color="#D6A441"];
+  response [label="HttpResponse", fillcolor="#FDECEF", color="#DC6B82"];
+  assert [label="Assertions", fillcolor="#F1ECFF", color="#8A72D6"];
+  mock [label="MockEngine", fillcolor="#F7F1E7", color="#B88A44"];
+  test -> setup [label="1 install"];
+  setup -> client [label="2 create"];
+  client -> route [label="3 request"];
+  route -> response [label="4 respond"];
+  response -> assert [label="5 verify"];
+  test -> mock [label="client-side option"];
+  mock -> assert [label="same assertions"];
+}

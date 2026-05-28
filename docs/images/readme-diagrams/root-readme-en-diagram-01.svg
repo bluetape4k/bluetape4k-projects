@@ -1,165 +1,97 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc">
-  <title id="title">Bluetape4k framework module ecosystem map</title>
-  <desc id="desc">Pastel architecture map of the bluetape4k-projects root modules, grouped by foundation, I/O, data, infrastructure, Spring Boot integration, testing, utilities, examples, and split repositories.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="980" viewBox="0 0 1460 980" role="img" aria-labelledby="root-readme-en-diagram-01-title root-readme-en-diagram-01-desc">
+  <title id="root-readme-en-diagram-01-title">Repository Module Structure</title>
+  <desc id="root-readme-en-diagram-01-desc">Current module groups from settings and README catalog</desc>
   <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#8FA3B8" flood-opacity="0.16"/>
-    </filter>
-    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <path d="M0,0 L9,3.5 L0,7 Z" fill="#6B7C8F"/>
-    </marker>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L8,4.5 L1,8 Z" fill="#758297"/></marker>
     <style>
-      .title { font-family: 'Architects Daughter','Comic Sans MS',Arial,sans-serif; font-size: 38px; fill: #2F4054; }
-      .subtitle { font-family: 'Comic Sans MS','Segoe UI',Arial,sans-serif; font-size: 15px; fill: #52657A; }
-      .section { font-family: 'Architects Daughter','Comic Sans MS',Arial,sans-serif; font-size: 24px; fill: #2F4054; }
-      .label { font-family: 'Comic Sans MS','Segoe UI',Arial,sans-serif; font-size: 17px; fill: #314256; text-anchor: middle; dominant-baseline: middle; }
-      .small { font-family: 'Comic Sans MS','Segoe UI',Arial,sans-serif; font-size: 13px; fill: #52657A; }
-      .frame { fill: #FFFFFF; stroke: #D6E0EA; stroke-width: 2; rx: 20; filter: url(#shadow); }
-      .zone { fill: #F7FAFC; stroke: #E2EAF2; stroke-width: 1.5; rx: 16; }
-      .card { stroke-width: 2; rx: 10; filter: url(#shadow); }
-      .hub { stroke-width: 2.4; rx: 16; filter: url(#shadow); }
-      .line { stroke: #6B7C8F; stroke-width: 2.1; fill: none; marker-end: url(#arrow); }
-      .soft { stroke: #A4B4C5; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:42px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:16px;fill:#536476;font-weight:400}
+      .card{filter:url(#shadow);stroke-width:2}
+      .cardTitle{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:24px;fill:#22344A;font-weight:400}
+      .body{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;fill:#34465B;font-weight:400}
+      .edge{stroke:#758297;stroke-width:2.3;fill:none;marker-end:url(#arrow)}
+      .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.92}
+      .note{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;fill:#627184;font-weight:400}
     </style>
   </defs>
-
-  <rect width="1400" height="980" fill="#F3F7FB"/>
-  <rect class="frame" x="34" y="28" width="1332" height="924"/>
-  <text class="title" x="72" y="82">Bluetape4k framework module ecosystem</text>
-  <text class="subtitle" x="74" y="112">Framework map: shared Kotlin/JVM foundation, adapters, integrations, examples, and split-repository boundaries.</text>
-
-  <rect class="hub" x="520" y="148" width="360" height="74" fill="#E4F0FF" stroke="#9FC7EA"/>
-  <text class="section" x="600" y="184">bluetape4k-bom</text>
-  <text class="small" x="585" y="206">version alignment for published modules</text>
-
-  <rect class="zone" x="72" y="258" width="288" height="246"/>
-  <text class="section" x="104" y="298">Foundation</text>
-  <rect class="card" x="104" y="326" width="104" height="46" fill="#F5EAFE" stroke="#C8ABE7"/>
-  <text class="label" x="156" y="349">core</text>
-  <rect class="card" x="224" y="326" width="104" height="46" fill="#FFF4DA" stroke="#E8C679"/>
-  <text class="label" x="276" y="349">logging</text>
-  <rect class="card" x="104" y="390" width="104" height="46" fill="#E9F8EF" stroke="#A7DDBB"/>
-  <text class="label" x="156" y="413">coroutines</text>
-  <rect class="card" x="224" y="390" width="104" height="46" fill="#E9FAF8" stroke="#9DD8D0"/>
-  <text class="label" x="276" y="413">measured</text>
-  <rect class="card" x="104" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="126" y="476">annotations</text>
-  <rect class="card" x="224" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="244" y="476">virtualthread</text>
-
-  <rect class="zone" x="396" y="258" width="288" height="246"/>
-  <text class="section" x="428" y="298">I/O and Serialization</text>
-  <rect class="card" x="428" y="326" width="104" height="46" fill="#FFE7EE" stroke="#E8AFC0"/>
-  <text class="label" x="480" y="349">io</text>
-  <rect class="card" x="548" y="326" width="104" height="46" fill="#E9FAF8" stroke="#9DD8D0"/>
-  <text class="label" x="600" y="349">jackson</text>
-  <rect class="card" x="428" y="390" width="104" height="46" fill="#FFF4DA" stroke="#E8C679"/>
-  <text class="label" x="480" y="413">retrofit2</text>
-  <rect class="card" x="548" y="390" width="104" height="46" fill="#F5EAFE" stroke="#C8ABE7"/>
-  <text class="label" x="600" y="413">feign</text>
-  <rect class="card" x="428" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="456" y="476">grpc</text>
-  <rect class="card" x="548" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="570" y="476">protobuf</text>
-
-  <rect class="zone" x="716" y="258" width="288" height="246"/>
-  <text class="section" x="748" y="298">Data Access</text>
-  <rect class="card" x="748" y="326" width="104" height="46" fill="#FFF4DA" stroke="#E8C679"/>
-  <text class="label" x="800" y="349">jdbc</text>
-  <rect class="card" x="868" y="326" width="104" height="46" fill="#E9F8EF" stroke="#A7DDBB"/>
-  <text class="label" x="920" y="349">r2dbc</text>
-  <rect class="card" x="748" y="390" width="104" height="46" fill="#FFE7EE" stroke="#E8AFC0"/>
-  <text class="label" x="800" y="413">hibernate</text>
-  <rect class="card" x="868" y="390" width="104" height="46" fill="#E4F0FF" stroke="#9FC7EA"/>
-  <text class="label" x="920" y="413">mongodb</text>
-  <rect class="card" x="748" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="774" y="476">cassandra</text>
-  <rect class="card" x="868" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="892" y="476">querydsl</text>
-
-  <rect class="zone" x="1040" y="258" width="288" height="246"/>
-  <text class="section" x="1072" y="298">Infrastructure</text>
-  <rect class="card" x="1072" y="326" width="104" height="46" fill="#E9F8EF" stroke="#A7DDBB"/>
-  <text class="label" x="1124" y="349">lettuce</text>
-  <rect class="card" x="1192" y="326" width="104" height="46" fill="#FFF4DA" stroke="#E8C679"/>
-  <text class="label" x="1244" y="349">redisson</text>
-  <rect class="card" x="1072" y="390" width="104" height="46" fill="#FFE7EE" stroke="#E8AFC0"/>
-  <text class="label" x="1124" y="413">kafka</text>
-  <rect class="card" x="1192" y="390" width="104" height="46" fill="#E9FAF8" stroke="#9DD8D0"/>
-  <text class="label" x="1244" y="413">nats</text>
-  <rect class="card" x="1072" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="1094" y="476">pulsar</text>
-  <rect class="card" x="1192" y="454" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="1214" y="476">observability</text>
-
-  <rect class="zone" x="72" y="548" width="288" height="188"/>
-  <text class="section" x="104" y="588">Spring Integration</text>
-  <rect class="card" x="104" y="616" width="104" height="46" fill="#E4F0FF" stroke="#9FC7EA"/>
-  <text class="label" x="156" y="639">boot4</text>
-  <rect class="card" x="224" y="616" width="104" height="46" fill="#E9F8EF" stroke="#A7DDBB"/>
-  <text class="label" x="276" y="639">webflux</text>
-  <rect class="card" x="104" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="130" y="702">cache</text>
-  <rect class="card" x="224" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="246" y="702">auto config</text>
-
-  <rect class="zone" x="396" y="548" width="288" height="188"/>
-  <text class="section" x="428" y="588">Testing</text>
-  <rect class="card" x="428" y="616" width="104" height="46" fill="#FFF4DA" stroke="#E8C679"/>
-  <text class="label" x="480" y="639">junit5</text>
-  <rect class="card" x="548" y="616" width="104" height="46" fill="#FFE7EE" stroke="#E8AFC0"/>
-  <text class="label" x="600" y="639">test infra</text>
-  <rect class="card" x="428" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="452" y="702">mock web</text>
-  <rect class="card" x="548" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="574" y="702">fixtures</text>
-
-  <rect class="zone" x="716" y="548" width="288" height="188"/>
-  <text class="section" x="748" y="588">Utilities</text>
-  <rect class="card" x="748" y="616" width="104" height="46" fill="#E9FAF8" stroke="#9DD8D0"/>
-  <text class="label" x="800" y="639">id gen</text>
-  <rect class="card" x="868" y="616" width="104" height="46" fill="#F5EAFE" stroke="#C8ABE7"/>
-  <text class="label" x="920" y="639">javatimes</text>
-  <rect class="card" x="748" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="774" y="702">workflow</text>
-  <rect class="card" x="868" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="898" y="702">tink</text>
-
-  <rect class="zone" x="1040" y="548" width="288" height="188"/>
-  <text class="section" x="1072" y="588">Examples</text>
-  <rect class="card" x="1072" y="616" width="104" height="46" fill="#E4F0FF" stroke="#9FC7EA"/>
-  <text class="label" x="1124" y="639">demos</text>
-  <rect class="card" x="1192" y="616" width="104" height="46" fill="#E9F8EF" stroke="#A7DDBB"/>
-  <text class="label" x="1244" y="639">retrofit</text>
-  <rect class="card" x="1072" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="1098" y="702">coroutines</text>
-  <rect class="card" x="1192" y="680" width="104" height="34" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="small" x="1224" y="702">id gen</text>
-
-  <rect class="zone" x="142" y="790" width="1116" height="104"/>
-  <text class="section" x="174" y="830">Split repositories</text>
-  <rect class="card" x="372" y="808" width="108" height="46" fill="#E4F0FF" stroke="#9FC7EA"/>
-  <text class="label" x="426" y="831">aws</text>
-  <rect class="card" x="494" y="808" width="108" height="46" fill="#FFF4DA" stroke="#E8C679"/>
-  <text class="label" x="548" y="831">exposed</text>
-  <rect class="card" x="616" y="808" width="108" height="46" fill="#FFE7EE" stroke="#E8AFC0"/>
-  <text class="label" x="670" y="831">image</text>
-  <rect class="card" x="738" y="808" width="108" height="46" fill="#E9FAF8" stroke="#9DD8D0"/>
-  <text class="label" x="792" y="831">text</text>
-  <rect class="card" x="860" y="808" width="108" height="46" fill="#F5EAFE" stroke="#C8ABE7"/>
-  <text class="label" x="914" y="831">graph</text>
-  <rect class="card" x="982" y="808" width="108" height="46" fill="#E9F8EF" stroke="#A7DDBB"/>
-  <text class="label" x="1036" y="831">javers</text>
-  <rect class="card" x="1104" y="808" width="108" height="46" fill="#F7FAFC" stroke="#CAD6E3"/>
-  <text class="label" x="1158" y="831">leader</text>
-  <text class="small" x="374" y="874">Moved out of this repo, but still part of the Bluetape4k ecosystem.</text>
-
-  <path class="line" d="M624 222 C570 248 478 250 360 258"/>
-  <path class="line" d="M650 222 C642 250 610 250 684 258"/>
-  <path class="line" d="M724 222 C742 250 820 250 1004 258"/>
-  <path class="line" d="M774 222 C840 250 972 250 1040 258"/>
-  <path class="soft" d="M216 504 C220 538 220 540 216 548"/>
-  <path class="soft" d="M540 504 C544 538 544 540 540 548"/>
-  <path class="soft" d="M860 504 C864 538 864 540 860 548"/>
-  <path class="soft" d="M1184 504 C1188 538 1188 540 1184 548"/>
+  <rect class="canvas" width="1460" height="980"/>
+  <rect class="frame" x="32" y="28" width="1396" height="924" rx="26"/>
+  <text class="title" x="66" y="82">Repository Module Structure</text>
+  <text class="subtitle" x="70" y="116">Current module groups from settings and README catalog</text>
+  <path class="edge" d="M370 247.5 L395 247.5 L395 247.5 L420 247.5"/>
+<path class="edge" d="M370 247.5 L570 247.5 L570 247.5 L770 247.5"/>
+<path class="edge" d="M370 247.5 L745 247.5 L745 247.5 L1120 247.5"/>
+<path class="edge" d="M1120 247.5 L800 247.5 L800 517.5 L480 517.5"/>
+<path class="edge" d="M570 335 L570 382.5 L730 382.5 L730 430"/>
+<path class="edge" d="M920 335 L920 382.5 L730 382.5 L730 430"/>
+<path class="edge" d="M730 605 L730 670 L730 670 L730 735"/>
+<path class="edge" d="M980 517.5 L930 517.5 L930 812.5 L880 812.5"/>
+  <g>
+  <rect class="card" x="70" y="160" width="300" height="175" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="220" y="202" text-anchor="middle">Core</text>
+  <text class="body" x="220" y="237" text-anchor="middle">annotations</text>
+<text class="body" x="220" y="260" text-anchor="middle">core</text>
+<text class="body" x="220" y="283" text-anchor="middle">coroutines</text>
+<text class="body" x="220" y="306" text-anchor="middle">logging</text>
+<text class="body" x="220" y="329" text-anchor="middle">bom</text>
+</g>
+<g>
+  <rect class="card" x="420" y="160" width="300" height="175" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="570" y="202" text-anchor="middle">I/O</text>
+  <text class="body" x="570" y="237" text-anchor="middle">http clients</text>
+<text class="body" x="570" y="260" text-anchor="middle">JSON/serialization</text>
+<text class="body" x="570" y="283" text-anchor="middle">gRPC/Protobuf</text>
+<text class="body" x="570" y="306" text-anchor="middle">Vert.x</text>
+</g>
+<g>
+  <rect class="card" x="770" y="160" width="300" height="175" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="920" y="202" text-anchor="middle">Data</text>
+  <text class="body" x="920" y="237" text-anchor="middle">Cassandra</text>
+<text class="body" x="920" y="260" text-anchor="middle">Hibernate</text>
+<text class="body" x="920" y="283" text-anchor="middle">MongoDB</text>
+<text class="body" x="920" y="306" text-anchor="middle">JDBC/R2DBC</text>
+</g>
+<g>
+  <rect class="card" x="1120" y="160" width="300" height="175" rx="16" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="1270" y="202" text-anchor="middle">Infrastructure</text>
+  <text class="body" x="1270" y="237" text-anchor="middle">Redis</text>
+<text class="body" x="1270" y="260" text-anchor="middle">Kafka/NATS/Pulsar</text>
+<text class="body" x="1270" y="283" text-anchor="middle">Micrometer/OTel</text>
+<text class="body" x="1270" y="306" text-anchor="middle">Resilience4j</text>
+</g>
+<g>
+  <rect class="card" x="180" y="430" width="300" height="175" rx="16" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="330" y="472" text-anchor="middle">Cache</text>
+  <text class="body" x="330" y="507" text-anchor="middle">cache-core</text>
+<text class="body" x="330" y="530" text-anchor="middle">Hazelcast</text>
+<text class="body" x="330" y="553" text-anchor="middle">Lettuce</text>
+<text class="body" x="330" y="576" text-anchor="middle">Redisson</text>
+</g>
+<g>
+  <rect class="card" x="580" y="430" width="300" height="175" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="730" y="472" text-anchor="middle">Server stacks</text>
+  <text class="body" x="730" y="507" text-anchor="middle">Ktor 3.x</text>
+<text class="body" x="730" y="530" text-anchor="middle">Spring Boot 4.x</text>
+<text class="body" x="730" y="553" text-anchor="middle">Testing</text>
+</g>
+<g>
+  <rect class="card" x="980" y="430" width="300" height="175" rx="16" fill="#F7F1E7" stroke="#B88A44"/>
+  <text class="cardTitle" x="1130" y="472" text-anchor="middle">Utilities</text>
+  <text class="body" x="1130" y="507" text-anchor="middle">idgenerators</text>
+<text class="body" x="1130" y="530" text-anchor="middle">time/money/math</text>
+<text class="body" x="1130" y="553" text-anchor="middle">workflow/states</text>
+<text class="body" x="1130" y="576" text-anchor="middle">geo/science</text>
+</g>
+<g>
+  <rect class="card" x="580" y="735" width="300" height="155" rx="16" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="cardTitle" x="730" y="777" text-anchor="middle">Examples</text>
+  <text class="body" x="730" y="812" text-anchor="middle">Ktor demo</text>
+<text class="body" x="730" y="835" text-anchor="middle">Spring Boot demo</text>
+<text class="body" x="730" y="858" text-anchor="middle">JPA demos</text>
+<text class="body" x="730" y="881" text-anchor="middle">Redis/VT demos</text>
+</g>
+  <text class="note" x="730" y="942" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
 </svg>

@@ -4,6 +4,10 @@
 
 Baseline Ktor server helpers for the bluetape4k ecosystem.
 
+## Architecture Diagram
+
+![Ktor Core Architecture](../../docs/images/readme-diagrams/ktor-core-architecture-01.png)
+
 ## Features
 
 - `Bluetape4kKtorJson.defaultJson()` for shared kotlinx serialization defaults.

@@ -1,0 +1,16 @@
+graph 1 19.53 1.8056
+node test 0.70083 0.72222 1.4017 0.5 "JUnit test" rounded,filled box #5B8DEF #E8F3FF
+node setup 4.6025 1.5556 2.0475 0.5 "Core test setup" rounded,filled box #58A978 #EAF7EF
+node client 9.0933 1.5556 1.6725 0.5 "JSON client" rounded,filled box #45A7A1 #E9F7F6
+node route 12.261 1.5556 1.4538 0.5 "Ktor route" rounded,filled box #D6A441 #FFF3D9
+node response 15.605 1.5556 1.9225 0.5 HttpResponse rounded,filled box #DC6B82 #FDECEF
+node assert 18.772 0.80556 1.5163 0.5 Assertions rounded,filled box #8A72D6 #F1ECFF
+node mock 6.9417 0.25 1.7142 0.5 MockEngine rounded,filled box #B88A44 #F7F1E7
+edge test setup 7 0.69708 0.97678 0.69708 1.2218 0.69708 1.5556 0.69708 1.5556 0.69708 1.5556 3.4443 1.5556 3.4443 1.5556 "1 install" 2.4902 1.474 solid #758297
+edge test mock 7 0.69708 0.46778 0.69708 0.35016 0.69708 0.23611 0.69708 0.23611 0.69708 0.23611 5.9478 0.23611 5.9478 0.23611 "client-side option" 2.4902 0.34896 solid #758297
+edge setup client 4 5.6328 1.5556 5.6328 1.5556 8.1199 1.5556 8.1199 1.5556 "2 create" 6.9417 1.6545 solid #758297
+edge client route 4 9.9338 1.5556 9.9338 1.5556 11.397 1.5556 11.397 1.5556 "3 request" 10.732 1.6545 solid #758297
+edge route response 4 12.99 1.5556 12.99 1.5556 14.51 1.5556 14.51 1.5556 "4 respond" 13.816 1.6545 solid #758297
+edge response assert 7 16.571 1.5556 17.5 1.5556 18.767 1.5556 18.767 1.5556 18.767 1.5556 18.767 1.1916 18.767 1.1916 "5 verify" 17.29 1.5573 solid #758297
+edge mock assert 7 7.8016 0.25 10.523 0.25 18.767 0.25 18.767 0.25 18.767 0.25 18.767 0.42165 18.767 0.42165 "same assertions" 12.261 0.34896 solid #758297
+stop

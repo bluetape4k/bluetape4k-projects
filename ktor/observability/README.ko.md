@@ -4,6 +4,10 @@
 
 bluetape4k 생태계를 위한 Ktor observability helper 모듈입니다.
 
+## Component Diagram
+
+![Ktor Observability Components](../../docs/images/readme-diagrams/ktor-observability-component-01.png)
+
 ## 기능
 
 - `installBluetape4kKtorObservability()` 명시적 Ktor observability 설정.

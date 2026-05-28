@@ -170,7 +170,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[data-redis](./spring-boot/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
 - **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.ko.md)**: Hibernate Lettuce NearCache + Spring MVC 통합 데모
-- **[idgenerator-demo](./spring-boot/idgenerator-demo/README.ko.md)**: `bluetape4k-idgenerators` Spring Boot REST 예제
+- **[idgenerator-spring-boot-demo](./examples/spring-boot/idgenerator-spring-boot-demo/README.ko.md)**: `bluetape4k-idgenerators` Spring Boot REST 예제
 - **[mongodb](./spring-boot/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
