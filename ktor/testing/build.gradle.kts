@@ -11,6 +11,7 @@ dependencies {
     api(project(":bluetape4k-assertions"))
     api(libs.ktor.server.test.host)
     api(libs.ktor.client.core)
+    api(libs.ktor.client.content.negotiation)
     api(libs.ktor.client.mock)
 
     implementation(libs.ktor.serialization.kotlinx.json)
