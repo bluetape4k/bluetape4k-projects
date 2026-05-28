@@ -251,7 +251,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 - **[coroutines-demo](./examples/coroutines-demo/README.ko.md)**: Kotlin Coroutines 사용 예제
 - **[jpa-blazepersistence-demo](./examples/jpa-blazepersistence-demo/README.ko.md)**: JPA + Blaze Persistence 사용 예제
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.ko.md)**: JPA + QueryDSL 사용 예제
-- **[idgenerator-ktor](./examples/ktor/idgenerator-ktor/README.ko.md)**: `bluetape4k-idgenerators` Ktor HTTP 예제
+- **[idgenerator-ktor-demo](./examples/ktor/idgenerator-ktor-demo/README.ko.md)**: `bluetape4k-idgenerators` Ktor HTTP 예제
 - **[redisson-demo](./examples/redisson-demo/README.ko.md)**: Redisson 사용 예제
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.ko.md)**: Java Virtual Thread 사용 예제
 
