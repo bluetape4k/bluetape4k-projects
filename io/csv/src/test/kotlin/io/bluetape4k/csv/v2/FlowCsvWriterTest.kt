@@ -218,6 +218,62 @@ class FlowCsvWriterTest {
     }
 
     @Test
+    fun `writeFile UTF-8 fast path preserves CSV edge case semantics`() = runTest {
+        val file = tempDir.resolve("edge.csv")
+        val writer = csvWriter(StringWriter())
+
+        val count = writer.writeFile(
+            path = file,
+            skipHeaders = false,
+            headers = listOf("name", "note", "empty", "nullable"),
+            rows = flowOf(
+                listOf(" Alice ", "hello, world", "", null),
+                listOf("Bob", "say \"hi\"", "line\r\nbreak", 42),
+            ),
+        )
+
+        count shouldBeEqualTo 2L
+        file.toFile().readText(Charsets.UTF_8) shouldBeEqualTo
+                "name,note,empty,nullable\r\n" +
+                "\" Alice \",\"hello, world\",\"\",\r\n" +
+                "Bob,\"say \"\"hi\"\"\",\"line\r\nbreak\",42\r\n"
+    }
+
+    @Test
+    fun `writeFile UTF-8 fast path preserves quoteAll semantics`() = runTest {
+        val file = tempDir.resolve("quote-all.csv")
+        val writer = csvWriter(StringWriter()) { quoteAll = true }
+
+        val count = writer.writeFile(
+            path = file,
+            rows = flowOf(listOf("Alice", 30, null, "say \"hi\"")),
+        )
+
+        count shouldBeEqualTo 1L
+        file.toFile().readText(Charsets.UTF_8) shouldBeEqualTo
+                "\"Alice\",\"30\",,\"say \"\"hi\"\"\"\r\n"
+    }
+
+    @Test
+    fun `writeFile UTF-8 fast path preserves TSV semantics`() = runTest {
+        val file = tempDir.resolve("edge.tsv")
+        val writer = tsvWriter(StringWriter())
+
+        val count = writer.writeFile(
+            path = file,
+            skipHeaders = false,
+            headers = listOf("name", "note"),
+            rows = flowOf(listOf("Alice", "hello\tworld"), listOf("Bob", null)),
+        )
+
+        count shouldBeEqualTo 2L
+        file.toFile().readText(Charsets.UTF_8) shouldBeEqualTo
+                "name\tnote\n" +
+                "Alice\t\"hello\tworld\"\n" +
+                "Bob\t\n"
+    }
+
+    @Test
     fun `writeFile returns zero for empty flow`() = runTest {
         val file = tempDir.resolve("empty.csv")
         val sw = StringWriter()

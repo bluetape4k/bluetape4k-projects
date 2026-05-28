@@ -1,18 +1,24 @@
 package io.bluetape4k.csv.v2
 
 import io.bluetape4k.csv.internal.DelimitedWriter
+import io.bluetape4k.csv.internal.OkioDelimitedWriter
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import okio.buffer
+import okio.sink
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
 import java.nio.charset.Charset
 import java.nio.file.Path
+import kotlin.text.Charsets.UTF_8
 
 internal class FlowCsvWriterImpl(
     private val writer: Writer,
@@ -60,20 +66,57 @@ internal class FlowCsvWriterImpl(
         rows: Flow<Iterable<*>>,
     ): Long {
         return withContext(Dispatchers.IO) {
-            var count = 0L
-            OutputStreamWriter(FileOutputStream(path.toFile(), append), encoding).use { fw ->
-                // 행마다 DelimitedWriter 재생성을 피하기 위해 파일 전용 인스턴스 1개 생성
-                val fileWriter = DelimitedWriter(fw, delimiter, quote, settings.quoteEscape, lineSeparator)
-                if (!skipHeaders && headers.isNotEmpty()) {
-                    writeRowToDelimited(fileWriter, fw, headers)
-                }
-                rows.collect { row ->
-                    writeRowToDelimited(fileWriter, fw, row)
-                    count++
-                }
+            if (encoding == UTF_8) {
+                return@withContext writeUtf8FileWithOkio(path, append, skipHeaders, headers, rows)
             }
-            count
+            writeFileWithWriter(path, encoding, append, skipHeaders, headers, rows)
         }
+    }
+
+    private suspend fun writeUtf8FileWithOkio(
+        path: Path,
+        append: Boolean,
+        skipHeaders: Boolean,
+        headers: List<String>,
+        rows: Flow<Iterable<*>>,
+    ): Long {
+        var count = 0L
+        FileOutputStream(path.toFile(), append).sink().buffer().use { sink ->
+            val fileWriter = OkioDelimitedWriter(sink, delimiter, quote, settings.quoteEscape, lineSeparator)
+            if (!skipHeaders && headers.isNotEmpty()) {
+                writeRowToOkio(fileWriter, headers)
+            }
+            rows.collect { row ->
+                currentCoroutineContext().ensureActive()
+                writeRowToOkio(fileWriter, row)
+                count++
+            }
+        }
+        return count
+    }
+
+    private suspend fun writeFileWithWriter(
+        path: Path,
+        encoding: Charset,
+        append: Boolean,
+        skipHeaders: Boolean,
+        headers: List<String>,
+        rows: Flow<Iterable<*>>,
+    ): Long {
+        var count = 0L
+        OutputStreamWriter(FileOutputStream(path.toFile(), append), encoding).use { fw ->
+            // 행마다 DelimitedWriter 재생성을 피하기 위해 파일 전용 인스턴스 1개 생성
+            val fileWriter = DelimitedWriter(fw, delimiter, quote, settings.quoteEscape, lineSeparator)
+            if (!skipHeaders && headers.isNotEmpty()) {
+                writeRowToDelimited(fileWriter, fw, headers)
+            }
+            rows.collect { row ->
+                currentCoroutineContext().ensureActive()
+                writeRowToDelimited(fileWriter, fw, row)
+                count++
+            }
+        }
+        return count
     }
 
     override fun close() {
@@ -97,6 +140,14 @@ internal class FlowCsvWriterImpl(
             writeAllQuoted(w, fields)
         } else {
             dw.writeRow(fields)
+        }
+    }
+
+    private fun writeRowToOkio(w: OkioDelimitedWriter, fields: Iterable<*>) {
+        if (config.quoteAll) {
+            w.writeAllQuoted(fields)
+        } else {
+            w.writeRow(fields)
         }
     }
 

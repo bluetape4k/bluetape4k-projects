@@ -49,6 +49,26 @@ Since v1.5.0 the internal engine has been replaced from univocity-parsers to a s
 - `null` → unquoted empty field on write; read back as `null` when `emptyValueAsNull=true`
 - `""` (empty string) → `""` quoted field on write; read back as `""` (empty string)
 
+### UTF-8 Writer Fast Path
+
+`FlowCsvWriter.writeFile(..., encoding = Charsets.UTF_8, ...)` uses an internal Okio
+`BufferedSink` fast path for file output. Non-UTF-8 encodings keep the existing
+`Writer` fallback path.
+
+Benchmark command:
+
+```bash
+./gradlew :bluetape4k-csv:testBenchmark
+```
+
+Throughput is measured in `ops/s`; higher is better.
+
+| Workload | Writer baseline | Okio writer | Speedup |
+|---|---:|---:|---:|
+| small | 11,741.418 ops/s | 16,355.656 ops/s | 1.39x |
+| medium | 676.110 ops/s | 2,068.696 ops/s | 3.06x |
+| large | 83.802 ops/s | 272.157 ops/s | 3.25x |
+
 ## Usage Examples
 
 ### Reading CSV
