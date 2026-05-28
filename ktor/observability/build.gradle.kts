@@ -5,10 +5,12 @@ configurations {
 dependencies {
     api(project(":bluetape4k-ktor-core"))
     api(libs.ktor.server.core)
+    api(libs.ktor.server.call.id)
+    api(libs.ktor.server.call.logging)
+    api(libs.ktor.server.metrics.micrometer)
+    api(libs.micrometer.core)
 
-    compileOnly(project(":bluetape4k-micrometer"))
-    compileOnly(libs.micrometer.core)
-    testImplementation(libs.micrometer.core)
+    compileOnly(libs.micrometer.registry.prometheus)
     testImplementation(libs.micrometer.registry.prometheus)
 
     testImplementation(project(":bluetape4k-junit5"))
