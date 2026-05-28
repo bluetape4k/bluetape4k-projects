@@ -1,6 +1,8 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
@@ -8,16 +10,20 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.codec.StringCodec
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.system.measureTimeMillis
 
 class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
 
@@ -145,6 +151,44 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
         } finally {
             strConn.close()
         }
+    }
+
+    @Test
+    fun `suspendClose - caller cancellation is propagated before internal shutdown timeout`() = runSuspendIO {
+        val writerStarted = CompletableDeferred<Unit>()
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            keyPrefix = "suspend-close-cancel:${randomName()}",
+            writeBehindDelay = Duration.ofSeconds(5),
+            writeBehindBatchSize = 1,
+            writeBehindShutdownTimeout = Duration.ofSeconds(2),
+        )
+        val slowWriter = object: SuspendedMapWriter<String, String> {
+            override suspend fun write(map: Map<String, String>) {
+                writerStarted.complete(Unit)
+                delay(5_000L)
+            }
+
+            override suspend fun delete(keys: Collection<String>) {}
+        }
+
+        val map = LettuceSuspendedLoadedMap<String, String>(
+            client = client,
+            writer = slowWriter,
+            config = config,
+        )
+
+        map.set("key1", "value1")
+        writerStarted.await()
+
+        val elapsedMillis = measureTimeMillis {
+            assertFailsWith<TimeoutCancellationException> {
+                withTimeout(150L) {
+                    map.suspendClose()
+                }
+            }
+        }
+
+        elapsedMillis shouldBeLessThan config.writeBehindShutdownTimeout.toMillis()
     }
 
     @Test
