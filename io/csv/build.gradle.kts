@@ -24,6 +24,7 @@ configurations {
 
 dependencies {
     api(project(":bluetape4k-io"))
+    implementation(libs.okio)
     testImplementation(project(":bluetape4k-junit5"))
 
     // Coroutines

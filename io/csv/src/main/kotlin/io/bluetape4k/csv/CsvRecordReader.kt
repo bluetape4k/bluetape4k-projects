@@ -1,9 +1,13 @@
 package io.bluetape4k.csv
 
 import io.bluetape4k.csv.internal.CsvLexer
+import io.bluetape4k.csv.internal.OkioCsvLexer
 import io.bluetape4k.logging.KLogging
+import okio.buffer
+import okio.source
 import java.io.InputStream
 import java.nio.charset.Charset
+import kotlin.text.Charsets.UTF_8
 
 /**
  * 자체 [CsvLexer]를 사용하는 CSV [RecordReader] 구현체입니다.
@@ -40,6 +44,14 @@ class CsvRecordReader(
         skipHeaders: Boolean,
         transform: (Record) -> T,
     ): Sequence<T> = sequence {
+        if (encoding == UTF_8 && OkioCsvLexer.isSupported(settings)) {
+            OkioCsvLexer(input.source().buffer(), settings, skipHeaders).use { lexer ->
+                while (lexer.hasNext()) {
+                    yield(transform(lexer.next()))
+                }
+            }
+            return@sequence
+        }
         CsvLexer(input.reader(encoding), settings, skipHeaders).use { lexer ->
             while (lexer.hasNext()) {
                 yield(transform(lexer.next()))
