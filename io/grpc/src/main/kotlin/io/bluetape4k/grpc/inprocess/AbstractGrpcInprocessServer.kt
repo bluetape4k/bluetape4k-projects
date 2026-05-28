@@ -16,6 +16,8 @@ import kotlinx.atomicfu.locks.reentrantLock
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.withLock
 
+private const val SHUTDOWN_TIMEOUT_SECONDS = 5L
+
 /**
  * in-process gRPC 서버를 관리하는 테스트용 베이스 클래스입니다.
  *
@@ -81,12 +83,36 @@ abstract class AbstractGrpcInprocessServer(
             if (!isShutdown) {
                 running.value = false
                 runCatching { server.shutdown() }
-                val terminated = runCatching { server.awaitTermination(5, TimeUnit.SECONDS) }.getOrDefault(false)
-                if (!terminated) {
+                if (!awaitTerminationOrRestoreInterrupt()) {
                     log.warn { "InProcess gRPC server did not terminate within 5 seconds. Forcing shutdownNow()." }
-                    runCatching { server.shutdownNow() }
+                    forceShutdownNowAndAwaitTermination()
                 }
             }
+        }
+    }
+
+    private fun awaitTerminationOrRestoreInterrupt(): Boolean =
+        try {
+            server.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            false
+        }
+
+    private fun forceShutdownNowAndAwaitTermination() {
+        try {
+            server.shutdownNow()
+        } catch (e: RuntimeException) {
+            log.warn(e) { "Failed to force shutdown InProcess gRPC server." }
+            return
+        }
+
+        if (Thread.currentThread().isInterrupted) {
+            return
+        }
+
+        if (!awaitTerminationOrRestoreInterrupt()) {
+            log.warn { "InProcess gRPC server did not terminate after forced shutdown within 5 seconds." }
         }
     }
 }
