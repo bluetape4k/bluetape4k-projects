@@ -3,6 +3,7 @@ package io.bluetape4k.vertx.web
 import io.bluetape4k.vertx.currentVertxCoroutineScope
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.RoutingContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
@@ -27,6 +28,8 @@ inline fun Route.suspendHandler(
         currentVertxCoroutineScope().launch {
             try {
                 requestHandler(ctx)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 ctx.fail(e)
             }
@@ -55,6 +58,8 @@ inline fun Route.suspendFailureHandler(
         currentVertxCoroutineScope().launch {
             try {
                 requestHandler(ctx)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 ctx.fail(e)
             }
