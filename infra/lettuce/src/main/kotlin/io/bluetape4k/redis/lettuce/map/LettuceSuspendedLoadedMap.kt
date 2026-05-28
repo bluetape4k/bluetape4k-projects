@@ -16,17 +16,18 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.time.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.Closeable
 
 /**
@@ -410,21 +411,27 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         // 1. 채널을 먼저 닫아 새 write 차단
         writeBehindChannel?.close()
         // 2. write-behind job이 drain을 마칠 때까지 suspend로 대기.
-        //    NonCancellable 컨텍스트에서 실행해 호출자 취소에도 정리 블록이 실행되도록 보장.
+        //    호출자 취소는 전파하고, 내부 shutdown timeout만 graceful degradation으로 처리한다.
         try {
             writeBehindJob?.let { job ->
-                withContext(NonCancellable) {
-                    withTimeout(config.writeBehindShutdownTimeout.toMillis()) {
-                        job.join()
-                    }
+                val drained = withTimeoutOrNull(config.writeBehindShutdownTimeout.toMillis()) {
+                    job.join()
+                    true
+                } ?: false
+                if (!drained) {
+                    log.warn { "Write-behind job drain timed out during suspendClose()" }
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            log.warn(e) { "Write-behind job drain timed out or failed during suspendClose()" }
+            log.warn(e) { "Write-behind job drain failed during suspendClose()" }
         } finally {
-            ownedJob.cancel()
-            if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
-            connection.close()
+            withContext(NonCancellable) {
+                ownedJob.cancel()
+                if (lazyStrConnection.isInitialized()) lazyStrConnection.value.close()
+                connection.close()
+            }
         }
     }
 }
