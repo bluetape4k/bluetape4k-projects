@@ -49,6 +49,26 @@ v1.5.0부터 내부 엔진이 univocity-parsers에서 자체 구현 상태 기�
 - `null` → 쓰기 시 인용 없는 빈 필드; `emptyValueAsNull=true`이면 읽을 때 `null`로 복원
 - `""` (빈 문자열) → 쓰기 시 `""` 인용 출력; 읽을 때 `""` (빈 문자열)로 복원
 
+### UTF-8 Writer Fast Path
+
+`FlowCsvWriter.writeFile(..., encoding = Charsets.UTF_8, ...)`는 파일 출력 시 내부적으로
+Okio `BufferedSink` fast path를 사용합니다. UTF-8이 아닌 인코딩은 기존 `Writer` fallback
+경로를 유지합니다.
+
+벤치마크 명령:
+
+```bash
+./gradlew :bluetape4k-csv:testBenchmark
+```
+
+처리량 단위는 `ops/s`이며, 높을수록 좋습니다.
+
+| Workload | Writer baseline | Okio writer | Speedup |
+|---|---:|---:|---:|
+| small | 11,741.418 ops/s | 16,355.656 ops/s | 1.39x |
+| medium | 676.110 ops/s | 2,068.696 ops/s | 3.06x |
+| large | 83.802 ops/s | 272.157 ops/s | 3.25x |
+
 ## 사용 예제
 
 ### CSV 읽기
