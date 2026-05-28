@@ -92,8 +92,28 @@ class GrpcServerTest: AbstractGrpcTest() {
         server.isRunning.shouldBeFalse()
         server.isShutdown.shouldBeTrue()
         recordingServer.shutdownCalls shouldBeEqualTo 1
-        recordingServer.awaitTimedCalls shouldBeEqualTo 1
+        recordingServer.awaitTimedCalls shouldBeEqualTo 2
         recordingServer.shutdownNowCalls shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `port server stop restores interrupt status when await termination is interrupted`() {
+        val recordingServer = RecordingServer(terminatesGracefully = false, interruptOnAwait = true)
+        val server = RecordingPortLifecycleServer(recordingServer)
+
+        try {
+            server.start()
+            server.stop()
+
+            server.isRunning.shouldBeFalse()
+            server.isShutdown.shouldBeTrue()
+            recordingServer.shutdownCalls shouldBeEqualTo 1
+            recordingServer.awaitTimedCalls shouldBeEqualTo 1
+            recordingServer.shutdownNowCalls shouldBeEqualTo 1
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            Thread.interrupted()
+        }
     }
 
     @Test
@@ -165,8 +185,28 @@ class GrpcServerTest: AbstractGrpcTest() {
         server.isRunning.shouldBeFalse()
         server.isShutdown.shouldBeTrue()
         recordingServer.shutdownCalls shouldBeEqualTo 1
-        recordingServer.awaitTimedCalls shouldBeEqualTo 1
+        recordingServer.awaitTimedCalls shouldBeEqualTo 2
         recordingServer.shutdownNowCalls shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `inprocess server stop restores interrupt status when await termination is interrupted`() {
+        val recordingServer = RecordingServer(terminatesGracefully = false, interruptOnAwait = true)
+        val server = RecordingInprocessLifecycleServer(recordingServer)
+
+        try {
+            server.start()
+            server.stop()
+
+            server.isRunning.shouldBeFalse()
+            server.isShutdown.shouldBeTrue()
+            recordingServer.shutdownCalls shouldBeEqualTo 1
+            recordingServer.awaitTimedCalls shouldBeEqualTo 1
+            recordingServer.shutdownNowCalls shouldBeEqualTo 1
+            Thread.currentThread().isInterrupted.shouldBeTrue()
+        } finally {
+            Thread.interrupted()
+        }
     }
 
     private fun inprocessName(): String =
@@ -199,6 +239,7 @@ class GrpcServerTest: AbstractGrpcTest() {
 
     private class RecordingServer(
         private val terminatesGracefully: Boolean,
+        private val interruptOnAwait: Boolean = false,
     ): Server() {
         var shutdownCalls = 0
             private set
@@ -238,6 +279,9 @@ class GrpcServerTest: AbstractGrpcTest() {
 
         override fun awaitTermination(timeout: Long, unit: TimeUnit): Boolean {
             awaitTimedCalls++
+            if (interruptOnAwait) {
+                throw InterruptedException("interrupted during graceful shutdown")
+            }
             return terminated
         }
 
