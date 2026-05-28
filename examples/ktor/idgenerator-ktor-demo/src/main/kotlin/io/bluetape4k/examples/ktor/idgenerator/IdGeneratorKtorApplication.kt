@@ -6,24 +6,20 @@ import io.bluetape4k.idgenerators.snowflake.SnowflakeGenerator
 import io.bluetape4k.idgenerators.ulid.UlidGenerator
 import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.idgenerators.uuid.UuidGenerator
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
+import io.bluetape4k.ktor.core.installBluetape4kKtorCore
+import io.bluetape4k.ktor.core.intQueryParameter
+import io.bluetape4k.ktor.core.requiredPathParameter
+import io.bluetape4k.ktor.observability.installBluetape4kKtorObservability
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.request.ApplicationRequest
 import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 private const val DEFAULT_BATCH_SIZE = 10
 private const val MAX_BATCH_SIZE = 100
@@ -45,25 +41,8 @@ private const val MAX_BATCH_SIZE = 100
 internal fun Application.idGeneratorKtorModule(
     registry: IdGeneratorRegistry = IdGeneratorRegistry.default(),
 ) {
-    install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-        })
-    }
-    install(StatusPages) {
-        exception<UnknownGeneratorTypeException> { call, cause ->
-            call.respond(
-                HttpStatusCode.BadRequest,
-                ErrorResponse("unsupported_generator_type", cause.message ?: "Unsupported generator type")
-            )
-        }
-        exception<InvalidBatchSizeException> { call, cause ->
-            call.respond(
-                HttpStatusCode.BadRequest,
-                ErrorResponse("invalid_batch_size", cause.message ?: "Invalid batch size")
-            )
-        }
-    }
+    installBluetape4kKtorCore()
+    installBluetape4kKtorObservability()
     routing {
         idGeneratorRoutes(registry)
     }
@@ -208,21 +187,12 @@ internal data class HealthResponse(
     val status: String = "UP",
 )
 
-@Serializable
-internal data class ErrorResponse(
-    val error: String,
-    val message: String,
-)
-
 private fun ApplicationCall.generatorType(): String =
-    parameters["type"] ?: throw UnknownGeneratorTypeException("", emptyList())
+    requiredPathParameter("type")
 
 private fun ApplicationCall.batchSize(): Int =
-    request.batchSize()
-
-private fun ApplicationRequest.batchSize(): Int {
-    val rawSize = queryParameters["size"] ?: return DEFAULT_BATCH_SIZE
-    return rawSize.toIntOrNull()
-        ?.takeIf { it in 1..MAX_BATCH_SIZE }
-        ?: throw InvalidBatchSizeException(rawSize)
-}
+    intQueryParameter(
+        name = "size",
+        defaultValue = DEFAULT_BATCH_SIZE,
+        range = 1..MAX_BATCH_SIZE
+    ) ?: DEFAULT_BATCH_SIZE

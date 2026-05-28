@@ -3,12 +3,20 @@
 [English](./README.md) | 한국어
 
 bluetape4k `idgenerators`를 HTTP endpoint로 노출하는 실행 가능한 Ktor application입니다.
+공통 bluetape4k Ktor 모듈을 사용해 JSON, 표준 오류 응답, health/readiness route,
+correlation ID, call logging, test assertion을 구성합니다.
 
 ## 구조
 
 ![idgenerator ktor demo Architecture diagram](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-diagram-01.png)
 
 명시적 `/ids/...` route와 generic `/idgen/{type}` route는 같은 registry를 공유합니다. route 스타일은 두 가지를 모두 보여주되 ID 생성 로직은 중복하지 않습니다.
+
+공통 Ktor 설정은 application module에서 명시적으로 설치합니다:
+
+- `bluetape4k-ktor-core`: content negotiation, `ApiErrorResponse`, `/healthz`, `/readyz`
+- `bluetape4k-ktor-observability`: `X-Request-Id` 전파와 call logging
+- `bluetape4k-ktor-testing`: response status, JSON body, API error assertion
 
 ## 실행
 
@@ -67,6 +75,19 @@ curl 'http://localhost:8080/idgen/uuid-v7/batch?size=10'
 ```bash
 curl http://localhost:8080/generators
 curl http://localhost:8080/health
+curl http://localhost:8080/healthz
+curl http://localhost:8080/readyz
+```
+
+잘못된 path/query 입력은 공통 API error 형식으로 응답합니다:
+
+```json
+{
+  "error": "bad_request",
+  "message": "Query parameter 'size' must be in 1..100.",
+  "status": 400,
+  "path": "/idgen/uuid-v7/batch"
+}
 ```
 
 ## Generator 선택 기준

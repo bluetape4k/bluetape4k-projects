@@ -5,10 +5,14 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.ktor.core.HealthResponse as CoreHealthResponse
+import io.bluetape4k.ktor.testing.ExpectedApiError
 import io.bluetape4k.ktor.testing.decodeJsonBody
+import io.bluetape4k.ktor.testing.shouldHaveApiError
 import io.bluetape4k.ktor.testing.shouldHaveStatus
 import io.bluetape4k.utils.Runtimex
 import io.ktor.client.request.get
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Test
@@ -95,6 +99,12 @@ class IdGeneratorKtorApplicationTest {
         val health = client.get("/health").decodeJsonBody<HealthResponse>()
         health.status shouldBeEqualTo "UP"
 
+        val coreHealth = client.get("/healthz").decodeJsonBody<CoreHealthResponse>()
+        coreHealth.status shouldBeEqualTo CoreHealthResponse.UP
+
+        val readiness = client.get("/readyz").decodeJsonBody<CoreHealthResponse>()
+        readiness.status shouldBeEqualTo CoreHealthResponse.UP
+
         val generators = client.get("/generators").decodeJsonBody<GeneratorsResponse>()
         generators.generators.map { it.type } shouldBeEqualTo ExplicitTypes
         generators.genericEndpoints shouldBeEqualTo listOf(
@@ -109,10 +119,52 @@ class IdGeneratorKtorApplicationTest {
             idGeneratorKtorModule()
         }
 
-        client.get("/idgen/unknown").status shouldBeEqualTo HttpStatusCode.BadRequest
-        client.get("/idgen/uuid-v7/batch?size=0").status shouldBeEqualTo HttpStatusCode.BadRequest
-        client.get("/idgen/uuid-v7/batch?size=101").status shouldBeEqualTo HttpStatusCode.BadRequest
-        client.get("/ids/uuid-v7/batch?size=not-number").status shouldBeEqualTo HttpStatusCode.BadRequest
+        client.get("/idgen/unknown").shouldHaveApiError(
+            ExpectedApiError(
+                status = HttpStatusCode.BadRequest,
+                error = "bad_request",
+                message = "Unsupported generator type: unknown. Supported types: ${ExplicitTypes.joinToString()}",
+                path = "/idgen/unknown"
+            )
+        )
+        client.get("/idgen/uuid-v7/batch?size=0").shouldHaveApiError(
+            ExpectedApiError(
+                status = HttpStatusCode.BadRequest,
+                error = "bad_request",
+                message = "Query parameter 'size' must be in 1..100.",
+                path = "/idgen/uuid-v7/batch"
+            )
+        )
+        client.get("/idgen/uuid-v7/batch?size=101").shouldHaveApiError(
+            ExpectedApiError(
+                status = HttpStatusCode.BadRequest,
+                error = "bad_request",
+                message = "Query parameter 'size' must be in 1..100.",
+                path = "/idgen/uuid-v7/batch"
+            )
+        )
+        client.get("/ids/uuid-v7/batch?size=not-number").shouldHaveApiError(
+            ExpectedApiError(
+                status = HttpStatusCode.BadRequest,
+                error = "bad_request",
+                message = "Query parameter 'size' must be an integer.",
+                path = "/ids/uuid-v7/batch"
+            )
+        )
+    }
+
+    @Test
+    fun `observability propagates a request id response header`() = testApplication {
+        application {
+            idGeneratorKtorModule()
+        }
+
+        val response = client.get("/ids/uuid-v7")
+
+        response shouldHaveStatus HttpStatusCode.OK
+        val requestId = response.headers[HttpHeaders.XRequestId]
+        requestId.shouldNotBeNull()
+        requestId.isNotBlank() shouldBeEqualTo true
     }
 
     @Test

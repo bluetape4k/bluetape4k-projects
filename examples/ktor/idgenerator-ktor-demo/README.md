@@ -3,12 +3,20 @@
 English | [한국어](./README.ko.md)
 
 Runnable Ktor application that exposes bluetape4k `idgenerators` through HTTP endpoints.
+It uses the shared bluetape4k Ktor modules for JSON, standard error responses,
+health/readiness routes, correlation IDs, call logging, and test assertions.
 
 ## Architecture
 
 ![idgenerator ktor demo Architecture diagram](../../../docs/images/readme-diagrams/examples-ktor-idgenerator-ktor-demo-diagram-01.png)
 
 The explicit `/ids/...` routes and generic `/idgen/{type}` routes share the same registry, so the example shows both route styles without duplicating ID generation logic.
+
+Shared Ktor setup is intentionally visible in the application module:
+
+- `bluetape4k-ktor-core`: content negotiation, `ApiErrorResponse`, `/healthz`, and `/readyz`
+- `bluetape4k-ktor-observability`: `X-Request-Id` propagation and call logging
+- `bluetape4k-ktor-testing`: response status, JSON body, and API error assertions
 
 ## Run
 
@@ -67,6 +75,19 @@ Supported `{type}` values:
 ```bash
 curl http://localhost:8080/generators
 curl http://localhost:8080/health
+curl http://localhost:8080/healthz
+curl http://localhost:8080/readyz
+```
+
+Invalid path/query input returns the shared API error shape:
+
+```json
+{
+  "error": "bad_request",
+  "message": "Query parameter 'size' must be in 1..100.",
+  "status": 400,
+  "path": "/idgen/uuid-v7/batch"
+}
 ```
 
 ## Generator Choice
