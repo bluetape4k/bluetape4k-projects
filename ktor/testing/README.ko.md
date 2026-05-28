@@ -4,12 +4,63 @@
 
 bluetape4k 생태계를 위한 Ktor 테스트 helper 모듈입니다.
 
-## 범위
+## 기능
 
-- `testApplication` setup helper.
-- JSON test client factory.
-- Response decode helper.
-- Status, body, API error assertion.
+- Ktor `testApplication` 생명주기를 숨기지 않는 `bluetape4k-ktor-core` 설치 helper.
+- `Bluetape4kKtorJson.defaultJson()`을 사용하는 JSON test client factory.
+- kotlinx serialization 응답 decode helper.
+- HTTP status, JSON body, 표준 `ApiErrorResponse` assertion.
+- 단일 JSON 응답 client test를 위한 작은 `MockEngine` helper.
 
-이 scaffold는 아직 production API를 추가하지 않습니다. 구현은 module 등록
-검증 이후 #614에서 진행합니다.
+## 의존성
+
+```kotlin
+testImplementation("io.github.bluetape4k:bluetape4k-ktor-testing")
+```
+
+## 사용 예
+
+```kotlin
+@Test
+fun `endpoint returns json`() = testApplication {
+    installBluetape4kKtorCoreForTest {
+        get("/echo") {
+            call.respond(EchoResponse("blue"))
+        }
+    }
+
+    val response = client.get("/echo")
+
+    response shouldHaveStatus HttpStatusCode.OK
+    response.shouldHaveJsonBody(EchoResponse("blue"))
+}
+```
+
+typed request/response body가 필요한 테스트에서는 JSON-aware Ktor test client를
+만들 수 있습니다.
+
+```kotlin
+val jsonClient = bluetape4kJsonClient()
+val body = jsonClient.get("/echo").body<EchoResponse>()
+```
+
+표준 bluetape4k error payload도 바로 검증할 수 있습니다.
+
+```kotlin
+client.get("/bad").shouldHaveApiError(
+    ExpectedApiError(
+        status = HttpStatusCode.BadRequest,
+        error = "bad_request",
+        message = "Invalid input",
+        path = "/bad"
+    )
+)
+```
+
+단순 client-side test에는 `bluetape4kJsonMockEngine`을 사용합니다.
+
+```kotlin
+val client = HttpClient(
+    bluetape4kJsonMockEngine(EchoResponse("mock"))
+)
+```

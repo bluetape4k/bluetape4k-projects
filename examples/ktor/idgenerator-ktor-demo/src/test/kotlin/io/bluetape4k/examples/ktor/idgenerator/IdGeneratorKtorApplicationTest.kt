@@ -5,13 +5,12 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.ktor.testing.decodeJsonBody
+import io.bluetape4k.ktor.testing.shouldHaveStatus
 import io.bluetape4k.utils.Runtimex
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.concurrent.ConcurrentHashMap
@@ -33,10 +32,6 @@ class IdGeneratorKtorApplicationTest {
         private const val CONCURRENCY_COUNT = 512
     }
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
-
     @Test
     fun `all explicit single id endpoints return non blank ids`() = testApplication {
         application {
@@ -45,9 +40,9 @@ class IdGeneratorKtorApplicationTest {
 
         ExplicitTypes.forEach { type ->
             val response = client.get("/ids/$type")
-            response.status shouldBeEqualTo HttpStatusCode.OK
+            response shouldHaveStatus HttpStatusCode.OK
 
-            val body = json.decodeFromString<IdResponse>(response.bodyAsText())
+            val body = response.decodeJsonBody<IdResponse>()
             body.type shouldBeEqualTo type
             body.id.isNotBlank() shouldBeEqualTo true
         }
@@ -61,9 +56,9 @@ class IdGeneratorKtorApplicationTest {
 
         ExplicitTypes.forEach { type ->
             val response = client.get("/ids/$type/batch?size=$BATCH_SIZE")
-            response.status shouldBeEqualTo HttpStatusCode.OK
+            response shouldHaveStatus HttpStatusCode.OK
 
-            val body = json.decodeFromString<IdBatchResponse>(response.bodyAsText())
+            val body = response.decodeJsonBody<IdBatchResponse>()
             body.type shouldBeEqualTo type
             body.size shouldBeEqualTo BATCH_SIZE
             body.ids shouldHaveSize BATCH_SIZE
@@ -82,15 +77,9 @@ class IdGeneratorKtorApplicationTest {
             idGeneratorKtorModule(registry)
         }
 
-        val explicit = json.decodeFromString<IdResponse>(
-            client.get("/ids/uuid-v7").bodyAsText()
-        )
-        val generic = json.decodeFromString<IdResponse>(
-            client.get("/idgen/uuid-v7").bodyAsText()
-        )
-        val genericBatch = json.decodeFromString<IdBatchResponse>(
-            client.get("/idgen/uuid-v7/batch?size=3").bodyAsText()
-        )
+        val explicit = client.get("/ids/uuid-v7").decodeJsonBody<IdResponse>()
+        val generic = client.get("/idgen/uuid-v7").decodeJsonBody<IdResponse>()
+        val genericBatch = client.get("/idgen/uuid-v7/batch?size=3").decodeJsonBody<IdBatchResponse>()
 
         explicit.id shouldBeEqualTo "shared-1"
         generic.id shouldBeEqualTo "shared-2"
@@ -103,14 +92,10 @@ class IdGeneratorKtorApplicationTest {
             idGeneratorKtorModule()
         }
 
-        val health = json.decodeFromString<HealthResponse>(
-            client.get("/health").bodyAsText()
-        )
+        val health = client.get("/health").decodeJsonBody<HealthResponse>()
         health.status shouldBeEqualTo "UP"
 
-        val generators = json.decodeFromString<GeneratorsResponse>(
-            client.get("/generators").bodyAsText()
-        )
+        val generators = client.get("/generators").decodeJsonBody<GeneratorsResponse>()
         generators.generators.map { it.type } shouldBeEqualTo ExplicitTypes
         generators.genericEndpoints shouldBeEqualTo listOf(
             "/idgen/{type}",
@@ -144,9 +129,9 @@ class IdGeneratorKtorApplicationTest {
                 .rounds(CONCURRENCY_COUNT)
                 .add {
                     val response = client.get(endpoint)
-                    response.status shouldBeEqualTo HttpStatusCode.OK
+                    response shouldHaveStatus HttpStatusCode.OK
 
-                    val id = json.decodeFromString<IdResponse>(response.bodyAsText()).id
+                    val id = response.decodeJsonBody<IdResponse>().id
                     id.shouldNotBeNull()
                     idMap.putIfAbsent(id, 1).shouldBeNull()
                 }.run()

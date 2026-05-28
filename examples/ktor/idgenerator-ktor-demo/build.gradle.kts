@@ -24,5 +24,6 @@ dependencies {
     runtimeOnly(libs.logback.classic)
 
     testImplementation(project(":bluetape4k-junit5"))
+    testImplementation(project(":bluetape4k-ktor-testing"))
     testImplementation(libs.ktor.server.test.host)
 }
