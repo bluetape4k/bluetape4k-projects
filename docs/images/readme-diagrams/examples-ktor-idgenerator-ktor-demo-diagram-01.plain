@@ -1,0 +1,13 @@
+graph 1 17.498 2.2812
+node client 0.83104 1.125 1.6621 0.5 "HTTP client" rounded,filled box #5B8DEF #E8F3FF
+node ktor 5.2015 1.3056 2.0579 0.5 "Ktor application" rounded,filled box #58A978 #EAF7EF
+node routes 8.8948 1.3056 1.1413 0.5 Routes rounded,filled box #45A7A1 #E9F7F6
+node registry 12.698 0.55556 2.5892 0.5 IdGeneratorRegistry rounded,filled box #D6A441 #FFF3D9
+node ids 16.568 0.55556 1.86 0.5 "ID generators" rounded,filled box #DC6B82 #FDECEF
+edge client ktor 4 1.6685 1.162 1.6685 1.162 4.0343 1.162 4.0343 1.162 request 2.9173 2.1823 solid #758297
+edge ktor client 4 4.1657 1.2685 4.1657 1.2685 1.7977 1.2685 1.7977 1.2685 "errors + correlation ID" 2.9173 1.224 solid #758297
+edge ktor routes 4 6.2352 1.3056 6.2352 1.3056 8.1883 1.3056 8.1883 1.3056 routing 7.2773 1.4045 solid #758297
+edge routes registry 7 8.9007 1.0497 8.9007 0.86171 8.9007 0.63889 8.9007 0.63889 8.9007 0.63889 11.264 0.63889 11.264 0.63889 "nextId/nextIds" 10.434 1.3073 solid #758297
+edge registry client 7 11.399 0.47222 8.3203 0.47222 0.83125 0.47222 0.83125 0.47222 0.83125 0.47222 0.83125 0.73862 0.83125 0.73862 "JSON response" 7.2773 0.098958 solid #758297
+edge registry ids 4 13.997 0.55556 13.997 0.55556 15.5 0.55556 15.5 0.55556 delegates 14.815 0.65451 solid #758297
+stop

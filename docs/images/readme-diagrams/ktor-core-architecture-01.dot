@@ -1,0 +1,17 @@
+digraph G {
+  graph [rankdir=LR, splines=ortho, nodesep=0.7, ranksep=0.9, outputorder=edgesfirst];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=18, margin="0.18,0.10"];
+  edge [fontname="Arial", fontsize=12, color="#758297", arrowsize=0.8];
+  app [label="Application", fillcolor="#E8F3FF", color="#5B8DEF"];
+  config [label="Core config", fillcolor="#F1ECFF", color="#8A72D6"];
+  json [label="ContentNegotiation", fillcolor="#E9F7F6", color="#45A7A1"];
+  status [label="StatusPages", fillcolor="#FDECEF", color="#DC6B82"];
+  health [label="Health routes", fillcolor="#EAF7EF", color="#58A978"];
+  routes [label="Application routes", fillcolor="#FFF3D9", color="#D6A441"];
+  app -> config [label="reads"];
+  config -> json [label="installs"];
+  config -> status [label="installs"];
+  config -> health [label="registers"];
+  app -> routes [label="owns"];
+  status -> routes [label="error payloads"];
+}

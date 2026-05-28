@@ -4,6 +4,10 @@
 
 bluetape4k 생태계를 위한 Ktor 테스트 helper 모듈입니다.
 
+## Sequence Diagram
+
+![Ktor Testing Sequence](../../docs/images/readme-diagrams/ktor-testing-sequence-01.png)
+
 ## 기능
 
 - Ktor `testApplication` 생명주기를 숨기지 않는 `bluetape4k-ktor-core` 설치 helper.

@@ -4,6 +4,10 @@
 
 bluetape4k 생태계를 위한 기본 Ktor 서버 helper 모듈입니다.
 
+## Architecture Diagram
+
+![Ktor Core Architecture](../../docs/images/readme-diagrams/ktor-core-architecture-01.png)
+
 ## 기능
 
 - `Bluetape4kKtorJson.defaultJson()` 공통 kotlinx serialization 기본값.

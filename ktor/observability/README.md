@@ -4,6 +4,10 @@
 
 Ktor observability helpers for the bluetape4k ecosystem.
 
+## Component Diagram
+
+![Ktor Observability Components](../../docs/images/readme-diagrams/ktor-observability-component-01.png)
+
 ## Features
 
 - `installBluetape4kKtorObservability()` for explicit Ktor observability setup.

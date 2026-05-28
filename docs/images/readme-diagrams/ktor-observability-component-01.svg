@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="760" viewBox="0 0 1380 760" role="img" aria-labelledby="ktor-observability-component-01-title ktor-observability-component-01-desc">
+  <title id="ktor-observability-component-01-title">Ktor Observability Components</title>
+  <desc id="ktor-observability-component-01-desc">Correlation IDs, query-safe call logging, metrics, and Prometheus scrape routing</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L8,4.5 L1,8 Z" fill="#758297"/></marker>
+    <style>
+      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:42px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:16px;fill:#536476;font-weight:400}
+      .card{filter:url(#shadow);stroke-width:2}
+      .cardTitle{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:24px;fill:#22344A;font-weight:400}
+      .body{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;fill:#34465B;font-weight:400}
+      .edge{stroke:#758297;stroke-width:2.3;fill:none;marker-end:url(#arrow)}
+      .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.92}
+      .note{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;fill:#627184;font-weight:400}
+    </style>
+  </defs>
+  <rect class="canvas" width="1380" height="760"/>
+  <rect class="frame" x="32" y="28" width="1316" height="704" rx="26"/>
+  <text class="title" x="66" y="82">Ktor Observability Components</text>
+  <text class="subtitle" x="70" y="116">Correlation IDs, query-safe call logging, metrics, and Prometheus scrape routing</text>
+  <path class="edge" d="M370 390 L410 390 L410 225 L450 225"/>
+<path class="edge" d="M370 390 L410 390 L410 555 L450 555"/>
+<path class="edge" d="M370 390 L600 390 L600 290 L830 290"/>
+<path class="edge" d="M980 365 L980 432.5 L980 432.5 L980 500"/>
+<path class="edge" d="M607.5 305 L607.5 390 L607.5 390 L607.5 475"/>
+<path class="edge" d="M765 555 L962.5 555 L962.5 430 L1160 430"/>
+<path class="edge" d="M1130 575 L1145 575 L1145 430 L1160 430"/>
+  <g>
+  <rect class="card" x="70" y="315" width="300" height="150" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="220" y="357" text-anchor="middle">Application</text>
+  <text class="body" x="220" y="392" text-anchor="middle">installBluetape4kKtorObservability</text>
+<text class="body" x="220" y="415" text-anchor="middle">optional meter registry</text>
+</g>
+<g>
+  <rect class="card" x="450" y="145" width="315" height="160" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="607.5" y="187" text-anchor="middle">CallId</text>
+  <text class="body" x="607.5" y="222" text-anchor="middle">sanitize request header</text>
+<text class="body" x="607.5" y="245" text-anchor="middle">generate Base58 fallback</text>
+<text class="body" x="607.5" y="268" text-anchor="middle">reply response header</text>
+</g>
+<g>
+  <rect class="card" x="450" y="475" width="315" height="160" rx="16" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="607.5" y="517" text-anchor="middle">CallLogging</text>
+  <text class="body" x="607.5" y="552" text-anchor="middle">MDC correlationId</text>
+<text class="body" x="607.5" y="575" text-anchor="middle">query string excluded</text>
+<text class="body" x="607.5" y="598" text-anchor="middle">health/metrics filtered</text>
+</g>
+<g>
+  <rect class="card" x="830" y="215" width="300" height="150" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="980" y="257" text-anchor="middle">MicrometerMetrics</text>
+  <text class="body" x="980" y="292" text-anchor="middle">installed when registry exists</text>
+<text class="body" x="980" y="315" text-anchor="middle">application owns exporters</text>
+</g>
+<g>
+  <rect class="card" x="830" y="500" width="300" height="150" rx="16" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="980" y="542" text-anchor="middle">Prometheus route</text>
+  <text class="body" x="980" y="577" text-anchor="middle">/metrics</text>
+<text class="body" x="980" y="600" text-anchor="middle">registry.scrape()</text>
+<text class="body" x="980" y="623" text-anchor="middle">text/plain</text>
+</g>
+<g>
+  <rect class="card" x="1160" y="355" width="170" height="150" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1245" y="397" text-anchor="middle">Operators</text>
+  <text class="body" x="1245" y="432" text-anchor="middle">logs</text>
+<text class="body" x="1245" y="455" text-anchor="middle">metrics scrape</text>
+<text class="body" x="1245" y="478" text-anchor="middle">trace bridge outside module</text>
+</g>
+  <text class="note" x="690" y="722" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+</svg>

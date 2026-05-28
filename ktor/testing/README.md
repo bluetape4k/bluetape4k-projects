@@ -4,6 +4,10 @@
 
 Ktor testing helpers for the bluetape4k ecosystem.
 
+## Sequence Diagram
+
+![Ktor Testing Sequence](../../docs/images/readme-diagrams/ktor-testing-sequence-01.png)
+
 ## Features
 
 - `testApplication` setup helper that installs `bluetape4k-ktor-core` without hiding the Ktor test lifecycle.

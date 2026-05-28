@@ -1,0 +1,15 @@
+graph 1 12.503 2.4167
+node bom 0.46646 1.8056 0.93292 0.5 BOM rounded,filled box #58A978 #EAF7EF
+node foundation 3.389 1.8056 1.5892 0.5 Foundation rounded,filled box #5B8DEF #E8F3FF
+node runtime 7.4833 1.8056 2.3079 0.5 "Runtime adapters" rounded,filled box #D6A441 #FFF3D9
+node apps 11.354 2.1667 1.6829 0.5 Applications rounded,filled box #45A7A1 #E9F7F6
+node external 3.389 0.25 2.1829 0.5 "Split repositories" rounded,filled box #8A72D6 #F1ECFF
+node platform 7.4833 0.25 2.4433 0.5 "Developer platform" rounded,filled box #DC6B82 #FDECEF
+node users 11.354 0.61111 2.2975 0.5 "Backend services" rounded,filled box #8BA84D #EEF6D9
+edge bom foundation 4 0.93601 1.8056 0.93601 1.8056 2.4576 1.8056 2.4576 1.8056 aligns 1.6152 1.9045 solid #758297
+edge foundation runtime 4 4.1881 1.8056 4.1881 1.8056 6.1937 1.8056 6.1937 1.8056 extends 5.371 1.9045 solid #758297
+edge runtime apps 4 8.6393 1.9861 8.6393 1.9861 10.379 1.9861 10.379 1.9861 powers 9.455 2.2656 solid #758297
+edge runtime users 7 8.6424 1.7361 9.4428 1.7361 10.364 1.7361 10.364 1.7361 10.364 1.7361 10.364 0.99852 10.364 0.99852 "used by" 9.455 1.3073 solid #758297
+edge external platform 4 4.4862 0.25 4.4862 0.25 6.1246 0.25 6.1246 0.25 coordinates 5.371 0.34896 solid #758297
+edge platform users 4 8.708 0.43056 8.708 0.43056 10.071 0.43056 10.071 0.43056 targets 9.455 0.34896 solid #758297
+stop

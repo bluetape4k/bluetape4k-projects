@@ -1,0 +1,21 @@
+digraph G {
+  graph [rankdir=LR, splines=ortho, nodesep=0.7, ranksep=0.9, outputorder=edgesfirst];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=18, margin="0.18,0.10"];
+  edge [fontname="Arial", fontsize=12, color="#758297", arrowsize=0.8];
+  core [label="Core", fillcolor="#E8F3FF", color="#5B8DEF"];
+  io [label="I/O", fillcolor="#E9F7F6", color="#45A7A1"];
+  data [label="Data", fillcolor="#FFF3D9", color="#D6A441"];
+  infra [label="Infrastructure", fillcolor="#FDECEF", color="#DC6B82"];
+  cache [label="Cache", fillcolor="#EAF7EF", color="#58A978"];
+  server [label="Server stacks", fillcolor="#F1ECFF", color="#8A72D6"];
+  utils [label="Utilities", fillcolor="#F7F1E7", color="#B88A44"];
+  examples [label="Examples", fillcolor="#EEF6D9", color="#8BA84D"];
+  core -> io [label="base APIs"];
+  core -> data [label="validation"];
+  core -> infra [label="logging"];
+  infra -> cache [label="backends"];
+  io -> server [label="HTTP/JSON"];
+  data -> server [label="persistence"];
+  server -> examples [label="demonstrates"];
+  utils -> examples [label="domain helpers"];
+}
