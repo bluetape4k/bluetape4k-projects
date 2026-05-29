@@ -224,6 +224,35 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
+### 4. Ktor Client
+
+Ktor client support stays in `bluetape4k-http` rather than a separate module. The helpers are intentionally thin: choose the engine explicitly, then opt into common JSON and timeout defaults.
+
+```kotlin
+import io.bluetape4k.http.ktor.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.get
+import kotlinx.serialization.Serializable
+import java.time.Duration
+
+@Serializable
+data class HealthResponse(val status: String)
+
+val client = ktorJsonHttpClientOf(
+    engineFactory = CIO,
+    timeouts = KtorClientTimeouts(
+        requestTimeout = Duration.ofSeconds(15),
+        connectTimeout = Duration.ofSeconds(5),
+        socketTimeout = Duration.ofSeconds(15),
+    ),
+)
+
+val response: HealthResponse = client.get("https://example.com/health").body()
+```
+
+`ktorJsonHttpClientOf` and `ktorCioJsonHttpClientOf` install only Kotlinx JSON content negotiation and `HttpTimeout`. Retry, resilience, authentication, logging, and service-specific plugins remain application-level concerns or belong in their existing dedicated modules.
+
 ## Primary Recommendations
 
 > See the full design rationale: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
@@ -502,6 +531,9 @@ dependencies {
     compileOnly("io.vertx:vertx-core")                           // Vert.x
     compileOnly("io.ktor:ktor-client-core")                      // Ktor Client (any engine)
     compileOnly("io.ktor:ktor-client-cio")                       // Ktor CIO engine (HTTP/1.x)
+    compileOnly("io.ktor:ktor-client-content-negotiation")       // Ktor JSON helper
+    compileOnly("io.ktor:ktor-serialization-kotlinx-json")       // Kotlinx JSON bridge
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json")
 }
 ```
 

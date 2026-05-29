@@ -1,5 +1,6 @@
 plugins {
     kotlin("plugin.allopen")
+    kotlin("plugin.serialization")
     alias(libs.plugins.kotlinx.benchmark)
 }
 
@@ -140,7 +141,13 @@ dependencies {
     // Ktor Client
     compileOnly(libs.ktor.client.core)
     compileOnly(libs.ktor.client.cio)
+    compileOnly(libs.ktor.client.content.negotiation)
+    compileOnly(libs.ktor.serialization.kotlinx.json)
+    compileOnly(libs.kotlinx.serialization.json)
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.ktor.serialization.kotlinx.json)
+    testImplementation(libs.kotlinx.serialization.json)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))
