@@ -603,6 +603,7 @@ jobs:
             ./gradlew \
               :bluetape4k-ktor-core:test \
               :bluetape4k-ktor-observability:test \
+              :bluetape4k-ktor-resilience4j:test \
               :bluetape4k-ktor-testing:test \
               --parallel
         env:
@@ -614,6 +615,7 @@ jobs:
           ./gradlew \
             :bluetape4k-ktor-core:koverXmlReport \
             :bluetape4k-ktor-observability:koverXmlReport \
+            :bluetape4k-ktor-resilience4j:koverXmlReport \
             :bluetape4k-ktor-testing:koverXmlReport \
             --parallel
         continue-on-error: true
