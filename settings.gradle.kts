@@ -74,6 +74,9 @@ includeModules("testing", withBaseDir = false)
 includeModules("utils", withBaseDir = false)
 includeModules("virtualthread", withProjectName = true, withBaseDir = true)
 
+// Benchmarks (not published)
+includeModules("benchmark", false, false)
+
 // Examples (library style examples)
 includeModules("examples", withProjectName = true, withBaseDir = true)
 includeModules("examples/spring-boot", false, false)
