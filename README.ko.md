@@ -64,7 +64,7 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
-- **Spring Boot**: 4.x
+- **Spring Boot**: 4.x 전용. 과거 계획서와 리뷰 문서에는 은퇴한 Spring Boot 3 모듈 언급이 남아 있을 수 있지만, 현재 사용자 대상 모듈과 예제는 Spring Boot 4.x를 기준으로 합니다.
 - **JetBrains Exposed**: 1.2.x (외부 `bluetape4k-exposed` artifact는 독립 레포에서 별도 릴리즈됨)
 - **데이터베이스**: H2, PostgreSQL, MySQL
 

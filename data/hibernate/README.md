@@ -44,7 +44,7 @@ dependencies {
 }
 ```
 
-> **Note on Spring Boot 3 Integration**: Tests combining Hibernate 7.x with Spring Boot 3.x are currently disabled due to incompatibility in Spring Boot 3's `SpringBeanContainer` (which implements the Hibernate 5 API). Use Spring Boot 4 / Spring Framework 7 for full Hibernate 7.x compatibility. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for details.
+> **Retired Spring Boot 3 integration note**: Historical tests combining Hibernate 7.x with Spring Boot 3.x remain disabled because Spring Boot 3's `SpringBeanContainer` implements the Hibernate 5 API. Current bluetape4k Spring modules target Spring Boot 4 / Spring Framework 7 for Hibernate 7.x compatibility. See `DisabledWithHibernate7AndSpringBoot3` in the test suite for the archived guard.
 
 ## Spring Boot 4 Migration
 

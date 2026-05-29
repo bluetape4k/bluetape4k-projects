@@ -16,13 +16,14 @@ Hibernate 7 **2nd Level Cache** (Lettuce Near Cache)를 위한 **Spring Boot 4 A
 
 ![Auto-Configuration diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
 
-## Spring Boot 4 고유 사항
+## Spring Boot 4 참고 사항
 
 Spring Boot 4에서는 패키지명이 변경되었습니다:
 
-| Spring Boot 3                                                                  | Spring Boot 4                                                                    |
-|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| `org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer` | `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer` |
+`HibernatePropertiesCustomizer`는 이제
+`org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`
+패키지에서 제공합니다. 이전 Spring Boot 3 패키지 경로는 Spring Boot 3 모듈
+라인과 함께 은퇴했으며, 과거 문서에만 보존합니다.
 
 또한 Spring Boot 4 BOM을 명시적으로 사용해야 합니다:
 
@@ -306,17 +307,15 @@ bluetape4k:
 
 ## 관련 모듈
 
-- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.ko.md) — Near Cache 코어 구현
-- [`bluetape4k-hibernate-cache-lettuce`](../../data/hibernate-cache-lettuce/README.ko.md) — Hibernate Region Factory
+- [`bluetape4k-cache-lettuce`](../../cache/cache-lettuce/README.ko.md) — Near Cache 코어 구현
+- [`bluetape4k-hibernate-cache-lettuce`](../../cache/hibernate-cache-lettuce/README.ko.md) — Hibernate Region Factory
 - [`bluetape4k-spring-boot-hibernate-lettuce-demo`](../hibernate-lettuce-demo/README.ko.md) — 실제 사용 예제
 
-## Spring Boot 3과의 차이점
+## 마이그레이션 참고
 
-| 항목                                  | Spring Boot 3                                    | Spring Boot 4                                              |
-|-------------------------------------|--------------------------------------------------|------------------------------------------------------------|
-| `HibernatePropertiesCustomizer` 패키지 | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure`         |
-| BOM 설정                              | `dependencyManagement { imports }`               | `implementation(platform(libs.spring.boot.dependencies))` |
-| Hibernate 명시적 추가                    | 불필요                                              | `compileOnly(Libs.springBoot("hibernate"))`                |
+이 모듈은 Spring Boot 4.x 전용입니다.
+`implementation(platform(libs.spring.boot.dependencies))`를 사용하고
+Hibernate는 `compileOnly(Libs.springBoot("hibernate"))`로 명시적으로 선언하세요.
 
 ## 패키지 정보
 
