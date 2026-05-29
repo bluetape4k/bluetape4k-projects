@@ -223,6 +223,35 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(options)
 ```
 
+### 4. Ktor Client
+
+Ktor Client 지원은 별도 모듈을 만들지 않고 `bluetape4k-http` 안에 둡니다. 헬퍼는 의도적으로 얇게 유지합니다: 엔진은 명시적으로 선택하고, 공통 JSON 및 timeout 기본값만 선택적으로 적용합니다.
+
+```kotlin
+import io.bluetape4k.http.ktor.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.get
+import kotlinx.serialization.Serializable
+import java.time.Duration
+
+@Serializable
+data class HealthResponse(val status: String)
+
+val client = ktorJsonHttpClientOf(
+    engineFactory = CIO,
+    timeouts = KtorClientTimeouts(
+        requestTimeout = Duration.ofSeconds(15),
+        connectTimeout = Duration.ofSeconds(5),
+        socketTimeout = Duration.ofSeconds(15),
+    ),
+)
+
+val response: HealthResponse = client.get("https://example.com/health").body()
+```
+
+`ktorJsonHttpClientOf`와 `ktorCioJsonHttpClientOf`는 Kotlinx JSON content negotiation과 `HttpTimeout`만 설치합니다. 재시도, resilience, 인증, 로깅, 서비스별 플러그인은 애플리케이션 계층이나 기존 전용 모듈의 책임으로 둡니다.
+
 ## 주요 권장 클라이언트
 
 > 전체 설계 근거: [`docs/design/2026-05-24-hc5-first-http-client-recommendation.md`](../../docs/design/2026-05-24-hc5-first-http-client-recommendation.md)
@@ -503,6 +532,9 @@ dependencies {
     compileOnly("io.vertx:vertx-core")                           // Vert.x
     compileOnly("io.ktor:ktor-client-core")                      // Ktor Client (엔진 선택)
     compileOnly("io.ktor:ktor-client-cio")                       // Ktor CIO 엔진 (HTTP/1.x)
+    compileOnly("io.ktor:ktor-client-content-negotiation")       // Ktor JSON 헬퍼
+    compileOnly("io.ktor:ktor-serialization-kotlinx-json")       // Kotlinx JSON 연결
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json")
 }
 ```
 
