@@ -29,6 +29,7 @@ import org.openjdk.jmh.annotations.Warmup
 import org.openjdk.jmh.infra.Blackhole
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.LongAdder
 
 /**
  * R2DBC 풀에서 커넥션을 획득하고 일정 시간 점유한 뒤 반납하는 경로의 처리량을 측정하는 공통 기반입니다.
@@ -48,26 +49,17 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
     var holdMillis: Long = 0
 
     private lateinit var pool: ConnectionPool
+    private lateinit var poolConfig: R2dbcPoolConfig
+    private val acquired = LongAdder()
+    private val failed = LongAdder()
 
     protected abstract fun connectionFactoryOptions(): ConnectionFactoryOptions
 
+    protected abstract val databaseName: String
+
     @Setup(Level.Trial)
     fun setup() {
-        val poolConfig = when (profile) {
-            "default"        -> R2dbcPoolConfig(
-                maxValidationTime = Duration.ofSeconds(1),
-                validationQuery = VALIDATION_QUERY,
-            )
-            "highThroughput" -> R2dbcPoolConfig.highThroughput(
-                maxSize = 64,
-                warmupSize = 16,
-                poolName = "benchmark-r2dbc",
-            ).copy(
-                maxAcquireTime = Duration.ofSeconds(2),
-                validationQuery = VALIDATION_QUERY,
-            )
-            else             -> error("Unknown profile: $profile")
-        }
+        poolConfig = acquireBenchmarkPoolConfig(profile)
         pool = connectionPoolOf(connectionFactoryOptions(), poolConfig)
     }
 
@@ -76,24 +68,32 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
         if (::pool.isInitialized) {
             pool.close()
         }
+        println(
+            "pool-acquire result: database=$databaseName, profile=$profile, holdMillis=$holdMillis, " +
+                    poolConfig.describeBenchmarkPoolConfig() + ", threads=8, " +
+                    "acquired=${acquired.sum()}, failed=${failed.sum()}"
+        )
     }
 
     protected fun acquireAndClose(blackhole: Blackhole) {
         runBlocking {
-            val connection = pool.create().awaitSingle()
             try {
-                if (holdMillis > 0) {
-                    delay(holdMillis)
+                val connection = pool.create().awaitSingle()
+                acquired.increment()
+                try {
+                    if (holdMillis > 0) {
+                        delay(holdMillis)
+                    }
+                    blackhole.consume(connection.metadata.databaseProductName)
+                } finally {
+                    connection.close().awaitFirstOrNull()
                 }
-                blackhole.consume(connection.metadata.databaseProductName)
-            } finally {
-                connection.close().awaitFirstOrNull()
+            } catch (e: Exception) {
+                failed.increment()
+                blackhole.consume(e)
+                throw e
             }
         }
-    }
-
-    companion object {
-        private const val VALIDATION_QUERY = "SELECT 1"
     }
 }
 
@@ -112,6 +112,8 @@ abstract class AbstractR2dbcPoolAcquireBenchmark {
 @Warmup(iterations = 1, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 open class H2R2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() {
+
+    override val databaseName: String = "H2"
 
     override fun connectionFactoryOptions(): ConnectionFactoryOptions =
         connectionFactoryOptionsOf("r2dbc:h2:mem:///pool_acquire_${profile}_${System.nanoTime()};DB_CLOSE_DELAY=-1")
@@ -139,6 +141,8 @@ open class H2R2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() {
 @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 open class PostgreSqlR2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() {
 
+    override val databaseName: String = "PostgreSQL"
+
     override fun connectionFactoryOptions(): ConnectionFactoryOptions =
         PostgreSql.server.getConnectionFactoryOptions()
 
@@ -165,6 +169,8 @@ open class PostgreSqlR2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmar
 @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 open class MySql8R2dbcPoolAcquireBenchmark: AbstractR2dbcPoolAcquireBenchmark() {
 
+    override val databaseName: String = "MySQL8"
+
     override fun connectionFactoryOptions(): ConnectionFactoryOptions =
         MySql8.server.getConnectionFactoryOptions()
 
@@ -186,3 +192,51 @@ private object MySql8 {
         MySQL8Server.Launcher.mysql
     }
 }
+
+internal const val R2DBC_BENCHMARK_VALIDATION_QUERY: String = "SELECT 1"
+
+internal fun acquireBenchmarkPoolConfig(profile: String): R2dbcPoolConfig =
+    when (profile) {
+        "default"        -> R2dbcPoolConfig(
+            maxValidationTime = Duration.ofSeconds(1),
+            validationQuery = R2DBC_BENCHMARK_VALIDATION_QUERY,
+        )
+        "highThroughput" -> R2dbcPoolConfig.highThroughput(
+            maxSize = 64,
+            warmupSize = 16,
+            poolName = "benchmark-r2dbc",
+        ).copy(
+            maxAcquireTime = Duration.ofSeconds(2),
+            validationQuery = R2DBC_BENCHMARK_VALIDATION_QUERY,
+        )
+        else             -> error("Unknown profile: $profile")
+    }
+
+internal fun contentionBenchmarkPoolConfig(
+    profile: String,
+    maxSize: Int,
+): R2dbcPoolConfig =
+    when (profile) {
+        "default"        -> R2dbcPoolConfig(
+            maxSize = maxSize,
+            initialSize = 0,
+            minIdle = 0,
+            maxPendingAcquire = -1,
+            maxAcquireTime = Duration.ofSeconds(5),
+            maxValidationTime = Duration.ofSeconds(1),
+            validationQuery = R2DBC_BENCHMARK_VALIDATION_QUERY,
+        )
+        "highThroughput" -> R2dbcPoolConfig.highThroughput(
+            maxSize = maxSize,
+            poolName = "benchmark-r2dbc-contention",
+        ).copy(
+            maxAcquireTime = Duration.ofMillis(250),
+            validationQuery = R2DBC_BENCHMARK_VALIDATION_QUERY,
+        )
+        else             -> error("Unknown profile: $profile")
+    }
+
+internal fun R2dbcPoolConfig.describeBenchmarkPoolConfig(): String =
+    "maxSize=$maxSize, initialSize=$initialSize, minIdle=$minIdle, " +
+            "maxPendingAcquire=$maxPendingAcquire, maxAcquireTime=$maxAcquireTime, " +
+            "validationDepth=$validationDepth, validationQuery=${validationQuery ?: "<none>"}"
