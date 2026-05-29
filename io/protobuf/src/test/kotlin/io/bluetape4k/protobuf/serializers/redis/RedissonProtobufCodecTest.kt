@@ -122,6 +122,19 @@ class RedissonProtobufCodecTest: AbstractRedissonTest() {
     }
 
     @Test
+    fun `protobuf encoder writes packed message directly to byte buffer`() {
+        val codec = RedissonProtobufCodec()
+        val origin = newSimpleMessage()
+
+        val buf = codec.encodeProtobufMessage(origin)
+        try {
+            buf.readableBytes() shouldBeEqualTo AnyMessage.pack(origin).serializedSize
+        } finally {
+            buf.release()
+        }
+    }
+
+    @Test
     fun `default codec rejects untrusted protobuf typeUrl before class loading`() {
         val bytes = AnyMessage.newBuilder()
             .setTypeUrl("type.googleapis.com/untrusted.payload.UntrustedPayload")

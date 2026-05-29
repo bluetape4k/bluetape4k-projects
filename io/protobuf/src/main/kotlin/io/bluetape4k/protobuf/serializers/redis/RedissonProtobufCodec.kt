@@ -1,5 +1,6 @@
 package io.bluetape4k.protobuf.serializers.redis
 
+import com.google.protobuf.CodedOutputStream
 import com.google.protobuf.Message
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -21,7 +22,7 @@ typealias AnyMessage = com.google.protobuf.Any
  * Redisson codec for Protobuf messages.
  *
  * ## Contract
- * - [com.google.protobuf.Message] values are encoded with `Any.pack(message).toByteArray()`.
+ * - [com.google.protobuf.Message] values are encoded directly into a Netty [ByteBuf].
  * - During decoding, the class name from `Any.typeUrl` is validated against [allowedClassPrefixes]
  *   before class loading.
  * - Non-Protobuf payloads are delegated to [fallbackCodec].
@@ -85,8 +86,7 @@ class RedissonProtobufCodec private constructor(
     private val encoder: Encoder =
         Encoder { graph ->
             if (graph is Message) {
-                val bytes = AnyMessage.pack(graph).toByteArray()
-                Unpooled.wrappedBuffer(bytes)
+                encodeProtobufMessage(graph)
             } else {
                 log.debug {
                     "Encoding: Protobuf Message가 아닙니다. fallbackCodec[$fallbackCodec] 사용. graph class=${graph.javaClass}"
@@ -122,6 +122,22 @@ class RedissonProtobufCodec private constructor(
     override fun getValueEncoder(): Encoder = encoder
 
     override fun getValueDecoder(): Decoder<Any> = decoder
+
+    internal fun encodeProtobufMessage(message: Message): ByteBuf {
+        val any = AnyMessage.pack(message)
+        val buffer = Unpooled.buffer(any.serializedSize)
+        return try {
+            val nioBuffer = buffer.nioBuffer(0, any.serializedSize)
+            val output = CodedOutputStream.newInstance(nioBuffer)
+            any.writeTo(output)
+            output.flush()
+            buffer.writerIndex(nioBuffer.position())
+            buffer
+        } catch (e: Throwable) {
+            buffer.release()
+            throw e
+        }
+    }
 
     private fun validateClassName(className: String) {
         if (className.isBlank()) {
