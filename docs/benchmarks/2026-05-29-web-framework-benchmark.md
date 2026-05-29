@@ -42,6 +42,9 @@ Raw artifacts:
 - `docs/benchmarks/raw/2026-05-29-web-framework-throughput.json`
 - `docs/benchmarks/raw/2026-05-29-web-framework-latency.json`
 
+Chart artifact: Not produced. Startup, throughput, and average latency use
+different units and stay as separate tables.
+
 ## Startup Snapshot
 
 Lower is better.
