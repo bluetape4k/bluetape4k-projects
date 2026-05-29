@@ -174,11 +174,12 @@ versionless `spring-boot/*` modules publish the current Spring Boot 4 artifacts.
 ### Ktor Modules (`ktor/`)
 
 Server-side Ktor 3.x foundation modules. The first slice keeps plugin
-installation explicit and leaves client, resilience, OpenAPI, and auth helpers
-in backlog modules until the server extension points are proven.
+installation explicit and leaves client, OpenAPI, and auth helpers in backlog
+modules until their extension points are proven.
 
 - **[core](./ktor/core/README.md)**: Baseline Ktor server helpers for JSON, error responses, and health/readiness routes
 - **[observability](./ktor/observability/README.md)**: Call logging, correlation-id, metrics, and Prometheus route helpers
+- **[resilience4j](./ktor/resilience4j/README.md)**: Route-scoped Resilience4j retry, circuit breaker, rate limiter, and timeout helpers
 - **[testing](./ktor/testing/README.md)**: Ktor `testApplication` and JSON client test helpers
 
 ### Text Processing → [bluetape4k-text](https://github.com/bluetape4k/bluetape4k-text)
