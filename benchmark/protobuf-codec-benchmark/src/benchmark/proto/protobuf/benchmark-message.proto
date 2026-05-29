@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package io.bluetape4k.protobuf.benchmark.messages;
+
+option java_multiple_files = true;
+option java_package = "io.bluetape4k.protobuf.benchmark.messages";
+
+message BenchmarkMessage {
+  int64 id = 1;
+  string payload = 2;
+}
