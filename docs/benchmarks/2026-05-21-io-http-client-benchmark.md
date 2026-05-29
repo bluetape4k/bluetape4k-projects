@@ -7,6 +7,12 @@ Related existing issues included in the epic: #582, #583, #584, #585, and #586.
 
 Target module: `:bluetape4k-http`.
 
+Raw artifacts: Not retained; this report preserves the reduced JMH tables from
+the local run.
+
+Chart artifact: Not produced. The report compares many client rows where the
+table remains the clearer source of truth.
+
 ## Commands
 
 ```bash

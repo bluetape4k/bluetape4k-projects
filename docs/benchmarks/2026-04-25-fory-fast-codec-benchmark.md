@@ -3,6 +3,8 @@
 - **날짜**: 2026-04-25
 - **Issue**: #113
 - **Branch**: `feat/fory-fast-codec`
+- **Raw artifacts**: Not retained; this report preserves the reduced JMH tables.
+- **Chart artifact**: `docs/images/readme-charts/fory-fast-codec-uplift-chart-01.png`
 
 ## 측정 환경
 
