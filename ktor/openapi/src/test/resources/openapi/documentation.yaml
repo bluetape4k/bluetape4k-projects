@@ -1,0 +1,33 @@
+openapi: 3.1.0
+info:
+  title: Bluetape4k Ktor OpenAPI Test
+  version: 1.0.0
+components:
+  schemas: {}
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: The application is accepting traffic.
+  /readyz:
+    get:
+      summary: Readiness check
+      responses:
+        "200":
+          description: The application is ready for dependency-backed work.
+  /widgets/{id}:
+    get:
+      summary: Read a widget
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Widget payload.
+        "404":
+          description: Widget not found.
