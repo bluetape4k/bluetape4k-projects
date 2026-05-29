@@ -44,7 +44,7 @@ dependencies {
 }
 ```
 
-> **Spring Boot 3 통합 주의사항**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하는 통합 테스트는 현재 비활성화되어 있습니다. Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하고 있어 호환성 문제가 발생합니다. Hibernate 7.x 완전 호환을 위해 Spring Boot 4 / Spring Framework 7을 사용하세요. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3`를 참고하세요.
+> **은퇴한 Spring Boot 3 통합 참고**: Hibernate 7.x와 Spring Boot 3.x를 함께 사용하던 과거 통합 테스트는 Spring Boot 3의 `SpringBeanContainer`가 Hibernate 5 API를 구현하기 때문에 계속 비활성화되어 있습니다. 현재 bluetape4k Spring 모듈은 Hibernate 7.x 호환을 위해 Spring Boot 4 / Spring Framework 7을 기준으로 합니다. 자세한 내용은 테스트 스위트의 `DisabledWithHibernate7AndSpringBoot3` 보존 guard를 참고하세요.
 
 ## Spring Boot 4 마이그레이션
 

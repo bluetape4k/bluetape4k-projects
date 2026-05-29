@@ -62,7 +62,7 @@ Feel free to open an Issue if you need something that isn't here yet.
 
 - **Java**: 21 (JVM Toolchain)
 - **Kotlin**: 2.3 (Language & API Version)
-- **Spring Boot**: 4.x
+- **Spring Boot**: 4.x only. Historical planning and review notes may mention retired Spring Boot 3 modules, but current-facing modules and examples target Spring Boot 4.x.
 - **JetBrains Exposed**: 1.2.x (external `bluetape4k-exposed` artifacts are released from the standalone repository)
 - **Databases**: H2, PostgreSQL, MySQL
 

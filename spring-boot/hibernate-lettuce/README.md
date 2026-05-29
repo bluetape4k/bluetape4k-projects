@@ -16,13 +16,14 @@ Simply add `bluetape4k.cache.lettuce-near.*` settings to your
 
 ![Auto-Configuration Activation Flow diagram](../../docs/images/readme-diagrams/spring-boot-hibernate-lettuce-diagram-02.png)
 
-## Spring Boot 4-Specific Notes
+## Spring Boot 4 Notes
 
 Package names have changed in Spring Boot 4:
 
-| Spring Boot 3                                                                  | Spring Boot 4                                                                    |
-|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| `org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer` | `org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer` |
+`HibernatePropertiesCustomizer` now comes from
+`org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer`.
+The old Spring Boot 3 package path is retired with the Spring Boot 3 module
+line and is kept only in historical docs.
 
 The Spring Boot 4 BOM must also be applied explicitly:
 
@@ -306,17 +307,15 @@ Integration tests automatically manage Redis + H2 via Testcontainers.
 
 ## Related Modules
 
-- [`bluetape4k-cache-lettuce`](../../infra/cache-lettuce/README.md) — Near Cache core implementation
-- [`bluetape4k-hibernate-cache-lettuce`](../../infra/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
+- [`bluetape4k-cache-lettuce`](../../cache/cache-lettuce/README.md) — Near Cache core implementation
+- [`bluetape4k-hibernate-cache-lettuce`](../../cache/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
 - [`bluetape4k-spring-boot-hibernate-lettuce-demo`](../hibernate-lettuce-demo/README.md) — Usage example
 
-## Differences from Spring Boot 3
+## Migration Note
 
-| Aspect                                  | Spring Boot 3                                    | Spring Boot 4                                              |
-|-----------------------------------------|--------------------------------------------------|------------------------------------------------------------|
-| `HibernatePropertiesCustomizer` package | `org.springframework.boot.autoconfigure.orm.jpa` | `org.springframework.boot.hibernate.autoconfigure`         |
-| BOM configuration                       | `dependencyManagement { imports }`               | `implementation(platform(libs.spring.boot.dependencies))` |
-| Explicit Hibernate dependency           | Not required                                     | `compileOnly(Libs.springBoot("hibernate"))`                |
+This module is Spring Boot 4.x only. Use
+`implementation(platform(libs.spring.boot.dependencies))` and declare Hibernate
+explicitly with `compileOnly(Libs.springBoot("hibernate"))`.
 
 ## Package Information
 
