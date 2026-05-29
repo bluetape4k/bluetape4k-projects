@@ -82,29 +82,37 @@ val pool = r2dbcConnectionPool("r2dbc:postgresql://user:secret@localhost:5432/ap
 ./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention
 ```
 
+PostgreSQL과 MySQL benchmark는 Testcontainers 기반 DB를 사용하므로 순차로 실행하세요.
+
 최근 로컬 acquire benchmark(`8` JMH threads, `3` measurement iterations,
 `validationQuery = "SELECT 1"`)에서는 순수 acquire/close 처리량은 드라이버마다 달랐고, 실제 커넥션 점유 시간이 들어가면 기본/고처리량 profile이 수렴했습니다.
 
 | DB                          | 점유 시간 | 기본 설정         | 고처리량 프리셋      |
 |-----------------------------|-------|---------------|---------------|
-| H2                          | 0 ms  | 161,741 ops/s | 173,026 ops/s |
-| H2                          | 1 ms  | 6,788 ops/s   | 6,803 ops/s   |
-| H2                          | 5 ms  | 1,423 ops/s   | 1,423 ops/s   |
-| PostgreSQL 18 Testcontainer | 0 ms  | 18,008 ops/s  | 18,724 ops/s  |
-| PostgreSQL 18 Testcontainer | 1 ms  | 4,775 ops/s   | 4,637 ops/s   |
-| PostgreSQL 18 Testcontainer | 5 ms  | 1,289 ops/s   | 1,282 ops/s   |
-| MySQL 8.4 Testcontainer     | 0 ms  | 8,570 ops/s   | 8,147 ops/s   |
-| MySQL 8.4 Testcontainer     | 1 ms  | 4,305 ops/s   | 4,339 ops/s   |
-| MySQL 8.4 Testcontainer     | 5 ms  | 1,183 ops/s   | 1,177 ops/s   |
+| H2                          | 0 ms  | 100,200 ops/s | 95,423 ops/s  |
+| H2                          | 1 ms  | 6,921 ops/s   | 6,906 ops/s   |
+| H2                          | 5 ms  | 1,430 ops/s   | 1,439 ops/s   |
+| PostgreSQL 18 Testcontainer | 0 ms  | 16,571 ops/s  | 16,960 ops/s  |
+| PostgreSQL 18 Testcontainer | 1 ms  | 4,271 ops/s   | 4,695 ops/s   |
+| PostgreSQL 18 Testcontainer | 5 ms  | 1,050 ops/s   | 1,066 ops/s   |
+| MySQL 8.4 Testcontainer     | 0 ms  | 9,007 ops/s   | 8,251 ops/s   |
+| MySQL 8.4 Testcontainer     | 1 ms  | 4,266 ops/s   | 4,279 ops/s   |
+| MySQL 8.4 Testcontainer     | 5 ms  | 918 ops/s     | 960 ops/s     |
 
 ![R2DBC Pool Acquire Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-acquire-throughput-chart-01.png)
 
-contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`를 사용합니다. 이 경우에는 풀 크기의 영향이 뚜렷하게 나타납니다.
+contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`를 사용합니다.
+기본 profile은 이 benchmark에서 무제한 pending queue를 사용하고, high-throughput profile은 제한된 pending acquire와
+`250 ms` acquire timeout을 사용해 과부하를 빠른 거부로 드러냅니다. JMH score는 초당 operation 수이므로 acquired/failed trial count와 함께 읽어야 합니다.
 
-| 점유 시간 | maxSize=4 | maxSize=8 | maxSize=16  |
-|-------|-----------|-----------|-------------|
-| 10 ms | 365 ops/s | 733 ops/s | 1,470 ops/s |
-| 50 ms | 78 ops/s  | 156 ops/s | 311 ops/s   |
+| 점유 시간 | maxSize | 기본 ops/s | 기본 acquired/failed | 고처리량 ops/s | 고처리량 acquired/failed |
+|-------|--------:|----------:|--------------------:|-----------:|----------------------:|
+| 10 ms | 4       | 360 ops/s | 1,885 / 0           | 38,342 ops/s | 1,508 / 150,669     |
+| 10 ms | 8       | 733 ops/s | 3,321 / 0           | 21,530 ops/s | 3,043 / 82,978      |
+| 10 ms | 16      | 1,476 ops/s | 6,173 / 0         | 1,477 ops/s | 6,195 / 0           |
+| 50 ms | 4       | 76 ops/s  | 796 / 0             | 37,763 ops/s | 386 / 150,891       |
+| 50 ms | 8       | 155 ops/s | 1,092 / 0           | 20,810 ops/s | 775 / 82,893        |
+| 50 ms | 16      | 313 ops/s | 1,676 / 0           | 310 ops/s  | 1,676 / 0            |
 
 ![R2DBC Pool Contention Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-contention-throughput-chart-01.png)
 
@@ -115,7 +123,8 @@ contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`�
 - 요청이 SQL 또는 트랜잭션 실행 동안 커넥션을 점유하는 서버 워크로드라면 `R2dbcPoolConfig.highThroughput()`을 사용하세요. `1 ms`,
   `5 ms` 점유 시간에서는 H2, PostgreSQL, MySQL 8 모두 점유 시간이 처리량을 지배해 두 profile이 사실상 수렴했고, 이때는 high-throughput 프리셋의 bounded queue와 warmup 동작이 더 중요한 운영 속성이 됩니다.
 - 동시 요청 수가 풀 크기를 넘고 DB가 추가 세션을 감당할 수 있을 때만 `maxSize`를 늘리세요. `64`개 경쟁 thread에서는 커넥션 슬롯이 병목이라 처리량이
-  `maxSize`에 거의 선형으로 반응했습니다.
+  기본 profile의 무제한 queue 경로에서 `maxSize`에 거의 선형으로 반응했습니다.
+- failure count가 큰 high-throughput contention 행은 성공 SQL 처리량이 아니라 과부하 신호로 해석하세요. 제한된 pending queue는 backpressure를 빠르게 드러냅니다. DB가 추가 작업을 감당할 수 있을 때만 `maxSize`, pending queue, acquire timeout 예산을 늘리고, 그렇지 않으면 traffic shed나 hold time 감소를 우선하세요.
 - 긴 쿼리와 트랜잭션은 유효 처리량 상한을 대략 `maxSize / connection hold time`으로 낮춥니다. contention benchmark에서 같은 `maxSize`일 때 점유 시간이
   `10 ms`에서 `50 ms`로 늘면 처리량도 약 `5x` 낮아졌습니다.
 - `maxSize`는 DB 기준으로 먼저 산정하세요:
@@ -124,8 +133,7 @@ contention benchmark는 `64` JMH threads에서 동시성보다 작은 `maxSize`�
   `min(maxSize, max(availableProcessors * 2, 16))` 커넥션을 워밍업해 첫 트래픽 스파이크에서 전체 할당 비용을 피합니다.
 - 사용자-facing 서비스에서는 `maxPendingAcquire`를 제한하세요. 프리셋은
   `maxSize * 4`를 사용해 짧은 burst는 흡수하되, 과부하를 숨기고 tail latency를 키우는 무제한 backlog를 피합니다.
--
-`maxPendingAcquire`가 너무 작으면 풀과 pending queue가 찼을 때 r2dbc-pool이 추가 획득을 거부합니다. 이는 fail-fast 과부하 제어에 유용하지만, 애플리케이션 acquire 실패/timeout 지표와 함께 운영해야 합니다.
+- `maxPendingAcquire`가 너무 작으면 풀과 pending queue가 찼을 때 r2dbc-pool이 추가 획득을 거부합니다. 이는 fail-fast 과부하 제어에 유용하지만, 애플리케이션 acquire 실패/timeout 지표와 함께 운영해야 합니다.
 - `maxAcquireTime`은 유한한 값으로 두세요. API 서비스는 `2-3s`를 시작점으로 삼고, 실패보다 대기가 나은 배치 작업은 더 길게 둘 수 있습니다.
 - 운영 드라이버가 로컬 검증을 지원한다면 `ValidationDepth.LOCAL`과 `validationQuery = null`을 우선하세요. benchmark에서
   `SELECT 1`을 사용한 것은 H2/PostgreSQL/MySQL 검증 경로를 일관되게 만들기 위한 것이며, SQL 검증 쿼리는 커넥션 획득마다 DB 왕복을 추가합니다.

@@ -24,7 +24,6 @@ import org.openjdk.jmh.annotations.TearDown
 import org.openjdk.jmh.annotations.Threads
 import org.openjdk.jmh.annotations.Warmup
 import org.openjdk.jmh.infra.Blackhole
-import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.LongAdder
 
@@ -44,6 +43,9 @@ import java.util.concurrent.atomic.LongAdder
 @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
 open class H2R2dbcPoolContentionBenchmark {
 
+    @Param("default", "highThroughput")
+    lateinit var profile: String
+
     @Param("4", "8", "16")
     var maxSize: Int = 0
 
@@ -51,19 +53,13 @@ open class H2R2dbcPoolContentionBenchmark {
     var holdMillis: Long = 0
 
     private lateinit var pool: ConnectionPool
+    private lateinit var poolConfig: R2dbcPoolConfig
     private val acquired = LongAdder()
+    private val failed = LongAdder()
 
     @Setup(Level.Trial)
     fun setup() {
-        val poolConfig = R2dbcPoolConfig(
-            maxSize = maxSize,
-            initialSize = 0,
-            minIdle = 0,
-            maxPendingAcquire = -1,
-            maxAcquireTime = Duration.ofSeconds(5),
-            maxValidationTime = Duration.ofSeconds(1),
-            validationQuery = VALIDATION_QUERY,
-        )
+        poolConfig = contentionBenchmarkPoolConfig(profile, maxSize)
         pool = connectionPoolOf(connectionFactoryOptions(), poolConfig)
     }
 
@@ -73,8 +69,9 @@ open class H2R2dbcPoolContentionBenchmark {
             pool.close()
         }
         println(
-            "pool-contention result: maxSize=$maxSize, holdMillis=$holdMillis, " +
-                    "threads=64, acquired=${acquired.sum()}"
+            "pool-contention result: profile=$profile, holdMillis=$holdMillis, " +
+                    poolConfig.describeBenchmarkPoolConfig() + ", threads=64, " +
+                    "acquired=${acquired.sum()}, failed=${failed.sum()}"
         )
     }
 
@@ -92,16 +89,13 @@ open class H2R2dbcPoolContentionBenchmark {
                     connection.close().awaitFirstOrNull()
                 }
             } catch (e: Exception) {
+                failed.increment()
+                delay(1)
                 blackhole.consume(e)
-                throw e
             }
         }
     }
 
     private fun connectionFactoryOptions(): ConnectionFactoryOptions =
-        connectionFactoryOptionsOf("r2dbc:h2:mem:///pool_contention_${maxSize}_${holdMillis};DB_CLOSE_DELAY=-1")
-
-    companion object {
-        private const val VALIDATION_QUERY = "SELECT 1"
-    }
+        connectionFactoryOptionsOf("r2dbc:h2:mem:///pool_contention_${profile}_${maxSize}_${holdMillis};DB_CLOSE_DELAY=-1")
 }

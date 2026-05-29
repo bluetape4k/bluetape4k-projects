@@ -69,9 +69,10 @@ val pool = r2dbcConnectionPool("r2dbc:postgresql://user:secret@localhost:5432/ap
 }
 ```
 
-Use
-`maxSize` with the database server's connection limit and total application instance count in mind. For latency-sensitive services, prefer a bounded
-`maxAcquireTime` and `maxPendingAcquire` so overload fails quickly instead of building an unbounded queue.
+Use `maxSize` with the database server's connection limit and total application
+instance count in mind. For latency-sensitive services, prefer a bounded
+`maxAcquireTime` and `maxPendingAcquire` so overload fails quickly instead of
+building an unbounded queue.
 
 Run the pool benchmarks with:
 
@@ -83,44 +84,49 @@ Run the pool benchmarks with:
 ./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContention
 ```
 
+Run PostgreSQL and MySQL benchmark tasks sequentially because they use
+Testcontainers-backed databases.
+
 Recent local acquire benchmark (`8` JMH threads, `3` measurement iterations,
 `validationQuery = "SELECT 1"`) showed that pure acquire/close throughput varies by driver, while realistic connection hold time makes default and high-throughput profiles converge:
 
 | Database                    | Hold time | Default       | High-throughput |
 |-----------------------------|-----------|---------------|-----------------|
-| H2                          | 0 ms      | 161,741 ops/s | 173,026 ops/s   |
-| H2                          | 1 ms      | 6,788 ops/s   | 6,803 ops/s     |
-| H2                          | 5 ms      | 1,423 ops/s   | 1,423 ops/s     |
-| PostgreSQL 18 Testcontainer | 0 ms      | 18,008 ops/s  | 18,724 ops/s    |
-| PostgreSQL 18 Testcontainer | 1 ms      | 4,775 ops/s   | 4,637 ops/s     |
-| PostgreSQL 18 Testcontainer | 5 ms      | 1,289 ops/s   | 1,282 ops/s     |
-| MySQL 8.4 Testcontainer     | 0 ms      | 8,570 ops/s   | 8,147 ops/s     |
-| MySQL 8.4 Testcontainer     | 1 ms      | 4,305 ops/s   | 4,339 ops/s     |
-| MySQL 8.4 Testcontainer     | 5 ms      | 1,183 ops/s   | 1,177 ops/s     |
+| H2                          | 0 ms      | 100,200 ops/s | 95,423 ops/s    |
+| H2                          | 1 ms      | 6,921 ops/s   | 6,906 ops/s     |
+| H2                          | 5 ms      | 1,430 ops/s   | 1,439 ops/s     |
+| PostgreSQL 18 Testcontainer | 0 ms      | 16,571 ops/s  | 16,960 ops/s    |
+| PostgreSQL 18 Testcontainer | 1 ms      | 4,271 ops/s   | 4,695 ops/s     |
+| PostgreSQL 18 Testcontainer | 5 ms      | 1,050 ops/s   | 1,066 ops/s     |
+| MySQL 8.4 Testcontainer     | 0 ms      | 9,007 ops/s   | 8,251 ops/s     |
+| MySQL 8.4 Testcontainer     | 1 ms      | 4,266 ops/s   | 4,279 ops/s     |
+| MySQL 8.4 Testcontainer     | 5 ms      | 918 ops/s     | 960 ops/s       |
 
 ![R2DBC Pool Acquire Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-acquire-throughput-chart-01.png)
 
-The contention benchmark uses `64` JMH threads with `maxSize` below concurrency. It shows when pool size matters:
+The contention benchmark uses `64` JMH threads with `maxSize` below concurrency.
+Default uses an unbounded pending queue in this benchmark; high-throughput uses
+bounded pending acquire plus a `250 ms` acquire timeout so overload is visible as
+fast rejection. The JMH score is operations per second, so read it together with
+the acquired/failed trial counts.
 
-| Hold time | maxSize=4 | maxSize=8 | maxSize=16  |
-|-----------|-----------|-----------|-------------|
-| 10 ms     | 365 ops/s | 733 ops/s | 1,470 ops/s |
-| 50 ms     | 78 ops/s  | 156 ops/s | 311 ops/s   |
+| Hold time | maxSize | Default ops/s | Default acquired/failed | High-throughput ops/s | High-throughput acquired/failed |
+|-----------|--------:|--------------:|-------------------------:|----------------------:|--------------------------------:|
+| 10 ms     | 4       | 360 ops/s     | 1,885 / 0                | 38,342 ops/s          | 1,508 / 150,669                |
+| 10 ms     | 8       | 733 ops/s     | 3,321 / 0                | 21,530 ops/s          | 3,043 / 82,978                 |
+| 10 ms     | 16      | 1,476 ops/s   | 6,173 / 0                | 1,477 ops/s           | 6,195 / 0                      |
+| 50 ms     | 4       | 76 ops/s      | 796 / 0                  | 37,763 ops/s          | 386 / 150,891                  |
+| 50 ms     | 8       | 155 ops/s     | 1,092 / 0                | 20,810 ops/s          | 775 / 82,893                   |
+| 50 ms     | 16      | 313 ops/s     | 1,676 / 0                | 310 ops/s             | 1,676 / 0                      |
 
 ![R2DBC Pool Contention Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-contention-throughput-chart-01.png)
 
 #### Tuning guide from the measurement
 
-- For pure acquire/close paths (
-  `0 ms` hold), compare with your actual driver. H2/PostgreSQL slightly favored the high-throughput preset in this run, while MySQL 8 favored the default profile. This path is mostly a driver/pool overhead microbenchmark and should not drive server defaults by itself.
-- Use
-  `R2dbcPoolConfig.highThroughput()` for server workloads where each request holds a connection while running SQL or a transaction. At
-  `1 ms` and
-  `5 ms` hold time, throughput was dominated by the hold time and the two profiles were effectively equivalent across H2, PostgreSQL, and MySQL 8, so the high-throughput preset's bounded queue and warmup behavior become the more important operational property.
-- Increase
-  `maxSize` only when concurrent requests exceed the pool size and the database can handle the additional sessions. Under
-  `64` contending threads, throughput scaled almost linearly with
-  `maxSize` because the benchmark was connection-slot limited.
+- For pure acquire/close paths (`0 ms` hold), compare with your actual driver. H2/PostgreSQL slightly favored the high-throughput preset in this run, while MySQL 8 favored the default profile. This path is mostly a driver/pool overhead microbenchmark and should not drive server defaults by itself.
+- Use `R2dbcPoolConfig.highThroughput()` for server workloads where each request holds a connection while running SQL or a transaction. At `1 ms` and `5 ms` hold time, throughput was dominated by the hold time and the two profiles were effectively equivalent across H2, PostgreSQL, and MySQL 8, so the high-throughput preset's bounded queue and warmup behavior become the more important operational property.
+- Increase `maxSize` only when concurrent requests exceed the pool size and the database can handle the additional sessions. Under `64` contending threads, throughput scaled almost linearly with `maxSize` on the default unbounded queue path because the benchmark was connection-slot limited.
+- Treat high-throughput contention rows with large failure counts as overload evidence, not as successful SQL throughput. A bounded pending queue exposes backpressure quickly; raise `maxSize`, reduce hold time, shed traffic, or increase the pending/acquire timeout budget only when the database can absorb the extra work.
 - Long-running queries and transactions reduce the useful throughput ceiling to roughly
   `maxSize / connection hold time`. In the contention benchmark, moving from `10 ms` to
   `50 ms` hold time reduced throughput by about `5x` for the same `maxSize`.
@@ -130,8 +136,7 @@ The contention benchmark uses `64` JMH threads with `maxSize` below concurrency.
   `min(maxSize, max(availableProcessors * 2, 16))` connections so cold starts do not pay the full allocation cost on the first traffic spike.
 - Keep `maxPendingAcquire` bounded for user-facing services. The preset uses
   `maxSize * 4`, which keeps short bursts queued without allowing an unbounded backlog that hides overload and increases tail latency.
-- If
-  `maxPendingAcquire` is too low, r2dbc-pool rejects extra acquire attempts once the pool and pending queue are full. This is useful for fail-fast overload control, but it should be paired with application metrics for acquire failures/timeouts.
+- If `maxPendingAcquire` is too low, r2dbc-pool rejects extra acquire attempts once the pool and pending queue are full. This is useful for fail-fast overload control, but it should be paired with application metrics for acquire failures/timeouts.
 - Keep `maxAcquireTime` finite.
   `2-3s` is a reasonable starting point for API services; batch jobs can use a longer timeout if waiting is preferable to failing.
 - Prefer `ValidationDepth.LOCAL` and no
