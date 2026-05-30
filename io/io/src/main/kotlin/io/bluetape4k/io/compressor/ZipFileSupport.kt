@@ -301,7 +301,7 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
         var entryCount = 0
         var declaredUncompressedSize = 0L
         var extractedUncompressedSize = 0L
-        val destPath = destDir.toPath().toAbsolutePath().normalize()
+        val canonicalDestDir = destDir.canonicalFile
 
         while (entries.hasMoreElements()) {
             val entry = entries.nextElement()
@@ -328,11 +328,7 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
                 if (!matched) continue
             }
 
-            val targetPath = destPath.resolve(entryName).normalize()
-            require(targetPath.startsWith(destPath)) {
-                "Zip entry is outside of the target dir: $entryName"
-            }
-            val file = targetPath.toFile()
+            val file = resolveZipTarget(canonicalDestDir, entryName)
 
             if (entry.isDirectory) {
                 if (!file.mkdirs() && !file.isDirectory) {
@@ -359,6 +355,14 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
         runCatching { zip.close() }
             .onFailure { log.warn(it) { "ZipFile 닫기 실패" } }
     }
+}
+
+private fun resolveZipTarget(canonicalDestDir: File, entryName: String): File {
+    val targetFile = File(canonicalDestDir, entryName).canonicalFile
+    require(targetFile.toPath().startsWith(canonicalDestDir.toPath())) {
+        "Zip entry is outside of the target dir: $entryName"
+    }
+    return targetFile
 }
 
 private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long): Long {

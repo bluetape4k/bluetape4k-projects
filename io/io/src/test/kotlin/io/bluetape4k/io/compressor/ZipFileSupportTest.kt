@@ -151,6 +151,25 @@ class ZipFileSupportTest {
     }
 
     @Test
+    fun `Zip Slip 방어는 대상 디렉토리와 같은 접두어의 형제 경로를 거부한다`() {
+        val zipBytes = ZipBuilder.ofInMemory()
+            .add("sibling content").path("../safe-output-sibling/evil.txt").save()
+            .toBytes()
+
+        val zipFile = File(tempDir, "sibling.zip")
+        zipFile.writeBytes(zipBytes)
+
+        val destDir = File(tempDir, "safe-output")
+        destDir.mkdirs()
+
+        assertFailsWith<IllegalArgumentException> {
+            unzip(zipFile, destDir)
+        }
+
+        File(tempDir, "safe-output-sibling/evil.txt").exists() shouldBeEqualTo false
+    }
+
+    @Test
     fun `ZipFile closeSafe 는 null 에 대해 안전하다`() {
         val nullZip: java.util.zip.ZipFile? = null
         nullZip?.closeSafe() // 예외 없이 실행
