@@ -11,7 +11,7 @@ Outcome: Split the findings into focused follow-up issues: #436 for a reactive
 event/effect runtime, #437 for nested state DSL, and #438 for README positioning
 guidance.
 
-Verification: Checked issue #251, qmd history, local `utils/states` APIs and
+Verification: Checked issue #251, GNO history, local `utils/states` APIs and
 README files, and external repository README/source/release metadata.
 
 Future agents: Keep `bluetape4k-states` JVM/backend-focused. Borrow event,

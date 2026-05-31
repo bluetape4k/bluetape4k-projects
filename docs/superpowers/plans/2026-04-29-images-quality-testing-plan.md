@@ -712,7 +712,7 @@ graph TB
 - **완료 조건**:
   - `docs/benchmark/images.md` 작성.
   - Mermaid xychart-beta 블록 GitHub 렌더링.
-  - wiki 인덱스에 spec/plan 추가됨 (`qmd query "images-quality-testing"` 결과 확인).
+  - wiki 인덱스에 spec/plan 추가됨 (`gno query "images-quality-testing"` 결과 확인).
 - **선행 Task**: T20, T24
 
 ---

@@ -96,7 +96,7 @@
 - Spring `AnnotatedElementUtils` / `AnnotationUtils` Kotlin reified helper APIs were added ([#365](https://github.com/bluetape4k/bluetape4k-projects/pull/365)).
 - Unsigned range assertion coverage and helpers were added to the assertion DSL ([#360](https://github.com/bluetape4k/bluetape4k-projects/pull/360)).
 - `bluetape4k-idgenerators` examples were added for Ktor and Spring Boot 4, with dedicated REST endpoints and tests ([#421](https://github.com/bluetape4k/bluetape4k-projects/pull/421), [#422](https://github.com/bluetape4k/bluetape4k-projects/pull/422)).
-- Governance and agent guidance docs were expanded for lessons capture, Kover coverage policy, dependency governance, and qmd knowledge retrieval ([#370](https://github.com/bluetape4k/bluetape4k-projects/pull/370), [#373](https://github.com/bluetape4k/bluetape4k-projects/pull/373), [#377](https://github.com/bluetape4k/bluetape4k-projects/pull/377), [#398](https://github.com/bluetape4k/bluetape4k-projects/pull/398)).
+- Governance and agent guidance docs were expanded for lessons capture, Kover coverage policy, dependency governance, and GNO knowledge retrieval ([#370](https://github.com/bluetape4k/bluetape4k-projects/pull/370), [#373](https://github.com/bluetape4k/bluetape4k-projects/pull/373), [#377](https://github.com/bluetape4k/bluetape4k-projects/pull/377), [#398](https://github.com/bluetape4k/bluetape4k-projects/pull/398)).
 - `bluetape4k-bucket4j` `RateLimitDiagnostics`, `RateLimitRejectionReason`, and rejected-result `retryAfter` were added to make retry and rejection reporting independent from Bucket4j probe types ([#434](https://github.com/bluetape4k/bluetape4k-projects/issues/434)).
 
 ### Changed

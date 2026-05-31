@@ -737,7 +737,7 @@ AWS job 없음 — nightly-tests.yml 의 test-aws 만 변경" 명시).
 **종속**: T14
 
 **Acceptance**:
-- [ ] `qmd query "floci" -c wiki` 결과 1건 이상
+- [ ] `gno query "floci" -c wiki` 결과 1건 이상
 
 ---
 

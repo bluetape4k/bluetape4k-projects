@@ -23,7 +23,7 @@ and `/health` readiness.
 
 - PullMD research saved to
   `~/work/bluetape4k/bluetape4k-wiki/research/2026-05-22-issue-596-etcd-container-pullmd.md`
-  and verified with qmd.
+  and verified with GNO.
 - `./gradlew :bluetape4k-testcontainers:compileKotlin :bluetape4k-testcontainers:compileTestKotlin --no-daemon --console=plain`
   passed.
 - `./gradlew :bluetape4k-testcontainers:test --tests 'io.bluetape4k.testcontainers.infra.EtcdServerTest' --no-daemon --console=plain`
@@ -33,4 +33,4 @@ and `/health` readiness.
 
 For new infrastructure launchers, add direct endpoint smoke coverage in addition
 to `isRunning`. Use official container docs through PullMD, store the research
-in shared wiki research, and qmd-index it before committing the implementation.
+in shared wiki research, and GNO-index it before committing the implementation.

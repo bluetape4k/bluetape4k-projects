@@ -2,7 +2,7 @@
 
 ## Context
 
-The qmd-backed audit registered two follow-ups in the core/shared repository:
+The GNO-backed audit registered two follow-ups in the core/shared repository:
 #543 for `BehaviorSubject.emitError()` cancellation semantics and #544 for
 evaluating `FlowEvent` value-class wrappers on Kotlin 2 hot paths.
 
@@ -14,7 +14,7 @@ performance/API evaluation, not an immediate source-compatible refactor.
 
 ## Outcome
 
-`WIP.md` now includes the qmd-backed audit notes, lists 17 open assigned issues,
+`WIP.md` now includes the GNO-backed audit notes, lists 17 open assigned issues,
 and moves #543 ahead of feature work.
 
 ## Verification
@@ -22,7 +22,7 @@ and moves #543 ahead of feature work.
 - `gh issue list --state open --assignee debop` returned 17 open issues.
 - `git diff origin/develop -- WIP.md` showed the remaining WIP delta after the
   existing upstream #545 refresh.
-- `qmd query ... --no-rerank` was used before finalizing the queue.
+- `gno query ... --no-rerank` was used before finalizing the queue.
 
 ## Future Agents
 

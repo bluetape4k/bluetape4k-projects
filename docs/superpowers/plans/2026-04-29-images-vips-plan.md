@@ -637,7 +637,7 @@ Goal: README/KDoc completeness, CI workflow updates, project memory & wiki sync.
 - **deps**: T5.4
 - **files**: Obsidian wiki (handled by skill)
 - **details**: Invoke `oh-my-claudecode:wiki-update` skill per project memory rule (spec/plan triggers wiki update).
-- **DoD**: Wiki page for `bluetape4k-images-vips` exists; qmd reindexed.
+- **DoD**: Wiki page for `bluetape4k-images-vips` exists; GNO reindexed.
 
 ### T5.8 — DoD verification & code review
 - **complexity**: medium
