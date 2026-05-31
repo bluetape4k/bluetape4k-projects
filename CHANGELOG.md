@@ -4,6 +4,60 @@
 
 ---
 
+## [1.10.0] — 2026-06-01
+
+### Added
+
+- Added the `bluetape4k-ktor-core`, `bluetape4k-ktor-observability`, and
+  `bluetape4k-ktor-testing` module family, including route helpers,
+  observability integration, testing support, and idgenerator example adoption
+  ([#647](https://github.com/bluetape4k/bluetape4k-projects/pull/647),
+  [#663](https://github.com/bluetape4k/bluetape4k-projects/pull/663),
+  [#664](https://github.com/bluetape4k/bluetape4k-projects/pull/664),
+  [#665](https://github.com/bluetape4k/bluetape4k-projects/pull/665),
+  [#666](https://github.com/bluetape4k/bluetape4k-projects/pull/666),
+  [#668](https://github.com/bluetape4k/bluetape4k-projects/pull/668)).
+- Added route-scoped Ktor Resilience4j helpers and OpenAPI route helpers for
+  the new Ktor integration surface
+  ([#678](https://github.com/bluetape4k/bluetape4k-projects/pull/678),
+  [#679](https://github.com/bluetape4k/bluetape4k-projects/pull/679)).
+
+### Changed
+
+- Kept Ktor client helper APIs in `io-http` after the module-boundary review
+  and benchmark-backed planning pass
+  ([#676](https://github.com/bluetape4k/bluetape4k-projects/pull/676),
+  [#677](https://github.com/bluetape4k/bluetape4k-projects/pull/677)).
+- Improved CSV UTF-8 scanning and writing paths with Okio segment/sink based
+  implementations
+  ([#673](https://github.com/bluetape4k/bluetape4k-projects/pull/673),
+  [#675](https://github.com/bluetape4k/bluetape4k-projects/pull/675)).
+- Reduced Redisson protobuf encoding allocation and clarified R2DBC pool
+  contention guidance
+  ([#680](https://github.com/bluetape4k/bluetape4k-projects/pull/680),
+  [#681](https://github.com/bluetape4k/bluetape4k-projects/pull/681)).
+- Updated release catalog selection, the shared dependencies catalog ref,
+  benchmark report guidance, module documentation drift checks, Spring Boot 3
+  retirement notes, and local work-note preservation for the 1.10.0 release
+  train
+  ([#639](https://github.com/bluetape4k/bluetape4k-projects/pull/639),
+  [#641](https://github.com/bluetape4k/bluetape4k-projects/pull/641),
+  [#682](https://github.com/bluetape4k/bluetape4k-projects/pull/682),
+  [#683](https://github.com/bluetape4k/bluetape4k-projects/pull/683),
+  [#684](https://github.com/bluetape4k/bluetape4k-projects/pull/684),
+  [#687](https://github.com/bluetape4k/bluetape4k-projects/pull/687)).
+
+### Fixed
+
+- Preserved coroutine cancellation and interruption contracts for gRPC shutdown,
+  Vert.x routes, and Lettuce suspended loaded-map close paths
+  ([#669](https://github.com/bluetape4k/bluetape4k-projects/pull/669),
+  [#670](https://github.com/bluetape4k/bluetape4k-projects/pull/670),
+  [#672](https://github.com/bluetape4k/bluetape4k-projects/pull/672)).
+- Hardened archive extraction against Zip Slip by validating canonical paths
+  before writing extracted entries
+  ([#686](https://github.com/bluetape4k/bluetape4k-projects/pull/686)).
+
 ## [1.9.2] — 2026-05-26
 
 ### Added
