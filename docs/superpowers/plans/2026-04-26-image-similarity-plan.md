@@ -456,7 +456,7 @@ T1 ─┬─ T2 ─┐
   - 수정: `docs/superpowers/INDEX.md` (카운트 갱신).
 - **내용**:
   - 항목: `image-similarity-design` (spec → plan → 구현 → PR 링크).
-  - `/wiki-update` 스킬 실행 → Obsidian wiki 페이지에 spec/plan 반영 + qmd 재인덱싱.
+  - `/wiki-update` 스킬 실행 → Obsidian wiki 페이지에 spec/plan 반영 + GNO 재인덱싱.
 - **검증**:
   - INDEX 카운트 일치.
   - Obsidian wiki에서 새 페이지 검색 가능.

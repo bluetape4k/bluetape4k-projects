@@ -238,7 +238,7 @@ PR 머지 전 다음 모두 만족해야 합니다.
 - [ ] `io/vertx/README.md` + `README.ko.md` 갱신 (Vert.x 5 명기, JDBC 제거 안내)
 - [ ] `data/hibernate-reactive/README.md` + `README.ko.md` 갱신 (HR 4.3 + Vert.x 5 + ORM 7.3 호환 매트릭스)
 - [ ] 루트 `CLAUDE.md` 의 Vert.x 관련 언급(있다면) 갱신
-- [ ] `/wiki-update` 스킬 실행으로 wiki/QMD 색인 동기화
+- [ ] `/wiki-update` 스킬 실행으로 wiki/GNO 색인 동기화
 - [ ] `oh-my-claudecode:code-reviewer` 실행 후 HIGH/CRITICAL 이슈 해소
 - [ ] PR 본문에 테스트 결과(passing count + duration), 변경 근거, 검증 명령 기재
 

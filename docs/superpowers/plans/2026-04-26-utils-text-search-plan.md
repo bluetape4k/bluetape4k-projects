@@ -722,7 +722,7 @@ author: planner (Opus, OMC)
   | 2026-04-26 | utils-text-search | plan | docs/superpowers/plans/2026-04-26-utils-text-search-plan.md |
   ```
 - [ ] **14.3** `docs/superpowers/INDEX.md` 의 count 갱신.
-- [ ] **14.4** `/oh-my-claudecode:wiki-update` (또는 `wiki-update` 스킬) 실행 — Obsidian wiki 페이지 동기화 + qmd 재인덱싱.
+- [ ] **14.4** `/oh-my-claudecode:wiki-update` (또는 `wiki-update` 스킬) 실행 — Obsidian wiki 페이지 동기화 + GNO 재인덱싱.
 - [ ] **14.5** 커밋: `docs(text-search): 루트 README + superpowers index 갱신`.
 
 ### Done when:

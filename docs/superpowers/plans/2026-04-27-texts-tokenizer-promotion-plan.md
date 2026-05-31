@@ -591,10 +591,10 @@ git rm -r x-obsoleted/tokenizer    # 비어 있으면 git 이 자동 처리. 잔
 - `wiki/pages/tokenizer.md`
 - `wiki/pages/twitter-text-removal.md` (신규)
 
-작업 후 `qmd` 재인덱싱이 자동 수행된다.
+작업 후 `GNO` 재인덱싱이 자동 수행된다.
 
 **검증**:
-- `qmd query "texts tokenizer promotion" -c wiki` 로 본 spec/plan 관련 페이지가 검색되는지 확인.
+- `gno query "texts tokenizer promotion" -c wiki` 로 본 spec/plan 관련 페이지가 검색되는지 확인.
 
 ---
 

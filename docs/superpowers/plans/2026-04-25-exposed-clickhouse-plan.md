@@ -368,7 +368,7 @@ T11, T13, T14, T15 ──┐
     - HikariCP 권장 설정 메모 (OQ5)
 - **검증 기준**:
   - GitHub/IntelliJ에서 Mermaid 렌더링 확인
-  - `qmd` 인덱싱 정상 (자동)
+  - `GNO` 인덱싱 정상 (자동)
 
 ---
 

@@ -10,7 +10,7 @@ Karpathy의 LLM Wiki 패턴을 bluetape4k-projects에 적용한다.
 - RAG 방식(쿼리마다 재발견)이 아닌, LLM이 유지하는 **영속 wiki** 구축
 - 설계 결정 근거(ADR), 패턴 카탈로그, 모듈 레퍼런스, 의존성 결정 이력 통합
 - spec 추가 시 자동 알림 + `/wiki-update` 스킬로 wiki 갱신
-- `qmd` MCP 서버로 Claude Code에서 wiki 검색 가능
+- `GNO` MCP 서버로 Claude Code에서 wiki 검색 가능
 
 ---
 
@@ -23,7 +23,7 @@ Karpathy의 LLM Wiki 패턴을 bluetape4k-projects에 적용한다.
 │   ├── articles/        ← 웹 아티클, PDF, 외부 자료 등 임의 투입
 │   ├── notes/           ← 메모, 아이디어, 비정형 자료
 │   └── gitlog/          ← git log 추출본 (wiki-update 시 자동 갱신)
-└── pages/               ← LLM 합성 위키 페이지 (주제별, qmd 인덱싱 대상)
+└── pages/               ← LLM 합성 위키 페이지 (주제별, GNO 인덱싱 대상)
     ├── exposed-patterns.md
     ├── cache-architecture.md
     ├── spring-boot-integration.md
@@ -131,7 +131,7 @@ Karpathy의 LLM Wiki 패턴을 bluetape4k-projects에 적용한다.
 5. git log 스캔 → dependency-decisions.md 갱신
    git log --oneline -100 | grep -iE 'downgrad|revert|fix.*version|버전|다운그레이드|충돌'
 
-6. qmd index .wiki/pages/ 실행 (검색 인덱스 갱신)
+6. gno index .wiki/pages/ 실행 (검색 인덱스 갱신)
 ```
 
 ---
@@ -163,5 +163,5 @@ Karpathy의 LLM Wiki 패턴을 bluetape4k-projects에 적용한다.
 2. 56개 specs/plans + git log 읽고 9개 wiki 페이지 초기 합성
 3. PostToolUse hook 등록 (`~/.claude/settings.json`)
 4. `/wiki-update` 스킬 파일 작성 (`.claude/skills/wiki-update/SKILL.md`)
-5. `qmd index .wiki/pages/` 실행 (초기 인덱싱)
+5. `gno index .wiki/pages/` 실행 (초기 인덱싱)
 6. CLAUDE.md 체크리스트 업데이트

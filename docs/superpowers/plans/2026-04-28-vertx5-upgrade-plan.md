@@ -412,11 +412,11 @@ configurations.all {
 - **effort**: S
 - **dependencies**: 모든 T 단계 완료
 
-**작업**: 본 Spec/Plan 을 wiki/qmd 색인에 반영
+**작업**: 본 Spec/Plan 을 wiki/GNO 색인에 반영
 
 **DoD**:
 - `wiki/pages/` 에 Vert.x 5 업그레이드 페이지 등록 또는 갱신
-- `qmd index` 재실행 완료
+- `gno index` 재실행 완료
 
 ---
 

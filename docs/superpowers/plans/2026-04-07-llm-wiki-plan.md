@@ -4,13 +4,13 @@
 ** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (
 `- [ ]`) syntax for tracking.
 
-**Goal:** `.wiki/` 폴더 기반 LLM Wiki 시스템 구축 — specs/plans/git log를 9개 주제별 wiki 페이지로 합성하고, qmd MCP로 검색 가능하게 하며, spec 저장 시
+**Goal:** `.wiki/` 폴더 기반 LLM Wiki 시스템 구축 — specs/plans/git log를 9개 주제별 wiki 페이지로 합성하고, GNO MCP로 검색 가능하게 하며, spec 저장 시
 `/wiki-update` 알림 hook을 등록한다.
 
-**Architecture:** `.wiki/pages/`에 주제별 마크다운 페이지를 두고 qmd가 인덱싱한다. spec 저장 시 PostToolUse hook이 알림을 띄우고,
+**Architecture:** `.wiki/pages/`에 주제별 마크다운 페이지를 두고 GNO가 인덱싱한다. spec 저장 시 PostToolUse hook이 알림을 띄우고,
 `/wiki-update` 스킬이 관련 페이지를 갱신한다. `docs/superpowers/specs|plans/`와 git log가 원본 소스(raw)다.
 
-**Tech Stack:** qmd 2.1.0 (BM25+vector 검색), Claude Code hooks (PostToolUse), Claude Code skills (SKILL.md)
+**Tech Stack:** GNO 2.1.0 (BM25+vector 검색), Claude Code hooks (PostToolUse), Claude Code skills (SKILL.md)
 
 ---
 
@@ -33,7 +33,7 @@
 | Create | `~/.claude/skills/wiki-update/SKILL.md`         |
 | Modify | `~/.claude/settings.json` (PostToolUse hook 추가) |
 | Modify | `CLAUDE.md` (체크리스트 항목 추가)                       |
-| Modify | `.gitignore` (qmd 인덱스 파일 제외)                    |
+| Modify | `.gitignore` (GNO 인덱스 파일 제외)                    |
 
 ---
 
@@ -126,7 +126,7 @@ LLM이 이 파일의 규칙에 따라 `.wiki/pages/`를 유지한다.
 3. 위 매핑 기준으로 관련 wiki 페이지 파악
 4. 해당 페이지의 ADR 테이블 갱신 + 패턴 섹션 보완 + 업데이트 날짜 갱신
 5. `git log --oneline -100 | grep -iE 'downgrad|revert|fix.*version|다운그레이드|충돌'`으로 dependency-decisions.md 갱신
-6. `qmd index .wiki/pages/` 실행
+6. `gno index .wiki/pages/` 실행
 ```
 
 - [ ] **Step 3: 폴더 구조 확인**
@@ -147,11 +147,11 @@ find .wiki -type f | sort
 
 - [ ] **Step 4: .gitignore 업데이트**
 
-`.gitignore`에 qmd 인덱스 파일 추가:
+`.gitignore`에 GNO 인덱스 파일 추가:
 
 ```
-# qmd search index
-.wiki/.qmd/
+# gno search index
+.wiki/.gno-sources/
 ```
 
 - [ ] **Step 5: 커밋**
@@ -531,7 +531,7 @@ mkdir -p ~/.claude/skills/wiki-update
 ```markdown
 ---
 name: wiki-update
-description: 최근 변경된 spec/plan을 읽고 .wiki/pages/ 관련 페이지를 업데이트한 뒤 qmd를 재인덱싱한다
+description: 최근 변경된 spec/plan을 읽고 .wiki/pages/ 관련 페이지를 업데이트한 뒤 GNO를 재인덱싱한다
 triggers:
   - /wiki-update
 ---
@@ -567,9 +567,9 @@ spec/plan이 추가되거나 변경됐을 때 .wiki/pages/ 를 최신 상태로 
    ```
    새 커밋이 있으면 ADR 테이블에 행 추가.
 
-6. **qmd 재인덱싱**
+6. **GNO 재인덱싱**
    ```bash
-   qmd index .wiki/pages/
+   gno index .wiki/pages/
    ```
 
 7. **커밋**
@@ -588,23 +588,23 @@ chezmoi re-add ~/.claude/skills/wiki-update/SKILL.md
 
 ---
 
-## Task 8: qmd 초기 인덱싱 + CLAUDE.md 업데이트
+## Task 8: GNO 초기 인덱싱 + CLAUDE.md 업데이트
 
 **complexity: low**
 
-- [ ] **Step 1: qmd 초기 인덱싱**
+- [ ] **Step 1: GNO 초기 인덱싱**
 
 ```bash
 cd /Users/debop/work/bluetape4k/bluetape4k-projects
-qmd index .wiki/pages/
+gno index .wiki/pages/
 ```
 
 기대: 9개 페이지 인덱싱 완료 메시지.
 
-- [ ] **Step 2: qmd 검색 동작 확인**
+- [ ] **Step 2: GNO 검색 동작 확인**
 
 ```bash
-qmd query "NearCache lettuce 다운그레이드"
+gno query "NearCache lettuce 다운그레이드"
 ```
 
 기대: `cache-architecture.md` 또는 `dependency-decisions.md` 반환.

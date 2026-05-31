@@ -440,13 +440,13 @@ T01 → T02 → T03/T03a (병렬) → T04 → T05/T05a/T05b (병렬)
 ### T18b — `/wiki-update` 실행
 
 - **complexity**: low
-- **목적**: 사용자 지시 — 새 spec/plan 작성 시 wiki 동기화. Obsidian wiki 와 qmd `bluetape4k-docs` 컬렉션 정합 유지.
+- **목적**: 사용자 지시 — 새 spec/plan 작성 시 wiki 동기화. Obsidian wiki 와 GNO `bluetape4k-docs` 컬렉션 정합 유지.
 - **변경 내용**:
   - `/wiki-update` skill 실행 → 변경된 spec(`2026-04-26-elasticsearch-coroutines-design.md`) + plan(`2026-04-26-elasticsearch-coroutines-plan.md`) + 모듈 README 를 wiki 페이지에 반영.
-  - qmd 재인덱싱 확인.
+  - GNO 재인덱싱 확인.
 - **완료 조건**:
   - `/wiki-update` 실행 완료.
-  - 신규 wiki 페이지 또는 갱신 페이지가 qmd 검색에서 노출.
+  - 신규 wiki 페이지 또는 갱신 페이지가 GNO 검색에서 노출.
 
 ### T19 — `code-reviewer` 실행 + PR 생성
 

@@ -395,7 +395,7 @@
 - **목표**: spec/plan 신규 생성 → Obsidian wiki 페이지 업데이트.
 - **수행 내용**:
   - `/oh-my-claudecode:wiki-update` 또는 `wiki-update` 스킬 호출
-  - spec + plan 파일을 wiki 에 색인하여 후속 검색 (`qmd query`) 가능하게 함
+  - spec + plan 파일을 wiki 에 색인하여 후속 검색 (`gno query`) 가능하게 함
 - **DoD**:
   - [ ] wiki 업데이트 완료 (skill 응답 확인)
 

@@ -689,8 +689,8 @@ Phase 6 (문서/마무리)
   - Skill 호출: `oh-my-claudecode:wiki-update`
   - 대상: spec/plan/research 3건
   - Obsidian `claude-code/` + `~/.claude/wiki/` 양쪽 반영 (Memory feedback_prefer_obsidian_for_wiki)
-- **검증 방법**: `qmd query "NetCdf Issue #107" -c wiki`
-- **완료 기준 (DoD)**: wiki 페이지 신설/갱신 + qmd 재인덱싱
+- **검증 방법**: `gno query "NetCdf Issue #107" -c wiki`
+- **완료 기준 (DoD)**: wiki 페이지 신설/갱신 + GNO 재인덱싱
 
 ### T17. PR 생성 + CodeRabbit review — `low`
 
