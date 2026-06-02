@@ -1,15 +1,15 @@
 # WIP - bluetape4k-projects
 
-Snapshot: 2026-05-24 KST
-Scope: open GitHub issues assigned to `debop`, created on or after 2026-01-01.
+Snapshot: 2026-06-01 KST
+Scope: post-1.10.0 release train version alignment.
 Open count: 14 issues.
 
 ## Refresh Notes
 
-Verified with `gh issue list --state open --assignee debop` on 2026-05-24 KST.
-Open assigned work is split between the `1.9.2` IO HTTP patch lane and the
-`1.10.0` Ktor module-family lane. The `1.9.0` and `1.9.1` release work is
-complete.
+The `1.10.0` stable line has been published and consumed by
+`bluetape4k-dependencies` `1.2.0`. Development now moves to the next minor
+line, `1.11.0`, with `snapshotVersion=` kept empty for workflow-injected
+snapshot publication.
 
 ## Recently Completed
 
@@ -24,14 +24,12 @@ complete.
 
 ## Current Direction
 
-The repository is in the post-1.9.1 cleanup lane. Open the next patch
-development cycle by moving the committed base version to `1.9.2`; keep
-`snapshotVersion=` empty in `gradle.properties` and pass
+The repository is in the `1.11.0` development lane after the `1.10.0` stable
+release. Keep `snapshotVersion=` empty in `gradle.properties` and pass
 `-PsnapshotVersion=-SNAPSHOT` only for SNAPSHOT publishing.
 
-Work selection should respect the active milestones: use `1.9.2` for the IO
-HTTP patch lane, and keep the `1.10.0` Ktor module family as the next minor
-lane after design starts.
+Work selection should use the next minor line for new feature work unless a
+specific patch milestone is opened for release fallout.
 
 ## Priority Queue
 
