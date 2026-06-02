@@ -140,6 +140,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Opened the `1.11.0` development line after the `1.10.0` stable release.
+
 ### Added
 
 - `bluetape4k-assertions` module was added as the project-local assertion library foundation ([#326](https://github.com/bluetape4k/bluetape4k-projects/pull/326)).
