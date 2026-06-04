@@ -2,6 +2,7 @@
 # Gradle Version Catalog — migrated from buildSrc/src/main/kotlin/Libs.kt
 
 [versions]
+bluetape4k = "1.11.0-SNAPSHOT"  # https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom
 kotlin = "2.3.21"  # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom
 kotlinx-coroutines = "1.11.0"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-bom
 kotlinx-serialization = "1.11.0"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-bom
@@ -1035,7 +1036,7 @@ junit-platform-suite-api = { module = "org.junit.platform:junit-platform-suite-a
 junit-platform-suite-engine = { module = "org.junit.platform:junit-platform-suite-engine", version.ref = "junit-platform" }
 junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
 
-bluetape4k-assertions = { module = "io.github.bluetape4k:bluetape4k-assertions", version.ref = "bluetape4k-bom" }
+bluetape4k-assertions = { module = "io.github.bluetape4k:bluetape4k-assertions", version.ref = "bluetape4k" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj-core" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 springmockk = { module = "com.ninja-squad:springmockk", version.ref = "springmockk" }
