@@ -301,6 +301,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: false
 
       - name: Build (compile only, excluding examples)
@@ -354,6 +355,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Detekt static analysis
@@ -384,6 +386,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Test bluetape4k core modules
@@ -446,6 +449,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Test io modules
@@ -524,6 +528,7 @@ jobs:
           -   uses: gradle/actions/setup-gradle@v6
               with:
                   gradle-version: wrapper
+                  cache-disabled: true
                   cache-read-only: true
 
           -   name: Build mock-web-server Docker image
@@ -591,6 +596,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Test Ktor modules
@@ -655,6 +661,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Test utils modules
@@ -738,6 +745,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Test misc modules (no Docker)
@@ -857,6 +865,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Build mock-web-server Docker image
@@ -945,6 +954,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Test data modules (${{ matrix.group }})
@@ -1030,6 +1040,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Build mock-web-server Docker image
@@ -1102,6 +1113,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: wrapper
+          cache-disabled: true
           cache-read-only: true
 
       - name: Build mock-web-server Docker image
