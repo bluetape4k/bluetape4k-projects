@@ -140,7 +140,12 @@ jobs:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
       - name: Build (compile only)
-        run: ./gradlew build -x test --parallel
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew build -x test --parallel && break
+            echo "Attempt $attempt failed"
+            [ $attempt -lt 3 ] && sleep 10 || exit 1
+          done
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
