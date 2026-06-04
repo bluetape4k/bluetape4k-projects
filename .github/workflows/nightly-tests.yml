@@ -317,7 +317,7 @@ jobs:
             -x :bluetape4k-examples-virtualthreads-demo:build
           )
 
-          projects="$(./gradlew -q projects)"
+          projects="$(./gradlew -q projects --no-configuration-cache)"
           if grep -q -- "--- Project ':idgenerator-ktor-demo'" <<< "$projects"; then
             excluded_tasks+=(-x :idgenerator-ktor-demo:build)
           fi
@@ -325,13 +325,13 @@ jobs:
             excluded_tasks+=(-x :idgenerator-spring-boot-demo:build)
           fi
 
-          ./gradlew build -x test "${excluded_tasks[@]}" --parallel
+          ./gradlew build -x test "${excluded_tasks[@]}" --parallel --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Resolve mock server runtime dependencies (pre-cache for Jib)
         run: >
-          ./gradlew
+          ./gradlew --no-configuration-cache
           :bluetape4k-mock-web-server:dependencies
           :bluetape4k-mock-webflux-server:dependencies
           --configuration runtimeClasspath
@@ -359,7 +359,7 @@ jobs:
           cache-read-only: true
 
       - name: Detekt static analysis
-        run: ./gradlew detekt --parallel
+        run: ./gradlew detekt --parallel --no-configuration-cache
 
       - name: Upload detekt report
         if: always()
@@ -396,7 +396,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            ./gradlew \
+            ./gradlew --no-configuration-cache \
               :bluetape4k-annotations:test \
               :bluetape4k-core:test \
               :bluetape4k-coroutines:test \
@@ -408,7 +408,7 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
-          ./gradlew \
+          ./gradlew --no-configuration-cache \
             :bluetape4k-annotations:koverXmlReport \
             :bluetape4k-core:koverXmlReport \
             :bluetape4k-coroutines:koverXmlReport \
@@ -459,7 +459,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            ./gradlew \
+            ./gradlew --no-configuration-cache \
               :bluetape4k-io:test \
               :bluetape4k-okio:test \
               :bluetape4k-csv:test \
@@ -479,7 +479,7 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
-          ./gradlew \
+          ./gradlew --no-configuration-cache \
             :bluetape4k-io:koverXmlReport \
             :bluetape4k-okio:koverXmlReport \
             :bluetape4k-csv:koverXmlReport \
@@ -543,7 +543,7 @@ jobs:
                 max_attempts: 3
                 shell: bash
                 command: |
-                    ./gradlew \
+                    ./gradlew --no-configuration-cache \
                       :bluetape4k-feign:test \
                       :bluetape4k-http:test \
                       :bluetape4k-retrofit2:test \
@@ -555,7 +555,7 @@ jobs:
           -   name: Generate Kover XML report
               if: always()
               run: |
-                  ./gradlew \
+                  ./gradlew --no-configuration-cache \
                     :bluetape4k-feign:koverXmlReport \
                     :bluetape4k-http:koverXmlReport \
                     :bluetape4k-retrofit2:koverXmlReport \
@@ -606,7 +606,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            ./gradlew \
+            ./gradlew --no-configuration-cache \
               :bluetape4k-ktor-core:test \
               :bluetape4k-ktor-observability:test \
               :bluetape4k-ktor-openapi:test \
@@ -619,7 +619,7 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
-          ./gradlew \
+          ./gradlew --no-configuration-cache \
             :bluetape4k-ktor-core:koverXmlReport \
             :bluetape4k-ktor-observability:koverXmlReport \
             :bluetape4k-ktor-openapi:koverXmlReport \
@@ -671,7 +671,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            ./gradlew \
+            ./gradlew --no-configuration-cache \
               :bluetape4k-idgenerators:test \
               :bluetape4k-javatimes:test \
               :bluetape4k-math:test \
@@ -695,7 +695,7 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
-          ./gradlew \
+          ./gradlew --no-configuration-cache \
             :bluetape4k-idgenerators:koverXmlReport \
             :bluetape4k-javatimes:koverXmlReport \
             :bluetape4k-math:koverXmlReport \
@@ -755,7 +755,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: |
-            ./gradlew \
+            ./gradlew --no-configuration-cache \
               :bluetape4k-virtualthread-api:test \
               :bluetape4k-virtualthread-jdk21:test \
               :bluetape4k-virtualthread-jdk25:test \
@@ -771,7 +771,7 @@ jobs:
       - name: Generate Kover XML report
         if: always()
         run: |
-          ./gradlew \
+          ./gradlew --no-configuration-cache \
             :bluetape4k-virtualthread-api:koverXmlReport \
             :bluetape4k-virtualthread-jdk21:koverXmlReport \
             :bluetape4k-virtualthread-jdk25:koverXmlReport \
@@ -882,7 +882,7 @@ jobs:
           shell: bash
           command: |
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}" --max-workers=1
+            ./gradlew "${tasks[@]}" --max-workers=1 --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
@@ -893,7 +893,7 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
         continue-on-error: true
 
       - name: Upload test results
@@ -965,7 +965,7 @@ jobs:
           shell: bash
           command: |
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}" --max-workers=1
+            ./gradlew "${tasks[@]}" --max-workers=1 --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
@@ -976,7 +976,7 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
         continue-on-error: true
 
       - name: Upload test results
@@ -1061,7 +1061,7 @@ jobs:
           shell: bash
           command: |
             read -ra tasks <<< "$TEST_TASKS"
-            ./gradlew "${tasks[@]}" --max-workers=1
+            ./gradlew "${tasks[@]}" --max-workers=1 --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_TASKS: ${{ matrix.test_tasks }}
@@ -1072,7 +1072,7 @@ jobs:
           KOVER_TASKS: ${{ matrix.kover_tasks }}
         run: |
           read -ra tasks <<< "$KOVER_TASKS"
-          ./gradlew "${tasks[@]}" --parallel
+          ./gradlew "${tasks[@]}" --parallel --no-configuration-cache
         continue-on-error: true
 
       - name: Upload test results
@@ -1151,7 +1151,7 @@ jobs:
               )
             fi
             timeout --kill-after=60s "${TEST_TIMEOUT_MINUTES}m" \
-              ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}"
+              ./gradlew :bluetape4k-testcontainers:test "${tests_args[@]}" --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           TEST_PATTERNS: ${{ matrix.test_patterns }}
@@ -1161,7 +1161,7 @@ jobs:
       - name: Generate Kover XML report
         if: ${{ always() && needs.plan.outputs.run_testcontainers_coverage == 'true' }}
         timeout-minutes: 10
-        run: ./gradlew :bluetape4k-testcontainers:koverXmlReport -x :bluetape4k-testcontainers:test
+        run: ./gradlew :bluetape4k-testcontainers:koverXmlReport -x :bluetape4k-testcontainers:test --no-configuration-cache
         continue-on-error: true
 
       - name: Upload test results
