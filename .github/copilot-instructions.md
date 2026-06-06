@@ -1,17 +1,37 @@
-# Kotlin 백엔드 개발을 위한 레포지토리입니다.
+# bluetape4k-projects Copilot Instructions
 
-- 주석, 설명은 KDoc 형식으로 한국어로 작성한다.
-- Kotlin 2.3.0 이상으로 작성한다
-- 최대한 Kotlin extensions 을 활용한다.
-- 최대한 내부코드를 재활용한다. (예: Any?.requireNotNull() 등)
-- Spring Boot 3.4.0 이상을 사용한다
-- Kotlin Exposed 0.60.0 이상을 사용한다
-- Kotlin DSL 을 적극적으로 활용한다
-- DB 사용은 H2, Postgres, MySQL을 주로 사용한다.
-- 예제는 간결하지만 실제 프로덕션에 사용 가능한 수준으로 작성한다
-- 예제는 실제로 동작하는 예제를 작성한다
-- 테스트 코드는 JUnit 5 기준으로 한다.
-- 테스트 코드는 MockK 를 사용한다
-- 테스트 코드의 Assertions 는 Kluent 를 사용한다.
-- 커밋 메시지는 한국어로 작성한다
-- 커밋 메시지는 머릿말을 둔다 (예: feat, fix, docs, style, refactor, perf, test, chore)
+This repository contains Kotlin/JVM backend libraries for the bluetape4k ecosystem.
+Follow the workspace and repo-local `AGENTS.md` files when they provide stricter or newer guidance.
+
+## Language And Public Artifacts
+
+- Write public API KDoc in English for new or changed public classes, interfaces, objects, and extension functions.
+- Keep contributor-facing artifacts in English, including commit messages, PR titles/bodies, changelog entries, release notes, and GitHub issues.
+- Keep `README.md` in English and update existing localized README files such as `README.ko.md` together when user-facing documentation changes.
+- Keep internal planning, review, and lesson documents concise; Korean is acceptable for internal human-readable docs.
+
+## Kotlin And Module Policy
+
+- Use Kotlin 2.3+ and the repository's Java 21 toolchain.
+- Use Spring Boot 4.x only for this repository's Spring Boot modules.
+- Prefer Kotlin extensions, DSLs, immutable values, and existing bluetape4k helpers before adding new utilities.
+- Reuse established module patterns from the current source tree and `settings.gradle.kts`.
+- Keep examples concise, runnable, and realistic enough for production-style usage.
+
+## Testing
+
+- Use JUnit 5, MockK, and `io.bluetape4k.assertions` helpers.
+- Prefer bluetape4k assertion comparison matchers such as `shouldBeEqualTo` over boolean assertions.
+- Use `assertFailsWith<T> { }` for exception checks unless an existing bluetape4k assertion pattern is clearly more appropriate.
+
+## Spring And Data
+
+- For Spring code, follow Spring Boot 4.x conventions and the current `spring-boot/*` module layout.
+- For Exposed code, follow current Exposed 1.2+ import and receiver-shadowing rules from repo guidance.
+- Prefer existing database/testcontainer launchers and project test infrastructure over ad hoc setup.
+
+## Git And Validation
+
+- Commit messages that will be pushed to GitHub must be in English and use the repository's conventional prefixes when helpful, such as `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `build:`, or `chore:`.
+- Keep changes small, reviewable, and scoped to the requested issue.
+- Run the smallest relevant compile/test/documentation checks and `git diff --check` before claiming completion.
