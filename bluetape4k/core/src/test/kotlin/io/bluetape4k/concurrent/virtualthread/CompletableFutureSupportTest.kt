@@ -27,6 +27,14 @@ class CompletableFutureSupportTest {
     }
 
     @Test
+    fun `virtualFutureOf runs block on virtual thread`() {
+        val future = virtualFutureOf {
+            Thread.currentThread().isVirtual
+        }
+        future.get() shouldBeEqualTo true
+    }
+
+    @Test
     fun `virtualFutureOfNullable returns non-null result`() {
         val future = virtualFutureOfNullable {
             Thread.sleep(100)
@@ -50,6 +58,14 @@ class CompletableFutureSupportTest {
             null
         }
         future.get().shouldBeNull()
+    }
+
+    @Test
+    fun `virtualFutureOfNullable runs block on virtual thread`() {
+        val future = virtualFutureOfNullable {
+            Thread.currentThread().isVirtual
+        }
+        future.get() shouldBeEqualTo true
     }
 
     @Test

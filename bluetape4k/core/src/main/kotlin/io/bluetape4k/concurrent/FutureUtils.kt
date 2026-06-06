@@ -6,11 +6,16 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * 비동기 작업을 위한 유틸리티 함수들을 제공합니다.
+ * Provides general-purpose [CompletableFuture] aggregation and selection utilities.
+ *
+ * These helpers stay in the core `io.bluetape4k.concurrent` package because they are executor-agnostic
+ * and work with any [CompletableFuture] source. Virtual-thread execution factories live in
+ * `io.bluetape4k.concurrent.virtualthread`, such as
+ * [io.bluetape4k.concurrent.virtualthread.virtualFutureOf] and
+ * [io.bluetape4k.concurrent.virtualthread.virtualFutureOfNullable].
  */
 object FutureUtils {
 
-    // TODO: 이건 VirtualThreadUtils 로 이동
     /**
      * [futures] 중 가장 먼저 terminal state(성공/실패/취소)로 완료되는 것을 반환하고, 나머지 futures 는 취소합니다.
      *
