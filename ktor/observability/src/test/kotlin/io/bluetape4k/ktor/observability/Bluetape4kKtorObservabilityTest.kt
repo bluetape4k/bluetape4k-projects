@@ -2,13 +2,23 @@ package io.bluetape4k.ktor.observability
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.api.trace.StatusCode
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -18,6 +28,7 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.util.concurrent.TimeUnit
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Bluetape4kKtorObservabilityTest {
@@ -49,6 +60,85 @@ class Bluetape4kKtorObservabilityTest {
 
         response.status shouldBeEqualTo HttpStatusCode.OK
         response.headers[HttpHeaders.XRequestId] shouldBeEqualTo "REQ_123-ABC"
+    }
+
+    @Test
+    fun `observability installer creates server span when tracing is configured`() = testTracing { tracing ->
+        testApplication {
+            application {
+                installBluetape4kKtorObservability(
+                    Bluetape4kKtorObservabilityConfig(
+                        tracing = KtorOpenTelemetryTracingConfig(
+                            openTelemetry = tracing.openTelemetry,
+                            captureSanitizedCorrelationId = true
+                        )
+                    )
+                )
+                routing {
+                    get("/ping") {
+                        call.respondText("pong")
+                    }
+                }
+            }
+
+            val response = client.get("/ping") {
+                header(HttpHeaders.XRequestId, "  REQ_123 Injected: raw  ")
+            }
+
+            response.status shouldBeEqualTo HttpStatusCode.OK
+            tracing.flush()
+
+            val spans = tracing.spanExporter.finishedSpanItems
+            spans shouldHaveSize 1
+            val span = spans[0]
+            span.kind shouldBeEqualTo SpanKind.SERVER
+            span.attributes[CORRELATION_PRESENT_KEY] shouldBeEqualTo true
+            span.attributes[CORRELATION_ID_KEY] shouldBeEqualTo "REQ_123Injectedraw"
+            span.attributes.asMap().keys.none { it.key.equals(HttpHeaders.Authorization, ignoreCase = true) }.shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `observability installer does not create spans when tracing is disabled`() = testTracing { tracing ->
+        testApplication {
+            application {
+                installBluetape4kKtorObservability()
+                routing {
+                    get("/ping") {
+                        call.respondText("pong")
+                    }
+                }
+            }
+
+            client.get("/ping").status shouldBeEqualTo HttpStatusCode.OK
+            tracing.flush()
+
+            tracing.spanExporter.finishedSpanItems shouldHaveSize 0
+        }
+    }
+
+    @Test
+    fun `open telemetry tracing records error request spans`() = testTracing { tracing ->
+        testApplication {
+            application {
+                installBluetape4kKtorOpenTelemetryTracing(
+                    KtorOpenTelemetryTracingConfig(openTelemetry = tracing.openTelemetry)
+                )
+                routing {
+                    get("/failed") {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    }
+                }
+            }
+
+            client.get("/failed").status shouldBeEqualTo HttpStatusCode.InternalServerError
+            tracing.flush()
+
+            val spans = tracing.spanExporter.finishedSpanItems
+            spans shouldHaveSize 1
+            spans[0].kind shouldBeEqualTo SpanKind.SERVER
+            spans[0].status.statusCode shouldBeEqualTo StatusCode.ERROR
+        }
     }
 
     @Test
@@ -113,5 +203,32 @@ class Bluetape4kKtorObservabilityTest {
 
         response.status shouldBeEqualTo HttpStatusCode.OK
         response.bodyAsText().contains("demo_requests_total") shouldBeEqualTo true
+    }
+
+    private class TestTracing: AutoCloseable {
+        val spanExporter: InMemorySpanExporter = InMemorySpanExporter.create()
+        private val tracerProvider: SdkTracerProvider = SdkTracerProvider.builder()
+            .addSpanProcessor(SimpleSpanProcessor.create(spanExporter))
+            .build()
+        val openTelemetry: OpenTelemetrySdk = OpenTelemetrySdk.builder()
+            .setTracerProvider(tracerProvider)
+            .build()
+
+        fun flush() {
+            tracerProvider.forceFlush().join(1, TimeUnit.SECONDS)
+        }
+
+        override fun close() {
+            tracerProvider.close()
+        }
+    }
+
+    private inline fun testTracing(block: (TestTracing) -> Unit) {
+        TestTracing().use(block)
+    }
+
+    companion object {
+        private val CORRELATION_PRESENT_KEY: AttributeKey<Boolean> = AttributeKey.booleanKey("correlation.present")
+        private val CORRELATION_ID_KEY: AttributeKey<String> = AttributeKey.stringKey("correlation.id")
     }
 }

@@ -9,12 +9,14 @@ import io.micrometer.core.instrument.MeterRegistry
  * ## Contract
  * - CallId and CallLogging are enabled by default.
  * - Micrometer is enabled only when [meterRegistry] is supplied.
+ * - OpenTelemetry tracing is installed only when [tracing] is supplied.
  * - Prometheus export is provided by route helpers, not by this installer.
  */
 class Bluetape4kKtorObservabilityConfig(
     val correlationId: CorrelationIdSettings = CorrelationIdSettings(),
     val callLogging: CallLoggingSettings = CallLoggingSettings(correlationId = correlationId),
     val meterRegistry: MeterRegistry? = null,
+    val tracing: KtorOpenTelemetryTracingConfig? = null,
     val installCorrelationId: Boolean = true,
     val installCallLogging: Boolean = true,
     val installMicrometerMetrics: Boolean = meterRegistry != null,
