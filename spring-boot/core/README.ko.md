@@ -26,14 +26,21 @@ Spring Boot 4.x 기반 공통 기능 통합 모듈입니다.
 
 - `RestClient` 코루틴 확장 (`suspendGet`, `suspendPost`, `suspendPut`, `suspendPatch`, `suspendDelete`)
 
-### Jackson 2 커스터마이저
+### Spring Boot Observability 헬퍼
+
+- 서비스, HTTP 핸들러, 이벤트 핸들러 코드 경로를 위한 `ObservationRegistry.observeSpring`
+- 코루틴 Observation scope 전파와 정리를 위한 `ObservationRegistry.observeSpringSuspending`
+- `SpringObservationKeyValues`를 통한 Micrometer low-cardinality/high-cardinality key value 그룹화
+- Prometheus와 OpenTelemetry export는 애플리케이션 소유의 Spring Boot Actuator 설정으로 유지
+
+### Jackson 3 커스터마이저
 
 - `jacksonObjectMapperBuilderCustomizer` DSL
 - KotlinModule, JsonUuidModule 자동 등록
 - 직렬화/역직렬화 기본 설정 제공
 
-> **주의**: Spring Boot 4는 내부적으로 Jackson 2(`com.fasterxml.jackson.*`)를 사용합니다.
-> Jackson 3은 지원되지 않습니다.
+> **주의**: Spring Boot 4는 Jackson 3을 기본으로 사용합니다. Jackson 2 지원은 마이그레이션 용도이며,
+> 새로운 Spring Boot 4 코드에서는 사용하지 않는 것을 권장합니다.
 
 ### Retrofit2 통합
 
@@ -168,6 +175,81 @@ class JacksonConfig {
 }
 ```
 
+### 서비스, HTTP 핸들러, 이벤트 코드 관측
+
+Spring Boot가 애플리케이션에 주입한 `ObservationRegistry`를 사용합니다. 이 헬퍼는 Micrometer Observation
+라이프사이클과 코루틴 scope 정리만 담당하며 exporter를 설치하거나 전역 OpenTelemetry SDK 상태를 바꾸지 않습니다.
+
+```kotlin
+import io.bluetape4k.spring.observability.SpringObservationKeyValues
+import io.bluetape4k.spring.observability.observeSpring
+import io.bluetape4k.spring.observability.observeSpringSuspending
+import io.micrometer.common.KeyValue
+import io.micrometer.common.KeyValues
+import io.micrometer.observation.ObservationRegistry
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.bodyValueAndAwait
+
+class OrderService(
+    private val observationRegistry: ObservationRegistry,
+) {
+    fun load(orderId: String): Order =
+        observationRegistry.observeSpring(
+            name = "order.service.load",
+            keyValues = SpringObservationKeyValues(
+                lowCardinality = KeyValues.of(KeyValue.of("component", "order-service")),
+            ),
+        ) { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("outcome", "success"))
+            repository.find(orderId)
+        }
+
+    suspend fun handleCreated(event: OrderCreated): Unit =
+        observationRegistry.observeSpringSuspending("order.events.consume") { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("event.name", "order.created"))
+            eventHandler.handle(event)
+        }
+}
+
+class OrderHandler(
+    private val observationRegistry: ObservationRegistry,
+    private val orderService: OrderService,
+) {
+    suspend fun get(request: ServerRequest): ServerResponse =
+        observationRegistry.observeSpringSuspending("order.http.get") { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("http.route", "/orders/{id}"))
+            val order = orderService.load(request.pathVariable("id"))
+            ServerResponse.ok().bodyValueAndAwait(order)
+        }
+}
+```
+
+Prometheus는 custom endpoint를 만들지 않고 Spring Boot Actuator endpoint로 노출합니다.
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      access: read_only
+```
+
+Tracing/export backend는 애플리케이션이 소유한 Spring Boot와 Micrometer Tracing 설정으로 연결합니다.
+
+```yaml
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+```
+
 ### WebTestClient 테스트
 
 ```kotlin
@@ -191,7 +273,8 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | `spring-boot-starter-webflux` | `api`         | WebFlux + Coroutines 필수 |
 | `bluetape4k-retrofit2`        | `api`         | Retrofit2 통합            |
 | `bluetape4k-coroutines`       | `api`         | Coroutines 지원           |
-| `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 지원            |
+| `bluetape4k-jackson3`         | `compileOnly` | Jackson 3 지원            |
+| `micrometer-observation`      | `compileOnly` | Observation 헬퍼 지원      |
 | `spring-boot-starter-web`     | `compileOnly` | 선택적 서블릿 지원              |
 | `resilience4j-*`              | `compileOnly` | 선택적 Resilience4j        |
 
