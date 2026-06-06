@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.executeSuspending
 import io.bluetape4k.http.hc5.async.httpAsyncClient
@@ -9,8 +10,8 @@ import io.bluetape4k.http.hc5.reactor.ioReactorConfig
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.runTest
+import org.apache.hc.client5.http.async.AsyncExecCallback
 import org.apache.hc.client5.http.async.AsyncExecChainHandler
 import org.apache.hc.client5.http.impl.ChainElement
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient
@@ -25,17 +26,20 @@ import org.apache.hc.core5.io.CloseMode
 import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
+import java.util.concurrent.CopyOnWriteArrayList
 
 class AsyncClientInterceptors: AbstractHc5Test() {
 
     companion object: KLoggingChannel() {
-        private val counter = atomic(0L)
+        private const val EXECUTION_ID_HEADER = "execution-id"
+        private const val REQUEST_ID_HEADER = "request-id"
     }
 
     @Test
     fun `request interceptor and execution interceptor`() = runTest {
-        val target = HttpHost(httpbinServer.host, httpbinServer.port)
-        val path = "/get"
+        val target = HttpHost("http", httpbinServer.host, httpbinServer.port)
+        val path = "/httpbin/get"
+        val events = CopyOnWriteArrayList<String>()
 
         val ioReactorConfig = ioReactorConfig {
             setSoTimeout(Timeout.ofSeconds(5))
@@ -44,45 +48,54 @@ class AsyncClientInterceptors: AbstractHc5Test() {
         val client: CloseableHttpAsyncClient = httpAsyncClient {
             setIOReactorConfig(ioReactorConfig)
 
-            // 각 요청에 간단한 request-id 헤더를 추가합니다.
-            addRequestInterceptorFirst(requestInterceptor())
+            // Request protocol interceptors run inside HttpAsyncMainClientExec, after custom exec interceptors.
+            addRequestInterceptorFirst(requestInterceptor(events))
 
-            // 일부 요청은 백엔드로 전달하지 않고 404 응답을 시뮬레이션합니다.
-
-            addExecInterceptorAfter(ChainElement.PROTOCOL.name, "custom", asyncExecChainHandler())
+            // Some requests are handled without reaching the backend.
+            addExecInterceptorAfter(ChainElement.PROTOCOL.name, "custom", asyncExecChainHandler(events))
         }
 
         client.start()
 
-        List(20) {
-            val request = simpleHttpRequestOf(Method.GET, target, path)
+        try {
+            val statuses = List(20) {
+                val executionId = (it + 1).toString()
+                val request = simpleHttpRequestOf(Method.GET, target, path)
+                request.setHeader(EXECUTION_ID_HEADER, executionId)
 
-            // FIXME: in coroutine mode, ExecInterceptorAfter runs before request interceptor.
-            val response = client.executeSuspending(request)
-            log.debug { "Response: $request -> ${StatusLine(response)}" }
-            log.debug { "Body: ${response.body}" }
+                val response = client.executeSuspending(request)
+                log.debug { "Response: $request -> ${StatusLine(response)}" }
+                log.debug { "Body: ${response.body}" }
+                response.code
+            }
+
+            statuses shouldBeEqualTo expectedStatuses()
+            events.toList() shouldBeEqualTo expectedEvents()
+        } finally {
+            log.debug { "Shutting down" }
+            client.close(CloseMode.GRACEFUL)
         }
-
-        log.debug { "Shutting down" }
-        client.close(CloseMode.GRACEFUL)
     }
 
-    private fun requestInterceptor(): HttpRequestInterceptor {
-        return HttpRequestInterceptor { request, entity, context ->
-            request.setHeader("request-id", counter.incrementAndGet().toString())
-            log.debug { "request-id = ${request.getFirstHeader("request-id")}" }
+    private fun requestInterceptor(events: MutableList<String>): HttpRequestInterceptor {
+        return HttpRequestInterceptor { request, _, _ ->
+            val executionId = request.getFirstHeader(EXECUTION_ID_HEADER)?.value ?: "missing"
+            events.add("request:$executionId")
+            request.setHeader(REQUEST_ID_HEADER, "request-$executionId")
+            log.debug { "request-id = ${request.getFirstHeader(REQUEST_ID_HEADER)}" }
         }
     }
 
-    // 일부 요청은 백엔드로 전달하지 않고 404 응답을 시뮬레이션합니다.
-    // FIXME: why does this run before request interceptor?
-
-    private fun asyncExecChainHandler(): AsyncExecChainHandler {
+    private fun asyncExecChainHandler(
+        events: MutableList<String>,
+    ): AsyncExecChainHandler {
         return AsyncExecChainHandler { request, entityProducer, scope, chain, asyncExecCallback ->
             log.debug { "AsyncExecChainHandler request=$request" }
-            val idHeader = request.getFirstHeader("request-id")
-            log.debug { "idHeader=${idHeader?.value}" }
-            if (idHeader?.value == "13") {
+            val executionId = request.getFirstHeader(EXECUTION_ID_HEADER)?.value ?: "missing"
+            events.add("exec-before:$executionId:${request.getFirstHeader(REQUEST_ID_HEADER)?.value ?: "missing"}")
+            log.debug { "executionId=$executionId" }
+            if (executionId == "13") {
+                events.add("exec-short-circuit:$executionId")
                 val response = BasicHttpResponse(HttpStatus.SC_NOT_FOUND, "Oppsie")
                 val content = ByteBuffer.wrap("bad luck".toUtf8Bytes())
                 val asyncDataConsumer = asyncExecCallback.handleResponse(
@@ -91,9 +104,43 @@ class AsyncClientInterceptors: AbstractHc5Test() {
                 )
                 asyncDataConsumer.consume(content)
                 asyncDataConsumer.streamEnd(null)
+                asyncExecCallback.completed()
             } else {
-                chain.proceed(request, entityProducer, scope, asyncExecCallback)
+                chain.proceed(
+                    request,
+                    entityProducer,
+                    scope,
+                    object: AsyncExecCallback by asyncExecCallback {
+                        override fun completed() {
+                            events.add(
+                                "exec-after:$executionId:${request.getFirstHeader(REQUEST_ID_HEADER)?.value ?: "missing"}"
+                            )
+                            asyncExecCallback.completed()
+                        }
+                    }
+                )
             }
         }
     }
+
+    private fun expectedStatuses(): List<Int> =
+        (1..20).map { executionId ->
+            if (executionId == 13) HttpStatus.SC_NOT_FOUND else HttpStatus.SC_OK
+        }
+
+    private fun expectedEvents(): List<String> =
+        (1..20).flatMap { executionId ->
+            if (executionId == 13) {
+                listOf(
+                    "exec-before:$executionId:missing",
+                    "exec-short-circuit:$executionId",
+                )
+            } else {
+                listOf(
+                    "exec-before:$executionId:missing",
+                    "request:$executionId",
+                    "exec-after:$executionId:request-$executionId",
+                )
+            }
+        }
 }
