@@ -212,7 +212,7 @@ jobs:
 
       - name: Publish to Central Portal
         run: >
-          ./gradlew publishAggregationToCentralPortal
+          ./gradlew nmcpPublishAggregationToCentralPortal
           --no-daemon
           --no-configuration-cache
           --no-build-cache
