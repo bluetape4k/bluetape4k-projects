@@ -3,7 +3,7 @@ package io.bluetape4k.concurrent.virtualthread
 import java.util.concurrent.CompletableFuture
 
 /**
- * 지정한 block을 Virtual Threads 를 이용하여 비동기로 실행하고, [CompletableFuture]를 반환합니다.
+ * Runs [block] asynchronously on the shared virtual-thread executor and returns a [CompletableFuture].
  *
  * ```kotlin
  * val future: CompletableFuture<Int> = virtualFutureOf {
@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture
  * val result = future.get() // 42
  * ```
  *
- * @param V 작업 결과 타입
- * @param block 비동기로 수행할 작업
- * @return Virtual Thread 위에서 [block]을 실행하는 [CompletableFuture] 인스턴스
+ * @param V result type.
+ * @param block work to run on a virtual thread.
+ * @return a [CompletableFuture] completed with [block]'s result.
  */
 inline fun <V: Any> virtualFutureOf(
     crossinline block: () -> V,
@@ -23,7 +23,7 @@ inline fun <V: Any> virtualFutureOf(
     CompletableFuture.supplyAsync({ block() }, VirtualThreadExecutor)
 
 /**
- * 지정한 block을 Virtual Threads 를 이용하여 비동기로 실행하고, nullable 결과를 허용하는 [CompletableFuture]를 반환합니다.
+ * Runs [block] asynchronously on the shared virtual-thread executor and returns a nullable [CompletableFuture].
  *
  * ```kotlin
  * val future: CompletableFuture<Int?> = virtualFutureOfNullable {
@@ -33,9 +33,9 @@ inline fun <V: Any> virtualFutureOf(
  * val result = future.get() // null 또는 42
  * ```
  *
- * @param V 작업 결과 타입 (nullable 허용)
- * @param block 비동기로 수행할 작업
- * @return Virtual Thread 위에서 [block]을 실행하는 [CompletableFuture] 인스턴스
+ * @param V result type.
+ * @param block work to run on a virtual thread.
+ * @return a [CompletableFuture] completed with [block]'s nullable result.
  */
 inline fun <V> virtualFutureOfNullable(
     crossinline block: () -> V?,
