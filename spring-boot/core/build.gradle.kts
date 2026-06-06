@@ -64,7 +64,11 @@ dependencies {
     compileOnly(libs.resilience4j.reactor)
 
     compileOnly(libs.micrometer.core)
+    compileOnly(libs.micrometer.observation)
+    compileOnly(libs.micrometer.context.propagation)
     testImplementation(libs.micrometer.core)
+    testImplementation(libs.micrometer.observation)
+    testImplementation(libs.micrometer.observation.test)
     testImplementation(libs.micrometer.registry.prometheus)
 
     compileOnly(libs.hibernate.validator)

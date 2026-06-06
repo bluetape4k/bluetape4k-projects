@@ -26,13 +26,21 @@ A unified module providing common features for Spring Boot 4.x applications.
 
 - `RestClient` coroutine extensions (`suspendGet`, `suspendPost`, `suspendPut`, `suspendPatch`, `suspendDelete`)
 
-### Jackson 2 Customizer
+### Spring Boot Observability Helpers
+
+- `ObservationRegistry.observeSpring` for service, HTTP handler, and event handler code paths
+- `ObservationRegistry.observeSpringSuspending` for coroutine-aware observation scope propagation
+- Low-cardinality and high-cardinality Micrometer key value grouping through `SpringObservationKeyValues`
+- Prometheus and OpenTelemetry export remain application-owned Spring Boot Actuator configuration
+
+### Jackson 3 Customizer
 
 - `jacksonObjectMapperBuilderCustomizer` DSL
 - Auto-registration of KotlinModule and JsonUuidModule
 - Default serialization/deserialization configuration
 
-> **Note**: Spring Boot 4 uses Jackson 2 (`com.fasterxml.jackson.*`) internally. Jackson 3 is not supported.
+> **Note**: Spring Boot 4 uses Jackson 3 by default. Jackson 2 support is for migration only and should not be
+> used for new Spring Boot 4 code.
 
 ### Retrofit2 Integration
 
@@ -167,6 +175,81 @@ class JacksonConfig {
 }
 ```
 
+### Observing Service, HTTP Handler, and Event Code
+
+Use the `ObservationRegistry` that Spring Boot wires for the application. The helpers only manage Micrometer
+Observation lifecycle and coroutine scope cleanup; they do not install exporters or mutate global OpenTelemetry SDK state.
+
+```kotlin
+import io.bluetape4k.spring.observability.SpringObservationKeyValues
+import io.bluetape4k.spring.observability.observeSpring
+import io.bluetape4k.spring.observability.observeSpringSuspending
+import io.micrometer.common.KeyValue
+import io.micrometer.common.KeyValues
+import io.micrometer.observation.ObservationRegistry
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.bodyValueAndAwait
+
+class OrderService(
+    private val observationRegistry: ObservationRegistry,
+) {
+    fun load(orderId: String): Order =
+        observationRegistry.observeSpring(
+            name = "order.service.load",
+            keyValues = SpringObservationKeyValues(
+                lowCardinality = KeyValues.of(KeyValue.of("component", "order-service")),
+            ),
+        ) { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("outcome", "success"))
+            repository.find(orderId)
+        }
+
+    suspend fun handleCreated(event: OrderCreated): Unit =
+        observationRegistry.observeSpringSuspending("order.events.consume") { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("event.name", "order.created"))
+            eventHandler.handle(event)
+        }
+}
+
+class OrderHandler(
+    private val observationRegistry: ObservationRegistry,
+    private val orderService: OrderService,
+) {
+    suspend fun get(request: ServerRequest): ServerResponse =
+        observationRegistry.observeSpringSuspending("order.http.get") { context ->
+            context.addLowCardinalityKeyValue(KeyValue.of("http.route", "/orders/{id}"))
+            val order = orderService.load(request.pathVariable("id"))
+            ServerResponse.ok().bodyValueAndAwait(order)
+        }
+}
+```
+
+Expose Prometheus through Spring Boot Actuator instead of registering a custom endpoint:
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      access: read_only
+```
+
+Configure tracing/export backends with Spring Boot and Micrometer Tracing properties owned by the application:
+
+```yaml
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+```
+
 ### WebTestClient Test
 
 ```kotlin
@@ -190,7 +273,8 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | `spring-boot-starter-webflux` | `api`         | Required for WebFlux + Coroutines |
 | `bluetape4k-retrofit2`        | `api`         | Retrofit2 integration             |
 | `bluetape4k-coroutines`       | `api`         | Coroutines support                |
-| `bluetape4k-jackson2`         | `compileOnly` | Jackson 2 support                 |
+| `bluetape4k-jackson3`         | `compileOnly` | Jackson 3 support                 |
+| `micrometer-observation`      | `compileOnly` | Observation helper support        |
 | `spring-boot-starter-web`     | `compileOnly` | Optional servlet support          |
 | `resilience4j-*`              | `compileOnly` | Optional Resilience4j             |
 
