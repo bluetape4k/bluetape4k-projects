@@ -286,6 +286,7 @@ abstract class AbstractNearJCacheTest {
         nearJCache1.remove(key, oldValue).shouldBeTrue()
         await atMost (awaitTimeout) untilNull { nearJCache2[key] }
 
+        backCache.containsKey(key).shouldBeFalse()
         nearJCache1.containsKey(key).shouldBeFalse()
         nearJCache2.containsKey(key).shouldBeFalse()
 
@@ -299,6 +300,7 @@ abstract class AbstractNearJCacheTest {
         nearJCache1.remove(key, oldValue).shouldBeTrue()
         await atMost (awaitTimeout) untilNull { nearJCache2[key] }
 
+        backCache.containsKey(key).shouldBeFalse()
         nearJCache1[key].shouldBeNull()
         nearJCache2[key].shouldBeNull()
 
@@ -307,8 +309,23 @@ abstract class AbstractNearJCacheTest {
         nearJCache1.remove(key, newValue).shouldBeFalse()
         await atMost (awaitTimeout) until { nearJCache2[key] == oldValue }
 
+        backCache[key] shouldBeEqualTo oldValue
         nearJCache1[key] shouldBeEqualTo oldValue
         nearJCache2[key] shouldBeEqualTo oldValue
+    }
+
+    @RepeatedTest(TEST_SIZE)
+    fun `remove with value - missing key keeps front and back caches empty`() {
+        val key = randomKey()
+        val oldValue = randomValue()
+
+        nearJCache1.remove(key, oldValue).shouldBeFalse()
+
+        backCache.containsKey(key).shouldBeFalse()
+        nearJCache1.containsKey(key).shouldBeFalse()
+        nearJCache2.containsKey(key).shouldBeFalse()
+        nearJCache1[key].shouldBeNull()
+        nearJCache2[key].shouldBeNull()
     }
 
     @RepeatedTest(TEST_SIZE)

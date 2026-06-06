@@ -236,8 +236,7 @@ class NearJCache<K: Any, V: Any>(
         frontCache.remove(key, oldValue).also {
             if (it) {
                 syncBackCache {
-                    // TODO: 왜  backCache.remove(key, oldValue) 를 직접 사용하지 않았는지 이유를 기록해야 한다
-                    // NOTE: 아마 remove(key, oldValue) 는 event 를 발생시키지 않아서 직접 remove를 수행하도록 하는 걸로 추측한다
+                    // Back cache listener 전파를 remove(key) 경로로 통일하기 위해 값 비교 후 단일 키 삭제를 사용한다.
                     if (backCache.containsKey(key) && backCache.get(key) == oldValue) {
                         backCache.remove(key)
                     }
