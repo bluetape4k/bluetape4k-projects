@@ -68,10 +68,24 @@ jobs:
             )
           fi
 
+          if [[ -f examples/ktor/observability-ktor-demo/build.gradle.kts ]]; then
+            tasks+=(
+              :observability-ktor-demo:compileKotlin
+              :observability-ktor-demo:test
+            )
+          fi
+
           if [[ -f examples/spring-boot/idgenerator-spring-boot-demo/build.gradle.kts ]]; then
             tasks+=(
               :idgenerator-spring-boot-demo:compileKotlin
               :idgenerator-spring-boot-demo:test
+            )
+          fi
+
+          if [[ -f examples/spring-boot/observability-spring-boot-demo/build.gradle.kts ]]; then
+            tasks+=(
+              :observability-spring-boot-demo:compileKotlin
+              :observability-spring-boot-demo:test
             )
           fi
 
@@ -89,5 +103,7 @@ jobs:
             examples/**/build/reports/tests/test/**
             examples/spring-boot/idgenerator-spring-boot-demo/build/test-results/test/**
             examples/spring-boot/idgenerator-spring-boot-demo/build/reports/tests/test/**
+            examples/spring-boot/observability-spring-boot-demo/build/test-results/test/**
+            examples/spring-boot/observability-spring-boot-demo/build/reports/tests/test/**
           if-no-files-found: ignore
           retention-days: 14

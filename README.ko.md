@@ -171,6 +171,7 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
 - **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.ko.md)**: Hibernate Lettuce NearCache + Spring MVC 통합 데모
 - **[idgenerator-spring-boot-demo](./examples/spring-boot/idgenerator-spring-boot-demo/README.ko.md)**: `bluetape4k-idgenerators` Spring Boot REST 예제
+- **[observability-spring-boot-demo](./examples/spring-boot/observability-spring-boot-demo/README.ko.md)**: Spring Boot 4 Actuator Prometheus와 OTLP observability 예제
 - **[mongodb](./spring-boot/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.ko.md)**: Spring Data R2DBC 코루틴 확장
 
@@ -254,6 +255,8 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 - **[jpa-blazepersistence-demo](./examples/jpa-blazepersistence-demo/README.ko.md)**: JPA + Blaze Persistence 사용 예제
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.ko.md)**: JPA + QueryDSL 사용 예제
 - **[idgenerator-ktor-demo](./examples/ktor/idgenerator-ktor-demo/README.ko.md)**: `bluetape4k-idgenerators` Ktor HTTP 예제
+- **[observability-ktor-demo](./examples/ktor/observability-ktor-demo/README.ko.md)**: Ktor Prometheus `/metrics`와 opt-in OpenTelemetry tracing 예제
+- **[observability-spring-boot-demo](./examples/spring-boot/observability-spring-boot-demo/README.ko.md)**: Spring Boot 4 Actuator Prometheus와 OTLP observability 예제
 - **[redisson-demo](./examples/redisson-demo/README.ko.md)**: Redisson 사용 예제
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.ko.md)**: Java Virtual Thread 사용 예제
 
