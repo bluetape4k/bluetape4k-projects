@@ -316,7 +316,7 @@ Jib으로 Mock Server Docker 이미지를 다시 빌드할 때는 Gradle configu
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.9.1
+baseVersion=1.11.0
 snapshotVersion=
 ```
 
@@ -324,13 +324,13 @@ snapshotVersion=
 
 ```bash
 # 기본 병렬도(centralSnapshotsParallelism=8)로 SNAPSHOT 배포
-./gradlew publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
 
 # 병렬도를 낮춰 서버 부담을 줄이고 싶을 때
-./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew -PcentralSnapshotsParallelism=4 nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
 ```
 
-- 루트 집계 task는 `publishAggregationToCentralSnapshots` 입니다.
+- 루트 집계 task는 `nmcpPublishAggregationToCentralPortalSnapshots` 입니다.
 - SNAPSHOT 배포는 release 와 달리 ZIP 1회 업로드가 아니라 file-by-file 업로드를 수행합니다.
 - 따라서 모듈 수가 많을수록 `PUT` 요청이 많이 발생하는 것이 정상입니다.
 - 업로드 대상은 `workshop/**`, `examples/**`, `-demo` 모듈을 제외한 publishable modules 입니다.
@@ -341,10 +341,10 @@ snapshotVersion=
 
 ```bash
 # snapshotVersion이 비어 있는 커밋에서 RELEASE 배포
-./gradlew publishAggregationToCentralPortal --no-daemon --no-configuration-cache
+./gradlew nmcpPublishAggregationToCentralPortal --no-daemon --no-configuration-cache
 ```
 
-- 루트 집계 task는 `publishAggregationToCentralPortal` 입니다.
+- 루트 집계 task는 `nmcpPublishAggregationToCentralPortal` 입니다.
 - RELEASE 배포는 NMCP aggregation ZIP 을 만들어 Central Portal Publisher API 로 업로드합니다.
 - SNAPSHOT과 달리 artifact 파일들을 개별 `PUT` 하지 않으므로 요청 수가 훨씬 적습니다.
 - 업로드 대상은 `workshop/**`, `examples/**`, `-demo` 모듈을 제외한 publishable modules 입니다.
@@ -373,9 +373,8 @@ centralSnapshotsParallelism=8
 
 ### 참고
 
-- 기존 `publishAggregationToCentralPortalSnapshots` 는 deprecated alias 이며,
-  `publishAggregationToCentralSnapshots` 사용을 권장합니다.
-- `publishAllPublicationsToCentralPortalSnapshots` / `publishAllPublicationsToCentralSnapshots` 같은 개별 task 직접 실행 대신 루트 집계 task 사용을 권장합니다.
+- `publishAggregationToCentralSnapshots`, `publishAggregationToCentralPortal`, `publishAggregationToCentralPortalSnapshots` 같은 하위 호환 task가 `./gradlew tasks`에 남아 있을 수 있지만, 위의 `nmcpPublishAggregation*` 루트 task 사용을 권장합니다.
+- `nmcpPublishAllPublicationsToCentralPortalSnapshots`, `publishAllPublicationsToCentralPortalSnapshots`, `publishAllPublicationsToCentralSnapshots` 같은 개별 task 직접 실행 대신 루트 집계 task 사용을 권장합니다.
 - SNAPSHOT이 느리거나 요청이 과도해 보이면 `centralSnapshotsParallelism` 값을 `4`, `8`, `12` 정도 범위에서 조절해 보세요.
 - RELEASE는 aggregation ZIP 업로드 경로를 사용하므로 SNAPSHOT과 동작 방식이 다릅니다.
 

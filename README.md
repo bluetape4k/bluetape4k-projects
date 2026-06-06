@@ -315,7 +315,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=1.9.2
+baseVersion=1.11.0
 snapshotVersion=
 ```
 
@@ -323,13 +323,13 @@ snapshotVersion=
 
 ```bash
 # Publish a SNAPSHOT with default parallelism (centralSnapshotsParallelism=8)
-./gradlew publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
 
 # Reduce parallelism to lower server load
-./gradlew -PcentralSnapshotsParallelism=4 publishAggregationToCentralSnapshots -PsnapshotVersion=-SNAPSHOT
+./gradlew -PcentralSnapshotsParallelism=4 nmcpPublishAggregationToCentralPortalSnapshots -PsnapshotVersion=-SNAPSHOT
 ```
 
-- The root aggregation task is `publishAggregationToCentralSnapshots`.
+- The root aggregation task is `nmcpPublishAggregationToCentralPortalSnapshots`.
 - Unlike a RELEASE, SNAPSHOTs are uploaded file-by-file (not as a single ZIP), so many `PUT` requests are expected for large module counts.
 - Publishable targets exclude `workshop/**`, `examples/**`, and `-demo` modules.
 - Snapshot repository: `https://central.sonatype.com/repository/maven-snapshots/`
@@ -339,10 +339,10 @@ snapshotVersion=
 
 ```bash
 # Publish a RELEASE from a commit where snapshotVersion is empty
-./gradlew publishAggregationToCentralPortal --no-daemon --no-configuration-cache
+./gradlew nmcpPublishAggregationToCentralPortal --no-daemon --no-configuration-cache
 ```
 
-- The root aggregation task is `publishAggregationToCentralPortal`.
+- The root aggregation task is `nmcpPublishAggregationToCentralPortal`.
 - RELEASE publishing creates an NMCP aggregation ZIP and uploads it via the Central Portal Publisher API — far fewer requests than a SNAPSHOT.
 - Publishable targets exclude `workshop/**`, `examples/**`, and `-demo` modules.
 - The same RELEASE version cannot be republished; bump `baseVersion` before retrying after a failure.
@@ -370,8 +370,8 @@ centralSnapshotsParallelism=8
 
 ### Notes
 
-- `publishAggregationToCentralPortalSnapshots` is a deprecated alias — prefer `publishAggregationToCentralSnapshots`.
-- Use the root aggregation task rather than running individual tasks like `publishAllPublicationsToCentralPortalSnapshots` or `publishAllPublicationsToCentralSnapshots` directly.
+- Legacy compatibility tasks such as `publishAggregationToCentralSnapshots`, `publishAggregationToCentralPortal`, and `publishAggregationToCentralPortalSnapshots` may still appear in `./gradlew tasks`; prefer the `nmcpPublishAggregation*` root tasks above.
+- Use the root aggregation task rather than running individual tasks like `nmcpPublishAllPublicationsToCentralPortalSnapshots`, `publishAllPublicationsToCentralPortalSnapshots`, or `publishAllPublicationsToCentralSnapshots` directly.
 - If SNAPSHOTs are slow or generating too many requests, tune `centralSnapshotsParallelism` in the range of `4`–`12`.
 - RELEASE uses an aggregation ZIP upload path, so its behavior differs from SNAPSHOT.
 

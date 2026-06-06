@@ -643,7 +643,7 @@ subprojects {
 
         ```bash
         $ ./gradlew clean build
-        $ ./gradlew publishAggregationToCentralPortal
+        $ ./gradlew nmcpPublishAggregationToCentralPortal
         ```
      */
     publishing {
