@@ -320,8 +320,14 @@ jobs:
           if grep -q -- "--- Project ':idgenerator-ktor-demo'" <<< "$projects"; then
             excluded_tasks+=(-x :idgenerator-ktor-demo:build)
           fi
+          if grep -q -- "--- Project ':observability-ktor-demo'" <<< "$projects"; then
+            excluded_tasks+=(-x :observability-ktor-demo:build)
+          fi
           if grep -q -- "--- Project ':idgenerator-spring-boot-demo'" <<< "$projects"; then
             excluded_tasks+=(-x :idgenerator-spring-boot-demo:build)
+          fi
+          if grep -q -- "--- Project ':observability-spring-boot-demo'" <<< "$projects"; then
+            excluded_tasks+=(-x :observability-spring-boot-demo:build)
           fi
 
           for attempt in 1 2 3; do

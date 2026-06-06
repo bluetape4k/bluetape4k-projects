@@ -168,6 +168,7 @@ versionless `spring-boot/*` modules publish the current Spring Boot 4 artifacts.
 - **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
 - **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.md)**: Hibernate Lettuce NearCache + Spring MVC integration demo
 - **[idgenerator-spring-boot-demo](./examples/spring-boot/idgenerator-spring-boot-demo/README.md)**: Spring Boot REST demo for `bluetape4k-idgenerators`
+- **[observability-spring-boot-demo](./examples/spring-boot/observability-spring-boot-demo/README.md)**: Spring Boot 4 Actuator Prometheus and OTLP observability demo
 - **[mongodb](./spring-boot/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
 - **[r2dbc](./spring-boot/r2dbc/README.md)**: Spring Data R2DBC with Coroutines extensions
 
@@ -253,6 +254,8 @@ Demonstration modules showing library usage. Not published to Maven.
 - **[jpa-blazepersistence-demo](./examples/jpa-blazepersistence-demo/README.md)**: JPA + Blaze Persistence usage examples
 - **[jpa-querydsl-demo](./examples/jpa-querydsl-demo/README.md)**: JPA + QueryDSL usage examples
 - **[idgenerator-ktor-demo](./examples/ktor/idgenerator-ktor-demo/README.md)**: Ktor HTTP example for `bluetape4k-idgenerators`
+- **[observability-ktor-demo](./examples/ktor/observability-ktor-demo/README.md)**: Ktor Prometheus `/metrics` and opt-in OpenTelemetry tracing example
+- **[observability-spring-boot-demo](./examples/spring-boot/observability-spring-boot-demo/README.md)**: Spring Boot 4 Actuator Prometheus and OTLP observability example
 - **[redisson-demo](./examples/redisson-demo/README.md)**: Redisson usage examples
 - **[virtualthreads-demo](./examples/virtualthreads-demo/README.md)**: Java Virtual Thread usage examples
 
