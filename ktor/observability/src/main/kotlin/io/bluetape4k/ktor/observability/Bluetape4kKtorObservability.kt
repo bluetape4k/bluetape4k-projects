@@ -13,6 +13,7 @@ import io.ktor.server.plugins.calllogging.CallLogging
  * - Plugin installation is explicit and application-owned.
  * - Correlation IDs are sanitized before MDC or response propagation.
  * - Micrometer metrics are installed only when a [Bluetape4kKtorObservabilityConfig.meterRegistry] is provided.
+ * - OpenTelemetry tracing is installed only when a [Bluetape4kKtorObservabilityConfig.tracing] config is provided.
  *
  * ```kotlin
  * fun Application.module(registry: MeterRegistry) {
@@ -25,6 +26,8 @@ import io.ktor.server.plugins.calllogging.CallLogging
 fun Application.installBluetape4kKtorObservability(
     config: Bluetape4kKtorObservabilityConfig = Bluetape4kKtorObservabilityConfig(),
 ) {
+    config.tracing?.let(::installBluetape4kKtorOpenTelemetryTracing)
+
     if (config.installCorrelationId) {
         install(CallId) {
             bluetape4kCorrelationIds(config.correlationId)
