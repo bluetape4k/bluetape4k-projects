@@ -10,6 +10,7 @@ This module extends [Micrometer](https://micrometer.io/) and Spring Boot's Obser
 
 - **Timer extensions**: Measure execution time for suspend functions and Kotlin Flow
 - **Observation extensions**: Observation support in coroutine contexts
+- **Event telemetry helpers**: Consistent Observation wrappers for event publish and consume paths
 - **Retrofit2 metrics**: Automatic metric collection for HTTP client calls
 - **Cache2k metrics**: Cache performance metric collection
 - **KeyValue utilities**: Extension functions for creating Micrometer KeyValues
@@ -148,7 +149,77 @@ val simpleRegistry = simpleObservationRegistryOf { ctx ->
 }
 ```
 
-### 3. Retrofit2 Metrics
+### 3. Event Telemetry Helpers
+
+`observeEventPublish` and `observeEventConsume` apply the shared event telemetry contract from the 1.11 observability work:
+
+- Observation names: `event.publish`, `event.consume`
+- Low-cardinality keys: `event.operation`, `messaging.system`, `messaging.destination.name`, `event.type`,
+  `correlation.present`, `messaging.batch.message_count`, and `outcome`
+- High-cardinality keys: sanitized correlation ID, message ID, conversation ID, operation ID, or explicit custom keys
+- Cancellation is rethrown and tagged as `outcome=CANCELLED` without calling `Observation.error`
+
+#### Spring Application Event Handler
+
+```kotlin
+import io.bluetape4k.micrometer.observation.events.EventCorrelation
+import io.bluetape4k.micrometer.observation.events.EventDestination
+import io.bluetape4k.micrometer.observation.events.EventTelemetry
+import io.bluetape4k.micrometer.observation.events.observeEventConsume
+
+class OrderEventHandler(
+    private val observationRegistry: ObservationRegistry,
+) {
+    fun onOrderCreated(event: OrderCreatedEvent) {
+        observationRegistry.observeEventConsume(
+            EventTelemetry(
+                destination = EventDestination.spring("application-events"),
+                eventType = "OrderCreated",
+                correlation = EventCorrelation.present,
+            ),
+        ) {
+            process(event)
+        }
+    }
+}
+```
+
+#### Kafka-Style Publish Path
+
+```kotlin
+import io.bluetape4k.micrometer.observation.events.EventCorrelation
+import io.bluetape4k.micrometer.observation.events.EventDestination
+import io.bluetape4k.micrometer.observation.events.EventHighCardinality
+import io.bluetape4k.micrometer.observation.events.EventTelemetry
+import io.bluetape4k.micrometer.observation.events.sanitizeEventCorrelationId
+import io.bluetape4k.micrometer.observation.events.observeEventPublish
+
+val rawCorrelationId = request.headers["X-Correlation-Id"]
+val correlationId = sanitizeEventCorrelationId(rawCorrelationId)
+
+correlationId?.let { headers["X-Correlation-Id"] = it }
+
+observationRegistry.observeEventPublish(
+    EventTelemetry(
+        destination = EventDestination("kafka", "orders"),
+        eventType = "OrderCreated",
+        correlation = EventCorrelation.sanitized(rawCorrelationId, includeHighCardinalityId = true),
+        highCardinality = EventHighCardinality(messageId = messageId),
+    ),
+) {
+    kafkaTemplate.send("orders", payload, headers)
+}
+```
+
+Safe defaults deliberately avoid payloads, raw headers, exception messages, PII, secrets, query strings, and temporary destination names.
+Only pass bounded event types and stable destination names as low-cardinality values. Opt into high-cardinality identifiers only after sanitizing
+them and only when the backend can handle the additional series.
+
+#### Event Telemetry Sequence
+
+![Event Telemetry Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-03.png)
+
+### 4. Retrofit2 Metrics
 
 Automatically collects execution time and outcomes for Retrofit2 HTTP calls.
 
@@ -196,7 +267,7 @@ The following percentiles are automatically collected: 50%, 70%, 90%, 95%, 97%, 
   `exception=<exception type>`.
 - Retry calls created with `Call.clone()` retain the instrumentation wrapper, so the same metric policy applies.
 
-### 4. Cache2k Metrics
+### 5. Cache2k Metrics
 
 Exposes Cache2k cache performance metrics to Micrometer.
 
@@ -229,7 +300,7 @@ Cache2kCacheMetrics.monitor(registry, cache, tags)
 | `cache.load`              | FunctionCounter | Load success/failure count         |
 | `cache.expired.count`     | FunctionCounter | Expired entry count                |
 
-### 5. KeyValue Utilities
+### 6. KeyValue Utilities
 
 Extension functions for creating Micrometer KeyValues.
 
