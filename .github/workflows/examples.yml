@@ -5,38 +5,12 @@ on:
     branches: [develop, main]
     paths:
       - 'examples/**'
-      - 'examples/spring-boot/idgenerator-spring-boot-demo/**'
-      - 'settings.gradle.kts'
-      - 'build.gradle.kts'
-      - 'buildSrc/**'
-      - 'gradle/**'
-      - 'gradle.properties'
       - '.github/workflows/examples.yml'
-      - 'utils/idgenerators/**'
-      - 'bluetape4k/**'
-      - 'io/**'
-      - 'ktor/**'
-      - 'infra/**'
-      - 'cache/**'
-      - 'virtualthread/**'
   push:
     branches: [develop]
     paths:
       - 'examples/**'
-      - 'examples/spring-boot/idgenerator-spring-boot-demo/**'
-      - 'settings.gradle.kts'
-      - 'build.gradle.kts'
-      - 'buildSrc/**'
-      - 'gradle/**'
-      - 'gradle.properties'
       - '.github/workflows/examples.yml'
-      - 'utils/idgenerators/**'
-      - 'bluetape4k/**'
-      - 'io/**'
-      - 'ktor/**'
-      - 'infra/**'
-      - 'cache/**'
-      - 'virtualthread/**'
   workflow_dispatch:
 
 permissions:
