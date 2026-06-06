@@ -10,6 +10,7 @@ Micrometer와 Observation API를 활용한 애플리케이션 성능 측정 및 
 
 - **Timer 확장**: Suspend 함수 및 Kotlin Flow에 대한 실행 시간 측정
 - **Observation 확장**: Coroutine 환경에서의 관찰 기능 지원
+- **Event telemetry 헬퍼**: 이벤트 발행/소비 경로에 일관된 Observation 래퍼 제공
 - **Retrofit2 메트릭**: HTTP 클라이언트 호출 메트릭 자동 수집
 - **Cache2k 메트릭**: 캐시 성능 메트릭 수집
 - **KeyValue 유틸리티**: Micrometer KeyValue 생성을 위한 확장 함수
@@ -145,7 +146,76 @@ val simpleRegistry = simpleObservationRegistryOf { ctx ->
 }
 ```
 
-### 3. Retrofit2 메트릭
+### 3. Event Telemetry 헬퍼
+
+`observeEventPublish` 와 `observeEventConsume` 는 1.11 관찰성 작업의 공통 이벤트 텔레메트리 계약을 적용합니다:
+
+- Observation 이름: `event.publish`, `event.consume`
+- Low-cardinality 키: `event.operation`, `messaging.system`, `messaging.destination.name`, `event.type`,
+  `correlation.present`, `messaging.batch.message_count`, `outcome`
+- High-cardinality 키: sanitize 된 correlation ID, message ID, conversation ID, operation ID, 명시적 custom 키
+- Cancellation 은 다시 던지고 `outcome=CANCELLED` 로 태깅하지만 `Observation.error` 로 기록하지 않음
+
+#### Spring Application Event Handler
+
+```kotlin
+import io.bluetape4k.micrometer.observation.events.EventCorrelation
+import io.bluetape4k.micrometer.observation.events.EventDestination
+import io.bluetape4k.micrometer.observation.events.EventTelemetry
+import io.bluetape4k.micrometer.observation.events.observeEventConsume
+
+class OrderEventHandler(
+    private val observationRegistry: ObservationRegistry,
+) {
+    fun onOrderCreated(event: OrderCreatedEvent) {
+        observationRegistry.observeEventConsume(
+            EventTelemetry(
+                destination = EventDestination.spring("application-events"),
+                eventType = "OrderCreated",
+                correlation = EventCorrelation.present,
+            ),
+        ) {
+            process(event)
+        }
+    }
+}
+```
+
+#### Kafka 스타일 발행 경로
+
+```kotlin
+import io.bluetape4k.micrometer.observation.events.EventCorrelation
+import io.bluetape4k.micrometer.observation.events.EventDestination
+import io.bluetape4k.micrometer.observation.events.EventHighCardinality
+import io.bluetape4k.micrometer.observation.events.EventTelemetry
+import io.bluetape4k.micrometer.observation.events.sanitizeEventCorrelationId
+import io.bluetape4k.micrometer.observation.events.observeEventPublish
+
+val rawCorrelationId = request.headers["X-Correlation-Id"]
+val correlationId = sanitizeEventCorrelationId(rawCorrelationId)
+
+correlationId?.let { headers["X-Correlation-Id"] = it }
+
+observationRegistry.observeEventPublish(
+    EventTelemetry(
+        destination = EventDestination("kafka", "orders"),
+        eventType = "OrderCreated",
+        correlation = EventCorrelation.sanitized(rawCorrelationId, includeHighCardinalityId = true),
+        highCardinality = EventHighCardinality(messageId = messageId),
+    ),
+) {
+    kafkaTemplate.send("orders", payload, headers)
+}
+```
+
+기본값은 payload, raw header, exception message, PII, secret, query string, 임시 destination 이름을 기록하지 않도록 설계되어 있습니다.
+Low-cardinality 값에는 bounded event type 과 안정적인 destination 이름만 넣고, high-cardinality 식별자는 sanitize 후 backend 가 추가 series 를 감당할 수 있을 때만 명시적으로 사용하세요.
+
+#### Event Telemetry Sequence
+
+![Event Telemetry Sequence diagram](../../docs/images/readme-diagrams/infra-micrometer-sequence-03.png)
+
+### 4. Retrofit2 메트릭
 
 Retrofit2 HTTP 호출의 실행 시간과 결과를 자동으로 수집합니다.
 
@@ -192,7 +262,7 @@ val users = apiService.getUsers().execute()
 - HTTP 응답이 없는 전송 예외는 `outcome=UNKNOWN`, `status_code=IO_ERROR`, `exception=<예외 타입>` 태그로 기록됩니다.
 - `Call.clone()` 으로 생성한 재시도 호출도 계측 래퍼를 유지하므로 동일한 메트릭 정책이 적용됩니다.
 
-### 4. Cache2k 메트릭
+### 5. Cache2k 메트릭
 
 Cache2k 캐시의 성능 메트릭을 Micrometer에 노출합니다.
 
@@ -225,7 +295,7 @@ Cache2kCacheMetrics.monitor(registry, cache, tags)
 | `cache.load`              | FunctionCounter | 로딩 성공/실패 횟수            |
 | `cache.expired.count`     | FunctionCounter | 만료된 엔트리 수              |
 
-### 5. KeyValue 유틸리티
+### 6. KeyValue 유틸리티
 
 Micrometer KeyValue 생성을 위한 확장 함수들을 제공합니다.
 

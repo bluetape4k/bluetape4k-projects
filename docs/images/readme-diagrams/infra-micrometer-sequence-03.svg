@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-label="Event Telemetry Observation Sequence">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+    <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/>
+  </filter>
+  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 7 4 L 1 7 Z" fill="#4f7fc9"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 7 4 L 1 7 Z" fill="#3f9f6b"/>
+  </marker>
+  <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 7 4 L 1 7 Z" fill="#d05c78"/>
+  </marker>
+  <marker id="arrowAmber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M 1 1 L 7 4 L 1 7 Z" fill="#c7912b"/>
+  </marker>
+  <style>
+    .canvas{fill:#f7f9fc}
+    .frame{fill:#ffffff;stroke:#d8e0ea;stroke-width:1.5}
+    .title{font-family:"Architects Daughter";font-size:44px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Mono";font-size:16px;font-weight:400;fill:#536273}
+    .participant{stroke-width:2;filter:url(#shadow)}
+    .participantText{font-family:"Architects Daughter";font-size:23px;font-weight:400;fill:#102033}
+    .lifeline{stroke:#b7c2d1;stroke-width:2;stroke-dasharray:10 10}
+    .callBlue{stroke:#4f7fc9;stroke-width:2.4;fill:none;marker-end:url(#arrowBlue)}
+    .returnBlue{stroke:#4f7fc9;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#arrowBlue)}
+    .callGreen{stroke:#3f9f6b;stroke-width:2.4;fill:none;marker-end:url(#arrowGreen)}
+    .callRed{stroke:#d05c78;stroke-width:2.4;fill:none;marker-end:url(#arrowRed)}
+    .callAmber{stroke:#c7912b;stroke-width:2.4;fill:none;marker-end:url(#arrowAmber)}
+    .labelBox{fill:#ffffff;stroke:#d9e2ee;stroke-width:1.2;rx:10;opacity:.98}
+    .label{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#102033}
+    .noteBox{fill:#fff8e8;stroke:#d6a441;stroke-width:1.4;rx:14}
+    .noteText{font-family:"Comic Mono";font-size:14px;font-weight:400;fill:#5a4721}
+    .legendText{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#536273}
+  </style>
+</defs>
+<rect class="canvas" width="1800" height="1120"/>
+<rect class="frame" x="32" y="28" width="1736" height="1064" rx="28"/>
+
+<text class="title" x="70" y="88">Event Telemetry Observation Sequence</text>
+<text class="subtitle" x="74" y="122">Publish and consume helpers share safe event tags, explicit identifier opt-ins, and cancellation-aware lifecycle semantics.</text>
+
+<rect class="participant" x="90" y="174" width="240" height="74" rx="12" fill="#E8F3FF" stroke="#5B8DEF"/>
+<text class="participantText" x="210" y="217" text-anchor="middle">Application</text>
+<line class="lifeline" x1="210" y1="264" x2="210" y2="990"/>
+
+<rect class="participant" x="410" y="174" width="240" height="74" rx="12" fill="#EAF7EF" stroke="#58A978"/>
+<text class="participantText" x="530" y="205" text-anchor="middle">EventTelemetry</text>
+<text class="participantText" x="530" y="229" text-anchor="middle">Helper</text>
+<line class="lifeline" x1="530" y1="264" x2="530" y2="990"/>
+
+<rect class="participant" x="730" y="174" width="240" height="74" rx="12" fill="#FFF3D9" stroke="#D6A441"/>
+<text class="participantText" x="850" y="205" text-anchor="middle">Observation</text>
+<text class="participantText" x="850" y="229" text-anchor="middle">Registry</text>
+<line class="lifeline" x1="850" y1="264" x2="850" y2="990"/>
+
+<rect class="participant" x="1050" y="174" width="240" height="74" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+<text class="participantText" x="1170" y="217" text-anchor="middle">Observation</text>
+<line class="lifeline" x1="1170" y1="264" x2="1170" y2="990"/>
+
+<rect class="participant" x="1370" y="174" width="240" height="74" rx="12" fill="#FDECEF" stroke="#DC6B82"/>
+<text class="participantText" x="1490" y="205" text-anchor="middle">Publish /</text>
+<text class="participantText" x="1490" y="229" text-anchor="middle">Consume Block</text>
+<line class="lifeline" x1="1490" y1="264" x2="1490" y2="990"/>
+
+<rect class="labelBox" x="240" y="292" width="250" height="32"/>
+<text class="label" x="258" y="314">select publish or consume</text>
+<path class="callBlue" d="M210 334 L530 334"/>
+
+<rect class="labelBox" x="568" y="362" width="246" height="32"/>
+<text class="label" x="586" y="384">create event observation</text>
+<path class="callBlue" d="M530 404 L850 404"/>
+
+<rect class="labelBox" x="892" y="432" width="236" height="32"/>
+<text class="label" x="910" y="454">new Observation.Context</text>
+<path class="returnBlue" d="M850 474 L1170 474"/>
+
+<rect class="labelBox" x="684" y="502" width="444" height="32"/>
+<text class="label" x="702" y="524">attach safe low-cardinality event tags</text>
+<path class="callBlue" d="M530 544 L1170 544"/>
+
+<rect class="labelBox" x="580" y="572" width="360" height="32"/>
+<text class="label" x="598" y="594">add explicit sanitized identifiers</text>
+<path class="callBlue" d="M530 614 L1170 614"/>
+
+<rect class="labelBox" x="916" y="642" width="214" height="32"/>
+<text class="label" x="934" y="664">start and open scope</text>
+<path class="callBlue" d="M530 684 L1170 684"/>
+
+<rect class="labelBox" x="784" y="742" width="350" height="32"/>
+<text class="label" x="802" y="764">execute publish or consume block</text>
+<path class="callBlue" d="M530 784 L1490 784"/>
+
+<rect class="labelBox" x="1230" y="812" width="218" height="32"/>
+<text class="label" x="1248" y="834">SUCCESS: outcome tag</text>
+<path class="callGreen" d="M1490 854 L1170 854"/>
+
+<rect class="labelBox" x="1248" y="878" width="264" height="32"/>
+<text class="label" x="1266" y="900">ERROR: tag and rethrow</text>
+<path class="callRed" d="M1490 920 L1170 920"/>
+
+<rect class="labelBox" x="1230" y="944" width="316" height="32"/>
+<text class="label" x="1248" y="966">CANCELLED: no Observation.error</text>
+<path class="callAmber" d="M1490 986 L1170 986"/>
+
+<rect class="noteBox" x="92" y="1010" width="1518" height="58"/>
+<text class="noteText" x="116" y="1035">Default tags exclude payloads, raw headers, exception messages, PII, secrets, query strings, and temporary destinations.</text>
+<text class="noteText" x="116" y="1056">Use stable destination and event type values; opt into high-cardinality identifiers only after sanitizing them.</text>
+
+<circle cx="1120" cy="150" r="6" fill="#4f7fc9"/>
+<text class="legendText" x="1134" y="155">normal lifecycle</text>
+<circle cx="1280" cy="150" r="6" fill="#3f9f6b"/>
+<text class="legendText" x="1294" y="155">success</text>
+<circle cx="1386" cy="150" r="6" fill="#d05c78"/>
+<text class="legendText" x="1400" y="155">error</text>
+<circle cx="1476" cy="150" r="6" fill="#c7912b"/>
+<text class="legendText" x="1490" y="155">cancellation</text>
+</svg>
