@@ -41,12 +41,36 @@
       .body,.messageLabel,.edgeLabel,.note,.legend{font-family:"Comic Mono";fill:#34465B;font-weight:400}
       .body{font-size:14px}.messageLabel{font-size:13px}.edgeLabel{font-size:12px}.note{font-size:13px}.legend{font-size:12px}
 
+      /* README_LAYER_BANDS:START */
+      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
+      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
+      /* README_LAYER_BANDS:END */
     </style>
   </defs>
   <rect class="canvas" width="1420" height="940"/>
   <rect class="frame" x="32" y="28" width="1356" height="864" rx="26"/>
   <text class="title" x="66" y="82">Ktor Observability Demo Architecture</text>
   <text class="subtitle" x="70" y="116">Layered entry, platform, application event, and export responsibilities.</text>
+  <!-- README_LAYER_BANDS:START -->
+  <g id="readme-layer-bands">
+    <g id="readme-layer-1">
+      <rect class="readmeLayerBand" x="54" y="138" width="1338" height="168" rx="18" fill="#E8F3FF"/>
+      <text class="readmeLayerLabel" x="72" y="166">Entry layer</text>
+    </g>
+    <g id="readme-layer-2">
+      <rect class="readmeLayerBand" x="54" y="294" width="1338" height="176" rx="18" fill="#E9F7F6"/>
+      <text class="readmeLayerLabel" x="72" y="322">Application layer</text>
+    </g>
+    <g id="readme-layer-3">
+      <rect class="readmeLayerBand" x="54" y="462" width="1338" height="176" rx="18" fill="#EAF7EF"/>
+      <text class="readmeLayerLabel" x="72" y="490">Integration layer</text>
+    </g>
+    <g id="readme-layer-4">
+      <rect class="readmeLayerBand" x="54" y="650" width="1338" height="176" rx="18" fill="#FFF3D9"/>
+      <text class="readmeLayerLabel" x="72" y="678">Runtime layer</text>
+    </g>
+  </g>
+  <!-- README_LAYER_BANDS:END -->
   <g id="entry"><rect class="layerBand" x="54" y="150" width="1312" height="140" rx="18"/><text class="layerLabel" x="72" y="178">Entry layer</text></g>
   <g id="platform"><rect class="layerBand" x="54" y="310" width="1312" height="140" rx="18"/><text class="layerLabel" x="72" y="338">Ktor platform layer</text></g>
   <g id="application"><rect class="layerBand" x="54" y="470" width="1312" height="160" rx="18"/><text class="layerLabel" x="72" y="498">Application event layer</text></g>

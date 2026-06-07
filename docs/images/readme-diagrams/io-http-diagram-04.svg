@@ -3,6 +3,11 @@
   <defs>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&amp;family=Comic+Neue:wght@400;700&amp;display=swap');
+
+      /* README_LAYER_BANDS:START */
+      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
+      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
+      /* README_LAYER_BANDS:END */
     </style>
 
     <!-- Arrowhead markers: filled triangles -->
@@ -35,10 +40,23 @@
 
   <!-- Diagram title -->
   <text x="450" y="48" text-anchor="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="20" font-weight="700" fill="#1e293b">
     bluetape4k — HTTP Client Recommendation
   </text>
+  <!-- README_LAYER_BANDS:START -->
+  <g id="readme-layer-bands">
+    <g id="readme-layer-1">
+      <rect class="readmeLayerBand" x="8" y="68" width="876" height="316" rx="18" fill="#E8F3FF"/>
+    </g>
+    <g id="readme-layer-2">
+      <rect class="readmeLayerBand" x="8" y="336" width="876" height="244" rx="18" fill="#E9F7F6"/>
+    </g>
+    <g id="readme-layer-3">
+      <rect class="readmeLayerBand" x="8" y="530" width="876" height="230" rx="18" fill="#EAF7EF"/>
+    </g>
+  </g>
+  <!-- README_LAYER_BANDS:END -->
   <line x1="72" y1="62" x2="828" y2="62" stroke="#e2e8f0" stroke-width="1.5"/>
 
 
@@ -52,7 +70,7 @@
   <rect x="28" y="74" width="844" height="40" rx="12" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
   <rect x="28" y="98"  width="844" height="16"  fill="#bfdbfe"/>
   <text x="50" y="100" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="15" font-weight="700" fill="#1e40af">
     🔵  Primary — HC5 (Apache HttpComponents 5)
   </text>
@@ -62,7 +80,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="152" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Sync high-throughput</text>
   <line x1="264" y1="152" x2="292" y2="152"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-blue)"/>
@@ -70,7 +88,7 @@
         fill="white" stroke="#3b82f6" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="140"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#1e40af">HC5 Classic + VirtualThread</text>
   <text x="314" y="157"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -84,7 +102,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="218" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Async coroutine-first</text>
   <line x1="264" y1="218" x2="292" y2="218"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-blue)"/>
@@ -92,7 +110,7 @@
         fill="white" stroke="#3b82f6" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="206"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#1e40af">HC5 Async + Coroutines</text>
   <text x="314" y="223"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -106,7 +124,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="287" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Cacheable GETs</text>
   <text x="154" y="306" text-anchor="middle" dominant-baseline="middle"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -117,7 +135,7 @@
         fill="white" stroke="#3b82f6" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="276"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#1e40af">HC5 CachingHttpClient</text>
   <text x="314" y="293"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -140,7 +158,7 @@
   <rect x="28" y="368" width="844" height="40" rx="12" fill="#fde68a" stroke="#ca8a04" stroke-width="2"/>
   <rect x="28" y="392"  width="844" height="16" fill="#fde68a"/>
   <text x="50" y="394" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="15" font-weight="700" fill="#92400e">
     🟡  Compatibility
   </text>
@@ -150,7 +168,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="442" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Cache persistence</text>
   <text x="154" y="460" text-anchor="middle" dominant-baseline="middle"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -161,7 +179,7 @@
         fill="white" stroke="#ca8a04" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="435"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#92400e">OkHttp3 · Disk cache · Android</text>
   <text x="314" y="452"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -175,7 +193,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="514" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Zero dependency</text>
   <line x1="264" y1="514" x2="292" y2="514"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-amber)"/>
@@ -183,7 +201,7 @@
         fill="white" stroke="#ca8a04" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="505"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#92400e">JDK HttpClient</text>
   <text x="314" y="522"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -203,7 +221,7 @@
   <rect x="28" y="562" width="844" height="40" rx="12" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
   <rect x="28" y="586"  width="844" height="16" fill="#bbf7d0"/>
   <text x="50" y="588" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="15" font-weight="700" fill="#14532d">
     🟢  Ecosystem-Specific
   </text>
@@ -213,7 +231,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="636" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Ktor apps</text>
   <line x1="264" y1="636" x2="292" y2="636"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-green)"/>
@@ -221,7 +239,7 @@
         fill="white" stroke="#16a34a" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="626"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#14532d">Ktor CIO</text>
   <text x="314" y="643"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"
@@ -235,7 +253,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="698" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="12" fill="#374151">Vert.x apps</text>
   <line x1="264" y1="698" x2="292" y2="698"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-green)"/>
@@ -243,7 +261,7 @@
         fill="white" stroke="#16a34a" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="688"
-        font-family="'Architects Daughter', cursive"
+        font-family="'Architects Daughter', 'Comic Mono', cursive"
         font-size="13" font-weight="700" fill="#14532d">Vert.x WebClient</text>
   <text x="314" y="705"
         font-family="'Comic Neue', 'Comic Sans MS', cursive"

@@ -4,12 +4,37 @@
   <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M1 1 L9 4 L1 7" fill="none" stroke="#667085" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <style>
     .canvas{fill:#f6f8fb}.frame{fill:#fff;stroke:#d7e3ee;stroke-width:2}.title{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:40px;font-weight:400;fill:#273043}.subtitle,.small{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#64748b;font-weight:400}.subtitle{font-size:18px}.small{font-size:15px}.label{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;font-size:18px;font-weight:400;fill:#273043}.head{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:24px;font-weight:400;fill:#273043}.card{filter:url(#shadow);stroke-width:2}.line{fill:none;stroke:#667085;stroke-width:2;marker-end:url(#arrow)}
-  </style>
+
+      /* README_LAYER_BANDS:START */
+      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
+      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
+      /* README_LAYER_BANDS:END */
+    </style>
 </defs>
 <rect class="canvas" width="1500" height="900"/>
 <rect class="frame" x="32" y="28" width="1436" height="844" rx="24"/>
 <text class="title" x="66" y="82">Lettuce Cache Stability Contracts</text>
 <text class="subtitle" x="70" y="118">Operational guarantees shared by NearCache, JCache, and memoizer implementations.</text>
+  <!-- README_LAYER_BANDS:START -->
+  <g id="readme-layer-bands">
+    <g id="readme-layer-1">
+      <rect class="readmeLayerBand" x="54" y="218" width="328" height="150" rx="18" fill="#E8F3FF"/>
+      <text class="readmeLayerLabel" x="72" y="246">Public layer</text>
+    </g>
+    <g id="readme-layer-2">
+      <rect class="readmeLayerBand" x="54" y="218" width="678" height="150" rx="18" fill="#E9F7F6"/>
+      <text class="readmeLayerLabel" x="72" y="246">Core layer</text>
+    </g>
+    <g id="readme-layer-3">
+      <rect class="readmeLayerBand" x="54" y="218" width="1028" height="150" rx="18" fill="#EAF7EF"/>
+      <text class="readmeLayerLabel" x="72" y="246">Integration layer</text>
+    </g>
+    <g id="readme-layer-4">
+      <rect class="readmeLayerBand" x="54" y="218" width="1378" height="150" rx="18" fill="#FFF3D9"/>
+      <text class="readmeLayerLabel" x="72" y="246">Runtime layer</text>
+    </g>
+  </g>
+  <!-- README_LAYER_BANDS:END -->
 <g transform="translate(70,170)">
   <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
   <text class="head" x="157" y="44" text-anchor="middle">CAS replace()</text>
