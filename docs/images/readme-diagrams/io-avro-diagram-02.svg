@@ -35,14 +35,14 @@
 
   <path id="route-start-compression" class="connector" d="M660 261 L660 310" stroke="#4F83BF"/>
   <path id="route-compression-throughput" class="connector" d="M510 375 L290 375 L290 510" stroke="#45A7A1"/>
-  <path id="route-compression-deflate" class="connector" d="M660 440 L660 515" stroke="#58A978"/>
+  <path id="route-compression-deflate" class="connector" d="M660 440 L660 560" stroke="#58A978"/>
   <path id="route-compression-archive" class="connector" d="M810 375 L1010 375 L1010 510" stroke="#D9AA4D"/>
-  <path id="route-throughput-snappy" class="connector" d="M290 636 L290 680" stroke="#45A7A1"/>
-  <path id="route-archive-zstd" class="connector" d="M1010 636 L1010 680" stroke="#D9AA4D"/>
-  <path id="route-deflate-output" class="connector" d="M660 587 L660 630 L460 630 L460 841 L465 841" stroke="#58A978"/>
-  <path id="route-snappy-output" class="connector" d="M290 752 L290 780 L560 780 L560 805" stroke="#45A7A1"/>
-  <path id="route-zstd-output" class="connector" d="M1010 752 L1010 780 L760 780 L760 805" stroke="#D9AA4D"/>
-  <path id="route-null-output" class="connector" d="M660 752 L660 805" stroke="#6B7D90"/>
+  <path id="route-throughput-snappy" class="connector" d="M290 636 L290 660" stroke="#45A7A1"/>
+  <path id="route-archive-zstd" class="connector" d="M1010 636 L1010 660" stroke="#D9AA4D"/>
+  <path id="route-deflate-output" class="connector" d="M660 632 L660 860" stroke="#58A978"/>
+  <path id="route-snappy-output" class="connector" d="M290 732 L290 775 L560 775 L560 860" stroke="#45A7A1"/>
+  <path id="route-zstd-output" class="connector" d="M1010 732 L1010 775 L760 775 L760 860" stroke="#D9AA4D"/>
+  <path id="route-null-output" class="connector" d="M430 836 L452 836 L452 896 L465 896" stroke="#6B7D90"/>
 
   <g id="node-start" transform="translate(465,185)">
     <rect class="card-shape" x="0" y="0" width="390" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
@@ -59,36 +59,36 @@
     <text class="card-title" x="140" y="51" text-anchor="middle">Fast local transfer?</text>
     <text class="detail" x="140" y="76" text-anchor="middle">low CPU overhead</text>
   </g>
-  <g id="node-snappy" transform="translate(150,680)">
-    <rect class="card-shape" x="0" y="0" width="280" height="72" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="140" y="23" text-anchor="middle">SNAPPY_CODEC_FACTORY</text>
-    <text class="detail" x="140" y="48" text-anchor="middle">fast transfer</text>
-    <text class="detail" x="140" y="66" text-anchor="middle">balanced size</text>
+  <g id="node-snappy" transform="translate(120,660)">
+    <rect class="card-shape" x="0" y="0" width="340" height="72" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="170" y="23" text-anchor="middle">SNAPPY_CODEC_FACTORY</text>
+    <text class="detail" x="170" y="48" text-anchor="middle">fast transfer</text>
+    <text class="detail" x="170" y="66" text-anchor="middle">balanced size</text>
   </g>
-  <g id="node-deflate" transform="translate(520,515)">
-    <rect class="card-shape" x="0" y="0" width="280" height="72" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="140" y="23" text-anchor="middle">DEFAULT_CODEC_FACTORY</text>
-    <text class="detail" x="140" y="48" text-anchor="middle">Deflate default</text>
-    <text class="detail" x="140" y="66" text-anchor="middle">general purpose</text>
+  <g id="node-deflate" transform="translate(490,560)">
+    <rect class="card-shape" x="0" y="0" width="340" height="72" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="170" y="23" text-anchor="middle">DEFAULT_CODEC_FACTORY</text>
+    <text class="detail" x="170" y="48" text-anchor="middle">Deflate default</text>
+    <text class="detail" x="170" y="66" text-anchor="middle">general purpose</text>
   </g>
   <g id="node-archive" transform="translate(870,510)">
     <polygon class="card-shape" points="140,0 280,63 140,126 0,63" fill="#FFF3D9" stroke="#D9AA4D"/>
     <text class="card-title" x="140" y="51" text-anchor="middle">Small archive?</text>
     <text class="detail" x="140" y="76" text-anchor="middle">long-lived files</text>
   </g>
-  <g id="node-zstd" transform="translate(870,680)">
-    <rect class="card-shape" x="0" y="0" width="280" height="72" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="140" y="23" text-anchor="middle">ARCHIVE_CODEC_FACTORY</text>
-    <text class="detail" x="140" y="48" text-anchor="middle">Zstandard level 9</text>
-    <text class="detail" x="140" y="66" text-anchor="middle">smallest archive</text>
+  <g id="node-zstd" transform="translate(840,660)">
+    <rect class="card-shape" x="0" y="0" width="340" height="72" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="170" y="23" text-anchor="middle">ARCHIVE_CODEC_FACTORY</text>
+    <text class="detail" x="170" y="48" text-anchor="middle">Zstandard level 9</text>
+    <text class="detail" x="170" y="66" text-anchor="middle">smallest archive</text>
   </g>
-  <g id="node-null" transform="translate(520,680)">
+  <g id="node-null" transform="translate(150,800)">
     <rect class="card-shape" x="0" y="0" width="280" height="72" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
     <text class="card-title" x="140" y="23" text-anchor="middle">NULL_CODEC_FACTORY</text>
     <text class="detail" x="140" y="48" text-anchor="middle">external codec</text>
     <text class="detail" x="140" y="66" text-anchor="middle">raw Avro block</text>
   </g>
-  <g id="node-output" transform="translate(465,805)">
+  <g id="node-output" transform="translate(465,860)">
     <rect class="card-shape" x="0" y="0" width="390" height="72" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
     <text class="card-title" x="195" y="23" text-anchor="middle">ByteArray output</text>
     <text class="detail" x="195" y="48" text-anchor="middle">encoder emits bytes</text>
@@ -98,6 +98,6 @@
   <g transform="translate(76,946)">
     <rect class="pill" x="0" y="0" width="1168" height="44" rx="10"/>
     <text class="small" x="584" y="17" text-anchor="middle">Graphviz evidence: io-avro-diagram-02.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="584" y="34" text-anchor="middle">Geometry gate: nodes=9, routes=10, segments=19, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=64.</text>
+    <text class="small" x="584" y="34" text-anchor="middle">Geometry gate: nodes=9, routes=10, segments=18, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=64.</text>
   </g>
 </svg>

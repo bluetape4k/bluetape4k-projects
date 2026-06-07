@@ -1,91 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="858" viewBox="0 0 1378 858" role="img" aria-label="Mermaid">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
-  <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-  </style>
-</defs>
-<rect class="canvas" width="1378" height="858"/>
-<rect class="frame" x="32" y="28" width="1314" height="802" rx="28"/>
-<text class="title" x="66" y="82">Mermaid</text>
-<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">bluetape4k-junit5</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">(JUnit 5 )</text>
-</g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">StopwatchExtension (</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">)</text>
-</g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">TempFolderExtension</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">( /)</text>
-</g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">OutputCapturer</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">(stdout/stderr )</text>
-</g>
-<g transform="translate(48,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">SystemProperty ( /)</text>
-</g>
-<g transform="translate(382,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">FakeValueExtension</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">(Data Faker )</text>
-</g>
-<g transform="translate(716,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">RandomValueExtension</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">( )</text>
-</g>
-<g transform="translate(1050,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">FieldSource ( )</text>
-</g>
-<g transform="translate(48,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">MultithreadingTester</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">( )</text>
-</g>
-<g transform="translate(382,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">SuspendedJobTester</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">()</text>
-</g>
-<g transform="translate(716,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">Structured Task</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Scope Tester</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">(Virtual Thread)</text>
-</g>
-<g transform="translate(1050,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">suspendUntil /</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">awaitSuspending</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">(Awaitility +</text>
-</g>
-<g transform="translate(549,668)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Mermaid Gantt ( )</text>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="880" viewBox="0 0 1420 880" role="img" aria-labelledby="title desc">
+  <title id="title">JUnit5 Mermaid report pipeline</title>
+  <desc id="desc">Flowchart for bluetape4k-junit5 Mermaid report generation showing Gradle test execution, extension helpers, Mermaid Gantt source, status mapping, and rendered report output.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    </marker>
+    <style>
+      .canvas{fill:#F7FAFC}
+      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .card-shape{filter:url(#shadow);stroke-width:2}
+      .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
+      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
+    </style>
+  </defs>
+  <rect class="canvas" width="1420" height="880"/>
+  <rect class="frame" x="34" y="30" width="1352" height="820" rx="28"/>
+  <text class="title" x="72" y="88">JUnit5 Mermaid report pipeline</text>
+  <text class="subtitle" x="76" y="121">Test execution emits a Mermaid Gantt report where each task lane carries status semantics.</text>
+
+  <g id="group-execution">
+    <rect class="group" x="88" y="176" width="330" height="430" rx="18"/>
+    <text class="group-title" x="118" y="194">Test execution</text>
+  </g>
+  <g id="group-report">
+    <rect class="group" x="510" y="176" width="330" height="430" rx="18"/>
+    <text class="group-title" x="540" y="194">Report model</text>
+  </g>
+  <g id="group-output">
+    <rect class="group" x="932" y="176" width="330" height="430" rx="18"/>
+    <text class="group-title" x="962" y="194">Reader-facing output</text>
+  </g>
+
+  <path id="route-gradle-extensions" class="connector" d="M253 320 L253 394" stroke="#4F83BF"/>
+  <path id="route-gradle-gantt" class="connector" d="M376 278 L552 278" stroke="#45A7A1"/>
+  <path id="route-extensions-status" class="connector" d="M376 439 L552 439" stroke="#58A978"/>
+  <path id="route-gantt-status" class="connector" d="M675 320 L675 394" stroke="#D9AA4D"/>
+  <path id="route-gantt-markdown" class="connector" d="M798 278 L974 278" stroke="#8A72D6"/>
+  <path id="route-status-rendered" class="connector" d="M798 439 L974 439" stroke="#DB7890"/>
+  <path id="route-markdown-rendered" class="connector" d="M1097 320 L1097 394" stroke="#8A72D6"/>
+
+  <g id="node-gradle" transform="translate(130,236)">
+    <rect class="card-shape" x="0" y="0" width="246" height="84" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="123" y="29" text-anchor="middle">Gradle test task</text>
+    <text class="detail" x="123" y="54" text-anchor="middle">runs JUnit Platform</text>
+    <text class="detail" x="123" y="72" text-anchor="middle">captures lifecycle events</text>
+  </g>
+  <g id="node-extensions" transform="translate(130,394)">
+    <rect class="card-shape" x="0" y="0" width="246" height="90" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="123" y="32" text-anchor="middle">JUnit5 helpers</text>
+    <text class="detail" x="123" y="57" text-anchor="middle">Stopwatch, TempFolder</text>
+    <text class="detail" x="123" y="75" text-anchor="middle">OutputCapture, FieldSource</text>
+  </g>
+  <g id="node-gantt" transform="translate(552,236)">
+    <rect class="card-shape" x="0" y="0" width="246" height="84" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="123" y="29" text-anchor="middle">Mermaid Gantt source</text>
+    <text class="detail" x="123" y="54" text-anchor="middle">timeline sections</text>
+    <text class="detail" x="123" y="72" text-anchor="middle">task rows and dates</text>
+  </g>
+  <g id="node-status" transform="translate(552,394)">
+    <rect class="card-shape" x="0" y="0" width="246" height="90" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="123" y="32" text-anchor="middle">Status mapping</text>
+    <text class="detail" x="123" y="57" text-anchor="middle">active lane: passed</text>
+    <text class="detail" x="123" y="75" text-anchor="middle">issue lanes: failed/interrupted</text>
+  </g>
+  <g id="node-markdown" transform="translate(974,236)">
+    <rect class="card-shape" x="0" y="0" width="246" height="84" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="123" y="29" text-anchor="middle">README example block</text>
+    <text class="detail" x="123" y="54" text-anchor="middle">stored as fenced text</text>
+    <text class="detail" x="123" y="72" text-anchor="middle">extractable with awk</text>
+  </g>
+  <g id="node-rendered" transform="translate(974,394)">
+    <rect class="card-shape" x="0" y="0" width="246" height="90" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+    <text class="card-title" x="123" y="32" text-anchor="middle">Rendered report image</text>
+    <text class="detail" x="123" y="57" text-anchor="middle">human-readable timeline</text>
+    <text class="detail" x="123" y="75" text-anchor="middle">shared PNG/SVG asset</text>
+  </g>
+
+  <g transform="translate(76,806)">
+    <rect class="pill" x="0" y="0" width="1268" height="44" rx="10"/>
+    <text class="small" x="634" y="17" text-anchor="middle">Graphviz evidence: testing-junit5-diagram-03.dot, .plain, -sketch.svg, and -sketch.png.</text>
+    <text class="small" x="634" y="34" text-anchor="middle">Geometry gate: nodes=6, routes=7, segments=7, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=115.</text>
+  </g>
 </svg>
