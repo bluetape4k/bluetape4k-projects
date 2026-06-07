@@ -5,7 +5,49 @@ English | [한국어](./README.ko.md)
 Runnable Spring Boot 4 application that shows how to use bluetape4k observation helpers with
 Spring Boot Actuator Prometheus metrics and application-owned OTLP tracing configuration.
 
+## Example Scenario
+
+The demo models a small order-event workflow:
+
+1. A client posts an order event with an optional `X-Request-Id` correlation header.
+2. The Spring MVC controller delegates the request to `OrderEventService`.
+3. `OrderEventService` wraps the HTTP/service boundary with `ObservationRegistry.observeSpring`.
+4. The service records an `event.publish` observation and an `event.consume` observation for the same logical event.
+5. Spring Boot Actuator exposes HTTP and event observation metrics at `/actuator/prometheus`.
+6. OTLP tracing can be enabled by pointing Spring Boot's Micrometer tracing exporter at a local collector.
+
+This keeps the example local-testable: Prometheus scraping works without a Prometheus server, and tests do
+not require an OTLP collector.
+
 ## Architecture
+
+```mermaid
+flowchart LR
+    Client[HTTP Client]
+    Controller[Spring MVC Controller]
+    Service[OrderEventService]
+    SpringObs[bluetape4k observeSpring]
+    EventObs[bluetape4k event telemetry]
+    Registry[ObservationRegistry]
+    Actuator[Spring Boot Actuator]
+    Prometheus["/actuator/prometheus"]
+    Otlp[OTLP Collector optional]
+
+    Client --> Controller
+    Controller --> Service
+    Service --> SpringObs
+    Service --> EventObs
+    SpringObs --> Registry
+    EventObs --> Registry
+    Registry --> Actuator
+    Actuator --> Prometheus
+    Registry -. traces when configured .-> Otlp
+```
+
+Spring Boot owns metrics endpoint registration. The application contributes observed work; Actuator
+turns Micrometer observations into Prometheus scrape output.
+
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
