@@ -1,190 +1,165 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1730" height="1778" viewBox="0 0 1730 1778" role="img" aria-label="Integrated Module Overview">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
-  <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-
-      /* README_LAYER_BANDS:START */
-      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
-      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
-      /* README_LAYER_BANDS:END */
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="1054" viewBox="0 0 1620 1054" role="img" aria-labelledby="title desc">
+  <title id="title">Science utilities architecture</title>
+  <desc id="desc">Layered module overview for utils/science showing coordinate types, projection registry, geometry helpers, shapefile and NetCDF models, Exposed tables, repositories, and services.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    </marker>
+    <style>
+      .canvas{fill:#F7FAFC}
+      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .layer{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .layer-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:26px;fill:#22344A;font-weight:400}
+      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .card{filter:url(#shadow);stroke-width:2}
+      .connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
+      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
-</defs>
-<rect class="canvas" width="1730" height="1778"/>
-<rect class="frame" x="32" y="28" width="1666" height="1722" rx="28"/>
-<text class="title" x="66" y="82">Integrated Module Overview</text>
-<text class="subtitle" x="70" y="118">Grouped architecture from the original Mermaid source</text>
+  </defs>
+  <rect class="canvas" width="1620" height="1054"/>
+  <rect class="frame" x="34" y="30" width="1552" height="994" rx="28"/>
+  <text class="title" x="72" y="88">Science utilities architecture</text>
+  <text class="subtitle" x="76" y="121">Coordinate models feed projections and geometry, then file readers and Exposed persistence services.</text>
+
   <!-- README_LAYER_BANDS:START -->
-  <g id="readme-layer-bands">
-    <g id="readme-layer-1">
-      <rect class="readmeLayerBand" x="54" y="128" width="1603" height="176" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="72" y="156">Public layer</text>
+  <g id="layer-module-entrypoint">
+    <rect class="layer" x="72" y="166" width="1476" height="134" rx="18"/>
+    <text class="layer-title" x="104" y="209">Module entrypoint</text>
+    <g id="node-science" transform="translate(628,190)">
+      <rect class="card" x="0" y="0" width="520" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+      <text class="card-title" x="260" y="31" text-anchor="middle">bluetape4k-science</text>
+      <text class="detail" x="260" y="55" text-anchor="middle">geospatial coordinate</text>
+      <text class="detail" x="260" y="73" text-anchor="middle">file and persistence utilities</text>
     </g>
-    <g id="readme-layer-2">
-      <rect class="readmeLayerBand" x="54" y="394" width="1603" height="176" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="72" y="422">Core layer</text>
+  </g>
+  <g id="layer-coordinate-model">
+    <rect class="layer" x="72" y="328" width="1476" height="134" rx="18"/>
+    <text class="layer-title" x="104" y="371">Coordinate model</text>
+    <g id="node-coords" transform="translate(346,352)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Coordinate types</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">GeoLocation, BoundingBox</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">DM, DMS, Vector</text>
     </g>
-    <g id="readme-layer-3">
-      <rect class="readmeLayerBand" x="54" y="536" width="1603" height="176" rx="18" fill="#EAF7EF"/>
-      <text class="readmeLayerLabel" x="72" y="564">Integration layer</text>
+    <g id="node-utm" transform="translate(1218,352)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">UTM helpers</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">UtmZone</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">cell bounding boxes</text>
     </g>
-    <g id="readme-layer-4">
-      <rect class="readmeLayerBand" x="54" y="678" width="1603" height="176" rx="18" fill="#FFF3D9"/>
-      <text class="readmeLayerLabel" x="72" y="706">Runtime layer</text>
+  </g>
+  <g id="layer-projection">
+    <rect class="layer" x="72" y="490" width="1476" height="134" rx="18"/>
+    <text class="layer-title" x="104" y="533">Projection</text>
+    <g id="node-projection" transform="translate(346,514)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Projection registry</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">CrsRegistry</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">Projections</text>
     </g>
-    <g id="readme-layer-5">
-      <rect class="readmeLayerBand" x="54" y="820" width="1603" height="176" rx="18" fill="#F1ECFF"/>
-      <text class="readmeLayerLabel" x="72" y="848">External layer</text>
+    <g id="node-geometry" transform="translate(1218,514)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Geometry operations</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">distance, angle, intersection</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">polygon extensions</text>
     </g>
-    <g id="readme-layer-6">
-      <rect class="readmeLayerBand" x="54" y="962" width="1603" height="176" rx="18" fill="#FDECEF"/>
-      <text class="readmeLayerLabel" x="72" y="990">External layer</text>
+  </g>
+  <g id="layer-file-and-data-model">
+    <rect class="layer" x="72" y="652" width="1476" height="134" rx="18"/>
+    <text class="layer-title" x="104" y="695">File and data model</text>
+    <g id="node-shapefile" transform="translate(346,676)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Shapefile reader</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">loadShape/loadShapeAsync</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">ShapeHeader and records</text>
     </g>
-    <g id="readme-layer-7">
-      <rect class="readmeLayerBand" x="54" y="1104" width="1603" height="176" rx="18" fill="#EEF6D9"/>
-      <text class="readmeLayerLabel" x="72" y="1132">External layer</text>
+    <g id="node-netcdf-model" transform="translate(782,676)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">NetCDF models</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">file, variable, grid value</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">import progress</text>
     </g>
-    <g id="readme-layer-8">
-      <rect class="readmeLayerBand" x="54" y="1246" width="1603" height="176" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="72" y="1274">External layer</text>
+    <g id="node-spatial-model" transform="translate(1218,676)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Spatial models</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">layer and feature records</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">POI records</text>
     </g>
-    <g id="readme-layer-9">
-      <rect class="readmeLayerBand" x="54" y="1388" width="1603" height="176" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="72" y="1416">External layer</text>
+  </g>
+  <g id="layer-persistence">
+    <rect class="layer" x="72" y="814" width="1476" height="134" rx="18"/>
+    <text class="layer-title" x="104" y="857">Persistence</text>
+    <g id="node-tables" transform="translate(346,838)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Exposed tables</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">SpatialTables</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">NetCdfTables</text>
     </g>
-    <g id="readme-layer-10">
-      <rect class="readmeLayerBand" x="54" y="1530" width="1603" height="176" rx="18" fill="#EAF7EF"/>
-      <text class="readmeLayerLabel" x="72" y="1558">External layer</text>
+    <g id="node-repos" transform="translate(782,838)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Repositories</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">SpatialFeatureRepository</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">NetCdfRepository</text>
+    </g>
+    <g id="node-services" transform="translate(1218,838)">
+      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+      <text class="card-title" x="150" y="31" text-anchor="middle">Import services</text>
+      <text class="detail" x="150" y="55" text-anchor="middle">ShapefileImportService</text>
+      <text class="detail" x="150" y="73" text-anchor="middle">NetCdfCatalogService</text>
     </g>
   </g>
   <!-- README_LAYER_BANDS:END -->
-<g transform="translate(715,160)">
-  <rect class="card" x="0" y="0" width="300" height="112" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="150" y="63" text-anchor="middle">bluetape4k-science</text>
-</g>
-<g transform="translate(60,350)">
-  <rect x="0" y="0" width="350" height="790" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">coords — Coordinate Primiti.</text>
-</g>
-<g transform="translate(105,426)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">GeoLocation WGS84</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">lat/lon</text>
-</g>
-<g transform="translate(105,568)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">BoundingBox bounding</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">rectangle</text>
-</g>
-<g transform="translate(105,710)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">DM / DMS deg-min-sec</text>
-</g>
-<g transform="translate(105,852)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">UtmZone UTM system</text>
-</g>
-<g transform="translate(105,994)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Vector 2D / 3D</text>
-</g>
-<g transform="translate(480,350)">
-  <rect x="0" y="0" width="350" height="364" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">projection — CRS Transforms</text>
-</g>
-<g transform="translate(525,426)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="31.5" text-anchor="middle">Projections</text>
-<text class="smallLabel" x="130" y="52.5" text-anchor="middle">wgs84ToUtm /</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">utmToWgs84</text>
-<text class="smallLabel" x="130" y="94.5" text-anchor="middle">transform(EPSG)</text>
-</g>
-<g transform="translate(525,568)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">CrsRegistry EPSG</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">cache</text>
-</g>
-<g transform="translate(900,350)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">shapefile — Shapefile I/O</text>
-</g>
-<g transform="translate(945,426)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">loadShape() sync</text>
-</g>
-<g transform="translate(945,568)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">loadShapeAsync()</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">async</text>
-</g>
-<g transform="translate(945,710)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">ShapeModels Shape /</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">ShapeRecord</text>
-</g>
-<g transform="translate(1320,350)">
-  <rect x="0" y="0" width="350" height="364" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">geometry — JTS Operations</text>
-</g>
-<g transform="translate(1365,426)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="31.5" text-anchor="middle">GeometryOperations</text>
-<text class="smallLabel" x="130" y="52.5" text-anchor="middle">intersection / union</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">/ buffer simplify /</text>
-<text class="smallLabel" x="130" y="94.5" text-anchor="middle">distance</text>
-</g>
-<g transform="translate(1365,568)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">PolygonExtensions</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">area / perimeter</text>
-</g>
-<g transform="translate(480,776)">
-  <rect x="0" y="0" width="350" height="932" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">exposed — DB Pipelines</text>
-</g>
-<g transform="translate(525,852)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">SpatialLayerTable</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">SpatialFeatureTable</text>
-</g>
-<g transform="translate(525,994)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">NetCdfFileTable</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">NetCdfGridValueTable</text>
-</g>
-<g transform="translate(525,1136)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">Spatial Layer</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">Repository Spatial</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">Feature Repository</text>
-</g>
-<g transform="translate(525,1278)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">NetCdfFileRepository</text>
-</g>
-<g transform="translate(525,1420)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">Shapefile Import</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">Service Virtual</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">Thread batch</text>
-</g>
-<g transform="translate(525,1562)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">NetCdfSvc</text>
-</g>
+
+  <g id="route-science-coords">
+    <path class="connector" d="M888 276 L888 304 L496 304 L496 352" stroke="#58A978"/>
+  </g>
+  <g id="route-science-utm">
+    <path class="connector" d="M888 276 L888 314 L1368 314 L1368 352" stroke="#45A7A1"/>
+  </g>
+  <g id="route-coords-projection">
+    <path class="connector" d="M496 438 L496 486 L496 486 L496 514" stroke="#8A72D6"/>
+  </g>
+  <g id="route-coords-geometry">
+    <path class="connector" d="M496 438 L496 466 L1368 466 L1368 514" stroke="#DB7890"/>
+  </g>
+  <g id="route-utm-projection">
+    <path class="connector" d="M1368 438 L1368 476 L496 476 L496 514" stroke="#8A72D6"/>
+  </g>
+  <g id="route-projection-shapefile">
+    <path class="connector" d="M496 600 L496 648 L496 648 L496 676" stroke="#D9AA4D"/>
+  </g>
+  <g id="route-geometry-spatial-model">
+    <path class="connector" d="M1368 600 L1368 628 L1368 628 L1368 676" stroke="#58A978"/>
+  </g>
+  <g id="route-projection-netcdf-model">
+    <path class="connector" d="M496 600 L496 638 L932 638 L932 676" stroke="#8BA84D"/>
+  </g>
+  <g id="route-shapefile-tables">
+    <path class="connector" d="M496 762 L496 810 L496 810 L496 838" stroke="#45A7A1"/>
+  </g>
+  <g id="route-netcdf-model-tables">
+    <path class="connector" d="M932 762 L932 790 L496 790 L496 838" stroke="#45A7A1"/>
+  </g>
+  <g id="route-spatial-model-repos">
+    <path class="connector" d="M1368 762 L1368 800 L932 800 L932 838" stroke="#8A72D6"/>
+  </g>
+  <g id="route-tables-repos">
+    <path class="connector" d="M646 891 L664 891 L664 932 L764 932 L764 891 L782 891" stroke="#8A72D6"/>
+  </g>
+  <g id="route-repos-services">
+    <path class="connector" d="M1082 871 L1100 871 L1100 932 L1200 932 L1200 871 L1218 871" stroke="#D9AA4D"/>
+  </g>
+
+  <g transform="translate(76,978)">
+    <rect class="pill" x="0" y="0" width="1468" height="42" rx="10"/>
+    <text class="small" x="734" y="17" text-anchor="middle">Graphviz evidence: utils-science-diagram-01.dot, .plain, -sketch.svg, and -sketch.png.</text>
+    <text class="small" x="734" y="33" text-anchor="middle">Geometry gate: nodes=11, routes=13, segments=43, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=69.</text>
+  </g>
 </svg>

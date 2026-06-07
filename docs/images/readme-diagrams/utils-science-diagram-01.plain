@@ -1,0 +1,26 @@
+graph 1 8.0139 8.7847
+node science 4.5417 7.9722 2.4306 0.5 "bluetape4k-science" rounded,filled box #75A9E8 #E8F3FF
+node coords 5.7917 6.7222 2.2222 0.5 "Coordinate types" rounded,filled box #69B888 #EAF7EF
+node utm 3.2917 6.7222 1.6597 0.5 "UTM helpers" rounded,filled box #45A7A1 #E9F7F6
+node projection 3.2917 5.4722 2.4514 0.5 "Projection registry" rounded,filled box #8A72D6 #F1ECFF
+node geometry 6.4306 5.4722 2.7118 0.5 "Geometry operations" rounded,filled box #DB7890 #FCE7F3
+node shapefile 3.875 4.2222 2.1597 0.5 "Shapefile reader" rounded,filled box #D9AA4D #FFF3D9
+node "netcdf-model" 1.2361 4.2222 2.0139 0.5 "NetCDF models" rounded,filled box #8BA84D #EEF6D9
+node "spatial-model" 6.4306 4.2222 1.8264 0.5 "Spatial models" rounded,filled box #69B888 #EAF7EF
+node tables 3.875 2.9722 1.9201 0.5 "Exposed tables" rounded,filled box #45A7A1 #E9F7F6
+node repos 3.9028 1.7222 1.6701 0.5 Repositories rounded,filled box #8A72D6 #F1ECFF
+node services 3.9028 0.47222 2.066 0.5 "Import services" rounded,filled box #D9AA4D #FFF3D9
+edge science coords 4 5.2188 7.7193 5.2188 7.7193 5.2188 7.1112 5.2188 7.1112 solid #58A978
+edge science utm 4 3.724 7.7193 3.724 7.7193 3.724 7.1112 3.724 7.1112 solid #45A7A1
+edge coords projection 7 4.8177 6.4693 4.8177 6.104 4.8177 5.4722 4.8177 5.4722 4.8177 5.4722 4.6556 5.4722 4.6556 5.4722 solid #8A72D6
+edge coords geometry 4 5.9887 6.4693 5.9887 6.4693 5.9887 5.8612 5.9887 5.8612 solid #DB7890
+edge utm projection 4 3.2917 6.4693 3.2917 6.4693 3.2917 5.8612 3.2917 5.8612 solid #8A72D6
+edge projection shapefile 4 3.6562 5.2193 3.6562 5.2193 3.6562 4.6112 3.6562 4.6112 solid #D9AA4D
+edge projection "netcdf-model" 4 2.1545 5.2193 2.1545 5.2193 2.1545 4.6112 2.1545 4.6112 solid #8BA84D
+edge geometry "spatial-model" 4 6.4306 5.2193 6.4306 5.2193 6.4306 4.6112 6.4306 4.6112 solid #58A978
+edge shapefile tables 4 3.875 3.9693 3.875 3.9693 3.875 3.3612 3.875 3.3612 solid #45A7A1
+edge "netcdf-model" tables 7 1.2361 3.9693 1.2361 3.604 1.2361 2.9722 1.2361 2.9722 1.2361 2.9722 2.779 2.9722 2.779 2.9722 solid #45A7A1
+edge "spatial-model" repos 7 6.4306 3.9688 6.4306 3.3332 6.4306 1.7222 6.4306 1.7222 6.4306 1.7222 4.8766 1.7222 4.8766 1.7222 solid #8A72D6
+edge tables repos 4 3.9028 2.7193 3.9028 2.7193 3.9028 2.1112 3.9028 2.1112 solid #8A72D6
+edge repos services 4 3.9028 1.4693 3.9028 1.4693 3.9028 0.86123 3.9028 0.86123 solid #D9AA4D
+stop

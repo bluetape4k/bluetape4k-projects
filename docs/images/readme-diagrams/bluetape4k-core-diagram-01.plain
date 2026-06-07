@@ -1,0 +1,21 @@
+graph 1 8.1667 5.0347
+node core 4 4.2222 2.1285 0.5 "bluetape4k-core" rounded,filled box #75A9E8 #E8F3FF
+node validation 1.3889 2.9722 2.0347 0.5 RequireSupport rounded,filled box #69B888 #EAF7EF
+node types 4 2.9722 2.066 0.5 "Type extensions" rounded,filled box #45A7A1 #E9F7F6
+node codec 6.5 2.9722 1.8264 0.5 "Codec utilities" rounded,filled box #D9AA4D #FFF3D9
+node value 6.3889 1.7222 1.5451 0.5 ValueObject rounded,filled box #8A72D6 #F1ECFF
+node ranges 1.3889 1.7222 1.6597 0.5 "Range model" rounded,filled box #DB7890 #FCE7F3
+node collections 3.9167 1.7222 2.2743 0.5 "Collection helpers" rounded,filled box #8BA84D #EEF6D9
+node concurrent 3.9167 0.47222 2.4514 0.5 "Concurrent utilities" rounded,filled box #45A7A1 #E9F7F6
+node time 1.1806 0.47222 1.9201 0.5 "Java time DSL" rounded,filled box #D9AA4D #FFF3D9
+node functional 6.8194 0.47222 2.2535 0.5 "Functional utilities" rounded,filled box #69B888 #EAF7EF
+edge core validation 7 2.9304 4.2222 2.2093 4.2222 1.3889 4.2222 1.3889 4.2222 1.3889 4.2222 1.3889 3.3573 1.3889 3.3573 solid #58A978
+edge core types 4 4 3.9693 4 3.9693 4 3.3612 4 3.3612 solid #45A7A1
+edge core codec 7 5.0711 4.2222 5.7496 4.2222 6.5 4.2222 6.5 4.2222 6.5 4.2222 6.5 3.3573 6.5 3.3573 solid #D9AA4D
+edge validation ranges 4 1.3889 2.7193 1.3889 2.7193 1.3889 2.1112 1.3889 2.1112 solid #DB7890
+edge types value 10 5.0343 2.9722 5.2246 2.9722 5.3646 2.9722 5.3646 2.9722 5.3646 2.9722 5.3646 1.7222 5.3646 1.7222 5.3646 1.7222 5.4804 1.7222 5.4804 1.7222 solid #8A72D6
+edge types collections 4 4 2.7193 4 2.7193 4 2.1112 4 2.1112 solid #8BA84D
+edge value functional 4 6.4271 1.4693 6.4271 1.4693 6.4271 0.86123 6.4271 0.86123 solid #58A978
+edge ranges time 4 1.3498 1.4693 1.3498 1.4693 1.3498 0.86123 1.3498 0.86123 solid #D9AA4D
+edge collections concurrent 4 3.9167 1.4693 3.9167 1.4693 3.9167 0.86123 3.9167 0.86123 solid #45A7A1
+stop

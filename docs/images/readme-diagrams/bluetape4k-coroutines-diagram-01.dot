@@ -1,0 +1,50 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", splines=ortho, nodesep=0.55, ranksep=0.75];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  subgraph cluster_0 {
+    label="Module entrypoint";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "coroutines" [label="bluetape4k-coroutines", fillcolor="#E8F3FF", color="#75A9E8"];
+  }
+  subgraph cluster_1 {
+    label="Async primitives";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "deferred-value" [label="DeferredValue", fillcolor="#EAF7EF", color="#69B888"];
+    "deferred-helpers" [label="Deferred helpers", fillcolor="#E9F7F6", color="#45A7A1"];
+  }
+  subgraph cluster_2 {
+    label="Flow processing";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "flow-ext" [label="Flow extensions", fillcolor="#FFF3D9", color="#D9AA4D"];
+    "async-flow" [label="AsyncFlow", fillcolor="#FCE7F3", color="#DB7890"];
+    "subject" [label="Subject APIs", fillcolor="#F1ECFF", color="#8A72D6"];
+  }
+  subgraph cluster_3 {
+    label="Runtime integration";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "scopes" [label="Coroutine scopes", fillcolor="#E9F7F6", color="#45A7A1"];
+    "reactor" [label="Reactor context bridge", fillcolor="#F1ECFF", color="#8A72D6"];
+    "tests" [label="Test support", fillcolor="#EEF6D9", color="#8BA84D"];
+  }
+  "coroutines" -> "deferred-value" [xlabel="value wrapper", color="#58A978"];
+  "coroutines" -> "deferred-helpers" [xlabel="deferred ops", color="#45A7A1"];
+  "deferred-value" -> "flow-ext" [xlabel="async values", color="#D9AA4D"];
+  "deferred-helpers" -> "async-flow" [xlabel="parallel work", color="#DB7890"];
+  "flow-ext" -> "subject" [xlabel="stream state", color="#8A72D6"];
+  "async-flow" -> "scopes" [xlabel="dispatch", color="#45A7A1"];
+  "subject" -> "reactor" [xlabel="context", color="#8A72D6"];
+  "flow-ext" -> "tests" [xlabel="verification", color="#8BA84D"];
+}
