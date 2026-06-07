@@ -1,18 +1,19 @@
-graph 1 16.656 1.6944
-node client 0.63194 0.84722 1.2639 0.5 "HTTP Client" rounded,filled box #5B8DEF #E8F3FF
-node controller 3.3958 0.84722 2.2639 0.5 "Spring MVC Controller" rounded,filled box #45A7A1 #E9F7F6
-node service 6.5139 0.84722 1.9722 0.5 OrderEventService rounded,filled box #58A978 #EAF7EF
-node springObs 9.3559 1.4444 1.5139 0.5 observeSpring rounded,filled box #45A7A1 #E9F7F6
-node eventObs 9.3559 0.25 1.7118 0.5 "Event Telemetry" rounded,filled box #58A978 #EAF7EF
-node registry 12.234 0.84722 2.0451 0.5 ObservationRegistry rounded,filled box #758297 #FFFFFF
-node actuator 15.457 1.4444 2.191 0.5 "Actuator Prometheus" rounded,filled box #D6A441 #FFF3D9
-node otlp 15.457 0.25 2.3993 0.5 "OTLP Collector optional" rounded,filled box #8A72D6 #F1ECFF
-edge client controller 4 1.266 0.84722 1.266 0.84722 2.1279 0.84722 2.1279 0.84722 solid #5B8DEF
-edge controller service 4 4.5303 0.84722 4.5303 0.84722 5.3923 0.84722 5.3923 0.84722 solid #45A7A1
-edge service springObs 7 7.5066 0.99722 8.2361 0.99722 9.1007 0.99722 9.1007 0.99722 9.1007 0.99722 9.1007 1.0573 9.1007 1.0573 solid #45A7A1
-edge service eventObs 7 7.5057 0.89722 8.0213 0.89722 8.5451 0.89722 8.5451 0.89722 8.5451 0.89722 8.5451 0.63793 8.5451 0.63793 solid #58A978
-edge springObs registry 7 9.6146 1.1886 9.6146 1.0077 9.6146 0.79722 9.6146 0.79722 9.6146 0.79722 11.074 0.79722 11.074 0.79722 solid #45A7A1
-edge eventObs registry 7 10.156 0.50496 10.156 0.6054 10.156 0.69722 10.156 0.69722 10.156 0.69722 11.075 0.69722 11.075 0.69722 solid #58A978
-edge registry actuator 7 12.24 1.104 12.24 1.2658 12.24 1.4444 12.24 1.4444 12.24 1.4444 14.226 1.4444 14.226 1.4444 solid #D6A441
-edge registry otlp 7 13.26 0.84722 13.782 0.84722 14.309 0.84722 14.309 0.84722 14.309 0.84722 14.309 0.63887 14.309 0.63887 dashed #8A72D6
+graph 1 6.625 8.7847
+node client 3.2917 7.9722 1.2639 0.5 "HTTP Client" rounded,filled box #5B8DEF #E8F3FF
+node controller 3.2917 6.4722 2.2639 0.5 "Spring MVC Controller" rounded,filled box #45A7A1 #E9F7F6
+node service 3.2917 4.9722 1.9722 0.5 OrderEventService rounded,filled box #58A978 #EAF7EF
+node springObs 0.98611 3.4722 1.5139 0.5 observeSpring rounded,filled box #45A7A1 #E9F7F6
+node eventObs 3.2917 3.4722 1.7118 0.5 "Event Telemetry" rounded,filled box #58A978 #EAF7EF
+node registry 3.125 1.9722 2.0451 0.5 ObservationRegistry rounded,filled box #758297 #FFFFFF
+node actuator 2.2222 0.47222 2.191 0.5 "Actuator Prometheus" rounded,filled box #D6A441 #FFF3D9
+node otlp 5.2083 0.47222 2.3993 0.5 "OTLP Collector optional" rounded,filled box #8A72D6 #F1ECFF
+edge client controller 4 3.2917 7.7178 3.2917 7.7178 3.2917 6.8601 3.2917 6.8601 solid #5B8DEF
+edge controller service 4 3.2917 6.2178 3.2917 6.2178 3.2917 5.3601 3.2917 5.3601 solid #45A7A1
+edge service springObs 7 2.349 4.719 2.349 4.3115 2.349 3.5556 2.349 3.5556 2.349 3.5556 1.8794 3.5556 1.8794 3.5556 solid #45A7A1
+edge service eventObs 4 3.2917 4.7178 3.2917 4.7178 3.2917 3.8601 3.2917 3.8601 solid #58A978
+edge service registry 4 2.3924 4.7164 2.3924 4.7164 2.3924 2.3595 2.3924 2.3595 solid #758297
+edge springObs registry 7 1.7471 3.3889 2.0067 3.3889 2.2326 3.3889 2.2326 3.3889 2.2326 3.3889 2.2326 2.3576 2.2326 2.3576 solid #45A7A1
+edge eventObs registry 4 3.2917 3.2178 3.2917 3.2178 3.2917 2.3601 3.2917 2.3601 solid #58A978
+edge registry actuator 4 2.7101 1.7178 2.7101 1.7178 2.7101 0.86006 2.7101 0.86006 solid #D6A441
+edge registry otlp 4 4.0781 1.7178 4.0781 1.7178 4.0781 0.86006 4.0781 0.86006 dashed #8A72D6
 stop
