@@ -20,55 +20,14 @@ Spring Boot 예제와 달리 Ktor에는 Actuator endpoint가 없습니다. 따�
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    Client[HTTP Client]
-    Routes[Ktor Routes]
-    Core[bluetape4k Ktor Core]
-    Obs[bluetape4k Ktor Observability]
-    Service[OrderEventTelemetryService]
-    EventObs[bluetape4k event telemetry]
-    Registry[PrometheusMeterRegistry]
-    Metrics["/metrics"]
-    OTel[OpenTelemetry SDK optional]
-
-    Client --> Routes
-    Routes --> Core
-    Routes --> Obs
-    Routes --> Service
-    Service --> EventObs
-    Obs --> Registry
-    EventObs --> Registry
-    Routes --> Metrics
-    Metrics --> Registry
-    Obs -. server spans when configured .-> OTel
-```
+![Ktor observability demo architecture](../../../docs/images/readme-diagrams/examples-ktor-observability-ktor-demo-architecture-01.png)
 
 Scrape route는 애플리케이션이 소유합니다. `prometheusScrapeRoute(registry)`는 registry 내용을
 노출할 뿐, global exporter나 backend 연결을 만들지 않습니다.
 
 ## Sequence Diagram
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Ktor as Ktor Routes
-    participant Obs as bluetape4k Ktor Observability
-    participant EventObs as event telemetry
-    participant Prom as PrometheusMeterRegistry
-    participant OTel as OpenTelemetry SDK
-
-    Client->>Ktor: POST /orders/{orderId}/events
-    Ktor->>Obs: correlation ID, call logging, metrics, tracing
-    Ktor->>EventObs: event.publish 관측
-    Ktor->>EventObs: event.consume 관측
-    EventObs->>Prom: Micrometer timers
-    Obs->>OTel: 설정된 경우 server span
-    Ktor-->>Client: 200 JSON
-    Client->>Ktor: GET /metrics
-    Ktor->>Prom: scrape()
-    Ktor-->>Client: Prometheus text
-```
+![Ktor observability demo sequence](../../../docs/images/readme-diagrams/examples-ktor-observability-ktor-demo-sequence-01.png)
 
 ## 의존성
 

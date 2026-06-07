@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="820" viewBox="0 0 1420 820" role="img" aria-labelledby="examples-ktor-observability-ktor-demo-architecture-01-title examples-ktor-observability-ktor-demo-architecture-01-desc">
+  <title id="examples-ktor-observability-ktor-demo-architecture-01-title">Ktor Observability Demo Architecture</title>
+  <desc id="examples-ktor-observability-ktor-demo-architecture-01-desc">The application owns Prometheus routing and opts into OpenTelemetry tracing.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
+
+    <marker id="arrowNeutral" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#758297"/>
+    </marker>
+    <marker id="arrowRequest" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#5B8DEF"/>
+    </marker>
+    <marker id="arrowService" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#45A7A1"/>
+    </marker>
+    <marker id="arrowEvent" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#58A978"/>
+    </marker>
+    <marker id="arrowMetrics" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#D6A441"/>
+    </marker>
+    <marker id="arrowTrace" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#8A72D6"/>
+    </marker>
+    <marker id="arrowResponse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#DC6B82"/>
+    </marker>
+    <style>
+      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .card,.participant{filter:url(#shadow);stroke-width:2}
+      .lifeline{stroke:#758297;stroke-width:1.8;stroke-dasharray:7 8}
+      .edge{stroke-width:2.4;fill:none}
+      .sequenceEdge{stroke-width:2.3;fill:none}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.94}
+
+      .title{font-family:"Architects Daughter";font-size:42px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:16px;fill:#627184;font-weight:400}
+      .cardTitle,.participantTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .body,.messageLabel,.edgeLabel,.note,.legend{font-family:"Comic Mono";fill:#34465B;font-weight:400}
+      .body{font-size:14px}.messageLabel{font-size:13px}.edgeLabel{font-size:12px}.note{font-size:13px}.legend{font-size:12px}
+
+    </style>
+  </defs>
+  <rect class="canvas" width="1420" height="820"/>
+  <rect class="frame" x="32" y="28" width="1356" height="744" rx="26"/>
+  <text class="title" x="66" y="82">Ktor Observability Demo Architecture</text>
+  <text class="subtitle" x="70" y="116">The application owns Prometheus routing and opts into OpenTelemetry tracing.</text>
+
+  <g id="client-routes">
+    <path class="edge" d="M300 425 L350 425" stroke="#5B8DEF" marker-end="url(#arrowRequest)"/>
+
+  </g>
+
+  <g id="routes-core">
+    <path class="edge" d="M480 360 L480 300" stroke="#758297" marker-end="url(#arrowNeutral)"/>
+
+  </g>
+
+  <g id="routes-observability">
+    <path class="edge" d="M610 400 L645 400 L645 235 L680 235" stroke="#D6A441" marker-end="url(#arrowMetrics)"/>
+
+  </g>
+
+  <g id="routes-service">
+    <path class="edge" d="M610 455 L645 455 L645 615 L680 615" stroke="#58A978" marker-end="url(#arrowEvent)"/>
+
+  </g>
+
+  <g id="observability-registry">
+    <path class="edge" d="M970 235 L1000 235 L1000 400 L1040 400" stroke="#D6A441" marker-end="url(#arrowMetrics)"/>
+
+  </g>
+
+  <g id="service-eventObs">
+    <path class="edge" d="M970 615 L1040 615" stroke="#58A978" marker-end="url(#arrowEvent)"/>
+
+  </g>
+
+  <g id="eventObs-registry">
+    <path class="edge" d="M1190 550 L1190 490" stroke="#58A978" marker-end="url(#arrowEvent)"/>
+
+  </g>
+
+  <g id="observability-otel">
+    <path class="edge" d="M970 235 L1040 235" stroke="#8A72D6" marker-end="url(#arrowTrace)" stroke-dasharray="8 7"/>
+
+  </g>
+
+  <g id="routes-registry">
+    <path class="edge" d="M610 425 L1040 425" stroke="#D6A441" marker-end="url(#arrowMetrics)"/>
+
+  </g>
+
+  <g id="client">
+    <rect class="card" x="70" y="360" width="230" height="130" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <text class="cardTitle" x="185" y="396" text-anchor="middle" dominant-baseline="middle">HTTP Client</text>
+    <text class="body" x="185" y="437" text-anchor="middle" dominant-baseline="middle">POST order event</text>
+<text class="body" x="185" y="457" text-anchor="middle" dominant-baseline="middle">GET /metrics</text>
+  </g>
+
+  <g id="routes">
+    <rect class="card" x="350" y="360" width="260" height="130" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="cardTitle" x="480" y="396" text-anchor="middle" dominant-baseline="middle">Ktor Routes</text>
+    <text class="body" x="480" y="437" text-anchor="middle" dominant-baseline="middle">/orders/{orderId}/events</text>
+<text class="body" x="480" y="457" text-anchor="middle" dominant-baseline="middle">/metrics + /health</text>
+  </g>
+
+  <g id="core">
+    <rect class="card" x="350" y="170" width="260" height="130" rx="16" fill="#FFFFFF" stroke="#758297"/>
+    <text class="cardTitle" x="480" y="193" text-anchor="middle" dominant-baseline="middle">bluetape4k</text>
+<text class="cardTitle" x="480" y="219" text-anchor="middle" dominant-baseline="middle">Ktor Core</text>
+    <text class="body" x="480" y="260" text-anchor="middle" dominant-baseline="middle">JSON + errors</text>
+<text class="body" x="480" y="280" text-anchor="middle" dominant-baseline="middle">health baseline</text>
+  </g>
+
+  <g id="observability">
+    <rect class="card" x="680" y="170" width="290" height="130" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
+    <text class="cardTitle" x="825" y="193" text-anchor="middle" dominant-baseline="middle">Ktor</text>
+<text class="cardTitle" x="825" y="219" text-anchor="middle" dominant-baseline="middle">Observability</text>
+    <text class="body" x="825" y="260" text-anchor="middle" dominant-baseline="middle">correlation + logging</text>
+<text class="body" x="825" y="280" text-anchor="middle" dominant-baseline="middle">metrics + optional tracing</text>
+  </g>
+
+  <g id="service">
+    <rect class="card" x="680" y="550" width="290" height="130" rx="16" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="cardTitle" x="825" y="573" text-anchor="middle" dominant-baseline="middle">OrderEvent</text>
+<text class="cardTitle" x="825" y="599" text-anchor="middle" dominant-baseline="middle">TelemetryService</text>
+    <text class="body" x="825" y="640" text-anchor="middle" dominant-baseline="middle">publish + consume</text>
+<text class="body" x="825" y="660" text-anchor="middle" dominant-baseline="middle">uses ObservationRegistry</text>
+  </g>
+
+  <g id="eventObs">
+    <rect class="card" x="1040" y="550" width="300" height="130" rx="16" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="cardTitle" x="1190" y="573" text-anchor="middle" dominant-baseline="middle">Event</text>
+<text class="cardTitle" x="1190" y="599" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
+    <text class="body" x="1190" y="640" text-anchor="middle" dominant-baseline="middle">event.publish</text>
+<text class="body" x="1190" y="660" text-anchor="middle" dominant-baseline="middle">event.consume</text>
+  </g>
+
+  <g id="registry">
+    <rect class="card" x="1040" y="360" width="300" height="130" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
+    <text class="cardTitle" x="1190" y="383" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
+<text class="cardTitle" x="1190" y="409" text-anchor="middle" dominant-baseline="middle">MeterRegistry</text>
+    <text class="body" x="1190" y="450" text-anchor="middle" dominant-baseline="middle">application-owned</text>
+<text class="body" x="1190" y="470" text-anchor="middle" dominant-baseline="middle">scraped by route</text>
+  </g>
+
+  <g id="otel">
+    <rect class="card" x="1040" y="170" width="300" height="130" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="cardTitle" x="1190" y="193" text-anchor="middle" dominant-baseline="middle">OpenTelemetry SDK</text>
+<text class="cardTitle" x="1190" y="219" text-anchor="middle" dominant-baseline="middle">optional</text>
+    <text class="body" x="1190" y="260" text-anchor="middle" dominant-baseline="middle">server spans</text>
+<text class="body" x="1190" y="280" text-anchor="middle" dominant-baseline="middle">null disables tracing</text>
+  </g>
+  <text class="note" x="710" y="790" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+</svg>
