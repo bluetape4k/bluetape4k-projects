@@ -55,8 +55,10 @@ jobs:
           fetch-depth: 0
       - name: Install gitleaks
         run: |
-          GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+          GITLEAKS_ASSET_URL=$(curl -sSfL https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux_x64\\.tar\\.gz$")) | .browser_download_url')
+          test -n "${GITLEAKS_ASSET_URL}"
+          curl -sSfL "${GITLEAKS_ASSET_URL}" \
             | tar -xz gitleaks
           sudo mv gitleaks /usr/local/bin/
       - name: Run gitleaks
