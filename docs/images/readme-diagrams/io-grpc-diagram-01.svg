@@ -5,46 +5,25 @@
   <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
     .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
     .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
     .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
     .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
     .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-
-      /* README_LAYER_BANDS:START */
-      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
-      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
-      /* README_LAYER_BANDS:END */
-    </style>
+  </style>
 </defs>
 <rect class="canvas" width="998" height="1246"/>
 <rect class="frame" x="32" y="28" width="934" height="1190" rx="28"/>
 <text class="title" x="66" y="82">Class Hierarchy</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-  <!-- README_LAYER_BANDS:START -->
-  <g id="readme-layer-bands">
-    <g id="readme-layer-1">
-      <rect class="readmeLayerBand" x="52" y="148" width="894" height="239" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="70" y="176">Contract layer</text>
-    </g>
-    <g id="readme-layer-2">
-      <rect class="readmeLayerBand" x="52" y="473" width="894" height="260" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="70" y="501">Abstraction layer</text>
-    </g>
-    <g id="readme-layer-3">
-      <rect class="readmeLayerBand" x="52" y="819" width="894" height="239" rx="18" fill="#EAF7EF"/>
-      <text class="readmeLayerLabel" x="70" y="847">Implementation layer</text>
-    </g>
-  </g>
-  <!-- README_LAYER_BANDS:END -->
 <path class="inheritLine" d="M724 505 L724 430 L274 430 L274 355"/>
 <path class="inheritLine" d="M499 851 L499 768 L274 768 L274 701"/>
 <path class="implLine" d="M274 505 L274 414 L724 414 L724 355"/>

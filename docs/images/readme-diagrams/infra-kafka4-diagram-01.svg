@@ -1,78 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="526" viewBox="0 0 1378 526" role="img" aria-label="Dependency Boundary">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
-  <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-
-      /* README_LAYER_BANDS:START */
-      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
-      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
-      /* README_LAYER_BANDS:END */
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">Kafka4 module dependency architecture</title>
+  <desc id="desc">Architecture diagram for infra-kafka4 showing application usage, bluetape4k Kafka4 adapter roles, serialization hooks, and externally governed Kafka and Spring dependencies.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    </marker>
+    <style>
+      .canvas{fill:#F7FAFC}
+      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .card-shape{filter:url(#shadow);stroke-width:2}
+      .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
+      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
-</defs>
-<rect class="canvas" width="1378" height="526"/>
-<rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
-<text class="title" x="66" y="82">Dependency Boundary</text>
-<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-  <!-- README_LAYER_BANDS:START -->
-  <g id="readme-layer-bands">
-    <g id="readme-layer-1">
-      <rect class="readmeLayerBand" x="16" y="138" width="1346" height="164" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="34" y="166">Public layer</text>
-    </g>
-    <g id="readme-layer-2">
-      <rect class="readmeLayerBand" x="16" y="304" width="1346" height="164" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="34" y="332">Core layer</text>
-    </g>
+  </defs>
+  <rect class="canvas" width="1500" height="900"/>
+  <rect class="frame" x="34" y="30" width="1432" height="840" rx="28"/>
+  <text class="title" x="72" y="88">Kafka4 module dependency architecture</text>
+  <text class="subtitle" x="76" y="121">The module boundary is separated from producer/consumer helpers and the governed Kafka 4 dependency families.</text>
+
+  <g id="group-module">
+    <rect class="group" x="370" y="200" width="760" height="310" rx="18"/>
+    <text class="group-title" x="400" y="218">bluetape4k-kafka4 module boundary</text>
   </g>
-  <!-- README_LAYER_BANDS:END -->
-<path class="line" d="M672 220 C672 303 873 303 873 386"/>
-<path class="line" d="M672 220 C672 303 539 303 539 386"/>
-<path class="line" d="M372 220 C372 303 505 303 505 386"/>
-<path class="line" d="M672 220 C672 220 1040 220 1040 220"/>
-<path class="line" d="M672 220 C672 220 706 220 706 220"/>
-<path class="line" d="M338 220 C338 220 372 220 372 220"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Application</text>
-</g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">bluetape4k-kafka4</text>
-</g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Kafka clients 4.2.x</text>
-</g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Spring Kafka 4.0.x</text>
-</g>
-<g transform="translate(215,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Spring Boot 4 BOM</text>
-</g>
-<g transform="translate(549,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">bluetape4k-jackson3</text>
-</g>
-<g transform="translate(883,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">reactor-kafka</text>
-</g>
+  <g id="group-dependencies">
+    <rect class="group" x="92" y="620" width="1316" height="132" rx="18"/>
+    <text class="group-title" x="122" y="638">Governed dependency families</text>
+  </g>
+
+  <path id="route-app-entry" class="connector" d="M342 321 L455 321" stroke="#4F83BF"/>
+  <path id="route-entry-producer" class="connector" d="M595 336 L595 378" stroke="#D9AA4D"/>
+  <path id="route-entry-consumer" class="connector" d="M735 293 L760 293 L760 420 L800 420" stroke="#45A7A1"/>
+  <path id="route-entry-serialization" class="connector" d="M735 293 L810 293" stroke="#8A72D6"/>
+  <path id="route-producer-kafka-clients" class="connector" d="M580 462 L580 560 L280 560 L280 655" stroke="#D9AA4D"/>
+  <path id="route-consumer-kafka-clients" class="connector" d="M925 462 L925 560 L280 560 L280 655" stroke="#45A7A1"/>
+  <path id="route-consumer-reactor-kafka" class="connector" d="M925 462 L925 655" stroke="#45A7A1"/>
+  <path id="route-entry-spring-kafka" class="connector" d="M455 293 L430 293 L430 600 L600 600 L600 655" stroke="#58A978"/>
+  <path id="route-serialization-json-stack" class="connector" d="M1060 293 L1100 293 L1100 600 L1240 600 L1240 655" stroke="#8A72D6"/>
+  <path id="route-governance-spring-kafka" class="connector" d="M1175 345 L760 345 L760 615 L600 615 L600 655" stroke="#6B7D90"/>
+  <path id="route-governance-json-stack" class="connector" d="M1298 388 L1298 655" stroke="#6B7D90"/>
+
+  <g id="node-app" transform="translate(92,278)">
+    <rect class="card-shape" x="0" y="0" width="250" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="125" y="30" text-anchor="middle">Application code</text>
+    <text class="detail" x="125" y="55" text-anchor="middle">producer and consumer use cases</text>
+    <text class="detail" x="125" y="73" text-anchor="middle">Spring Boot 4 services</text>
+  </g>
+  <g id="node-entry" transform="translate(455,250)">
+    <rect class="card-shape" x="0" y="0" width="280" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="140" y="30" text-anchor="middle">Kafka4 extensions</text>
+    <text class="detail" x="140" y="55" text-anchor="middle">typed send/receive helpers</text>
+    <text class="detail" x="140" y="73" text-anchor="middle">coroutine-friendly API</text>
+  </g>
+  <g id="node-producer" transform="translate(455,378)">
+    <rect class="card-shape" x="0" y="0" width="250" height="84" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="125" y="29" text-anchor="middle">Producer support</text>
+    <text class="detail" x="125" y="54" text-anchor="middle">records, headers</text>
+    <text class="detail" x="125" y="72" text-anchor="middle">send result handling</text>
+  </g>
+  <g id="node-consumer" transform="translate(800,378)">
+    <rect class="card-shape" x="0" y="0" width="250" height="84" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="125" y="29" text-anchor="middle">Consumer support</text>
+    <text class="detail" x="125" y="54" text-anchor="middle">poll, commit</text>
+    <text class="detail" x="125" y="72" text-anchor="middle">listener adapter helpers</text>
+  </g>
+  <g id="node-serialization" transform="translate(810,250)">
+    <rect class="card-shape" x="0" y="0" width="250" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="125" y="30" text-anchor="middle">Serialization hooks</text>
+    <text class="detail" x="125" y="55" text-anchor="middle">Jackson3 payloads</text>
+    <text class="detail" x="125" y="73" text-anchor="middle">byte/string codecs</text>
+  </g>
+  <g id="node-kafka-clients" transform="translate(150,655)">
+    <rect class="card-shape" x="0" y="0" width="260" height="72" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="130" y="23" text-anchor="middle">Kafka clients 4.x</text>
+    <text class="detail" x="130" y="48" text-anchor="middle">producer, consumer</text>
+    <text class="detail" x="130" y="66" text-anchor="middle">admin client</text>
+  </g>
+  <g id="node-spring-kafka" transform="translate(470,655)">
+    <rect class="card-shape" x="0" y="0" width="260" height="72" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="130" y="23" text-anchor="middle">Spring Kafka 4.x</text>
+    <text class="detail" x="130" y="48" text-anchor="middle">listener containers</text>
+    <text class="detail" x="130" y="66" text-anchor="middle">template integration</text>
+  </g>
+  <g id="node-reactor-kafka" transform="translate(790,655)">
+    <rect class="card-shape" x="0" y="0" width="260" height="72" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="130" y="23" text-anchor="middle">Reactor Kafka</text>
+    <text class="detail" x="130" y="48" text-anchor="middle">reactive bridge</text>
+    <text class="detail" x="130" y="66" text-anchor="middle">backpressure surface</text>
+  </g>
+  <g id="node-json-stack" transform="translate(1110,655)">
+    <rect class="card-shape" x="0" y="0" width="260" height="72" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="130" y="23" text-anchor="middle">Jackson 3 stack</text>
+    <text class="detail" x="130" y="48" text-anchor="middle">ObjectMapper</text>
+    <text class="detail" x="130" y="66" text-anchor="middle">payload codecs</text>
+  </g>
+  <g id="node-governance" transform="translate(1175,302)">
+    <rect class="card-shape" x="0" y="0" width="245" height="86" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
+    <text class="card-title" x="122.5" y="30" text-anchor="middle">Catalog governance</text>
+    <text class="detail" x="122.5" y="55" text-anchor="middle">dependency tag</text>
+    <text class="detail" x="122.5" y="73" text-anchor="middle">security updates</text>
+  </g>
+
+  <g transform="translate(76,826)">
+    <rect class="pill" x="0" y="0" width="1348" height="44" rx="10"/>
+    <text class="small" x="674" y="17" text-anchor="middle">Graphviz evidence: infra-kafka4-diagram-01.dot, .plain, -sketch.svg, and -sketch.png.</text>
+    <text class="small" x="674" y="34" text-anchor="middle">Geometry gate: nodes=10, routes=11, segments=26, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=129.</text>
+  </g>
 </svg>

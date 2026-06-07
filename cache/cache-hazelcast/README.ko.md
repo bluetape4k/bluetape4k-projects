@@ -175,7 +175,7 @@ suspendNearJCache.close()
 
 ### HazelcastNearCache 계층
 
-![HazelcastNearCache diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-ko-diagram-02.png)
+![HazelcastNearCache diagram](../../docs/images/readme-diagrams/cache-cache-hazelcast-diagram-02.png)
 
 ### IMap EntryListener 기반 Invalidation 흐름
 

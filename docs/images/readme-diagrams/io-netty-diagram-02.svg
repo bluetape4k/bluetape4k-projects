@@ -5,46 +5,25 @@
   <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
     .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
     .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
     .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
     .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
     .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-
-      /* README_LAYER_BANDS:START */
-      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
-      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
-      /* README_LAYER_BANDS:END */
-    </style>
+  </style>
 </defs>
 <rect class="canvas" width="890" height="736"/>
 <rect class="frame" x="32" y="28" width="826" height="680" rx="28"/>
 <text class="title" x="66" y="82">Smart Encoding Data Flow</text>
 <text class="subtitle" x="70" y="118">Grouped architecture from the original Mermaid source</text>
-  <!-- README_LAYER_BANDS:START -->
-  <g id="readme-layer-bands">
-    <g id="readme-layer-1">
-      <rect class="readmeLayerBand" x="54" y="204" width="763" height="176" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="72" y="232">Public layer</text>
-    </g>
-    <g id="readme-layer-2">
-      <rect class="readmeLayerBand" x="54" y="346" width="763" height="176" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="72" y="374">Core layer</text>
-    </g>
-    <g id="readme-layer-3">
-      <rect class="readmeLayerBand" x="54" y="488" width="763" height="176" rx="18" fill="#EAF7EF"/>
-      <text class="readmeLayerLabel" x="72" y="516">Adapter layer</text>
-    </g>
-  </g>
-  <!-- README_LAYER_BANDS:END -->
 <g transform="translate(60,160)">
   <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
   <text class="smallLabel" x="175" y="44" text-anchor="middle">ranges</text>
