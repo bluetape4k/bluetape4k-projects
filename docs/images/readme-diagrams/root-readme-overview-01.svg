@@ -6,21 +6,42 @@
     <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L8,4.5 L1,8 Z" fill="#758297"/></marker>
     <style>
       .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:42px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:16px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:42px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:16px;fill:#536476;font-weight:400}
       .card{filter:url(#shadow);stroke-width:2}
-      .cardTitle{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:24px;fill:#22344A;font-weight:400}
-      .body{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;fill:#34465B;font-weight:400}
+      .cardTitle{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:24px;fill:#22344A;font-weight:400}
+      .body{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;fill:#34465B;font-weight:400}
       .edge{stroke:#758297;stroke-width:2.3;fill:none;marker-end:url(#arrow)}
-      .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
+      .edgeLabel{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
       .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.92}
-      .note{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;fill:#627184;font-weight:400}
+      .note{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+
+      /* README_LAYER_BANDS:START */
+      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
+      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
+      /* README_LAYER_BANDS:END */
     </style>
   </defs>
   <rect class="canvas" width="1420" height="840"/>
   <rect class="frame" x="32" y="28" width="1356" height="784" rx="26"/>
   <text class="title" x="66" y="82">Bluetape4k Projects Overview</text>
   <text class="subtitle" x="70" y="116">Shared Kotlin/JVM foundations, integrations, applications, and split repositories</text>
+  <!-- README_LAYER_BANDS:START -->
+  <g id="readme-layer-bands">
+    <g id="readme-layer-1">
+      <rect class="readmeLayerBand" x="48" y="103" width="1344" height="254" rx="18" fill="#E8F3FF"/>
+      <text class="readmeLayerLabel" x="66" y="131">Platform layer</text>
+    </g>
+    <g id="readme-layer-2">
+      <rect class="readmeLayerBand" x="48" y="338" width="1344" height="219" rx="18" fill="#E9F7F6"/>
+      <text class="readmeLayerLabel" x="66" y="366">Adapter layer</text>
+    </g>
+    <g id="readme-layer-3">
+      <rect class="readmeLayerBand" x="48" y="483" width="1344" height="289" rx="18" fill="#EAF7EF"/>
+      <text class="readmeLayerLabel" x="66" y="511">Delivery layer</text>
+    </g>
+  </g>
+  <!-- README_LAYER_BANDS:END -->
   <path class="edge" d="M340 225 L370 225 L370 227.5 L400 227.5"/>
 <path class="edge" d="M700 227.5 L740 227.5 L740 230 L780 230"/>
 <path class="edge" d="M1130 230 L1125 230 L1125 447.5 L1120 447.5"/>
