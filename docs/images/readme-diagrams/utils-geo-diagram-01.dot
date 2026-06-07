@@ -1,0 +1,53 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", splines=ortho, nodesep=0.55, ranksep=0.75];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  subgraph cluster_0 {
+    label="Public API";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "geocode" [label="Geocode API", fillcolor="#E8F3FF", color="#75A9E8"];
+    "geohash-api" [label="GeoHash API", fillcolor="#EAF7EF", color="#69B888"];
+    "geoip" [label="GeoIP API", fillcolor="#F1ECFF", color="#8A72D6"];
+  }
+  subgraph cluster_1 {
+    label="Adapter layer";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "google" [label="Google Maps adapter", fillcolor="#FFF3D9", color="#D9AA4D"];
+    "bing" [label="Bing Maps adapter", fillcolor="#FCE7F3", color="#DB7890"];
+    "maxmind-reader" [label="MaxMind reader", fillcolor="#E9F7F6", color="#45A7A1"];
+  }
+  subgraph cluster_2 {
+    label="Spatial model";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "geohash-core" [label="GeoHash core", fillcolor="#EAF7EF", color="#69B888"];
+    "geo-queries" [label="Spatial queries", fillcolor="#EEF6D9", color="#8BA84D"];
+    "geo-result" [label="GeoIP result model", fillcolor="#F1ECFF", color="#8A72D6"];
+  }
+  subgraph cluster_3 {
+    label="External systems";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "provider-http" [label="Provider HTTP APIs", fillcolor="#FFF3D9", color="#D9AA4D"];
+    "geo-db" [label="GeoLite2 databases", fillcolor="#E9F7F6", color="#45A7A1"];
+  }
+  "geocode" -> "google" [xlabel="google finder", color="#D9AA4D"];
+  "geocode" -> "bing" [xlabel="bing finder", color="#DB7890"];
+  "geohash-api" -> "geohash-core" [xlabel="index", color="#58A978"];
+  "geohash-core" -> "geo-queries" [xlabel="search cells", color="#8BA84D"];
+  "geoip" -> "maxmind-reader" [xlabel="reader", color="#45A7A1"];
+  "maxmind-reader" -> "geo-result" [xlabel="normalize", color="#8A72D6"];
+  "google" -> "provider-http" [xlabel="HTTP", color="#D9AA4D"];
+  "bing" -> "provider-http" [xlabel="HTTP", color="#DB7890"];
+  "maxmind-reader" -> "geo-db" [xlabel="mmdb", color="#45A7A1"];
+}

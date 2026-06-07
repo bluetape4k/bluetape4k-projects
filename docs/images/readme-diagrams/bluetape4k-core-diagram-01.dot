@@ -1,0 +1,52 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", splines=ortho, nodesep=0.55, ranksep=0.75];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  subgraph cluster_0 {
+    label="Module entrypoint";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "core" [label="bluetape4k-core", fillcolor="#E8F3FF", color="#75A9E8"];
+  }
+  subgraph cluster_1 {
+    label="Caller contracts";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "validation" [label="RequireSupport", fillcolor="#EAF7EF", color="#69B888"];
+    "types" [label="Type extensions", fillcolor="#E9F7F6", color="#45A7A1"];
+    "codec" [label="Codec utilities", fillcolor="#FFF3D9", color="#D9AA4D"];
+  }
+  subgraph cluster_2 {
+    label="Domain value model";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "value" [label="ValueObject", fillcolor="#F1ECFF", color="#8A72D6"];
+    "ranges" [label="Range model", fillcolor="#FCE7F3", color="#DB7890"];
+    "collections" [label="Collection helpers", fillcolor="#EEF6D9", color="#8BA84D"];
+  }
+  subgraph cluster_3 {
+    label="Runtime helpers";
+    color="#D7E2EC";
+    style="rounded,filled";
+    fillcolor="#F3F7FB";
+    rank=same;
+    "concurrent" [label="Concurrent utilities", fillcolor="#E9F7F6", color="#45A7A1"];
+    "time" [label="Java time DSL", fillcolor="#FFF3D9", color="#D9AA4D"];
+    "functional" [label="Functional utilities", fillcolor="#EAF7EF", color="#69B888"];
+  }
+  "core" -> "validation" [xlabel="contracts", color="#58A978"];
+  "core" -> "types" [xlabel="types", color="#45A7A1"];
+  "core" -> "codec" [xlabel="encoding", color="#D9AA4D"];
+  "validation" -> "ranges" [xlabel="range checks", color="#DB7890"];
+  "types" -> "value" [xlabel="value helpers", color="#8A72D6"];
+  "types" -> "collections" [xlabel="collections", color="#8BA84D"];
+  "collections" -> "concurrent" [xlabel="async containers", color="#45A7A1"];
+  "ranges" -> "time" [xlabel="temporal ranges", color="#D9AA4D"];
+  "value" -> "functional" [xlabel="composition", color="#58A978"];
+}

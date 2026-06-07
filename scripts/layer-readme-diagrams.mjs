@@ -10,6 +10,12 @@ const markerEnd = "<!-- README_LAYER_BANDS:END -->";
 const cssStart = "/* README_LAYER_BANDS:START */";
 const cssEnd = "/* README_LAYER_BANDS:END */";
 const minTitleGapPx = 18;
+const generatedLayeredModuleOverviews = new Set([
+  `${diagramDir}/bluetape4k-core-diagram-01.png`,
+  `${diagramDir}/bluetape4k-coroutines-diagram-01.png`,
+  `${diagramDir}/utils-geo-diagram-01.png`,
+  `${diagramDir}/utils-science-diagram-01.png`,
+]);
 
 const palette = {
   frame: "#D7E2EC",
@@ -33,6 +39,7 @@ function uniqueReadmeDiagramPngs() {
     for (const match of content.matchAll(pattern)) {
       const png = match[0];
       if (png.includes("sequence") || png.includes("chart")) continue;
+      if (generatedLayeredModuleOverviews.has(png)) continue;
       diagrams.add(png);
     }
   }
