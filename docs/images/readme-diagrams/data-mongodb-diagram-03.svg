@@ -1,101 +1,125 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="692" viewBox="0 0 1378 692" role="img" aria-label="Aggregation Pipeline Data Flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
-  <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-
-      /* README_LAYER_BANDS:START */
-      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
-      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
-      /* README_LAYER_BANDS:END */
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="930" viewBox="0 0 1500 930" role="img" aria-labelledby="title desc">
+  <title id="title">Mongo aggregation architecture</title>
+  <desc id="desc">Layered architecture diagram for MongoDB aggregation helpers showing application scenarios, coroutine APIs, DSL pipeline builders, driver handoff, and MongoDB execution.</desc>
+  <defs>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    </marker>
+    <style>
+      .canvas{fill:#F7FAFC}
+      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .card-shape{filter:url(#shadow);stroke-width:2}
+      .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
+      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
-</defs>
-<rect class="canvas" width="1378" height="692"/>
-<rect class="frame" x="32" y="28" width="1314" height="636" rx="28"/>
-<text class="title" x="66" y="82">Aggregation Pipeline Data Flow</text>
-<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-  <!-- README_LAYER_BANDS:START -->
-  <g id="readme-layer-bands">
-    <g id="readme-layer-1">
-      <rect class="readmeLayerBand" x="16" y="138" width="1346" height="164" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="34" y="166">Public layer</text>
-    </g>
-    <g id="readme-layer-2">
-      <rect class="readmeLayerBand" x="16" y="304" width="1346" height="164" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="34" y="332">Core layer</text>
-    </g>
-    <g id="readme-layer-3">
-      <rect class="readmeLayerBand" x="16" y="470" width="1346" height="164" rx="18" fill="#EAF7EF"/>
-      <text class="readmeLayerLabel" x="34" y="498">Adapter layer</text>
-    </g>
+  </defs>
+  <rect class="canvas" width="1500" height="930"/>
+  <rect class="frame" x="34" y="30" width="1432" height="870" rx="28"/>
+  <text class="title" x="72" y="88">Mongo aggregation architecture</text>
+  <text class="subtitle" x="76" y="121">Application code builds coroutine-friendly aggregation pipelines before handing them to the MongoDB driver and server.</text>
+
+  <g id="group-application">
+    <rect class="group" x="74" y="155" width="1352" height="118" rx="18"/>
+    <text class="group-title" x="104" y="173">Application scenarios</text>
   </g>
-  <!-- README_LAYER_BANDS:END -->
-<path class="line" d="M338 220 C338 303 1040 303 1040 386"/>
-<path class="line" d="M338 220 C338 303 706 303 706 386"/>
-<path class="line" d="M338 220 C338 303 372 303 372 386"/>
-<path class="line" d="M188 280 C188 303 188 303 188 326"/>
-<path class="line" d="M1006 220 C1006 220 1040 220 1040 220"/>
-<path class="line" d="M672 220 C672 220 706 220 706 220"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">pipeline { ... } DSL</text>
-</g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">List&amp;lt;Bson&amp;gt;</text>
-</g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">Aggregate</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Flow&amp;lt;T&amp;gt;</text>
-</g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Flow&amp;lt;T&amp;gt;</text>
-</g>
-<g transform="translate(48,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">matchStage - filter</text>
-</g>
-<g transform="translate(382,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">groupStage - group</text>
-</g>
-<g transform="translate(716,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">sortStage - sort</text>
-</g>
-<g transform="translate(1050,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">limitStage - limit</text>
-</g>
-<g transform="translate(215,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">skipStage - skip</text>
-</g>
-<g transform="translate(549,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">projectStage -</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">project</text>
-</g>
-<g transform="translate(883,502)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">unwindStage - unwind</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">array</text>
-</g>
+  <g id="group-api">
+    <rect class="group" x="74" y="320" width="1352" height="130" rx="18"/>
+    <text class="group-title" x="104" y="338">Coroutine API surface</text>
+  </g>
+  <g id="group-dsl">
+    <rect class="group" x="74" y="500" width="1352" height="148" rx="18"/>
+    <text class="group-title" x="104" y="518">Pipeline DSL and mapping</text>
+  </g>
+  <g id="group-driver">
+    <rect class="group" x="74" y="706" width="1352" height="108" rx="18"/>
+    <text class="group-title" x="104" y="724">MongoDB runtime</text>
+  </g>
+
+  <path id="route-service-flow-api" class="connector" d="M340 252 L340 345" stroke="#4F83BF"/>
+  <path id="route-projection-collection-api" class="connector" d="M780 252 L780 300 L985 300 L985 345" stroke="#58A978"/>
+  <path id="route-criteria-collection-api" class="connector" d="M1200 252 L1200 300 L985 300 L985 345" stroke="#D9AA4D"/>
+  <path id="route-flow-api-dsl-builder" class="connector" d="M430 427 L430 536" stroke="#45A7A1"/>
+  <path id="route-collection-api-pipeline" class="connector" d="M985 427 L985 472 L740 472 L740 536" stroke="#8A72D6"/>
+  <path id="route-dsl-builder-pipeline" class="connector" d="M500 579 L590 579" stroke="#DB7890"/>
+  <path id="route-pipeline-mapper" class="connector" d="M890 579 L990 579" stroke="#D9AA4D"/>
+  <path id="route-pipeline-driver-api" class="connector" d="M740 622 L740 675 L560 675 L560 730" stroke="#D9AA4D"/>
+  <path id="route-mapper-driver-api" class="connector" d="M1140 622 L1140 675 L560 675 L560 730" stroke="#58A978"/>
+  <path id="route-driver-api-server" class="connector" d="M715 766 L875 766" stroke="#45A7A1"/>
+
+  <g id="node-service" transform="translate(190,178)">
+    <rect class="card-shape" x="0" y="0" width="300" height="74" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="150" y="24" text-anchor="middle">Repository/service code</text>
+    <text class="detail" x="150" y="49" text-anchor="middle">domain query intent</text>
+    <text class="detail" x="150" y="67" text-anchor="middle">Flow result collection</text>
+  </g>
+  <g id="node-projection" transform="translate(650,178)">
+    <rect class="card-shape" x="0" y="0" width="260" height="74" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="130" y="24" text-anchor="middle">Projection model</text>
+    <text class="detail" x="130" y="49" text-anchor="middle">DTO mapping</text>
+    <text class="detail" x="130" y="67" text-anchor="middle">aggregation result</text>
+  </g>
+  <g id="node-criteria" transform="translate(1080,178)">
+    <rect class="card-shape" x="0" y="0" width="240" height="74" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="120" y="24" text-anchor="middle">Search criteria</text>
+    <text class="detail" x="120" y="49" text-anchor="middle">match, sort</text>
+    <text class="detail" x="120" y="67" text-anchor="middle">limit, page</text>
+  </g>
+  <g id="node-flow-api" transform="translate(265,345)">
+    <rect class="card-shape" x="0" y="0" width="330" height="82" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="165" y="28" text-anchor="middle">Flow collection extensions</text>
+    <text class="detail" x="165" y="53" text-anchor="middle">suspend and Flow APIs</text>
+    <text class="detail" x="165" y="71" text-anchor="middle">backpressure-friendly reads</text>
+  </g>
+  <g id="node-collection-api" transform="translate(820,345)">
+    <rect class="card-shape" x="0" y="0" width="330" height="82" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="165" y="28" text-anchor="middle">MongoCollection helpers</text>
+    <text class="detail" x="165" y="53" text-anchor="middle">typed collection access</text>
+    <text class="detail" x="165" y="71" text-anchor="middle">codec-aware calls</text>
+  </g>
+  <g id="node-dsl-builder" transform="translate(180,536)">
+    <rect class="card-shape" x="0" y="0" width="320" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+    <text class="card-title" x="160" y="30" text-anchor="middle">Aggregation DSL</text>
+    <text class="detail" x="160" y="55" text-anchor="middle">match, group, project</text>
+    <text class="detail" x="160" y="73" text-anchor="middle">sort and unwind stages</text>
+  </g>
+  <g id="node-pipeline" transform="translate(590,536)">
+    <rect class="card-shape" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="150" y="30" text-anchor="middle">Pipeline document list</text>
+    <text class="detail" x="150" y="55" text-anchor="middle">Bson stage sequence</text>
+    <text class="detail" x="150" y="73" text-anchor="middle">driver-ready model</text>
+  </g>
+  <g id="node-mapper" transform="translate(990,536)">
+    <rect class="card-shape" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="150" y="30" text-anchor="middle">Result mapper</text>
+    <text class="detail" x="150" y="55" text-anchor="middle">document to type</text>
+    <text class="detail" x="150" y="73" text-anchor="middle">nullable-safe decode</text>
+  </g>
+  <g id="node-driver-api" transform="translate(405,730)">
+    <rect class="card-shape" x="0" y="0" width="310" height="72" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="155" y="23" text-anchor="middle">MongoDB Java driver</text>
+    <text class="detail" x="155" y="48" text-anchor="middle">aggregate()</text>
+    <text class="detail" x="155" y="66" text-anchor="middle">cursor and publisher bridge</text>
+  </g>
+  <g id="node-server" transform="translate(875,730)">
+    <rect class="card-shape" x="0" y="0" width="310" height="72" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="155" y="23" text-anchor="middle">MongoDB server</text>
+    <text class="detail" x="155" y="48" text-anchor="middle">pipeline execution</text>
+    <text class="detail" x="155" y="66" text-anchor="middle">indexes and collection data</text>
+  </g>
+
+  <g transform="translate(76,856)">
+    <rect class="pill" x="0" y="0" width="1348" height="44" rx="10"/>
+    <text class="small" x="674" y="17" text-anchor="middle">Graphviz evidence: data-mongodb-diagram-03.dot, .plain, -sketch.svg, and -sketch.png.</text>
+    <text class="small" x="674" y="34" text-anchor="middle">Geometry gate: nodes=10, routes=10, segments=20, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=57.</text>
+  </g>
 </svg>

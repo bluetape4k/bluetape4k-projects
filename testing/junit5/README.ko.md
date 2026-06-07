@@ -356,7 +356,7 @@ class FieldSourceTest {
 
 출력 예시:
 
-![Mermaid diagram](../../docs/images/readme-diagrams/testing-junit5-ko-diagram-03.png)
+![Mermaid diagram](../../docs/images/readme-diagrams/testing-junit5-diagram-03.png)
 
 - `active`: 성공한 테스트
 - `crit`: 실패한 테스트

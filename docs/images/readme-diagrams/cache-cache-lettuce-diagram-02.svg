@@ -5,10 +5,10 @@
   <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
+    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
     .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
+    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
     .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
     .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
     .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
@@ -18,33 +18,12 @@
     .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
     .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
     .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-
-      /* README_LAYER_BANDS:START */
-      .readmeLayerBand{fill-opacity:.42;stroke:#D7E2EC;stroke-width:1.5}
-      .readmeLayerLabel{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:18px;fill:#627184;font-weight:400}
-      /* README_LAYER_BANDS:END */
-    </style>
+  </style>
 </defs>
 <rect class="canvas" width="2222" height="1335"/>
 <rect class="frame" x="32" y="28" width="2158" height="1279" rx="28"/>
 <text class="title" x="66" y="82">JCache NearCache (nearcache.jcache )</text>
 <text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-  <!-- README_LAYER_BANDS:START -->
-  <g id="readme-layer-bands">
-    <g id="readme-layer-1">
-      <rect class="readmeLayerBand" x="54" y="148" width="2088" height="176" rx="18" fill="#E8F3FF"/>
-      <text class="readmeLayerLabel" x="72" y="176">Public layer</text>
-    </g>
-    <g id="readme-layer-2">
-      <rect class="readmeLayerBand" x="54" y="428" width="2088" height="239" rx="18" fill="#E9F7F6"/>
-      <text class="readmeLayerLabel" x="72" y="456">Core layer</text>
-    </g>
-    <g id="readme-layer-3">
-      <rect class="readmeLayerBand" x="54" y="771" width="2088" height="302" rx="18" fill="#EAF7EF"/>
-      <text class="readmeLayerLabel" x="72" y="799">Adapter layer</text>
-    </g>
-  </g>
-  <!-- README_LAYER_BANDS:END -->
 <path class="line" d="M1111 292 L1111 460"/>
 <path class="line" d="M689 292 L689 122 L1955 122 L1955 180"/>
 <path class="line" d="M689 292 L689 132 L1533 132 L1533 180"/>

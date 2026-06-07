@@ -92,11 +92,11 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 #### NearCacheOperations (Blocking)
 
-![NearCacheOperations (Blocking) diagram](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-01.png)
+![NearCacheOperations (Blocking) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-02.png)
 
 #### SuspendNearCacheOperations (Coroutine)
 
-![SuspendNearCacheOperations (Coroutine) diagram](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-02.png)
+![SuspendNearCacheOperations (Coroutine) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-03.png)
 
 #### JCache 기반 NearCache (`nearcache.jcache` 패키지)
 
@@ -105,15 +105,15 @@ val value = memo("recover")      // 새로 계산하여 7 반환
 
 ##### SuspendJCache 인터페이스
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-03.png)
+![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-04.png)
 
 ##### NearJCache (동기)
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-04.png)
+![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-05.png)
 
 ##### SuspendNearJCache (코루틴)
 
-![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-ko-diagram-05.png)
+![JCache NearCache (nearcache.jcache ) diagram](../../docs/images/readme-diagrams/cache-cache-core-diagram-06.png)
 
 ##### NearJCacheConfig Builder DSL
 

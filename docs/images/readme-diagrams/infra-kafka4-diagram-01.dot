@@ -1,0 +1,26 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", splines=ortho, nodesep=0.55, ranksep=0.75];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  "app" [label="Application code", shape=box, fillcolor="#E8F3FF", color="#75A9E8"];
+  "entry" [label="Kafka4 extensions", shape=box, fillcolor="#EAF7EF", color="#69B888"];
+  "producer" [label="Producer support", shape=box, fillcolor="#FFF3D9", color="#D9AA4D"];
+  "consumer" [label="Consumer support", shape=box, fillcolor="#E9F7F6", color="#45A7A1"];
+  "serialization" [label="Serialization hooks", shape=box, fillcolor="#F1ECFF", color="#8A72D6"];
+  "kafka-clients" [label="Kafka clients 4.x", shape=box, fillcolor="#FFF3D9", color="#D9AA4D"];
+  "spring-kafka" [label="Spring Kafka 4.x", shape=box, fillcolor="#EAF7EF", color="#69B888"];
+  "reactor-kafka" [label="Reactor Kafka", shape=box, fillcolor="#E9F7F6", color="#45A7A1"];
+  "json-stack" [label="Jackson 3 stack", shape=box, fillcolor="#F1ECFF", color="#8A72D6"];
+  "governance" [label="Catalog governance", shape=box, fillcolor="#F6F8FA", color="#AAB7C4"];
+  "app" -> "entry" [color="#4F83BF"];
+  "entry" -> "producer" [color="#D9AA4D"];
+  "entry" -> "consumer" [color="#45A7A1"];
+  "entry" -> "serialization" [color="#8A72D6"];
+  "producer" -> "kafka-clients" [color="#D9AA4D"];
+  "consumer" -> "kafka-clients" [color="#45A7A1"];
+  "consumer" -> "reactor-kafka" [color="#45A7A1"];
+  "entry" -> "spring-kafka" [color="#58A978"];
+  "serialization" -> "json-stack" [color="#8A72D6"];
+  "governance" -> "spring-kafka" [color="#6B7D90"];
+  "governance" -> "json-stack" [color="#6B7D90"];
+}
