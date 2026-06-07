@@ -21,53 +21,14 @@ not require an OTLP collector.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    Client[HTTP Client]
-    Controller[Spring MVC Controller]
-    Service[OrderEventService]
-    SpringObs[bluetape4k observeSpring]
-    EventObs[bluetape4k event telemetry]
-    Registry[ObservationRegistry]
-    Actuator[Spring Boot Actuator]
-    Prometheus["/actuator/prometheus"]
-    Otlp[OTLP Collector optional]
-
-    Client --> Controller
-    Controller --> Service
-    Service --> SpringObs
-    Service --> EventObs
-    SpringObs --> Registry
-    EventObs --> Registry
-    Registry --> Actuator
-    Actuator --> Prometheus
-    Registry -. traces when configured .-> Otlp
-```
+![Spring Boot observability demo architecture](../../../docs/images/readme-diagrams/examples-spring-boot-observability-spring-boot-demo-architecture-01.png)
 
 Spring Boot owns metrics endpoint registration. The application contributes observed work; Actuator
 turns Micrometer observations into Prometheus scrape output.
 
 ## Sequence Diagram
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Controller as Spring MVC Controller
-    participant SpringObs as observeSpring
-    participant EventObs as event telemetry
-    participant Actuator as Actuator /actuator/prometheus
-    participant Otlp as OTLP Collector
-
-    Client->>Controller: POST /orders/{orderId}/events
-    Controller->>SpringObs: observe HTTP service work
-    SpringObs->>EventObs: observe event.publish
-    SpringObs->>EventObs: observe event.consume
-    SpringObs-->>Controller: OrderEventResponse
-    Controller-->>Client: 200 JSON
-    Client->>Actuator: GET /actuator/prometheus
-    Actuator-->>Client: Prometheus scrape output
-    SpringObs-->>Otlp: traces when collector/exporter is configured
-```
+![Spring Boot observability demo sequence](../../../docs/images/readme-diagrams/examples-spring-boot-observability-spring-boot-demo-sequence-01.png)
 
 ## Dependencies
 

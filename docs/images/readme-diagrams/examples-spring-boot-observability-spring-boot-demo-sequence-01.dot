@@ -1,0 +1,19 @@
+digraph "examples-spring-boot-observability-spring-boot-demo-sequence-01" {
+  graph [rankdir=LR, bgcolor="#F6F9FC", splines=ortho, nodesep=0.7, ranksep=1.0];
+  node [shape=box, style="rounded,filled", color="#D7E2EC", fillcolor="#FFFFFF", fontname="Architects Daughter"];
+  edge [color="#758297", arrowsize=0.8, fontname="Comic Mono"];
+  client [label="Client", fillcolor="#E8F3FF", color="#5B8DEF"];
+  controller [label="Spring MVC Controller", fillcolor="#E9F7F6", color="#45A7A1"];
+  springObs [label="observeSpring", fillcolor="#E9F7F6", color="#45A7A1"];
+  eventObs [label="Event Telemetry", fillcolor="#EAF7EF", color="#58A978"];
+  actuator [label="Actuator Prometheus", fillcolor="#FFF3D9", color="#D6A441"];
+  otlp [label="OTLP optional", fillcolor="#F1ECFF", color="#8A72D6"];
+  client -> controller [label="POST /orders/{orderId}/events", color="#5B8DEF"];
+  controller -> springObs [label="observe HTTP service work", color="#45A7A1"];
+  springObs -> eventObs [label="event.publish", color="#58A978"];
+  springObs -> eventObs [label="event.consume", color="#58A978"];
+  springObs -> controller [label="OrderEventResponse", color="#DC6B82", style=dashed];
+  controller -> client [label="200 JSON", color="#DC6B82", style=dashed];
+  client -> actuator [label="GET /actuator/prometheus", color="#D6A441"];
+  springObs -> otlp [label="traces when configured", color="#8A72D6", style=dashed];
+}

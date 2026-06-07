@@ -1,0 +1,20 @@
+digraph "examples-ktor-observability-ktor-demo-sequence-01" {
+  graph [rankdir=LR, bgcolor="#F6F9FC", splines=ortho, nodesep=0.7, ranksep=1.0];
+  node [shape=box, style="rounded,filled", color="#D7E2EC", fillcolor="#FFFFFF", fontname="Architects Daughter"];
+  edge [color="#758297", arrowsize=0.8, fontname="Comic Mono"];
+  client [label="Client", fillcolor="#E8F3FF", color="#5B8DEF"];
+  ktor [label="Ktor Routes", fillcolor="#E9F7F6", color="#45A7A1"];
+  observability [label="Ktor Observability", fillcolor="#FFF3D9", color="#D6A441"];
+  eventObs [label="Event Telemetry", fillcolor="#EAF7EF", color="#58A978"];
+  prom [label="Prometheus Registry", fillcolor="#FFF3D9", color="#D6A441"];
+  otel [label="OpenTelemetry optional", fillcolor="#F1ECFF", color="#8A72D6"];
+  client -> ktor [label="POST /orders/{orderId}/events", color="#5B8DEF"];
+  ktor -> observability [label="correlation + logging + metrics", color="#D6A441"];
+  ktor -> eventObs [label="observe event.publish", color="#58A978"];
+  ktor -> eventObs [label="observe event.consume", color="#58A978"];
+  eventObs -> prom [label="Micrometer timers", color="#D6A441"];
+  observability -> otel [label="server spans when configured", color="#8A72D6", style=dashed];
+  ktor -> client [label="200 JSON", color="#DC6B82", style=dashed];
+  client -> ktor [label="GET /metrics", color="#D6A441"];
+  ktor -> prom [label="scrape()", color="#D6A441"];
+}

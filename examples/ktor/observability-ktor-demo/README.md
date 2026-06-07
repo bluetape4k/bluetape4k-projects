@@ -21,55 +21,14 @@ owns the registry and route.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    Client[HTTP Client]
-    Routes[Ktor Routes]
-    Core[bluetape4k Ktor Core]
-    Obs[bluetape4k Ktor Observability]
-    Service[OrderEventTelemetryService]
-    EventObs[bluetape4k event telemetry]
-    Registry[PrometheusMeterRegistry]
-    Metrics["/metrics"]
-    OTel[OpenTelemetry SDK optional]
-
-    Client --> Routes
-    Routes --> Core
-    Routes --> Obs
-    Routes --> Service
-    Service --> EventObs
-    Obs --> Registry
-    EventObs --> Registry
-    Routes --> Metrics
-    Metrics --> Registry
-    Obs -. server spans when configured .-> OTel
-```
+![Ktor observability demo architecture](../../../docs/images/readme-diagrams/examples-ktor-observability-ktor-demo-architecture-01.png)
 
 The scrape route is application-owned. `prometheusScrapeRoute(registry)` only exposes the registry
 content; it does not create global exporters or backend connections.
 
 ## Sequence Diagram
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Ktor as Ktor Routes
-    participant Obs as bluetape4k Ktor Observability
-    participant EventObs as event telemetry
-    participant Prom as PrometheusMeterRegistry
-    participant OTel as OpenTelemetry SDK
-
-    Client->>Ktor: POST /orders/{orderId}/events
-    Ktor->>Obs: correlation ID, call logging, metrics, tracing
-    Ktor->>EventObs: observe event.publish
-    Ktor->>EventObs: observe event.consume
-    EventObs->>Prom: Micrometer timers
-    Obs->>OTel: server span when configured
-    Ktor-->>Client: 200 JSON
-    Client->>Ktor: GET /metrics
-    Ktor->>Prom: scrape()
-    Ktor-->>Client: Prometheus text
-```
+![Ktor observability demo sequence](../../../docs/images/readme-diagrams/examples-ktor-observability-ktor-demo-sequence-01.png)
 
 ## Dependencies
 

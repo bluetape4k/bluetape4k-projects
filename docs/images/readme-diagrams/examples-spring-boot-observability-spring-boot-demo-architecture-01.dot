@@ -1,0 +1,21 @@
+digraph "examples-spring-boot-observability-spring-boot-demo-architecture-01" {
+  graph [rankdir=LR, bgcolor="#F6F9FC", splines=ortho, nodesep=0.7, ranksep=1.0];
+  node [shape=box, style="rounded,filled", color="#D7E2EC", fillcolor="#FFFFFF", fontname="Architects Daughter"];
+  edge [color="#758297", arrowsize=0.8, fontname="Comic Mono"];
+  client [label="HTTP Client", fillcolor="#E8F3FF", color="#5B8DEF"];
+  controller [label="Spring MVC Controller", fillcolor="#E9F7F6", color="#45A7A1"];
+  service [label="OrderEventService", fillcolor="#EAF7EF", color="#58A978"];
+  springObs [label="observeSpring", fillcolor="#E9F7F6", color="#45A7A1"];
+  eventObs [label="Event Telemetry", fillcolor="#EAF7EF", color="#58A978"];
+  registry [label="ObservationRegistry", fillcolor="#FFFFFF", color="#758297"];
+  actuator [label="Actuator Prometheus", fillcolor="#FFF3D9", color="#D6A441"];
+  otlp [label="OTLP Collector optional", fillcolor="#F1ECFF", color="#8A72D6"];
+  client -> controller [label="", color="#5B8DEF"];
+  controller -> service [label="", color="#45A7A1"];
+  service -> springObs [label="", color="#45A7A1"];
+  service -> eventObs [label="", color="#58A978"];
+  springObs -> registry [label="", color="#45A7A1"];
+  eventObs -> registry [label="", color="#58A978"];
+  registry -> actuator [label="", color="#D6A441"];
+  registry -> otlp [label="", color="#8A72D6", style=dashed];
+}

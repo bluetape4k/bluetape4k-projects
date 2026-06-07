@@ -20,53 +20,14 @@ Prometheus server 없이 scrape 결과를 확인할 수 있고, 테스트는 OTL
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    Client[HTTP Client]
-    Controller[Spring MVC Controller]
-    Service[OrderEventService]
-    SpringObs[bluetape4k observeSpring]
-    EventObs[bluetape4k event telemetry]
-    Registry[ObservationRegistry]
-    Actuator[Spring Boot Actuator]
-    Prometheus["/actuator/prometheus"]
-    Otlp[OTLP Collector optional]
-
-    Client --> Controller
-    Controller --> Service
-    Service --> SpringObs
-    Service --> EventObs
-    SpringObs --> Registry
-    EventObs --> Registry
-    Registry --> Actuator
-    Actuator --> Prometheus
-    Registry -. traces when configured .-> Otlp
-```
+![Spring Boot observability demo architecture](../../../docs/images/readme-diagrams/examples-spring-boot-observability-spring-boot-demo-architecture-01.png)
 
 Spring Boot가 metrics endpoint 등록을 소유합니다. 애플리케이션은 관측 대상 작업을 제공하고,
 Actuator가 Micrometer observation을 Prometheus scrape output으로 변환합니다.
 
 ## Sequence Diagram
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Controller as Spring MVC Controller
-    participant SpringObs as observeSpring
-    participant EventObs as event telemetry
-    participant Actuator as Actuator /actuator/prometheus
-    participant Otlp as OTLP Collector
-
-    Client->>Controller: POST /orders/{orderId}/events
-    Controller->>SpringObs: HTTP service 작업 관측
-    SpringObs->>EventObs: event.publish 관측
-    SpringObs->>EventObs: event.consume 관측
-    SpringObs-->>Controller: OrderEventResponse
-    Controller-->>Client: 200 JSON
-    Client->>Actuator: GET /actuator/prometheus
-    Actuator-->>Client: Prometheus scrape output
-    SpringObs-->>Otlp: collector/exporter 설정 시 trace 전송
-```
+![Spring Boot observability demo sequence](../../../docs/images/readme-diagrams/examples-spring-boot-observability-spring-boot-demo-sequence-01.png)
 
 ## 의존성
 
