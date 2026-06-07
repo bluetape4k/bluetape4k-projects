@@ -5,7 +5,48 @@
 Spring Boot 4에서 bluetape4k observation helper를 Spring Boot Actuator Prometheus metrics와
 애플리케이션 소유 OTLP tracing 설정으로 사용하는 실행 가능한 예제입니다.
 
-## 구조
+## 예제 시나리오
+
+이 예제는 작은 주문 이벤트 workflow를 모델링합니다.
+
+1. 클라이언트가 선택적 `X-Request-Id` correlation header와 함께 주문 이벤트를 전송합니다.
+2. Spring MVC controller가 요청을 `OrderEventService`로 전달합니다.
+3. `OrderEventService`는 HTTP/service 경계를 `ObservationRegistry.observeSpring`으로 감쌉니다.
+4. 같은 논리 이벤트에 대해 `event.publish` observation과 `event.consume` observation을 기록합니다.
+5. Spring Boot Actuator가 HTTP 및 event observation metrics를 `/actuator/prometheus`로 노출합니다.
+6. 로컬 collector endpoint를 지정하면 Spring Boot Micrometer tracing exporter가 OTLP trace를 보낼 수 있습니다.
+
+Prometheus server 없이 scrape 결과를 확인할 수 있고, 테스트는 OTLP collector 없이 실행되도록 구성했습니다.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Client[HTTP Client]
+    Controller[Spring MVC Controller]
+    Service[OrderEventService]
+    SpringObs[bluetape4k observeSpring]
+    EventObs[bluetape4k event telemetry]
+    Registry[ObservationRegistry]
+    Actuator[Spring Boot Actuator]
+    Prometheus["/actuator/prometheus"]
+    Otlp[OTLP Collector optional]
+
+    Client --> Controller
+    Controller --> Service
+    Service --> SpringObs
+    Service --> EventObs
+    SpringObs --> Registry
+    EventObs --> Registry
+    Registry --> Actuator
+    Actuator --> Prometheus
+    Registry -. traces when configured .-> Otlp
+```
+
+Spring Boot가 metrics endpoint 등록을 소유합니다. 애플리케이션은 관측 대상 작업을 제공하고,
+Actuator가 Micrometer observation을 Prometheus scrape output으로 변환합니다.
+
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram

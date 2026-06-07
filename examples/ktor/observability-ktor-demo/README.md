@@ -5,7 +5,50 @@ English | [한국어](./README.ko.md)
 Runnable Ktor 3 application that shows application-owned Prometheus metrics routing, opt-in
 OpenTelemetry tracing, and bluetape4k event telemetry helpers.
 
+## Example Scenario
+
+The demo models a Ktor application that owns its observability plumbing explicitly:
+
+1. The application creates a `PrometheusMeterRegistry`.
+2. `installBluetape4kKtorObservability` installs correlation IDs, call logging, Micrometer metrics, and optional tracing.
+3. A client posts an order event with an optional `X-Request-Id` header.
+4. The route records `event.publish` and `event.consume` observations through bluetape4k event telemetry helpers.
+5. The application exposes its own Prometheus scrape endpoint at `/metrics`.
+6. Passing an `OpenTelemetry` SDK instance enables Ktor server spans; passing `null` keeps tracing disabled.
+
+This intentionally differs from the Spring Boot demo: Ktor has no Actuator endpoint, so the application
+owns the registry and route.
+
 ## Architecture
+
+```mermaid
+flowchart LR
+    Client[HTTP Client]
+    Routes[Ktor Routes]
+    Core[bluetape4k Ktor Core]
+    Obs[bluetape4k Ktor Observability]
+    Service[OrderEventTelemetryService]
+    EventObs[bluetape4k event telemetry]
+    Registry[PrometheusMeterRegistry]
+    Metrics["/metrics"]
+    OTel[OpenTelemetry SDK optional]
+
+    Client --> Routes
+    Routes --> Core
+    Routes --> Obs
+    Routes --> Service
+    Service --> EventObs
+    Obs --> Registry
+    EventObs --> Registry
+    Routes --> Metrics
+    Metrics --> Registry
+    Obs -. server spans when configured .-> OTel
+```
+
+The scrape route is application-owned. `prometheusScrapeRoute(registry)` only exposes the registry
+content; it does not create global exporters or backend connections.
+
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
