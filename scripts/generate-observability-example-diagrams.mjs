@@ -193,6 +193,7 @@ function validateGeometry(diagram) {
   let badBends = 0;
   let interiorCrossings = 0;
   let clearanceViolations = 0;
+  let layerContainmentViolations = 0;
   let segments = 0;
 
   for (const route of diagram.routes) {
@@ -241,6 +242,24 @@ function validateGeometry(diagram) {
   const marginImbalance = Math.round(Math.max(Math.abs(left - right), Math.abs(top - bottom)));
   const titleGap = Math.round(minY - diagram.subtitleY);
 
+  if (diagram.layers?.length) {
+    const layers = new Map(diagram.layers.map((layer) => [layer.id, layer]));
+    for (const node of diagram.nodes) {
+      if (!node.layer) continue;
+      const layer = layers.get(node.layer);
+      if (!layer) {
+        layerContainmentViolations += 1;
+        continue;
+      }
+      const contains =
+        node.x >= layer.x &&
+        node.y >= layer.y &&
+        node.x + node.w <= layer.x + layer.w &&
+        node.y + node.h <= layer.y + layer.h;
+      if (!contains) layerContainmentViolations += 1;
+    }
+  }
+
   const summary = {
     nodes: diagram.nodes.length,
     routes: diagram.routes.length,
@@ -249,6 +268,7 @@ function validateGeometry(diagram) {
     badBends,
     interiorCrossings,
     clearanceViolations,
+    layerContainmentViolations,
     marginImbalance,
     titleGap,
   };
@@ -258,6 +278,7 @@ function validateGeometry(diagram) {
   if (badBends !== 0) failures.push("non-orthogonal bend");
   if (interiorCrossings !== 0) failures.push("connector crosses non-endpoint box");
   if (clearanceViolations !== 0) failures.push("connector lacks 8px clearance");
+  if (layerContainmentViolations !== 0) failures.push("node outside assigned layer");
   if (titleGap < diagram.minTitleGap) failures.push(`title gap ${titleGap} < ${diagram.minTitleGap}`);
   if (marginImbalance > diagram.maxMarginImbalance) failures.push(`margin imbalance ${marginImbalance} > ${diagram.maxMarginImbalance}`);
 
@@ -267,11 +288,27 @@ function validateGeometry(diagram) {
 function dotFor(diagram) {
   const rows = [
     `digraph "${diagram.file}" {`,
-    "  graph [rankdir=LR, bgcolor=\"#F6F9FC\", splines=ortho, nodesep=0.7, ranksep=1.0];",
+    `  graph [rankdir=${diagram.layers?.length ? "TB" : "LR"}, bgcolor="#F6F9FC", splines=ortho, nodesep=0.7, ranksep=1.0];`,
     "  node [shape=box, style=\"rounded,filled\", color=\"#D7E2EC\", fillcolor=\"#FFFFFF\", fontname=\"Architects Daughter\"];",
     "  edge [color=\"#758297\", arrowsize=0.8, fontname=\"Comic Mono\"];",
   ];
-  for (const node of diagram.nodes) {
+  const writtenNodes = new Set();
+  if (diagram.layers?.length) {
+    for (const layer of diagram.layers) {
+      rows.push(`  subgraph cluster_${layer.id} {`);
+      rows.push(`    label="${layer.label.replaceAll('"', '\\"')}";`);
+      rows.push("    color=\"#D7E2EC\";");
+      rows.push("    style=\"rounded\";");
+      rows.push("    rank=same;");
+      for (const node of diagram.nodes.filter((candidate) => candidate.layer === layer.id)) {
+        const label = node.dotLabel ?? node.title ?? (node.titleLines ?? []).join(" ");
+        rows.push(`    ${node.id} [label="${label.replaceAll('"', '\\"')}", fillcolor="${node.fill}", color="${node.stroke}"];`);
+        writtenNodes.add(node.id);
+      }
+      rows.push("  }");
+    }
+  }
+  for (const node of diagram.nodes.filter((candidate) => !writtenNodes.has(candidate.id))) {
     const label = node.dotLabel ?? node.title ?? (node.titleLines ?? []).join(" ");
     rows.push(`  ${node.id} [label="${label.replaceAll('"', '\\"')}", fillcolor="${node.fill}", color="${node.stroke}"];`);
   }
@@ -298,6 +335,16 @@ function renderSvg(diagram) {
   const nodeMarkup = diagram.kind === "sequence"
     ? diagram.nodes.map(participant).join("\n")
     : diagram.nodes.map(card).join("\n");
+  const layerStyle = (diagram.layers ?? []).length > 0
+    ? `
+      .layerBand{fill:#FFFFFF;stroke:${palette.frame};stroke-width:1.4;opacity:.72}
+      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:${palette.muted};font-weight:400}`
+    : "";
+  const layerMarkup = (diagram.layers ?? []).length > 0
+    ? `\n  ${(diagram.layers ?? [])
+      .map((layer) => `<g id="${layer.id}"><rect class="layerBand" x="${layer.x}" y="${layer.y}" width="${layer.w}" height="${layer.h}" rx="18"/><text class="layerLabel" x="${layer.x + 18}" y="${layer.y + 28}">${escapeXml(layer.label)}</text></g>`)
+      .join("\n  ")}`
+    : "";
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${diagram.width}" height="${diagram.height}" viewBox="0 0 ${diagram.width} ${diagram.height}" role="img" aria-labelledby="${diagram.file}-title ${diagram.file}-desc">
   <title id="${diagram.file}-title">${escapeXml(diagram.title)}</title>
@@ -307,7 +354,7 @@ function renderSvg(diagram) {
     ${markerDefs(markerColors)}
     <style>
       .canvas{fill:${palette.canvas}}.frame{fill:#FFFFFF;stroke:${palette.frame};stroke-width:2}
-      .card,.participant{filter:url(#shadow);stroke-width:2}
+      .card,.participant{filter:url(#shadow);stroke-width:2}${layerStyle}
       .lifeline{stroke:${palette.neutral};stroke-width:1.8;stroke-dasharray:7 8}
       .edge{stroke-width:2.4;fill:none}
       .sequenceEdge{stroke-width:2.3;fill:none}
@@ -318,7 +365,7 @@ function renderSvg(diagram) {
   <rect class="canvas" width="${diagram.width}" height="${diagram.height}"/>
   <rect class="frame" x="${diagram.frame.x}" y="${diagram.frame.y}" width="${diagram.frame.w}" height="${diagram.frame.h}" rx="26"/>
   <text class="title" x="66" y="82">${escapeXml(diagram.title)}</text>
-  <text class="subtitle" x="70" y="${diagram.subtitleY}">${escapeXml(diagram.subtitle)}</text>
+  <text class="subtitle" x="70" y="${diagram.subtitleY}">${escapeXml(diagram.subtitle)}</text>${layerMarkup}
   ${diagram.kind === "sequence" ? nodeMarkup + "\n" + drawRoutes(diagram.routes.map((route) => ({ ...route, className: "sequenceEdge" }))) : drawRoutes(diagram.routes) + "\n" + nodeMarkup}
   <text class="note" x="${diagram.width / 2}" y="${diagram.height - 30}" text-anchor="middle">${escapeXml("Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.")}</text>
 </svg>
@@ -340,7 +387,7 @@ function generate(diagram) {
   execFileSync("dot", ["-Tpng", "-o", sketchPngPath, dotPath], { stdio: "inherit" });
 
   const { summary, failures } = validateGeometry(diagram);
-  const summaryText = `${diagram.file}: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=${summary.badEndpointAngle}, badBends=${summary.badBends}, interiorCrossings=${summary.interiorCrossings}, clearanceViolations=${summary.clearanceViolations}, marginImbalance=${summary.marginImbalance}, titleGap=${summary.titleGap}`;
+  const summaryText = `${diagram.file}: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=${summary.badEndpointAngle}, badBends=${summary.badBends}, interiorCrossings=${summary.interiorCrossings}, clearanceViolations=${summary.clearanceViolations}, layerContainmentViolations=${summary.layerContainmentViolations}, marginImbalance=${summary.marginImbalance}, titleGap=${summary.titleGap}`;
   console.log(summaryText);
   if (failures.length > 0) {
     throw new Error(`${diagram.file} failed geometry gates: ${failures.join(", ")}`);
@@ -351,79 +398,94 @@ function generate(diagram) {
 }
 
 function architectureSpring() {
+  const layers = [
+    { id: "entry", label: "Entry layer", x: 54, y: 150, w: 1312, h: 140 },
+    { id: "application", label: "Application work layer", x: 54, y: 310, w: 1312, h: 140 },
+    { id: "observability", label: "Observation layer", x: 54, y: 470, w: 1312, h: 160 },
+    { id: "export", label: "Export layer", x: 54, y: 650, w: 1312, h: 160 },
+  ];
   const nodes = [
-    { id: "client", title: "HTTP Client", bodyLines: ["POST order event", "GET scrape output"], x: 70, y: 360, w: 230, h: 130, fill: palette.cardBlue, stroke: palette.request },
-    { id: "controller", titleLines: ["Spring MVC", "Controller"], bodyLines: ["/orders/{orderId}/events", "X-Request-Id header"], x: 360, y: 360, w: 260, h: 130, fill: palette.cardTeal, stroke: palette.service },
-    { id: "service", title: "OrderEventService", bodyLines: ["local publish + consume", "returns accepted JSON"], x: 690, y: 360, w: 280, h: 130, fill: palette.cardGreen, stroke: palette.event },
-    { id: "springObs", title: "observeSpring", bodyLines: ["orders.http.publish", "HTTP/service boundary"], x: 690, y: 170, w: 280, h: 130, fill: palette.cardTeal, stroke: palette.service },
-    { id: "eventObs", titleLines: ["Event", "Telemetry"], bodyLines: ["event.publish", "event.consume"], x: 690, y: 550, w: 280, h: 130, fill: palette.cardGreen, stroke: palette.event },
-    { id: "registry", title: "ObservationRegistry", bodyLines: ["Micrometer handlers", "metrics + optional spans"], x: 1040, y: 360, w: 300, h: 130, fill: palette.cardWhite, stroke: palette.neutral },
-    { id: "actuator", titleLines: ["Actuator", "Prometheus"], bodyLines: ["/actuator/prometheus", "Spring owns endpoint"], x: 1040, y: 170, w: 300, h: 130, fill: palette.cardAmber, stroke: palette.metrics },
-    { id: "otlp", titleLines: ["OTLP Collector", "optional"], bodyLines: ["enabled by Spring config", "not required for tests"], x: 1040, y: 550, w: 300, h: 130, fill: palette.cardPurple, stroke: palette.trace },
+    { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET scrape output"], x: 120, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
+    { id: "controller", layer: "entry", titleLines: ["Spring MVC", "Controller"], bodyLines: ["/orders/{orderId}/events", "X-Request-Id header"], x: 440, y: 170, w: 280, h: 112, fill: palette.cardTeal, stroke: palette.service },
+    { id: "service", layer: "application", title: "OrderEventService", bodyLines: ["local publish + consume", "returns accepted JSON"], x: 570, y: 334, w: 320, h: 96, fill: palette.cardGreen, stroke: palette.event },
+    { id: "springObs", layer: "observability", title: "observeSpring", bodyLines: ["orders.http.publish", "HTTP/service boundary"], x: 210, y: 500, w: 300, h: 100, fill: palette.cardTeal, stroke: palette.service },
+    { id: "eventObs", layer: "observability", titleLines: ["Event", "Telemetry"], bodyLines: ["event.publish", "event.consume"], x: 560, y: 494, w: 300, h: 112, fill: palette.cardGreen, stroke: palette.event },
+    { id: "registry", layer: "observability", title: "ObservationRegistry", bodyLines: ["Micrometer handlers", "metrics + optional spans"], x: 930, y: 500, w: 310, h: 100, fill: palette.cardWhite, stroke: palette.neutral },
+    { id: "actuator", layer: "export", titleLines: ["Actuator", "Prometheus"], bodyLines: ["/actuator/prometheus", "Spring owns endpoint"], x: 770, y: 682, w: 285, h: 112, fill: palette.cardAmber, stroke: palette.metrics },
+    { id: "otlp", layer: "export", titleLines: ["OTLP Collector", "optional"], bodyLines: ["enabled by Spring config", "not required for tests"], x: 1110, y: 682, w: 250, h: 112, fill: palette.cardPurple, stroke: palette.trace },
   ];
   const routes = [
-    { id: "client-controller", from: "client", to: "controller", color: palette.request, marker: "arrowRequest", points: [{ x: 300, y: 425 }, { x: 360, y: 425 }], label: { text: "HTTP request", x: 330, y: 397 } },
-    { id: "controller-service", from: "controller", to: "service", color: palette.service, marker: "arrowService", points: [{ x: 620, y: 425 }, { x: 690, y: 425 }], label: { text: "delegate", x: 655, y: 397 } },
-    { id: "service-observe-spring", from: "service", to: "springObs", color: palette.service, marker: "arrowService", points: [{ x: 830, y: 360 }, { x: 830, y: 300 }], label: { text: "observe HTTP work", x: 830, y: 328 } },
-    { id: "service-event-telemetry", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 830, y: 490 }, { x: 830, y: 550 }], label: { text: "publish + consume", x: 830, y: 522 } },
-    { id: "springObs-registry", from: "springObs", to: "registry", color: palette.service, marker: "arrowService", points: [{ x: 970, y: 235 }, { x: 1000, y: 235 }, { x: 1000, y: 410 }, { x: 1040, y: 410 }], label: { text: "observations", x: 1000, y: 320 } },
-    { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 970, y: 615 }, { x: 1000, y: 615 }, { x: 1000, y: 440 }, { x: 1040, y: 440 }], label: { text: "event metrics", x: 1000, y: 535 } },
-    { id: "registry-actuator", from: "registry", to: "actuator", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 1190, y: 360 }, { x: 1190, y: 300 }], label: { text: "scrape registry", x: 1190, y: 328 } },
-    { id: "registry-otlp", from: "registry", to: "otlp", color: palette.trace, marker: "arrowTrace", dash: "8 7", points: [{ x: 1190, y: 490 }, { x: 1190, y: 550 }], label: { text: "traces when configured", x: 1190, y: 522, w: 185 } },
+    { id: "client-controller", from: "client", to: "controller", color: palette.request, marker: "arrowRequest", points: [{ x: 365, y: 222 }, { x: 440, y: 222 }] },
+    { id: "controller-service", from: "controller", to: "service", color: palette.service, marker: "arrowService", points: [{ x: 580, y: 282 }, { x: 580, y: 304 }, { x: 730, y: 304 }, { x: 730, y: 334 }] },
+    { id: "service-observe-spring", from: "service", to: "springObs", color: palette.service, marker: "arrowService", points: [{ x: 650, y: 430 }, { x: 650, y: 455 }, { x: 360, y: 455 }, { x: 360, y: 500 }] },
+    { id: "service-event-telemetry", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 710, y: 430 }, { x: 710, y: 494 }] },
+    { id: "service-registry", from: "service", to: "registry", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 820, y: 430 }, { x: 820, y: 455 }, { x: 1085, y: 455 }, { x: 1085, y: 500 }] },
+    { id: "springObs-registry", from: "springObs", to: "registry", color: palette.service, marker: "arrowService", points: [{ x: 360, y: 600 }, { x: 360, y: 625 }, { x: 1085, y: 625 }, { x: 1085, y: 600 }] },
+    { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 860, y: 550 }, { x: 930, y: 550 }] },
+    { id: "registry-actuator", from: "registry", to: "actuator", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 1030, y: 600 }, { x: 1030, y: 650 }, { x: 912, y: 650 }, { x: 912, y: 682 }] },
+    { id: "registry-otlp", from: "registry", to: "otlp", color: palette.trace, marker: "arrowTrace", dash: "8 7", points: [{ x: 1180, y: 600 }, { x: 1180, y: 650 }, { x: 1235, y: 650 }, { x: 1235, y: 682 }] },
   ];
   return {
     file: "examples-spring-boot-observability-spring-boot-demo-architecture-01",
     kind: "architecture",
     title: "Spring Boot Observability Demo Architecture",
-    subtitle: "Actuator owns Prometheus export while bluetape4k wraps HTTP and event work.",
+    subtitle: "Layered request, application, observation, and export responsibilities.",
     width: 1420,
-    height: 820,
-    frame: { x: 32, y: 28, w: 1356, h: 744 },
+    height: 940,
+    frame: { x: 32, y: 28, w: 1356, h: 864 },
     subtitleY: 116,
     bodyTop: 150,
-    bodyBottom: 720,
+    bodyBottom: 850,
     minTitleGap: 54,
     maxMarginImbalance: 90,
+    layers,
     nodes,
     routes: routes.map(({ label, ...route }) => route),
   };
 }
 
 function architectureKtor() {
+  const layers = [
+    { id: "entry", label: "Entry layer", x: 54, y: 150, w: 1312, h: 140 },
+    { id: "platform", label: "Ktor platform layer", x: 54, y: 310, w: 1312, h: 140 },
+    { id: "application", label: "Application event layer", x: 54, y: 470, w: 1312, h: 160 },
+    { id: "export", label: "Export layer", x: 54, y: 650, w: 1312, h: 160 },
+  ];
   const nodes = [
-    { id: "client", title: "HTTP Client", bodyLines: ["POST order event", "GET /metrics"], x: 70, y: 360, w: 230, h: 130, fill: palette.cardBlue, stroke: palette.request },
-    { id: "routes", title: "Ktor Routes", bodyLines: ["/orders/{orderId}/events", "/metrics + /health"], x: 350, y: 360, w: 260, h: 130, fill: palette.cardTeal, stroke: palette.service },
-    { id: "core", titleLines: ["bluetape4k", "Ktor Core"], bodyLines: ["JSON + errors", "health baseline"], x: 350, y: 170, w: 260, h: 130, fill: palette.cardWhite, stroke: palette.neutral },
-    { id: "observability", titleLines: ["Ktor", "Observability"], bodyLines: ["correlation + logging", "metrics + optional tracing"], x: 680, y: 170, w: 290, h: 130, fill: palette.cardAmber, stroke: palette.metrics },
-    { id: "service", titleLines: ["OrderEvent", "TelemetryService"], bodyLines: ["publish + consume", "uses ObservationRegistry"], x: 680, y: 550, w: 290, h: 130, fill: palette.cardGreen, stroke: palette.event },
-    { id: "eventObs", titleLines: ["Event", "Telemetry"], bodyLines: ["event.publish", "event.consume"], x: 1040, y: 550, w: 300, h: 130, fill: palette.cardGreen, stroke: palette.event },
-    { id: "registry", titleLines: ["Prometheus", "MeterRegistry"], bodyLines: ["application-owned", "scraped by route"], x: 1040, y: 360, w: 300, h: 130, fill: palette.cardAmber, stroke: palette.metrics },
-    { id: "otel", titleLines: ["OpenTelemetry SDK", "optional"], bodyLines: ["server spans", "null disables tracing"], x: 1040, y: 170, w: 300, h: 130, fill: palette.cardPurple, stroke: palette.trace },
+    { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET /metrics"], x: 120, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
+    { id: "routes", layer: "entry", title: "Ktor Routes", bodyLines: ["/orders/{orderId}/events", "/metrics + /health"], x: 440, y: 170, w: 280, h: 104, fill: palette.cardTeal, stroke: palette.service },
+    { id: "core", layer: "platform", titleLines: ["bluetape4k", "Ktor Core"], bodyLines: ["JSON + errors", "health baseline"], x: 260, y: 326, w: 260, h: 112, fill: palette.cardWhite, stroke: palette.neutral },
+    { id: "observability", layer: "platform", titleLines: ["Ktor", "Observability"], bodyLines: ["correlation + logging", "metrics + optional tracing"], x: 610, y: 326, w: 320, h: 112, fill: palette.cardAmber, stroke: palette.metrics },
+    { id: "service", layer: "application", titleLines: ["OrderEvent", "TelemetryService"], bodyLines: ["publish + consume", "uses ObservationRegistry"], x: 420, y: 494, w: 300, h: 112, fill: palette.cardGreen, stroke: palette.event },
+    { id: "eventObs", layer: "application", titleLines: ["Event", "Telemetry"], bodyLines: ["event.publish", "event.consume"], x: 780, y: 494, w: 300, h: 112, fill: palette.cardGreen, stroke: palette.event },
+    { id: "registry", layer: "export", titleLines: ["Prometheus", "MeterRegistry"], bodyLines: ["application-owned", "scraped by route"], x: 760, y: 682, w: 300, h: 112, fill: palette.cardAmber, stroke: palette.metrics },
+    { id: "otel", layer: "export", titleLines: ["OpenTelemetry SDK", "optional"], bodyLines: ["server spans", "null disables tracing"], x: 1110, y: 682, w: 250, h: 112, fill: palette.cardPurple, stroke: palette.trace },
   ];
   const routes = [
-    { id: "client-routes", from: "client", to: "routes", color: palette.request, marker: "arrowRequest", points: [{ x: 300, y: 425 }, { x: 350, y: 425 }], label: { text: "HTTP request", x: 325, y: 397 } },
-    { id: "routes-core", from: "routes", to: "core", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 480, y: 360 }, { x: 480, y: 300 }], label: { text: "install core", x: 480, y: 328 } },
-    { id: "routes-observability", from: "routes", to: "observability", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 610, y: 400 }, { x: 645, y: 400 }, { x: 645, y: 235 }, { x: 680, y: 235 }], label: { text: "install observability", x: 645, y: 318, w: 165 } },
-    { id: "routes-service", from: "routes", to: "service", color: palette.event, marker: "arrowEvent", points: [{ x: 610, y: 455 }, { x: 645, y: 455 }, { x: 645, y: 615 }, { x: 680, y: 615 }], label: { text: "delegate event", x: 645, y: 535 } },
-    { id: "observability-registry", from: "observability", to: "registry", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 970, y: 235 }, { x: 1000, y: 235 }, { x: 1000, y: 400 }, { x: 1040, y: 400 }], label: { text: "meters", x: 1000, y: 320 } },
-    { id: "service-eventObs", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 970, y: 615 }, { x: 1040, y: 615 }], label: { text: "event observations", x: 1005, y: 587, w: 160 } },
-    { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 1190, y: 550 }, { x: 1190, y: 490 }], label: { text: "Micrometer timers", x: 1190, y: 522, w: 150 } },
-    { id: "observability-otel", from: "observability", to: "otel", color: palette.trace, marker: "arrowTrace", dash: "8 7", points: [{ x: 970, y: 235 }, { x: 1040, y: 235 }], label: { text: "server spans", x: 1005, y: 207 } },
-    { id: "routes-registry", from: "routes", to: "registry", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 610, y: 425 }, { x: 1040, y: 425 }], label: { text: "prometheusScrapeRoute", x: 825, y: 397, w: 190 } },
+    { id: "client-routes", from: "client", to: "routes", color: palette.request, marker: "arrowRequest", points: [{ x: 365, y: 222 }, { x: 440, y: 222 }] },
+    { id: "routes-core", from: "routes", to: "core", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 510, y: 274 }, { x: 510, y: 304 }, { x: 390, y: 304 }, { x: 390, y: 326 }] },
+    { id: "routes-observability", from: "routes", to: "observability", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 630, y: 274 }, { x: 630, y: 304 }, { x: 770, y: 304 }, { x: 770, y: 326 }] },
+    { id: "routes-service", from: "routes", to: "service", color: palette.event, marker: "arrowEvent", points: [{ x: 560, y: 274 }, { x: 560, y: 494 }] },
+    { id: "routes-registry", from: "routes", to: "registry", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 720, y: 222 }, { x: 1100, y: 222 }, { x: 1100, y: 650 }, { x: 910, y: 650 }, { x: 910, y: 682 }] },
+    { id: "observability-registry", from: "observability", to: "registry", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 930, y: 382 }, { x: 1120, y: 382 }, { x: 1120, y: 650 }, { x: 910, y: 650 }, { x: 910, y: 682 }] },
+    { id: "observability-otel", from: "observability", to: "otel", color: palette.trace, marker: "arrowTrace", dash: "8 7", points: [{ x: 930, y: 366 }, { x: 1235, y: 366 }, { x: 1235, y: 682 }] },
+    { id: "service-eventObs", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 720, y: 550 }, { x: 780, y: 550 }] },
+    { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 930, y: 606 }, { x: 930, y: 682 }] },
   ];
   return {
     file: "examples-ktor-observability-ktor-demo-architecture-01",
     kind: "architecture",
     title: "Ktor Observability Demo Architecture",
-    subtitle: "The application owns Prometheus routing and opts into OpenTelemetry tracing.",
+    subtitle: "Layered entry, platform, application event, and export responsibilities.",
     width: 1420,
-    height: 820,
-    frame: { x: 32, y: 28, w: 1356, h: 744 },
+    height: 940,
+    frame: { x: 32, y: 28, w: 1356, h: 864 },
     subtitleY: 116,
     bodyTop: 150,
-    bodyBottom: 720,
+    bodyBottom: 850,
     minTitleGap: 54,
     maxMarginImbalance: 90,
+    layers,
     nodes,
     routes: routes.map(({ label, ...route }) => route),
   };

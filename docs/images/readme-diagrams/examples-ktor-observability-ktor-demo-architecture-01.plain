@@ -1,19 +1,19 @@
-graph 1 14.997 2.8889
-node client 0.63194 0.84722 1.2639 0.5 "HTTP Client" rounded,filled box #5B8DEF #E8F3FF
-node routes 2.9323 0.84722 1.3368 0.5 "Ktor Routes" rounded,filled box #45A7A1 #E9F7F6
-node core 6.0816 2.6389 2.2118 0.5 "bluetape4k Ktor Core" rounded,filled box #758297 #FFFFFF
-node observability 6.0816 1.4444 1.8368 0.5 "Ktor Observability" rounded,filled box #D6A441 #FFF3D9
-node service 6.0816 0.25 2.9618 0.5 "OrderEvent TelemetryService" rounded,filled box #58A978 #EAF7EF
-node eventObs 9.9392 0.25 1.7118 0.5 "Event Telemetry" rounded,filled box #58A978 #EAF7EF
-node registry 13.656 0.25 2.6806 0.5 "Prometheus MeterRegistry" rounded,filled box #D6A441 #FFF3D9
-node otel 9.9392 1.4444 2.7535 0.5 "OpenTelemetry SDK optional" rounded,filled box #8A72D6 #F1ECFF
-edge client routes 4 1.2666 0.84722 1.2666 0.84722 2.1274 0.84722 2.1274 0.84722 solid #5B8DEF
-edge routes core 7 3.6074 0.97222 4.2325 0.97222 5.066 0.97222 5.066 0.97222 5.066 0.97222 5.066 2.25 5.066 2.25 solid #758297
-edge routes observability 7 2.9271 1.104 2.9271 1.2658 2.9271 1.4444 2.9271 1.4444 2.9271 1.4444 5.0243 1.4444 5.0243 1.4444 solid #D6A441
-edge routes service 7 3.6076 0.72222 4.1382 0.72222 4.7882 0.72222 4.7882 0.72222 4.7882 0.72222 4.7882 0.63483 4.7882 0.63483 solid #58A978
-edge routes registry 7 3.6063 0.84722 5.8917 0.84722 13.205 0.84722 13.205 0.84722 13.205 0.84722 13.205 0.63887 13.205 0.63887 solid #D6A441
-edge observability registry 10 6.0799 1.1925 6.0799 1.1645 6.0799 1.1458 6.0799 1.1458 6.0799 1.1458 14.108 1.1458 14.108 1.1458 14.108 1.1458 14.108 0.63645 14.108 0.63645 solid #D6A441
-edge observability otel 4 7.0056 1.4444 7.0056 1.4444 8.4266 1.4444 8.4266 1.4444 dashed #8A72D6
-edge service eventObs 4 7.5675 0.25 7.5675 0.25 8.9471 0.25 8.9471 0.25 solid #58A978
-edge eventObs registry 4 10.801 0.25 10.801 0.25 12.179 0.25 12.179 0.25 solid #58A978
+graph 1 10.667 7.2847
+node client 5.9861 6.4722 1.2639 0.5 "HTTP Client" rounded,filled box #5B8DEF #E8F3FF
+node routes 5.9861 4.9722 1.3368 0.5 "Ktor Routes" rounded,filled box #45A7A1 #E9F7F6
+node core 4.6389 1.9722 2.2118 0.5 "bluetape4k Ktor Core" rounded,filled box #758297 #FFFFFF
+node observability 7.3611 1.9722 1.8368 0.5 "Ktor Observability" rounded,filled box #D6A441 #FFF3D9
+node service 1.7083 3.4722 2.9618 0.5 "OrderEvent TelemetryService" rounded,filled box #58A978 #EAF7EF
+node eventObs 1.8472 1.9722 1.7118 0.5 "Event Telemetry" rounded,filled box #58A978 #EAF7EF
+node registry 5.6528 0.47222 2.6806 0.5 "Prometheus MeterRegistry" rounded,filled box #D6A441 #FFF3D9
+node otel 9.0694 0.47222 2.7535 0.5 "OpenTelemetry SDK optional" rounded,filled box #8A72D6 #F1ECFF
+edge client routes 4 5.9861 6.2178 5.9861 6.2178 5.9861 5.3601 5.9861 5.3601 solid #5B8DEF
+edge routes core 4 5.6024 4.7164 5.6024 4.7164 5.6024 2.3595 5.6024 2.3595 solid #758297
+edge routes observability 4 6.5486 4.7164 6.5486 4.7164 6.5486 2.3595 6.5486 2.3595 solid #D6A441
+edge routes service 7 5.4601 4.7178 5.4601 4.2898 5.4601 3.4722 5.4601 3.4722 5.4601 3.4722 3.3233 3.4722 3.3233 3.4722 solid #58A978
+edge routes registry 4 6.0938 4.7174 6.0938 4.7174 6.0938 0.85639 6.0938 0.85639 solid #D6A441
+edge observability registry 4 6.7179 1.7178 6.7179 1.7178 6.7179 0.86006 6.7179 0.86006 solid #D6A441
+edge observability otel 4 7.9861 1.7178 7.9861 1.7178 7.9861 0.86006 7.9861 0.86006 dashed #8A72D6
+edge service eventObs 4 1.8472 3.2178 1.8472 3.2178 1.8472 2.3601 1.8472 2.3601 solid #58A978
+edge eventObs registry 7 1.8472 1.7178 1.8472 1.2898 1.8472 0.47222 1.8472 0.47222 1.8472 0.47222 4.1736 0.47222 4.1736 0.47222 solid #58A978
 stop
