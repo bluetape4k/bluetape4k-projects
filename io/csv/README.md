@@ -196,7 +196,7 @@ Since v1.5.0, a higher-level V2 API is available under the `io.bluetape4k.csv.v2
 | Writer type         | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
 | Record type         | `Record` (interface)          | `CsvRow` (data class)            |
 | Settings            | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
-| Cancellation        | `ensureActive()` in suspend   | `channelFlow + ensureActive()`   |
+| Cancellation        | `ensureActive()` plus interruptible row writes | `channelFlow + ensureActive()`   |
 | quoteAll support    | No                            | `CsvWriterConfig.quoteAll = true` |
 
 ### Reading with V2

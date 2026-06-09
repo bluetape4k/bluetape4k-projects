@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.support.uninitialized
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
@@ -41,6 +42,8 @@ internal fun <T> onBackpressureDropInternal(source: Flow<T>): Flow<T> = flow {
                     }
                 }
                 state.done.value = true
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 state.error.value = e
             }

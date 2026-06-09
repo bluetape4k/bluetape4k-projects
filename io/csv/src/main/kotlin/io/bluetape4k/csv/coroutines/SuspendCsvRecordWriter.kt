@@ -6,9 +6,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import java.io.Writer
 
 /**
@@ -53,7 +53,7 @@ class SuspendCsvRecordWriter(
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
         mutex.withLock {
-            withContext(Dispatchers.IO) { lineWriter.writeRow(headers) }
+            runInterruptible(Dispatchers.IO) { lineWriter.writeRow(headers) }
         }
     }
 
@@ -72,7 +72,7 @@ class SuspendCsvRecordWriter(
      */
     override suspend fun writeRow(row: Iterable<*>) {
         mutex.withLock {
-            withContext(Dispatchers.IO) { lineWriter.writeRow(row) }
+            runInterruptible(Dispatchers.IO) { lineWriter.writeRow(row) }
         }
     }
 

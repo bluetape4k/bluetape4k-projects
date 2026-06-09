@@ -103,6 +103,9 @@ Recommended defaults:
   mutable working area.
 - In coroutine code, prefer `SuspendedSource`/`SuspendedSink` and the suspended
   buffered APIs instead of wrapping blocking stream calls directly.
+- When adapting a blocking Okio `Source`/`Sink` with `asSuspended()`, the bridge
+  runs the delegate on `Dispatchers.IO` via `runInterruptible`, so coroutine
+  cancellation interrupts an in-flight blocking read, write, flush, or close.
 
 ## Anti-Patterns
 
@@ -347,6 +350,10 @@ Buffered suspended sources guard against broken or non-blocking delegates that
 repeatedly return `0L` for positive read requests. Operations that need more
 data, such as `request`, `skip`, `select`, `indexOf`, and `readAll`, throw an
 `IOException` after repeated no-progress reads instead of spinning forever.
+File and socket suspended adapters run blocking cleanup operations such as
+`force()`, `flush()`, and `close()` through `runInterruptible(Dispatchers.IO)`,
+so coroutine cancellation interrupts those blocking resource-boundary calls
+instead of only waiting for them to return.
 
 **Suspended Pipe (producer-consumer pattern):**
 

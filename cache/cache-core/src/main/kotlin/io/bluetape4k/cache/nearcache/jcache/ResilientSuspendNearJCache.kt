@@ -12,6 +12,7 @@ import io.github.resilience4j.kotlin.retry.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryConfig
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -110,6 +111,8 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
             for (cmd in writeChannel) {
                 try {
                     retry.executeSuspendFunction { applyCommand(cmd) }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     log.error(e) { "Back cache write failed after ${config.retryMaxAttempts} retries, dropping command: $cmd" }
                 }

@@ -112,8 +112,12 @@ val hasMapping = method.hasMergedAnnotation<RequestMapping>()
 
 ### RestClient Coroutines DSL
 
+The DSL runs blocking `RestClient` calls with `runInterruptible(Dispatchers.IO)`,
+so coroutine cancellation can interrupt the waiting client thread when the
+underlying request factory honors interruption.
+
 ```kotlin
-import io.bluetape4k.spring4.http.*
+import io.bluetape4k.spring.http.*
 
 val restClient = RestClient.create("https://api.example.com")
 
@@ -127,7 +131,7 @@ restClient.suspendDelete("/users/1")
 ### WebClient Extensions
 
 ```kotlin
-import io.bluetape4k.spring4.tests.*
+import io.bluetape4k.spring.tests.*
 
 val webClient = WebClient.create("https://api.example.com")
 

@@ -2,28 +2,35 @@ package io.bluetape4k.okio.coroutines.internal
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.coroutines.SuspendedSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
 import okio.Buffer
 import okio.Source
 import okio.Timeout
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Okio 코루틴에서 사용하는 `ForwardSuspendedSource` 타입입니다.
  */
-internal class ForwardSuspendedSource(val delegate: Source): SuspendedSource {
+internal class ForwardSuspendedSource(
+    val delegate: Source,
+    private val context: CoroutineContext = Dispatchers.IO,
+): SuspendedSource {
 
     companion object: KLoggingChannel()
 
     /**
      * Okio 코루틴에서 데이터를 읽어오는 `read` 함수를 제공합니다.
      */
-    override suspend fun read(sink: Buffer, byteCount: Long): Long {
-        return delegate.read(sink, byteCount)
-    }
+    override suspend fun read(sink: Buffer, byteCount: Long): Long =
+        runInterruptible(context) {
+            delegate.read(sink, byteCount)
+        }
 
     /**
      * Okio 코루틴 리소스를 정리하고 닫습니다.
      */
-    override suspend fun close() {
+    override suspend fun close() = runInterruptible(context) {
         delegate.close()
     }
 
