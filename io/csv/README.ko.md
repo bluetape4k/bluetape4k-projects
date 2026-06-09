@@ -196,7 +196,7 @@ v1.5.0부터 `io.bluetape4k.csv.v2` 패키지에 상위 수준 V2 API가 제공�
 | 라이터 타입       | `CsvRecordWriter`             | `FlowCsvWriter` (DSL)            |
 | 레코드 타입       | `Record` (인터페이스)             | `CsvRow` (data class)            |
 | 설정           | `CsvSettings` (data class)    | `CsvReaderConfig` / `CsvWriterConfig` (mutable builder) |
-| 취소 협력        | suspend 내 `ensureActive()`    | `channelFlow + ensureActive()`   |
+| 취소 협력        | `ensureActive()`와 interruptible 행 쓰기 | `channelFlow + ensureActive()`   |
 | quoteAll 지원  | 없음                            | `CsvWriterConfig.quoteAll = true` |
 
 ### V2 읽기

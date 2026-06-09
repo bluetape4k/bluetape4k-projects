@@ -6,7 +6,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.SEGMENT_SIZE
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import okio.Buffer
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
@@ -28,7 +28,7 @@ fun AsynchronousSocketChannel.asSuspendedSource(): SuspendedSocketChannelSource 
  * [AsynchronousSocketChannel] 기반의 코루틴 [SuspendedSource] 구현체.
  *
  * 반복 read에서 direct [ByteBuffer]를 재사용해 할당 비용을 줄이고,
- * close는 블로킹 가능성을 고려해 `Dispatchers.IO`에서 수행한다.
+ * close는 블로킹 가능성을 고려해 interruptible `Dispatchers.IO` 경계에서 수행한다.
  *
  * ```kotlin
  * val channel = AsynchronousSocketChannel.open()
@@ -76,7 +76,7 @@ class SuspendedSocketChannelSource(
      * Okio 코루틴 리소스를 정리하고 닫습니다.
      */
     override suspend fun close() {
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             // Close can block while native resources are released.
             if (channel.isOpen) {
                 log.debug { "Closing socket channel[$channel]" }

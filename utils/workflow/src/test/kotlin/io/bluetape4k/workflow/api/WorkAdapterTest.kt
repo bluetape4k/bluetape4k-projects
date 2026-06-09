@@ -1,12 +1,21 @@
 package io.bluetape4k.workflow.api
 
-import kotlinx.coroutines.runBlocking
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class WorkAdapterTest: AbstractWorkflowTest() {
 
@@ -53,6 +62,35 @@ class WorkAdapterTest: AbstractWorkflowTest() {
         report.isSuccess.shouldBeTrue()
         val result: String? = report.context["result"]
         result shouldBeEqualTo "processed-value"
+    }
+
+    @Test
+    fun `Work asSuspend 취소 시 blocking Work를 interrupt 한다`() = runSuspendIO {
+        val started = CountDownLatch(1)
+        val interrupted = AtomicBoolean(false)
+        val suspendWork = Work { ctx ->
+            started.countDown()
+            try {
+                Thread.sleep(10_000L)
+            } catch (e: InterruptedException) {
+                interrupted.set(true)
+                throw e
+            }
+            WorkReport.success(ctx)
+        }.asSuspend()
+
+        supervisorScope {
+            val job = async {
+                suspendWork.execute(context)
+            }
+
+            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            withTimeout(1.seconds) {
+                job.cancelAndJoin()
+            }
+        }
+
+        interrupted.get().shouldBeTrue()
     }
 
     @Test

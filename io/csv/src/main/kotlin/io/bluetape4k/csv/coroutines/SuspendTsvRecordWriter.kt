@@ -3,7 +3,9 @@ package io.bluetape4k.csv.coroutines
 import io.bluetape4k.csv.TsvSettings
 import io.bluetape4k.csv.internal.TsvLineWriter
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Writer
@@ -48,7 +50,9 @@ class SuspendTsvRecordWriter(
      * ```
      */
     override suspend fun writeHeaders(headers: Iterable<String>) {
-        mutex.withLock { lineWriter.writeRow(headers) }
+        mutex.withLock {
+            runInterruptible(Dispatchers.IO) { lineWriter.writeRow(headers) }
+        }
     }
 
     /**
@@ -64,7 +68,9 @@ class SuspendTsvRecordWriter(
      * ```
      */
     override suspend fun writeRow(row: Iterable<*>) {
-        mutex.withLock { lineWriter.writeRow(row) }
+        mutex.withLock {
+            runInterruptible(Dispatchers.IO) { lineWriter.writeRow(row) }
+        }
     }
 
     /**

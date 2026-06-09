@@ -1,13 +1,22 @@
 package io.bluetape4k.csv.coroutines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.flow
-import io.bluetape4k.assertions.shouldContain
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.StringWriter
+import java.io.Writer
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 class SuspendCsvRecordWriterTest {
 
@@ -101,6 +110,38 @@ class SuspendCsvRecordWriterTest {
                 captured shouldContain """row1,1,2,3"""
                 captured shouldContain """row2,2,3,4"""
             }
+        }
+
+        @Test
+        fun `write row interrupts blocking writer on cancellation`() = runSuspendIO {
+            val started = CountDownLatch(1)
+            val interrupted = AtomicBoolean(false)
+            val blockingWriter = object: Writer() {
+                override fun write(cbuf: CharArray, off: Int, len: Int) {
+                    started.countDown()
+                    try {
+                        Thread.sleep(TimeUnit.SECONDS.toMillis(10))
+                    } catch (e: InterruptedException) {
+                        interrupted.set(true)
+                        throw e
+                    }
+                }
+
+                override fun flush() = Unit
+
+                override fun close() = Unit
+            }
+
+            val writer = SuspendCsvRecordWriter(blockingWriter)
+            val job = launch {
+                writer.writeRow(listOf("slow"))
+            }
+
+            started.await(1, TimeUnit.SECONDS) shouldBeEqualTo true
+            withTimeout(2.seconds) {
+                job.cancelAndJoin()
+            }
+            interrupted.get() shouldBeEqualTo true
         }
     }
 

@@ -106,6 +106,7 @@ jobs:
               - 'bluetape4k/logging/**'
               - 'virtualthread/api/**'
               - 'virtualthread/jdk21/**'
+              - 'virtualthread/jdk25/**'
             io:
               - 'io/io/**'
               - 'io/okio/**'
@@ -115,12 +116,12 @@ jobs:
               - 'ktor/**'
             key-utils:
               - 'utils/idgenerators/**'
-              - 'cache/core/**'
+              - 'cache/cache-core/**'
             infra:
               - 'infra/redisson/**'
               - 'infra/lettuce/**'
-              - 'cache/lettuce/**'
-              - 'cache/redisson/**'
+              - 'cache/cache-lettuce/**'
+              - 'cache/cache-redisson/**'
 
   # ── 2. 전체 빌드 (테스트 제외) ──────────────────────────────────────────
   build:
@@ -185,6 +186,7 @@ jobs:
               :bluetape4k-logging:test \
               :bluetape4k-virtualthread-api:test \
               :bluetape4k-virtualthread-jdk21:test \
+              :bluetape4k-virtualthread-jdk25:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -199,6 +201,7 @@ jobs:
             :bluetape4k-logging:koverXmlReport \
             :bluetape4k-virtualthread-api:koverXmlReport \
             :bluetape4k-virtualthread-jdk21:koverXmlReport \
+            :bluetape4k-virtualthread-jdk25:koverXmlReport \
             --parallel
         continue-on-error: true
 

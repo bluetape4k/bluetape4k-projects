@@ -92,6 +92,9 @@ read 계약을 줄이기 위한 실용적인 I/O 계층입니다. 핵심 모델�
 - public immutable boundary에는 `ByteString`, 내부 mutable 작업 영역에는 `Buffer`를 사용합니다.
 - coroutine 코드에서는 blocking stream을 직접 감싸기보다 `SuspendedSource`/`SuspendedSink`와
   suspended buffered API를 사용합니다.
+- blocking Okio `Source`/`Sink`를 `asSuspended()`로 변환하면 bridge가 `runInterruptible`과
+  `Dispatchers.IO`로 delegate를 실행하므로, coroutine 취소가 진행 중인 blocking read/write/flush/close를
+  interrupt합니다.
 
 ## Anti-Patterns
 
@@ -324,6 +327,9 @@ val socketSink = SuspendedSocketChannelSink(socketChannel)
 `0L`을 반복 반환하는 상황을 방어합니다. `request`, `skip`, `select`, `indexOf`,
 `readAll`처럼 추가 데이터가 필요한 연산은 무한 루프 대신 반복 no-progress read 이후
 `IOException`을 던집니다.
+파일/소켓 suspended adapter는 `force()`, `flush()`, `close()` 같은 blocking cleanup 경계를
+`runInterruptible(Dispatchers.IO)`로 실행합니다. 따라서 coroutine이 취소되면 해당 리소스 경계의
+blocking 호출도 interrupt되어, 반환될 때까지 무기한 기다리지 않습니다.
 
 **Suspended Pipe (생산자-소비자 패턴):**
 

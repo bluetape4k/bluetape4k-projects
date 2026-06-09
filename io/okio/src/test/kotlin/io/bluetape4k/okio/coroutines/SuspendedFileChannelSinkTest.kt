@@ -1,20 +1,30 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.AbstractOkioTest
 import io.bluetape4k.support.toUtf8String
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import okio.Buffer
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.io.InterruptedIOException
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
+import java.nio.channels.CompletionHandler
+import java.nio.channels.FileLock
 import java.nio.file.StandardOpenOption
-import io.bluetape4k.assertions.assertFailsWith
+import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 @TempFolderTest
 class SuspendedFileChannelSinkTest: AbstractOkioTest() {
@@ -140,5 +150,105 @@ class SuspendedFileChannelSinkTest: AbstractOkioTest() {
         }
 
         sink.close()
+    }
+
+    @Test
+    fun `flush interrupts blocking force when cancelled`() = runSuspendIO {
+        withTimeout(5.seconds) {
+            val channel = InterruptibleFileChannel()
+            val sink = channel.asSuspendedSink()
+
+            val job = launch {
+                try {
+                    sink.flush()
+                } catch (e: InterruptedIOException) {
+                    // Expected when cancellation interrupts the blocking force() call.
+                }
+            }
+            channel.forceEntered.await()
+            job.cancelAndJoin()
+
+            channel.forceInterrupted.get() shouldBeEqualTo true
+        }
+    }
+
+    private class InterruptibleFileChannel: AsynchronousFileChannel() {
+        val forceEntered = CompletableDeferred<Unit>()
+        val forceInterrupted = AtomicBoolean(false)
+
+        private val open = AtomicBoolean(true)
+
+        override fun isOpen(): Boolean = open.get()
+
+        override fun close() {
+            open.set(false)
+        }
+
+        override fun size(): Long = 0L
+
+        override fun truncate(size: Long): AsynchronousFileChannel = this
+
+        override fun force(metaData: Boolean) {
+            forceEntered.complete(Unit)
+            blockUntilInterrupted(forceInterrupted)
+        }
+
+        override fun <A: Any?> lock(
+            position: Long,
+            size: Long,
+            shared: Boolean,
+            attachment: A,
+            handler: CompletionHandler<FileLock, in A>,
+        ) {
+            throw UnsupportedOperationException()
+        }
+
+        override fun lock(position: Long, size: Long, shared: Boolean): Future<FileLock> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun tryLock(position: Long, size: Long, shared: Boolean): FileLock {
+            throw UnsupportedOperationException()
+        }
+
+        override fun <A: Any?> read(
+            dst: ByteBuffer,
+            position: Long,
+            attachment: A,
+            handler: CompletionHandler<Int, in A>,
+        ) {
+            throw UnsupportedOperationException()
+        }
+
+        override fun read(dst: ByteBuffer, position: Long): Future<Int> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun <A: Any?> write(
+            src: ByteBuffer,
+            position: Long,
+            attachment: A,
+            handler: CompletionHandler<Int, in A>,
+        ) {
+            throw UnsupportedOperationException()
+        }
+
+        override fun write(src: ByteBuffer, position: Long): Future<Int> {
+            throw UnsupportedOperationException()
+        }
+
+        private fun blockUntilInterrupted(interrupted: AtomicBoolean): Nothing {
+            try {
+                while (true) {
+                    Thread.sleep(1_000L)
+                }
+            } catch (e: InterruptedException) {
+                interrupted.set(true)
+                Thread.currentThread().interrupt()
+                throw InterruptedIOException("blocking call interrupted").apply {
+                    initCause(e)
+                }
+            }
+        }
     }
 }

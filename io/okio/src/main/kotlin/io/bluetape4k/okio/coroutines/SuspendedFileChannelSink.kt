@@ -4,7 +4,7 @@ import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import okio.Buffer
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -29,7 +29,7 @@ fun AsynchronousFileChannel.asSuspendedSink(): SuspendedFileChannelSink =
  * [AsynchronousFileChannel] 기반의 코루틴 [SuspendedSink] 구현체.
  *
  * 쓰기 경로에서 direct [ByteBuffer]를 재사용해 할당/복사 비용을 줄인다.
- * `force()`와 `close()`는 블로킹 가능 API이므로 `Dispatchers.IO`에서 수행한다.
+ * `force()`와 `close()`는 블로킹 가능 API이므로 interruptible `Dispatchers.IO` 경계에서 수행한다.
  *
  * ```kotlin
  * val file = kotlin.io.path.createTempFile()
@@ -93,7 +93,7 @@ class SuspendedFileChannelSink(
      * Okio 코루틴 버퍼의 데이터를 실제 출력 대상으로 반영합니다.
      */
     override suspend fun flush() {
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             // force() is synchronous and may block.
             channel.force(false)
         }
@@ -103,7 +103,7 @@ class SuspendedFileChannelSink(
      * Okio 코루틴 리소스를 정리하고 닫습니다.
      */
     override suspend fun close() {
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             // Closing file descriptors may block on underlying OS resources.
             if (channel.isOpen) {
                 log.debug { "Closing AsynchronousFileChannel[$channel]" }

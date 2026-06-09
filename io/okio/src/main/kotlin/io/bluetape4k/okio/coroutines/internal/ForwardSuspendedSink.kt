@@ -2,35 +2,41 @@ package io.bluetape4k.okio.coroutines.internal
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.okio.coroutines.SuspendedSink
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
 import okio.Buffer
 import okio.Sink
 import okio.Timeout
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Okio 코루틴에서 사용하는 `ForwardSuspendedSink` 타입입니다.
  */
-internal class ForwardSuspendedSink(val delegate: Sink): SuspendedSink {
+internal class ForwardSuspendedSink(
+    val delegate: Sink,
+    private val context: CoroutineContext = Dispatchers.IO,
+): SuspendedSink {
 
     companion object: KLoggingChannel()
 
     /**
      * Okio 코루틴에서 데이터를 기록하는 `write` 함수를 제공합니다.
      */
-    override suspend fun write(source: Buffer, byteCount: Long) {
+    override suspend fun write(source: Buffer, byteCount: Long) = runInterruptible(context) {
         delegate.write(source, byteCount)
     }
 
     /**
      * Okio 코루틴 버퍼의 데이터를 실제 출력 대상으로 반영합니다.
      */
-    override suspend fun flush() {
+    override suspend fun flush() = runInterruptible(context) {
         delegate.flush()
     }
 
     /**
      * Okio 코루틴 리소스를 정리하고 닫습니다.
      */
-    override suspend fun close() {
+    override suspend fun close() = runInterruptible(context) {
         delegate.close()
     }
 

@@ -5,7 +5,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.coroutines.internal.await
 import io.bluetape4k.okio.readUnsafeAndClose
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import okio.Buffer
 import java.io.IOException
 import java.net.Socket
@@ -30,7 +30,7 @@ fun Socket.asSuspendedSink(): SuspendedSocketSink = SuspendedSocketSink(this)
 /**
  * non-blocking [SocketChannel]을 이용해 소켓 쓰기를 제공하는 코루틴 [SuspendedSink].
  *
- * Selector 기반으로 쓰기 가능 시점을 기다리며, close는 `Dispatchers.IO`에서 수행한다.
+ * Selector 기반으로 쓰기 가능 시점을 기다리며, close는 interruptible `Dispatchers.IO` 경계에서 수행한다.
  *
  * ```kotlin
  * val socketChannel = SocketChannel.open()
@@ -92,7 +92,7 @@ class SuspendedSocketSink(socket: Socket): SuspendedSink {
      * Okio 코루틴 리소스를 정리하고 닫습니다.
      */
     override suspend fun close() {
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             // Close can block while the socket is being torn down.
             if (channel.isOpen) {
                 log.debug { "Closing socket channel[$channel]" }

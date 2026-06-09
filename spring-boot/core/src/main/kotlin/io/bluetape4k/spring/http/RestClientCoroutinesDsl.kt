@@ -1,7 +1,7 @@
 package io.bluetape4k.spring.http
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 
@@ -20,7 +20,7 @@ suspend inline fun <reified T: Any> RestClient.suspendGet(
     uri: String,
     accept: MediaType? = null,
 ): T =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = get().uri(uri)
         if (accept != null) spec.accept(accept)
         spec.retrieve().body(T::class.java)!!
@@ -45,7 +45,7 @@ suspend inline fun <reified T: Any> RestClient.suspendPost(
     contentType: MediaType? = null,
     accept: MediaType? = null,
 ): T =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = post().uri(uri)
         if (contentType != null) spec.contentType(contentType)
         if (accept != null) spec.accept(accept)
@@ -72,7 +72,7 @@ suspend inline fun <reified T: Any> RestClient.suspendPut(
     contentType: MediaType? = null,
     accept: MediaType? = null,
 ): T =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = put().uri(uri)
         if (contentType != null) spec.contentType(contentType)
         if (accept != null) spec.accept(accept)
@@ -99,7 +99,7 @@ suspend inline fun <reified T: Any> RestClient.suspendPatch(
     contentType: MediaType? = null,
     accept: MediaType? = null,
 ): T =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = patch().uri(uri)
         if (contentType != null) spec.contentType(contentType)
         if (accept != null) spec.accept(accept)
@@ -122,7 +122,7 @@ suspend inline fun <reified T: Any> RestClient.suspendGetOrNull(
     uri: String,
     accept: MediaType? = null,
 ): T? =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = get().uri(uri)
         if (accept != null) spec.accept(accept)
         spec.retrieve().body(T::class.java)
@@ -147,7 +147,7 @@ suspend inline fun <reified T: Any> RestClient.suspendPostOrNull(
     contentType: MediaType? = null,
     accept: MediaType? = null,
 ): T? =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = post().uri(uri)
         if (contentType != null) spec.contentType(contentType)
         if (accept != null) spec.accept(accept)
@@ -174,7 +174,7 @@ suspend inline fun <reified T: Any> RestClient.suspendPutOrNull(
     contentType: MediaType? = null,
     accept: MediaType? = null,
 ): T? =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = put().uri(uri)
         if (contentType != null) spec.contentType(contentType)
         if (accept != null) spec.accept(accept)
@@ -201,7 +201,7 @@ suspend inline fun <reified T: Any> RestClient.suspendPatchOrNull(
     contentType: MediaType? = null,
     accept: MediaType? = null,
 ): T? =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = patch().uri(uri)
         if (contentType != null) spec.contentType(contentType)
         if (accept != null) spec.accept(accept)
@@ -223,7 +223,7 @@ suspend fun RestClient.suspendDelete(
     uri: String,
     accept: MediaType? = null,
 ): Unit =
-    withContext(Dispatchers.IO) {
+    runInterruptible(Dispatchers.IO) {
         val spec = delete().uri(uri)
         if (accept != null) spec.accept(accept)
         spec.retrieve().toBodilessEntity()

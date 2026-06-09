@@ -5,7 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runInterruptible
 import okio.Buffer
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
@@ -30,7 +30,7 @@ fun AsynchronousFileChannel.asSuspendedSource(): SuspendedFileChannelSource =
  * [AsynchronousFileChannel] 기반의 코루틴 [SuspendedSource] 구현체.
  *
  * 성능을 위해 단일 direct [ByteBuffer]를 재사용하며, EOF는 `read()` 결과로 판별한다.
- * 리소스 해제는 블로킹 가능성이 있어 `Dispatchers.IO`에서 수행한다.
+ * 리소스 해제는 블로킹 가능성이 있어 interruptible `Dispatchers.IO` 경계에서 수행한다.
  *
  * ```kotlin
  * val file = kotlin.io.path.createTempFile()
@@ -94,7 +94,7 @@ class SuspendedFileChannelSource(
      * Okio 코루틴 리소스를 정리하고 닫습니다.
      */
     override suspend fun close() {
-        withContext(Dispatchers.IO) {
+        runInterruptible(Dispatchers.IO) {
             // Closing file descriptors may block on underlying OS resources.
             if (channel.isOpen) {
                 log.debug { "Closing AsynchronousFileChannel[$channel]" }
