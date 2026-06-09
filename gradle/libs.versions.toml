@@ -3,7 +3,7 @@
 
 [versions]
 bluetape4k = "1.11.0-SNAPSHOT"  # https://mvnrepository.com/artifact/io.github.bluetape4k/bluetape4k-bom
-kotlin = "2.3.21"  # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom
+kotlin = "2.4.0"  # https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-bom
 kotlinx-coroutines = "1.11.0"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-bom
 kotlinx-serialization = "1.11.0"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-bom
 kotlinx-atomicfu = "0.32.1"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/atomicfu

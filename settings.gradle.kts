@@ -12,7 +12,7 @@ pluginManagement {
 
 val bluetape4kDependenciesCatalogRef = providers.gradleProperty("bluetape4kDependenciesCatalogRef")
     .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_REF"))
-    .orElse("catalog/2026-06-07-00")
+    .orElse("catalog/2026-06-09-01")
     .get()
 
 fun resolveBluetape4kDependenciesCatalogFile(): File {
