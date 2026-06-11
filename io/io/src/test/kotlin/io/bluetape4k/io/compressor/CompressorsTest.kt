@@ -1,10 +1,12 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import java.util.zip.Deflater
 
 class CompressorsTest {
     companion object: KLogging()
@@ -94,6 +96,30 @@ class CompressorsTest {
         }
         assertFailsWith<IllegalArgumentException> {
             GZipCompressor(-1)
+        }
+    }
+
+    @Test
+    fun `GZipCompressor 는 유효한 compressionLevel 을 적용한다`() {
+        val input = "GZip compression level validation".repeat(100).toByteArray()
+        val compressor = GZipCompressor(compressionLevel = Deflater.BEST_SPEED)
+
+        compressor.decompress(compressor.compress(input)) shouldBeEqualTo input
+
+        assertFailsWith<IllegalArgumentException> {
+            GZipCompressor(compressionLevel = Deflater.BEST_COMPRESSION + 1)
+        }
+    }
+
+    @Test
+    fun `DeflateCompressor 는 유효한 compressionLevel 을 적용한다`() {
+        val input = "Deflate compression level validation".repeat(100).toByteArray()
+        val compressor = DeflateCompressor(compressionLevel = Deflater.BEST_SPEED)
+
+        compressor.decompress(compressor.compress(input)) shouldBeEqualTo input
+
+        assertFailsWith<IllegalArgumentException> {
+            DeflateCompressor(compressionLevel = Deflater.BEST_COMPRESSION + 1)
         }
     }
 

@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import java.util.stream.Stream
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 
 /**
  * [Compressor] 구현체들에 대한 edge case 테스트입니다.
@@ -151,6 +152,22 @@ class CompressorEdgeCaseTest {
             .run()
     }
 
+    @ParameterizedTest(name = "Virtual Thread 구조화 동시성: {0}")
+    @MethodSource("fastCompressors")
+    fun `StructuredTaskScopeTester 환경에서 동시 압축이 안전하게 동작한다`(compressor: Compressor) {
+        val input = "StructuredTaskScope compression test data: bluetape4k ".repeat(100).toByteArray()
+
+        StructuredTaskScopeTester()
+            .workers(THREAD_COUNT)
+            .rounds(1)
+            .add {
+                val compressed = compressor.compress(input)
+                val decompressed = compressor.decompress(compressed)
+                (decompressed contentEquals input).shouldBeTrue()
+            }
+            .run()
+    }
+
     @Test
     fun `LZ4Compressor 압축 데이터 헤더 손상 시 예외를 던진다`() {
         val compressor = LZ4Compressor()
@@ -189,7 +206,7 @@ class CompressorEdgeCaseTest {
     }
 
     @Test
-    fun `ZstdCompressor 기본 레벨 3 과 고압축 레벨의 결과를 비교한다`() {
+    fun `ZstdCompressor 명시 레벨 3 과 고압축 레벨의 결과를 비교한다`() {
         val input = "Hello, Zstd compression level test! ".repeat(1000).toByteArray()
         val defaultCompressor = ZstdCompressor(3)
         val highCompressor = ZstdCompressor(15)

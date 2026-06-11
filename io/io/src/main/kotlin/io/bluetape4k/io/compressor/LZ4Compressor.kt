@@ -40,9 +40,10 @@ class LZ4Compressor: AbstractCompressor() {
          */
         private const val MAGIC_NUMBER_SIZE: Int = Int.SIZE_BYTES
 
-        private val factory: LZ4Factory by lazy { LZ4Factory.fastestInstance() }
-        private val compressor by lazy { factory.fastCompressor() }
-        private val decompressor by lazy { factory.fastDecompressor() }
+        private val factory: LZ4Factory = LZ4Factory.fastestInstance()
+        private val compressor = factory.fastCompressor()
+        private val decompressor = factory.fastDecompressor()
+
     }
 
     /**
@@ -54,21 +55,13 @@ class LZ4Compressor: AbstractCompressor() {
         val sourceSize = plain.size
         val maxOutputSize = compressor.maxCompressedLength(sourceSize)
 
-        // 헤더(원본 크기) + 압축 데이터를 담을 버퍼 생성
         val output = ByteArray(maxOutputSize + MAGIC_NUMBER_SIZE)
 
         // 헤더: 원본 크기를 4바이트로 저장 (복원 시 사용)
         sourceSize.toByteArray().copyInto(output, destinationOffset = 0)
 
         // 압축 데이터는 헤더 이후부터 저장
-        val compressedSize = compressor.compress(
-            plain,
-            0,
-            sourceSize,
-            output,
-            MAGIC_NUMBER_SIZE,  // 헤더 이후부터
-            maxOutputSize
-        )
+        val compressedSize = compressor.compress(plain, 0, sourceSize, output, MAGIC_NUMBER_SIZE, maxOutputSize)
 
         // 실제 사용한 크기만큼만 반환 (메모리 절약)
         return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize)

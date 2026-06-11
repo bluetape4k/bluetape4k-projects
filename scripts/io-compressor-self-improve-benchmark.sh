@@ -11,9 +11,9 @@ MODULE=":bluetape4k-io"
 TASK="${MODULE}:testSelfImproveBenchmark"
 INCLUDE_REGEX="${BENCHMARK_INCLUDE_REGEX:-.*SameConditionCompressorBenchmark.compress.*}"
 PRIMARY_BENCHMARK="${PRIMARY_BENCHMARK:-io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress}"
-PRIMARY_PAYLOAD_KIND="${PRIMARY_PAYLOAD_KIND:-json}"
-PRIMARY_PAYLOAD_SIZE="${PRIMARY_PAYLOAD_SIZE:-small}"
-PRIMARY_COMPRESSOR="${PRIMARY_COMPRESSOR:-lz4}"
+PRIMARY_PAYLOAD_KIND="${PRIMARY_PAYLOAD_KIND:-*}"
+PRIMARY_PAYLOAD_SIZE="${PRIMARY_PAYLOAD_SIZE:-*}"
+PRIMARY_COMPRESSOR="${PRIMARY_COMPRESSOR:-gzip,deflate,zstd,lz4}"
 REPORT_ROOT="io/io/build/reports/benchmarks/selfImprove"
 
 echo "[io-compressor-self-improve] running ${TASK} include=${INCLUDE_REGEX}" >&2

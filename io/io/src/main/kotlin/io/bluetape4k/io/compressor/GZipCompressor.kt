@@ -2,6 +2,7 @@ package io.bluetape4k.io.compressor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.util.zip.Deflater
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipException
@@ -24,10 +25,15 @@ import java.util.zip.ZipException
  */
 class GZipCompressor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
+    private val compressionLevel: Int = Deflater.DEFAULT_COMPRESSION,
 ): AbstractCompressor() {
 
     init {
         require(bufferSize > 0) { "bufferSize must be greater than 0." }
+        require(isValidCompressionLevel(compressionLevel)) {
+            "compressionLevel must be ${Deflater.DEFAULT_COMPRESSION} or between " +
+                    "${Deflater.NO_COMPRESSION} and ${Deflater.BEST_COMPRESSION}."
+        }
     }
 
     /**
@@ -35,7 +41,12 @@ class GZipCompressor(
      */
     override fun doCompress(plain: ByteArray): ByteArray {
         val output = ByteArrayOutputStream(plain.size)
-        GZIPOutputStream(output, bufferSize).use { gzip ->
+        val gzip = if (compressionLevel == Deflater.DEFAULT_COMPRESSION) {
+            GZIPOutputStream(output, bufferSize)
+        } else {
+            LevelGzipOutputStream(output, bufferSize, compressionLevel)
+        }
+        gzip.use {
             gzip.write(plain)
             gzip.finish()
         }
@@ -52,4 +63,17 @@ class GZipCompressor(
             }
         }
     }
+
+    private class LevelGzipOutputStream(
+        output: ByteArrayOutputStream,
+        size: Int,
+        level: Int,
+    ): GZIPOutputStream(output, size) {
+        init {
+            def.setLevel(level)
+        }
+    }
+
+    private fun isValidCompressionLevel(level: Int): Boolean =
+        level == Deflater.DEFAULT_COMPRESSION || level in Deflater.NO_COMPRESSION..Deflater.BEST_COMPRESSION
 }
