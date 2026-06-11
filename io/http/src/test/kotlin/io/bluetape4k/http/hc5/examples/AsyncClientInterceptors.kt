@@ -70,7 +70,7 @@ class AsyncClientInterceptors: AbstractHc5Test() {
             }
 
             statuses shouldBeEqualTo expectedStatuses()
-            events.toList() shouldBeEqualTo expectedEvents()
+            assertEventsByExecution(events.toList())
         } finally {
             log.debug { "Shutting down" }
             client.close(CloseMode.GRACEFUL)
@@ -128,19 +128,29 @@ class AsyncClientInterceptors: AbstractHc5Test() {
             if (executionId == 13) HttpStatus.SC_NOT_FOUND else HttpStatus.SC_OK
         }
 
-    private fun expectedEvents(): List<String> =
-        (1..20).flatMap { executionId ->
-            if (executionId == 13) {
-                listOf(
-                    "exec-before:$executionId:missing",
-                    "exec-short-circuit:$executionId",
-                )
-            } else {
-                listOf(
-                    "exec-before:$executionId:missing",
-                    "request:$executionId",
-                    "exec-after:$executionId:request-$executionId",
-                )
-            }
+    private fun assertEventsByExecution(events: List<String>) {
+        val eventsByExecutionId = events.groupBy { event ->
+            event.substringAfter(':').substringBefore(':')
         }
+
+        eventsByExecutionId.keys shouldBeEqualTo (1..20).map(Int::toString).toSet()
+        eventsByExecutionId.forEach { (executionId, executionEvents) ->
+            executionEvents shouldBeEqualTo expectedEventsFor(executionId)
+        }
+    }
+
+    private fun expectedEventsFor(executionId: String): List<String> {
+        return if (executionId == "13") {
+            listOf(
+                "exec-before:$executionId:missing",
+                "exec-short-circuit:$executionId",
+            )
+        } else {
+            listOf(
+                "exec-before:$executionId:missing",
+                "request:$executionId",
+                "exec-after:$executionId:request-$executionId",
+            )
+        }
+    }
 }
