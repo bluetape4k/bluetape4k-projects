@@ -23,20 +23,20 @@ internal class ULIDFactory(
     override fun randomULID(timestamp: Long): String {
         requireTimestamp(timestamp)
 
-        val bytes = random.nextBytes(10)
+        val randomHigh = random.nextBits(Short.SIZE_BITS).toLong() and Mask16Bits
+        val randomLow = random.nextLong()
         val buffer = CharArray(26)
         buffer.write(timestamp, 10, 0)
-        buffer.write(bytes.toLong(0, 5), 8, 10)
-        buffer.write(bytes.toLong(5, 10), 8, 18)
+        buffer.write((randomHigh shl 24) or (randomLow ushr 40), 8, 10)
+        buffer.write(randomLow, 8, 18)
 
         return buffer.concatToString()
     }
 
     override fun nextULID(timestamp: Long): ULID {
         requireTimestamp(timestamp)
-        val bytes = random.nextBytes(10)
-        val mostSignificantBits = bytes.toLong(0, 2) or (timestamp shl 16)
-        val leastSignificantBits = bytes.toLong(2, 10)
+        val mostSignificantBits = (timestamp shl 16) or (random.nextBits(Short.SIZE_BITS).toLong() and Mask16Bits)
+        val leastSignificantBits = random.nextLong()
         return ULIDValue(mostSignificantBits, leastSignificantBits)
     }
 

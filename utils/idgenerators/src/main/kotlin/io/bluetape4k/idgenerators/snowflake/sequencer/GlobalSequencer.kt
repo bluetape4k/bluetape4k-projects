@@ -3,8 +3,8 @@ package io.bluetape4k.idgenerators.snowflake.sequencer
 import io.bluetape4k.idgenerators.snowflake.MAX_MACHINE_ID
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.idgenerators.snowflake.SnowflakeId
+import io.bluetape4k.idgenerators.snowflake.makeId
 import io.bluetape4k.logging.KLogging
-import kotlinx.atomicfu.atomic
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -25,18 +25,17 @@ import kotlin.concurrent.withLock
  * // sids.size == 10
  * ```
  */
-class GlobalSequencer: Sequencer {
+class GlobalSequencer: Sequencer, SnowflakeValueSequencer {
 
     companion object: KLogging()
 
     @Volatile
     private var lastTimestamp: Long = -1L
 
-    private val machineIdSequencer = atomic(0)
-    override var machineId: Int by machineIdSequencer
+    @Volatile
+    override var machineId: Int = 0
 
-    private val sequencer = atomic(0)
-    private var sequence by sequencer
+    private var sequence: Int = 0
 
     private val lock = ReentrantLock()
 
@@ -58,6 +57,12 @@ class GlobalSequencer: Sequencer {
     override fun nextSequence(): SnowflakeId =
         lock.withLock {
             nextSequenceInternal()
+        }
+
+    override fun nextValue(): Long =
+        lock.withLock {
+            updateState()
+            makeId(lastTimestamp, machineId, sequence)
         }
 
     /**
@@ -83,9 +88,9 @@ class GlobalSequencer: Sequencer {
         var currentTimestamp = System.currentTimeMillis()
 
         if (currentTimestamp == lastTimestamp) {
-            sequencer.incrementAndGet()
+            sequence++
             if (sequence >= MAX_SEQUENCE) {
-                machineIdSequencer.incrementAndGet()
+                machineId++
                 // machineId 가 MAX_MACHINE_ID 값보다 크거나 같다면, 다음 milliseconds까지 기다립니다.
                 if (machineId >= MAX_MACHINE_ID) {
                     while (currentTimestamp == lastTimestamp) {

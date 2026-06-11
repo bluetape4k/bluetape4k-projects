@@ -1,0 +1,110 @@
+# JMH version: 1.37
+# VM version: JDK 21.0.11, Java HotSpot(TM) 64-Bit Server VM, 21.0.11+9-LTS-jvmci-23.1-b92
+# VM invoker: /Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java
+# VM options: -XX:ThreadPriorityPolicy=1 -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCIProduct -XX:-UnlockExperimentalVMOptions
+# Blackhole mode: compiler (auto-detected, use -Djmh.blackhole.autoDetect=false to disable)
+# Warmup: 1 iterations, 1 s each
+# Measurement: 3 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness
+# Parameters: (batchSize = 65536)
+
+# Run progress: 0.00% complete, ETA 00:00:04
+# Fork: 1 of 1
+Java HotSpot(TM) 64-Bit Server VM warning: -XX:ThreadPriorityPolicy=1 may require system level permission, e.g., being the root user. If the necessary permission is not possessed, changes to priority will be silently ignored.
+# Warmup Iteration   1: 62.172 ops/s
+Iteration   1: 62.518 ops/s
+                 gc.alloc.rate:      423.006 MB/sec
+                 gc.alloc.rate.norm: 7096560.127 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+                 stack:              <delayed till summary>
+
+Iteration   2: 62.517 ops/s
+                 gc.alloc.rate:      410.738 MB/sec
+                 gc.alloc.rate.norm: 6891942.984 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+                 stack:              <delayed till summary>
+
+Iteration   3: 62.494 ops/s
+                 gc.alloc.rate:      412.401 MB/sec
+                 gc.alloc.rate.norm: 6921596.190 B/op
+                 gc.count:           1.000 counts
+                 gc.time:            1.000 ms
+                 stack:              <delayed till summary>
+
+
+
+Result "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness":
+  62.510 ±(99.9%) 0.243 ops/s [Average]
+  (min, avg, max) = (62.494, 62.510, 62.518), stdev = 0.013
+  CI (99.9%): [62.267, 62.753] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.alloc.rate":
+  415.382 ±(99.9%) 121.420 MB/sec [Average]
+  (min, avg, max) = (410.738, 415.382, 423.006), stdev = 6.655
+  CI (99.9%): [293.962, 536.801] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.alloc.rate.norm":
+  6970033.101 ±(99.9%) 2017284.278 B/op [Average]
+  (min, avg, max) = (6891942.984, 6970033.101, 7096560.127), stdev = 110574.158
+  CI (99.9%): [4952748.823, 8987317.378] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.count":
+  3.000 ±(99.9%) 0.001 counts [Sum]
+  (min, avg, max) = (1.000, 1.000, 1.000), stdev = 0.001
+  CI (99.9%): [3.000, 3.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.time":
+  3.000 ±(99.9%) 0.001 ms [Sum]
+  (min, avg, max) = (1.000, 1.000, 1.000), stdev = 0.001
+  CI (99.9%): [3.000, 3.000] (assumes normal distribution)
+
+Secondary result "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:stack":
+Stack profiler:
+
+....[Thread state distributions]....................................................................
+ 75.0%         RUNNABLE
+ 25.0%         TIMED_WAITING
+
+....[Thread state: RUNNABLE]........................................................................
+ 50.0%  66.7% <stack is empty, everything is filtered?>
+ 21.7%  28.9% io.bluetape4k.idgenerators.snowflake.sequencer.DefaultSequencer.updateState
+  1.5%   2.0% java.util.HashMap.putVal
+  0.9%   1.2% java.util.HashMap$TreeNode.putTreeVal
+  0.3%   0.4% io.bluetape4k.idgenerators.snowflake.AbstractSnowflake.nextId
+  0.2%   0.3% java.util.HashMap$TreeNode.rotateRight
+  0.2%   0.3% java.util.HashMap$TreeNode.balanceInsertion
+  0.1%   0.1% java.util.HashMap.resize
+  0.1%   0.1% jdk.internal.misc.Unsafe.unpark
+  0.1%   0.1% java.util.concurrent.ConcurrentHashMap.replaceNode
+
+....[Thread state: TIMED_WAITING]...................................................................
+ 25.0% 100.0% jdk.internal.misc.Unsafe.park
+
+
+
+# Run complete. Total time: 00:00:04
+
+REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
+why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
+experiments, perform baseline and negative tests that provide experimental control, make sure
+the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+Do not assume the numbers tell you what you want them to tell.
+
+NOTE: Current JVM experimentally supports Compiler Blackholes, and they are in use. Please exercise
+extra caution when trusting the results, look into the generated code to check the benchmark still
+works, and factor in a small probability of new VM bugs. Additionally, while comparisons between
+different JVMs are already problematic, the performance difference caused by different Blackhole
+modes can be very significant. Please make sure you use the consistent Blackhole mode for comparisons.
+
+Benchmark                                                                                  (batchSize)   Mode  Cnt        Score         Error   Units
+FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness                           65536  thrpt    3       62.510 ±       0.243   ops/s
+FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.alloc.rate             65536  thrpt    3      415.382 ±     121.420  MB/sec
+FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.alloc.rate.norm        65536  thrpt    3  6970033.101 ± 2017284.278    B/op
+FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.count                  65536  thrpt    3        3.000                counts
+FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:gc.time                   65536  thrpt    3        3.000                    ms
+FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness:stack                     65536  thrpt               NaN                   ---

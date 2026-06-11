@@ -1,6 +1,7 @@
 package io.bluetape4k.idgenerators.snowflake
 
 import io.bluetape4k.idgenerators.snowflake.sequencer.Sequencer
+import io.bluetape4k.idgenerators.snowflake.sequencer.SnowflakeValueSequencer
 import io.bluetape4k.support.requirePositiveNumber
 
 
@@ -27,7 +28,10 @@ abstract class AbstractSnowflake(val sequencer: Sequencer): Snowflake {
      * ```
      */
     override fun nextId(): Long {
-        return sequencer.nextSequence().value
+        return when (sequencer) {
+            is SnowflakeValueSequencer -> sequencer.nextValue()
+            else -> sequencer.nextSequence().value
+        }
     }
 
     /**
@@ -43,6 +47,6 @@ abstract class AbstractSnowflake(val sequencer: Sequencer): Snowflake {
      */
     override fun nextIds(size: Int): Sequence<Long> {
         size.requirePositiveNumber("size")
-        return sequencer.nextSequences(size).map { it.value }
+        return generateSequence { nextId() }.take(size)
     }
 }

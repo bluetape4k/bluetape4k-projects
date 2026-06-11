@@ -49,3 +49,7 @@ interface Sequencer {
      */
     fun nextSequences(size: Int): Sequence<SnowflakeId>
 }
+
+internal interface SnowflakeValueSequencer {
+    fun nextValue(): Long
+}
