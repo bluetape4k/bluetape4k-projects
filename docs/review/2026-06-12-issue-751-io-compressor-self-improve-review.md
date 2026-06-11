@@ -2,15 +2,16 @@
 
 ## Verdict
 
-- P0: 0
-- P1: 0
-- Recommendation: hold
+- Code-safety P0: 0
+- Code-safety P1: 0
+- Issue-closeout acceptance blocker: 1
+- Recommendation: non-closing evidence PR only
 
 ## Findings
 
 No P0/P1 code-safety findings after removing the benchmark-shaped LZ4 cache and default compression-level reductions.
 
-The performance acceptance gate still fails, so this candidate should not close issue #751.
+The performance acceptance gate still fails, so this candidate must not close issue #751. PR #752 is only acceptable as a non-closing evidence/guardrail PR that records rejected approaches and preserves the fair benchmark harness artifacts.
 
 ## Evidence
 
@@ -28,4 +29,4 @@ The performance acceptance gate still fails, so this candidate should not close 
 
 ## Residual Risk
 
-The accepted review changes preserve default compression-ratio behavior, but the remaining implementation changes are not enough to satisfy the 30% throughput target.
+The accepted review changes preserve default compression-ratio behavior, but the remaining implementation changes are not enough to satisfy the 30% throughput target. Issue #751 must stay open for a separate closeout path focused on the exact ByteArray benchmark path or an explicitly approved scope revision.

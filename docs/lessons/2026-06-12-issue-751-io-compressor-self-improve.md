@@ -28,3 +28,4 @@ PR #750 added the same-condition compressor benchmark. Issue #751 used that benc
 - Reviewed candidate: 19,879.398326293536 ops/s
 - Improvement: 0.6164335783271246%
 - Gate: FAIL
+- Disposition: non-closing evidence only; issue #751 remains open for a separate closeout path.

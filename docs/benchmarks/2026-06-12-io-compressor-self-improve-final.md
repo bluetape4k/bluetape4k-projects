@@ -54,7 +54,7 @@ Codec-level geometric means:
 | zstd | 52,114.86437744518 ops/s | 50,959.236391624305 ops/s | -2.217463289266508% |
 | lz4 | 126,090.5895245756 ops/s | 128,055.01924791712 ops/s | 1.5579510974993438% |
 
-The reviewed candidate does not meet the 30% throughput target. It should not be treated as the winning self-improve result for issue #751.
+The reviewed candidate does not meet the 30% throughput target. It should not be treated as the winning self-improve result for issue #751, and PR #752 must stay non-closing unless a later candidate reaches the sealed aggregate gate.
 
 ## Raw Artifacts
 
