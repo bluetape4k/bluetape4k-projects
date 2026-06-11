@@ -1,0 +1,1 @@
+{"direction": "higher_is_better", "params": {"compressorName": "lz4", "payloadKind": "json", "payloadSize": "small"}, "primary": 1148860.5708701136, "primary_metric": "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress", "raw_json": "docs/benchmarks/raw/issue-751/baseline-self-improve.json", "score_error": null, "unit": "ops/s"}

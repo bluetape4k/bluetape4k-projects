@@ -1,0 +1,7 @@
+c3a768e1d17d0e26842a28aee106ae64e6c68b4b49fcd0d4a92ec1af8e6a73ff  io/io/build.gradle.kts
+56cfd728e63eb8e32aaac0ba906aca283ebee91c7c3ff8448653cd00ac0b4655  io/io/src/test/kotlin/io/bluetape4k/io/benchmark/SameConditionCompressorBenchmark.kt
+1d1629857216ddab392ac246a5dadb932cb9fd00ec4528f76f56bb16b4cb390e  io/io/src/test/kotlin/io/bluetape4k/io/benchmark/SameConditionCompressionPayloads.kt
+e14eefafe59bd5513051a349085ffcbb46abea7d0bd5847040dff0162ea8066f  scripts/io-compressor-self-improve-benchmark.sh
+a1a111a72e10218e359377fd7f1826d518c3b1edeeba209f9c49c06eabaf5bd8  scripts/parse-io-compressor-self-improve.py
+e8377b78354d2f1d1343133caddc52ebbe9fc74b0514e660f40321e91267dd72  docs/benchmarks/raw/issue-751/baseline-self-improve.json
+a098060f795ae533cf02999fe3a2fdd08597ef13d7deeff52cf6ed65989a01fb  docs/benchmarks/raw/issue-751/baseline-summary.json

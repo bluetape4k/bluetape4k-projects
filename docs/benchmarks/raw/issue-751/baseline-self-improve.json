@@ -1,0 +1,3664 @@
+[
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "json",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 124998.43466821243,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 123365.99213073208,
+                "50.0" : 124998.43466821243,
+                "90.0" : 126630.8772056928,
+                "95.0" : 126630.8772056928,
+                "99.0" : 126630.8772056928,
+                "99.9" : 126630.8772056928,
+                "99.99" : 126630.8772056928,
+                "99.999" : 126630.8772056928,
+                "99.9999" : 126630.8772056928,
+                "100.0" : 126630.8772056928
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    123365.99213073208,
+                    126630.8772056928
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "json",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 3893.895480571913,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3892.8177512489456,
+                "50.0" : 3893.895480571913,
+                "90.0" : 3894.973209894881,
+                "95.0" : 3894.973209894881,
+                "99.0" : 3894.973209894881,
+                "99.9" : 3894.973209894881,
+                "99.99" : 3894.973209894881,
+                "99.999" : 3894.973209894881,
+                "99.9999" : 3894.973209894881,
+                "100.0" : 3894.973209894881
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    3894.973209894881,
+                    3892.8177512489456
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "json",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 471.60621880962185,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 471.0413526544836,
+                "50.0" : 471.60621880962185,
+                "90.0" : 472.17108496476015,
+                "95.0" : 472.17108496476015,
+                "99.0" : 472.17108496476015,
+                "99.9" : 472.17108496476015,
+                "99.99" : 472.17108496476015,
+                "99.999" : 472.17108496476015,
+                "99.9999" : 472.17108496476015,
+                "100.0" : 472.17108496476015
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    471.0413526544836,
+                    472.17108496476015
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "text",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 127909.98717250896,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 126830.62520954522,
+                "50.0" : 127909.98717250896,
+                "90.0" : 128989.34913547269,
+                "95.0" : 128989.34913547269,
+                "99.0" : 128989.34913547269,
+                "99.9" : 128989.34913547269,
+                "99.99" : 128989.34913547269,
+                "99.999" : 128989.34913547269,
+                "99.9999" : 128989.34913547269,
+                "100.0" : 128989.34913547269
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    126830.62520954522,
+                    128989.34913547269
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "text",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 4121.231207624784,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 4118.927689409845,
+                "50.0" : 4121.231207624784,
+                "90.0" : 4123.534725839722,
+                "95.0" : 4123.534725839722,
+                "99.0" : 4123.534725839722,
+                "99.9" : 4123.534725839722,
+                "99.99" : 4123.534725839722,
+                "99.999" : 4123.534725839722,
+                "99.9999" : 4123.534725839722,
+                "100.0" : 4123.534725839722
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    4118.927689409845,
+                    4123.534725839722
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "text",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 484.07308211570745,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 481.0510368811593,
+                "50.0" : 484.07308211570745,
+                "90.0" : 487.0951273502556,
+                "95.0" : 487.0951273502556,
+                "99.0" : 487.0951273502556,
+                "99.9" : 487.0951273502556,
+                "99.99" : 487.0951273502556,
+                "99.999" : 487.0951273502556,
+                "99.9999" : 487.0951273502556,
+                "100.0" : 487.0951273502556
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    481.0510368811593,
+                    487.0951273502556
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "binary",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 65863.06582195789,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 65377.15841650369,
+                "50.0" : 65863.06582195789,
+                "90.0" : 66348.97322741209,
+                "95.0" : 66348.97322741209,
+                "99.0" : 66348.97322741209,
+                "99.9" : 66348.97322741209,
+                "99.99" : 66348.97322741209,
+                "99.999" : 66348.97322741209,
+                "99.9999" : 66348.97322741209,
+                "100.0" : 66348.97322741209
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    65377.15841650369,
+                    66348.97322741209
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "binary",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 4912.932793049262,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 4907.91553666234,
+                "50.0" : 4912.932793049262,
+                "90.0" : 4917.950049436184,
+                "95.0" : 4917.950049436184,
+                "99.0" : 4917.950049436184,
+                "99.9" : 4917.950049436184,
+                "99.99" : 4917.950049436184,
+                "99.999" : 4917.950049436184,
+                "99.9999" : 4917.950049436184,
+                "100.0" : 4917.950049436184
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    4917.950049436184,
+                    4907.91553666234
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "binary",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 616.2893533678848,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 616.1633778367076,
+                "50.0" : 616.2893533678848,
+                "90.0" : 616.4153288990622,
+                "95.0" : 616.4153288990622,
+                "99.0" : 616.4153288990622,
+                "99.9" : 616.4153288990622,
+                "99.99" : 616.4153288990622,
+                "99.999" : 616.4153288990622,
+                "99.9999" : 616.4153288990622,
+                "100.0" : 616.4153288990622
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    616.4153288990622,
+                    616.1633778367076
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "random",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 66466.30133752497,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 65366.16831973986,
+                "50.0" : 66466.30133752497,
+                "90.0" : 67566.43435531008,
+                "95.0" : 67566.43435531008,
+                "99.0" : 67566.43435531008,
+                "99.9" : 67566.43435531008,
+                "99.99" : 67566.43435531008,
+                "99.999" : 67566.43435531008,
+                "99.9999" : 67566.43435531008,
+                "100.0" : 67566.43435531008
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    65366.16831973986,
+                    67566.43435531008
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "random",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 1730.0284961883917,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1726.1096933771714,
+                "50.0" : 1730.0284961883917,
+                "90.0" : 1733.9472989996118,
+                "95.0" : 1733.9472989996118,
+                "99.0" : 1733.9472989996118,
+                "99.9" : 1733.9472989996118,
+                "99.99" : 1733.9472989996118,
+                "99.999" : 1733.9472989996118,
+                "99.9999" : 1733.9472989996118,
+                "100.0" : 1733.9472989996118
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1726.1096933771714,
+                    1733.9472989996118
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "gzip",
+            "payloadKind" : "random",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 140.42225358556948,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 139.74888299616208,
+                "50.0" : 140.42225358556948,
+                "90.0" : 141.09562417497688,
+                "95.0" : 141.09562417497688,
+                "99.0" : 141.09562417497688,
+                "99.9" : 141.09562417497688,
+                "99.99" : 141.09562417497688,
+                "99.999" : 141.09562417497688,
+                "99.9999" : 141.09562417497688,
+                "100.0" : 141.09562417497688
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    139.74888299616208,
+                    141.09562417497688
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "json",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 125200.93528965824,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 125052.04529114226,
+                "50.0" : 125200.93528965824,
+                "90.0" : 125349.82528817422,
+                "95.0" : 125349.82528817422,
+                "99.0" : 125349.82528817422,
+                "99.9" : 125349.82528817422,
+                "99.99" : 125349.82528817422,
+                "99.999" : 125349.82528817422,
+                "99.9999" : 125349.82528817422,
+                "100.0" : 125349.82528817422
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    125052.04529114226,
+                    125349.82528817422
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "json",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 3723.798037584733,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3719.616198225198,
+                "50.0" : 3723.798037584733,
+                "90.0" : 3727.9798769442677,
+                "95.0" : 3727.9798769442677,
+                "99.0" : 3727.9798769442677,
+                "99.9" : 3727.9798769442677,
+                "99.99" : 3727.9798769442677,
+                "99.999" : 3727.9798769442677,
+                "99.9999" : 3727.9798769442677,
+                "100.0" : 3727.9798769442677
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    3719.616198225198,
+                    3727.9798769442677
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "json",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 449.56298523678925,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 448.65141568291557,
+                "50.0" : 449.56298523678925,
+                "90.0" : 450.4745547906629,
+                "95.0" : 450.4745547906629,
+                "99.0" : 450.4745547906629,
+                "99.9" : 450.4745547906629,
+                "99.99" : 450.4745547906629,
+                "99.999" : 450.4745547906629,
+                "99.9999" : 450.4745547906629,
+                "100.0" : 450.4745547906629
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    450.4745547906629,
+                    448.65141568291557
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "text",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 127121.37535373526,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 126714.06968887745,
+                "50.0" : 127121.37535373526,
+                "90.0" : 127528.68101859307,
+                "95.0" : 127528.68101859307,
+                "99.0" : 127528.68101859307,
+                "99.9" : 127528.68101859307,
+                "99.99" : 127528.68101859307,
+                "99.999" : 127528.68101859307,
+                "99.9999" : 127528.68101859307,
+                "100.0" : 127528.68101859307
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    126714.06968887745,
+                    127528.68101859307
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "text",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 3935.267186226137,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3934.621930732636,
+                "50.0" : 3935.267186226137,
+                "90.0" : 3935.912441719637,
+                "95.0" : 3935.912441719637,
+                "99.0" : 3935.912441719637,
+                "99.9" : 3935.912441719637,
+                "99.99" : 3935.912441719637,
+                "99.999" : 3935.912441719637,
+                "99.9999" : 3935.912441719637,
+                "100.0" : 3935.912441719637
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    3935.912441719637,
+                    3934.621930732636
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "text",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 462.70166547908207,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 462.3116013010941,
+                "50.0" : 462.70166547908207,
+                "90.0" : 463.09172965707,
+                "95.0" : 463.09172965707,
+                "99.0" : 463.09172965707,
+                "99.9" : 463.09172965707,
+                "99.99" : 463.09172965707,
+                "99.999" : 463.09172965707,
+                "99.9999" : 463.09172965707,
+                "100.0" : 463.09172965707
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    462.3116013010941,
+                    463.09172965707
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "binary",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 66527.87252864828,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 66217.91182039627,
+                "50.0" : 66527.87252864828,
+                "90.0" : 66837.83323690029,
+                "95.0" : 66837.83323690029,
+                "99.0" : 66837.83323690029,
+                "99.9" : 66837.83323690029,
+                "99.99" : 66837.83323690029,
+                "99.999" : 66837.83323690029,
+                "99.9999" : 66837.83323690029,
+                "100.0" : 66837.83323690029
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    66837.83323690029,
+                    66217.91182039627
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "binary",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 4646.453009135122,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 4645.961370120755,
+                "50.0" : 4646.453009135122,
+                "90.0" : 4646.944648149488,
+                "95.0" : 4646.944648149488,
+                "99.0" : 4646.944648149488,
+                "99.9" : 4646.944648149488,
+                "99.99" : 4646.944648149488,
+                "99.999" : 4646.944648149488,
+                "99.9999" : 4646.944648149488,
+                "100.0" : 4646.944648149488
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    4645.961370120755,
+                    4646.944648149488
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "binary",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 587.8250855095691,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 587.8095160235669,
+                "50.0" : 587.8250855095691,
+                "90.0" : 587.8406549955714,
+                "95.0" : 587.8406549955714,
+                "99.0" : 587.8406549955714,
+                "99.9" : 587.8406549955714,
+                "99.99" : 587.8406549955714,
+                "99.999" : 587.8406549955714,
+                "99.9999" : 587.8406549955714,
+                "100.0" : 587.8406549955714
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    587.8406549955714,
+                    587.8095160235669
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "random",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 65772.78533447532,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 65184.719316713505,
+                "50.0" : 65772.78533447532,
+                "90.0" : 66360.85135223715,
+                "95.0" : 66360.85135223715,
+                "99.0" : 66360.85135223715,
+                "99.9" : 66360.85135223715,
+                "99.99" : 66360.85135223715,
+                "99.999" : 66360.85135223715,
+                "99.9999" : 66360.85135223715,
+                "100.0" : 66360.85135223715
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    65184.719316713505,
+                    66360.85135223715
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "random",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 1622.423699825237,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1610.8019106297588,
+                "50.0" : 1622.423699825237,
+                "90.0" : 1634.0454890207152,
+                "95.0" : 1634.0454890207152,
+                "99.0" : 1634.0454890207152,
+                "99.9" : 1634.0454890207152,
+                "99.99" : 1634.0454890207152,
+                "99.999" : 1634.0454890207152,
+                "99.9999" : 1634.0454890207152,
+                "100.0" : 1634.0454890207152
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1610.8019106297588,
+                    1634.0454890207152
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "deflate",
+            "payloadKind" : "random",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 136.29656922327098,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 135.82995804253935,
+                "50.0" : 136.29656922327098,
+                "90.0" : 136.76318040400258,
+                "95.0" : 136.76318040400258,
+                "99.0" : 136.76318040400258,
+                "99.9" : 136.76318040400258,
+                "99.99" : 136.76318040400258,
+                "99.999" : 136.76318040400258,
+                "99.9999" : 136.76318040400258,
+                "100.0" : 136.76318040400258
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    135.82995804253935,
+                    136.76318040400258
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "json",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 278364.8812724579,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 277575.7405630399,
+                "50.0" : 278364.8812724579,
+                "90.0" : 279154.0219818759,
+                "95.0" : 279154.0219818759,
+                "99.0" : 279154.0219818759,
+                "99.9" : 279154.0219818759,
+                "99.99" : 279154.0219818759,
+                "99.999" : 279154.0219818759,
+                "99.9999" : 279154.0219818759,
+                "100.0" : 279154.0219818759
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    277575.7405630399,
+                    279154.0219818759
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "json",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 31411.861894566067,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 31401.103995529807,
+                "50.0" : 31411.861894566067,
+                "90.0" : 31422.619793602327,
+                "95.0" : 31422.619793602327,
+                "99.0" : 31422.619793602327,
+                "99.9" : 31422.619793602327,
+                "99.99" : 31422.619793602327,
+                "99.999" : 31422.619793602327,
+                "99.9999" : 31422.619793602327,
+                "100.0" : 31422.619793602327
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    31401.103995529807,
+                    31422.619793602327
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "json",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 4507.173148649733,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 4483.249724606717,
+                "50.0" : 4507.173148649733,
+                "90.0" : 4531.096572692749,
+                "95.0" : 4531.096572692749,
+                "99.0" : 4531.096572692749,
+                "99.9" : 4531.096572692749,
+                "99.99" : 4531.096572692749,
+                "99.999" : 4531.096572692749,
+                "99.9999" : 4531.096572692749,
+                "100.0" : 4531.096572692749
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    4531.096572692749,
+                    4483.249724606717
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "text",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 281883.8854005161,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 280913.3566659577,
+                "50.0" : 281883.8854005161,
+                "90.0" : 282854.4141350744,
+                "95.0" : 282854.4141350744,
+                "99.0" : 282854.4141350744,
+                "99.9" : 282854.4141350744,
+                "99.99" : 282854.4141350744,
+                "99.999" : 282854.4141350744,
+                "99.9999" : 282854.4141350744,
+                "100.0" : 282854.4141350744
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    280913.3566659577,
+                    282854.4141350744
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "text",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 26412.402184036713,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 26352.338394245427,
+                "50.0" : 26412.402184036713,
+                "90.0" : 26472.465973828002,
+                "95.0" : 26472.465973828002,
+                "99.0" : 26472.465973828002,
+                "99.9" : 26472.465973828002,
+                "99.99" : 26472.465973828002,
+                "99.999" : 26472.465973828002,
+                "99.9999" : 26472.465973828002,
+                "100.0" : 26472.465973828002
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    26352.338394245427,
+                    26472.465973828002
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "text",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 3602.742372431225,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3601.151366480265,
+                "50.0" : 3602.742372431225,
+                "90.0" : 3604.3333783821845,
+                "95.0" : 3604.3333783821845,
+                "99.0" : 3604.3333783821845,
+                "99.9" : 3604.3333783821845,
+                "99.99" : 3604.3333783821845,
+                "99.999" : 3604.3333783821845,
+                "99.9999" : 3604.3333783821845,
+                "100.0" : 3604.3333783821845
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    3601.151366480265,
+                    3604.3333783821845
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "binary",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 366996.5589742897,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 363872.3802545367,
+                "50.0" : 366996.5589742897,
+                "90.0" : 370120.73769404273,
+                "95.0" : 370120.73769404273,
+                "99.0" : 370120.73769404273,
+                "99.9" : 370120.73769404273,
+                "99.99" : 370120.73769404273,
+                "99.999" : 370120.73769404273,
+                "99.9999" : 370120.73769404273,
+                "100.0" : 370120.73769404273
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    363872.3802545367,
+                    370120.73769404273
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "binary",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 84818.23842061241,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 83853.67577756834,
+                "50.0" : 84818.23842061241,
+                "90.0" : 85782.8010636565,
+                "95.0" : 85782.8010636565,
+                "99.0" : 85782.8010636565,
+                "99.9" : 85782.8010636565,
+                "99.99" : 85782.8010636565,
+                "99.999" : 85782.8010636565,
+                "99.9999" : 85782.8010636565,
+                "100.0" : 85782.8010636565
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    85782.8010636565,
+                    83853.67577756834
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "binary",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 14146.636990181247,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 14146.282801401636,
+                "50.0" : 14146.636990181247,
+                "90.0" : 14146.99117896086,
+                "95.0" : 14146.99117896086,
+                "99.0" : 14146.99117896086,
+                "99.9" : 14146.99117896086,
+                "99.99" : 14146.99117896086,
+                "99.999" : 14146.99117896086,
+                "99.9999" : 14146.99117896086,
+                "100.0" : 14146.99117896086
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    14146.282801401636,
+                    14146.99117896086
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "random",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 648565.0222767898,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 640976.3876047297,
+                "50.0" : 648565.0222767898,
+                "90.0" : 656153.6569488498,
+                "95.0" : 656153.6569488498,
+                "99.0" : 656153.6569488498,
+                "99.9" : 656153.6569488498,
+                "99.99" : 656153.6569488498,
+                "99.999" : 656153.6569488498,
+                "99.9999" : 656153.6569488498,
+                "100.0" : 656153.6569488498
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    640976.3876047297,
+                    656153.6569488498
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "random",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 84419.83187701239,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 84314.72896981996,
+                "50.0" : 84419.83187701239,
+                "90.0" : 84524.9347842048,
+                "95.0" : 84524.9347842048,
+                "99.0" : 84524.9347842048,
+                "99.9" : 84524.9347842048,
+                "99.99" : 84524.9347842048,
+                "99.999" : 84524.9347842048,
+                "99.9999" : 84524.9347842048,
+                "100.0" : 84524.9347842048
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    84314.72896981996,
+                    84524.9347842048
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "zstd",
+            "payloadKind" : "random",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 15747.55607424621,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 15716.595490033049,
+                "50.0" : 15747.55607424621,
+                "90.0" : 15778.51665845937,
+                "95.0" : 15778.51665845937,
+                "99.0" : 15778.51665845937,
+                "99.9" : 15778.51665845937,
+                "99.99" : 15778.51665845937,
+                "99.999" : 15778.51665845937,
+                "99.9999" : 15778.51665845937,
+                "100.0" : 15778.51665845937
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    15716.595490033049,
+                    15778.51665845937
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "json",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 1148860.5708701136,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1143940.2104519843,
+                "50.0" : 1148860.5708701136,
+                "90.0" : 1153780.931288243,
+                "95.0" : 1153780.931288243,
+                "99.0" : 1153780.931288243,
+                "99.9" : 1153780.931288243,
+                "99.99" : 1153780.931288243,
+                "99.999" : 1153780.931288243,
+                "99.9999" : 1153780.931288243,
+                "100.0" : 1153780.931288243
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1153780.931288243,
+                    1143940.2104519843
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "json",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 49015.92269978052,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 48615.365938951276,
+                "50.0" : 49015.92269978052,
+                "90.0" : 49416.47946060977,
+                "95.0" : 49416.47946060977,
+                "99.0" : 49416.47946060977,
+                "99.9" : 49416.47946060977,
+                "99.99" : 49416.47946060977,
+                "99.999" : 49416.47946060977,
+                "99.9999" : 49416.47946060977,
+                "100.0" : 49416.47946060977
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    48615.365938951276,
+                    49416.47946060977
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "json",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 6162.3365253400825,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 6128.503499167153,
+                "50.0" : 6162.3365253400825,
+                "90.0" : 6196.169551513012,
+                "95.0" : 6196.169551513012,
+                "99.0" : 6196.169551513012,
+                "99.9" : 6196.169551513012,
+                "99.99" : 6196.169551513012,
+                "99.999" : 6196.169551513012,
+                "99.9999" : 6196.169551513012,
+                "100.0" : 6196.169551513012
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    6128.503499167153,
+                    6196.169551513012
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "text",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 1155557.866671775,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1150099.1865492805,
+                "50.0" : 1155557.866671775,
+                "90.0" : 1161016.5467942692,
+                "95.0" : 1161016.5467942692,
+                "99.0" : 1161016.5467942692,
+                "99.9" : 1161016.5467942692,
+                "99.99" : 1161016.5467942692,
+                "99.999" : 1161016.5467942692,
+                "99.9999" : 1161016.5467942692,
+                "100.0" : 1161016.5467942692
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1161016.5467942692,
+                    1150099.1865492805
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "text",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 50016.661603721135,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 49886.08743720667,
+                "50.0" : 50016.661603721135,
+                "90.0" : 50147.23577023561,
+                "95.0" : 50147.23577023561,
+                "99.0" : 50147.23577023561,
+                "99.9" : 50147.23577023561,
+                "99.99" : 50147.23577023561,
+                "99.999" : 50147.23577023561,
+                "99.9999" : 50147.23577023561,
+                "100.0" : 50147.23577023561
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    49886.08743720667,
+                    50147.23577023561
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "text",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 6133.662425948985,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 6105.016984739522,
+                "50.0" : 6133.662425948985,
+                "90.0" : 6162.307867158448,
+                "95.0" : 6162.307867158448,
+                "99.0" : 6162.307867158448,
+                "99.9" : 6162.307867158448,
+                "99.99" : 6162.307867158448,
+                "99.999" : 6162.307867158448,
+                "99.9999" : 6162.307867158448,
+                "100.0" : 6162.307867158448
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    6162.307867158448,
+                    6105.016984739522
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "binary",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 937453.2453610516,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 925520.4560156683,
+                "50.0" : 937453.2453610516,
+                "90.0" : 949386.0347064349,
+                "95.0" : 949386.0347064349,
+                "99.0" : 949386.0347064349,
+                "99.9" : 949386.0347064349,
+                "99.99" : 949386.0347064349,
+                "99.999" : 949386.0347064349,
+                "99.9999" : 949386.0347064349,
+                "100.0" : 949386.0347064349
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    925520.4560156683,
+                    949386.0347064349
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "binary",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 263651.21659031836,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 262546.5262288337,
+                "50.0" : 263651.21659031836,
+                "90.0" : 264755.90695180296,
+                "95.0" : 264755.90695180296,
+                "99.0" : 264755.90695180296,
+                "99.9" : 264755.90695180296,
+                "99.99" : 264755.90695180296,
+                "99.999" : 264755.90695180296,
+                "99.9999" : 264755.90695180296,
+                "100.0" : 264755.90695180296
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    262546.5262288337,
+                    264755.90695180296
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "binary",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 47509.61218662205,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 47444.12611211923,
+                "50.0" : 47509.61218662205,
+                "90.0" : 47575.09826112486,
+                "95.0" : 47575.09826112486,
+                "99.0" : 47575.09826112486,
+                "99.9" : 47575.09826112486,
+                "99.99" : 47575.09826112486,
+                "99.999" : 47575.09826112486,
+                "99.9999" : 47575.09826112486,
+                "100.0" : 47575.09826112486
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    47444.12611211923,
+                    47575.09826112486
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "random",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 1559923.2087924671,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1558480.051474826,
+                "50.0" : 1559923.2087924671,
+                "90.0" : 1561366.3661101086,
+                "95.0" : 1561366.3661101086,
+                "99.0" : 1561366.3661101086,
+                "99.9" : 1561366.3661101086,
+                "99.99" : 1561366.3661101086,
+                "99.999" : 1561366.3661101086,
+                "99.9999" : 1561366.3661101086,
+                "100.0" : 1561366.3661101086
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1561366.3661101086,
+                    1558480.051474826
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "random",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 211032.63414800933,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 209409.80554536128,
+                "50.0" : 211032.63414800933,
+                "90.0" : 212655.46275065737,
+                "95.0" : 212655.46275065737,
+                "99.0" : 212655.46275065737,
+                "99.9" : 212655.46275065737,
+                "99.99" : 212655.46275065737,
+                "99.999" : 212655.46275065737,
+                "99.9999" : 212655.46275065737,
+                "100.0" : 212655.46275065737
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    209409.80554536128,
+                    212655.46275065737
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "lz4",
+            "payloadKind" : "random",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 33962.69875128731,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 33917.761523745015,
+                "50.0" : 33962.69875128731,
+                "90.0" : 34007.6359788296,
+                "95.0" : 34007.6359788296,
+                "99.0" : 34007.6359788296,
+                "99.9" : 34007.6359788296,
+                "99.99" : 34007.6359788296,
+                "99.999" : 34007.6359788296,
+                "99.9999" : 34007.6359788296,
+                "100.0" : 34007.6359788296
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    33917.761523745015,
+                    34007.6359788296
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "json",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 1975253.2786264103,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1970222.6012975406,
+                "50.0" : 1975253.2786264103,
+                "90.0" : 1980283.95595528,
+                "95.0" : 1980283.95595528,
+                "99.0" : 1980283.95595528,
+                "99.9" : 1980283.95595528,
+                "99.99" : 1980283.95595528,
+                "99.999" : 1980283.95595528,
+                "99.9999" : 1980283.95595528,
+                "100.0" : 1980283.95595528
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1970222.6012975406,
+                    1980283.95595528
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "json",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 61013.94432289826,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 60878.796350659766,
+                "50.0" : 61013.94432289826,
+                "90.0" : 61149.09229513676,
+                "95.0" : 61149.09229513676,
+                "99.0" : 61149.09229513676,
+                "99.9" : 61149.09229513676,
+                "99.99" : 61149.09229513676,
+                "99.999" : 61149.09229513676,
+                "99.9999" : 61149.09229513676,
+                "100.0" : 61149.09229513676
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    60878.796350659766,
+                    61149.09229513676
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "json",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 7847.421091415266,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 7809.625482577554,
+                "50.0" : 7847.421091415266,
+                "90.0" : 7885.216700252978,
+                "95.0" : 7885.216700252978,
+                "99.0" : 7885.216700252978,
+                "99.9" : 7885.216700252978,
+                "99.99" : 7885.216700252978,
+                "99.999" : 7885.216700252978,
+                "99.9999" : 7885.216700252978,
+                "100.0" : 7885.216700252978
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    7809.625482577554,
+                    7885.216700252978
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "text",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 2112958.4244523197,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 2107852.285150287,
+                "50.0" : 2112958.4244523197,
+                "90.0" : 2118064.5637543523,
+                "95.0" : 2118064.5637543523,
+                "99.0" : 2118064.5637543523,
+                "99.9" : 2118064.5637543523,
+                "99.99" : 2118064.5637543523,
+                "99.999" : 2118064.5637543523,
+                "99.9999" : 2118064.5637543523,
+                "100.0" : 2118064.5637543523
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    2107852.285150287,
+                    2118064.5637543523
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "text",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 63574.55759222062,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 63354.75793653958,
+                "50.0" : 63574.55759222062,
+                "90.0" : 63794.35724790165,
+                "95.0" : 63794.35724790165,
+                "99.0" : 63794.35724790165,
+                "99.9" : 63794.35724790165,
+                "99.99" : 63794.35724790165,
+                "99.999" : 63794.35724790165,
+                "99.9999" : 63794.35724790165,
+                "100.0" : 63794.35724790165
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    63354.75793653958,
+                    63794.35724790165
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "text",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 8200.960162155667,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 8187.9332177226,
+                "50.0" : 8200.960162155667,
+                "90.0" : 8213.987106588735,
+                "95.0" : 8213.987106588735,
+                "99.0" : 8213.987106588735,
+                "99.9" : 8213.987106588735,
+                "99.99" : 8213.987106588735,
+                "99.999" : 8213.987106588735,
+                "99.9999" : 8213.987106588735,
+                "100.0" : 8213.987106588735
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    8187.9332177226,
+                    8213.987106588735
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "binary",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 2001482.1415386214,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 1985334.1078810229,
+                "50.0" : 2001482.1415386214,
+                "90.0" : 2017630.1751962197,
+                "95.0" : 2017630.1751962197,
+                "99.0" : 2017630.1751962197,
+                "99.9" : 2017630.1751962197,
+                "99.99" : 2017630.1751962197,
+                "99.999" : 2017630.1751962197,
+                "99.9999" : 2017630.1751962197,
+                "100.0" : 2017630.1751962197
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    1985334.1078810229,
+                    2017630.1751962197
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "binary",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 237130.4618031217,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 237065.91444799284,
+                "50.0" : 237130.4618031217,
+                "90.0" : 237195.00915825056,
+                "95.0" : 237195.00915825056,
+                "99.0" : 237195.00915825056,
+                "99.9" : 237195.00915825056,
+                "99.99" : 237195.00915825056,
+                "99.999" : 237195.00915825056,
+                "99.9999" : 237195.00915825056,
+                "100.0" : 237195.00915825056
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    237065.91444799284,
+                    237195.00915825056
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "binary",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 31779.337326409594,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 31711.54245580279,
+                "50.0" : 31779.337326409594,
+                "90.0" : 31847.13219701639,
+                "95.0" : 31847.13219701639,
+                "99.0" : 31847.13219701639,
+                "99.9" : 31847.13219701639,
+                "99.99" : 31847.13219701639,
+                "99.999" : 31847.13219701639,
+                "99.9999" : 31847.13219701639,
+                "100.0" : 31847.13219701639
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    31711.54245580279,
+                    31847.13219701639
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "random",
+            "payloadSize" : "small"
+        },
+        "primaryMetric" : {
+            "score" : 3692258.303888567,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 3657721.446805935,
+                "50.0" : 3692258.303888567,
+                "90.0" : 3726795.160971199,
+                "95.0" : 3726795.160971199,
+                "99.0" : 3726795.160971199,
+                "99.9" : 3726795.160971199,
+                "99.99" : 3726795.160971199,
+                "99.999" : 3726795.160971199,
+                "99.9999" : 3726795.160971199,
+                "100.0" : 3726795.160971199
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    3657721.446805935,
+                    3726795.160971199
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "random",
+            "payloadSize" : "medium"
+        },
+        "primaryMetric" : {
+            "score" : 283191.54731011734,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 279308.21853572474,
+                "50.0" : 283191.54731011734,
+                "90.0" : 287074.87608450995,
+                "95.0" : 287074.87608450995,
+                "99.0" : 287074.87608450995,
+                "99.9" : 287074.87608450995,
+                "99.99" : 287074.87608450995,
+                "99.999" : 287074.87608450995,
+                "99.9999" : 287074.87608450995,
+                "100.0" : 287074.87608450995
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    279308.21853572474,
+                    287074.87608450995
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.io.benchmark.SameConditionCompressorBenchmark.compress",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 1,
+        "warmupTime" : "500 ms",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 2,
+        "measurementTime" : "500 ms",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "compressorName" : "snappy",
+            "payloadKind" : "random",
+            "payloadSize" : "large"
+        },
+        "primaryMetric" : {
+            "score" : 34997.123479179936,
+            "scoreError" : "NaN",
+            "scoreConfidence" : [
+                "NaN",
+                "NaN"
+            ],
+            "scorePercentiles" : {
+                "0.0" : 34965.17206158262,
+                "50.0" : 34997.123479179936,
+                "90.0" : 35029.07489677725,
+                "95.0" : 35029.07489677725,
+                "99.0" : 35029.07489677725,
+                "99.9" : 35029.07489677725,
+                "99.99" : 35029.07489677725,
+                "99.999" : 35029.07489677725,
+                "99.9999" : 35029.07489677725,
+                "100.0" : 35029.07489677725
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    34965.17206158262,
+                    35029.07489677725
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+

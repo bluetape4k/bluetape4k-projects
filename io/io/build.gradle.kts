@@ -9,6 +9,22 @@ allOpen {
 }
 // https://github.com/Kotlin/kotlinx-benchmark
 benchmark {
+    configurations {
+        named("main") {
+            val includeRegex = project.findProperty("benchmarkInclude") as String?
+            if (!includeRegex.isNullOrBlank()) {
+                include(includeRegex)
+            }
+        }
+        register("selfImprove") {
+            val includeRegex = project.findProperty("benchmarkInclude") as String?
+            include(includeRegex ?: ".*SameConditionCompressorBenchmark.compress.*")
+            warmups = 1
+            iterations = 2
+            iterationTime = 500
+            iterationTimeUnit = "ms"
+        }
+    }
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
