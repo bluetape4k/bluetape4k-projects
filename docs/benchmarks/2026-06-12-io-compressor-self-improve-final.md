@@ -23,8 +23,8 @@ The wrapper runs the Gradle `kotlinx-benchmark` task `:bluetape4k-io:testSelfImp
 |---|---:|
 | Baseline throughput | 19,757.605809808367 ops/s |
 | 30% target | 25,684.88755275088 ops/s |
-| Reviewed candidate throughput | 19,739.301242587328 ops/s |
-| Improvement | -0.09264125834021463% |
+| Reviewed candidate throughput | 19,879.398326293536 ops/s |
+| Improvement | 0.6164335783271246% |
 | Gate result | FAIL |
 
 ## Implementation
@@ -36,7 +36,23 @@ Review also rejected default compression-level changes that traded compression r
 - `GZipCompressor` keeps `Deflater.DEFAULT_COMPRESSION` by default and allows explicit compression-level configuration.
 - `DeflateCompressor` keeps `Deflater.DEFAULT_COMPRESSION` by default, allows explicit compression-level configuration, and uses the repo default buffer size for its stream buffer.
 - `ZstdCompressor` keeps default level 3.
-- `LZ4Compressor` has no ThreadLocal, memoization, or header-write micro-change.
+- `LZ4Compressor` has no ThreadLocal or memoization.
+
+The fair follow-up candidate minimizes copies in production paths instead of changing benchmark inputs:
+
+- compressor range validations use `requireGe` and `requireLe` from `bluetape4k-core`;
+- ByteBuffer entry points preserve source positions and use direct codec APIs where the underlying codec supports them;
+- GZip and Deflate write directly through `Deflater` to avoid stream wrapper overhead;
+- LZ4 and Zstd avoid the previous integer-header byte-array helper copy.
+
+Codec-level geometric means:
+
+| Codec | Baseline | Candidate | Improvement |
+|---|---:|---:|---:|
+| gzip | 4,893.625620510806 ops/s | 4,963.149489256945 ops/s | 1.4207026474347018% |
+| deflate | 4,738.732977575273 ops/s | 4,822.098414129031 ops/s | 1.7592347352817894% |
+| zstd | 52,114.86437744518 ops/s | 50,959.236391624305 ops/s | -2.217463289266508% |
+| lz4 | 126,090.5895245756 ops/s | 128,055.01924791712 ops/s | 1.5579510974993438% |
 
 The reviewed candidate does not meet the 30% throughput target. It should not be treated as the winning self-improve result for issue #751.
 

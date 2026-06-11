@@ -4,9 +4,11 @@ import com.github.luben.zstd.Zstd
 import com.github.luben.zstd.ZstdException
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.support.toByteArray
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.toInt
 import org.apache.commons.compress.compressors.zstandard.ZstdUtils
+import java.nio.ByteBuffer
 
 /**
  * zstd-jni 라이브러리를 사용하여 Zstd 알고리즘을 활용한 압축기
@@ -37,6 +39,7 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
 
     companion object: KLogging() {
         private const val MAGIC_NUMBER_SIZE = Int.SIZE_BYTES
+        private const val MAX_DECOMPRESSED_SIZE = 256 * 1024 * 1024
         const val DEFAULT_LEVEL: Int = 3
 
         /**
@@ -54,24 +57,41 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
      * I/O 압축에서 `doCompress` 함수를 제공합니다.
      */
     override fun doCompress(plain: ByteArray): ByteArray {
+        val compressed = Zstd.compress(plain, level)
+        val output = ByteArray(MAGIC_NUMBER_SIZE + compressed.size)
         val sourceSize = plain.size
+
+        output[0] = (sourceSize ushr 24).toByte()
+        output[1] = (sourceSize ushr 16).toByte()
+        output[2] = (sourceSize ushr 8).toByte()
+        output[3] = sourceSize.toByte()
+        compressed.copyInto(output, destinationOffset = MAGIC_NUMBER_SIZE)
+
+        return output
+    }
+
+    override fun doCompress(plainBuffer: ByteBuffer): ByteBuffer {
+        if (!plainBuffer.isDirect) return super.doCompress(plainBuffer)
+
+        val sourceSize = plainBuffer.remaining()
         val maxOutputSize = Zstd.compressBound(sourceSize.toLong()).toInt()
+        val output = ByteBuffer.allocateDirect(MAGIC_NUMBER_SIZE + maxOutputSize)
 
-        val output = ByteArray(MAGIC_NUMBER_SIZE + maxOutputSize)
-        sourceSize.toByteArray().copyInto(output, 0)
-
-        val compressedSize = Zstd.compressByteArray(
+        output.putInt(sourceSize)
+        val compressedSize = Zstd.compressDirectByteBuffer(
             output,
             MAGIC_NUMBER_SIZE,
-            maxOutputSize,      // output 배열에서 MAGIC_NUMBER_SIZE 이후 사용 가능한 최대 공간
-            plain,
-            0,
-            plain.size,
+            maxOutputSize,
+            plainBuffer,
+            plainBuffer.position(),
+            sourceSize,
             level
         )
 
         check(!Zstd.isError(compressedSize)) { "Zstd compression failed: ${Zstd.getErrorName(compressedSize)}" }
-        return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize.toInt())
+        output.position(0)
+        output.limit(MAGIC_NUMBER_SIZE + compressedSize.toInt())
+        return output.slice()
     }
 
     /**
@@ -79,10 +99,8 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
      */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         val sourceSize = compressed.toInt()
-        require(sourceSize >= 0) { "sourceSize가 음수입니다. 손상된 데이터일 수 있습니다. sourceSize=$sourceSize" }
-        require(sourceSize <= 256 * 1024 * 1024) {
-            "sourceSize가 허용 한도(256MB)를 초과합니다. 손상되거나 악의적인 데이터일 수 있습니다. sourceSize=$sourceSize"
-        }
+            .requireGe(0, "sourceSize")
+            .requireLe(MAX_DECOMPRESSED_SIZE, "sourceSize")
         val output = ByteArray(sourceSize)
 
         log.trace { "sourceSize = $sourceSize" }
@@ -97,5 +115,28 @@ class ZstdCompressor private constructor(val level: Int): AbstractCompressor() {
         )
 
         return output
+    }
+
+    override fun doDecompress(compressedBuffer: ByteBuffer): ByteBuffer {
+        if (!compressedBuffer.isDirect) return super.doDecompress(compressedBuffer)
+
+        val sourceSize = compressedBuffer.getInt(compressedBuffer.position())
+            .requireGe(0, "sourceSize")
+            .requireLe(MAX_DECOMPRESSED_SIZE, "sourceSize")
+
+        val output = ByteBuffer.allocateDirect(sourceSize)
+        val decompressedSize = Zstd.decompressDirectByteBuffer(
+            output,
+            0,
+            sourceSize,
+            compressedBuffer,
+            compressedBuffer.position() + MAGIC_NUMBER_SIZE,
+            compressedBuffer.remaining() - MAGIC_NUMBER_SIZE
+        )
+
+        check(!Zstd.isError(decompressedSize)) { "Zstd decompression failed: ${Zstd.getErrorName(decompressedSize)}" }
+        output.position(0)
+        output.limit(decompressedSize.toInt())
+        return output.slice()
     }
 }

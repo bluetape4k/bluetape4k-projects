@@ -1,5 +1,6 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.support.requireGe
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import java.io.ByteArrayInputStream
@@ -27,7 +28,7 @@ class BZip2Compressor(
     private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
 ): AbstractCompressor() {
     init {
-        require(bufferSize > 0) { "bufferSize must be greater than 0." }
+        bufferSize.requireGe(1, "bufferSize")
     }
 
     /**

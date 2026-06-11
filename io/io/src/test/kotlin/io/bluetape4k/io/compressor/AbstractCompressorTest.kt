@@ -87,6 +87,25 @@ abstract class AbstractCompressorTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
+    fun `compress direct ByteBuffer with offset without moving source position`() {
+        val expected = getRandomString().toUtf8Bytes()
+        val plainBuffer = ByteBuffer.allocateDirect(expected.size + 16)
+        plainBuffer.position(8)
+        plainBuffer.put(expected)
+        plainBuffer.flip()
+        plainBuffer.position(8)
+
+        val originalPosition = plainBuffer.position()
+        val compressedBuffer: ByteBuffer = compressor.compress(plainBuffer)
+        val compressedPosition = compressedBuffer.position()
+        val decompressedBuffer: ByteBuffer = compressor.decompress(compressedBuffer)
+
+        plainBuffer.position() shouldBeEqualTo originalPosition
+        compressedBuffer.position() shouldBeEqualTo compressedPosition
+        decompressedBuffer.toRemainingByteArray() shouldBeEqualTo expected
+    }
+
+    @RepeatedTest(REPEAT_SIZE)
     fun `compress InputStream`() {
         val expected = getRandomString().toUtf8Bytes()
         val plainStream = ByteArrayInputStream(expected)
@@ -112,5 +131,10 @@ abstract class AbstractCompressorTest {
             "${compressor.javaClass.simpleName} ratio=${compressedSize * 100.0 / plainSize} " +
                     "compressedSize=$compressedSize, plainSize=$plainSize"
         }
+    }
+
+    private fun ByteBuffer.toRemainingByteArray(): ByteArray {
+        val copy = duplicate()
+        return ByteArray(copy.remaining()).also { copy.get(it) }
     }
 }

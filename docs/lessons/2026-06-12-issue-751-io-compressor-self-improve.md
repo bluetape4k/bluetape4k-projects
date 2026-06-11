@@ -11,7 +11,8 @@ PR #750 added the same-condition compressor benchmark. Issue #751 used that benc
 - The first repeated-input LZ4 cache result was rejected because it optimized the benchmark shape instead of actual compression throughput.
 - A fair primary metric needs to cover the affected compressor family, not only one repeated small LZ4 payload. The final gate uses the geometric mean for GZip, Deflate, Zstd, and LZ4 across all same-condition payload kinds and sizes.
 - Default compression-level changes must be treated as configuration tradeoffs, not implementation optimizations. They improved throughput but were rejected because they changed the default compression-ratio contract.
-- After restoring default compression levels, the reviewed candidate did not meet the 30% target.
+- Copy-minimization and ByteBuffer/direct-codec paths were fair production changes, but the measured aggregate improvement was only 0.6164335783271246%; the reviewed candidate still did not meet the 30% target.
+- `requireGe` and `requireLe` keep numeric precondition checks consistent with `bluetape4k-core` while leaving non-numeric safety checks as plain `require`.
 
 ## Guardrails
 
@@ -24,6 +25,6 @@ PR #750 added the same-condition compressor benchmark. Issue #751 used that benc
 ## Result
 
 - Baseline: 19,757.605809808367 ops/s
-- Reviewed candidate: 19,739.301242587328 ops/s
-- Improvement: -0.09264125834021463%
+- Reviewed candidate: 19,879.398326293536 ops/s
+- Improvement: 0.6164335783271246%
 - Gate: FAIL

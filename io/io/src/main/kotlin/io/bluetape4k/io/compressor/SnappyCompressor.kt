@@ -1,7 +1,10 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
 import org.xerial.snappy.Snappy
 import org.xerial.snappy.SnappyError
+import java.nio.ByteBuffer
 
 /**
  * Snappy 알고리즘을 사용한 Compressor
@@ -35,6 +38,16 @@ class SnappyCompressor: AbstractCompressor() {
         return Snappy.compress(plain)
     }
 
+    override fun doCompress(plainBuffer: ByteBuffer): ByteBuffer {
+        if (!plainBuffer.isDirect) return super.doCompress(plainBuffer)
+
+        val input = plainBuffer.slice()
+        val output = ByteBuffer.allocateDirect(Snappy.maxCompressedLength(input.remaining()))
+
+        Snappy.compress(input, output)
+        return output.slice()
+    }
+
     /**
      * I/O 압축에서 `doDecompress` 함수를 제공합니다.
      *
@@ -42,12 +55,22 @@ class SnappyCompressor: AbstractCompressor() {
      */
     override fun doDecompress(compressed: ByteArray): ByteArray {
         val uncompressedSize = Snappy.uncompressedLength(compressed)
-        require(uncompressedSize >= 0) {
-            "uncompressedSize가 음수입니다. 손상된 데이터일 수 있습니다. uncompressedSize=$uncompressedSize"
-        }
-        require(uncompressedSize <= MAX_DECOMPRESSED_SIZE) {
-            "uncompressedSize가 허용 한도(256MB)를 초과합니다. 손상되거나 악의적인 데이터일 수 있습니다. uncompressedSize=$uncompressedSize"
-        }
+            .requireGe(0, "uncompressedSize")
+            .requireLe(MAX_DECOMPRESSED_SIZE, "uncompressedSize")
         return Snappy.uncompress(compressed)
+    }
+
+    override fun doDecompress(compressedBuffer: ByteBuffer): ByteBuffer {
+        if (!compressedBuffer.isDirect) return super.doDecompress(compressedBuffer)
+
+        val input = compressedBuffer.slice()
+        val uncompressedSize = Snappy.uncompressedLength(input.duplicate())
+            .requireGe(0, "uncompressedSize")
+            .requireLe(MAX_DECOMPRESSED_SIZE, "uncompressedSize")
+
+        val output = ByteBuffer.allocateDirect(uncompressedSize)
+
+        Snappy.uncompress(input, output)
+        return output.slice()
     }
 }

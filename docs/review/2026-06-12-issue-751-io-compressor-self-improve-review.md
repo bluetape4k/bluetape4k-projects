@@ -15,8 +15,9 @@ The performance acceptance gate still fails, so this candidate should not close 
 ## Evidence
 
 - Benchmark target: at least 25,684.88755275088 ops/s.
-- Reviewed candidate benchmark: 19,739.301242587328 ops/s.
-- Improvement: -0.09264125834021463%.
+- Reviewed candidate benchmark: 19,879.398326293536 ops/s.
+- Improvement: 0.6164335783271246%.
+- Codec-level movement: gzip +1.4207026474347018%, deflate +1.7592347352817894%, zstd -2.217463289266508%, lz4 +1.5579510974993438%.
 - Benchmark metric: geometric mean for GZip, Deflate, Zstd, and LZ4 compression over all same-condition payload kinds and sizes.
 - Benchmark command: `scripts/io-compressor-self-improve-benchmark.sh`.
 - Benchmark task: Gradle `kotlinx-benchmark` task `:bluetape4k-io:testSelfImproveBenchmark`.

@@ -1,10 +1,12 @@
 package io.bluetape4k.io.compressor
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.toByteArray
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.toInt
 import net.jpountz.lz4.LZ4Exception
 import net.jpountz.lz4.LZ4Factory
+import java.nio.ByteBuffer
 
 /**
  * LZ4 알고리즘을 사용한 고성능 압축기
@@ -39,11 +41,11 @@ class LZ4Compressor: AbstractCompressor() {
          * 압축 데이터 헤더 크기 (원본 크기 저장용, 4 bytes)
          */
         private const val MAGIC_NUMBER_SIZE: Int = Int.SIZE_BYTES
+        private const val MAX_DECOMPRESSED_SIZE: Int = 256 * 1024 * 1024
 
         private val factory: LZ4Factory = LZ4Factory.fastestInstance()
         private val compressor = factory.fastCompressor()
         private val decompressor = factory.fastDecompressor()
-
     }
 
     /**
@@ -58,13 +60,36 @@ class LZ4Compressor: AbstractCompressor() {
         val output = ByteArray(maxOutputSize + MAGIC_NUMBER_SIZE)
 
         // 헤더: 원본 크기를 4바이트로 저장 (복원 시 사용)
-        sourceSize.toByteArray().copyInto(output, destinationOffset = 0)
+        output[0] = (sourceSize ushr 24).toByte()
+        output[1] = (sourceSize ushr 16).toByte()
+        output[2] = (sourceSize ushr 8).toByte()
+        output[3] = sourceSize.toByte()
 
         // 압축 데이터는 헤더 이후부터 저장
         val compressedSize = compressor.compress(plain, 0, sourceSize, output, MAGIC_NUMBER_SIZE, maxOutputSize)
 
         // 실제 사용한 크기만큼만 반환 (메모리 절약)
         return output.copyOf(MAGIC_NUMBER_SIZE + compressedSize)
+    }
+
+    override fun doCompress(plainBuffer: ByteBuffer): ByteBuffer {
+        val sourceSize = plainBuffer.remaining()
+        val maxOutputSize = compressor.maxCompressedLength(sourceSize)
+        val output = ByteBuffer.allocate(MAGIC_NUMBER_SIZE + maxOutputSize)
+
+        output.putInt(sourceSize)
+        val compressedSize = compressor.compress(
+            plainBuffer,
+            plainBuffer.position(),
+            sourceSize,
+            output,
+            MAGIC_NUMBER_SIZE,
+            maxOutputSize
+        )
+
+        output.position(0)
+        output.limit(MAGIC_NUMBER_SIZE + compressedSize)
+        return output.slice()
     }
 
     /**
@@ -75,10 +100,8 @@ class LZ4Compressor: AbstractCompressor() {
     override fun doDecompress(compressed: ByteArray): ByteArray {
         // 헤더에서 원본 크기 추출 (처음 4바이트)
         val sourceSize = compressed.toInt()
-        require(sourceSize >= 0) { "sourceSize가 음수입니다. 손상된 데이터일 수 있습니다. sourceSize=$sourceSize" }
-        require(sourceSize <= 256 * 1024 * 1024) {
-            "sourceSize가 허용 한도(256MB)를 초과합니다. 손상되거나 악의적인 데이터일 수 있습니다. sourceSize=$sourceSize"
-        }
+            .requireGe(0, "sourceSize")
+            .requireLe(MAX_DECOMPRESSED_SIZE, "sourceSize")
 
         // 원본 크기만큼 버퍼 할당
         val output = ByteArray(sourceSize)
@@ -93,5 +116,24 @@ class LZ4Compressor: AbstractCompressor() {
         )
 
         return output
+    }
+
+    override fun doDecompress(compressedBuffer: ByteBuffer): ByteBuffer {
+        val sourceSize = compressedBuffer.getInt(compressedBuffer.position())
+            .requireGe(0, "sourceSize")
+            .requireLe(MAX_DECOMPRESSED_SIZE, "sourceSize")
+
+        val output = ByteBuffer.allocate(sourceSize)
+        decompressor.decompress(
+            compressedBuffer,
+            compressedBuffer.position() + MAGIC_NUMBER_SIZE,
+            output,
+            0,
+            sourceSize
+        )
+
+        output.position(0)
+        output.limit(sourceSize)
+        return output.slice()
     }
 }

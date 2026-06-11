@@ -6,6 +6,8 @@ import io.bluetape4k.io.DEFAULT_BUFFER_SIZE
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -309,16 +311,12 @@ fun unzip(zipFile: File, destDir: File, vararg patterns: String) {
 
             // zip bomb 방어: 엔트리 수 제한
             entryCount++
-            require(entryCount <= ZIP_MAX_ENTRIES) {
-                "ZIP 엔트리 수가 허용 한도를 초과했습니다: $entryCount > $ZIP_MAX_ENTRIES"
-            }
+            entryCount.requireLe(ZIP_MAX_ENTRIES, "entryCount")
 
             // zip bomb 방어: 비압축 크기 제한 (엔트리 헤더의 크기 정보 기준)
             if (entry.size > 0) {
                 declaredUncompressedSize += entry.size
-                require(declaredUncompressedSize <= ZIP_MAX_UNCOMPRESSED_SIZE) {
-                    "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $declaredUncompressedSize > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
-                }
+                declaredUncompressedSize.requireLe(ZIP_MAX_UNCOMPRESSED_SIZE, "declaredUncompressedSize")
             }
 
             // 패턴 필터링
@@ -366,9 +364,7 @@ private fun resolveZipTarget(canonicalDestDir: File, entryName: String): File {
 }
 
 private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long): Long {
-    require(remainingLimit >= 0) {
-        "ZIP 비압축 총 크기가 허용 한도를 초과했습니다: $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
-    }
+    remainingLimit.requireGe(0L, "remainingLimit")
 
     var copied = 0L
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -382,9 +378,7 @@ private fun InputStream.copyToLimited(output: OutputStream, remainingLimit: Long
         }
 
         copied += read
-        require(copied <= remainingLimit) {
-            "ZIP 실제 비압축 총 크기가 허용 한도를 초과했습니다: ${ZIP_MAX_UNCOMPRESSED_SIZE - remainingLimit + copied} > $ZIP_MAX_UNCOMPRESSED_SIZE bytes"
-        }
+        copied.requireLe(remainingLimit, "copied")
         output.write(buffer, 0, read)
     }
 }

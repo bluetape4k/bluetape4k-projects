@@ -5,6 +5,7 @@ import io.bluetape4k.io.copyTo
 import io.bluetape4k.io.toInputStream
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
+import io.bluetape4k.support.requireGe
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -56,7 +57,7 @@ interface StreamingCompressor {
      * [source]와 내부 래핑 스트림은 작업 종료 시 닫힙니다.
      */
     fun compress(source: InputStream, sink: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): Long {
-        require(bufferSize > 0) { "bufferSize must be greater than 0." }
+        bufferSize.requireGe(1, "bufferSize")
 
         source.use { input ->
             compressing(sink).use { compressed ->
@@ -71,7 +72,7 @@ interface StreamingCompressor {
      * [source]와 내부 래핑 스트림은 작업 종료 시 닫힙니다.
      */
     fun decompress(source: InputStream, sink: OutputStream, bufferSize: Int = DEFAULT_BUFFER_SIZE): Long {
-        require(bufferSize > 0) { "bufferSize must be greater than 0." }
+        bufferSize.requireGe(1, "bufferSize")
 
         source.use { input ->
             decompressing(input).use { decompressed ->

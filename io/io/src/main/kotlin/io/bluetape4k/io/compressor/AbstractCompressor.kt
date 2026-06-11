@@ -1,10 +1,12 @@
 package io.bluetape4k.io.compressor
 
+import io.bluetape4k.io.getBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
 import io.bluetape4k.support.isNullOrEmpty
 import java.io.IOException
+import java.nio.ByteBuffer
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -48,6 +50,11 @@ abstract class AbstractCompressor: Compressor {
 
     protected abstract fun doCompress(plain: ByteArray): ByteArray
     protected abstract fun doDecompress(compressed: ByteArray): ByteArray
+    protected open fun doCompress(plainBuffer: ByteBuffer): ByteBuffer =
+        ByteBuffer.wrap(doCompress(plainBuffer.getBytes()))
+
+    protected open fun doDecompress(compressedBuffer: ByteBuffer): ByteBuffer =
+        ByteBuffer.wrap(doDecompress(compressedBuffer.getBytes()))
 
     /**
      * Compresses [plain] data.
@@ -68,6 +75,11 @@ abstract class AbstractCompressor: Compressor {
     override fun compress(plain: ByteArray?): ByteArray {
         if (plain.isNullOrEmpty()) return emptyByteArray
         return doCompress(plain!!)
+    }
+
+    override fun compress(plainBuffer: ByteBuffer): ByteBuffer {
+        if (!plainBuffer.hasRemaining()) return ByteBuffer.wrap(emptyByteArray)
+        return doCompress(plainBuffer.duplicate())
     }
 
     /**
@@ -91,6 +103,11 @@ abstract class AbstractCompressor: Compressor {
     override fun decompress(compressed: ByteArray?): ByteArray {
         if (compressed.isNullOrEmpty()) return emptyByteArray
         return doDecompress(compressed!!)
+    }
+
+    override fun decompress(compressedBuffer: ByteBuffer): ByteBuffer {
+        if (!compressedBuffer.hasRemaining()) return ByteBuffer.wrap(emptyByteArray)
+        return doDecompress(compressedBuffer.duplicate())
     }
 
     /**
