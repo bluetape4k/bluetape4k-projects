@@ -3,11 +3,10 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireLe
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import java.util.zip.CRC32
 import java.util.zip.Deflater
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
-import java.util.zip.CRC32
 import java.util.zip.ZipException
 
 /**
@@ -77,16 +76,6 @@ class GZipCompressor(
             GZIPInputStream(input, bufferSize).use { gzip ->
                 gzip.readBytes()
             }
-        }
-    }
-
-    private class LevelGzipOutputStream(
-        output: ByteArrayOutputStream,
-        size: Int,
-        level: Int,
-    ): GZIPOutputStream(output, size) {
-        init {
-            def.setLevel(level)
         }
     }
 

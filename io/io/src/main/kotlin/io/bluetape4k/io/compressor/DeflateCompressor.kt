@@ -18,7 +18,6 @@ import java.util.zip.ZipException
  * // restored contentEquals data == true
  * ```
  *
- * @see [DeflaterOutputStream]
  * @see [InflaterInputStream]
  * @throws java.io.IOException when Deflate stream processing fails.
  * @throws ZipException when the payload is corrupt or not valid Deflate data.
