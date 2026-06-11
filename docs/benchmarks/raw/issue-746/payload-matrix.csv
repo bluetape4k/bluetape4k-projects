@@ -1,0 +1,13 @@
+payload_kind,payload_size,target_bytes,normalized_common_compressors,jvm_context_compressors
+json,small,1024,"gzip;deflate;zstd;lz4;snappy",bzip2
+json,medium,65536,"gzip;deflate;zstd;lz4;snappy",bzip2
+json,large,524288,"gzip;deflate;zstd;lz4;snappy",bzip2
+text,small,1024,"gzip;deflate;zstd;lz4;snappy",bzip2
+text,medium,65536,"gzip;deflate;zstd;lz4;snappy",bzip2
+text,large,524288,"gzip;deflate;zstd;lz4;snappy",bzip2
+binary,small,1024,"gzip;deflate;zstd;lz4;snappy",bzip2
+binary,medium,65536,"gzip;deflate;zstd;lz4;snappy",bzip2
+binary,large,524288,"gzip;deflate;zstd;lz4;snappy",bzip2
+random,small,1024,"gzip;deflate;zstd;lz4;snappy",bzip2
+random,medium,65536,"gzip;deflate;zstd;lz4;snappy",bzip2
+random,large,524288,"gzip;deflate;zstd;lz4;snappy",bzip2
