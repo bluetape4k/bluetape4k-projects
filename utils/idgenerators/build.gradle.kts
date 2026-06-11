@@ -64,6 +64,17 @@ benchmark {
             outputTimeUnit = "s"
             reportFormat = "json"
         }
+        register("focused") {
+            include("io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark")
+            include("io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark")
+            warmups = 3
+            iterations = 5
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            mode = "thrpt"
+            outputTimeUnit = "s"
+            reportFormat = "json"
+        }
     }
 }
 
