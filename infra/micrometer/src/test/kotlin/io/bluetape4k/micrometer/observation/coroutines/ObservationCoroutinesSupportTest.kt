@@ -12,6 +12,8 @@ import io.bluetape4k.logging.info
 import io.bluetape4k.micrometer.observation.AbstractObservationTest
 import io.bluetape4k.micrometer.observation.start
 import io.micrometer.observation.Observation
+import io.micrometer.observation.ObservationHandler
+import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.tck.ObservationRegistryAssert
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -70,6 +72,26 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
 
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
+    }
+
+    @Test
+    fun `withObservationContextSuspending - named observation stops on success`() = runTest {
+        val handler = RecordingObservationHandler()
+        val registry =
+            ObservationRegistry.create().apply {
+                observationConfig().observationHandler(handler)
+            }
+
+        val result =
+            withObservationContextSuspending("observer.stop.${Base58.randomString(8)}", registry) {
+                currentObservationInContext().shouldNotBeNull()
+                "observed"
+            }
+
+        result shouldBeEqualTo "observed"
+        handler.started shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
+        handler.errors shouldBeEqualTo 0
     }
 
     @Test
@@ -205,5 +227,25 @@ class ObservationCoroutinesSupportTest: AbstractObservationTest() {
         yield()
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
+    }
+
+    private class RecordingObservationHandler: ObservationHandler<Observation.Context> {
+        var started = 0
+        var stopped = 0
+        var errors = 0
+
+        override fun onStart(context: Observation.Context) {
+            started++
+        }
+
+        override fun onStop(context: Observation.Context) {
+            stopped++
+        }
+
+        override fun onError(context: Observation.Context) {
+            errors++
+        }
+
+        override fun supportsContext(context: Observation.Context): Boolean = true
     }
 }
