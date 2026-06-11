@@ -17,7 +17,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [java-kotlin, python, actions]
+        # TODO(#741, #743): Re-enable java-kotlin after CodeQL supports
+        # Kotlin 2.4.x. Keep actions/python analysis active while the Kotlin
+        # extractor support window catches up.
+        language: [python, actions]
 
     steps:
       - name: Checkout repository
@@ -37,7 +40,9 @@ jobs:
 
       - name: Build with Gradle
         if: matrix.language == 'java-kotlin'
-        run: ./gradlew build -x test --no-daemon
+        # TODO(#745): Keep the re-enabled java-kotlin build compile-only;
+        # `build -x test` still schedules custom Test tasks such as k8sTest.
+        run: ./gradlew assemble --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
