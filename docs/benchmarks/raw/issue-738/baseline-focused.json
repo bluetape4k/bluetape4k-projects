@@ -1,0 +1,1182 @@
+[
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.ksuidMillisDefaultString",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 68.63155498035854,
+            "scoreError" : 2.2820126555440385,
+            "scoreConfidence" : [
+                66.34954232481451,
+                70.91356763590258
+            ],
+            "scorePercentiles" : {
+                "0.0" : 67.96274450557944,
+                "50.0" : 68.56852868475475,
+                "90.0" : 69.49679043732718,
+                "95.0" : 69.49679043732718,
+                "99.0" : 69.49679043732718,
+                "99.9" : 69.49679043732718,
+                "99.99" : 69.49679043732718,
+                "99.999" : 69.49679043732718,
+                "99.9999" : 69.49679043732718,
+                "100.0" : 69.49679043732718
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    69.49679043732718,
+                    68.87793576089437,
+                    68.56852868475475,
+                    67.96274450557944,
+                    68.25177551323695
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.ksuidMillisWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 53.496240997009274,
+            "scoreError" : 11.717039285704173,
+            "scoreConfidence" : [
+                41.7792017113051,
+                65.21328028271344
+            ],
+            "scorePercentiles" : {
+                "0.0" : 50.02244717490386,
+                "50.0" : 53.58727763704674,
+                "90.0" : 57.465206994838695,
+                "95.0" : 57.465206994838695,
+                "99.0" : 57.465206994838695,
+                "99.9" : 57.465206994838695,
+                "99.99" : 57.465206994838695,
+                "99.999" : 57.465206994838695,
+                "99.9999" : 57.465206994838695,
+                "100.0" : 57.465206994838695
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    50.02244717490386,
+                    51.077533047829824,
+                    55.32874013042728,
+                    53.58727763704674,
+                    57.465206994838695
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.ksuidSecondsDefaultString",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 60.632708705166735,
+            "scoreError" : 8.531592403680094,
+            "scoreConfidence" : [
+                52.10111630148664,
+                69.16430110884683
+            ],
+            "scorePercentiles" : {
+                "0.0" : 57.819080904430244,
+                "50.0" : 60.08281857164129,
+                "90.0" : 63.03952175496102,
+                "95.0" : 63.03952175496102,
+                "99.0" : 63.03952175496102,
+                "99.9" : 63.03952175496102,
+                "99.99" : 63.03952175496102,
+                "99.999" : 63.03952175496102,
+                "99.9999" : 63.03952175496102,
+                "100.0" : 63.03952175496102
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    62.7183489755538,
+                    57.819080904430244,
+                    60.08281857164129,
+                    59.503773319247344,
+                    63.03952175496102
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.ksuidSecondsWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 52.90794035493491,
+            "scoreError" : 9.451320976624741,
+            "scoreConfidence" : [
+                43.456619378310165,
+                62.35926133155965
+            ],
+            "scorePercentiles" : {
+                "0.0" : 50.33094467266221,
+                "50.0" : 52.14183696806158,
+                "90.0" : 55.54562108606062,
+                "95.0" : 55.54562108606062,
+                "99.0" : 55.54562108606062,
+                "99.9" : 55.54562108606062,
+                "99.99" : 55.54562108606062,
+                "99.999" : 55.54562108606062,
+                "99.9999" : 55.54562108606062,
+                "100.0" : 55.54562108606062
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    55.54562108606062,
+                    52.14183696806158,
+                    50.33094467266221,
+                    51.0624842018514,
+                    55.458814846038706
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.snowflakeDefaultGenerateOnly",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 62.41453940111289,
+            "scoreError" : 0.7611778818771014,
+            "scoreConfidence" : [
+                61.65336151923579,
+                63.17571728298999
+            ],
+            "scorePercentiles" : {
+                "0.0" : 62.13809055901446,
+                "50.0" : 62.37779425454195,
+                "90.0" : 62.67158767507763,
+                "95.0" : 62.67158767507763,
+                "99.0" : 62.67158767507763,
+                "99.9" : 62.67158767507763,
+                "99.99" : 62.67158767507763,
+                "99.999" : 62.67158767507763,
+                "99.9999" : 62.67158767507763,
+                "100.0" : 62.67158767507763
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    62.37779425454195,
+                    62.67158767507763,
+                    62.36886191733322,
+                    62.13809055901446,
+                    62.516362599597215
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.snowflakeDefaultWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 62.10358439288234,
+            "scoreError" : 0.6229047367560148,
+            "scoreConfidence" : [
+                61.48067965612633,
+                62.72648912963835
+            ],
+            "scorePercentiles" : {
+                "0.0" : 61.84952473622993,
+                "50.0" : 62.101580432161114,
+                "90.0" : 62.27606628197919,
+                "95.0" : 62.27606628197919,
+                "99.0" : 62.27606628197919,
+                "99.9" : 62.27606628197919,
+                "99.99" : 62.27606628197919,
+                "99.999" : 62.27606628197919,
+                "99.9999" : 62.27606628197919,
+                "100.0" : 62.27606628197919
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    62.20402749350406,
+                    62.101580432161114,
+                    61.84952473622993,
+                    62.27606628197919,
+                    62.0867230205374
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.ulidMonotonicString",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 38.33096406930048,
+            "scoreError" : 1.683659591773095,
+            "scoreConfidence" : [
+                36.647304477527385,
+                40.01462366107357
+            ],
+            "scorePercentiles" : {
+                "0.0" : 37.729009697784015,
+                "50.0" : 38.40673615216117,
+                "90.0" : 38.85388736881958,
+                "95.0" : 38.85388736881958,
+                "99.0" : 38.85388736881958,
+                "99.9" : 38.85388736881958,
+                "99.99" : 38.85388736881958,
+                "99.999" : 38.85388736881958,
+                "99.9999" : 38.85388736881958,
+                "100.0" : 38.85388736881958
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    37.729009697784015,
+                    38.58076122809462,
+                    38.85388736881958,
+                    38.08442589964297,
+                    38.40673615216117
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedConcurrentIdGeneratorBenchmark.ulidMonotonicWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 12,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 35.54212671304324,
+            "scoreError" : 3.797317969794627,
+            "scoreConfidence" : [
+                31.744808743248612,
+                39.339444682837865
+            ],
+            "scorePercentiles" : {
+                "0.0" : 34.51942522950941,
+                "50.0" : 35.539940529731865,
+                "90.0" : 37.02630583976258,
+                "95.0" : 37.02630583976258,
+                "99.0" : 37.02630583976258,
+                "99.9" : 37.02630583976258,
+                "99.99" : 37.02630583976258,
+                "99.999" : 37.02630583976258,
+                "99.9999" : 37.02630583976258,
+                "100.0" : 37.02630583976258
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    35.83006835215091,
+                    35.539940529731865,
+                    37.02630583976258,
+                    34.51942522950941,
+                    34.79489361406145
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ksuidMillisDefaultString",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 98.91839522127823,
+            "scoreError" : 0.8795282007105683,
+            "scoreConfidence" : [
+                98.03886702056766,
+                99.7979234219888
+            ],
+            "scorePercentiles" : {
+                "0.0" : 98.545585806365,
+                "50.0" : 98.97950487414971,
+                "90.0" : 99.1354479863532,
+                "95.0" : 99.1354479863532,
+                "99.0" : 99.1354479863532,
+                "99.9" : 99.1354479863532,
+                "99.99" : 99.1354479863532,
+                "99.999" : 99.1354479863532,
+                "99.9999" : 99.1354479863532,
+                "100.0" : 99.1354479863532
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    99.1354479863532,
+                    98.97950487414971,
+                    98.545585806365,
+                    98.88094379187109,
+                    99.05049364765215
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ksuidMillisFixedInstantString",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 94.58777426258254,
+            "scoreError" : 1.1262521924011613,
+            "scoreConfidence" : [
+                93.46152207018137,
+                95.71402645498371
+            ],
+            "scorePercentiles" : {
+                "0.0" : 94.08209584074373,
+                "50.0" : 94.67278226542106,
+                "90.0" : 94.82694329793291,
+                "95.0" : 94.82694329793291,
+                "99.0" : 94.82694329793291,
+                "99.9" : 94.82694329793291,
+                "99.99" : 94.82694329793291,
+                "99.999" : 94.82694329793291,
+                "99.9999" : 94.82694329793291,
+                "100.0" : 94.82694329793291
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    94.08209584074373,
+                    94.67278226542106,
+                    94.62571583494928,
+                    94.82694329793291,
+                    94.73133407386578
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ksuidMillisWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 82.11365584681194,
+            "scoreError" : 4.9321775148565585,
+            "scoreConfidence" : [
+                77.18147833195538,
+                87.0458333616685
+            ],
+            "scorePercentiles" : {
+                "0.0" : 80.61787466006204,
+                "50.0" : 82.83656346029284,
+                "90.0" : 83.39731537310459,
+                "95.0" : 83.39731537310459,
+                "99.0" : 83.39731537310459,
+                "99.9" : 83.39731537310459,
+                "99.99" : 83.39731537310459,
+                "99.999" : 83.39731537310459,
+                "99.9999" : 83.39731537310459,
+                "100.0" : 83.39731537310459
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    82.8643271604855,
+                    80.61787466006204,
+                    80.8521985801147,
+                    83.39731537310459,
+                    82.83656346029284
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ksuidSecondsDefaultString",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 86.7638632806634,
+            "scoreError" : 2.6850874349424156,
+            "scoreConfidence" : [
+                84.07877584572098,
+                89.44895071560582
+            ],
+            "scorePercentiles" : {
+                "0.0" : 85.77389434554087,
+                "50.0" : 87.07456783590811,
+                "90.0" : 87.49128559454452,
+                "95.0" : 87.49128559454452,
+                "99.0" : 87.49128559454452,
+                "99.9" : 87.49128559454452,
+                "99.99" : 87.49128559454452,
+                "99.999" : 87.49128559454452,
+                "99.9999" : 87.49128559454452,
+                "100.0" : 87.49128559454452
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    86.32864020778982,
+                    87.1509284195337,
+                    87.07456783590811,
+                    85.77389434554087,
+                    87.49128559454452
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ksuidSecondsFixedInstantString",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 79.54574466710316,
+            "scoreError" : 3.8778267925354686,
+            "scoreConfidence" : [
+                75.66791787456769,
+                83.42357145963864
+            ],
+            "scorePercentiles" : {
+                "0.0" : 78.30930542646622,
+                "50.0" : 79.4518188389443,
+                "90.0" : 80.71185557311898,
+                "95.0" : 80.71185557311898,
+                "99.0" : 80.71185557311898,
+                "99.9" : 80.71185557311898,
+                "99.99" : 80.71185557311898,
+                "99.999" : 80.71185557311898,
+                "99.9999" : 80.71185557311898,
+                "100.0" : 80.71185557311898
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    79.4518188389443,
+                    80.38476188107273,
+                    80.71185557311898,
+                    78.8709816159136,
+                    78.30930542646622
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ksuidSecondsWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 71.88979379700011,
+            "scoreError" : 10.927376367759624,
+            "scoreConfidence" : [
+                60.96241742924049,
+                82.81717016475973
+            ],
+            "scorePercentiles" : {
+                "0.0" : 68.38403084218898,
+                "50.0" : 73.49420071067183,
+                "90.0" : 74.19222899078916,
+                "95.0" : 74.19222899078916,
+                "99.0" : 74.19222899078916,
+                "99.9" : 74.19222899078916,
+                "99.99" : 74.19222899078916,
+                "99.999" : 74.19222899078916,
+                "99.9999" : 74.19222899078916,
+                "100.0" : 74.19222899078916
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    74.19222899078916,
+                    74.13531350403154,
+                    73.49420071067183,
+                    69.24319493731902,
+                    68.38403084218898
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultGenerateOnly",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 62.51523325128598,
+            "scoreError" : 0.1375741781905978,
+            "scoreConfidence" : [
+                62.37765907309538,
+                62.652807429476574
+            ],
+            "scorePercentiles" : {
+                "0.0" : 62.45806956811379,
+                "50.0" : 62.520170756162145,
+                "90.0" : 62.557176017666336,
+                "95.0" : 62.557176017666336,
+                "99.0" : 62.557176017666336,
+                "99.9" : 62.557176017666336,
+                "99.99" : 62.557176017666336,
+                "99.999" : 62.557176017666336,
+                "99.9999" : 62.557176017666336,
+                "100.0" : 62.557176017666336
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    62.45806956811379,
+                    62.557176017666336,
+                    62.520170756162145,
+                    62.52129786771362,
+                    62.51945204677398
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.snowflakeDefaultWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 62.50427528992215,
+            "scoreError" : 0.11380392403495103,
+            "scoreConfidence" : [
+                62.390471365887194,
+                62.6180792139571
+            ],
+            "scorePercentiles" : {
+                "0.0" : 62.45536839000151,
+                "50.0" : 62.51837668141239,
+                "90.0" : 62.52856587756609,
+                "95.0" : 62.52856587756609,
+                "99.0" : 62.52856587756609,
+                "99.9" : 62.52856587756609,
+                "99.99" : 62.52856587756609,
+                "99.999" : 62.52856587756609,
+                "99.9999" : 62.52856587756609,
+                "100.0" : 62.52856587756609
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    62.52088681412168,
+                    62.498178686509014,
+                    62.51837668141239,
+                    62.45536839000151,
+                    62.52856587756609
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ulidMonotonicString",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 577.3273724103167,
+            "scoreError" : 25.43999691607406,
+            "scoreConfidence" : [
+                551.8873754942426,
+                602.7673693263907
+            ],
+            "scorePercentiles" : {
+                "0.0" : 565.5354826935741,
+                "50.0" : 580.4186731222441,
+                "90.0" : 580.6399644775026,
+                "95.0" : 580.6399644775026,
+                "99.0" : 580.6399644775026,
+                "99.9" : 580.6399644775026,
+                "99.99" : 580.6399644775026,
+                "99.999" : 580.6399644775026,
+                "99.9999" : 580.6399644775026,
+                "100.0" : 580.6399644775026
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    580.4186731222441,
+                    580.5213190977822,
+                    565.5354826935741,
+                    579.5214226604804,
+                    580.6399644775026
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ulidMonotonicValueOnly",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 831.4215758394155,
+            "scoreError" : 41.62088812438397,
+            "scoreConfidence" : [
+                789.8006877150315,
+                873.0424639637995
+            ],
+            "scorePercentiles" : {
+                "0.0" : 816.8730893521266,
+                "50.0" : 832.5137667342907,
+                "90.0" : 841.9712727065084,
+                "95.0" : 841.9712727065084,
+                "99.0" : 841.9712727065084,
+                "99.9" : 841.9712727065084,
+                "99.99" : 841.9712727065084,
+                "99.999" : 841.9712727065084,
+                "99.9999" : 841.9712727065084,
+                "100.0" : 841.9712727065084
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    816.8730893521266,
+                    841.2100448533495,
+                    841.9712727065084,
+                    824.5397055508018,
+                    832.5137667342907
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.37",
+        "benchmark" : "io.bluetape4k.idgenerators.benchmark.FocusedSingleThreadIdGeneratorBenchmark.ulidMonotonicWithUniqueness",
+        "mode" : "thrpt",
+        "threads" : 1,
+        "forks" : 1,
+        "jvm" : "/Library/Java/JavaVirtualMachines/graalvm-jdk-21/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-XX:ThreadPriorityPolicy=1",
+            "-XX:+UnlockExperimentalVMOptions",
+            "-XX:+EnableJVMCIProduct",
+            "-XX:-UnlockExperimentalVMOptions",
+            "-Dfile.encoding=UTF-8",
+            "-Duser.country=KR",
+            "-Duser.language=ko",
+            "-Duser.variant"
+        ],
+        "jdkVersion" : "21.0.11",
+        "vmName" : "Java HotSpot(TM) 64-Bit Server VM",
+        "vmVersion" : "21.0.11+9-LTS-jvmci-23.1-b92",
+        "warmupIterations" : 3,
+        "warmupTime" : "1 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 5,
+        "measurementTime" : "1 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "batchSize" : "65536"
+        },
+        "primaryMetric" : {
+            "score" : 360.0945852158364,
+            "scoreError" : 13.53886604190327,
+            "scoreConfidence" : [
+                346.55571917393314,
+                373.63345125773964
+            ],
+            "scorePercentiles" : {
+                "0.0" : 355.1017591586973,
+                "50.0" : 361.8576905373731,
+                "90.0" : 363.6001177802113,
+                "95.0" : 363.6001177802113,
+                "99.0" : 363.6001177802113,
+                "99.9" : 363.6001177802113,
+                "99.99" : 363.6001177802113,
+                "99.999" : 363.6001177802113,
+                "99.9999" : 363.6001177802113,
+                "100.0" : 363.6001177802113
+            },
+            "scoreUnit" : "ops/s",
+            "rawData" : [
+                [
+                    357.8253192337838,
+                    355.1017591586973,
+                    362.0880393691163,
+                    361.8576905373731,
+                    363.6001177802113
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+
