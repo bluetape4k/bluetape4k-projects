@@ -8,6 +8,7 @@ publishes chart artifacts under `docs/images/readme-charts/`.
 
 | Report | Scope | Raw artifacts | Chart artifact |
 |---|---|---|---|
+| [ID Generators Self-Improve Benchmark](./2026-06-11-idgenerators-self-improve-benchmark.md) | `:bluetape4k-idgenerators`, issues #738/#739 | [`raw/issue-738/`](./raw/issue-738/) | Not produced |
 | [Ktor CIO vs Spring WebFlux Benchmark](./2026-05-29-web-framework-benchmark.md) | `:web-framework-benchmark`, issue #667 | [`raw/2026-05-29-web-framework-*.json`](./raw/) | Not produced |
 | [io/http HTTP Client Benchmark](./2026-05-21-io-http-client-benchmark.md) | `:bluetape4k-http`, issues #589/#590/#587 | Not retained | Not produced |
 | [FastFory Codec Benchmark](./2026-04-25-fory-fast-codec-benchmark.md) | `:bluetape4k-redisson`, `:bluetape4k-lettuce`, issue #113 | Not retained | [`fory-fast-codec-uplift-chart-01.png`](../images/readme-charts/fory-fast-codec-uplift-chart-01.png) |

@@ -114,33 +114,35 @@ object Ksuid {
         const val TOTAL_BYTES = TIMESTAMP_LEN + PAYLOAD_LEN
 
         private val random: SecureRandom = SecureRandom()
+        private val payloadBuffer: ThreadLocal<ByteArray> =
+            ThreadLocal.withInitial { ByteArray(PAYLOAD_LEN) }
 
         override fun nextId(): String = generate()
 
         override fun nextIdAsString(): String = generate()
 
-        override fun generate(): String = generate(generateTimestamp())
+        override fun generate(): String = generate(timestampOffset())
 
-        override fun generate(instant: Instant): String = generate(generateTimestamp(instant.epochSecond))
+        override fun generate(instant: Instant): String = generate(timestampOffset(instant.epochSecond))
 
-        override fun generate(date: Date): String = generate(generateTimestamp(date.time / 1000L))
+        override fun generate(date: Date): String = generate(timestampOffset(date.time / 1000L))
 
         override fun generate(dt: LocalDateTime): String =
-            generate(generateTimestamp(dt.toInstant(ZoneOffset.UTC).epochSecond))
+            generate(timestampOffset(dt.toInstant(ZoneOffset.UTC).epochSecond))
 
-        private fun generate(timestamp: ByteArray): String {
-            val buffer = ByteBuffer.allocate(TOTAL_BYTES)
-            buffer.put(timestamp)
-            buffer.put(generatePayload())
-            val uid = BytesBase62.encode(buffer.array())
+        private fun generate(timestamp: Int): String {
+            val bytes = ByteArray(TOTAL_BYTES)
+            bytes.writeInt(timestamp, 0)
+            val payload = payloadBuffer.get()
+            random.nextBytes(payload)
+            payload.copyInto(bytes, TIMESTAMP_LEN)
+            val uid = BytesBase62.encode(bytes)
             log.trace { "generated uid=$uid" }
             return uid.substring(0, MAX_ENCODED_LEN)
         }
 
-        private fun generateTimestamp(epochSeconds: Long = System.currentTimeMillis() / 1000): ByteArray =
-            ByteBuffer.allocate(TIMESTAMP_LEN).putInt((epochSeconds - EPOCH_SECONDS).toInt()).array()
-
-        private fun generatePayload(): ByteArray = ByteArray(PAYLOAD_LEN).apply { random.nextBytes(this) }
+        private fun timestampOffset(epochSeconds: Long = System.currentTimeMillis() / 1000): Int =
+            (epochSeconds - EPOCH_SECONDS).toInt()
 
         override fun prettyString(ksuid: String): String {
             val bytes = BytesBase62.decode(ksuid, expectedBytes = TOTAL_BYTES)
@@ -181,31 +183,35 @@ object Ksuid {
         const val TOTAL_BYTES = TIMESTAMP_LEN + PAYLOAD_LEN
 
         private val random: SecureRandom = SecureRandom()
+        private val payloadBuffer: ThreadLocal<ByteArray> =
+            ThreadLocal.withInitial { ByteArray(PAYLOAD_LEN) }
 
         override fun nextId(): String = generate()
 
         override fun nextIdAsString(): String = generate()
 
-        override fun generate(): String = generate(generateTimestamp())
+        override fun generate(): String = generate(timestampOffset())
 
-        override fun generate(instant: Instant): String = generate(generateTimestamp(instant.toEpochMilli()))
+        override fun generate(instant: Instant): String = generate(timestampOffset(instant.toEpochMilli()))
 
-        override fun generate(date: Date): String = generate(generateTimestamp(date.time))
+        override fun generate(date: Date): String = generate(timestampOffset(date.time))
 
         override fun generate(dt: LocalDateTime): String =
-            generate(generateTimestamp(dt.toInstant(ZoneOffset.UTC).toEpochMilli()))
+            generate(timestampOffset(dt.toInstant(ZoneOffset.UTC).toEpochMilli()))
 
-        private fun generate(timestamp: ByteArray): String {
-            val buffer = ByteBuffer.allocate(TOTAL_BYTES).put(timestamp).put(generatePayload())
-            val uid = BytesBase62.encode(buffer.array())
+        private fun generate(timestamp: Long): String {
+            val bytes = ByteArray(TOTAL_BYTES)
+            bytes.writeLong(timestamp, 0)
+            val payload = payloadBuffer.get()
+            random.nextBytes(payload)
+            payload.copyInto(bytes, TIMESTAMP_LEN)
+            val uid = BytesBase62.encode(bytes)
             log.trace { "generated uid=$uid" }
             return uid.substring(0, MAX_ENCODED_LEN)
         }
 
-        private fun generateTimestamp(epochMillis: Long = System.currentTimeMillis()): ByteArray =
-            ByteBuffer.allocate(TIMESTAMP_LEN).putLong(epochMillis - EPOCH_MILLIS).array()
-
-        private fun generatePayload(): ByteArray = ByteArray(PAYLOAD_LEN).apply { random.nextBytes(this) }
+        private fun timestampOffset(epochMillis: Long = System.currentTimeMillis()): Long =
+            epochMillis - EPOCH_MILLIS
 
         override fun prettyString(ksuid: String): String {
             val bytes = BytesBase62.decode(ksuid, expectedBytes = TOTAL_BYTES)
@@ -296,4 +302,22 @@ object Ksuid {
      */
     @Deprecated("Use Ksuid.Seconds.prettyString(ksuid)", ReplaceWith("Ksuid.Seconds.prettyString(ksuid)"))
     fun prettyString(ksuid: String): String = Seconds.prettyString(ksuid)
+
+    private fun ByteArray.writeInt(value: Int, offset: Int) {
+        this[offset] = (value ushr 24).toByte()
+        this[offset + 1] = (value ushr 16).toByte()
+        this[offset + 2] = (value ushr 8).toByte()
+        this[offset + 3] = value.toByte()
+    }
+
+    private fun ByteArray.writeLong(value: Long, offset: Int) {
+        this[offset] = (value ushr 56).toByte()
+        this[offset + 1] = (value ushr 48).toByte()
+        this[offset + 2] = (value ushr 40).toByte()
+        this[offset + 3] = (value ushr 32).toByte()
+        this[offset + 4] = (value ushr 24).toByte()
+        this[offset + 5] = (value ushr 16).toByte()
+        this[offset + 6] = (value ushr 8).toByte()
+        this[offset + 7] = value.toByte()
+    }
 }
