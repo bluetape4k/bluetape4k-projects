@@ -218,12 +218,12 @@ suspend fun <T: Any> withObservationContextSuspending(
             block()
         }
     } catch (e: CancellationException) {
-        observation.stop()
         throw e
     } catch (e: Throwable) {
         observation.error(e)
-        observation.stop()
         throw e
+    } finally {
+        observation.stop()
     }
 }
 
@@ -257,11 +257,11 @@ suspend fun <T: Any> Observation.withObservationContextSuspending(
             block(observation.context)
         }
     } catch (e: CancellationException) {
-        observation.stop()
         throw e
     } catch (e: Throwable) {
         observation.error(e)
-        observation.stop()
         throw e
+    } finally {
+        observation.stop()
     }
 }

@@ -126,6 +126,26 @@ class EventTelemetryObservationSupportTest {
     }
 
     @Test
+    fun `observeEventPublishSuspending should stop observation on success`() = runTest {
+        val handler = RecordingObservationHandler()
+        val registry = registry(handler)
+
+        val result =
+            registry.observeEventPublishSuspending(orderTelemetry()) { context ->
+                context.name shouldBeEqualTo EventTelemetryKeys.PUBLISH_OBSERVATION_NAME
+                "published"
+            }
+
+        result shouldBeEqualTo "published"
+        handler.started shouldBeEqualTo 1
+        handler.stopped shouldBeEqualTo 1
+        handler.errors shouldBeEqualTo 0
+
+        val context = handler.stoppedContexts.single()
+        context.low(EventTelemetryKeys.OUTCOME) shouldBeEqualTo EventTelemetryOutcome.SUCCESS.name
+    }
+
+    @Test
     fun `observeEventPublish should not record cancellation as error`() {
         val handler = RecordingObservationHandler()
         val registry = registry(handler)
