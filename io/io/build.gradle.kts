@@ -17,6 +17,11 @@ benchmark {
     }
 }
 
+tasks.matching { it.name.endsWith("BenchmarkJar") }.configureEach {
+    this as org.gradle.jvm.tasks.Jar
+    exclude("META-INF/*.RSA", "META-INF/*.DSA", "META-INF/*.SF")
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
 }

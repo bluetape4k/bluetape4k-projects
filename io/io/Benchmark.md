@@ -61,3 +61,18 @@ resources/files/Utf8Samples.txt (40kb) 파일을 압축/복원 성능 테스트
 | zstd       | 5,103 |
 
 ![Compressor throughput chart](../../docs/images/readme-charts/io-compressor-throughput-chart-01.png)
+
+## Same-Condition Compressor Matrix
+
+Issue #746 adds a deterministic compressor-only matrix for cross-ecosystem
+comparison with `bluetape-go` and `bluetape-rs`.
+
+- Payloads: JSON/Text/Binary/Random x small 1 KiB, medium 64 KiB, large 512 KiB.
+- Normalized compressors: GZip, Deflate, Zstd, LZ4, Snappy.
+- JVM-only context: BZip2, excluded from the normalized table.
+- Benchmark task: `./gradlew :bluetape4k-io:testBenchmark`.
+- Focused compile check: `./gradlew :bluetape4k-io:testBenchmarkCompile`.
+- Focused correctness check: `./gradlew :bluetape4k-io:test --tests 'io.bluetape4k.io.benchmark.SameConditionCompressionPayloadsTest'`.
+
+Detailed report and raw artifacts:
+[`docs/benchmarks/2026-06-11-io-same-condition-compressor-benchmark.md`](../../docs/benchmarks/2026-06-11-io-same-condition-compressor-benchmark.md).
