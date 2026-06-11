@@ -3,7 +3,7 @@ c3a768e1d17d0e26842a28aee106ae64e6c68b4b49fcd0d4a92ec1af8e6a73ff  io/io/build.gr
 1d1629857216ddab392ac246a5dadb932cb9fd00ec4528f76f56bb16b4cb390e  io/io/src/test/kotlin/io/bluetape4k/io/benchmark/SameConditionCompressionPayloads.kt
 2cad6c7f4586e99f7ea01a657347f9322635da3d52d6c0557f2b83198d2ebb81  scripts/io-compressor-self-improve-benchmark.sh
 2a8da0a9d7f7c2b4063400da1367310919a659275576cd0f04cbfb88e1c02db6  scripts/parse-io-compressor-self-improve.py
-e8377b78354d2f1d1343133caddc52ebbe9fc74b0514e660f40321e91267dd72  docs/benchmarks/raw/issue-751/baseline-self-improve.json
+30fc8cd38d2ba3fb26cd668a65e5031bf8fe8da649dd9c727721cd8fa6bae62c  docs/benchmarks/raw/issue-751/baseline-self-improve.json
 07d2fc546cc9fa6e33b83274e1870ec4dc368356629def114fb92131312c4e5c  docs/benchmarks/raw/issue-751/baseline-summary.json
-e6b5b2eff208db9aaea27b891494ed0da5de4d0715d4b68b42e81550cfc02315  docs/benchmarks/raw/issue-751/final-self-improve.json
+0e58851e1a661e800a52fc47272926fb8513bf31dd3ed66665899a81acf0a986  docs/benchmarks/raw/issue-751/final-self-improve.json
 aec9a8954b129cb2495fa3f51f5abed3d2841b9e4dfd00c4654e4add5a462a81  docs/benchmarks/raw/issue-751/final-summary.json
