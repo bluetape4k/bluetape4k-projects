@@ -4,7 +4,9 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.okio.SEGMENT_SIZE
 import io.bluetape4k.okio.coroutines.internal.ForwardSuspendedSource
+import io.bluetape4k.support.requireGe
 import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -287,9 +289,9 @@ class RealBufferedSuspendedSource(
      * Okio 코루틴에서 데이터를 읽어오는 `read` 함수를 제공합니다.
      */
     override suspend fun read(sink: ByteArray, offset: Int, byteCount: Int): Int {
-        require(offset >= 0 && byteCount >= 0 && offset + byteCount <= sink.size) {
-            "offset=$offset, byteCount=$byteCount, sink.size=${sink.size}"
-        }
+        offset.requireGe(0, "offset")
+        byteCount.requireGe(0, "byteCount")
+        (offset.toLong() + byteCount.toLong()).requireLe(sink.size.toLong(), "offset + byteCount")
         checkNotClosed()
         var noProgressCount = 0
         if (buffer.size == 0L) {

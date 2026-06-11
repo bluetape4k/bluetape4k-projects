@@ -3,6 +3,7 @@ package io.bluetape4k.okio.coroutines
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.requireLe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import okio.Buffer
@@ -59,7 +60,7 @@ class SuspendedFileChannelSink(
     override suspend fun write(source: Buffer, byteCount: Long) {
         if (byteCount <= 0L) return
         if (!channel.isOpen) error("Channel is closed")
-        require(byteCount <= source.size) { "byteCount[$byteCount] > source.size[${source.size}]" }
+        byteCount.requireLe(source.size, "byteCount")
         timeout().throwIfReached()
 
         var remaining = byteCount

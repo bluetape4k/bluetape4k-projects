@@ -1,5 +1,7 @@
 package io.bluetape4k.okio.coroutines
 
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import okio.Buffer
 import okio.IOException
@@ -41,7 +43,7 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
     val condition: Condition = lock.newCondition()
 
     init {
-        require(maxBufferSize >= 1L) { "maxBufferSize[$maxBufferSize] >= 1" }
+        maxBufferSize.requireGe(1L, "maxBufferSize")
     }
 
     @get:JvmName("sink")
@@ -53,7 +55,7 @@ class SuspendedPipe(internal val maxBufferSize: Long) {
          */
         override suspend fun write(source: Buffer, byteCount: Long) {
             if (byteCount <= 0L) return
-            require(byteCount <= source.size) { "byteCount[$byteCount] > source.size[${source.size}]" }
+            byteCount.requireLe(source.size, "byteCount")
 
             var remaining = byteCount
             var delegate: SuspendedSink? = null

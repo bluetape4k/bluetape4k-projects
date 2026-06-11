@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.okio.coroutines.internal.await
 import io.bluetape4k.okio.readUnsafeAndClose
+import io.bluetape4k.support.requireLe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import okio.Buffer
@@ -57,7 +58,7 @@ class SuspendedSocketSink(socket: Socket): SuspendedSink {
      */
     override suspend fun write(source: Buffer, byteCount: Long) {
         if (byteCount <= 0L) return
-        require(byteCount <= source.size) { "byteCount[$byteCount] > source.size[${source.size}]" }
+        byteCount.requireLe(source.size, "byteCount")
 
         channel.await(SelectionKey.OP_WRITE)
 
