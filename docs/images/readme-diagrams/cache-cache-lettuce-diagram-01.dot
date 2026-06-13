@@ -1,21 +1,22 @@
 digraph G {
-  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
-  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
-  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
-  NearCacheOperations [label="NearCacheOperations", fillcolor="#E8F3FF", color="#5B8DEF"];
-  TrackingInvalidationListener [label="TrackingInvalidationListener", fillcolor="#EAF7EF", color="#58A978"];
-  LettuceLocalCache [label="LettuceLocalCache", fillcolor="#E9F7F6", color="#45A7A1"];
-  SuspendNearCacheOperations [label="SuspendNearCacheOperations", fillcolor="#FFF3D9", color="#D6A441"];
-  LettuceNearCache [label="LettuceNearCache", fillcolor="#FDECEF", color="#DC6B82"];
-  LettuceCaffeineLocalCache [label="LettuceCaffeineLocalCache", fillcolor="#F1ECFF", color="#8A72D6"];
-  LettuceSuspendNearCache [label="LettuceSuspendNearCache", fillcolor="#EEF6D9", color="#8BA84D"];
-  { rank=source; NearCacheOperations; LettuceLocalCache; SuspendNearCacheOperations; }
-  TrackingInvalidationListener -> LettuceCaffeineLocalCache [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  LettuceSuspendNearCache -> TrackingInvalidationListener [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  LettuceSuspendNearCache -> LettuceCaffeineLocalCache [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  LettuceNearCache -> TrackingInvalidationListener [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
-  LettuceNearCache -> LettuceCaffeineLocalCache [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
-  LettuceLocalCache -> LettuceCaffeineLocalCache [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  SuspendNearCacheOperations -> LettuceSuspendNearCache [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  NearCacheOperations -> LettuceNearCache [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  graph [rankdir=TB, splines=ortho, nodesep=0.7, ranksep=0.85, fontname="Comic Mono", label="JCache NearCache Structure"];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  "NearCacheOperations";
+  "SuspendNearCacheOperations";
+  "NearJCache";
+  "SuspendNearJCache";
+  "LettuceCaches";
+  "LocalCache";
+  "LettuceJCache";
+  "TrackingInvalidationListener";
+  "NearJCache" -> "NearCacheOperations" [label=""];
+  "SuspendNearJCache" -> "SuspendNearCacheOperations" [label=""];
+  "LettuceCaches" -> "NearJCache" [label=""];
+  "LettuceCaches" -> "SuspendNearJCache" [label=""];
+  "NearJCache" -> "LocalCache" [label=""];
+  "NearJCache" -> "LettuceJCache" [label=""];
+  "SuspendNearJCache" -> "LocalCache" [label=""];
+  "SuspendNearJCache" -> "LettuceJCache" [label=""];
+  "TrackingInvalidationListener" -> "LocalCache" [label=""];
 }

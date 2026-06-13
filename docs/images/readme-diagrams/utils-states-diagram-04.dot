@@ -1,0 +1,9 @@
+digraph G {
+  graph [rankdir=LR, splines=ortho, nodesep=0.7, ranksep=0.85, fontname="Comic Mono", label="Turnstile FSM"];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  "Locked";
+  "Unlocked";
+  "Locked" -> "Unlocked" [label="Coin"];
+  "Unlocked" -> "Locked" [label="Push"];
+}

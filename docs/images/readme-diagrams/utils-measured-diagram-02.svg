@@ -1,58 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="526" viewBox="0 0 1378 526" role="img" aria-label="Unit Composition Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-label="Unit Composition Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M 0.7 0.7 L 5.4 3 L 0.7 5.3 Z" fill="context-stroke"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
+    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .dashed{stroke-dasharray:9 8}.inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}
+    .small{font-family:"Comic Mono";font-size:12px;fill:#627184}.bitLabel{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.bitMeta{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1378" height="526"/>
-<rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
-<text class="title" x="66" y="82">Unit Composition Flow</text>
-<text class="subtitle" x="70" y="104">Source-checked lifecycle flow with grouped phases and explicit transitions.</text>
-<path class="line" d="M1040 220 C1040 303 839 303 839 386"/>
-<path class="line" d="M706 220 C706 303 839 303 839 386"/>
-<path class="line" d="M338 220 L338 152 L706 152 L706 220"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">10 * meters</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Length&amp;g</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">t;)</text>
-</g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">seconds (Time)</text>
-</g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">speed (Units</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Ratio&amp;lt;Length,</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Time&amp;gt;) = 10 m/s</text>
-</g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">5 * seconds</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Time&amp;gt;</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">)</text>
-</g>
-<g transform="translate(549,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">distance</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">(Measure&amp;lt;Length&amp;g</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">t;) = 50 m</text>
-</g>
+<rect class="canvas" width="1600" height="920"/>
+<rect class="frame" x="34" y="30" width="1532" height="860" rx="30"/>
+<text class="title" x="72" y="86">Unit Composition Flow</text>
+<text class="subtitle" x="76" y="118">Composable Units and Measure operators produce typed compound units without grid layout.</text>
+<g><rect class="panel" x="80" y="158" width="1440" height="176" rx="22"/><text class="panelTitle" x="104" y="192">Unit definitions</text></g>
+<g><rect class="panel" x="80" y="382" width="1440" height="188" rx="22"/><text class="panelTitle" x="104" y="416">Measure operators</text></g>
+<g><rect class="panel" x="80" y="620" width="1440" height="172" rx="22"/><text class="panelTitle" x="104" y="654">Compound results</text></g>
+<g id="amount"><rect class="card" x="130" y="218" width="260" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="260" y="251" text-anchor="middle">Number</text><text class="detail" x="260" y="286" text-anchor="middle">10, 5, 1.5</text></g>
+<g id="units"><rect class="card" x="480" y="208" width="300" height="102" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="630" y="242" text-anchor="middle">Units</text><text class="detail" x="630" y="277" text-anchor="middle">suffix + ratio</text><text class="detail" x="630" y="295" text-anchor="middle">Length.meters, Time.seconds</text></g>
+<g id="measure"><rect class="card" x="895" y="208" width="300" height="102" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="1045" y="242" text-anchor="middle">Measure&lt;T&gt;</text><text class="detail" x="1045" y="277" text-anchor="middle">amount + units</text><text class="detail" x="1045" y="295" text-anchor="middle">conversion via ratio</text></g>
+<g id="format"><rect class="card" x="1280" y="218" width="190" height="82" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1375" y="251" text-anchor="middle">toHuman()</text><text class="detail" x="1375" y="286" text-anchor="middle">readable output</text></g>
+<g id="unitProduct"><rect class="card" x="180" y="432" width="310" height="92" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="335" y="461" text-anchor="middle">UnitsProduct</text><text class="detail" x="335" y="496" text-anchor="middle">A * B</text><text class="detail" x="335" y="514" text-anchor="middle">ratio = A.ratio * B.ratio</text></g>
+<g id="unitRatio"><rect class="card" x="625" y="432" width="310" height="92" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="780" y="461" text-anchor="middle">UnitsRatio</text><text class="detail" x="780" y="496" text-anchor="middle">A / B</text><text class="detail" x="780" y="514" text-anchor="middle">ratio = A.ratio / B.ratio</text></g>
+<g id="inverse"><rect class="card" x="1070" y="432" width="300" height="92" rx="14" fill="#EEF6D9" stroke="#8BA84D"/><text class="cardTitle" x="1220" y="461" text-anchor="middle">InverseUnits</text><text class="detail" x="1220" y="496" text-anchor="middle">1 / unit</text><text class="detail" x="1220" y="514" text-anchor="middle">reciprocal ratio</text></g>
+<g id="area"><rect class="card" x="170" y="682" width="260" height="78" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="300" y="713" text-anchor="middle">Area</text><text class="detail" x="300" y="748" text-anchor="middle">Length * Length</text></g>
+<g id="velocity"><rect class="card" x="505" y="682" width="290" height="78" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="650" y="713" text-anchor="middle">Velocity</text><text class="detail" x="650" y="748" text-anchor="middle">Length / Time</text></g>
+<g id="accel"><rect class="card" x="870" y="682" width="300" height="78" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="1020" y="713" text-anchor="middle">Acceleration</text><text class="detail" x="1020" y="748" text-anchor="middle">Length / Time²</text></g>
+<g id="energy"><rect class="card" x="1245" y="682" width="240" height="78" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="1365" y="713" text-anchor="middle">Energy / Power</text><text class="detail" x="1365" y="748" text-anchor="middle">domain-specific ops</text></g>
+<path class="flow" d="M390 259 L480 259" stroke="#3E9868"/>
+<path class="flow" d="M780 259 L895 259" stroke="#755BC6"/>
+<path class="flow" d="M1195 259 L1280 259" stroke="#2E8F89"/>
+<path class="flow" d="M330 310 L330 432" stroke="#B9851B"/>
+<path class="flow" d="M630 310 L630 432" stroke="#C94D68"/>
+<path class="flow" d="M1045 310 L1045 356 L1220 356 L1220 432" stroke="#718A35"/>
+<path class="flow" d="M335 524 L335 682" stroke="#B9851B"/>
+<path class="flow" d="M780 524 L780 600 L650 600 L650 682" stroke="#C94D68"/>
+<path class="flow" d="M1170 524 L1170 602 L1020 602 L1020 682" stroke="#755BC6"/>
+<path class="flow" d="M1270 524 L1270 586 L1365 586 L1365 682" stroke="#3E9868"/>
+<g><rect x="345" y="377" width="180" height="30" rx="8" fill="#FFFFFF" stroke="#D6A441" stroke-width="1.2"/><text class="detail" x="435" y="393" text-anchor="middle" dominant-baseline="middle">operator fun times</text></g>
+<g><rect x="705" y="377" width="170" height="30" rx="8" fill="#FFFFFF" stroke="#DC6B82" stroke-width="1.2"/><text class="detail" x="790" y="393" text-anchor="middle" dominant-baseline="middle">operator fun div</text></g>
+<g><rect x="140" y="830" width="1320" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="800" y="855" text-anchor="middle">Source truth: Units.kt composes suffix/ratio, and Measure operators return typed compound Measure values.</text></g>
 </svg>
