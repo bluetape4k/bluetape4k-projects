@@ -1,0 +1,11 @@
+graph 1 8.7847 2.0243
+node Created 0.57986 1.0521 1.1597 0.5 Created rounded,filled box #D7E2EC #F7FAFC
+node Paid 3.1632 1.7743 0.75 0.5 Paid rounded,filled box #D7E2EC #F7FAFC
+node Shipped 5.5382 1.7743 1.0764 0.5 Shipped rounded,filled box #D7E2EC #F7FAFC
+node Delivered 8.1528 1.7743 1.2639 0.5 Delivered rounded,filled box #D7E2EC #F7FAFC
+node Cancelled 3.1632 0.57986 1.2847 0.5 Cancelled rounded,filled box #D7E2EC #F7FAFC
+edge Created Paid 7 1.1653 1.1447 1.9264 1.1447 3.1597 1.1447 3.1597 1.1447 3.1597 1.1447 3.1597 1.3861 3.1597 1.3861 Pay 1.8403 1.7378 solid #56708C
+edge Created Cancelled 7 1.1648 0.98727 1.7799 0.98727 2.6597 0.98727 2.6597 0.98727 2.6597 0.98727 2.6597 0.9677 2.6597 0.9677 Cancel 1.8403 0.6684 solid #56708C
+edge Paid Shipped 4 3.5448 1.7743 3.5448 1.7743 4.8617 1.7743 4.8617 1.7743 Ship 4.4028 1.8628 solid #56708C
+edge Shipped Delivered 4 6.0799 1.7743 6.0799 1.7743 7.3828 1.7743 7.3828 1.7743 Deliver 6.7986 1.8628 solid #56708C
+stop

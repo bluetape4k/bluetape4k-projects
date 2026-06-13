@@ -1,0 +1,19 @@
+graph 1 9.9201 4.8715
+node Repository 2.4288 4.6215 1.5035 0.5 Repository rounded,filled box #D7E2EC #F7FAFC
+node "CqlSession DSL" 1.0122 3.2743 2.0243 0.5 "CqlSession DSL" rounded,filled box #D7E2EC #F7FAFC
+node "Coroutine queries" 3.8594 3.2743 2.2847 0.5 "Coroutine queries" rounded,filled box #D7E2EC #F7FAFC
+node "Row/Gettable" 9.0122 3.2743 1.816 0.5 "Row/Gettable" rounded,filled box #D7E2EC #F7FAFC
+node QueryBuilder 6.5538 3.2743 1.7118 0.5 QueryBuilder rounded,filled box #D7E2EC #F7FAFC
+node CqlSession 4.1233 1.9271 1.4201 0.5 CqlSession rounded,filled box #D7E2EC #F7FAFC
+node Statements 6.5538 1.9271 1.5347 0.5 Statements rounded,filled box #D7E2EC #F7FAFC
+node ResultSet 8.8455 1.9271 1.3264 0.5 ResultSet rounded,filled box #D7E2EC #F7FAFC
+node Cassandra 6.5538 0.57986 1.4097 0.5 Cassandra rounded,filled box #D7E2EC #F7FAFC
+edge Repository "CqlSession DSL" 4 1.8507 4.3681 1.8507 4.3681 1.8507 3.6633 1.8507 3.6633 solid #56708C
+edge Repository "Coroutine queries" 4 2.9488 4.3681 2.9488 4.3681 2.9488 3.6633 2.9488 3.6633 solid #56708C
+edge "Coroutine queries" CqlSession 4 4.1233 3.0209 4.1233 3.0209 4.1233 2.3161 4.1233 2.3161 solid #56708C
+edge "Row/Gettable" ResultSet 4 8.8455 3.0209 8.8455 3.0209 8.8455 2.3161 8.8455 2.3161 solid #56708C
+edge QueryBuilder Statements 4 6.5538 3.0209 6.5538 3.0209 6.5538 2.3161 6.5538 2.3161 solid #56708C
+edge CqlSession Cassandra 7 4.1233 1.6737 4.1233 1.2834 4.1233 0.57986 4.1233 0.57986 4.1233 0.57986 5.7121 0.57986 5.7121 0.57986 solid #56708C
+edge Statements Cassandra 4 6.5538 1.6737 6.5538 1.6737 6.5538 0.96884 6.5538 0.96884 solid #56708C
+edge ResultSet Cassandra 7 8.8455 1.6737 8.8455 1.2834 8.8455 0.57986 8.8455 0.57986 8.8455 0.57986 7.3922 0.57986 7.3922 0.57986 solid #56708C
+stop

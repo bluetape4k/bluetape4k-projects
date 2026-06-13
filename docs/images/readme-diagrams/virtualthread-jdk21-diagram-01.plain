@@ -1,0 +1,17 @@
+graph 1 20.474 2.1771
+node VirtualThreadRuntime 1.6267 1.9271 2.6597 0.5 VirtualThreadRuntime rounded,filled box #D7E2EC #F7FAFC
+node StructuredTaskScopeProvider 6.1545 1.9271 3.816 0.5 StructuredTaskScopeProvider rounded,filled box #D7E2EC #F7FAFC
+node StructuredTaskScopeAll 10.28 1.9271 3.0556 0.5 StructuredTaskScopeAll rounded,filled box #D7E2EC #F7FAFC
+node StructuredTaskScopeAny 14.113 1.9271 3.2326 0.5 StructuredTaskScopeAny rounded,filled box #D7E2EC #F7FAFC
+node StructuredTaskScopeSupervised 18.446 1.9271 4.0556 0.5 StructuredTaskScopeSupervised rounded,filled box #D7E2EC #F7FAFC
+node Jdk21VirtualThreadRuntime 1.6267 0.57986 3.2535 0.5 Jdk21VirtualThreadRuntime rounded,filled box #D7E2EC #F7FAFC
+node Jdk21StructuredTaskScopeProvider 6.1545 0.57986 4.4097 0.5 Jdk21StructuredTaskScopeProvider rounded,filled box #D7E2EC #F7FAFC
+node Jdk21AllScope 10.28 0.57986 1.7847 0.5 Jdk21AllScope rounded,filled box #D7E2EC #F7FAFC
+node Jdk21AnyScope 14.113 0.57986 1.9618 0.5 Jdk21AnyScope rounded,filled box #D7E2EC #F7FAFC
+node Jdk21SupervisedScope 18.446 0.57986 2.7847 0.5 Jdk21SupervisedScope rounded,filled box #D7E2EC #F7FAFC
+edge Jdk21VirtualThreadRuntime VirtualThreadRuntime 4 1.6267 0.83326 1.6267 0.83326 1.6267 1.5381 1.6267 1.5381 solid #56708C
+edge Jdk21StructuredTaskScopeProvider StructuredTaskScopeProvider 4 6.1545 0.83326 6.1545 0.83326 6.1545 1.5381 6.1545 1.5381 solid #56708C
+edge Jdk21AllScope StructuredTaskScopeAll 4 10.28 0.83326 10.28 0.83326 10.28 1.5381 10.28 1.5381 solid #56708C
+edge Jdk21AnyScope StructuredTaskScopeAny 4 14.113 0.83326 14.113 0.83326 14.113 1.5381 14.113 1.5381 solid #56708C
+edge Jdk21SupervisedScope StructuredTaskScopeSupervised 4 18.446 0.83326 18.446 0.83326 18.446 1.5381 18.446 1.5381 solid #56708C
+stop

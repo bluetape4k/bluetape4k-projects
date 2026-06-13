@@ -1,46 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="992" height="536" viewBox="0 0 992 536" role="img" aria-label="Snowflake Bit Layout">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-label="Snowflake Bit Layout">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M 0.7 0.7 L 5.4 3 L 0.7 5.3 Z" fill="context-stroke"/></marker>
+  <marker id="inherit" markerWidth="11" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
+    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .dashed{stroke-dasharray:9 8}.inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}
+    .small{font-family:"Comic Mono";font-size:12px;fill:#627184}.bitLabel{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.bitMeta{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="992" height="536"/>
-<rect class="frame" x="32" y="28" width="928" height="480" rx="28"/>
-<text class="title" x="66" y="82">Snowflake Bit Layout</text>
-<text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="45" text-anchor="middle">sign (1 bit)</text>
-</g>
-<g transform="translate(366,170)">
-  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="33" text-anchor="middle">timestamp (41 bits)</text>
-<text class="smallLabel" x="130" y="59" text-anchor="middle">~69 years</text>
-</g>
-<g transform="translate(684,170)">
-  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="33" text-anchor="middle">machineId (10 bits)</text>
-<text class="smallLabel" x="130" y="59" text-anchor="middle">up to 1,024</text>
-</g>
-<g transform="translate(366,346)">
-  <rect class="card" x="0" y="0" width="260" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="33" text-anchor="middle">sequence (12 bits)</text>
-<text class="smallLabel" x="130" y="59" text-anchor="middle">4,096/ms</text>
-</g>
+<rect class="canvas" width="1600" height="820"/>
+<rect class="frame" x="34" y="30" width="1532" height="760" rx="30"/>
+<text class="title" x="72" y="86">Snowflake Bit Layout</text>
+<text class="subtitle" x="76" y="118">The 64-bit ID is rendered as a horizontal bit array with explicit bit ranges.</text>
+<text class="detail" x="120" y="190">64-bit signed Long layout · high bit stays zero; timestamp is milliseconds since EPOCH=2015-01-01.</text>
+<g><rect class="card" x="130" y="270" width="70" height="150" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/>
+    <text class="bitLabel" x="165" y="318" text-anchor="middle">0</text>
+    <text class="bitMeta" x="165" y="348" text-anchor="middle">sign bit</text>
+    <text class="bitMeta" x="165" y="396" text-anchor="middle">bit 63</text>
+  </g>
+<g><rect class="card" x="200" y="270" width="790" height="150" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <text class="bitLabel" x="595" y="318" text-anchor="middle">timestamp</text>
+    <text class="bitMeta" x="595" y="348" text-anchor="middle">41 bits</text>
+    <text class="bitMeta" x="595" y="396" text-anchor="middle">bits 62..22</text>
+  </g>
+<g><rect class="card" x="990" y="270" width="210" height="150" rx="10" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="bitLabel" x="1095" y="318" text-anchor="middle">machineId</text>
+    <text class="bitMeta" x="1095" y="348" text-anchor="middle">10 bits</text>
+    <text class="bitMeta" x="1095" y="396" text-anchor="middle">bits 21..12</text>
+  </g>
+<g><rect class="card" x="1200" y="270" width="240" height="150" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
+    <text class="bitLabel" x="1320" y="318" text-anchor="middle">sequence</text>
+    <text class="bitMeta" x="1320" y="348" text-anchor="middle">12 bits</text>
+    <text class="bitMeta" x="1320" y="396" text-anchor="middle">bits 11..0</text>
+  </g>
+<g><line x1="130" y1="458" x2="1440" y2="458" stroke="#8FA3B8" stroke-width="2"/>
+      <text class="bitMeta" x="130" y="490" text-anchor="middle">63</text>
+      <text class="bitMeta" x="200" y="490" text-anchor="middle">62</text>
+      <text class="bitMeta" x="990" y="490" text-anchor="middle">21</text>
+      <text class="bitMeta" x="1200" y="490" text-anchor="middle">11</text>
+      <text class="bitMeta" x="1440" y="490" text-anchor="middle">0</text>
+    </g>
+<g id="parse"><rect class="card" x="185" y="560" width="310" height="96" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="340" y="591" text-anchor="middle">parseSnowflakeId(id)</text><text class="detail" x="340" y="626" text-anchor="middle">timestamp = id &gt;&gt;&gt; 22 + EPOCH</text><text class="detail" x="340" y="644" text-anchor="middle">machineId = bits 21..12</text></g>
+<g id="make"><rect class="card" x="640" y="560" width="310" height="96" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="795" y="591" text-anchor="middle">makeId(...)</text><text class="detail" x="795" y="626" text-anchor="middle">timestamp shift 22</text><text class="detail" x="795" y="644" text-anchor="middle">machine shift 12</text></g>
+<g id="capacity"><rect class="card" x="1095" y="560" width="310" height="96" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1250" y="591" text-anchor="middle">Capacity</text><text class="detail" x="1250" y="626" text-anchor="middle">1,024 machines</text><text class="detail" x="1250" y="644" text-anchor="middle">4,096 IDs/ms/machine</text></g>
+<g><rect x="160" y="730" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="800" y="755" text-anchor="middle">Source truth: SnowflakeSupport.kt uses TIME_STAMP_SHIFT=22, MACHINE_ID_SHIFT=12, MAX_MACHINE_ID=1024, MAX_SEQUENCE=4096.</text></g>
 </svg>

@@ -1,0 +1,14 @@
+digraph G {
+  graph [rankdir=LR, splines=ortho, nodesep=0.7, ranksep=0.85, fontname="Comic Mono", label="Order One-Way FSM"];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  "Created";
+  "Paid";
+  "Shipped";
+  "Delivered";
+  "Cancelled";
+  "Created" -> "Paid" [label="Pay"];
+  "Paid" -> "Shipped" [label="Ship"];
+  "Shipped" -> "Delivered" [label="Deliver"];
+  "Created" -> "Cancelled" [label="Cancel"];
+}

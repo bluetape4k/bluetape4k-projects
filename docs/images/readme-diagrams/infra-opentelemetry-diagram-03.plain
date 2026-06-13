@@ -1,0 +1,15 @@
+graph 1 20.944 0.82986
+node "Service A Span" 1.0069 0.57986 2.0139 0.5 "Service A Span" rounded,filled box #D7E2EC #F7FAFC
+node "Coroutine Context" 4.0729 0.57986 2.3681 0.5 "Coroutine Context" rounded,filled box #D7E2EC #F7FAFC
+node ContextPropagators 7.9115 0.57986 2.5868 0.5 ContextPropagators rounded,filled box #D7E2EC #F7FAFC
+node "HTTP/Kafka carrier" 11.399 0.57986 2.6389 0.5 "HTTP/Kafka carrier" rounded,filled box #D7E2EC #F7FAFC
+node "Extracted Context" 15.352 0.57986 2.3785 0.5 "Extracted Context" rounded,filled box #D7E2EC #F7FAFC
+node "Child Span" 18.106 0.57986 1.3785 0.5 "Child Span" rounded,filled box #D7E2EC #F7FAFC
+node Exporter 20.307 0.57986 1.2743 0.5 Exporter rounded,filled box #D7E2EC #F7FAFC
+edge "Service A Span" "Coroutine Context" 4 2.0194 0.57986 2.0194 0.57986 2.7538 0.57986 2.7538 0.57986 solid #56708C
+edge "Coroutine Context" ContextPropagators 4 5.2612 0.57986 5.2612 0.57986 6.4833 0.57986 6.4833 0.57986 inject 5.9375 0.6684 solid #56708C
+edge ContextPropagators "HTTP/Kafka carrier" 4 9.2102 0.57986 9.2102 0.57986 9.9441 0.57986 9.9441 0.57986 solid #56708C
+edge "HTTP/Kafka carrier" "Extracted Context" 4 12.721 0.57986 12.721 0.57986 14.026 0.57986 14.026 0.57986 extract 13.441 0.6684 solid #56708C
+edge "Extracted Context" "Child Span" 4 16.548 0.57986 16.548 0.57986 17.278 0.57986 17.278 0.57986 solid #56708C
+edge "Child Span" Exporter 4 18.796 0.57986 18.796 0.57986 19.532 0.57986 19.532 0.57986 solid #56708C
+stop
