@@ -23,8 +23,8 @@ digraph "examples-spring-boot-observability-spring-boot-demo-architecture-01" {
     style="rounded";
     rank=same;
     springObs [label="observeSpring", fillcolor="#E9F7F6", color="#45A7A1"];
-    eventObs [label="Event Telemetry", fillcolor="#EAF7EF", color="#58A978"];
     registry [label="ObservationRegistry", fillcolor="#FFFFFF", color="#758297"];
+    eventObs [label="Event Telemetry", fillcolor="#EAF7EF", color="#58A978"];
   }
   subgraph cluster_export {
     label="Export layer";
@@ -37,8 +37,8 @@ digraph "examples-spring-boot-observability-spring-boot-demo-architecture-01" {
   client -> controller [label="", color="#5B8DEF"];
   controller -> service [label="", color="#45A7A1"];
   service -> springObs [label="", color="#45A7A1"];
-  service -> eventObs [label="", color="#58A978"];
   service -> registry [label="", color="#758297"];
+  service -> eventObs [label="", color="#58A978"];
   springObs -> registry [label="", color="#45A7A1"];
   eventObs -> registry [label="", color="#58A978"];
   registry -> actuator [label="", color="#D6A441"];

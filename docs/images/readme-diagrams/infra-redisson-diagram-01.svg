@@ -1,119 +1,122 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2222" height="1475" viewBox="0 0 2222 1475" role="img" aria-label="Codec Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="3524" height="1866" viewBox="0 0 3524 1866" role="img" aria-label="Codec Hierarchy">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="2222" height="1475"/>
-<rect class="frame" x="32" y="28" width="2158" height="1419" rx="28"/>
-<text class="title" x="66" y="82">Codec Hierarchy</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1322 418 L1322 514 L689 514 L689 642"/>
-<path class="line" d="M1322 418 L1322 546 L1955 546 L1955 642"/>
-<path class="line" d="M1322 418 L1322 538 L1533 538 L1533 642"/>
-<path class="line" d="M1322 418 L1322 530 L1111 530 L1111 642"/>
-<path class="line" d="M1322 418 L1322 522 L267 522 L267 642"/>
-<path class="line" d="M689 642 L689 906 L1111 906 L1111 817"/>
-<path class="line" d="M1111 642 L1111 546 L1533 546 L1533 796"/>
-<path class="line" d="M900 1006 L900 930 L1111 930 L1111 817"/>
-<path class="line" d="M267 817 L267 922 L1111 922 L1111 642"/>
-<path class="implLine" d="M689 642 L689 522 L900 522 L900 334"/>
-<path class="implLine" d="M1955 642 L1955 514 L900 514 L900 334"/>
-<path class="implLine" d="M1322 1006 L1322 546 L900 546 L900 334"/>
-<path class="implLine" d="M900 1006 L900 334"/>
-<path class="implLine" d="M267 642 L267 530 L900 530 L900 334"/>
-<path class="implLine" d="M1533 642 L1533 522 L900 522 L900 334"/>
-<path class="implLine" d="M1111 642 L1111 514 L900 514 L900 334"/>
-<g transform="translate(745,180)">
-  <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="155" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="155" y="61" text-anchor="middle">Codec</text>
-  <text class="mono" x="18" y="108">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="129">+getValueDecoder() Decoder</text>
+<rect class="canvas" width="3524" height="1866"/>
+<rect class="frame" x="32" y="28" width="3460" height="1810" rx="30"/>
+<text class="title" x="68" y="84">Codec Hierarchy</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="RedissonCodecs" data-to="Fastjson2Codec" d="M1702 690 L1702 784 L1153 784 L1153 877" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="Jackson3Codec" d="M2000 660 L2233 660 L2233 907 L2465 907" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="Kryo5Codec" d="M2000 660 L2434 660 L2434 1544 L2867 1544" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="ForyCodec" d="M1660 660 L1159 660 L1159 1226 L657 1226" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="Lz4Codec" d="M1702 690 L1702 784 L1686 784 L1686 877" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="Fastjson2Codec" data-to="ForyCodec" d="M855 979 L756 979 L756 1226 L657 1226" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ForyCodec" data-to="Kryo5Codec" d="M657 1298 L1762 1298 L1762 1544 L2867 1544" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ZstdCodec" data-to="ForyCodec" d="M625 690 L625 943 L615 943 L615 1196" stroke="#758297" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="Lz4Codec" data-to="ForyCodec" d="M1430 1009 L1430 1103 L615 1103 L615 1196" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="Fastjson2Codec" data-to="Codec" d="M1195 907 L1227 907 L1227 342 L1258 342" stroke="#B9851B"/>
+<path class="inherit" data-from="Jackson3Codec" data-to="Codec" d="M2465 907 L2032 907 L2032 342 L1598 342" stroke="#718A35"/>
+<path class="inherit" data-from="GzipCodec" data-to="Codec" d="M2465 588 L2032 588 L2032 342 L1598 342" stroke="#4F83BF"/>
+<path class="inherit" data-from="ZstdCodec" data-to="Codec" d="M923 588 L1091 588 L1091 342 L1258 342" stroke="#758297"/>
+<path class="inherit" data-from="Lz4Codec" data-to="Codec" d="M1430 877 L1430 372" stroke="#2E8F89"/>
+<path class="inherit" data-from="Kryo5Codec" data-to="Codec" d="M2867 1544 L2233 1544 L2233 342 L1598 342" stroke="#755BC6"/>
+<path class="inherit" data-from="ForyCodec" data-to="Codec" d="M615 1196 L615 784 L1300 784 L1300 372" stroke="#C94D68"/>
+<g id="Codec">
+  <rect class="classCard" x="1258" y="240" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1428" y="259" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1428" y="287" text-anchor="middle">Codec</text>
+  <line x1="1258" y1="296" x2="1598" y2="296" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1276" y="330">+getValueEncoder() Encoder</text>
+<text class="member" x="1276" y="347">+getValueDecoder() Decoder</text>
 </g>
-<g transform="translate(1167,180)">
-  <rect class="card" x="0" y="0" width="310" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#58A978"/>
-  <text class="small" x="155" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="155" y="61" text-anchor="middle">RedissonCodecs</text>
-  <text class="mono" x="18" y="108">+Default: Lz4Codec</text>
-<text class="mono" x="18" y="129">+Fory: ForyCodec</text>
-<text class="mono" x="18" y="150">+Kryo5: Kryo5Codec</text>
-<text class="mono" x="18" y="171">+LZ4: Lz4Codec</text>
-<text class="mono" x="18" y="192">+Zstd: ZstdCodec</text>
-<text class="mono" x="18" y="213">+Jackson3: Jackson3Codec</text>
+<g id="RedissonCodecs">
+  <rect class="classCard" x="1660" y="558" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1830" y="577" text-anchor="middle">object</text>
+  <text class="classTitle" x="1830" y="605" text-anchor="middle">RedissonCodecs</text>
+  <line x1="1660" y1="614" x2="2000" y2="614" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1678" y="639">+Default: Lz4Codec</text>
+<text class="member" x="1678" y="656">+Fory: ForyCodec</text>
+<text class="member" x="1678" y="673">+Kryo5: Kryo5Codec</text>
 </g>
-<g transform="translate(112,642)">
-  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#D6A441"/>
-  <text class="label" x="155" y="49" text-anchor="middle">Lz4Codec</text>
-  <text class="mono" x="18" y="108">-innerCodec: Codec</text>
-<text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
+<g id="Lz4Codec">
+  <rect class="classCard" x="1388" y="877" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1558" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="1558" y="924" text-anchor="middle">Lz4Codec</text>
+  <line x1="1388" y1="933" x2="1728" y2="933" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="1406" y="958">-innerCodec: Codec</text>
+<text class="member" x="1406" y="975">+getValueEncoder() Encoder</text>
+<text class="member" x="1406" y="992">+getValueDecoder() Decoder</text>
 </g>
-<g transform="translate(534,642)">
-  <rect class="card" x="0" y="0" width="310" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#DC6B82"/>
-  <text class="label" x="155" y="49" text-anchor="middle">Fastjson2Codec</text>
-  <text class="mono" x="18" y="108">-fallbackCodec: Codec</text>
-<text class="mono" x="18" y="129">-allowedPackagePrefixes: Set~String~</text>
-<text class="mono" x="18" y="150">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="171">+getValueDecoder() Decoder</text>
+<g id="Fastjson2Codec">
+  <rect class="classCard" x="855" y="877" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1025" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="1025" y="924" text-anchor="middle">Fastjson2Codec</text>
+  <line x1="855" y1="933" x2="1195" y2="933" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="873" y="958">-fallbackCodec: Codec</text>
+<text class="member" x="873" y="975">-allowedPackagePrefixes:</text>
+<text class="member" x="873" y="992">Set~String~</text>
 </g>
-<g transform="translate(956,642)">
-  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#45A7A1"/>
-  <text class="label" x="155" y="49" text-anchor="middle">ForyCodec</text>
-  <text class="mono" x="18" y="108">-fallbackCodec: Codec</text>
-<text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
+<g id="ForyCodec">
+  <rect class="classCard" x="317" y="1196" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="487" y="1215" text-anchor="middle">class</text>
+  <text class="classTitle" x="487" y="1243" text-anchor="middle">ForyCodec</text>
+  <line x1="317" y1="1252" x2="657" y2="1252" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="335" y="1277">-fallbackCodec: Codec</text>
+<text class="member" x="335" y="1294">+getValueEncoder() Encoder</text>
+<text class="member" x="335" y="1311">+getValueDecoder() Decoder</text>
 </g>
-<g transform="translate(1378,642)">
-  <rect class="card" x="0" y="0" width="310" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8A72D6"/>
-  <text class="label" x="155" y="49" text-anchor="middle">Kryo5Codec</text>
-  <text class="mono" x="18" y="108">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="129">+getValueDecoder() Decoder</text>
+<g id="Kryo5Codec">
+  <rect class="classCard" x="2867" y="1514" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="3037" y="1533" text-anchor="middle">class</text>
+  <text class="classTitle" x="3037" y="1561" text-anchor="middle">Kryo5Codec</text>
+  <line x1="2867" y1="1570" x2="3207" y2="1570" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="2885" y="1604">+getValueEncoder() Encoder</text>
+<text class="member" x="2885" y="1621">+getValueDecoder() Decoder</text>
 </g>
-<g transform="translate(1800,642)">
-  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#B88A44"/>
-  <text class="label" x="155" y="49" text-anchor="middle">Jackson3Codec</text>
-  <text class="mono" x="18" y="108">-objectMapper: ObjectMapper</text>
-<text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
+<g id="Jackson3Codec">
+  <rect class="classCard" x="2465" y="877" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="2635" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="2635" y="924" text-anchor="middle">Jackson3Codec</text>
+  <line x1="2465" y1="933" x2="2805" y2="933" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="2483" y="958">-objectMapper: ObjectMapper</text>
+<text class="member" x="2483" y="975">+getValueEncoder() Encoder</text>
+<text class="member" x="2483" y="992">+getValueDecoder() Decoder</text>
 </g>
-<g transform="translate(745,1006)">
-  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#8BA84D"/>
-  <text class="label" x="155" y="49" text-anchor="middle">ZstdCodec</text>
-  <text class="mono" x="18" y="108">-innerCodec: Codec</text>
-<text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
+<g id="ZstdCodec">
+  <rect class="classCard" x="583" y="558" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="753" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="753" y="605" text-anchor="middle">ZstdCodec</text>
+  <line x1="583" y1="614" x2="923" y2="614" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="601" y="639">-innerCodec: Codec</text>
+<text class="member" x="601" y="656">+getValueEncoder() Encoder</text>
+<text class="member" x="601" y="673">+getValueDecoder() Decoder</text>
 </g>
-<g transform="translate(1167,1006)">
-  <rect class="card" x="0" y="0" width="310" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="310" y2="78" stroke="#5B8DEF"/>
-  <text class="label" x="155" y="49" text-anchor="middle">GzipCodec</text>
-  <text class="mono" x="18" y="108">-innerCodec: Codec</text>
-<text class="mono" x="18" y="129">+getValueEncoder() Encoder</text>
-<text class="mono" x="18" y="150">+getValueDecoder() Decoder</text>
+<g id="GzipCodec">
+  <rect class="classCard" x="2465" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="2635" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="2635" y="605" text-anchor="middle">GzipCodec</text>
+  <line x1="2465" y1="614" x2="2805" y2="614" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="2483" y="639">-innerCodec: Codec</text>
+<text class="member" x="2483" y="656">+getValueEncoder() Encoder</text>
+<text class="member" x="2483" y="673">+getValueDecoder() Decoder</text>
 </g>
+<g>
+  <rect x="3109" y="1758" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M3127 1776 L3185 1776" stroke="#3E9868"/>
+  <text class="detail" x="3199" y="1781">inheritance / implementation</text>
+  <path class="dependency" d="M3127 1797 L3185 1797" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="3199" y="1802">dependency / usage</text>
+</g>
+<g><rect x="180" y="1776" width="2884" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1622" y="1802" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
 </svg>

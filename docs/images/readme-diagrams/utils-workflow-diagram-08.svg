@@ -1,80 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="900" viewBox="0 0 1450 900" role="img" aria-label="Retry Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Retry Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="smallArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="smallArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
+    .edgeLabel{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
     .card{stroke-width:2.1;filter:url(#shadow)}.soft{stroke-width:1.7}.line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
     .thinLine{stroke:#758297;stroke-width:1.8;fill:none;marker-end:url(#smallArrow)}
     .dashed{stroke:#758297;stroke-width:2;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
     .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
   </style>
 </defs>
-<rect class="canvas" width="1450" height="900"/>
-<rect class="frame" x="32" y="28" width="1386" height="844" rx="28"/>
+<rect class="canvas" width="1600" height="900"/>
+<rect class="frame" x="32" y="28" width="1536" height="844" rx="28"/>
 <text class="title" x="66" y="82">Retry Flow</text>
 <text class="subtitle" x="70" y="118">Failure retries are bounded by RetryPolicy; Success, Aborted, and Cancelled exit without another attempt.</text><g>
-  <rect class="card" x="90" y="365" width="220" height="108" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="200" y="401" text-anchor="middle">Start</text>
-  <text class="small" x="200" y="431" text-anchor="middle">attempt = 1</text>
+  <rect class="card" x="80" y="365" width="220" height="108" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="smallLabel" x="190" y="401" text-anchor="middle">Start</text>
+  <text class="small" x="190" y="431" text-anchor="middle">attempt = 1</text>
 </g>
 <g>
-  <rect class="card" x="445" y="340" width="245" height="128" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="567.5" y="376" text-anchor="middle">Work Attempt</text>
-  <text class="small" x="567.5" y="406" text-anchor="middle">execute work</text>
-<text class="small" x="567.5" y="424" text-anchor="middle">capture exception</text>
+  <rect class="card" x="430" y="340" width="245" height="128" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="smallLabel" x="552.5" y="376" text-anchor="middle">Work Attempt</text>
+  <text class="small" x="552.5" y="406" text-anchor="middle">execute work</text>
+<text class="small" x="552.5" y="424" text-anchor="middle">capture exception</text>
 </g>
 <g>
-  <rect class="card" x="835" y="205" width="230" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="950" y="241" text-anchor="middle">Success</text>
-  <text class="small" x="950" y="271" text-anchor="middle">return now</text>
+  <rect class="card" x="810" y="205" width="230" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="smallLabel" x="925" y="241" text-anchor="middle">Success</text>
+  <text class="small" x="925" y="271" text-anchor="middle">return now</text>
 </g>
 <g>
-  <rect class="card" x="835" y="385" width="250" height="126" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="960" y="421" text-anchor="middle">Failure</text>
-  <text class="small" x="960" y="451" text-anchor="middle">check attempts</text>
-<text class="small" x="960" y="469" text-anchor="middle">last report retained</text>
+  <rect class="card" x="810" y="385" width="250" height="126" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="935" y="421" text-anchor="middle">Failure</text>
+  <text class="small" x="935" y="451" text-anchor="middle">check attempts</text>
+<text class="small" x="935" y="469" text-anchor="middle">last report retained</text>
 </g>
 <g>
-  <rect class="card" x="1128" y="385" width="230" height="126" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="1243" y="421" text-anchor="middle">Backoff Delay</text>
-  <text class="small" x="1243" y="451" text-anchor="middle">delay * multiplier</text>
-<text class="small" x="1243" y="469" text-anchor="middle">cap at maxDelay</text>
+  <rect class="card" x="810" y="625" width="250" height="126" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
+  <text class="smallLabel" x="935" y="661" text-anchor="middle">Backoff Delay</text>
+  <text class="small" x="935" y="691" text-anchor="middle">delay * multiplier</text>
+<text class="small" x="935" y="709" text-anchor="middle">cap at maxDelay</text>
 </g>
 <g>
-  <rect class="card" x="830" y="625" width="250" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="955" y="661" text-anchor="middle">Failed</text>
-  <text class="small" x="955" y="691" text-anchor="middle">maxAttempts used</text>
+  <rect class="card" x="1210" y="385" width="250" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="smallLabel" x="1335" y="421" text-anchor="middle">Failed</text>
+  <text class="small" x="1335" y="451" text-anchor="middle">maxAttempts used</text>
 </g>
 <g>
-  <rect class="card" x="460" y="625" width="250" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="585" y="661" text-anchor="middle">Aborted / Cancelled</text>
-  <text class="small" x="585" y="691" text-anchor="middle">no retry</text>
-<text class="small" x="585" y="709" text-anchor="middle">return immediately</text>
+  <rect class="card" x="430" y="625" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="smallLabel" x="560" y="661" text-anchor="middle">Aborted / Cancelled</text>
+  <text class="small" x="560" y="691" text-anchor="middle">no retry</text>
+<text class="small" x="560" y="709" text-anchor="middle">return immediately</text>
 </g>
-<path class="line" d="M310 419 H445"/>
-<text class="edgeLabel" x="378" y="409" text-anchor="middle">attempt</text>
-<path class="line" d="M690 374 C760 295 790 265 835 261"/>
-<text class="edgeLabel" x="765" y="308" text-anchor="middle">Success</text>
-<path class="line" d="M690 428 H835"/>
-<text class="edgeLabel" x="762" y="418" text-anchor="middle">Failure</text>
-<path class="line" d="M1085 448 H1128"/>
-<text class="edgeLabel" x="1106" y="438" text-anchor="middle">attempts left</text>
-<path class="line" d="M1243 385 C1190 215 515 220 568 340"/>
-<text class="edgeLabel" x="866" y="211" text-anchor="middle">next attempt</text>
-<path class="line" d="M958 511 V625"/>
-<text class="edgeLabel" x="1030" y="575" text-anchor="middle">no attempts left</text>
-<path class="line" d="M565 468 V625"/>
-<text class="edgeLabel" x="650" y="555" text-anchor="middle">Aborted or Cancelled</text>
+<path class="line" d="M300 419 H430" style="stroke:#4F83BF"/>
+<text class="edgeLabel" x="365" y="409" text-anchor="middle">attempt</text>
+<path class="line" d="M552 340 V261 H810" style="stroke:#3E9868"/>
+<text class="edgeLabel" x="690" y="249" text-anchor="middle">Success</text>
+<path class="line" d="M675 428 H810" style="stroke:#2E8F89"/>
+<text class="edgeLabel" x="742" y="418" text-anchor="middle">Failure</text>
+<path class="line" d="M935 511 V625" style="stroke:#B9851B"/>
+<text class="edgeLabel" x="1018" y="573" text-anchor="middle">attempts left</text>
+<path class="line" d="M810 688 H750 V555 H552 V468" style="stroke:#755BC6"/>
+<text class="edgeLabel" x="650" y="543" text-anchor="middle">next attempt</text>
+<path class="line" d="M1060 448 H1210" style="stroke:#C94D68"/>
+<text class="edgeLabel" x="1135" y="438" text-anchor="middle">no attempts left</text>
+<path class="line" d="M500 468 V625" style="stroke:#718A35"/>
+<text class="edgeLabel" x="415" y="543" text-anchor="middle">Aborted or Cancelled</text>
 <g>
   <rect class="soft" x="95" y="560" width="330" height="70" rx="12" fill="#FFF3D9" stroke="#D6A441" opacity="0.92"/>
   <text class="small" x="113" y="585" text-anchor="start">RetryPolicy.maxAttempts includes the first attempt.</text>

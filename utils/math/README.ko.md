@@ -12,7 +12,7 @@ Apache Commons Math3를 기반으로 수학/통계 연산, 보간, 적분, 방�
 
 ### 클래스 다이어그램
 
-![math Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-math-diagram-02.png)
+![Math Class Structure diagram](../../docs/images/readme-diagrams/utils-math-diagram-02.png)
 
 ## 주요 기능
 

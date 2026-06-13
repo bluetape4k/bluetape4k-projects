@@ -1,81 +1,95 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1378" height="526" viewBox="0 0 1378 526" role="img" aria-label="CRUD Operation Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="2979" height="910" viewBox="0 0 2979 910" role="img" aria-label="CRUD Operation Hierarchy">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1378" height="526"/>
-<rect class="frame" x="32" y="28" width="1314" height="470" rx="28"/>
-<text class="title" x="66" y="82">CRUD Operation Hierarchy</text>
-<text class="subtitle" x="70" y="118">Architecture nodes and edges from the original Mermaid source</text>
-<path class="line" d="M1006 386 C1006 386 1040 386 1040 386"/>
-<path class="line" d="M672 386 C672 386 706 386 706 386"/>
-<path class="line" d="M338 386 C338 386 706 386 706 386"/>
-<path class="line" d="M1040 220 C1040 303 1006 303 1006 386"/>
-<path class="line" d="M856 280 C856 303 856 303 856 326"/>
-<path class="line" d="M672 220 C672 303 706 303 706 386"/>
-<path class="line" d="M338 220 C338 303 372 303 372 386"/>
-<path class="line" d="M188 280 C188 303 188 303 188 326"/>
-<path class="line" d="M338 220 C338 220 1040 220 1040 220"/>
-<path class="line" d="M338 220 C338 220 706 220 706 220"/>
-<path class="line" d="M338 220 C338 220 372 220 372 220"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Service / Repository</text>
+<rect class="canvas" width="2979" height="910"/>
+<rect class="frame" x="32" y="28" width="2915" height="854" rx="30"/>
+<text class="title" x="68" y="84">CRUD Operation Hierarchy</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
+<path class="inherit" data-from="Service_Repository" data-to="select_All_Suspending_select_Suspending_query" d="M595 558 L595 372" stroke="#4F83BF"/>
+<path class="dependency" data-from="select_All_Suspending_select_Suspending_query" data-to="insert_Suspending_entity_insert_Or_Null" d="M765 342 L922 342 L922 588 L1078 588" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="insert_Suspending_entity_insert_Or_Null" data-to="update_Suspending_query_update" d="M1248 558 L1248 372" stroke="#2E8F89"/>
+<path class="dependency" data-from="update_Suspending_query_update" data-to="delete_Suspending_query_delete_All" d="M1418 342 L1563 342 L1563 588 L1707 588" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="delete_Suspending_query_delete_All" data-to="countAllSuspending_count_Suspending_query" d="M1877 558 L1877 372" stroke="#C94D68"/>
+<path class="dependency" data-from="countAllSuspending_count_Suspending_query" data-to="R2dbcEntityOperations" d="M2047 342 L2185 342 L2185 588 L2322 588" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="R2dbcEntityOperations" data-to="Database" d="M2492 558 L2492 372" stroke="#718A35"/>
+<g id="Service_Repository">
+  <rect class="classCard" x="425" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="595" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="595" y="605" text-anchor="middle">Service / Repository</text>
+  <line x1="425" y1="614" x2="765" y2="614" stroke="#5B8DEF" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">select All</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending() select</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Suspending(query)</text>
+<g id="select_All_Suspending_select_Suspending_query">
+  <rect class="classCard" x="425" y="240" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="595" y="259" text-anchor="middle">class</text>
+  <text class="classTitle" x="595" y="278" text-anchor="middle">select All Suspending()</text>
+<text class="classTitle" x="595" y="300" text-anchor="middle">select Suspending(query)</text>
+  <line x1="425" y1="304" x2="765" y2="304" stroke="#58A978" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">insert</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending(entity)</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">insert Or Null</text>
+<g id="insert_Suspending_entity_insert_Or_Null">
+  <rect class="classCard" x="1078" y="558" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1248" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1248" y="596" text-anchor="middle">insert</text>
+<text class="classTitle" x="1248" y="618" text-anchor="middle">Suspending(entity)</text>
+  <line x1="1078" y1="622" x2="1418" y2="622" stroke="#45A7A1" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(1050,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">update</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending(query,</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">update)</text>
+<g id="update_Suspending_query_update">
+  <rect class="classCard" x="1078" y="240" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1248" y="259" text-anchor="middle">class</text>
+  <text class="classTitle" x="1248" y="278" text-anchor="middle">update Suspending(query,</text>
+<text class="classTitle" x="1248" y="300" text-anchor="middle">update)</text>
+  <line x1="1078" y1="304" x2="1418" y2="304" stroke="#D6A441" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(48,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">delete</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Suspending(query)</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">delete All</text>
+<g id="delete_Suspending_query_delete_All">
+  <rect class="classCard" x="1707" y="558" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1877" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1877" y="596" text-anchor="middle">delete Suspending(query)</text>
+<text class="classTitle" x="1877" y="618" text-anchor="middle">delete All</text>
+  <line x1="1707" y1="622" x2="2047" y2="622" stroke="#DC6B82" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(382,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">countAllSuspending()</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">count</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">Suspending(query)</text>
+<g id="countAllSuspending_count_Suspending_query">
+  <rect class="classCard" x="1707" y="240" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1877" y="259" text-anchor="middle">class</text>
+  <text class="classTitle" x="1877" y="278" text-anchor="middle">countAllSuspending()</text>
+<text class="classTitle" x="1877" y="300" text-anchor="middle">count Suspending(query)</text>
+  <line x1="1707" y1="304" x2="2047" y2="304" stroke="#8A72D6" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(716,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="140" y="33" text-anchor="middle">R2dbc Entity</text>
-<text class="smallLabel" x="140" y="59" text-anchor="middle">Operations</text>
+<g id="R2dbcEntityOperations">
+  <rect class="classCard" x="2322" y="558" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="2492" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="2492" y="605" text-anchor="middle">R2dbcEntityOperations</text>
+  <line x1="2322" y1="614" x2="2662" y2="614" stroke="#8BA84D" stroke-width="1.4"/>
+
 </g>
-<g transform="translate(1050,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">(Database)</text>
+<g id="Database">
+  <rect class="classCard" x="2322" y="240" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="2492" y="259" text-anchor="middle">class</text>
+  <text class="classTitle" x="2492" y="287" text-anchor="middle">Database</text>
+  <line x1="2322" y1="296" x2="2662" y2="296" stroke="#9AA8B8" stroke-width="1.4"/>
+
 </g>
+<g>
+  <rect x="2564" y="802" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M2582 820 L2640 820" stroke="#3E9868"/>
+  <text class="detail" x="2654" y="825">inheritance / implementation</text>
+  <path class="dependency" d="M2582 841 L2640 841" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="2654" y="846">dependency / usage</text>
+</g>
+<g><rect x="180" y="820" width="2339" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1349.5" y="846" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
 </svg>

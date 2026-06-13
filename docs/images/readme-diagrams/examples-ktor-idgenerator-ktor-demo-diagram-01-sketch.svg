@@ -14,72 +14,72 @@
 <title>client&#45;&gt;ktor</title>
 <path fill="none" stroke="#758297" d="M120.13,-83.67C120.13,-83.67 290.47,-83.67 290.47,-83.67"/>
 <polygon fill="#758297" stroke="#758297" points="290.47,-86.47 298.47,-83.67 290.47,-80.87 290.47,-86.47"/>
-<text xml:space="preserve" text-anchor="middle" x="210.05" y="-152.85" font-family="Arial" font-size="12.00">request</text>
+<text xml:space="preserve" text-anchor="middle" x="210.05" y="-152.85" font-family="Architects Daughter" font-size="12.00">request</text>
 </g>
 <!-- ktor&#45;&gt;client -->
 <g id="edge6" class="edge">
 <title>ktor&#45;&gt;client</title>
 <path fill="none" stroke="#758297" d="M299.93,-91.33C299.93,-91.33 129.43,-91.33 129.43,-91.33"/>
 <polygon fill="#758297" stroke="#758297" points="129.43,-88.53 121.43,-91.33 129.43,-94.13 129.43,-88.53"/>
-<text xml:space="preserve" text-anchor="middle" x="210.05" y="-83.85" font-family="Arial" font-size="12.00">errors + correlation ID</text>
+<text xml:space="preserve" text-anchor="middle" x="210.05" y="-83.85" font-family="Architects Daughter" font-size="12.00">errors + correlation ID</text>
 </g>
 <!-- ktor&#45;&gt;routes -->
 <g id="edge2" class="edge">
 <title>ktor&#45;&gt;routes</title>
 <path fill="none" stroke="#758297" d="M448.93,-94C448.93,-94 589.56,-94 589.56,-94"/>
 <polygon fill="#758297" stroke="#758297" points="589.56,-96.8 597.56,-94 589.56,-91.2 589.56,-96.8"/>
-<text xml:space="preserve" text-anchor="middle" x="523.97" y="-96.85" font-family="Arial" font-size="12.00">routing</text>
+<text xml:space="preserve" text-anchor="middle" x="523.97" y="-96.85" font-family="Architects Daughter" font-size="12.00">routing</text>
 </g>
 <!-- routes&#45;&gt;registry -->
 <g id="edge3" class="edge">
 <title>routes&#45;&gt;registry</title>
 <path fill="none" stroke="#758297" d="M640.85,-75.58C640.85,-62.04 640.85,-46 640.85,-46 640.85,-46 811.01,-46 811.01,-46"/>
 <polygon fill="#758297" stroke="#758297" points="811.01,-48.8 819.01,-46 811.01,-43.2 811.01,-48.8"/>
-<text xml:space="preserve" text-anchor="middle" x="751.26" y="-89.85" font-family="Arial" font-size="12.00">nextId/nextIds</text>
+<text xml:space="preserve" text-anchor="middle" x="751.26" y="-89.85" font-family="Architects Daughter" font-size="12.00">nextId/nextIds</text>
 </g>
 <!-- registry&#45;&gt;client -->
 <g id="edge5" class="edge">
 <title>registry&#45;&gt;client</title>
 <path fill="none" stroke="#758297" d="M820.75,-34C599.06,-34 59.85,-34 59.85,-34 59.85,-34 59.85,-53.18 59.85,-53.18"/>
 <polygon fill="#758297" stroke="#758297" points="57.05,-53.18 59.85,-61.18 62.65,-53.18 57.05,-53.18"/>
-<text xml:space="preserve" text-anchor="middle" x="523.97" y="-2.85" font-family="Arial" font-size="12.00">JSON response</text>
+<text xml:space="preserve" text-anchor="middle" x="523.97" y="-2.85" font-family="Architects Daughter" font-size="12.00">JSON response</text>
 </g>
 <!-- registry&#45;&gt;ids -->
 <g id="edge4" class="edge">
 <title>registry&#45;&gt;ids</title>
 <path fill="none" stroke="#758297" d="M1007.79,-40C1007.79,-40 1116.03,-40 1116.03,-40"/>
 <polygon fill="#758297" stroke="#758297" points="1116.03,-42.8 1124.03,-40 1116.03,-37.2 1116.03,-42.8"/>
-<text xml:space="preserve" text-anchor="middle" x="1066.68" y="-42.85" font-family="Arial" font-size="12.00">delegates</text>
+<text xml:space="preserve" text-anchor="middle" x="1066.68" y="-42.85" font-family="Architects Daughter" font-size="12.00">delegates</text>
 </g>
 <!-- client -->
 <g id="node1" class="node">
 <title>client</title>
 <path fill="#e8f3ff" stroke="#5b8def" d="M107.67,-99C107.67,-99 12,-99 12,-99 6,-99 0,-93 0,-87 0,-87 0,-75 0,-75 0,-69 6,-63 12,-63 12,-63 107.67,-63 107.67,-63 113.67,-63 119.67,-69 119.67,-75 119.67,-75 119.67,-87 119.67,-87 119.67,-93 113.67,-99 107.67,-99"/>
-<text xml:space="preserve" text-anchor="middle" x="59.84" y="-74.4" font-family="Arial" font-size="18.00">HTTP client</text>
+<text xml:space="preserve" text-anchor="middle" x="59.84" y="-74.4" font-family="Architects Daughter" font-size="18.00">HTTP client</text>
 </g>
 <!-- ktor -->
 <g id="node2" class="node">
 <title>ktor</title>
 <path fill="#eaf7ef" stroke="#58a978" d="M436.59,-112C436.59,-112 312.42,-112 312.42,-112 306.42,-112 300.42,-106 300.42,-100 300.42,-100 300.42,-88 300.42,-88 300.42,-82 306.42,-76 312.42,-76 312.42,-76 436.59,-76 436.59,-76 442.59,-76 448.59,-82 448.59,-88 448.59,-88 448.59,-100 448.59,-100 448.59,-106 442.59,-112 436.59,-112"/>
-<text xml:space="preserve" text-anchor="middle" x="374.51" y="-87.4" font-family="Arial" font-size="18.00">Ktor application</text>
+<text xml:space="preserve" text-anchor="middle" x="374.51" y="-87.4" font-family="Architects Daughter" font-size="18.00">Ktor application</text>
 </g>
 <!-- routes -->
 <g id="node3" class="node">
 <title>routes</title>
 <path fill="#e9f7f6" stroke="#45a7a1" d="M669.51,-112C669.51,-112 611.34,-112 611.34,-112 605.34,-112 599.34,-106 599.34,-100 599.34,-100 599.34,-88 599.34,-88 599.34,-82 605.34,-76 611.34,-76 611.34,-76 669.51,-76 669.51,-76 675.51,-76 681.51,-82 681.51,-88 681.51,-88 681.51,-100 681.51,-100 681.51,-106 675.51,-112 669.51,-112"/>
-<text xml:space="preserve" text-anchor="middle" x="640.43" y="-87.4" font-family="Arial" font-size="18.00">Routes</text>
+<text xml:space="preserve" text-anchor="middle" x="640.43" y="-87.4" font-family="Architects Daughter" font-size="18.00">Routes</text>
 </g>
 <!-- registry -->
 <g id="node4" class="node">
 <title>registry</title>
 <path fill="#fff3d9" stroke="#d6a441" d="M995.43,-58C995.43,-58 833.01,-58 833.01,-58 827.01,-58 821.01,-52 821.01,-46 821.01,-46 821.01,-34 821.01,-34 821.01,-28 827.01,-22 833.01,-22 833.01,-22 995.43,-22 995.43,-22 1001.43,-22 1007.43,-28 1007.43,-34 1007.43,-34 1007.43,-46 1007.43,-46 1007.43,-52 1001.43,-58 995.43,-58"/>
-<text xml:space="preserve" text-anchor="middle" x="914.22" y="-33.4" font-family="Arial" font-size="18.00">IdGeneratorRegistry</text>
+<text xml:space="preserve" text-anchor="middle" x="914.22" y="-33.4" font-family="Architects Daughter" font-size="18.00">IdGeneratorRegistry</text>
 </g>
 <!-- ids -->
 <g id="node5" class="node">
 <title>ids</title>
 <path fill="#fdecef" stroke="#dc6b82" d="M1247.85,-58C1247.85,-58 1137.93,-58 1137.93,-58 1131.93,-58 1125.93,-52 1125.93,-46 1125.93,-46 1125.93,-34 1125.93,-34 1125.93,-28 1131.93,-22 1137.93,-22 1137.93,-22 1247.85,-22 1247.85,-22 1253.85,-22 1259.85,-28 1259.85,-34 1259.85,-34 1259.85,-46 1259.85,-46 1259.85,-52 1253.85,-58 1247.85,-58"/>
-<text xml:space="preserve" text-anchor="middle" x="1192.89" y="-33.4" font-family="Arial" font-size="18.00">ID generators</text>
+<text xml:space="preserve" text-anchor="middle" x="1192.89" y="-33.4" font-family="Architects Daughter" font-size="18.00">ID generators</text>
 </g>
 </g>
 </svg>

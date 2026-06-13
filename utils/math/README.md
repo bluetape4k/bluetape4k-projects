@@ -12,7 +12,7 @@ A library providing a wide range of mathematical capabilities including statisti
 
 ### Class Diagram
 
-![math Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-math-diagram-02.png)
+![Math Class Structure diagram](../../docs/images/readme-diagrams/utils-math-diagram-02.png)
 
 ## Key Features
 

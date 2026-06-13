@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1450" height="900" viewBox="0 0 1450 900" role="img" aria-label="Repeat Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="smallArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="smallArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
+    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
+    .edgeLabel{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
     .card{stroke-width:2.1;filter:url(#shadow)}.soft{stroke-width:1.7}.line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
     .thinLine{stroke:#758297;stroke-width:1.8;fill:none;marker-end:url(#smallArrow)}
     .dashed{stroke:#758297;stroke-width:2;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
@@ -62,21 +62,21 @@
   <text class="small" x="370" y="706" text-anchor="middle">returned if predicate stops</text>
 <text class="small" x="370" y="724" text-anchor="middle">or next layer handles it</text>
 </g>
-<path class="line" d="M310 409 H460"/>
+<path class="line" d="M310 409 H460" style="stroke:#4F83BF"/>
 <text class="edgeLabel" x="385" y="399" text-anchor="middle">execute</text>
-<path class="line" d="M710 394 H825"/>
+<path class="line" d="M710 394 H825" style="stroke:#3E9868"/>
 <text class="edgeLabel" x="768" y="384" text-anchor="middle">report</text>
-<path class="line" d="M1110 389 H1180"/>
+<path class="line" d="M1110 389 H1180" style="stroke:#2E8F89"/>
 <text class="edgeLabel" x="1145" y="379" text-anchor="middle">stop</text>
-<path class="line" d="M968 315 C930 180 600 180 585 330"/>
+<path class="line" d="M968 315 C930 180 600 180 585 330" style="stroke:#B9851B"/>
 <text class="edgeLabel" x="760" y="178" text-anchor="middle">repeat true</text>
-<path class="line" d="M585 330 H460"/>
+<path class="line" d="M585 330 H460" style="stroke:#755BC6"/>
 
-<path class="line" d="M560 458 C540 545 570 615 600 696"/>
+<path class="line" d="M560 458 C540 545 570 615 600 696" style="stroke:#C94D68"/>
 <text class="edgeLabel" x="606" y="557" text-anchor="middle">Aborted</text>
-<path class="line" d="M655 458 C765 535 845 604 930 696"/>
+<path class="line" d="M655 458 C765 535 845 604 930 696" style="stroke:#718A35"/>
 <text class="edgeLabel" x="823" y="572" text-anchor="middle">Cancelled</text>
-<path class="line" d="M505 458 C430 530 340 598 370 640"/>
+<path class="line" d="M505 458 C430 530 340 598 370 640" style="stroke:#758297"/>
 <text class="edgeLabel" x="407" y="546" text-anchor="middle">Failure</text>
 <g>
   <rect class="soft" x="92" y="560" width="330" height="70" rx="12" fill="#F7F1E7" stroke="#B88A44" opacity="0.92"/>

@@ -14,7 +14,7 @@
 
 ### 클래스 다이어그램
 
-![geo Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
+![Geo Class Structure diagram](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
 
 ### GeoHash 인코딩/디코딩 흐름
 

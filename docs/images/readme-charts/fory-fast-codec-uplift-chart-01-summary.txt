@@ -1,0 +1,5 @@
+chart-gate: asset=fory-fast-codec-uplift-chart-01
+sampleShape=PASS
+balancedMargins=PASS
+interpretationBoundary=PASS
+status=PASS

@@ -1,0 +1,5 @@
+chart-gate: asset=infra-lettuce-codec-throughput-chart-01
+sampleShape=PASS
+balancedMargins=PASS
+interpretationBoundary=PASS
+status=PASS

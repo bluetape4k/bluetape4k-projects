@@ -1,71 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="974" viewBox="0 0 1754 974" role="img" aria-label="SuspendNearCacheOperations (Coroutine)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="1205" viewBox="0 0 1650 1205" role="img" aria-label="JCache NearCache Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
+    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="974"/>
-<rect class="frame" x="32" y="28" width="1690" height="918" rx="28"/>
-<text class="title" x="66" y="82">SuspendNearCacheOperations (Coroutine)</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M1492 584 L1492 517 L877 517 L877 434"/>
-<path class="implLine" d="M262 584 L262 509 L877 509 L877 434"/>
-<path class="implLine" d="M672 584 L672 501 L877 501 L877 434"/>
-<path class="implLine" d="M1082 584 L1082 493 L877 493 L877 434"/>
-<g transform="translate(707,180)">
-  <rect class="card" x="0" y="0" width="340" height="254" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Suspend Near Cache</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Operations</text>
-  <text class="mono" x="18" y="124">+cacheName: String</text>
-<text class="mono" x="18" y="145">+isClosed: Boolean</text>
-<text class="mono" x="18" y="166">+get(key: String) V?</text>
-<text class="mono" x="18" y="187">+put(key: String, value: V)</text>
-<text class="mono" x="18" y="208">+putIfAbsent(key: String, value: V) V?</text>
-<text class="mono" x="18" y="229">+remove(key: String)</text>
-</g>
-<g transform="translate(92,584)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-    <text class="label" x="170" y="49" text-anchor="middle">RedissonSuspendNearCache</text>
-  <text class="mono" x="18" y="108">-localCachedMap: RLocalCachedMap</text>
-</g>
-<g transform="translate(502,584)">
-  <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#D6A441"/>
-    <text class="label" x="170" y="44.5" text-anchor="middle">Hazelcast Suspend Near</text>
-<text class="label" x="170" y="69.5" text-anchor="middle">Cache</text>
-  <text class="mono" x="18" y="124">-imap: IMap</text>
-</g>
-<g transform="translate(912,584)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-    <text class="label" x="170" y="49" text-anchor="middle">LettuceSuspendNearCache</text>
-  <text class="mono" x="18" y="108">-commands: RedisCoroutinesCommands</text>
-</g>
-<g transform="translate(1322,584)">
-  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
-    <text class="label" x="170" y="44.5" text-anchor="middle">Resilient Suspend Near</text>
-<text class="label" x="170" y="69.5" text-anchor="middle">Cache Decorator</text>
-  <text class="mono" x="18" y="124">-delegate: SuspendNearCacheOperations~V~</text>
-<text class="mono" x="18" y="145">-retry: Retry</text>
-</g>
+<rect class="canvas" width="1650" height="1205"/>
+<rect class="frame" x="32" y="28" width="1586" height="1149" rx="30"/>
+<text class="title" x="68" y="84">JCache NearCache Structure</text>
+<text class="subtitle" x="72" y="116">SuspendNearJCache composes a local Caffeine front tier with provider-backed suspend JCache implementations.</text>
+<g><rect class="panel" x="88" y="165" width="1475" height="240" rx="22"/><text class="panelTitle" x="112" y="199">Coroutine JCache composition</text></g>
+<g id="front"><rect class="card" x="150" y="235" width="335" height="118" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="150" y1="301" x2="485" y2="301" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="317.5" y="255" text-anchor="middle">front tier</text><text class="classTitle" x="317.5" y="283" text-anchor="middle">CaffeineSuspendJCache</text><text class="member" x="168" y="323">local Caffeine AsyncCache</text>
+<text class="member" x="168" y="340">low-latency reads</text></g>
+<g id="near"><rect class="card" x="630" y="225" width="360" height="138" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="630" y1="291" x2="990" y2="291" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="810" y="245" text-anchor="middle">2-tier coordinator</text><text class="classTitle" x="810" y="273" text-anchor="middle">SuspendNearJCache</text><text class="member" x="648" y="323">read-through front/back</text>
+<text class="member" x="648" y="340">optional listener propagation</text></g>
+<g id="back"><rect class="card" x="1135" y="235" width="335" height="118" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="1135" y1="301" x2="1470" y2="301" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="1302.5" y="255" text-anchor="middle">back tier</text><text class="classTitle" x="1302.5" y="283" text-anchor="middle">HazelcastSuspendJCache</text><text class="member" x="1153" y="323">cluster JCache wrapper</text>
+<text class="member" x="1153" y="340">shared distributed data</text></g>
+<path class="flow" d="M485 294 L630 294" stroke="#4F83BF"/>
+<path class="flow" d="M990 294 L1135 294" stroke="#755BC6"/>
+<g><rect class="panel" x="88" y="500" width="1475" height="255" rx="22"/><text class="panelTitle" x="112" y="534">Factory paths</text></g>
+<g id="without"><rect class="card" x="155" y="580" width="310" height="90" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="310" y="595" text-anchor="middle">withoutListener(front,</text><text class="cardTitle" x="310" y="619" text-anchor="middle">back)</text><text class="detail" x="310" y="655" text-anchor="middle">safe when back listener cannot</text>
+<text class="detail" x="310" y="673" text-anchor="middle">serialize front cache</text></g>
+<g id="invoke"><rect class="card" x="640" y="565" width="340" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="810" y="603" text-anchor="middle">invoke(front, back)</text><text class="detail" x="810" y="639" text-anchor="middle">registers back-cache listener</text>
+<text class="detail" x="810" y="657" text-anchor="middle">when provider supports it</text></g>
+<g id="provider"><rect class="card" x="1150" y="580" width="320" height="90" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1310" y="607" text-anchor="middle">Provider DSL</text><text class="detail" x="1310" y="643" text-anchor="middle">Hazelcast/Lettuce/Redisson</text>
+<text class="detail" x="1310" y="661" text-anchor="middle">factories compose tiers</text></g>
+<path class="flow" d="M310 353 L310 580" stroke="#4F83BF"/>
+<path class="flow" d="M810 363 L810 565" stroke="#3E9868"/>
+<path class="flow" d="M1302 353 L1302 580" stroke="#755BC6"/>
+<path class="flow" d="M465 625 L640 625" stroke="#B9851B"/>
+<path class="flow" d="M980 625 L1150 625" stroke="#2E8F89"/>
+<g><rect class="panel" x="88" y="850" width="1475" height="210" rx="22"/><text class="panelTitle" x="112" y="884">Read/write semantics</text></g>
+<g id="read"><rect class="card" x="185" y="920" width="290" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="330" y="952" text-anchor="middle">Read path</text><text class="detail" x="330" y="988" text-anchor="middle">front hit or back load</text></g>
+<g id="write"><rect class="card" x="620" y="920" width="290" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="765" y="952" text-anchor="middle">Write path</text><text class="detail" x="765" y="988" text-anchor="middle">front + back update</text></g>
+<g id="invalidate"><rect class="card" x="1055" y="920" width="320" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1215" y="952" text-anchor="middle">Invalidation</text><text class="detail" x="1215" y="988" text-anchor="middle">listener or explicit clear</text></g>
+<path class="flow" d="M475 961 L620 961" stroke="#4F83BF"/>
+<path class="flow" d="M910 961 L1055 961" stroke="#3E9868"/>
+<g><rect x="225" y="1112" width="1200" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="825" y="1138" text-anchor="middle">Adjacent front/coordinator/back classes use straight connectors; policy and runtime details stay in separate layers.</text></g>
 </svg>

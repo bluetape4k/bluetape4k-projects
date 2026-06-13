@@ -1,36 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="760" viewBox="0 0 1420 760" role="img" aria-labelledby="examples-spring-boot-observability-spring-boot-demo-sequence-01-title examples-spring-boot-observability-spring-boot-demo-sequence-01-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="820" viewBox="0 0 1620 820" role="img" aria-labelledby="examples-spring-boot-observability-spring-boot-demo-sequence-01-title examples-spring-boot-observability-spring-boot-demo-sequence-01-desc">
   <title id="examples-spring-boot-observability-spring-boot-demo-sequence-01-title">Spring Boot Observability Demo Sequence</title>
   <desc id="examples-spring-boot-observability-spring-boot-demo-sequence-01-desc">HTTP work, event observations, Prometheus scrape output, and optional trace export.</desc>
   <defs>
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
 
-    <marker id="arrowNeutral" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#758297"/>
-    </marker>
-    <marker id="arrowRequest" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#5B8DEF"/>
-    </marker>
-    <marker id="arrowService" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#45A7A1"/>
-    </marker>
-    <marker id="arrowEvent" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#58A978"/>
-    </marker>
-    <marker id="arrowMetrics" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#D6A441"/>
-    </marker>
-    <marker id="arrowTrace" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#8A72D6"/>
-    </marker>
-    <marker id="arrowResponse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#DC6B82"/>
-    </marker>
+    <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+    <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+    <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+    <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+    <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+    <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+    <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
     <style>
       .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
       .card,.participant{filter:url(#shadow);stroke-width:2}
       .lifeline{stroke:#758297;stroke-width:1.8;stroke-dasharray:7 8}
       .edge{stroke-width:2.4;fill:none}
-      .sequenceEdge{stroke-width:2.3;fill:none}
+      .seq{stroke-width:2.3;fill:none}.seqReturn{stroke-width:2.3;fill:none;stroke-dasharray:8 7}
       .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.94}
 
       .title{font-family:"Architects Daughter";font-size:42px;fill:#22344A;font-weight:400}
@@ -41,105 +27,113 @@
 
     </style>
   </defs>
-  <rect class="canvas" width="1420" height="760"/>
-  <rect class="frame" x="32" y="28" width="1356" height="684" rx="26"/>
+  <rect class="canvas" width="1620" height="820"/>
+  <rect class="frame" x="32" y="28" width="1556" height="744" rx="26"/>
   <text class="title" x="66" y="82">Spring Boot Observability Demo Sequence</text>
   <text class="subtitle" x="70" y="116">HTTP work, event observations, Prometheus scrape output, and optional trace export.</text>
 
   <g id="client">
-    <rect class="participant" x="80" y="165" width="165" height="74" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
-    <text class="participantTitle" x="162.5" y="202" text-anchor="middle" dominant-baseline="middle">Client</text>
-    <line class="lifeline" x1="162.5" y1="239" x2="162.5" y2="680" />
+    <rect class="participant" x="90" y="165" width="165" height="74" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <text class="participantTitle" x="172.5" y="202" text-anchor="middle" dominant-baseline="middle">Client</text>
+    <line class="lifeline" x1="172.5" y1="239" x2="172.5" y2="720" />
   </g>
 
   <g id="controller">
-    <rect class="participant" x="290" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="participantTitle" x="372.5" y="190" text-anchor="middle" dominant-baseline="middle">Spring MVC</text>
-<text class="participantTitle" x="372.5" y="214" text-anchor="middle" dominant-baseline="middle">Controller</text>
-    <line class="lifeline" x1="372.5" y1="239" x2="372.5" y2="680" />
+    <rect class="participant" x="340" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="participantTitle" x="422.5" y="190" text-anchor="middle" dominant-baseline="middle">Spring MVC</text>
+<text class="participantTitle" x="422.5" y="214" text-anchor="middle" dominant-baseline="middle">Controller</text>
+    <line class="lifeline" x1="422.5" y1="239" x2="422.5" y2="720" />
   </g>
 
   <g id="springObs">
-    <rect class="participant" x="515" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="participantTitle" x="597.5" y="202" text-anchor="middle" dominant-baseline="middle">observeSpring</text>
-    <line class="lifeline" x1="597.5" y1="239" x2="597.5" y2="680" />
+    <rect class="participant" x="610" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="participantTitle" x="692.5" y="202" text-anchor="middle" dominant-baseline="middle">observeSpring</text>
+    <line class="lifeline" x1="692.5" y1="239" x2="692.5" y2="720" />
   </g>
 
   <g id="eventObs">
-    <rect class="participant" x="740" y="165" width="165" height="74" rx="10" fill="#EAF7EF" stroke="#58A978"/>
-    <text class="participantTitle" x="822.5" y="190" text-anchor="middle" dominant-baseline="middle">Event</text>
-<text class="participantTitle" x="822.5" y="214" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
-    <line class="lifeline" x1="822.5" y1="239" x2="822.5" y2="680" />
+    <rect class="participant" x="880" y="165" width="165" height="74" rx="10" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="participantTitle" x="962.5" y="190" text-anchor="middle" dominant-baseline="middle">Event</text>
+<text class="participantTitle" x="962.5" y="214" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
+    <line class="lifeline" x1="962.5" y1="239" x2="962.5" y2="720" />
   </g>
 
   <g id="actuator">
-    <rect class="participant" x="980" y="165" width="175" height="74" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
-    <text class="participantTitle" x="1067.5" y="190" text-anchor="middle" dominant-baseline="middle">Actuator</text>
-<text class="participantTitle" x="1067.5" y="214" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
-    <line class="lifeline" x1="1067.5" y1="239" x2="1067.5" y2="680" />
+    <rect class="participant" x="1145" y="165" width="175" height="74" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
+    <text class="participantTitle" x="1232.5" y="190" text-anchor="middle" dominant-baseline="middle">Actuator</text>
+<text class="participantTitle" x="1232.5" y="214" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
+    <line class="lifeline" x1="1232.5" y1="239" x2="1232.5" y2="720" />
   </g>
 
   <g id="otlp">
-    <rect class="participant" x="1195" y="165" width="155" height="74" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="participantTitle" x="1272.5" y="190" text-anchor="middle" dominant-baseline="middle">OTLP</text>
-<text class="participantTitle" x="1272.5" y="214" text-anchor="middle" dominant-baseline="middle">optional</text>
-    <line class="lifeline" x1="1272.5" y1="239" x2="1272.5" y2="680" />
+    <rect class="participant" x="1365" y="165" width="155" height="74" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="participantTitle" x="1442.5" y="190" text-anchor="middle" dominant-baseline="middle">OTLP</text>
+<text class="participantTitle" x="1442.5" y="214" text-anchor="middle" dominant-baseline="middle">optional</text>
+    <line class="lifeline" x1="1442.5" y1="239" x2="1442.5" y2="720" />
   </g>
 
   <g id="post-order">
-    <path class="sequenceEdge" d="M162.5 295 L372.5 295" stroke="#5B8DEF" marker-end="url(#arrowRequest)"/>
-
-    <rect class="labelPill" x="148.65" y="262" width="237.7" height="26" rx="7"/>
-    <text class="edgeLabel" x="267.5" y="276" text-anchor="middle" dominant-baseline="middle">POST /orders/{orderId}/events</text>
+    <rect class="labelPill" x="178.65" y="254" width="271.7" height="26" rx="7"/>
+    <circle cx="197.65" cy="267" r="12" fill="#4F83BF"/>
+    <text class="edgeLabel" x="197.65" y="268" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text>
+    <text class="edgeLabel" x="314.5" y="268" text-anchor="middle" dominant-baseline="middle">POST /orders/{orderId}/events</text>
+    <path class="seq" d="M172.5 295 L422.5 295" stroke="#5B8DEF" marker-end="url(#seqArrow-blue)"/>
   </g>
 
   <g id="observe-work">
-    <path class="sequenceEdge" d="M372.5 355 L597.5 355" stroke="#45A7A1" marker-end="url(#arrowService)"/>
-
-    <rect class="labelPill" x="380.75" y="322" width="208.5" height="26" rx="7"/>
-    <text class="edgeLabel" x="485" y="336" text-anchor="middle" dominant-baseline="middle">observe HTTP service work</text>
+    <rect class="labelPill" x="453.25" y="314" width="242.5" height="26" rx="7"/>
+    <circle cx="472.25" cy="327" r="12" fill="#2E8F89"/>
+    <text class="edgeLabel" x="472.25" y="328" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text>
+    <text class="edgeLabel" x="574.5" y="328" text-anchor="middle" dominant-baseline="middle">observe HTTP service work</text>
+    <path class="seq" d="M422.5 355 L692.5 355" stroke="#45A7A1" marker-end="url(#seqArrow-teal)"/>
   </g>
 
   <g id="publish">
-    <path class="sequenceEdge" d="M597.5 415 L822.5 415" stroke="#58A978" marker-end="url(#arrowEvent)"/>
-
-    <rect class="labelPill" x="635" y="382" width="150" height="26" rx="7"/>
-    <text class="edgeLabel" x="710" y="396" text-anchor="middle" dominant-baseline="middle">event.publish</text>
+    <rect class="labelPill" x="752.5" y="374" width="184" height="26" rx="7"/>
+    <circle cx="771.5" cy="387" r="12" fill="#3E9868"/>
+    <text class="edgeLabel" x="771.5" y="388" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text>
+    <text class="edgeLabel" x="844.5" y="388" text-anchor="middle" dominant-baseline="middle">event.publish</text>
+    <path class="seq" d="M692.5 415 L962.5 415" stroke="#58A978" marker-end="url(#seqArrow-green)"/>
   </g>
 
   <g id="consume">
-    <path class="sequenceEdge" d="M597.5 475 L822.5 475" stroke="#58A978" marker-end="url(#arrowEvent)"/>
-
-    <rect class="labelPill" x="635" y="442" width="150" height="26" rx="7"/>
-    <text class="edgeLabel" x="710" y="456" text-anchor="middle" dominant-baseline="middle">event.consume</text>
+    <rect class="labelPill" x="752.5" y="434" width="184" height="26" rx="7"/>
+    <circle cx="771.5" cy="447" r="12" fill="#3E9868"/>
+    <text class="edgeLabel" x="771.5" y="448" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text>
+    <text class="edgeLabel" x="844.5" y="448" text-anchor="middle" dominant-baseline="middle">event.consume</text>
+    <path class="seq" d="M692.5 475 L962.5 475" stroke="#58A978" marker-end="url(#seqArrow-green)"/>
   </g>
 
   <g id="service-response">
-    <path class="sequenceEdge" d="M597.5 535 L372.5 535" stroke="#DC6B82" marker-end="url(#arrowResponse)" stroke-dasharray="8 7"/>
-
-    <rect class="labelPill" x="406.3" y="502" width="157.4" height="26" rx="7"/>
-    <text class="edgeLabel" x="485" y="516" text-anchor="middle" dominant-baseline="middle">OrderEventResponse</text>
+    <rect class="labelPill" x="478.8" y="494" width="191.4" height="26" rx="7"/>
+    <circle cx="497.8" cy="507" r="12" fill="#C94D68"/>
+    <text class="edgeLabel" x="497.8" y="508" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text>
+    <text class="edgeLabel" x="574.5" y="508" text-anchor="middle" dominant-baseline="middle">OrderEventResponse</text>
+    <path class="seqReturn" d="M692.5 535 L422.5 535" stroke="#DC6B82" marker-end="url(#seqArrow-pink)"/>
   </g>
 
   <g id="json-response">
-    <path class="sequenceEdge" d="M372.5 595 L162.5 595" stroke="#DC6B82" marker-end="url(#arrowResponse)" stroke-dasharray="8 7"/>
-
-    <rect class="labelPill" x="192.5" y="562" width="150" height="26" rx="7"/>
-    <text class="edgeLabel" x="267.5" y="576" text-anchor="middle" dominant-baseline="middle">200 JSON</text>
+    <rect class="labelPill" x="222.5" y="554" width="184" height="26" rx="7"/>
+    <circle cx="241.5" cy="567" r="12" fill="#C94D68"/>
+    <text class="edgeLabel" x="241.5" y="568" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text>
+    <text class="edgeLabel" x="314.5" y="568" text-anchor="middle" dominant-baseline="middle">200 JSON</text>
+    <path class="seqReturn" d="M422.5 595 L172.5 595" stroke="#DC6B82" marker-end="url(#seqArrow-pink)"/>
   </g>
 
   <g id="scrape">
-    <path class="sequenceEdge" d="M162.5 650 L1067.5 650" stroke="#D6A441" marker-end="url(#arrowMetrics)"/>
-
-    <rect class="labelPill" x="514.4" y="617" width="201.2" height="26" rx="7"/>
-    <text class="edgeLabel" x="615" y="631" text-anchor="middle" dominant-baseline="middle">GET /actuator/prometheus</text>
+    <rect class="labelPill" x="601.9" y="609" width="235.2" height="26" rx="7"/>
+    <circle cx="620.9" cy="622" r="12" fill="#B9851B"/>
+    <text class="edgeLabel" x="620.9" y="623" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text>
+    <text class="edgeLabel" x="719.5" y="623" text-anchor="middle" dominant-baseline="middle">GET /actuator/prometheus</text>
+    <path class="seq" d="M172.5 650 L1232.5 650" stroke="#D6A441" marker-end="url(#seqArrow-amber)"/>
   </g>
 
   <g id="traces">
-    <path class="sequenceEdge" d="M597.5 325 L1272.5 325" stroke="#8A72D6" marker-end="url(#arrowTrace)" stroke-dasharray="8 7"/>
-
-    <rect class="labelPill" x="841.7" y="292" width="186.6" height="26" rx="7"/>
-    <text class="edgeLabel" x="935" y="306" text-anchor="middle" dominant-baseline="middle">traces when configured</text>
+    <rect class="labelPill" x="974.2" y="258" width="220.6" height="26" rx="7"/>
+    <circle cx="993.2" cy="271" r="12" fill="#755BC6"/>
+    <text class="edgeLabel" x="993.2" y="272" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text>
+    <text class="edgeLabel" x="1084.5" y="272" text-anchor="middle" dominant-baseline="middle">traces when configured</text>
+    <path class="seqReturn" d="M692.5 300 L1442.5 300" stroke="#8A72D6" marker-end="url(#seqArrow-purple)"/>
   </g>
-  <text class="note" x="710" y="730" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+  <text class="note" x="810" y="790" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
 </svg>

@@ -1,86 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="876" viewBox="0 0 1754 876" role="img" aria-label="geo Class Structure 2">
+<svg xmlns="http://www.w3.org/2000/svg" width="2572" height="1229" viewBox="0 0 2572 1229" role="img" aria-label="Geo Class Structure 2">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="876"/>
-<rect class="frame" x="32" y="28" width="1690" height="820" rx="28"/>
-<text class="title" x="66" y="82">geo Class Structure 2</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M467 481 L467 434 L1492 434 L1492 355"/>
-<path class="line" d="M262 180 L262 112 L672 112 L672 334"/>
-<path class="line" d="M1287 481 L1287 418 L672 418 L672 334"/>
-<path class="line" d="M1082 180 L1082 132 L672 132 L672 334"/>
-<path class="line" d="M877 481 L877 402 L1082 402 L1082 355"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="170" y="49" text-anchor="middle">BingGeocoder</text>
-  <text class="mono" x="18" y="108">+apiKey: String</text>
-<text class="mono" x="18" y="129">+geocode(address) GeoPoint</text>
-<text class="mono" x="18" y="150">+reverseGeocode(lat, lon) String</text>
+<rect class="canvas" width="2572" height="1229"/>
+<rect class="frame" x="32" y="28" width="2508" height="1173" rx="30"/>
+<text class="title" x="68" y="84">Geo Class Structure 2</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="GeoIp2Support" data-to="CityResponse" d="M2084 372 L2084 558" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="BingGeocoder" data-to="GeoPoint" d="M657 660 L753 660 L753 907 L849 907" stroke="#4F83BF" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="GoogleGeocoder" data-to="GeoPoint" d="M1382 660 L1286 660 L1286 907 L1189 907" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="GeoHashUtils" data-to="GeoPoint" d="M1019 690 L1019 877" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="GeoHashCircleQuery" data-to="GeoHashUtils" d="M1019 372 L1019 558" stroke="#755BC6" stroke-dasharray="8 7"/>
+<g id="BingGeocoder">
+  <rect class="classCard" x="317" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="487" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="487" y="605" text-anchor="middle">BingGeocoder</text>
+  <line x1="317" y1="614" x2="657" y2="614" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="335" y="639">+apiKey: String</text>
+<text class="member" x="335" y="656">+geocode(address) GeoPoint</text>
+<text class="member" x="335" y="673">+reverseGeocode(lat, lon) String</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-    <text class="label" x="170" y="49" text-anchor="middle">GeoPoint</text>
-  <text class="mono" x="18" y="108">+latitude: Double</text>
-<text class="mono" x="18" y="129">+longitude: Double</text>
+<g id="GeoPoint">
+  <rect class="classCard" x="849" y="877" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1019" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="1019" y="924" text-anchor="middle">GeoPoint</text>
+  <line x1="849" y1="933" x2="1189" y2="933" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="867" y="967">+latitude: Double</text>
+<text class="member" x="867" y="984">+longitude: Double</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-    <text class="label" x="170" y="49" text-anchor="middle">GeoHashUtils</text>
-  <text class="mono" x="18" y="108">+encode(lat, lon, precision) String</text>
-<text class="mono" x="18" y="129">+decode(hash) GeoPoint</text>
-<text class="mono" x="18" y="150">+neighbors(hash) List~String~</text>
+<g id="GeoHashUtils">
+  <rect class="classCard" x="849" y="558" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1019" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1019" y="605" text-anchor="middle">GeoHashUtils</text>
+  <line x1="849" y1="614" x2="1189" y2="614" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="867" y="639">+encode(lat, lon, precision)</text>
+<text class="member" x="867" y="656">String</text>
+<text class="member" x="867" y="673">+decode(hash) GeoPoint</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-    <text class="label" x="170" y="49" text-anchor="middle">CityResponse</text>
-  <text class="mono" x="18" y="108">+country: Country</text>
-<text class="mono" x="18" y="129">+city: City</text>
-<text class="mono" x="18" y="150">+location: Location</text>
+<g id="CityResponse">
+  <rect class="classCard" x="1914" y="558" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="2084" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="2084" y="605" text-anchor="middle">CityResponse</text>
+  <line x1="1914" y1="614" x2="2254" y2="614" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="1932" y="639">+country: Country</text>
+<text class="member" x="1932" y="656">+city: City</text>
+<text class="member" x="1932" y="673">+location: Location</text>
 </g>
-<g transform="translate(297,481)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-    <text class="label" x="170" y="49" text-anchor="middle">GeoIp2Support</text>
-  <text class="mono" x="18" y="108">+cityReader(path) DatabaseReader</text>
-<text class="mono" x="18" y="129">+countryReader(path) DatabaseReader</text>
+<g id="GeoIp2Support">
+  <rect class="classCard" x="1914" y="240" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="2084" y="259" text-anchor="middle">class</text>
+  <text class="classTitle" x="2084" y="287" text-anchor="middle">GeoIp2Support</text>
+  <line x1="1914" y1="296" x2="2254" y2="296" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="1932" y="321">+cityReader(path) DatabaseReader</text>
+<text class="member" x="1932" y="338">+countryReader(path)</text>
+<text class="member" x="1932" y="355">DatabaseReader</text>
 </g>
-<g transform="translate(707,481)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-    <text class="label" x="170" y="49" text-anchor="middle">GeoHashCircleQuery</text>
-  <text class="mono" x="18" y="108">+radiusMeters: Double</text>
-<text class="mono" x="18" y="129">+centerHash: String</text>
-<text class="mono" x="18" y="150">+getHashes() List~String~</text>
+<g id="GeoHashCircleQuery">
+  <rect class="classCard" x="849" y="240" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1019" y="259" text-anchor="middle">class</text>
+  <text class="classTitle" x="1019" y="287" text-anchor="middle">GeoHashCircleQuery</text>
+  <line x1="849" y1="296" x2="1189" y2="296" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="867" y="321">+radiusMeters: Double</text>
+<text class="member" x="867" y="338">+centerHash: String</text>
+<text class="member" x="867" y="355">+getHashes() List~String~</text>
 </g>
-<g transform="translate(1117,481)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-    <text class="label" x="170" y="49" text-anchor="middle">GoogleGeocoder</text>
-  <text class="mono" x="18" y="108">+apiKey: String</text>
-<text class="mono" x="18" y="129">+geocode(address) GeoPoint</text>
-<text class="mono" x="18" y="150">+reverseGeocode(lat, lon) String</text>
+<g id="GoogleGeocoder">
+  <rect class="classCard" x="1382" y="558" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1552" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1552" y="605" text-anchor="middle">GoogleGeocoder</text>
+  <line x1="1382" y1="614" x2="1722" y2="614" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="1400" y="639">+apiKey: String</text>
+<text class="member" x="1400" y="656">+geocode(address) GeoPoint</text>
+<text class="member" x="1400" y="673">+reverseGeocode(lat, lon) String</text>
 </g>
+<g>
+  <rect x="2157" y="1121" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M2175 1139 L2233 1139" stroke="#3E9868"/>
+  <text class="detail" x="2247" y="1144">inheritance / implementation</text>
+  <path class="dependency" d="M2175 1160 L2233 1160" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="2247" y="1165">dependency / usage</text>
+</g>
+<g><rect x="180" y="1139" width="1932" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1146" y="1165" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
 </svg>

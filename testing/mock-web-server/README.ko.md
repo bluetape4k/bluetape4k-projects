@@ -29,7 +29,7 @@
 
 ### 클래스 다이어그램
 
-![mock web server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
+![Mock Web Server Class Structure diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 

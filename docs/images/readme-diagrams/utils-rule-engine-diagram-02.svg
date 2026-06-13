@@ -1,104 +1,102 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1285" viewBox="0 0 1754 1285" role="img" aria-label="Core Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2572" height="1229" viewBox="0 0 2572 1229" role="img" aria-label="Core Class Diagram">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1285"/>
-<rect class="frame" x="32" y="28" width="1690" height="1229" rx="28"/>
-<text class="title" x="66" y="82">Core Class Diagram</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M672 869 L672 786 L262 786 L262 397"/>
-<path class="dashed" d="M1082 869 L1082 778 L60 778 L60 444 L672 444 L672 313"/>
-<path class="dashed" d="M1082 869 L1082 810 L1734 810 L1734 476 L1082 476 L1082 313"/>
-<path class="dashed" d="M672 869 L672 802 L30 802 L30 468 L672 468 L672 313"/>
-<path class="dashed" d="M672 869 L672 794 L40 794 L40 460 L1082 460 L1082 313"/>
-<path class="implLine" d="M1082 869 L1082 786 L672 786 L672 719"/>
-<path class="implLine" d="M672 869 L672 778 L1492 778 L1492 376"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="170" y="49" text-anchor="middle">Facts</text>
-  <text class="mono" x="18" y="108">-map: ConcurrentHashMap~String, Any?~</text>
-<text class="mono" x="18" y="129">+get(name): T?</text>
-<text class="mono" x="18" y="150">+set(name, value)</text>
-<text class="mono" x="18" y="171">+contains(name): Boolean</text>
-<text class="mono" x="18" y="192">+of(vararg pairs)$</text>
+<rect class="canvas" width="2572" height="1229"/>
+<rect class="frame" x="32" y="28" width="2508" height="1173" rx="30"/>
+<text class="title" x="68" y="84">Core Class Diagram</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="DefaultRule" data-to="Facts" d="M849 660 L753 660 L753 907 L657 907" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultSuspendRule" data-to="Action" d="M1552 690 L1552 877" stroke="#758297" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultSuspendRule" data-to="Condition" d="M1382 660 L1286 660 L1286 907 L1189 907" stroke="#758297" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultRule" data-to="Action" d="M1189 660 L1286 660 L1286 907 L1382 907" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultRule" data-to="Condition" d="M1019 690 L1019 877" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="DefaultSuspendRule" data-to="SuspendRule" d="M1552 558 L1552 372" stroke="#758297"/>
+<path class="inherit" data-from="DefaultRule" data-to="Rule" d="M1019 558 L1019 372" stroke="#718A35"/>
+<g id="Facts">
+  <rect class="classCard" x="317" y="877" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="487" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="487" y="924" text-anchor="middle">Facts</text>
+  <line x1="317" y1="933" x2="657" y2="933" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="335" y="958">-map: ConcurrentHashMap~String,</text>
+<text class="member" x="335" y="975">Any?~</text>
+<text class="member" x="335" y="992">+get(name): T?</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«funinterface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Action</text>
-  <text class="mono" x="18" y="108">+execute(facts: Facts)</text>
+<g id="Action">
+  <rect class="classCard" x="1382" y="877" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1552" y="896" text-anchor="middle">funinterface</text>
+  <text class="classTitle" x="1552" y="924" text-anchor="middle">Action</text>
+  <line x1="1382" y1="933" x2="1722" y2="933" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1400" y="975">+execute(facts: Facts)</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«funinterface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Condition</text>
-  <text class="mono" x="18" y="108">+evaluate(facts: Facts): Boolean</text>
+<g id="Condition">
+  <rect class="classCard" x="849" y="877" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1019" y="896" text-anchor="middle">funinterface</text>
+  <text class="classTitle" x="1019" y="924" text-anchor="middle">Condition</text>
+  <line x1="849" y1="933" x2="1189" y2="933" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="867" y="975">+evaluate(facts: Facts): Boolean</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Rule</text>
-  <text class="mono" x="18" y="108">+name: String</text>
-<text class="mono" x="18" y="129">+priority: Int</text>
-<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
+<g id="Rule">
+  <rect class="classCard" x="849" y="240" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1019" y="259" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1019" y="287" text-anchor="middle">Rule</text>
+  <line x1="849" y1="296" x2="1189" y2="296" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="867" y="321">+name: String</text>
+<text class="member" x="867" y="338">+priority: Int</text>
+<text class="member" x="867" y="355">+evaluate(facts: Facts): Boolean</text>
 </g>
-<g transform="translate(502,523)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">SuspendRule</text>
-  <text class="mono" x="18" y="108">+name: String</text>
-<text class="mono" x="18" y="129">+priority: Int</text>
-<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
+<g id="SuspendRule">
+  <rect class="classCard" x="1382" y="240" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1552" y="259" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1552" y="287" text-anchor="middle">SuspendRule</text>
+  <line x1="1382" y1="296" x2="1722" y2="296" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="1400" y="321">+name: String</text>
+<text class="member" x="1400" y="338">+priority: Int</text>
+<text class="member" x="1400" y="355">+evaluate(facts: Facts): Boolean</text>
 </g>
-<g transform="translate(912,523)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-    <text class="label" x="170" y="49" text-anchor="middle">RuleSet</text>
-  <text class="mono" x="18" y="108">-rules: TreeSet~Rule~</text>
-<text class="mono" x="18" y="129">+add(rule: Rule)</text>
-<text class="mono" x="18" y="150">+iterator(): Iterator~Rule~</text>
+<g id="RuleSet">
+  <rect class="classCard" x="1914" y="558" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="2084" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="2084" y="605" text-anchor="middle">RuleSet</text>
+  <line x1="1914" y1="614" x2="2254" y2="614" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1932" y="639">-rules: TreeSet~Rule~</text>
+<text class="member" x="1932" y="656">+add(rule: Rule)</text>
+<text class="member" x="1932" y="673">+iterator(): Iterator~Rule~</text>
 </g>
-<g transform="translate(502,869)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-    <text class="label" x="170" y="49" text-anchor="middle">DefaultRule</text>
-  <text class="mono" x="18" y="108">-condition: Condition</text>
-<text class="mono" x="18" y="129">-actions: List~Action~</text>
-<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
+<g id="DefaultRule">
+  <rect class="classCard" x="849" y="558" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1019" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1019" y="605" text-anchor="middle">DefaultRule</text>
+  <line x1="849" y1="614" x2="1189" y2="614" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="867" y="639">-condition: Condition</text>
+<text class="member" x="867" y="656">-actions: List~Action~</text>
+<text class="member" x="867" y="673">+evaluate(facts: Facts): Boolean</text>
 </g>
-<g transform="translate(912,869)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-    <text class="label" x="170" y="49" text-anchor="middle">DefaultSuspendRule</text>
-  <text class="mono" x="18" y="108">-condition: SuspendCondition</text>
-<text class="mono" x="18" y="129">-actions: List~SuspendAction~</text>
-<text class="mono" x="18" y="150">+evaluate(facts: Facts): Boolean</text>
-<text class="mono" x="18" y="171">+execute(facts: Facts)</text>
+<g id="DefaultSuspendRule">
+  <rect class="classCard" x="1382" y="558" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1552" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1552" y="605" text-anchor="middle">DefaultSuspendRule</text>
+  <line x1="1382" y1="614" x2="1722" y2="614" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1400" y="639">-condition: SuspendCondition</text>
+<text class="member" x="1400" y="656">-actions: List~SuspendAction~</text>
+<text class="member" x="1400" y="673">+evaluate(facts: Facts): Boolean</text>
 </g>
+<g>
+  <rect x="2157" y="1121" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M2175 1139 L2233 1139" stroke="#3E9868"/>
+  <text class="detail" x="2247" y="1144">inheritance / implementation</text>
+  <path class="dependency" d="M2175 1160 L2233 1160" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="2247" y="1165">dependency / usage</text>
+</g>
+<g><rect x="180" y="1139" width="1932" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1146" y="1165" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
 </svg>

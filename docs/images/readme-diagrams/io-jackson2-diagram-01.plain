@@ -1,0 +1,17 @@
+graph 1 13.617 5.5
+node jsonSerializer 4.9889 5 2.7 1 JsonSerializer rounded,filled box #5B8DEF #E8F3FF
+node jacksonSerializer 4.9889 2.75 2.7 1 JacksonSerializer rounded,filled box #58A978 #EAF7EF
+node jackson 8.6278 5 2.7 1 Jackson rounded,filled box #8A72D6 #F1ECFF
+node mapperSupport 12.267 5 2.7 1 JsonMapperSupport rounded,filled box #45A7A1 #E9F7F6
+node objectMapper 8.6278 2.75 2.7 1 "ObjectMapper / JsonMapper" rounded,filled box #9AA8B8 #F2F5F9
+node textSerializers 1.35 0.5 2.7 1 "CSV/YAML/TOML serializers" rounded,filled box #D6A441 #FFF3D9
+node binarySerializers 4.9889 0.5 2.7 1 "CBOR/Ion/Smile serializers" rounded,filled box #DC6B82 #FDECEF
+node uuidCryptoMask 8.6278 0.5 2.7 1 "UUID/Crypto/Mask modules" rounded,filled box #8A72D6 #F1ECFF
+edge jsonSerializer jacksonSerializer 4 4.9889 4.4951 4.9889 4.1245 4.9889 3.6234 4.9889 3.2533 solid #3E9868
+edge jacksonSerializer objectMapper 4 6.3439 2.75 6.647 2.75 6.9685 2.75 7.2717 2.75 dashed #758297
+edge jacksonSerializer textSerializers 7 3.6339 2.75 2.5993 2.75 1.35 2.75 1.35 2.75 1.35 2.75 1.35 1.6683 1.35 1.0049 solid #B9851B
+edge jacksonSerializer binarySerializers 4 4.9889 2.2451 4.9889 1.8745 4.9889 1.3734 4.9889 1.0033 solid #C94D68
+edge jackson objectMapper 4 8.6278 4.4951 8.6278 4.1245 8.6278 3.6234 8.6278 3.2533 dashed #755BC6
+edge mapperSupport objectMapper 7 12.267 4.4951 12.267 3.8317 12.267 2.75 12.267 2.75 12.267 2.75 11.017 2.75 9.9828 2.75 dashed #2E8F89
+edge uuidCryptoMask objectMapper 4 8.6278 1.0049 8.6278 1.3755 8.6278 1.8766 8.6278 2.2467 dashed #755BC6
+stop

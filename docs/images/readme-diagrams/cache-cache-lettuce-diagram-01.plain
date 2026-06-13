@@ -1,0 +1,17 @@
+graph 1 10.356 7.7833
+node NearCacheOperations 1.4 7.2583 2.8 1.05 NearCacheOperations rounded,filled box #5B8DEF #E8F3FF
+node TrackingInvalidationListener 4.2056 2.7694 2.8 1.05 TrackingInvalidationListener rounded,filled box #58A978 #EAF7EF
+node LettuceLocalCache 8.9556 7.2583 2.8 1.05 LettuceLocalCache rounded,filled box #45A7A1 #E9F7F6
+node SuspendNearCacheOperations 5.1639 7.2583 2.8 1.05 SuspendNearCacheOperations rounded,filled box #D6A441 #FFF3D9
+node LettuceNearCache 1.4 5.0139 2.8 1.05 LettuceNearCache rounded,filled box #DC6B82 #FDECEF
+node LettuceCaffeineLocalCache 8.9556 0.525 2.8 1.05 LettuceCaffeineLocalCache rounded,filled box #8A72D6 #F1ECFF
+node LettuceSuspendNearCache 5.1639 5.0139 2.8 1.05 LettuceSuspendNearCache rounded,filled box #8BA84D #EEF6D9
+edge NearCacheOperations LettuceNearCache 4 1.4 6.7264 1.4 6.3686 1.4 5.899 1.4 5.542 solid #C94D68
+edge TrackingInvalidationListener LettuceCaffeineLocalCache 7 4.2056 2.2382 4.2056 1.5753 4.2056 0.52778 4.2056 0.52778 4.2056 0.52778 6.149 0.52778 7.5497 0.52778 dashed #3E9868
+edge LettuceLocalCache LettuceCaffeineLocalCache 4 8.9556 6.73 8.9556 5.4728 8.9556 2.3149 8.9556 1.0555 solid #755BC6
+edge SuspendNearCacheOperations LettuceSuspendNearCache 4 5.1639 6.7264 5.1639 6.3686 5.1639 5.899 5.1639 5.542 solid #718A35
+edge LettuceNearCache TrackingInvalidationListener 7 2.8043 5.0139 3.0794 5.0139 3.2847 5.0139 3.2847 5.0139 3.2847 5.0139 3.2847 3.9651 3.2847 3.3013 dashed #C94D68
+edge LettuceNearCache LettuceCaffeineLocalCache 7 1.4 4.4828 1.4 3.2433 1.4 0.26389 1.4 0.26389 1.4 0.26389 5.3671 0.26389 7.5521 0.26389 dashed #C94D68
+edge LettuceSuspendNearCache TrackingInvalidationListener 4 4.6847 4.482 4.6847 4.1242 4.6847 3.6545 4.6847 3.2975 dashed #718A35
+edge LettuceSuspendNearCache LettuceCaffeineLocalCache 7 6.0847 4.4834 6.0847 3.3494 6.0847 0.79167 6.0847 0.79167 6.0847 0.79167 6.8222 0.79167 7.5496 0.79167 dashed #718A35
+stop

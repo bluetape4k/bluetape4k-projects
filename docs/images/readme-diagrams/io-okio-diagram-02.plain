@@ -1,0 +1,13 @@
+graph 1 10.3 3.2944
+node Sink 1.4 0.525 2.8 1.05 Sink rounded,filled box #5B8DEF #E8F3FF
+node Source 1.4 2.7694 2.8 1.05 Source rounded,filled box #58A978 #EAF7EF
+node ByteChannelSink 5.15 0.525 2.8 1.05 ByteChannelSink rounded,filled box #45A7A1 #E9F7F6
+node ByteChannelSource 5.15 2.7694 2.8 1.05 ByteChannelSource rounded,filled box #D6A441 #FFF3D9
+node FileChannelSink 8.9 0.525 2.8 1.05 FileChannelSink rounded,filled box #DC6B82 #FDECEF
+node FileChannelSource 8.9 2.7694 2.8 1.05 FileChannelSource rounded,filled box #8A72D6 #F1ECFF
+edge Source Sink 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 solid #4F83BF
+edge Source ByteChannelSink 10 2.8067 2.7639 3.0755 2.7639 3.275 2.7639 3.275 2.7639 3.275 2.7639 3.275 0.52778 3.275 0.52778 3.275 0.52778 3.4745 0.52778 3.7433 0.52778 dashed #3E9868
+edge ByteChannelSource ByteChannelSink 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 solid #2E8F89
+edge ByteChannelSource FileChannelSink 10 6.5567 2.7639 6.8255 2.7639 7.025 2.7639 7.025 2.7639 7.025 2.7639 7.025 0.52778 7.025 0.52778 7.025 0.52778 7.2245 0.52778 7.4933 0.52778 dashed #B9851B
+edge FileChannelSource FileChannelSink 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 solid #C94D68
+stop

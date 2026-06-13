@@ -1,0 +1,41 @@
+graph 1 34.717 5.5389
+node Sink 1.4 0.525 2.8 1.05 Sink rounded,filled box #5B8DEF #E8F3FF
+node Source 1.4 2.7694 2.8 1.05 Source rounded,filled box #58A978 #EAF7EF
+node ForwardingSink 5.15 0.525 2.8 1.05 ForwardingSink rounded,filled box #45A7A1 #E9F7F6
+node ForwardingSource 5.15 2.7694 2.8 1.05 ForwardingSource rounded,filled box #D6A441 #FFF3D9
+node InputStreamSource 10.817 0.525 2.8 1.05 InputStreamSource rounded,filled box #DC6B82 #FDECEF
+node OutputStreamSink 10.817 2.7694 2.8 1.05 OutputStreamSink rounded,filled box #8A72D6 #F1ECFF
+node AbstractBase64Sink 11.275 5.0139 2.8 1.05 AbstractBase64Sink rounded,filled box #8BA84D #EEF6D9
+node AbstractBase64Source 7.525 5.0139 2.8 1.05 AbstractBase64Source rounded,filled box #9AA8B8 #F2F5F9
+node CompressableSink 14.567 0.525 2.8 1.05 CompressableSink rounded,filled box #5B8DEF #E8F3FF
+node DaeadChunkDecryptSource 14.567 2.7694 2.8 1.05 DaeadChunkDecryptSource rounded,filled box #58A978 #EAF7EF
+node DaeadChunkEncryptSink 18.317 0.525 2.8 1.05 DaeadChunkEncryptSink rounded,filled box #45A7A1 #E9F7F6
+node DecompressableSource 18.317 2.7694 2.8 1.05 DecompressableSource rounded,filled box #D6A441 #FFF3D9
+node TinkDecryptSource 22.067 0.525 2.8 1.05 TinkDecryptSource rounded,filled box #DC6B82 #FDECEF
+node TinkEncryptSink 22.067 2.7694 2.8 1.05 TinkEncryptSink rounded,filled box #8A72D6 #F1ECFF
+node ApacheBase64Sink 25.817 0.525 2.8 1.05 ApacheBase64Sink rounded,filled box #8BA84D #EEF6D9
+node ApacheBase64Source 25.817 2.7694 2.8 1.05 ApacheBase64Source rounded,filled box #9AA8B8 #F2F5F9
+node OkioBase64Sink 29.567 0.525 2.8 1.05 OkioBase64Sink rounded,filled box #5B8DEF #E8F3FF
+node OkioBase64Source 29.567 2.7694 2.8 1.05 OkioBase64Source rounded,filled box #58A978 #EAF7EF
+node StreamingCompressSink 33.317 0.525 2.8 1.05 StreamingCompressSink rounded,filled box #45A7A1 #E9F7F6
+node StreamingDecompressSource 33.317 2.7694 2.8 1.05 StreamingDecompressSource rounded,filled box #D6A441 #FFF3D9
+edge Source Sink 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 solid #4F83BF
+edge Source ForwardingSink 10 2.8067 2.7639 3.0755 2.7639 3.275 2.7639 3.275 2.7639 3.275 2.7639 3.275 0.52778 3.275 0.52778 3.275 0.52778 3.4745 0.52778 3.7433 0.52778 dashed #3E9868
+edge ForwardingSource ForwardingSink 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 solid #2E8F89
+edge ForwardingSource InputStreamSource 10 6.5566 2.7639 6.9834 2.7639 7.3417 2.7639 7.3417 2.7639 7.3417 2.7639 7.3417 0.52778 7.3417 0.52778 7.3417 0.52778 8.4488 0.52778 9.4133 0.52778 dashed #B9851B
+edge OutputStreamSink InputStreamSource 4 10.817 2.2375 10.817 1.8798 10.817 1.4101 10.817 1.0531 solid #C94D68
+edge OutputStreamSink AbstractBase64Sink 4 11.046 3.3013 11.046 3.6591 11.046 4.1288 11.046 4.4858 dashed #755BC6
+edge AbstractBase64Source AbstractBase64Sink 4 8.9267 5.0139 9.2346 5.0139 9.5607 5.0139 9.8688 5.0139 solid #718A35
+edge AbstractBase64Source CompressableSink 10 8.1333 4.485 8.1333 3.5385 8.1333 1.6528 8.1333 1.6528 8.1333 1.6528 14.1 1.6528 14.1 1.6528 14.1 1.6528 14.1 1.3484 14.1 1.0559 dashed #758297
+edge DaeadChunkDecryptSource CompressableSink 4 15.033 2.2375 15.033 1.8798 15.033 1.4101 15.033 1.0531 solid #4F83BF
+edge DaeadChunkDecryptSource DaeadChunkEncryptSink 10 15.973 2.7639 16.242 2.7639 16.442 2.7639 16.442 2.7639 16.442 2.7639 16.442 0.52778 16.442 0.52778 16.442 0.52778 16.641 0.52778 16.91 0.52778 dashed #3E9868
+edge DecompressableSource DaeadChunkEncryptSink 4 18.317 2.2375 18.317 1.8798 18.317 1.4101 18.317 1.0531 solid #2E8F89
+edge DecompressableSource TinkDecryptSource 10 19.723 2.7639 19.992 2.7639 20.192 2.7639 20.192 2.7639 20.192 2.7639 20.192 0.52778 20.192 0.52778 20.192 0.52778 20.391 0.52778 20.66 0.52778 dashed #B9851B
+edge TinkEncryptSink TinkDecryptSource 4 22.067 2.2375 22.067 1.8798 22.067 1.4101 22.067 1.0531 solid #C94D68
+edge TinkEncryptSink ApacheBase64Sink 10 23.473 2.7639 23.742 2.7639 23.942 2.7639 23.942 2.7639 23.942 2.7639 23.942 0.52778 23.942 0.52778 23.942 0.52778 24.141 0.52778 24.41 0.52778 dashed #755BC6
+edge ApacheBase64Source ApacheBase64Sink 4 25.817 2.2375 25.817 1.8798 25.817 1.4101 25.817 1.0531 solid #718A35
+edge ApacheBase64Source OkioBase64Sink 10 27.223 2.7639 27.492 2.7639 27.692 2.7639 27.692 2.7639 27.692 2.7639 27.692 0.52778 27.692 0.52778 27.692 0.52778 27.891 0.52778 28.16 0.52778 dashed #758297
+edge OkioBase64Source OkioBase64Sink 4 29.567 2.2375 29.567 1.8798 29.567 1.4101 29.567 1.0531 solid #4F83BF
+edge OkioBase64Source StreamingCompressSink 10 30.973 2.7639 31.242 2.7639 31.442 2.7639 31.442 2.7639 31.442 2.7639 31.442 0.52778 31.442 0.52778 31.442 0.52778 31.641 0.52778 31.91 0.52778 dashed #3E9868
+edge StreamingDecompressSource StreamingCompressSink 4 33.317 2.2375 33.317 1.8798 33.317 1.4101 33.317 1.0531 solid #2E8F89
+stop

@@ -1,19 +1,17 @@
-graph 1 8.5833 6.2847
-node coroutines 4.3194 5.4722 2.7951 0.5 "bluetape4k-coroutines" rounded,filled box #75A9E8 #E8F3FF
-node "deferred-value" 3 4.2222 1.9201 0.5 DeferredValue rounded,filled box #69B888 #EAF7EF
-node "deferred-helpers" 5.6528 4.2222 2.2743 0.5 "Deferred helpers" rounded,filled box #45A7A1 #E9F7F6
-node "flow-ext" 3.1667 2.9722 2.066 0.5 "Flow extensions" rounded,filled box #D9AA4D #FFF3D9
-node "async-flow" 5.5 2.9722 1.4826 0.5 AsyncFlow rounded,filled box #DB7890 #FCE7F3
-node subject 2.9722 1.7222 1.6597 0.5 "Subject APIs" rounded,filled box #8A72D6 #F1ECFF
-node scopes 7.2222 0.47222 2.2847 0.5 "Coroutine scopes" rounded,filled box #45A7A1 #E9F7F6
-node reactor 1.7222 0.47222 2.9931 0.5 "Reactor context bridge" rounded,filled box #8A72D6 #F1ECFF
-node tests 4.6528 0.47222 1.7535 0.5 "Test support" rounded,filled box #8BA84D #EEF6D9
-edge coroutines "deferred-value" 4 3.441 5.2193 3.441 5.2193 3.441 4.6112 3.441 4.6112 solid #58A978
-edge coroutines "deferred-helpers" 4 5.1163 5.2193 5.1163 5.2193 5.1163 4.6112 5.1163 4.6112 solid #45A7A1
-edge "deferred-value" "flow-ext" 4 3.0469 3.9693 3.0469 3.9693 3.0469 3.3612 3.0469 3.3612 solid #D9AA4D
-edge "deferred-helpers" "async-flow" 4 5.5 3.9693 5.5 3.9693 5.5 3.3612 5.5 3.3612 solid #DB7890
-edge "flow-ext" subject 4 2.9722 2.7193 2.9722 2.7193 2.9722 2.1112 2.9722 2.1112 solid #8A72D6
-edge "flow-ext" tests 4 4.0009 2.7188 4.0009 2.7188 4.0009 0.8585 4.0009 0.8585 solid #8BA84D
-edge "async-flow" scopes 4 6.1606 2.7188 6.1606 2.7188 6.1606 0.8585 6.1606 0.8585 solid #45A7A1
-edge subject reactor 4 2.6806 1.4693 2.6806 1.4693 2.6806 0.86123 2.6806 0.86123 solid #8A72D6
+graph 1 10.375 5.0347
+node coroutines 2.6944 4.2222 2.7951 0.5 "bluetape4k-coroutines" rounded,filled box #75A9E8 #E8F3FF
+node "deferred-value" 1.1806 2.9722 1.9201 0.5 DeferredValue rounded,filled box #69B888 #EAF7EF
+node "deferred-helpers" 3.8333 2.9722 2.2743 0.5 "Deferred helpers" rounded,filled box #45A7A1 #E9F7F6
+node "flow-ext" 1.3611 1.7222 2.066 0.5 "Flow extensions" rounded,filled box #D9AA4D #FFF3D9
+node "async-flow" 3.6944 1.7222 1.4826 0.5 AsyncFlow rounded,filled box #DB7890 #FCE7F3
+node subject 5.8194 1.7222 1.6597 0.5 "Subject APIs" rounded,filled box #8A72D6 #F1ECFF
+node scopes 3.1528 0.47222 2.2847 0.5 "Coroutine scopes" rounded,filled box #45A7A1 #E9F7F6
+node reactor 6.3472 0.47222 2.9931 0.5 "Reactor context bridge" rounded,filled box #8A72D6 #F1ECFF
+node tests 9.2778 0.47222 1.7535 0.5 "Test support" rounded,filled box #8BA84D #EEF6D9
+edge coroutines "deferred-value" 4 1.7188 3.9693 1.7188 3.9693 1.7188 3.3612 1.7188 3.3612 solid #58A978
+edge coroutines "deferred-helpers" 4 3.3941 3.9693 3.3941 3.9693 3.3941 3.3612 3.3941 3.3612 solid #45A7A1
+edge "deferred-value" "flow-ext" 4 1.2344 2.7193 1.2344 2.7193 1.2344 2.1112 1.2344 2.1112 solid #D9AA4D
+edge "deferred-helpers" "async-flow" 4 3.6944 2.7193 3.6944 2.7193 3.6944 2.1112 3.6944 2.1112 solid #DB7890
+edge "async-flow" scopes 4 3.6241 1.4693 3.6241 1.4693 3.6241 0.86123 3.6241 0.86123 solid #45A7A1
+edge subject reactor 4 5.8194 1.4693 5.8194 1.4693 5.8194 0.86123 5.8194 0.86123 solid #8A72D6
 stop

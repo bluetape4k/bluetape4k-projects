@@ -14,7 +14,7 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ### 클래스 다이어그램
 
-![virtualthread Class Structure 2 diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
+![Virtual Thread Class Structure diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
 
 ---
 

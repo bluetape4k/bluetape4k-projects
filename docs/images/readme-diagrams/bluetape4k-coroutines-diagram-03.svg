@@ -5,19 +5,19 @@
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card-shape{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
@@ -30,63 +30,63 @@
 
   <g id="group-purpose">
     <rect class="group" x="86" y="300" width="1348" height="420" rx="18"/>
-    <text class="group-title" x="116" y="318">Choose by operator intent</text>
+    <text class="group-title" x="116" y="324" dominant-baseline="middle">Choose by operator intent</text>
   </g>
 
 
 
   <g id="node-package" transform="translate(580,170)">
     <rect class="card-shape" x="0" y="0" width="360" height="92" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="180" y="33" text-anchor="middle">Flow extensions package</text>
-    <text class="detail" x="180" y="58" text-anchor="middle">Kotlin Flow helpers</text>
-    <text class="detail" x="180" y="76" text-anchor="middle">extension-oriented API</text>
+    <text class="card-title" x="180" y="27" text-anchor="middle" dominant-baseline="middle">Flow extensions package</text>
+    <text class="detail" x="180" y="46" text-anchor="middle" dominant-baseline="middle">Kotlin Flow helpers</text>
+    <text class="detail" x="180" y="65" text-anchor="middle" dominant-baseline="middle">extension-oriented API</text>
   </g>
-  <g id="node-shape" transform="translate(132,350)">
+  <g id="node-shape" transform="translate(132,370)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Shape the stream</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">chunked, windowed</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">sliding windows</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Shape the stream</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">chunked, windowed</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">sliding windows</text>
   </g>
-  <g id="node-parallel" transform="translate(470,330)">
+  <g id="node-parallel" transform="translate(470,370)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Run work concurrently</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">mapParallel</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">ordered transform</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Run work concurrently</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">mapParallel</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">ordered transform</text>
   </g>
-  <g id="node-combine" transform="translate(808,350)">
+  <g id="node-combine" transform="translate(808,370)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Combine streams</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">merge, zip</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">pairwise operators</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Combine streams</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">merge, zip</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">pairwise operators</text>
   </g>
-  <g id="node-state" transform="translate(1146,330)">
+  <g id="node-state" transform="translate(1146,370)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Stateful subjects</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">publish, replay</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">multicast collectors</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Stateful subjects</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">publish, replay</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">multicast collectors</text>
   </g>
   <g id="node-time" transform="translate(260,560)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Control timing</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">debounce, throttle</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">delay and timeout</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Control timing</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">debounce, throttle</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">delay and timeout</text>
   </g>
   <g id="node-context" transform="translate(615,585)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Bridge context</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">CoroutineContext</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">Reactor handoff</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Bridge context</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">CoroutineContext</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">Reactor handoff</text>
   </g>
   <g id="node-test" transform="translate(970,560)">
     <rect class="card-shape" x="0" y="0" width="290" height="96" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
-    <text class="card-title" x="145" y="35" text-anchor="middle">Verify streams</text>
-    <text class="detail" x="145" y="60" text-anchor="middle">Flow assertions</text>
-    <text class="detail" x="145" y="78" text-anchor="middle">runTest helpers</text>
+    <text class="card-title" x="145" y="29" text-anchor="middle" dominant-baseline="middle">Verify streams</text>
+    <text class="detail" x="145" y="48" text-anchor="middle" dominant-baseline="middle">Flow assertions</text>
+    <text class="detail" x="145" y="67" text-anchor="middle" dominant-baseline="middle">runTest helpers</text>
   </g>
 
   <g transform="translate(76,826)">
     <rect class="pill" x="0" y="0" width="1368" height="44" rx="10"/>
-    <text class="small" x="684" y="17" text-anchor="middle">Graphviz evidence: bluetape4k-coroutines-diagram-03.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="684" y="34" text-anchor="middle">Geometry gate: nodes=8, routes=0, segments=0, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=49.</text>
+    <text class="small" x="684" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: bluetape4k-coroutines-diagram-03.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="684" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=8, r=0, seg=0, endpoint/bend/cross/overlap/clear/label=0, margins=132/84/49/145, titleGap=49.</text>
   </g>
 </svg>

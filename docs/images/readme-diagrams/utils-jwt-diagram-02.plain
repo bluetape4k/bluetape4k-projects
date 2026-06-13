@@ -1,0 +1,16 @@
+graph 1 12.175 7.7833
+node JwtComposer 1.4 2.7694 2.8 1.05 JwtComposer rounded,filled box #5B8DEF #E8F3FF
+node JwtProvider 3.275 5.0139 2.8 1.05 JwtProvider rounded,filled box #58A978 #EAF7EF
+node KeyChainRepository 7.025 7.2583 2.8 1.05 KeyChainRepository rounded,filled box #45A7A1 #E9F7F6
+node JwtReader 5.15 2.7694 2.8 1.05 JwtReader rounded,filled box #D6A441 #FFF3D9
+node KeyChain 3.275 0.525 2.8 1.05 KeyChain rounded,filled box #DC6B82 #FDECEF
+node InMemoryKeyChainRepository 7.025 5.0139 2.8 1.05 InMemoryKeyChainRepository rounded,filled box #8A72D6 #F1ECFF
+node RedisKeyChainRepository 10.775 5.0139 2.8 1.05 RedisKeyChainRepository rounded,filled box #8BA84D #EEF6D9
+edge JwtComposer KeyChain 4 2.3375 2.2375 2.3375 1.8798 2.3375 1.4101 2.3375 1.0531 dashed #4F83BF
+edge JwtProvider JwtComposer 4 2.3375 4.482 2.3375 4.1242 2.3375 3.6545 2.3375 3.2975 dashed #3E9868
+edge JwtProvider KeyChainRepository 7 3.275 5.5414 3.275 6.2064 3.275 7.2639 3.275 7.2639 3.275 7.2639 4.5582 7.2639 5.6233 7.2639 dashed #3E9868
+edge JwtProvider JwtReader 4 4.2125 4.482 4.2125 4.1242 4.2125 3.6545 4.2125 3.2975 dashed #3E9868
+edge KeyChainRepository InMemoryKeyChainRepository 4 7.025 6.7264 7.025 6.3686 7.025 5.899 7.025 5.542 solid #755BC6
+edge KeyChainRepository RedisKeyChainRepository 7 8.4267 7.2639 9.4918 7.2639 10.775 7.2639 10.775 7.2639 10.775 7.2639 10.775 6.2064 10.775 5.5414 solid #718A35
+edge JwtReader KeyChain 4 4.2125 2.2375 4.2125 1.8798 4.2125 1.4101 4.2125 1.0531 dashed #B9851B
+stop

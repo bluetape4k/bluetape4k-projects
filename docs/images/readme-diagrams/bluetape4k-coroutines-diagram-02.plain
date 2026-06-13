@@ -1,0 +1,20 @@
+graph 1 25.3 5.5389
+node DeferredSupport 1.4 5.0139 2.8 1.05 DeferredSupport rounded,filled box #5B8DEF #E8F3FF
+node DeferredValue 1.4 2.7694 2.8 1.05 DeferredValue rounded,filled box #58A978 #EAF7EF
+node CoroutineScope 10.775 5.0139 2.8 1.05 CoroutineScope rounded,filled box #45A7A1 #E9F7F6
+node AsyncFlow 20.15 2.7694 2.8 1.05 AsyncFlow rounded,filled box #D6A441 #FFF3D9
+node deferredValueOf 1.4 0.525 2.8 1.05 deferredValueOf rounded,filled box #DC6B82 #FDECEF
+node FlowExtensions 20.15 5.0139 2.8 1.05 FlowExtensions rounded,filled box #8A72D6 #F1ECFF
+node ReactorContextHelpers 23.9 5.0139 2.8 1.05 ReactorContextHelpers rounded,filled box #8BA84D #EEF6D9
+node ThreadPoolCoroutineScope 5.15 2.7694 2.8 1.05 ThreadPoolCoroutineScope rounded,filled box #9AA8B8 #F2F5F9
+node DefaultCoroutineScope 8.9 2.7694 2.8 1.05 DefaultCoroutineScope rounded,filled box #5B8DEF #E8F3FF
+node IoCoroutineScope 12.65 2.7694 2.8 1.05 IoCoroutineScope rounded,filled box #58A978 #EAF7EF
+node VirtualThreadCoroutineScope 16.4 2.7694 2.8 1.05 VirtualThreadCoroutineScope rounded,filled box #45A7A1 #E9F7F6
+edge DeferredSupport DeferredValue 4 1.4 4.482 1.4 4.1242 1.4 3.6545 1.4 3.2975 dashed #4F83BF
+edge DeferredValue deferredValueOf 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #3E9868
+edge CoroutineScope ThreadPoolCoroutineScope 7 9.3701 5.0139 7.704 5.0139 5.15 5.0139 5.15 5.0139 5.15 5.0139 5.15 3.9651 5.15 3.3013 solid #758297
+edge CoroutineScope DefaultCoroutineScope 4 9.8375 4.482 9.8375 4.1242 9.8375 3.6545 9.8375 3.2975 solid #4F83BF
+edge CoroutineScope IoCoroutineScope 4 11.712 4.482 11.712 4.1242 11.712 3.6545 11.712 3.2975 solid #3E9868
+edge CoroutineScope VirtualThreadCoroutineScope 7 12.18 5.0139 13.846 5.0139 16.4 5.0139 16.4 5.0139 16.4 5.0139 16.4 3.9651 16.4 3.3013 solid #2E8F89
+edge FlowExtensions AsyncFlow 4 20.15 4.482 20.15 4.1242 20.15 3.6545 20.15 3.2975 dashed #755BC6
+stop

@@ -1,52 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1468" height="758" viewBox="0 0 1468 758" role="img" aria-label="Sequence Diagram — httpbin GET">
+<svg xmlns="http://www.w3.org/2000/svg" width="1737" height="982" viewBox="0 0 1737 982" role="img" aria-label="Sequence Diagram — httpbin GET">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1468" height="758"/>
-<rect class="frame" x="32" y="28" width="1404" height="702" rx="28"/>
-<text class="title" x="66" y="82">Sequence Diagram — httpbin GET</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="80" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="230" y="209" text-anchor="middle">Test / Client</text>
-<line class="lifeline" x1="230" y1="252" x2="230" y2="698" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="584" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="734" y="198.5" text-anchor="middle">Bluetape Webflux</text>
-<text class="smallLabel" x="734" y="219.5" text-anchor="middle">Server (Docker)</text>
-<line class="lifeline" x1="734" y1="252" x2="734" y2="698" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1088" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="1238" y="209" text-anchor="middle">HttpbinController</text>
-<line class="lifeline" x1="1238" y1="252" x2="1238" y2="698" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="331" y="286" width="302" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="349" y="313" text-anchor="start">1. GET http://host:80/httpbin/get</text>
-<path class="line" d="M230 332 L734 332"/>
-<rect x="871" y="362" width="230" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="889" y="389" text-anchor="start">2. dispatch /httpbin/get</text>
-<path class="line" d="M734 408 L1238 408"/>
-<rect x="758" y="438" width="560" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="776" y="465" text-anchor="start">3. build HttpbinResponse (suspend) (url, method, headers, origin)</text>
-<path class="line" d="M1238 484 C1302 484 1302 518 1238 518"/>
-<rect x="875" y="514" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="893" y="541" text-anchor="start">4. HttpbinResponse JSON</text>
-<path class="dashed" d="M1238 560 L734 560"/>
-<rect x="377" y="590" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="395" y="617" text-anchor="start">5. 200 OK + JSON body</text>
-<path class="dashed" d="M734 636 L230 636"/>
+<rect class="canvas" width="1737" height="982"/>
+<rect class="frame" x="32" y="28" width="1673" height="926" rx="30"/>
+<text class="title" x="68" y="84">Sequence Diagram — httpbin GET</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
+<g id="seq-test-client"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Test / Client</text><line class="lifeline" x1="255" y1="248" x2="255" y2="796"/></g>
+<g id="seq-bluetape-webflux-server-docker"><rect class="card" x="660" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="775" y="200" text-anchor="middle">Bluetape Webflux</text><text class="cardTitle" x="775" y="224" text-anchor="middle">Server (Docker)</text><line class="lifeline" x1="775" y1="248" x2="775" y2="796"/></g>
+<g id="seq-httpbincontroller"><rect class="card" x="1180" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1295" y="215" text-anchor="middle">HttpbinController</text><line class="lifeline" x1="1295" y1="248" x2="1295" y2="796"/></g>
+<rect x="247" y="322" width="16" height="388" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="767" y="322" width="16" height="388" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="1287" y="412" width="16" height="208" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="359.5" y="287" width="311" height="26" rx="7"/><circle cx="378.5" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="378.5" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="533" y="301" text-anchor="middle" dominant-baseline="middle">GET http://host:80/httpbin/get</text><path class="seq" d="M255 330 L775 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="912.4" y="377" width="245.3" height="26" rx="7"/><circle cx="931.4" cy="390" r="12" fill="#3E9868"/><text class="detail" x="931.4" y="391" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="1053" y="391" text-anchor="middle" dominant-baseline="middle">dispatch /httpbin/get</text><path class="seq" d="M775 420 L1295 420" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="1405" y="451" width="259.9" height="42" rx="7"/><circle cx="1424" cy="472" r="12" fill="#2E8F89"/><text class="detail" x="1424" y="473" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="1553" y="464" text-anchor="middle" dominant-baseline="middle">build HttpbinResponse</text><text class="detail" x="1553" y="479" text-anchor="middle" dominant-baseline="middle">(suspend) (url, method,</text><path class="seq" d="M1295 510 L1385 510 L1385 548 L1313 548" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="916" y="557" width="238" height="26" rx="7"/><circle cx="935" cy="570" r="12" fill="#2E8F89"/><text class="detail" x="935" y="571" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1053" y="571" text-anchor="middle" dominant-baseline="middle">HttpbinResponse JSON</text><path class="seqReturn" d="M1295 600 L775 600" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m5"><rect class="labelPill" x="403.3" y="647" width="223.4" height="26" rx="7"/><circle cx="422.3" cy="660" r="12" fill="#2E8F89"/><text class="detail" x="422.3" y="661" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="533" y="661" text-anchor="middle" dominant-baseline="middle">200 OK + JSON body</text><path class="seqReturn" d="M775 690 L255 690" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g><rect x="140" y="820" width="1270" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="775" y="846" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

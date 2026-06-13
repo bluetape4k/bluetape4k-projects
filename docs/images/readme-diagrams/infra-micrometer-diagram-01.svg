@@ -1,86 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="918" viewBox="0 0 1754 918" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="2595" height="910" viewBox="0 0 2595 910" role="img" aria-label="Core Class Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="918"/>
-<rect class="frame" x="32" y="28" width="1690" height="862" rx="28"/>
-<text class="title" x="66" y="82">Core Class Structure</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M1082 334 L1082 102 L672 102 L672 180"/>
-<path class="line" d="M262 376 L262 112 L672 112 L672 180"/>
-<path class="line" d="M1492 371 L1492 122 L672 122 L672 180"/>
-<path class="line" d="M672 502 L672 431 L1082 431 L1082 334"/>
-<path class="line" d="M1082 502 L1082 423 L672 423 L672 376"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="170" y="49" text-anchor="middle">Cache2kCacheMetrics</text>
-  <text class="mono" x="18" y="108">-cache: Cache</text>
-<text class="mono" x="18" y="129">-tags: Tags</text>
-<text class="mono" x="18" y="150">+monitor(registry, cache, tags)</text>
-<text class="mono" x="18" y="171">+bindTo(registry)</text>
+<rect class="canvas" width="2595" height="910"/>
+<rect class="frame" x="32" y="28" width="2531" height="854" rx="30"/>
+<text class="title" x="68" y="84">Core Class Structure</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="ObservationRegistry" data-to="MeterRegistry" d="M935 306 L1133 306" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="Cache2kCacheMetrics" data-to="MeterRegistry" d="M1980 558 L1980 465 L1431 465 L1431 372" stroke="#4F83BF" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="MicrometerRetrofitMetricsFactory" data-to="MeterRegistry" d="M1159 558 L1159 465 L1175 465 L1175 372" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ObservationExtensions" data-to="ObservationRegistry" d="M615 558 L615 465 L637 465 L637 372" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TimerExtensions" data-to="MeterRegistry" d="M1447 558 L1447 465 L1431 465 L1431 372" stroke="#755BC6" stroke-dasharray="8 7"/>
+<g id="Cache2kCacheMetrics">
+  <rect class="classCard" x="1938" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="2108" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="2108" y="605" text-anchor="middle">Cache2kCacheMetrics</text>
+  <line x1="1938" y1="614" x2="2278" y2="614" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1956" y="639">-cache: Cache</text>
+<text class="member" x="1956" y="656">-tags: Tags</text>
+<text class="member" x="1956" y="673">+monitor(registry, cache, tags)</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">MeterRegistry</text>
-  <text class="mono" x="18" y="108">+timer(name, tags) Timer</text>
-<text class="mono" x="18" y="129">+counter(name, tags) Counter</text>
-<text class="mono" x="18" y="150">+gauge(name, tags, number) T</text>
-<text class="mono" x="18" y="171">+find(name) Search</text>
+<g id="MeterRegistry">
+  <rect class="classCard" x="1133" y="240" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1303" y="259" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1303" y="287" text-anchor="middle">MeterRegistry</text>
+  <line x1="1133" y1="296" x2="1473" y2="296" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1151" y="321">+timer(name, tags) Timer</text>
+<text class="member" x="1151" y="338">+counter(name, tags) Counter</text>
+<text class="member" x="1151" y="355">+gauge(name, tags, number) T</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">ObservationRegistry</text>
-  <text class="mono" x="18" y="108">+observationConfig() ObservationConfig</text>
-<text class="mono" x="18" y="129">+getCurrentObservation() Observation</text>
+<g id="ObservationRegistry">
+  <rect class="classCard" x="595" y="240" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="765" y="259" text-anchor="middle">interface</text>
+  <text class="classTitle" x="765" y="287" text-anchor="middle">ObservationRegistry</text>
+  <line x1="595" y1="296" x2="935" y2="296" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="613" y="321">+observationConfig()</text>
+<text class="member" x="613" y="338">ObservationConfig</text>
+<text class="member" x="613" y="355">+getCurrentObservation()</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="191" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#DC6B82"/>
-    <text class="label" x="170" y="44.5" text-anchor="middle">Micrometer Retrofit</text>
-<text class="label" x="170" y="69.5" text-anchor="middle">Metrics Factory</text>
-  <text class="mono" x="18" y="124">-registry: MeterRegistry</text>
-<text class="mono" x="18" y="145">+create(returnType, annotations, retrofit)</text>
-<text class="mono" x="18" y="166">CallAdapter</text>
+<g id="MicrometerRetrofitMetricsFactory">
+  <rect class="classCard" x="861" y="558" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1031" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1031" y="596" text-anchor="middle">MicrometerRetrofit</text>
+<text class="classTitle" x="1031" y="618" text-anchor="middle">MetricsFactory</text>
+  <line x1="861" y1="622" x2="1201" y2="622" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="879" y="643">-registry: MeterRegistry</text>
+<text class="member" x="879" y="660">+create(returnType, annotations,</text>
+<text class="member" x="879" y="677">retrofit)</text>
 </g>
-<g transform="translate(502,502)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">ObservationExtensions</text>
-  <text class="mono" x="18" y="108">+withObservation(name, registry, block) T</text>
-<text class="mono" x="18" y="129">+withObservationContext(obs, block) T</text>
-<text class="mono" x="18" y="150">+withObservationContextSuspending(name,</text>
-<text class="mono" x="18" y="171">registry, block) T</text>
+<g id="ObservationExtensions">
+  <rect class="classCard" x="317" y="558" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="487" y="577" text-anchor="middle">extensions</text>
+  <text class="classTitle" x="487" y="605" text-anchor="middle">ObservationExtensions</text>
+  <line x1="317" y1="614" x2="657" y2="614" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="335" y="639">+withObservation(name, registry,</text>
+<text class="member" x="335" y="656">block) T</text>
+<text class="member" x="335" y="673">+withObservationContext(obs,</text>
 </g>
-<g transform="translate(912,502)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">TimerExtensions</text>
-  <text class="mono" x="18" y="108">+recordSuspend(block) T</text>
-<text class="mono" x="18" y="129">+withTimer(timer) Flow~T~</text>
+<g id="TimerExtensions">
+  <rect class="classCard" x="1405" y="558" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1575" y="577" text-anchor="middle">extensions</text>
+  <text class="classTitle" x="1575" y="605" text-anchor="middle">TimerExtensions</text>
+  <line x1="1405" y1="614" x2="1745" y2="614" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1423" y="648">+recordSuspend(block) T</text>
+<text class="member" x="1423" y="665">+withTimer(timer) Flow~T~</text>
 </g>
+<g>
+  <rect x="2180" y="802" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M2198 820 L2256 820" stroke="#3E9868"/>
+  <text class="detail" x="2270" y="825">inheritance / implementation</text>
+  <path class="dependency" d="M2198 841 L2256 841" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="2270" y="846">dependency / usage</text>
+</g>
+<g><rect x="180" y="820" width="1955" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1157.5" y="846" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
 </svg>

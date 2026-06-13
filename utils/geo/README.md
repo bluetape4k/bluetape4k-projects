@@ -15,7 +15,7 @@ A unified module for geographic information processing. Provides Geocode, GeoHas
 
 ### Class Diagram
 
-![geo Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
+![Geo Class Structure diagram](../../docs/images/readme-diagrams/utils-geo-diagram-02.png)
 
 ### GeoHash Encoding/Decoding Flow
 

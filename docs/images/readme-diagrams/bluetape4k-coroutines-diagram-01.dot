@@ -43,8 +43,6 @@ digraph G {
   "coroutines" -> "deferred-helpers" [xlabel="deferred ops", color="#45A7A1"];
   "deferred-value" -> "flow-ext" [xlabel="async values", color="#D9AA4D"];
   "deferred-helpers" -> "async-flow" [xlabel="parallel work", color="#DB7890"];
-  "flow-ext" -> "subject" [xlabel="stream state", color="#8A72D6"];
   "async-flow" -> "scopes" [xlabel="dispatch", color="#45A7A1"];
   "subject" -> "reactor" [xlabel="context", color="#8A72D6"];
-  "flow-ext" -> "tests" [xlabel="verification", color="#8BA84D"];
 }

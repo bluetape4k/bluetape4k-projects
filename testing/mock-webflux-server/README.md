@@ -32,7 +32,7 @@ A standalone Spring Boot 4 + WebFlux mock server for integration testing. Provid
 
 ### Class Diagram
 
-![mock webflux server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
+![Mock WebFlux Server Class Structure diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
 
 ### Sequence Diagram — httpbin GET
 

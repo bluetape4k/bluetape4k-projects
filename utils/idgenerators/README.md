@@ -29,7 +29,7 @@ Pick the right algorithm for your use case:
 
 ### Class Diagram
 
-![idgenerators Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)
+![ID Generators Class Structure diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)
 
 ### Snowflake Bit Layout
 

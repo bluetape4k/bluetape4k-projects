@@ -8,6 +8,7 @@ const diagramDir = "docs/images/readme-diagrams";
 const dot = "/opt/homebrew/bin/dot";
 const rsvgConvert = "/opt/homebrew/bin/rsvg-convert";
 const minTitleGapPx = 38;
+const minGroupLabelGutterPx = 50;
 
 const palette = {
   blue: { fill: "#E8F3FF", stroke: "#75A9E8", line: "#4F83BF" },
@@ -27,40 +28,40 @@ const diagrams = [
     subtitle: "Consumer projects import one platform while the BOM groups internal modules and third-party dependency families.",
     desc: "Dependency-oriented BOM diagram showing the consumer import path, the bluetape4k dependency catalog, module families, and external dependency groups.",
     width: 1500,
-    height: 990,
+    height: 1060,
     groups: [
-      group("alignment", "Alignment surface", 420, 145, 1010, 142),
-      group("modules", "Internal module families", 74, 338, 1352, 238),
-      group("externals", "Governed external families", 74, 636, 1352, 142),
+      group("alignment", "Alignment surface", 420, 145, 1010, 178),
+      group("modules", "Internal module families", 74, 360, 1352, 260),
+      group("externals", "Governed external families", 74, 676, 1352, 156),
     ],
     nodes: [
-      card("consumer", "Consumer Gradle project", ["imports platform", "no module version pins"], "blue", 96, 176, 260, 82),
-      card("catalog", "libs.versions.toml", ["catalog tag", "single version source"], "purple", 470, 176, 240, 82),
-      card("platform", "bluetape4k-bom", ["java-platform", "dependency constraints"], "green", 790, 172, 270, 90),
-      card("published", "Published artifacts", ["Maven Central", "aligned coordinates"], "teal", 1160, 176, 220, 82),
-      card("foundation", "Foundation", ["core, coroutines", "logging"], "blue", 140, 390, 250, 88),
-      card("data", "Data access", ["jdbc, r2dbc", "hibernate, mongodb"], "pink", 460, 380, 275, 104),
-      card("infra", "Infrastructure", ["redis, kafka, otel", "resilience4j"], "amber", 800, 380, 275, 104),
-      card("spring", "Spring Boot starters", ["boot3/boot4", "auto-configuration"], "green", 1140, 390, 250, 88),
-      card("kotlin", "Kotlin/JVM stack", ["Kotlin, coroutines", "Java baseline"], "purple", 140, 670, 250, 76),
-      card("serialization", "Serialization", ["Jackson 3, Avro", "Protobuf, Json"], "teal", 462, 670, 250, 76),
-      card("databases", "Database drivers", ["PostgreSQL, MongoDB", "Redis, Cassandra"], "pink", 784, 670, 250, 76),
-      card("frameworks", "Frameworks", ["Spring Boot", "Micrometer, Kafka"], "amber", 1106, 670, 250, 76),
+      card("consumer", "Consumer Gradle project", ["imports platform", "no module version pins"], "blue", 96, 208, 260, 82),
+      card("catalog", "libs.versions.toml", ["catalog tag", "single version source"], "purple", 470, 208, 240, 82),
+      card("platform", "bluetape4k-bom", ["java-platform", "dependency constraints"], "green", 790, 204, 270, 90),
+      card("published", "Published artifacts", ["Maven Central", "aligned coordinates"], "teal", 1160, 208, 220, 82),
+      card("foundation", "Foundation", ["core, coroutines", "logging"], "blue", 140, 428, 250, 88),
+      card("data", "Data access", ["jdbc, r2dbc", "hibernate, mongodb"], "pink", 460, 420, 275, 104),
+      card("infra", "Infrastructure", ["redis, kafka, otel", "resilience4j"], "amber", 800, 420, 275, 104),
+      card("spring", "Spring Boot starters", ["Spring Boot 4.x", "auto-configuration"], "green", 1140, 428, 250, 88),
+      card("kotlin", "Kotlin/JVM stack", ["Kotlin, coroutines", "Java baseline"], "purple", 140, 744, 250, 76),
+      card("serialization", "Serialization", ["Jackson 3, Avro", "Protobuf, Json"], "teal", 462, 744, 250, 76),
+      card("databases", "Database drivers", ["PostgreSQL, MongoDB", "Redis, Cassandra"], "pink", 784, 744, 250, 76),
+      card("frameworks", "Frameworks", ["Spring Boot", "Micrometer, Kafka"], "amber", 1106, 744, 250, 76),
     ],
     routes: [
-      route("consumer", "platform", "blue", [{ x: 226, y: 258 }, { x: 226, y: 300 }, { x: 925, y: 300 }, { x: 925, y: 262 }]),
-      route("catalog", "platform", "purple", [{ x: 710, y: 217 }, { x: 790, y: 217 }]),
-      route("platform", "published", "teal", [{ x: 1060, y: 217 }, { x: 1160, y: 217 }]),
-      route("platform", "foundation", "blue", [{ x: 890, y: 262 }, { x: 890, y: 318 }, { x: 265, y: 318 }, { x: 265, y: 390 }]),
-      route("platform", "data", "pink", [{ x: 912, y: 262 }, { x: 912, y: 318 }, { x: 598, y: 318 }, { x: 598, y: 380 }]),
-      route("platform", "infra", "amber", [{ x: 938, y: 262 }, { x: 938, y: 380 }]),
-      route("platform", "spring", "green", [{ x: 962, y: 262 }, { x: 962, y: 318 }, { x: 1265, y: 318 }, { x: 1265, y: 390 }]),
-      route("foundation", "kotlin", "purple", [{ x: 265, y: 478 }, { x: 265, y: 670 }]),
-      route("data", "serialization", "teal", [{ x: 598, y: 484 }, { x: 598, y: 670 }]),
-      route("data", "databases", "pink", [{ x: 735, y: 432 }, { x: 762, y: 432 }, { x: 762, y: 708 }, { x: 784, y: 708 }]),
-      route("infra", "databases", "pink", [{ x: 938, y: 484 }, { x: 938, y: 670 }]),
-      route("infra", "frameworks", "amber", [{ x: 938, y: 484 }, { x: 938, y: 604 }, { x: 1231, y: 604 }, { x: 1231, y: 670 }]),
-      route("spring", "frameworks", "green", [{ x: 1265, y: 478 }, { x: 1265, y: 670 }]),
+      route("consumer", "platform", "blue", [{ x: 226, y: 290 }, { x: 226, y: 334 }, { x: 820, y: 334 }, { x: 820, y: 294 }]),
+      route("catalog", "platform", "purple", [{ x: 710, y: 249 }, { x: 790, y: 249 }]),
+      route("platform", "published", "teal", [{ x: 1060, y: 249 }, { x: 1160, y: 249 }]),
+      route("platform", "foundation", "blue", [{ x: 850, y: 294 }, { x: 850, y: 342 }, { x: 265, y: 342 }, { x: 265, y: 428 }]),
+      route("platform", "data", "pink", [{ x: 915, y: 294 }, { x: 915, y: 350 }, { x: 598, y: 350 }, { x: 598, y: 420 }]),
+      route("platform", "infra", "amber", [{ x: 938, y: 294 }, { x: 938, y: 420 }]),
+      route("platform", "spring", "green", [{ x: 990, y: 294 }, { x: 990, y: 350 }, { x: 1265, y: 350 }, { x: 1265, y: 428 }]),
+      route("foundation", "kotlin", "purple", [{ x: 265, y: 516 }, { x: 265, y: 642 }, { x: 420, y: 642 }, { x: 420, y: 782 }, { x: 390, y: 782 }]),
+      route("data", "serialization", "teal", [{ x: 598, y: 524 }, { x: 598, y: 744 }]),
+      route("data", "databases", "pink", [{ x: 735, y: 472 }, { x: 762, y: 472 }, { x: 762, y: 782 }, { x: 784, y: 782 }]),
+      route("infra", "databases", "pink", [{ x: 890, y: 524 }, { x: 890, y: 650 }, { x: 909, y: 650 }, { x: 909, y: 744 }]),
+      route("infra", "frameworks", "amber", [{ x: 1000, y: 524 }, { x: 1000, y: 650 }, { x: 1231, y: 650 }, { x: 1231, y: 744 }]),
+      route("spring", "frameworks", "green", [{ x: 1265, y: 516 }, { x: 1265, y: 744 }]),
     ],
   },
   {
@@ -75,10 +76,10 @@ const diagrams = [
     ],
     nodes: [
       card("package", "Flow extensions package", ["Kotlin Flow helpers", "extension-oriented API"], "blue", 580, 170, 360, 92),
-      card("shape", "Shape the stream", ["chunked, windowed", "sliding windows"], "green", 132, 350, 290, 96),
-      card("parallel", "Run work concurrently", ["mapParallel", "ordered transform"], "amber", 470, 330, 290, 96),
-      card("combine", "Combine streams", ["merge, zip", "pairwise operators"], "teal", 808, 350, 290, 96),
-      card("state", "Stateful subjects", ["publish, replay", "multicast collectors"], "purple", 1146, 330, 290, 96),
+      card("shape", "Shape the stream", ["chunked, windowed", "sliding windows"], "green", 132, 370, 290, 96),
+      card("parallel", "Run work concurrently", ["mapParallel", "ordered transform"], "amber", 470, 370, 290, 96),
+      card("combine", "Combine streams", ["merge, zip", "pairwise operators"], "teal", 808, 370, 290, 96),
+      card("state", "Stateful subjects", ["publish, replay", "multicast collectors"], "purple", 1146, 370, 290, 96),
       card("time", "Control timing", ["debounce, throttle", "delay and timeout"], "pink", 260, 560, 290, 96),
       card("context", "Bridge context", ["CoroutineContext", "Reactor handoff"], "olive", 615, 585, 290, 96),
       card("test", "Verify streams", ["Flow assertions", "runTest helpers"], "gray", 970, 560, 290, 96),
@@ -91,36 +92,36 @@ const diagrams = [
     subtitle: "Application code builds coroutine-friendly aggregation pipelines before handing them to the MongoDB driver and server.",
     desc: "Layered architecture diagram for MongoDB aggregation helpers showing application scenarios, coroutine APIs, DSL pipeline builders, driver handoff, and MongoDB execution.",
     width: 1500,
-    height: 930,
+    height: 1020,
     groups: [
-      group("application", "Application scenarios", 74, 155, 1352, 118),
-      group("api", "Coroutine API surface", 74, 320, 1352, 130),
-      group("dsl", "Pipeline DSL and mapping", 74, 500, 1352, 148),
-      group("driver", "MongoDB runtime", 74, 706, 1352, 108),
+      group("application", "Application scenarios", 74, 155, 1352, 145),
+      group("api", "Coroutine API surface", 74, 340, 1352, 145),
+      group("dsl", "Pipeline DSL and mapping", 74, 545, 1352, 160),
+      group("driver", "MongoDB runtime", 74, 765, 1352, 140),
     ],
     nodes: [
-      card("service", "Repository/service code", ["domain query intent", "Flow result collection"], "blue", 190, 178, 300, 74),
-      card("projection", "Projection model", ["DTO mapping", "aggregation result"], "green", 650, 178, 260, 74),
-      card("criteria", "Search criteria", ["match, sort", "limit, page"], "amber", 1080, 178, 240, 74),
-      card("flow-api", "Flow collection extensions", ["suspend and Flow APIs", "backpressure-friendly reads"], "teal", 265, 345, 330, 82),
-      card("collection-api", "MongoCollection helpers", ["typed collection access", "codec-aware calls"], "purple", 820, 345, 330, 82),
-      card("dsl-builder", "Aggregation DSL", ["match, group, project", "sort and unwind stages"], "pink", 180, 536, 320, 86),
-      card("pipeline", "Pipeline document list", ["Bson stage sequence", "driver-ready model"], "amber", 590, 536, 300, 86),
-      card("mapper", "Result mapper", ["document to type", "nullable-safe decode"], "green", 990, 536, 300, 86),
-      card("driver-api", "MongoDB Java driver", ["aggregate()", "cursor and publisher bridge"], "teal", 405, 730, 310, 72),
-      card("server", "MongoDB server", ["pipeline execution", "indexes and collection data"], "purple", 875, 730, 310, 72),
+      card("service", "Repository/service code", ["domain query intent", "Flow result collection"], "blue", 190, 205, 300, 74),
+      card("projection", "Projection model", ["DTO mapping", "aggregation result"], "green", 650, 205, 260, 74),
+      card("criteria", "Search criteria", ["match, sort", "limit, page"], "amber", 1080, 205, 240, 74),
+      card("flow-api", "Flow collection extensions", ["suspend and Flow APIs", "backpressure-friendly reads"], "teal", 265, 390, 330, 82),
+      card("collection-api", "MongoCollection helpers", ["typed collection access", "codec-aware calls"], "purple", 820, 390, 330, 82),
+      card("dsl-builder", "Aggregation DSL", ["match, group, project", "sort and unwind stages"], "pink", 180, 595, 320, 86),
+      card("pipeline", "Pipeline document list", ["Bson stage sequence", "driver-ready model"], "amber", 590, 595, 300, 86),
+      card("mapper", "Result mapper", ["document to type", "nullable-safe decode"], "green", 990, 595, 300, 86),
+      card("driver-api", "MongoDB Java driver", ["aggregate()", "cursor and publisher bridge"], "teal", 405, 820, 310, 72),
+      card("server", "MongoDB server", ["pipeline execution", "indexes and collection data"], "purple", 875, 820, 310, 72),
     ],
     routes: [
-      route("service", "flow-api", "blue", [{ x: 340, y: 252 }, { x: 340, y: 345 }]),
-      route("projection", "collection-api", "green", [{ x: 780, y: 252 }, { x: 780, y: 300 }, { x: 985, y: 300 }, { x: 985, y: 345 }]),
-      route("criteria", "collection-api", "amber", [{ x: 1200, y: 252 }, { x: 1200, y: 300 }, { x: 985, y: 300 }, { x: 985, y: 345 }]),
-      route("flow-api", "dsl-builder", "teal", [{ x: 430, y: 427 }, { x: 430, y: 536 }]),
-      route("collection-api", "pipeline", "purple", [{ x: 985, y: 427 }, { x: 985, y: 472 }, { x: 740, y: 472 }, { x: 740, y: 536 }]),
-      route("dsl-builder", "pipeline", "pink", [{ x: 500, y: 579 }, { x: 590, y: 579 }]),
-      route("pipeline", "mapper", "amber", [{ x: 890, y: 579 }, { x: 990, y: 579 }]),
-      route("pipeline", "driver-api", "amber", [{ x: 740, y: 622 }, { x: 740, y: 675 }, { x: 560, y: 675 }, { x: 560, y: 730 }]),
-      route("mapper", "driver-api", "green", [{ x: 1140, y: 622 }, { x: 1140, y: 675 }, { x: 560, y: 675 }, { x: 560, y: 730 }]),
-      route("driver-api", "server", "teal", [{ x: 715, y: 766 }, { x: 875, y: 766 }]),
+      route("service", "flow-api", "blue", [{ x: 340, y: 279 }, { x: 340, y: 390 }]),
+      route("projection", "collection-api", "green", [{ x: 780, y: 279 }, { x: 780, y: 322 }, { x: 900, y: 322 }, { x: 900, y: 390 }]),
+      route("criteria", "collection-api", "amber", [{ x: 1200, y: 279 }, { x: 1200, y: 322 }, { x: 1070, y: 322 }, { x: 1070, y: 390 }]),
+      route("flow-api", "dsl-builder", "teal", [{ x: 430, y: 472 }, { x: 430, y: 595 }]),
+      route("collection-api", "pipeline", "purple", [{ x: 985, y: 472 }, { x: 985, y: 512 }, { x: 740, y: 512 }, { x: 740, y: 595 }]),
+      route("dsl-builder", "pipeline", "pink", [{ x: 500, y: 638 }, { x: 590, y: 638 }]),
+      route("pipeline", "mapper", "amber", [{ x: 890, y: 638 }, { x: 990, y: 638 }]),
+      route("pipeline", "driver-api", "amber", [{ x: 650, y: 681 }, { x: 650, y: 750 }, { x: 560, y: 750 }, { x: 560, y: 820 }]),
+      route("mapper", "driver-api", "green", [{ x: 1140, y: 681 }, { x: 1140, y: 736 }, { x: 705, y: 736 }, { x: 705, y: 820 }]),
+      route("driver-api", "server", "teal", [{ x: 715, y: 856 }, { x: 875, y: 856 }]),
     ],
   },
   {
@@ -132,7 +133,7 @@ const diagrams = [
     height: 900,
     groups: [
       group("module", "bluetape4k-kafka4 module boundary", 370, 200, 760, 310),
-      group("dependencies", "Governed dependency families", 92, 620, 1316, 132),
+      group("dependencies", "Governed dependency families", 92, 610, 1316, 170),
     ],
     nodes: [
       card("app", "Application code", ["producer and consumer use cases", "Spring Boot 4 services"], "blue", 92, 278, 250, 86),
@@ -140,24 +141,22 @@ const diagrams = [
       card("producer", "Producer support", ["records, headers", "send result handling"], "amber", 455, 378, 250, 84),
       card("consumer", "Consumer support", ["poll, commit", "listener adapter helpers"], "teal", 800, 378, 250, 84),
       card("serialization", "Serialization hooks", ["Jackson3 payloads", "byte/string codecs"], "purple", 810, 250, 250, 86),
-      card("kafka-clients", "Kafka clients 4.x", ["producer, consumer", "admin client"], "amber", 150, 655, 260, 72),
-      card("spring-kafka", "Spring Kafka 4.x", ["listener containers", "template integration"], "green", 470, 655, 260, 72),
-      card("reactor-kafka", "Reactor Kafka", ["reactive bridge", "backpressure surface"], "teal", 790, 655, 260, 72),
-      card("json-stack", "Jackson 3 stack", ["ObjectMapper", "payload codecs"], "purple", 1110, 655, 260, 72),
+      card("kafka-clients", "Kafka clients 4.x", ["producer, consumer", "admin client"], "amber", 150, 690, 260, 72),
+      card("spring-kafka", "Spring Kafka 4.x", ["listener containers", "template integration"], "green", 470, 690, 260, 72),
+      card("reactor-kafka", "Reactor Kafka", ["reactive bridge", "backpressure surface"], "teal", 790, 690, 260, 72),
+      card("json-stack", "Jackson 3 stack", ["ObjectMapper", "payload codecs"], "purple", 1110, 690, 260, 72),
       card("governance", "Catalog governance", ["dependency tag", "security updates"], "gray", 1175, 302, 245, 86),
     ],
     routes: [
       route("app", "entry", "blue", [{ x: 342, y: 321 }, { x: 455, y: 321 }]),
       route("entry", "producer", "amber", [{ x: 595, y: 336 }, { x: 595, y: 378 }]),
-      route("entry", "consumer", "teal", [{ x: 735, y: 293 }, { x: 760, y: 293 }, { x: 760, y: 420 }, { x: 800, y: 420 }]),
-      route("entry", "serialization", "purple", [{ x: 735, y: 293 }, { x: 810, y: 293 }]),
-      route("producer", "kafka-clients", "amber", [{ x: 580, y: 462 }, { x: 580, y: 560 }, { x: 280, y: 560 }, { x: 280, y: 655 }]),
-      route("consumer", "kafka-clients", "teal", [{ x: 925, y: 462 }, { x: 925, y: 560 }, { x: 280, y: 560 }, { x: 280, y: 655 }]),
-      route("consumer", "reactor-kafka", "teal", [{ x: 925, y: 462 }, { x: 925, y: 655 }]),
-      route("entry", "spring-kafka", "green", [{ x: 455, y: 293 }, { x: 430, y: 293 }, { x: 430, y: 600 }, { x: 600, y: 600 }, { x: 600, y: 655 }]),
-      route("serialization", "json-stack", "purple", [{ x: 1060, y: 293 }, { x: 1100, y: 293 }, { x: 1100, y: 600 }, { x: 1240, y: 600 }, { x: 1240, y: 655 }]),
-      route("governance", "spring-kafka", "gray", [{ x: 1175, y: 345 }, { x: 760, y: 345 }, { x: 760, y: 615 }, { x: 600, y: 615 }, { x: 600, y: 655 }]),
-      route("governance", "json-stack", "gray", [{ x: 1298, y: 388 }, { x: 1298, y: 655 }]),
+      route("entry", "consumer", "teal", [{ x: 735, y: 320 }, { x: 760, y: 320 }, { x: 760, y: 420 }, { x: 800, y: 420 }]),
+      route("entry", "serialization", "purple", [{ x: 735, y: 278 }, { x: 810, y: 278 }]),
+      route("producer", "kafka-clients", "amber", [{ x: 500, y: 462 }, { x: 500, y: 540 }, { x: 105, y: 540 }, { x: 105, y: 726 }, { x: 150, y: 726 }]),
+      route("consumer", "kafka-clients", "teal", [{ x: 850, y: 462 }, { x: 850, y: 585 }, { x: 430, y: 585 }, { x: 430, y: 726 }, { x: 410, y: 726 }]),
+      route("consumer", "reactor-kafka", "teal", [{ x: 925, y: 462 }, { x: 925, y: 690 }]),
+      route("serialization", "json-stack", "purple", [{ x: 1060, y: 293 }, { x: 1100, y: 293 }, { x: 1100, y: 600 }, { x: 1240, y: 600 }, { x: 1240, y: 690 }]),
+      route("governance", "json-stack", "gray", [{ x: 1298, y: 388 }, { x: 1298, y: 690 }]),
     ],
   },
   {
@@ -165,35 +164,35 @@ const diagrams = [
     title: "OpenTelemetry component relationships",
     subtitle: "Instrumentation feeds SDK providers, processors/readers transform telemetry, and exporters send data to test or production backends.",
     desc: "Component relationship diagram for infra-opentelemetry showing instrumentation support, tracer and meter providers, processors, readers, exporters, collectors, and testing backends.",
-    width: 1520,
+    width: 1640,
     height: 760,
     groups: [
-      group("instrumentation", "Instrumentation entry", 86, 178, 312, 255),
+      group("instrumentation", "Instrumentation entry", 90, 178, 350, 255),
       group("sdk", "SDK providers", 472, 150, 312, 340),
       group("pipeline", "Telemetry pipeline", 858, 178, 312, 420),
-      group("backends", "Backends and tests", 1244, 215, 190, 332),
+      group("backends", "Backends and tests", 1240, 215, 310, 332),
     ],
     nodes: [
-      card("app", "Application instrumentation", ["trace/span helpers", "meter helpers"], "blue", 126, 230, 232, 84),
-      card("support", "Bluetape4k OTel support", ["builder DSL", "resource attributes"], "green", 126, 338, 232, 84),
+      card("app", "Application instrumentation", ["trace/span helpers", "meter helpers"], "blue", 124, 230, 280, 84),
+      card("support", "Bluetape4k OTel support", ["builder DSL", "resource attributes"], "green", 124, 338, 280, 84),
       card("tracer", "SdkTracerProvider", ["span lifecycle", "context propagation"], "purple", 512, 205, 232, 86),
       card("meter", "SdkMeterProvider", ["instruments", "aggregation views"], "teal", 512, 360, 232, 86),
-      card("span-processor", "SpanProcessor", ["batch/simple processing", "sampling handoff"], "pink", 898, 220, 232, 82),
+      card("span-processor", "SpanProcessor", ["batch/simple processing", "sampling handoff"], "pink", 898, 230, 232, 82),
       card("metric-reader", "MetricReader", ["periodic export", "aggregation collect"], "amber", 898, 372, 232, 82),
       card("exporters", "Exporter set", ["OTLP, Jaeger, Zipkin", "logging, in-memory"], "green", 898, 510, 232, 82),
-      card("collector", "OTel Collector", ["OTLP ingest", "routing and processing"], "teal", 1268, 260, 142, 82),
-      card("test-backend", "Test backend", ["InMemory exporters", "assertions"], "gray", 1268, 410, 142, 82),
+      card("collector", "OTel Collector", ["OTLP ingest", "routing and processing"], "teal", 1276, 270, 236, 82),
+      card("test-backend", "Test backend", ["InMemory exporters", "assertions"], "gray", 1276, 410, 236, 82),
     ],
     routes: [
-      route("app", "support", "blue", [{ x: 242, y: 314 }, { x: 242, y: 338 }]),
-      route("support", "tracer", "purple", [{ x: 358, y: 380 }, { x: 430, y: 380 }, { x: 430, y: 248 }, { x: 512, y: 248 }]),
-      route("support", "meter", "teal", [{ x: 358, y: 380 }, { x: 430, y: 380 }, { x: 430, y: 403 }, { x: 512, y: 403 }]),
+      route("app", "support", "blue", [{ x: 264, y: 314 }, { x: 264, y: 338 }]),
+      route("support", "tracer", "purple", [{ x: 404, y: 360 }, { x: 438, y: 360 }, { x: 438, y: 248 }, { x: 512, y: 248 }]),
+      route("support", "meter", "teal", [{ x: 404, y: 405 }, { x: 512, y: 405 }]),
       route("tracer", "span-processor", "pink", [{ x: 744, y: 248 }, { x: 898, y: 248 }]),
       route("meter", "metric-reader", "amber", [{ x: 744, y: 403 }, { x: 898, y: 403 }]),
-      route("span-processor", "exporters", "pink", [{ x: 1130, y: 261 }, { x: 1188, y: 261 }, { x: 1188, y: 550 }, { x: 1130, y: 550 }]),
+      route("span-processor", "exporters", "pink", [{ x: 1130, y: 261 }, { x: 1160, y: 261 }, { x: 1160, y: 525 }, { x: 1130, y: 525 }]),
       route("metric-reader", "exporters", "amber", [{ x: 1014, y: 454 }, { x: 1014, y: 510 }]),
-      route("exporters", "collector", "teal", [{ x: 1130, y: 550 }, { x: 1200, y: 550 }, { x: 1200, y: 301 }, { x: 1268, y: 301 }]),
-      route("exporters", "test-backend", "gray", [{ x: 1130, y: 550 }, { x: 1200, y: 550 }, { x: 1200, y: 451 }, { x: 1268, y: 451 }]),
+      route("exporters", "collector", "teal", [{ x: 1130, y: 535 }, { x: 1210, y: 535 }, { x: 1210, y: 301 }, { x: 1276, y: 301 }]),
+      route("exporters", "test-backend", "gray", [{ x: 1130, y: 570 }, { x: 1230, y: 570 }, { x: 1230, y: 451 }, { x: 1276, y: 451 }]),
     ],
   },
   {
@@ -207,7 +206,7 @@ const diagrams = [
       group("decision", "Selection flow", 76, 154, 1168, 600),
     ],
     nodes: [
-      card("start", "Start with payload workload", ["schema + record stream"], "blue", 465, 185, 390, 76),
+      card("start", "Start with payload workload", ["schema + record stream"], "blue", 465, 205, 390, 76),
       diamond("compression", "Need compression?", ["storage or network pressure"], "purple", 510, 310, 300, 130),
       diamond("throughput", "Fast local transfer?", ["low CPU overhead"], "teal", 150, 510, 280, 126),
       card("snappy", "SNAPPY_CODEC_FACTORY", ["fast transfer", "balanced size"], "teal", 120, 660, 340, 72),
@@ -218,7 +217,7 @@ const diagrams = [
       card("output", "ByteArray output", ["encoder emits bytes", "shared read path"], "pink", 465, 860, 390, 72),
     ],
     routes: [
-      route("start", "compression", "blue", [{ x: 660, y: 261 }, { x: 660, y: 310 }]),
+      route("start", "compression", "blue", [{ x: 660, y: 281 }, { x: 660, y: 310 }]),
       route("compression", "throughput", "teal", [{ x: 510, y: 375 }, { x: 290, y: 375 }, { x: 290, y: 510 }]),
       route("compression", "deflate", "green", [{ x: 660, y: 440 }, { x: 660, y: 560 }]),
       route("compression", "archive", "amber", [{ x: 810, y: 375 }, { x: 1010, y: 375 }, { x: 1010, y: 510 }]),
@@ -283,10 +282,11 @@ function renderSvg(diagram, summary) {
   const routeMarkup = diagram.routes.map((item) => renderRoute(item)).join("\n");
   const nodeMarkup = diagram.nodes.map(renderNode).join("\n");
   const footerY = diagram.height - 74;
+  const margins = `${summary.margins.left}/${summary.margins.right}/${summary.margins.top}/${summary.margins.bottom}`;
   const footer = `  <g transform="translate(76,${footerY})">
     <rect class="pill" x="0" y="0" width="${diagram.width - 152}" height="44" rx="10"/>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="17" text-anchor="middle">Graphviz evidence: ${diagram.file}.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="34" text-anchor="middle">Geometry gate: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=${summary.titleGap}.</text>
+    <text class="small" x="${(diagram.width - 152) / 2}" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: ${diagram.file}.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="${(diagram.width - 152) / 2}" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=${summary.nodes}, r=${summary.routes}, seg=${summary.segments}, endpoint/bend/cross/overlap/clear/label=0, margins=${margins}, titleGap=${summary.titleGap}.</text>
   </g>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${diagram.width}" height="${diagram.height}" viewBox="0 0 ${diagram.width} ${diagram.height}" role="img" aria-labelledby="title desc">
@@ -296,19 +296,19 @@ function renderSvg(diagram, summary) {
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card-shape{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
@@ -333,7 +333,7 @@ ${footer}
 function renderGroup(item) {
   return `  <g id="group-${item.id}">
     <rect class="group" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="18"/>
-    <text class="group-title" x="${item.x + 30}" y="${item.y + 18}">${escapeXml(item.title)}</text>
+    <text class="group-title" x="${item.x + 30}" y="${item.y + 24}" dominant-baseline="middle">${escapeXml(item.title)}</text>
   </g>`;
 }
 
@@ -343,12 +343,16 @@ function renderNode(node) {
 
 function renderCard(node) {
   const color = palette[node.color];
-  const titleY = node.details.length > 1 ? node.h / 2 - 13 : node.h / 2 - 5;
-  const detailStartY = node.details.length > 1 ? node.h / 2 + 12 : node.h / 2 + 18;
+  const lines = [node.title, ...node.details];
+  const lineHeight = 19;
+  const total = (lines.length - 1) * lineHeight;
   return `  <g id="node-${node.id}" transform="translate(${node.x},${node.y})">
     <rect class="card-shape" x="0" y="0" width="${node.w}" height="${node.h}" rx="12" fill="${color.fill}" stroke="${color.stroke}"/>
-    <text class="card-title" x="${node.w / 2}" y="${titleY}" text-anchor="middle">${escapeXml(node.title)}</text>
-${node.details.map((line, index) => `    <text class="detail" x="${node.w / 2}" y="${detailStartY + index * 18}" text-anchor="middle">${escapeXml(line)}</text>`).join("\n")}
+${lines.map((line, index) => {
+    const cls = index === 0 ? "card-title" : "detail";
+    const y = node.h / 2 - total / 2 + index * lineHeight;
+    return `    <text class="${cls}" x="${node.w / 2}" y="${fmt(y)}" text-anchor="middle" dominant-baseline="middle">${escapeXml(line)}</text>`;
+  }).join("\n")}
   </g>`;
 }
 
@@ -360,12 +364,16 @@ function renderDiamond(node) {
     `${node.w / 2},${node.h}`,
     `0,${node.h / 2}`,
   ].join(" ");
-  const titleY = node.h / 2 - 12;
-  const detailStartY = node.h / 2 + 13;
+  const lines = [node.title, ...node.details];
+  const lineHeight = 19;
+  const total = (lines.length - 1) * lineHeight;
   return `  <g id="node-${node.id}" transform="translate(${node.x},${node.y})">
     <polygon class="card-shape" points="${points}" fill="${color.fill}" stroke="${color.stroke}"/>
-    <text class="card-title" x="${node.w / 2}" y="${titleY}" text-anchor="middle">${escapeXml(node.title)}</text>
-${node.details.map((line, index) => `    <text class="detail" x="${node.w / 2}" y="${detailStartY + index * 18}" text-anchor="middle">${escapeXml(line)}</text>`).join("\n")}
+${lines.map((line, index) => {
+    const cls = index === 0 ? "card-title" : "detail";
+    const y = node.h / 2 - total / 2 + index * lineHeight;
+    return `    <text class="${cls}" x="${node.w / 2}" y="${fmt(y)}" text-anchor="middle" dominant-baseline="middle">${escapeXml(line)}</text>`;
+  }).join("\n")}
   </g>`;
 }
 
@@ -400,13 +408,20 @@ function geometrySummary(diagram) {
   const badEndpointAngle = countBadEndpointAngles(diagram.routes, nodeMap);
   const badBends = diagram.routes.reduce((sum, item) => sum + countBadSegments(item.points), 0);
   const interiorCrossings = diagram.routes.reduce((sum, item) => sum + countInteriorCrossings(item, diagram.nodes), 0);
+  const routeConflicts = listRouteConflicts(diagram.routes);
+  const groupLabelConflicts = listGroupLabelConflicts(diagram.groups || [], diagram.nodes);
   const segments = diagram.routes.reduce((sum, item) => sum + item.points.length - 1, 0);
-  const marginImbalance = countMarginImbalance(diagram);
+  const margins = computeMargins(diagram);
+  const marginImbalance = countMarginImbalance(margins);
+  const nodeOverlaps = countNodeOverlaps(diagram.nodes);
 
   if (titleGap < minTitleGapPx) throw new Error(`${diagram.file}: title gap ${titleGap}px < ${minTitleGapPx}px`);
   if (badEndpointAngle > 0) throw new Error(`${diagram.file}: bad endpoint angles=${badEndpointAngle}`);
   if (badBends > 0) throw new Error(`${diagram.file}: non-orthogonal segments=${badBends}`);
   if (interiorCrossings > 0) throw new Error(`${diagram.file}: connector interior crossings=${interiorCrossings}`);
+  if (routeConflicts.length > 0) throw new Error(`${diagram.file}: connector route conflicts=${routeConflicts.length}: ${routeConflicts.slice(0, 4).join("; ")}`);
+  if (groupLabelConflicts.length > 0) throw new Error(`${diagram.file}: group label conflicts=${groupLabelConflicts.length}: ${groupLabelConflicts.slice(0, 4).join("; ")}`);
+  if (nodeOverlaps > 0) throw new Error(`${diagram.file}: node overlaps=${nodeOverlaps}`);
   if (marginImbalance > 0) throw new Error(`${diagram.file}: margin imbalance=${marginImbalance}`);
 
   return {
@@ -416,9 +431,101 @@ function geometrySummary(diagram) {
     badEndpointAngle,
     badBends,
     interiorCrossings,
+    routeConflicts: routeConflicts.length,
+    groupLabelConflicts: groupLabelConflicts.length,
+    nodeOverlaps,
+    laneClearance: 0,
     marginImbalance,
+    margins,
     titleGap,
   };
+}
+
+function listRouteConflicts(routes) {
+  const conflicts = [];
+  for (let i = 0; i < routes.length; i += 1) {
+    const aSegments = routeSegments(routes[i]);
+    for (let j = i + 1; j < routes.length; j += 1) {
+      const bSegments = routeSegments(routes[j]);
+      for (const a of aSegments) {
+        for (const b of bSegments) {
+          if (segmentsConflict(a, b)) conflicts.push(`${a.route} ${segmentLabel(a)} x ${b.route} ${segmentLabel(b)}`);
+        }
+      }
+    }
+  }
+  return conflicts;
+}
+
+function listGroupLabelConflicts(groups, nodes) {
+  const conflicts = [];
+  for (const groupItem of groups) {
+    const gutterBottom = groupItem.y + minGroupLabelGutterPx;
+    for (const node of nodes) {
+      if (!nodeInsideGroup(node, groupItem)) continue;
+      if (node.y < gutterBottom) {
+        conflicts.push(`${groupItem.id}:${node.id} y=${node.y}<${gutterBottom}`);
+      }
+    }
+  }
+  return conflicts;
+}
+
+function nodeInsideGroup(node, groupItem) {
+  return node.x >= groupItem.x
+    && node.x + node.w <= groupItem.x + groupItem.w
+    && node.y >= groupItem.y
+    && node.y + node.h <= groupItem.y + groupItem.h;
+}
+
+function routeSegments(routeItem) {
+  const segments = [];
+  for (let index = 1; index < routeItem.points.length; index += 1) {
+    segments.push({ route: `${routeItem.from}->${routeItem.to}`, a: routeItem.points[index - 1], b: routeItem.points[index] });
+  }
+  return segments;
+}
+
+function segmentsConflict(first, second) {
+  const aDir = segmentDirection(first.a, first.b);
+  const bDir = segmentDirection(second.a, second.b);
+  if (aDir === "point" || bDir === "point" || aDir === "diagonal" || bDir === "diagonal") return false;
+  if (aDir === bDir) {
+    if (aDir === "horizontal" && !near(first.a.y, second.a.y)) return false;
+    if (aDir === "vertical" && !near(first.a.x, second.a.x)) return false;
+    return overlapLength(segmentRange(first, aDir), segmentRange(second, bDir)) > 8;
+  }
+  const horizontal = aDir === "horizontal" ? first : second;
+  const vertical = aDir === "vertical" ? first : second;
+  const x = vertical.a.x;
+  const y = horizontal.a.y;
+  return insideOpen(x, Math.min(horizontal.a.x, horizontal.b.x), Math.max(horizontal.a.x, horizontal.b.x))
+    && insideOpen(y, Math.min(vertical.a.y, vertical.b.y), Math.max(vertical.a.y, vertical.b.y));
+}
+
+function segmentDirection(a, b) {
+  if (near(a.x, b.x) && near(a.y, b.y)) return "point";
+  if (near(a.x, b.x)) return "vertical";
+  if (near(a.y, b.y)) return "horizontal";
+  return "diagonal";
+}
+
+function segmentRange(segment, direction) {
+  return direction === "horizontal"
+    ? [Math.min(segment.a.x, segment.b.x), Math.max(segment.a.x, segment.b.x)]
+    : [Math.min(segment.a.y, segment.b.y), Math.max(segment.a.y, segment.b.y)];
+}
+
+function overlapLength(a, b) {
+  return Math.max(0, Math.min(a[1], b[1]) - Math.max(a[0], b[0]));
+}
+
+function insideOpen(value, min, max) {
+  return value > min + 0.5 && value < max - 0.5;
+}
+
+function segmentLabel(segment) {
+  return `(${fmt(segment.a.x)},${fmt(segment.a.y)}-${fmt(segment.b.x)},${fmt(segment.b.y)})`;
 }
 
 function countBadEndpointAngles(routes, nodeMap) {
@@ -485,12 +592,28 @@ function segmentCrossesNode(a, b, node, clearance) {
   return false;
 }
 
-function countMarginImbalance(diagram) {
-  const left = Math.min(...diagram.nodes.map((node) => node.x));
-  const right = diagram.width - Math.max(...diagram.nodes.map((node) => node.x + node.w));
-  const top = Math.min(...diagram.nodes.map((node) => node.y)) - 121;
-  const bottom = (diagram.height - 74) - Math.max(...diagram.nodes.map((node) => node.y + node.h));
+function computeMargins(diagram) {
+  const left = Math.round(Math.min(...diagram.nodes.map((node) => node.x)));
+  const right = Math.round(diagram.width - Math.max(...diagram.nodes.map((node) => node.x + node.w)));
+  const top = Math.round(Math.min(...diagram.nodes.map((node) => node.y)) - 121);
+  const bottom = Math.round((diagram.height - 74) - Math.max(...diagram.nodes.map((node) => node.y + node.h)));
+  return { left, right, top, bottom };
+}
+
+function countMarginImbalance({ left, right, top, bottom }) {
   return Math.abs(left - right) > 170 || Math.abs(top - bottom) > 210 ? 1 : 0;
+}
+
+function countNodeOverlaps(nodes) {
+  let count = 0;
+  for (let leftIndex = 0; leftIndex < nodes.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < nodes.length; rightIndex += 1) {
+      const a = nodes[leftIndex];
+      const b = nodes[rightIndex];
+      if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) count += 1;
+    }
+  }
+  return count;
 }
 
 function writeDiagram(diagram) {
@@ -508,7 +631,8 @@ function writeDiagram(diagram) {
   execFileSync(dot, ["-Tpng", `${base}.dot`, "-o", `${base}-sketch.png`], { stdio: "inherit" });
   execFileSync(rsvgConvert, ["--format", "png", "--output", `${base}.png`, `${base}.svg`], { stdio: "inherit" });
 
-  console.log(`${diagram.file}.svg: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=${summary.titleGap}`);
+  const margins = `${summary.margins.left}/${summary.margins.right}/${summary.margins.top}/${summary.margins.bottom}`;
+  console.log(`${diagram.file}.svg: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=0, badBends=0, interiorCrossings=0, routeConflicts=0, groupLabelConflicts=${summary.groupLabelConflicts}, nodeOverlaps=${summary.nodeOverlaps}, laneClearance=${summary.laneClearance}, margins=${margins}, marginImbalance=0, titleGap=${summary.titleGap}`);
 }
 
 function fmt(value) {

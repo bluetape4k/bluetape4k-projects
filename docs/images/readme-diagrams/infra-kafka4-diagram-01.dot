@@ -19,8 +19,6 @@ digraph G {
   "producer" -> "kafka-clients" [color="#D9AA4D"];
   "consumer" -> "kafka-clients" [color="#45A7A1"];
   "consumer" -> "reactor-kafka" [color="#45A7A1"];
-  "entry" -> "spring-kafka" [color="#58A978"];
   "serialization" -> "json-stack" [color="#8A72D6"];
-  "governance" -> "spring-kafka" [color="#6B7D90"];
   "governance" -> "json-stack" [color="#6B7D90"];
 }

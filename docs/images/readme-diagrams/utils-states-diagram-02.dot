@@ -1,0 +1,34 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  TransitionResult [label="TransitionResult", fillcolor="#E8F3FF", color="#5B8DEF"];
+  StateMachineException [label="StateMachineException", fillcolor="#EAF7EF", color="#58A978"];
+  BaseStateMachine [label="BaseStateMachine", fillcolor="#E9F7F6", color="#45A7A1"];
+  TransitionKey [label="TransitionKey", fillcolor="#FFF3D9", color="#D6A441"];
+  TransitionTarget [label="TransitionTarget", fillcolor="#FDECEF", color="#DC6B82"];
+  SuspendStateMachineInterfaceS [label="SuspendStateMachineInterfaceS", fillcolor="#F1ECFF", color="#8A72D6"];
+  DefaultStateMachineS [label="DefaultStateMachineS", fillcolor="#EEF6D9", color="#8BA84D"];
+  BaseStateMachineS [label="BaseStateMachineS", fillcolor="#F2F5F9", color="#9AA8B8"];
+  StateMachineS [label="StateMachineS", fillcolor="#E8F3FF", color="#5B8DEF"];
+  SuspendStateMachineS [label="SuspendStateMachineS", fillcolor="#EAF7EF", color="#58A978"];
+  TransitionResultS [label="TransitionResultS", fillcolor="#E9F7F6", color="#45A7A1"];
+  TransitionKeyS [label="TransitionKeyS", fillcolor="#FFF3D9", color="#D6A441"];
+  TransitionTargetS [label="TransitionTargetS", fillcolor="#FDECEF", color="#DC6B82"];
+  StateMachine [label="StateMachine", fillcolor="#F1ECFF", color="#8A72D6"];
+  SuspendStateMachineInterface [label="SuspendStateMachineInterface", fillcolor="#EEF6D9", color="#8BA84D"];
+  DefaultStateMachine [label="DefaultStateMachine", fillcolor="#F2F5F9", color="#9AA8B8"];
+  SuspendStateMachine [label="SuspendStateMachine", fillcolor="#E8F3FF", color="#5B8DEF"];
+  SuspendStateMachine -> StateMachineException [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> StateMachineException [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachine -> TransitionResult [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> TransitionResult [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachine -> TransitionTarget [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachine -> TransitionKey [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> TransitionTarget [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> TransitionKey [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachineInterface -> SuspendStateMachine [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  StateMachine -> DefaultStateMachine [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
+  BaseStateMachine -> SuspendStateMachineInterface [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  BaseStateMachine -> StateMachine [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+}

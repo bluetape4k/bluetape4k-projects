@@ -14,7 +14,7 @@ Kotlin Backend 개발을 위한 핵심 유틸리티 라이브러리입니다. Bl
 
 ### 클래스 다이어그램
 
-![core Class Structure 2 diagram](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
+![Core Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
 
 ---
 

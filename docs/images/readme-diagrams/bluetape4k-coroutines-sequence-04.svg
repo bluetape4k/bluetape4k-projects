@@ -1,75 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="1366" viewBox="0 0 1376 1366" role="img" aria-label="4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window">
+<svg xmlns="http://www.w3.org/2000/svg" width="1327" height="1676" viewBox="0 0 1327 1676" role="img" aria-label="4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1376" height="1366"/>
-<rect class="frame" x="32" y="28" width="1312" height="1310" rx="28"/>
-<text class="title" x="66" y="82">4. sliding</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="80" y="166" width="277" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="218.5" y="209" text-anchor="middle">Flow Source</text>
-<line class="lifeline" x1="218.5" y1="252" x2="218.5" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="549.5" y="166" width="277" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="688" y="209" text-anchor="middle">sliding(2)</text>
-<line class="lifeline" x1="688" y1="252" x2="688" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1019" y="166" width="277" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="1157.5" y="209" text-anchor="middle">bufferedSliding(2)</text>
-<line class="lifeline" x1="1157.5" y1="252" x2="1157.5" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="348.3" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="366.3" y="313" text-anchor="start">1. emit(1)</text>
-<path class="line" d="M218.5 332 L688 332"/>
-<rect x="348.3" y="362" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="366.3" y="389" text-anchor="start">2. emit(2)</text>
-<path class="line" d="M218.5 408 L688 408"/>
-<rect x="631" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="649" y="465" text-anchor="start">3. window=[1,2] full</text>
-<path class="dashed" d="M688 484 C752 484 752 518 688 518"/>
-<rect x="631" y="514" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="649" y="541" text-anchor="start">4. emit([1, 2])</text>
-<path class="line" d="M688 560 C752 560 752 594 688 594"/>
-<rect x="348.3" y="590" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="366.3" y="617" text-anchor="start">5. emit(3)</text>
-<path class="line" d="M218.5 636 L688 636"/>
-<rect x="631" y="666" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="649" y="693" text-anchor="start">6. emit([2, 3])</text>
-<path class="line" d="M688 712 C752 712 752 746 688 746"/>
-<rect x="583" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="601" y="769" text-anchor="start">7. emit(1)</text>
-<path class="line" d="M218.5 788 L1157.5 788"/>
-<rect x="1027.5" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1045.5" y="845" text-anchor="start">8. emit([1])</text>
-<path class="line" d="M1157.5 864 C1221.5 864 1221.5 898 1157.5 898"/>
-<rect x="583" y="894" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="601" y="921" text-anchor="start">9. emit(2)</text>
-<path class="line" d="M218.5 940 L1157.5 940"/>
-<rect x="1027.5" y="970" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1045.5" y="997" text-anchor="start">10. emit([1, 2])</text>
-<path class="line" d="M1157.5 1016 C1221.5 1016 1221.5 1050 1157.5 1050"/>
-<rect x="583" y="1046" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="601" y="1073" text-anchor="start">11. emit(3)</text>
-<path class="line" d="M218.5 1092 L1157.5 1092"/>
-<rect x="1027.5" y="1122" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1045.5" y="1149" text-anchor="start">12. emit([2, 3])</text>
-<path class="line" d="M1157.5 1168 C1221.5 1168 1221.5 1202 1157.5 1202"/>
-<rect x="1027.5" y="1198" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1045.5" y="1225" text-anchor="start">13. emit([3])</text>
-<path class="line" d="M1157.5 1244 C1221.5 1244 1221.5 1278 1157.5 1278"/>
+<rect class="canvas" width="1327" height="1676"/>
+<rect class="frame" x="32" y="28" width="1263" height="1620" rx="30"/>
+<text class="title" x="68" y="84">4. sliding(n) / bufferedSliding(n) — One-Step Sliding Window</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
+<g id="seq-flow-source"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Flow Source</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1490"/></g>
+<g id="seq-sliding2"><rect class="card" x="480" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="595" y="215" text-anchor="middle">sliding2</text><line class="lifeline" x1="595" y1="248" x2="595" y2="1490"/></g>
+<g id="seq-bufferedsliding2"><rect class="card" x="820" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="935" y="215" text-anchor="middle">bufferedSliding2</text><line class="lifeline" x1="935" y1="248" x2="935" y2="1490"/></g>
+<rect x="247" y="322" width="16" height="908" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="587" y="322" width="16" height="468" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="927" y="850" width="16" height="556" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="320" y="287" width="210" height="26" rx="7"/><circle cx="339" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="339" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="443" y="301" text-anchor="middle" dominant-baseline="middle">emit(1)</text><path class="seq" d="M255 330 L595 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="320" y="375" width="210" height="26" rx="7"/><circle cx="339" cy="388" r="12" fill="#3E9868"/><text class="detail" x="339" y="389" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="443" y="389" text-anchor="middle" dominant-baseline="middle">emit(2)</text><path class="seq" d="M255 418 L595 418" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="705" y="463" width="216.1" height="26" rx="7"/><circle cx="724" cy="476" r="12" fill="#2E8F89"/><text class="detail" x="724" y="477" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="831.1" y="477" text-anchor="middle" dominant-baseline="middle">window=[1,2] full</text><path class="seq" d="M595 506 L685 506 L685 534 L613 534" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="705" y="551" width="210" height="26" rx="7"/><circle cx="724" cy="564" r="12" fill="#B9851B"/><text class="detail" x="724" y="565" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="828" y="565" text-anchor="middle" dominant-baseline="middle">emit([1, 2])</text><path class="seq" d="M595 594 L685 594 L685 622 L613 622" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m5"><rect class="labelPill" x="320" y="639" width="210" height="26" rx="7"/><circle cx="339" cy="652" r="12" fill="#C94D68"/><text class="detail" x="339" y="653" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="443" y="653" text-anchor="middle" dominant-baseline="middle">emit(3)</text><path class="seq" d="M255 682 L595 682" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m6"><rect class="labelPill" x="705" y="727" width="210" height="26" rx="7"/><circle cx="724" cy="740" r="12" fill="#755BC6"/><text class="detail" x="724" y="741" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="828" y="741" text-anchor="middle" dominant-baseline="middle">emit([2, 3])</text><path class="seq" d="M595 770 L685 770 L685 798 L613 798" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
+<g id="m7"><rect class="labelPill" x="490" y="815" width="210" height="26" rx="7"/><circle cx="509" cy="828" r="12" fill="#4F83BF"/><text class="detail" x="509" y="829" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="613" y="829" text-anchor="middle" dominant-baseline="middle">emit(1)</text><path class="seq" d="M255 858 L935 858" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m8"><rect class="labelPill" x="1045" y="903" width="210" height="26" rx="7"/><circle cx="1064" cy="916" r="12" fill="#3E9868"/><text class="detail" x="1064" y="917" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="1168" y="917" text-anchor="middle" dominant-baseline="middle">emit([1])</text><path class="seq" d="M935 946 L1025 946 L1025 974 L953 974" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m9"><rect class="labelPill" x="490" y="991" width="210" height="26" rx="7"/><circle cx="509" cy="1004" r="12" fill="#2E8F89"/><text class="detail" x="509" y="1005" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="613" y="1005" text-anchor="middle" dominant-baseline="middle">emit(2)</text><path class="seq" d="M255 1034 L935 1034" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m10"><rect class="labelPill" x="1045" y="1079" width="210" height="26" rx="7"/><circle cx="1064" cy="1092" r="12" fill="#B9851B"/><text class="detail" x="1064" y="1093" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">10</text><text class="detail" x="1168" y="1093" text-anchor="middle" dominant-baseline="middle">emit([1, 2])</text><path class="seq" d="M935 1122 L1025 1122 L1025 1150 L953 1150" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m11"><rect class="labelPill" x="490" y="1167" width="210" height="26" rx="7"/><circle cx="509" cy="1180" r="12" fill="#C94D68"/><text class="detail" x="509" y="1181" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="613" y="1181" text-anchor="middle" dominant-baseline="middle">emit(3)</text><path class="seq" d="M255 1210 L935 1210" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m12"><rect class="labelPill" x="1045" y="1255" width="210" height="26" rx="7"/><circle cx="1064" cy="1268" r="12" fill="#755BC6"/><text class="detail" x="1064" y="1269" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="1168" y="1269" text-anchor="middle" dominant-baseline="middle">emit([2, 3])</text><path class="seq" d="M935 1298 L1025 1298 L1025 1326 L953 1326" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
+<g id="m13"><rect class="labelPill" x="1045" y="1343" width="210" height="26" rx="7"/><circle cx="1064" cy="1356" r="12" fill="#4F83BF"/><text class="detail" x="1064" y="1357" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">13</text><text class="detail" x="1168" y="1357" text-anchor="middle" dominant-baseline="middle">emit([3])</text><path class="seq" d="M935 1386 L1025 1386 L1025 1414 L953 1414" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g><rect x="140" y="1514" width="960" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="620" y="1540" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

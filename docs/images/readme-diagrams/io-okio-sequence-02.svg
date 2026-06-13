@@ -1,80 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1834" height="837" viewBox="0 0 1834 837" role="img" aria-label="NIO Channel Adapter Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="2190" height="1280" viewBox="0 0 2190 1280" role="img" aria-label="Streaming Compression Sink Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1834" height="837"/>
-<rect class="frame" x="32" y="28" width="1770" height="781" rx="28"/>
-<text class="title" x="66" y="82">NIO Channel Adapter Hierarchy</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="implLine" d="M1082 442 L1082 292"/>
-<path class="implLine" d="M1492 442 L1492 367 L1082 367 L1082 292"/>
-<path class="implLine" d="M672 442 L672 292"/>
-<path class="implLine" d="M262 442 L262 351 L672 351 L672 292"/>
-<g transform="translate(502,180)">
-  <rect class="card" x="80" y="0" width="340" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="250" y="26" text-anchor="middle">«interface_okio»</text>
-  <text class="label" x="250" y="61" text-anchor="middle">Sink</text>
-
-</g>
-<g transform="translate(912,180)">
-  <rect class="card" x="80" y="0" width="340" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#58A978"/>
-  <text class="small" x="250" y="26" text-anchor="middle">«interface_okio»</text>
-  <text class="label" x="250" y="61" text-anchor="middle">Source</text>
-
-</g>
-<g transform="translate(92,442)">
-  <rect class="card" x="80" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#D6A441"/>
-  <text class="small" x="250" y="26" text-anchor="middle"></text>
-  <text class="label" x="250" y="61" text-anchor="middle">FileChannelSink</text>
-  <text class="mono" x="98" y="108">-channel: FileChannel</text>
-<text class="mono" x="98" y="129">+write(source: Buffer, byteCount: Long)</text>
-<text class="mono" x="98" y="150">+flush()</text>
-</g>
-<g transform="translate(502,442)">
-  <rect class="card" x="80" y="0" width="340" height="154" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="250" y="26" text-anchor="middle"></text>
-  <text class="label" x="250" y="61" text-anchor="middle">ByteChannelSink</text>
-  <text class="mono" x="98" y="108">-channel: ByteChannel</text>
-<text class="mono" x="98" y="129">+write(source: Buffer, byteCount: Long)</text>
-</g>
-<g transform="translate(912,442)">
-  <rect class="card" x="80" y="0" width="340" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="250" y="26" text-anchor="middle"></text>
-  <text class="label" x="250" y="61" text-anchor="middle">ByteChannelSource</text>
-  <text class="mono" x="98" y="108">-channel: ByteChannel</text>
-<text class="mono" x="98" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
-<text class="mono" x="98" y="150">+readAll(sink: Buffer) Long</text>
-</g>
-<g transform="translate(1322,442)">
-  <rect class="card" x="80" y="0" width="340" height="175" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="80" y1="78" x2="420" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="250" y="26" text-anchor="middle"></text>
-  <text class="label" x="250" y="61" text-anchor="middle">FileChannelSource</text>
-  <text class="mono" x="98" y="108">-channel: FileChannel</text>
-<text class="mono" x="98" y="129">+read(sink: Buffer, byteCount: Long) Long</text>
-<text class="mono" x="98" y="150">+readAll(sink: Buffer) Long</text>
-</g>
+<rect class="canvas" width="2190" height="1280"/>
+<rect class="frame" x="32" y="28" width="2126" height="1224" rx="30"/>
+<text class="title" x="68" y="84">Streaming Compression Sink Flow</text>
+<text class="subtitle" x="72" y="116">StreamingCompressSink pushes bytes through a compression stream as data arrives.</text>
+<g id="seq-caller"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Caller</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1138"/></g>
+<g id="seq-streamingcompresssink"><rect class="card" x="560" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="675" y="200" text-anchor="middle">StreamingCompress</text><text class="cardTitle" x="675" y="224" text-anchor="middle">Sink</text><line class="lifeline" x1="675" y1="248" x2="675" y2="1138"/></g>
+<g id="seq-compression-stream"><rect class="card" x="980" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1095" y="215" text-anchor="middle">Compression Stream</text><line class="lifeline" x1="1095" y1="248" x2="1095" y2="1138"/></g>
+<g id="seq-compressor"><rect class="card" x="1400" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1515" y="215" text-anchor="middle">Compressor</text><line class="lifeline" x1="1515" y1="248" x2="1515" y2="1138"/></g>
+<g id="seq-delegate-sink"><rect class="card" x="1820" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1935" y="215" text-anchor="middle">Delegate Sink</text><line class="lifeline" x1="1935" y1="248" x2="1935" y2="1138"/></g>
+<rect x="247" y="322" width="16" height="556" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="667" y="322" width="16" height="732" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="1087" y="410" width="16" height="556" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<rect x="1507" y="498" width="16" height="116" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
+<rect x="1927" y="586" width="16" height="468" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="323.4" y="287" width="283.2" height="26" rx="7"/><circle cx="342.4" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="342.4" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="483" y="301" text-anchor="middle" dominant-baseline="middle">write(source, byteCount)</text><path class="seq" d="M255 330 L675 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="770" y="375" width="230" height="26" rx="7"/><circle cx="789" cy="388" r="12" fill="#3E9868"/><text class="detail" x="789" y="389" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="903" y="389" text-anchor="middle" dominant-baseline="middle">write chunk</text><path class="seq" d="M675 418 L1095 418" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="1170.7" y="463" width="268.6" height="26" rx="7"/><circle cx="1189.7" cy="476" r="12" fill="#2E8F89"/><text class="detail" x="1189.7" y="477" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="1323" y="477" text-anchor="middle" dominant-baseline="middle">compress incrementally</text><path class="seq" d="M1095 506 L1515 506" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="1583.4" y="551" width="283.2" height="26" rx="7"/><circle cx="1602.4" cy="564" r="12" fill="#B9851B"/><text class="detail" x="1602.4" y="565" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1743" y="565" text-anchor="middle" dominant-baseline="middle">flush compressed segment</text><path class="seq" d="M1515 594 L1935 594" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m5"><rect class="labelPill" x="350" y="639" width="230" height="26" rx="7"/><circle cx="369" cy="652" r="12" fill="#C94D68"/><text class="detail" x="369" y="653" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="483" y="653" text-anchor="middle" dominant-baseline="middle">flush()</text><path class="seq" d="M255 682 L675 682" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m6"><rect class="labelPill" x="1190" y="727" width="230" height="26" rx="7"/><circle cx="1209" cy="740" r="12" fill="#755BC6"/><text class="detail" x="1209" y="741" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="1323" y="741" text-anchor="middle" dominant-baseline="middle">flush delegate</text><path class="seq" d="M675 770 L1935 770" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
+<g id="m7"><rect class="labelPill" x="350" y="815" width="230" height="26" rx="7"/><circle cx="369" cy="828" r="12" fill="#4F83BF"/><text class="detail" x="369" y="829" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="483" y="829" text-anchor="middle" dominant-baseline="middle">close()</text><path class="seq" d="M255 858 L675 858" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m8"><rect class="labelPill" x="770" y="903" width="230" height="26" rx="7"/><circle cx="789" cy="916" r="12" fill="#3E9868"/><text class="detail" x="789" y="917" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="903" y="917" text-anchor="middle" dominant-baseline="middle">finish stream</text><path class="seq" d="M675 946 L1095 946" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m9"><rect class="labelPill" x="1190" y="991" width="230" height="26" rx="7"/><circle cx="1209" cy="1004" r="12" fill="#2E8F89"/><text class="detail" x="1209" y="1005" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="1323" y="1005" text-anchor="middle" dominant-baseline="middle">close delegate</text><path class="seq" d="M675 1034 L1935 1034" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g><rect x="140" y="1162" width="1910" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1095" y="1188" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

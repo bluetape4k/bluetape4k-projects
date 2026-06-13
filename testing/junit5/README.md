@@ -12,7 +12,7 @@ An extension library that reduces repetitive boilerplate in JUnit 5 tests.
 
 ### Class Diagram
 
-![junit5 Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-junit5-diagram-02.png)
+![JUnit5 Class Structure diagram](../../docs/images/readme-diagrams/testing-junit5-diagram-02.png)
 
 ## Key Features
 

@@ -1,0 +1,45 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  Sink [label="Sink", fillcolor="#E8F3FF", color="#5B8DEF"];
+  Source [label="Source", fillcolor="#EAF7EF", color="#58A978"];
+  ForwardingSink [label="ForwardingSink", fillcolor="#E9F7F6", color="#45A7A1"];
+  ForwardingSource [label="ForwardingSource", fillcolor="#FFF3D9", color="#D6A441"];
+  InputStreamSource [label="InputStreamSource", fillcolor="#FDECEF", color="#DC6B82"];
+  OutputStreamSink [label="OutputStreamSink", fillcolor="#F1ECFF", color="#8A72D6"];
+  AbstractBase64Sink [label="AbstractBase64Sink", fillcolor="#EEF6D9", color="#8BA84D"];
+  AbstractBase64Source [label="AbstractBase64Source", fillcolor="#F2F5F9", color="#9AA8B8"];
+  CompressableSink [label="CompressableSink", fillcolor="#E8F3FF", color="#5B8DEF"];
+  DaeadChunkDecryptSource [label="DaeadChunkDecryptSource", fillcolor="#EAF7EF", color="#58A978"];
+  DaeadChunkEncryptSink [label="DaeadChunkEncryptSink", fillcolor="#E9F7F6", color="#45A7A1"];
+  DecompressableSource [label="DecompressableSource", fillcolor="#FFF3D9", color="#D6A441"];
+  TinkDecryptSource [label="TinkDecryptSource", fillcolor="#FDECEF", color="#DC6B82"];
+  TinkEncryptSink [label="TinkEncryptSink", fillcolor="#F1ECFF", color="#8A72D6"];
+  ApacheBase64Sink [label="ApacheBase64Sink", fillcolor="#EEF6D9", color="#8BA84D"];
+  ApacheBase64Source [label="ApacheBase64Source", fillcolor="#F2F5F9", color="#9AA8B8"];
+  OkioBase64Sink [label="OkioBase64Sink", fillcolor="#E8F3FF", color="#5B8DEF"];
+  OkioBase64Source [label="OkioBase64Source", fillcolor="#EAF7EF", color="#58A978"];
+  StreamingCompressSink [label="StreamingCompressSink", fillcolor="#E9F7F6", color="#45A7A1"];
+  StreamingDecompressSource [label="StreamingDecompressSource", fillcolor="#FFF3D9", color="#D6A441"];
+  { rank=source; AbstractBase64Sink; AbstractBase64Source; }
+  Source -> Sink [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  Source -> ForwardingSink [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  ForwardingSource -> ForwardingSink [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  ForwardingSource -> InputStreamSource [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  OutputStreamSink -> InputStreamSource [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  OutputStreamSink -> AbstractBase64Sink [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  AbstractBase64Source -> AbstractBase64Sink [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  AbstractBase64Source -> CompressableSink [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  DaeadChunkDecryptSource -> CompressableSink [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  DaeadChunkDecryptSource -> DaeadChunkEncryptSink [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  DecompressableSource -> DaeadChunkEncryptSink [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  DecompressableSource -> TinkDecryptSource [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  TinkEncryptSink -> TinkDecryptSource [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  TinkEncryptSink -> ApacheBase64Sink [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  ApacheBase64Source -> ApacheBase64Sink [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  ApacheBase64Source -> OkioBase64Sink [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  OkioBase64Source -> OkioBase64Sink [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  OkioBase64Source -> StreamingCompressSink [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  StreamingDecompressSource -> StreamingCompressSink [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+}

@@ -1,0 +1,32 @@
+graph 1 47.8 3.2944
+node Compressor 20.15 2.7694 2.8 1.05 Compressor rounded,filled box #5B8DEF #E8F3FF
+node StreamingCompressor 27.65 2.7694 2.8 1.05 StreamingCompressor rounded,filled box #58A978 #EAF7EF
+node AbstractCompressor 23.9 2.7694 2.8 1.05 AbstractCompressor rounded,filled box #45A7A1 #E9F7F6
+node BlockLZ4Compressor 1.4 0.525 2.8 1.05 BlockLZ4Compressor rounded,filled box #D6A441 #FFF3D9
+node ApacheGZipCompressor 5.15 0.525 2.8 1.05 ApacheGZipCompressor rounded,filled box #DC6B82 #FDECEF
+node ApacheDeflateCompressor 8.9 0.525 2.8 1.05 ApacheDeflateCompressor rounded,filled box #8A72D6 #F1ECFF
+node ApacheZstdCompressor 12.65 0.525 2.8 1.05 ApacheZstdCompressor rounded,filled box #8BA84D #EEF6D9
+node BZip2Compressor 16.4 0.525 2.8 1.05 BZip2Compressor rounded,filled box #9AA8B8 #F2F5F9
+node GZipCompressor 20.15 0.525 2.8 1.05 GZipCompressor rounded,filled box #5B8DEF #E8F3FF
+node FramedLZ4Compressor 23.9 0.525 2.8 1.05 FramedLZ4Compressor rounded,filled box #58A978 #EAF7EF
+node DeflateCompressor 27.65 0.525 2.8 1.05 DeflateCompressor rounded,filled box #45A7A1 #E9F7F6
+node FramedSnappyCompressor 31.4 0.525 2.8 1.05 FramedSnappyCompressor rounded,filled box #D6A441 #FFF3D9
+node LZ4Compressor 35.15 0.525 2.8 1.05 LZ4Compressor rounded,filled box #DC6B82 #FDECEF
+node ZipCompressor 38.9 0.525 2.8 1.05 ZipCompressor rounded,filled box #8A72D6 #F1ECFF
+node SnappyCompressor 42.65 0.525 2.8 1.05 SnappyCompressor rounded,filled box #8BA84D #EEF6D9
+node ZstdCompressor 46.4 0.525 2.8 1.05 ZstdCompressor rounded,filled box #9AA8B8 #F2F5F9
+edge Compressor AbstractCompressor 4 21.552 2.9444 21.86 2.9444 22.186 2.9444 22.494 2.9444 solid #2E8F89
+edge AbstractCompressor BlockLZ4Compressor 10 22.733 2.243 22.733 2.1808 22.733 2.1389 22.733 2.1389 22.733 2.1389 1.4 2.1389 1.4 2.1389 1.4 2.1389 1.4 1.5241 1.4 1.0534 solid #B9851B
+edge AbstractCompressor ApacheGZipCompressor 10 22.967 2.2424 22.967 2.0173 22.967 1.8056 22.967 1.8056 22.967 1.8056 5.15 1.8056 5.15 1.8056 5.15 1.8056 5.15 1.406 5.15 1.0532 solid #C94D68
+edge AbstractCompressor ApacheDeflateCompressor 10 23.2 2.2389 23.2 1.9736 23.2 1.7083 23.2 1.7083 23.2 1.7083 8.9 1.7083 8.9 1.7083 8.9 1.7083 8.9 1.3694 8.9 1.0544 solid #755BC6
+edge AbstractCompressor ApacheZstdCompressor 10 23.433 2.2383 23.433 1.8442 23.433 1.375 23.433 1.375 23.433 1.375 12.65 1.375 12.65 1.375 12.65 1.375 12.65 1.2265 12.65 1.0537 solid #718A35
+edge AbstractCompressor BZip2Compressor 10 23.667 2.2386 23.667 1.8052 23.667 1.2639 23.667 1.2639 23.667 1.2639 16.4 1.2639 16.4 1.2639 16.4 1.2639 16.4 1.1726 16.4 1.0541 solid #758297
+edge AbstractCompressor GZipCompressor 10 22.493 2.5972 22.224 2.5972 22.025 2.5972 22.025 2.5972 22.025 2.5972 22.025 0.52778 22.025 0.52778 22.025 0.52778 21.826 0.52778 21.557 0.52778 solid #4F83BF
+edge AbstractCompressor FramedLZ4Compressor 4 23.9 2.2375 23.9 1.8798 23.9 1.4101 23.9 1.0531 solid #3E9868
+edge AbstractCompressor DeflateCompressor 10 25.307 2.7639 25.576 2.7639 25.775 2.7639 25.775 2.7639 25.775 2.7639 25.775 0.52778 25.775 0.52778 25.775 0.52778 25.974 0.52778 26.243 0.52778 solid #2E8F89
+edge AbstractCompressor FramedSnappyCompressor 10 24.133 2.2401 24.133 1.7686 24.133 1.1528 24.133 1.1528 24.133 1.1528 31.4 1.1528 31.4 1.1528 31.4 1.1528 31.4 1.1135 31.4 1.0547 solid #B9851B
+edge AbstractCompressor LZ4Compressor 10 24.367 2.2401 24.367 1.8865 24.367 1.4861 24.367 1.4861 24.367 1.4861 35.15 1.4861 35.15 1.4861 35.15 1.4861 35.15 1.2784 35.15 1.0562 solid #C94D68
+edge AbstractCompressor ZipCompressor 10 24.6 2.2382 24.6 1.9281 24.6 1.5972 24.6 1.5972 24.6 1.5972 38.9 1.5972 38.9 1.5972 38.9 1.5972 38.9 1.325 38.9 1.0548 solid #755BC6
+edge AbstractCompressor SnappyCompressor 10 24.833 2.2391 24.833 2.0656 24.833 1.9167 24.833 1.9167 24.833 1.9167 42.65 1.9167 42.65 1.9167 42.65 1.9167 42.65 1.4484 42.65 1.0551 solid #718A35
+edge AbstractCompressor ZstdCompressor 10 25.067 2.2383 25.067 2.1194 25.067 2.0278 25.067 2.0278 25.067 2.0278 46.4 2.0278 46.4 2.0278 46.4 2.0278 46.4 1.4875 46.4 1.0548 solid #758297
+stop

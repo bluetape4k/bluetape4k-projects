@@ -3,11 +3,11 @@
   <desc id="desc">WebFlux fixture (GET /ping), @Threads(8), warmup 1×1s, measurement 1×1s. JDK Sync leads at 7,276.492 ops/s, Ktor CIO Coroutines records 2,052.281 ops/s.</desc>
   <defs>
     <style>
-      .title{font-family:"Architects Daughter","Comic Sans MS",cursive;font-size:24px;font-weight:400;fill:#172033}
-      .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:14px;fill:#526070}
-      .label{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;fill:#172033}
-      .value{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#172033}
-      .tick{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#6b7280}
+      .title{font-family:"Architects Daughter";font-size:24px;font-weight:400;fill:#172033}
+      .subtitle{font-family:"Comic Mono";font-size:14px;fill:#526070}
+      .label{font-family:"Comic Mono";font-size:13px;fill:#172033}
+      .value{font-family:"Comic Mono";font-size:12px;fill:#172033}
+      .tick{font-family:"Comic Mono";font-size:12px;fill:#6b7280}
     </style>
   </defs>
   <rect width="1040" height="740" fill="#f7f9fc"/>

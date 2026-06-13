@@ -1,0 +1,7 @@
+chart-gate: asset=benchmark-before-after-chart-sample-01
+tableBackedPlaceholder=PASS
+unitDirection=PASS
+singleTallPanel=PASS
+resultBand=PASS
+legend=PASS
+status=PASS
