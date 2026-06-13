@@ -1,5 +1,10 @@
 # AGENTS.md - bluetape4k-projects
 
+This repository inherits the workspace guidance from `../AGENTS.md`.
+Read and follow the workspace root guide first. This file only adds
+repo-specific layout, commands, domain rules, and local exceptions.
+
+
 Core bluetape4k Kotlin/JVM backend libraries. This repo improves Java library
 ergonomics and provides coroutine-first, non-blocking infrastructure modules.
 `settings.gradle.kts` auto-registers module directories. Most groups publish as
@@ -41,20 +46,6 @@ repo-test-summary -- ./gradlew :module:test
 
 Full reference may live under `.codex/references/module-groups.md`.
 
-## Knowledge Retrieval
-
-- For prior decisions, lessons, specs, plans, security reviews, follow-up
-  issues, discussions, and historical context, query GNO before broad
-  filesystem search.
-- Use `gno query ... -c wiki --fast --no-rerank` for personal/cross-project knowledge under
-  `~/.codex/wiki`.
-- Use `gno query ... -c bluetape4k-docs --fast --no-rerank` for committed documentation under
-  `~/work/bluetape4k/**/docs/**/*.md`.
-- If GNO is unavailable or stale, fall back to `rg`/filesystem search and note
-  the indexing gap when it affects the answer.
-- For exact code symbols, filenames, current implementation lookup, and local
-  source relationships, use `rg` first.
-
 ## Build Configuration
 
 - Java 21 toolchain.
@@ -79,15 +70,10 @@ Full reference may live under `.codex/references/module-groups.md`.
 - Publishing uses GitHub Packages Maven; `workshop/` and `examples/` are
   excluded.
 - Auditable update paths must use `auditedUpdate*`.
-- Keep top-level `README.md` and `README.ko.md` synchronized with
-  `settings.gradle.kts` when modules are added, moved, removed, or split out.
 
-## Cross-Repo Lesson Guards
+## Repo-Specific Guards
 
-- Before issue, PR, workflow, release, or module-registration work, query GNO
-  for this repo in both `bluetape4k-github` and `bluetape4k-docs`.
-- For module moves, splits, additions, or removals, verify auto-registration,
-  README locale sets, repo-local module lists, CI/Nightly coverage, coverage
-  artifacts, generated catalog/check scripts, and `./gradlew projects`.
-- Keep Kover XML/Codecov visible without hard gates unless explicitly decided.
-  Run Testcontainers-backed verification sequentially across modules/worktrees.
+- For module moves, splits, additions, or removals, verify auto-registration
+  and generated catalog/check scripts in addition to the workspace module
+  registration chain.
+- Keep Testcontainers-backed verification sequential across modules/worktrees.
