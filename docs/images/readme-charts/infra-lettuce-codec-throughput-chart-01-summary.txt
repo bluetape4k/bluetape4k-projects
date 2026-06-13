@@ -1,5 +1,2 @@
-chart-gate: asset=infra-lettuce-codec-throughput-chart-01
-sampleShape=PASS
-balancedMargins=PASS
-interpretationBoundary=PASS
-status=PASS
+infra-lettuce-codec-throughput-chart-01: rows=13 max=7000 unit=ops/ms
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34

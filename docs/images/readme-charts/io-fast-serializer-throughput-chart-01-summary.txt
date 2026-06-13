@@ -1,0 +1,2 @@
+io-fast-serializer-throughput-chart-01: rows=6 max=125000 unit=ops/s
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34

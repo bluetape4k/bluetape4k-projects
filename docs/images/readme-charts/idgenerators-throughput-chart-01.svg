@@ -1,1 +1,317 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1168" viewBox="0 0 1280 1168"><style>.title{font-family:'Architects Daughter';font-size:34px;font-weight:400;fill:#273043}.subtitle,.legend,.note,.axis{font-family:'Comic Mono';fill:#6b7280;font-weight:400}.label,.value{font-family:'Comic Mono';fill:#273043;font-weight:400}.subtitle{font-size:18px}.legend{font-size:18px}.label{font-size:18px}.value{font-size:18px}.note,.axis{font-size:17px}</style><rect width="1280" height="1168" fill="#f6f8fb"/><rect x="24" y="24" width="1232" height="1120" rx="18" fill="#fff" stroke="#d7e3ee" stroke-width="2"/><text class="title" x="56" y="72">ID Generator Throughput</text><text class="subtitle" x="58" y="104">Single-thread and 16-thread benchmarks by batch size</text><rect x="56" y="116" width="18" height="18" rx="5" fill="#8ecae6"/><text class="legend" x="82" y="131">Single / 100</text><rect x="226" y="116" width="18" height="18" rx="5" fill="#b8e0d2"/><text class="legend" x="252" y="131">Single / 10k</text><rect x="396" y="116" width="18" height="18" rx="5" fill="#ffb3c7"/><text class="legend" x="422" y="131">16 threads / 100</text><rect x="606" y="116" width="18" height="18" rx="5" fill="#ffd166"/><text class="legend" x="632" y="131">16 threads / 10k</text><text class="label" x="56" y="197">UUID V7</text><rect x="285" y="142" width="785.3865781096467" height="18" rx="7" fill="#8ecae6"/><text class="value" x="1080.3865781096467" y="157">429,584 ops/s</text><rect x="285" y="166" width="320.4682426363297" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="615.4682426363297" y="181">4,278 ops/s</text><rect x="285" y="190" width="620.0899602177692" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="915.0899602177692" y="205">83,431 ops/s</text><rect x="285" y="214" width="150.72335330831413" height="18" rx="7" fill="#ffd166"/><text class="value" x="445.72335330831413" y="229">795 ops/s</text><text class="label" x="56" y="331">ULID</text><rect x="285" y="276" width="738.8532615871309" height="18" rx="7" fill="#8ecae6"/><text class="value" x="1033.8532615871309" y="291">270,825 ops/s</text><rect x="285" y="300" width="268.4002815210763" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="563.4002815210763" y="315">2,553 ops/s</text><rect x="285" y="324" width="488.26444560705954" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="783.2644456070595" y="339">22,580 ops/s</text><rect x="285" y="348" width="22.507282068917334" height="18" rx="7" fill="#ffd166"/><text class="value" x="317.50728206891733" y="363">223 ops/s</text><text class="label" x="56" y="465">UUID V4</text><rect x="285" y="410" width="643.9005058052986" height="18" rx="7" fill="#8ecae6"/><text class="value" x="938.9005058052986" y="425">105,645 ops/s</text><rect x="285" y="434" width="177.52762232841945" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="472.52762232841945" y="449">1,037 ops/s</text><rect x="285" y="458" width="517.6503465080557" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="812.6503465080557" y="473">30,217 ops/s</text><rect x="285" y="482" width="49.00533204854543" height="18" rx="7" fill="#ffd166"/><text class="value" x="344.0053320485454" y="497">290 ops/s</text><text class="label" x="56" y="599">Flake</text><rect x="285" y="544" width="574.0199126677436" height="18" rx="7" fill="#8ecae6"/><text class="value" x="869.0199126677436" y="559">52,840 ops/s</text><rect x="285" y="568" width="99.41037272602051" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="394.4103727260205" y="583">478 ops/s</text><rect x="285" y="592" width="523.4677028510727" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="818.4677028510727" y="607">32,011 ops/s</text><rect x="285" y="616" width="57.98438337827503" height="18" rx="7" fill="#ffd166"/><text class="value" x="352.984383378275" y="631">317 ops/s</text><text class="label" x="56" y="733">KSUID Seconds</text><rect x="285" y="678" width="575.9933392174784" height="18" rx="7" fill="#8ecae6"/><text class="value" x="870.9933392174784" y="693">53,884 ops/s</text><rect x="285" y="702" width="108.0987785498105" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="403.0987785498105" y="717">521 ops/s</text><rect x="285" y="726" width="501.74978414389625" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="796.7497841438962" y="741">25,810 ops/s</text><rect x="285" y="750" width="34.83871571846453" height="18" rx="7" fill="#ffd166"/><text class="value" x="329.8387157184645" y="765">252 ops/s</text><text class="label" x="56" y="867">KSUID Millis</text><rect x="285" y="812" width="586.6624055636495" height="18" rx="7" fill="#8ecae6"/><text class="value" x="881.6624055636495" y="827">59,896 ops/s</text><rect x="285" y="836" width="119.26654653349948" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="414.2665465334995" y="851">582 ops/s</text><rect x="285" y="860" width="501.5855159064297" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="796.5855159064297" y="875">25,768 ops/s</text><rect x="285" y="884" width="30.336911951461218" height="18" rx="7" fill="#ffd166"/><text class="value" x="325.3369119514612" y="899">241 ops/s</text><text class="label" x="56" y="1001">Snowflake</text><rect x="285" y="946" width="548.3620221745664" height="18" rx="7" fill="#8ecae6"/><text class="value" x="843.3620221745664" y="961">40,972 ops/s</text><rect x="285" y="970" width="83.93234153490556" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="378.93234153490556" y="985">410 ops/s</text><rect x="285" y="994" width="506.3559943910036" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="801.3559943910036" y="1009">27,016 ops/s</text><rect x="285" y="1018" width="35.238179950129734" height="18" rx="7" fill="#ffd166"/><text class="value" x="330.23817995012973" y="1033">253 ops/s</text><text class="axis" x="285" y="1104">log scale</text><text class="note" x="56" y="1130">Higher is better. Log scale avoids hiding 10k-batch results.</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1325" viewBox="0 0 1840 1325" role="img" aria-labelledby="title desc">
+<title id="title">ID Generators Throughput</title>
+<desc id="desc">Single-thread and concurrent benchmark tables · batch=100 and batch=10000 · ops/s · higher is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <style>
+    .canvas{fill:#F7F9FC}
+    .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2;filter:url(#shadow)}
+    .note{fill:#F7F9FC;stroke:#D7E2EC;stroke-width:1.6}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panelTitle{font-family:"Architects Daughter";font-size:25px;fill:#21334A;font-weight:700}
+    .label{font-family:"Architects Daughter";font-size:21px;fill:#21334A;font-weight:700}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .tiny{font-family:"Comic Mono";font-size:11px;fill:#657386}
+    .value{font-family:"Comic Mono";font-size:13px;fill:#26384F;font-weight:700}
+    .grid{stroke:#D7E2EC;stroke-width:1;stroke-dasharray:4 7}
+    .axis{stroke:#AEBFD1;stroke-width:1.6}
+  </style>
+</defs>
+<rect class="canvas" width="1840" height="1325"/>
+<rect class="frame" x="34" y="34" width="1772" height="1257" rx="26"/>
+<text class="title" x="70" y="82" >ID Generators Throughput</text>
+<text class="subtitle" x="72" y="116" >Single-thread and concurrent benchmark tables · batch=100 and batch=10000 · ops/s · higher is better</text>
+<g>
+  <rect class="panel" x="70" y="150" width="820" height="455" rx="22"/>
+  <text class="panelTitle" x="98" y="192" >Single-thread batch=100</text>
+  <text class="small" x="862" y="192" text-anchor="end">0 to 450,000 ops/s</text>
+  <line class="grid" x1="275" y1="228" x2="275" y2="551"/>
+<text class="tiny" x="275" y="576" text-anchor="middle">0</text>
+<line class="grid" x1="458.3333333333333" y1="228" x2="458.3333333333333" y2="551"/>
+<text class="tiny" x="458.3333333333333" y="576" text-anchor="middle">150,000</text>
+<line class="grid" x1="641.6666666666666" y1="228" x2="641.6666666666666" y2="551"/>
+<text class="tiny" x="641.6666666666666" y="576" text-anchor="middle">300,000</text>
+<line class="grid" x1="825" y1="228" x2="825" y2="551"/>
+<text class="tiny" x="825" y="576" text-anchor="middle">450,000</text>
+<line class="axis" x1="275" y1="551" x2="825" y2="551"/>
+  <g>
+  <text class="body" x="100" y="249" dominant-baseline="middle">UUID V7</text>
+  <g>
+  <rect x="275" y="240" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="240" width="525.0471111111111" height="13" rx="6" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/>
+  <text class="value" x="812.0471111111111" y="247.5"  dominant-baseline="middle">429,584 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="294" dominant-baseline="middle">ULID</text>
+  <g>
+  <rect x="275" y="285" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="285" width="331.0083333333333" height="13" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="618.0083333333333" y="292.5"  dominant-baseline="middle">270,825 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="339" dominant-baseline="middle">UUID V4</text>
+  <g>
+  <rect x="275" y="330" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="330" width="129.12166666666667" height="13" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="416.12166666666667" y="337.5"  dominant-baseline="middle">105,645 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="384" dominant-baseline="middle">KSUID ms</text>
+  <g>
+  <rect x="275" y="375" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="375" width="73.20622222222222" height="13" rx="6" fill="#FFF3D8" stroke="#D6A441" stroke-width="1.5"/>
+  <text class="value" x="360.2062222222222" y="382.5"  dominant-baseline="middle">59,896 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="429" dominant-baseline="middle">KSUID sec</text>
+  <g>
+  <rect x="275" y="420" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="420" width="65.85822222222222" height="13" rx="6" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.5"/>
+  <text class="value" x="352.85822222222225" y="427.5"  dominant-baseline="middle">53,884 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="474" dominant-baseline="middle">Flake</text>
+  <g>
+  <rect x="275" y="465" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="465" width="64.58222222222221" height="13" rx="6" fill="#EEF6D9" stroke="#8BA84D" stroke-width="1.5"/>
+  <text class="value" x="351.5822222222222" y="472.5"  dominant-baseline="middle">52,840 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="519" dominant-baseline="middle">Snowflake</text>
+  <g>
+  <rect x="275" y="510" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="510" width="50.07688888888889" height="13" rx="6" fill="#FFE7EC" stroke="#D85D74" stroke-width="1.5"/>
+  <text class="value" x="337.0768888888889" y="517.5"  dominant-baseline="middle">40,972 ops/s</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="panel" x="950" y="150" width="820" height="455" rx="22"/>
+  <text class="panelTitle" x="978" y="192" >Concurrent batch=100</text>
+  <text class="small" x="1742" y="192" text-anchor="end">0 to 90,000 ops/s</text>
+  <line class="grid" x1="1155" y1="228" x2="1155" y2="551"/>
+<text class="tiny" x="1155" y="576" text-anchor="middle">0</text>
+<line class="grid" x1="1338.3333333333333" y1="228" x2="1338.3333333333333" y2="551"/>
+<text class="tiny" x="1338.3333333333333" y="576" text-anchor="middle">30,000</text>
+<line class="grid" x1="1521.6666666666665" y1="228" x2="1521.6666666666665" y2="551"/>
+<text class="tiny" x="1521.6666666666665" y="576" text-anchor="middle">60,000</text>
+<line class="grid" x1="1705" y1="228" x2="1705" y2="551"/>
+<text class="tiny" x="1705" y="576" text-anchor="middle">90,000</text>
+<line class="axis" x1="1155" y1="551" x2="1705" y2="551"/>
+  <g>
+  <text class="body" x="980" y="249" dominant-baseline="middle">UUID V7</text>
+  <g>
+  <rect x="1155" y="240" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="240" width="509.8561111111111" height="13" rx="6" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/>
+  <text class="value" x="1676.8561111111112" y="247.5"  dominant-baseline="middle">83,431 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="294" dominant-baseline="middle">Flake</text>
+  <g>
+  <rect x="1155" y="285" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="285" width="195.62277777777777" height="13" rx="6" fill="#EEF6D9" stroke="#8BA84D" stroke-width="1.5"/>
+  <text class="value" x="1362.6227777777779" y="292.5"  dominant-baseline="middle">32,011 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="339" dominant-baseline="middle">UUID V4</text>
+  <g>
+  <rect x="1155" y="330" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="330" width="184.65944444444446" height="13" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="1351.6594444444445" y="337.5"  dominant-baseline="middle">30,217 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="384" dominant-baseline="middle">Snowflake</text>
+  <g>
+  <rect x="1155" y="375" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="375" width="165.09777777777776" height="13" rx="6" fill="#FFE7EC" stroke="#D85D74" stroke-width="1.5"/>
+  <text class="value" x="1332.0977777777778" y="382.5"  dominant-baseline="middle">27,016 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="429" dominant-baseline="middle">KSUID sec</text>
+  <g>
+  <rect x="1155" y="420" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="420" width="157.7277777777778" height="13" rx="6" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.5"/>
+  <text class="value" x="1324.7277777777779" y="427.5"  dominant-baseline="middle">25,810 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="474" dominant-baseline="middle">KSUID ms</text>
+  <g>
+  <rect x="1155" y="465" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="465" width="157.47111111111113" height="13" rx="6" fill="#FFF3D8" stroke="#D6A441" stroke-width="1.5"/>
+  <text class="value" x="1324.4711111111112" y="472.5"  dominant-baseline="middle">25,768 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="519" dominant-baseline="middle">ULID</text>
+  <g>
+  <rect x="1155" y="510" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="510" width="137.98888888888888" height="13" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="1304.9888888888888" y="517.5"  dominant-baseline="middle">22,580 ops/s</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="panel" x="70" y="650" width="820" height="455" rx="22"/>
+  <text class="panelTitle" x="98" y="692" >Single-thread batch=10000</text>
+  <text class="small" x="862" y="692" text-anchor="end">0 to 4,500 ops/s</text>
+  <line class="grid" x1="275" y1="728" x2="275" y2="1051"/>
+<text class="tiny" x="275" y="1076" text-anchor="middle">0</text>
+<line class="grid" x1="458.3333333333333" y1="728" x2="458.3333333333333" y2="1051"/>
+<text class="tiny" x="458.3333333333333" y="1076" text-anchor="middle">1,500</text>
+<line class="grid" x1="641.6666666666666" y1="728" x2="641.6666666666666" y2="1051"/>
+<text class="tiny" x="641.6666666666666" y="1076" text-anchor="middle">3,000</text>
+<line class="grid" x1="825" y1="728" x2="825" y2="1051"/>
+<text class="tiny" x="825" y="1076" text-anchor="middle">4,500</text>
+<line class="axis" x1="275" y1="1051" x2="825" y2="1051"/>
+  <g>
+  <text class="body" x="100" y="749" dominant-baseline="middle">UUID V7</text>
+  <g>
+  <rect x="275" y="740" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="740" width="522.8666666666667" height="13" rx="6" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/>
+  <text class="value" x="809.8666666666667" y="747.5"  dominant-baseline="middle">4,278 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="794" dominant-baseline="middle">ULID</text>
+  <g>
+  <rect x="275" y="785" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="785" width="312.03333333333336" height="13" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="599.0333333333333" y="792.5"  dominant-baseline="middle">2,553 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="839" dominant-baseline="middle">UUID V4</text>
+  <g>
+  <rect x="275" y="830" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="830" width="126.74444444444445" height="13" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="413.74444444444447" y="837.5"  dominant-baseline="middle">1,037 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="884" dominant-baseline="middle">KSUID ms</text>
+  <g>
+  <rect x="275" y="875" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="875" width="71.13333333333333" height="13" rx="6" fill="#FFF3D8" stroke="#D6A441" stroke-width="1.5"/>
+  <text class="value" x="358.1333333333333" y="882.5"  dominant-baseline="middle">582 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="929" dominant-baseline="middle">KSUID sec</text>
+  <g>
+  <rect x="275" y="920" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="920" width="63.67777777777778" height="13" rx="6" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.5"/>
+  <text class="value" x="350.6777777777778" y="927.5"  dominant-baseline="middle">521 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="974" dominant-baseline="middle">Flake</text>
+  <g>
+  <rect x="275" y="965" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="965" width="58.42222222222222" height="13" rx="6" fill="#EEF6D9" stroke="#8BA84D" stroke-width="1.5"/>
+  <text class="value" x="345.4222222222222" y="972.5"  dominant-baseline="middle">478 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="100" y="1019" dominant-baseline="middle">Snowflake</text>
+  <g>
+  <rect x="275" y="1010" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="275" y="1010" width="50.111111111111114" height="13" rx="6" fill="#FFE7EC" stroke="#D85D74" stroke-width="1.5"/>
+  <text class="value" x="337.1111111111111" y="1017.5"  dominant-baseline="middle">410 ops/s</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="panel" x="950" y="650" width="820" height="455" rx="22"/>
+  <text class="panelTitle" x="978" y="692" >Concurrent batch=10000</text>
+  <text class="small" x="1742" y="692" text-anchor="end">0 to 850 ops/s</text>
+  <line class="grid" x1="1155" y1="728" x2="1155" y2="1051"/>
+<text class="tiny" x="1155" y="1076" text-anchor="middle">0</text>
+<line class="grid" x1="1316.764705882353" y1="728" x2="1316.764705882353" y2="1051"/>
+<text class="tiny" x="1316.764705882353" y="1076" text-anchor="middle">250</text>
+<line class="grid" x1="1478.5294117647059" y1="728" x2="1478.5294117647059" y2="1051"/>
+<text class="tiny" x="1478.5294117647059" y="1076" text-anchor="middle">500</text>
+<line class="grid" x1="1640.2941176470588" y1="728" x2="1640.2941176470588" y2="1051"/>
+<text class="tiny" x="1640.2941176470588" y="1076" text-anchor="middle">750</text>
+<line class="axis" x1="1155" y1="1051" x2="1705" y2="1051"/>
+  <g>
+  <text class="body" x="980" y="749" dominant-baseline="middle">UUID V7</text>
+  <g>
+  <rect x="1155" y="740" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="740" width="514.4117647058823" height="13" rx="6" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/>
+  <text class="value" x="1681.4117647058824" y="747.5"  dominant-baseline="middle">795 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="794" dominant-baseline="middle">Flake</text>
+  <g>
+  <rect x="1155" y="785" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="785" width="205.1176470588235" height="13" rx="6" fill="#EEF6D9" stroke="#8BA84D" stroke-width="1.5"/>
+  <text class="value" x="1372.1176470588234" y="792.5"  dominant-baseline="middle">317 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="839" dominant-baseline="middle">UUID V4</text>
+  <g>
+  <rect x="1155" y="830" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="830" width="187.64705882352942" height="13" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="1354.6470588235295" y="837.5"  dominant-baseline="middle">290 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="884" dominant-baseline="middle">Snowflake</text>
+  <g>
+  <rect x="1155" y="875" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="875" width="163.7058823529412" height="13" rx="6" fill="#FFE7EC" stroke="#D85D74" stroke-width="1.5"/>
+  <text class="value" x="1330.7058823529412" y="882.5"  dominant-baseline="middle">253 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="929" dominant-baseline="middle">KSUID sec</text>
+  <g>
+  <rect x="1155" y="920" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="920" width="163.05882352941174" height="13" rx="6" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.5"/>
+  <text class="value" x="1330.0588235294117" y="927.5"  dominant-baseline="middle">252 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="974" dominant-baseline="middle">KSUID ms</text>
+  <g>
+  <rect x="1155" y="965" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="965" width="155.94117647058823" height="13" rx="6" fill="#FFF3D8" stroke="#D6A441" stroke-width="1.5"/>
+  <text class="value" x="1322.9411764705883" y="972.5"  dominant-baseline="middle">241 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="body" x="980" y="1019" dominant-baseline="middle">ULID</text>
+  <g>
+  <rect x="1155" y="1010" width="550" height="13" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1155" y="1010" width="144.2941176470588" height="13" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="1311.2941176470588" y="1017.5"  dominant-baseline="middle">223 ops/s</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="note" x="94" y="1133" width="1652" height="58" rx="16"/>
+  <text class="small" x="920" y="1156" text-anchor="middle" dominant-baseline="middle">UUID V7 leads every table; batch=10000 drops all generators because uniqueness verification dominates the measured work.</text>
+  <text class="tiny" x="920" y="1175" text-anchor="middle" dominant-baseline="middle">Four panels are intentional: mixing batch sizes or execution modes into one axis hides the benchmark meaning.</text>
+</g>
+<g>
+  <rect class="note" x="94" y="1207" width="1652" height="50" rx="16"/>
+  <text class="small" x="920" y="1225" text-anchor="middle" dominant-baseline="middle">Source: utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables</text>
+  <text class="tiny" x="920" y="1243" text-anchor="middle" dominant-baseline="middle">Chart rule: keep benchmark mode, batch size, unit, and direction attached to each panel.</text>
+</g>
+</svg>

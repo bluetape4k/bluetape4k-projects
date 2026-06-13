@@ -1,0 +1,2 @@
+io-http-cache-throughput-chart-01: panels=2
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34

@@ -1,11 +1,98 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460">
-<style>
-.title{font-family:'Architects Daughter';font-size:34px;font-weight:400;fill:#273043}
-.subtitle,.axis,.legend,.note{font-family:'Comic Mono';fill:#6b7280;font-weight:400}
-.label{font-family:'Comic Mono';fill:#273043;font-weight:400}
-.value{font-family:'Comic Mono';fill:#273043;font-weight:400;font-size:18px}
-.axis{font-size:16px}.legend{font-size:18px}.note{font-size:17px}.label{font-size:18px}
-</style>
-<rect width="1280" height="460" rx="0" fill="#f6f8fb"/>
-<rect x="24" y="24" width="1232" height="412" rx="18" fill="#ffffff" stroke="#d7e3ee" stroke-width="2"/>
-<text class="title" x="56" y="72">Compressor Round-Trip Throughput</text><text class="subtitle" x="58" y="104" font-size="18">Utf8Samples.txt compression + decompression</text><line x1="260" y1="118" x2="1120" y2="118" stroke="#dbe7f0" stroke-width="2"/><text class="label" x="56" y="155">Snappy</text><rect x="260" y="136" width="767.8571428571427" height="24" rx="8" fill="#8ecae6"/><text class="value" x="1039.8571428571427" y="154">8,073 ops/s</text><text class="label" x="56" y="197">LZ4</text><rect x="260" y="178" width="643.8281927412362" height="24" rx="8" fill="#ffb3c7"/><text class="value" x="915.8281927412362" y="196">6,769 ops/s</text><text class="label" x="56" y="239">Zstd</text><rect x="260" y="220" width="485.36789297658856" height="24" rx="8" fill="#b8e0d2"/><text class="value" x="757.3678929765886" y="238">5,103 ops/s</text><text class="label" x="56" y="281">GZip</text><rect x="260" y="262" width="113.66149953106475" height="24" rx="8" fill="#ffd166"/><text class="value" x="385.66149953106475" y="280">1,195 ops/s</text><text class="label" x="56" y="323">Deflate</text><rect x="260" y="304" width="103.10382049512486" height="24" rx="8" fill="#cdb4db"/><text class="value" x="375.10382049512486" y="322">1,084 ops/s</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="720" viewBox="0 0 1720 720" role="img" aria-labelledby="title desc">
+<title id="title">Compressor Throughput</title>
+<desc id="desc">Same-condition compressor benchmark · ops/s · higher is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <style>
+    .canvas{fill:#F7F9FC}
+    .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2;filter:url(#shadow)}
+    .note{fill:#F7F9FC;stroke:#D7E2EC;stroke-width:1.6}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panelTitle{font-family:"Architects Daughter";font-size:25px;fill:#21334A;font-weight:700}
+    .label{font-family:"Architects Daughter";font-size:21px;fill:#21334A;font-weight:700}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .tiny{font-family:"Comic Mono";font-size:11px;fill:#657386}
+    .value{font-family:"Comic Mono";font-size:13px;fill:#26384F;font-weight:700}
+    .grid{stroke:#D7E2EC;stroke-width:1;stroke-dasharray:4 7}
+    .axis{stroke:#AEBFD1;stroke-width:1.6}
+  </style>
+</defs>
+<rect class="canvas" width="1720" height="720"/>
+<rect class="frame" x="34" y="34" width="1652" height="652" rx="26"/>
+<text class="title" x="70" y="82" >Compressor Throughput</text>
+<text class="subtitle" x="72" y="116" >Same-condition compressor benchmark · ops/s · higher is better</text>
+<g>
+  <rect class="panel" x="70" y="142" width="1580" height="362" rx="22"/>
+  <text class="panelTitle" x="96" y="184" >Measured ranking</text>
+  <text class="small" x="1530" y="184" text-anchor="end">0 to 8,500 ops/s</text>
+  <line class="grid" x1="560" y1="170" x2="560" y2="420"/>
+<text class="tiny" x="560" y="445" text-anchor="middle">0</text>
+<line class="grid" x1="755.2941176470588" y1="170" x2="755.2941176470588" y2="420"/>
+<text class="tiny" x="755.2941176470588" y="445" text-anchor="middle">2,000</text>
+<line class="grid" x1="950.5882352941176" y1="170" x2="950.5882352941176" y2="420"/>
+<text class="tiny" x="950.5882352941176" y="445" text-anchor="middle">4,000</text>
+<line class="grid" x1="1145.8823529411766" y1="170" x2="1145.8823529411766" y2="420"/>
+<text class="tiny" x="1145.8823529411766" y="445" text-anchor="middle">6,000</text>
+<line class="grid" x1="1341.1764705882351" y1="170" x2="1341.1764705882351" y2="420"/>
+<text class="tiny" x="1341.1764705882351" y="445" text-anchor="middle">8,000</text>
+<line class="axis" x1="560" y1="420" x2="1390" y2="420"/>
+  <g>
+  <text class="label" x="96" y="194" dominant-baseline="middle">Snappy</text>
+
+  <g>
+  <rect x="560" y="180" width="830" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="560" y="180" width="788.304705882353" height="18" rx="6" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/>
+  <text class="value" x="1360.3047058823531" y="190"  dominant-baseline="middle">8,073 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="label" x="96" y="242" dominant-baseline="middle">LZ4</text>
+
+  <g>
+  <rect x="560" y="228" width="830" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="560" y="228" width="660.9729411764706" height="18" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="1232.9729411764706" y="238"  dominant-baseline="middle">6,769 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="label" x="96" y="290" dominant-baseline="middle">Zstd</text>
+
+  <g>
+  <rect x="560" y="276" width="830" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="560" y="276" width="498.29294117647055" height="18" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="1070.2929411764705" y="286"  dominant-baseline="middle">5,103 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="label" x="96" y="338" dominant-baseline="middle">GZip</text>
+
+  <g>
+  <rect x="560" y="324" width="830" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="560" y="324" width="116.68823529411765" height="18" rx="6" fill="#FFF3D8" stroke="#D6A441" stroke-width="1.5"/>
+  <text class="value" x="688.6882352941177" y="334"  dominant-baseline="middle">1,195 ops/s</text>
+</g>
+</g>
+<g>
+  <text class="label" x="96" y="386" dominant-baseline="middle">Deflate</text>
+
+  <g>
+  <rect x="560" y="372" width="830" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="560" y="372" width="105.84941176470589" height="18" rx="6" fill="#FFE7EC" stroke="#D85D74" stroke-width="1.5"/>
+  <text class="value" x="677.8494117647059" y="382"  dominant-baseline="middle">1,084 ops/s</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="note" x="94" y="528" width="1532" height="58" rx="16"/>
+  <text class="small" x="860" y="551" text-anchor="middle" dominant-baseline="middle">Snappy and LZ4 are the throughput-oriented choices; Zstd/GZip/Deflate are shown as slower compression tradeoffs.</text>
+  <text class="tiny" x="860" y="570" text-anchor="middle" dominant-baseline="middle">Higher is better. Keep units, benchmark mode, and source table visible with the chart.</text>
+</g>
+<g>
+  <rect class="note" x="94" y="602" width="1532" height="50" rx="16"/>
+  <text class="small" x="860" y="620" text-anchor="middle" dominant-baseline="middle">Source: io/io/README.ko.md compressor benchmark summary</text>
+  <text class="tiny" x="860" y="638" text-anchor="middle" dominant-baseline="middle">Chart rule: do not merge unlike units; split axes when order-of-magnitude differences hide the message.</text>
+</g>
+</svg>

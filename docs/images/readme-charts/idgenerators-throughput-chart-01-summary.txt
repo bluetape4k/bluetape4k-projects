@@ -1,0 +1,2 @@
+idgenerators-throughput-chart-01: panels=4 sourceTables=single/concurrent batch100/batch10000
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34

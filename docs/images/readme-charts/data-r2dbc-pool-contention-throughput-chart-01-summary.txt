@@ -1,0 +1,2 @@
+data-r2dbc-pool-contention-throughput-chart-01: groups=6 series=2 max=40000 unit=ops/s
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34
