@@ -4,32 +4,32 @@
   <defs>
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
 
-    <marker id="arrowNeutral" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#758297"/>
+    <marker id="arrowNeutral" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/>
     </marker>
-    <marker id="arrowRequest" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#5B8DEF"/>
+    <marker id="arrowRequest" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#5B8DEF"/>
     </marker>
-    <marker id="arrowService" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#45A7A1"/>
+    <marker id="arrowService" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#45A7A1"/>
     </marker>
-    <marker id="arrowEvent" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#58A978"/>
+    <marker id="arrowEvent" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#58A978"/>
     </marker>
-    <marker id="arrowMetrics" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#D6A441"/>
+    <marker id="arrowMetrics" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#D6A441"/>
     </marker>
-    <marker id="arrowTrace" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#8A72D6"/>
+    <marker id="arrowTrace" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
     </marker>
-    <marker id="arrowResponse" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="#DC6B82"/>
+    <marker id="arrowResponse" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
     </marker>
     <style>
       .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
       .card,.participant{filter:url(#shadow);stroke-width:2}
       .layerBand{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.4;opacity:.72}
-      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:#627184;font-weight:400}
+      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:#627184;font-weight:400;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
       .lifeline{stroke:#758297;stroke-width:1.8;stroke-dasharray:7 8}
       .edge{stroke-width:2.4;fill:none}
       .sequenceEdge{stroke-width:2.3;fill:none}
@@ -47,114 +47,114 @@
   <rect class="frame" x="32" y="28" width="1356" height="864" rx="26"/>
   <text class="title" x="66" y="82">Spring Boot Observability Demo Architecture</text>
   <text class="subtitle" x="70" y="116">Layered request, application, observation, and export responsibilities.</text>
-  <g id="entry"><rect class="layerBand" x="54" y="150" width="1312" height="140" rx="18"/><text class="layerLabel" x="72" y="178">Entry layer</text></g>
-  <g id="application"><rect class="layerBand" x="54" y="310" width="1312" height="140" rx="18"/><text class="layerLabel" x="72" y="338">Application work layer</text></g>
-  <g id="observability"><rect class="layerBand" x="54" y="470" width="1312" height="160" rx="18"/><text class="layerLabel" x="72" y="498">Observation layer</text></g>
-  <g id="export"><rect class="layerBand" x="54" y="650" width="1312" height="160" rx="18"/><text class="layerLabel" x="72" y="678">Export layer</text></g>
+  <g id="entry"><rect class="layerBand" x="54" y="170" width="1312" height="140" rx="18"/><text class="layerLabel" x="74" y="188" dominant-baseline="middle">Entry layer</text></g>
+  <g id="application"><rect class="layerBand" x="54" y="330" width="1312" height="140" rx="18"/><text class="layerLabel" x="74" y="348" dominant-baseline="middle">Application work layer</text></g>
+  <g id="observability"><rect class="layerBand" x="54" y="490" width="1312" height="160" rx="18"/><text class="layerLabel" x="74" y="508" dominant-baseline="middle">Observation layer</text></g>
+  <g id="export"><rect class="layerBand" x="54" y="670" width="1312" height="160" rx="18"/><text class="layerLabel" x="74" y="688" dominant-baseline="middle">Export layer</text></g>
 
   <g id="client-controller">
-    <path class="edge" d="M365 222 L440 222" stroke="#5B8DEF" marker-end="url(#arrowRequest)"/>
+    <path class="edge" d="M365 242 L440 242" stroke="#5B8DEF" marker-end="url(#arrowRequest)"/>
 
   </g>
 
   <g id="controller-service">
-    <path class="edge" d="M580 282 L580 304 L730 304 L730 334" stroke="#45A7A1" marker-end="url(#arrowService)"/>
+    <path class="edge" d="M580 302 L580 324 L730 324 L730 354" stroke="#45A7A1" marker-end="url(#arrowService)"/>
 
   </g>
 
   <g id="service-observe-spring">
-    <path class="edge" d="M650 430 L650 455 L360 455 L360 500" stroke="#45A7A1" marker-end="url(#arrowService)"/>
-
-  </g>
-
-  <g id="service-event-telemetry">
-    <path class="edge" d="M710 430 L710 494" stroke="#58A978" marker-end="url(#arrowEvent)"/>
+    <path class="edge" d="M650 450 L650 475 L330 475 L330 520" stroke="#45A7A1" marker-end="url(#arrowService)"/>
 
   </g>
 
   <g id="service-registry">
-    <path class="edge" d="M820 430 L820 455 L1085 455 L1085 500" stroke="#758297" marker-end="url(#arrowNeutral)"/>
+    <path class="edge" d="M730 450 L730 520" stroke="#758297" marker-end="url(#arrowNeutral)"/>
+
+  </g>
+
+  <g id="service-event-telemetry">
+    <path class="edge" d="M810 450 L810 475 L1075 475 L1075 514" stroke="#58A978" marker-end="url(#arrowEvent)"/>
 
   </g>
 
   <g id="springObs-registry">
-    <path class="edge" d="M360 600 L360 625 L1085 625 L1085 600" stroke="#45A7A1" marker-end="url(#arrowService)"/>
+    <path class="edge" d="M475 570 L545 570" stroke="#45A7A1" marker-end="url(#arrowService)"/>
 
   </g>
 
   <g id="eventObs-registry">
-    <path class="edge" d="M860 550 L930 550" stroke="#58A978" marker-end="url(#arrowEvent)"/>
+    <path class="edge" d="M925 570 L855 570" stroke="#58A978" marker-end="url(#arrowEvent)"/>
 
   </g>
 
   <g id="registry-actuator">
-    <path class="edge" d="M1030 600 L1030 650 L912 650 L912 682" stroke="#D6A441" marker-end="url(#arrowMetrics)"/>
+    <path class="edge" d="M700 620 L700 670 L912 670 L912 702" stroke="#D6A441" marker-end="url(#arrowMetrics)"/>
 
   </g>
 
   <g id="registry-otlp">
-    <path class="edge" d="M1180 600 L1180 650 L1235 650 L1235 682" stroke="#8A72D6" marker-end="url(#arrowTrace)" stroke-dasharray="8 7"/>
+    <path class="edge" d="M790 620 L790 670 L1235 670 L1235 702" stroke="#8A72D6" marker-end="url(#arrowTrace)" stroke-dasharray="8 7"/>
 
   </g>
 
   <g id="client">
-    <rect class="card" x="120" y="178" width="245" height="88" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
-    <text class="cardTitle" x="242.5" y="193" text-anchor="middle" dominant-baseline="middle">HTTP Client</text>
-    <text class="body" x="242.5" y="234" text-anchor="middle" dominant-baseline="middle">POST order event</text>
-<text class="body" x="242.5" y="254" text-anchor="middle" dominant-baseline="middle">GET scrape output</text>
+    <rect class="card" x="120" y="198" width="245" height="88" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <text class="cardTitle" x="242.5" y="213" text-anchor="middle" dominant-baseline="middle">HTTP Client</text>
+    <text class="body" x="242.5" y="254" text-anchor="middle" dominant-baseline="middle">POST order event</text>
+<text class="body" x="242.5" y="274" text-anchor="middle" dominant-baseline="middle">GET scrape output</text>
   </g>
 
   <g id="controller">
-    <rect class="card" x="440" y="170" width="280" height="112" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="cardTitle" x="580" y="184" text-anchor="middle" dominant-baseline="middle">Spring MVC</text>
-<text class="cardTitle" x="580" y="210" text-anchor="middle" dominant-baseline="middle">Controller</text>
-    <text class="body" x="580" y="251" text-anchor="middle" dominant-baseline="middle">/orders/{orderId}/events</text>
-<text class="body" x="580" y="271" text-anchor="middle" dominant-baseline="middle">X-Request-Id header</text>
+    <rect class="card" x="440" y="190" width="280" height="112" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="cardTitle" x="580" y="204" text-anchor="middle" dominant-baseline="middle">Spring MVC</text>
+<text class="cardTitle" x="580" y="230" text-anchor="middle" dominant-baseline="middle">Controller</text>
+    <text class="body" x="580" y="271" text-anchor="middle" dominant-baseline="middle">/orders/{orderId}/events</text>
+<text class="body" x="580" y="291" text-anchor="middle" dominant-baseline="middle">X-Request-Id header</text>
   </g>
 
   <g id="service">
-    <rect class="card" x="570" y="334" width="320" height="96" rx="16" fill="#EAF7EF" stroke="#58A978"/>
-    <text class="cardTitle" x="730" y="353" text-anchor="middle" dominant-baseline="middle">OrderEventService</text>
-    <text class="body" x="730" y="394" text-anchor="middle" dominant-baseline="middle">local publish + consume</text>
-<text class="body" x="730" y="414" text-anchor="middle" dominant-baseline="middle">returns accepted JSON</text>
+    <rect class="card" x="570" y="354" width="320" height="96" rx="16" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="cardTitle" x="730" y="373" text-anchor="middle" dominant-baseline="middle">OrderEventService</text>
+    <text class="body" x="730" y="414" text-anchor="middle" dominant-baseline="middle">local publish + consume</text>
+<text class="body" x="730" y="434" text-anchor="middle" dominant-baseline="middle">returns accepted JSON</text>
   </g>
 
   <g id="springObs">
-    <rect class="card" x="210" y="500" width="300" height="100" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="cardTitle" x="360" y="521" text-anchor="middle" dominant-baseline="middle">observeSpring</text>
-    <text class="body" x="360" y="562" text-anchor="middle" dominant-baseline="middle">orders.http.publish</text>
-<text class="body" x="360" y="582" text-anchor="middle" dominant-baseline="middle">HTTP/service boundary</text>
-  </g>
-
-  <g id="eventObs">
-    <rect class="card" x="560" y="494" width="300" height="112" rx="16" fill="#EAF7EF" stroke="#58A978"/>
-    <text class="cardTitle" x="710" y="508" text-anchor="middle" dominant-baseline="middle">Event</text>
-<text class="cardTitle" x="710" y="534" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
-    <text class="body" x="710" y="575" text-anchor="middle" dominant-baseline="middle">event.publish</text>
-<text class="body" x="710" y="595" text-anchor="middle" dominant-baseline="middle">event.consume</text>
+    <rect class="card" x="185" y="520" width="290" height="100" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="cardTitle" x="330" y="541" text-anchor="middle" dominant-baseline="middle">observeSpring</text>
+    <text class="body" x="330" y="582" text-anchor="middle" dominant-baseline="middle">orders.http.publish</text>
+<text class="body" x="330" y="602" text-anchor="middle" dominant-baseline="middle">HTTP/service boundary</text>
   </g>
 
   <g id="registry">
-    <rect class="card" x="930" y="500" width="310" height="100" rx="16" fill="#FFFFFF" stroke="#758297"/>
-    <text class="cardTitle" x="1085" y="521" text-anchor="middle" dominant-baseline="middle">ObservationRegistry</text>
-    <text class="body" x="1085" y="562" text-anchor="middle" dominant-baseline="middle">Micrometer handlers</text>
-<text class="body" x="1085" y="582" text-anchor="middle" dominant-baseline="middle">metrics + optional spans</text>
+    <rect class="card" x="545" y="520" width="310" height="100" rx="16" fill="#FFFFFF" stroke="#758297"/>
+    <text class="cardTitle" x="700" y="541" text-anchor="middle" dominant-baseline="middle">ObservationRegistry</text>
+    <text class="body" x="700" y="582" text-anchor="middle" dominant-baseline="middle">Micrometer handlers</text>
+<text class="body" x="700" y="602" text-anchor="middle" dominant-baseline="middle">metrics + optional spans</text>
+  </g>
+
+  <g id="eventObs">
+    <rect class="card" x="925" y="514" width="300" height="112" rx="16" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="cardTitle" x="1075" y="528" text-anchor="middle" dominant-baseline="middle">Event</text>
+<text class="cardTitle" x="1075" y="554" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
+    <text class="body" x="1075" y="595" text-anchor="middle" dominant-baseline="middle">event.publish</text>
+<text class="body" x="1075" y="615" text-anchor="middle" dominant-baseline="middle">event.consume</text>
   </g>
 
   <g id="actuator">
-    <rect class="card" x="770" y="682" width="285" height="112" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
-    <text class="cardTitle" x="912.5" y="696" text-anchor="middle" dominant-baseline="middle">Actuator</text>
-<text class="cardTitle" x="912.5" y="722" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
-    <text class="body" x="912.5" y="763" text-anchor="middle" dominant-baseline="middle">/actuator/prometheus</text>
-<text class="body" x="912.5" y="783" text-anchor="middle" dominant-baseline="middle">Spring owns endpoint</text>
+    <rect class="card" x="770" y="702" width="285" height="112" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
+    <text class="cardTitle" x="912.5" y="716" text-anchor="middle" dominant-baseline="middle">Actuator</text>
+<text class="cardTitle" x="912.5" y="742" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
+    <text class="body" x="912.5" y="783" text-anchor="middle" dominant-baseline="middle">/actuator/prometheus</text>
+<text class="body" x="912.5" y="803" text-anchor="middle" dominant-baseline="middle">Spring owns endpoint</text>
   </g>
 
   <g id="otlp">
-    <rect class="card" x="1110" y="682" width="250" height="112" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="cardTitle" x="1235" y="696" text-anchor="middle" dominant-baseline="middle">OTLP Collector</text>
-<text class="cardTitle" x="1235" y="722" text-anchor="middle" dominant-baseline="middle">optional</text>
-    <text class="body" x="1235" y="763" text-anchor="middle" dominant-baseline="middle">enabled by Spring config</text>
-<text class="body" x="1235" y="783" text-anchor="middle" dominant-baseline="middle">not required for tests</text>
+    <rect class="card" x="1110" y="702" width="250" height="112" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="cardTitle" x="1235" y="716" text-anchor="middle" dominant-baseline="middle">OTLP Collector</text>
+<text class="cardTitle" x="1235" y="742" text-anchor="middle" dominant-baseline="middle">optional</text>
+    <text class="body" x="1235" y="783" text-anchor="middle" dominant-baseline="middle">enabled by Spring config</text>
+<text class="body" x="1235" y="803" text-anchor="middle" dominant-baseline="middle">not required for tests</text>
   </g>
   <text class="note" x="710" y="910" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
 </svg>

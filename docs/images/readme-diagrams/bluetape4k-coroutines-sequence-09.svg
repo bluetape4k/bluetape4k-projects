@@ -1,81 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="1366" viewBox="0 0 1720 1366" role="img" aria-label="9. takeUntil(notifier) / skipUntil(notifier) — Gate Control">
+<svg xmlns="http://www.w3.org/2000/svg" width="1870" height="1476" viewBox="0 0 1870 1476" role="img" aria-label="9. takeUntil(notifier) / skipUntil(notifier) — Gate Control">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1720" height="1366"/>
-<rect class="frame" x="32" y="28" width="1656" height="1310" rx="28"/>
-<text class="title" x="66" y="82">9. takeUntil</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="80" y="166" width="230" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="195" y="209" text-anchor="middle">Flow Source</text>
-<line class="lifeline" x1="195" y1="252" x2="195" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="412.5" y="166" width="230" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="527.5" y="209" text-anchor="middle">Notifier Flow</text>
-<line class="lifeline" x1="527.5" y1="252" x2="527.5" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="745" y="166" width="230" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="860" y="209" text-anchor="middle">takeUntil</text>
-<line class="lifeline" x1="860" y1="252" x2="860" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1077.5" y="166" width="230" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1192.5" y="209" text-anchor="middle">skipUntil</text>
-<line class="lifeline" x1="1192.5" y1="252" x2="1192.5" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1410" y="166" width="230" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1525" y="209" text-anchor="middle">Collector</text>
-<line class="lifeline" x1="1525" y1="252" x2="1525" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="422.5" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="440.5" y="313" text-anchor="start">1. emit(1)</text>
-<path class="line" d="M195 332 L860 332"/>
-<rect x="1087.5" y="362" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1105.5" y="389" text-anchor="start">2. emit(1)</text>
-<path class="line" d="M860 408 L1525 408"/>
-<rect x="422.5" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="440.5" y="465" text-anchor="start">3. emit(2)</text>
-<path class="line" d="M195 484 L860 484"/>
-<rect x="1087.5" y="514" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1105.5" y="541" text-anchor="start">4. emit(2)</text>
-<path class="line" d="M860 560 L1525 560"/>
-<rect x="554.8" y="590" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="572.8" y="617" text-anchor="start">5. emit(signal) ← stop trigger</text>
-<path class="line" d="M527.5 636 L860 636"/>
-<rect x="422.5" y="666" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="440.5" y="693" text-anchor="start">6. emit(3)</text>
-<path class="line" d="M195 712 L860 712"/>
-<rect x="588.8" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="606.8" y="769" text-anchor="start">7. emit(A)</text>
-<path class="line" d="M195 788 L1192.5 788"/>
-<rect x="588.8" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="606.8" y="845" text-anchor="start">8. emit(B)</text>
-<path class="line" d="M195 864 L1192.5 864"/>
-<rect x="729" y="894" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="747" y="921" text-anchor="start">9. emit(signal) ← gate opens</text>
-<path class="line" d="M527.5 940 L1192.5 940"/>
-<rect x="588.8" y="970" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="606.8" y="997" text-anchor="start">10. emit(C)</text>
-<path class="line" d="M195 1016 L1192.5 1016"/>
-<rect x="1253.8" y="1046" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1271.8" y="1073" text-anchor="start">11. emit(C)</text>
-<path class="line" d="M1192.5 1092 L1525 1092"/>
-<rect x="588.8" y="1122" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="606.8" y="1149" text-anchor="start">12. emit(D)</text>
-<path class="line" d="M195 1168 L1192.5 1168"/>
-<rect x="1253.8" y="1198" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1271.8" y="1225" text-anchor="start">13. emit(D)</text>
-<path class="line" d="M1192.5 1244 L1525 1244"/>
+<rect class="canvas" width="1870" height="1476"/>
+<rect class="frame" x="32" y="28" width="1806" height="1420" rx="30"/>
+<text class="title" x="68" y="84">9. takeUntil(notifier) / skipUntil(notifier) — Gate Control</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
+<g id="seq-flow-source"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Flow Source</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1334"/></g>
+<g id="seq-notifier-flow"><rect class="card" x="480" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="595" y="215" text-anchor="middle">Notifier Flow</text><line class="lifeline" x1="595" y1="248" x2="595" y2="1334"/></g>
+<g id="seq-takeuntil"><rect class="card" x="820" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="935" y="215" text-anchor="middle">takeUntil</text><line class="lifeline" x1="935" y1="248" x2="935" y2="1334"/></g>
+<g id="seq-skipuntil"><rect class="card" x="1160" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1275" y="215" text-anchor="middle">skipUntil</text><line class="lifeline" x1="1275" y1="248" x2="1275" y2="1334"/></g>
+<g id="seq-collector"><rect class="card" x="1500" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1615" y="215" text-anchor="middle">Collector</text><line class="lifeline" x1="1615" y1="248" x2="1615" y2="1334"/></g>
+<rect x="247" y="322" width="16" height="864" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="587" y="626" width="16" height="332" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="927" y="322" width="16" height="408" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<rect x="1267" y="778" width="16" height="484" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
+<rect x="1607" y="398" width="16" height="864" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="490" y="287" width="210" height="26" rx="7"/><circle cx="509" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="509" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="613" y="301" text-anchor="middle" dominant-baseline="middle">emit(1)</text><path class="seq" d="M255 330 L935 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="1170" y="363" width="210" height="26" rx="7"/><circle cx="1189" cy="376" r="12" fill="#3E9868"/><text class="detail" x="1189" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="1293" y="377" text-anchor="middle" dominant-baseline="middle">emit(1)</text><path class="seq" d="M935 406 L1615 406" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="490" y="439" width="210" height="26" rx="7"/><circle cx="509" cy="452" r="12" fill="#2E8F89"/><text class="detail" x="509" y="453" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="613" y="453" text-anchor="middle" dominant-baseline="middle">emit(2)</text><path class="seq" d="M255 482 L935 482" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="1170" y="515" width="210" height="26" rx="7"/><circle cx="1189" cy="528" r="12" fill="#B9851B"/><text class="detail" x="1189" y="529" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1293" y="529" text-anchor="middle" dominant-baseline="middle">emit(2)</text><path class="seq" d="M935 558 L1615 558" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m5"><rect class="labelPill" x="620.5" y="591" width="289.1" height="26" rx="7"/><circle cx="639.5" cy="604" r="12" fill="#C94D68"/><text class="detail" x="639.5" y="605" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="783" y="605" text-anchor="middle" dominant-baseline="middle">emit(signal) ← stop trigger</text><path class="seq" d="M595 634 L935 634" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m6"><rect class="labelPill" x="490" y="667" width="210" height="26" rx="7"/><circle cx="509" cy="680" r="12" fill="#755BC6"/><text class="detail" x="509" y="681" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="613" y="681" text-anchor="middle" dominant-baseline="middle">emit(3)</text><path class="seq" d="M255 710 L935 710" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
+<g id="m7"><rect class="labelPill" x="660" y="743" width="210" height="26" rx="7"/><circle cx="679" cy="756" r="12" fill="#4F83BF"/><text class="detail" x="679" y="757" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="783" y="757" text-anchor="middle" dominant-baseline="middle">emit(A)</text><path class="seq" d="M255 786 L1275 786" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m8"><rect class="labelPill" x="660" y="819" width="210" height="26" rx="7"/><circle cx="679" cy="832" r="12" fill="#3E9868"/><text class="detail" x="679" y="833" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="783" y="833" text-anchor="middle" dominant-baseline="middle">emit(B)</text><path class="seq" d="M255 862 L1275 862" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m9"><rect class="labelPill" x="797.8" y="895" width="274.5" height="26" rx="7"/><circle cx="816.8" cy="908" r="12" fill="#2E8F89"/><text class="detail" x="816.8" y="909" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="953" y="909" text-anchor="middle" dominant-baseline="middle">emit(signal) ← gate opens</text><path class="seq" d="M595 938 L1275 938" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m10"><rect class="labelPill" x="660" y="971" width="210" height="26" rx="7"/><circle cx="679" cy="984" r="12" fill="#B9851B"/><text class="detail" x="679" y="985" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">10</text><text class="detail" x="783" y="985" text-anchor="middle" dominant-baseline="middle">emit(C)</text><path class="seq" d="M255 1014 L1275 1014" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m11"><rect class="labelPill" x="1340" y="1047" width="210" height="26" rx="7"/><circle cx="1359" cy="1060" r="12" fill="#C94D68"/><text class="detail" x="1359" y="1061" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="1463" y="1061" text-anchor="middle" dominant-baseline="middle">emit(C)</text><path class="seq" d="M1275 1090 L1615 1090" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m12"><rect class="labelPill" x="660" y="1123" width="210" height="26" rx="7"/><circle cx="679" cy="1136" r="12" fill="#755BC6"/><text class="detail" x="679" y="1137" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="783" y="1137" text-anchor="middle" dominant-baseline="middle">emit(D)</text><path class="seq" d="M255 1166 L1275 1166" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
+<g id="m13"><rect class="labelPill" x="1340" y="1199" width="210" height="26" rx="7"/><circle cx="1359" cy="1212" r="12" fill="#4F83BF"/><text class="detail" x="1359" y="1213" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">13</text><text class="detail" x="1463" y="1213" text-anchor="middle" dominant-baseline="middle">emit(D)</text><path class="seq" d="M1275 1242 L1615 1242" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g><rect x="140" y="1358" width="1590" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="935" y="1384" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

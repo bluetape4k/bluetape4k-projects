@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1120" viewBox="0 0 1360 1120" role="img" aria-labelledby="title desc">
+<title id="title">Benchmark Comparison Chart Sample</title>
+<desc id="desc">Illustrative values · ns/op · lower is better · replace with measured table before publication</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.08"/></filter>
+  <style>
+    .canvas{fill:#F6F9FD}
+    .frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8;filter:url(#shadow)}
+    .result{fill:#F2FFFB;stroke:#18BFA7;stroke-width:1.8}
+    .title{font-family:"Architects Daughter";font-size:34px;fill:#22304A;font-weight:700}
+    .panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22304A;font-weight:700}
+    .subtitle,.label,.axis,.value,.small,.tiny{font-family:"Comic Mono";fill:#22304A}
+    .subtitle{font-size:14px;fill:#5B6B83}
+    .label{font-size:12px}
+    .axis{font-size:11px;fill:#5B6B83}
+    .value{font-size:11px;font-weight:700}
+    .small{font-size:12px}
+    .tiny{font-size:10px;fill:#5B6B83}
+    .grid{stroke:#E1E9F3;stroke-width:1}
+    .axisLine{stroke:#B7C8DC;stroke-width:1.4}
+    .scopePill{fill:#F6FAFF;stroke:#4F83FF;stroke-width:1.5}
+    .legendText{font-family:"Comic Mono";font-size:12px;fill:#22304A}
+  </style>
+</defs>
+<rect class="canvas" width="1360" height="1120"/>
+<rect class="frame" x="0.5" y="0.5" width="1359" height="1119" rx="14"/>
+<text class="title" x="680" y="54" text-anchor="middle">Benchmark Comparison Chart Sample</text>
+<text class="subtitle" x="680" y="76" text-anchor="middle">Illustrative values · ns/op · lower is better · replace with measured table before publication</text>
+<g>
+  <rect x="300" y="88" width="760" height="30" rx="15" fill="#F7FBFF" stroke="#4F83FF" stroke-width="1.4"/>
+  <text class="tiny" x="680" y="104" text-anchor="middle" dominant-baseline="middle">Scope: comparison chart shape, verdict pills, caveat band, and grouped horizontal bars</text>
+</g>
+<g><rect x="1040" y="123" width="18" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+<text class="legendText" x="1066" y="133" dominant-baseline="middle">Series A</text>
+<rect x="1132" y="123" width="18" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+<text class="legendText" x="1158" y="133" dominant-baseline="middle">Series B</text></g>
+<g>
+  <rect class="panel" x="56" y="150" width="1248" height="390" rx="14"/>
+  <text class="panelTitle" x="88" y="193" >Single-thread comparison</text>
+  <text class="axis" x="1184" y="187" text-anchor="middle">0 to 260 ns/op</text>
+  <line class="grid" x1="390" y1="204" x2="390" y2="446"/>
+<text class="axis" x="390" y="474" text-anchor="middle">0</text>
+<line class="grid" x1="655.3846153846155" y1="204" x2="655.3846153846155" y2="446"/>
+<text class="axis" x="655.3846153846155" y="474" text-anchor="middle">100</text>
+<line class="grid" x1="920.7692307692308" y1="204" x2="920.7692307692308" y2="446"/>
+<text class="axis" x="920.7692307692308" y="474" text-anchor="middle">200</text>
+<line class="axisLine" x1="390" y1="446" x2="1080" y2="446"/>
+  <g>
+  <text class="label" x="88" y="239" >Cold start</text>
+  <rect x="390" y="216" width="101.9076923076923" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="501.9076923076923" y="226" >A 38.40</text>
+  <rect x="390" y="234" width="382.68461538461537" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="782.6846153846154" y="244" >B 144.20</text>
+</g>
+<g>
+  <text class="label" x="88" y="285" >Cached path</text>
+  <rect x="390" y="262" width="164.0076923076923" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="564.0076923076923" y="272" >A 61.80</text>
+  <rect x="390" y="280" width="113.05384615384617" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="513.0538461538462" y="290" >B 42.60</text>
+</g>
+<g>
+  <text class="label" x="88" y="331" >Buffered path</text>
+  <rect x="390" y="308" width="126.0576923076923" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="526.0576923076923" y="318" >A 47.50</text>
+  <rect x="390" y="326" width="233.8038461538461" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="633.803846153846" y="336" >B 88.10</text>
+</g>
+<g>
+  <text class="label" x="88" y="377" >Batch millis</text>
+  <rect x="390" y="354" width="352.6961538461539" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="752.696153846154" y="364" >A 132.90</text>
+  <rect x="390" y="372" width="436.2923076923077" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="836.2923076923078" y="382" >B 164.40</text>
+</g>
+<g>
+  <text class="label" x="88" y="423" >Batch seconds</text>
+  <rect x="390" y="400" width="561.0230769230769" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="961.0230769230769" y="410" >A 211.40</text>
+  <rect x="390" y="418" width="495.4730769230769" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="895.4730769230769" y="428" >B 186.70</text>
+</g>
+  <g>
+  <rect x="1180" y="210" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="224" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="256" width="106" height="26" rx="13" fill="#EAF3FF" stroke="#4F83FF" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="270" text-anchor="middle" dominant-baseline="middle">B leads</text>
+</g>
+<g>
+  <rect x="1180" y="302" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="316" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="348" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="362" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="394" width="106" height="26" rx="13" fill="#EAF3FF" stroke="#4F83FF" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="408" text-anchor="middle" dominant-baseline="middle">B leads</text>
+</g>
+  <text class="axis" x="1108" y="474" >ns/op</text>
+</g>
+<g>
+  <rect class="panel" x="56" y="574" width="1248" height="390" rx="14"/>
+  <text class="panelTitle" x="88" y="617" >Concurrent comparison</text>
+  <text class="axis" x="1184" y="611" text-anchor="middle">0 to 430 ns/op</text>
+  <line class="grid" x1="390" y1="628" x2="390" y2="870"/>
+<text class="axis" x="390" y="898" text-anchor="middle">0</text>
+<line class="grid" x1="550.4651162790698" y1="628" x2="550.4651162790698" y2="870"/>
+<text class="axis" x="550.4651162790698" y="898" text-anchor="middle">100</text>
+<line class="grid" x1="710.9302325581396" y1="628" x2="710.9302325581396" y2="870"/>
+<text class="axis" x="710.9302325581396" y="898" text-anchor="middle">200</text>
+<line class="grid" x1="871.3953488372093" y1="628" x2="871.3953488372093" y2="870"/>
+<text class="axis" x="871.3953488372093" y="898" text-anchor="middle">300</text>
+<line class="grid" x1="1031.860465116279" y1="628" x2="1031.860465116279" y2="870"/>
+<text class="axis" x="1031.860465116279" y="898" text-anchor="middle">400</text>
+<line class="axisLine" x1="390" y1="870" x2="1080" y2="870"/>
+  <g>
+  <text class="label" x="88" y="663" >Cold start</text>
+  <rect x="390" y="640" width="148.1093023255814" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="548.1093023255814" y="650" >A 92.30</text>
+  <rect x="390" y="658" width="596.6093023255813" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="996.6093023255813" y="668" >B 371.80</text>
+</g>
+<g>
+  <text class="label" x="88" y="709" >Cached path</text>
+  <rect x="390" y="686" width="289.1581395348837" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="689.1581395348837" y="696" >A 180.20</text>
+  <rect x="390" y="704" width="653.5744186046512" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="1053.5744186046513" y="714" >B 407.30</text>
+</g>
+<g>
+  <text class="label" x="88" y="755" >Buffered path</text>
+  <rect x="390" y="732" width="232.67441860465115" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="632.6744186046511" y="742" >A 145</text>
+  <rect x="390" y="750" width="528.893023255814" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="928.893023255814" y="760" >B 329.60</text>
+</g>
+<g>
+  <text class="label" x="88" y="801" >Batch millis</text>
+  <rect x="390" y="778" width="335.3720930232558" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="735.3720930232557" y="788" >A 209</text>
+  <rect x="390" y="796" width="634.960465116279" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="1034.960465116279" y="806" >B 395.70</text>
+</g>
+<g>
+  <text class="label" x="88" y="847" >Batch seconds</text>
+  <rect x="390" y="824" width="391.85581395348834" height="12" rx="4" fill="#FFD1A3" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="value" x="791.8558139534883" y="834" >A 244.20</text>
+  <rect x="390" y="842" width="623.2465116279069" height="12" rx="4" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="1023.2465116279069" y="852" >B 388.40</text>
+</g>
+  <g>
+  <rect x="1180" y="634" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="648" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="680" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="694" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="726" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="740" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="772" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="786" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+<g>
+  <rect x="1180" y="818" width="106" height="26" rx="13" fill="#FFF3E7" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="1233" y="832" text-anchor="middle" dominant-baseline="middle">A leads</text>
+</g>
+  <text class="axis" x="1108" y="898" >ns/op</text>
+</g>
+<g>
+  <rect class="panel" x="56" y="996" width="1248" height="76" rx="14" fill="#F8FBFF"/>
+  <text class="panelTitle" x="84" y="1027" >Interpretation boundary</text>
+  <text class="small" x="84" y="1052" >Rows are illustrative. Keep normalization rules, benchmark environment, caveats, and raw-data provenance visible in this band.</text>
+</g>
+</svg>

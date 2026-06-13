@@ -1,0 +1,29 @@
+digraph G {
+  graph [layout=neato, splines=ortho, outputorder=edgesfirst, label="utils-states-diagram-01 flow evidence", labelloc=t, fontsize=18, fontname="Comic Mono"];
+  node [shape=box, style="rounded,filled", fillcolor="#F7FBFF", color="#9AA8B8", fontname="Comic Mono", fontsize=10, margin="0.10,0.08"];
+  edge [color="#758297", arrowsize=0.65, penwidth=1.6];
+  node_0_0 [label="States (enum", pos="4.278,-4.458!", width="4.306", height="1.556"];
+  node_0_1 [label="Events (sealed", pos="15.208,-4.458!", width="4.306", height="1.556"];
+  node_0_2 [label="Transitions from →", pos="4.278,-7.875!", width="4.306", height="1.556"];
+  node_0_3 [label="Guard Conditions", pos="15.208,-7.875!", width="4.306", height="1.556"];
+  node_1_0 [label="...", pos="4.278,-12.681!", width="4.306", height="1.556"];
+  node_1_1 [label="User", pos="11.565,-12.681!", width="4.306", height="1.556"];
+  node_1_2 [label="DSL", pos="18.851,-12.681!", width="4.306", height="1.556"];
+  node_2_0 [label="StateMachine", pos="4.278,-17.486!", width="4.306", height="1.556"];
+  node_2_1 [label="event", pos="11.565,-17.486!", width="4.306", height="1.556"];
+  node_2_2 [label="TransitionResult", pos="18.851,-17.486!", width="4.306", height="1.556"];
+  node_3_0 [label="suspend", pos="4.278,-22.292!", width="4.306", height="1.556"];
+  node_3_1 [label="StateFlow", pos="11.565,-22.292!", width="4.306", height="1.556"];
+  node_3_2 [label="Side-effect Logic", pos="18.851,-22.292!", width="4.306", height="1.556"];
+  node_0_0 -> node_0_1;
+  node_0_2 -> node_0_3;
+  node_0_3 -> node_1_0;
+  node_1_0 -> node_1_1;
+  node_1_1 -> node_1_2;
+  node_1_2 -> node_2_0;
+  node_2_0 -> node_2_1;
+  node_2_1 -> node_2_2;
+  node_2_2 -> node_3_0;
+  node_3_0 -> node_3_1;
+  node_3_1 -> node_3_2;
+}

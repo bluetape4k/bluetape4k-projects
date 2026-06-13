@@ -1,76 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="ktor-testing-sequence-01-title ktor-testing-sequence-01-desc">
-  <title id="ktor-testing-sequence-01-title">Ktor Testing Sequence</title>
-  <desc id="ktor-testing-sequence-01-desc">testApplication lifecycle stays visible while bluetape4k helpers reduce JSON and assertion noise</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L8,4.5 L1,8 Z" fill="#758297"/></marker>
-    <style>
-      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:42px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:16px;fill:#536476;font-weight:400}
-      .card{filter:url(#shadow);stroke-width:2}
-      .cardTitle{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:24px;fill:#22344A;font-weight:400}
-      .body{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;fill:#34465B;font-weight:400}
-      .edge{stroke:#758297;stroke-width:2.3;fill:none;marker-end:url(#arrow)}
-      .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.92}
-      .note{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;fill:#627184;font-weight:400}
-    </style>
-  </defs>
-  <rect class="canvas" width="1400" height="760"/>
-  <rect class="frame" x="32" y="28" width="1336" height="704" rx="26"/>
-  <text class="title" x="66" y="82">Ktor Testing Sequence</text>
-  <text class="subtitle" x="70" y="116">testApplication lifecycle stays visible while bluetape4k helpers reduce JSON and assertion noise</text>
-  <path class="edge" d="M340 235 L365 235 L365 235 L390 235"/>
-<path class="edge" d="M700 235 L725 235 L725 235 L750 235"/>
-<path class="edge" d="M1030 235 L1055 235 L1055 235 L1080 235"/>
-<path class="edge" d="M1080 235 L1055 235 L1055 535 L1030 535"/>
-<path class="edge" d="M750 535 L725 535 L725 535 L700 535"/>
-<path class="edge" d="M205 300 L205 385 L205 385 L205 470"/>
-<path class="edge" d="M340 535 L365 535 L365 535 L390 535"/>
-  <g>
-  <rect class="card" x="70" y="170" width="270" height="130" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="cardTitle" x="205" y="212" text-anchor="middle">JUnit test</text>
-  <text class="body" x="205" y="247" text-anchor="middle">testApplication { ... }</text>
-<text class="body" x="205" y="270" text-anchor="middle">caller owns lifecycle</text>
-</g>
-<g>
-  <rect class="card" x="390" y="170" width="310" height="130" rx="16" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="cardTitle" x="545" y="212" text-anchor="middle">Core test setup</text>
-  <text class="body" x="545" y="247" text-anchor="middle">installBluetape4kKtorCoreForTest</text>
-<text class="body" x="545" y="270" text-anchor="middle">register test routes</text>
-</g>
-<g>
-  <rect class="card" x="750" y="170" width="280" height="130" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="cardTitle" x="890" y="212" text-anchor="middle">JSON client</text>
-  <text class="body" x="890" y="247" text-anchor="middle">bluetape4kJsonClient()</text>
-<text class="body" x="890" y="270" text-anchor="middle">ContentNegotiation JSON</text>
-</g>
-<g>
-  <rect class="card" x="1080" y="170" width="250" height="130" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="cardTitle" x="1205" y="212" text-anchor="middle">Ktor route</text>
-  <text class="body" x="1205" y="247" text-anchor="middle">call.respond(...)</text>
-<text class="body" x="1205" y="270" text-anchor="middle">StatusPages active</text>
-</g>
-<g>
-  <rect class="card" x="750" y="470" width="280" height="130" rx="16" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="cardTitle" x="890" y="512" text-anchor="middle">HttpResponse</text>
-  <text class="body" x="890" y="547" text-anchor="middle">status</text>
-<text class="body" x="890" y="570" text-anchor="middle">JSON body</text>
-<text class="body" x="890" y="593" text-anchor="middle">ApiErrorResponse</text>
-</g>
-<g>
-  <rect class="card" x="390" y="470" width="310" height="130" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="cardTitle" x="545" y="512" text-anchor="middle">Assertions</text>
-  <text class="body" x="545" y="547" text-anchor="middle">shouldHaveStatus</text>
-<text class="body" x="545" y="570" text-anchor="middle">shouldHaveJsonBody</text>
-<text class="body" x="545" y="593" text-anchor="middle">shouldHaveApiError</text>
-</g>
-<g>
-  <rect class="card" x="70" y="470" width="270" height="130" rx="16" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="cardTitle" x="205" y="512" text-anchor="middle">MockEngine</text>
-  <text class="body" x="205" y="547" text-anchor="middle">bluetape4kJsonMockEngine</text>
-<text class="body" x="205" y="570" text-anchor="middle">single JSON response</text>
-</g>
-  <text class="note" x="700" y="722" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2600.3999999999996" height="944" viewBox="0 0 2600.3999999999996 944" role="img" aria-label="Ktor Testing Sequence">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <style>
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+  </style>
+</defs>
+<rect class="canvas" width="2600.3999999999996" height="944"/>
+<rect class="frame" x="32" y="28" width="2536.3999999999996" height="888" rx="30"/>
+<text class="title" x="68" y="84">Ktor Testing Sequence</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with sequence lifelines, numbered calls, and compact labels.</text>
+<g id="seq-junit-test"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">JUnit test</text><line class="lifeline" x1="255" y1="248" x2="255" y2="802"/></g>
+<g id="seq-core-test-setup"><rect class="card" x="488.4" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="603.4" y="215" text-anchor="middle">Core test setup</text><line class="lifeline" x1="603.4" y1="248" x2="603.4" y2="802"/></g>
+<g id="seq-json-client"><rect class="card" x="836.8" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="951.8" y="215" text-anchor="middle">JSON client</text><line class="lifeline" x1="951.8" y1="248" x2="951.8" y2="802"/></g>
+<g id="seq-ktor-route"><rect class="card" x="1185.2" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1300.2" y="215" text-anchor="middle">Ktor route</text><line class="lifeline" x1="1300.2" y1="248" x2="1300.2" y2="802"/></g>
+<g id="seq-mockengine"><rect class="card" x="1533.6" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1648.6" y="215" text-anchor="middle">MockEngine</text><line class="lifeline" x1="1648.6" y1="248" x2="1648.6" y2="802"/></g>
+<g id="seq-assertions"><rect class="card" x="1882" y="170" width="230" height="78" rx="10" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="1997" y="215" text-anchor="middle">Assertions</text><line class="lifeline" x1="1997" y1="248" x2="1997" y2="802"/></g>
+<g id="seq-httpresponse"><rect class="card" x="2230.4" y="170" width="230" height="78" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/><text class="cardTitle" x="2345.4" y="215" text-anchor="middle">HttpResponse</text><line class="lifeline" x1="2345.4" y1="248" x2="2345.4" y2="802"/></g>
+<rect x="247" y="322" width="16" height="52" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="595.4" y="322" width="16" height="104" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="943.8" y="398" width="16" height="104" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<rect x="1292.2" y="474" width="16" height="104" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
+<rect x="1640.6" y="550" width="16" height="104" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
+<rect x="1989" y="626" width="16" height="104" rx="5" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.4"/>
+<rect x="2337.4" y="702" width="16" height="52" rx="5" fill="#F2F5F9" stroke="#9AA8B8" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="273" y="287" width="312.4" height="26" rx="7"/><circle cx="292" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="292" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="447.2" y="301" text-anchor="middle" dominant-baseline="middle">installBluetape4kKtorCoreForTest</text><path class="seq" d="M255 330 L603.4 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="651.3" y="363" width="252.6" height="26" rx="7"/><circle cx="670.3" cy="376" r="12" fill="#3E9868"/><text class="detail" x="670.3" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="795.6" y="377" text-anchor="middle" dominant-baseline="middle">bluetape4kJsonClient()</text><path class="seq" d="M603.4 406 L951.8 406" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="1018" y="439" width="216.1" height="26" rx="7"/><circle cx="1037" cy="452" r="12" fill="#2E8F89"/><text class="detail" x="1037" y="453" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="1144" y="453" text-anchor="middle" dominant-baseline="middle">call.respond(...)</text><path class="seq" d="M951.8 482 L1300.2 482" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="1340.8" y="515" width="267.2" height="26" rx="7"/><circle cx="1359.8" cy="528" r="12" fill="#B9851B"/><text class="detail" x="1359.8" y="529" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1492.4" y="529" text-anchor="middle" dominant-baseline="middle">bluetape4kJsonMockEngine</text><path class="seq" d="M1300.2 558 L1648.6 558" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m5"><rect class="labelPill" x="1717.8" y="591" width="210" height="26" rx="7"/><circle cx="1736.8" cy="604" r="12" fill="#C94D68"/><text class="detail" x="1736.8" y="605" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="1840.8" y="605" text-anchor="middle" dominant-baseline="middle">shouldHaveStatus</text><path class="seq" d="M1648.6 634 L1997 634" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m6"><rect class="labelPill" x="2066.2" y="667" width="210" height="26" rx="7"/><circle cx="2085.2" cy="680" r="12" fill="#2E8F89"/><text class="detail" x="2085.2" y="681" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="2189.2" y="681" text-anchor="middle" dominant-baseline="middle">status</text><path class="seqReturn" d="M1997 710 L2345.4 710" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g><rect x="140" y="826" width="2320.3999999999996" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1300.1999999999998" y="852" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

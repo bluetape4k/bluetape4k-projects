@@ -1,0 +1,24 @@
+digraph G {
+  graph [layout=neato, splines=ortho, outputorder=edgesfirst, label="testing-assertions-diagram-01 architecture evidence", labelloc=t, fontsize=18, fontname="Comic Mono"];
+  node [shape=box, style="rounded,filled", fillcolor="#F7FBFF", color="#9AA8B8", fontname="Comic Mono", fontsize=10, margin="0.10,0.08"];
+  edge [color="#758297", arrowsize=0.65, penwidth=1.6];
+  node_0_0 [label="bluetape4kassertion", pos="4.278,-4.458!", width="4.306", height="1.556"];
+  node_0_1 [label="junitjupiterapi", pos="10.824,-4.458!", width="4.306", height="1.556"];
+  node_0_2 [label="assertions", pos="17.371,-4.458!", width="4.306", height="1.556"];
+  node_1_0 [label="opentest4j", pos="4.278,-9.264!", width="4.306", height="1.556"];
+  node_1_1 [label="kotlinxcoroutinesc", pos="14.097,-9.264!", width="4.306", height="1.556"];
+  node_2_0 [label="turbine", pos="4.278,-14.069!", width="4.306", height="1.556"];
+  node_2_1 [label="bluetape4kjunit5", pos="10.824,-14.069!", width="4.306", height="1.556"];
+  node_2_2 [label="junit5", pos="17.371,-14.069!", width="4.306", height="1.556"];
+  node_3_0 [label="bluetape4kcoroutine", pos="4.278,-18.875!", width="4.306", height="1.556"];
+  node_3_1 [label="coroutines", pos="14.097,-18.875!", width="4.306", height="1.556"];
+  node_0_0 -> node_0_1;
+  node_0_1 -> node_0_2;
+  node_0_2 -> node_1_0;
+  node_1_0 -> node_1_1;
+  node_1_1 -> node_2_0;
+  node_2_0 -> node_2_1;
+  node_2_1 -> node_2_2;
+  node_2_2 -> node_3_0;
+  node_3_0 -> node_3_1;
+}

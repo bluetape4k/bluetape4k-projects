@@ -42,12 +42,9 @@ digraph G {
     "geo-db" [label="GeoLite2 databases", fillcolor="#E9F7F6", color="#45A7A1"];
   }
   "geocode" -> "google" [xlabel="google finder", color="#D9AA4D"];
-  "geocode" -> "bing" [xlabel="bing finder", color="#DB7890"];
   "geohash-api" -> "geohash-core" [xlabel="index", color="#58A978"];
   "geohash-core" -> "geo-queries" [xlabel="search cells", color="#8BA84D"];
   "geoip" -> "maxmind-reader" [xlabel="reader", color="#45A7A1"];
-  "maxmind-reader" -> "geo-result" [xlabel="normalize", color="#8A72D6"];
   "google" -> "provider-http" [xlabel="HTTP", color="#D9AA4D"];
-  "bing" -> "provider-http" [xlabel="HTTP", color="#DB7890"];
   "maxmind-reader" -> "geo-db" [xlabel="mmdb", color="#45A7A1"];
 }

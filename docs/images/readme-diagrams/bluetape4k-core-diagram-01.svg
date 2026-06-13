@@ -5,19 +5,19 @@
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .layer{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .layer-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:26px;fill:#22344A;font-weight:400}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .layer-title{font-family:"Architects Daughter";font-size:26px;fill:#22344A;font-weight:400}
+      .card-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
@@ -31,113 +31,98 @@
   <!-- README_LAYER_BANDS:START -->
   <g id="layer-module-entrypoint">
     <rect class="layer" x="72" y="166" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="209">Module entrypoint</text>
+    <text class="layer-title" x="104" y="209" dominant-baseline="middle">Module entrypoint</text>
     <g id="node-core" transform="translate(583,190)">
       <rect class="card" x="0" y="0" width="490" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-      <text class="card-title" x="245" y="31" text-anchor="middle">bluetape4k-core</text>
-      <text class="detail" x="245" y="55" text-anchor="middle">base dependency</text>
-      <text class="detail" x="245" y="73" text-anchor="middle">shared Kotlin/JVM surface</text>
+      <text class="card-title" x="245" y="24" text-anchor="middle" dominant-baseline="middle">bluetape4k-core</text>
+      <text class="detail" x="245" y="43" text-anchor="middle" dominant-baseline="middle">base dependency</text>
+      <text class="detail" x="245" y="62" text-anchor="middle" dominant-baseline="middle">shared Kotlin/JVM surface</text>
     </g>
   </g>
   <g id="layer-caller-contracts">
     <rect class="layer" x="72" y="328" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="371">Caller contracts</text>
+    <text class="layer-title" x="104" y="371" dominant-baseline="middle">Caller contracts</text>
     <g id="node-validation" transform="translate(346,352)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">RequireSupport</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">requireNotBlank</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">typed preconditions</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">RequireSupport</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">requireNotBlank</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">typed preconditions</text>
     </g>
     <g id="node-types" transform="translate(722,352)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Type extensions</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">arrays, numbers, strings</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">reflection helpers</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Type extensions</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">arrays, numbers, strings</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">reflection helpers</text>
     </g>
     <g id="node-codec" transform="translate(1098,352)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Codec utilities</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Base58/Base62/Base64</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">Hex and Url62</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Codec utilities</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">Base58/Base62/Base64</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">Hex and Url62</text>
     </g>
   </g>
   <g id="layer-domain-value-model">
     <rect class="layer" x="72" y="490" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="533">Domain value model</text>
+    <text class="layer-title" x="104" y="533" dominant-baseline="middle">Domain value model</text>
     <g id="node-value" transform="translate(346,514)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">ValueObject</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Serializable value contract</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">stable equality helpers</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">ValueObject</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">Serializable value contract</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">stable equality helpers</text>
     </g>
     <g id="node-ranges" transform="translate(722,514)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Range model</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">open/closed ranges</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">overlap and contains</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Range model</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">open/closed ranges</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">overlap and contains</text>
     </g>
     <g id="node-collections" transform="translate(1098,514)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Collection helpers</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">bounded stack, ring buffer</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">Eclipse extensions</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Collection helpers</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">bounded stack, ring buffer</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">Eclipse extensions</text>
     </g>
   </g>
   <g id="layer-runtime-helpers">
     <rect class="layer" x="72" y="652" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="695">Runtime helpers</text>
+    <text class="layer-title" x="104" y="695" dominant-baseline="middle">Runtime helpers</text>
     <g id="node-concurrent" transform="translate(346,676)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Concurrent utilities</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">future and executor helpers</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">virtual-thread adapters</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Concurrent utilities</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">future and executor helpers</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">virtual-thread adapters</text>
     </g>
     <g id="node-time" transform="translate(722,676)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Java time DSL</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">date/time ranges</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">duration and quarter types</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Java time DSL</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">date/time ranges</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">duration and quarter types</text>
     </g>
     <g id="node-functional" transform="translate(1098,676)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Functional utilities</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">currying</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">decorator support</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Functional utilities</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">currying</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">decorator support</text>
     </g>
   </g>
   <!-- README_LAYER_BANDS:END -->
 
-  <g id="route-core-validation">
-    <path class="connector" d="M828 276 L828 304 L496 304 L496 352" stroke="#58A978"/>
-  </g>
   <g id="route-core-types">
-    <path class="connector" d="M828 276 L828 314 L872 314 L872 352" stroke="#45A7A1"/>
-  </g>
-  <g id="route-core-codec">
-    <path class="connector" d="M828 276 L828 324 L1248 324 L1248 352" stroke="#D9AA4D"/>
+    <path class="connector" d="M860 276 L860 304 L860 304 L860 352" stroke="#45A7A1"/>
   </g>
   <g id="route-validation-ranges">
-    <path class="connector" d="M496 438 L496 466 L872 466 L872 514" stroke="#DB7890"/>
-  </g>
-  <g id="route-types-value">
-    <path class="connector" d="M872 438 L872 476 L496 476 L496 514" stroke="#8A72D6"/>
+    <path class="connector" d="M612 438 L612 476 L756 476 L756 514" stroke="#DB7890"/>
   </g>
   <g id="route-types-collections">
-    <path class="connector" d="M872 438 L872 486 L1248 486 L1248 514" stroke="#8BA84D"/>
-  </g>
-  <g id="route-collections-concurrent">
-    <path class="connector" d="M1248 600 L1248 628 L496 628 L496 676" stroke="#45A7A1"/>
+    <path class="connector" d="M988 438 L988 486 L1132 486 L1132 514" stroke="#8BA84D"/>
   </g>
   <g id="route-ranges-time">
-    <path class="connector" d="M872 600 L872 638 L872 638 L872 676" stroke="#D9AA4D"/>
-  </g>
-  <g id="route-value-functional">
-    <path class="connector" d="M496 600 L496 648 L1248 648 L1248 676" stroke="#58A978"/>
+    <path class="connector" d="M860 600 L860 628 L860 628 L860 676" stroke="#D9AA4D"/>
   </g>
 
   <g transform="translate(76,816)">
     <rect class="pill" x="0" y="0" width="1348" height="42" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle">Graphviz evidence: bluetape4k-core-diagram-01.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="674" y="33" text-anchor="middle">Geometry gate: nodes=10, routes=9, segments=27, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=69.</text>
+    <text class="small" x="674" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: bluetape4k-core-diagram-01.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="674" y="33" text-anchor="middle" dominant-baseline="middle">Gate: n=10, r=4, seg=12, endpoint/bend/cross/overlap/clear=0, margins=38/38/45/30, titleGap=69.</text>
   </g>
 </svg>

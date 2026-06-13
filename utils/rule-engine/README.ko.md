@@ -17,7 +17,7 @@ Kotlin 기반의 경량 Rule Engine 라이브러리입니다. Easy Rules 패턴�
 
 ### 핵심 클래스 다이어그램
 
-![rule engine Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
+![Rule Engine Class Structure diagram](../../docs/images/readme-diagrams/utils-rule-engine-diagram-02.png)
 
 ### Rule Engine 클래스 다이어그램
 

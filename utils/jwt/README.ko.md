@@ -13,7 +13,7 @@
 
 ### 클래스 다이어그램
 
-![jwt Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
+![JWT Class Structure diagram](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
 
 ### JWT 토큰 구조
 

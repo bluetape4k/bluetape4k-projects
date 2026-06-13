@@ -1,90 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1846" height="1594" viewBox="0 0 1846 1594" role="img" aria-label="LettuceLoadedMap Read-Through / Write-Through Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1870" height="1704" viewBox="0 0 1870 1704" role="img" aria-label="LettuceLoadedMap Read-Through / Write-Through Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1846" height="1594"/>
-<rect class="frame" x="32" y="28" width="1782" height="1538" rx="28"/>
-<text class="title" x="66" y="82">LettuceLoadedMap Read-Through / Write-Through Flow</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="80" y="166" width="251" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="205.5" y="209" text-anchor="middle">Client</text>
-<line class="lifeline" x1="205.5" y1="252" x2="205.5" y2="1534" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="438.8" y="166" width="251" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="564.3" y="209" text-anchor="middle">LettuceLoadedMap</text>
-<line class="lifeline" x1="564.3" y1="252" x2="564.3" y2="1534" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="797.5" y="166" width="251" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="923" y="209" text-anchor="middle">Redis</text>
-<line class="lifeline" x1="923" y1="252" x2="923" y2="1534" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1156.3" y="166" width="251" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1281.8" y="209" text-anchor="middle">MapLoader</text>
-<line class="lifeline" x1="1281.8" y1="252" x2="1281.8" y2="1534" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1515" y="166" width="251" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1640.5" y="209" text-anchor="middle">MapWriter</text>
-<line class="lifeline" x1="1640.5" y1="252" x2="1640.5" y2="1534" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="279.9" y="286" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="297.9" y="313" text-anchor="start">1. get(key)</text>
-<path class="line" d="M205.5 332 L564.3 332"/>
-<rect x="638.6" y="362" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="656.6" y="389" text-anchor="start">2. GET prefix:key</text>
-<path class="line" d="M564.3 408 L923 408"/>
-<rect x="638.6" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="656.6" y="465" text-anchor="start">3. null (cache miss)</text>
-<path class="dashed" d="M923 484 L564.3 484"/>
-<rect x="818" y="514" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="836" y="541" text-anchor="start">4. load(key)</text>
-<path class="line" d="M564.3 560 L1281.8 560"/>
-<rect x="818" y="590" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="836" y="617" text-anchor="start">5. value</text>
-<path class="dashed" d="M1281.8 636 L564.3 636"/>
-<rect x="608.6" y="666" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="626.6" y="693" text-anchor="start">6. SETEX prefix:key value ttl</text>
-<path class="line" d="M564.3 712 L923 712"/>
-<rect x="279.9" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="297.9" y="769" text-anchor="start">7. value</text>
-<path class="dashed" d="M564.3 788 L205.5 788"/>
-<rect x="279.9" y="818" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="297.9" y="845" text-anchor="start">8. get(key)</text>
-<path class="line" d="M205.5 864 L564.3 864"/>
-<rect x="638.6" y="894" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="656.6" y="921" text-anchor="start">9. GET prefix:key</text>
-<path class="line" d="M564.3 940 L923 940"/>
-<rect x="638.6" y="970" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="656.6" y="997" text-anchor="start">10. value (cache hit)</text>
-<path class="dashed" d="M923 1016 L564.3 1016"/>
-<rect x="279.9" y="1046" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="297.9" y="1073" text-anchor="start">11. value</text>
-<path class="dashed" d="M564.3 1092 L205.5 1092"/>
-<rect x="279.9" y="1122" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="297.9" y="1149" text-anchor="start">12. set(key, value)</text>
-<path class="line" d="M205.5 1168 L564.3 1168"/>
-<rect x="991.4" y="1198" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1009.4" y="1225" text-anchor="start">13. write({key: value})</text>
-<path class="line" d="M564.3 1244 L1640.5 1244"/>
-<rect x="997.4" y="1274" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1015.4" y="1301" text-anchor="start">14. ok</text>
-<path class="dashed" d="M1640.5 1320 L564.3 1320"/>
-<rect x="604.6" y="1350" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="622.6" y="1377" text-anchor="start">15. SETEX prefix:key value ttl</text>
-<path class="line" d="M564.3 1396 L923 1396"/>
-<rect x="279.9" y="1426" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="297.9" y="1453" text-anchor="start">16. ok</text>
-<path class="dashed" d="M564.3 1472 L205.5 1472"/>
+<rect class="canvas" width="1870" height="1704"/>
+<rect class="frame" x="32" y="28" width="1806" height="1648" rx="30"/>
+<text class="title" x="68" y="84">LettuceLoadedMap Read-Through / Write-Through Flow</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
+<g id="seq-client"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Client</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1562"/></g>
+<g id="seq-lettuceloadedmap"><rect class="card" x="480" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="595" y="215" text-anchor="middle">LettuceLoadedMap</text><line class="lifeline" x1="595" y1="248" x2="595" y2="1562"/></g>
+<g id="seq-redis"><rect class="card" x="820" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="935" y="215" text-anchor="middle">Redis</text><line class="lifeline" x1="935" y1="248" x2="935" y2="1562"/></g>
+<g id="seq-maploader"><rect class="card" x="1160" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1275" y="215" text-anchor="middle">MapLoader</text><line class="lifeline" x1="1275" y1="248" x2="1275" y2="1562"/></g>
+<g id="seq-mapwriter"><rect class="card" x="1500" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1615" y="215" text-anchor="middle">MapWriter</text><line class="lifeline" x1="1615" y1="248" x2="1615" y2="1562"/></g>
+<rect x="247" y="322" width="16" height="1168" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="587" y="322" width="16" height="1168" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="927" y="398" width="16" height="1016" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<rect x="1267" y="550" width="16" height="104" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
+<rect x="1607" y="1234" width="16" height="104" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="320" y="287" width="210" height="26" rx="7"/><circle cx="339" cy="300" r="12" fill="#4F83BF"/><text class="detail" x="339" y="301" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="443" y="301" text-anchor="middle" dominant-baseline="middle">get(key)</text><path class="seq" d="M255 330 L595 330" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="660" y="363" width="210" height="26" rx="7"/><circle cx="679" cy="376" r="12" fill="#3E9868"/><text class="detail" x="679" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="783" y="377" text-anchor="middle" dominant-baseline="middle">GET prefix:key</text><path class="seq" d="M595 406 L935 406" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="657" y="439" width="216.1" height="26" rx="7"/><circle cx="676" cy="452" r="12" fill="#2E8F89"/><text class="detail" x="676" y="453" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="783" y="453" text-anchor="middle" dominant-baseline="middle">null (cache miss)</text><path class="seqReturn" d="M935 482 L595 482" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="830" y="515" width="210" height="26" rx="7"/><circle cx="849" cy="528" r="12" fill="#B9851B"/><text class="detail" x="849" y="529" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="953" y="529" text-anchor="middle" dominant-baseline="middle">load(key)</text><path class="seq" d="M595 558 L1275 558" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="m5"><rect class="labelPill" x="830" y="591" width="210" height="26" rx="7"/><circle cx="849" cy="604" r="12" fill="#2E8F89"/><text class="detail" x="849" y="605" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="953" y="605" text-anchor="middle" dominant-baseline="middle">value</text><path class="seqReturn" d="M1275 634 L595 634" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m6"><rect class="labelPill" x="624.1" y="667" width="281.8" height="26" rx="7"/><circle cx="643.1" cy="680" r="12" fill="#2E8F89"/><text class="detail" x="643.1" y="681" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="783" y="681" text-anchor="middle" dominant-baseline="middle">SETEX prefix:key value ttl</text><path class="seqReturn" d="M595 710 L935 710" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m7"><rect class="labelPill" x="320" y="743" width="210" height="26" rx="7"/><circle cx="339" cy="756" r="12" fill="#2E8F89"/><text class="detail" x="339" y="757" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="443" y="757" text-anchor="middle" dominant-baseline="middle">value</text><path class="seqReturn" d="M595 786 L255 786" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m8"><rect class="labelPill" x="320" y="819" width="210" height="26" rx="7"/><circle cx="339" cy="832" r="12" fill="#3E9868"/><text class="detail" x="339" y="833" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="443" y="833" text-anchor="middle" dominant-baseline="middle">get(key)</text><path class="seq" d="M255 862 L595 862" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m9"><rect class="labelPill" x="660" y="895" width="210" height="26" rx="7"/><circle cx="679" cy="908" r="12" fill="#2E8F89"/><text class="detail" x="679" y="909" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="783" y="909" text-anchor="middle" dominant-baseline="middle">GET prefix:key</text><path class="seq" d="M595 938 L935 938" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m10"><rect class="labelPill" x="657" y="971" width="216.1" height="26" rx="7"/><circle cx="676" cy="984" r="12" fill="#2E8F89"/><text class="detail" x="676" y="985" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">10</text><text class="detail" x="783" y="985" text-anchor="middle" dominant-baseline="middle">value (cache hit)</text><path class="seqReturn" d="M935 1014 L595 1014" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m11"><rect class="labelPill" x="320" y="1047" width="210" height="26" rx="7"/><circle cx="339" cy="1060" r="12" fill="#2E8F89"/><text class="detail" x="339" y="1061" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="443" y="1061" text-anchor="middle" dominant-baseline="middle">value</text><path class="seqReturn" d="M595 1090 L255 1090" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m12"><rect class="labelPill" x="320" y="1123" width="210" height="26" rx="7"/><circle cx="339" cy="1136" r="12" fill="#2E8F89"/><text class="detail" x="339" y="1137" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="443" y="1137" text-anchor="middle" dominant-baseline="middle">set(key, value)</text><path class="seqReturn" d="M255 1166 L595 1166" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m13"><rect class="labelPill" x="989.7" y="1199" width="230.7" height="26" rx="7"/><circle cx="1008.7" cy="1212" r="12" fill="#2E8F89"/><text class="detail" x="1008.7" y="1213" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">13</text><text class="detail" x="1123" y="1213" text-anchor="middle" dominant-baseline="middle">write({key: value})</text><path class="seqReturn" d="M595 1242 L1615 1242" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m14"><rect class="labelPill" x="1000" y="1275" width="210" height="26" rx="7"/><circle cx="1019" cy="1288" r="12" fill="#2E8F89"/><text class="detail" x="1019" y="1289" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">14</text><text class="detail" x="1123" y="1289" text-anchor="middle" dominant-baseline="middle">ok</text><path class="seqReturn" d="M1615 1318 L595 1318" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m15"><rect class="labelPill" x="624.1" y="1351" width="281.8" height="26" rx="7"/><circle cx="643.1" cy="1364" r="12" fill="#2E8F89"/><text class="detail" x="643.1" y="1365" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">15</text><text class="detail" x="783" y="1365" text-anchor="middle" dominant-baseline="middle">SETEX prefix:key value ttl</text><path class="seqReturn" d="M595 1394 L935 1394" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m16"><rect class="labelPill" x="320" y="1427" width="210" height="26" rx="7"/><circle cx="339" cy="1440" r="12" fill="#2E8F89"/><text class="detail" x="339" y="1441" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">16</text><text class="detail" x="443" y="1441" text-anchor="middle" dominant-baseline="middle">ok</text><path class="seqReturn" d="M595 1470 L255 1470" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g><rect x="140" y="1586" width="1590" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="935" y="1612" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

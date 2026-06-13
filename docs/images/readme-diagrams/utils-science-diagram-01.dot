@@ -52,7 +52,6 @@ digraph G {
   "science" -> "utm" [xlabel="zone helpers", color="#45A7A1"];
   "coords" -> "projection" [xlabel="CRS conversion", color="#8A72D6"];
   "coords" -> "geometry" [xlabel="geometry input", color="#DB7890"];
-  "utm" -> "projection" [xlabel="zone CRS", color="#8A72D6"];
   "projection" -> "shapefile" [xlabel="reproject", color="#D9AA4D"];
   "geometry" -> "spatial-model" [xlabel="features", color="#58A978"];
   "projection" -> "netcdf-model" [xlabel="grid CRS", color="#8BA84D"];

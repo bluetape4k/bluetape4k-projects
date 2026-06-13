@@ -1,0 +1,8 @@
+chart-gate: asset=benchmark-throughput-split-scale-sample-01
+rows=5
+scales=read:500,000 ops/s,write:26,000 ops/s
+margins=L/R/T/B 52/64/116/31
+titleGap=102
+unitDirection=throughput higher-is-better
+sourceFooter=present
+status=PASS

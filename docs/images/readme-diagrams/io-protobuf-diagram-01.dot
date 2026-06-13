@@ -1,0 +1,14 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  DurationSupport [label="DurationSupport", fillcolor="#E8F3FF", color="#5B8DEF"];
+  BinarySerializer [label="BinarySerializer", fillcolor="#EAF7EF", color="#58A978"];
+  DateTimeSupport [label="DateTimeSupport", fillcolor="#E9F7F6", color="#45A7A1"];
+  MessageSupport [label="MessageSupport", fillcolor="#FFF3D9", color="#D6A441"];
+  MoneySupport [label="MoneySupport", fillcolor="#FDECEF", color="#DC6B82"];
+  TimestampSupport [label="TimestampSupport", fillcolor="#F1ECFF", color="#8A72D6"];
+  ProtobufSerializer [label="ProtobufSerializer", fillcolor="#EEF6D9", color="#8BA84D"];
+  { rank=source; BinarySerializer; }
+  BinarySerializer -> ProtobufSerializer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+}

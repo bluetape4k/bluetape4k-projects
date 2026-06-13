@@ -1,91 +1,102 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1201" viewBox="0 0 1754 1201" role="img" aria-label="Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="1223" viewBox="0 0 2500 1223" role="img" aria-label="Jackson2 Class Relationships">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.45;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1201"/>
-<rect class="frame" x="32" y="28" width="1690" height="1145" rx="28"/>
-<text class="title" x="66" y="82">Class Structure</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="line" d="M877 848 L877 765 L672 765 L672 334"/>
-<path class="implLine" d="M877 848 L877 757 L1082 757 L1082 376"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="170" y="49" text-anchor="middle">AsyncJsonParser</text>
-  <text class="mono" x="18" y="108">-callback: (JsonNode) -&gt; Unit</text>
-<text class="mono" x="18" y="129">+consume(bytes: ByteArray)</text>
-<text class="mono" x="18" y="150">+endOfInput()</text>
+<rect class="canvas" width="2500" height="1223"/>
+<rect class="frame" x="32" y="28" width="2436" height="1167" rx="30"/>
+<text class="title" x="68" y="84">Jackson2 Class Relationships</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: contracts first, core mapper support second, format adapters at the edge.</text>
+<path class="inherit" data-from="jacksonSerializer" data-to="jsonSerializer" d="M991 556 L991 368" stroke="#3E9868"/>
+<path class="dependency" data-from="jacksonSerializer" data-to="objectMapper" d="M1156 622 L1343 622" stroke="#758297" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="textSerializers" data-to="jacksonSerializer" d="M475 875 L475 764 L899 764 L899 688" stroke="#B9851B"/>
+<path class="inherit" data-from="binarySerializers" data-to="jacksonSerializer" d="M991 875 L991 688" stroke="#C94D68"/>
+<path class="dependency" data-from="jackson" data-to="objectMapper" d="M1508 368 L1508 556" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="mapperSupport" data-to="objectMapper" d="M1860 334 L1767 334 L1767 590 L1673 590" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="uuidCryptoMask" data-to="objectMapper" d="M1508 875 L1508 688" stroke="#755BC6" stroke-dasharray="8 7"/>
+<g id="jsonSerializer">
+  <rect class="classCard" x="826" y="236" width="330" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="991" y="255" text-anchor="middle">interface</text>
+  <text class="classTitle" x="991" y="283" text-anchor="middle">JsonSerializer</text>
+  <line x1="826" y1="292" x2="1156" y2="292" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="844" y="326">+serialize(graph)</text>
+<text class="member" x="844" y="343">+deserialize(bytes, clazz)</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«singleton»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">Jackson</text>
-  <text class="mono" x="18" y="108">+defaultJsonMapper: JsonMapper</text>
-<text class="mono" x="18" y="129">+prettyJsonWriter: ObjectWriter</text>
+<g id="jacksonSerializer">
+  <rect class="classCard" x="826" y="556" width="330" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="991" y="575" text-anchor="middle">open class</text>
+  <text class="classTitle" x="991" y="603" text-anchor="middle">JacksonSerializer</text>
+  <line x1="826" y1="612" x2="1156" y2="612" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="844" y="646">implements JsonSerializer</text>
+<text class="member" x="844" y="663">uses ObjectMapper</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonSerializer</text>
-  <text class="mono" x="18" y="108">+serialize(graph) ByteArray</text>
-<text class="mono" x="18" y="129">+deserialize(bytes, clazz) T?</text>
-<text class="mono" x="18" y="150">+serializeAsString(graph) String</text>
-<text class="mono" x="18" y="171">+deserializeFromString(text, clazz) T?</text>
+<g id="jackson">
+  <rect class="classCard" x="1343" y="236" width="330" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1508" y="255" text-anchor="middle">object</text>
+  <text class="classTitle" x="1508" y="283" text-anchor="middle">Jackson</text>
+  <line x1="1343" y1="292" x2="1673" y2="292" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1361" y="326">defaultJsonMapper</text>
+<text class="member" x="1361" y="343">createTypedJsonMapper(...)</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«annotation»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonMasker</text>
-  <text class="mono" x="18" y="108">+value: String</text>
+<g id="mapperSupport">
+  <rect class="classCard" x="1860" y="236" width="330" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="2025" y="255" text-anchor="middle">extension file</text>
+  <text class="classTitle" x="2025" y="283" text-anchor="middle">JsonMapperSupport</text>
+  <line x1="1860" y1="292" x2="2190" y2="292" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="1878" y="326">jsonMapper { ... }</text>
+<text class="member" x="1878" y="343">ObjectMapper read/write helpers</text>
 </g>
-<g transform="translate(297,502)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«annotation»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonUuidEncoder</text>
-  <text class="mono" x="18" y="108">+type: JsonUuidEncoderType</text>
+<g id="objectMapper">
+  <rect class="classCard" x="1343" y="556" width="330" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1508" y="575" text-anchor="middle">Jackson core type</text>
+  <text class="classTitle" x="1508" y="594" text-anchor="middle">ObjectMapper /</text>
+<text class="classTitle" x="1508" y="616" text-anchor="middle">JsonMapper</text>
+  <line x1="1343" y1="620" x2="1673" y2="620" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1361" y="650">readValue/writeValue</text>
+<text class="member" x="1361" y="667">module registration</text>
 </g>
-<g transform="translate(707,502)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«annotation»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonTinkEncrypt</text>
-  <text class="mono" x="18" y="108">+algorithm: TinkEncryptAlgorithm</text>
+<g id="textSerializers">
+  <rect class="classCard" x="310" y="875" width="330" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="475" y="894" text-anchor="middle">text adapters</text>
+  <text class="classTitle" x="475" y="913" text-anchor="middle">CSV/YAML/TOML</text>
+<text class="classTitle" x="475" y="935" text-anchor="middle">serializers</text>
+  <line x1="310" y1="939" x2="640" y2="939" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="328" y="969">extend JacksonSerializer</text>
+<text class="member" x="328" y="986">format-specific mappers</text>
 </g>
-<g transform="translate(1117,502)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-    <text class="label" x="170" y="49" text-anchor="middle">SuspendJsonParser</text>
-  <text class="mono" x="18" y="108">-callback: suspend (JsonNode) -&gt; Unit</text>
-<text class="mono" x="18" y="129">+consume(flow: Flow~ByteArray~)</text>
-<text class="mono" x="18" y="150">+consumeComplete(flow: Flow~ByteArray~)</text>
-<text class="mono" x="18" y="171">+endOfInput()</text>
+<g id="binarySerializers">
+  <rect class="classCard" x="826" y="875" width="330" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="991" y="894" text-anchor="middle">binary adapters</text>
+  <text class="classTitle" x="991" y="913" text-anchor="middle">CBOR/Ion/Smile</text>
+<text class="classTitle" x="991" y="935" text-anchor="middle">serializers</text>
+  <line x1="826" y1="939" x2="1156" y2="939" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="844" y="969">extend JacksonSerializer</text>
+<text class="member" x="844" y="986">binary dataformats</text>
 </g>
-<g transform="translate(707,848)">
-  <rect class="card" x="0" y="0" width="340" height="133" rx="5" fill="#EEF6D9" stroke="#8BA84D"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8BA84D"/>
-    <text class="label" x="170" y="49" text-anchor="middle">JacksonSerializer</text>
-  <text class="mono" x="18" y="108">-mapper: ObjectMapper</text>
+<g id="uuidCryptoMask">
+  <rect class="classCard" x="1343" y="875" width="330" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1508" y="894" text-anchor="middle">Jackson modules</text>
+  <text class="classTitle" x="1508" y="913" text-anchor="middle">UUID/Crypto/Mask</text>
+<text class="classTitle" x="1508" y="935" text-anchor="middle">modules</text>
+  <line x1="1343" y1="939" x2="1673" y2="939" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1361" y="969">custom serializers</text>
+<text class="member" x="1361" y="986">contextual handlers</text>
 </g>
+<g>
+  <rect x="2085" y="1115" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M2103 1133 L2161 1133" stroke="#3E9868"/>
+  <text class="detail" x="2175" y="1138">inheritance / implementation</text>
+  <path class="dependency" d="M2103 1154 L2161 1154" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="2175" y="1159">dependency / usage</text>
+</g>
+<g><rect x="180" y="1133" width="1860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1110" y="1159" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define ranks, order, route sides, and endpoints.</text></g>
 </svg>

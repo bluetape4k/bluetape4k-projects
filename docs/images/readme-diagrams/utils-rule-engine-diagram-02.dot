@@ -1,0 +1,21 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  Facts [label="Facts", fillcolor="#E8F3FF", color="#5B8DEF"];
+  Action [label="Action", fillcolor="#EAF7EF", color="#58A978"];
+  Condition [label="Condition", fillcolor="#E9F7F6", color="#45A7A1"];
+  Rule [label="Rule", fillcolor="#FFF3D9", color="#D6A441"];
+  SuspendRule [label="SuspendRule", fillcolor="#FDECEF", color="#DC6B82"];
+  RuleSet [label="RuleSet", fillcolor="#F1ECFF", color="#8A72D6"];
+  DefaultRule [label="DefaultRule", fillcolor="#EEF6D9", color="#8BA84D"];
+  DefaultSuspendRule [label="DefaultSuspendRule", fillcolor="#F2F5F9", color="#9AA8B8"];
+  { rank=source; Rule; SuspendRule; }
+  DefaultRule -> Facts [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  DefaultSuspendRule -> Action [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  DefaultSuspendRule -> Condition [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  DefaultRule -> Action [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  DefaultRule -> Condition [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  SuspendRule -> DefaultSuspendRule [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
+  Rule -> DefaultRule [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+}

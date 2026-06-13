@@ -19,7 +19,7 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 
 ### 클래스 다이어그램
 
-![states Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
+![States Class Structure diagram](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
 
 > `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과
 `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.

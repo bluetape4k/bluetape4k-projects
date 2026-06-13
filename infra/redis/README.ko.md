@@ -112,7 +112,7 @@ election.runIfLeader {
 
 ## 핵심 클래스 다이어그램
 
-![redis Class Structure 2 diagram](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
+![Redis Class Structure diagram](../../docs/images/readme-diagrams/infra-redis-diagram-02.png)
 
 ## Spring Data Redis
 

@@ -20,7 +20,7 @@ Each transition can have an optional **guard condition** that must pass before t
 
 ### Class Diagram
 
-![states Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
+![States Class Structure diagram](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
 
 > `StateMachine` and `SuspendStateMachineInterface` are independent from each other. To avoid a signature clash between
 `suspend fun transition()` and `fun transition()`, only read-only properties are shared through the common

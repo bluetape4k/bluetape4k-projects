@@ -5,19 +5,19 @@
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .layer{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .layer-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:26px;fill:#22344A;font-weight:400}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .layer-title{font-family:"Architects Daughter";font-size:26px;fill:#22344A;font-weight:400}
+      .card-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
@@ -31,104 +31,98 @@
   <!-- README_LAYER_BANDS:START -->
   <g id="layer-module-entrypoint">
     <rect class="layer" x="72" y="166" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="209">Module entrypoint</text>
+    <text class="layer-title" x="104" y="209" dominant-baseline="middle">Module entrypoint</text>
     <g id="node-coroutines" transform="translate(578,190)">
       <rect class="card" x="0" y="0" width="500" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-      <text class="card-title" x="250" y="31" text-anchor="middle">bluetape4k-coroutines</text>
-      <text class="detail" x="250" y="55" text-anchor="middle">coroutine-first extension set</text>
-      <text class="detail" x="250" y="73" text-anchor="middle">structured async helpers</text>
+      <text class="card-title" x="250" y="24" text-anchor="middle" dominant-baseline="middle">bluetape4k-coroutines</text>
+      <text class="detail" x="250" y="43" text-anchor="middle" dominant-baseline="middle">coroutine-first extension set</text>
+      <text class="detail" x="250" y="62" text-anchor="middle" dominant-baseline="middle">structured async helpers</text>
     </g>
   </g>
   <g id="layer-async-primitives">
     <rect class="layer" x="72" y="328" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="371">Async primitives</text>
+    <text class="layer-title" x="104" y="371" dominant-baseline="middle">Async primitives</text>
     <g id="node-deferred-value" transform="translate(346,352)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">DeferredValue</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">eager async wrapper</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">map, flatMap, await</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">DeferredValue</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">eager async wrapper</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">map, flatMap, await</text>
     </g>
     <g id="node-deferred-helpers" transform="translate(1098,352)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Deferred helpers</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">zip, awaitAny</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">cancel losing jobs</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Deferred helpers</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">zip, awaitAny</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">cancel losing jobs</text>
     </g>
   </g>
   <g id="layer-flow-processing">
     <rect class="layer" x="72" y="490" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="533">Flow processing</text>
+    <text class="layer-title" x="104" y="533" dominant-baseline="middle">Flow processing</text>
     <g id="node-flow-ext" transform="translate(346,514)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Flow extensions</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">chunked, windowed, sliding</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">mapParallel and replay</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Flow extensions</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">chunked, windowed, sliding</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">mapParallel and replay</text>
     </g>
     <g id="node-async-flow" transform="translate(722,514)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">AsyncFlow</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">order-preserving transform</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">bounded concurrency</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">AsyncFlow</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">order-preserving transform</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">bounded concurrency</text>
     </g>
     <g id="node-subject" transform="translate(1098,514)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Subject APIs</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">publish, replay, multicast</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">resumable collectors</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Subject APIs</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">publish, replay, multicast</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">resumable collectors</text>
     </g>
   </g>
   <g id="layer-runtime-integration">
     <rect class="layer" x="72" y="652" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="695">Runtime integration</text>
+    <text class="layer-title" x="104" y="695" dominant-baseline="middle">Runtime integration</text>
     <g id="node-scopes" transform="translate(346,676)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Coroutine scopes</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Default, IO, ThreadPool</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">virtual-thread scope</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Coroutine scopes</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">Default, IO, ThreadPool</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">virtual-thread scope</text>
     </g>
     <g id="node-reactor" transform="translate(722,676)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Reactor context bridge</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">current ReactiveContext</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">coroutine context support</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Reactor context bridge</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">current ReactiveContext</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">coroutine context support</text>
     </g>
     <g id="node-tests" transform="translate(1098,676)">
       <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Test support</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Flow assertions</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">runTest helpers</text>
+      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Test support</text>
+      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">Flow assertions</text>
+      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">runTest helpers</text>
     </g>
   </g>
   <!-- README_LAYER_BANDS:END -->
 
   <g id="route-coroutines-deferred-value">
-    <path class="connector" d="M828 276 L828 304 L496 304 L496 352" stroke="#58A978"/>
+    <path class="connector" d="M612 276 L612 304 L612 304 L612 352" stroke="#58A978"/>
   </g>
   <g id="route-coroutines-deferred-helpers">
-    <path class="connector" d="M828 276 L828 314 L1248 314 L1248 352" stroke="#45A7A1"/>
+    <path class="connector" d="M1044 276 L1044 314 L1132 314 L1132 352" stroke="#45A7A1"/>
   </g>
   <g id="route-deferred-value-flow-ext">
-    <path class="connector" d="M496 438 L496 486 L496 486 L496 514" stroke="#D9AA4D"/>
+    <path class="connector" d="M508 438 L508 486 L508 486 L508 514" stroke="#D9AA4D"/>
   </g>
   <g id="route-deferred-helpers-async-flow">
-    <path class="connector" d="M1248 438 L1248 466 L872 466 L872 514" stroke="#DB7890"/>
-  </g>
-  <g id="route-flow-ext-subject">
-    <path class="connector" d="M646 557 L664 557 L664 608 L1080 608 L1080 557 L1098 557" stroke="#8A72D6"/>
+    <path class="connector" d="M1132 438 L1132 466 L988 466 L988 514" stroke="#DB7890"/>
   </g>
   <g id="route-async-flow-scopes">
-    <path class="connector" d="M872 600 L872 648 L496 648 L496 676" stroke="#45A7A1"/>
+    <path class="connector" d="M756 600 L756 638 L612 638 L612 676" stroke="#45A7A1"/>
   </g>
   <g id="route-subject-reactor">
-    <path class="connector" d="M1248 600 L1248 628 L872 628 L872 676" stroke="#8A72D6"/>
-  </g>
-  <g id="route-flow-ext-tests">
-    <path class="connector" d="M496 600 L496 638 L1248 638 L1248 676" stroke="#8BA84D"/>
+    <path class="connector" d="M1132 600 L1132 648 L988 648 L988 676" stroke="#8A72D6"/>
   </g>
 
   <g transform="translate(76,816)">
     <rect class="pill" x="0" y="0" width="1348" height="42" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle">Graphviz evidence: bluetape4k-coroutines-diagram-01.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="674" y="33" text-anchor="middle">Geometry gate: nodes=9, routes=8, segments=26, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=69.</text>
+    <text class="small" x="674" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: bluetape4k-coroutines-diagram-01.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="674" y="33" text-anchor="middle" dominant-baseline="middle">Gate: n=9, r=6, seg=18, endpoint/bend/cross/overlap/clear=0, margins=38/38/45/30, titleGap=69.</text>
   </g>
 </svg>

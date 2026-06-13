@@ -1,0 +1,26 @@
+digraph G {
+  graph [layout=neato, splines=ortho, outputorder=edgesfirst, label="io-retrofit2-diagram-01 architecture evidence", labelloc=t, fontsize=18, fontname="Comic Mono"];
+  node [shape=box, style="rounded,filled", fillcolor="#F7FBFF", color="#9AA8B8", fontname="Comic Mono", fontsize=10, margin="0.10,0.08"];
+  edge [color="#758297", arrowsize=0.65, penwidth=1.6];
+  node_0_0 [label="Application Code", pos="4.278,-4.458!", width="4.306", height="1.556"];
+  node_0_1 [label="Retrofit Interface", pos="11.565,-4.458!", width="4.306", height="1.556"];
+  node_0_2 [label="retrofitOf DSL", pos="18.851,-4.458!", width="4.306", height="1.556"];
+  node_1_0 [label="Result Call Adapter", pos="4.278,-9.264!", width="4.306", height="1.556"];
+  node_1_1 [label="ResultCall", pos="11.565,-9.264!", width="4.306", height="1.556"];
+  node_1_2 [label="Reactive Adapters", pos="18.851,-9.264!", width="4.306", height="1.556"];
+  node_2_0 [label="OkHttpClient default", pos="4.278,-14.069!", width="4.306", height="1.556"];
+  node_2_1 [label="Hc5CallFactory Apache", pos="11.565,-14.069!", width="4.306", height="1.556"];
+  node_2_2 [label="VertxCallFactory Vert.x", pos="18.851,-14.069!", width="4.306", height="1.556"];
+  node_3_0 [label="jackson Converter", pos="4.278,-18.875!", width="4.306", height="1.556"];
+  node_3_1 [label="default Scalars", pos="15.208,-18.875!", width="4.306", height="1.556"];
+  node_0_0 -> node_0_1;
+  node_0_1 -> node_0_2;
+  node_0_2 -> node_1_0;
+  node_1_0 -> node_1_1;
+  node_1_1 -> node_1_2;
+  node_1_2 -> node_2_0;
+  node_2_0 -> node_2_1;
+  node_2_1 -> node_2_2;
+  node_2_2 -> node_3_0;
+  node_3_0 -> node_3_1;
+}

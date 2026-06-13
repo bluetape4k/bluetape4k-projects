@@ -1,0 +1,15 @@
+graph 1 16.05 5.5389
+node SuspendKafkaConsumerTemplate 1.4 2.7694 2.8 1.05 SuspendKafkaConsumerTemplate rounded,filled box #5B8DEF #E8F3FF
+node KafkaCodec 9.9 5.0139 2.8 1.05 KafkaCodec rounded,filled box #58A978 #EAF7EF
+node KafkaCodecs 7.0667 2.7694 2.8 1.05 KafkaCodecs rounded,filled box #45A7A1 #E9F7F6
+node SuspendKafkaProducerTemplate 14.65 2.7694 2.8 1.05 SuspendKafkaProducerTemplate rounded,filled box #D6A441 #FFF3D9
+node JacksonKafkaCodec 4.2333 0.525 2.8 1.05 JacksonKafkaCodec rounded,filled box #DC6B82 #FDECEF
+node BinaryKafkaCodec 8.0667 0.525 2.8 1.05 BinaryKafkaCodec rounded,filled box #8A72D6 #F1ECFF
+node StringKafkaCodec 11.817 0.525 2.8 1.05 StringKafkaCodec rounded,filled box #8BA84D #EEF6D9
+edge KafkaCodec JacksonKafkaCodec 7 8.4956 5.0139 6.8175 5.0139 4.2333 5.0139 4.2333 5.0139 4.2333 5.0139 4.2333 2.2397 4.2333 1.0531 solid #C94D68
+edge KafkaCodec BinaryKafkaCodec 4 8.9833 4.4858 8.9833 3.6213 8.9833 1.9143 8.9833 1.0511 solid #755BC6
+edge KafkaCodec StringKafkaCodec 4 11.006 4.4858 11.006 3.6213 11.006 1.9143 11.006 1.0511 solid #718A35
+edge KafkaCodecs JacksonKafkaCodec 7 6.1667 2.2382 6.1667 1.5753 6.1667 0.52778 6.1667 0.52778 6.1667 0.52778 5.9382 0.52778 5.6384 0.52778 dashed #2E8F89
+edge KafkaCodecs BinaryKafkaCodec 4 7.5667 2.2375 7.5667 1.8798 7.5667 1.4101 7.5667 1.0531 dashed #2E8F89
+edge KafkaCodecs StringKafkaCodec 7 8.4705 2.7639 9.4971 2.7639 10.711 2.7639 10.711 2.7639 10.711 2.7639 10.711 1.7177 10.711 1.0556 dashed #2E8F89
+stop

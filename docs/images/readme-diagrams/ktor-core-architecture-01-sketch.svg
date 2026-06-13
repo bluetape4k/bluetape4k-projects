@@ -14,78 +14,78 @@
 <title>app&#45;&gt;config</title>
 <path fill="none" stroke="#758297" d="M56.43,-58.24C56.43,-86.34 56.43,-137 56.43,-137 56.43,-137 198.19,-137 198.19,-137"/>
 <polygon fill="#758297" stroke="#758297" points="198.19,-139.8 206.19,-137 198.19,-134.2 198.19,-139.8"/>
-<text xml:space="preserve" text-anchor="middle" x="160.17" y="-111.85" font-family="Arial" font-size="12.00">reads</text>
+<text xml:space="preserve" text-anchor="middle" x="160.17" y="-111.85" font-family="Architects Daughter" font-size="12.00">reads</text>
 </g>
 <!-- app&#45;&gt;routes -->
 <g id="edge5" class="edge">
 <title>app&#45;&gt;routes</title>
 <path fill="none" stroke="#758297" d="M112.46,-40C112.46,-40 746.77,-40 746.77,-40"/>
 <polygon fill="#758297" stroke="#758297" points="746.77,-42.8 754.77,-40 746.77,-37.2 746.77,-42.8"/>
-<text xml:space="preserve" text-anchor="middle" x="380.72" y="-2.85" font-family="Arial" font-size="12.00">owns</text>
+<text xml:space="preserve" text-anchor="middle" x="380.72" y="-2.85" font-family="Architects Daughter" font-size="12.00">owns</text>
 </g>
 <!-- config&#45;&gt;json -->
 <g id="edge2" class="edge">
 <title>config&#45;&gt;json</title>
 <path fill="none" stroke="#758297" d="M325.32,-137C378.47,-137 448.43,-137 448.43,-137 448.43,-137 448.43,-238 448.43,-238"/>
 <polygon fill="#758297" stroke="#758297" points="445.63,-238 448.43,-246 451.23,-238 445.63,-238"/>
-<text xml:space="preserve" text-anchor="middle" x="380.72" y="-268.85" font-family="Arial" font-size="12.00">installs</text>
+<text xml:space="preserve" text-anchor="middle" x="380.72" y="-268.85" font-family="Architects Daughter" font-size="12.00">installs</text>
 </g>
 <!-- config&#45;&gt;status -->
 <g id="edge3" class="edge">
 <title>config&#45;&gt;status</title>
 <path fill="none" stroke="#758297" d="M266.43,-155.49C266.43,-167.14 266.43,-180 266.43,-180 266.43,-180 451.8,-180 451.8,-180"/>
 <polygon fill="#758297" stroke="#758297" points="451.8,-182.8 459.8,-180 451.8,-177.2 451.8,-182.8"/>
-<text xml:space="preserve" text-anchor="middle" x="380.72" y="-174.85" font-family="Arial" font-size="12.00">installs</text>
+<text xml:space="preserve" text-anchor="middle" x="380.72" y="-174.85" font-family="Architects Daughter" font-size="12.00">installs</text>
 </g>
 <!-- config&#45;&gt;health -->
 <g id="edge4" class="edge">
 <title>config&#45;&gt;health</title>
 <path fill="none" stroke="#758297" d="M266.43,-118.51C266.43,-106.86 266.43,-94 266.43,-94 266.43,-94 449.46,-94 449.46,-94"/>
 <polygon fill="#758297" stroke="#758297" points="449.46,-96.8 457.46,-94 449.46,-91.2 449.46,-96.8"/>
-<text xml:space="preserve" text-anchor="middle" x="380.72" y="-96.85" font-family="Arial" font-size="12.00">registers</text>
+<text xml:space="preserve" text-anchor="middle" x="380.72" y="-96.85" font-family="Architects Daughter" font-size="12.00">registers</text>
 </g>
 <!-- status&#45;&gt;routes -->
 <g id="edge6" class="edge">
 <title>status&#45;&gt;routes</title>
 <path fill="none" stroke="#758297" d="M589.07,-180C681.15,-180 840.43,-180 840.43,-180 840.43,-180 840.43,-67.82 840.43,-67.82"/>
 <polygon fill="#758297" stroke="#758297" points="843.23,-67.82 840.43,-59.82 837.63,-67.82 843.23,-67.82"/>
-<text xml:space="preserve" text-anchor="middle" x="685.26" y="-132.85" font-family="Arial" font-size="12.00">error payloads</text>
+<text xml:space="preserve" text-anchor="middle" x="685.26" y="-132.85" font-family="Architects Daughter" font-size="12.00">error payloads</text>
 </g>
 <!-- app -->
 <g id="node1" class="node">
 <title>app</title>
 <path fill="#e8f3ff" stroke="#5b8def" d="M100.17,-58C100.17,-58 12,-58 12,-58 6,-58 0,-52 0,-46 0,-46 0,-34 0,-34 0,-28 6,-22 12,-22 12,-22 100.17,-22 100.17,-22 106.17,-22 112.17,-28 112.17,-34 112.17,-34 112.17,-46 112.17,-46 112.17,-52 106.17,-58 100.17,-58"/>
-<text xml:space="preserve" text-anchor="middle" x="56.09" y="-33.4" font-family="Arial" font-size="18.00">Application</text>
+<text xml:space="preserve" text-anchor="middle" x="56.09" y="-33.4" font-family="Architects Daughter" font-size="18.00">Application</text>
 </g>
 <!-- config -->
 <g id="node2" class="node">
 <title>config</title>
 <path fill="#f1ecff" stroke="#8a72d6" d="M312.84,-155C312.84,-155 220.17,-155 220.17,-155 214.17,-155 208.17,-149 208.17,-143 208.17,-143 208.17,-131 208.17,-131 208.17,-125 214.17,-119 220.17,-119 220.17,-119 312.84,-119 312.84,-119 318.84,-119 324.84,-125 324.84,-131 324.84,-131 324.84,-143 324.84,-143 324.84,-149 318.84,-155 312.84,-155"/>
-<text xml:space="preserve" text-anchor="middle" x="266.51" y="-130.4" font-family="Arial" font-size="18.00">Core config</text>
+<text xml:space="preserve" text-anchor="middle" x="266.51" y="-130.4" font-family="Architects Daughter" font-size="18.00">Core config</text>
 </g>
 <!-- json -->
 <g id="node3" class="node">
 <title>json</title>
 <path fill="#e9f7f6" stroke="#45a7a1" d="M602.01,-284C602.01,-284 448.59,-284 448.59,-284 442.59,-284 436.59,-278 436.59,-272 436.59,-272 436.59,-260 436.59,-260 436.59,-254 442.59,-248 448.59,-248 448.59,-248 602.01,-248 602.01,-248 608.01,-248 614.01,-254 614.01,-260 614.01,-260 614.01,-272 614.01,-272 614.01,-278 608.01,-284 602.01,-284"/>
-<text xml:space="preserve" text-anchor="middle" x="525.3" y="-259.4" font-family="Arial" font-size="18.00">ContentNegotiation</text>
+<text xml:space="preserve" text-anchor="middle" x="525.3" y="-259.4" font-family="Architects Daughter" font-size="18.00">ContentNegotiation</text>
 </g>
 <!-- status -->
 <g id="node4" class="node">
 <title>status</title>
 <path fill="#fdecef" stroke="#dc6b82" d="M576.89,-198C576.89,-198 473.72,-198 473.72,-198 467.72,-198 461.72,-192 461.72,-186 461.72,-186 461.72,-174 461.72,-174 461.72,-168 467.72,-162 473.72,-162 473.72,-162 576.89,-162 576.89,-162 582.89,-162 588.89,-168 588.89,-174 588.89,-174 588.89,-186 588.89,-186 588.89,-192 582.89,-198 576.89,-198"/>
-<text xml:space="preserve" text-anchor="middle" x="525.3" y="-173.4" font-family="Arial" font-size="18.00">StatusPages</text>
+<text xml:space="preserve" text-anchor="middle" x="525.3" y="-173.4" font-family="Architects Daughter" font-size="18.00">StatusPages</text>
 </g>
 <!-- health -->
 <g id="node5" class="node">
 <title>health</title>
 <path fill="#eaf7ef" stroke="#58a978" d="M579.14,-112C579.14,-112 471.47,-112 471.47,-112 465.47,-112 459.47,-106 459.47,-100 459.47,-100 459.47,-88 459.47,-88 459.47,-82 465.47,-76 471.47,-76 471.47,-76 579.14,-76 579.14,-76 585.14,-76 591.14,-82 591.14,-88 591.14,-88 591.14,-100 591.14,-100 591.14,-106 585.14,-112 579.14,-112"/>
-<text xml:space="preserve" text-anchor="middle" x="525.3" y="-87.4" font-family="Arial" font-size="18.00">Health routes</text>
+<text xml:space="preserve" text-anchor="middle" x="525.3" y="-87.4" font-family="Architects Daughter" font-size="18.00">Health routes</text>
 </g>
 <!-- routes -->
 <g id="node6" class="node">
 <title>routes</title>
 <path fill="#fff3d9" stroke="#d6a441" d="M911.43,-58C911.43,-58 768.51,-58 768.51,-58 762.51,-58 756.51,-52 756.51,-46 756.51,-46 756.51,-34 756.51,-34 756.51,-28 762.51,-22 768.51,-22 768.51,-22 911.43,-22 911.43,-22 917.43,-22 923.43,-28 923.43,-34 923.43,-34 923.43,-46 923.43,-46 923.43,-52 917.43,-58 911.43,-58"/>
-<text xml:space="preserve" text-anchor="middle" x="839.97" y="-33.4" font-family="Arial" font-size="18.00">Application routes</text>
+<text xml:space="preserve" text-anchor="middle" x="839.97" y="-33.4" font-family="Architects Daughter" font-size="18.00">Application routes</text>
 </g>
 </g>
 </svg>

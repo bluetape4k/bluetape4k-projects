@@ -1,0 +1,27 @@
+graph 1 4.9382 2.2539
+node node_0_0 2.153 1.0731 4.306 1.556 bluetape4kredis rounded,filled box #9AA8B8 #F7FBFF
+node node_0_1 2.3048 1.0731 4.306 1.556 bluetape4klettuce rounded,filled box #9AA8B8 #F7FBFF
+node node_0_2 2.153 1.0257 4.306 1.556 redis rounded,filled box #9AA8B8 #F7FBFF
+node node_0_3 2.3048 1.0257 4.306 1.556 bluetape4kredisson rounded,filled box #9AA8B8 #F7FBFF
+node node_1_0 2.153 0.95893 4.306 1.556 LettuceClients rounded,filled box #9AA8B8 #F7FBFF
+node node_1_1 2.2542 0.95893 4.306 1.556 LettuceBinaryCodecs rounded,filled box #9AA8B8 #F7FBFF
+node node_1_2 2.3554 0.95893 4.306 1.556 "Redis Future.await" rounded,filled box #9AA8B8 #F7FBFF
+node node_2_0 2.153 0.89219 4.306 1.556 LettuceLoadedMap rounded,filled box #9AA8B8 #F7FBFF
+node node_2_1 2.3048 0.89219 4.306 1.556 "Lettuce Suspended Loaded" rounded,filled box #9AA8B8 #F7FBFF
+node node_2_2 2.153 0.84474 4.306 1.556 "redissonClient DSL" rounded,filled box #9AA8B8 #F7FBFF
+node node_2_3 2.3048 0.84474 4.306 1.556 "RedissonCodecs Fory" rounded,filled box #9AA8B8 #F7FBFF
+node node_3_0 2.153 0.778 4.306 1.556 "Redisson Leader Election" rounded,filled box #9AA8B8 #F7FBFF
+node node_3_1 2.2542 0.778 4.306 1.556 "RedissonNearCache 2-tier" rounded,filled box #9AA8B8 #F7FBFF
+node node_3_2 2.3554 0.778 4.306 1.556 RedissonMemoizer rounded,filled box #9AA8B8 #F7FBFF
+edge node_0_0 node_0_1 4 2.3031 1.0731 2.3034 1.0731 2.3036 1.0731 2.3038 1.0731 solid #758297
+edge node_0_2 node_0_3 4 2.3031 1.0257 2.3034 1.0257 2.3036 1.0257 2.3038 1.0257 solid #758297
+edge node_0_3 node_1_0 4 2.1547 0.95968 2.1544 0.95956 2.1542 0.95945 2.154 0.95936 solid #758297
+edge node_1_0 node_1_1 4 2.2531 0.95893 2.2533 0.95893 2.2534 0.95893 2.2536 0.95893 solid #758297
+edge node_1_1 node_1_2 4 2.3543 0.95893 2.3545 0.95893 2.3546 0.95893 2.3548 0.95893 solid #758297
+edge node_1_2 node_2_0 4 2.1553 0.89294 2.1549 0.89282 2.1546 0.89271 2.1543 0.89262 solid #758297
+edge node_2_0 node_2_1 4 2.3031 0.89219 2.3034 0.89219 2.3036 0.89219 2.3038 0.89219 solid #758297
+edge node_2_2 node_2_3 4 2.3031 0.84474 2.3034 0.84474 2.3036 0.84474 2.3038 0.84474 solid #758297
+edge node_2_3 node_3_0 4 2.1547 0.77875 2.1544 0.77863 2.1542 0.77852 2.154 0.77843 solid #758297
+edge node_3_0 node_3_1 4 2.2531 0.778 2.2533 0.778 2.2534 0.778 2.2536 0.778 solid #758297
+edge node_3_1 node_3_2 4 2.3543 0.778 2.3545 0.778 2.3546 0.778 2.3548 0.778 solid #758297
+stop

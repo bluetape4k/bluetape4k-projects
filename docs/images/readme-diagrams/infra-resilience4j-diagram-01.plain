@@ -1,0 +1,18 @@
+graph 1 14.05 10.028
+node DecoratorForSuspendFunction2 1.4 5.0139 2.8 1.05 DecoratorForSuspendFunction2 rounded,filled box #5B8DEF #E8F3FF
+node DecoratorForSuspendFunction1 5.15 5.0139 2.8 1.05 DecoratorForSuspendFunction1 rounded,filled box #58A978 #EAF7EF
+node SuspendDecorators 5.15 7.2583 2.8 1.05 SuspendDecorators rounded,filled box #45A7A1 #E9F7F6
+node SuspendCache 5.15 2.7694 2.8 1.05 SuspendCache rounded,filled box #D6A441 #FFF3D9
+node DecoratorForSuspendSupplier 8.9 5.0139 2.8 1.05 DecoratorForSuspendSupplier rounded,filled box #DC6B82 #FDECEF
+node SuspendCacheImplK_V 8.9 2.7694 2.8 1.05 SuspendCacheImplK_V rounded,filled box #8A72D6 #F1ECFF
+node Decorator_For_Suspend_Function2_T_U_R 9.1917 0.525 3.4033 1.05 "Decorator For Suspend Function2 T_U_R" rounded,filled box #8BA84D #EEF6D9
+node Decorator_For_Suspend_Function1_T_R 9.1083 7.2583 3.2367 1.05 "Decorator For Suspend Function1 T_R" rounded,filled box #9AA8B8 #F2F5F9
+node DecoratorForSuspendSupplierT 12.65 2.7694 2.8 1.05 DecoratorForSuspendSupplierT rounded,filled box #5B8DEF #E8F3FF
+node SuspendCacheK_V 5.15 9.5028 2.8 1.05 SuspendCacheK_V rounded,filled box #58A978 #EAF7EF
+node SuspendCacheImpl 5.15 0.525 2.8 1.05 SuspendCacheImpl rounded,filled box #45A7A1 #E9F7F6
+edge DecoratorForSuspendFunction1 SuspendCache 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #3E9868
+edge SuspendDecorators DecoratorForSuspendFunction2 7 3.7483 7.2639 2.6832 7.2639 1.4 7.2639 1.4 7.2639 1.4 7.2639 1.4 6.2064 1.4 5.5414 dashed #2E8F89
+edge SuspendDecorators DecoratorForSuspendFunction1 4 5.15 6.7264 5.15 6.3686 5.15 5.899 5.15 5.542 dashed #2E8F89
+edge SuspendDecorators DecoratorForSuspendSupplier 10 6.5529 7.2639 6.8211 7.2639 7.02 7.2639 7.02 7.2639 7.02 7.2639 7.02 5.0139 7.02 5.0139 7.02 5.0139 7.2224 5.0139 7.4944 5.0139 dashed #2E8F89
+edge SuspendCache SuspendCacheImpl 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 solid #2E8F89
+stop

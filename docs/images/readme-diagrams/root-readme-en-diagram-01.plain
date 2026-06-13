@@ -1,18 +1,31 @@
-graph 1 11.628 4.0833
-node core 0.44563 2.6389 0.89125 0.5 Core rounded,filled box #5B8DEF #E8F3FF
-node io 3.4827 3.8333 0.75 0.5 "I/O" rounded,filled box #45A7A1 #E9F7F6
-node data 3.4827 2.6389 0.88083 0.5 Data rounded,filled box #D6A441 #FFF3D9
-node infra 3.4827 1.4444 1.8287 0.5 Infrastructure rounded,filled box #DC6B82 #FDECEF
-node cache 7.1865 1.4444 1.0683 0.5 Cache rounded,filled box #58A978 #EAF7EF
-node server 7.1865 2.6389 1.8704 0.5 "Server stacks" rounded,filled box #8A72D6 #F1ECFF
-node utils 7.1865 0.25 1.1517 0.5 Utilities rounded,filled box #B88A44 #F7F1E7
-node examples 10.906 0.72222 1.4433 0.5 Examples rounded,filled box #8BA84D #EEF6D9
-edge core io 7 0.44694 2.8922 0.44694 3.2428 0.44694 3.8333 0.44694 3.8333 0.44694 3.8333 2.9722 3.8333 2.9722 3.8333 "base APIs" 1.7298 3.8073 solid #758297
-edge core data 4 0.89376 2.7222 0.89376 2.7222 2.9056 2.7222 2.9056 2.7222 validation 1.7298 2.7378 solid #758297
-edge core infra 7 0.89554 2.5556 1.581 2.5556 2.8081 2.5556 2.8081 2.5556 2.8081 2.5556 2.8081 1.8287 2.8081 1.8287 logging 1.7298 1.6684 solid #758297
-edge io server 7 3.8579 3.8333 4.7986 3.8333 7.1831 3.8333 7.1831 3.8333 7.1831 3.8333 7.1831 3.0243 7.1831 3.0243 "HTTP/JSON" 5.3242 3.8073 solid #758297
-edge data server 4 3.9295 2.6389 3.9295 2.6389 6.1122 2.6389 6.1122 2.6389 persistence 5.3242 2.7378 solid #758297
-edge infra cache 4 4.403 1.4444 4.403 1.4444 6.5172 1.4444 6.5172 1.4444 backends 5.3242 1.5434 solid #758297
-edge server examples 7 7.9469 2.3853 7.9469 1.8841 7.9469 0.81481 7.9469 0.81481 7.9469 0.81481 10.046 0.81481 10.046 0.81481 demonstrates 9.1529 2.0156 solid #758297
-edge utils examples 7 7.1831 0.5057 7.1831 0.58756 7.1831 0.65741 7.1831 0.65741 7.1831 0.65741 10.047 0.65741 10.047 0.65741 "domain helpers" 9.1529 0.34896 solid #758297
+graph 1 17.649 4.5417
+node bluetape4k 2.6233 4.2917 1.4618 0.5 Foundation rounded,filled box #75A9E8 #E8F3FF
+node bom 6.5816 4.2917 1.8993 0.5 "BOM alignment" rounded,filled box #69B888 #EAF7EF
+node baseline 9.3316 4.2917 2.0972 0.5 "Runtime baseline" rounded,filled box #8A72D6 #F1ECFF
+node "split-boundary" 12.234 4.2917 2.2118 0.5 "Standalone repos" rounded,filled box #AAB7C4 #F6F8FA
+node io 1.2205 2.9444 2.441 0.5 "I/O and serialization" rounded,filled box #45A7A1 #E9F7F6
+node data 4.026 2.9444 1.6701 0.5 "Data access" rounded,filled box #D9AA4D #FFF3D9
+node infra 6.5816 2.9444 1.941 0.5 Infrastructure rounded,filled box #DB7890 #FCE7F3
+node utils 9.3316 2.9444 0.99306 0.5 Utilities rounded,filled box #8BA84D #EEF6D9
+node cache 14.568 4.2917 0.94097 0.5 Cache rounded,filled box #69B888 #EAF7EF
+node virtualthread 16.72 4.2917 1.8576 0.5 "Virtual Thread" rounded,filled box #75A9E8 #E8F3FF
+node ktor 1.4427 1.5972 0.76389 0.5 Ktor rounded,filled box #45A7A1 #E9F7F6
+node "spring-boot" 3.5955 1.5972 1.6181 0.5 "Spring Boot" rounded,filled box #8A72D6 #F1ECFF
+node testing 6.5816 1.5972 1.0347 0.5 Testing rounded,filled box #B88A44 #F7F1E7
+node readmes 9.3316 1.5972 2.066 0.5 "README assets" rounded,filled box #AAB7C4 #F6F8FA
+node examples 2.526 0.25 1.2431 0.5 Examples rounded,filled box #69B888 #EAF7EF
+node benchmark 6.5816 0.25 1.6806 0.5 Benchmarks rounded,filled box #D9AA4D #FFF3D9
+node "diagram-evidence" 9.3316 0.25 2.2222 0.5 "Diagram evidence" rounded,filled box #75A9E8 #E8F3FF
+edge bluetape4k io 4 2.1667 4.0383 2.1667 4.0383 2.1667 3.3126 2.1667 3.3126 solid #4F83BF
+edge bluetape4k data 4 3.2726 4.0383 3.2726 4.0383 3.2726 3.3126 3.2726 3.3126 solid #4F83BF
+edge bom infra 4 6.5816 4.0383 6.5816 4.0383 6.5816 3.3126 6.5816 3.3126 solid #58A978
+edge baseline utils 4 9.3316 4.0383 9.3316 4.0383 9.3316 3.3126 9.3316 3.3126 solid #8A72D6
+edge io ktor 4 1.4427 2.691 1.4427 2.691 1.4427 1.9654 1.4427 1.9654 solid #45A7A1
+edge data "spring-boot" 4 3.7977 2.691 3.7977 2.691 3.7977 1.9654 3.7977 1.9654 solid #D9AA4D
+edge infra testing 4 6.5816 2.691 6.5816 2.691 6.5816 1.9654 6.5816 1.9654 solid #DB7890
+edge utils readmes 4 9.3316 2.691 9.3316 2.691 9.3316 1.9654 9.3316 1.9654 solid #8BA84D
+edge ktor examples 7 1.8291 1.5972 2.0042 1.5972 2.1727 1.5972 2.1727 1.5972 2.1727 1.5972 2.1727 0.6147 2.1727 0.6147 solid #45A7A1
+edge "spring-boot" examples 4 2.967 1.3438 2.967 1.3438 2.967 0.61815 2.967 0.61815 solid #8A72D6
+edge testing benchmark 4 6.5816 1.3438 6.5816 1.3438 6.5816 0.61815 6.5816 0.61815 solid #B88A44
+edge readmes "diagram-evidence" 4 9.3316 1.3438 9.3316 1.3438 9.3316 0.61815 9.3316 0.61815 solid #6B7D90
 stop

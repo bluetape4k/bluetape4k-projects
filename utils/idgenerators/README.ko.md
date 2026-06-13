@@ -29,7 +29,7 @@
 
 ### 클래스 다이어그램
 
-![idgenerators Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)
+![ID Generators Class Structure diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-02.png)
 
 ### Snowflake 비트 구조
 

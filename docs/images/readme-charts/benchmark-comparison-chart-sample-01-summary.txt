@@ -1,0 +1,7 @@
+chart-gate: asset=benchmark-comparison-chart-sample-01
+tableBackedPlaceholder=PASS
+unitDirection=PASS
+twoPanels=PASS
+verdictPills=PASS
+interpretationBoundary=PASS
+status=PASS

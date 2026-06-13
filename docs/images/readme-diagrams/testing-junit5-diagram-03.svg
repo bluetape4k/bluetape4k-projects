@@ -5,19 +5,19 @@
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card-shape{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
@@ -30,15 +30,15 @@
 
   <g id="group-execution">
     <rect class="group" x="88" y="176" width="330" height="430" rx="18"/>
-    <text class="group-title" x="118" y="194">Test execution</text>
+    <text class="group-title" x="118" y="200" dominant-baseline="middle">Test execution</text>
   </g>
   <g id="group-report">
     <rect class="group" x="510" y="176" width="330" height="430" rx="18"/>
-    <text class="group-title" x="540" y="194">Report model</text>
+    <text class="group-title" x="540" y="200" dominant-baseline="middle">Report model</text>
   </g>
   <g id="group-output">
     <rect class="group" x="932" y="176" width="330" height="430" rx="18"/>
-    <text class="group-title" x="962" y="194">Reader-facing output</text>
+    <text class="group-title" x="962" y="200" dominant-baseline="middle">Reader-facing output</text>
   </g>
 
   <path id="route-gradle-extensions" class="connector" d="M253 320 L253 394" stroke="#4F83BF"/>
@@ -51,44 +51,44 @@
 
   <g id="node-gradle" transform="translate(130,236)">
     <rect class="card-shape" x="0" y="0" width="246" height="84" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="123" y="29" text-anchor="middle">Gradle test task</text>
-    <text class="detail" x="123" y="54" text-anchor="middle">runs JUnit Platform</text>
-    <text class="detail" x="123" y="72" text-anchor="middle">captures lifecycle events</text>
+    <text class="card-title" x="123" y="23" text-anchor="middle" dominant-baseline="middle">Gradle test task</text>
+    <text class="detail" x="123" y="42" text-anchor="middle" dominant-baseline="middle">runs JUnit Platform</text>
+    <text class="detail" x="123" y="61" text-anchor="middle" dominant-baseline="middle">captures lifecycle events</text>
   </g>
   <g id="node-extensions" transform="translate(130,394)">
     <rect class="card-shape" x="0" y="0" width="246" height="90" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="123" y="32" text-anchor="middle">JUnit5 helpers</text>
-    <text class="detail" x="123" y="57" text-anchor="middle">Stopwatch, TempFolder</text>
-    <text class="detail" x="123" y="75" text-anchor="middle">OutputCapture, FieldSource</text>
+    <text class="card-title" x="123" y="26" text-anchor="middle" dominant-baseline="middle">JUnit5 helpers</text>
+    <text class="detail" x="123" y="45" text-anchor="middle" dominant-baseline="middle">Stopwatch, TempFolder</text>
+    <text class="detail" x="123" y="64" text-anchor="middle" dominant-baseline="middle">OutputCapture, FieldSource</text>
   </g>
   <g id="node-gantt" transform="translate(552,236)">
     <rect class="card-shape" x="0" y="0" width="246" height="84" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="123" y="29" text-anchor="middle">Mermaid Gantt source</text>
-    <text class="detail" x="123" y="54" text-anchor="middle">timeline sections</text>
-    <text class="detail" x="123" y="72" text-anchor="middle">task rows and dates</text>
+    <text class="card-title" x="123" y="23" text-anchor="middle" dominant-baseline="middle">Mermaid Gantt source</text>
+    <text class="detail" x="123" y="42" text-anchor="middle" dominant-baseline="middle">timeline sections</text>
+    <text class="detail" x="123" y="61" text-anchor="middle" dominant-baseline="middle">task rows and dates</text>
   </g>
   <g id="node-status" transform="translate(552,394)">
     <rect class="card-shape" x="0" y="0" width="246" height="90" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="123" y="32" text-anchor="middle">Status mapping</text>
-    <text class="detail" x="123" y="57" text-anchor="middle">active lane: passed</text>
-    <text class="detail" x="123" y="75" text-anchor="middle">issue lanes: failed/interrupted</text>
+    <text class="card-title" x="123" y="26" text-anchor="middle" dominant-baseline="middle">Status mapping</text>
+    <text class="detail" x="123" y="45" text-anchor="middle" dominant-baseline="middle">active lane: passed</text>
+    <text class="detail" x="123" y="64" text-anchor="middle" dominant-baseline="middle">issue lanes: failed/interrupted</text>
   </g>
   <g id="node-markdown" transform="translate(974,236)">
     <rect class="card-shape" x="0" y="0" width="246" height="84" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="123" y="29" text-anchor="middle">README example block</text>
-    <text class="detail" x="123" y="54" text-anchor="middle">stored as fenced text</text>
-    <text class="detail" x="123" y="72" text-anchor="middle">extractable with awk</text>
+    <text class="card-title" x="123" y="23" text-anchor="middle" dominant-baseline="middle">README example block</text>
+    <text class="detail" x="123" y="42" text-anchor="middle" dominant-baseline="middle">stored as fenced text</text>
+    <text class="detail" x="123" y="61" text-anchor="middle" dominant-baseline="middle">extractable with awk</text>
   </g>
   <g id="node-rendered" transform="translate(974,394)">
     <rect class="card-shape" x="0" y="0" width="246" height="90" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="123" y="32" text-anchor="middle">Rendered report image</text>
-    <text class="detail" x="123" y="57" text-anchor="middle">human-readable timeline</text>
-    <text class="detail" x="123" y="75" text-anchor="middle">shared PNG/SVG asset</text>
+    <text class="card-title" x="123" y="26" text-anchor="middle" dominant-baseline="middle">Rendered report image</text>
+    <text class="detail" x="123" y="45" text-anchor="middle" dominant-baseline="middle">human-readable timeline</text>
+    <text class="detail" x="123" y="64" text-anchor="middle" dominant-baseline="middle">shared PNG/SVG asset</text>
   </g>
 
   <g transform="translate(76,806)">
     <rect class="pill" x="0" y="0" width="1268" height="44" rx="10"/>
-    <text class="small" x="634" y="17" text-anchor="middle">Graphviz evidence: testing-junit5-diagram-03.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="634" y="34" text-anchor="middle">Geometry gate: nodes=6, routes=7, segments=7, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=115.</text>
+    <text class="small" x="634" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: testing-junit5-diagram-03.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="634" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=6, r=7, seg=7, endpoint/bend/cross/overlap/clear/label=0, margins=130/200/115/322, titleGap=115.</text>
   </g>
 </svg>

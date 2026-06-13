@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1080" viewBox="0 0 1280 1080" role="img" aria-labelledby="title desc">
+<title id="title">Before / After Chart Sample</title>
+<desc id="desc">Illustrative values · baseline vs optimized · ns/op · lower is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.08"/></filter>
+  <style>
+    .canvas{fill:#F6F9FD}
+    .frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8;filter:url(#shadow)}
+    .result{fill:#F2FFFB;stroke:#18BFA7;stroke-width:1.8}
+    .title{font-family:"Architects Daughter";font-size:34px;fill:#22304A;font-weight:700}
+    .panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22304A;font-weight:700}
+    .subtitle,.label,.axis,.value,.small,.tiny{font-family:"Comic Mono";fill:#22304A}
+    .subtitle{font-size:14px;fill:#5B6B83}
+    .label{font-size:12px}
+    .axis{font-size:11px;fill:#5B6B83}
+    .value{font-size:11px;font-weight:700}
+    .small{font-size:12px}
+    .tiny{font-size:10px;fill:#5B6B83}
+    .grid{stroke:#E1E9F3;stroke-width:1}
+    .axisLine{stroke:#B7C8DC;stroke-width:1.4}
+    .scopePill{fill:#F6FAFF;stroke:#4F83FF;stroke-width:1.5}
+    .legendText{font-family:"Comic Mono";font-size:12px;fill:#22304A}
+  </style>
+</defs>
+<rect class="canvas" width="1280" height="1080"/>
+<rect class="frame" x="0.5" y="0.5" width="1279" height="1079" rx="14"/>
+<text class="title" x="640" y="54" text-anchor="middle">Before / After Chart Sample</text>
+<text class="subtitle" x="640" y="76" text-anchor="middle">Illustrative values · baseline vs optimized · ns/op · lower is better</text>
+<g>
+  <rect class="panel" x="56" y="104" width="1168" height="798" rx="14"/>
+  <text class="panelTitle" x="84" y="140" >Before / after latency</text>
+  <text class="axis" x="1150" y="140" text-anchor="middle">0 to 700 ns/op</text>
+  <line class="grid" x1="380" y1="164" x2="380" y2="698"/>
+<text class="axis" x="380" y="726" text-anchor="middle">0</text>
+<line class="grid" x1="597.1428571428571" y1="164" x2="597.1428571428571" y2="698"/>
+<text class="axis" x="597.1428571428571" y="726" text-anchor="middle">200</text>
+<line class="grid" x1="814.2857142857142" y1="164" x2="814.2857142857142" y2="698"/>
+<text class="axis" x="814.2857142857142" y="726" text-anchor="middle">400</text>
+<line class="grid" x1="1031.4285714285716" y1="164" x2="1031.4285714285716" y2="698"/>
+<text class="axis" x="1031.4285714285716" y="726" text-anchor="middle">600</text>
+<line class="grid" x1="1140" y1="164" x2="1140" y2="698"/>
+<text class="axis" x="1140" y="726" text-anchor="middle">700</text>
+<line class="axisLine" x1="380" y1="698" x2="1140" y2="698"/>
+  <g>
+  <text class="label" x="84" y="189" >Operation A</text>
+  <rect x="380" y="174" width="258.8342857142857" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="648.8342857142857" y="184" >238.40</text>
+  <rect x="380" y="192" width="63.40571428571428" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="453.4057142857143" y="202" >58.40</text>
+</g>
+<g>
+  <text class="label" x="84" y="232" >Operation A parallel</text>
+  <rect x="380" y="217" width="578.9028571428572" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="968.9028571428572" y="227" >533.20</text>
+  <rect x="380" y="235" width="183.59428571428572" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="573.5942857142857" y="245" >169.10</text>
+</g>
+<g>
+  <text class="label" x="84" y="275" >Operation B</text>
+  <rect x="380" y="260" width="243.3085714285714" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="633.3085714285714" y="270" >224.10</text>
+  <rect x="380" y="278" width="49.50857142857143" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="439.50857142857143" y="288" >45.60</text>
+</g>
+<g>
+  <text class="label" x="84" y="318" >Operation B parallel</text>
+  <rect x="380" y="303" width="543.0742857142857" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="933.0742857142857" y="313" >500.20</text>
+  <rect x="380" y="321" width="157.42857142857144" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="547.4285714285714" y="331" >145</text>
+</g>
+<g>
+  <text class="label" x="84" y="361" >Operation C</text>
+  <rect x="380" y="346" width="290.5371428571429" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="680.537142857143" y="356" >267.60</text>
+  <rect x="380" y="364" width="95.54285714285714" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="485.54285714285714" y="374" >88</text>
+</g>
+<g>
+  <text class="label" x="84" y="404" >Operation C parallel</text>
+  <rect x="380" y="389" width="611.1485714285715" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="1001.1485714285715" y="399" >562.90</text>
+  <rect x="380" y="407" width="208.67428571428573" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="598.6742857142857" y="417" >192.20</text>
+</g>
+<g>
+  <text class="label" x="84" y="447" >Operation D</text>
+  <rect x="380" y="432" width="277.50857142857143" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="667.5085714285715" y="442" >255.60</text>
+  <rect x="380" y="450" width="80.34285714285714" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="470.34285714285716" y="460" >74</text>
+</g>
+<g>
+  <text class="label" x="84" y="490" >Operation D parallel</text>
+  <rect x="380" y="475" width="373.0514285714286" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="763.0514285714286" y="485" >343.60</text>
+  <rect x="380" y="493" width="220.1828571428572" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="610.1828571428572" y="503" >202.80</text>
+</g>
+<g>
+  <text class="label" x="84" y="533" >Operation E</text>
+  <rect x="380" y="518" width="426.79428571428576" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="816.7942857142857" y="528" >393.10</text>
+  <rect x="380" y="536" width="236.57714285714286" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="626.5771428571429" y="546" >217.90</text>
+</g>
+<g>
+  <text class="label" x="84" y="576" >Operation E parallel</text>
+  <rect x="380" y="561" width="725.4742857142858" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="1115.4742857142858" y="571" >668.20</text>
+  <rect x="380" y="579" width="265.13142857142856" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="655.1314285714286" y="589" >244.20</text>
+</g>
+<g>
+  <text class="label" x="84" y="619" >Operation F</text>
+  <rect x="380" y="604" width="343.95428571428573" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="733.9542857142858" y="614" >316.80</text>
+  <rect x="380" y="622" width="133.3257142857143" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="523.3257142857143" y="632" >122.80</text>
+</g>
+<g>
+  <text class="label" x="84" y="662" >Operation F parallel</text>
+  <rect x="380" y="647" width="674.2285714285714" height="11" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="value" x="1064.2285714285713" y="657" >621</text>
+  <rect x="380" y="665" width="226.91428571428574" height="11" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="value" x="616.9142857142857" y="675" >209</text>
+</g>
+  <text class="axis" x="1186" y="726" >ns/op</text>
+</g>
+<g>
+  <rect class="result" x="56" y="922" width="1168" height="92" rx="14"/>
+  <text class="panelTitle" x="84" y="961" >Optimization result</text>
+  <g>
+  <rect x="360" y="937" width="210" height="32" rx="16" fill="#FFFFFF" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="tiny" x="465" y="954" text-anchor="middle" dominant-baseline="middle">geomean latency -58.34%</text>
+</g>
+  <g>
+  <rect x="594" y="937" width="226" height="32" rx="16" fill="#FFFFFF" stroke="#2BC4D7" stroke-width="1.4"/>
+  <text class="tiny" x="707" y="954" text-anchor="middle" dominant-baseline="middle">CPU pressure reduced</text>
+</g>
+  <g>
+  <rect x="844" y="937" width="292" height="32" rx="16" fill="#FFFFFF" stroke="#FF6673" stroke-width="1.4"/>
+  <text class="tiny" x="990" y="954" text-anchor="middle" dominant-baseline="middle">allocation budget documented</text>
+</g>
+  <text class="small" x="84" y="989" >Use this band for issue number, raw-data path, environment, and benchmark interpretation.</text>
+</g>
+<g><rect x="82" y="1036" width="18" height="12" rx="4" fill="#FFB5BC" stroke="#FF6673" stroke-width="1.4"/>
+<text class="legendText" x="108" y="1046" dominant-baseline="middle">Baseline</text>
+<rect x="174" y="1036" width="18" height="12" rx="4" fill="#9BE8F0" stroke="#2BC4D7" stroke-width="1.4"/>
+<text class="legendText" x="200" y="1046" dominant-baseline="middle">After optimization</text></g>
+</svg>

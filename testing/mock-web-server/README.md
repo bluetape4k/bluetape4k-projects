@@ -30,7 +30,7 @@ A self-contained Spring Boot 4 + Virtual Threads HTTP mock server that replaces 
 
 ### Class Diagram
 
-![mock web server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
+![Mock Web Server Class Structure diagram](../../docs/images/readme-diagrams/testing-mock-web-server-diagram-02.png)
 
 ### Sequence Diagram — httpbin GET
 

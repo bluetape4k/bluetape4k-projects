@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1366" height="1000" viewBox="0 0 1366 1000" role="img" aria-label="UML">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
+    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
+    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
+    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
+    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
+    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
+    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
+    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
     .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
     .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
     .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
@@ -23,7 +23,7 @@
 <rect class="canvas" width="1366" height="1000"/>
 <rect class="frame" x="32" y="28" width="1302" height="944" rx="28"/>
 <text class="title" x="66" y="82">UML</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
+<text class="subtitle" x="70" y="104">Source-checked class relationships with readable compartments and routed inheritance.</text>
 <path class="line" d="M683 334 L683 496 L473 496 L473 563"/>
 <path class="line" d="M683 334 L683 488 L893 488 L893 563"/>
 <path class="implLine" d="M473 563 L473 480 L263 480 L263 413"/>

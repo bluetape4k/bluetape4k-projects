@@ -1,97 +1,150 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="980" viewBox="0 0 1460 980" role="img" aria-labelledby="root-readme-en-diagram-01-title root-readme-en-diagram-01-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="1240" viewBox="0 0 1780 1240" role="img" aria-labelledby="root-readme-en-diagram-01-title root-readme-en-diagram-01-desc">
   <title id="root-readme-en-diagram-01-title">Repository Module Structure</title>
-  <desc id="root-readme-en-diagram-01-desc">Current module groups from settings and README catalog</desc>
+  <desc id="root-readme-en-diagram-01-desc">Layered repository module structure generated from the current Gradle module directories.</desc>
   <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L8,4.5 L1,8 Z" fill="#758297"/></marker>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5 0.5 L4.5 2.5 L0.5 4.5 Z" fill="context-stroke"/></marker>
     <style>
-      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:42px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:16px;fill:#536476;font-weight:400}
-      .card{filter:url(#shadow);stroke-width:2}
-      .cardTitle{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:24px;fill:#22344A;font-weight:400}
-      .body{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;fill:#34465B;font-weight:400}
-      .edge{stroke:#758297;stroke-width:2.3;fill:none;marker-end:url(#arrow)}
-      .edgeLabel{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.92}
-      .note{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;fill:#627184;font-weight:400}
+      .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.panel{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}.card{filter:url(#shadow);stroke-width:2}.title{font-family:"Architects Daughter";font-size:44px;fill:#22344A;font-weight:400}.subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476;font-weight:400}.panel-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}.card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}.detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}.small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}.connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.footer{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
   </defs>
-  <rect class="canvas" width="1460" height="980"/>
-  <rect class="frame" x="32" y="28" width="1396" height="924" rx="26"/>
-  <text class="title" x="66" y="82">Repository Module Structure</text>
-  <text class="subtitle" x="70" y="116">Current module groups from settings and README catalog</text>
-  <path class="edge" d="M370 247.5 L395 247.5 L395 247.5 L420 247.5"/>
-<path class="edge" d="M370 247.5 L570 247.5 L570 247.5 L770 247.5"/>
-<path class="edge" d="M370 247.5 L745 247.5 L745 247.5 L1120 247.5"/>
-<path class="edge" d="M1120 247.5 L800 247.5 L800 517.5 L480 517.5"/>
-<path class="edge" d="M570 335 L570 382.5 L730 382.5 L730 430"/>
-<path class="edge" d="M920 335 L920 382.5 L730 382.5 L730 430"/>
-<path class="edge" d="M730 605 L730 670 L730 670 L730 735"/>
-<path class="edge" d="M980 517.5 L930 517.5 L930 812.5 L880 812.5"/>
-  <g>
-  <rect class="card" x="70" y="160" width="300" height="175" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="cardTitle" x="220" y="202" text-anchor="middle">Core</text>
-  <text class="body" x="220" y="237" text-anchor="middle">annotations</text>
-<text class="body" x="220" y="260" text-anchor="middle">core</text>
-<text class="body" x="220" y="283" text-anchor="middle">coroutines</text>
-<text class="body" x="220" y="306" text-anchor="middle">logging</text>
-<text class="body" x="220" y="329" text-anchor="middle">bom</text>
-</g>
-<g>
-  <rect class="card" x="420" y="160" width="300" height="175" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="cardTitle" x="570" y="202" text-anchor="middle">I/O</text>
-  <text class="body" x="570" y="237" text-anchor="middle">http clients</text>
-<text class="body" x="570" y="260" text-anchor="middle">JSON/serialization</text>
-<text class="body" x="570" y="283" text-anchor="middle">gRPC/Protobuf</text>
-<text class="body" x="570" y="306" text-anchor="middle">Vert.x</text>
-</g>
-<g>
-  <rect class="card" x="770" y="160" width="300" height="175" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="cardTitle" x="920" y="202" text-anchor="middle">Data</text>
-  <text class="body" x="920" y="237" text-anchor="middle">Cassandra</text>
-<text class="body" x="920" y="260" text-anchor="middle">Hibernate</text>
-<text class="body" x="920" y="283" text-anchor="middle">MongoDB</text>
-<text class="body" x="920" y="306" text-anchor="middle">JDBC/R2DBC</text>
-</g>
-<g>
-  <rect class="card" x="1120" y="160" width="300" height="175" rx="16" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="cardTitle" x="1270" y="202" text-anchor="middle">Infrastructure</text>
-  <text class="body" x="1270" y="237" text-anchor="middle">Redis</text>
-<text class="body" x="1270" y="260" text-anchor="middle">Kafka/NATS/Pulsar</text>
-<text class="body" x="1270" y="283" text-anchor="middle">Micrometer/OTel</text>
-<text class="body" x="1270" y="306" text-anchor="middle">Resilience4j</text>
-</g>
-<g>
-  <rect class="card" x="180" y="430" width="300" height="175" rx="16" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="cardTitle" x="330" y="472" text-anchor="middle">Cache</text>
-  <text class="body" x="330" y="507" text-anchor="middle">cache-core</text>
-<text class="body" x="330" y="530" text-anchor="middle">Hazelcast</text>
-<text class="body" x="330" y="553" text-anchor="middle">Lettuce</text>
-<text class="body" x="330" y="576" text-anchor="middle">Redisson</text>
-</g>
-<g>
-  <rect class="card" x="580" y="430" width="300" height="175" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="cardTitle" x="730" y="472" text-anchor="middle">Server stacks</text>
-  <text class="body" x="730" y="507" text-anchor="middle">Ktor 3.x</text>
-<text class="body" x="730" y="530" text-anchor="middle">Spring Boot 4.x</text>
-<text class="body" x="730" y="553" text-anchor="middle">Testing</text>
-</g>
-<g>
-  <rect class="card" x="980" y="430" width="300" height="175" rx="16" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="cardTitle" x="1130" y="472" text-anchor="middle">Utilities</text>
-  <text class="body" x="1130" y="507" text-anchor="middle">idgenerators</text>
-<text class="body" x="1130" y="530" text-anchor="middle">time/money/math</text>
-<text class="body" x="1130" y="553" text-anchor="middle">workflow/states</text>
-<text class="body" x="1130" y="576" text-anchor="middle">geo/science</text>
-</g>
-<g>
-  <rect class="card" x="580" y="735" width="300" height="155" rx="16" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="cardTitle" x="730" y="777" text-anchor="middle">Examples</text>
-  <text class="body" x="730" y="812" text-anchor="middle">Ktor demo</text>
-<text class="body" x="730" y="835" text-anchor="middle">Spring Boot demo</text>
-<text class="body" x="730" y="858" text-anchor="middle">JPA demos</text>
-<text class="body" x="730" y="881" text-anchor="middle">Redis/VT demos</text>
-</g>
-  <text class="note" x="730" y="942" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+  <rect class="canvas" width="1780" height="1240"/>
+  <rect class="frame" x="34" y="30" width="1712" height="1180" rx="28"/>
+  <text class="title" x="72" y="88">Repository Module Structure</text>
+  <text class="subtitle" x="76" y="121">90 source-backed modules grouped by repository boundary and README responsibility.</text>
+  <g id="panel-foundation">
+    <rect class="panel" x="70" y="150" width="1640" height="160" rx="18"/>
+    <text class="panel-title" x="100" y="174" dominant-baseline="middle">Foundation</text>
+  </g>
+  <g id="panel-runtime">
+    <rect class="panel" x="70" y="370" width="1640" height="310" rx="18"/>
+    <text class="panel-title" x="100" y="394" dominant-baseline="middle">Runtime library families</text>
+  </g>
+  <g id="panel-application">
+    <rect class="panel" x="70" y="740" width="1640" height="180" rx="18"/>
+    <text class="panel-title" x="100" y="764" dominant-baseline="middle">Application-facing stacks</text>
+  </g>
+  <g id="panel-evidence">
+    <rect class="panel" x="70" y="980" width="1640" height="130" rx="18"/>
+    <text class="panel-title" x="100" y="1004" dominant-baseline="middle">Verification and examples</text>
+  </g>
+  <path id="route-bluetape4k-io" class="connector" d="M300 276 L300 425" stroke="#4F83BF"/>
+  <path id="route-bluetape4k-data" class="connector" d="M460 233 L485 233 L485 457 L500 457" stroke="#4F83BF"/>
+  <path id="route-bom-infra" class="connector" d="M710 276 L710 344 L1050 344 L1050 425" stroke="#58A978"/>
+  <path id="route-baseline-utils" class="connector" d="M1110 276 L1110 344 L1440 344 L1440 405" stroke="#8A72D6"/>
+  <path id="route-io-ktor" class="connector" d="M270 529 L270 785" stroke="#45A7A1"/>
+  <path id="route-data-spring-boot" class="connector" d="M820 457 L850 457 L850 720 L720 720 L720 785" stroke="#D9AA4D"/>
+  <path id="route-infra-testing" class="connector" d="M1210 477 L1240 477 L1240 720 L1105 720 L1105 785" stroke="#DB7890"/>
+  <path id="route-utils-readmes" class="connector" d="M1440 509 L1440 785" stroke="#8BA84D"/>
+  <path id="route-ktor-examples" class="connector" d="M335 873 L335 1012" stroke="#45A7A1"/>
+  <path id="route-spring-boot-examples" class="connector" d="M720 873 L720 950 L440 950 L440 1012" stroke="#8A72D6"/>
+  <path id="route-testing-benchmark" class="connector" d="M1105 873 L1105 950 L890 950 L890 1012" stroke="#B88A44"/>
+  <path id="route-readmes-diagram-evidence" class="connector" d="M1490 873 L1490 950 L1340 950 L1340 1012" stroke="#6B7D90"/>
+  <g id="node-bluetape4k" transform="translate(140,190)">
+    <rect class="card" x="0" y="0" width="320" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="160" y="24" text-anchor="middle" dominant-baseline="middle">Foundation</text>
+    <text class="detail" x="160" y="43" text-anchor="middle" dominant-baseline="middle">5 modules</text>
+    <text class="detail" x="160" y="62" text-anchor="middle" dominant-baseline="middle">core, coroutines, logging</text>
+  </g>
+  <g id="node-bom" transform="translate(560,190)">
+    <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">BOM alignment</text>
+    <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">version catalog</text>
+    <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">platform constraints</text>
+  </g>
+  <g id="node-baseline" transform="translate(960,190)">
+    <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Runtime baseline</text>
+    <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">Java 21</text>
+    <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">Kotlin 2.3</text>
+  </g>
+  <g id="node-split-boundary" transform="translate(1360,190)">
+    <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
+    <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Standalone repos</text>
+    <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">AWS, Exposed, image</text>
+    <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">text, leader, JaVers</text>
+  </g>
+  <g id="node-io" transform="translate(110,425)">
+    <rect class="card" x="0" y="0" width="320" height="104" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="160" y="33" text-anchor="middle" dominant-baseline="middle">I/O and serialization</text>
+    <text class="detail" x="160" y="52" text-anchor="middle" dominant-baseline="middle">16 modules</text>
+    <text class="detail" x="160" y="71" text-anchor="middle" dominant-baseline="middle">http/json, okio, grpc</text>
+  </g>
+  <g id="node-data" transform="translate(500,405)">
+    <rect class="card" x="0" y="0" width="320" height="104" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="160" y="33" text-anchor="middle" dominant-baseline="middle">Data access</text>
+    <text class="detail" x="160" y="52" text-anchor="middle" dominant-baseline="middle">6 modules</text>
+    <text class="detail" x="160" y="71" text-anchor="middle" dominant-baseline="middle">jdbc/r2dbc, mongo, hibernate</text>
+  </g>
+  <g id="node-infra" transform="translate(890,425)">
+    <rect class="card" x="0" y="0" width="320" height="104" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+    <text class="card-title" x="160" y="33" text-anchor="middle" dominant-baseline="middle">Infrastructure</text>
+    <text class="detail" x="160" y="52" text-anchor="middle" dominant-baseline="middle">13 modules</text>
+    <text class="detail" x="160" y="71" text-anchor="middle" dominant-baseline="middle">redis/kafka, otel, resilience</text>
+  </g>
+  <g id="node-utils" transform="translate(1280,405)">
+    <rect class="card" x="0" y="0" width="320" height="104" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
+    <text class="card-title" x="160" y="33" text-anchor="middle" dominant-baseline="middle">Utilities</text>
+    <text class="detail" x="160" y="52" text-anchor="middle" dominant-baseline="middle">13 modules</text>
+    <text class="detail" x="160" y="71" text-anchor="middle" dominant-baseline="middle">time/geo, math, workflow</text>
+  </g>
+  <g id="node-cache" transform="translate(500,560)">
+    <rect class="card" x="0" y="0" width="320" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="160" y="24" text-anchor="middle" dominant-baseline="middle">Cache</text>
+    <text class="detail" x="160" y="43" text-anchor="middle" dominant-baseline="middle">5 modules</text>
+    <text class="detail" x="160" y="62" text-anchor="middle" dominant-baseline="middle">core, lettuce, redisson</text>
+  </g>
+  <g id="node-virtualthread" transform="translate(890,560)">
+    <rect class="card" x="0" y="0" width="320" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="160" y="24" text-anchor="middle" dominant-baseline="middle">Virtual Thread</text>
+    <text class="detail" x="160" y="43" text-anchor="middle" dominant-baseline="middle">3 modules</text>
+    <text class="detail" x="160" y="62" text-anchor="middle" dominant-baseline="middle">api, jdk21, jdk25</text>
+  </g>
+  <g id="node-ktor" transform="translate(185,785)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="150" y="25" text-anchor="middle" dominant-baseline="middle">Ktor</text>
+    <text class="detail" x="150" y="44" text-anchor="middle" dominant-baseline="middle">5 modules</text>
+    <text class="detail" x="150" y="63" text-anchor="middle" dominant-baseline="middle">core, openapi, resilience</text>
+  </g>
+  <g id="node-spring-boot" transform="translate(570,785)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="150" y="25" text-anchor="middle" dominant-baseline="middle">Spring Boot</text>
+    <text class="detail" x="150" y="44" text-anchor="middle" dominant-baseline="middle">8 modules</text>
+    <text class="detail" x="150" y="63" text-anchor="middle" dominant-baseline="middle">core, data, demos</text>
+  </g>
+  <g id="node-testing" transform="translate(955,785)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#F7F1E7" stroke="#B88A44"/>
+    <text class="card-title" x="150" y="25" text-anchor="middle" dominant-baseline="middle">Testing</text>
+    <text class="detail" x="150" y="44" text-anchor="middle" dominant-baseline="middle">5 modules</text>
+    <text class="detail" x="150" y="63" text-anchor="middle" dominant-baseline="middle">junit5, containers, mock servers</text>
+  </g>
+  <g id="node-readmes" transform="translate(1340,785)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
+    <text class="card-title" x="150" y="25" text-anchor="middle" dominant-baseline="middle">README assets</text>
+    <text class="detail" x="150" y="44" text-anchor="middle" dominant-baseline="middle">English and Korean</text>
+    <text class="detail" x="150" y="63" text-anchor="middle" dominant-baseline="middle">PNG/SVG pairs</text>
+  </g>
+  <g id="node-examples" transform="translate(275,1012)">
+    <rect class="card" x="0" y="0" width="330" height="74" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="165" y="18" text-anchor="middle" dominant-baseline="middle">Examples</text>
+    <text class="detail" x="165" y="37" text-anchor="middle" dominant-baseline="middle">9 modules</text>
+    <text class="detail" x="165" y="56" text-anchor="middle" dominant-baseline="middle">ktor/spring demos, JPA</text>
+  </g>
+  <g id="node-benchmark" transform="translate(725,1012)">
+    <rect class="card" x="0" y="0" width="330" height="74" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="165" y="18" text-anchor="middle" dominant-baseline="middle">Benchmarks</text>
+    <text class="detail" x="165" y="37" text-anchor="middle" dominant-baseline="middle">2 modules</text>
+    <text class="detail" x="165" y="56" text-anchor="middle" dominant-baseline="middle">protobuf, web-framework</text>
+  </g>
+  <g id="node-diagram-evidence" transform="translate(1175,1012)">
+    <rect class="card" x="0" y="0" width="330" height="74" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="165" y="18" text-anchor="middle" dominant-baseline="middle">Diagram evidence</text>
+    <text class="detail" x="165" y="37" text-anchor="middle" dominant-baseline="middle">Graphviz sketch files</text>
+    <text class="detail" x="165" y="56" text-anchor="middle" dominant-baseline="middle">geometry gate report</text>
+  </g>
+  <g transform="translate(76,1166)">
+    <rect class="footer" x="0" y="0" width="1628" height="44" rx="10"/>
+    <text class="small" x="814" y="17" text-anchor="middle" dominant-baseline="middle">Source: current Gradle module directories. Total modules: 90.</text>
+    <text class="small" x="814" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=17, r=12, seg=30, endpoint/bend/card-cross/line-conflict/overlap/clear=0.</text>
+  </g>
 </svg>

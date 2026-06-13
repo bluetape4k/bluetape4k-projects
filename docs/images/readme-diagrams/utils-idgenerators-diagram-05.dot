@@ -1,0 +1,16 @@
+digraph G {
+  graph [layout=neato, splines=ortho, outputorder=edgesfirst, label="utils-idgenerators-diagram-05 architecture evidence", labelloc=t, fontsize=18, fontname="Comic Mono"];
+  node [shape=box, style="rounded,filled", fillcolor="#F7FBFF", color="#9AA8B8", fontname="Comic Mono", fontsize=10, margin="0.10,0.08"];
+  edge [color="#758297", arrowsize=0.65, penwidth=1.6];
+  node_0_0 [label="[Need a ULID]", pos="4.278,-4.458!", width="4.306", height="1.556"];
+  node_0_1 [label="Ordering within same", pos="12.986,-4.458!", width="4.306", height="1.556"];
+  node_1_0 [label="Manage previous", pos="4.278,-9.264!", width="4.306", height="1.556"];
+  node_1_1 [label="ULID.nextULID() Default", pos="12.986,-9.264!", width="4.306", height="1.556"];
+  node_2_0 [label="ULImonotonic", pos="4.278,-14.069!", width="4.306", height="1.556"];
+  node_2_1 [label="ULID.stateful", pos="12.986,-14.069!", width="4.306", height="1.556"];
+  node_0_0 -> node_0_1;
+  node_0_1 -> node_1_0;
+  node_1_0 -> node_1_1;
+  node_1_1 -> node_2_0;
+  node_2_0 -> node_2_1;
+}

@@ -1,0 +1,21 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  NearCacheOperations [label="NearCacheOperations", fillcolor="#E8F3FF", color="#5B8DEF"];
+  HazelcastEntryEventListener [label="HazelcastEntryEventListener", fillcolor="#EAF7EF", color="#58A978"];
+  HazelcastLocalCache [label="HazelcastLocalCache", fillcolor="#E9F7F6", color="#45A7A1"];
+  SuspendNearCacheOperations [label="SuspendNearCacheOperations", fillcolor="#FFF3D9", color="#D6A441"];
+  HazelcastNearCache [label="HazelcastNearCache", fillcolor="#FDECEF", color="#DC6B82"];
+  CaffeineHazelcastLocalCache [label="CaffeineHazelcastLocalCache", fillcolor="#F1ECFF", color="#8A72D6"];
+  HazelcastSuspendNearCache [label="HazelcastSuspendNearCache", fillcolor="#EEF6D9", color="#8BA84D"];
+  { rank=source; NearCacheOperations; HazelcastLocalCache; SuspendNearCacheOperations; }
+  HazelcastEntryEventListener -> HazelcastLocalCache [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  HazelcastSuspendNearCache -> HazelcastEntryEventListener [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  HazelcastSuspendNearCache -> CaffeineHazelcastLocalCache [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  HazelcastNearCache -> HazelcastEntryEventListener [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  HazelcastNearCache -> CaffeineHazelcastLocalCache [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  HazelcastLocalCache -> CaffeineHazelcastLocalCache [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  SuspendNearCacheOperations -> HazelcastSuspendNearCache [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  NearCacheOperations -> HazelcastNearCache [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+}

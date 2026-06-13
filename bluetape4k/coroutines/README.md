@@ -22,7 +22,7 @@ It focuses on:
 
 ### Class Diagram
 
-![coroutines Class Structure 2 diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
+![Coroutines Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-coroutines-diagram-02.png)
 
 ---
 

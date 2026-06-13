@@ -1,86 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1264" viewBox="0 0 1754 1264" role="img" aria-label="Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="2242" height="1223" viewBox="0 0 2242 1223" role="img" aria-label="Fastjson2 Class Relationships">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.45;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1264"/>
-<rect class="frame" x="32" y="28" width="1690" height="1208" rx="28"/>
-<text class="title" x="66" y="82">Class Structure</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="dashed" d="M877 848 L877 765 L672 765 L672 355"/>
-<path class="implLine" d="M877 848 L877 757 L1082 757 L1082 418"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JSONArrayExtensions</text>
-  <text class="mono" x="18" y="108">+JSONArray.readValueOrNull() T?</text>
-<text class="mono" x="18" y="129">+JSONArray.readList() List~T~</text>
-<text class="mono" x="18" y="150">+JSONArray.readArray() Array~T~</text>
+<rect class="canvas" width="2242" height="1223"/>
+<rect class="frame" x="32" y="28" width="2178" height="1167" rx="30"/>
+<text class="title" x="68" y="84">Fastjson2 Class Relationships</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: serializer contract, JSON/JSONB runtime APIs, and JSONObject extensions.</text>
+<path class="inherit" data-from="fastjsonSerializer" data-to="jsonSerializer" d="M733 556 L733 368" stroke="#3E9868"/>
+<path class="dependency" data-from="fastjsonSerializer" data-to="jsonb" d="M622 688 L622 875" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="fastjsonSerializer" data-to="json" d="M844 688 L844 875" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="jsonObjectExtensions" data-to="jsonObject" d="M1250 556 L1250 368" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="jsonObjectExtensions" data-to="jsonReaderFeature" d="M1415 622 L1601 622" stroke="#C94D68" stroke-dasharray="8 7"/>
+<g id="jsonSerializer">
+  <rect class="classCard" x="568" y="236" width="330" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="733" y="255" text-anchor="middle">interface</text>
+  <text class="classTitle" x="733" y="283" text-anchor="middle">JsonSerializer</text>
+  <line x1="568" y1="292" x2="898" y2="292" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="586" y="326">+serialize(graph)</text>
+<text class="member" x="586" y="343">+deserialize(bytes, clazz)</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JSONBExtensions</text>
-  <text class="mono" x="18" y="108">+Any.toJsonBytes() ByteArray</text>
-<text class="mono" x="18" y="129">+ByteArray.readBytesOrNull() T?</text>
-<text class="mono" x="18" y="150">+InputStream.readBytesOrNull() T?</text>
+<g id="fastjsonSerializer">
+  <rect class="classCard" x="568" y="556" width="330" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="733" y="575" text-anchor="middle">class</text>
+  <text class="classTitle" x="733" y="603" text-anchor="middle">FastjsonSerializer</text>
+  <line x1="568" y1="612" x2="898" y2="612" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="586" y="646">implements JsonSerializer</text>
+<text class="member" x="586" y="663">JSONB bytes + JSON text</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JsonSerializer</text>
-  <text class="mono" x="18" y="108">+serialize(graph: Any?) ByteArray</text>
-<text class="mono" x="18" y="129">+deserialize(bytes: ByteArray?, clazz:</text>
-<text class="mono" x="18" y="150">Class~T~) T?</text>
-<text class="mono" x="18" y="171">+serializeAsString(graph: Any?) String</text>
-<text class="mono" x="18" y="192">+deserializeFromString(text: String?,</text>
-<text class="mono" x="18" y="213">clazz: Class~T~) T?</text>
+<g id="jsonb">
+  <rect class="classCard" x="346" y="875" width="330" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="511" y="894" text-anchor="middle">external object</text>
+  <text class="classTitle" x="511" y="922" text-anchor="middle">JSONB</text>
+  <line x1="346" y1="931" x2="676" y2="931" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="364" y="965">+toBytes(graph)</text>
+<text class="member" x="364" y="982">+parseObject(bytes, type)</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JSONExtensions</text>
-  <text class="mono" x="18" y="108">+Any.toJsonString() String</text>
-<text class="mono" x="18" y="129">+String.readValueOrNull() T?</text>
-<text class="mono" x="18" y="150">+String.readValueAsList() List~T~</text>
-<text class="mono" x="18" y="171">+String.readAsJSONObject() JSONObject</text>
+<g id="json">
+  <rect class="classCard" x="790" y="875" width="330" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="955" y="894" text-anchor="middle">external object</text>
+  <text class="classTitle" x="955" y="922" text-anchor="middle">JSON</text>
+  <line x1="790" y1="931" x2="1120" y2="931" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="808" y="973">+parseObject(text, type)</text>
 </g>
-<g transform="translate(707,544)">
-  <rect class="card" x="0" y="0" width="340" height="154" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extensions»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">JSONObjectExtensions</text>
-  <text class="mono" x="18" y="108">+JSONObject.readValueOrNull() T?</text>
-<text class="mono" x="18" y="129">+JSONObject.readValueOrNull(key) T?</text>
+<g id="jsonObjectExtensions">
+  <rect class="classCard" x="1085" y="556" width="330" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1250" y="575" text-anchor="middle">extension file</text>
+  <text class="classTitle" x="1250" y="603" text-anchor="middle">JSONObjectExtensions</text>
+  <line x1="1085" y1="612" x2="1415" y2="612" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="1103" y="646">JSONObject.readValueOrNull()</text>
+<text class="member" x="1103" y="663">JSONObject.readValueOrNull(key)</text>
 </g>
-<g transform="translate(707,848)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#8A72D6"/>
-    <text class="label" x="170" y="49" text-anchor="middle">FastjsonSerializer</text>
-  <text class="mono" x="18" y="108">+serialize(graph) ByteArray</text>
-<text class="mono" x="18" y="129">+deserialize(bytes, clazz) T?</text>
-<text class="mono" x="18" y="150">+serializeAsString(graph) String</text>
-<text class="mono" x="18" y="171">+deserializeFromString(text, clazz) T?</text>
+<g id="jsonObject">
+  <rect class="classCard" x="1085" y="236" width="330" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1250" y="255" text-anchor="middle">external class</text>
+  <text class="classTitle" x="1250" y="283" text-anchor="middle">JSONObject</text>
+  <line x1="1085" y1="292" x2="1415" y2="292" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1103" y="334">extension receiver</text>
 </g>
+<g id="jsonReaderFeature">
+  <rect class="classCard" x="1601" y="556" width="330" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1766" y="575" text-anchor="middle">external enum</text>
+  <text class="classTitle" x="1766" y="603" text-anchor="middle">JSONReaderFeature</text>
+  <line x1="1601" y1="612" x2="1931" y2="612" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="1619" y="654">vararg feature controls</text>
+</g>
+<g>
+  <rect x="1827" y="1115" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1845 1133 L1903 1133" stroke="#3E9868"/>
+  <text class="detail" x="1917" y="1138">inheritance / implementation</text>
+  <path class="dependency" d="M1845 1154 L1903 1154" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1917" y="1159">dependency / usage</text>
+</g>
+<g><rect x="180" y="1133" width="1602" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="981" y="1159" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define ranks, order, route sides, and endpoints.</text></g>
 </svg>

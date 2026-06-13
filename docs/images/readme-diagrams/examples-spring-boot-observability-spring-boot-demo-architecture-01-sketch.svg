@@ -71,41 +71,35 @@
 <path fill="none" stroke="#45a7a1" d="M169.12,-339.76C169.12,-310.43 169.12,-256 169.12,-256 169.12,-256 135.31,-256 135.31,-256"/>
 <polygon fill="#45a7a1" stroke="#45a7a1" points="135.31,-253.2 127.31,-256 135.31,-258.8 135.31,-253.2"/>
 </g>
-<!-- eventObs -->
-<g id="node5" class="node">
-<title>eventObs</title>
-<path fill="#eaf7ef" stroke="#58a978" d="M286.62,-268C286.62,-268 187.38,-268 187.38,-268 181.38,-268 175.38,-262 175.38,-256 175.38,-256 175.38,-244 175.38,-244 175.38,-238 181.38,-232 187.38,-232 187.38,-232 286.62,-232 286.62,-232 292.62,-232 298.62,-238 298.62,-244 298.62,-244 298.62,-256 298.62,-256 298.62,-262 292.62,-268 286.62,-268"/>
-<text xml:space="preserve" text-anchor="middle" x="237" y="-246.82" font-family="Architects Daughter" font-size="14.00">Event Telemetry</text>
-</g>
-<!-- service&#45;&gt;eventObs -->
-<g id="edge4" class="edge">
-<title>service&#45;&gt;eventObs</title>
-<path fill="none" stroke="#58a978" d="M237,-339.68C237,-339.68 237,-277.92 237,-277.92"/>
-<polygon fill="#58a978" stroke="#58a978" points="239.8,-277.92 237,-269.92 234.2,-277.92 239.8,-277.92"/>
-</g>
 <!-- registry -->
-<g id="node6" class="node">
+<g id="node5" class="node">
 <title>registry</title>
 <path fill="#ffffff" stroke="#758297" d="M286.62,-160C286.62,-160 163.38,-160 163.38,-160 157.38,-160 151.38,-154 151.38,-148 151.38,-148 151.38,-136 151.38,-136 151.38,-130 157.38,-124 163.38,-124 163.38,-124 286.62,-124 286.62,-124 292.62,-124 298.62,-130 298.62,-136 298.62,-136 298.62,-148 298.62,-148 298.62,-154 292.62,-160 286.62,-160"/>
 <text xml:space="preserve" text-anchor="middle" x="225" y="-138.82" font-family="Architects Daughter" font-size="14.00">ObservationRegistry</text>
 </g>
 <!-- service&#45;&gt;registry -->
-<g id="edge5" class="edge">
+<g id="edge4" class="edge">
 <title>service&#45;&gt;registry</title>
 <path fill="none" stroke="#758297" d="M172.25,-339.58C172.25,-339.58 172.25,-169.88 172.25,-169.88"/>
 <polygon fill="#758297" stroke="#758297" points="175.05,-169.88 172.25,-161.88 169.45,-169.88 175.05,-169.88"/>
+</g>
+<!-- eventObs -->
+<g id="node6" class="node">
+<title>eventObs</title>
+<path fill="#eaf7ef" stroke="#58a978" d="M286.62,-268C286.62,-268 187.38,-268 187.38,-268 181.38,-268 175.38,-262 175.38,-256 175.38,-256 175.38,-244 175.38,-244 175.38,-238 181.38,-232 187.38,-232 187.38,-232 286.62,-232 286.62,-232 292.62,-232 298.62,-238 298.62,-244 298.62,-244 298.62,-256 298.62,-256 298.62,-262 292.62,-268 286.62,-268"/>
+<text xml:space="preserve" text-anchor="middle" x="237" y="-246.82" font-family="Architects Daughter" font-size="14.00">Event Telemetry</text>
+</g>
+<!-- service&#45;&gt;eventObs -->
+<g id="edge5" class="edge">
+<title>service&#45;&gt;eventObs</title>
+<path fill="none" stroke="#58a978" d="M237,-339.68C237,-339.68 237,-277.92 237,-277.92"/>
+<polygon fill="#58a978" stroke="#58a978" points="239.8,-277.92 237,-269.92 234.2,-277.92 239.8,-277.92"/>
 </g>
 <!-- springObs&#45;&gt;registry -->
 <g id="edge6" class="edge">
 <title>springObs&#45;&gt;registry</title>
 <path fill="none" stroke="#45a7a1" d="M125.79,-244C144.48,-244 160.75,-244 160.75,-244 160.75,-244 160.75,-169.75 160.75,-169.75"/>
 <polygon fill="#45a7a1" stroke="#45a7a1" points="163.55,-169.75 160.75,-161.75 157.95,-169.75 163.55,-169.75"/>
-</g>
-<!-- eventObs&#45;&gt;registry -->
-<g id="edge7" class="edge">
-<title>eventObs&#45;&gt;registry</title>
-<path fill="none" stroke="#58a978" d="M237,-231.68C237,-231.68 237,-169.92 237,-169.92"/>
-<polygon fill="#58a978" stroke="#58a978" points="239.8,-169.92 237,-161.92 234.2,-169.92 239.8,-169.92"/>
 </g>
 <!-- actuator -->
 <g id="node7" class="node">
@@ -130,6 +124,12 @@
 <title>registry&#45;&gt;otlp</title>
 <path fill="none" stroke="#8a72d6" stroke-dasharray="5,2" d="M293.62,-123.68C293.62,-123.68 293.62,-61.92 293.62,-61.92"/>
 <polygon fill="#8a72d6" stroke="#8a72d6" points="296.43,-61.92 293.63,-53.92 290.83,-61.92 296.43,-61.92"/>
+</g>
+<!-- eventObs&#45;&gt;registry -->
+<g id="edge7" class="edge">
+<title>eventObs&#45;&gt;registry</title>
+<path fill="none" stroke="#58a978" d="M237,-231.68C237,-231.68 237,-169.92 237,-169.92"/>
+<polygon fill="#58a978" stroke="#58a978" points="239.8,-169.92 237,-161.92 234.2,-169.92 239.8,-169.92"/>
 </g>
 </g>
 </svg>

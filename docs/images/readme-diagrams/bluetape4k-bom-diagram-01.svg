@@ -1,136 +1,136 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="990" viewBox="0 0 1500 990" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1060" viewBox="0 0 1500 1060" role="img" aria-labelledby="title desc">
   <title id="title">BOM dependency alignment map</title>
   <desc id="desc">Dependency-oriented BOM diagram showing the consumer import path, the bluetape4k dependency catalog, module families, and external dependency groups.</desc>
   <defs>
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:22px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card-shape{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
   </defs>
-  <rect class="canvas" width="1500" height="990"/>
-  <rect class="frame" x="34" y="30" width="1432" height="930" rx="28"/>
+  <rect class="canvas" width="1500" height="1060"/>
+  <rect class="frame" x="34" y="30" width="1432" height="1000" rx="28"/>
   <text class="title" x="72" y="88">BOM dependency alignment map</text>
   <text class="subtitle" x="76" y="121">Consumer projects import one platform while the BOM groups internal modules and third-party dependency families.</text>
 
   <g id="group-alignment">
-    <rect class="group" x="420" y="145" width="1010" height="142" rx="18"/>
-    <text class="group-title" x="450" y="163">Alignment surface</text>
+    <rect class="group" x="420" y="145" width="1010" height="178" rx="18"/>
+    <text class="group-title" x="450" y="169" dominant-baseline="middle">Alignment surface</text>
   </g>
   <g id="group-modules">
-    <rect class="group" x="74" y="338" width="1352" height="238" rx="18"/>
-    <text class="group-title" x="104" y="356">Internal module families</text>
+    <rect class="group" x="74" y="360" width="1352" height="260" rx="18"/>
+    <text class="group-title" x="104" y="384" dominant-baseline="middle">Internal module families</text>
   </g>
   <g id="group-externals">
-    <rect class="group" x="74" y="636" width="1352" height="142" rx="18"/>
-    <text class="group-title" x="104" y="654">Governed external families</text>
+    <rect class="group" x="74" y="676" width="1352" height="156" rx="18"/>
+    <text class="group-title" x="104" y="700" dominant-baseline="middle">Governed external families</text>
   </g>
 
-  <path id="route-consumer-platform" class="connector" d="M226 258 L226 300 L925 300 L925 262" stroke="#4F83BF"/>
-  <path id="route-catalog-platform" class="connector" d="M710 217 L790 217" stroke="#8A72D6"/>
-  <path id="route-platform-published" class="connector" d="M1060 217 L1160 217" stroke="#45A7A1"/>
-  <path id="route-platform-foundation" class="connector" d="M890 262 L890 318 L265 318 L265 390" stroke="#4F83BF"/>
-  <path id="route-platform-data" class="connector" d="M912 262 L912 318 L598 318 L598 380" stroke="#DB7890"/>
-  <path id="route-platform-infra" class="connector" d="M938 262 L938 380" stroke="#D9AA4D"/>
-  <path id="route-platform-spring" class="connector" d="M962 262 L962 318 L1265 318 L1265 390" stroke="#58A978"/>
-  <path id="route-foundation-kotlin" class="connector" d="M265 478 L265 670" stroke="#8A72D6"/>
-  <path id="route-data-serialization" class="connector" d="M598 484 L598 670" stroke="#45A7A1"/>
-  <path id="route-data-databases" class="connector" d="M735 432 L762 432 L762 708 L784 708" stroke="#DB7890"/>
-  <path id="route-infra-databases" class="connector" d="M938 484 L938 670" stroke="#DB7890"/>
-  <path id="route-infra-frameworks" class="connector" d="M938 484 L938 604 L1231 604 L1231 670" stroke="#D9AA4D"/>
-  <path id="route-spring-frameworks" class="connector" d="M1265 478 L1265 670" stroke="#58A978"/>
+  <path id="route-consumer-platform" class="connector" d="M226 290 L226 334 L820 334 L820 294" stroke="#4F83BF"/>
+  <path id="route-catalog-platform" class="connector" d="M710 249 L790 249" stroke="#8A72D6"/>
+  <path id="route-platform-published" class="connector" d="M1060 249 L1160 249" stroke="#45A7A1"/>
+  <path id="route-platform-foundation" class="connector" d="M850 294 L850 342 L265 342 L265 428" stroke="#4F83BF"/>
+  <path id="route-platform-data" class="connector" d="M915 294 L915 350 L598 350 L598 420" stroke="#DB7890"/>
+  <path id="route-platform-infra" class="connector" d="M938 294 L938 420" stroke="#D9AA4D"/>
+  <path id="route-platform-spring" class="connector" d="M990 294 L990 350 L1265 350 L1265 428" stroke="#58A978"/>
+  <path id="route-foundation-kotlin" class="connector" d="M265 516 L265 642 L420 642 L420 782 L390 782" stroke="#8A72D6"/>
+  <path id="route-data-serialization" class="connector" d="M598 524 L598 744" stroke="#45A7A1"/>
+  <path id="route-data-databases" class="connector" d="M735 472 L762 472 L762 782 L784 782" stroke="#DB7890"/>
+  <path id="route-infra-databases" class="connector" d="M890 524 L890 650 L909 650 L909 744" stroke="#DB7890"/>
+  <path id="route-infra-frameworks" class="connector" d="M1000 524 L1000 650 L1231 650 L1231 744" stroke="#D9AA4D"/>
+  <path id="route-spring-frameworks" class="connector" d="M1265 516 L1265 744" stroke="#58A978"/>
 
-  <g id="node-consumer" transform="translate(96,176)">
+  <g id="node-consumer" transform="translate(96,208)">
     <rect class="card-shape" x="0" y="0" width="260" height="82" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="130" y="28" text-anchor="middle">Consumer Gradle project</text>
-    <text class="detail" x="130" y="53" text-anchor="middle">imports platform</text>
-    <text class="detail" x="130" y="71" text-anchor="middle">no module version pins</text>
+    <text class="card-title" x="130" y="22" text-anchor="middle" dominant-baseline="middle">Consumer Gradle project</text>
+    <text class="detail" x="130" y="41" text-anchor="middle" dominant-baseline="middle">imports platform</text>
+    <text class="detail" x="130" y="60" text-anchor="middle" dominant-baseline="middle">no module version pins</text>
   </g>
-  <g id="node-catalog" transform="translate(470,176)">
+  <g id="node-catalog" transform="translate(470,208)">
     <rect class="card-shape" x="0" y="0" width="240" height="82" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="120" y="28" text-anchor="middle">libs.versions.toml</text>
-    <text class="detail" x="120" y="53" text-anchor="middle">catalog tag</text>
-    <text class="detail" x="120" y="71" text-anchor="middle">single version source</text>
+    <text class="card-title" x="120" y="22" text-anchor="middle" dominant-baseline="middle">libs.versions.toml</text>
+    <text class="detail" x="120" y="41" text-anchor="middle" dominant-baseline="middle">catalog tag</text>
+    <text class="detail" x="120" y="60" text-anchor="middle" dominant-baseline="middle">single version source</text>
   </g>
-  <g id="node-platform" transform="translate(790,172)">
+  <g id="node-platform" transform="translate(790,204)">
     <rect class="card-shape" x="0" y="0" width="270" height="90" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="135" y="32" text-anchor="middle">bluetape4k-bom</text>
-    <text class="detail" x="135" y="57" text-anchor="middle">java-platform</text>
-    <text class="detail" x="135" y="75" text-anchor="middle">dependency constraints</text>
+    <text class="card-title" x="135" y="26" text-anchor="middle" dominant-baseline="middle">bluetape4k-bom</text>
+    <text class="detail" x="135" y="45" text-anchor="middle" dominant-baseline="middle">java-platform</text>
+    <text class="detail" x="135" y="64" text-anchor="middle" dominant-baseline="middle">dependency constraints</text>
   </g>
-  <g id="node-published" transform="translate(1160,176)">
+  <g id="node-published" transform="translate(1160,208)">
     <rect class="card-shape" x="0" y="0" width="220" height="82" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="110" y="28" text-anchor="middle">Published artifacts</text>
-    <text class="detail" x="110" y="53" text-anchor="middle">Maven Central</text>
-    <text class="detail" x="110" y="71" text-anchor="middle">aligned coordinates</text>
+    <text class="card-title" x="110" y="22" text-anchor="middle" dominant-baseline="middle">Published artifacts</text>
+    <text class="detail" x="110" y="41" text-anchor="middle" dominant-baseline="middle">Maven Central</text>
+    <text class="detail" x="110" y="60" text-anchor="middle" dominant-baseline="middle">aligned coordinates</text>
   </g>
-  <g id="node-foundation" transform="translate(140,390)">
+  <g id="node-foundation" transform="translate(140,428)">
     <rect class="card-shape" x="0" y="0" width="250" height="88" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="125" y="31" text-anchor="middle">Foundation</text>
-    <text class="detail" x="125" y="56" text-anchor="middle">core, coroutines</text>
-    <text class="detail" x="125" y="74" text-anchor="middle">logging</text>
+    <text class="card-title" x="125" y="25" text-anchor="middle" dominant-baseline="middle">Foundation</text>
+    <text class="detail" x="125" y="44" text-anchor="middle" dominant-baseline="middle">core, coroutines</text>
+    <text class="detail" x="125" y="63" text-anchor="middle" dominant-baseline="middle">logging</text>
   </g>
-  <g id="node-data" transform="translate(460,380)">
+  <g id="node-data" transform="translate(460,420)">
     <rect class="card-shape" x="0" y="0" width="275" height="104" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="137.5" y="39" text-anchor="middle">Data access</text>
-    <text class="detail" x="137.5" y="64" text-anchor="middle">jdbc, r2dbc</text>
-    <text class="detail" x="137.5" y="82" text-anchor="middle">hibernate, mongodb</text>
+    <text class="card-title" x="137.5" y="33" text-anchor="middle" dominant-baseline="middle">Data access</text>
+    <text class="detail" x="137.5" y="52" text-anchor="middle" dominant-baseline="middle">jdbc, r2dbc</text>
+    <text class="detail" x="137.5" y="71" text-anchor="middle" dominant-baseline="middle">hibernate, mongodb</text>
   </g>
-  <g id="node-infra" transform="translate(800,380)">
+  <g id="node-infra" transform="translate(800,420)">
     <rect class="card-shape" x="0" y="0" width="275" height="104" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="137.5" y="39" text-anchor="middle">Infrastructure</text>
-    <text class="detail" x="137.5" y="64" text-anchor="middle">redis, kafka, otel</text>
-    <text class="detail" x="137.5" y="82" text-anchor="middle">resilience4j</text>
+    <text class="card-title" x="137.5" y="33" text-anchor="middle" dominant-baseline="middle">Infrastructure</text>
+    <text class="detail" x="137.5" y="52" text-anchor="middle" dominant-baseline="middle">redis, kafka, otel</text>
+    <text class="detail" x="137.5" y="71" text-anchor="middle" dominant-baseline="middle">resilience4j</text>
   </g>
-  <g id="node-spring" transform="translate(1140,390)">
+  <g id="node-spring" transform="translate(1140,428)">
     <rect class="card-shape" x="0" y="0" width="250" height="88" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="125" y="31" text-anchor="middle">Spring Boot starters</text>
-    <text class="detail" x="125" y="56" text-anchor="middle">boot3/boot4</text>
-    <text class="detail" x="125" y="74" text-anchor="middle">auto-configuration</text>
+    <text class="card-title" x="125" y="25" text-anchor="middle" dominant-baseline="middle">Spring Boot starters</text>
+    <text class="detail" x="125" y="44" text-anchor="middle" dominant-baseline="middle">Spring Boot 4.x</text>
+    <text class="detail" x="125" y="63" text-anchor="middle" dominant-baseline="middle">auto-configuration</text>
   </g>
-  <g id="node-kotlin" transform="translate(140,670)">
+  <g id="node-kotlin" transform="translate(140,744)">
     <rect class="card-shape" x="0" y="0" width="250" height="76" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="125" y="25" text-anchor="middle">Kotlin/JVM stack</text>
-    <text class="detail" x="125" y="50" text-anchor="middle">Kotlin, coroutines</text>
-    <text class="detail" x="125" y="68" text-anchor="middle">Java baseline</text>
+    <text class="card-title" x="125" y="19" text-anchor="middle" dominant-baseline="middle">Kotlin/JVM stack</text>
+    <text class="detail" x="125" y="38" text-anchor="middle" dominant-baseline="middle">Kotlin, coroutines</text>
+    <text class="detail" x="125" y="57" text-anchor="middle" dominant-baseline="middle">Java baseline</text>
   </g>
-  <g id="node-serialization" transform="translate(462,670)">
+  <g id="node-serialization" transform="translate(462,744)">
     <rect class="card-shape" x="0" y="0" width="250" height="76" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="125" y="25" text-anchor="middle">Serialization</text>
-    <text class="detail" x="125" y="50" text-anchor="middle">Jackson 3, Avro</text>
-    <text class="detail" x="125" y="68" text-anchor="middle">Protobuf, Json</text>
+    <text class="card-title" x="125" y="19" text-anchor="middle" dominant-baseline="middle">Serialization</text>
+    <text class="detail" x="125" y="38" text-anchor="middle" dominant-baseline="middle">Jackson 3, Avro</text>
+    <text class="detail" x="125" y="57" text-anchor="middle" dominant-baseline="middle">Protobuf, Json</text>
   </g>
-  <g id="node-databases" transform="translate(784,670)">
+  <g id="node-databases" transform="translate(784,744)">
     <rect class="card-shape" x="0" y="0" width="250" height="76" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="125" y="25" text-anchor="middle">Database drivers</text>
-    <text class="detail" x="125" y="50" text-anchor="middle">PostgreSQL, MongoDB</text>
-    <text class="detail" x="125" y="68" text-anchor="middle">Redis, Cassandra</text>
+    <text class="card-title" x="125" y="19" text-anchor="middle" dominant-baseline="middle">Database drivers</text>
+    <text class="detail" x="125" y="38" text-anchor="middle" dominant-baseline="middle">PostgreSQL, MongoDB</text>
+    <text class="detail" x="125" y="57" text-anchor="middle" dominant-baseline="middle">Redis, Cassandra</text>
   </g>
-  <g id="node-frameworks" transform="translate(1106,670)">
+  <g id="node-frameworks" transform="translate(1106,744)">
     <rect class="card-shape" x="0" y="0" width="250" height="76" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="125" y="25" text-anchor="middle">Frameworks</text>
-    <text class="detail" x="125" y="50" text-anchor="middle">Spring Boot</text>
-    <text class="detail" x="125" y="68" text-anchor="middle">Micrometer, Kafka</text>
+    <text class="card-title" x="125" y="19" text-anchor="middle" dominant-baseline="middle">Frameworks</text>
+    <text class="detail" x="125" y="38" text-anchor="middle" dominant-baseline="middle">Spring Boot</text>
+    <text class="detail" x="125" y="57" text-anchor="middle" dominant-baseline="middle">Micrometer, Kafka</text>
   </g>
 
-  <g transform="translate(76,916)">
+  <g transform="translate(76,986)">
     <rect class="pill" x="0" y="0" width="1348" height="44" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle">Graphviz evidence: bluetape4k-bom-diagram-01.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="674" y="34" text-anchor="middle">Geometry gate: nodes=12, routes=13, segments=25, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=51.</text>
+    <text class="small" x="674" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: bluetape4k-bom-diagram-01.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="674" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=12, r=13, seg=30, endpoint/bend/cross/overlap/clear/label=0, margins=96/110/83/166, titleGap=83.</text>
   </g>
 </svg>

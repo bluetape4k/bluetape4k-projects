@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460">
 <style>
-.title{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:34px;font-weight:400;fill:#273043}
-.subtitle,.axis,.legend,.note{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#6b7280;font-weight:400}
-.label{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#273043;font-weight:400}
-.value{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#273043;font-weight:400;font-size:18px}
+.title{font-family:'Architects Daughter';font-size:34px;font-weight:400;fill:#273043}
+.subtitle,.axis,.legend,.note{font-family:'Comic Mono';fill:#6b7280;font-weight:400}
+.label{font-family:'Comic Mono';fill:#273043;font-weight:400}
+.value{font-family:'Comic Mono';fill:#273043;font-weight:400;font-size:18px}
 .axis{font-size:16px}.legend{font-size:18px}.note{font-size:17px}.label{font-size:18px}
 </style>
 <rect width="1280" height="460" rx="0" fill="#f6f8fb"/>

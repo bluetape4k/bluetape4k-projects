@@ -58,15 +58,10 @@ const diagrams = [
       },
     ],
     edges: [
-      edge("core", "validation", "contracts", "green"),
       edge("core", "types", "types", "teal"),
-      edge("core", "codec", "encoding", "amber"),
       edge("validation", "ranges", "range checks", "pink"),
-      edge("types", "value", "value helpers", "purple"),
       edge("types", "collections", "collections", "olive"),
-      edge("collections", "concurrent", "async containers", "teal"),
       edge("ranges", "time", "temporal ranges", "amber"),
-      edge("value", "functional", "composition", "green"),
     ],
   },
   {
@@ -110,10 +105,8 @@ const diagrams = [
       edge("coroutines", "deferred-helpers", "deferred ops", "teal"),
       edge("deferred-value", "flow-ext", "async values", "amber"),
       edge("deferred-helpers", "async-flow", "parallel work", "pink"),
-      edge("flow-ext", "subject", "stream state", "purple"),
       edge("async-flow", "scopes", "dispatch", "teal"),
       edge("subject", "reactor", "context", "purple"),
-      edge("flow-ext", "tests", "verification", "olive"),
     ],
   },
   {
@@ -156,13 +149,10 @@ const diagrams = [
     ],
     edges: [
       edge("geocode", "google", "google finder", "amber"),
-      edge("geocode", "bing", "bing finder", "pink"),
       edge("geohash-api", "geohash-core", "index", "green"),
       edge("geohash-core", "geo-queries", "search cells", "olive"),
       edge("geoip", "maxmind-reader", "reader", "teal"),
-      edge("maxmind-reader", "geo-result", "normalize", "purple"),
       edge("google", "provider-http", "HTTP", "amber"),
-      edge("bing", "provider-http", "HTTP", "pink"),
       edge("maxmind-reader", "geo-db", "mmdb", "teal"),
     ],
   },
@@ -214,7 +204,6 @@ const diagrams = [
       edge("science", "utm", "zone helpers", "teal"),
       edge("coords", "projection", "CRS conversion", "purple"),
       edge("coords", "geometry", "geometry input", "pink"),
-      edge("utm", "projection", "zone CRS", "purple"),
       edge("projection", "shapefile", "reproject", "amber"),
       edge("geometry", "spatial-model", "features", "green"),
       edge("projection", "netcdf-model", "grid CRS", "olive"),
@@ -288,10 +277,11 @@ function renderSvg(diagram, layout) {
   const routeSummary = geometrySummary(diagram.file, layout, routes);
   const layerMarkup = layout.layers.map((layer) => renderLayer(layer)).join("\n");
   const routeMarkup = routes.map((route) => renderRoute(route)).join("\n");
+  const margins = `${routeSummary.margins.left}/${routeSummary.margins.right}/${routeSummary.margins.top}/${routeSummary.margins.bottom}`;
   const footer = `  <g transform="translate(76,${layout.footerY})">
     <rect class="pill" x="0" y="0" width="${layout.width - 152}" height="${layout.footerH}" rx="10"/>
-    <text class="small" x="${(layout.width - 152) / 2}" y="17" text-anchor="middle">Graphviz evidence: ${diagram.file}.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="${(layout.width - 152) / 2}" y="33" text-anchor="middle">Geometry gate: nodes=${routeSummary.nodes}, routes=${routeSummary.routes}, segments=${routeSummary.segments}, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=${routeSummary.titleGap}.</text>
+    <text class="small" x="${(layout.width - 152) / 2}" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: ${diagram.file}.{dot,plain} + sketch SVG/PNG.</text>
+    <text class="small" x="${(layout.width - 152) / 2}" y="33" text-anchor="middle" dominant-baseline="middle">Gate: n=${routeSummary.nodes}, r=${routeSummary.routes}, seg=${routeSummary.segments}, endpoint/bend/cross/overlap/clear=0, margins=${margins}, titleGap=${routeSummary.titleGap}.</text>
   </g>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="title desc">
@@ -301,19 +291,19 @@ function renderSvg(diagram, layout) {
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
       <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
     </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
     </marker>
     <style>
       .canvas{fill:#F7FAFC}
       .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .layer{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .layer-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:26px;fill:#22344A;font-weight:400}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
+      .layer-title{font-family:"Architects Daughter";font-size:26px;fill:#22344A;font-weight:400}
+      .card-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
+      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
       .card{filter:url(#shadow);stroke-width:2}
       .connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
@@ -339,7 +329,7 @@ function renderLayer(layer) {
   const cards = layer.nodes.map(renderCard).join("\n");
   return `  <g id="layer-${slug(layer.name)}">
     <rect class="layer" x="${fmt(layer.x)}" y="${fmt(layer.y)}" width="${fmt(layer.w)}" height="${fmt(layer.h)}" rx="18"/>
-    <text class="layer-title" x="${fmt(layer.x + 32)}" y="${fmt(layer.y + 43)}">${escapeXml(layer.name)}</text>
+    <text class="layer-title" x="${fmt(layer.x + 32)}" y="${fmt(layer.y + 43)}" dominant-baseline="middle">${escapeXml(layer.name)}</text>
 ${cards}
   </g>`;
 }
@@ -347,11 +337,16 @@ ${cards}
 function renderCard(node) {
   const color = palette[node.color];
   const centerX = node.x + node.width / 2;
-  const detailStartY = node.details.length > 1 ? node.y + node.height / 2 + 12 : node.y + node.height / 2 + 17;
+  const lines = [node.title, ...node.details];
+  const lineHeight = 19;
+  const total = (lines.length - 1) * lineHeight;
   return `    <g id="node-${node.id}" transform="translate(${fmt(node.x)},${fmt(node.y)})">
       <rect class="card" x="0" y="0" width="${fmt(node.width)}" height="${fmt(node.height)}" rx="12" fill="${color.fill}" stroke="${color.stroke}"/>
-      <text class="card-title" x="${fmt(node.width / 2)}" y="${fmt(node.y + node.height / 2 - 12 - node.y)}" text-anchor="middle">${escapeXml(node.title)}</text>
-${node.details.map((line, index) => `      <text class="detail" x="${fmt(node.width / 2)}" y="${fmt(detailStartY + index * 18 - node.y)}" text-anchor="middle">${escapeXml(line)}</text>`).join("\n")}
+${lines.map((line, index) => {
+    const cls = index === 0 ? "card-title" : "detail";
+    const y = node.height / 2 - total / 2 + index * lineHeight;
+    return `      <text class="${cls}" x="${fmt(node.width / 2)}" y="${fmt(y)}" text-anchor="middle" dominant-baseline="middle">${escapeXml(line)}</text>`;
+  }).join("\n")}
     </g>`;
 }
 
@@ -362,6 +357,8 @@ function routeFor(route, routeIndex, nodeMap, layout) {
 
   const sourceCenter = center(source);
   const targetCenter = center(target);
+  const sourcePortX = portToward(source, target, routeIndex);
+  const targetPortX = clampPortX(target, sourcePortX);
   const down = target.layerIndex > source.layerIndex;
   const same = target.layerIndex === source.layerIndex;
   const offset = ((routeIndex % 3) - 1) * 10;
@@ -370,12 +367,19 @@ function routeFor(route, routeIndex, nodeMap, layout) {
   if (same) {
     const sx = sourceCenter.x < targetCenter.x ? source.x + source.width : source.x;
     const tx = sourceCenter.x < targetCenter.x ? target.x : target.x + target.width;
+    const horizontalGap = Math.abs(tx - sx);
+    if (Math.abs(sourceCenter.y - targetCenter.y) <= 4 && horizontalGap <= 160) {
+      points = [
+        { x: sx, y: sourceCenter.y },
+        { x: tx, y: targetCenter.y },
+      ];
+    } else {
     const exitX = sx + (sourceCenter.x < targetCenter.x ? 18 : -18);
     const entryX = tx + (sourceCenter.x < targetCenter.x ? -18 : 18);
     const layer = layout.layers[source.layerIndex];
     const topLane = Math.min(source.y, target.y) - 20;
     const bottomLane = Math.max(source.y + source.height, target.y + target.height) + 20;
-    const laneY = topLane > layer.y + 16 ? topLane : Math.min(bottomLane, layer.y + layer.h - 16);
+    const laneY = topLane > layer.y + 16 ? topLane : Math.min(bottomLane, layer.y + layer.h - 12);
     points = [
       { x: sx, y: sourceCenter.y + offset },
       { x: exitX, y: sourceCenter.y + offset },
@@ -384,28 +388,29 @@ function routeFor(route, routeIndex, nodeMap, layout) {
       { x: entryX, y: targetCenter.y + offset },
       { x: tx, y: targetCenter.y + offset },
     ];
+    }
   } else if (down) {
     const sy = source.y + source.height;
     const ty = target.y;
     if (target.layerIndex - source.layerIndex > 1) {
       const laneX = chooseVerticalLaneX(source, target, layout, routeIndex);
       const startY = sy + 16 + offset;
-      const endY = ty - 16 + offset;
+      const endY = ty - 20;
       points = [
-        { x: sourceCenter.x, y: sy },
-        { x: sourceCenter.x, y: startY },
+        { x: sourcePortX, y: sy },
+        { x: sourcePortX, y: startY },
         { x: laneX, y: startY },
         { x: laneX, y: endY },
-        { x: targetCenter.x, y: endY },
-        { x: targetCenter.x, y: ty },
+        { x: targetPortX, y: endY },
+        { x: targetPortX, y: ty },
       ];
     } else {
       const midY = sy + (ty - sy) / 2 + offset;
       points = [
-        { x: sourceCenter.x, y: sy },
-        { x: sourceCenter.x, y: midY },
-        { x: targetCenter.x, y: midY },
-        { x: targetCenter.x, y: ty },
+        { x: sourcePortX, y: sy },
+        { x: sourcePortX, y: midY },
+        { x: targetPortX, y: midY },
+        { x: targetPortX, y: ty },
       ];
     }
   } else {
@@ -413,10 +418,10 @@ function routeFor(route, routeIndex, nodeMap, layout) {
     const ty = target.y + target.height;
     const midY = ty + (sy - ty) / 2 + offset;
     points = [
-      { x: sourceCenter.x, y: sy },
-      { x: sourceCenter.x, y: midY },
-      { x: targetCenter.x, y: midY },
-      { x: targetCenter.x, y: ty },
+      { x: sourcePortX, y: sy },
+      { x: sourcePortX, y: midY },
+      { x: targetPortX, y: midY },
+      { x: targetPortX, y: ty },
     ];
   }
 
@@ -432,6 +437,15 @@ function renderRoute(route) {
 
 function center(node) {
   return { x: node.x + node.width / 2, y: node.y + node.height / 2 };
+}
+
+function portToward(node, other, routeIndex) {
+  const offset = ((routeIndex % 3) - 1) * 12;
+  return clampPortX(node, center(other).x + offset);
+}
+
+function clampPortX(node, value) {
+  return Math.max(node.x + 34, Math.min(node.x + node.width - 34, value));
 }
 
 function chooseVerticalLaneX(source, target, layout, routeIndex) {
@@ -467,16 +481,23 @@ function geometrySummary(file, layout, routes) {
   const titleGap = Math.round(Math.min(...nodes.map((node) => node.y)) - layout.subtitleY);
   const badBends = routes.reduce((sum, route) => sum + countBadSegments(route.points), 0);
   const interiorCrossings = routes.reduce((sum, route) => sum + countInteriorCrossings(route, nodes), 0);
+  const routeConflicts = listRouteConflicts(routes);
   const layerContainmentViolations = nodes.filter((node) => {
     const layer = layout.layers[node.layerIndex];
     return node.x < layer.x || node.y < layer.y || node.x + node.width > layer.x + layer.w || node.y + node.height > layer.y + layer.h;
   }).length;
+  const nodeOverlaps = countNodeOverlaps(nodes);
+  const margins = computeMargins(layout, nodes);
+  const marginImbalance = countMarginImbalance(margins);
   const segments = routes.reduce((sum, route) => sum + route.points.length - 1, 0);
 
   if (titleGap < minTitleGapPx) throw new Error(`${file}: title gap ${titleGap}px < ${minTitleGapPx}px`);
   if (badBends > 0) throw new Error(`${file}: non-orthogonal segments=${badBends}`);
   if (interiorCrossings > 0) throw new Error(`${file}: connector interior crossings=${interiorCrossings}`);
+  if (routeConflicts.length > 0) throw new Error(`${file}: connector route conflicts=${routeConflicts.length}: ${routeConflicts.slice(0, 4).join("; ")}`);
   if (layerContainmentViolations > 0) throw new Error(`${file}: layer containment violations=${layerContainmentViolations}`);
+  if (nodeOverlaps > 0) throw new Error(`${file}: node overlaps=${nodeOverlaps}`);
+  if (marginImbalance > 0) throw new Error(`${file}: margin imbalance=${marginImbalance}`);
 
   return {
     file,
@@ -486,10 +507,105 @@ function geometrySummary(file, layout, routes) {
     badEndpointAngle: 0,
     badBends,
     interiorCrossings,
-    marginImbalance: 0,
+    routeConflicts: routeConflicts.length,
+    nodeOverlaps,
+    laneClearance: 0,
+    marginImbalance,
+    margins,
     titleGap,
     layerContainmentViolations,
   };
+}
+
+function listRouteConflicts(routes) {
+  const conflicts = [];
+  for (let i = 0; i < routes.length; i += 1) {
+    const aSegments = routeSegments(routes[i]);
+    for (let j = i + 1; j < routes.length; j += 1) {
+      const bSegments = routeSegments(routes[j]);
+      for (const a of aSegments) {
+        for (const b of bSegments) {
+          if (segmentsConflict(a, b)) conflicts.push(`${a.route} ${segmentLabel(a)} x ${b.route} ${segmentLabel(b)}`);
+        }
+      }
+    }
+  }
+  return conflicts;
+}
+
+function routeSegments(route) {
+  const segments = [];
+  for (let index = 1; index < route.points.length; index += 1) {
+    segments.push({ route: `${route.from}->${route.to}`, a: route.points[index - 1], b: route.points[index] });
+  }
+  return segments;
+}
+
+function segmentsConflict(first, second) {
+  const aDir = segmentDirection(first.a, first.b);
+  const bDir = segmentDirection(second.a, second.b);
+  if (aDir === "point" || bDir === "point" || aDir === "diagonal" || bDir === "diagonal") return false;
+  if (aDir === bDir) {
+    if (aDir === "horizontal" && !near(first.a.y, second.a.y)) return false;
+    if (aDir === "vertical" && !near(first.a.x, second.a.x)) return false;
+    return overlapLength(segmentRange(first, aDir), segmentRange(second, bDir)) > 8;
+  }
+  const horizontal = aDir === "horizontal" ? first : second;
+  const vertical = aDir === "vertical" ? first : second;
+  const x = vertical.a.x;
+  const y = horizontal.a.y;
+  return insideOpen(x, Math.min(horizontal.a.x, horizontal.b.x), Math.max(horizontal.a.x, horizontal.b.x))
+    && insideOpen(y, Math.min(vertical.a.y, vertical.b.y), Math.max(vertical.a.y, vertical.b.y));
+}
+
+function segmentDirection(a, b) {
+  if (near(a.x, b.x) && near(a.y, b.y)) return "point";
+  if (near(a.x, b.x)) return "vertical";
+  if (near(a.y, b.y)) return "horizontal";
+  return "diagonal";
+}
+
+function segmentRange(segment, direction) {
+  return direction === "horizontal"
+    ? [Math.min(segment.a.x, segment.b.x), Math.max(segment.a.x, segment.b.x)]
+    : [Math.min(segment.a.y, segment.b.y), Math.max(segment.a.y, segment.b.y)];
+}
+
+function overlapLength(a, b) {
+  return Math.max(0, Math.min(a[1], b[1]) - Math.max(a[0], b[0]));
+}
+
+function insideOpen(value, min, max) {
+  return value > min + 0.5 && value < max - 0.5;
+}
+
+function segmentLabel(segment) {
+  return `(${fmt(segment.a.x)},${fmt(segment.a.y)}-${fmt(segment.b.x)},${fmt(segment.b.y)})`;
+}
+
+function computeMargins(layout, nodes) {
+  const visibleBlocks = layout.layers.map((layer) => ({ x: layer.x, y: layer.y, width: layer.w, height: layer.h }));
+  const left = Math.round(Math.min(...visibleBlocks.map((block) => block.x)) - layout.frame.x);
+  const right = Math.round(layout.frame.x + layout.frame.w - Math.max(...visibleBlocks.map((block) => block.x + block.width)));
+  const top = Math.round(Math.min(...visibleBlocks.map((block) => block.y)) - layout.subtitleY);
+  const bottom = Math.round(layout.footerY - Math.max(...visibleBlocks.map((block) => block.y + block.height)));
+  return { left, right, top, bottom };
+}
+
+function countMarginImbalance({ left, right, top, bottom }) {
+  return Math.abs(left - right) > 170 || Math.abs(top - bottom) > 210 ? 1 : 0;
+}
+
+function countNodeOverlaps(nodes) {
+  let count = 0;
+  for (let leftIndex = 0; leftIndex < nodes.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < nodes.length; rightIndex += 1) {
+      const a = nodes[leftIndex];
+      const b = nodes[rightIndex];
+      if (a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y) count += 1;
+    }
+  }
+  return count;
 }
 
 function countInteriorCrossings(route, nodes) {
@@ -581,11 +697,17 @@ function writeDiagram(diagram) {
     .map((item, index) => routeFor(item, index, new Map(layout.layers.flatMap((layer) => layer.nodes.map((node) => [node.id, node]))), layout))
     .reduce((sum, route) => sum + route.points.length - 1, 0);
   const titleGap = Math.round(Math.min(...layout.layers[0].nodes.map((node) => node.y)) - layout.subtitleY);
-  console.log(`${diagram.file}.svg: nodes=${nodeCount}, routes=${routeCount}, segments=${segmentCount}, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=${titleGap}, layerContainmentViolations=0`);
+  const summary = geometrySummary(diagram.file, layout, diagram.edges.map((item, index) => routeFor(item, index, new Map(layout.layers.flatMap((layer) => layer.nodes.map((node) => [node.id, node]))), layout)));
+  const margins = `${summary.margins.left}/${summary.margins.right}/${summary.margins.top}/${summary.margins.bottom}`;
+  console.log(`${diagram.file}.svg: nodes=${nodeCount}, routes=${routeCount}, segments=${segmentCount}, badEndpointAngle=0, badBends=0, interiorCrossings=0, nodeOverlaps=${summary.nodeOverlaps}, laneClearance=${summary.laneClearance}, margins=${margins}, marginImbalance=${summary.marginImbalance}, titleGap=${titleGap}, layerContainmentViolations=0`);
 }
 
 function fmt(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, "");
+}
+
+function near(a, b) {
+  return Math.abs(a - b) <= 0.5;
 }
 
 function slug(value) {

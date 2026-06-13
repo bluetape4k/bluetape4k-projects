@@ -1,99 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="1280" viewBox="0 0 1754 1280" role="img" aria-label="jwt Class Structure 2">
+<svg xmlns="http://www.w3.org/2000/svg" width="2305" height="1548" viewBox="0 0 2305 1548" role="img" aria-label="Jwt Class Structure 2">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8.5 4 L 1 7" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="9.5" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 1 L 9.5 5 L 0.5 9 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="1280"/>
-<rect class="frame" x="32" y="28" width="1690" height="1224" rx="28"/>
-<text class="title" x="66" y="82">jwt Class Structure 2</text>
-<text class="subtitle" x="70" y="118">UML classes from the original Mermaid source</text>
-<path class="inheritLine" d="M1082 932 L1082 376"/>
-<path class="inheritLine" d="M672 932 L672 465 L1082 465 L1082 376"/>
-<path class="line" d="M1492 418 L1492 497 L877 497 L877 544"/>
-<path class="line" d="M262 418 L262 489 L877 489 L877 544"/>
-<path class="line" d="M672 376 L672 122 L1082 122 L1082 180"/>
-<path class="line" d="M672 376 L672 132 L1492 132 L1492 180"/>
-<path class="line" d="M672 376 L672 465 L262 465 L262 180"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="170" y="49" text-anchor="middle">JwtComposer</text>
-  <text class="mono" x="18" y="108">+header(name, value) JwtComposer</text>
-<text class="mono" x="18" y="129">+claim(name, value) JwtComposer</text>
-<text class="mono" x="18" y="150">+issuer(iss) JwtComposer</text>
-<text class="mono" x="18" y="171">+subject(sub) JwtComposer</text>
-<text class="mono" x="18" y="192">+expirationAfterMinutes(min) JwtComposer</text>
-<text class="mono" x="18" y="213">+setCompressionAlgorithm(alg) JwtComposer</text>
+<rect class="canvas" width="2305" height="1548"/>
+<rect class="frame" x="32" y="28" width="2241" height="1492" rx="30"/>
+<text class="title" x="68" y="84">Jwt Class Structure 2</text>
+<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
+<path class="inherit" data-from="RedisKeyChainRepository" data-to="KeyChainRepository" d="M1648 588 L1552 588 L1552 342 L1456 342" stroke="#718A35"/>
+<path class="inherit" data-from="InMemoryKeyChainRepository" data-to="KeyChainRepository" d="M1286 558 L1286 372" stroke="#755BC6"/>
+<path class="dependency" data-from="JwtReader" data-to="KeyChain" d="M891 1009 L891 1103 L881 1103 L881 1196" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="JwtComposer" data-to="KeyChain" d="M615 1009 L615 1103 L625 1103 L625 1196" stroke="#4F83BF" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="JwtProvider" data-to="KeyChainRepository" d="M923 588 L1020 588 L1020 342 L1116 342" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="JwtProvider" data-to="JwtReader" d="M881 690 L881 784 L891 784 L891 877" stroke="#3E9868" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="JwtProvider" data-to="JwtComposer" d="M625 690 L625 784 L615 784 L615 877" stroke="#3E9868" stroke-dasharray="8 7"/>
+<g id="JwtComposer">
+  <rect class="classCard" x="317" y="877" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="487" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="487" y="924" text-anchor="middle">JwtComposer</text>
+  <line x1="317" y1="933" x2="657" y2="933" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="335" y="958">+header(name, value) JwtComposer</text>
+<text class="member" x="335" y="975">+claim(name, value) JwtComposer</text>
+<text class="member" x="335" y="992">+issuer(iss) JwtComposer</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-    <text class="label" x="170" y="49" text-anchor="middle">JwtProvider</text>
-  <text class="mono" x="18" y="108">+composer() JwtComposer</text>
-<text class="mono" x="18" y="129">+parse(jwt) JwtReader</text>
-<text class="mono" x="18" y="150">+rotate()</text>
-<text class="mono" x="18" y="171">+forcedRotate()</text>
+<g id="JwtProvider">
+  <rect class="classCard" x="583" y="558" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="753" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="753" y="605" text-anchor="middle">JwtProvider</text>
+  <line x1="583" y1="614" x2="923" y2="614" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="601" y="639">+composer() JwtComposer</text>
+<text class="member" x="601" y="656">+parse(jwt) JwtReader</text>
+<text class="member" x="601" y="673">+rotate()</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">KeyChainRepository</text>
-  <text class="mono" x="18" y="108">+current() KeyChain</text>
-<text class="mono" x="18" y="129">+findOrNull(kid) KeyChain?</text>
-<text class="mono" x="18" y="150">+rotate(newKeyChain) Boolean</text>
-<text class="mono" x="18" y="171">+forcedRotate(newKeyChain) Boolean</text>
+<g id="KeyChainRepository">
+  <rect class="classCard" x="1116" y="240" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1286" y="259" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1286" y="287" text-anchor="middle">KeyChainRepository</text>
+  <line x1="1116" y1="296" x2="1456" y2="296" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="1134" y="321">+current() KeyChain</text>
+<text class="member" x="1134" y="338">+findOrNull(kid) KeyChain?</text>
+<text class="member" x="1134" y="355">+rotate(newKeyChain) Boolean</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-    <text class="label" x="170" y="49" text-anchor="middle">JwtReader</text>
-  <text class="mono" x="18" y="108">+kid: String</text>
-<text class="mono" x="18" y="129">+issuer: String</text>
-<text class="mono" x="18" y="150">+subject: String</text>
-<text class="mono" x="18" y="171">+expiration: Date</text>
-<text class="mono" x="18" y="192">+isExpired: Boolean</text>
-<text class="mono" x="18" y="213">+expiredTtl: Long</text>
+<g id="JwtReader">
+  <rect class="classCard" x="849" y="877" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1019" y="896" text-anchor="middle">class</text>
+  <text class="classTitle" x="1019" y="924" text-anchor="middle">JwtReader</text>
+  <line x1="849" y1="933" x2="1189" y2="933" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="867" y="958">+kid: String</text>
+<text class="member" x="867" y="975">+issuer: String</text>
+<text class="member" x="867" y="992">+subject: String</text>
 </g>
-<g transform="translate(707,544)">
-  <rect class="card" x="0" y="0" width="340" height="238" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#45A7A1"/>
-    <text class="label" x="170" y="49" text-anchor="middle">KeyChain</text>
-  <text class="mono" x="18" y="108">+id: String</text>
-<text class="mono" x="18" y="129">+algorithm: SignatureAlgorithm</text>
-<text class="mono" x="18" y="150">+keyPair: KeyPair</text>
-<text class="mono" x="18" y="171">+createdAt: Long</text>
-<text class="mono" x="18" y="192">+expiredTtl: Long</text>
-<text class="mono" x="18" y="213">+isExpired: Boolean</text>
+<g id="KeyChain">
+  <rect class="classCard" x="583" y="1196" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="753" y="1215" text-anchor="middle">class</text>
+  <text class="classTitle" x="753" y="1243" text-anchor="middle">KeyChain</text>
+  <line x1="583" y1="1252" x2="923" y2="1252" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="601" y="1277">+id: String</text>
+<text class="member" x="601" y="1294">+algorithm: SignatureAlgorithm</text>
+<text class="member" x="601" y="1311">+keyPair: KeyPair</text>
 </g>
-<g transform="translate(502,932)">
-  <rect class="card" x="0" y="0" width="340" height="128" rx="5" fill="#F1ECFF" stroke="#8A72D6"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#8A72D6"/>
-    <text class="label" x="170" y="44.5" text-anchor="middle">In Memory Key Chain</text>
-<text class="label" x="170" y="69.5" text-anchor="middle">Repository</text>
+<g id="InMemoryKeyChainRepository">
+  <rect class="classCard" x="1116" y="558" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1286" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1286" y="596" text-anchor="middle">InMemoryKeyChain</text>
+<text class="classTitle" x="1286" y="618" text-anchor="middle">Repository</text>
+  <line x1="1116" y1="622" x2="1456" y2="622" stroke="#8A72D6" stroke-width="1.4"/>
 
 </g>
-<g transform="translate(912,932)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#F7F1E7" stroke="#B88A44"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#B88A44"/>
-    <text class="label" x="170" y="49" text-anchor="middle">RedisKeyChainRepository</text>
+<g id="RedisKeyChainRepository">
+  <rect class="classCard" x="1648" y="558" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1818" y="577" text-anchor="middle">class</text>
+  <text class="classTitle" x="1818" y="605" text-anchor="middle">RedisKeyChainRepository</text>
+  <line x1="1648" y1="614" x2="1988" y2="614" stroke="#8BA84D" stroke-width="1.4"/>
 
 </g>
+<g>
+  <rect x="1890" y="1440" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1908 1458 L1966 1458" stroke="#3E9868"/>
+  <text class="detail" x="1980" y="1463">inheritance / implementation</text>
+  <path class="dependency" d="M1908 1479 L1966 1479" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1980" y="1484">dependency / usage</text>
+</g>
+<g><rect x="180" y="1458" width="1665" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1012.5" y="1484" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
 </svg>

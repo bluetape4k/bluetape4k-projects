@@ -1,0 +1,15 @@
+graph 1 6.001 2.0923
+node node_0_0 2.153 0.91149 4.306 1.556 applicationyml rounded,filled box #9AA8B8 #F7FBFF
+node node_0_1 2.2336 0.91149 4.306 1.556 "Spring Boot 4 Auto" rounded,filled box #9AA8B8 #F7FBFF
+node node_0_2 2.3143 0.91149 4.306 1.556 "Hibernate Properties" rounded,filled box #9AA8B8 #F7FBFF
+node node_1_0 2.153 0.84474 4.306 1.556 "Lettuce Near Cache" rounded,filled box #9AA8B8 #F7FBFF
+node node_1_1 2.2739 0.84474 4.306 1.556 "L1 Cache Caffeine" rounded,filled box #9AA8B8 #F7FBFF
+node node_2_0 2.153 0.778 4.306 1.556 "L2 Cache Redis" rounded,filled box #9AA8B8 #F7FBFF
+node node_2_1 2.2739 0.778 4.306 1.556 Database rounded,filled box #9AA8B8 #F7FBFF
+edge node_0_0 node_0_1 4 2.2327 0.91149 2.2329 0.91149 2.233 0.91149 2.2331 0.91149 solid #758297
+edge node_0_1 node_0_2 4 2.3134 0.91149 2.3135 0.91149 2.3136 0.91149 2.3137 0.91149 solid #758297
+edge node_0_2 node_1_0 4 2.1548 0.84549 2.1545 0.84536 2.1543 0.84526 2.154 0.84516 solid #758297
+edge node_1_0 node_1_1 4 2.2726 0.84474 2.2728 0.84474 2.273 0.84474 2.2732 0.84474 solid #758297
+edge node_1_1 node_2_0 4 2.1544 0.77875 2.1541 0.77863 2.1539 0.77852 2.1538 0.77843 solid #758297
+edge node_2_0 node_2_1 4 2.2726 0.778 2.2728 0.778 2.273 0.778 2.2732 0.778 solid #758297
+stop

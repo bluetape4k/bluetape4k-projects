@@ -1,77 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2140" height="986" viewBox="0 0 2140 986" role="img" aria-label="KLoggingChannel Async Logging Sequence">
+<svg xmlns="http://www.w3.org/2000/svg" width="2386" height="1162" viewBox="0 0 2386 1162" role="img" aria-label="KLoggingChannel Async Logging Sequence">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="2140" height="986"/>
-<rect class="frame" x="32" y="28" width="2076" height="930" rx="28"/>
-<text class="title" x="66" y="82">KLoggingChannel Async Logging Sequence</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="80" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="230" y="198.5" text-anchor="middle">Application</text>
-<text class="smallLabel" x="230" y="219.5" text-anchor="middle">Coroutine</text>
-<line class="lifeline" x1="230" y1="252" x2="230" y2="926" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="500" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="650" y="209" text-anchor="middle">KLoggingChannel</text>
-<line class="lifeline" x1="650" y1="252" x2="650" y2="926" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="920" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="1070" y="198.5" text-anchor="middle">MutableSharedFlow</text>
-<text class="smallLabel" x="1070" y="219.5" text-anchor="middle">(buffer 64)</text>
-<line class="lifeline" x1="1070" y1="252" x2="1070" y2="926" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1340" y="166" width="300" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1490" y="198.5" text-anchor="middle">Background</text>
-<text class="smallLabel" x="1490" y="219.5" text-anchor="middle">Coroutine</text>
-<line class="lifeline" x1="1490" y1="252" x2="1490" y2="926" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1760" y="166" width="300" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1910" y="209" text-anchor="middle">SLF4J Logger</text>
-<line class="lifeline" x1="1910" y1="252" x2="1910" y2="926" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="268.5" y="286" width="343" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="286.5" y="313" text-anchor="start">1. log.debug { Processing event: $id }</text>
-<path class="line" d="M230 332 L650 332"/>
-<rect x="587" y="362" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="605" y="389" text-anchor="start">2. check isDebugEnabled</text>
-<path class="line" d="M650 408 C714 408 714 442 650 442"/>
-<rect x="160" y="526" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="553" text-anchor="start">ALT: DEBUG disabled</text>
-<rect x="240.5" y="438" width="399" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="258.5" y="465" text-anchor="start">4. (Lambda not executed, returns immediately)</text>
-<path class="dashed" d="M650 484 L230 484"/>
-<rect x="160" y="704" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="731" text-anchor="start">ELSE: DEBUG enabled</text>
-<rect x="725" y="514" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="743" y="541" text-anchor="start">6. emit(LogEvent(DEBUG, msg))</text>
-<path class="line" d="M650 560 L1070 560"/>
-<rect x="160" y="882" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="909" text-anchor="start">ALT: buffer has space</text>
-<rect x="482.5" y="590" width="335" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="500.5" y="617" text-anchor="start">8. resumes immediately (non-blocking)</text>
-<path class="dashed" d="M1070 636 L230 636"/>
-<rect x="160" y="1060" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="1087" text-anchor="start">ELSE: buffer full (&gt;64)</text>
-<rect x="527" y="666" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="545" y="693" text-anchor="start">10. SUSPEND (backpressure)</text>
-<path class="dashed" d="M1070 712 L230 712"/>
-<rect x="1175" y="742" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1193" y="769" text-anchor="start">11. collect LogEvent</text>
-<path class="line" d="M1490 788 L1070 788"/>
-<rect x="1581" y="818" width="238" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1599" y="845" text-anchor="start">12. log.debug(msg, error)</text>
-<path class="line" d="M1490 864 L1910 864"/>
+<rect class="canvas" width="2386" height="1162"/>
+<rect class="frame" x="32" y="28" width="2322" height="1106" rx="30"/>
+<text class="title" x="68" y="84">KLoggingChannel Async Logging Sequence</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
+<g id="seq-application-coroutine"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="200" text-anchor="middle">Application</text><text class="cardTitle" x="255" y="224" text-anchor="middle">Coroutine</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1020"/></g>
+<g id="seq-kloggingchannel"><rect class="card" x="609" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="724" y="215" text-anchor="middle">KLoggingChannel</text><line class="lifeline" x1="724" y1="248" x2="724" y2="1020"/></g>
+<g id="seq-mutablesharedflow-buffer-64"><rect class="card" x="1078" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1193" y="200" text-anchor="middle">MutableSharedFlow</text><text class="cardTitle" x="1193" y="224" text-anchor="middle">(buffer 64)</text><line class="lifeline" x1="1193" y1="248" x2="1193" y2="1020"/></g>
+<g id="seq-background-coroutine"><rect class="card" x="1547" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1662" y="200" text-anchor="middle">Background</text><text class="cardTitle" x="1662" y="224" text-anchor="middle">Coroutine</text><line class="lifeline" x1="1662" y1="248" x2="1662" y2="1020"/></g>
+<g id="seq-slf4j-logger"><rect class="card" x="2016" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="2131" y="215" text-anchor="middle">SLF4J Logger</text><line class="lifeline" x1="2131" y1="248" x2="2131" y2="1020"/></g>
+<g><rect class="altBox" x="112" y="308" width="2162" height="46" rx="16"/><rect class="labelPill branchPill" x="389.3" y="294" width="200.4" height="26" rx="7"/><text class="detail" x="489.5" y="307" text-anchor="middle" dominant-baseline="middle">else buffer full (&gt;64)</text></g>
+<rect x="247" y="380" width="16" height="380" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="716" y="380" width="16" height="204" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="1185" y="556" width="16" height="292" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<rect x="1654" y="820" width="16" height="116" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
+<rect x="2123" y="908" width="16" height="52" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="307.8" y="345" width="363.5" height="26" rx="7"/><circle cx="326.8" cy="358" r="12" fill="#4F83BF"/><text class="detail" x="326.8" y="359" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="507.5" y="359" text-anchor="middle" dominant-baseline="middle">log.debug { Processing event: $id }</text><path class="seq" d="M255 388 L724 388" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="834" y="433" width="238" height="26" rx="7"/><circle cx="853" cy="446" r="12" fill="#3E9868"/><text class="detail" x="853" y="447" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="971" y="447" text-anchor="middle" dominant-baseline="middle">check isDebugEnabled</text><path class="seq" d="M724 476 L814 476 L814 504 L742 504" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="809.6" y="521" width="297.8" height="26" rx="7"/><circle cx="828.6" cy="534" r="12" fill="#2E8F89"/><text class="detail" x="828.6" y="535" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="976.5" y="535" text-anchor="middle" dominant-baseline="middle">emit(LogEvent(DEBUG, msg))</text><path class="seq" d="M724 564 L1193 564" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="545.9" y="609" width="356.2" height="26" rx="7"/><circle cx="564.9" cy="622" r="12" fill="#2E8F89"/><text class="detail" x="564.9" y="623" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="742" y="623" text-anchor="middle" dominant-baseline="middle">resumes immediately (non-blocking)</text><path class="seqReturn" d="M1193 652 L255 652" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m5"><rect class="labelPill" x="589.7" y="697" width="268.6" height="26" rx="7"/><circle cx="608.7" cy="710" r="12" fill="#2E8F89"/><text class="detail" x="608.7" y="711" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="742" y="711" text-anchor="middle" dominant-baseline="middle">SUSPEND (backpressure)</text><path class="seqReturn" d="M1193 740 L255 740" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m6"><rect class="labelPill" x="1312.5" y="785" width="230" height="26" rx="7"/><circle cx="1331.5" cy="798" r="12" fill="#2E8F89"/><text class="detail" x="1331.5" y="799" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="1445.5" y="799" text-anchor="middle" dominant-baseline="middle">collect LogEvent</text><path class="seqReturn" d="M1662 828 L1193 828" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m7"><rect class="labelPill" x="1765.9" y="873" width="261.3" height="26" rx="7"/><circle cx="1784.9" cy="886" r="12" fill="#2E8F89"/><text class="detail" x="1784.9" y="887" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="1914.5" y="887" text-anchor="middle" dominant-baseline="middle">log.debug(msg, error)</text><path class="seqReturn" d="M1662 916 L2131 916" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g><rect x="140" y="1044" width="2106" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1193" y="1070" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

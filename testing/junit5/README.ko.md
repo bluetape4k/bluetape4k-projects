@@ -12,7 +12,7 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 
 ### 클래스 다이어그램
 
-![junit5 Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-junit5-diagram-02.png)
+![JUnit5 Class Structure diagram](../../docs/images/readme-diagrams/testing-junit5-diagram-02.png)
 
 ## 주요 기능
 

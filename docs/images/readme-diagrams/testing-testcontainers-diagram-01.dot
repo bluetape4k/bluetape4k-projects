@@ -1,0 +1,38 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  AwsEmulatorServer [label="AwsEmulatorServer", fillcolor="#E8F3FF", color="#5B8DEF"];
+  GenericServer [label="GenericServer", fillcolor="#EAF7EF", color="#58A978"];
+  ElasticMqServer [label="ElasticMqServer", fillcolor="#E9F7F6", color="#45A7A1"];
+  MiniStackServer [label="MiniStackServer", fillcolor="#FFF3D9", color="#D6A441"];
+  FlociServer [label="FlociServer", fillcolor="#FDECEF", color="#DC6B82"];
+  PostgreSQLServer [label="PostgreSQLServer", fillcolor="#F1ECFF", color="#8A72D6"];
+  LocalStackServer [label="LocalStackServer", fillcolor="#EEF6D9", color="#8BA84D"];
+  BluetapeHttpServer [label="BluetapeHttpServer", fillcolor="#F2F5F9", color="#9AA8B8"];
+  MySQL8Server [label="MySQL8Server", fillcolor="#E8F3FF", color="#5B8DEF"];
+  KafkaServer [label="KafkaServer", fillcolor="#EAF7EF", color="#58A978"];
+  BluetapeWebfluxServer [label="BluetapeWebfluxServer", fillcolor="#E9F7F6", color="#45A7A1"];
+  MailpitServer [label="MailpitServer", fillcolor="#FFF3D9", color="#D6A441"];
+  RedisServer [label="RedisServer", fillcolor="#FDECEF", color="#DC6B82"];
+  PgvectorServer [label="PgvectorServer", fillcolor="#F1ECFF", color="#8A72D6"];
+  PostgisServer [label="PostgisServer", fillcolor="#EEF6D9", color="#8BA84D"];
+  { rank=source; AwsEmulatorServer; GenericServer; }
+  AwsEmulatorServer -> MiniStackServer [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
+  AwsEmulatorServer -> FlociServer [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  AwsEmulatorServer -> LocalStackServer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  PostgreSQLServer -> PgvectorServer [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  PostgreSQLServer -> PostgisServer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  GenericServer -> BluetapeWebfluxServer [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  GenericServer -> BluetapeHttpServer [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
+  GenericServer -> MailpitServer [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
+  GenericServer -> MiniStackServer [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
+  GenericServer -> FlociServer [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  GenericServer -> LocalStackServer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  GenericServer -> KafkaServer [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
+  GenericServer -> RedisServer [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  GenericServer -> MySQL8Server [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  GenericServer -> PgvectorServer [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  GenericServer -> PostgisServer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  GenericServer -> PostgreSQLServer [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+}

@@ -1,89 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2140" height="1366" viewBox="0 0 2140 1366" role="img" aria-label="Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="2226" height="2170" viewBox="0 0 2226 2170" role="img" aria-label="Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="14" markerHeight="12" refX="12" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M 0 1 L 12 6 L 0 11 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter","Comic Sans MS","Comic Sans",cursive;font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Sans MS","Comic Sans","Comic Neue",Arial,sans-serif;font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="2140" height="1366"/>
-<rect class="frame" x="32" y="28" width="2076" height="1310" rx="28"/>
-<text class="title" x="66" y="82">Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow</text>
-<text class="subtitle" x="70" y="118">Sequence messages from the original Mermaid source</text>
-<rect class="card" x="80" y="166" width="300" height="72" rx="20" fill="#E8F3FF" stroke="#5B8DEF"/>
-<text class="smallLabel" x="230" y="209" text-anchor="middle">Caller</text>
-<line class="lifeline" x1="230" y1="252" x2="230" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="500" y="166" width="300" height="72" rx="20" fill="#EAF7EF" stroke="#58A978"/>
-<text class="smallLabel" x="650" y="198.5" text-anchor="middle">Distributed Suspend</text>
-<text class="smallLabel" x="650" y="219.5" text-anchor="middle">Rate Limiter</text>
-<line class="lifeline" x1="650" y1="252" x2="650" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="920" y="166" width="300" height="72" rx="20" fill="#FFF3D9" stroke="#D6A441"/>
-<text class="smallLabel" x="1070" y="198.5" text-anchor="middle">Async Bucket Proxy</text>
-<text class="smallLabel" x="1070" y="219.5" text-anchor="middle">Provider</text>
-<line class="lifeline" x1="1070" y1="252" x2="1070" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1340" y="166" width="300" height="72" rx="20" fill="#FDECEF" stroke="#DC6B82"/>
-<text class="smallLabel" x="1490" y="209" text-anchor="middle">AsyncBucketProxy</text>
-<line class="lifeline" x1="1490" y1="252" x2="1490" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect class="card" x="1760" y="166" width="300" height="72" rx="20" fill="#E9F7F6" stroke="#45A7A1"/>
-<text class="smallLabel" x="1910" y="209" text-anchor="middle">Redis</text>
-<line class="lifeline" x1="1910" y1="252" x2="1910" y2="1306" stroke="#b7c2d1" stroke-width="2" stroke-dasharray="10 10"/>
-<rect x="329" y="286" width="222" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="347" y="313" text-anchor="start">1. consume(tenant:a, 1)</text>
-<path class="line" d="M230 332 L650 332"/>
-<rect x="737" y="362" width="246" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="755" y="389" text-anchor="start">2. resolveBucket(tenant:a)</text>
-<path class="line" d="M650 408 L1070 408"/>
-<rect x="755" y="438" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="773" y="465" text-anchor="start">3. AsyncBucketProxy</text>
-<path class="dashed" d="M1070 484 L650 484"/>
-<rect x="914.5" y="514" width="311" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="932.5" y="541" text-anchor="start">4. tryConsumeAndReturnRemaining(1)</text>
-<path class="line" d="M650 560 L1490 560"/>
-<rect x="1561" y="590" width="278" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1579" y="617" text-anchor="start">5. EVALSHA (atomic Lua script)</text>
-<path class="line" d="M1490 636 L1910 636"/>
-<rect x="160" y="836" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="863" text-anchor="start">ALT: Sufficient tokens</text>
-<rect x="1573" y="666" width="254" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1591" y="693" text-anchor="start">7. consumed=1, remaining=99</text>
-<path class="dashed" d="M1910 712 L1490 712"/>
-<rect x="939" y="742" width="262" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="957" y="769" text-anchor="start">8. CompletableFuture (await)</text>
-<path class="dashed" d="M1490 788 L650 788"/>
-<rect x="228.5" y="818" width="423" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="246.5" y="845" text-anchor="start">9. RateLimitResult(CONSUMED, 1, 99, diagnostics)</text>
-<path class="dashed" d="M650 864 L230 864"/>
-<rect x="160" y="1234" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="1261" text-anchor="start">ELSE: Insufficient tokens</text>
-<rect x="1520.5" y="894" width="359" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="1538.5" y="921" text-anchor="start">11. consumed=0, remaining=0, refill wait</text>
-<path class="dashed" d="M1910 940 L1490 940"/>
-<rect x="935" y="970" width="270" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="953" y="997" text-anchor="start">12. CompletableFuture (await)</text>
-<path class="dashed" d="M1490 1016 L650 1016"/>
-<rect x="232.5" y="1046" width="415" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="250.5" y="1073" text-anchor="start">13. RateLimitResult(REJECTED, 0, 0, retryAfter)</text>
-<path class="dashed" d="M650 1092 L230 1092"/>
-<rect x="160" y="1632" width="1820" height="40" rx="16" fill="#F7F1E7" stroke="#B88A44" stroke-width="1.6" opacity="0.96"/>
-<text class="strong" x="182" y="1659" text-anchor="start">ELSE: Timeout or store failure</text>
-<rect x="965" y="1122" width="210" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="983" y="1149" text-anchor="start">15. failure</text>
-<path class="dashed" d="M1490 1168 L650 1168"/>
-<rect x="260.5" y="1198" width="359" height="40" rx="12" fill="#ffffff" opacity="0.97"/>
-<text class="strong" x="278.5" y="1225" text-anchor="start">16. RateLimitResult(ERROR, errorMessage)</text>
-<path class="dashed" d="M650 1244 L230 1244"/>
+<rect class="canvas" width="2226" height="2170"/>
+<rect class="frame" x="32" y="28" width="2162" height="2114" rx="30"/>
+<text class="title" x="68" y="84">Distributed Suspend Rate Limiter — Redis-Based Coroutine Flow</text>
+<text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
+<g id="seq-caller"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Caller</text><line class="lifeline" x1="255" y1="248" x2="255" y2="2028"/></g>
+<g id="seq-distributed-suspend-rate"><rect class="card" x="569" y="170" width="230" height="78" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="684" y="200" text-anchor="middle">Distributed</text><text class="cardTitle" x="684" y="224" text-anchor="middle">Suspend Rate</text><line class="lifeline" x1="684" y1="248" x2="684" y2="2028"/></g>
+<g id="seq-async-bucket-proxy-provider"><rect class="card" x="998" y="170" width="230" height="78" rx="10" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1113" y="200" text-anchor="middle">Async Bucket Proxy</text><text class="cardTitle" x="1113" y="224" text-anchor="middle">Provider</text><line class="lifeline" x1="1113" y1="248" x2="1113" y2="2028"/></g>
+<g id="seq-asyncbucketproxy"><rect class="card" x="1427" y="170" width="230" height="78" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1542" y="215" text-anchor="middle">AsyncBucketProxy</text><line class="lifeline" x1="1542" y1="248" x2="1542" y2="2028"/></g>
+<g id="seq-redis"><rect class="card" x="1856" y="170" width="230" height="78" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1971" y="215" text-anchor="middle">Redis</text><line class="lifeline" x1="1971" y1="248" x2="1971" y2="2028"/></g>
+<g><rect class="altBox" x="112" y="308" width="2002" height="46" rx="16"/><rect class="labelPill branchPill" x="372.9" y="294" width="193.2" height="26" rx="7"/><text class="detail" x="469.5" y="307" text-anchor="middle" dominant-baseline="middle">alt Sufficient tokens</text></g>
+<g><rect class="altBox" x="112" y="366" width="2002" height="46" rx="16"/><rect class="labelPill branchPill" x="362.1" y="352" width="214.8" height="26" rx="7"/><text class="detail" x="469.5" y="365" text-anchor="middle" dominant-baseline="middle">else Insufficient tokens</text></g>
+<g><rect class="altBox" x="112" y="424" width="2002" height="46" rx="16"/><rect class="labelPill branchPill" x="344.1" y="410" width="250.8" height="26" rx="7"/><text class="detail" x="469.5" y="423" text-anchor="middle" dominant-baseline="middle">else Timeout or store failure</text></g>
+<rect x="247" y="496" width="16" height="1420" rx="5" fill="#E8F3FF" stroke="#5B8DEF" stroke-width="1.4"/>
+<rect x="676" y="496" width="16" height="1420" rx="5" fill="#EAF7EF" stroke="#58A978" stroke-width="1.4"/>
+<rect x="1105" y="612" width="16" height="144" rx="5" fill="#E9F7F6" stroke="#45A7A1" stroke-width="1.4"/>
+<rect x="1534" y="844" width="16" height="956" rx="5" fill="#FFF3D9" stroke="#D6A441" stroke-width="1.4"/>
+<rect x="1963" y="960" width="16" height="492" rx="5" fill="#FDECEF" stroke="#DC6B82" stroke-width="1.4"/>
+<g id="m1"><rect class="labelPill" x="350.5" y="461" width="238" height="26" rx="7"/><circle cx="369.5" cy="474" r="12" fill="#4F83BF"/><text class="detail" x="369.5" y="475" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="487.5" y="475" text-anchor="middle" dominant-baseline="middle">consume(tenant:a, 1)</text><path class="seq" d="M255 504 L684 504" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="m2"><rect class="labelPill" x="768.6" y="577" width="259.9" height="26" rx="7"/><circle cx="787.6" cy="590" r="12" fill="#3E9868"/><text class="detail" x="787.6" y="591" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="916.5" y="591" text-anchor="middle" dominant-baseline="middle">resolveBucket(tenant:a)</text><path class="seq" d="M684 620 L1113 620" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="m3"><rect class="labelPill" x="793.5" y="693" width="210" height="26" rx="7"/><circle cx="812.5" cy="706" r="12" fill="#2E8F89"/><text class="detail" x="812.5" y="707" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="916.5" y="707" text-anchor="middle" dominant-baseline="middle">AsyncBucketProxy</text><path class="seqReturn" d="M1113 736 L684 736" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m4"><rect class="labelPill" x="953.9" y="809" width="318.3" height="26" rx="7"/><circle cx="972.9" cy="822" r="12" fill="#2E8F89"/><text class="detail" x="972.9" y="823" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1131" y="823" text-anchor="middle" dominant-baseline="middle">tryConsumeAndReturnRemaining(1)</text><path class="seqReturn" d="M684 852 L1542 852" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m5"><rect class="labelPill" x="1612" y="925" width="289.1" height="26" rx="7"/><circle cx="1631" cy="938" r="12" fill="#C94D68"/><text class="detail" x="1631" y="939" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="1774.5" y="939" text-anchor="middle" dominant-baseline="middle">EVALSHA (atomic Lua script)</text><path class="seq" d="M1542 968 L1971 968" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
+<g id="m6"><rect class="labelPill" x="1622.9" y="1041" width="267.2" height="26" rx="7"/><circle cx="1641.9" cy="1054" r="12" fill="#2E8F89"/><text class="detail" x="1641.9" y="1055" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="1774.5" y="1055" text-anchor="middle" dominant-baseline="middle">consumed=1, remaining=99</text><path class="seqReturn" d="M1971 1084 L1542 1084" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m7"><rect class="labelPill" x="975.8" y="1157" width="274.5" height="26" rx="7"/><circle cx="994.8" cy="1170" r="12" fill="#2E8F89"/><text class="detail" x="994.8" y="1171" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="1131" y="1171" text-anchor="middle" dominant-baseline="middle">CompletableFuture (await)</text><path class="seqReturn" d="M1542 1200 L684 1200" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m8"><rect class="labelPill" x="306.7" y="1257" width="325.6" height="42" rx="7"/><circle cx="325.7" cy="1278" r="12" fill="#2E8F89"/><text class="detail" x="325.7" y="1279" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="487.5" y="1270" text-anchor="middle" dominant-baseline="middle">RateLimitResult(CONSUMED, 1, 99,</text><text class="detail" x="487.5" y="1285" text-anchor="middle" dominant-baseline="middle">diagnostics)</text><path class="seqReturn" d="M684 1316 L255 1316" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m9"><rect class="labelPill" x="1597.4" y="1373" width="318.3" height="42" rx="7"/><circle cx="1616.4" cy="1394" r="12" fill="#2E8F89"/><text class="detail" x="1616.4" y="1395" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">9</text><text class="detail" x="1774.5" y="1386" text-anchor="middle" dominant-baseline="middle">consumed=0, remaining=0, refill</text><text class="detail" x="1774.5" y="1401" text-anchor="middle" dominant-baseline="middle">wait</text><path class="seqReturn" d="M1971 1432 L1542 1432" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m10"><rect class="labelPill" x="975.8" y="1505" width="274.5" height="26" rx="7"/><circle cx="994.8" cy="1518" r="12" fill="#2E8F89"/><text class="detail" x="994.8" y="1519" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">10</text><text class="detail" x="1131" y="1519" text-anchor="middle" dominant-baseline="middle">CompletableFuture (await)</text><path class="seqReturn" d="M1542 1548 L684 1548" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m11"><rect class="labelPill" x="310.4" y="1605" width="318.3" height="42" rx="7"/><circle cx="329.4" cy="1626" r="12" fill="#2E8F89"/><text class="detail" x="329.4" y="1627" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="487.5" y="1618" text-anchor="middle" dominant-baseline="middle">RateLimitResult(REJECTED, 0, 0,</text><text class="detail" x="487.5" y="1633" text-anchor="middle" dominant-baseline="middle">retryAfter)</text><path class="seqReturn" d="M684 1664 L255 1664" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m12"><rect class="labelPill" x="1008" y="1737" width="210" height="26" rx="7"/><circle cx="1027" cy="1750" r="12" fill="#2E8F89"/><text class="detail" x="1027" y="1751" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="1131" y="1751" text-anchor="middle" dominant-baseline="middle">failure</text><path class="seqReturn" d="M1542 1780 L684 1780" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g id="m13"><rect class="labelPill" x="343.2" y="1837" width="252.6" height="42" rx="7"/><circle cx="362.2" cy="1858" r="12" fill="#2E8F89"/><text class="detail" x="362.2" y="1859" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">13</text><text class="detail" x="487.5" y="1850" text-anchor="middle" dominant-baseline="middle">RateLimitResult(ERROR,</text><text class="detail" x="487.5" y="1865" text-anchor="middle" dominant-baseline="middle">errorMessage)</text><path class="seqReturn" d="M684 1896 L255 1896" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
+<g><rect x="140" y="2052" width="1946" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1113" y="2078" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

@@ -40,13 +40,8 @@ digraph G {
     "time" [label="Java time DSL", fillcolor="#FFF3D9", color="#D9AA4D"];
     "functional" [label="Functional utilities", fillcolor="#EAF7EF", color="#69B888"];
   }
-  "core" -> "validation" [xlabel="contracts", color="#58A978"];
   "core" -> "types" [xlabel="types", color="#45A7A1"];
-  "core" -> "codec" [xlabel="encoding", color="#D9AA4D"];
   "validation" -> "ranges" [xlabel="range checks", color="#DB7890"];
-  "types" -> "value" [xlabel="value helpers", color="#8A72D6"];
   "types" -> "collections" [xlabel="collections", color="#8BA84D"];
-  "collections" -> "concurrent" [xlabel="async containers", color="#45A7A1"];
   "ranges" -> "time" [xlabel="temporal ranges", color="#D9AA4D"];
-  "value" -> "functional" [xlabel="composition", color="#58A978"];
 }

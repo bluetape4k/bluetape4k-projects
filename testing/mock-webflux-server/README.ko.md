@@ -32,7 +32,7 @@
 
 ### 클래스 다이어그램
 
-![mock webflux server Class Structure 2 diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
+![Mock WebFlux Server Class Structure diagram](../../docs/images/readme-diagrams/testing-mock-webflux-server-diagram-02.png)
 
 ### 시퀀스 다이어그램 — httpbin GET 요청
 

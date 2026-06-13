@@ -1,0 +1,17 @@
+graph 1 14.05 5.5389
+node ProducerSupport 1.4 2.7694 2.8 1.05 ProducerSupport rounded,filled box #5B8DEF #E8F3FF
+node PulsarClient 5.15 5.0139 2.8 1.05 PulsarClient rounded,filled box #58A978 #EAF7EF
+node ConsumerSupport 5.15 2.7694 2.8 1.05 ConsumerSupport rounded,filled box #45A7A1 #E9F7F6
+node ReaderSupport 8.9 2.7694 2.8 1.05 ReaderSupport rounded,filled box #D6A441 #FFF3D9
+node ReaderExtensions 8.9 0.525 2.8 1.05 ReaderExtensions rounded,filled box #DC6B82 #FDECEF
+node ConsumerExtensions 5.15 0.525 2.8 1.05 ConsumerExtensions rounded,filled box #8A72D6 #F1ECFF
+node ProducerExtensions 1.4 0.525 2.8 1.05 ProducerExtensions rounded,filled box #8BA84D #EEF6D9
+node Jackson3Schema 8.9 5.0139 2.8 1.05 Jackson3Schema rounded,filled box #9AA8B8 #F2F5F9
+node JacksonSchema 12.65 5.0139 2.8 1.05 JacksonSchema rounded,filled box #5B8DEF #E8F3FF
+edge ProducerSupport ProducerExtensions 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #4F83BF
+edge PulsarClient ProducerSupport 7 3.7483 5.0139 2.6832 5.0139 1.4 5.0139 1.4 5.0139 1.4 5.0139 1.4 3.9651 1.4 3.3013 dashed #3E9868
+edge PulsarClient ConsumerSupport 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #3E9868
+edge PulsarClient ReaderSupport 10 6.5567 5.0139 6.8255 5.0139 7.025 5.0139 7.025 5.0139 7.025 5.0139 7.025 2.7639 7.025 2.7639 7.025 2.7639 7.2245 2.7639 7.4933 2.7639 dashed #3E9868
+edge ConsumerSupport ConsumerExtensions 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 dashed #2E8F89
+edge ReaderSupport ReaderExtensions 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 dashed #B9851B
+stop

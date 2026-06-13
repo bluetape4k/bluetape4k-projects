@@ -1,11 +1,127 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820">
-<style>
-.title{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:34px;font-weight:400;fill:#273043}
-.subtitle,.axis,.legend,.note{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#6b7280;font-weight:400}
-.label{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#273043;font-weight:400}
-.value{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#273043;font-weight:400;font-size:18px}
-.axis{font-size:16px}.legend{font-size:18px}.note{font-size:17px}.label{font-size:18px}
-</style>
-<rect width="1280" height="820" rx="0" fill="#f6f8fb"/>
-<rect x="24" y="24" width="1232" height="772" rx="18" fill="#ffffff" stroke="#d7e3ee" stroke-width="2"/>
-<text class="title" x="56" y="72">Lettuce Codec Throughput</text><text class="subtitle" x="58" y="104" font-size="18">Encode + decode round trip throughput</text><line x1="260" y1="118" x2="1120" y2="118" stroke="#dbe7f0" stroke-width="2"/><text class="label" x="56" y="155">fastjson2</text><rect x="260" y="136" width="767.8571428571427" height="24" rx="8" fill="#8ecae6"/><text class="value" x="1039.8571428571427" y="154">6,379 ops/ms</text><text class="label" x="56" y="197">fastFory</text><rect x="260" y="178" width="395.54453228226544" height="24" rx="8" fill="#ffb3c7"/><text class="value" x="667.5445322822654" y="196">3,286 ops/ms</text><text class="label" x="56" y="239">fory</text><rect x="260" y="220" width="307.07063355205696" height="24" rx="8" fill="#b8e0d2"/><text class="value" x="579.070633552057" y="238">2,551 ops/ms</text><text class="label" x="56" y="281">kryo</text><rect x="260" y="262" width="115.9188632342732" height="24" rx="8" fill="#ffd166"/><text class="value" x="387.9188632342732" y="280">963 ops/ms</text><text class="label" x="56" y="323">lz4FastFory</text><rect x="260" y="304" width="109.05762210825702" height="24" rx="8" fill="#cdb4db"/><text class="value" x="381.057622108257" y="322">906 ops/ms</text><text class="label" x="56" y="365">lz4Fory</text><rect x="260" y="346" width="102.5574989362417" height="24" rx="8" fill="#f4a261"/><text class="value" x="374.5574989362417" y="364">852 ops/ms</text><text class="label" x="56" y="407">jackson3</text><rect x="260" y="388" width="100.39079121223659" height="24" rx="8" fill="#a8dadc"/><text class="value" x="372.3907912122366" y="406">834 ops/ms</text><text class="label" x="56" y="449">lz4Kryo</text><rect x="260" y="430" width="64.39936846348508" height="24" rx="8" fill="#f7a072"/><text class="value" x="336.3993684634851" y="448">535 ops/ms</text><text class="label" x="56" y="491">zstdFastFory</text><rect x="260" y="472" width="24.79676617472512" height="24" rx="8" fill="#90be6d"/><text class="value" x="296.7967661747251" y="490">206 ops/ms</text><text class="label" x="56" y="533">zstdFory</text><rect x="260" y="514" width="24.43564822072426" height="24" rx="8" fill="#f28482"/><text class="value" x="296.43564822072426" y="532">203 ops/ms</text><text class="label" x="56" y="575">zstdKryo</text><rect x="260" y="556" width="16.370680581371914" height="24" rx="8" fill="#8ecae6"/><text class="value" x="288.3706805813719" y="574">136 ops/ms</text><text class="label" x="56" y="617">jdk</text><rect x="260" y="598" width="15.889189976037414" height="24" rx="8" fill="#ffb3c7"/><text class="value" x="287.8891899760374" y="616">132 ops/ms</text><text class="label" x="56" y="659">gzipFastFory</text><rect x="260" y="640" width="13.240991646697864" height="24" rx="8" fill="#b8e0d2"/><text class="value" x="285.24099164669786" y="658">110 ops/ms</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1120" viewBox="0 0 1360 1120" role="img" aria-labelledby="title desc">
+<title id="title">Lettuce Codec Throughput</title>
+<desc id="desc">Encode + decode round trip throughput · ops/ms · higher is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.08"/></filter>
+  <style>
+    .canvas{fill:#F6F9FD}
+    .frame{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#C9D8E8;stroke-width:1.8;filter:url(#shadow)}
+    .result{fill:#F2FFFB;stroke:#18BFA7;stroke-width:1.8}
+    .title{font-family:"Architects Daughter";font-size:34px;fill:#22304A;font-weight:700}
+    .panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22304A;font-weight:700}
+    .subtitle,.label,.axis,.value,.small,.tiny{font-family:"Comic Mono";fill:#22304A}
+    .subtitle{font-size:14px;fill:#5B6B83}
+    .label{font-size:12px}
+    .axis{font-size:11px;fill:#5B6B83}
+    .value{font-size:11px;font-weight:700}
+    .small{font-size:12px}
+    .tiny{font-size:10px;fill:#5B6B83}
+    .grid{stroke:#E1E9F3;stroke-width:1}
+    .axisLine{stroke:#B7C8DC;stroke-width:1.4}
+    .scopePill{fill:#F6FAFF;stroke:#4F83FF;stroke-width:1.5}
+    .legendText{font-family:"Comic Mono";font-size:12px;fill:#22304A}
+  </style>
+</defs>
+<rect class="canvas" width="1360" height="1120"/>
+<rect class="frame" x="0.5" y="0.5" width="1359" height="1119" rx="14"/>
+<text class="title" x="680" y="54" text-anchor="middle">Lettuce Codec Throughput</text>
+<text class="subtitle" x="680" y="76" text-anchor="middle">Encode + decode round trip throughput · ops/ms · higher is better</text>
+<g>
+  <rect x="300" y="88" width="760" height="30" rx="15" fill="#F7FBFF" stroke="#4F83FF" stroke-width="1.4"/>
+  <text class="tiny" x="680" y="104" text-anchor="middle" dominant-baseline="middle">Scope: Lettuce codec ranking, normalized by ops/ms with benchmark caveats retained</text>
+</g>
+<g>
+  <rect class="panel" x="56" y="150" width="1248" height="760" rx="14"/>
+  <text class="panelTitle" x="88" y="193" >Codec ranking</text>
+  <text class="axis" x="1184" y="187" text-anchor="middle">0 to 7,000 ops/ms</text>
+  <line class="grid" x1="346" y1="226" x2="346" y2="847"/>
+<text class="axis" x="346" y="875" text-anchor="middle">0</text>
+<line class="grid" x1="566" y1="226" x2="566" y2="847"/>
+<text class="axis" x="566" y="875" text-anchor="middle">2000</text>
+<line class="grid" x1="786" y1="226" x2="786" y2="847"/>
+<text class="axis" x="786" y="875" text-anchor="middle">4000</text>
+<line class="grid" x1="1006" y1="226" x2="1006" y2="847"/>
+<text class="axis" x="1006" y="875" text-anchor="middle">6000</text>
+<line class="axisLine" x1="346" y1="847" x2="1116" y2="847"/>
+  <g>
+  <text class="label" x="88" y="256" >fastjson2</text>
+  <rect x="346" y="244" width="701.6899999999999" height="16" rx="5" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="1057.69" y="257" >6,379 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="303" >fastFory</text>
+  <rect x="346" y="291" width="361.46" height="16" rx="5" fill="#FFB3C7" stroke="#E15B7B" stroke-width="1.4"/>
+  <text class="value" x="717.46" y="304" >3,286 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="350" >fory</text>
+  <rect x="346" y="338" width="280.61" height="16" rx="5" fill="#B8E0D2" stroke="#35A878" stroke-width="1.4"/>
+  <text class="value" x="636.61" y="351" >2,551 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="397" >kryo</text>
+  <rect x="346" y="385" width="105.92999999999999" height="16" rx="5" fill="#FFD166" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="value" x="461.93" y="398" >963 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="444" >lz4FastFory</text>
+  <rect x="346" y="432" width="99.66" height="16" rx="5" fill="#CDB4DB" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="value" x="455.65999999999997" y="445" >906 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="491" >lz4Fory</text>
+  <rect x="346" y="479" width="93.72" height="16" rx="5" fill="#F4A261" stroke="#D27A37" stroke-width="1.4"/>
+  <text class="value" x="449.72" y="492" >852 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="538" >jackson3</text>
+  <rect x="346" y="526" width="91.74000000000001" height="16" rx="5" fill="#A8DADC" stroke="#2E8F89" stroke-width="1.4"/>
+  <text class="value" x="447.74" y="539" >834 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="585" >lz4Kryo</text>
+  <rect x="346" y="573" width="58.85" height="16" rx="5" fill="#F7A072" stroke="#C94D68" stroke-width="1.4"/>
+  <text class="value" x="414.85" y="586" >535 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="632" >zstdFastFory</text>
+  <rect x="346" y="620" width="22.66" height="16" rx="5" fill="#90BE6D" stroke="#718A35" stroke-width="1.4"/>
+  <text class="value" x="378.66" y="633" >206 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="679" >zstdFory</text>
+  <rect x="346" y="667" width="22.330000000000002" height="16" rx="5" fill="#BBD8FF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="value" x="378.33" y="680" >203 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="726" >zstdKryo</text>
+  <rect x="346" y="714" width="14.959999999999999" height="16" rx="5" fill="#FFB3C7" stroke="#E15B7B" stroke-width="1.4"/>
+  <text class="value" x="370.96" y="727" >136 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="773" >jdk</text>
+  <rect x="346" y="761" width="14.52" height="16" rx="5" fill="#B8E0D2" stroke="#35A878" stroke-width="1.4"/>
+  <text class="value" x="370.52" y="774" >132 ops/ms</text>
+</g>
+<g>
+  <text class="label" x="88" y="820" >gzipFastFory</text>
+  <rect x="346" y="808" width="12.100000000000001" height="16" rx="5" fill="#FFD166" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="value" x="368.1" y="821" >110 ops/ms</text>
+</g>
+  <text class="axis" x="1158" y="875" >ops/ms</text>
+</g>
+<g>
+  <rect class="panel" x="56" y="944" width="1248" height="106" rx="14" fill="#F8FBFF"/>
+  <text class="panelTitle" x="84" y="982" >Interpretation boundary</text>
+  <g>
+  <rect x="390" y="960" width="236" height="32" rx="16" fill="#FFFFFF" stroke="#6EA6FF" stroke-width="1.4"/>
+  <text class="tiny" x="508" y="977" text-anchor="middle" dominant-baseline="middle">fastjson2 leads ranking</text>
+</g>
+  <g>
+  <rect x="650" y="960" width="254" height="32" rx="16" fill="#FFFFFF" stroke="#FF9F43" stroke-width="1.4"/>
+  <text class="tiny" x="777" y="977" text-anchor="middle" dominant-baseline="middle">compression codecs trade CPU</text>
+</g>
+  <text class="small" x="84" y="1018" >Use the paired benchmark note for payload size, Redis/Lettuce version, JVM settings, and raw kotlinx-benchmark output.</text>
+</g>
+</svg>

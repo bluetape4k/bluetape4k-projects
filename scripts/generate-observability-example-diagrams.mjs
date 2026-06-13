@@ -45,11 +45,14 @@ function escapeXml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function markerDefs(colors) {
+function markerDefs(colors, kind) {
+  const marker = kind === "sequence"
+    ? { w: 8, h: 8, refX: 7, refY: 4, path: "M 1 1 L 7 4 L 1 7 Z" }
+    : { w: 5, h: 5, refX: 4.5, refY: 2.5, path: "M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" };
   return colors
     .map(({ id, color }) => `
-    <marker id="${id}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 1 1 L 7 4 L 1 7 Z" fill="${color}"/>
+    <marker id="${id}" viewBox="0 0 ${marker.w} ${marker.h}" markerWidth="${marker.w}" markerHeight="${marker.h}" refX="${marker.refX}" refY="${marker.refY}" orient="auto" markerUnits="strokeWidth">
+      <path d="${marker.path}" fill="${color}"/>
     </marker>`)
     .join("");
 }
@@ -231,16 +234,26 @@ function validateGeometry(diagram) {
     }
   }
 
-  const minX = Math.min(...diagram.nodes.map((node) => node.x));
-  const maxX = Math.max(...diagram.nodes.map((node) => node.x + node.w));
-  const minY = Math.min(...diagram.nodes.map((node) => node.y));
-  const maxY = Math.max(...diagram.nodes.map((node) => node.lifelineBottom ?? (node.y + node.h)));
+  const marginBlocks = diagram.layers?.length
+    ? diagram.layers.map((layer) => ({ x: layer.x, y: layer.y, w: layer.w, h: layer.h }))
+    : diagram.nodes.map((node) => ({ x: node.x, y: node.y, w: node.w, h: node.lifelineBottom ? node.lifelineBottom - node.y : node.h }));
+  const minX = Math.min(...marginBlocks.map((block) => block.x));
+  const maxX = Math.max(...marginBlocks.map((block) => block.x + block.w));
+  const minY = Math.min(...marginBlocks.map((block) => block.y));
+  const maxY = Math.max(...marginBlocks.map((block) => block.y + block.h));
   const left = minX - diagram.frame.x;
   const right = diagram.frame.x + diagram.frame.w - maxX;
   const top = minY - diagram.bodyTop;
   const bottom = diagram.bodyBottom - maxY;
   const marginImbalance = Math.round(Math.max(Math.abs(left - right), Math.abs(top - bottom)));
   const titleGap = Math.round(minY - diagram.subtitleY);
+  const sequenceParticipantGap = diagram.kind === "sequence"
+    ? Math.round(Math.min(...diagram.nodes
+        .map((node) => node.x + node.w / 2)
+        .sort((a, b) => a - b)
+        .slice(1)
+        .map((x, index, sortedTail) => x - (index === 0 ? Math.min(...diagram.nodes.map((node) => node.x + node.w / 2)) : sortedTail[index - 1]))))
+    : 0;
 
   if (diagram.layers?.length) {
     const layers = new Map(diagram.layers.map((layer) => [layer.id, layer]));
@@ -267,22 +280,57 @@ function validateGeometry(diagram) {
     badEndpointAngle,
     badBends,
     interiorCrossings,
+    nodeOverlaps: countNodeOverlaps(diagram.nodes),
     clearanceViolations,
+    laneClearance: clearanceViolations,
     layerContainmentViolations,
     marginImbalance,
+    margins: { left, right, top, bottom },
     titleGap,
+    sequenceParticipantGap,
   };
 
   const failures = [];
   if (badEndpointAngle !== 0) failures.push("bad endpoint angle");
   if (badBends !== 0) failures.push("non-orthogonal bend");
   if (interiorCrossings !== 0) failures.push("connector crosses non-endpoint box");
+  if (summary.nodeOverlaps !== 0) failures.push("node overlaps");
   if (clearanceViolations !== 0) failures.push("connector lacks 8px clearance");
   if (layerContainmentViolations !== 0) failures.push("node outside assigned layer");
+  if (diagram.kind === "sequence" && diagram.nodes.length >= 6 && diagram.width < 1600) failures.push("complex sequence width < 1600");
+  if (diagram.kind === "sequence" && diagram.nodes.length >= 6 && sequenceParticipantGap < 190) failures.push(`participant gap ${sequenceParticipantGap} < 190`);
   if (titleGap < diagram.minTitleGap) failures.push(`title gap ${titleGap} < ${diagram.minTitleGap}`);
   if (marginImbalance > diagram.maxMarginImbalance) failures.push(`margin imbalance ${marginImbalance} > ${diagram.maxMarginImbalance}`);
 
   return { summary, failures };
+}
+
+function countNodeOverlaps(nodes) {
+  let count = 0;
+  for (let leftIndex = 0; leftIndex < nodes.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < nodes.length; rightIndex += 1) {
+      const a = nodes[leftIndex];
+      const b = nodes[rightIndex];
+      if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) count += 1;
+    }
+  }
+  return count;
+}
+
+function shiftDiagramY(diagram, delta) {
+  return {
+    ...diagram,
+    layers: diagram.layers?.map((layer) => ({ ...layer, y: layer.y + delta })),
+    nodes: diagram.nodes.map((node) => ({
+      ...node,
+      y: node.y + delta,
+      lifelineBottom: node.lifelineBottom ? node.lifelineBottom + delta : node.lifelineBottom,
+    })),
+    routes: diagram.routes.map((route) => ({
+      ...route,
+      points: route.points.map((point) => ({ ...point, y: point.y + delta })),
+    })),
+  };
 }
 
 function dotFor(diagram) {
@@ -338,11 +386,11 @@ function renderSvg(diagram) {
   const layerStyle = (diagram.layers ?? []).length > 0
     ? `
       .layerBand{fill:#FFFFFF;stroke:${palette.frame};stroke-width:1.4;opacity:.72}
-      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:${palette.muted};font-weight:400}`
+      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:${palette.muted};font-weight:400;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}`
     : "";
   const layerMarkup = (diagram.layers ?? []).length > 0
     ? `\n  ${(diagram.layers ?? [])
-      .map((layer) => `<g id="${layer.id}"><rect class="layerBand" x="${layer.x}" y="${layer.y}" width="${layer.w}" height="${layer.h}" rx="18"/><text class="layerLabel" x="${layer.x + 18}" y="${layer.y + 28}">${escapeXml(layer.label)}</text></g>`)
+      .map((layer) => `<g id="${layer.id}"><rect class="layerBand" x="${layer.x}" y="${layer.y}" width="${layer.w}" height="${layer.h}" rx="18"/><text class="layerLabel" x="${layer.x + 20}" y="${layer.y + 18}" dominant-baseline="middle">${escapeXml(layer.label)}</text></g>`)
       .join("\n  ")}`
     : "";
 
@@ -351,7 +399,7 @@ function renderSvg(diagram) {
   <desc id="${diagram.file}-desc">${escapeXml(diagram.subtitle)}</desc>
   <defs>
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-    ${markerDefs(markerColors)}
+    ${markerDefs(markerColors, diagram.kind)}
     <style>
       .canvas{fill:${palette.canvas}}.frame{fill:#FFFFFF;stroke:${palette.frame};stroke-width:2}
       .card,.participant{filter:url(#shadow);stroke-width:2}${layerStyle}
@@ -387,7 +435,9 @@ function generate(diagram) {
   execFileSync("dot", ["-Tpng", "-o", sketchPngPath, dotPath], { stdio: "inherit" });
 
   const { summary, failures } = validateGeometry(diagram);
-  const summaryText = `${diagram.file}: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=${summary.badEndpointAngle}, badBends=${summary.badBends}, interiorCrossings=${summary.interiorCrossings}, clearanceViolations=${summary.clearanceViolations}, layerContainmentViolations=${summary.layerContainmentViolations}, marginImbalance=${summary.marginImbalance}, titleGap=${summary.titleGap}`;
+  const margins = `${summary.margins.left}/${summary.margins.right}/${summary.margins.top}/${summary.margins.bottom}`;
+  const sequenceGap = diagram.kind === "sequence" ? `, sequenceParticipantGap=${summary.sequenceParticipantGap}` : "";
+  const summaryText = `${diagram.file}: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=${summary.badEndpointAngle}, badBends=${summary.badBends}, interiorCrossings=${summary.interiorCrossings}, nodeOverlaps=${summary.nodeOverlaps}, laneClearance=${summary.laneClearance}, clearanceViolations=${summary.clearanceViolations}, layerContainmentViolations=${summary.layerContainmentViolations}, margins=${margins}, marginImbalance=${summary.marginImbalance}, titleGap=${summary.titleGap}${sequenceGap}`;
   console.log(summaryText);
   if (failures.length > 0) {
     throw new Error(`${diagram.file} failed geometry gates: ${failures.join(", ")}`);
@@ -408,24 +458,24 @@ function architectureSpring() {
     { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET scrape output"], x: 120, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
     { id: "controller", layer: "entry", titleLines: ["Spring MVC", "Controller"], bodyLines: ["/orders/{orderId}/events", "X-Request-Id header"], x: 440, y: 170, w: 280, h: 112, fill: palette.cardTeal, stroke: palette.service },
     { id: "service", layer: "application", title: "OrderEventService", bodyLines: ["local publish + consume", "returns accepted JSON"], x: 570, y: 334, w: 320, h: 96, fill: palette.cardGreen, stroke: palette.event },
-    { id: "springObs", layer: "observability", title: "observeSpring", bodyLines: ["orders.http.publish", "HTTP/service boundary"], x: 210, y: 500, w: 300, h: 100, fill: palette.cardTeal, stroke: palette.service },
-    { id: "eventObs", layer: "observability", titleLines: ["Event", "Telemetry"], bodyLines: ["event.publish", "event.consume"], x: 560, y: 494, w: 300, h: 112, fill: palette.cardGreen, stroke: palette.event },
-    { id: "registry", layer: "observability", title: "ObservationRegistry", bodyLines: ["Micrometer handlers", "metrics + optional spans"], x: 930, y: 500, w: 310, h: 100, fill: palette.cardWhite, stroke: palette.neutral },
+    { id: "springObs", layer: "observability", title: "observeSpring", bodyLines: ["orders.http.publish", "HTTP/service boundary"], x: 185, y: 500, w: 290, h: 100, fill: palette.cardTeal, stroke: palette.service },
+    { id: "registry", layer: "observability", title: "ObservationRegistry", bodyLines: ["Micrometer handlers", "metrics + optional spans"], x: 545, y: 500, w: 310, h: 100, fill: palette.cardWhite, stroke: palette.neutral },
+    { id: "eventObs", layer: "observability", titleLines: ["Event", "Telemetry"], bodyLines: ["event.publish", "event.consume"], x: 925, y: 494, w: 300, h: 112, fill: palette.cardGreen, stroke: palette.event },
     { id: "actuator", layer: "export", titleLines: ["Actuator", "Prometheus"], bodyLines: ["/actuator/prometheus", "Spring owns endpoint"], x: 770, y: 682, w: 285, h: 112, fill: palette.cardAmber, stroke: palette.metrics },
     { id: "otlp", layer: "export", titleLines: ["OTLP Collector", "optional"], bodyLines: ["enabled by Spring config", "not required for tests"], x: 1110, y: 682, w: 250, h: 112, fill: palette.cardPurple, stroke: palette.trace },
   ];
   const routes = [
     { id: "client-controller", from: "client", to: "controller", color: palette.request, marker: "arrowRequest", points: [{ x: 365, y: 222 }, { x: 440, y: 222 }] },
     { id: "controller-service", from: "controller", to: "service", color: palette.service, marker: "arrowService", points: [{ x: 580, y: 282 }, { x: 580, y: 304 }, { x: 730, y: 304 }, { x: 730, y: 334 }] },
-    { id: "service-observe-spring", from: "service", to: "springObs", color: palette.service, marker: "arrowService", points: [{ x: 650, y: 430 }, { x: 650, y: 455 }, { x: 360, y: 455 }, { x: 360, y: 500 }] },
-    { id: "service-event-telemetry", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 710, y: 430 }, { x: 710, y: 494 }] },
-    { id: "service-registry", from: "service", to: "registry", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 820, y: 430 }, { x: 820, y: 455 }, { x: 1085, y: 455 }, { x: 1085, y: 500 }] },
-    { id: "springObs-registry", from: "springObs", to: "registry", color: palette.service, marker: "arrowService", points: [{ x: 360, y: 600 }, { x: 360, y: 625 }, { x: 1085, y: 625 }, { x: 1085, y: 600 }] },
-    { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 860, y: 550 }, { x: 930, y: 550 }] },
-    { id: "registry-actuator", from: "registry", to: "actuator", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 1030, y: 600 }, { x: 1030, y: 650 }, { x: 912, y: 650 }, { x: 912, y: 682 }] },
-    { id: "registry-otlp", from: "registry", to: "otlp", color: palette.trace, marker: "arrowTrace", dash: "8 7", points: [{ x: 1180, y: 600 }, { x: 1180, y: 650 }, { x: 1235, y: 650 }, { x: 1235, y: 682 }] },
+    { id: "service-observe-spring", from: "service", to: "springObs", color: palette.service, marker: "arrowService", points: [{ x: 650, y: 430 }, { x: 650, y: 455 }, { x: 330, y: 455 }, { x: 330, y: 500 }] },
+    { id: "service-registry", from: "service", to: "registry", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 730, y: 430 }, { x: 730, y: 500 }] },
+    { id: "service-event-telemetry", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 810, y: 430 }, { x: 810, y: 455 }, { x: 1075, y: 455 }, { x: 1075, y: 494 }] },
+    { id: "springObs-registry", from: "springObs", to: "registry", color: palette.service, marker: "arrowService", points: [{ x: 475, y: 550 }, { x: 545, y: 550 }] },
+    { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 925, y: 550 }, { x: 855, y: 550 }] },
+    { id: "registry-actuator", from: "registry", to: "actuator", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 700, y: 600 }, { x: 700, y: 650 }, { x: 912, y: 650 }, { x: 912, y: 682 }] },
+    { id: "registry-otlp", from: "registry", to: "otlp", color: palette.trace, marker: "arrowTrace", dash: "8 7", points: [{ x: 790, y: 600 }, { x: 790, y: 650 }, { x: 1235, y: 650 }, { x: 1235, y: 682 }] },
   ];
-  return {
+  return shiftDiagramY({
     file: "examples-spring-boot-observability-spring-boot-demo-architecture-01",
     kind: "architecture",
     title: "Spring Boot Observability Demo Architecture",
@@ -441,7 +491,7 @@ function architectureSpring() {
     layers,
     nodes,
     routes: routes.map(({ label, ...route }) => route),
-  };
+  }, 20);
 }
 
 function architectureKtor() {
@@ -472,7 +522,7 @@ function architectureKtor() {
     { id: "service-eventObs", from: "service", to: "eventObs", color: palette.event, marker: "arrowEvent", points: [{ x: 720, y: 550 }, { x: 780, y: 550 }] },
     { id: "eventObs-registry", from: "eventObs", to: "registry", color: palette.event, marker: "arrowEvent", points: [{ x: 930, y: 606 }, { x: 930, y: 682 }] },
   ];
-  return {
+  return shiftDiagramY({
     file: "examples-ktor-observability-ktor-demo-architecture-01",
     kind: "architecture",
     title: "Ktor Observability Demo Architecture",
@@ -488,11 +538,11 @@ function architectureKtor() {
     layers,
     nodes,
     routes: routes.map(({ label, ...route }) => route),
-  };
+  }, 20);
 }
 
 function sequenceSpring() {
-  const xs = [80, 290, 515, 740, 980, 1195];
+  const xs = [90, 340, 610, 880, 1145, 1365];
   const titles = [
     ["Client"],
     ["Spring MVC", "Controller"],
@@ -511,7 +561,7 @@ function sequenceSpring() {
     y: 165,
     w: index === 4 ? 175 : index === 5 ? 155 : 165,
     h: 74,
-    lifelineBottom: 680,
+    lifelineBottom: 720,
     fill: fills[index],
     stroke: colors[index],
   }));
@@ -532,12 +582,12 @@ function sequenceSpring() {
     kind: "sequence",
     title: "Spring Boot Observability Demo Sequence",
     subtitle: "HTTP work, event observations, Prometheus scrape output, and optional trace export.",
-    width: 1420,
-    height: 760,
-    frame: { x: 32, y: 28, w: 1356, h: 684 },
+    width: 1620,
+    height: 820,
+    frame: { x: 32, y: 28, w: 1556, h: 744 },
     subtitleY: 116,
     bodyTop: 145,
-    bodyBottom: 690,
+    bodyBottom: 730,
     minTitleGap: 49,
     maxMarginImbalance: 120,
     nodes,
@@ -546,7 +596,7 @@ function sequenceSpring() {
 }
 
 function sequenceKtor() {
-  const xs = [80, 300, 525, 765, 965, 1190];
+  const xs = [90, 350, 625, 900, 1140, 1360];
   const ids = ["client", "ktor", "observability", "eventObs", "prom", "otel"];
   const titles = [["Client"], ["Ktor", "Routes"], ["Ktor", "Observability"], ["Event", "Telemetry"], ["Prometheus", "Registry"], ["OpenTelemetry", "optional"]];
   const colors = [palette.request, palette.service, palette.metrics, palette.event, palette.metrics, palette.trace];
@@ -559,7 +609,7 @@ function sequenceKtor() {
     y: 165,
     w: index === 2 ? 180 : index === 4 || index === 5 ? 170 : 165,
     h: 74,
-    lifelineBottom: 680,
+    lifelineBottom: 720,
     fill: fills[index],
     stroke: colors[index],
   }));
@@ -581,12 +631,12 @@ function sequenceKtor() {
     kind: "sequence",
     title: "Ktor Observability Demo Sequence",
     subtitle: "Application-owned metrics routing, event observations, and optional OpenTelemetry spans.",
-    width: 1420,
-    height: 760,
-    frame: { x: 32, y: 28, w: 1356, h: 684 },
+    width: 1620,
+    height: 820,
+    frame: { x: 32, y: 28, w: 1556, h: 744 },
     subtitleY: 116,
     bodyTop: 145,
-    bodyBottom: 690,
+    bodyBottom: 730,
     minTitleGap: 49,
     maxMarginImbalance: 120,
     nodes,

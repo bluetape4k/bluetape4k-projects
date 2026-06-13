@@ -1,0 +1,14 @@
+graph 1 25.3 3.2944
+node StructuredTaskScopeTester 1.4 2.7694 2.8 1.05 StructuredTaskScopeTester rounded,filled box #5B8DEF #E8F3FF
+node SuspendedJobTester 3.275 0.525 2.8 1.05 SuspendedJobTester rounded,filled box #58A978 #EAF7EF
+node MultithreadingTester 5.15 2.7694 2.8 1.05 MultithreadingTester rounded,filled box #45A7A1 #E9F7F6
+node TempFolder 8.9 0.525 2.8 1.05 TempFolder rounded,filled box #D6A441 #FFF3D9
+node FakeValueExtension 12.65 2.7694 2.8 1.05 FakeValueExtension rounded,filled box #DC6B82 #FDECEF
+node TempFolderExtension 8.9 2.7694 2.8 1.05 TempFolderExtension rounded,filled box #8A72D6 #F1ECFF
+node Fakers 16.4 2.7694 2.8 1.05 Fakers rounded,filled box #8BA84D #EEF6D9
+node OutputCapturer 20.15 2.7694 2.8 1.05 OutputCapturer rounded,filled box #9AA8B8 #F2F5F9
+node StopwatchExtension 23.9 2.7694 2.8 1.05 StopwatchExtension rounded,filled box #5B8DEF #E8F3FF
+edge StructuredTaskScopeTester SuspendedJobTester 4 2.3375 2.2375 2.3375 1.8798 2.3375 1.4101 2.3375 1.0531 dashed #4F83BF
+edge MultithreadingTester SuspendedJobTester 4 4.2125 2.2375 4.2125 1.8798 4.2125 1.4101 4.2125 1.0531 dashed #2E8F89
+edge TempFolderExtension TempFolder 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 dashed #755BC6
+stop

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="980" viewBox="0 0 1720 980" role="img" aria-labelledby="title desc">
+<title id="title">Benchmark Chart Sample</title>
+<desc id="desc">Split-scale horizontal throughput chart sample for bluetape4k README benchmark summaries.</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <style>
+    .canvas{fill:#F7F9FC}
+    .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .title{font-family:"Architects Daughter";font-size:43px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476}
+    .label{font-family:"Architects Daughter";font-size:24px;fill:#21334A;font-weight:700}
+    .smallLabel{font-family:"Architects Daughter";font-size:21px;fill:#21334A;font-weight:700}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .tiny{font-family:"Comic Mono";font-size:11px;fill:#657386}
+    .value{font-family:"Comic Mono";font-size:13px;fill:#26384F;font-weight:700}
+    .card{filter:url(#shadow);stroke-width:2}
+    .grid{stroke:#D7E2EC;stroke-width:1;stroke-dasharray:4 7}
+    .axis{stroke:#AEBFD1;stroke-width:1.6}
+  </style>
+</defs>
+<rect class="canvas" width="1720" height="980"/>
+<rect class="frame" x="34" y="28" width="1652" height="924" rx="26"/>
+<text class="title" x="70" y="82" >Benchmark Throughput Chart Sample</text>
+<text class="subtitle" x="72" y="116" >Horizontal bars with explicit units, split scales, value labels, interpretation, and source footer.</text>
+<g>
+  <rect x="445" y="144" width="430" height="58" rx="16" fill="#EAF7ED" stroke="#58A978" stroke-width="2"/>
+  <text class="smallLabel" x="660" y="168" text-anchor="middle" dominant-baseline="middle">Read throughput</text>
+  <text class="small" x="660" y="189" text-anchor="middle" dominant-baseline="middle">split scale: 0-500,000 ops/s</text>
+</g>
+<g>
+  <rect x="952" y="144" width="360" height="58" rx="16" fill="#FFF3D8" stroke="#D6A441" stroke-width="2"/>
+  <text class="smallLabel" x="1132" y="168" text-anchor="middle" dominant-baseline="middle">Write throughput</text>
+  <text class="small" x="1132" y="189" text-anchor="middle" dominant-baseline="middle">split scale: 0-26,000 ops/s</text>
+</g>
+<g>
+  <line class="grid" x1="445" y1="210" x2="445" y2="782"/>
+  <line class="grid" x1="660" y1="210" x2="660" y2="782"/>
+  <line class="grid" x1="875" y1="210" x2="875" y2="782"/>
+  <line class="axis" x1="445" y1="782" x2="875" y2="782"/>
+  <text class="tiny" x="445" y="806" text-anchor="middle">0</text>
+  <text class="tiny" x="660" y="806" text-anchor="middle">250,000</text>
+  <text class="tiny" x="875" y="806" text-anchor="middle">500,000</text>
+</g>
+<g>
+  <line class="grid" x1="952" y1="210" x2="952" y2="782"/>
+  <line class="grid" x1="1132" y1="210" x2="1132" y2="782"/>
+  <line class="grid" x1="1312" y1="210" x2="1312" y2="782"/>
+  <line class="axis" x1="952" y1="782" x2="1312" y2="782"/>
+  <text class="tiny" x="952" y="806" text-anchor="middle">0</text>
+  <text class="tiny" x="1132" y="806" text-anchor="middle">13,000</text>
+  <text class="tiny" x="1312" y="806" text-anchor="middle">26,000</text>
+</g>
+<g>
+  <rect class="card" x="86" y="218" width="304" height="82" rx="16" fill="#F5F7FA" stroke="#8FA1B3"/>
+  <text class="label" x="238" y="244" text-anchor="middle" dominant-baseline="middle">No cache</text>
+<text class="body" x="238" y="274" text-anchor="middle" dominant-baseline="middle">source call only</text>
+</g>
+<g>
+  <rect x="445" y="225" width="430" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="445" y="225" width="12" height="26" rx="8" fill="#8FA1B3" opacity="0.72"/>
+  <text class="value" x="471" y="239" dominant-baseline="middle">8,200</text>
+</g>
+<g>
+  <rect x="952" y="225" width="360" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="952" y="225" width="114" height="26" rx="8" fill="#8FA1B3" opacity="0.72"/>
+  <text class="value" x="1080" y="239" dominant-baseline="middle">8,200</text>
+</g>
+<g>
+  <rect class="card" x="86" y="336" width="304" height="82" rx="16" fill="#EAF7ED" stroke="#58A978"/>
+  <text class="label" x="238" y="362" text-anchor="middle" dominant-baseline="middle">Local memoizer</text>
+<text class="body" x="238" y="392" text-anchor="middle" dominant-baseline="middle">JVM hot path</text>
+</g>
+<g>
+  <rect x="445" y="343" width="430" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="445" y="343" width="370" height="26" rx="8" fill="#58A978" opacity="0.72"/>
+  <text class="value" x="829" y="357" dominant-baseline="middle">430,000</text>
+</g>
+<g>
+  <rect x="952" y="343" width="360" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="952" y="343" width="109" height="26" rx="8" fill="#58A978" opacity="0.72"/>
+  <text class="value" x="1075" y="357" dominant-baseline="middle">7,900</text>
+</g>
+<g>
+  <rect class="card" x="86" y="454" width="304" height="82" rx="16" fill="#E6F7F5" stroke="#38A69E"/>
+  <text class="label" x="238" y="480" text-anchor="middle" dominant-baseline="middle">Near cache</text>
+<text class="body" x="238" y="510" text-anchor="middle" dominant-baseline="middle">L1 + remote L2</text>
+</g>
+<g>
+  <rect x="445" y="461" width="430" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="445" y="461" width="340" height="26" rx="8" fill="#38A69E" opacity="0.72"/>
+  <text class="value" x="799" y="475" dominant-baseline="middle">395,000</text>
+</g>
+<g>
+  <rect x="952" y="461" width="360" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="952" y="461" width="105" height="26" rx="8" fill="#38A69E" opacity="0.72"/>
+  <text class="value" x="1071" y="475" dominant-baseline="middle">7,600</text>
+</g>
+<g>
+  <rect class="card" x="86" y="572" width="304" height="82" rx="16" fill="#E7F1FF" stroke="#5A85D6"/>
+  <text class="label" x="238" y="598" text-anchor="middle" dominant-baseline="middle">Remote cache</text>
+<text class="body" x="238" y="628" text-anchor="middle" dominant-baseline="middle">network round trip</text>
+</g>
+<g>
+  <rect x="445" y="579" width="430" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="445" y="579" width="37" height="26" rx="8" fill="#5A85D6" opacity="0.72"/>
+  <text class="value" x="496" y="593" dominant-baseline="middle">43,000</text>
+</g>
+<g>
+  <rect x="952" y="579" width="360" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="952" y="579" width="101" height="26" rx="8" fill="#5A85D6" opacity="0.72"/>
+  <text class="value" x="1067" y="593" dominant-baseline="middle">7,300</text>
+</g>
+<g>
+  <rect class="card" x="86" y="690" width="304" height="82" rx="16" fill="#FFF3D8" stroke="#D6A441"/>
+  <text class="label" x="238" y="716" text-anchor="middle" dominant-baseline="middle">Write behind</text>
+<text class="body" x="238" y="746" text-anchor="middle" dominant-baseline="middle">async flush path</text>
+</g>
+<g>
+  <rect x="445" y="697" width="430" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="445" y="697" width="35" height="26" rx="8" fill="#D6A441" opacity="0.72"/>
+  <text class="value" x="494" y="711" dominant-baseline="middle">41,000</text>
+</g>
+<g>
+  <rect x="952" y="697" width="360" height="26" rx="8" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.5"/>
+  <rect x="952" y="697" width="332" height="26" rx="8" fill="#D6A441" opacity="0.72"/>
+  <text class="value" x="1298" y="711" dominant-baseline="middle">24,000</text>
+</g>
+<g>
+  <rect class="card" x="1370" y="346" width="252" height="186" rx="18" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="smallLabel" x="1496" y="390.5" text-anchor="middle" dominant-baseline="middle">Reading</text>
+<text class="body" x="1496" y="424.5" text-anchor="middle" dominant-baseline="middle">Read and write metrics use</text>
+<text class="body" x="1496" y="445.5" text-anchor="middle" dominant-baseline="middle">separate axes because hot</text>
+<text class="body" x="1496" y="466.5" text-anchor="middle" dominant-baseline="middle">read paths can be orders of</text>
+<text class="body" x="1496" y="487.5" text-anchor="middle" dominant-baseline="middle">magnitude faster.</text>
+</g>
+<g>
+  <rect x="94" y="875" width="1532" height="46" rx="16" fill="#F7F9FC" stroke="#D7E2EC" stroke-width="1.5"/>
+  <text class="small" x="860" y="893" text-anchor="middle" dominant-baseline="middle">Source: illustrative sample data for chart layout only; replace with the measured Markdown table before README publication.</text>
+  <text class="tiny" x="860" y="909" text-anchor="middle" dominant-baseline="middle">Chart rule: preserve numeric table, show unit + direction, split or log scale when values differ by orders of magnitude.</text>
+</g>
+</svg>

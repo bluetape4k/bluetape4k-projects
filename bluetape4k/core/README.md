@@ -14,7 +14,7 @@ A foundational utility library for Kotlin backend development. It provides the c
 
 ### Class Diagram
 
-![core Class Structure 2 diagram](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
+![Core Class Structure diagram](../../docs/images/readme-diagrams/bluetape4k-core-diagram-02.png)
 
 ---
 

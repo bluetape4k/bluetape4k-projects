@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="740" viewBox="0 0 900 740">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="815" viewBox="0 0 960 815">
   <defs>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&amp;family=Comic+Neue:wght@400;700&amp;display=swap');
-    </style>
+      </style>
 
     <!-- Arrowhead markers: filled triangles -->
-    <marker id="arr-blue" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-      <path d="M1,1 L8,4.5 L1,8 Z" fill="#3b82f6"/>
+    <marker id="arr-blue" markerWidth="4.5" markerHeight="4.5" refX="4" refY="2.25" orient="auto">
+      <path d="M0.5,0.5 L4,2.25 L0.5,4 Z" fill="#3b82f6"/>
     </marker>
-    <marker id="arr-amber" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-      <path d="M1,1 L8,4.5 L1,8 Z" fill="#ca8a04"/>
+    <marker id="arr-amber" markerWidth="4.5" markerHeight="4.5" refX="4" refY="2.25" orient="auto">
+      <path d="M0.5,0.5 L4,2.25 L0.5,4 Z" fill="#ca8a04"/>
     </marker>
-    <marker id="arr-green" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-      <path d="M1,1 L8,4.5 L1,8 Z" fill="#16a34a"/>
+    <marker id="arr-green" markerWidth="4.5" markerHeight="4.5" refX="4" refY="2.25" orient="auto">
+      <path d="M0.5,0.5 L4,2.25 L0.5,4 Z" fill="#16a34a"/>
     </marker>
 
     <!-- Drop shadow filters -->
@@ -35,7 +34,7 @@
 
   <!-- Diagram title -->
   <text x="450" y="48" text-anchor="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="20" font-weight="700" fill="#1e293b">
     bluetape4k — HTTP Client Recommendation
   </text>
@@ -52,7 +51,7 @@
   <rect x="28" y="74" width="844" height="40" rx="12" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
   <rect x="28" y="98"  width="844" height="16"  fill="#bfdbfe"/>
   <text x="50" y="100" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="15" font-weight="700" fill="#1e40af">
     🔵  Primary — HC5 (Apache HttpComponents 5)
   </text>
@@ -62,7 +61,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="152" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Sync high-throughput</text>
   <line x1="264" y1="152" x2="292" y2="152"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-blue)"/>
@@ -70,13 +69,13 @@
         fill="white" stroke="#3b82f6" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="140"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#1e40af">HC5 Classic + VirtualThread</text>
   <text x="314" y="157"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#3b82f6">productionVirtualThreadHttpClientOf()</text>
   <text x="314" y="172"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">Blocking I/O on Virtual Threads · high connection reuse</text>
 
   <!-- ── Row 2: Async coroutine-first ── -->
@@ -84,7 +83,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="218" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Async coroutine-first</text>
   <line x1="264" y1="218" x2="292" y2="218"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-blue)"/>
@@ -92,13 +91,13 @@
         fill="white" stroke="#3b82f6" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="206"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#1e40af">HC5 Async + Coroutines</text>
   <text x="314" y="223"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#3b82f6">productionHttpAsyncClientOf()</text>
   <text x="314" y="238"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">Non-blocking NIO reactor · Kotlin coroutine integration</text>
 
   <!-- ── Row 3: Cacheable GETs ── -->
@@ -106,10 +105,10 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="287" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Cacheable GETs</text>
   <text x="154" y="306" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#7c3aed">× 1,233 vs no-cache</text>
   <line x1="264" y1="296" x2="292" y2="296"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-blue)"/>
@@ -117,16 +116,16 @@
         fill="white" stroke="#3b82f6" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="276"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#1e40af">HC5 CachingHttpClient</text>
   <text x="314" y="293"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#6b7280">In-Memory · RFC 7234 compliant</text>
   <text x="314" y="310"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#3b82f6">memoryCachingHttpClientOf()</text>
   <text x="314" y="324"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">Transparent cache · ETag · Vary headers supported</text>
 
 
@@ -140,7 +139,7 @@
   <rect x="28" y="368" width="844" height="40" rx="12" fill="#fde68a" stroke="#ca8a04" stroke-width="2"/>
   <rect x="28" y="392"  width="844" height="16" fill="#fde68a"/>
   <text x="50" y="394" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="15" font-weight="700" fill="#92400e">
     🟡  Compatibility
   </text>
@@ -150,10 +149,10 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="442" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Cache persistence</text>
   <text x="154" y="460" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#78716c">across restarts</text>
   <line x1="264" y1="449" x2="292" y2="449"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-amber)"/>
@@ -161,13 +160,13 @@
         fill="white" stroke="#ca8a04" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="435"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#92400e">OkHttp3 · Disk cache · Android</text>
   <text x="314" y="452"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#ca8a04">okhttp3ClientWithCache()</text>
   <text x="314" y="468"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">Persistent disk cache · Android-compatible · OkHttp interceptors</text>
 
   <!-- ── Row 2: Zero dependency ── -->
@@ -175,7 +174,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="514" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Zero dependency</text>
   <line x1="264" y1="514" x2="292" y2="514"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-amber)"/>
@@ -183,13 +182,13 @@
         fill="white" stroke="#ca8a04" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="505"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#92400e">JDK HttpClient</text>
   <text x="314" y="522"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#ca8a04">java.net.http.HttpClient — built into JDK 11+</text>
   <text x="314" y="537"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">No extra dependency · HTTP/2 · async via CompletableFuture</text>
 
 
@@ -203,7 +202,7 @@
   <rect x="28" y="562" width="844" height="40" rx="12" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
   <rect x="28" y="586"  width="844" height="16" fill="#bbf7d0"/>
   <text x="50" y="588" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="15" font-weight="700" fill="#14532d">
     🟢  Ecosystem-Specific
   </text>
@@ -213,7 +212,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="636" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Ktor apps</text>
   <line x1="264" y1="636" x2="292" y2="636"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-green)"/>
@@ -221,13 +220,13 @@
         fill="white" stroke="#16a34a" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="626"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#14532d">Ktor CIO</text>
   <text x="314" y="643"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#16a34a">HttpClient(CIO) — Ktor native engine</text>
   <text x="314" y="657"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">Coroutine-native · Multiplatform · lightweight plugin system</text>
 
   <!-- ── Row 2: Vert.x apps ── -->
@@ -235,7 +234,7 @@
         fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="154" y="698" text-anchor="middle" dominant-baseline="middle"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="12" fill="#374151">Vert.x apps</text>
   <line x1="264" y1="698" x2="292" y2="698"
         stroke="#64748b" stroke-width="2" marker-end="url(#arr-green)"/>
@@ -243,13 +242,13 @@
         fill="white" stroke="#16a34a" stroke-width="1.5"
         filter="url(#shadow-card)"/>
   <text x="314" y="688"
-        font-family="'Architects Daughter', cursive"
+        font-family="Architects Daughter"
         font-size="13" font-weight="700" fill="#14532d">Vert.x WebClient</text>
   <text x="314" y="705"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="11" fill="#16a34a">WebClient.create(vertx) — reactive HTTP client</text>
   <text x="314" y="719"
-        font-family="'Comic Neue', 'Comic Sans MS', cursive"
+        font-family="Comic Mono"
         font-size="10" fill="#64748b">Event-loop driven · RxJava3 / Kotlin coroutines bridge</text>
 
 </svg>

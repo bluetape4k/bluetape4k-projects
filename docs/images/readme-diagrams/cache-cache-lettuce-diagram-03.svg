@@ -1,74 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-label="Lettuce Cache Stability Contracts Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="840" viewBox="0 0 1540 840" role="img" aria-label="Lettuce Cache Stability Contracts">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M1 1 L9 4 L1 7" fill="none" stroke="#667085" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#f6f8fb}.frame{fill:#fff;stroke:#d7e3ee;stroke-width:2}.title{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:40px;font-weight:400;fill:#273043}.subtitle,.small{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;fill:#64748b;font-weight:400}.subtitle{font-size:18px}.small{font-size:15px}.label{font-family:'Comic Sans MS','Comic Neue','Chalkboard SE',cursive;font-size:18px;font-weight:400;fill:#273043}.head{font-family:'Architects Daughter','Comic Sans MS','Comic Neue',cursive;font-size:24px;font-weight:400;fill:#273043}.card{filter:url(#shadow);stroke-width:2}.line{fill:none;stroke:#667085;stroke-width:2;marker-end:url(#arrow)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
+    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="900"/>
-<rect class="frame" x="32" y="28" width="1436" height="844" rx="24"/>
-<text class="title" x="66" y="82">Lettuce Cache Stability Contracts</text>
-<text class="subtitle" x="70" y="118">Operational guarantees shared by NearCache, JCache, and memoizer implementations.</text>
-<g transform="translate(70,170)">
-  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
-  <text class="head" x="157" y="44" text-anchor="middle">CAS replace()</text>
-  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="label" x="157" y="116" text-anchor="middle">EVALSHA compare-and-set</text>
-  <text class="small" x="157" y="140" text-anchor="middle">20-byte script digest</text>
-  <path class="line" d="M157 168 L157 222"/>
-  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="label" x="157" y="260" text-anchor="middle">NOSCRIPT fallback</text>
-  <text class="small" x="157" y="284" text-anchor="middle">retry with EVAL source</text>
-  <path class="line" d="M157 312 L157 366"/>
-  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="label" x="157" y="404" text-anchor="middle">Same semantics</text>
-  <text class="small" x="157" y="428" text-anchor="middle">transparent to callers</text>
-</g>
-<g transform="translate(420,170)">
-  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
-  <text class="head" x="157" y="44" text-anchor="middle">Bulk removal</text>
-  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="label" x="157" y="116" text-anchor="middle">UNLINK keys</text>
-  <text class="small" x="157" y="140" text-anchor="middle">non-blocking delete</text>
-  <path class="line" d="M157 168 L157 222"/>
-  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="label" x="157" y="260" text-anchor="middle">Redis background free</text>
-  <text class="small" x="157" y="284" text-anchor="middle">large values do not block</text>
-  <path class="line" d="M157 312 L157 366"/>
-  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="label" x="157" y="404" text-anchor="middle">O(1) round trip</text>
-  <text class="small" x="157" y="428" text-anchor="middle">DEL semantics preserved</text>
-</g>
-<g transform="translate(770,170)">
-  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
-  <text class="head" x="157" y="44" text-anchor="middle">JCache close()</text>
-  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="label" x="157" y="116" text-anchor="middle">Close wrappers</text>
-  <text class="small" x="157" y="140" text-anchor="middle">listeners and resources</text>
-  <path class="line" d="M157 168 L157 222"/>
-  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="label" x="157" y="260" text-anchor="middle">Keep cache data</text>
-  <text class="small" x="157" y="284" text-anchor="middle">JSR-107 contract</text>
-  <path class="line" d="M157 312 L157 366"/>
-  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="label" x="157" y="404" text-anchor="middle">Explicit clear()</text>
-  <text class="small" x="157" y="428" text-anchor="middle">only when caller asks</text>
-</g>
-<g transform="translate(1120,170)">
-  <rect x="0" y="0" width="315" height="620" rx="18" fill="#f8fbff" stroke="#d7e3ee"/>
-  <text class="head" x="157" y="44" text-anchor="middle">Memoizer recovery</text>
-  <rect class="card" x="35" y="82" width="245" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="label" x="157" y="116" text-anchor="middle">In-flight promise</text>
-  <text class="small" x="157" y="140" text-anchor="middle">coordination only</text>
-  <path class="line" d="M157 168 L157 222"/>
-  <rect class="card" x="35" y="226" width="245" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="label" x="157" y="260" text-anchor="middle">Failure or cancellation</text>
-  <text class="small" x="157" y="284" text-anchor="middle">remove exact promise</text>
-  <path class="line" d="M157 312 L157 366"/>
-  <rect class="card" x="35" y="370" width="245" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="label" x="157" y="404" text-anchor="middle">Next call recomputes</text>
-  <text class="small" x="157" y="428" text-anchor="middle">failed value is not cached</text>
-</g>
-<text class="small" x="70" y="835">Read from left to right within each contract. All paths preserve caller-visible cache semantics while reducing latency or improving failure recovery.</text>
+<rect class="canvas" width="1540" height="840"/>
+<rect class="frame" x="32" y="28" width="1476" height="784" rx="30"/>
+<text class="title" x="68" y="84">Lettuce Cache Stability Contracts</text>
+<text class="subtitle" x="72" y="116">Operational guarantees shared by NearCache, JCache, and memoizer implementations.</text>
+<g><rect class="panel" x="70" y="160" width="320" height="560" rx="22"/><text class="panelTitle" x="94" y="194">CAS replace()</text></g>
+<g><rect class="panel" x="430" y="160" width="320" height="560" rx="22"/><text class="panelTitle" x="454" y="194">Bulk removal</text></g>
+<g><rect class="panel" x="790" y="160" width="320" height="560" rx="22"/><text class="panelTitle" x="814" y="194">JCache close()</text></g>
+<g><rect class="panel" x="1150" y="160" width="320" height="560" rx="22"/><text class="panelTitle" x="1174" y="194">Memoizer recovery</text></g>
+<g id="cas1"><rect class="card" x="105" y="248" width="250" height="84" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="230" y="281" text-anchor="middle">EVALSHA CAS</text><text class="detail" x="230" y="317" text-anchor="middle">20-byte script digest</text></g>
+<g id="cas2"><rect class="card" x="105" y="388" width="250" height="84" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="230" y="421" text-anchor="middle">NOSCRIPT fallback</text><text class="detail" x="230" y="457" text-anchor="middle">retry with EVAL source</text></g>
+<g id="cas3"><rect class="card" x="105" y="528" width="250" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="230" y="561" text-anchor="middle">Same semantics</text><text class="detail" x="230" y="597" text-anchor="middle">transparent to callers</text></g>
+<g id="bulk1"><rect class="card" x="465" y="248" width="250" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="590" y="281" text-anchor="middle">UNLINK keys</text><text class="detail" x="590" y="317" text-anchor="middle">non-blocking delete</text></g>
+<g id="bulk2"><rect class="card" x="465" y="388" width="250" height="84" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="590" y="409" text-anchor="middle">Redis background</text><text class="cardTitle" x="590" y="433" text-anchor="middle">free</text><text class="detail" x="590" y="469" text-anchor="middle">large values do not block</text></g>
+<g id="bulk3"><rect class="card" x="465" y="528" width="250" height="84" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="590" y="561" text-anchor="middle">O(1) round trip</text><text class="detail" x="590" y="597" text-anchor="middle">DEL semantics preserved</text></g>
+<g id="jc1"><rect class="card" x="825" y="248" width="250" height="84" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="950" y="281" text-anchor="middle">Close wrappers</text><text class="detail" x="950" y="317" text-anchor="middle">listeners and resources</text></g>
+<g id="jc2"><rect class="card" x="825" y="388" width="250" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="950" y="421" text-anchor="middle">Keep cache data</text><text class="detail" x="950" y="457" text-anchor="middle">JSR-107 contract</text></g>
+<g id="jc3"><rect class="card" x="825" y="528" width="250" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="950" y="561" text-anchor="middle">Explicit clear()</text><text class="detail" x="950" y="597" text-anchor="middle">only when caller asks</text></g>
+<g id="mem1"><rect class="card" x="1185" y="248" width="250" height="84" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="1310" y="281" text-anchor="middle">In-flight promise</text><text class="detail" x="1310" y="317" text-anchor="middle">coordination only</text></g>
+<g id="mem2"><rect class="card" x="1185" y="388" width="250" height="84" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1310" y="421" text-anchor="middle">Failurecancel</text><text class="detail" x="1310" y="457" text-anchor="middle">remove exact promise</text></g>
+<g id="mem3"><rect class="card" x="1185" y="528" width="250" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="1310" y="561" text-anchor="middle">Recompute next call</text><text class="detail" x="1310" y="597" text-anchor="middle">failed value not cached</text></g>
+<path class="flow" d="M230 332 L230 388" stroke="#758297"/>
+<path class="flow" d="M230 472 L230 528" stroke="#758297"/>
+<path class="flow" d="M590 332 L590 388" stroke="#758297"/>
+<path class="flow" d="M590 472 L590 528" stroke="#758297"/>
+<path class="flow" d="M950 332 L950 388" stroke="#758297"/>
+<path class="flow" d="M950 472 L950 528" stroke="#758297"/>
+<path class="flow" d="M1310 332 L1310 388" stroke="#758297"/>
+<path class="flow" d="M1310 472 L1310 528" stroke="#758297"/>
+<text class="detail" x="750" y="780" text-anchor="middle">Read top to bottom within each contract. Every path preserves caller-visible cache semantics without adding extra bottom whitespace.</text>
 </svg>

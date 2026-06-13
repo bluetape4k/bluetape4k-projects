@@ -1,0 +1,13 @@
+graph 1 10.3 7.7833
+node AbstractNatsTest 5.15 7.2583 2.8 1.05 AbstractNatsTest rounded,filled box #5B8DEF #E8F3FF
+node ConnectionExtensions 5.15 5.0139 2.8 1.05 ConnectionExtensions rounded,filled box #58A978 #EAF7EF
+node JetStreamExtensions 1.4 2.7694 2.8 1.05 JetStreamExtensions rounded,filled box #45A7A1 #E9F7F6
+node DSLBuilders 1.4 0.525 2.8 1.05 DSLBuilders rounded,filled box #D6A441 #FFF3D9
+node JetStreamManagementExtensions 5.15 2.7694 2.8 1.05 JetStreamManagementExtensions rounded,filled box #DC6B82 #FDECEF
+node NatsServiceExtensions 8.9 2.7694 2.8 1.05 NatsServiceExtensions rounded,filled box #8A72D6 #F1ECFF
+edge AbstractNatsTest ConnectionExtensions 4 5.15 6.7264 5.15 6.3686 5.15 5.899 5.15 5.542 dashed #4F83BF
+edge ConnectionExtensions JetStreamExtensions 7 3.7483 5.0139 2.6832 5.0139 1.4 5.0139 1.4 5.0139 1.4 5.0139 1.4 3.9651 1.4 3.3013 dashed #3E9868
+edge ConnectionExtensions JetStreamManagementExtensions 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #3E9868
+edge ConnectionExtensions NatsServiceExtensions 7 6.5517 5.0139 7.6168 5.0139 8.9 5.0139 8.9 5.0139 8.9 5.0139 8.9 3.9651 8.9 3.3013 dashed #3E9868
+edge JetStreamExtensions DSLBuilders 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #2E8F89
+stop

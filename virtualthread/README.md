@@ -14,7 +14,7 @@ This structure supports Java 21 and Java 25 in the same project by splitting the
 
 ### Class Diagram
 
-![virtualthread Class Structure 2 diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
+![Virtual Thread Class Structure diagram](../docs/images/readme-diagrams/virtualthread-diagram-02.png)
 
 ---
 

@@ -24,7 +24,7 @@ Jackson 2.x(`bluetape4k-jackson2`)와 동일한 기능 구조를 제공하면서
 
 ### 클래스 구조
 
-![jackson3 Class Structure 2 diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
+![Jackson3 Class Structure diagram](../../docs/images/readme-diagrams/io-jackson3-diagram-02.png)
 
 ### Jackson 3.x 모듈 등록 흐름
 

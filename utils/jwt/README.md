@@ -12,7 +12,7 @@ A library for creating and parsing [JSON Web Tokens (JWT)](https://jwt.io/). Bui
 
 ### Class Diagram
 
-![jwt Class Structure 2 diagram](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
+![JWT Class Structure diagram](../../docs/images/readme-diagrams/utils-jwt-diagram-02.png)
 
 ### JWT Token Structure
 

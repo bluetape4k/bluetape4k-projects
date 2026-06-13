@@ -1,149 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="892" viewBox="0 0 1500 892" role="img" aria-labelledby="title desc">
-  <title id="title">Geo utilities architecture</title>
-  <desc id="desc">Layered module overview for utils/geo showing geocode finders, Google and Bing adapters, GeoHash spatial indexing, GeoIP finders, MaxMind data, and provider APIs.</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M1 1 L7 4 L1 7 Z" fill="context-stroke"/>
-    </marker>
-    <style>
-      .canvas{fill:#F7FAFC}
-      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:18px;fill:#536476;font-weight:400}
-      .layer{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .layer-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:26px;fill:#22344A;font-weight:400}
-      .card-title{font-family:"Architects Daughter","Comic Mono","Comic Sans MS","Comic Sans",cursive;font-size:23px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono","Comic Sans MS","Comic Sans",monospace;font-size:13px;fill:#627184;font-weight:400}
-      .card{filter:url(#shadow);stroke-width:2}
-      .connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
-      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
-    </style>
-  </defs>
-  <rect class="canvas" width="1500" height="892"/>
-  <rect class="frame" x="34" y="30" width="1432" height="832" rx="28"/>
-  <text class="title" x="72" y="88">Geo utilities architecture</text>
-  <text class="subtitle" x="76" y="121">Geocode, GeoHash, and GeoIP APIs separated from provider adapters, local math, and external datasets.</text>
-
-  <!-- README_LAYER_BANDS:START -->
-  <g id="layer-public-api">
-    <rect class="layer" x="72" y="166" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="209">Public API</text>
-    <g id="node-geocode" transform="translate(346,190)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Geocode API</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Geocode, Address</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">sync and suspend finder</text>
-    </g>
-    <g id="node-geohash-api" transform="translate(722,190)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">GeoHash API</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">GeoHash, WGS84Point</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">BoundingBox queries</text>
-    </g>
-    <g id="node-geoip" transform="translate(1098,190)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">GeoIP API</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">GeoipFinder</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">city/country lookup</text>
-    </g>
-  </g>
-  <g id="layer-adapter-layer">
-    <rect class="layer" x="72" y="328" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="371">Adapter layer</text>
-    <g id="node-google" transform="translate(346,352)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Google Maps adapter</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">GoogleAddressFinder</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">GeoApiContext</text>
-    </g>
-    <g id="node-bing" transform="translate(722,352)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Bing Maps adapter</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Feign client</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">coroutine Feign client</text>
-    </g>
-    <g id="node-maxmind-reader" transform="translate(1098,352)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">MaxMind reader</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">DatabaseReader extensions</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">Result wrappers</text>
-    </g>
-  </g>
-  <g id="layer-spatial-model">
-    <rect class="layer" x="72" y="490" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="533">Spatial model</text>
-    <g id="node-geohash-core" transform="translate(346,514)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">GeoHash core</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">base32 encoding</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">adjacent cells</text>
-    </g>
-    <g id="node-geo-queries" transform="translate(722,514)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Spatial queries</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">circle and bbox search</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">cells within radius</text>
-    </g>
-    <g id="node-geo-result" transform="translate(1098,514)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">GeoIP result model</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Address</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">GeoLocation</text>
-    </g>
-  </g>
-  <g id="layer-external-systems">
-    <rect class="layer" x="72" y="652" width="1356" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="695">External systems</text>
-    <g id="node-provider-http" transform="translate(346,676)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">Provider HTTP APIs</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">Google Geocoding</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">Bing Locations</text>
-    </g>
-    <g id="node-geo-db" transform="translate(1098,676)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="31" text-anchor="middle">GeoLite2 databases</text>
-      <text class="detail" x="150" y="55" text-anchor="middle">City, Country, ASN</text>
-      <text class="detail" x="150" y="73" text-anchor="middle">bundled mmdb files</text>
-    </g>
-  </g>
-  <!-- README_LAYER_BANDS:END -->
-
-  <g id="route-geocode-google">
-    <path class="connector" d="M496 276 L496 304 L496 304 L496 352" stroke="#D9AA4D"/>
-  </g>
-  <g id="route-geocode-bing">
-    <path class="connector" d="M496 276 L496 314 L872 314 L872 352" stroke="#DB7890"/>
-  </g>
-  <g id="route-geohash-api-geohash-core">
-    <path class="connector" d="M872 276 L872 302 L694 302 L694 508 L496 508 L496 514" stroke="#58A978"/>
-  </g>
-  <g id="route-geohash-core-geo-queries">
-    <path class="connector" d="M646 547 L664 547 L664 608 L704 608 L704 547 L722 547" stroke="#8BA84D"/>
-  </g>
-  <g id="route-geoip-maxmind-reader">
-    <path class="connector" d="M1248 276 L1248 314 L1248 314 L1248 352" stroke="#45A7A1"/>
-  </g>
-  <g id="route-maxmind-reader-geo-result">
-    <path class="connector" d="M1248 438 L1248 486 L1248 486 L1248 514" stroke="#8A72D6"/>
-  </g>
-  <g id="route-google-provider-http">
-    <path class="connector" d="M496 438 L496 444 L318 444 L318 650 L496 650 L496 676" stroke="#D9AA4D"/>
-  </g>
-  <g id="route-bing-provider-http">
-    <path class="connector" d="M872 438 L872 454 L694 454 L694 660 L496 660 L496 676" stroke="#DB7890"/>
-  </g>
-  <g id="route-maxmind-reader-geo-db">
-    <path class="connector" d="M1248 438 L1248 464 L1426 464 L1426 670 L1248 670 L1248 676" stroke="#45A7A1"/>
-  </g>
-
-  <g transform="translate(76,816)">
-    <rect class="pill" x="0" y="0" width="1348" height="42" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle">Graphviz evidence: utils-geo-diagram-01.dot, .plain, -sketch.svg, and -sketch.png.</text>
-    <text class="small" x="674" y="33" text-anchor="middle">Geometry gate: nodes=11, routes=9, segments=37, badEndpointAngle=0, badBends=0, interiorCrossings=0, marginImbalance=0, titleGap=69.</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1770" height="1145" viewBox="0 0 1770 1145" role="img" aria-label="Geo Utilities Architecture">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <style>
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
+    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
+    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+  </style>
+</defs>
+<rect class="canvas" width="1770" height="1145"/>
+<rect class="frame" x="32" y="28" width="1706" height="1089" rx="30"/>
+<text class="title" x="68" y="84">Geo Utilities Architecture</text>
+<text class="subtitle" x="72" y="116">Geocode, GeoHash, and GeoIP APIs are separated from provider adapters, spatial models, and datasets.</text>
+<g><rect class="panel" x="76" y="160" width="1620" height="170" rx="22"/><text class="panelTitle" x="100" y="194">Public API</text></g>
+<g><rect class="panel" x="76" y="390" width="1620" height="170" rx="22"/><text class="panelTitle" x="100" y="424">Adapter layer</text></g>
+<g><rect class="panel" x="76" y="620" width="1620" height="170" rx="22"/><text class="panelTitle" x="100" y="654">Spatial model</text></g>
+<g><rect class="panel" x="76" y="850" width="1620" height="170" rx="22"/><text class="panelTitle" x="100" y="884">External systems</text></g>
+<g id="geocode"><rect class="card" x="215" y="215" width="330" height="84" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="380" y="248" text-anchor="middle">Geocode API</text><text class="detail" x="380" y="284" text-anchor="middle">address and location lookup</text></g>
+<g id="geohash"><rect class="card" x="725" y="215" width="330" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="890" y="248" text-anchor="middle">GeoHash API</text><text class="detail" x="890" y="284" text-anchor="middle">hash, bbox, neighbors</text></g>
+<g id="geoip"><rect class="card" x="1235" y="215" width="330" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="1400" y="248" text-anchor="middle">GeoIP API</text><text class="detail" x="1400" y="284" text-anchor="middle">city/country lookup</text></g>
+<g id="maps"><rect class="card" x="300" y="445" width="460" height="86" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="530" y="470" text-anchor="middle">Map provider adapters</text><text class="detail" x="530" y="506" text-anchor="middle">GoogleAddressFinder / Bing</text>
+<text class="detail" x="530" y="524" text-anchor="middle">client</text></g>
+<g id="hashcore"><rect class="card" x="725" y="675" width="330" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="890" y="708" text-anchor="middle">GeoHash core</text><text class="detail" x="890" y="744" text-anchor="middle">base32 encoding and decoding</text></g>
+<g id="queries"><rect class="card" x="1120" y="675" width="330" height="84" rx="14" fill="#EEF6D9" stroke="#8BA84D"/><text class="cardTitle" x="1285" y="708" text-anchor="middle">Spatial queries</text><text class="detail" x="1285" y="744" text-anchor="middle">circle and bbox search</text></g>
+<g id="max"><rect class="card" x="1235" y="445" width="330" height="84" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1400" y="478" text-anchor="middle">MaxMind reader</text><text class="detail" x="1400" y="514" text-anchor="middle">DatabaseReader extensions</text></g>
+<g id="providers"><rect class="card" x="300" y="905" width="460" height="84" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="530" y="938" text-anchor="middle">Provider HTTP APIs</text><text class="detail" x="530" y="974" text-anchor="middle">Google / Bing location data</text></g>
+<g id="datasets"><rect class="card" x="1235" y="905" width="330" height="84" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1400" y="938" text-anchor="middle">GeoLite2 databases</text><text class="detail" x="1400" y="974" text-anchor="middle">bundled mmdb files</text></g>
+<path class="flow" d="M380 299 L380 445" stroke="#4F83BF"/>
+<path class="flow" d="M890 299 L890 675" stroke="#3E9868"/>
+<path class="flow" d="M1400 299 L1400 445" stroke="#755BC6"/>
+<path class="flow" d="M530 531 L530 905" stroke="#B9851B"/>
+<path class="flow" d="M1400 529 L1400 560 L1605 560 L1605 947 L1565 947" stroke="#2E8F89"/>
+<path class="flow" d="M1055 717 L1120 717" stroke="#3E9868"/>
+<g><rect x="205" y="1062" width="1360" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="885" y="1088" text-anchor="middle">Architecture follows the JaVers-style layer stack: public APIs, adapters, spatial models, and external datasets.</text></g>
 </svg>

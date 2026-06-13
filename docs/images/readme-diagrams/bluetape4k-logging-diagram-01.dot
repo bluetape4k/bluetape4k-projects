@@ -1,0 +1,22 @@
+digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.95, ranksep=1.2, outputorder=edgesfirst, pack=false, sep="+0.9,0.9"];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10", width=2.8, height=1.05];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.75, penwidth=1.8];
+  KLoggerFactory [label="KLoggerFactory", fillcolor="#E8F3FF", color="#5B8DEF"];
+  Logger [label="Logger", fillcolor="#EAF7EF", color="#58A978"];
+  KLogging [label="KLogging", fillcolor="#E9F7F6", color="#45A7A1"];
+  CoroutineMDC [label="CoroutineMDC", fillcolor="#FFF3D9", color="#D6A441"];
+  LogEvent [label="LogEvent", fillcolor="#FDECEF", color="#DC6B82"];
+  KotlinLogging [label="KotlinLogging", fillcolor="#F1ECFF", color="#8A72D6"];
+  MDC [label="MDC", fillcolor="#EEF6D9", color="#8BA84D"];
+  KLoggingChannel [label="KLoggingChannel", fillcolor="#F2F5F9", color="#9AA8B8"];
+  Logger -> CoroutineMDC [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  Logger -> MDC [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  KLogging -> KLoggerFactory [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  KLoggerFactory -> Logger [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
+  KotlinLogging -> Logger [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  KLoggingChannel -> Logger [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  KLoggingChannel -> LogEvent [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  KLogging -> KLoggingChannel [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
+  KLogging -> Logger [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+}

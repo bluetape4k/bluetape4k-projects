@@ -3,17 +3,17 @@ node client 3.2917 7.9722 1.2639 0.5 "HTTP Client" rounded,filled box #5B8DEF #E
 node controller 3.2917 6.4722 2.2639 0.5 "Spring MVC Controller" rounded,filled box #45A7A1 #E9F7F6
 node service 3.2917 4.9722 1.9722 0.5 OrderEventService rounded,filled box #58A978 #EAF7EF
 node springObs 0.98611 3.4722 1.5139 0.5 observeSpring rounded,filled box #45A7A1 #E9F7F6
-node eventObs 3.2917 3.4722 1.7118 0.5 "Event Telemetry" rounded,filled box #58A978 #EAF7EF
 node registry 3.125 1.9722 2.0451 0.5 ObservationRegistry rounded,filled box #758297 #FFFFFF
+node eventObs 3.2917 3.4722 1.7118 0.5 "Event Telemetry" rounded,filled box #58A978 #EAF7EF
 node actuator 2.2222 0.47222 2.191 0.5 "Actuator Prometheus" rounded,filled box #D6A441 #FFF3D9
 node otlp 5.2083 0.47222 2.3993 0.5 "OTLP Collector optional" rounded,filled box #8A72D6 #F1ECFF
 edge client controller 4 3.2917 7.7178 3.2917 7.7178 3.2917 6.8601 3.2917 6.8601 solid #5B8DEF
 edge controller service 4 3.2917 6.2178 3.2917 6.2178 3.2917 5.3601 3.2917 5.3601 solid #45A7A1
 edge service springObs 7 2.349 4.719 2.349 4.3115 2.349 3.5556 2.349 3.5556 2.349 3.5556 1.8794 3.5556 1.8794 3.5556 solid #45A7A1
-edge service eventObs 4 3.2917 4.7178 3.2917 4.7178 3.2917 3.8601 3.2917 3.8601 solid #58A978
 edge service registry 4 2.3924 4.7164 2.3924 4.7164 2.3924 2.3595 2.3924 2.3595 solid #758297
+edge service eventObs 4 3.2917 4.7178 3.2917 4.7178 3.2917 3.8601 3.2917 3.8601 solid #58A978
 edge springObs registry 7 1.7471 3.3889 2.0067 3.3889 2.2326 3.3889 2.2326 3.3889 2.2326 3.3889 2.2326 2.3576 2.2326 2.3576 solid #45A7A1
-edge eventObs registry 4 3.2917 3.2178 3.2917 3.2178 3.2917 2.3601 3.2917 2.3601 solid #58A978
 edge registry actuator 4 2.7101 1.7178 2.7101 1.7178 2.7101 0.86006 2.7101 0.86006 solid #D6A441
 edge registry otlp 4 4.0781 1.7178 4.0781 1.7178 4.0781 0.86006 4.0781 0.86006 dashed #8A72D6
+edge eventObs registry 4 3.2917 3.2178 3.2917 3.2178 3.2917 2.3601 3.2917 2.3601 solid #58A978
 stop

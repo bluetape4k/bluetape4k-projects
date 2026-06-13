@@ -1,0 +1,19 @@
+graph 1 6.0113 2.159
+node node_0_0 2.153 0.97824 4.306 1.556 "Application Code" rounded,filled box #9AA8B8 #F7FBFF
+node node_0_1 2.2439 0.97824 4.306 1.556 "Coroutine Extension" rounded,filled box #9AA8B8 #F7FBFF
+node node_0_2 2.3348 0.97824 4.306 1.556 "Reactive Cassandra" rounded,filled box #9AA8B8 #F7FBFF
+node node_1_0 2.153 0.91149 4.306 1.556 ReactiveSession rounded,filled box #9AA8B8 #F7FBFF
+node node_1_1 2.2894 0.91149 4.306 1.556 "Async Cassandra" rounded,filled box #9AA8B8 #F7FBFF
+node node_2_0 2.153 0.84475 4.306 1.556 WriteOptions rounded,filled box #9AA8B8 #F7FBFF
+node node_2_1 2.2894 0.84475 4.306 1.556 "Cassandra Reactive" rounded,filled box #9AA8B8 #F7FBFF
+node node_3_0 2.153 0.778 4.306 1.556 "(Apache Cassandra)" rounded,filled box #9AA8B8 #F7FBFF
+node node_3_1 2.2894 0.778 4.306 1.556 "SchemaGenerator Schema" rounded,filled box #9AA8B8 #F7FBFF
+edge node_0_0 node_0_1 4 2.2429 0.97824 2.2431 0.97824 2.2432 0.97824 2.2433 0.97824 solid #758297
+edge node_0_1 node_0_2 4 2.3338 0.97824 2.334 0.97824 2.3341 0.97824 2.3343 0.97824 solid #758297
+edge node_0_2 node_1_0 4 2.155 0.91224 2.1547 0.91211 2.1544 0.91201 2.1542 0.91191 solid #758297
+edge node_1_0 node_1_1 4 2.2878 0.91149 2.2881 0.91149 2.2883 0.91149 2.2885 0.91149 solid #758297
+edge node_1_1 node_2_0 4 2.1545 0.8455 2.1543 0.84538 2.1541 0.84527 2.1539 0.84518 solid #758297
+edge node_2_0 node_2_1 4 2.2878 0.84475 2.2881 0.84475 2.2883 0.84475 2.2885 0.84475 solid #758297
+edge node_2_1 node_3_0 4 2.1545 0.77875 2.1543 0.77863 2.1541 0.77852 2.1539 0.77843 solid #758297
+edge node_3_0 node_3_1 4 2.2878 0.778 2.2881 0.778 2.2883 0.778 2.2885 0.778 solid #758297
+stop

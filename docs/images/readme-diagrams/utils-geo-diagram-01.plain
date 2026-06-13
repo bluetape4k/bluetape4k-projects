@@ -1,22 +1,19 @@
-graph 1 11.528 5.0347
-node geocode 5 4.2222 1.7014 0.5 "Geocode API" rounded,filled box #75A9E8 #E8F3FF
-node "geohash-api" 9.125 4.2222 1.6701 0.5 "GeoHash API" rounded,filled box #69B888 #EAF7EF
-node geoip 7.0694 4.2222 1.3368 0.5 "GeoIP API" rounded,filled box #8A72D6 #F1ECFF
-node google 1.5694 2.9722 2.6806 0.5 "Google Maps adapter" rounded,filled box #D9AA4D #FFF3D9
-node bing 4.6528 2.9722 2.3785 0.5 "Bing Maps adapter" rounded,filled box #DB7890 #FCE7F3
-node "maxmind-reader" 7.4306 2.9722 2.066 0.5 "MaxMind reader" rounded,filled box #45A7A1 #E9F7F6
-node "geohash-core" 10.361 1.7222 1.8889 0.5 "GeoHash core" rounded,filled box #69B888 #EAF7EF
-node "geo-queries" 10.361 0.47222 1.8785 0.5 "Spatial queries" rounded,filled box #8BA84D #EEF6D9
-node "geo-result" 7.6667 1.7222 2.3993 0.5 "GeoIP result model" rounded,filled box #8A72D6 #F1ECFF
-node "provider-http" 1.5694 1.7222 2.5347 0.5 "Provider HTTP APIs" rounded,filled box #D9AA4D #FFF3D9
-node "geo-db" 4.6528 1.7222 2.5139 0.5 "GeoLite2 databases" rounded,filled box #45A7A1 #E9F7F6
-edge geocode google 7 4.1432 4.2222 3.1271 4.2222 1.5694 4.2222 1.5694 4.2222 1.5694 4.2222 1.5694 3.3573 1.5694 3.3573 solid #D9AA4D
-edge geocode bing 4 4.9957 3.9693 4.9957 3.9693 4.9957 3.3612 4.9957 3.3612 solid #DB7890
-edge "geohash-api" "geohash-core" 4 9.6884 3.9688 9.6884 3.9688 9.6884 2.1085 9.6884 2.1085 solid #58A978
-edge geoip "maxmind-reader" 4 7.0694 3.9693 7.0694 3.9693 7.0694 3.3612 7.0694 3.3612 solid #45A7A1
-edge google "provider-http" 4 1.5694 2.7193 1.5694 2.7193 1.5694 2.1112 1.5694 2.1112 solid #D9AA4D
-edge bing "provider-http" 10 3.4599 2.9722 3.2798 2.9722 3.1528 2.9722 3.1528 2.9722 3.1528 2.9722 3.1528 1.7222 3.1528 1.7222 3.1528 1.7222 2.9759 1.7222 2.9759 1.7222 solid #DB7890
-edge "maxmind-reader" "geo-result" 4 7.4653 2.7193 7.4653 2.7193 7.4653 2.1112 7.4653 2.1112 solid #8A72D6
-edge "maxmind-reader" "geo-db" 10 6.3938 2.9722 6.2519 2.9722 6.1536 2.9722 6.1536 2.9722 6.1536 2.9722 6.1536 1.7222 6.1536 1.7222 6.1536 1.7222 6.0446 1.7222 6.0446 1.7222 solid #45A7A1
-edge "geohash-core" "geo-queries" 4 10.361 1.4693 10.361 1.4693 10.361 0.86123 10.361 0.86123 solid #8BA84D
+graph 1 14.083 3.7847
+node geocode 8.7222 2.9722 1.7014 0.5 "Geocode API" rounded,filled box #75A9E8 #E8F3FF
+node "geohash-api" 4.5972 2.9722 1.6701 0.5 "GeoHash API" rounded,filled box #69B888 #EAF7EF
+node geoip 6.6528 2.9722 1.3368 0.5 "GeoIP API" rounded,filled box #8A72D6 #F1ECFF
+node google 12.514 1.7222 2.6806 0.5 "Google Maps adapter" rounded,filled box #D9AA4D #FFF3D9
+node bing 9.4306 1.7222 2.3785 0.5 "Bing Maps adapter" rounded,filled box #DB7890 #FCE7F3
+node "maxmind-reader" 6.6528 1.7222 2.066 0.5 "MaxMind reader" rounded,filled box #45A7A1 #E9F7F6
+node "geohash-core" 1.1667 1.7222 1.8889 0.5 "GeoHash core" rounded,filled box #69B888 #EAF7EF
+node "geo-queries" 1.1667 0.47222 1.8785 0.5 "Spatial queries" rounded,filled box #8BA84D #EEF6D9
+node "geo-result" 3.8611 1.7222 2.3993 0.5 "GeoIP result model" rounded,filled box #8A72D6 #F1ECFF
+node "provider-http" 11.125 0.47222 2.5347 0.5 "Provider HTTP APIs" rounded,filled box #D9AA4D #FFF3D9
+node "geo-db" 8.0417 0.47222 2.5139 0.5 "GeoLite2 databases" rounded,filled box #45A7A1 #E9F7F6
+edge geocode google 7 9.5779 2.9722 10.696 2.9722 12.514 2.9722 12.514 2.9722 12.514 2.9722 12.514 2.1073 12.514 2.1073 solid #D9AA4D
+edge "geohash-api" "geohash-core" 7 3.758 2.9722 2.7424 2.9722 1.1667 2.9722 1.1667 2.9722 1.1667 2.9722 1.1667 2.1073 1.1667 2.1073 solid #58A978
+edge geoip "maxmind-reader" 4 6.6528 2.7193 6.6528 2.7193 6.6528 2.1112 6.6528 2.1112 solid #45A7A1
+edge google "provider-http" 4 11.783 1.4693 11.783 1.4693 11.783 0.86123 11.783 0.86123 solid #D9AA4D
+edge "maxmind-reader" "geo-db" 4 7.2352 1.4693 7.2352 1.4693 7.2352 0.86123 7.2352 0.86123 solid #45A7A1
+edge "geohash-core" "geo-queries" 4 1.1667 1.4693 1.1667 1.4693 1.1667 0.86123 1.1667 0.86123 solid #8BA84D
 stop
