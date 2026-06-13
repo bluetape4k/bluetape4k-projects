@@ -1,0 +1,2 @@
+infra-redisson-codec-throughput-chart-01: rows=13 max=3300 unit=ops/ms
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34

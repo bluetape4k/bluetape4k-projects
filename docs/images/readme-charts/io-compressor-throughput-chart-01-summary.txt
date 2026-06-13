@@ -1,0 +1,2 @@
+io-compressor-throughput-chart-01: rows=5 max=8500 unit=ops/s
+geometry=PASS frameMargins(L/R/T/B)=34/34/34/34 footerInnerBottom=34

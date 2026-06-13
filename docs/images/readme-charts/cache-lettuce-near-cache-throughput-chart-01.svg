@@ -1,1 +1,133 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="890" viewBox="0 0 1280 890"><style>.title{font-family:'Architects Daughter';font-size:34px;font-weight:400;fill:#273043}.subtitle,.legend,.note,.axis{font-family:'Comic Mono';fill:#6b7280;font-weight:400}.label,.value{font-family:'Comic Mono';fill:#273043;font-weight:400}.subtitle{font-size:18px}.legend{font-size:18px}.label{font-size:18px}.value{font-size:18px}.note,.axis{font-size:17px}</style><rect width="1280" height="890" fill="#f6f8fb"/><rect x="24" y="24" width="1232" height="842" rx="18" fill="#fff" stroke="#d7e3ee" stroke-width="2"/><text class="title" x="56" y="72">Lettuce Near Cache Throughput</text><text class="subtitle" x="58" y="104">L1 hit is orders of magnitude faster; L2 paths are Redis round-trip bound</text><rect x="56" y="116" width="18" height="18" rx="5" fill="#8ecae6"/><text class="legend" x="82" y="131">512 B</text><rect x="156" y="116" width="18" height="18" rx="5" fill="#b8e0d2"/><text class="legend" x="182" y="131">4 KB</text><rect x="246" y="116" width="18" height="18" rx="5" fill="#ffb3c7"/><text class="legend" x="272" y="131">16 KB</text><text class="label" x="56" y="185">l1Hit</text><rect x="285" y="142" width="788.8437704303915" height="18" rx="7" fill="#8ecae6"/><text class="value" x="1083.8437704303915" y="157">65,560 ops/ms</text><rect x="285" y="166" width="786.7388952341732" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="1081.7388952341732" y="181">63,458 ops/ms</text><rect x="285" y="190" width="787.8709582583685" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="1082.8709582583685" y="205">64,580 ops/ms</text><text class="label" x="56" y="295">removeSingle</text><rect x="285" y="252" width="165.3711305071294" height="18" rx="7" fill="#8ecae6"/><text class="value" x="460.3711305071294" y="267">4.21 ops/ms</text><rect x="285" y="276" width="165.82944502655045" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="460.82944502655045" y="291">4.24 ops/ms</text><rect x="285" y="300" width="164.61548512759884" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="459.61548512759884" y="315">4.16 ops/ms</text><text class="label" x="56" y="405">l2Hit</text><rect x="285" y="362" width="163.09302912072985" height="18" rx="7" fill="#8ecae6"/><text class="value" x="458.09302912072985" y="377">4.07 ops/ms</text><rect x="285" y="386" width="164.08591578889485" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="459.08591578889485" y="401">4.13 ops/ms</text><rect x="285" y="410" width="160.879723044319" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="455.879723044319" y="425">3.93 ops/ms</text><text class="label" x="56" y="515">l2Miss</text><rect x="285" y="472" width="161.38722462359442" height="18" rx="7" fill="#8ecae6"/><text class="value" x="456.3872246235944" y="487">3.96 ops/ms</text><rect x="285" y="496" width="160.66570735593325" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="455.66570735593325" y="511">3.92 ops/ms</text><rect x="285" y="520" width="165.29442758642284" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="460.29442758642284" y="535">4.21 ops/ms</text><text class="label" x="56" y="625">putSingle</text><rect x="285" y="582" width="120.98185343291982" height="18" rx="7" fill="#8ecae6"/><text class="value" x="415.9818534329198" y="597">2.12 ops/ms</text><rect x="285" y="606" width="119.6887483197628" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="414.6887483197628" y="621">2.08 ops/ms</text><rect x="285" y="630" width="117.69921637035304" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="412.69921637035304" y="645">2.01 ops/ms</text><text class="label" x="56" y="735">putAll x100</text><rect x="285" y="692" width="74.88621104268594" height="18" rx="7" fill="#8ecae6"/><text class="value" x="369.88621104268594" y="707">1.04 ops/ms</text><rect x="285" y="716" width="67.78976804607942" height="18" rx="7" fill="#b8e0d2"/><text class="value" x="362.7897680460794" y="731">0.930 ops/ms</text><rect x="285" y="740" width="14.413181589714043" height="18" rx="7" fill="#ffb3c7"/><text class="value" x="309.41318158971404" y="755">0.407 ops/ms</text><text class="axis" x="285" y="826">log scale</text><text class="note" x="56" y="852">Higher is better. Log scale keeps both L1 and Redis-backed paths readable.</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050" role="img" aria-labelledby="title desc">
+<title id="title">Lettuce Near Cache Throughput</title>
+<desc id="desc">L1 hit path is separated from Redis/write paths · ops/ms · higher is better</desc>
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <style>
+    .canvas{fill:#F7F9FC}
+    .frame{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2}
+    .panel{fill:#FFFFFF;stroke:#D6E2ED;stroke-width:2;filter:url(#shadow)}
+    .note{fill:#F7F9FC;stroke:#D7E2EC;stroke-width:1.6}
+    .title{font-family:"Architects Daughter";font-size:42px;fill:#21334A;font-weight:700}
+    .subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panelTitle{font-family:"Architects Daughter";font-size:25px;fill:#21334A;font-weight:700}
+    .label{font-family:"Architects Daughter";font-size:21px;fill:#21334A;font-weight:700}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#34465B}
+    .small{font-family:"Comic Mono";font-size:13px;fill:#536476}
+    .tiny{font-family:"Comic Mono";font-size:11px;fill:#657386}
+    .value{font-family:"Comic Mono";font-size:13px;fill:#26384F;font-weight:700}
+    .grid{stroke:#D7E2EC;stroke-width:1;stroke-dasharray:4 7}
+    .axis{stroke:#AEBFD1;stroke-width:1.6}
+  </style>
+</defs>
+<rect class="canvas" width="1800" height="1050"/>
+<rect class="frame" x="34" y="34" width="1732" height="982" rx="26"/>
+<text class="title" x="70" y="82" >Lettuce Near Cache Throughput</text>
+<text class="subtitle" x="72" y="116" >L1 hit path is separated from Redis/write paths · ops/ms · higher is better</text>
+<g>
+  <rect class="panel" x="70" y="150" width="810" height="680" rx="22"/>
+  <text class="panelTitle" x="98" y="192" >L1 hit by payload</text>
+  <text class="small" x="852" y="192" text-anchor="end">0 to 70,000 ops/ms</text>
+  <line class="grid" x1="370" y1="242" x2="370" y2="565"/>
+<text class="tiny" x="370" y="590" text-anchor="middle">0</text>
+<line class="grid" x1="590" y1="242" x2="590" y2="565"/>
+<text class="tiny" x="590" y="590" text-anchor="middle">35,000</text>
+<line class="grid" x1="810" y1="242" x2="810" y2="565"/>
+<text class="tiny" x="810" y="590" text-anchor="middle">70,000</text>
+<line class="axis" x1="370" y1="565" x2="810" y2="565"/>
+  <g>
+  <text class="label" x="100" y="267" dominant-baseline="middle">512 B</text>
+
+  <g>
+  <rect x="370" y="255" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="370" y="255" width="412.0914285714286" height="18" rx="6" fill="#EAF7ED" stroke="#58A978" stroke-width="1.5"/>
+  <text class="value" x="794.0914285714287" y="265"  dominant-baseline="middle">65,560 ops/ms</text>
+</g>
+</g>
+<g>
+  <text class="label" x="100" y="372" dominant-baseline="middle">4 KiB</text>
+
+  <g>
+  <rect x="370" y="360" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="370" y="360" width="398.8788571428571" height="18" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="780.8788571428571" y="370"  dominant-baseline="middle">63,458 ops/ms</text>
+</g>
+</g>
+<g>
+  <text class="label" x="100" y="477" dominant-baseline="middle">16 KiB</text>
+
+  <g>
+  <rect x="370" y="465" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="370" y="465" width="405.93142857142857" height="18" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="787.9314285714286" y="475"  dominant-baseline="middle">64,580 ops/ms</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="panel" x="920" y="150" width="810" height="680" rx="22"/>
+  <text class="panelTitle" x="948" y="192" >Remote/write paths</text>
+  <text class="small" x="1702" y="192" text-anchor="end">0 to 5 ops/ms</text>
+  <line class="grid" x1="1220" y1="242" x2="1220" y2="775"/>
+<text class="tiny" x="1220" y="800" text-anchor="middle">0</text>
+<line class="grid" x1="1440" y1="242" x2="1440" y2="775"/>
+<text class="tiny" x="1440" y="800" text-anchor="middle">3</text>
+<line class="grid" x1="1660" y1="242" x2="1660" y2="775"/>
+<text class="tiny" x="1660" y="800" text-anchor="middle">5</text>
+<line class="axis" x1="1220" y1="775" x2="1660" y2="775"/>
+  <g>
+  <text class="label" x="950" y="267" dominant-baseline="middle">L2 hit</text>
+  <text class="small" x="952" y="290" >512 B / 4 KiB / 16 KiB</text>
+  <g>
+  <rect x="1220" y="255" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1220" y="255" width="358.16" height="18" rx="6" fill="#E7F1FF" stroke="#5A85D6" stroke-width="1.5"/>
+  <text class="value" x="1590.16" y="265"  dominant-baseline="middle">4.07 ops/ms</text>
+</g>
+</g>
+<g>
+  <text class="label" x="950" y="372" dominant-baseline="middle">L2 miss</text>
+  <text class="small" x="952" y="395" >best payload value</text>
+  <g>
+  <rect x="1220" y="360" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1220" y="360" width="370.47999999999996" height="18" rx="6" fill="#E6F7F5" stroke="#38A69E" stroke-width="1.5"/>
+  <text class="value" x="1602.48" y="370"  dominant-baseline="middle">4.21 ops/ms</text>
+</g>
+</g>
+<g>
+  <text class="label" x="950" y="477" dominant-baseline="middle">Remove</text>
+  <text class="small" x="952" y="500" >single key</text>
+  <g>
+  <rect x="1220" y="465" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1220" y="465" width="373.12000000000006" height="18" rx="6" fill="#F1ECFF" stroke="#8A72D6" stroke-width="1.5"/>
+  <text class="value" x="1605.1200000000001" y="475"  dominant-baseline="middle">4.24 ops/ms</text>
+</g>
+</g>
+<g>
+  <text class="label" x="950" y="582" dominant-baseline="middle">Put</text>
+  <text class="small" x="952" y="605" >single key</text>
+  <g>
+  <rect x="1220" y="570" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1220" y="570" width="186.56000000000003" height="18" rx="6" fill="#FFF3D8" stroke="#D6A441" stroke-width="1.5"/>
+  <text class="value" x="1418.56" y="580"  dominant-baseline="middle">2.12 ops/ms</text>
+</g>
+</g>
+<g>
+  <text class="label" x="950" y="687" dominant-baseline="middle">PutAll x100</text>
+  <text class="small" x="952" y="710" >batch write</text>
+  <g>
+  <rect x="1220" y="675" width="440" height="18" rx="6" fill="#EEF4F9" stroke="#D7E2EC" stroke-width="1.4"/>
+  <rect x="1220" y="675" width="91.52000000000001" height="18" rx="6" fill="#FFE7EC" stroke="#D85D74" stroke-width="1.5"/>
+  <text class="value" x="1323.52" y="685"  dominant-baseline="middle">1.04 ops/ms</text>
+</g>
+</g>
+</g>
+<g>
+  <rect class="note" x="94" y="858" width="1612" height="58" rx="16"/>
+  <text class="small" x="900" y="881" text-anchor="middle" dominant-baseline="middle">L1 hit throughput is roughly four orders of magnitude above Redis-backed paths, so the chart uses split scales.</text>
+  <text class="tiny" x="900" y="900" text-anchor="middle" dominant-baseline="middle">Split panels are intentional: one chart would compress slower paths into unreadable slivers.</text>
+</g>
+<g>
+  <rect class="note" x="94" y="932" width="1612" height="50" rx="16"/>
+  <text class="small" x="900" y="950" text-anchor="middle" dominant-baseline="middle">Source: cache/cache-lettuce/README.ko.md near-cache throughput table</text>
+  <text class="tiny" x="900" y="968" text-anchor="middle" dominant-baseline="middle">Chart rule: split scales when hot paths and remote paths differ by orders of magnitude.</text>
+</g>
+</svg>
