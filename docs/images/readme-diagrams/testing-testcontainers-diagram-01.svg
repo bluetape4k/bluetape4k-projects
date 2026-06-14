@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1220" viewBox="0 0 1900 1220" role="img" aria-label="Supported Container Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="3131" height="1362" viewBox="0 0 3131 1362" role="img" aria-label="Supported Container Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
@@ -12,142 +12,142 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1900" height="1220"/>
-<rect class="frame" x="32" y="28" width="1836" height="1164" rx="30"/>
+<rect class="canvas" width="3131" height="1362"/>
+<rect class="frame" x="32" y="28" width="3067" height="1306" rx="30"/>
 <text class="title" x="68" y="84">Supported Container Class Diagram</text>
-<text class="subtitle" x="72" y="116">Supported test containers are grouped by inheritance family so AWS emulators, generic services, and PostgreSQL extensions stay readable.</text>
-<path class="inherit" data-from="mini" data-to="aws" d="M240 455 L240 317" stroke="#B9851B"/>
-<path class="inherit" data-from="floci" data-to="aws" d="M70 731 L50 731 L50 335 L240 335 L240 317" stroke="#C94D68"/>
-<path class="inherit" data-from="localstack" data-to="aws" d="M240 875 L240 820 L430 820 L430 335 L240 335 L240 317" stroke="#718A35"/>
-<path class="inherit" data-from="mysql" data-to="generic" d="M780 455 L780 370 L950 370 L950 317" stroke="#4F83BF"/>
-<path class="inherit" data-from="kafka" data-to="generic" d="M1160 455 L1160 350 L950 350 L950 317" stroke="#3E9868"/>
-<path class="inherit" data-from="redis" data-to="generic" d="M610 741 L540 741 L540 337 L950 337 L950 317" stroke="#C94D68"/>
-<path class="inherit" data-from="mailpit" data-to="generic" d="M1330 741 L1370 741 L1370 337 L950 337 L950 317" stroke="#B9851B"/>
-<path class="inherit" data-from="http" data-to="generic" d="M610 961 L500 961 L500 325 L950 325 L950 317" stroke="#758297"/>
-<path class="inherit" data-from="webflux" data-to="generic" d="M1330 961 L1415 961 L1415 325 L950 325 L950 317" stroke="#2E8F89"/>
-<path class="inherit" data-from="postgres" data-to="generic" d="M1430 251 L1120 251" stroke="#755BC6"/>
-<path class="inherit" data-from="pgvector" data-to="postgres" d="M1600 455 L1600 317" stroke="#4F63C7"/>
-<path class="inherit" data-from="postgis" data-to="postgres" d="M1770 741 L1820 741 L1820 335 L1600 335 L1600 317" stroke="#718A35"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="inherit" data-from="mini" data-to="aws" data-route-color="green" d="M298 1054 L298 981 L628 981 L628 967" stroke="#3E9868"/>
+<path class="inherit" data-from="floci" data-to="aws" data-route-color="blue" d="M688 1054 L688 967" stroke="#4F83BF"/>
+<path class="inherit" data-from="localstack" data-to="aws" data-route-color="teal" d="M1078 1054 L1078 991 L748 991 L748 967" stroke="#2E8F89"/>
+<path class="inherit" data-from="mysql" data-to="generic" data-route-color="amber" d="M883 398 L883 335 L1586 335 L1586 311" stroke="#B9851B"/>
+<path class="inherit" data-from="kafka" data-to="generic" data-route-color="pink" d="M1273 398 L1273 345 L1637 345 L1637 311" stroke="#C94D68"/>
+<path class="inherit" data-from="redis" data-to="generic" data-route-color="purple" d="M1663 398 L1663 311" stroke="#755BC6"/>
+<path class="inherit" data-from="mailpit" data-to="generic" data-route-color="olive" d="M2053 398 L2053 355 L1689 355 L1689 311" stroke="#718A35"/>
+<path class="inherit" data-from="http" data-to="generic" data-route-color="indigo" d="M2443 398 L2443 365 L1740 365 L1740 311" stroke="#4F63C7"/>
+<path class="inherit" data-from="webflux" data-to="generic" data-route-color="coral" d="M2833 398 L2833 375 L1792 375 L1792 311" stroke="#C8644B"/>
+<path class="inherit" data-from="postgres" data-to="generic" data-route-color="brown" d="M493 398 L493 325 L1534 325 L1534 311" stroke="#8E6D43"/>
+<path class="inherit" data-from="pgvector" data-to="postgres" data-route-color="cyan" d="M396 631 L396 536" stroke="#2E83B8"/>
+<path class="inherit" data-from="postgis" data-to="postgres" data-route-color="magenta" d="M591 631 L591 536" stroke="#A84B98"/>
 <g id="aws">
-  <rect class="classCard" x="130" y="185" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="300" y="204" text-anchor="middle">abstract</text>
-  <text class="classTitle" x="300" y="232" text-anchor="middle">AwsEmulatorServer</text>
-  <line x1="130" y1="241" x2="470" y2="241" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="148" y="266">awsEndpoint</text>
-<text class="member" x="148" y="283">access/secret keys</text>
-<text class="member" x="148" y="300">service emulator base</text>
+  <rect class="classCard" x="508" y="821" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="688" y="840" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="868" text-anchor="middle">AwsEmulatorServer</text>
+  <line x1="508" y1="877" x2="868" y2="877" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="542" y="909">awsEndpoint</text>
+<text class="member" x="542" y="926">access/secret keys</text>
+<text class="member" x="542" y="943">service emulator base</text>
 </g>
 <g id="generic">
-  <rect class="classCard" x="780" y="185" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="950" y="204" text-anchor="middle">abstract</text>
-  <text class="classTitle" x="950" y="232" text-anchor="middle">GenericServer</text>
-  <line x1="780" y1="241" x2="1120" y2="241" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="798" y="266">useDefaultPort</text>
-<text class="member" x="798" y="283">start()</text>
-<text class="member" x="798" y="300">stop()</text>
+  <rect class="classCard" x="1483" y="165" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1663" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1663" y="212" text-anchor="middle">GenericServer</text>
+  <line x1="1483" y1="221" x2="1843" y2="221" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1517" y="253">useDefaultPort</text>
+<text class="member" x="1517" y="270">start()</text>
+<text class="member" x="1517" y="287">stop()</text>
 </g>
 <g id="postgres">
-  <rect class="classCard" x="1430" y="185" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1600" y="204" text-anchor="middle">class</text>
-  <text class="classTitle" x="1600" y="232" text-anchor="middle">PostgreSQLServer</text>
-  <line x1="1430" y1="241" x2="1770" y2="241" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1448" y="275">PostgreSQL container</text>
-<text class="member" x="1448" y="292">withExtensions(...)</text>
+  <rect class="classCard" x="313" y="398" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="493" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="493" y="445" text-anchor="middle">PostgreSQLServer</text>
+  <line x1="313" y1="454" x2="673" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="347" y="491">PostgreSQL container</text>
+<text class="member" x="347" y="508">withExtensions(...)</text>
 </g>
 <g id="mini">
-  <rect class="classCard" x="70" y="455" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="240" y="474" text-anchor="middle">class</text>
-  <text class="classTitle" x="240" y="502" text-anchor="middle">MiniStackServer</text>
-  <line x1="70" y1="511" x2="410" y2="511" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="88" y="545">S3/SQS focused emulator</text>
-<text class="member" x="88" y="562">withServices() no-op</text>
+  <rect class="classCard" x="118" y="1054" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="298" y="1073" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="1101" text-anchor="middle">MiniStackServer</text>
+  <line x1="118" y1="1110" x2="478" y2="1110" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="152" y="1147">S3/SQS focused emulator</text>
+<text class="member" x="152" y="1164">withServices() no-op</text>
 </g>
 <g id="floci">
-  <rect class="classCard" x="70" y="665" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="240" y="684" text-anchor="middle">class</text>
-  <text class="classTitle" x="240" y="712" text-anchor="middle">FlociServer</text>
-  <line x1="70" y1="721" x2="410" y2="721" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="88" y="755">AWS-compatible endpoint</text>
-<text class="member" x="88" y="772">lightweight emulator</text>
+  <rect class="classCard" x="508" y="1054" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="688" y="1073" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="1101" text-anchor="middle">FlociServer</text>
+  <line x1="508" y1="1110" x2="868" y2="1110" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="542" y="1147">AWS-compatible endpoint</text>
+<text class="member" x="542" y="1164">lightweight emulator</text>
 </g>
 <g id="localstack">
-  <rect class="classCard" x="70" y="875" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="240" y="894" text-anchor="middle">class</text>
-  <text class="classTitle" x="240" y="922" text-anchor="middle">LocalStackServer</text>
-  <line x1="70" y1="931" x2="410" y2="931" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="88" y="965">legacy localstack wrapper</text>
-<text class="member" x="88" y="982">deprecated path</text>
+  <rect class="classCard" x="898" y="1054" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1078" y="1073" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="1101" text-anchor="middle">LocalStackServer</text>
+  <line x1="898" y1="1110" x2="1258" y2="1110" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="932" y="1147">legacy localstack wrapper</text>
+<text class="member" x="932" y="1164">deprecated path</text>
 </g>
 <g id="mysql">
-  <rect class="classCard" x="610" y="455" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="780" y="474" text-anchor="middle">class</text>
-  <text class="classTitle" x="780" y="502" text-anchor="middle">MySQL8Server</text>
-  <line x1="610" y1="511" x2="950" y2="511" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="628" y="545">MySQL 8 container</text>
-<text class="member" x="628" y="562">getDataSource()</text>
+  <rect class="classCard" x="703" y="398" width="360" height="138" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="883" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="883" y="445" text-anchor="middle">MySQL8Server</text>
+  <line x1="703" y1="454" x2="1063" y2="454" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="737" y="491">MySQL 8 container</text>
+<text class="member" x="737" y="508">getDataSource()</text>
 </g>
 <g id="kafka">
-  <rect class="classCard" x="990" y="455" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1160" y="474" text-anchor="middle">class</text>
-  <text class="classTitle" x="1160" y="502" text-anchor="middle">KafkaServer</text>
-  <line x1="990" y1="511" x2="1330" y2="511" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1008" y="545">bootstrapServers</text>
-<text class="member" x="1008" y="562">Kafka broker container</text>
+  <rect class="classCard" x="1093" y="398" width="360" height="138" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1273" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1273" y="445" text-anchor="middle">KafkaServer</text>
+  <line x1="1093" y1="454" x2="1453" y2="454" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1127" y="491">bootstrapServers</text>
+<text class="member" x="1127" y="508">Kafka broker container</text>
 </g>
 <g id="redis">
-  <rect class="classCard" x="610" y="675" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="780" y="694" text-anchor="middle">class</text>
-  <text class="classTitle" x="780" y="722" text-anchor="middle">RedisServer</text>
-  <line x1="610" y1="731" x2="950" y2="731" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="628" y="765">host</text>
-<text class="member" x="628" y="782">port</text>
+  <rect class="classCard" x="1483" y="398" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1663" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1663" y="445" text-anchor="middle">RedisServer</text>
+  <line x1="1483" y1="454" x2="1843" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1517" y="491">host</text>
+<text class="member" x="1517" y="508">port</text>
 </g>
 <g id="mailpit">
-  <rect class="classCard" x="990" y="675" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1160" y="694" text-anchor="middle">class</text>
-  <text class="classTitle" x="1160" y="722" text-anchor="middle">MailpitServer</text>
-  <line x1="990" y1="731" x2="1330" y2="731" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="1008" y="765">smtpPort</text>
-<text class="member" x="1008" y="782">uiUrl</text>
+  <rect class="classCard" x="1873" y="398" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="2053" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="2053" y="445" text-anchor="middle">MailpitServer</text>
+  <line x1="1873" y1="454" x2="2233" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1907" y="491">smtpPort</text>
+<text class="member" x="1907" y="508">uiUrl</text>
 </g>
 <g id="http">
-  <rect class="classCard" x="610" y="895" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="780" y="914" text-anchor="middle">class</text>
-  <text class="classTitle" x="780" y="942" text-anchor="middle">BluetapeHttpServer</text>
-  <line x1="610" y1="951" x2="950" y2="951" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="628" y="985">url</text>
-<text class="member" x="628" y="1002">httpbin/jsonplaceholder</text>
+  <rect class="classCard" x="2263" y="398" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="2443" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="2443" y="445" text-anchor="middle">BluetapeHttpServer</text>
+  <line x1="2263" y1="454" x2="2623" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="2297" y="491">url</text>
+<text class="member" x="2297" y="508">httpbin/jsonplaceholder</text>
 </g>
 <g id="webflux">
-  <rect class="classCard" x="990" y="895" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="1160" y="914" text-anchor="middle">class</text>
-  <text class="classTitle" x="1160" y="942" text-anchor="middle">BluetapeWebfluxServer</text>
-  <line x1="990" y1="951" x2="1330" y2="951" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="1008" y="985">url</text>
-<text class="member" x="1008" y="1002">reactive HTTP test server</text>
+  <rect class="classCard" x="2653" y="398" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="2833" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="2833" y="445" text-anchor="middle">BluetapeWebfluxServer</text>
+  <line x1="2653" y1="454" x2="3013" y2="454" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="2687" y="491">url</text>
+<text class="member" x="2687" y="508">reactive HTTP test server</text>
 </g>
 <g id="pgvector">
-  <rect class="classCard" x="1430" y="455" width="340" height="132" rx="8" fill="#EEF1FF" stroke="#6477D8"/>
-  <text class="stereo" x="1600" y="474" text-anchor="middle">class</text>
-  <text class="classTitle" x="1600" y="502" text-anchor="middle">PgvectorServer</text>
-  <line x1="1430" y1="511" x2="1770" y2="511" stroke="#6477D8" stroke-width="1.4"/>
-  <text class="member" x="1448" y="545">pgvector extension</text>
-<text class="member" x="1448" y="562">vector test database</text>
+  <rect class="classCard" x="118" y="631" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="298" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="678" text-anchor="middle">PgvectorServer</text>
+  <line x1="118" y1="687" x2="478" y2="687" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="152" y="724">pgvector extension</text>
+<text class="member" x="152" y="741">vector test database</text>
 </g>
 <g id="postgis">
-  <rect class="classCard" x="1430" y="675" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1600" y="694" text-anchor="middle">class</text>
-  <text class="classTitle" x="1600" y="722" text-anchor="middle">PostgisServer</text>
-  <line x1="1430" y1="731" x2="1770" y2="731" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="1448" y="765">PostGIS extension</text>
-<text class="member" x="1448" y="782">spatial test database</text>
+  <rect class="classCard" x="508" y="631" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="688" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="678" text-anchor="middle">PostgisServer</text>
+  <line x1="508" y1="687" x2="868" y2="687" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="542" y="724">PostGIS extension</text>
+<text class="member" x="542" y="741">spatial test database</text>
 </g>
 <g>
-  <rect x="1495" y="1110" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1513 1128 L1571 1128" stroke="#3E9868"/>
-  <text class="detail" x="1585" y="1133">inheritance / implementation</text>
-  <path class="dependency" d="M1513 1149 L1571 1149" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1585" y="1154">dependency / usage</text>
+  <rect x="2716" y="1254" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M2734 1272 L2792 1272" stroke="#3E9868"/>
+  <text class="detail" x="2806" y="1277">inheritance / implementation</text>
+  <path class="dependency" d="M2734 1293 L2792 1293" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="2806" y="1298">dependency / usage</text>
 </g>
-<g><rect x="180" y="1128" width="1260" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="810" y="1154" text-anchor="middle">bluetape4k-projects class diagrams - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="1272" width="2491" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1425.5" y="1298" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

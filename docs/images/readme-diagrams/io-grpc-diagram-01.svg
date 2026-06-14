@@ -20,62 +20,62 @@
 <path class="inherit" data-from="AbstractGrpcInprocessClient" data-to="AbstractGrpcClient" d="M1060 620 L1060 306" stroke="#3E9868"/>
 <path class="dependency" data-from="AbstractGrpcInprocessServer" data-to="AbstractGrpcInprocessClient" d="M490 691 L890 691" stroke="#755BC6" stroke-dasharray="8 7"/>
 <path class="dependency" data-from="AbstractGrpcServer" data-to="ServerSupport" d="M490 466 L545 466" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="AbstractGrpcClient" data-to="ManagedChannelSupport" d="M1230 243 L1300 243 L1300 863 L1230 863" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="AbstractGrpcClient" data-to="ManagedChannelSupport" d="M1230 243 L1288 243 L1288 863 L1230 863" stroke="#718A35" stroke-dasharray="8 7"/>
 <g id="GrpcServer">
   <rect class="classCard" x="150" y="180" width="340" height="126" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
   <path d="M150 250 L490 250" stroke="#5B8DEF" stroke-width="1.4"/>
   <text class="stereo" x="320" y="202" text-anchor="middle">interface</text>
   <text class="classTitle" x="320" y="230" text-anchor="middle">GrpcServer</text>
-  <text class="member" x="168" y="272">start / stop / close</text>
-<text class="member" x="168" y="292">isRunning / isShutdown</text>
+  <text class="member" x="184" y="272">start / stop / close</text>
+<text class="member" x="184" y="292">isRunning / isShutdown</text>
 </g>
 <g id="AbstractGrpcClient">
   <rect class="classCard" x="890" y="180" width="340" height="126" rx="10" fill="#EAF7EF" stroke="#58A978"/>
   <path d="M890 250 L1230 250" stroke="#58A978" stroke-width="1.4"/>
   <text class="stereo" x="1060" y="202" text-anchor="middle">abstract class</text>
   <text class="classTitle" x="1060" y="230" text-anchor="middle">AbstractGrpcClient</text>
-  <text class="member" x="908" y="272">ManagedChannel lifecycle</text>
-<text class="member" x="908" y="292">close with shutdownNow fallback</text>
+  <text class="member" x="924" y="272">ManagedChannel lifecycle</text>
+<text class="member" x="924" y="292">close with shutdownNow fallback</text>
 </g>
 <g id="AbstractGrpcServer">
   <rect class="classCard" x="150" y="395" width="340" height="142" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
   <path d="M150 465 L490 465" stroke="#45A7A1" stroke-width="1.4"/>
   <text class="stereo" x="320" y="417" text-anchor="middle">abstract class</text>
   <text class="classTitle" x="320" y="445" text-anchor="middle">AbstractGrpcServer</text>
-  <text class="member" x="168" y="493">ServerBuilder + services</text>
-<text class="member" x="168" y="513">shutdown hook registration</text>
+  <text class="member" x="184" y="493">ServerBuilder + services</text>
+<text class="member" x="184" y="513">shutdown hook registration</text>
 </g>
 <g id="AbstractGrpcInprocessClient">
   <rect class="classCard" x="890" y="620" width="340" height="142" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
   <path d="M890 690 L1230 690" stroke="#8A72D6" stroke-width="1.4"/>
   <text class="stereo" x="1060" y="642" text-anchor="middle">abstract class</text>
   <text class="classTitle" x="1060" y="670" text-anchor="middle">AbstractGrpcInprocessClient</text>
-  <text class="member" x="908" y="718">InProcessChannelBuilder</text>
-<text class="member" x="908" y="738">serverName target</text>
+  <text class="member" x="924" y="718">InProcessChannelBuilder</text>
+<text class="member" x="924" y="738">serverName target</text>
 </g>
 <g id="AbstractGrpcInprocessServer">
   <rect class="classCard" x="150" y="620" width="340" height="142" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
   <path d="M150 690 L490 690" stroke="#D6A441" stroke-width="1.4"/>
   <text class="stereo" x="320" y="642" text-anchor="middle">abstract class</text>
   <text class="classTitle" x="320" y="670" text-anchor="middle">AbstractGrpcInprocessServer</text>
-  <text class="member" x="168" y="718">InProcessServerBuilder</text>
-<text class="member" x="168" y="738">same serverName contract</text>
+  <text class="member" x="184" y="718">InProcessServerBuilder</text>
+<text class="member" x="184" y="738">same serverName contract</text>
 </g>
 <g id="ServerSupport">
   <rect class="classCard" x="545" y="395" width="300" height="126" rx="10" fill="#FDECEF" stroke="#DC6B82"/>
   <path d="M545 465 L845 465" stroke="#DC6B82" stroke-width="1.4"/>
   <text class="stereo" x="695" y="417" text-anchor="middle">extensions</text>
   <text class="classTitle" x="695" y="445" text-anchor="middle">ServerSupport</text>
-  <text class="member" x="563" y="487">serverOf helpers</text>
-<text class="member" x="563" y="507">interceptor utilities</text>
+  <text class="member" x="579" y="487">serverOf helpers</text>
+<text class="member" x="579" y="507">interceptor utilities</text>
 </g>
 <g id="ManagedChannelSupport">
   <rect class="classCard" x="890" y="800" width="340" height="126" rx="10" fill="#EEF6D9" stroke="#8BA84D"/>
   <path d="M890 870 L1230 870" stroke="#8BA84D" stroke-width="1.4"/>
   <text class="stereo" x="1060" y="822" text-anchor="middle">extensions</text>
   <text class="classTitle" x="1060" y="850" text-anchor="middle">ManagedChannelSupport</text>
-  <text class="member" x="908" y="892">managedChannel builders</text>
-<text class="member" x="908" y="912">host/port validation</text>
+  <text class="member" x="924" y="892">managedChannel builders</text>
+<text class="member" x="924" y="912">host/port validation</text>
 </g>
 <g><rect class="note" x="120" y="952" width="1180" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF"/><text class="detail" x="710" y="978" text-anchor="middle">bluetape4k-projects / io:grpc - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

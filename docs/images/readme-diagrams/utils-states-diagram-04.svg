@@ -1,29 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="Turnstile FSM">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="inherit" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.25"/></marker>
-  <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .dashed{stroke-dasharray:9 8}.inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}
-    .small{font-family:"Comic Mono";font-size:12px;fill:#627184}.bitLabel{font-family:"Architects Daughter";font-size:22px;fill:#22344A}.bitMeta{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" role="img" aria-labelledby="title desc" data-layout="state-machine" data-intent="Explain the simple turnstile finite state machine with two states, two events, an initial locked state, and a cyclic transition path." data-evidence="utils/states/README.md, Quick Start FSM examples" data-source-read="utils/states/README.md;utils/states/src/test/kotlin/**/*.kt">
+<title id="title">Turnstile FSM</title>
+<desc id="desc">Coin unlocks the turnstile; push locks it again.</desc>
+<style>
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .title { fill: #0f172a; font-size: 34px; font-weight: 800; letter-spacing: 0; }
+    .subtitle { fill: #475569; font-size: 18px; font-weight: 500; }
+    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    .panelTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .card { stroke-width: 1.7; filter: url(#cardShadow); }
+    .stateTitle { fill: #0f172a; font-size: 17px; font-weight: 800; }
+    .stateDetail { fill: #475569; font-size: 12px; font-weight: 600; }
+    .iconBadge { stroke-width: 1.5; }
+    .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .iconFill { fill: #ffffff; }
+    .arrow { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+    .arrowLabelBg { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
+    .arrowLabel { fill: #1e293b; font-size: 13px; font-weight: 800; text-anchor: middle; }
+    .footer { fill: #64748b; font-size: 13px; font-weight: 600; }
   </style>
-</defs>
-<rect class="canvas" width="1200" height="700"/>
-<rect class="frame" x="34" y="30" width="1132" height="640" rx="30"/>
-<text class="title" x="72" y="86">Turnstile FSM</text>
-<text class="subtitle" x="76" y="118">Coin unlocks the gate; push locks it again through short separated transition lanes.</text>
-<g><rect class="panel" x="80" y="160" width="1040" height="360" rx="22"/><text class="panelTitle" x="104" y="194">Two-state FSM</text></g>
-<g id="locked"><rect class="card" x="170" y="285" width="300" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="320" y="324" text-anchor="middle">Locked</text><text class="detail" x="320" y="359" text-anchor="middle">initial state</text><text class="detail" x="320" y="377" text-anchor="middle">push is rejected</text></g>
-<g id="unlocked"><rect class="card" x="730" y="285" width="300" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="880" y="324" text-anchor="middle">Unlocked</text><text class="detail" x="880" y="359" text-anchor="middle">coin accepted</text><text class="detail" x="880" y="377" text-anchor="middle">next push rotates</text></g>
-<path class="flow" d="M470 320 L730 320" stroke="#3E9868"/>
-<g><rect x="540" y="286" width="120" height="30" rx="8" fill="#FFFFFF" stroke="#58A978" stroke-width="1.2"/><text class="detail" x="600" y="302" text-anchor="middle" dominant-baseline="middle">Coin</text></g>
-<path class="flow" d="M730 375 L470 375" stroke="#B9851B"/>
-<g><rect x="540" y="379" width="120" height="30" rx="8" fill="#FFFFFF" stroke="#D6A441" stroke-width="1.2"/><text class="detail" x="600" y="395" text-anchor="middle" dominant-baseline="middle">Push</text></g>
-<g><rect x="150" y="585" width="900" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="600" y="610" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+  <defs>
+    <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
+    </marker>
+  </defs>
+<rect width="1200" height="640" fill="#f8fafc"/>
+<rect x="30" y="30" width="1140" height="580" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="title" x="70" y="92">Turnstile FSM</text>
+<text class="subtitle" x="70" y="124">Coin unlocks the turnstile; push locks it again.</text>
+<rect class="panel" x="55" y="145" width="1090" height="405" rx="18"/><text class="panelTitle" x="79" y="179">State transitions</text>
+<circle cx="86" cy="320" r="10" fill="#172033"/>
+<g><path class="route arrow" d="M120,320 L210,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="128" y="286" width="74" height="22" rx="11"/><text class="arrowLabel" x="165" y="302">initial</text></g>
+<g><path class="route arrow" d="M470,320 L730,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="573" y="286" width="54" height="22" rx="11"/><text class="arrowLabel" x="600" y="302">Coin</text></g>
+<g><path class="route arrow" d="M730,360 L600,455 L340,455 L340,375" stroke="#16a34a"/><rect class="arrowLabelBg" x="443" y="421" width="54" height="22" rx="11"/><text class="arrowLabel" x="470" y="437">Push</text></g>
+<g id="locked"><rect class="card" x="210" y="265" width="260" height="110" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(230,298)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="290" y="312">Locked</text><text class="stateDetail" x="290" y="338">initial</text><text class="stateDetail" x="290" y="356">push rejected</text></g>
+<g id="unlocked"><rect class="card" x="730" y="265" width="260" height="110" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(750,298)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="810" y="312">Unlocked</text><text class="stateDetail" x="810" y="338">coin accepted</text><text class="stateDetail" x="810" y="356">push opens</text></g>
+<circle cx="1112" cy="522" r="13" fill="none" stroke="#172033" stroke-width="3"/><circle cx="1112" cy="522" r="8" fill="#172033"/>
+<text class="footer" x="70" y="596">Generated as direct SVG. Sequence diagrams are intentionally preserved.</text>
 </svg>

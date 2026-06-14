@@ -59,11 +59,8 @@
   </g>
   <path class="connector dashed" data-edge="decorator-&gt;ops" data-label="decorates" d="M 895 815 L 895 445 L 980 445 L 980 376" stroke="#58A978"/>
 
-  <path class="connector dashed" data-edge="decorator-&gt;cancel" data-label="preserves" d="M 790 856 L 680 856" stroke="#C85D55"/>
-  <g transform="translate(691.7,819)">
-    <rect class="labelPill" x="0" y="0" width="86.6" height="26" rx="8"/>
-    <text class="small" x="43.3" y="13" text-anchor="middle" dominant-baseline="middle" fill="#C85D55">preserves</text>
-  </g>
+  <path class="connector dashed" data-edge="decorator-&gt;cancel" data-label="preserves" d="M 770 856 L 680 856" stroke="#C85D55"/>
+
   <g id="node-ops" transform="translate(640,250)">
     <rect class="card" x="0" y="0" width="440" height="126" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
     <line x1="0" y1="50" x2="440" y2="50" stroke="#45A7A1" stroke-width="1.6"/>
@@ -106,11 +103,11 @@
     <text class="detail" x="175" y="41" text-anchor="middle" dominant-baseline="middle">CancellationException is rethrown</text>
     <text class="detail" x="175" y="60" text-anchor="middle" dominant-baseline="middle">no retry for coroutine cancel</text>
   </g>
-  <g id="node-decorator" transform="translate(790,815)">
-    <rect class="card" x="0" y="0" width="380" height="82" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="190" y="22" text-anchor="middle" dominant-baseline="middle">ResilientSuspendNearCacheDecorator</text>
-    <text class="detail" x="190" y="41" text-anchor="middle" dominant-baseline="middle">executeSuspendFunction</text>
-    <text class="detail" x="190" y="60" text-anchor="middle" dominant-baseline="middle">Retry only for normal failures</text>
+  <g id="node-decorator" transform="translate(770,815)">
+    <rect class="card" x="0" y="0" width="430" height="82" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="cardTitle" x="215" y="22" text-anchor="middle" dominant-baseline="middle">ResilientSuspendNearCacheDecorator</text>
+    <text class="detail" x="215" y="41" text-anchor="middle" dominant-baseline="middle">executeSuspendFunction</text>
+    <text class="detail" x="215" y="60" text-anchor="middle" dominant-baseline="middle">Retry only for normal failures</text>
   </g>
   <g id="node-stats" transform="translate(1265,815)">
     <rect class="card" x="0" y="0" width="300" height="82" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
@@ -120,6 +117,6 @@
   </g>
   <g transform="translate(76,996)">
     <rect class="labelPill" x="0" y="0" width="1628" height="48" rx="10"/>
-    <text class="small" x="814" y="24" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects / cache modules - github.com/bluetape4k/bluetape4k-projects</text>
+    <text class="small" x="814" y="24" text-anchor="middle" dominant-baseline="middle">Source: cache README files and public cache contract implementations.</text>
   </g>
 </svg>

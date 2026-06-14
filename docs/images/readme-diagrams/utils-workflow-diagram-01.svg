@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1335" viewBox="0 0 1840 1335" role="img" aria-label="Workflow Concept Overview">
+<svg data-intent="Explain workflow definition architecture by separating workflow definition, tasks, transitions, execution context, policy, and terminal workflow outcomes." data-evidence="utils/workflow/README.md; utils/workflow/src/main/kotlin" data-source-read="utils/workflow/README.md; utils/workflow/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1530" height="910" viewBox="0 0 1530 910" role="img" aria-label="Workflow Concept Overview">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
@@ -6,51 +6,55 @@
   <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
   <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
   <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
   <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
   <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
     .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1840" height="1335"/>
-<rect class="frame" x="32" y="28" width="1776" height="1279" rx="30"/>
-<text class="title" x="68" y="84">Workflow Concept Overview</text>
-<text class="subtitle" x="72" y="116">Source-grounded workflow concepts arranged as policy, execution, and result contract layers.</text>
-<g><rect class="panel" x="86" y="168" width="1665" height="385" rx="22"/><text class="panelTitle" x="110" y="202">Definition policy layer</text></g>
-<g id="definition"><rect class="card" x="720" y="265" width="330" height="118" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="885" y="306" text-anchor="middle">WorkflowDefinition</text><text class="detail" x="885" y="342" text-anchor="middle">composition root for work</text>
-<text class="detail" x="885" y="360" text-anchor="middle">order</text></g>
-<g id="seq"><rect class="card" x="170" y="245" width="245" height="86" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="292.5" y="279" text-anchor="middle">Sequential</text><text class="detail" x="292.5" y="315" text-anchor="middle">ordered work chain</text></g>
-<g id="cond"><rect class="card" x="450" y="205" width="255" height="86" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="577.5" y="239" text-anchor="middle">Conditional</text><text class="detail" x="577.5" y="275" text-anchor="middle">branch selector</text></g>
-<g id="par"><rect class="card" x="450" y="390" width="255" height="86" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="577.5" y="424" text-anchor="middle">Parallel</text><text class="detail" x="577.5" y="460" text-anchor="middle">shared cancellable ctx</text></g>
-<g id="rep"><rect class="card" x="1085" y="205" width="245" height="86" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1207.5" y="239" text-anchor="middle">Repeat</text><text class="detail" x="1207.5" y="275" text-anchor="middle">loop while valid</text></g>
-<g id="retry"><rect class="card" x="1085" y="390" width="245" height="86" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1207.5" y="424" text-anchor="middle">Retry</text><text class="detail" x="1207.5" y="460" text-anchor="middle">bounded backoff</text></g>
-<g id="policy"><rect class="card" x="1410" y="300" width="245" height="90" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/><text class="cardTitle" x="1532.5" y="336" text-anchor="middle">FlowPolicy</text><text class="detail" x="1532.5" y="372" text-anchor="middle">stop / continue / retry</text></g>
-<g><rect class="panel" x="190" y="635" width="1455" height="245" rx="22"/><text class="panelTitle" x="214" y="669">Execution layer</text></g>
-<g id="caller"><rect class="card" x="270" y="715" width="250" height="92" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="395" y="752" text-anchor="middle">Caller</text><text class="detail" x="395" y="788" text-anchor="middle">context.Context</text></g>
-<g id="runner"><rect class="card" x="720" y="690" width="330" height="124" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="885" y="743" text-anchor="middle">Workflow runner</text><text class="detail" x="885" y="779" text-anchor="middle">Run(ctx) -&gt; WorkReport</text></g>
-<g id="work"><rect class="card" x="1245" y="705" width="310" height="104" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1400" y="748" text-anchor="middle">Work / SuspendWork</text><text class="detail" x="1400" y="784" text-anchor="middle">domain action</text></g>
-<g><rect class="panel" x="245" y="1000" width="1338" height="205" rx="22"/><text class="panelTitle" x="269" y="1034">Result contract</text></g>
-<g id="ctx"><rect class="card" x="335" y="1072" width="285" height="88" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="477.5" y="1107" text-anchor="middle">WorkContext</text><text class="detail" x="477.5" y="1143" text-anchor="middle">shared mutable map</text></g>
-<g id="report"><rect class="card" x="775" y="1062" width="320" height="98" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="935" y="1102" text-anchor="middle">WorkReport</text><text class="detail" x="935" y="1138" text-anchor="middle">success / partial / failure</text></g>
-<g id="status"><rect class="card" x="1270" y="1072" width="250" height="88" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/><text class="cardTitle" x="1395" y="1107" text-anchor="middle">Caller result</text><text class="detail" x="1395" y="1143" text-anchor="middle">completed report</text></g>
-<path class="flow" d="M578 291 L578 330 L720 330" stroke="#3E9868"/>
-<path class="flow" d="M578 390 L578 350 L720 350" stroke="#B9851B"/>
-<path class="flow" d="M1208 291 L1208 315 L1050 315" stroke="#C94D68"/>
-<path class="flow" d="M1208 390 L1208 365 L1050 365" stroke="#2E8F89"/>
-<path class="flow" d="M1050 345 L1410 345" stroke="#758297"/>
-<path class="flow" d="M885 383 L885 690" stroke="#755BC6"/>
-<path class="flow" d="M520 761 L720 761" stroke="#4F83BF"/>
-<path class="flow" d="M1050 752 L1245 752" stroke="#755BC6"/>
-<path class="flow" d="M885 814 L885 965 L935 965 L935 1062" stroke="#3E9868"/>
-<path class="flow" d="M805 814 L805 955 L478 955 L478 1072" stroke="#4F83BF"/>
-<path class="flow" d="M1095 1111 L1270 1111" stroke="#758297"/>
-<g><rect x="235" y="1248" width="1365" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="917.5" y="1274" text-anchor="middle">Definitions stay in the policy layer. One runner lane executes work, updates context, and returns a single report.</text></g>
+<rect class="canvas" width="1530" height="910"/>
+<rect class="frame" x="34" y="30" width="1462" height="850" rx="32"/>
+<text class="title" x="72" y="84">Workflow Concept Overview</text>
+<text class="subtitle" x="76" y="116">Work units execute with shared context, flow implementations choose orchestration semantics, and WorkReport controls the next step.</text>
+<g id="dsl">
+  <rect class="card" x="120" y="250" width="360" height="96" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="300" y="282" text-anchor="middle" dominant-baseline="middle">Workflow DSL</text>
+  <text class="detail" x="300" y="312" text-anchor="middle" dominant-baseline="middle">workflow, sequential, parallel</text>
+  <text class="detail" x="300" y="330" text-anchor="middle" dominant-baseline="middle">conditional, repeat, retry</text>
+</g>
+<g id="work">
+  <rect class="card" x="585" y="195" width="360" height="96" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="765" y="236" text-anchor="middle" dominant-baseline="middle">Work / SuspendWork</text>
+  <text class="detail" x="765" y="266" text-anchor="middle" dominant-baseline="middle">named units execute with context</text>
+</g>
+<g id="context">
+  <rect class="card" x="585" y="410" width="360" height="96" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="765" y="451" text-anchor="middle" dominant-baseline="middle">WorkContext</text>
+  <text class="detail" x="765" y="481" text-anchor="middle" dominant-baseline="middle">shared mutable run state</text>
+</g>
+<g id="flows">
+  <rect class="card" x="1050" y="250" width="360" height="96" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1230" y="291" text-anchor="middle" dominant-baseline="middle">Flow implementations</text>
+  <text class="detail" x="1230" y="321" text-anchor="middle" dominant-baseline="middle">sync, suspend, virtual thread</text>
+</g>
+<g id="report">
+  <rect class="card" x="585" y="670" width="360" height="116" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="765" y="712" text-anchor="middle" dominant-baseline="middle">WorkReport outcomes</text>
+  <text class="detail" x="765" y="742" text-anchor="middle" dominant-baseline="middle">Success, Failure, PartialSuccess</text>
+  <text class="detail" x="765" y="760" text-anchor="middle" dominant-baseline="middle">Aborted and Cancelled stop immediately</text>
+</g>
+<path class="route" data-from="dsl" data-to="work" d="M480 298 L585 243" stroke="#4F83BF"/>
+<path class="route dashed" data-from="dsl" data-to="context" d="M480 298 L585 458" stroke="#B9851B"/>
+<path class="route" data-from="work" data-to="flows" d="M945 243 L1050 298" stroke="#3E9868"/>
+<path class="route" data-from="context" data-to="flows" d="M945 458 L1050 298" stroke="#B9851B"/>
+<path class="route" data-from="flows" data-to="report" d="M1230 346 L1230 728 L945 728" stroke="#755BC6"/>
+<path class="route dashed" data-from="work" data-to="report" d="M765 291 L765 360 L520 360 L520 728 L585 728" stroke="#2E8F89"/>
 </svg>

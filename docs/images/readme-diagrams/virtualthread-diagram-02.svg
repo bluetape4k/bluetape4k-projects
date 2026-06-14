@@ -1,85 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="1005" viewBox="0 0 1366 1005" role="img" aria-label="Virtual Thread Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1766" height="780" viewBox="0 0 1766 780" role="img" aria-label="Virtual Thread Class Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="context-stroke" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="context-stroke" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1366" height="1005"/>
-<rect class="frame" x="32" y="28" width="1302" height="949" rx="28"/>
-<text class="title" x="66" y="82">Virtual Thread Class Structure</text>
-<text class="subtitle" x="70" y="104">Source-checked class relationships with readable compartments and routed inheritance.</text>
-<path class="dashed" d="M893 397 L893 112 L473 112 L473 180" style="stroke:#3E9868;stroke:#3E9868" data-route-color="#3E9868"/>
-<path class="implLine" d="M1103 568 L1103 493 L473 493 L473 418" style="stroke:#4F83BF;stroke:#4F83BF" data-route-color="#4F83BF"/>
-<path class="implLine" d="M263 568 L263 485 L473 485 L473 418" style="stroke:#2E8F89;stroke:#2E8F89" data-route-color="#2E8F89"/>
-<path class="implLine" d="M683 568 L683 477 L473 477 L473 418" style="stroke:#B9851B;stroke:#B9851B" data-route-color="#B9851B"/>
-<g transform="translate(298,180)">
-  <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">VirtualThreadFactory</text>
-  <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="129">+priority() Int</text>
-<text class="mono" x="18" y="150">+newThread(runnable: Runnable) Thread</text>
-<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
-<text class="mono" x="18" y="192">+scheduledExecutorService()</text>
-<text class="mono" x="18" y="213">ScheduledExecutorService</text>
+<rect class="canvas" width="1766" height="780"/>
+<rect class="frame" x="32" y="28" width="1702" height="724" rx="30"/>
+<text class="title" x="68" y="84">Virtual Thread Class Structure</text>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="VirtualThreads" data-to="VirtualThreadFactory" data-route-color="teal" d="M1336 398 L1336 279 L868 279" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="PlatformThreadFallback" data-to="VirtualThreadFactory" data-route-color="blue" d="M1018 398 L1018 337 L814 337 L814 311" stroke="#4F83BF"/>
+<path class="inherit" data-from="Jdk25VirtualThreadFactory" data-to="VirtualThreadFactory" data-route-color="teal" d="M450 398 L450 279 L508 279" stroke="#2E8F89"/>
+<path class="inherit" data-from="Jdk21VirtualThreadFactory" data-to="VirtualThreadFactory" data-route-color="amber" d="M693 398 L693 311" stroke="#B9851B"/>
+<g id="VirtualThreadFactory">
+  <rect class="classCard" x="508" y="165" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="688" y="184" text-anchor="middle">interface</text>
+  <text class="classTitle" x="688" y="212" text-anchor="middle">VirtualThreadFactory</text>
+  <line x1="508" y1="221" x2="868" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="542" y="253">+isSupported() Boolean</text>
+<text class="member" x="542" y="270">+priority() Int</text>
+<text class="member" x="542" y="287">+newThread(runnable: Runnable) Thread</text>
 </g>
-<g transform="translate(718,180)">
-  <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">VirtualThreads</text>
-  <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="129">+newThread(runnable: Runnable) Thread</text>
-<text class="mono" x="18" y="150">+executorService() ExecutorService</text>
-<text class="mono" x="18" y="171">+scheduledExecutorService()</text>
-<text class="mono" x="18" y="192">ScheduledExecutorService</text>
+<g id="VirtualThreads">
+  <rect class="classCard" x="1288" y="398" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1468" y="417" text-anchor="middle">object</text>
+  <text class="classTitle" x="1468" y="445" text-anchor="middle">VirtualThreads</text>
+  <line x1="1288" y1="454" x2="1648" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1322" y="486">+isSupported() Boolean</text>
+<text class="member" x="1322" y="503">+newThread(runnable: Runnable) Thread</text>
+<text class="member" x="1322" y="520">+executorService() ExecutorService</text>
 </g>
-<g transform="translate(88,568)">
-  <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">Jdk25VirtualThreadFactory</text>
-  <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="129">+priority() Int = 25</text>
-<text class="mono" x="18" y="150">+newThread(runnable) Thread</text>
-<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
-<text class="mono" x="18" y="192">+joinUntil(thread, instant) Boolean</text>
+<g id="Jdk25VirtualThreadFactory">
+  <rect class="classCard" x="118" y="398" width="380" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="308" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="308" y="445" text-anchor="middle">Jdk25VirtualThreadFactory</text>
+  <line x1="118" y1="454" x2="498" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="152" y="486">+isSupported() Boolean</text>
+<text class="member" x="152" y="503">+priority() Int = 25</text>
+<text class="member" x="152" y="520">+newThread(runnable) Thread</text>
 </g>
-<g transform="translate(508,568)">
-  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">Jdk21VirtualThreadFactory</text>
-  <text class="mono" x="18" y="108">+isSupported() Boolean</text>
-<text class="mono" x="18" y="129">+priority() Int = 21</text>
-<text class="mono" x="18" y="150">+newThread(runnable) Thread</text>
-<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
+<g id="Jdk21VirtualThreadFactory">
+  <rect class="classCard" x="508" y="398" width="380" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="698" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="698" y="445" text-anchor="middle">Jdk21VirtualThreadFactory</text>
+  <line x1="508" y1="454" x2="888" y2="454" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="542" y="486">+isSupported() Boolean</text>
+<text class="member" x="542" y="503">+priority() Int = 21</text>
+<text class="member" x="542" y="520">+newThread(runnable) Thread</text>
 </g>
-<g transform="translate(928,568)">
-  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#45A7A1"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«class»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">PlatformThreadFallback</text>
-  <text class="mono" x="18" y="108">+isSupported() Boolean = false</text>
-<text class="mono" x="18" y="129">+priority() Int = MIN_VALUE</text>
-<text class="mono" x="18" y="150">+newThread(runnable) Thread</text>
-<text class="mono" x="18" y="171">+executorService() ExecutorService</text>
+<g id="PlatformThreadFallback">
+  <rect class="classCard" x="898" y="398" width="360" height="146" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1078" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="445" text-anchor="middle">PlatformThreadFallback</text>
+  <line x1="898" y1="454" x2="1258" y2="454" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="932" y="486">+isSupported() Boolean = false</text>
+<text class="member" x="932" y="503">+priority() Int = MIN_VALUE</text>
+<text class="member" x="932" y="520">+newThread(runnable) Thread</text>
 </g>
+<g>
+  <rect x="1351" y="672" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1369 690 L1427 690" stroke="#3E9868"/>
+  <text class="detail" x="1441" y="695">inheritance / implementation</text>
+  <path class="dependency" d="M1369 711 L1427 711" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1441" y="716">dependency / usage</text>
+</g>
+<g><rect x="180" y="690" width="1126" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="743" y="716" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

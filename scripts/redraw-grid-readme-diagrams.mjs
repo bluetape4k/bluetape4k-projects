@@ -37,8 +37,8 @@ targets.forEach((name, index) => {
   const cards = extractCards(original);
   const kind = classify(name, title);
   if (kind === "class") {
-    statusRows.push(`${index + 1}\t${name}\tskipped-requires-graphviz-class\t${cards.length}\t${kind}`);
-    console.log(`${index + 1}/${targets.length} ${name}.png skipped: class diagrams require Graphviz class generator`);
+    statusRows.push(`${index + 1}\t${name}\tskipped-requires-class-generator\t${cards.length}\t${kind}`);
+    console.log(`${index + 1}/${targets.length} ${name}.png skipped: class diagrams require a dedicated class generator`);
     return;
   }
   const svg = renderDiagram({ name, title, kind, cards });
@@ -97,7 +97,7 @@ function normalizeCards(cards, title) {
 function layoutNodes(nodes, kind) {
   const layerCount = chooseLayerCount(nodes.length, kind);
   const width = nodes.length > 10 ? 1880 : nodes.length > 7 ? 1720 : 1560;
-  const top = 165;
+  const top = 203;
   const layerGap = 82;
   const layerH = kind === "class" ? 250 : 220;
   const layers = [];
@@ -117,7 +117,7 @@ function layoutNodes(nodes, kind) {
     y += h + layerGap;
   });
 
-  return { width, height: y + 96, layers, nodes: laidOut };
+  return { width, height: y + 58, layers, nodes: laidOut };
 }
 
 function splitIntoLayers(nodes, layerCount, kind) {
@@ -148,17 +148,23 @@ function placeLayer(items, layer, layerIndex, kind) {
   const cardH = kind === "class" ? 126 : 112;
   const rows = Math.ceil(items.length / 3);
   const perRow = Math.min(3, Math.ceil(items.length / rows));
-  const laneW = (layer.w - 150) / perRow;
-  const rowGap = kind === "class" ? 126 : 134;
+  const rowGap = kind === "class" ? 92 : 96;
   const contentH = rows * cardH + (rows - 1) * rowGap;
-  const startY = layer.y + Math.max(62, Math.round((layer.h - contentH) / 2) + 24);
+  const bodyTop = layer.y + 66;
+  const bodyBottom = layer.y + layer.h - 28;
+  const startY = Math.round(bodyTop + Math.max(0, (bodyBottom - bodyTop - contentH) / 2));
   const result = [];
   items.forEach((item, index) => {
     const row = Math.floor(index / perRow);
     const col = index % perRow;
-    const x = layer.x + 75 + col * laneW;
+    const rowStart = row * perRow;
+    const rowCount = Math.min(perRow, items.length - rowStart);
+    const rowGapX = rowCount > 1 ? Math.min(116, Math.max(74, (layer.w - 150 - rowCount * cardW) / Math.max(1, rowCount - 1))) : 0;
+    const rowW = rowCount * cardW + Math.max(0, rowCount - 1) * rowGapX;
+    const startX = layer.x + Math.round((layer.w - rowW) / 2);
+    const x = startX + col * (cardW + rowGapX);
     const y = startY + row * (cardH + rowGap);
-    result.push({ ...item, id: `node-${layerIndex}-${index}`, x: round(Math.min(x, layer.x + layer.w - cardW - 62)), y, w: cardW, h: cardH, layerIndex });
+    result.push({ ...item, id: `node-${layerIndex}-${index}`, x: round(Math.min(x, layer.x + layer.w - cardW - 48)), y, w: cardW, h: cardH, layerIndex });
   });
   return result;
 }
@@ -304,10 +310,10 @@ function subtitleFor(kind) {
 }
 
 function footerText(kind) {
-  if (kind === "class") return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
-  if (kind === "flow") return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
-  if (kind === "module") return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
-  return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
+  if (kind === "class") return "Source: module README and public class contracts.";
+  if (kind === "flow") return "Source: module README and public workflow contracts.";
+  if (kind === "module") return "Source: module README and registered Gradle module boundaries.";
+  return "Source: module README and public source contracts.";
 }
 
 function titleFromName(name) {

@@ -1,71 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="740" viewBox="0 0 1380 740" role="img" aria-labelledby="ktor-core-architecture-01-title ktor-core-architecture-01-desc">
-  <title id="ktor-core-architecture-01-title">Ktor Core Architecture</title>
-  <desc id="ktor-core-architecture-01-desc">Explicit installation of JSON, standard errors, health routes, and request helpers</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-    <marker id="arrow" markerWidth="4.5" markerHeight="4.5" refX="4" refY="2.25" orient="auto" markerUnits="strokeWidth"><path d="M0.5,0.5 L4,2.25 L0.5,4 Z" fill="#758297"/></marker>
-    <style>
-      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter";font-size:42px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476;font-weight:400}
-      .card{filter:url(#shadow);stroke-width:2}
-      .cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A;font-weight:400}
-      .body{font-family:"Comic Mono";font-size:15px;fill:#34465B;font-weight:400}
-      .edge{stroke:#758297;stroke-width:2.3;fill:none;marker-end:url(#arrow)}
-      .edgeLabel{font-family:"Comic Mono";font-size:12px;fill:#536476;font-weight:400;dominant-baseline:middle}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.92}
-      .note{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
-    </style>
-  </defs>
-  <rect class="canvas" width="1380" height="740"/>
-  <rect class="frame" x="32" y="28" width="1316" height="684" rx="26"/>
-  <text class="title" x="66" y="82">Ktor Core Architecture</text>
-  <text class="subtitle" x="70" y="116">Explicit installation of JSON, standard errors, health routes, and request helpers</text>
-  <path class="edge" d="M335 320 L362.5 320 L362.5 230 L390 230"/>
-<path class="edge" d="M690 230 L725 230 L725 215 L760 215"/>
-<path class="edge" d="M690 230 L725 230 L725 412.5 L760 412.5"/>
-<path class="edge" d="M540 305 L540 425 L900 425 L900 545"/>
-<path class="edge" d="M335 320 L717.5 320 L717.5 437.5 L1100 437.5"/>
-<path class="edge" d="M1070 412.5 L1085 412.5 L1085 437.5 L1100 437.5"/>
-  <g>
-  <rect class="card" x="70" y="255" width="265" height="130" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="cardTitle" x="202.5" y="297" text-anchor="middle">Application</text>
-  <text class="body" x="202.5" y="332" text-anchor="middle">installBluetape4kKtorCore</text>
-<text class="body" x="202.5" y="355" text-anchor="middle">config owned by app</text>
+<svg data-intent="Show Ktor core as a layered install/runtime architecture: application installs the baseline, config gates plugins, plugins expose JSON/errors/health, routes use request helpers." data-evidence="ktor/core/README.md; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/Bluetape4kKtorCore.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/Bluetape4kKtorCoreConfig.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/Bluetape4kStatusPages.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/KtorHealthRoutes.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/KtorRequestParameters.kt" data-source-read="ktor/core/README.md; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/Bluetape4kKtorCore.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/Bluetape4kKtorCoreConfig.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/Bluetape4kStatusPages.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/KtorHealthRoutes.kt; ktor/core/src/main/kotlin/io/bluetape4k/ktor/core/KtorRequestParameters.kt" xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Ktor Core Layered Architecture">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <style>
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+</defs>
+<rect class="canvas" width="1440" height="900"/>
+<rect class="frame" x="34" y="30" width="1372" height="840" rx="32"/>
+<text class="title" x="72" y="84">Ktor Core Layered Architecture</text>
+<text class="subtitle" x="76" y="116">The core module installs a small baseline: JSON, standard errors, health routes, and request helpers around normal Ktor routing.</text>
+<g><rect class="panel" x="82" y="160" width="1276" height="150" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Application install</text></g>
+<g><rect class="panel" x="82" y="385" width="1276" height="215" rx="22"/><text class="panelTitle" x="110" y="421" dominant-baseline="middle">bluetape4k Ktor core</text></g>
+<g><rect class="panel" x="82" y="675" width="1276" height="145" rx="22"/><text class="panelTitle" x="110" y="711" dominant-baseline="middle">Ktor runtime</text></g>
+<g id="app">
+  <rect class="card" x="130" y="215" width="300" height="74" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="280" y="245" text-anchor="middle" dominant-baseline="middle">Application.module</text>
+  <text class="detail" x="280" y="275" text-anchor="middle" dominant-baseline="middle">installBluetape4kKtorCore</text>
 </g>
-<g>
-  <rect class="card" x="390" y="155" width="300" height="150" rx="16" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="cardTitle" x="540" y="197" text-anchor="middle">Core config</text>
-  <text class="body" x="540" y="232" text-anchor="middle">enable JSON</text>
-<text class="body" x="540" y="255" text-anchor="middle">enable StatusPages</text>
-<text class="body" x="540" y="278" text-anchor="middle">health/readiness paths</text>
+<g id="config">
+  <rect class="card" x="560" y="215" width="300" height="74" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="710" y="245" text-anchor="middle" dominant-baseline="middle">Core config</text>
+  <text class="detail" x="710" y="275" text-anchor="middle" dominant-baseline="middle">JSON, errors, health readiness</text>
 </g>
-<g>
-  <rect class="card" x="760" y="150" width="280" height="130" rx="16" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="cardTitle" x="900" y="192" text-anchor="middle">ContentNegotiation</text>
-  <text class="body" x="900" y="227" text-anchor="middle">Bluetape4kKtorJson</text>
-<text class="body" x="900" y="250" text-anchor="middle">kotlinx serialization</text>
+<g id="routes">
+  <rect class="card" x="980" y="215" width="300" height="74" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1130" y="245" text-anchor="middle" dominant-baseline="middle">Application routes</text>
+  <text class="detail" x="1130" y="275" text-anchor="middle" dominant-baseline="middle">use request parameter helpers</text>
 </g>
-<g>
-  <rect class="card" x="760" y="335" width="310" height="155" rx="16" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="cardTitle" x="915" y="377" text-anchor="middle">StatusPages</text>
-  <text class="body" x="915" y="412" text-anchor="middle">IllegalArgumentException -&gt; 400</text>
-<text class="body" x="915" y="435" text-anchor="middle">Throwable -&gt; 500</text>
-<text class="body" x="915" y="458" text-anchor="middle">rethrow cancellation</text>
+<g id="json">
+  <rect class="card" x="135" y="455" width="280" height="86" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="275" y="491" text-anchor="middle" dominant-baseline="middle">Content negotiation</text>
+  <text class="detail" x="275" y="521" text-anchor="middle" dominant-baseline="middle">Jackson JSON defaults</text>
 </g>
-<g>
-  <rect class="card" x="760" y="545" width="280" height="130" rx="16" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="cardTitle" x="900" y="587" text-anchor="middle">Health routes</text>
-  <text class="body" x="900" y="622" text-anchor="middle">/healthz</text>
-<text class="body" x="900" y="645" text-anchor="middle">/readyz</text>
-<text class="body" x="900" y="668" text-anchor="middle">HealthResponse.up()</text>
+<g id="errors">
+  <rect class="card" x="465" y="455" width="280" height="86" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="605" y="491" text-anchor="middle" dominant-baseline="middle">StatusPages</text>
+  <text class="detail" x="605" y="521" text-anchor="middle" dominant-baseline="middle">standard API error response</text>
 </g>
-<g>
-  <rect class="card" x="1100" y="360" width="235" height="155" rx="16" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="cardTitle" x="1217.5" y="402" text-anchor="middle">Application routes</text>
-  <text class="body" x="1217.5" y="437" text-anchor="middle">requiredPathParameter</text>
-<text class="body" x="1217.5" y="460" text-anchor="middle">intQueryParameter</text>
-<text class="body" x="1217.5" y="483" text-anchor="middle">call.respond(...)</text>
+<g id="health">
+  <rect class="card" x="795" y="455" width="280" height="86" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="935" y="491" text-anchor="middle" dominant-baseline="middle">Health routes</text>
+  <text class="detail" x="935" y="521" text-anchor="middle" dominant-baseline="middle">/health, /ready</text>
 </g>
-  <text class="note" x="690" y="702" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+<g id="params">
+  <rect class="card" x="1095" y="455" width="230" height="86" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1210" y="491" text-anchor="middle" dominant-baseline="middle">Request helpers</text>
+  <text class="detail" x="1210" y="521" text-anchor="middle" dominant-baseline="middle">typed path/query</text>
+</g>
+<g id="ktor">
+  <rect class="card" x="250" y="720" width="310" height="62" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="405" y="744" text-anchor="middle" dominant-baseline="middle">Ktor plugin pipeline</text>
+  <text class="detail" x="405" y="774" text-anchor="middle" dominant-baseline="middle">plugins execute around routes</text>
+</g>
+<g id="response">
+  <rect class="card" x="850" y="720" width="310" height="62" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1005" y="744" text-anchor="middle" dominant-baseline="middle">HTTP response</text>
+  <text class="detail" x="1005" y="774" text-anchor="middle" dominant-baseline="middle">JSON body or API error</text>
+</g>
+<path class="route" data-from="app" data-to="config" d="M430 252 L560 252" stroke="#4F83BF"/>
+<path class="route" data-from="config" data-to="routes" d="M860 252 L980 252" stroke="#755BC6"/>
+<path class="route" data-from="config" data-to="json" d="M640 289 L275 455" stroke="#2E8F89"/>
+<path class="route" data-from="config" data-to="errors" d="M710 289 L605 455" stroke="#C94D68"/>
+<path class="route" data-from="config" data-to="health" d="M785 289 L935 455" stroke="#B9851B"/>
+<path class="route" data-from="routes" data-to="params" d="M1130 289 L1130 455" stroke="#3E9868"/>
+<path class="route" data-from="json" data-to="ktor" d="M275 541 L275 720" stroke="#2E8F89"/>
+<path class="route" data-from="errors" data-to="ktor" d="M605 541 L605 650 L405 650 L405 720" stroke="#C94D68"/>
+<path class="route" data-from="health" data-to="response" d="M935 541 L935 720" stroke="#B9851B"/>
+<path class="route" data-from="params" data-to="response" d="M1210 541 L1210 650 L1005 650 L1005 720" stroke="#3E9868"/>
+<path class="route" data-from="ktor" data-to="response" d="M560 751 L850 751" stroke="#4F83BF"/>
 </svg>

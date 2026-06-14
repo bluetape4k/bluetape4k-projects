@@ -108,7 +108,7 @@ function dep(from, to, color, points) {
 function write(file, width, height, title, subtitle, nodes, routes) {
   const svgPath = join(OUT, `${file}.svg`);
   const pngPath = join(OUT, `${file}.png`);
-  const svg = base(width, height, title, subtitle, `${routes.map(renderRoute).join("\n")}\n${nodes.map(renderCard).join("\n")}\n${legend(width - 405, height - 110)}\n${footer(180, height - 92, width - 640, "bluetape4k-projects class diagrams - github.com/bluetape4k/bluetape4k-projects")}`);
+  const svg = base(width, height, title, subtitle, `${routes.map(renderRoute).join("\n")}\n${nodes.map(renderCard).join("\n")}\n${legend(width - 405, height - 110)}\n${footer(180, height - 92, width - 640, "Source: module README and public class contracts.")}`);
   writeFileSync(svgPath, `${svg.trimEnd()}\n`);
   execFileSync(rsvg, ["--format=png", "--output", pngPath, svgPath], { stdio: "inherit" });
   console.log(`${file}.png`);
@@ -133,7 +133,7 @@ function renderCard(node) {
   <text class="stereo" x="${node.x + node.w / 2}" y="${node.y + 19}" text-anchor="middle">${esc(node.stereotype)}</text>
   ${titleLines.map((line, index) => `<text class="classTitle" x="${node.x + node.w / 2}" y="${titleStart + index * 22}" text-anchor="middle">${esc(line)}</text>`).join("\n")}
   <line x1="${node.x}" y1="${headerBottom}" x2="${node.x + node.w}" y2="${headerBottom}" stroke="${stroke}" stroke-width="1.4"/>
-  ${memberLines.map((line, index) => `<text class="member" x="${node.x + 18}" y="${memberStart + index * 17}">${esc(line)}</text>`).join("\n")}
+  ${memberLines.map((line, index) => `<text class="member" x="${node.x + 34}" y="${memberStart + index * 17}">${esc(line)}</text>`).join("\n")}
 </g>`;
 }
 

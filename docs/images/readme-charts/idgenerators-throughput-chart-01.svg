@@ -312,6 +312,6 @@
 <g>
   <rect class="note" x="94" y="1207" width="1652" height="50" rx="16"/>
   <text class="small" x="920" y="1225" text-anchor="middle" dominant-baseline="middle">Source: utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables</text>
-  <text class="tiny" x="920" y="1243" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
+  <text class="tiny" x="920" y="1243" text-anchor="middle" dominant-baseline="middle">Panels are separated by batch size and concurrency mode; values are ops/s, higher is better.</text>
 </g>
 </svg>

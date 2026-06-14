@@ -25,49 +25,49 @@
   <path d="M110 280 L430 280" stroke="#5B8DEF" stroke-width="1.4"/>
   <text class="stereo" x="270" y="232" text-anchor="middle">class</text>
   <text class="classTitle" x="270" y="260" text-anchor="middle">R2dbcClient</text>
-  <text class="member" x="128" y="303">wraps DatabaseClient</text>
-<text class="member" x="128" y="323">execute(sql) / execute(query)</text>
+  <text class="member" x="144" y="303">wraps DatabaseClient</text>
+<text class="member" x="144" y="323">execute(sql) / execute(query)</text>
 </g>
 <g id="ExecuteDsl">
   <rect class="classCard" x="110" y="410" width="320" height="132" rx="10" fill="#EAF7EF" stroke="#58A978"/>
   <path d="M110 480 L430 480" stroke="#58A978" stroke-width="1.4"/>
   <text class="stereo" x="270" y="432" text-anchor="middle">extension functions</text>
   <text class="classTitle" x="270" y="460" text-anchor="middle">Execute DSL</text>
-  <text class="member" x="128" y="503">execute(sqlString)</text>
-<text class="member" x="128" y="523">execute(query: Query)</text>
+  <text class="member" x="144" y="503">execute(sqlString)</text>
+<text class="member" x="144" y="523">execute(query: Query)</text>
 </g>
 <g id="QueryBuilder">
   <rect class="classCard" x="575" y="210" width="320" height="132" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
   <path d="M575 280 L895 280" stroke="#D6A441" stroke-width="1.4"/>
   <text class="stereo" x="735" y="232" text-anchor="middle">builder class</text>
   <text class="classTitle" x="735" y="260" text-anchor="middle">QueryBuilder</text>
-  <text class="member" x="593" y="303">select / where / orderBy</text>
-<text class="member" x="593" y="323">build(): Query</text>
+  <text class="member" x="609" y="303">select / where / orderBy</text>
+<text class="member" x="609" y="323">build(): Query</text>
 </g>
 <g id="Query">
   <rect class="classCard" x="575" y="410" width="320" height="132" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
   <path d="M575 480 L895 480" stroke="#45A7A1" stroke-width="1.4"/>
   <text class="stereo" x="735" y="432" text-anchor="middle">data class</text>
   <text class="classTitle" x="735" y="460" text-anchor="middle">Query</text>
-  <text class="member" x="593" y="503">sql: String</text>
-<text class="member" x="593" y="523">parameters: Map&lt;String, Any?&gt;</text>
+  <text class="member" x="609" y="503">sql: String</text>
+<text class="member" x="609" y="523">parameters: Map&lt;String, Any?&gt;</text>
 </g>
 <g id="DatabaseClientExtensions">
   <rect class="classCard" x="1015" y="210" width="410" height="158" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
   <path d="M1015 280 L1425 280" stroke="#8A72D6" stroke-width="1.4"/>
   <text class="stereo" x="1220" y="232" text-anchor="middle">coroutine fetch API</text>
   <text class="classTitle" x="1220" y="260" text-anchor="middle">DatabaseClientExtensions</text>
-  <text class="member" x="1033" y="306">flow(mapper)</text>
-<text class="member" x="1033" y="326">awaitSingle / awaitList</text>
-<text class="member" x="1033" y="346">awaitExists / awaitCount</text>
+  <text class="member" x="1049" y="306">flow(mapper)</text>
+<text class="member" x="1049" y="326">awaitSingle / awaitList</text>
+<text class="member" x="1049" y="346">awaitExists / awaitCount</text>
 </g>
 <g id="BindSpecExtensions">
   <rect class="classCard" x="1015" y="430" width="410" height="132" rx="10" fill="#FDECEF" stroke="#DC6B82"/>
   <path d="M1015 500 L1425 500" stroke="#DC6B82" stroke-width="1.4"/>
   <text class="stereo" x="1220" y="452" text-anchor="middle">binding helpers</text>
   <text class="classTitle" x="1220" y="480" text-anchor="middle">BindSpecExtensions</text>
-  <text class="member" x="1033" y="523">bindMap(params)</text>
-<text class="member" x="1033" y="543">bindIndexedMap(params)</text>
+  <text class="member" x="1049" y="523">bindMap(params)</text>
+<text class="member" x="1049" y="543">bindIndexedMap(params)</text>
 </g>
 <g id="r2dbcIntent">
   <rect class="note" x="340" y="650" width="900" height="70" rx="12" fill="#FFFFFF" stroke="#9AA8B8"/>

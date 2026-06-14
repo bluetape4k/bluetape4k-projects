@@ -1,104 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1310" height="1162" viewBox="0 0 1310 1162" role="img" aria-label="Logging Processing Flow">
+<svg data-intent="Explain logging processing as a caller-to-logger path where Kotlin delegates, lazy message suppliers, MDC/context helpers, and backend logging calls remain separate responsibilities." data-evidence="bluetape4k/logging/README.md; bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging" data-source-read="bluetape4k/logging/README.md; bluetape4k/logging/src/main/kotlin/io/bluetape4k/logging" xmlns="http://www.w3.org/2000/svg" width="1480" height="930" viewBox="0 0 1480 930" role="img" aria-label="Logging Processing Flow" data-layout="decision-flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1310" height="1162"/>
-<rect class="frame" x="32" y="28" width="1246" height="1106" rx="28"/>
-<text class="title" x="66" y="82">Logging Processing Flow</text>
-<text class="subtitle" x="70" y="104">Source-checked lifecycle flow with grouped phases and explicit transitions.</text>
-<g transform="translate(60,160)">
-  <rect x="0" y="0" width="350" height="648" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">KLogging (Synchronous Loggi.</text>
+<rect class="canvas" width="1480" height="930"/>
+<rect class="frame" x="34" y="30" width="1412" height="870" rx="32"/>
+<text class="title" x="72" y="84">Logging Processing Flow</text>
+<text class="subtitle" x="76" y="116">Logger extensions keep call sites small while lazy suppliers, MDC context, and backend emission stay distinct.</text>
+<g id="caller">
+  <rect class="card" x="120" y="250" width="300" height="80" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="270" y="283" text-anchor="middle" dominant-baseline="middle">Application code</text>
+  <text class="detail" x="270" y="313" text-anchor="middle" dominant-baseline="middle">calls logger extension</text>
 </g>
-<g transform="translate(105,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">log.debug { msg }</text>
+<g id="delegate">
+  <rect class="card" x="520" y="235" width="340" height="110" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="690" y="274" text-anchor="middle" dominant-baseline="middle">KotlinLogging facade</text>
+  <text class="detail" x="690" y="304" text-anchor="middle" dominant-baseline="middle">KLogging / loggerOf</text>
+  <text class="detail" x="690" y="322" text-anchor="middle" dominant-baseline="middle">lazy message lambdas</text>
 </g>
-<g transform="translate(105,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">SLF4J Logger</text>
+<g id="context">
+  <rect class="card" x="1000" y="170" width="340" height="96" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1170" y="202" text-anchor="middle" dominant-baseline="middle">MDC and coroutine context</text>
+  <text class="detail" x="1170" y="232" text-anchor="middle" dominant-baseline="middle">correlation values</text>
+  <text class="detail" x="1170" y="250" text-anchor="middle" dominant-baseline="middle">scoped cleanup</text>
 </g>
-<g transform="translate(105,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">msg</text>
+<g id="supplier">
+  <rect class="card" x="1000" y="360" width="340" height="96" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="1170" y="401" text-anchor="middle" dominant-baseline="middle">Message supplier</text>
+  <text class="detail" x="1170" y="431" text-anchor="middle" dominant-baseline="middle">evaluated only when enabled</text>
 </g>
-<g transform="translate(105,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">Logback Appender</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">(Console/File)</text>
+<g id="enabled">
+  <polygon class="card card-shape" points="710,520 860,584 710,648 560,584" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="710" y="576" text-anchor="middle" dominant-baseline="middle">Level enabled?</text>
+  <text class="detail" x="710" y="605" text-anchor="middle" dominant-baseline="middle">trace/debug/info/warn/error</text>
 </g>
-<g transform="translate(480,160)">
-  <rect x="0" y="0" width="350" height="932" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">KLoggingChannel (Asynchrono.</text>
+<g id="skip">
+  <rect class="card" x="145" y="690" width="280" height="76" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="cardTitle" x="285" y="721" text-anchor="middle" dominant-baseline="middle">Skip allocation</text>
+  <text class="detail" x="285" y="751" text-anchor="middle" dominant-baseline="middle">supplier is not evaluated</text>
 </g>
-<g transform="translate(525,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">log.debug { msg }</text>
+<g id="backend">
+  <rect class="card" x="600" y="720" width="340" height="86" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="770" y="756" text-anchor="middle" dominant-baseline="middle">SLF4J backend</text>
+  <text class="detail" x="770" y="786" text-anchor="middle" dominant-baseline="middle">Logback or bound logger</text>
 </g>
-<g transform="translate(525,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">MutableSharedFlow</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">buffer 64 · SUSPEND</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">policy</text>
+<g id="event">
+  <rect class="card" x="1040" y="710" width="320" height="96" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="cardTitle" x="1200" y="751" text-anchor="middle" dominant-baseline="middle">Log event</text>
+  <text class="detail" x="1200" y="781" text-anchor="middle" dominant-baseline="middle">message, throwable, MDC fields</text>
 </g>
-<g transform="translate(525,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">msg</text>
-</g>
-<g transform="translate(525,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Dispatchers.IO</text>
-</g>
-<g transform="translate(525,804)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">SLF4J Logger</text>
-</g>
-<g transform="translate(525,946)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Logback Appender</text>
-</g>
-<g transform="translate(900,160)">
-  <rect x="0" y="0" width="350" height="648" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">MDC Context</text>
-</g>
-<g transform="translate(945,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">with Logging</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">Context(pairs)</text>
-</g>
-<g transform="translate(945,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">ThreadLocal MDC (for</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">blocking code)</text>
-</g>
-<g transform="translate(945,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">with Coroutine</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">Logging</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">Context(pairs)</text>
-</g>
-<g transform="translate(945,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">CoroutineContext MDC</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">(propagates to async</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">blocks)</text>
-</g>
+<path class="route" data-from="caller" data-to="delegate" d="M420 290 L520 290" stroke="#4F83BF"/>
+<path class="route" data-from="delegate" data-to="context" d="M860 275 L1000 218" stroke="#755BC6"/>
+<path class="route" data-from="delegate" data-to="supplier" d="M860 290 L1000 408" stroke="#B9851B"/>
+<path class="route" data-from="delegate" data-to="enabled" d="M690 345 L690 520" stroke="#2E8F89"/>
+<path class="route dashed" data-from="enabled" data-to="skip" d="M560 584 L425 728" stroke="#758297"/>
+<g><rect class="labelPill" x="456" y="627" width="48" height="26" rx="8"/><text class="detail" x="480" y="641" text-anchor="middle" dominant-baseline="middle" style="fill:#758297">no</text></g>
+<path class="route" data-from="enabled" data-to="backend" d="M710 648 L710 720" stroke="#C94D68"/>
+<g><rect class="labelPill" x="740" y="673" width="52" height="26" rx="8"/><text class="detail" x="766" y="687" text-anchor="middle" dominant-baseline="middle" style="fill:#C94D68">yes</text></g>
+<path class="route" data-from="context" data-to="event" d="M1340 218 L1390 218 L1390 758 L1360 758" stroke="#755BC6"/>
+<path class="route" data-from="supplier" data-to="event" d="M1170 456 L1170 710" stroke="#B9851B"/>
+<path class="route" data-from="backend" data-to="event" d="M940 763 L1040 758" stroke="#C94D68"/>
 </svg>

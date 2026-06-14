@@ -178,6 +178,6 @@
 <g>
   <rect class="note" x="94" y="1069" width="1572" height="50" rx="16"/>
   <text class="small" x="880" y="1087" text-anchor="middle" dominant-baseline="middle">Source: data/r2dbc/README.ko.md pool acquire benchmark table</text>
-  <text class="tiny" x="880" y="1105" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
+  <text class="tiny" x="880" y="1105" text-anchor="middle" dominant-baseline="middle">Grouped bars share one unit and mode; compare rows only within the stated benchmark table.</text>
 </g>
 </svg>

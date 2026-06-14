@@ -1,87 +1,91 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1040" viewBox="0 0 1760 1040" role="img" aria-label="Redisson Codec Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1766" height="939" viewBox="0 0 1766 939" role="img" aria-label="Redisson Codec Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:43px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#F7FBFF;stroke-width:5px;stroke-linejoin:round}
-    .card,.classCard{filter:url(#shadow);stroke-width:2}.cardTitle,.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:13px;fill:#102033}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .note{stroke-width:1.6}.flow{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1760" height="1040"/>
-<rect class="frame" x="32" y="28" width="1696" height="984" rx="30"/>
+<rect class="canvas" width="1766" height="939"/>
+<rect class="frame" x="32" y="28" width="1702" height="883" rx="30"/>
 <text class="title" x="68" y="84">Redisson Codec Class Diagram</text>
-<text class="subtitle" x="72" y="116">Factory methods expose serializer families, compression decorators, and composite map choices.</text>
-<path class="dependency" data-from="RedissonCodecs" data-to="ForyCodec" d="M760 292 L760 330 L290 330 L290 390" stroke="#3E9868" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="RedissonCodecs" data-to="FastForyCodec" d="M820 292 L820 350 L650 350 L650 390" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="RedissonCodecs" data-to="JsonCodecs" d="M940 292 L940 390" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="RedissonCodecs" data-to="BuiltinCodecs" d="M1000 292 L1000 340 L1370 340 L1370 390" stroke="#758297" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="ForyCodec" data-to="CompressionWrappers" d="M290 514 L290 604 L535 604 L535 650" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="FastForyCodec" data-to="CompressionWrappers" d="M650 514 L650 650" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="JsonCodecs" data-to="CompositeCodecs" d="M1010 514 L1010 650" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="BuiltinCodecs" data-to="CompositeCodecs" d="M1370 514 L1370 650" stroke="#755BC6" stroke-dasharray="8 7"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="RedissonCodecs" data-to="ForyCodec" data-route-color="teal" d="M703 271 L430 271 L430 398" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="FastForyCodec" data-route-color="amber" d="M786 303 L786 398" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="JsonCodecs" data-route-color="pink" d="M981 303 L981 398" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="RedissonCodecs" data-to="BuiltinCodecs" data-route-color="purple" d="M1063 271 L1336 271 L1336 398" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ForyCodec" data-to="CompressionWrappers" data-route-color="olive" d="M396 536 L396 631" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="FastForyCodec" data-to="CompressionWrappers" data-route-color="indigo" d="M591 536 L591 631" stroke="#4F63C7" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="JsonCodecs" data-to="CompositeCodecs" data-route-color="coral" d="M1176 536 L1176 631" stroke="#C8644B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="BuiltinCodecs" data-to="CompositeCodecs" data-route-color="brown" d="M1371 536 L1371 631" stroke="#8E6D43" stroke-dasharray="8 7"/>
 <g id="RedissonCodecs">
-  <rect class="classCard" x="690" y="170" width="380" height="122" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <path d="M690 240 L1070 240" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="stereo" x="880" y="192" text-anchor="middle">factory object</text>
-  <text class="classTitle" x="880" y="220" text-anchor="middle">RedissonCodecs</text>
-  <text class="member" x="708" y="262">Default = Fory</text>
-<text class="member" x="708" y="282">named serializer/compression choices</text>
+  <rect class="classCard" x="703" y="165" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="883" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="883" y="212" text-anchor="middle">RedissonCodecs</text>
+  <line x1="703" y1="221" x2="1063" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="737" y="258">Default = Fory</text>
+<text class="member" x="737" y="275">named serializer/compression choices</text>
 </g>
 <g id="ForyCodec">
-  <rect class="classCard" x="140" y="390" width="300" height="124" rx="10" fill="#EAF7EF" stroke="#58A978"/>
-  <path d="M140 460 L440 460" stroke="#58A978" stroke-width="1.4"/>
-  <text class="stereo" x="290" y="412" text-anchor="middle">serializer codec</text>
-  <text class="classTitle" x="290" y="440" text-anchor="middle">ForyCodec</text>
-  <text class="member" x="158" y="482">Fory bytes</text>
-<text class="member" x="158" y="502">fallback to Kryo5</text>
+  <rect class="classCard" x="118" y="398" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="298" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="445" text-anchor="middle">ForyCodec</text>
+  <line x1="118" y1="454" x2="478" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="152" y="491">Fory bytes</text>
+<text class="member" x="152" y="508">fallback to Kryo5</text>
 </g>
 <g id="FastForyCodec">
-  <rect class="classCard" x="500" y="390" width="300" height="124" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
-  <path d="M500 460 L800 460" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="stereo" x="650" y="412" text-anchor="middle">serializer codec</text>
-  <text class="classTitle" x="650" y="440" text-anchor="middle">FastForyCodec</text>
-  <text class="member" x="518" y="482">SCHEMA_CONSISTENT</text>
-<text class="member" x="518" y="502">volatile caches only</text>
+  <rect class="classCard" x="508" y="398" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="688" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="445" text-anchor="middle">FastForyCodec</text>
+  <line x1="508" y1="454" x2="868" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="542" y="491">SCHEMA_CONSISTENT</text>
+<text class="member" x="542" y="508">volatile caches only</text>
 </g>
 <g id="JsonCodecs">
-  <rect class="classCard" x="860" y="390" width="300" height="124" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
-  <path d="M860 460 L1160 460" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="stereo" x="1010" y="412" text-anchor="middle">serializer group</text>
-  <text class="classTitle" x="1010" y="440" text-anchor="middle">JSON codecs</text>
-  <text class="member" x="878" y="482">Jackson3Codec</text>
-<text class="member" x="878" y="502">Fastjson2Codec</text>
+  <rect class="classCard" x="898" y="398" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1078" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="445" text-anchor="middle">JSON codecs</text>
+  <line x1="898" y1="454" x2="1258" y2="454" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="932" y="491">Jackson3Codec</text>
+<text class="member" x="932" y="508">Fastjson2Codec</text>
 </g>
 <g id="BuiltinCodecs">
-  <rect class="classCard" x="1220" y="390" width="300" height="124" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <path d="M1220 460 L1520 460" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="stereo" x="1370" y="412" text-anchor="middle">Redisson codecs</text>
-  <text class="classTitle" x="1370" y="440" text-anchor="middle">Built-in codecs</text>
-  <text class="member" x="1238" y="482">Kryo5, JDK</text>
-<text class="member" x="1238" y="502">String, Int, Long, Double</text>
+  <rect class="classCard" x="1288" y="398" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1468" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1468" y="445" text-anchor="middle">Built-in codecs</text>
+  <line x1="1288" y1="454" x2="1648" y2="454" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="1322" y="491">Kryo5, JDK</text>
+<text class="member" x="1322" y="508">String, Int, Long, Double</text>
 </g>
 <g id="CompressionWrappers">
-  <rect class="classCard" x="320" y="650" width="430" height="132" rx="10" fill="#FDECEF" stroke="#DC6B82"/>
-  <path d="M320 720 L750 720" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="stereo" x="535" y="672" text-anchor="middle">decorator codecs</text>
-  <text class="classTitle" x="535" y="700" text-anchor="middle">Compression wrappers</text>
-  <text class="member" x="338" y="743">Lz4Codec, ZstdCodec, GzipCodec</text>
-<text class="member" x="338" y="763">SnappyCodecV2 wrappers</text>
+  <rect class="classCard" x="313" y="631" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="493" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="493" y="678" text-anchor="middle">Compression wrappers</text>
+  <line x1="313" y1="687" x2="673" y2="687" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="347" y="724">Lz4Codec, ZstdCodec, GzipCodec</text>
+<text class="member" x="347" y="741">SnappyCodecV2 wrappers</text>
 </g>
 <g id="CompositeCodecs">
-  <rect class="classCard" x="860" y="650" width="620" height="132" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
-  <path d="M860 720 L1480 720" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="stereo" x="1170" y="672" text-anchor="middle">map/set choices</text>
-  <text class="classTitle" x="1170" y="700" text-anchor="middle">Composite codecs</text>
-  <text class="member" x="878" y="743">String key codec</text>
-<text class="member" x="878" y="763">value codec from selected family</text>
+  <rect class="classCard" x="1093" y="631" width="360" height="138" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1273" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="1273" y="678" text-anchor="middle">Composite codecs</text>
+  <line x1="1093" y1="687" x2="1453" y2="687" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="1127" y="724">String key codec</text>
+<text class="member" x="1127" y="741">value codec from selected family</text>
 </g>
-<g id="codecGuidance">
-  <rect class="note" x="360" y="850" width="1040" height="58" rx="12" fill="#FFFFFF" stroke="#9AA8B8"/>
-  <text class="detail" x="880" y="880" text-anchor="middle" dominant-baseline="middle">Recommended path: choose Fory/LZ4Fory for internal cache speed, ZstdFory for ratio, Jackson3/Fastjson2 with allow-list for JSON boundaries.</text>
+<g>
+  <rect x="1351" y="831" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1369 849 L1427 849" stroke="#3E9868"/>
+  <text class="detail" x="1441" y="854">inheritance / implementation</text>
+  <path class="dependency" d="M1369 870 L1427 870" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1441" y="875">dependency / usage</text>
 </g>
-<g><rect class="note" x="120" y="952" width="1520" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF"/><text class="detail" x="880" y="978" text-anchor="middle">bluetape4k-projects / infra:redisson - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="849" width="1126" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="743" y="875" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

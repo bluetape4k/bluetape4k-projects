@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="1645" viewBox="0 0 1880 1645" role="img" aria-label="ServiceLoader-Based Runtime Selection Flow">
+<svg data-intent="Explain virtual-thread runtime selection as a decision flow from requested execution model through platform support checks to virtual-thread or fallback executor outcomes." data-evidence="virtualthread/api/README.md; virtualthread/api/src/main/kotlin" data-source-read="virtualthread/api/README.md; virtualthread/api/src/main/kotlin" data-layout="decision-flow" xmlns="http://www.w3.org/2000/svg" width="1880" height="1645" viewBox="0 0 1880 1645" role="img" aria-label="ServiceLoader-Based Runtime Selection Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
@@ -16,94 +16,94 @@
 <rect class="frame" x="32" y="28" width="1816" height="1589" rx="30"/>
 <text class="title" x="68" y="84">ServiceLoader-Based Runtime Selection Flow</text>
 <text class="subtitle" x="72" y="116">Source-checked flow phases with routed transitions.</text>
-<g><rect class="panel" x="78" y="165" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Entry phase</text></g>
-<g><rect class="panel" x="78" y="511" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="537" dominant-baseline="middle">Decision phase</text></g>
-<g><rect class="panel" x="78" y="857" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="883" dominant-baseline="middle">Execution phase</text></g>
-<g><rect class="panel" x="78" y="1203" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="1229" dominant-baseline="middle">Output phase</text></g>
-<path class="flow" d="M463 321 L677.7 321" stroke="#4F83BF"/>
-<path class="flow" d="M987.7 321 L1202.3 321" stroke="#3E9868"/>
-<path class="flow" d="M1357.3 377 L1357.3 494 L54 494 L54 667 L153 667" stroke="#B9851B"/>
-<path class="flow" d="M463 667 L677.7 667" stroke="#755BC6"/>
-<path class="flow" d="M987.7 667 L1202.3 667" stroke="#2E8F89"/>
-<path class="flow" d="M1357.3 723 L1357.3 840 L54 840 L54 1013 L153 1013" stroke="#C94D68"/>
-<path class="flow" d="M463 1013 L677.7 1013" stroke="#718A35"/>
-<path class="flow" d="M987.7 1013 L1202.3 1013" stroke="#758297"/>
-<path class="flow" d="M1357.3 1069 L1357.3 1186 L54 1186 L54 1359 L153 1359" stroke="#4F83BF"/>
-<path class="flow" d="M463 1359 L940 1359" stroke="#3E9868"/>
+<g><rect class="panel" x="78" y="203" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="229" dominant-baseline="middle">Entry phase</text></g>
+<g><rect class="panel" x="78" y="549" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="575" dominant-baseline="middle">Decision phase</text></g>
+<g><rect class="panel" x="78" y="895" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="921" dominant-baseline="middle">Execution phase</text></g>
+<g><rect class="panel" x="78" y="1241" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="1267" dominant-baseline="middle">Output phase</text></g>
+<path class="flow" d="M669 354 L785 354" stroke="#4F83BF"/>
+<path class="flow" d="M1095 354 L1211 354" stroke="#3E9868"/>
+<path class="flow" d="M1366 410 L1366 527 L514 527 L514 644" stroke="#B9851B"/>
+<path class="flow" d="M669 700 L785 700" stroke="#755BC6"/>
+<path class="flow" d="M1095 700 L1211 700" stroke="#2E8F89"/>
+<path class="flow" d="M1366 756 L1366 873 L514 873 L514 990" stroke="#C94D68"/>
+<path class="flow" d="M669 1046 L785 1046" stroke="#718A35"/>
+<path class="flow" d="M1095 1046 L1211 1046" stroke="#758297"/>
+<path class="flow" d="M1366 1102 L1366 1219 L727 1219 L727 1336" stroke="#4F83BF"/>
+<path class="flow" d="M882 1392 L998 1392" stroke="#3E9868"/>
 <g id="node-0-0">
-    <rect class="card" x="153" y="265" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <rect class="card" x="359" y="298" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
 
-    <text class="cardTitle" x="308" y="303.5" text-anchor="middle">Virtual Threads.executor</text>
-    <text class="detail" x="308" y="340.5" text-anchor="middle">Threads.executor</text>
-<text class="detail" x="308" y="357.5" text-anchor="middle">Service()</text>
+    <text class="cardTitle" x="514" y="336.5" text-anchor="middle">Virtual Threads.executor</text>
+    <text class="detail" x="514" y="373.5" text-anchor="middle">Threads.executor</text>
+<text class="detail" x="514" y="390.5" text-anchor="middle">Service()</text>
   </g>
 <g id="node-0-1">
-    <rect class="card" x="677.7" y="265" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+    <rect class="card" x="785" y="298" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
 
-    <text class="cardTitle" x="832.7" y="291.5" text-anchor="middle">Service</text>
-<text class="cardTitle" x="832.7" y="313.5" text-anchor="middle">Loader.load(Virtual</text>
-    <text class="detail" x="832.7" y="352.5" text-anchor="middle">Loader.load(Virtual</text>
-<text class="detail" x="832.7" y="369.5" text-anchor="middle">Loader.load(Virtual</text>
+    <text class="cardTitle" x="940" y="324.5" text-anchor="middle">Service</text>
+<text class="cardTitle" x="940" y="346.5" text-anchor="middle">Loader.load(Virtual</text>
+    <text class="detail" x="940" y="385.5" text-anchor="middle">Loader.load(Virtual</text>
+<text class="detail" x="940" y="402.5" text-anchor="middle">Loader.load(Virtual</text>
   </g>
 <g id="node-0-2">
-    <rect class="card" x="1202.3" y="265" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+    <rect class="card" x="1211" y="298" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
 
-    <text class="cardTitle" x="1357.3" y="327" text-anchor="middle">executorService</text>
+    <text class="cardTitle" x="1366" y="360" text-anchor="middle">executorService</text>
 
   </g>
 <g id="node-1-0">
-    <rect class="card" x="153" y="611" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+    <rect class="card" x="359" y="644" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
 
-    <text class="cardTitle" x="308" y="649.5" text-anchor="middle">Collect</text>
-    <text class="detail" x="308" y="686.5" text-anchor="middle">implementations (all</text>
-<text class="detail" x="308" y="703.5" text-anchor="middle">implementations on</text>
+    <text class="cardTitle" x="514" y="682.5" text-anchor="middle">Collect</text>
+    <text class="detail" x="514" y="719.5" text-anchor="middle">implementations (all</text>
+<text class="detail" x="514" y="736.5" text-anchor="middle">implementations on</text>
   </g>
 <g id="node-1-1">
-    <rect class="card" x="677.7" y="611" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+    <rect class="card" x="785" y="644" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
 
-    <text class="cardTitle" x="832.7" y="649.5" text-anchor="middle">Filter by</text>
-    <text class="detail" x="832.7" y="686.5" text-anchor="middle">isSupported() ==</text>
-<text class="detail" x="832.7" y="703.5" text-anchor="middle">true</text>
+    <text class="cardTitle" x="940" y="682.5" text-anchor="middle">Filter by</text>
+    <text class="detail" x="940" y="719.5" text-anchor="middle">isSupported() ==</text>
+<text class="detail" x="940" y="736.5" text-anchor="middle">true</text>
   </g>
 <g id="node-1-2">
-    <rect class="card" x="1202.3" y="611" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+    <rect class="card" x="1211" y="644" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
 
-    <text class="cardTitle" x="1357.3" y="658" text-anchor="middle">Sort by descending</text>
-    <text class="detail" x="1357.3" y="695" text-anchor="middle">priority</text>
+    <text class="cardTitle" x="1366" y="691" text-anchor="middle">Sort by descending</text>
+    <text class="detail" x="1366" y="728" text-anchor="middle">priority</text>
   </g>
 <g id="node-2-0">
-    <rect class="card" x="153" y="957" width="310" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+    <rect class="card" x="359" y="990" width="310" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
 
-    <text class="cardTitle" x="308" y="995.5" text-anchor="middle">Select</text>
-    <text class="detail" x="308" y="1032.5" text-anchor="middle">highest-priority</text>
-<text class="detail" x="308" y="1049.5" text-anchor="middle">implementation</text>
+    <text class="cardTitle" x="514" y="1028.5" text-anchor="middle">Select</text>
+    <text class="detail" x="514" y="1065.5" text-anchor="middle">highest-priority</text>
+<text class="detail" x="514" y="1082.5" text-anchor="middle">implementation</text>
   </g>
 <g id="node-2-1">
-    <rect class="card" x="677.7" y="957" width="310" height="112" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
+    <rect class="card" x="785" y="990" width="310" height="112" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
 
-    <text class="cardTitle" x="832.7" y="1019" text-anchor="middle">Running on JDK 25?</text>
+    <text class="cardTitle" x="940" y="1052" text-anchor="middle">Running on JDK 25?</text>
 
   </g>
 <g id="node-2-2">
-    <rect class="card" x="1202.3" y="957" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <rect class="card" x="1211" y="990" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
 
-    <text class="cardTitle" x="1357.3" y="995.5" text-anchor="middle">Jdk25 Virtual Thread</text>
-    <text class="detail" x="1357.3" y="1032.5" text-anchor="middle">Runtime</text>
-<text class="detail" x="1357.3" y="1049.5" text-anchor="middle">(priority=25)</text>
+    <text class="cardTitle" x="1366" y="1028.5" text-anchor="middle">Jdk25 Virtual Thread</text>
+    <text class="detail" x="1366" y="1065.5" text-anchor="middle">Runtime</text>
+<text class="detail" x="1366" y="1082.5" text-anchor="middle">(priority=25)</text>
   </g>
 <g id="node-3-0">
-    <rect class="card" x="153" y="1303" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+    <rect class="card" x="572" y="1336" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
 
-    <text class="cardTitle" x="308" y="1341.5" text-anchor="middle">Jdk21 Virtual Thread</text>
-    <text class="detail" x="308" y="1378.5" text-anchor="middle">Runtime</text>
-<text class="detail" x="308" y="1395.5" text-anchor="middle">(priority=21)</text>
+    <text class="cardTitle" x="727" y="1374.5" text-anchor="middle">Jdk21 Virtual Thread</text>
+    <text class="detail" x="727" y="1411.5" text-anchor="middle">Runtime</text>
+<text class="detail" x="727" y="1428.5" text-anchor="middle">(priority=21)</text>
   </g>
 <g id="node-3-1">
-    <rect class="card" x="940" y="1303" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+    <rect class="card" x="998" y="1336" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
 
-    <text class="cardTitle" x="1095" y="1341.5" text-anchor="middle">Platform Thread Fallback</text>
-    <text class="detail" x="1095" y="1378.5" text-anchor="middle">Fallback</text>
-<text class="detail" x="1095" y="1395.5" text-anchor="middle">(CachedThreadPool)</text>
+    <text class="cardTitle" x="1153" y="1374.5" text-anchor="middle">Platform Thread Fallback</text>
+    <text class="detail" x="1153" y="1411.5" text-anchor="middle">Fallback</text>
+<text class="detail" x="1153" y="1428.5" text-anchor="middle">(CachedThreadPool)</text>
   </g>
-<g><rect x="190" y="1553" width="1500" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="940" y="1579" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="190" y="1553" width="1500" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="940" y="1579" text-anchor="middle">Source: virtualthread/api README and public source contracts.</text></g>
 </svg>

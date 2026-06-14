@@ -33,33 +33,33 @@
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="175" y="61" text-anchor="middle">Monotonic</text>
-  <text class="mono" x="18" y="108">+nextULID(previous): ULID</text>
-<text class="mono" x="18" y="129">+nextULIDStrict(previous): ULID?</text>
+  <text class="mono" x="34" y="108">+nextULID(previous): ULID</text>
+<text class="mono" x="34" y="129">+nextULIDStrict(previous): ULID?</text>
 </g>
 <g transform="translate(508,180)">
   <rect class="card" x="0" y="0" width="350" height="217" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="175" y="61" text-anchor="middle">ULID</text>
-  <text class="mono" x="18" y="108">+timestamp(): Long</text>
-<text class="mono" x="18" y="129">+randomness(): ByteArray</text>
-<text class="mono" x="18" y="150">+toBytes(): ByteArray</text>
-<text class="mono" x="18" y="171">+toUuid(): Uuid</text>
-<text class="mono" x="18" y="192">+compareTo(other): Int</text>
+  <text class="mono" x="34" y="108">+timestamp(): Long</text>
+<text class="mono" x="34" y="129">+randomness(): ByteArray</text>
+<text class="mono" x="34" y="150">+toBytes(): ByteArray</text>
+<text class="mono" x="34" y="171">+toUuid(): Uuid</text>
+<text class="mono" x="34" y="192">+compareTo(other): Int</text>
 </g>
 <g transform="translate(928,180)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="175" y="61" text-anchor="middle">Factory</text>
-  <text class="mono" x="18" y="108">+nextULID(): ULID</text>
-<text class="mono" x="18" y="129">+nextULID(timestamp): ULID</text>
+  <text class="mono" x="34" y="108">+nextULID(): ULID</text>
+<text class="mono" x="34" y="129">+nextULID(timestamp): ULID</text>
 </g>
 <g transform="translate(508,547)">
   <rect class="card" x="0" y="0" width="350" height="133" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
   <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
   <text class="label" x="175" y="61" text-anchor="middle">StatefulMonotonic</text>
-  <text class="mono" x="18" y="108">+nextULID(): ULID</text>
+  <text class="mono" x="34" y="108">+nextULID(): ULID</text>
 </g>
 </svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1763" height="933" viewBox="0 0 1763 933" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1783" height="947" viewBox="0 0 1783 947" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
@@ -12,75 +12,75 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1763" height="933"/>
-<rect class="frame" x="32" y="28" width="1699" height="877" rx="30"/>
+<rect class="canvas" width="1783" height="947"/>
+<rect class="frame" x="32" y="28" width="1719" height="891" rx="30"/>
 <text class="title" x="68" y="84">Core Class Structure</text>
 <text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="ObservationRegistry" data-to="MeterRegistry" data-route-color="teal" d="M806 530 L806 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="Cache2kCacheMetrics" data-to="MeterRegistry" data-route-color="amber" d="M416 530 L416 581 L749 581 L749 631" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="MicrometerRetrofitMetricsFactory" data-to="MeterRegistry" data-route-color="pink" d="M948 530 L948 631" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="ObservationExtensions" data-to="ObservationRegistry" data-route-color="purple" d="M678 297 L678 398" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TimerExtensions" data-to="MeterRegistry" data-route-color="olive" d="M1347 530 L1347 581 L1005 581 L1005 631" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ObservationRegistry" data-to="MeterRegistry" data-route-color="teal" d="M788 544 L788 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="Cache2kCacheMetrics" data-to="MeterRegistry" data-route-color="amber" d="M430 544 L430 663 L707 663" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="MicrometerRetrofitMetricsFactory" data-to="MeterRegistry" data-route-color="pink" d="M992 554 L992 631" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ObservationExtensions" data-to="ObservationRegistry" data-route-color="purple" d="M688 311 L688 398" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TimerExtensions" data-to="MeterRegistry" data-route-color="olive" d="M1353 536 L1353 663 L1067 663" stroke="#718A35" stroke-dasharray="8 7"/>
 <g id="Cache2kCacheMetrics">
-  <rect class="classCard" x="118" y="398" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="288" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="288" y="445" text-anchor="middle">Cache2kCacheMetrics</text>
-  <line x1="118" y1="454" x2="458" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="136" y="479">-cache: Cache</text>
-<text class="member" x="136" y="496">-tags: Tags</text>
-<text class="member" x="136" y="513">+monitor(registry, cache, tags)</text>
+  <rect class="classCard" x="118" y="398" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="298" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="445" text-anchor="middle">Cache2kCacheMetrics</text>
+  <line x1="118" y1="454" x2="478" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="152" y="486">-cache: Cache</text>
+<text class="member" x="152" y="503">-tags: Tags</text>
+<text class="member" x="152" y="520">+monitor(registry, cache, tags)</text>
 </g>
 <g id="MeterRegistry">
-  <rect class="classCard" x="707" y="631" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="877" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="877" y="678" text-anchor="middle">MeterRegistry</text>
-  <line x1="707" y1="687" x2="1047" y2="687" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="725" y="712">+timer(name, tags) Timer</text>
-<text class="member" x="725" y="729">+counter(name, tags) Counter</text>
-<text class="member" x="725" y="746">+gauge(name, tags, number) T</text>
+  <rect class="classCard" x="707" y="631" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="887" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="887" y="678" text-anchor="middle">MeterRegistry</text>
+  <line x1="707" y1="687" x2="1067" y2="687" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="741" y="719">+timer(name, tags) Timer</text>
+<text class="member" x="741" y="736">+counter(name, tags) Counter</text>
+<text class="member" x="741" y="753">+gauge(name, tags, number) T</text>
 </g>
 <g id="ObservationRegistry">
-  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="445" text-anchor="middle">ObservationRegistry</text>
-  <line x1="508" y1="454" x2="848" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="526" y="479">+observationConfig()</text>
-<text class="member" x="526" y="496">ObservationConfig</text>
-<text class="member" x="526" y="513">+getCurrentObservation()</text>
+  <rect class="classCard" x="508" y="398" width="360" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="688" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="445" text-anchor="middle">ObservationRegistry</text>
+  <line x1="508" y1="454" x2="868" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="542" y="486">+observationConfig()</text>
+<text class="member" x="542" y="503">ObservationConfig</text>
+<text class="member" x="542" y="520">+getCurrentObservation()</text>
 </g>
 <g id="MicrometerRetrofitMetricsFactory">
-  <rect class="classCard" x="906" y="398" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1076" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1076" y="436" text-anchor="middle">MicrometerRetrofit</text>
-<text class="classTitle" x="1076" y="458" text-anchor="middle">MetricsFactory</text>
-  <line x1="906" y1="462" x2="1246" y2="462" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="924" y="483">-registry: MeterRegistry</text>
-<text class="member" x="924" y="500">+create(returnType, annotations,</text>
-<text class="member" x="924" y="517">retrofit)</text>
+  <rect class="classCard" x="906" y="398" width="380" height="156" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1096" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1096" y="436" text-anchor="middle">MicrometerRetrofitMetrics</text>
+<text class="classTitle" x="1096" y="458" text-anchor="middle">Factory</text>
+  <line x1="906" y1="462" x2="1286" y2="462" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="940" y="495">-registry: MeterRegistry</text>
+<text class="member" x="940" y="512">+create(returnType, annotations,</text>
+<text class="member" x="940" y="529">retrofit)</text>
 </g>
 <g id="ObservationExtensions">
-  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="212" text-anchor="middle">ObservationExtensions</text>
-  <line x1="508" y1="221" x2="848" y2="221" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="526" y="246">+withObservation(name, registry,</text>
-<text class="member" x="526" y="263">block) T</text>
-<text class="member" x="526" y="280">+withObservationContext(obs,</text>
+  <rect class="classCard" x="508" y="165" width="360" height="146" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="688" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="212" text-anchor="middle">ObservationExtensions</text>
+  <line x1="508" y1="221" x2="868" y2="221" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="542" y="253">+withObservation(name, registry,</text>
+<text class="member" x="542" y="270">block) T</text>
+<text class="member" x="542" y="287">+withObservationContext(obs,</text>
 </g>
 <g id="TimerExtensions">
-  <rect class="classCard" x="1305" y="398" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1475" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1475" y="445" text-anchor="middle">TimerExtensions</text>
-  <line x1="1305" y1="454" x2="1645" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1323" y="488">+recordSuspend(block) T</text>
-<text class="member" x="1323" y="505">+withTimer(timer) Flow~T~</text>
+  <rect class="classCard" x="1305" y="398" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1485" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1485" y="445" text-anchor="middle">TimerExtensions</text>
+  <line x1="1305" y1="454" x2="1665" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1339" y="491">+recordSuspend(block) T</text>
+<text class="member" x="1339" y="508">+withTimer(timer) Flow~T~</text>
 </g>
 <g>
-  <rect x="1348" y="825" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1366 843 L1424 843" stroke="#3E9868"/>
-  <text class="detail" x="1438" y="848">inheritance / implementation</text>
-  <path class="dependency" d="M1366 864 L1424 864" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1438" y="869">dependency / usage</text>
+  <rect x="1368" y="839" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1386 857 L1444 857" stroke="#3E9868"/>
+  <text class="detail" x="1458" y="862">inheritance / implementation</text>
+  <path class="dependency" d="M1386 878 L1444 878" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1458" y="883">dependency / usage</text>
 </g>
-<g><rect x="180" y="843" width="1123" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="741.5" y="869" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="857" width="1143" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="751.5" y="883" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

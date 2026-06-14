@@ -1,138 +1,70 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1200" viewBox="0 0 1640 1200" role="img" aria-labelledby="root-readme-overview-01-title root-readme-overview-01-desc">
-  <title id="root-readme-overview-01-title">Bluetape4k Projects Overview</title>
-  <desc id="root-readme-overview-01-desc">Source-backed overview of the bluetape4k-projects repository generated from current Gradle module directories.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 1200" role="img" aria-labelledby="title desc" data-intent="Explain the repository-wide bluetape4k-projects ecosystem as a responsibility map from Gradle/catalog source of truth into foundations, runtime stacks, verification, utilities, and examples." data-evidence="README.md, README.ko.md, settings.gradle.kts, gradle/libs.versions.toml, module build.gradle.kts files" data-source-read="README.md;README.ko.md;settings.gradle.kts;gradle/libs.versions.toml;*/build.gradle.kts">
+<title id="title">Bluetape4k Projects Overview</title>
+<desc id="desc">Source-backed repository overview generated from current README, settings.gradle.kts, and module directories.</desc>
+<style>
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .title { fill: #0f172a; font-size: 32px; font-weight: 800; letter-spacing: 0; }
+    .subtitle { fill: #475569; font-size: 17px; font-weight: 500; }
+    .layer { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+    .layerTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .card { stroke-width: 1.7; filter: url(#cardShadow); }
+    .cardTitle { fill: #0f172a; font-size: 16px; font-weight: 800; }
+    .cardDetail { fill: #475569; font-size: 12px; font-weight: 600; }
+    .iconBadge { stroke-width: 1.5; }
+    .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .iconFill { fill: #ffffff; }
+    .route { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+    .routeLabel { fill: #1e293b; font-size: 11px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #ffffff; stroke-width: 6px; stroke-linejoin: round; }
+    .legend { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; filter: url(#cardShadow); }
+    .legendText { fill: #334155; font-size: 12px; font-weight: 700; }
+    .footer, .chartFoot { fill: #64748b; font-size: 13px; font-weight: 600; }
+    .chartTitle { fill: #352617; font-size: 34px; font-weight: 700; }
+    .chartSub { fill: #6f5b3c; font-size: 18px; }
+    .chartLabel { fill: #3d3528; font-size: 16px; font-weight: 700; }
+    .chartValue { fill: #3d3528; font-size: 15px; font-weight: 700; }
+    .chartTick { fill: #7a6a52; font-size: 12px; }
+  </style>
   <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5 0.5 L4.5 2.5 L0.5 4.5 Z" fill="context-stroke"/></marker>
-    <style>
-      .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.panel{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}.card{filter:url(#shadow);stroke-width:2}.title{font-family:"Architects Daughter";font-size:44px;fill:#22344A;font-weight:400}.subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476;font-weight:400}.panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}.card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}.detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}.small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}.connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.footer{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
-    </style>
+    <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
+    </marker>
   </defs>
-  <rect class="canvas" width="1640" height="1200"/>
-  <rect class="frame" x="34" y="30" width="1572" height="1140" rx="28"/>
-  <text class="title" x="72" y="88">Bluetape4k Projects Overview</text>
-  <text class="subtitle" x="76" y="121">90 current Gradle modules across shared Kotlin/JVM libraries, runtime stacks, examples, and benchmarks.</text>
-  <g id="panel-source">
-    <rect class="panel" x="70" y="160" width="1500" height="165" rx="18"/>
-    <text class="panelTitle" x="100" y="178" dominant-baseline="middle">Source of truth</text>
-  </g>
-  <g id="panel-foundation">
-    <rect class="panel" x="70" y="365" width="1500" height="285" rx="18"/>
-    <text class="panelTitle" x="100" y="383" dominant-baseline="middle">Foundation and runtime libraries</text>
-  </g>
-  <g id="panel-stacks">
-    <rect class="panel" x="70" y="700" width="1500" height="190" rx="18"/>
-    <text class="panelTitle" x="100" y="718" dominant-baseline="middle">Application stacks and verification</text>
-  </g>
-  <g id="panel-ecosystem">
-    <rect class="panel" x="70" y="940" width="1500" height="150" rx="18"/>
-    <text class="panelTitle" x="100" y="958" dominant-baseline="middle">Examples, benchmarks, and split repositories</text>
-  </g>
-  <path id="route-settings-core" class="connector" d="M315 289 L315 350 L520 350 L520 420 L254.5 420 L254.5 430" stroke="#4F83BF"/>
-  <path id="route-catalog-io" class="connector" d="M760 289 L760 340 L577.5 340 L577.5 430" stroke="#8A72D6"/>
-  <path id="route-catalog-infra" class="connector" d="M870 289 L870 360 L1223.5 360 L1223.5 430" stroke="#8A72D6"/>
-  <path id="route-published-split" class="connector" d="M1325 289 L1325 350 L1520 350 L1520 960 L1240 960 L1240 989" stroke="#58A978"/>
-  <path id="route-core-ktor" class="connector" d="M254.5 526 L254.5 675 L560 675 L560 745 L300 745 L300 755" stroke="#4F83BF"/>
-  <path id="route-cache-testing" class="connector" d="M577.5 641 L577.5 675 L1000 675 L1000 755" stroke="#58A978"/>
-  <path id="route-testing-benchmarks" class="connector" d="M1000 837 L1000 920 L700 920 L700 995" stroke="#B88A44"/>
-  <g id="node-settings" transform="translate(150,215)">
-    <rect class="card" x="0" y="0" width="330" height="74" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="165" y="18" text-anchor="middle" dominant-baseline="middle">settings.gradle.kts</text>
-    <text class="detail" x="165" y="37" text-anchor="middle" dominant-baseline="middle">auto-includes module roots</text>
-    <text class="detail" x="165" y="56" text-anchor="middle" dominant-baseline="middle">current Gradle layout</text>
-  </g>
-  <g id="node-catalog" transform="translate(650,215)">
-    <rect class="card" x="0" y="0" width="330" height="74" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="165" y="18" text-anchor="middle" dominant-baseline="middle">libs.versions.toml</text>
-    <text class="detail" x="165" y="37" text-anchor="middle" dominant-baseline="middle">Kotlin 2.3</text>
-    <text class="detail" x="165" y="56" text-anchor="middle" dominant-baseline="middle">Spring Boot 4.x</text>
-  </g>
-  <g id="node-published" transform="translate(1160,215)">
-    <rect class="card" x="0" y="0" width="330" height="74" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="165" y="18" text-anchor="middle" dominant-baseline="middle">Published platform</text>
-    <text class="detail" x="165" y="37" text-anchor="middle" dominant-baseline="middle">bluetape4k-bom</text>
-    <text class="detail" x="165" y="56" text-anchor="middle" dominant-baseline="middle">Maven artifacts</text>
-  </g>
-  <g id="node-core" transform="translate(112,430)">
-    <rect class="card" x="0" y="0" width="285" height="96" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="142.5" y="29" text-anchor="middle" dominant-baseline="middle">Foundation</text>
-    <text class="detail" x="142.5" y="48" text-anchor="middle" dominant-baseline="middle">5 modules</text>
-    <text class="detail" x="142.5" y="67" text-anchor="middle" dominant-baseline="middle">annotations, bom, core, coroutines</text>
-  </g>
-  <g id="node-io" transform="translate(435,430)">
-    <rect class="card" x="0" y="0" width="285" height="96" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="142.5" y="29" text-anchor="middle" dominant-baseline="middle">I/O and codecs</text>
-    <text class="detail" x="142.5" y="48" text-anchor="middle" dominant-baseline="middle">16 modules</text>
-    <text class="detail" x="142.5" y="67" text-anchor="middle" dominant-baseline="middle">HTTP, JSON, gRPC, Okio</text>
-  </g>
-  <g id="node-data" transform="translate(758,430)">
-    <rect class="card" x="0" y="0" width="285" height="96" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="142.5" y="29" text-anchor="middle" dominant-baseline="middle">Data access</text>
-    <text class="detail" x="142.5" y="48" text-anchor="middle" dominant-baseline="middle">6 modules</text>
-    <text class="detail" x="142.5" y="67" text-anchor="middle" dominant-baseline="middle">JDBC, R2DBC, MongoDB</text>
-  </g>
-  <g id="node-infra" transform="translate(1081,430)">
-    <rect class="card" x="0" y="0" width="285" height="96" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="142.5" y="29" text-anchor="middle" dominant-baseline="middle">Infrastructure</text>
-    <text class="detail" x="142.5" y="48" text-anchor="middle" dominant-baseline="middle">13 modules</text>
-    <text class="detail" x="142.5" y="67" text-anchor="middle" dominant-baseline="middle">Redis, Kafka, OTel</text>
-  </g>
-  <g id="node-utils" transform="translate(758,545)">
-    <rect class="card" x="0" y="0" width="285" height="96" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
-    <text class="card-title" x="142.5" y="29" text-anchor="middle" dominant-baseline="middle">Utilities</text>
-    <text class="detail" x="142.5" y="48" text-anchor="middle" dominant-baseline="middle">13 modules</text>
-    <text class="detail" x="142.5" y="67" text-anchor="middle" dominant-baseline="middle">time, geo, workflow</text>
-  </g>
-  <g id="node-cache" transform="translate(435,545)">
-    <rect class="card" x="0" y="0" width="285" height="96" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="142.5" y="29" text-anchor="middle" dominant-baseline="middle">Caching</text>
-    <text class="detail" x="142.5" y="48" text-anchor="middle" dominant-baseline="middle">5 modules</text>
-    <text class="detail" x="142.5" y="67" text-anchor="middle" dominant-baseline="middle">core, Hazelcast, Lettuce</text>
-  </g>
-  <g id="node-ktor" transform="translate(150,755)">
-    <rect class="card" x="0" y="0" width="300" height="82" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="150" y="22" text-anchor="middle" dominant-baseline="middle">Ktor stack</text>
-    <text class="detail" x="150" y="41" text-anchor="middle" dominant-baseline="middle">5 modules</text>
-    <text class="detail" x="150" y="60" text-anchor="middle" dominant-baseline="middle">core, testing, OpenAPI</text>
-  </g>
-  <g id="node-spring" transform="translate(500,775)">
-    <rect class="card" x="0" y="0" width="300" height="82" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="150" y="22" text-anchor="middle" dominant-baseline="middle">Spring Boot stack</text>
-    <text class="detail" x="150" y="41" text-anchor="middle" dominant-baseline="middle">8 modules</text>
-    <text class="detail" x="150" y="60" text-anchor="middle" dominant-baseline="middle">Boot 4.x starters</text>
-  </g>
-  <g id="node-testing" transform="translate(850,755)">
-    <rect class="card" x="0" y="0" width="300" height="82" rx="12" fill="#F7F1E7" stroke="#B88A44"/>
-    <text class="card-title" x="150" y="22" text-anchor="middle" dominant-baseline="middle">Testing support</text>
-    <text class="detail" x="150" y="41" text-anchor="middle" dominant-baseline="middle">5 modules</text>
-    <text class="detail" x="150" y="60" text-anchor="middle" dominant-baseline="middle">JUnit5, Testcontainers</text>
-  </g>
-  <g id="node-vt" transform="translate(1200,775)">
-    <rect class="card" x="0" y="0" width="300" height="82" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="150" y="22" text-anchor="middle" dominant-baseline="middle">Virtual threads</text>
-    <text class="detail" x="150" y="41" text-anchor="middle" dominant-baseline="middle">3 modules</text>
-    <text class="detail" x="150" y="60" text-anchor="middle" dominant-baseline="middle">JDK21 and JDK25 adapters</text>
-  </g>
-  <g id="node-examples" transform="translate(190,995)">
-    <rect class="card" x="0" y="0" width="300" height="64" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="150" y="13" text-anchor="middle" dominant-baseline="middle">Examples</text>
-    <text class="detail" x="150" y="32" text-anchor="middle" dominant-baseline="middle">9 modules</text>
-    <text class="detail" x="150" y="51" text-anchor="middle" dominant-baseline="middle">Ktor, Spring Boot, JPA</text>
-  </g>
-  <g id="node-benchmarks" transform="translate(550,995)">
-    <rect class="card" x="0" y="0" width="300" height="64" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="150" y="13" text-anchor="middle" dominant-baseline="middle">Benchmarks</text>
-    <text class="detail" x="150" y="32" text-anchor="middle" dominant-baseline="middle">2 modules</text>
-    <text class="detail" x="150" y="51" text-anchor="middle" dominant-baseline="middle">web framework, protobuf</text>
-  </g>
-  <g id="node-split" transform="translate(1050,989)">
-    <rect class="card" x="0" y="0" width="380" height="76" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="190" y="19" text-anchor="middle" dominant-baseline="middle">Split repositories</text>
-    <text class="detail" x="190" y="38" text-anchor="middle" dominant-baseline="middle">AWS, Exposed, image</text>
-    <text class="detail" x="190" y="57" text-anchor="middle" dominant-baseline="middle">text, leader, JaVers</text>
-  </g>
-  <g transform="translate(76,1126)">
-    <rect class="footer" x="0" y="0" width="1488" height="44" rx="10"/>
-    <text class="small" x="744" y="23" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
-  </g>
+<rect width="1640" height="1200" fill="#ffffff"/>
+<rect x="34" y="34" width="1572" height="1132" rx="8" fill="#f8fafc" stroke="#d1d5db" stroke-width="1.5"/>
+<text class="title" x="70" y="92">Bluetape4k Projects Overview</text>
+<text class="subtitle" x="70" y="124">88 current Gradle modules grouped by responsibility and runtime adoption path.</text>
+<g><rect class="layer" x="70" y="150" width="1500" height="160" rx="8"/><text class="layerTitle" x="90" y="178">Source of truth</text></g>
+<g><rect class="layer" x="70" y="360" width="1500" height="385" rx="8"/><text class="layerTitle" x="90" y="388">Library capabilities</text></g>
+<g><rect class="layer" x="70" y="780" width="1500" height="190" rx="8"/><text class="layerTitle" x="90" y="808">Verification and adoption</text></g>
+<g data-route="settings->foundation"><path class="route" data-from="settings" data-to="foundation" d="M285,276 L285,338 L265,338 L265,395" stroke="#2563eb"/><text class="routeLabel" x="265" y="328">discovers</text></g>
+<g data-route="catalog->io"><path class="route" data-from="catalog" data-to="io" d="M820,276 L820,338 L635,338 L635,395" stroke="#9333ea"/><text class="routeLabel" x="635" y="328">governs</text></g>
+<g data-route="catalog->data"><path class="route" data-from="catalog" data-to="data" d="M820,276 L820,338 L1005,338 L1005,395" stroke="#9333ea"/><text class="routeLabel" x="1005" y="328">governs</text></g>
+<g data-route="bom->infra"><path class="route" data-from="bom" data-to="infra" d="M1355,276 L1355,338 L1375,338 L1375,395" stroke="#16a34a"/><text class="routeLabel" x="1375" y="328">publishes</text></g>
+<g data-route="foundation->cache"><path class="route" data-from="foundation" data-to="cache" d="M265,507 L265,555 L320,555 L320,605" stroke="#2563eb"/><text class="routeLabel" x="320" y="545">shared API</text></g>
+<g data-route="io->ktor"><path class="route" data-from="io" data-to="ktor" d="M635,507 L635,605" stroke="#0d9488"/><text class="routeLabel" x="635" y="595">HTTP stack</text></g>
+<g data-route="data->spring"><path class="route" data-from="data" data-to="spring" d="M1005,507 L1005,605" stroke="#9333ea"/><text class="routeLabel" x="1005" y="595">data starter</text></g>
+<g data-route="infra->virtual"><path class="route" data-from="infra" data-to="virtual" d="M1375,507 L1375,605" stroke="#ea580c"/><text class="routeLabel" x="1375" y="595">runtime</text></g>
+<g data-route="cache->testing"><path class="route" data-from="cache" data-to="testing" d="M320,717 L320,815" stroke="#16a34a"/><text class="routeLabel" x="320" y="805">test matrix</text></g>
+<g data-route="ktor->examples"><path class="route" data-from="ktor" data-to="examples" d="M650,717 L650,775 L1130,775 L1130,815" stroke="#0d9488"/><text class="routeLabel" x="1130" y="765">sample apps</text></g>
+<g data-route="spring->examples"><path class="route" data-from="spring" data-to="examples" d="M1020,717 L1020,815" stroke="#2563eb"/><text class="routeLabel" x="1020" y="805">sample apps</text></g>
+<g data-route="utils->examples"><path class="route" data-from="utils" data-to="examples" d="M730,927 L730,985 L1130,985 L1130,927" stroke="#9333ea"/><text class="routeLabel" x="1130" y="975">domain helpers</text></g>
+<g id="settings"><rect class="card" x="120" y="190" width="330" height="86" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(142,212)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><path class="iconStroke" d="M13 9h16M13 21h16M13 33h16"/><circle class="iconFill" cx="19" cy="9" r="3"/><circle class="iconFill" cx="27" cy="21" r="3"/><circle class="iconFill" cx="21" cy="33" r="3"/></g><text class="cardTitle" x="202" y="227">settings.gradle.kts</text><text class="cardDetail" x="202" y="255">module registry</text></g>
+<g id="catalog"><rect class="card" x="655" y="190" width="330" height="86" rx="8" fill="#faf5ff" stroke="#9333ea"/><g transform="translate(677,212)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#9333ea" stroke="#9333ea"/><path class="iconStroke" d="M14 10h17v24H14zM19 16h7M19 22h7M19 28h5"/></g><text class="cardTitle" x="737" y="227">libs.versions.toml</text><text class="cardDetail" x="737" y="255">Kotlin 2.3 + Spring Boot 4.x</text></g>
+<g id="bom"><rect class="card" x="1190" y="190" width="330" height="86" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(1212,212)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><path class="iconStroke" d="M21 8l13 7v14l-13 7-13-7V15zM21 8v14M8 15l13 7 13-7"/></g><text class="cardTitle" x="1272" y="227">bluetape4k-bom</text><text class="cardDetail" x="1272" y="255">published alignment</text></g>
+<g id="foundation"><rect class="card" x="105" y="395" width="320" height="112" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(127,430)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><path class="iconStroke" d="M10 32h24M13 28h18M16 24h12M21 10l13 14H8z"/></g><text class="cardTitle" x="187" y="445">Foundation Runtime</text><text class="cardDetail" x="187" y="473">5 modules</text></g>
+<g id="io"><rect class="card" x="475" y="395" width="320" height="112" rx="8" fill="#f0fdfa" stroke="#0d9488"/><g transform="translate(497,430)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#0d9488" stroke="#0d9488"/><path class="iconStroke" d="M10 22h24M16 14l-6 8 6 8M28 14l6 8-6 8"/></g><text class="cardTitle" x="557" y="445">I/O and Codecs</text><text class="cardDetail" x="557" y="473">16 modules</text></g>
+<g id="data"><rect class="card" x="845" y="395" width="320" height="112" rx="8" fill="#faf5ff" stroke="#9333ea"/><g transform="translate(867,430)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#9333ea" stroke="#9333ea"/><ellipse class="iconStroke" cx="22" cy="12" rx="12" ry="5"/><path class="iconStroke" d="M10 12v20c0 3 24 3 24 0V12M10 22c0 3 24 3 24 0"/></g><text class="cardTitle" x="927" y="445">Data Access</text><text class="cardDetail" x="927" y="473">6 modules</text></g>
+<g id="infra"><rect class="card" x="1215" y="395" width="320" height="112" rx="8" fill="#fff7ed" stroke="#ea580c"/><g transform="translate(1237,430)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#ea580c" stroke="#ea580c"/><path class="iconStroke" d="M12 29h20M14 22h16M16 15h12M18 8h8"/></g><text class="cardTitle" x="1297" y="445">Infrastructure</text><text class="cardDetail" x="1297" y="473">13 modules</text></g>
+<g id="cache"><rect class="card" x="160" y="605" width="320" height="112" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(182,640)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><path class="iconStroke" d="M12 13h20v18H12zM17 18h10M17 25h6"/></g><text class="cardTitle" x="242" y="655">Cache Layer</text><text class="cardDetail" x="242" y="683">5 modules</text></g>
+<g id="ktor"><rect class="card" x="520" y="605" width="260" height="112" rx="8" fill="#f0fdfa" stroke="#0d9488"/><g transform="translate(542,640)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#0d9488" stroke="#0d9488"/><path class="iconStroke" d="M10 24l8-12 8 12-8 8zM26 24l6-9 6 9-6 7z"/></g><text class="cardTitle" x="602" y="655">Ktor Stack</text><text class="cardDetail" x="602" y="683">5 modules</text></g>
+<g id="spring"><rect class="card" x="860" y="605" width="320" height="112" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(882,640)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><path class="iconStroke" d="M11 28c9 6 22 0 22-11-10 0-18 3-22 11zM20 27c1-5 5-9 11-10"/></g><text class="cardTitle" x="942" y="655">Spring Boot 4</text><text class="cardDetail" x="942" y="683">8 modules</text></g>
+<g id="virtual"><rect class="card" x="1250" y="605" width="260" height="112" rx="8" fill="#f7fee7" stroke="#65a30d"/><g transform="translate(1272,640)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#65a30d" stroke="#65a30d"/><path class="iconStroke" d="M11 29c2-11 6-16 11-16s9 5 11 16M14 29h16M18 21h8"/></g><text class="cardTitle" x="1332" y="655">Virtual Threads</text><text class="cardDetail" x="1332" y="683">3 modules</text></g>
+<g id="testing"><rect class="card" x="170" y="815" width="320" height="112" rx="8" fill="#fdf2f8" stroke="#db2777"/><g transform="translate(192,850)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#db2777" stroke="#db2777"/><path class="iconStroke" d="M12 23l7 7 14-16"/></g><text class="cardTitle" x="252" y="865">Verification</text><text class="cardDetail" x="252" y="893">5 testing modules</text></g>
+<g id="utils"><rect class="card" x="570" y="815" width="320" height="112" rx="8" fill="#faf5ff" stroke="#9333ea"/><g transform="translate(592,850)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#9333ea" stroke="#9333ea"/><path class="iconStroke" d="M22 9v26M9 22h26M14 14l16 16M30 14L14 30"/></g><text class="cardTitle" x="652" y="865">Utility Workflows</text><text class="cardDetail" x="652" y="893">13 modules</text></g>
+<g id="examples"><rect class="card" x="970" y="815" width="320" height="112" rx="8" fill="#f9fafb" stroke="#6b7280"/><g transform="translate(992,850)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#6b7280" stroke="#6b7280"/><path class="iconStroke" d="M14 10l18 12-18 12z"/></g><text class="cardTitle" x="1052" y="865">Examples</text><text class="cardDetail" x="1052" y="893">9 demos</text></g>
+<g><rect class="legend" x="1120" y="1080" width="450" height="58" rx="8"/><line x1="1144" y1="1104" x2="1208" y2="1104" stroke="#2563eb" stroke-width="2.4" marker-end="url(#arrow)"/><text class="legendText" x="1225" y="1109">dependency / responsibility flow</text><line x1="1144" y1="1124" x2="1208" y2="1124" stroke="#9333ea" stroke-width="2.4" marker-end="url(#arrow)"/><text class="legendText" x="1225" y="1129">version or runtime alignment</text></g>
+<text class="footer" x="70" y="1154">Latest source: README + Gradle module tree. Sequence diagrams intentionally unchanged.</text>
 </svg>

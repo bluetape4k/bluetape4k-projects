@@ -9,7 +9,7 @@ const RSVGC = "/opt/homebrew/bin/rsvg-convert";
 const MIN_CLEARANCE = 8;
 
 const files = readdirSync(DIAGRAM_DIR)
-  .filter((file) => file.endsWith(".svg") && !file.endsWith("-sketch.svg") && !file.endsWith("-graphviz.svg"))
+  .filter((file) => file.endsWith(".svg"))
   .sort();
 
 let modernized = 0;

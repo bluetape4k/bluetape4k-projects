@@ -24,22 +24,22 @@
 <rect class="frame" x="32" y="28" width="1506" height="1094" rx="30"/>
 <text class="title" x="68" y="84">Hibernate Lettuce Near Cache</text>
 <text class="subtitle" x="72" y="116">Hibernate cache regions use a local Caffeine tier and a shared Lettuce Redis tier through one access strategy.</text>
-<g><rect class="panel" x="86" y="165" width="1400" height="170" rx="22"/><text class="panelTitle" x="110" y="199">Hibernate integration</text></g>
-<g id="entity"><rect class="card" x="155" y="220" width="300" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="305" y="252" text-anchor="middle">EntityManager / Session</text><text class="detail" x="305" y="288" text-anchor="middle">loads entities and collections</text></g>
-<g id="region"><rect class="card" x="590" y="210" width="360" height="102" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="770" y="243" text-anchor="middle">Hibernate Cache Region</text><text class="detail" x="770" y="279" text-anchor="middle">entity, collection, query,</text>
-<text class="detail" x="770" y="297" text-anchor="middle">timestamps</text></g>
-<g id="factory"><rect class="card" x="1090" y="220" width="300" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="1240" y="252" text-anchor="middle">RegionFactory</text><text class="detail" x="1240" y="288" text-anchor="middle">creates access strategies</text></g>
-<path class="flow" d="M455 261 L590 261" stroke="#4F83BF"/>
-<path class="flow" d="M950 261 L1090 261" stroke="#755BC6"/>
-<g><rect class="panel" x="86" y="450" width="1400" height="245" rx="22"/><text class="panelTitle" x="110" y="484">2-tier Near Cache</text></g>
-<g id="front"><rect class="card" x="170" y="535" width="320" height="92" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="330" y="572" text-anchor="middle">Caffeine front tier</text><text class="detail" x="330" y="608" text-anchor="middle">hot keys in-process</text></g>
-<g id="near"><rect class="card" x="625" y="522" width="340" height="118" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="795" y="551" text-anchor="middle">NearCache access</text><text class="cardTitle" x="795" y="575" text-anchor="middle">strategy</text><text class="detail" x="795" y="611" text-anchor="middle">coordinates hits, misses, and</text>
-<text class="detail" x="795" y="629" text-anchor="middle">writes</text></g>
-<g id="redis"><rect class="card" x="1100" y="535" width="320" height="92" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1260" y="572" text-anchor="middle">Lettuce Redis back tier</text><text class="detail" x="1260" y="608" text-anchor="middle">shared distributed cache</text></g>
-<path class="flow" d="M490 581 L625 581" stroke="#B9851B"/>
-<path class="flow" d="M965 581 L1100 581" stroke="#2E8F89"/>
-<path class="flow" d="M770 312 L770 522" stroke="#755BC6"/>
-<g><rect class="panel" x="86" y="815" width="1400" height="195" rx="22"/><text class="panelTitle" x="110" y="849">Consistency contract</text></g>
+<g><rect class="panel" x="86" y="192" width="1400" height="170" rx="22"/><text class="panelTitle" x="110" y="226">Hibernate integration</text></g>
+<g id="entity"><rect class="card" x="155" y="247" width="300" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="305" y="279" text-anchor="middle">EntityManager / Session</text><text class="detail" x="305" y="315" text-anchor="middle">loads entities and collections</text></g>
+<g id="region"><rect class="card" x="590" y="237" width="360" height="102" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="770" y="270" text-anchor="middle">Hibernate Cache Region</text><text class="detail" x="770" y="306" text-anchor="middle">entity, collection, query,</text>
+<text class="detail" x="770" y="324" text-anchor="middle">timestamps</text></g>
+<g id="factory"><rect class="card" x="1090" y="247" width="300" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="1240" y="279" text-anchor="middle">RegionFactory</text><text class="detail" x="1240" y="315" text-anchor="middle">creates access strategies</text></g>
+<path class="flow" d="M455 288 L590 288" stroke="#4F83BF"/>
+<path class="flow" d="M950 288 L1090 288" stroke="#755BC6"/>
+<g><rect class="panel" x="86" y="477" width="1400" height="245" rx="22"/><text class="panelTitle" x="110" y="511">2-tier Near Cache</text></g>
+<g id="front"><rect class="card" x="170" y="562" width="320" height="92" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="330" y="599" text-anchor="middle">Caffeine front tier</text><text class="detail" x="330" y="635" text-anchor="middle">hot keys in-process</text></g>
+<g id="near"><rect class="card" x="625" y="549" width="340" height="118" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="795" y="578" text-anchor="middle">NearCache access</text><text class="cardTitle" x="795" y="602" text-anchor="middle">strategy</text><text class="detail" x="795" y="638" text-anchor="middle">coordinates hits, misses, and</text>
+<text class="detail" x="795" y="656" text-anchor="middle">writes</text></g>
+<g id="redis"><rect class="card" x="1100" y="562" width="320" height="92" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1260" y="599" text-anchor="middle">Lettuce Redis back tier</text><text class="detail" x="1260" y="635" text-anchor="middle">shared distributed cache</text></g>
+<path class="flow" d="M490 608 L625 608" stroke="#B9851B"/>
+<path class="flow" d="M965 608 L1100 608" stroke="#2E8F89"/>
+<path class="flow" d="M770 339 L770 549" stroke="#755BC6"/>
+<g><rect class="panel" x="86" y="842" width="1400" height="195" rx="22"/><text class="panelTitle" x="110" y="849">Consistency contract</text></g>
 <g id="put"><rect class="card" x="155" y="875" width="300" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="305" y="907" text-anchor="middle">putupdate</text><text class="detail" x="305" y="943" text-anchor="middle">write-through to Redis</text></g>
 <g id="evict"><rect class="card" x="590" y="875" width="300" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="740" y="898" text-anchor="middle">evictclear</text><text class="detail" x="740" y="934" text-anchor="middle">remove local and remote</text>
 <text class="detail" x="740" y="952" text-anchor="middle">entries</text></g>

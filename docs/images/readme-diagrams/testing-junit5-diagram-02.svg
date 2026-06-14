@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1340" viewBox="0 0 1500 1340" role="img" aria-label="Junit5 Class Structure 2">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1386" viewBox="0 0 1500 1386" role="img" aria-label="Junit5 Class Structure 2">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
@@ -12,97 +12,96 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1340"/>
-<rect class="frame" x="32" y="28" width="1436" height="1284" rx="30"/>
+<rect class="canvas" width="1500" height="1386"/>
+<rect class="frame" x="32" y="28" width="1436" height="1330" rx="30"/>
 <text class="title" x="68" y="84">Junit5 Class Structure 2</text>
 <text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="StructuredTaskScopeTester" data-to="SuspendedJobTester" data-route-color="teal" d="M416 297 L416 398" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="MultithreadingTester" data-to="SuspendedJobTester" data-route-color="amber" d="M550 297 L550 398" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TempFolderExtension" data-to="TempFolder" data-route-color="pink" d="M1114 297 L1114 398" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="StructuredTaskScopeTester" data-to="SuspendedJobTester" data-route-color="teal" d="M430 303 L430 398" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="MultithreadingTester" data-to="SuspendedJobTester" data-route-color="amber" d="M620 311 L620 398" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TempFolderExtension" data-to="TempFolder" data-route-color="pink" d="M1173 311 L1173 398" stroke="#C94D68" stroke-dasharray="8 7"/>
 <g id="StructuredTaskScopeTester">
-  <rect class="classCard" x="118" y="165" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="288" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="288" y="203" text-anchor="middle">StructuredTaskScope</text>
-<text class="classTitle" x="288" y="225" text-anchor="middle">Tester</text>
-  <line x1="118" y1="229" x2="458" y2="229" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="136" y="259">+rounds(n)</text>
-<text class="member" x="136" y="276">+add(block)</text>
+  <rect class="classCard" x="147" y="165" width="380" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="337" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="337" y="212" text-anchor="middle">StructuredTaskScopeTester</text>
+  <line x1="147" y1="221" x2="527" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="181" y="258">+rounds(n)</text>
+<text class="member" x="181" y="275">+add(block)</text>
 </g>
 <g id="SuspendedJobTester">
-  <rect class="classCard" x="313" y="398" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="483" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="483" y="445" text-anchor="middle">SuspendedJobTester</text>
-  <line x1="313" y1="454" x2="653" y2="454" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="331" y="479">+workers(n) SuspendedJobTester</text>
-<text class="member" x="331" y="496">+rounds(n) SuspendedJobTester</text>
-<text class="member" x="331" y="513">+add(block) SuspendedJobTester</text>
+  <rect class="classCard" x="342" y="398" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="522" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="522" y="445" text-anchor="middle">SuspendedJobTester</text>
+  <line x1="342" y1="454" x2="702" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="376" y="486">+workers(n) SuspendedJobTester</text>
+<text class="member" x="376" y="503">+rounds(n) SuspendedJobTester</text>
+<text class="member" x="376" y="520">+add(block) SuspendedJobTester</text>
 </g>
 <g id="MultithreadingTester">
-  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="212" text-anchor="middle">MultithreadingTester</text>
-  <line x1="508" y1="221" x2="848" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="526" y="246">+workers(n) MultithreadingTester</text>
-<text class="member" x="526" y="263">+rounds(n) MultithreadingTester</text>
-<text class="member" x="526" y="280">+add(block) MultithreadingTester</text>
+  <rect class="classCard" x="537" y="165" width="360" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="717" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="717" y="212" text-anchor="middle">MultithreadingTester</text>
+  <line x1="537" y1="221" x2="897" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="571" y="253">+workers(n) MultithreadingTester</text>
+<text class="member" x="571" y="270">+rounds(n) MultithreadingTester</text>
+<text class="member" x="571" y="287">+add(block) MultithreadingTester</text>
 </g>
 <g id="TempFolder">
-  <rect class="classCard" x="944" y="398" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1114" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1114" y="445" text-anchor="middle">TempFolder</text>
-  <line x1="944" y1="454" x2="1284" y2="454" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="962" y="479">+root: File</text>
-<text class="member" x="962" y="496">+rootPath: String</text>
-<text class="member" x="962" y="513">+createFile(name) File</text>
+  <rect class="classCard" x="993" y="398" width="360" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1173" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="445" text-anchor="middle">TempFolder</text>
+  <line x1="993" y1="454" x2="1353" y2="454" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="1027" y="486">+root: File</text>
+<text class="member" x="1027" y="503">+rootPath: String</text>
+<text class="member" x="1027" y="520">+createFile(name) File</text>
 </g>
 <g id="FakeValueExtension">
-  <rect class="classCard" x="944" y="558" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1114" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="1114" y="605" text-anchor="middle">FakeValueExtension</text>
-  <line x1="944" y1="614" x2="1284" y2="614" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="962" y="648">+beforeEach(context)</text>
-<text class="member" x="962" y="665">+resolveParameter(context) Any</text>
+  <rect class="classCard" x="993" y="572" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1173" y="591" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="619" text-anchor="middle">FakeValueExtension</text>
+  <line x1="993" y1="628" x2="1353" y2="628" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="1027" y="665">+beforeEach(context)</text>
+<text class="member" x="1027" y="682">+resolveParameter(context) Any</text>
 </g>
 <g id="TempFolderExtension">
-  <rect class="classCard" x="944" y="165" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1114" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="1114" y="212" text-anchor="middle">TempFolderExtension</text>
-  <line x1="944" y1="221" x2="1284" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="962" y="246">+beforeEach(context)</text>
-<text class="member" x="962" y="263">+afterEach(context)</text>
-<text class="member" x="962" y="280">+resolveParameter(context)</text>
+  <rect class="classCard" x="993" y="165" width="360" height="146" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1173" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="212" text-anchor="middle">TempFolderExtension</text>
+  <line x1="993" y1="221" x2="1353" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1027" y="253">+beforeEach(context)</text>
+<text class="member" x="1027" y="270">+afterEach(context)</text>
+<text class="member" x="1027" y="287">+resolveParameter(context)</text>
 </g>
 <g id="Fakers">
-  <rect class="classCard" x="944" y="718" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1114" y="737" text-anchor="middle">class</text>
-  <text class="classTitle" x="1114" y="765" text-anchor="middle">Fakers</text>
-  <line x1="944" y1="774" x2="1284" y2="774" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="962" y="799">+randomString(min, max) String</text>
-<text class="member" x="962" y="816">+fixedString(length) String</text>
-<text class="member" x="962" y="833">+numberString(pattern) String</text>
+  <rect class="classCard" x="993" y="738" width="360" height="146" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1173" y="757" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="785" text-anchor="middle">Fakers</text>
+  <line x1="993" y1="794" x2="1353" y2="794" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="1027" y="826">+randomString(min, max) String</text>
+<text class="member" x="1027" y="843">+fixedString(length) String</text>
+<text class="member" x="1027" y="860">+numberString(pattern) String</text>
 </g>
 <g id="OutputCapturer">
-  <rect class="classCard" x="944" y="878" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1114" y="897" text-anchor="middle">class</text>
-  <text class="classTitle" x="1114" y="925" text-anchor="middle">OutputCapturer</text>
-  <line x1="944" y1="934" x2="1284" y2="934" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="962" y="968">+capture() String</text>
-<text class="member" x="962" y="985">+expect(block)</text>
+  <rect class="classCard" x="993" y="912" width="360" height="138" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1173" y="931" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="959" text-anchor="middle">OutputCapturer</text>
+  <line x1="993" y1="968" x2="1353" y2="968" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1027" y="1005">+capture() String</text>
+<text class="member" x="1027" y="1022">+expect(block)</text>
 </g>
 <g id="StopwatchExtension">
-  <rect class="classCard" x="944" y="1038" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1114" y="1057" text-anchor="middle">class</text>
-  <text class="classTitle" x="1114" y="1085" text-anchor="middle">StopwatchExtension</text>
-  <line x1="944" y1="1094" x2="1284" y2="1094" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="962" y="1128">+beforeEach(context)</text>
-<text class="member" x="962" y="1145">+afterEach(context)</text>
+  <rect class="classCard" x="993" y="1078" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1173" y="1097" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="1125" text-anchor="middle">StopwatchExtension</text>
+  <line x1="993" y1="1134" x2="1353" y2="1134" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1027" y="1171">+beforeEach(context)</text>
+<text class="member" x="1027" y="1188">+afterEach(context)</text>
 </g>
 <g>
-  <rect x="1085" y="1232" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1103 1250 L1161 1250" stroke="#3E9868"/>
-  <text class="detail" x="1175" y="1255">inheritance / implementation</text>
-  <path class="dependency" d="M1103 1271 L1161 1271" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1175" y="1276">dependency / usage</text>
+  <rect x="1085" y="1278" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1103 1296 L1161 1296" stroke="#3E9868"/>
+  <text class="detail" x="1175" y="1301">inheritance / implementation</text>
+  <path class="dependency" d="M1103 1317 L1161 1317" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1175" y="1322">dependency / usage</text>
 </g>
-<g><rect x="180" y="1250" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="1276" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="1296" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="1322" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

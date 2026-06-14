@@ -1,85 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1310" height="1020" viewBox="0 0 1310 1020" role="img" aria-label="Protobuf Type Conversion Flow">
+<svg data-intent="Show the bidirectional conversion paths between Java/Kotlin domain types, protobuf well-known types, Any packing, and ByteArray serialization." data-evidence="io/protobuf/README.md; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/DurationSupport.kt; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/DateTimeSupport.kt; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MoneySupport.kt; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MessageSupport.kt" data-source-read="io/protobuf/README.md; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/DurationSupport.kt; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/DateTimeSupport.kt; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MoneySupport.kt; io/protobuf/src/main/kotlin/io/bluetape4k/protobuf/MessageSupport.kt" xmlns="http://www.w3.org/2000/svg" width="1464" height="965" viewBox="0 0 1464 965" role="img" aria-label="Protobuf Type Conversion Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1310" height="1020"/>
-<rect class="frame" x="32" y="28" width="1246" height="964" rx="28"/>
-<text class="title" x="66" y="82">Protobuf Type Conversion Flow</text>
-<text class="subtitle" x="70" y="104">Source-checked lifecycle flow with grouped phases and explicit transitions.</text>
-<g transform="translate(60,160)">
-  <rect x="0" y="0" width="350" height="790" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Java/Kotlin Types</text>
+<rect class="canvas" width="1464" height="965"/>
+<rect class="frame" x="34" y="30" width="1396" height="905" rx="32"/>
+<text class="title" x="72" y="84">Protobuf Type Conversion Flow</text>
+<text class="subtitle" x="76" y="116">Every conversion path is explicit: domain types map to protobuf types, and Message values cross the wire through Any and ByteArray.</text>
+<g><rect class="panel" x="82" y="160" width="1300" height="160" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Domain types</text></g>
+<g><rect class="panel" x="82" y="420" width="1300" height="210" rx="22"/><text class="panelTitle" x="110" y="456" dominant-baseline="middle">Protobuf types</text></g>
+<g><rect class="panel" x="82" y="720" width="1300" height="165" rx="22"/><text class="panelTitle" x="110" y="756" dominant-baseline="middle">Wire format</text></g>
+<g id="duration">
+  <rect class="card" x="130" y="215" width="250" height="72" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="255" y="244" text-anchor="middle" dominant-baseline="middle">java.time.Duration</text>
+  <text class="detail" x="255" y="274" text-anchor="middle" dominant-baseline="middle">parse / format support</text>
 </g>
-<g transform="translate(105,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">java.time.Instant</text>
+<g id="dateTime">
+  <rect class="card" x="385" y="215" width="360" height="72" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="565" y="244" text-anchor="middle" dominant-baseline="middle">Date/time types</text>
+  <text class="detail" x="565" y="274" text-anchor="middle" dominant-baseline="middle">LocalDate / LocalTime / LocalDateTime</text>
 </g>
-<g transform="translate(105,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">java.time.Duration</text>
+<g id="money">
+  <rect class="card" x="750" y="215" width="250" height="72" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="875" y="244" text-anchor="middle" dominant-baseline="middle">JavaMoney</text>
+  <text class="detail" x="875" y="274" text-anchor="middle" dominant-baseline="middle">currency + units/nanos</text>
 </g>
-<g transform="translate(105,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">LocalDateTime</text>
+<g id="message">
+  <rect class="card" x="1035" y="215" width="280" height="72" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1175" y="244" text-anchor="middle" dominant-baseline="middle">Message</text>
+  <text class="detail" x="1175" y="274" text-anchor="middle" dominant-baseline="middle">generated protobuf message</text>
 </g>
-<g transform="translate(105,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">JavaMoney</text>
+<g id="protoDuration">
+  <rect class="card" x="130" y="500" width="250" height="78" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="255" y="532" text-anchor="middle" dominant-baseline="middle">Proto Duration</text>
+  <text class="detail" x="255" y="562" text-anchor="middle" dominant-baseline="middle">seconds + nanos</text>
 </g>
-<g transform="translate(105,804)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">ProtoMessage</text>
+<g id="protoDate">
+  <rect class="card" x="430" y="500" width="270" height="78" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="565" y="532" text-anchor="middle" dominant-baseline="middle">Proto Date/Time</text>
+  <text class="detail" x="565" y="562" text-anchor="middle" dominant-baseline="middle">date, time, datetime</text>
 </g>
-<g transform="translate(480,160)">
-  <rect x="0" y="0" width="350" height="790" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Protobuf Types</text>
+<g id="protoMoney">
+  <rect class="card" x="750" y="500" width="250" height="78" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="875" y="532" text-anchor="middle" dominant-baseline="middle">Proto Money</text>
+  <text class="detail" x="875" y="562" text-anchor="middle" dominant-baseline="middle">currencyCode + units</text>
 </g>
-<g transform="translate(525,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">google.protobuf.Time</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">stamp</text>
+<g id="any">
+  <rect class="card" x="1035" y="500" width="280" height="78" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1175" y="532" text-anchor="middle" dominant-baseline="middle">Proto Any</text>
+  <text class="detail" x="1175" y="562" text-anchor="middle" dominant-baseline="middle">pack / unpack typed messages</text>
 </g>
-<g transform="translate(525,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">google.protobuf.Dura</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">tion</text>
+<g id="bytes">
+  <rect class="card" x="560" y="775" width="310" height="72" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="715" y="804" text-anchor="middle" dominant-baseline="middle">ByteArray payload</text>
+  <text class="detail" x="715" y="834" text-anchor="middle" dominant-baseline="middle">toByteArray / parseFrom</text>
 </g>
-<g transform="translate(525,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">google.type.DateTime</text>
-</g>
-<g transform="translate(525,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">google.type.Money</text>
-</g>
-<g transform="translate(525,804)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">google.protobuf.Any</text>
-</g>
-<g transform="translate(900,160)">
-  <rect x="0" y="0" width="350" height="222" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Serialization</text>
-</g>
-<g transform="translate(945,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">ByteArray</text>
-</g>
+<path class="route" data-from="duration" data-to="protoDuration" d="M255 287 L255 360 L330 360 L330 500" stroke="#4F83BF"/>
+<g><rect class="labelPill" x="355" y="363" width="130" height="26" rx="8"/><text class="detail" x="420" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#4F83BF">toProto / toJava</text></g>
+<path class="route" data-from="dateTime" data-to="protoDate" d="M565 287 L565 500" stroke="#3E9868"/>
+<g><rect class="labelPill" x="581" y="363" width="130" height="26" rx="8"/><text class="detail" x="646" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#3E9868">toProto / toJava</text></g>
+<path class="route" data-from="money" data-to="protoMoney" d="M875 287 L875 500" stroke="#B9851B"/>
+<g><rect class="labelPill" x="891" y="363" width="130" height="26" rx="8"/><text class="detail" x="956" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#B9851B">toProto / toJava</text></g>
+<path class="route" data-from="message" data-to="any" d="M1175 287 L1175 500" stroke="#755BC6"/>
+<g><rect class="labelPill" x="1203" y="363" width="70" height="26" rx="8"/><text class="detail" x="1238" y="377" text-anchor="middle" dominant-baseline="middle" style="fill:#755BC6">pack</text></g>
+<path class="route" data-from="any" data-to="bytes" d="M1175 578 L1175 675 L715 675 L715 775" stroke="#755BC6"/>
+<g><rect class="labelPill" x="900" y="637" width="100" height="26" rx="8"/><text class="detail" x="950" y="651" text-anchor="middle" dominant-baseline="middle" style="fill:#755BC6">serialize</text></g>
+<path class="route dashed" data-from="bytes" data-to="any" d="M870 810 L1260 810 L1260 578" stroke="#C94D68"/>
+<g><rect class="labelPill" x="1009" y="772" width="122" height="26" rx="8"/><text class="detail" x="1070" y="786" text-anchor="middle" dominant-baseline="middle" style="fill:#C94D68">parse + unpack</text></g>
 </svg>

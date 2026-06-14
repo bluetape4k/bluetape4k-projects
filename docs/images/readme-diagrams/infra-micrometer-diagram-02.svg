@@ -88,5 +88,5 @@
   <text class="detail" x="1380" y="710" text-anchor="middle" dominant-baseline="middle">outcome tags</text>
 <text class="detail" x="1380" y="728" text-anchor="middle" dominant-baseline="middle">trace/span bridge</text>
 </g>
-<g><rect class="note" x="120" y="992" width="1360" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF"/><text class="detail" x="800" y="1018" text-anchor="middle">bluetape4k-projects / infra:micrometer - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect class="note" x="120" y="992" width="1360" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF"/><text class="detail" x="800" y="1018" text-anchor="middle">Source: infra/micrometer README and public source contracts.</text></g>
 </svg>

@@ -25,38 +25,38 @@
 <text class="title" x="68" y="84">Core Class Structure</text>
 <text class="subtitle" x="72" y="116">Related contracts are grouped by encoding, ranges, value objects, and validation helpers.</text>
 <g><rect class="panel" x="80" y="160" width="1540" height="195" rx="22"/><text class="panelTitle" x="104" y="194">Encoding contracts</text></g>
-<g id="base58"><rect class="card" x="140" y="215" width="250" height="116" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="140" y1="281" x2="390" y2="281" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="265" y="235" text-anchor="middle">object</text><text class="classTitle" x="265" y="263" text-anchor="middle">Base58</text><text class="member" x="158" y="302">+encode(data)</text>
-<text class="member" x="158" y="319">+decode(text)</text></g>
-<g id="base62"><rect class="card" x="500" y="215" width="250" height="116" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="500" y1="281" x2="750" y2="281" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="625" y="235" text-anchor="middle">object</text><text class="classTitle" x="625" y="263" text-anchor="middle">Base62</text><text class="member" x="518" y="302">+encode(number)</text>
-<text class="member" x="518" y="319">+decode(text)</text></g>
-<g id="enc"><rect class="card" x="860" y="215" width="250" height="116" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="860" y1="281" x2="1110" y2="281" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="985" y="235" text-anchor="middle">interface</text><text class="classTitle" x="985" y="263" text-anchor="middle">StringEncoder</text><text class="member" x="878" y="302">+encode(bytes)</text>
-<text class="member" x="878" y="319">+decode(text)</text></g>
-<g id="hex"><rect class="card" x="1220" y="215" width="250" height="116" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="1220" y1="281" x2="1470" y2="281" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="1345" y="235" text-anchor="middle">class</text><text class="classTitle" x="1345" y="263" text-anchor="middle">HexStringEncoder</text><text class="member" x="1238" y="302">+encode(bytes)</text>
-<text class="member" x="1238" y="319">+decode(text)</text></g>
+<g id="base58"><rect class="card" x="140" y="215" width="250" height="116" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="140" y1="281" x2="390" y2="281" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="265" y="235" text-anchor="middle">object</text><text class="classTitle" x="265" y="263" text-anchor="middle">Base58</text><text class="member" x="174" y="302">+encode(data)</text>
+<text class="member" x="174" y="319">+decode(text)</text></g>
+<g id="base62"><rect class="card" x="500" y="215" width="250" height="116" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="500" y1="281" x2="750" y2="281" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="625" y="235" text-anchor="middle">object</text><text class="classTitle" x="625" y="263" text-anchor="middle">Base62</text><text class="member" x="534" y="302">+encode(number)</text>
+<text class="member" x="534" y="319">+decode(text)</text></g>
+<g id="enc"><rect class="card" x="860" y="215" width="250" height="116" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="860" y1="281" x2="1110" y2="281" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="985" y="235" text-anchor="middle">interface</text><text class="classTitle" x="985" y="263" text-anchor="middle">StringEncoder</text><text class="member" x="894" y="302">+encode(bytes)</text>
+<text class="member" x="894" y="319">+decode(text)</text></g>
+<g id="hex"><rect class="card" x="1220" y="215" width="250" height="116" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="1220" y1="281" x2="1470" y2="281" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="1345" y="235" text-anchor="middle">class</text><text class="classTitle" x="1345" y="263" text-anchor="middle">HexStringEncoder</text><text class="member" x="1254" y="302">+encode(bytes)</text>
+<text class="member" x="1254" y="319">+decode(text)</text></g>
 <g><rect class="panel" x="80" y="430" width="1540" height="510" rx="22"/><text class="panelTitle" x="104" y="464">Range model</text></g>
-<g id="range"><rect class="card" x="670" y="475" width="300" height="150" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="670" y1="541" x2="970" y2="541" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="820" y="495" text-anchor="middle">interface</text><text class="classTitle" x="820" y="523" text-anchor="middle">Range</text><text class="member" x="688" y="570">+first / +last</text>
-<text class="member" x="688" y="587">+contains(value)</text>
-<text class="member" x="688" y="604">+isEmpty()</text></g>
-<g id="cc"><rect class="card" x="150" y="760" width="270" height="128" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="150" y1="826" x2="420" y2="826" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="285" y="780" text-anchor="middle">class</text><text class="classTitle" x="285" y="808" text-anchor="middle">ClosedClosedRange</text><text class="member" x="168" y="853">start inclusive</text>
-<text class="member" x="168" y="870">end inclusive</text></g>
-<g id="co"><rect class="card" x="510" y="760" width="270" height="128" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="510" y1="826" x2="780" y2="826" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="645" y="780" text-anchor="middle">class</text><text class="classTitle" x="645" y="808" text-anchor="middle">ClosedOpenRange</text><text class="member" x="528" y="853">start inclusive</text>
-<text class="member" x="528" y="870">end exclusive</text></g>
-<g id="oc"><rect class="card" x="870" y="760" width="270" height="128" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="870" y1="826" x2="1140" y2="826" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="1005" y="780" text-anchor="middle">class</text><text class="classTitle" x="1005" y="808" text-anchor="middle">OpenClosedRange</text><text class="member" x="888" y="853">start exclusive</text>
-<text class="member" x="888" y="870">end inclusive</text></g>
-<g id="oo"><rect class="card" x="1230" y="760" width="270" height="128" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="1230" y1="826" x2="1500" y2="826" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="1365" y="780" text-anchor="middle">class</text><text class="classTitle" x="1365" y="808" text-anchor="middle">OpenOpenRange</text><text class="member" x="1248" y="853">start exclusive</text>
-<text class="member" x="1248" y="870">end exclusive</text></g>
+<g id="range"><rect class="card" x="670" y="475" width="300" height="150" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="670" y1="541" x2="970" y2="541" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="820" y="495" text-anchor="middle">interface</text><text class="classTitle" x="820" y="523" text-anchor="middle">Range</text><text class="member" x="704" y="570">+first / +last</text>
+<text class="member" x="704" y="587">+contains(value)</text>
+<text class="member" x="704" y="604">+isEmpty()</text></g>
+<g id="cc"><rect class="card" x="150" y="760" width="270" height="128" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="150" y1="826" x2="420" y2="826" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="285" y="780" text-anchor="middle">class</text><text class="classTitle" x="285" y="808" text-anchor="middle">ClosedClosedRange</text><text class="member" x="184" y="853">start inclusive</text>
+<text class="member" x="184" y="870">end inclusive</text></g>
+<g id="co"><rect class="card" x="510" y="760" width="270" height="128" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="510" y1="826" x2="780" y2="826" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="645" y="780" text-anchor="middle">class</text><text class="classTitle" x="645" y="808" text-anchor="middle">ClosedOpenRange</text><text class="member" x="544" y="853">start inclusive</text>
+<text class="member" x="544" y="870">end exclusive</text></g>
+<g id="oc"><rect class="card" x="870" y="760" width="270" height="128" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="870" y1="826" x2="1140" y2="826" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="1005" y="780" text-anchor="middle">class</text><text class="classTitle" x="1005" y="808" text-anchor="middle">OpenClosedRange</text><text class="member" x="904" y="853">start exclusive</text>
+<text class="member" x="904" y="870">end inclusive</text></g>
+<g id="oo"><rect class="card" x="1230" y="760" width="270" height="128" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="1230" y1="826" x2="1500" y2="826" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="1365" y="780" text-anchor="middle">class</text><text class="classTitle" x="1365" y="808" text-anchor="middle">OpenOpenRange</text><text class="member" x="1264" y="853">start exclusive</text>
+<text class="member" x="1264" y="870">end exclusive</text></g>
 <g><rect class="panel" x="80" y="990" width="1540" height="205" rx="22"/><text class="panelTitle" x="104" y="1024">Value object support</text></g>
-<g id="vo"><rect class="card" x="410" y="1050" width="300" height="112" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="410" y1="1116" x2="710" y2="1116" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="560" y="1070" text-anchor="middle">interface</text><text class="classTitle" x="560" y="1098" text-anchor="middle">ValueObject</text><text class="member" x="428" y="1143">+Serializable</text></g>
-<g id="avo"><rect class="card" x="940" y="1040" width="300" height="140" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="940" y1="1106" x2="1240" y2="1106" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="1090" y="1060" text-anchor="middle">abstract</text><text class="classTitle" x="1090" y="1088" text-anchor="middle">AbstractValueObject</text><text class="member" x="958" y="1130">+equals(other)</text>
-<text class="member" x="958" y="1147">+hashCode()</text>
-<text class="member" x="958" y="1164">+equalProperties(*)</text></g>
+<g id="vo"><rect class="card" x="410" y="1050" width="300" height="112" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="410" y1="1116" x2="710" y2="1116" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="560" y="1070" text-anchor="middle">interface</text><text class="classTitle" x="560" y="1098" text-anchor="middle">ValueObject</text><text class="member" x="444" y="1143">+Serializable</text></g>
+<g id="avo"><rect class="card" x="940" y="1040" width="300" height="140" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="940" y1="1106" x2="1240" y2="1106" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="1090" y="1060" text-anchor="middle">abstract</text><text class="classTitle" x="1090" y="1088" text-anchor="middle">AbstractValueObject</text><text class="member" x="974" y="1130">+equals(other)</text>
+<text class="member" x="974" y="1147">+hashCode()</text>
+<text class="member" x="974" y="1164">+equalProperties(*)</text></g>
 <g><rect class="panel" x="620" y="1260" width="540" height="180" rx="22"/><text class="panelTitle" x="644" y="1294">Validation helpers</text></g>
-<g id="req"><rect class="card" x="740" y="1315" width="300" height="118" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="740" y1="1381" x2="1040" y2="1381" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="890" y="1335" text-anchor="middle">extension functions</text><text class="classTitle" x="890" y="1363" text-anchor="middle">RequireSupport</text><text class="member" x="758" y="1403">requireNotNull/Empty</text>
-<text class="member" x="758" y="1420">requireGt/Ge/Lt/Le</text></g>
+<g id="req"><rect class="card" x="740" y="1315" width="300" height="118" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="740" y1="1381" x2="1040" y2="1381" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="890" y="1335" text-anchor="middle">extension functions</text><text class="classTitle" x="890" y="1363" text-anchor="middle">RequireSupport</text><text class="member" x="774" y="1403">requireNotNull/Empty</text>
+<text class="member" x="774" y="1420">requireGt/Ge/Lt/Le</text></g>
 <path class="inherit" d="M1220 273 L1110 273"/>
-<path class="inherit" d="M285 760 L285 690 L715 690 L715 625"/>
-<path class="inherit" d="M645 760 L645 720 L785 720 L785 625"/>
-<path class="inherit" d="M1005 760 L1005 720 L855 720 L855 625"/>
-<path class="inherit" d="M1365 760 L1365 690 L925 690 L925 625"/>
+<path class="inherit" d="M285 760 L285 600 L670 600"/>
+<path class="inherit" d="M720 760 L720 625"/>
+<path class="inherit" d="M920 760 L920 625"/>
+<path class="inherit" d="M1365 760 L1365 600 L970 600"/>
 <path class="inherit" d="M940 1110 L710 1110"/>
 </svg>

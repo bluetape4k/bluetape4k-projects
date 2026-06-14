@@ -1,62 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="890" height="736" viewBox="0 0 890 736" role="img" aria-label="Smart Encoding Data Flow">
+<svg data-intent="Explain Smart encoding as a range-based decision flow: small values use fewer bytes, larger values switch to marker-bit encodings." data-evidence="io/netty/README.md#smart-encoding; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufExtensions.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/Smart.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/USmart.kt" data-source-read="io/netty/README.md#smart-encoding; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufExtensions.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/Smart.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/USmart.kt" xmlns="http://www.w3.org/2000/svg" width="1460" height="960" viewBox="0 0 1460 960" role="img" aria-label="Smart Encoding Data Flow" data-layout="decision-flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="890" height="736"/>
-<rect class="frame" x="32" y="28" width="826" height="680" rx="28"/>
-<text class="title" x="66" y="82">Smart Encoding Data Flow</text>
-<text class="subtitle" x="70" y="104">Source-checked lifecycle flow with grouped phases and explicit transitions.</text>
-<g transform="translate(60,160)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">ranges</text>
+<rect class="canvas" width="1460" height="960"/>
+<rect class="frame" x="34" y="30" width="1392" height="900" rx="32"/>
+<text class="title" x="72" y="84">Smart Encoding Data Flow</text>
+<text class="subtitle" x="76" y="116">Smart encoding is a range decision tree; the card positions keep yes/no branches short and visible.</text>
+<g><rect class="panel" x="82" y="160" width="1296" height="720" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Range-based encoding decisions</text></g>
+<g id="value">
+  <rect class="card" x="480" y="232" width="460" height="78" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="710" y="264" text-anchor="middle" dominant-baseline="middle">Integer value</text>
+  <text class="detail" x="710" y="294" text-anchor="middle" dominant-baseline="middle">caller writes ShortSmart / IntSmart / USmart</text>
 </g>
-<g transform="translate(105,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Small values 0 ~ 127</text>
+<g id="signedByte">
+  <polygon class="card card-shape" points="710,352 915,412 710,472 505,412" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="710" y="404" text-anchor="middle" dominant-baseline="middle">Signed short-smart byte range?</text>
+  <text class="detail" x="710" y="433" text-anchor="middle" dominant-baseline="middle">-64..63</text>
 </g>
-<g transform="translate(105,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">Medium values 128 ~</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">32767</text>
+<g id="oneByte">
+  <rect class="card" x="990" y="350" width="280" height="78" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1130" y="382" text-anchor="middle" dominant-baseline="middle">Write 1 byte</text>
+  <text class="detail" x="1130" y="412" text-anchor="middle" dominant-baseline="middle">value + 64</text>
 </g>
-<g transform="translate(105,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Large values 32768+</text>
+<g id="signedShort">
+  <polygon class="card card-shape" points="710,527 915,587 710,647 505,587" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="710" y="579" text-anchor="middle" dominant-baseline="middle">Signed short-smart range?</text>
+  <text class="detail" x="710" y="608" text-anchor="middle" dominant-baseline="middle">-16384..16383</text>
 </g>
-<g transform="translate(480,160)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">encoding</text>
+<g id="twoByte">
+  <rect class="card" x="990" y="547" width="280" height="78" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="1130" y="579" text-anchor="middle" dominant-baseline="middle">Write 2 bytes</text>
+  <text class="detail" x="1130" y="609" text-anchor="middle" dominant-baseline="middle">value + 49152 marker</text>
 </g>
-<g transform="translate(525,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">1 byte 0xxx xxxx</text>
+<g id="signedInt">
+  <polygon class="card card-shape" points="710,702 915,762 710,822 505,762" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="710" y="754" text-anchor="middle" dominant-baseline="middle">Int-smart range?</text>
+  <text class="detail" x="710" y="783" text-anchor="middle" dominant-baseline="middle">-1073741824..1073741823</text>
 </g>
-<g transform="translate(525,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">2 bytes 1xxx xxxx</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">xxxx xxxx</text>
+<g id="fourByte">
+  <rect class="card" x="990" y="722" width="280" height="78" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1130" y="754" text-anchor="middle" dominant-baseline="middle">Write 4 bytes</text>
+  <text class="detail" x="1130" y="784" text-anchor="middle" dominant-baseline="middle">Int.MIN marker bit</text>
 </g>
-<g transform="translate(525,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">4 bytes</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">(sign-extended)</text>
+<g id="unsigned">
+  <rect class="card" x="140" y="520" width="270" height="116" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="275" y="553" text-anchor="middle" dominant-baseline="middle">USmart thresholds</text>
+  <text class="detail" x="275" y="583" text-anchor="middle" dominant-baseline="middle">0..127 -&gt; 1 byte</text>
+  <text class="detail" x="275" y="601" text-anchor="middle" dominant-baseline="middle">0..32767 -&gt; 2 bytes</text>
+  <text class="detail" x="275" y="619" text-anchor="middle" dominant-baseline="middle">else -&gt; 4 bytes</text>
 </g>
+<path class="route" data-from="value" data-to="signedByte" d="M710 310 L710 352" stroke="#4F83BF"/>
+<path class="route" data-from="signedByte" data-to="oneByte" d="M915 412 L990 412" stroke="#3E9868"/>
+<g><rect class="labelPill" x="926" y="357" width="52" height="26" rx="8"/><text class="detail" x="952" y="371" text-anchor="middle" dominant-baseline="middle" style="fill:#3E9868">yes</text></g>
+<path class="route" data-from="signedByte" data-to="signedShort" d="M710 472 L710 527" stroke="#2E8F89"/>
+<g><rect class="labelPill" x="720" y="487" width="48" height="26" rx="8"/><text class="detail" x="744" y="501" text-anchor="middle" dominant-baseline="middle" style="fill:#2E8F89">no</text></g>
+<path class="route" data-from="signedShort" data-to="twoByte" d="M915 587 L990 587" stroke="#B9851B"/>
+<g><rect class="labelPill" x="926" y="532" width="52" height="26" rx="8"/><text class="detail" x="952" y="546" text-anchor="middle" dominant-baseline="middle" style="fill:#B9851B">yes</text></g>
+<path class="route" data-from="signedShort" data-to="signedInt" d="M710 647 L710 702" stroke="#B9851B"/>
+<g><rect class="labelPill" x="720" y="662" width="48" height="26" rx="8"/><text class="detail" x="744" y="676" text-anchor="middle" dominant-baseline="middle" style="fill:#B9851B">no</text></g>
+<path class="route" data-from="signedInt" data-to="fourByte" d="M915 762 L990 762" stroke="#755BC6"/>
+<g><rect class="labelPill" x="926" y="707" width="52" height="26" rx="8"/><text class="detail" x="952" y="721" text-anchor="middle" dominant-baseline="middle" style="fill:#755BC6">yes</text></g>
+<path class="route dashed" data-from="value" data-to="unsigned" d="M480 271 L275 271 L275 520" stroke="#C94D68"/>
+<g><rect class="labelPill" x="309" y="293" width="122" height="26" rx="8"/><text class="detail" x="370" y="307" text-anchor="middle" dominant-baseline="middle" style="fill:#C94D68">unsigned path</text></g>
 </svg>

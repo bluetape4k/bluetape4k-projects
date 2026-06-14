@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1180" viewBox="0 0 1480 1180" role="img" aria-labelledby="title desc">
+<svg data-intent="Show Avro serializer decision routing from schema/record inputs through binary or JSON encoding branches to serialized bytes and decode outcomes." data-evidence="io/avro/README.md; io/avro/src/main/kotlin" data-source-read="io/avro/README.md; io/avro/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1480" height="1180" viewBox="0 0 1480 1180" role="img" aria-labelledby="title desc" data-layout="decision-flow">
   <title id="title">Avro codec selection guide</title>
   <desc id="desc">Flowchart-style selection guide for Avro codec factories showing default, Snappy, archive, null codec, and custom codec choices before ByteArray output.</desc>
   <defs>
@@ -39,11 +39,35 @@
 
   <path id="route-start-compression" class="connector" d="M370 286 L370 350" stroke="#4F83BF"/>
   <path id="route-compression-null" class="connector" d="M530 416 L875 416" stroke="#6B7D90"/>
+  <g id="label-compression-null" transform="translate(679,382)">
+    <rect class="pill" x="0" y="0" width="42" height="24" rx="8"/>
+    <text class="small" x="21" y="12" text-anchor="middle" dominant-baseline="middle">no</text>
+  </g>
   <path id="route-compression-throughput" class="connector" d="M370 482 L370 535" stroke="#45A7A1"/>
+  <g id="label-compression-throughput" transform="translate(382,496)">
+    <rect class="pill" x="0" y="0" width="46" height="24" rx="8"/>
+    <text class="small" x="23" y="12" text-anchor="middle" dominant-baseline="middle">yes</text>
+  </g>
   <path id="route-throughput-snappy" class="connector" d="M530 601 L760 601 L760 568 L875 568" stroke="#45A7A1"/>
+  <g id="label-throughput-snappy" transform="translate(622,567)">
+    <rect class="pill" x="0" y="0" width="46" height="24" rx="8"/>
+    <text class="small" x="23" y="12" text-anchor="middle" dominant-baseline="middle">yes</text>
+  </g>
   <path id="route-throughput-archive" class="connector" d="M370 667 L370 720" stroke="#D9AA4D"/>
+  <g id="label-throughput-archive" transform="translate(384,682)">
+    <rect class="pill" x="0" y="0" width="42" height="24" rx="8"/>
+    <text class="small" x="21" y="12" text-anchor="middle" dominant-baseline="middle">no</text>
+  </g>
   <path id="route-archive-zstd" class="connector" d="M530 786 L760 786 L760 738 L875 738" stroke="#D9AA4D"/>
+  <g id="label-archive-zstd" transform="translate(622,752)">
+    <rect class="pill" x="0" y="0" width="46" height="24" rx="8"/>
+    <text class="small" x="23" y="12" text-anchor="middle" dominant-baseline="middle">yes</text>
+  </g>
   <path id="route-archive-deflate" class="connector" d="M370 852 L370 878 L875 878" stroke="#58A978"/>
+  <g id="label-archive-deflate" transform="translate(601,844)">
+    <rect class="pill" x="0" y="0" width="42" height="24" rx="8"/>
+    <text class="small" x="21" y="12" text-anchor="middle" dominant-baseline="middle">no</text>
+  </g>
   <path id="route-deflate-output" class="connector" d="M1050 916 L1050 1000" stroke="#58A978"/>
 
   <g id="node-start" transform="translate(190,210)">

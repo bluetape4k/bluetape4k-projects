@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1792" height="1167" viewBox="0 0 1792 1167" role="img" aria-label="Resilience4j Coroutines Integration Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1912" height="1207" viewBox="0 0 1912 1207" role="img" aria-label="Resilience4j Coroutines Integration Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
@@ -12,116 +12,116 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1792" height="1167"/>
-<rect class="frame" x="32" y="28" width="1728" height="1111" rx="30"/>
+<rect class="canvas" width="1912" height="1207"/>
+<rect class="frame" x="32" y="28" width="1848" height="1151" rx="30"/>
 <text class="title" x="68" y="84">Resilience4j Coroutines Integration Class Diagram</text>
 <text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="DecoratorForSuspendFunction1" data-to="SuspendCache" data-route-color="teal" d="M678 530 L678 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="SuspendCacheImpl" data-to="SuspendCache" data-route-color="blue" d="M678 865 L678 763" stroke="#4F83BF"/>
-<path class="dependency" data-from="SuspendDecorators" data-to="DecoratorForSuspendFunction2" data-route-color="pink" d="M508 267 L483 267 L483 428 L458 428" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="SuspendDecorators" data-to="DecoratorForSuspendFunction1" data-route-color="purple" d="M678 297 L678 398" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="SuspendDecorators" data-to="DecoratorForSuspendSupplier" data-route-color="olive" d="M848 267 L873 267 L873 428 L898 428" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DecoratorForSuspendFunction1" data-to="SuspendCache" data-route-color="teal" d="M688 536 L688 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="SuspendCacheImpl" data-to="SuspendCache" data-route-color="blue" d="M688 865 L688 769" stroke="#4F83BF"/>
+<path class="dependency" data-from="SuspendDecorators" data-to="DecoratorForSuspendFunction2" data-route-color="pink" d="M508 279 L430 279 L430 398" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="SuspendDecorators" data-to="DecoratorForSuspendFunction1" data-route-color="purple" d="M688 311 L688 398" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="SuspendDecorators" data-to="DecoratorForSuspendSupplier" data-route-color="olive" d="M868 279 L946 279 L946 398" stroke="#718A35" stroke-dasharray="8 7"/>
 <g id="DecoratorForSuspendFunction2">
-  <rect class="classCard" x="118" y="398" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="288" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="288" y="436" text-anchor="middle">DecoratorForSuspend</text>
-<text class="classTitle" x="288" y="458" text-anchor="middle">Function2</text>
-  <line x1="118" y1="462" x2="458" y2="462" stroke="#5B8DEF" stroke-width="1.4"/>
+  <rect class="classCard" x="118" y="398" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="298" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="436" text-anchor="middle">DecoratorForSuspend</text>
+<text class="classTitle" x="298" y="458" text-anchor="middle">Function2</text>
+  <line x1="118" y1="462" x2="478" y2="462" stroke="#5B8DEF" stroke-width="1.4"/>
 
 </g>
 <g id="DecoratorForSuspendFunction1">
-  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="436" text-anchor="middle">DecoratorForSuspend</text>
-<text class="classTitle" x="678" y="458" text-anchor="middle">Function1</text>
-  <line x1="508" y1="462" x2="848" y2="462" stroke="#58A978" stroke-width="1.4"/>
+  <rect class="classCard" x="508" y="398" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="688" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="436" text-anchor="middle">DecoratorForSuspend</text>
+<text class="classTitle" x="688" y="458" text-anchor="middle">Function1</text>
+  <line x1="508" y1="462" x2="868" y2="462" stroke="#58A978" stroke-width="1.4"/>
 
 </g>
 <g id="SuspendDecorators">
-  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="212" text-anchor="middle">SuspendDecorators</text>
-  <line x1="508" y1="221" x2="848" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="526" y="246">+ofRunnable(runnable)</text>
-<text class="member" x="526" y="263">DecoratorForSuspendSupplier</text>
-<text class="member" x="526" y="280">+ofSupplier(supplier)</text>
+  <rect class="classCard" x="508" y="165" width="360" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="688" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="212" text-anchor="middle">SuspendDecorators</text>
+  <line x1="508" y1="221" x2="868" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="542" y="253">+ofRunnable(runnable)</text>
+<text class="member" x="542" y="270">DecoratorForSuspendSupplier</text>
+<text class="member" x="542" y="287">+ofSupplier(supplier)</text>
 </g>
 <g id="SuspendCache">
-  <rect class="classCard" x="508" y="631" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="678" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="678" text-anchor="middle">SuspendCache</text>
-  <line x1="508" y1="687" x2="848" y2="687" stroke="#D6A441" stroke-width="1.4"/>
+  <rect class="classCard" x="508" y="631" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="688" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="678" text-anchor="middle">SuspendCache</text>
+  <line x1="508" y1="687" x2="868" y2="687" stroke="#D6A441" stroke-width="1.4"/>
 
 </g>
 <g id="DecoratorForSuspendSupplier">
-  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1068" y="436" text-anchor="middle">DecoratorForSuspend</text>
-<text class="classTitle" x="1068" y="458" text-anchor="middle">Supplier</text>
-  <line x1="898" y1="462" x2="1238" y2="462" stroke="#DC6B82" stroke-width="1.4"/>
+  <rect class="classCard" x="898" y="398" width="400" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1098" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1098" y="436" text-anchor="middle">DecoratorForSuspend</text>
+<text class="classTitle" x="1098" y="458" text-anchor="middle">Supplier</text>
+  <line x1="898" y1="462" x2="1298" y2="462" stroke="#DC6B82" stroke-width="1.4"/>
 
 </g>
 <g id="SuspendCacheImplK_V">
-  <rect class="classCard" x="1334" y="165" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1504" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="212" text-anchor="middle">SuspendCacheImplV</text>
-  <line x1="1334" y1="221" x2="1674" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1352" y="246">-jcache: Cache</text>
-<text class="member" x="1352" y="263">+computeIfAbsent(cacheKey, loader)</text>
-<text class="member" x="1352" y="280">V</text>
+  <rect class="classCard" x="1394" y="165" width="360" height="146" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1574" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1574" y="212" text-anchor="middle">SuspendCacheImplV</text>
+  <line x1="1394" y1="221" x2="1754" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1428" y="253">-jcache: Cache</text>
+<text class="member" x="1428" y="270">+computeIfAbsent(cacheKey, loader)</text>
+<text class="member" x="1428" y="287">V</text>
 </g>
 <g id="Decorator_For_Suspend_Function2_T_U_R">
-  <rect class="classCard" x="1334" y="325" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1504" y="344" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="363" text-anchor="middle">Decorator For Suspend</text>
-<text class="classTitle" x="1504" y="385" text-anchor="middle">Function2 T_U_R</text>
-  <line x1="1334" y1="389" x2="1674" y2="389" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="1352" y="410">+withCircuitBreaker(cb)</text>
-<text class="member" x="1352" y="427">DecoratorForSuspendFunction2</text>
-<text class="member" x="1352" y="444">+withRetry(retry)</text>
+  <rect class="classCard" x="1394" y="339" width="360" height="156" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1574" y="358" text-anchor="middle">class</text>
+  <text class="classTitle" x="1574" y="377" text-anchor="middle">Decorator For Suspend</text>
+<text class="classTitle" x="1574" y="399" text-anchor="middle">Function2 T_U_R</text>
+  <line x1="1394" y1="403" x2="1754" y2="403" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="1428" y="436">+withCircuitBreaker(cb)</text>
+<text class="member" x="1428" y="453">DecoratorForSuspendFunction2</text>
+<text class="member" x="1428" y="470">+withRetry(retry)</text>
 </g>
 <g id="Decorator_For_Suspend_Function1_T_R">
-  <rect class="classCard" x="1334" y="485" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1504" y="504" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="523" text-anchor="middle">Decorator For Suspend</text>
-<text class="classTitle" x="1504" y="545" text-anchor="middle">Function1 T_R</text>
-  <line x1="1334" y1="549" x2="1674" y2="549" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="1352" y="570">+withCircuitBreaker(cb)</text>
-<text class="member" x="1352" y="587">DecoratorForSuspendFunction1</text>
-<text class="member" x="1352" y="604">+withRetry(retry)</text>
+  <rect class="classCard" x="1394" y="523" width="360" height="156" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1574" y="542" text-anchor="middle">class</text>
+  <text class="classTitle" x="1574" y="561" text-anchor="middle">Decorator For Suspend</text>
+<text class="classTitle" x="1574" y="583" text-anchor="middle">Function1 T_R</text>
+  <line x1="1394" y1="587" x2="1754" y2="587" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1428" y="620">+withCircuitBreaker(cb)</text>
+<text class="member" x="1428" y="637">DecoratorForSuspendFunction1</text>
+<text class="member" x="1428" y="654">+withRetry(retry)</text>
 </g>
 <g id="DecoratorForSuspendSupplierT">
-  <rect class="classCard" x="1334" y="645" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1504" y="664" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="683" text-anchor="middle">DecoratorForSuspend</text>
-<text class="classTitle" x="1504" y="705" text-anchor="middle">SupplierT</text>
-  <line x1="1334" y1="709" x2="1674" y2="709" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="1352" y="730">+withCircuitBreaker(cb)</text>
-<text class="member" x="1352" y="747">DecoratorForSuspendSupplier</text>
-<text class="member" x="1352" y="764">+withRetry(retry)</text>
+  <rect class="classCard" x="1394" y="707" width="400" height="156" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1594" y="726" text-anchor="middle">class</text>
+  <text class="classTitle" x="1594" y="745" text-anchor="middle">DecoratorForSuspend</text>
+<text class="classTitle" x="1594" y="767" text-anchor="middle">SupplierT</text>
+  <line x1="1394" y1="771" x2="1794" y2="771" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1428" y="804">+withCircuitBreaker(cb)</text>
+<text class="member" x="1428" y="821">DecoratorForSuspendSupplier</text>
+<text class="member" x="1428" y="838">+withRetry(retry)</text>
 </g>
 <g id="SuspendCacheK_V">
-  <rect class="classCard" x="1334" y="805" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1504" y="824" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="852" text-anchor="middle">SuspendCacheV</text>
-  <line x1="1334" y1="861" x2="1674" y2="861" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1352" y="886">+name: String</text>
-<text class="member" x="1352" y="903">+jcache: Cache</text>
-<text class="member" x="1352" y="920">+metrics: Metrics</text>
+  <rect class="classCard" x="1394" y="891" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1574" y="910" text-anchor="middle">class</text>
+  <text class="classTitle" x="1574" y="938" text-anchor="middle">SuspendCacheV</text>
+  <line x1="1394" y1="947" x2="1754" y2="947" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1428" y="979">+name: String</text>
+<text class="member" x="1428" y="996">+jcache: Cache</text>
+<text class="member" x="1428" y="1013">+metrics: Metrics</text>
 </g>
 <g id="SuspendCacheImpl">
-  <rect class="classCard" x="508" y="865" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="678" y="884" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="912" text-anchor="middle">SuspendCacheImpl</text>
-  <line x1="508" y1="921" x2="848" y2="921" stroke="#45A7A1" stroke-width="1.4"/>
+  <rect class="classCard" x="508" y="865" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="688" y="884" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="912" text-anchor="middle">SuspendCacheImpl</text>
+  <line x1="508" y1="921" x2="868" y2="921" stroke="#45A7A1" stroke-width="1.4"/>
 
 </g>
 <g>
-  <rect x="1377" y="1059" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1395 1077 L1453 1077" stroke="#3E9868"/>
-  <text class="detail" x="1467" y="1082">inheritance / implementation</text>
-  <path class="dependency" d="M1395 1098 L1453 1098" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1467" y="1103">dependency / usage</text>
+  <rect x="1497" y="1099" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1515 1117 L1573 1117" stroke="#3E9868"/>
+  <text class="detail" x="1587" y="1122">inheritance / implementation</text>
+  <path class="dependency" d="M1515 1138 L1573 1138" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1587" y="1143">dependency / usage</text>
 </g>
-<g><rect x="180" y="1077" width="1152" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="756" y="1103" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="1117" width="1272" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="816" y="1143" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

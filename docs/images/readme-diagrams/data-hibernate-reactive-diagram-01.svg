@@ -30,8 +30,8 @@
   <text class="small" x="190" y="26" text-anchor="middle">«abstractSuspend»</text>
   <text class="label" x="190" y="56.5" text-anchor="middle">Reactive Hibernate</text>
 <text class="label" x="190" y="81.5" text-anchor="middle">Repository ID_E</text>
-  <text class="mono" x="18" y="124">+findByIdOrNull(id): E?</text>
-<text class="mono" x="18" y="145">+findAll(): Flow~E~</text>
-<text class="mono" x="18" y="166">+save(entity): E</text>
+  <text class="mono" x="34" y="124">+findByIdOrNull(id): E?</text>
+<text class="mono" x="34" y="145">+findAll(): Flow~E~</text>
+<text class="mono" x="34" y="166">+save(entity): E</text>
 </g>
 </svg>

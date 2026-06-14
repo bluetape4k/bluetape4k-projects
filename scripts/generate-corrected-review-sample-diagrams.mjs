@@ -114,7 +114,7 @@ function classBox(id, x, y, w, h, title, stereo, members, color = "blue") {
   const lineH = 17;
   const memberStart = lowerCompartmentBaselineStart(headerBottom, y + h, members.length, lineH);
   const titleSvg = titleLines.map((line, i) => `<text class="classTitle" x="${x + w / 2}" y="${titleStart + i * 22}" text-anchor="middle">${esc(line)}</text>`).join("");
-  const memberSvg = members.map((line, i) => `<text class="member" x="${x + 18}" y="${memberStart + i * lineH}">${esc(line)}</text>`).join("\n");
+  const memberSvg = members.map((line, i) => `<text class="member" x="${x + 34}" y="${memberStart + i * lineH}">${esc(line)}</text>`).join("\n");
   return `<g id="${id}"><rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${fill}" stroke="${stroke}"/><line x1="${x}" y1="${headerBottom}" x2="${x + w}" y2="${headerBottom}" stroke="${stroke}" stroke-width="1.5"/><text class="stereo" x="${x + w / 2}" y="${y + 20}" text-anchor="middle">${esc(stereo)}</text>${titleSvg}${memberSvg}</g>`;
 }
 
@@ -150,6 +150,15 @@ function footer(x, y, w, text) {
   return `<g><rect x="${x}" y="${y}" width="${w}" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="${x + w / 2}" y="${y + 26}" text-anchor="middle">${esc(text)}</text></g>`;
 }
 
+function shiftY(fragment, dy) {
+  return fragment
+    .replaceAll(/\b(y|y1|y2|cy)="([-\d.]+)"/g, (_, attr, value) => `${attr}="${Number(value) + dy}"`)
+    .replaceAll(/\bd="([^"]+)"/g, (_, value) => {
+      const shifted = value.replaceAll(/([ML])\s*([-\d.]+)\s+([-\d.]+)/g, (_, cmd, x, y) => `${cmd}${x} ${Number(y) + dy}`);
+      return `d="${shifted}"`;
+    });
+}
+
 function participant(id, x, y, w, h, title, color = "blue", bottom = 900) {
   const [fill, stroke] = colors[color] || colors.gray;
   const titleLines = wrapIdentifier(title, 18).slice(0, 2);
@@ -183,7 +192,7 @@ function write(name, svg) {
 }
 
 function okioHierarchy() {
-  const body = [
+  const content = [
     panel(82, 154, 1238, 1245, "Source family"),
     panel(1380, 154, 1238, 1245, "Sink family"),
 
@@ -192,43 +201,46 @@ function okioHierarchy() {
     classBox("fsource", 900, 430, 300, 100, "ForwardingSource", "class", ["#delegate: Source"], "teal"),
     classBox("decomp", 125, 660, 285, 138, "DecompressableSource", "open class", ["-decoderBuffer: Buffer", "-compressor: Compressor"], "amber"),
     classBox("b64source", 445, 660, 285, 112, "AbstractBase64Source", "abstract", ["#decodeBase64Bytes(...)"], "olive"),
-    classBox("tdec", 765, 660, 250, 112, "TinkDecryptSource", "open class", ["-encryptor: TinkEncryptor"], "pink"),
-    classBox("daeaddec", 1045, 660, 250, 132, "DaeadChunkDecryptSource", "class", ["-daead: DeterministicAead", "-maxCiphertextLength"], "purple"),
+    classBox("tdec", 765, 660, 265, 112, "TinkDecryptSource", "open class", ["-encryptor: TinkEncryptor"], "pink"),
+    classBox("daeaddec", 1055, 660, 265, 132, "DaeadChunkDecryptSource", "class", ["-daead: DeterministicAead", "-maxCiphertextLength"], "purple"),
     classBox("streamdec", 125, 925, 285, 132, "StreamingDecompressSource", "open class", ["-decompressingStream", "-compressor"], "pink"),
     classBox("okb64s", 445, 925, 250, 96, "OkioBase64Source", "class", ["base64 variant"], "green"),
-    classBox("apb64s", 725, 917, 250, 112, "ApacheBase64Source", "class", ["base64 variant"], "olive"),
+    classBox("apb64s", 725, 910, 270, 128, "ApacheBase64Source", "class", ["base64 variant"], "olive"),
 
     classBox("sink", 1830, 225, 330, 128, "Sink", "interface, okio", ["+write(source, byteCount)", "+flush()", "+close()"], "blue"),
     classBox("output", 1488, 430, 300, 120, "OutputStreamSink", "class", ["-output: OutputStream", "+write(...)"], "purple"),
     classBox("fsink", 2200, 430, 300, 100, "ForwardingSink", "class", ["#delegate: Sink"], "pink"),
     classBox("compress", 1425, 660, 285, 138, "CompressableSink", "open class", ["-plainBuffer: Buffer", "-compressor: Compressor"], "green"),
     classBox("b64sink", 1745, 660, 285, 112, "AbstractBase64Sink", "abstract", ["#getEncodedBuffer(...)"], "blue"),
-    classBox("tenc", 2065, 660, 250, 112, "TinkEncryptSink", "open class", ["-encryptor: TinkEncryptor"], "purple"),
-    classBox("daeadenc", 2345, 660, 250, 132, "DaeadChunkEncryptSink", "class", ["-daead: DeterministicAead", "-chunkSize"], "teal"),
+    classBox("tenc", 2065, 660, 265, 112, "TinkEncryptSink", "open class", ["-encryptor: TinkEncryptor"], "purple"),
+    classBox("daeadenc", 2355, 660, 265, 132, "DaeadChunkEncryptSink", "class", ["-daead: DeterministicAead", "-chunkSize"], "teal"),
     classBox("streamcmp", 1425, 925, 285, 132, "StreamingCompressSink", "open class", ["-compressingStream", "-compressor"], "pink"),
     classBox("okb64k", 1745, 925, 250, 96, "OkioBase64Sink", "class", ["base64 variant"], "green"),
     classBox("apb64k", 2025, 925, 250, 96, "ApacheBase64Sink", "class", ["base64 variant"], "blue"),
 
-    inherit("M340 430 L340 388 L650 388 L650 345"),
-    inherit("M1050 430 L1050 388 L750 388 L750 345"),
-    inherit("M268 660 L268 582 L960 582 L960 530"),
-    inherit("M588 660 L588 594 L1020 594 L1020 530"),
-    inherit("M890 660 L890 606 L1080 606 L1080 530"),
-    inherit("M1170 660 L1170 618 L1140 618 L1140 530"),
-    inherit("M268 925 L268 855 L268 798"),
-    inherit("M570 925 L570 848 L535 848 L535 772"),
-    inherit("M850 917 L850 860 L650 860 L650 772"),
+    inheritRoute("M490 490 L650 490 L650 345", "amber"),
+    inheritRoute("M900 490 L750 490 L750 345", "teal"),
+    inheritRoute("M268 660 L268 620 L960 620 L960 530", "amber"),
+    inheritRoute("M588 660 L588 635 L1020 635 L1020 530", "olive"),
+    inheritRoute("M930 660 L930 530", "pink"),
+    inheritRoute("M1170 660 L1170 530", "purple"),
+    inheritRoute("M268 925 L268 798", "pink"),
+    inheritRoute("M570 925 L570 772", "green"),
+    inheritRoute("M860 910 L860 830 L650 830 L650 772", "olive"),
 
-    inherit("M1638 430 L1638 390 L1940 390 L1940 353"),
-    inherit("M2350 430 L2350 390 L2050 390 L2050 353"),
-    inherit("M1568 660 L1568 582 L2250 582 L2250 530"),
-    inherit("M1888 660 L1888 594 L2315 594 L2315 530"),
-    inherit("M2190 660 L2190 606 L2385 606 L2385 530"),
-    inherit("M2470 660 L2470 618 L2445 618 L2445 530"),
-    inherit("M1568 925 L1568 855 L1568 798"),
-    inherit("M1870 925 L1870 848 L1835 848 L1835 772"),
-    inherit("M2150 925 L2150 860 L1945 860 L1945 772"),
-    footer(180, 1448, 2340, "Source-checked UML: every adapter either implements Source/Sink directly or extends the matching Forwarding family."),
+    inheritRoute("M1788 490 L1940 490 L1940 353", "purple"),
+    inheritRoute("M2200 490 L2050 490 L2050 353", "pink"),
+    inheritRoute("M1568 660 L1568 620 L2250 620 L2250 530", "green"),
+    inheritRoute("M1888 660 L1888 635 L2315 635 L2315 530", "blue"),
+    inheritRoute("M2240 660 L2240 530", "purple"),
+    inheritRoute("M2470 660 L2470 530", "teal"),
+    inheritRoute("M1568 925 L1568 798", "pink"),
+    inheritRoute("M1870 925 L1870 772", "green"),
+    inheritRoute("M2150 925 L2150 835 L1970 835 L1970 772", "blue"),
+  ].join("\n");
+  const body = [
+    shiftY(content, 3),
+    footer(180, 1445, 2340, "Source-checked UML: every adapter either implements Source/Sink directly or extends the matching Forwarding family."),
   ].join("\n");
   write("io-okio-diagram-01", base(2700, 1530, "Sink / Source Adapter Hierarchy", "Okio adapters are split by family so inheritance routes stay short, source-accurate, and readable.", body));
 }
@@ -339,10 +351,10 @@ function coreClassStructure() {
     panel(620, 1260, 540, 180, "Validation helpers"),
     classBox("req", 740, 1315, 300, 118, "RequireSupport", "extension functions", ["requireNotNull/Empty", "requireGt/Ge/Lt/Le"], "purple"),
     inherit("M1220 273 L1110 273"),
-    inherit("M285 760 L285 690 L715 690 L715 625"),
-    inherit("M645 760 L645 720 L785 720 L785 625"),
-    inherit("M1005 760 L1005 720 L855 720 L855 625"),
-    inherit("M1365 760 L1365 690 L925 690 L925 625"),
+    inherit("M285 760 L285 600 L670 600"),
+    inherit("M720 760 L720 625"),
+    inherit("M920 760 L920 625"),
+    inherit("M1365 760 L1365 600 L970 600"),
     inherit("M940 1110 L710 1110"),
   ].join("\n");
   write("bluetape4k-core-diagram-02", base(1700, 1515, "Core Class Structure", "Related contracts are grouped by encoding, ranges, value objects, and validation helpers.", body));
@@ -390,13 +402,13 @@ function jcacheNearCache() {
     line(990, 294, 1135, 294, "purple"),
 
     panel(88, 500, 1475, 255, "Factory paths"),
-    card("without", 155, 580, 310, 90, "withoutListener(front, back)", "safe when back listener cannot serialize front cache", "amber"),
+    card("without", 130, 580, 360, 96, "withoutListener(front, back)", "listener-free fallback for providers that cannot serialize front cache", "amber"),
     card("invoke", 640, 565, 340, 112, "invoke(front, back)", "registers back-cache listener when provider supports it", "green"),
     card("provider", 1150, 580, 320, 90, "Provider DSL", "Hazelcast/Lettuce/Redisson factories compose tiers", "teal"),
     route("M310 353 L310 580", "blue"),
     route("M810 363 L810 565", "green"),
     route("M1302 353 L1302 580", "purple"),
-    route("M465 625 L640 625", "amber"),
+    route("M490 628 L640 628", "amber"),
     route("M980 625 L1150 625", "teal"),
 
     panel(88, 850, 1475, 210, "Read/write semantics"),
@@ -491,7 +503,7 @@ function dataCassandraApiStructure() {
 }
 
 function dataHibernateHierarchy() {
-  const body = [
+  const body = shiftY([
     panel(80, 160, 1640, 240, "JPA base contracts"),
     classBox("persistable", 180, 230, 310, 122, "Persistable", "interface", ["+getId()", "+isNew()"], "blue"),
     classBox("auditable", 690, 220, 340, 142, "Auditable", "interface", ["+createdAt / updatedAt", "+createdBy / updatedBy"], "green"),
@@ -501,49 +513,54 @@ function dataHibernateHierarchy() {
     classBox("mapped", 160, 610, 330, 132, "AbstractJpaEntity", "mapped superclass", ["@MappedSuperclass", "id and equality contract"], "amber"),
     classBox("auditEntity", 610, 590, 370, 170, "AbstractAuditableJpaEntity", "mapped superclass", ["auditing fields", "Spring Data auditing hooks"], "green"),
     classBox("tenantEntity", 1100, 610, 360, 132, "TenantAwareJpaEntity", "optional superclass", ["tenant id", "multi-tenant boundary"], "teal"),
-    inheritRoute("M315 610 L315 430 L335 430 L335 352", "blue"),
-    inheritRoute("M795 590 L795 430 L860 430 L860 362", "green", true),
-    inheritRoute("M1280 610 L1280 430 L1385 430 L1385 352", "purple", true),
+    inheritRoute("M315 610 L315 352", "blue"),
+    inheritRoute("M795 590 L795 362", "green", true),
+    inheritRoute("M1280 610 L1280 352", "purple", true),
 
-    panel(80, 915, 1640, 260, "Concrete domain models"),
-    classBox("aggregate", 210, 1000, 320, 126, "Domain aggregate", "entity", ["business identity", "relationships"], "pink"),
-    classBox("lookup", 700, 1000, 320, 126, "Lookup entity", "entity", ["stable id", "read-mostly table"], "blue"),
+    panel(80, 915, 1640, 260, "Domain models"),
+    classBox("lookup", 210, 1000, 320, 126, "Lookup entity", "entity", ["stable id", "read-mostly table"], "blue"),
+    classBox("aggregate", 700, 1000, 320, 126, "Domain aggregate", "entity", ["business identity", "relationships"], "pink"),
     classBox("join", 1190, 1000, 320, 126, "Join / link entity", "entity", ["association table", "compact lifecycle"], "gray"),
-    inheritRoute("M530 1063 L555 1063 L555 878 L325 878 L325 742", "pink"),
-    inheritRoute("M860 1000 L860 850 L795 850 L795 760", "blue", true),
-    inheritRoute("M1350 1000 L1350 850 L1280 850 L1280 742", "gray", true),
+    inheritRoute("M860 1000 L860 760", "pink"),
+    inheritRoute("M370 1000 L370 742", "blue", true),
+    inheritRoute("M1350 1000 L1350 742", "gray", true),
     footer(260, 1225, 1280, "Solid colored lines mark direct inheritance. Dashed colored lines mark optional interface or mapped-superclass relationships."),
-  ].join("\n");
-  write("data-hibernate-diagram-02", base(1800, 1320, "JPA Entity Class Hierarchy", "Class hierarchy is arranged top-down with colored solid and dashed relationships to avoid ambiguous overlaps.", body));
+  ].join("\n"), 20);
+  write("data-hibernate-diagram-02", base(1800, 1340, "JPA Entity Class Hierarchy", "Class hierarchy is arranged top-down with colored solid and dashed relationships to avoid ambiguous overlaps.", body));
 }
 
 function dataHibernateConverters() {
   const body = [
-    panel(86, 165, 1420, 165, "Domain attribute types"),
-    card("domain", 150, 210, 320, 96, "Domain value objects", "Money, Id, status, flags", "blue"),
-    card("time", 600, 210, 300, 96, "Time values", "Instant, LocalDate, Duration", "green"),
-    card("json", 1030, 210, 320, 96, "Structured values", "JSON, arrays, custom payloads", "purple"),
+    panel(86, 165, 440, 770, "Value-object lane"),
+    panel(575, 165, 440, 770, "Temporal lane"),
+    panel(1064, 165, 440, 770, "Structured lane"),
 
-    panel(86, 430, 1420, 250, "AttributeConverter layer"),
-    classBox("conv", 185, 512, 320, 132, "AttributeConverter", "JPA contract", ["+convertToDatabaseColumn", "+convertToEntityAttribute"], "amber"),
-    classBox("support", 610, 495, 350, 162, "bluetape4k converters", "converter classes", ["Enum/ValueObject converters", "JSON and temporal converters"], "green"),
-    classBox("config", 1065, 512, 320, 132, "Hibernate type hints", "module config", ["dialect-aware mapping", "column definition"], "teal"),
-    route("M310 306 L310 370 L700 370 L700 495", "blue"),
-    route("M750 306 L750 495", "green"),
-    route("M1190 306 L1190 512", "purple"),
-    inheritRoute("M610 620 L555 620 L555 670 L345 670 L345 644", "amber", true),
-    route("M960 580 L1065 580", "teal"),
+    card("domain", 150, 240, 315, 96, "Domain value objects", "Money, Id, status, flags", "blue"),
+    card("valueConv", 150, 455, 315, 118, "ValueObject converters", "domain value <-> scalar", "blue"),
+    card("scalar", 150, 750, 315, 84, "Scalar columns", "varchar, bigint, enum code", "blue"),
+    route("M307 336 L307 455", "blue"),
+    route("M307 573 L307 750", "blue"),
 
-    panel(86, 795, 1420, 175, "Database column shape"),
-    card("scalar", 210, 850, 280, 78, "Scalar columns", "varchar, bigint, timestamp", "blue"),
-    card("jsonb", 610, 850, 280, 78, "JSON columns", "json/jsonb document value", "purple"),
-    card("enum", 1010, 850, 280, 78, "Enum/code columns", "stable persisted code", "green"),
-    route("M735 657 L735 742 L520 742 L520 889 L490 889", "blue"),
-    route("M785 657 L785 850", "purple"),
-    route("M835 657 L835 742 L1150 742 L1150 850", "green"),
-    footer(210, 982, 1165, "Converter cards are separated from layer labels; the horizontal regions now explain source type, converter, and column shape."),
+    card("time", 640, 240, 310, 96, "Time values", "Instant, LocalDate, Duration", "green"),
+    card("timeConv", 640, 455, 310, 118, "Temporal converters", "time value <-> timestamp", "green"),
+    card("timeColumn", 640, 750, 310, 84, "Temporal columns", "timestamp, date, duration", "green"),
+    route("M795 336 L795 455", "green"),
+    route("M795 573 L795 750", "green"),
+
+    card("json", 1128, 240, 315, 96, "Structured values", "JSON, arrays, custom payloads", "purple"),
+    card("jsonConv", 1128, 455, 315, 118, "JSON converters", "payload <-> json/jsonb", "purple"),
+    classBox("config", 1120, 620, 330, 120, "Hibernate type hints", "module config", ["dialect-aware mapping", "column definition"], "teal"),
+    card("jsonb", 1128, 790, 315, 84, "JSON columns", "json/jsonb document value", "purple"),
+    route("M1285 336 L1285 455", "purple"),
+    route("M1285 573 L1285 620", "teal"),
+    route("M1285 740 L1285 790", "purple"),
+
+    classBox("conv", 492, 965, 600, 122, "JPA AttributeConverter contract", "shared contract", ["convertToDatabaseColumn / convertToEntityAttribute"], "amber"),
+    dashedRoute("M307 834 L307 1026 L492 1026", "amber"),
+    dashedRoute("M795 834 L795 965", "amber"),
+    dashedRoute("M1285 874 L1285 1026 L1092 1026", "amber"),
   ].join("\n");
-  write("data-hibernate-diagram-03", base(1590, 1110, "AttributeConverter Type Mapping", "Domain attributes pass through JPA converters before reaching stable database column shapes.", body));
+  write("data-hibernate-diagram-03", base(1590, 1130, "AttributeConverter Type Mapping", "Each domain value family maps through its converter lane into the stable database column shape.", body));
 }
 
 function idGeneratorKtorLayered() {
@@ -565,10 +582,10 @@ function idGeneratorKtorLayered() {
     card("clock", 180, 805, 300, 82, "Clock and node id", "timestamp + worker identity", "teal"),
     card("algorithm", 610, 795, 340, 102, "ID algorithms", "monotonic, sortable, random", "green"),
     card("metrics", 1080, 805, 280, 82, "Observability", "latency and throughput probes", "gray"),
-    route("M1030 586 L1030 805", "amber"),
+    route("M1030 586 L1030 700 L780 700 L780 795", "amber"),
     route("M480 846 L610 846", "teal"),
     route("M950 846 L1080 846", "green"),
-    footer(205, 975, 1130, "bluetape4k-projects examples - github.com/bluetape4k/bluetape4k-projects"),
+    footer(205, 975, 1130, "Runtime layer separates request routing, generator selection, algorithm execution, and observability concerns."),
   ].join("\n");
   write("examples-ktor-idgenerator-ktor-demo-diagram-01", base(1540, 1065, "IdGenerator Ktor Demo Architecture", "Ktor routes delegate to a registry-backed generator service and return typed JSON responses.", body));
 }
@@ -592,25 +609,28 @@ function idGeneratorSpringLayered() {
     card("clock", 180, 805, 300, 82, "Clock source", "timestamp and sequence guard", "teal"),
     card("algorithm", 610, 795, 340, 102, "ID algorithms", "Snowflake, ULID, UUID variants", "green"),
     card("actuator", 1080, 805, 280, 82, "Actuator metrics", "latency and throughput", "gray"),
-    route("M1030 586 L1030 805", "amber"),
+    route("M1030 586 L1030 700 L780 700 L780 795", "amber"),
     route("M480 846 L610 846", "teal"),
     route("M950 846 L1080 846", "green"),
-    footer(205, 975, 1130, "bluetape4k-projects examples - github.com/bluetape4k/bluetape4k-projects"),
+    footer(205, 975, 1130, "Spring Web, service configuration, generator runtime, and actuator metrics stay in distinct responsibility lanes."),
   ].join("\n");
   write("examples-spring-boot-idgenerator-spring-boot-demo-diagram-01", base(1540, 1065, "IdGenerator Spring Boot Demo Architecture", "Spring controllers delegate to a configured generator service and expose typed REST responses.", body));
 }
 
-okioHierarchy();
-workflowOverview();
-lettuceContracts();
-geoArchitecture();
-coreClassStructure();
-workflowSequenceSample();
-jcacheNearCache();
-cacheHibernateNearCacheStructure();
-cacheHibernateLayerStructure();
-dataCassandraApiStructure();
-dataHibernateHierarchy();
-dataHibernateConverters();
-idGeneratorKtorLayered();
-idGeneratorSpringLayered();
+const only = new Set((process.env.DIAGRAM_ONLY || "").split(",").map((item) => item.trim()).filter(Boolean));
+const shouldRun = (name) => only.size === 0 || only.has(name);
+
+if (shouldRun("io-okio-diagram-01")) okioHierarchy();
+if (shouldRun("utils-workflow-diagram-01")) workflowOverview();
+if (shouldRun("cache-cache-lettuce-diagram-03")) lettuceContracts();
+if (shouldRun("utils-geo-diagram-01")) geoArchitecture();
+if (shouldRun("bluetape4k-core-diagram-02")) coreClassStructure();
+if (shouldRun("utils-workflow-sequence-sample-01")) workflowSequenceSample();
+if (shouldRun("cache-cache-core-diagram-05")) jcacheNearCache();
+if (shouldRun("cache-cache-hibernate-diagram-01")) cacheHibernateNearCacheStructure();
+if (shouldRun("cache-cache-hibernate-diagram-02")) cacheHibernateLayerStructure();
+if (shouldRun("data-cassandra-diagram-02")) dataCassandraApiStructure();
+if (shouldRun("data-hibernate-diagram-02")) dataHibernateHierarchy();
+if (shouldRun("data-hibernate-diagram-03")) dataHibernateConverters();
+if (shouldRun("examples-ktor-idgenerator-ktor-demo-diagram-01")) idGeneratorKtorLayered();
+if (shouldRun("examples-spring-boot-idgenerator-spring-boot-demo-diagram-01")) idGeneratorSpringLayered();

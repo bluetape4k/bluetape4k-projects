@@ -1,67 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="659" viewBox="0 0 1754 659" role="img" aria-label="Session Type Comparison">
+<svg data-intent="Compare Stage and Mutiny reactive session APIs by keeping each factory close to the session type it creates." data-evidence="data/hibernate-reactive/README.md; StageSessionFactoryExtensions.kt; MutinySessionFactoryExtensions.kt" data-source-read="data/hibernate-reactive/README.md; StageSessionFactoryExtensions.kt; MutinySessionFactoryExtensions.kt" xmlns="http://www.w3.org/2000/svg" width="1420" height="1040" viewBox="0 0 1420 1040" role="img" aria-label="Reactive Session API Comparison">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="659"/>
-<rect class="frame" x="32" y="28" width="1690" height="603" rx="28"/>
-<text class="title" x="66" y="82">Session Type Comparison</text>
-<text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<path class="line" d="M1492 180 L1492 132 L262 132 L262 355"/>
-<path class="line" d="M1082 180 L1082 477 L672 477 L672 355"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="170" y="49" text-anchor="middle">StageSession</text>
-  <text class="mono" x="18" y="108">+find(cls, id): CompletionStage~T~</text>
-<text class="mono" x="18" y="129">+findAs(id): CompletionStage~T~ ← reified</text>
-<text class="mono" x="18" y="150">extension</text>
+<rect class="canvas" width="1420" height="1040"/>
+<rect class="frame" x="34" y="30" width="1352" height="980" rx="32"/>
+<text class="title" x="72" y="84">Reactive Session API Comparison</text>
+<text class="subtitle" x="76" y="116">Factories sit beside the session type they create; coroutine bridges stay as supporting extensions.</text>
+<g><rect class="panel" x="88" y="165" width="1244" height="278" rx="22"/><text class="panelTitle" x="116" y="201" dominant-baseline="middle">CompletionStage API</text></g>
+<g><rect class="panel" x="88" y="515" width="1244" height="300" rx="22"/><text class="panelTitle" x="116" y="551" dominant-baseline="middle">Mutiny Uni API</text></g>
+<g id="stageFactory">
+  <rect class="card" x="170" y="245" width="420" height="128" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="380" y="293" text-anchor="middle" dominant-baseline="middle">StageSessionFactory</text>
+  <text class="detail" x="380" y="323" text-anchor="middle" dominant-baseline="middle">withSession / withTransaction</text>
+  <text class="detail" x="380" y="341" text-anchor="middle" dominant-baseline="middle">CompletionStage&lt;T&gt; contract</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#58A978"/>
-    <text class="label" x="170" y="49" text-anchor="middle">MutinySession</text>
-  <text class="mono" x="18" y="108">+find(cls, id): Uni~T~</text>
-<text class="mono" x="18" y="129">+findAs(id): Uni~T~ ← reified extension</text>
-<text class="mono" x="18" y="150">+persist(entity): Uni~Void~</text>
+<g id="stageSession">
+  <rect class="card" x="820" y="245" width="420" height="128" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="1030" y="293" text-anchor="middle" dominant-baseline="middle">StageSession</text>
+  <text class="detail" x="1030" y="323" text-anchor="middle" dominant-baseline="middle">find(cls, id): CompletionStage&lt;T&gt;</text>
+  <text class="detail" x="1030" y="341" text-anchor="middle" dominant-baseline="middle">reified findAs extension</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="259" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-    <text class="label" x="170" y="49" text-anchor="middle">MutinySessionFactory</text>
-  <text class="mono" x="18" y="108">+withSession(block): Uni~T~</text>
-<text class="mono" x="18" y="129">+withTransaction(block): Uni~T~</text>
-<text class="mono" x="18" y="150">+withStatelessSession(block): Uni~T~</text>
-<text class="mono" x="18" y="171">+withSessionSuspending(block): T ←</text>
-<text class="mono" x="18" y="192">extension</text>
-<text class="mono" x="18" y="213">+withTransactionSuspending(block): T ←</text>
-<text class="mono" x="18" y="234">extension</text>
+<g id="mutinyFactory">
+  <rect class="card" x="170" y="605" width="430" height="146" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="385" y="662" text-anchor="middle" dominant-baseline="middle">MutinySessionFactory</text>
+  <text class="detail" x="385" y="692" text-anchor="middle" dominant-baseline="middle">withSession / withTransaction</text>
+  <text class="detail" x="385" y="710" text-anchor="middle" dominant-baseline="middle">suspending extension bridge</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="217" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-    <text class="label" x="170" y="49" text-anchor="middle">StageSessionFactory</text>
-  <text class="mono" x="18" y="108">+withSession(block): CompletionStage~T~</text>
-<text class="mono" x="18" y="129">+withTransaction(block):</text>
-<text class="mono" x="18" y="150">CompletionStage~T~</text>
-<text class="mono" x="18" y="171">+withSessionSuspending(block): T ←</text>
-<text class="mono" x="18" y="192">extension</text>
+<g id="mutinySession">
+  <rect class="card" x="820" y="605" width="420" height="146" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1030" y="662" text-anchor="middle" dominant-baseline="middle">MutinySession</text>
+  <text class="detail" x="1030" y="692" text-anchor="middle" dominant-baseline="middle">find(cls, id): Uni&lt;T&gt;</text>
+  <text class="detail" x="1030" y="710" text-anchor="middle" dominant-baseline="middle">persist(entity): Uni&lt;Void&gt;</text>
 </g>
+<g id="bridge">
+  <rect class="card" x="360" y="865" width="700" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="710" y="905" text-anchor="middle" dominant-baseline="middle">Coroutine extension bridge</text>
+  <text class="detail" x="710" y="935" text-anchor="middle" dominant-baseline="middle">suspending helpers adapt CompletionStage and Uni APIs</text>
+  <text class="detail" x="710" y="953" text-anchor="middle" dominant-baseline="middle">without changing the session families</text>
+</g>
+<path class="route" data-from="stageFactory" data-to="stageSession" d="M590 309 L820 309" stroke="#C94D68"/>
+<path class="route" data-from="mutinyFactory" data-to="mutinySession" d="M600 678 L820 678" stroke="#B9851B"/>
+<path class="route dashed" data-from="stageFactory" data-to="bridge" d="M380 373 L380 455 L710 455 L710 865" stroke="#4F83BF"/>
+<path class="route dashed" data-from="mutinyFactory" data-to="bridge" d="M385 751 L385 828 L590 828 L590 865" stroke="#3E9868"/>
 </svg>

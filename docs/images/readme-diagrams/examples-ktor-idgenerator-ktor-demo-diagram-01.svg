@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="1065" viewBox="0 0 1540 1065" role="img" aria-label="IdGenerator Ktor Demo Architecture">
+<svg data-intent="Show the demo architecture from HTTP routes through validation and IdGeneratorRegistry to concrete UUID/ULID/KSUID/Snowflake/Flake generators." data-evidence="examples/ktor/idgenerator-ktor-demo/README.md; examples/ktor/idgenerator-ktor-demo/src/main" data-source-read="examples/ktor/idgenerator-ktor-demo/README.md; examples/ktor/idgenerator-ktor-demo/src/main" xmlns="http://www.w3.org/2000/svg" width="1500" height="1140" viewBox="0 0 1500 1140" role="img" aria-label="Ktor IdGenerator Demo Request Flow">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
@@ -6,41 +6,77 @@
   <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
   <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
   <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
   <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
   <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
     .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1540" height="1065"/>
-<rect class="frame" x="32" y="28" width="1476" height="1009" rx="30"/>
-<text class="title" x="68" y="84">IdGenerator Ktor Demo Architecture</text>
-<text class="subtitle" x="72" y="116">Ktor routes delegate to a registry-backed generator service and return typed JSON responses.</text>
-<g><rect class="panel" x="86" y="165" width="1370" height="160" rx="22"/><text class="panelTitle" x="110" y="199">HTTP API layer</text></g>
-<g id="routes"><rect class="card" x="160" y="220" width="320" height="74" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="320" y="248" text-anchor="middle">Ktor routes</text><text class="detail" x="320" y="284" text-anchor="middle">explicit and generic endpoints</text></g>
-<g id="serialization"><rect class="card" x="600" y="220" width="320" height="74" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="760" y="248" text-anchor="middle">JSON response model</text><text class="detail" x="760" y="284" text-anchor="middle">typed id payloads</text></g>
-<g id="errors"><rect class="card" x="1040" y="220" width="300" height="74" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1190" y="248" text-anchor="middle">Status handling</text><text class="detail" x="1190" y="284" text-anchor="middle">validation and failures</text></g>
-<path class="flow" d="M480 257 L600 257" stroke="#4F83BF"/>
-<path class="flow" d="M920 257 L1040 257" stroke="#3E9868"/>
-<g><rect class="panel" x="86" y="430" width="1370" height="190" rx="22"/><text class="panelTitle" x="110" y="464">Application service layer</text></g>
-<g id="service"><rect class="card" x="250" y="500" width="360" height="86" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="430" y="534" text-anchor="middle">IdGenerator service</text><text class="detail" x="430" y="570" text-anchor="middle">selects generator by route</text></g>
-<g id="registry"><rect class="card" x="850" y="500" width="360" height="86" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1030" y="534" text-anchor="middle">Generator registry</text><text class="detail" x="1030" y="570" text-anchor="middle">Snowflake, UUID, ULID families</text></g>
-<path class="flow" d="M320 294 L320 380 L430 380 L430 500" stroke="#4F83BF"/>
-<path class="flow" d="M610 543 L850 543" stroke="#755BC6"/>
-<g><rect class="panel" x="86" y="735" width="1370" height="190" rx="22"/><text class="panelTitle" x="110" y="769">Generator runtime layer</text></g>
-<g id="clock"><rect class="card" x="180" y="805" width="300" height="82" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="330" y="837" text-anchor="middle">Clock and node id</text><text class="detail" x="330" y="873" text-anchor="middle">timestamp + worker identity</text></g>
-<g id="algorithm"><rect class="card" x="610" y="795" width="340" height="102" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="780" y="837" text-anchor="middle">ID algorithms</text><text class="detail" x="780" y="873" text-anchor="middle">monotonic, sortable, random</text></g>
-<g id="metrics"><rect class="card" x="1080" y="805" width="280" height="82" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/><text class="cardTitle" x="1220" y="837" text-anchor="middle">Observability</text><text class="detail" x="1220" y="873" text-anchor="middle">latency and throughput probes</text></g>
-<path class="flow" d="M1030 586 L1030 805" stroke="#B9851B"/>
-<path class="flow" d="M480 846 L610 846" stroke="#2E8F89"/>
-<path class="flow" d="M950 846 L1080 846" stroke="#3E9868"/>
-<g><rect x="205" y="975" width="1130" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="770" y="1001" text-anchor="middle">bluetape4k-projects examples - github.com/bluetape4k/bluetape4k-projects</text></g>
+<rect class="canvas" width="1500" height="1140"/>
+<rect class="frame" x="34" y="30" width="1432" height="1080" rx="32"/>
+<text class="title" x="72" y="84">Ktor IdGenerator Demo Request Flow</text>
+<text class="subtitle" x="76" y="116">Routes validate input, resolve the requested generator, then return generated IDs or structured API errors; Ktor support is installed beside the request path.</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">HTTP entry</text></g>
+<g><rect class="panel" x="82" y="430" width="1336" height="220" rx="22"/><text class="panelTitle" x="110" y="466" dominant-baseline="middle">Request policy</text></g>
+<g><rect class="panel" x="82" y="730" width="1336" height="330" rx="22"/><text class="panelTitle" x="110" y="766" dominant-baseline="middle">Generation outcomes</text></g>
+<g id="client">
+  <rect class="card" x="165" y="235" width="320" height="78" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="325" y="267" text-anchor="middle" dominant-baseline="middle">HTTP client</text>
+  <text class="detail" x="325" y="297" text-anchor="middle" dominant-baseline="middle">/ids, /idgen, /generators</text>
+</g>
+<g id="routes">
+  <rect class="card" x="590" y="230" width="340" height="88" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="760" y="267" text-anchor="middle" dominant-baseline="middle">idGeneratorRoutes</text>
+  <text class="detail" x="760" y="297" text-anchor="middle" dominant-baseline="middle">single-id and batch endpoints</text>
+</g>
+<g id="support">
+  <rect class="card" x="1035" y="235" width="300" height="78" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1185" y="267" text-anchor="middle" dominant-baseline="middle">Ktor support</text>
+  <text class="detail" x="1185" y="297" text-anchor="middle" dominant-baseline="middle">JSON, StatusPages, telemetry</text>
+</g>
+<g id="validation">
+  <rect class="card" x="330" y="520" width="360" height="88" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="510" y="548" text-anchor="middle" dominant-baseline="middle">Request validation</text>
+  <text class="detail" x="510" y="578" text-anchor="middle" dominant-baseline="middle">generator type exists</text>
+  <text class="detail" x="510" y="596" text-anchor="middle" dominant-baseline="middle">batch size is 1..100</text>
+</g>
+<g id="registry">
+  <rect class="card" x="810" y="520" width="360" height="88" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="990" y="548" text-anchor="middle" dominant-baseline="middle">IdGeneratorRegistry</text>
+  <text class="detail" x="990" y="578" text-anchor="middle" dominant-baseline="middle">maps request type</text>
+  <text class="detail" x="990" y="596" text-anchor="middle" dominant-baseline="middle">selects generator implementation</text>
+</g>
+<g id="errors">
+  <rect class="card" x="175" y="815" width="390" height="90" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="370" y="844" text-anchor="middle" dominant-baseline="middle">API errors</text>
+  <text class="detail" x="370" y="874" text-anchor="middle" dominant-baseline="middle">unknown generator type</text>
+  <text class="detail" x="370" y="892" text-anchor="middle" dominant-baseline="middle">invalid batch size</text>
+</g>
+<g id="generators">
+  <rect class="card" x="835" y="815" width="390" height="90" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1030" y="844" text-anchor="middle" dominant-baseline="middle">Generator families</text>
+  <text class="detail" x="1030" y="874" text-anchor="middle" dominant-baseline="middle">UUID, ULID, KSUID</text>
+  <text class="detail" x="1030" y="892" text-anchor="middle" dominant-baseline="middle">Snowflake and Flake</text>
+</g>
+<g id="response">
+  <rect class="card" x="505" y="940" width="390" height="78" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="700" y="972" text-anchor="middle" dominant-baseline="middle">HTTP response payload</text>
+  <text class="detail" x="700" y="1002" text-anchor="middle" dominant-baseline="middle">generated ids or structured error</text>
+</g>
+<path class="route" data-from="client" data-to="routes" d="M485 274 L590 274" stroke="#4F83BF"/>
+<path class="route dashed" data-from="routes" data-to="support" d="M930 274 L1035 274" stroke="#755BC6"/>
+<path class="route" data-from="routes" data-to="validation" d="M760 318 L760 385 L510 385 L510 520" stroke="#B9851B"/>
+<path class="route" data-from="validation" data-to="registry" d="M690 564 L810 564" stroke="#2E8F89"/>
+<path class="route dashed" data-from="validation" data-to="errors" d="M510 608 L510 710 L370 710 L370 815" stroke="#C94D68"/>
+<path class="route" data-from="registry" data-to="generators" d="M990 608 L990 815" stroke="#3E9868"/>
+<path class="route dashed" data-from="errors" data-to="response" d="M370 905 L370 925 L610 925 L610 940" stroke="#C94D68"/>
+<path class="route" data-from="generators" data-to="response" d="M1030 905 L1030 925 L790 925 L790 940" stroke="#3E9868"/>
 </svg>

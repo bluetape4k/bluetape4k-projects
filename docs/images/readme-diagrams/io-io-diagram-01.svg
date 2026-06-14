@@ -41,11 +41,11 @@
   <text class="panelTitle" x="126" y="840">ZIP archive helpers</text>
 </g>
 <g>
-  <rect x="124" y="225" width="235" height="58" rx="24" fill="#F8FAFC" stroke="#9FB0C3" stroke-width="1.8"/>
+  <rect class="soft" x="124" y="225" width="235" height="58" rx="24" fill="#F8FAFC" stroke="#9FB0C3" stroke-width="1.8"/>
   <text class="ioPillText" x="241.5" y="255" text-anchor="middle" dominant-baseline="middle">one-shot payload API</text>
 </g>
 <g>
-  <rect x="124" y="305" width="235" height="58" rx="24" fill="#F8FAFC" stroke="#9FB0C3" stroke-width="1.8"/>
+  <rect class="soft" x="124" y="305" width="235" height="58" rx="24" fill="#F8FAFC" stroke="#9FB0C3" stroke-width="1.8"/>
   <text class="ioPillText" x="241.5" y="335" text-anchor="middle" dominant-baseline="middle">large stream API</text>
 </g>
 <g id="compressor">
@@ -134,5 +134,5 @@
 <path class="dependency" d="M464 908 L550 908" stroke="#2E8F89" stroke-dasharray="8 7"/>
 <path class="dependency" d="M890 908 L976 908" stroke="#C94D68" stroke-dasharray="8 7"/>
 <g><rect class="labelPill" x="555" y="299" width="142" height="30" rx="8" fill="#FFFFFF" stroke="#58A978" stroke-width="1.2"/><text class="detail" x="626" y="315" text-anchor="middle" dominant-baseline="middle">stream wrapper</text></g>
-<g><rect x="140" y="1022" width="1160" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="720" y="1048" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="140" y="1022" width="1160" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="720" y="1048" text-anchor="middle">bluetape4k-projects / core compressors - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="620" viewBox="0 0 1040 620" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="690" viewBox="0 0 1040 690" role="img" aria-labelledby="title desc">
   <title id="title">HTTP client high-latency benchmark throughput</title>
   <desc id="desc">Equal-thread WebFlux fixture snapshot for GET /httpbin/delay/0.05. OkHttp virtual threads lead at 1902.171 ops/s, Ktor CIO records 1515.026 ops/s.</desc>
-  <rect width="1040" height="620" fill="#ffffff"/>
+  <rect width="1040" height="690" fill="#ffffff"/>
   <text x="40" y="42" font-family="Comic Mono" font-size="24" font-weight="700" fill="#172033">HTTP client high-latency throughput</text>
   <text x="40" y="70" font-family="Comic Mono" font-size="14" fill="#526070">WebFlux fixture, @Threads(100), warmup 1x1s, measurement 1x1s, ops/s higher is better</text>
   <line x1="280" y1="552" x2="980" y2="552" stroke="#d6dbe4" stroke-width="1"/>
@@ -59,4 +59,8 @@
   <text x="40" y="516" font-family="Comic Mono" font-size="13" fill="#172033">HC5 Classic Coroutines</text>
   <rect x="280" y="500" width="426" height="20" rx="3" fill="#f59e0b"/>
   <text x="716" y="516" font-family="Comic Mono" font-size="12" fill="#172033">1,216.306</text>
+
+  <rect x="40" y="602" width="960" height="58" rx="12" fill="#f8fafc" stroke="#d8e0ea" stroke-width="1"/>
+  <text x="520" y="623" text-anchor="middle" font-family="Comic Mono" font-size="11" fill="#6b7280">Source: io/http README high-latency WebFlux benchmark snapshot for GET /httpbin/delay/0.05</text>
+  <text x="520" y="645" text-anchor="middle" font-family="Comic Mono" font-size="11" fill="#6b7280">Unit/direction: ops/s, higher is better; equal-thread delayed fixture emphasizes latency hiding, not raw client overhead.</text>
 </svg>

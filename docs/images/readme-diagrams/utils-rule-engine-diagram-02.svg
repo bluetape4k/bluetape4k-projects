@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1792" height="933" viewBox="0 0 1792 933" role="img" aria-label="Core Class Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="1832" height="947" viewBox="0 0 1832 947" role="img" aria-label="Core Class Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
@@ -12,91 +12,91 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1792" height="933"/>
-<rect class="frame" x="32" y="28" width="1728" height="877" rx="30"/>
+<rect class="canvas" width="1832" height="947"/>
+<rect class="frame" x="32" y="28" width="1768" height="891" rx="30"/>
 <text class="title" x="68" y="84">Core Class Diagram</text>
 <text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="DefaultRule" data-to="Facts" data-route-color="teal" d="M508 500 L483 500 L483 661 L458 661" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultSuspendRule" data-to="Action" data-route-color="amber" d="M1068 530 L1068 631" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultSuspendRule" data-to="Condition" data-route-color="pink" d="M898 500 L873 500 L873 661 L848 661" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultRule" data-to="Action" data-route-color="purple" d="M848 500 L873 500 L873 661 L898 661" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultRule" data-to="Condition" data-route-color="olive" d="M678 530 L678 631" stroke="#718A35" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="DefaultSuspendRule" data-to="SuspendRule" data-route-color="purple" d="M1068 398 L1068 297" stroke="#755BC6"/>
-<path class="inherit" data-from="DefaultRule" data-to="Rule" data-route-color="olive" d="M678 398 L678 297" stroke="#718A35"/>
+<path class="dependency" data-from="DefaultRule" data-to="Facts" data-route-color="teal" d="M508 512 L430 512 L430 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultSuspendRule" data-to="Action" data-route-color="amber" d="M1078 544 L1078 631" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultSuspendRule" data-to="Condition" data-route-color="pink" d="M990 544 L990 585 L592 585 L592 631" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultRule" data-to="Action" data-route-color="purple" d="M826 544 L826 588 L940 588 L940 631" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="DefaultRule" data-to="Condition" data-route-color="olive" d="M688 544 L688 631" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="DefaultSuspendRule" data-to="SuspendRule" data-route-color="purple" d="M1078 398 L1078 311" stroke="#755BC6"/>
+<path class="inherit" data-from="DefaultRule" data-to="Rule" data-route-color="olive" d="M688 398 L688 311" stroke="#718A35"/>
 <g id="Facts">
-  <rect class="classCard" x="118" y="631" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="288" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="288" y="678" text-anchor="middle">Facts</text>
-  <line x1="118" y1="687" x2="458" y2="687" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="136" y="712">-map: ConcurrentHashMap~String,</text>
-<text class="member" x="136" y="729">Any?~</text>
-<text class="member" x="136" y="746">+get(name): T?</text>
+  <rect class="classCard" x="118" y="631" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="298" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="678" text-anchor="middle">Facts</text>
+  <line x1="118" y1="687" x2="478" y2="687" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="152" y="719">-map: ConcurrentHashMap~String,</text>
+<text class="member" x="152" y="736">Any?~</text>
+<text class="member" x="152" y="753">+get(name): T?</text>
 </g>
 <g id="Action">
-  <rect class="classCard" x="898" y="631" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1068" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="1068" y="678" text-anchor="middle">Action</text>
-  <line x1="898" y1="687" x2="1238" y2="687" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="916" y="729">+execute(facts: Facts)</text>
+  <rect class="classCard" x="898" y="631" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1078" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="678" text-anchor="middle">Action</text>
+  <line x1="898" y1="687" x2="1258" y2="687" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="932" y="732">+execute(facts: Facts)</text>
 </g>
 <g id="Condition">
-  <rect class="classCard" x="508" y="631" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="678" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="678" text-anchor="middle">Condition</text>
-  <line x1="508" y1="687" x2="848" y2="687" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="526" y="729">+evaluate(facts: Facts): Boolean</text>
+  <rect class="classCard" x="508" y="631" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="688" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="678" text-anchor="middle">Condition</text>
+  <line x1="508" y1="687" x2="868" y2="687" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="542" y="732">+evaluate(facts: Facts): Boolean</text>
 </g>
 <g id="Rule">
-  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="212" text-anchor="middle">Rule</text>
-  <line x1="508" y1="221" x2="848" y2="221" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="526" y="246">+name: String</text>
-<text class="member" x="526" y="263">+priority: Int</text>
-<text class="member" x="526" y="280">+evaluate(facts: Facts): Boolean</text>
+  <rect class="classCard" x="508" y="165" width="360" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="688" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="212" text-anchor="middle">Rule</text>
+  <line x1="508" y1="221" x2="868" y2="221" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="542" y="253">+name: String</text>
+<text class="member" x="542" y="270">+priority: Int</text>
+<text class="member" x="542" y="287">+evaluate(facts: Facts): Boolean</text>
 </g>
 <g id="SuspendRule">
-  <rect class="classCard" x="898" y="165" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1068" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="1068" y="212" text-anchor="middle">SuspendRule</text>
-  <line x1="898" y1="221" x2="1238" y2="221" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="916" y="246">+name: String</text>
-<text class="member" x="916" y="263">+priority: Int</text>
-<text class="member" x="916" y="280">+evaluate(facts: Facts): Boolean</text>
+  <rect class="classCard" x="898" y="165" width="360" height="146" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1078" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="212" text-anchor="middle">SuspendRule</text>
+  <line x1="898" y1="221" x2="1258" y2="221" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="932" y="253">+name: String</text>
+<text class="member" x="932" y="270">+priority: Int</text>
+<text class="member" x="932" y="287">+evaluate(facts: Facts): Boolean</text>
 </g>
 <g id="RuleSet">
-  <rect class="classCard" x="1334" y="165" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1504" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="212" text-anchor="middle">RuleSet</text>
-  <line x1="1334" y1="221" x2="1674" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1352" y="246">-rules: TreeSet~Rule~</text>
-<text class="member" x="1352" y="263">+add(rule: Rule)</text>
-<text class="member" x="1352" y="280">+iterator(): Iterator~Rule~</text>
+  <rect class="classCard" x="1354" y="165" width="360" height="146" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1534" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1534" y="212" text-anchor="middle">RuleSet</text>
+  <line x1="1354" y1="221" x2="1714" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1388" y="253">-rules: TreeSet~Rule~</text>
+<text class="member" x="1388" y="270">+add(rule: Rule)</text>
+<text class="member" x="1388" y="287">+iterator(): Iterator~Rule~</text>
 </g>
 <g id="DefaultRule">
-  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="445" text-anchor="middle">DefaultRule</text>
-  <line x1="508" y1="454" x2="848" y2="454" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="526" y="479">-condition: Condition</text>
-<text class="member" x="526" y="496">-actions: List~Action~</text>
-<text class="member" x="526" y="513">+evaluate(facts: Facts): Boolean</text>
+  <rect class="classCard" x="508" y="398" width="360" height="146" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="688" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="445" text-anchor="middle">DefaultRule</text>
+  <line x1="508" y1="454" x2="868" y2="454" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="542" y="486">-condition: Condition</text>
+<text class="member" x="542" y="503">-actions: List~Action~</text>
+<text class="member" x="542" y="520">+evaluate(facts: Facts): Boolean</text>
 </g>
 <g id="DefaultSuspendRule">
-  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1068" y="445" text-anchor="middle">DefaultSuspendRule</text>
-  <line x1="898" y1="454" x2="1238" y2="454" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="916" y="479">-condition: SuspendCondition</text>
-<text class="member" x="916" y="496">-actions: List~SuspendAction~</text>
-<text class="member" x="916" y="513">+evaluate(facts: Facts): Boolean</text>
+  <rect class="classCard" x="898" y="398" width="360" height="146" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1078" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="445" text-anchor="middle">DefaultSuspendRule</text>
+  <line x1="898" y1="454" x2="1258" y2="454" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="932" y="486">-condition: SuspendCondition</text>
+<text class="member" x="932" y="503">-actions: List~SuspendAction~</text>
+<text class="member" x="932" y="520">+evaluate(facts: Facts): Boolean</text>
 </g>
 <g>
-  <rect x="1377" y="825" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1395 843 L1453 843" stroke="#3E9868"/>
-  <text class="detail" x="1467" y="848">inheritance / implementation</text>
-  <path class="dependency" d="M1395 864 L1453 864" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1467" y="869">dependency / usage</text>
+  <rect x="1417" y="839" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1435 857 L1493 857" stroke="#3E9868"/>
+  <text class="detail" x="1507" y="862">inheritance / implementation</text>
+  <path class="dependency" d="M1435 878 L1493 878" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1507" y="883">dependency / usage</text>
 </g>
-<g><rect x="180" y="843" width="1152" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="756" y="869" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="857" width="1192" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="776" y="883" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

@@ -1,70 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1754" height="829" viewBox="0 0 1754 829" role="img" aria-label="HTTP Client Hierarchy (HC5)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="780" viewBox="0 0 1500 780" role="img" aria-label="HTTP Client Hierarchy (HC5)">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="context-stroke" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="context-stroke" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1754" height="829"/>
-<rect class="frame" x="32" y="28" width="1690" height="773" rx="28"/>
-<text class="title" x="66" y="82">HTTP Client Hierarchy (HC5)</text>
-<text class="subtitle" x="70" y="104">Source-checked class relationships with readable compartments and routed inheritance.</text>
-<path class="dashed" d="M1082 180 L1082 122 L262 122 L262 350" style="stroke:#3E9868;stroke:#3E9868" data-route-color="#3E9868"/>
-<path class="line" d="M672 350 L672 410 L877 410 L877 481" style="stroke:#4F83BF;stroke:#4F83BF" data-route-color="#4F83BF"/>
-<path class="line" d="M672 180 L672 402 L1492 402 L1492 292" style="stroke:#2E8F89;stroke:#2E8F89" data-route-color="#2E8F89"/>
-<g transform="translate(92,180)">
-  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«extension functions»</text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Http Async Client</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Coroutines</text>
-  <text class="mono" x="18" y="124">+executeSuspending(request)</text>
-<text class="mono" x="18" y="145">SimpleHttpResponse</text>
+<rect class="canvas" width="1500" height="780"/>
+<rect class="frame" x="32" y="28" width="1436" height="724" rx="30"/>
+<text class="title" x="68" y="84">HTTP Client Hierarchy (HC5)</text>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="CloseableHttpAsyncClient" data-to="HttpAsyncClientCoroutines" data-route-color="teal" d="M1183 311 L1183 398" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="CachingHttpAsyncClientBuilder" data-to="JavaCacheHttpCacheStorage" data-route-color="amber" d="M640 303 L640 398" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="CachingHttpAsyncClientBuilder" data-to="InMemoryHttpCacheStorage" data-route-color="pink" d="M364 303 L364 398" stroke="#C94D68" stroke-dasharray="8 7"/>
+<g id="HttpAsyncClientCoroutines">
+  <rect class="classCard" x="993" y="398" width="380" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1183" y="417" text-anchor="middle">extension functions</text>
+  <text class="classTitle" x="1183" y="445" text-anchor="middle">HttpAsyncClientCoroutines</text>
+  <line x1="993" y1="454" x2="1373" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1027" y="491">+executeSuspending(request)</text>
+<text class="member" x="1027" y="508">SimpleHttpResponse</text>
 </g>
-<g transform="translate(502,180)">
-  <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#58A978"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«DSL builder»</text>
-  <text class="label" x="170" y="56.5" text-anchor="middle">Caching Http Async</text>
-<text class="label" x="170" y="81.5" text-anchor="middle">Client Builder</text>
-  <text class="mono" x="18" y="124">+setHttpCacheStorage(storage)</text>
-<text class="mono" x="18" y="145">+build() CloseableHttpAsyncClient</text>
+<g id="CachingHttpAsyncClientBuilder">
+  <rect class="classCard" x="322" y="165" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="502" y="184" text-anchor="middle">DSL builder</text>
+  <text class="classTitle" x="502" y="203" text-anchor="middle">CachingHttpAsyncClient</text>
+<text class="classTitle" x="502" y="225" text-anchor="middle">Builder</text>
+  <line x1="322" y1="229" x2="682" y2="229" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="356" y="262">+setHttpCacheStorage(storage)</text>
+<text class="member" x="356" y="279">+build() CloseableHttpAsyncClient</text>
 </g>
-<g transform="translate(912,180)">
-  <rect class="card" x="0" y="0" width="340" height="175" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#D6A441"/>
-  <text class="small" x="170" y="26" text-anchor="middle">«ApacheHC5»</text>
-  <text class="label" x="170" y="61" text-anchor="middle">CloseableHttpAsyncClient</text>
-  <text class="mono" x="18" y="108">+execute(request, callback) Future</text>
-<text class="mono" x="18" y="129">+start()</text>
-<text class="mono" x="18" y="150">+close()</text>
+<g id="CloseableHttpAsyncClient">
+  <rect class="classCard" x="993" y="165" width="360" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1173" y="184" text-anchor="middle">ApacheHC5</text>
+  <text class="classTitle" x="1173" y="203" text-anchor="middle">CloseableHttpAsync</text>
+<text class="classTitle" x="1173" y="225" text-anchor="middle">Client</text>
+  <line x1="993" y1="229" x2="1353" y2="229" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="1027" y="257">+execute(request, callback) Future</text>
+<text class="member" x="1027" y="274">+start()</text>
+<text class="member" x="1027" y="291">+close()</text>
 </g>
-<g transform="translate(1322,180)">
-  <rect class="card" x="0" y="0" width="340" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="340" y2="78" stroke="#DC6B82"/>
-    <text class="label" x="170" y="49" text-anchor="middle">InMemoryHttpCacheStorage</text>
+<g id="InMemoryHttpCacheStorage">
+  <rect class="classCard" x="127" y="398" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="307" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="307" y="436" text-anchor="middle">InMemoryHttpCache</text>
+<text class="classTitle" x="307" y="458" text-anchor="middle">Storage</text>
+  <line x1="127" y1="462" x2="487" y2="462" stroke="#D6A441" stroke-width="1.4"/>
 
 </g>
-<g transform="translate(707,481)">
-  <rect class="card" x="0" y="0" width="340" height="128" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#45A7A1"/>
-    <text class="label" x="170" y="44.5" text-anchor="middle">Java Cache Http Cache</text>
-<text class="label" x="170" y="69.5" text-anchor="middle">Storage</text>
+<g id="JavaCacheHttpCacheStorage">
+  <rect class="classCard" x="517" y="398" width="380" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="707" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="707" y="445" text-anchor="middle">JavaCacheHttpCacheStorage</text>
+  <line x1="517" y1="454" x2="897" y2="454" stroke="#DC6B82" stroke-width="1.4"/>
 
 </g>
+<g>
+  <rect x="1085" y="672" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1103 690 L1161 690" stroke="#3E9868"/>
+  <text class="detail" x="1175" y="695">inheritance / implementation</text>
+  <path class="dependency" d="M1103 711 L1161 711" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1175" y="716">dependency / usage</text>
+</g>
+<g><rect x="180" y="690" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="716" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

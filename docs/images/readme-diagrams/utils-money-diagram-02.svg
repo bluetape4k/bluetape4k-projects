@@ -1,108 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1310" height="1304" viewBox="0 0 1310 1304" role="img" aria-label="Currency Operation Flow">
+<svg data-intent="Explain currency operation flow by showing MonetaryAmount inputs, currency/exchange-rate support, arithmetic/conversion helpers, rounding, and formatted output." data-evidence="utils/money/README.md; utils/money/src/main/kotlin/io/bluetape4k/money" data-source-read="utils/money/README.md; utils/money/src/main/kotlin/io/bluetape4k/money" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="Currency Operation Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1310" height="1304"/>
-<rect class="frame" x="32" y="28" width="1246" height="1248" rx="28"/>
-<text class="title" x="66" y="82">Currency Operation Flow</text>
-<text class="subtitle" x="70" y="104">Source-checked lifecycle flow with grouped phases and explicit transitions.</text>
-<g transform="translate(60,160)">
-  <rect x="0" y="0" width="350" height="1074" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Creation</text>
+<rect class="canvas" width="1500" height="1158"/>
+<rect class="frame" x="34" y="30" width="1432" height="1098" rx="32"/>
+<text class="title" x="72" y="84">Currency Operation Flow</text>
+<text class="subtitle" x="76" y="116">Money utilities convert caller amounts through currency/exchange/rounding support before returning monetary values or formatted text.</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="234" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Inputs</text></g>
+<g id="amount">
+  <rect class="card" x="146" y="256" width="280" height="84" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="286" y="291" text-anchor="middle" dominant-baseline="middle">MonetaryAmount</text>
+  <text class="detail" x="286" y="321" text-anchor="middle" dominant-baseline="middle">number + currency</text>
 </g>
-<g transform="translate(105,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">moneyOf(1000, KRW)</text>
+<g id="currency">
+  <rect class="card" x="1074" y="256" width="280" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1214" y="291" text-anchor="middle" dominant-baseline="middle">CurrencyUnit</text>
+  <text class="detail" x="1214" y="321" text-anchor="middle" dominant-baseline="middle">ISO code and scale</text>
 </g>
-<g transform="translate(105,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Money(1000 KRW)</text>
+<g><rect class="panel" x="82" y="478" width="1336" height="234" rx="22"/><text class="panelTitle" x="110" y="514" dominant-baseline="middle">Operations</text></g>
+<g id="math">
+  <rect class="card" x="146" y="574" width="280" height="84" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="286" y="609" text-anchor="middle" dominant-baseline="middle">Arithmetic helpers</text>
+  <text class="detail" x="286" y="639" text-anchor="middle" dominant-baseline="middle">plus/minus/times/divide</text>
 </g>
-<g transform="translate(105,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">1.05.toMoney(USD)</text>
+<g id="convert">
+  <rect class="card" x="610" y="574" width="280" height="84" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="750" y="609" text-anchor="middle" dominant-baseline="middle">Exchange conversion</text>
+  <text class="detail" x="750" y="639" text-anchor="middle" dominant-baseline="middle">rate provider boundary</text>
 </g>
-<g transform="translate(105,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Money(1.05 USD)</text>
+<g id="round">
+  <rect class="card" x="1074" y="574" width="280" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1214" y="609" text-anchor="middle" dominant-baseline="middle">Rounding helpers</text>
+  <text class="detail" x="1214" y="639" text-anchor="middle" dominant-baseline="middle">scale and monetary rounding</text>
 </g>
-<g transform="translate(105,804)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">10000.inFastKRW()</text>
+<g><rect class="panel" x="82" y="796" width="1336" height="234" rx="22"/><text class="panelTitle" x="110" y="832" dominant-baseline="middle">Outputs</text></g>
+<g id="money">
+  <rect class="card" x="146" y="892" width="280" height="84" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="286" y="927" text-anchor="middle" dominant-baseline="middle">Monetary result</text>
+  <text class="detail" x="286" y="957" text-anchor="middle" dominant-baseline="middle">converted or rounded amount</text>
 </g>
-<g transform="translate(105,946)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">FastMoney(10000 KRW)</text>
+<g id="format">
+  <rect class="card" x="1074" y="892" width="280" height="84" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="cardTitle" x="1214" y="927" text-anchor="middle" dominant-baseline="middle">Formatted text</text>
+  <text class="detail" x="1214" y="957" text-anchor="middle" dominant-baseline="middle">localized display</text>
 </g>
-<g transform="translate(105,1088)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">inFastKRW</text>
-</g>
-<g transform="translate(480,160)">
-  <rect x="0" y="0" width="350" height="932" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Operations</text>
-</g>
-<g transform="translate(525,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">1500 KRW</text>
-</g>
-<g transform="translate(525,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Money(1000 KRW)</text>
-</g>
-<g transform="translate(525,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">2000 KRW</text>
-</g>
-<g transform="translate(525,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">KRW</text>
-</g>
-<g transform="translate(525,804)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">converted KRW result</text>
-</g>
-<g transform="translate(525,946)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F7F1E7" stroke="#B88A44"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Money(1.05 USD)</text>
-</g>
-<g transform="translate(900,160)">
-  <rect x="0" y="0" width="350" height="648" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Aggregation</text>
-</g>
-<g transform="translate(945,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">listOf(100.inKRW(),</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">200.inKRW())</text>
-</g>
-<g transform="translate(945,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">KRW</text>
-</g>
-<g transform="translate(945,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">300 KRW</text>
-</g>
-<g transform="translate(945,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">inKRW</text>
-</g>
+<path class="route" data-from="amount" data-to="math" d="M358 340 L358 574" stroke="#4F83BF"/>
+<path class="route" data-from="currency" data-to="convert" d="M1214 340 L1214 446 L750 446 L750 574" stroke="#3E9868"/>
+<path class="route" data-from="math" data-to="money" d="M286 658 L286 892" stroke="#2E8F89"/>
+<path class="route" data-from="convert" data-to="money" d="M750 658 L750 786 L336 786 L336 892" stroke="#B9851B"/>
+<path class="route" data-from="round" data-to="money" d="M1214 658 L1214 798 L386 798 L386 892" stroke="#755BC6"/>
+<path class="route" data-from="money" data-to="format" d="M426 934 L1074 934" stroke="#C94D68"/>
 </svg>

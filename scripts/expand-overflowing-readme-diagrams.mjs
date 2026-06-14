@@ -10,7 +10,7 @@ const rsvg = "/opt/homebrew/bin/rsvg-convert";
 
 let changed = 0;
 
-for (const file of readdirSync(DIR).filter((name) => name.endsWith(".svg") && !name.endsWith("-sketch.svg") && !name.endsWith("-graphviz.svg")).sort()) {
+for (const file of readdirSync(DIR).filter((name) => name.endsWith(".svg")).sort()) {
   const path = join(DIR, file);
   const svg = readFileSync(path, "utf8");
   const box = measure(svg);

@@ -85,10 +85,13 @@ ${text("subtitle", 72, 116, subtitle)}`;
 }
 
 function footer(y, width, source, rule) {
+  const normalizedRule = /\bgithub\.com\/bluetape4k|^bluetape4k-projects\b/i.test(rule)
+    ? "Unit, direction, benchmark mode, and caveats are stated in the title and interpretation band."
+    : rule;
   return `<g>
   <rect class="note" x="94" y="${y}" width="${width - 188}" height="50" rx="16"/>
   ${text("small", width / 2, y + 18, `Source: ${source}`, 'text-anchor="middle" dominant-baseline="middle"')}
-  ${text("tiny", width / 2, y + 36, rule, 'text-anchor="middle" dominant-baseline="middle"')}
+  ${text("tiny", width / 2, y + 36, normalizedRule, 'text-anchor="middle" dominant-baseline="middle"')}
 </g>`;
 }
 
@@ -153,7 +156,7 @@ function rankingChart({ name, title, subtitle, source, unit, max, ticks, rows, n
   ${text("small", width / 2, bottom.noteY + 23, note, 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 42, "Higher is better. Keep units, benchmark mode, and source table visible with the chart.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, source, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
+${footer(bottom.footerY, width, source, "Unit/direction: higher is better; source table and interpretation caveat stay visible.")}
 </svg>`;
   writeChart(name, svg, `${name}: rows=${rows.length} max=${max} unit=${unit}`);
 }
@@ -189,7 +192,7 @@ ${legend(width - 650, 110, seriesLabels.map((label) => ({ label, step: 205 })))}
   ${text("small", width / 2, bottom.noteY + 23, note, 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 43, "Use grouped rows only when each bar shares the same unit and benchmark mode.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, source, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
+${footer(bottom.footerY, width, source, "Grouped bars share one unit and mode; compare rows only within the stated benchmark table.")}
 </svg>`;
   writeChart(name, svg, `${name}: groups=${groups.length} series=${seriesLabels.length} max=${max} unit=${unit}`);
 }
@@ -230,7 +233,7 @@ ${body}
   ${text("small", width / 2, bottom.noteY + 23, note, 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 42, "Split panels are intentional: one chart would compress slower paths into unreadable slivers.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, source, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
+${footer(bottom.footerY, width, source, "Split scales are intentional; compare values inside each panel, not across panel axes.")}
 </svg>`;
   writeChart(name, svg, `${name}: panels=${panels.length}`);
 }
@@ -375,7 +378,7 @@ ${compactPanel({ x: 950, y: 650, w: panelW, h: panelH, title: "Concurrent batch=
   ${text("small", width / 2, bottom.noteY + 23, "UUID V7 leads every table; batch=10000 drops all generators because uniqueness verification dominates the measured work.", 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 42, "Four panels are intentional: mixing batch sizes or execution modes into one axis hides the benchmark meaning.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, "utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables", "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
+${footer(bottom.footerY, width, "utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables", "Panels are separated by batch size and concurrency mode; values are ops/s, higher is better.")}
 </svg>`;
   writeChart("idgenerators-throughput-chart-01", svg, "idgenerators-throughput-chart-01: panels=4 sourceTables=single/concurrent batch100/batch10000");
 }

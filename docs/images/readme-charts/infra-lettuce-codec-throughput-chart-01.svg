@@ -163,6 +163,6 @@
 <g>
   <rect class="note" x="94" y="951" width="1532" height="50" rx="16"/>
   <text class="small" x="860" y="969" text-anchor="middle" dominant-baseline="middle">Source: infra/lettuce/README.ko.md codec benchmark table</text>
-  <text class="tiny" x="860" y="987" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
+  <text class="tiny" x="860" y="987" text-anchor="middle" dominant-baseline="middle">Unit/direction: higher is better; source table and interpretation caveat stay visible.</text>
 </g>
 </svg>

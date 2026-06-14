@@ -4,562 +4,340 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const dot = "/opt/homebrew/bin/dot";
-const rsvgConvert = "/opt/homebrew/bin/rsvg-convert";
-const diagramDir = "docs/images/readme-diagrams";
-const chartDir = "docs/images/readme-charts";
+const ROOT = process.cwd();
+const diagramDir = join(ROOT, "docs/images/readme-diagrams");
+const chartDir = join(ROOT, "docs/images/readme-charts");
+const cairosvg = process.env.CAIROSVG ?? "cairosvg";
 
-const moduleRoots = [
-  "bluetape4k",
-  "cache",
-  "data",
-  "infra",
-  "io",
-  "ktor",
-  "spring-boot",
-  "testing",
-  "utils",
-  "virtualthread",
-  "examples",
-  "benchmark",
+const groups = [
+  ["bluetape4k", "Foundation", "Core contracts, coroutines, logging, BOM"],
+  ["io", "I/O and Codecs", "HTTP, serialization, crypto, streaming"],
+  ["data", "Data Access", "JDBC, R2DBC, Hibernate, MongoDB, Cassandra"],
+  ["infra", "Infrastructure", "Redis, Kafka, telemetry, resilience"],
+  ["cache", "Caching", "NearCache core plus backend bridges"],
+  ["ktor", "Ktor Stack", "Server core, observability, testing"],
+  ["spring-boot", "Spring Boot 4", "Auto-configurations and demos"],
+  ["testing", "Testing", "Assertions, JUnit, Testcontainers"],
+  ["utils", "Utilities", "states, workflow, money, JWT, ID, time"],
+  ["virtualthread", "Virtual Threads", "JDK21 and JDK25 runtime helpers"],
+  ["examples", "Examples", "Runnable demos and integration samples"],
 ];
 
-const palette = {
-  blue: { fill: "#E8F3FF", stroke: "#75A9E8", line: "#4F83BF" },
-  green: { fill: "#EAF7EF", stroke: "#69B888", line: "#58A978" },
-  teal: { fill: "#E9F7F6", stroke: "#45A7A1", line: "#45A7A1" },
-  amber: { fill: "#FFF3D9", stroke: "#D9AA4D", line: "#D9AA4D" },
-  pink: { fill: "#FCE7F3", stroke: "#DB7890", line: "#DB7890" },
-  purple: { fill: "#F1ECFF", stroke: "#8A72D6", line: "#8A72D6" },
-  olive: { fill: "#EEF6D9", stroke: "#8BA84D", line: "#8BA84D" },
-  gray: { fill: "#F6F8FA", stroke: "#AAB7C4", line: "#6B7D90" },
-  brown: { fill: "#F7F1E7", stroke: "#B88A44", line: "#B88A44" },
-};
+const moduleCounts = Object.fromEntries(groups.map(([id]) => [id, countModules(id)]));
+const totalModules = Object.values(moduleCounts).reduce((sum, value) => sum + value, 0);
 
-const groups = collectModuleGroups();
-const groupByKey = new Map(groups.map((group) => [group.key, group]));
-const totalModules = groups.reduce((sum, group) => sum + group.count, 0);
+ensureDir(diagramDir);
+ensureDir(chartDir);
 
-const overview = {
-  file: "root-readme-overview-01",
-  title: "Bluetape4k Projects Overview",
-  subtitle: `${totalModules} current Gradle modules across shared Kotlin/JVM libraries, runtime stacks, examples, and benchmarks.`,
-  desc: "Source-backed overview of the bluetape4k-projects repository generated from current Gradle module directories.",
-  width: 1640,
-  height: 1200,
-  groups: [
-    panel("source", "Source of truth", 70, 160, 1500, 165),
-    panel("foundation", "Foundation and runtime libraries", 70, 365, 1500, 285),
-    panel("stacks", "Application stacks and verification", 70, 700, 1500, 190),
-    panel("ecosystem", "Examples, benchmarks, and split repositories", 70, 940, 1500, 150),
-  ],
-  nodes: [
-    card("settings", "settings.gradle.kts", ["auto-includes module roots", "current Gradle layout"], "blue", 150, 215, 330, 74),
-    card("catalog", "libs.versions.toml", ["Kotlin 2.3", "Spring Boot 4.x"], "purple", 650, 215, 330, 74),
-    card("published", "Published platform", ["bluetape4k-bom", "Maven artifacts"], "green", 1160, 215, 330, 74),
+writeVisual("root-readme-overview-01", rootOverviewSvg());
+writeVisual("root-readme-en-diagram-01", architectureSvg());
+writeChart("root-readme-module-chart-01", moduleChartSvg());
 
-    card("core", "Foundation", [`${count("bluetape4k")} modules`, list("bluetape4k", 4)], "blue", 112, 430, 285, 96),
-    card("io", "I/O and codecs", [`${count("io")} modules`, "HTTP, JSON, gRPC, Okio"], "teal", 435, 430, 285, 96),
-    card("data", "Data access", [`${count("data")} modules`, "JDBC, R2DBC, MongoDB"], "amber", 758, 430, 285, 96),
-    card("infra", "Infrastructure", [`${count("infra")} modules`, "Redis, Kafka, OTel"], "pink", 1081, 430, 285, 96),
-    card("utils", "Utilities", [`${count("utils")} modules`, "time, geo, workflow"], "olive", 758, 545, 285, 96),
-    card("cache", "Caching", [`${count("cache")} modules`, "core, Hazelcast, Lettuce"], "green", 435, 545, 285, 96),
+console.log(`root-readme-visuals: modules=${totalModules} diagrams=2 charts=1 renderer=cairosvg`);
 
-    card("ktor", "Ktor stack", [`${count("ktor")} modules`, "core, testing, OpenAPI"], "teal", 150, 755, 300, 82),
-    card("spring", "Spring Boot stack", [`${count("spring-boot")} modules`, "Boot 4.x starters"], "purple", 500, 775, 300, 82),
-    card("testing", "Testing support", [`${count("testing")} modules`, "JUnit5, Testcontainers"], "brown", 850, 755, 300, 82),
-    card("vt", "Virtual threads", [`${count("virtualthread")} modules`, "JDK21 and JDK25 adapters"], "blue", 1200, 775, 300, 82),
-
-    card("examples", "Examples", [`${count("examples")} modules`, "Ktor, Spring Boot, JPA"], "green", 190, 995, 300, 64),
-    card("benchmarks", "Benchmarks", [`${count("benchmark")} modules`, "web framework, protobuf"], "amber", 550, 995, 300, 64),
-    card("split", "Split repositories", ["AWS, Exposed, image", "text, leader, JaVers"], "purple", 1050, 989, 380, 76),
-  ],
-  routes: [
-    route("settings", "core", "blue", [{ x: 315, y: 289 }, { x: 315, y: 350 }, { x: 520, y: 350 }, { x: 520, y: 420 }, { x: 254.5, y: 420 }, { x: 254.5, y: 430 }]),
-    route("catalog", "io", "purple", [{ x: 760, y: 289 }, { x: 760, y: 340 }, { x: 577.5, y: 340 }, { x: 577.5, y: 430 }]),
-    route("catalog", "infra", "purple", [{ x: 870, y: 289 }, { x: 870, y: 360 }, { x: 1223.5, y: 360 }, { x: 1223.5, y: 430 }]),
-    route("published", "split", "green", [{ x: 1325, y: 289 }, { x: 1325, y: 350 }, { x: 1520, y: 350 }, { x: 1520, y: 960 }, { x: 1240, y: 960 }, { x: 1240, y: 989 }]),
-    route("core", "ktor", "blue", [{ x: 254.5, y: 526 }, { x: 254.5, y: 675 }, { x: 560, y: 675 }, { x: 560, y: 745 }, { x: 300, y: 745 }, { x: 300, y: 755 }]),
-    route("cache", "testing", "green", [{ x: 577.5, y: 641 }, { x: 577.5, y: 675 }, { x: 1000, y: 675 }, { x: 1000, y: 755 }]),
-    route("testing", "benchmarks", "brown", [{ x: 1000, y: 837 }, { x: 1000, y: 920 }, { x: 700, y: 920 }, { x: 700, y: 995 }]),
-  ],
-};
-
-const structure = {
-  file: "root-readme-en-diagram-01",
-  title: "Repository Module Structure",
-  subtitle: `${totalModules} source-backed modules grouped by repository boundary and README responsibility.`,
-  desc: "Layered repository module structure generated from the current Gradle module directories.",
-  width: 1780,
-  height: 1240,
-  groups: [
-    panel("foundation", "Base", 70, 150, 1640, 160),
-    panel("runtime", "Runtime library families", 70, 370, 1640, 310),
-    panel("application", "Application-facing stacks", 70, 740, 1640, 180),
-    panel("evidence", "Evidence", 70, 980, 1640, 130),
-  ],
-  nodes: [
-    groupCard("bluetape4k", "Foundation", "blue", 210, 190, 320, 86, 5),
-    card("bom", "BOM alignment", ["version catalog", "platform constraints"], "green", 560, 190, 300, 86),
-    card("baseline", "Runtime baseline", ["Java 21", "Kotlin 2.3"], "purple", 960, 190, 300, 86),
-    card("split-boundary", "Standalone repos", ["AWS, Exposed, image", "text, leader, JaVers"], "gray", 1360, 190, 300, 86),
-
-    groupCard("io", "I/O and serialization", "teal", 110, 425, 320, 104, 5),
-    groupCard("data", "Data access", "amber", 500, 405, 320, 104, 5),
-    groupCard("infra", "Infrastructure", "pink", 890, 425, 320, 104, 5),
-    groupCard("utils", "Utilities", "olive", 1280, 405, 320, 104, 5),
-    groupCard("cache", "Cache", "green", 500, 560, 320, 86, 4),
-    groupCard("virtualthread", "Virtual Thread", "blue", 890, 560, 320, 86, 3),
-
-    groupCard("ktor", "Ktor", "teal", 185, 785, 300, 88, 4),
-    groupCard("spring-boot", "Spring Boot", "purple", 570, 785, 300, 88, 4),
-    groupCard("testing", "Testing", "brown", 955, 785, 300, 88, 4),
-    card("readmes", "README assets", ["English and Korean", "PNG/SVG pairs"], "gray", 1340, 785, 300, 88),
-
-    groupCard("examples", "Examples", "green", 275, 1012, 330, 74, 4),
-    groupCard("benchmark", "Benchmarks", "amber", 725, 1012, 330, 74, 2),
-    card("diagram-assets", "Documentation assets", ["PNG/SVG pairs", "README visual index"], "blue", 1175, 1012, 330, 74),
-  ],
-  routes: [
-    route("bluetape4k", "io", "blue", [{ x: 370, y: 276 }, { x: 370, y: 344 }, { x: 430, y: 344 }, { x: 430, y: 412 }, { x: 270, y: 412 }, { x: 270, y: 425 }]),
-    route("bluetape4k", "data", "blue", [{ x: 430, y: 276 }, { x: 430, y: 340 }, { x: 660, y: 340 }, { x: 660, y: 405 }]),
-    route("bom", "infra", "green", [{ x: 710, y: 276 }, { x: 710, y: 344 }, { x: 1050, y: 344 }, { x: 1050, y: 425 }]),
-    route("baseline", "utils", "purple", [{ x: 1110, y: 276 }, { x: 1110, y: 344 }, { x: 1440, y: 344 }, { x: 1440, y: 405 }]),
-    route("data", "spring-boot", "amber", [{ x: 820, y: 457 }, { x: 850, y: 457 }, { x: 850, y: 720 }, { x: 720, y: 720 }, { x: 720, y: 785 }]),
-    route("infra", "testing", "pink", [{ x: 1210, y: 477 }, { x: 1240, y: 477 }, { x: 1240, y: 720 }, { x: 1105, y: 720 }, { x: 1105, y: 785 }]),
-    route("utils", "readmes", "olive", [{ x: 1440, y: 509 }, { x: 1440, y: 785 }]),
-    route("spring-boot", "examples", "purple", [{ x: 720, y: 873 }, { x: 720, y: 950 }, { x: 440, y: 950 }, { x: 440, y: 1012 }]),
-    route("testing", "benchmark", "brown", [{ x: 1105, y: 873 }, { x: 1105, y: 950 }, { x: 890, y: 950 }, { x: 890, y: 1012 }]),
-    route("readmes", "diagram-assets", "gray", [{ x: 1490, y: 873 }, { x: 1490, y: 950 }, { x: 1340, y: 950 }, { x: 1340, y: 1012 }]),
-  ],
-};
-
-writeDiagram(overview);
-writeDiagram(structure);
-writeChart();
-
-function collectModuleGroups() {
-  const modules = moduleRoots.map((root) => ({
-    key: root,
-    label: labelFor(root),
-    modules: collectModules(root),
-    color: colorFor(root),
-  }));
-  return modules.map((group) => ({ ...group, count: group.modules.length }));
-}
-
-function collectModules(root) {
-  const results = [];
-  walk(root, results);
-  return results.sort();
-}
-
-function walk(dir, results) {
-  if (!existsSync(dir) || !statSync(dir).isDirectory()) return;
-  if (existsSync(join(dir, "build.gradle.kts"))) {
-    results.push(dir);
-    return;
-  }
-  for (const entry of readdirSync(dir).sort()) {
-    if (entry.startsWith(".") || entry === "build") continue;
-    const child = join(dir, entry);
-    if (statSync(child).isDirectory()) walk(child, results);
-  }
-}
-
-function count(key) {
-  return groupByKey.get(key)?.count ?? 0;
-}
-
-function list(key, max) {
-  const modules = groupByKey.get(key)?.modules ?? [];
-  return modules.map((item) => item.split("/").at(-1)).slice(0, max).join(", ");
-}
-
-function labelFor(key) {
-  return ({
-    "bluetape4k": "Foundation",
-    "cache": "Cache",
-    "data": "Data",
-    "infra": "Infrastructure",
-    "io": "I/O",
-    "ktor": "Ktor",
-    "spring-boot": "Spring Boot",
-    "testing": "Testing",
-    "utils": "Utilities",
-    "virtualthread": "Virtual threads",
-    "examples": "Examples",
-    "benchmark": "Benchmarks",
-  })[key] ?? titleCase(key);
-}
-
-function colorFor(key) {
-  return ({
-    "bluetape4k": "blue",
-    "cache": "green",
-    "data": "amber",
-    "infra": "pink",
-    "io": "teal",
-    "ktor": "teal",
-    "spring-boot": "purple",
-    "testing": "brown",
-    "utils": "olive",
-    "virtualthread": "blue",
-    "examples": "green",
-    "benchmark": "amber",
-  })[key] ?? "gray";
-}
-
-function summaryFor(key, maxItems) {
-  const summary = ({
-    "bluetape4k": "core, coroutines, logging",
-    "cache": "core, lettuce, redisson",
-    "data": "jdbc/r2dbc, mongo, hibernate",
-    "infra": "redis/kafka, otel, resilience",
-    "io": "http/json, okio, grpc",
-    "ktor": "core, openapi, resilience",
-    "spring-boot": "core, data, demos",
-    "testing": "junit5, containers, mock servers",
-    "utils": "time/geo, math, workflow",
-    "virtualthread": "api, jdk21, jdk25",
-    "examples": "ktor/spring demos, JPA",
-    "benchmark": "protobuf, web-framework",
-  })[key];
-  return summary ?? list(key, maxItems);
-}
-
-function panel(id, title, x, y, w, h) {
-  return { id, title, x, y, w, h };
-}
-
-function card(id, title, details, color, x, y, w = 280, h = 86) {
-  return { id, title, details, color, x, y, w, h };
-}
-
-function groupCard(key, title, color, x, y, w, h, maxItems) {
-  return card(key, title, [`${count(key)} modules`, summaryFor(key, maxItems)], color, x, y, w, h);
-}
-
-function route(from, to, color, points) {
-  return { from, to, color, points };
-}
-
-function writeDiagram(diagram) {
-  const base = `${diagramDir}/${diagram.file}`;
-  mkdirSync(dirname(base), { recursive: true });
-  const summary = geometrySummary(diagram);
-  writeFileSync(`${base}.svg`, renderSvg(diagram, summary));
-  writeFileSync(`${base}.dot`, renderDot(diagram));
-  execFileSync(dot, ["-Tplain", `${base}.dot`, "-o", `${base}.plain`], { stdio: "inherit" });
-  execFileSync(dot, ["-Tsvg", `${base}.dot`, "-o", `${base}-sketch.svg`], { stdio: "inherit" });
-  execFileSync(dot, ["-Tpng", `${base}.dot`, "-o", `${base}-sketch.png`], { stdio: "inherit" });
-  execFileSync(rsvgConvert, ["--format", "png", "--output", `${base}.png`, `${base}.svg`], { stdio: "inherit" });
-  console.log(`${diagram.file}.svg: nodes=${summary.nodes}, routes=${summary.routes}, segments=${summary.segments}, badEndpointAngle=0, badBends=0, interiorCrossings=0, routeConflicts=0, nodeOverlaps=0, laneClearance=0, margins=${summary.margins.left}/${summary.margins.right}/${summary.margins.top}/${summary.margins.bottom}, titleGap=${summary.titleGap}`);
-}
-
-function renderSvg(diagram, summary) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${diagram.width}" height="${diagram.height}" viewBox="0 0 ${diagram.width} ${diagram.height}" role="img" aria-labelledby="${diagram.file}-title ${diagram.file}-desc">
-  <title id="${diagram.file}-title">${escapeXml(diagram.title)}</title>
-  <desc id="${diagram.file}-desc">${escapeXml(diagram.desc)}</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5 0.5 L4.5 2.5 L0.5 4.5 Z" fill="context-stroke"/></marker>
-    <style>
-      .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.panel{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}.card{filter:url(#shadow);stroke-width:2}.title{font-family:"Architects Daughter";font-size:44px;fill:#22344A;font-weight:400}.subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476;font-weight:400}.panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}.card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}.detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}.small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}.connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.footer{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
-    </style>
-  </defs>
-  <rect class="canvas" width="${diagram.width}" height="${diagram.height}"/>
-  <rect class="frame" x="34" y="30" width="${diagram.width - 68}" height="${diagram.height - 60}" rx="28"/>
-  <text class="title" x="72" y="88">${escapeXml(diagram.title)}</text>
-  <text class="subtitle" x="76" y="121">${escapeXml(diagram.subtitle)}</text>
-${diagram.groups.map(renderPanel).join("\n")}
-${diagram.routes.map(renderRoute).join("\n")}
-${diagram.nodes.map(renderCard).join("\n")}
-  <g transform="translate(76,${diagram.height - 74})">
-    <rect class="footer" x="0" y="0" width="${diagram.width - 152}" height="44" rx="10"/>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="23" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
-  </g>
-</svg>
-`;
-}
-
-function renderPanel(item) {
-  return `  <g id="panel-${item.id}">
-    <rect class="panel" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="18"/>
-    <text class="panelTitle" x="${item.x + 30}" y="${item.y + 18}" dominant-baseline="middle">${escapeXml(item.title)}</text>
-  </g>`;
-}
-
-function renderCard(node) {
-  const color = palette[node.color];
-  const lines = [node.title, ...node.details];
-  const lineHeight = 19;
-  const total = (lines.length - 1) * lineHeight;
-  return `  <g id="node-${node.id}" transform="translate(${node.x},${node.y})">
-    <rect class="card" x="0" y="0" width="${node.w}" height="${node.h}" rx="12" fill="${color.fill}" stroke="${color.stroke}"/>
-${lines.map((line, index) => {
-    const cls = index === 0 ? "card-title" : "detail";
-    const y = node.h / 2 - total / 2 + index * lineHeight;
-    return `    <text class="${cls}" x="${node.w / 2}" y="${fmt(y)}" text-anchor="middle" dominant-baseline="middle">${escapeXml(line)}</text>`;
-  }).join("\n")}
-  </g>`;
-}
-
-function renderRoute(item) {
-  const color = palette[item.color].line;
-  const d = item.points.map((point, index) => `${index === 0 ? "M" : "L"}${fmt(point.x)} ${fmt(point.y)}`).join(" ");
-  return `  <path id="route-${item.from}-${item.to}" class="connector" d="${d}" stroke="${color}"/>`;
-}
-
-function renderDot(diagram) {
-  const lines = [
-    "digraph G {",
-    "  graph [rankdir=TB, bgcolor=\"white\", splines=ortho, nodesep=0.75, ranksep=0.85, outputorder=edgesfirst];",
-    "  node [shape=box, style=\"rounded,filled\", fontname=\"Architects Daughter\", fontsize=18, color=\"#D7E2EC\", fillcolor=\"#F7FAFC\"];",
-    "  edge [fontname=\"Comic Mono\", fontsize=11, color=\"#56708C\", arrowsize=0.65];",
-  ];
-  for (const node of diagram.nodes) {
-    const color = palette[node.color];
-    lines.push(`  "${node.id}" [label="${escapeDot(node.title)}", fillcolor="${color.fill}", color="${color.stroke}"];`);
-  }
-  for (const item of diagram.routes) {
-    lines.push(`  "${item.from}" -> "${item.to}" [color="${palette[item.color].line}"];`);
-  }
-  lines.push("}");
-  return `${lines.join("\n")}\n`;
-}
-
-function writeChart() {
-  const width = 1520;
-  const height = 1040;
-  const base = `${chartDir}/root-readme-module-chart-01`;
-  mkdirSync(dirname(base), { recursive: true });
-  const rows = groups.map((group) => ({ ...group, label: group.label, color: group.color })).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
-  const max = Math.max(...rows.map((row) => row.count));
-  const chartX = 430;
-  const chartW = 870;
-  const top = 175;
-  const rowH = 52;
-  const barH = 32;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">
-  <title id="title">Bluetape4k framework module composition</title>
-  <desc id="desc">Source-backed module composition chart generated from current Gradle module directories.</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#203040" flood-opacity="0.09"/></filter>
-    <style>.canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.title{font-family:"Architects Daughter";font-size:44px;fill:#22344A;font-weight:400}.subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476;font-weight:400}.axis{font-family:"Architects Daughter";font-size:21px;fill:#22344A;font-weight:400}.label{font-family:"Comic Mono";font-size:14px;fill:#34465B;font-weight:400}.small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}.track{fill:#EEF4F9;stroke:#D7E2EC;stroke-width:1.5}.bar{stroke-width:2}.summary{filter:url(#shadow);fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.summary-title{font-family:"Architects Daughter";font-size:24px;fill:#22344A;font-weight:400}</style>
-  </defs>
-  <rect class="canvas" width="${width}" height="${height}"/>
-  <rect class="frame" x="36" y="28" width="${width - 72}" height="${height - 56}" rx="24"/>
-  <text class="title" x="72" y="82">Bluetape4k framework module composition</text>
-  <text class="subtitle" x="76" y="116">Current source-backed module counts by Gradle root group. Total: ${totalModules} modules.</text>
-${rows.map((row, index) => renderBarRow(row, index, chartX, top, chartW, rowH, barH, max)).join("\n")}
-  <g transform="translate(1050,840)">
-    <rect class="summary" x="0" y="0" width="330" height="95" rx="14"/>
-    <text class="summary-title" x="165" y="32" text-anchor="middle">Largest families</text>
-    <text class="label" x="165" y="57" text-anchor="middle">I/O ${count("io")} | infra ${count("infra")} | utils ${count("utils")}</text>
-    <text class="small" x="165" y="78" text-anchor="middle">Includes examples ${count("examples")} and benchmarks ${count("benchmark")}.</text>
-  </g>
-  <text class="small" x="${width / 2}" y="${height - 56}" text-anchor="middle">Generated from current module directories; excludes root project and buildSrc.</text>
-</svg>
-`;
-  writeFileSync(`${base}.svg`, svg);
-  execFileSync(rsvgConvert, ["--format", "png", "--output", `${base}.png`, `${base}.svg`], { stdio: "inherit" });
-  console.log(`${base}.svg: rows=${rows.length}, total=${totalModules}, max=${max}`);
-}
-
-function renderBarRow(row, index, chartX, top, chartW, rowH, barH, max) {
-  const color = palette[row.color];
-  const y = top + index * rowH;
-  const barW = Math.round((row.count / max) * chartW);
-  return `  <text class="axis" x="100" y="${y + 24}" dominant-baseline="middle">${escapeXml(row.label)}</text>
-  <rect class="track" x="${chartX}" y="${y + 8}" width="${chartW}" height="${barH}" rx="10"/>
-  <rect class="bar" x="${chartX}" y="${y + 8}" width="${barW}" height="${barH}" rx="10" fill="${color.fill}" stroke="${color.stroke}"/>
-  <text class="label" x="${chartX + barW + 20}" y="${y + 25}" dominant-baseline="middle">${row.count}</text>`;
-}
-
-function geometrySummary(diagram) {
-  const nodeMap = new Map(diagram.nodes.map((node) => [node.id, node]));
-  const badEndpointAngle = countBadEndpointAngles(diagram.routes, nodeMap);
-  const badBends = diagram.routes.reduce((sum, item) => sum + countBadSegments(item.points), 0);
-  const interiorCrossings = diagram.routes.reduce((sum, item) => sum + countInteriorCrossings(item, diagram.nodes), 0);
-  const routeConflicts = listRouteConflicts(diagram.routes);
-  const nodeOverlaps = countNodeOverlaps(diagram.nodes);
-  const segments = diagram.routes.reduce((sum, item) => sum + item.points.length - 1, 0);
-  const titleGap = Math.round(Math.min(...diagram.nodes.map((node) => node.y)) - 121);
-  const margins = computeMargins(diagram);
-  if (titleGap < 38) throw new Error(`${diagram.file}: title gap ${titleGap}px < 38px`);
-  if (badEndpointAngle > 0) throw new Error(`${diagram.file}: bad endpoint angles=${badEndpointAngle}`);
-  if (badBends > 0) throw new Error(`${diagram.file}: non-orthogonal segments=${badBends}`);
-  if (interiorCrossings > 0) throw new Error(`${diagram.file}: connector interior crossings=${interiorCrossings}`);
-  if (routeConflicts.length > 0) throw new Error(`${diagram.file}: connector route conflicts=${routeConflicts.length}: ${routeConflicts.slice(0, 4).join("; ")}`);
-  if (nodeOverlaps > 0) throw new Error(`${diagram.file}: node overlaps=${nodeOverlaps}`);
-  return { nodes: diagram.nodes.length, routes: diagram.routes.length, segments, titleGap, margins };
-}
-
-function countBadEndpointAngles(routes, nodeMap) {
-  let bad = 0;
-  for (const item of routes) {
-    const source = nodeMap.get(item.from);
-    const target = nodeMap.get(item.to);
-    if (!source || !target) throw new Error(`Unknown route ${item.from} -> ${item.to}`);
-    if (!endpointIsBoundary(item.points[0], item.points[1], source, true)) bad += 1;
-    if (!endpointIsBoundary(item.points.at(-1), item.points.at(-2), target, false)) bad += 1;
-  }
-  return bad;
-}
-
-function endpointIsBoundary(point, next, node, isSource) {
-  const onLeft = near(point.x, node.x) && point.y >= node.y && point.y <= node.y + node.h;
-  const onRight = near(point.x, node.x + node.w) && point.y >= node.y && point.y <= node.y + node.h;
-  const onTop = near(point.y, node.y) && point.x >= node.x && point.x <= node.x + node.w;
-  const onBottom = near(point.y, node.y + node.h) && point.x >= node.x && point.x <= node.x + node.w;
-  if (onLeft) return near(next.y, point.y) && next.x < point.x;
-  if (onRight) return near(next.y, point.y) && next.x > point.x;
-  if (onTop) return near(next.x, point.x) && next.y < point.y;
-  if (onBottom) return near(next.x, point.x) && next.y > point.y;
-  return false;
-}
-
-function countBadSegments(points) {
-  let bad = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const dx = Math.abs(points[index].x - points[index - 1].x);
-    const dy = Math.abs(points[index].y - points[index - 1].y);
-    if (dx > 0.5 && dy > 0.5) bad += 1;
-  }
-  return bad;
-}
-
-function countInteriorCrossings(routeItem, nodes) {
+function countModules(group) {
+  const base = join(ROOT, group);
+  if (!existsSync(base)) return 0;
   let count = 0;
-  const excluded = new Set([routeItem.from, routeItem.to]);
-  for (let index = 1; index < routeItem.points.length; index += 1) {
-    const a = routeItem.points[index - 1];
-    const b = routeItem.points[index];
-    for (const node of nodes) {
-      if (excluded.has(node.id)) continue;
-      if (segmentCrossesNode(a, b, node, 8)) count += 1;
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name.startsWith(".") || entry.name === "build") continue;
+      const child = join(dir, entry.name);
+      if (existsSync(join(child, "build.gradle.kts"))) count += 1;
+      walk(child);
     }
-  }
-  return count;
-}
-
-function listRouteConflicts(routes) {
-  const conflicts = [];
-  for (let i = 0; i < routes.length; i += 1) {
-    const aSegments = routeSegments(routes[i]);
-    for (let j = i + 1; j < routes.length; j += 1) {
-      const bSegments = routeSegments(routes[j]);
-      for (const a of aSegments) {
-        for (const b of bSegments) {
-          if (segmentsConflict(a, b)) conflicts.push(`${a.route} ${segmentLabel(a)} x ${b.route} ${segmentLabel(b)}`);
-        }
-      }
-    }
-  }
-  return conflicts;
-}
-
-function routeSegments(routeItem) {
-  const segments = [];
-  for (let index = 1; index < routeItem.points.length; index += 1) {
-    segments.push({ route: `${routeItem.from}->${routeItem.to}`, a: routeItem.points[index - 1], b: routeItem.points[index] });
-  }
-  return segments;
-}
-
-function segmentLabel(segment) {
-  return `(${fmt(segment.a.x)},${fmt(segment.a.y)}-${fmt(segment.b.x)},${fmt(segment.b.y)})`;
-}
-
-function segmentsConflict(first, second) {
-  const aDir = segmentDirection(first.a, first.b);
-  const bDir = segmentDirection(second.a, second.b);
-  if (aDir === "point" || bDir === "point") return false;
-  if (aDir === bDir) {
-    if (aDir === "horizontal" && !near(first.a.y, second.a.y)) return false;
-    if (aDir === "vertical" && !near(first.a.x, second.a.x)) return false;
-    return overlapLength(segmentRange(first, aDir), segmentRange(second, bDir)) > 8;
-  }
-  const horizontal = aDir === "horizontal" ? first : second;
-  const vertical = aDir === "vertical" ? first : second;
-  const x = vertical.a.x;
-  const y = horizontal.a.y;
-  return insideOpen(x, Math.min(horizontal.a.x, horizontal.b.x), Math.max(horizontal.a.x, horizontal.b.x))
-    && insideOpen(y, Math.min(vertical.a.y, vertical.b.y), Math.max(vertical.a.y, vertical.b.y));
-}
-
-function segmentDirection(a, b) {
-  if (near(a.x, b.x) && near(a.y, b.y)) return "point";
-  if (near(a.x, b.x)) return "vertical";
-  if (near(a.y, b.y)) return "horizontal";
-  return "diagonal";
-}
-
-function segmentRange(segment, direction) {
-  return direction === "horizontal"
-    ? [Math.min(segment.a.x, segment.b.x), Math.max(segment.a.x, segment.b.x)]
-    : [Math.min(segment.a.y, segment.b.y), Math.max(segment.a.y, segment.b.y)];
-}
-
-function overlapLength(a, b) {
-  return Math.max(0, Math.min(a[1], b[1]) - Math.max(a[0], b[0]));
-}
-
-function insideOpen(value, min, max) {
-  return value > min + 0.5 && value < max - 0.5;
-}
-
-function segmentCrossesNode(a, b, node, clearance) {
-  if (Math.abs(a.x - b.x) <= 0.5) {
-    return a.x > node.x - clearance && a.x < node.x + node.w + clearance && Math.max(a.y, b.y) > node.y - clearance && Math.min(a.y, b.y) < node.y + node.h + clearance;
-  }
-  if (Math.abs(a.y - b.y) <= 0.5) {
-    return a.y > node.y - clearance && a.y < node.y + node.h + clearance && Math.max(a.x, b.x) > node.x - clearance && Math.min(a.x, b.x) < node.x + node.w + clearance;
-  }
-  return false;
-}
-
-function countNodeOverlaps(nodes) {
-  let count = 0;
-  for (let i = 0; i < nodes.length; i += 1) {
-    for (let j = i + 1; j < nodes.length; j += 1) {
-      const a = nodes[i];
-      const b = nodes[j];
-      if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) count += 1;
-    }
-  }
-  return count;
-}
-
-function computeMargins(diagram) {
-  return {
-    left: Math.round(Math.min(...diagram.nodes.map((node) => node.x))),
-    right: Math.round(diagram.width - Math.max(...diagram.nodes.map((node) => node.x + node.w))),
-    top: Math.round(Math.min(...diagram.nodes.map((node) => node.y)) - 121),
-    bottom: Math.round((diagram.height - 74) - Math.max(...diagram.nodes.map((node) => node.y + node.h))),
   };
+  walk(base);
+  return count;
 }
 
-function near(a, b) {
-  return Math.abs(a - b) <= 0.5;
+function writeVisual(name, svg) {
+  writeAsset(join(diagramDir, name), svg);
 }
 
-function fmt(value) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, "");
+function writeChart(name, svg) {
+  writeAsset(join(chartDir, name), svg);
 }
 
-function titleCase(value) {
-  return value.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+function writeAsset(base, svg) {
+  writeFileSync(`${base}.svg`, svg);
+  execFileSync(cairosvg, [`${base}.svg`, "-o", `${base}.png`, "--scale", "2"], { stdio: "inherit" });
 }
 
-function escapeXml(value) {
-  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+function rootOverviewSvg() {
+  const width = 1640;
+  const height = 1200;
+  const cards = [
+    { id: "settings", x: 120, y: 190, w: 330, h: 86, title: "settings.gradle.kts", detail: "module registry", color: "blue" },
+    { id: "catalog", x: 655, y: 190, w: 330, h: 86, title: "libs.versions.toml", detail: "Kotlin 2.3 + Spring Boot 4.x", color: "purple" },
+    { id: "bom", x: 1190, y: 190, w: 330, h: 86, title: "bluetape4k-bom", detail: "published alignment", color: "green" },
+    { id: "foundation", x: 105, y: 395, w: 320, h: 112, title: "Foundation Runtime", detail: `${moduleCounts.bluetape4k} modules`, color: "blue" },
+    { id: "io", x: 475, y: 395, w: 320, h: 112, title: "I/O and Codecs", detail: `${moduleCounts.io} modules`, color: "teal" },
+    { id: "data", x: 845, y: 395, w: 320, h: 112, title: "Data Access", detail: `${moduleCounts.data} modules`, color: "purple" },
+    { id: "infra", x: 1215, y: 395, w: 320, h: 112, title: "Infrastructure", detail: `${moduleCounts.infra} modules`, color: "amber" },
+    { id: "cache", x: 160, y: 605, w: 320, h: 112, title: "Cache Layer", detail: `${moduleCounts.cache} modules`, color: "green" },
+    { id: "ktor", x: 520, y: 605, w: 260, h: 112, title: "Ktor Stack", detail: `${moduleCounts.ktor} modules`, color: "teal" },
+    { id: "spring", x: 860, y: 605, w: 320, h: 112, title: "Spring Boot 4", detail: `${moduleCounts["spring-boot"]} modules`, color: "blue" },
+    { id: "virtual", x: 1250, y: 605, w: 260, h: 112, title: "Virtual Threads", detail: `${moduleCounts.virtualthread} modules`, color: "olive" },
+    { id: "testing", x: 170, y: 815, w: 320, h: 112, title: "Verification", detail: `${moduleCounts.testing} testing modules`, color: "pink" },
+    { id: "utils", x: 570, y: 815, w: 320, h: 112, title: "Utility Workflows", detail: `${moduleCounts.utils} modules`, color: "purple" },
+    { id: "examples", x: 970, y: 815, w: 320, h: 112, title: "Examples", detail: `${moduleCounts.examples} demos`, color: "gray" },
+  ];
+  const routes = [
+    route("settings", "foundation", [[285, 276], [285, 338], [265, 338], [265, 395]], "discovers", "blue"),
+    route("catalog", "io", [[820, 276], [820, 338], [635, 338], [635, 395]], "governs", "purple"),
+    route("catalog", "data", [[820, 276], [820, 338], [1005, 338], [1005, 395]], "governs", "purple"),
+    route("bom", "infra", [[1355, 276], [1355, 338], [1375, 338], [1375, 395]], "publishes", "green"),
+    route("foundation", "cache", [[265, 507], [265, 555], [320, 555], [320, 605]], "shared API", "blue"),
+    route("io", "ktor", [[635, 507], [635, 605]], "HTTP stack", "teal"),
+    route("data", "spring", [[1005, 507], [1005, 605]], "data starter", "purple"),
+    route("infra", "virtual", [[1375, 507], [1375, 605]], "runtime", "amber"),
+    route("cache", "testing", [[320, 717], [320, 815]], "test matrix", "green"),
+    route("ktor", "examples", [[650, 717], [650, 775], [1130, 775], [1130, 815]], "sample apps", "teal"),
+    route("spring", "examples", [[1020, 717], [1020, 815]], "sample apps", "blue"),
+    route("utils", "examples", [[730, 927], [730, 985], [1130, 985], [1130, 927]], "domain helpers", "purple"),
+  ];
+  return frame({
+    width,
+    height,
+    title: "Bluetape4k Projects Overview",
+    subtitle: `${totalModules} current Gradle modules grouped by responsibility and runtime adoption path.`,
+    desc: "Source-backed repository overview generated from current README, settings.gradle.kts, and module directories.",
+    intent: "Explain the repository-wide bluetape4k-projects ecosystem as a responsibility map from Gradle/catalog source of truth into foundations, runtime stacks, verification, utilities, and examples.",
+    evidence: "README.md, README.ko.md, settings.gradle.kts, gradle/libs.versions.toml, module build.gradle.kts files",
+    sourceRead: "README.md;README.ko.md;settings.gradle.kts;gradle/libs.versions.toml;*/build.gradle.kts",
+    layers: [
+      layer("Source of truth", 70, 150, 1500, 160),
+      layer("Library capabilities", 70, 360, 1500, 385),
+      layer("Verification and adoption", 70, 780, 1500, 190),
+    ],
+    cards,
+    routes,
+    footer: "Latest source: README + Gradle module tree. Sequence diagrams intentionally unchanged.",
+  });
 }
 
-function escapeDot(value) {
-  return String(value).replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+function architectureSvg() {
+  const width = 1640;
+  const height = 1100;
+  const cards = [
+    { id: "consumer", x: 120, y: 180, w: 320, h: 88, title: "Application Code", detail: "imports BOM", color: "blue" },
+    { id: "bom", x: 660, y: 180, w: 320, h: 88, title: "bluetape4k-bom", detail: "dependency alignment", color: "green" },
+    { id: "catalog", x: 1200, y: 180, w: 320, h: 88, title: "Version Catalog", detail: "central versions", color: "purple" },
+    { id: "foundation", x: 140, y: 395, w: 320, h: 108, title: "Foundation", detail: "core + coroutines", color: "blue" },
+    { id: "integration", x: 515, y: 395, w: 320, h: 108, title: "Integration APIs", detail: "io, data, infra", color: "teal" },
+    { id: "appstack", x: 890, y: 395, w: 320, h: 108, title: "Application Stacks", detail: "Ktor + Spring Boot 4", color: "amber" },
+    { id: "runtime", x: 1265, y: 395, w: 260, h: 108, title: "Runtime Options", detail: "coroutines + VT", color: "olive" },
+    { id: "state", x: 160, y: 650, w: 300, h: 108, title: "Domain Utilities", detail: "states + workflow", color: "purple" },
+    { id: "test", x: 525, y: 650, w: 300, h: 108, title: "Test Support", detail: "JUnit + containers", color: "pink" },
+    { id: "examples", x: 890, y: 650, w: 300, h: 108, title: "Runnable Examples", detail: "Ktor and Spring demos", color: "gray" },
+    { id: "publish", x: 1255, y: 650, w: 290, h: 108, title: "Published Artifacts", detail: "Maven modules", color: "green" },
+  ];
+  const routes = [
+    route("consumer", "bom", [[440, 224], [660, 224]], "imports", "blue"),
+    route("catalog", "bom", [[1200, 224], [980, 224]], "pins", "purple"),
+    route("bom", "foundation", [[820, 268], [820, 330], [300, 330], [300, 395]], "aligns", "green"),
+    route("foundation", "integration", [[460, 449], [515, 449]], "extends", "blue"),
+    route("integration", "appstack", [[835, 449], [890, 449]], "feeds", "teal"),
+    route("appstack", "runtime", [[1210, 449], [1265, 449]], "runs on", "amber"),
+    route("foundation", "state", [[300, 503], [300, 650]], "shared types", "blue"),
+    route("integration", "test", [[675, 503], [675, 650]], "verified by", "teal"),
+    route("appstack", "examples", [[1050, 503], [1050, 650]], "demonstrates", "amber"),
+    route("runtime", "publish", [[1395, 503], [1395, 650]], "packaged", "olive"),
+    route("test", "publish", [[825, 704], [1255, 704]], "release confidence", "pink"),
+  ];
+  return frame({
+    width,
+    height,
+    title: "Repository Module Architecture",
+    subtitle: "Layered module responsibility from consumer entrypoint to published runtime artifacts.",
+    desc: "Architecture diagram based on the current root README module structure and Gradle source tree.",
+    intent: "Explain bluetape4k-projects as a layered architecture where consumer dependency alignment, foundation modules, integration APIs, application stacks, runtime choices, verification, examples, and published artifacts have distinct responsibilities.",
+    evidence: "README.md, README.ko.md, AGENTS.md module groups, settings.gradle.kts, module build.gradle.kts files",
+    sourceRead: "README.md;README.ko.md;AGENTS.md;settings.gradle.kts;*/build.gradle.kts",
+    layers: [
+      layer("Consumer entry and version alignment", 70, 140, 1500, 165),
+      layer("Library architecture", 70, 360, 1500, 185),
+      layer("Support, examples, and delivery", 70, 615, 1500, 185),
+    ],
+    cards,
+    routes,
+    footer: "Architecture excludes sequence call flows; sequence assets are preserved.",
+  });
 }
 
-if (!existsSync(dot)) throw new Error(`Graphviz dot not found at ${dot}`);
-if (!existsSync(rsvgConvert)) throw new Error(`rsvg-convert not found at ${rsvgConvert}`);
+function moduleChartSvg() {
+  const width = 1500;
+  const height = 940;
+  const max = Math.max(...Object.values(moduleCounts));
+  const bars = groups.map(([id, label], index) => ({
+    id,
+    label,
+    value: moduleCounts[id],
+    y: 170 + index * 60,
+  }));
+  const lines = [];
+  lines.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">`);
+  lines.push(`<title id="title">Bluetape4k Module Composition Chart</title>`);
+  lines.push(`<desc id="desc">Source-backed module composition chart generated from current Gradle module directories.</desc>`);
+  lines.push(styleBlock());
+  lines.push(`<rect width="${width}" height="${height}" fill="#fffaf0"/>`);
+  lines.push(`<rect x="52" y="50" width="${width - 104}" height="${height - 100}" rx="18" fill="#fffdf8" stroke="#d9b97c" stroke-width="2"/>`);
+  lines.push(`<text class="chartTitle" x="88" y="100">Module Composition Chart</text>`);
+  lines.push(`<text class="chartSub" x="88" y="132">${totalModules} Gradle modules grouped by repository responsibility</text>`);
+  lines.push(`<line x1="400" y1="160" x2="400" y2="830" stroke="#dcc6a0" stroke-width="1"/>`);
+  lines.push(`<line x1="400" y1="830" x2="1330" y2="830" stroke="#dcc6a0" stroke-width="1"/>`);
+  for (const tick of [0, 5, 10, 15, 20, 25, 30, 35]) {
+    const x = 400 + (tick / Math.max(35, max)) * 900;
+    lines.push(`<line x1="${x}" y1="826" x2="${x}" y2="836" stroke="#9f8b68"/>`);
+    lines.push(`<text class="chartTick" x="${x}" y="858" text-anchor="middle">${tick}</text>`);
+  }
+  for (const bar of bars) {
+    const barWidth = Math.max(18, (bar.value / Math.max(35, max)) * 900);
+    lines.push(`<text class="chartLabel" x="370" y="${bar.y + 20}" text-anchor="end">${esc(bar.label)}</text>`);
+    lines.push(`<rect x="400" y="${bar.y}" width="${barWidth.toFixed(1)}" height="34" rx="8" fill="${paletteFor(bar.id)[0]}" stroke="${paletteFor(bar.id)[1]}" stroke-width="1.5"/>`);
+    lines.push(`<text class="chartValue" x="${400 + barWidth + 16}" y="${bar.y + 23}">${bar.value}</text>`);
+  }
+  lines.push(`<text class="chartFoot" x="88" y="875">Chart style preserved: warm canvas, horizontal bars, explicit counts, SVG+PNG pair.</text>`);
+  lines.push(`</svg>`);
+  return lines.join("\n");
+}
+
+function frame({ width, height, title, subtitle, desc, intent, evidence, sourceRead, layers, cards, routes, footer }) {
+  const lines = [];
+  lines.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc" data-intent="${esc(intent)}" data-evidence="${esc(evidence)}" data-source-read="${esc(sourceRead)}">`);
+  lines.push(`<title id="title">${esc(title)}</title>`);
+  lines.push(`<desc id="desc">${esc(desc)}</desc>`);
+  lines.push(styleBlock());
+  lines.push(`<rect width="${width}" height="${height}" fill="#ffffff"/>`);
+  lines.push(`<rect x="34" y="34" width="${width - 68}" height="${height - 68}" rx="8" fill="#f8fafc" stroke="#d1d5db" stroke-width="1.5"/>`);
+  lines.push(`<text class="title" x="70" y="92">${esc(title)}</text>`);
+  lines.push(`<text class="subtitle" x="70" y="124">${esc(subtitle)}</text>`);
+  for (const item of layers) lines.push(layerSvg(item));
+  for (const item of routes) lines.push(routeSvg(item));
+  for (const item of cards) lines.push(cardSvg(item));
+  lines.push(legendSvg(width - 520, height - 120));
+  lines.push(`<text class="footer" x="70" y="${height - 46}">${esc(footer)}</text>`);
+  lines.push(`</svg>`);
+  return lines.join("\n");
+}
+
+function styleBlock() {
+  return `<style>
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .title { fill: #0f172a; font-size: 32px; font-weight: 800; letter-spacing: 0; }
+    .subtitle { fill: #475569; font-size: 17px; font-weight: 500; }
+    .layer { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; }
+    .layerTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .card { stroke-width: 1.7; filter: url(#cardShadow); }
+    .cardTitle { fill: #0f172a; font-size: 16px; font-weight: 800; }
+    .cardDetail { fill: #475569; font-size: 12px; font-weight: 600; }
+    .iconBadge { stroke-width: 1.5; }
+    .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .iconFill { fill: #ffffff; }
+    .route { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+    .routeLabel { fill: #1e293b; font-size: 11px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: #ffffff; stroke-width: 6px; stroke-linejoin: round; }
+    .legend { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.4; filter: url(#cardShadow); }
+    .legendText { fill: #334155; font-size: 12px; font-weight: 700; }
+    .footer, .chartFoot { fill: #64748b; font-size: 13px; font-weight: 600; }
+    .chartTitle { fill: #352617; font-size: 34px; font-weight: 700; }
+    .chartSub { fill: #6f5b3c; font-size: 18px; }
+    .chartLabel { fill: #3d3528; font-size: 16px; font-weight: 700; }
+    .chartValue { fill: #3d3528; font-size: 15px; font-weight: 700; }
+    .chartTick { fill: #7a6a52; font-size: 12px; }
+  </style>
+  <defs>
+    <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
+    </marker>
+  </defs>`;
+}
+
+function layer(id, x, y, w, h) {
+  return { id, x, y, w, h };
+}
+
+function layerSvg(item) {
+  return `<g><rect class="layer" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="8"/><text class="layerTitle" x="${item.x + 20}" y="${item.y + 28}">${esc(item.id)}</text></g>`;
+}
+
+function cardSvg(item) {
+  const [fill, stroke] = paletteFor(item.color);
+  const iconX = item.x + 22;
+  const iconY = item.y + Math.max(22, item.h / 2 - 21);
+  return `<g id="${esc(item.id)}"><rect class="card" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="8" fill="${fill}" stroke="${stroke}"/>${iconSvg(item.id, iconX, iconY, stroke)}<text class="cardTitle" x="${item.x + 82}" y="${item.y + item.h / 2 - 6}">${esc(item.title)}</text><text class="cardDetail" x="${item.x + 82}" y="${item.y + item.h / 2 + 22}">${esc(item.detail)}</text></g>`;
+}
+
+function iconSvg(id, x, y, color) {
+  const glyphs = {
+    settings: `<path class="iconStroke" d="M13 9h16M13 21h16M13 33h16"/><circle class="iconFill" cx="19" cy="9" r="3"/><circle class="iconFill" cx="27" cy="21" r="3"/><circle class="iconFill" cx="21" cy="33" r="3"/>`,
+    catalog: `<path class="iconStroke" d="M14 10h17v24H14zM19 16h7M19 22h7M19 28h5"/>`,
+    bom: `<path class="iconStroke" d="M21 8l13 7v14l-13 7-13-7V15zM21 8v14M8 15l13 7 13-7"/>`,
+    consumer: `<path class="iconStroke" d="M9 13h26v18H9zM15 36h14M21 31v5"/>`,
+    foundation: `<path class="iconStroke" d="M10 32h24M13 28h18M16 24h12M21 10l13 14H8z"/>`,
+    integration: `<path class="iconStroke" d="M12 12h10v10H12zM24 24h10v10H24zM22 17h6M17 22v6"/>`,
+    appstack: `<path class="iconStroke" d="M10 13h24M10 21h24M10 29h24"/><circle class="iconFill" cx="15" cy="13" r="2"/><circle class="iconFill" cx="15" cy="21" r="2"/><circle class="iconFill" cx="15" cy="29" r="2"/>`,
+    runtime: `<path class="iconStroke" d="M22 8v8M22 28v8M8 22h8M28 22h8M14 14l6 6M30 14l-6 6M14 30l6-6M30 30l-6-6"/>`,
+    state: `<path class="iconStroke" d="M10 12h11v9H10zM23 23h11v9H23zM21 16h6M17 21v6"/>`,
+    test: `<path class="iconStroke" d="M15 9h14M22 9v11l9 14H13l9-14z"/>`,
+    publish: `<path class="iconStroke" d="M22 9v20M14 17l8-8 8 8M11 33h22"/>`,
+    io: `<path class="iconStroke" d="M10 22h24M16 14l-6 8 6 8M28 14l6 8-6 8"/>`,
+    data: `<ellipse class="iconStroke" cx="22" cy="12" rx="12" ry="5"/><path class="iconStroke" d="M10 12v20c0 3 24 3 24 0V12M10 22c0 3 24 3 24 0"/>`,
+    infra: `<path class="iconStroke" d="M12 29h20M14 22h16M16 15h12M18 8h8"/>`,
+    cache: `<path class="iconStroke" d="M12 13h20v18H12zM17 18h10M17 25h6"/>`,
+    ktor: `<path class="iconStroke" d="M10 24l8-12 8 12-8 8zM26 24l6-9 6 9-6 7z"/>`,
+    spring: `<path class="iconStroke" d="M11 28c9 6 22 0 22-11-10 0-18 3-22 11zM20 27c1-5 5-9 11-10"/>`,
+    virtual: `<path class="iconStroke" d="M11 29c2-11 6-16 11-16s9 5 11 16M14 29h16M18 21h8"/>`,
+    testing: `<path class="iconStroke" d="M12 23l7 7 14-16"/>`,
+    utils: `<path class="iconStroke" d="M22 9v26M9 22h26M14 14l16 16M30 14L14 30"/>`,
+    examples: `<path class="iconStroke" d="M14 10l18 12-18 12z"/>`,
+  };
+  const glyph = glyphs[id] ?? `<circle class="iconStroke" cx="22" cy="22" r="12"/>`;
+  return `<g transform="translate(${x},${y})"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="${color}" stroke="${color}"/>${glyph}</g>`;
+}
+
+function route(from, to, points, label, color) {
+  return { from, to, points, label, color };
+}
+
+function routeSvg(item) {
+  const stroke = paletteFor(item.color)[1];
+  const d = item.points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]},${point[1]}`).join(" ");
+  const middle = item.points[Math.floor(item.points.length / 2)];
+  return `<g data-route="${esc(item.from)}->${esc(item.to)}"><path class="route" data-from="${esc(item.from)}" data-to="${esc(item.to)}" d="${d}" stroke="${stroke}"/><text class="routeLabel" x="${middle[0]}" y="${middle[1] - 10}">${esc(item.label)}</text></g>`;
+}
+
+function legendSvg(x, y) {
+  return `<g><rect class="legend" x="${x}" y="${y}" width="450" height="58" rx="8"/><line x1="${x + 24}" y1="${y + 24}" x2="${x + 88}" y2="${y + 24}" stroke="#2563eb" stroke-width="2.4" marker-end="url(#arrow)"/><text class="legendText" x="${x + 105}" y="${y + 29}">dependency / responsibility flow</text><line x1="${x + 24}" y1="${y + 44}" x2="${x + 88}" y2="${y + 44}" stroke="#9333ea" stroke-width="2.4" marker-end="url(#arrow)"/><text class="legendText" x="${x + 105}" y="${y + 49}">version or runtime alignment</text></g>`;
+}
+
+function paletteFor(key) {
+  const colors = {
+    blue: ["#eff6ff", "#2563eb"],
+    green: ["#f0fdf4", "#16a34a"],
+    teal: ["#f0fdfa", "#0d9488"],
+    amber: ["#fff7ed", "#ea580c"],
+    pink: ["#fdf2f8", "#db2777"],
+    purple: ["#faf5ff", "#9333ea"],
+    olive: ["#f7fee7", "#65a30d"],
+    gray: ["#f9fafb", "#6b7280"],
+  };
+  return colors[key] ?? colors.gray;
+}
+
+function ensureDir(dir) {
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  if (!statSync(dirname(dir)).isDirectory()) throw new Error(`Invalid parent for ${dir}`);
+}
+
+function esc(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}

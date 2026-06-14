@@ -24,39 +24,39 @@
 <rect class="frame" x="32" y="28" width="1302" height="624" rx="28"/>
 <text class="title" x="66" y="82">Compression Factory (Compressable)</text>
 <text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<g transform="translate(88,180)">
+<g transform="translate(88,235)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
   <text class="label" x="175" y="61" text-anchor="middle">Compressable</text>
 
 </g>
-<g transform="translate(508,180)">
+<g transform="translate(508,235)">
   <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
   <text class="label" x="175" y="61" text-anchor="middle">Sinks</text>
-  <text class="mono" x="18" y="108">+compressableSink(Sink, Compressor)</text>
-<text class="mono" x="18" y="129">CompressableSink</text>
-<text class="mono" x="18" y="150">+compressableSink(Sink,</text>
-<text class="mono" x="18" y="171">StreamingCompressor) StreamingCompressSink</text>
-<text class="mono" x="18" y="192">+deflate(Sink) CompressableSink</text>
-<text class="mono" x="18" y="213">+gzip(Sink) CompressableSink</text>
-<text class="mono" x="18" y="234">+lz4(Sink) CompressableSink</text>
-<text class="mono" x="18" y="255">+snappy(Sink) CompressableSink</text>
+  <text class="mono" x="34" y="108">+compressableSink(Sink, Compressor)</text>
+<text class="mono" x="34" y="129">CompressableSink</text>
+<text class="mono" x="34" y="150">+compressableSink(Sink,</text>
+<text class="mono" x="34" y="171">StreamingCompressor) StreamingCompressSink</text>
+<text class="mono" x="34" y="192">+deflate(Sink) CompressableSink</text>
+<text class="mono" x="34" y="213">+gzip(Sink) CompressableSink</text>
+<text class="mono" x="34" y="234">+lz4(Sink) CompressableSink</text>
+<text class="mono" x="34" y="255">+snappy(Sink) CompressableSink</text>
 </g>
-<g transform="translate(928,180)">
+<g transform="translate(928,235)">
   <rect class="card" x="0" y="0" width="350" height="280" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
   <text class="small" x="175" y="26" text-anchor="middle">«object»</text>
   <text class="label" x="175" y="61" text-anchor="middle">Sources</text>
-  <text class="mono" x="18" y="108">+decompressableSource(Source, Compressor)</text>
-<text class="mono" x="18" y="129">DecompressableSource</text>
-<text class="mono" x="18" y="150">+decompressableSource(Source,</text>
-<text class="mono" x="18" y="171">StreamingCompressor)</text>
-<text class="mono" x="18" y="192">+deflate(Source) DecompressableSource</text>
-<text class="mono" x="18" y="213">+gzip(Source) DecompressableSource</text>
-<text class="mono" x="18" y="234">+lz4(Source) DecompressableSource</text>
-<text class="mono" x="18" y="255">+snappy(Source) DecompressableSource</text>
+  <text class="mono" x="34" y="108">+decompressableSource(Source, Compressor)</text>
+<text class="mono" x="34" y="129">DecompressableSource</text>
+<text class="mono" x="34" y="150">+decompressableSource(Source,</text>
+<text class="mono" x="34" y="171">StreamingCompressor)</text>
+<text class="mono" x="34" y="192">+deflate(Source) DecompressableSource</text>
+<text class="mono" x="34" y="213">+gzip(Source) DecompressableSource</text>
+<text class="mono" x="34" y="234">+lz4(Source) DecompressableSource</text>
+<text class="mono" x="34" y="255">+snappy(Source) DecompressableSource</text>
 </g>
 </svg>

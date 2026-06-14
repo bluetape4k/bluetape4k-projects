@@ -1,186 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="820" viewBox="0 0 1620 820" role="img" aria-labelledby="examples-ktor-observability-ktor-demo-sequence-01-title examples-ktor-observability-ktor-demo-sequence-01-desc">
-  <title id="examples-ktor-observability-ktor-demo-sequence-01-title">Ktor Observability Demo Sequence</title>
-  <desc id="examples-ktor-observability-ktor-demo-sequence-01-desc">Application-owned metrics routing, event observations, and optional OpenTelemetry spans.</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-
-    <marker id="arrowNeutral" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/>
-    </marker>
-    <marker id="arrowRequest" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#5B8DEF"/>
-    </marker>
-    <marker id="arrowService" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#45A7A1"/>
-    </marker>
-    <marker id="arrowEvent" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#58A978"/>
-    </marker>
-    <marker id="arrowMetrics" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#D6A441"/>
-    </marker>
-    <marker id="arrowTrace" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
-    </marker>
-    <marker id="arrowResponse" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
-    </marker>
-    <marker id="seqArrow-blue" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#5B8DEF"/>
-    </marker>
-    <marker id="seqArrow-green" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#58A978"/>
-    </marker>
-    <marker id="seqArrow-amber" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#D6A441"/>
-    </marker>
-    <marker id="seqArrow-purple" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
-    </marker>
-    <marker id="seqArrow-pink" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
-    </marker>
-    <style>
-      .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .card,.participant{filter:url(#shadow);stroke-width:2}
-      .lifeline{stroke:#758297;stroke-width:1.8;stroke-dasharray:7 8}
-      .edge{stroke-width:2.4;fill:none}
-      .sequenceEdge{stroke-width:2.3;fill:none}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1;opacity:.94}
-
-      .title{font-family:"Architects Daughter";font-size:42px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:16px;fill:#627184;font-weight:400}
-      .cardTitle,.participantTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
-      .body,.messageLabel,.edgeLabel,.note,.legend{font-family:"Comic Mono";fill:#34465B;font-weight:400}
-      .body{font-size:14px}.messageLabel{font-size:13px}.edgeLabel{font-size:12px}.note{font-size:13px}.legend{font-size:12px}
-
-    </style>
-  </defs>
-  <rect class="canvas" width="1620" height="820"/>
-  <rect class="frame" x="32" y="28" width="1556" height="744" rx="26"/>
-  <text class="title" x="66" y="82">Ktor Observability Demo Sequence</text>
-  <text class="subtitle" x="70" y="116">Application-owned metrics routing, event observations, and optional OpenTelemetry spans.</text>
-
-  <g id="client">
-    <rect class="participant" x="90" y="165" width="165" height="74" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
-    <text class="participantTitle" x="172.5" y="202" text-anchor="middle" dominant-baseline="middle">Client</text>
-    <line class="lifeline" x1="172.5" y1="239" x2="172.5" y2="720" />
-  </g>
-
-  <g id="ktor">
-    <rect class="participant" x="350" y="165" width="165" height="74" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="participantTitle" x="432.5" y="190" text-anchor="middle" dominant-baseline="middle">Ktor</text>
-<text class="participantTitle" x="432.5" y="214" text-anchor="middle" dominant-baseline="middle">Routes</text>
-    <line class="lifeline" x1="432.5" y1="239" x2="432.5" y2="720" />
-  </g>
-
-  <g id="observability">
-    <rect class="participant" x="625" y="165" width="180" height="74" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
-    <text class="participantTitle" x="715" y="190" text-anchor="middle" dominant-baseline="middle">Ktor</text>
-<text class="participantTitle" x="715" y="214" text-anchor="middle" dominant-baseline="middle">Observability</text>
-    <line class="lifeline" x1="715" y1="239" x2="715" y2="720" />
-  </g>
-
-  <g id="eventObs">
-    <rect class="participant" x="900" y="165" width="165" height="74" rx="10" fill="#EAF7EF" stroke="#58A978"/>
-    <text class="participantTitle" x="982.5" y="190" text-anchor="middle" dominant-baseline="middle">Event</text>
-<text class="participantTitle" x="982.5" y="214" text-anchor="middle" dominant-baseline="middle">Telemetry</text>
-    <line class="lifeline" x1="982.5" y1="239" x2="982.5" y2="720" />
-  </g>
-
-  <g id="prom">
-    <rect class="participant" x="1140" y="165" width="170" height="74" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
-    <text class="participantTitle" x="1225" y="190" text-anchor="middle" dominant-baseline="middle">Prometheus</text>
-<text class="participantTitle" x="1225" y="214" text-anchor="middle" dominant-baseline="middle">Registry</text>
-    <line class="lifeline" x1="1225" y1="239" x2="1225" y2="720" />
-  </g>
-
-  <g id="otel">
-    <rect class="participant" x="1360" y="165" width="170" height="74" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="participantTitle" x="1445" y="190" text-anchor="middle" dominant-baseline="middle">OpenTelemetry</text>
-<text class="participantTitle" x="1445" y="214" text-anchor="middle" dominant-baseline="middle">optional</text>
-    <line class="lifeline" x1="1445" y1="239" x2="1445" y2="720" />
-  </g>
-
-  <g id="post-order">
-    <path class="seq" d="M172.5 295 L432.5 295" stroke="#5B8DEF" marker-end="url(#seqArrow-blue)"/>
-
-    <rect class="labelPill" x="183.65" y="262" width="237.7" height="26" rx="7"/>
-    <circle cx="197.65" cy="275" r="10" fill="#5B8DEF" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="197.65" y="276" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">1</text>
-    <text class="edgeLabel" x="314.5" y="276" text-anchor="middle" dominant-baseline="middle">POST /orders/{orderId}/events</text>
-  </g>
-
-  <g id="plugins">
-    <path class="seq" d="M432.5 355 L715 355" stroke="#D6A441" marker-end="url(#seqArrow-amber)"/>
-
-    <rect class="labelPill" x="447.6" y="322" width="252.29999999999998" height="26" rx="7"/>
-    <circle cx="461.6" cy="335" r="10" fill="#D6A441" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="461.6" y="336" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">2</text>
-    <text class="edgeLabel" x="585.75" y="336" text-anchor="middle" dominant-baseline="middle">correlation + logging + metrics</text>
-  </g>
-
-  <g id="publish">
-    <path class="seq" d="M432.5 415 L982.5 415" stroke="#58A978" marker-end="url(#seqArrow-green)"/>
-
-    <rect class="labelPill" x="617.85" y="382" width="179.29999999999998" height="26" rx="7"/>
-    <circle cx="631.85" cy="395" r="10" fill="#58A978" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="631.85" y="396" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">3</text>
-    <text class="edgeLabel" x="719.5" y="396" text-anchor="middle" dominant-baseline="middle">observe event.publish</text>
-  </g>
-
-  <g id="consume">
-    <path class="seq" d="M432.5 475 L982.5 475" stroke="#58A978" marker-end="url(#seqArrow-green)"/>
-
-    <rect class="labelPill" x="617.85" y="442" width="179.29999999999998" height="26" rx="7"/>
-    <circle cx="631.85" cy="455" r="10" fill="#58A978" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="631.85" y="456" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">4</text>
-    <text class="edgeLabel" x="719.5" y="456" text-anchor="middle" dominant-baseline="middle">observe event.consume</text>
-  </g>
-
-  <g id="timers">
-    <path class="seq" d="M982.5 535 L1225 535" stroke="#D6A441" marker-end="url(#seqArrow-amber)"/>
-
-    <rect class="labelPill" x="1028.7" y="502" width="150.1" height="26" rx="7"/>
-    <circle cx="1042.7" cy="515" r="10" fill="#D6A441" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="1042.7" y="516" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">5</text>
-    <text class="edgeLabel" x="1115.75" y="516" text-anchor="middle" dominant-baseline="middle">Micrometer timers</text>
-  </g>
-
-  <g id="spans">
-    <path class="seqReturn" d="M715 325 L1445 325" stroke="#8A72D6" marker-end="url(#seqArrow-pink)" stroke-dasharray="8 7"/>
-
-    <rect class="labelPill" x="964.8" y="292" width="230.4" height="26" rx="7"/>
-    <circle cx="978.8" cy="305" r="10" fill="#8A72D6" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="978.8" y="306" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">6</text>
-    <text class="edgeLabel" x="1092" y="306" text-anchor="middle" dominant-baseline="middle">server spans when configured</text>
-  </g>
-
-  <g id="json-response">
-    <path class="seqReturn" d="M432.5 595 L172.5 595" stroke="#DC6B82" marker-end="url(#seqArrow-pink)" stroke-dasharray="8 7"/>
-
-    <rect class="labelPill" x="227.5" y="562" width="150" height="26" rx="7"/>
-    <circle cx="241.5" cy="575" r="10" fill="#DC6B82" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="241.5" y="576" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">7</text>
-    <text class="edgeLabel" x="314.5" y="576" text-anchor="middle" dominant-baseline="middle">200 JSON</text>
-  </g>
-
-  <g id="scrape-request">
-    <path class="seq" d="M172.5 650 L432.5 650" stroke="#D6A441" marker-end="url(#seqArrow-amber)"/>
-
-    <rect class="labelPill" x="227.5" y="617" width="150" height="26" rx="7"/>
-    <circle cx="241.5" cy="630" r="10" fill="#D6A441" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="241.5" y="631" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">8</text>
-    <text class="edgeLabel" x="314.5" y="631" text-anchor="middle" dominant-baseline="middle">GET /metrics</text>
-  </g>
-
-  <g id="scrape-registry">
-    <path class="seq" d="M432.5 625 L1225 625" stroke="#D6A441" marker-end="url(#seqArrow-amber)"/>
-
-    <rect class="labelPill" x="753.75" y="592" width="150" height="26" rx="7"/>
-    <circle cx="767.75" cy="605" r="10" fill="#D6A441" stroke="#FFFFFF" stroke-width="2"/>
-    <text class="edgeLabel" x="767.75" y="606" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">9</text>
-    <text class="edgeLabel" x="840.75" y="606" text-anchor="middle" dominant-baseline="middle">scrape()</text>
-  </g>
-  <text class="note" x="810" y="790" text-anchor="middle">bluetape4k-projects observability examples - github.com/bluetape4k/bluetape4k-projects</text>
+<svg data-intent="Show the observability demo request sequence with numbered publish/observe/response steps and a separate metrics scrape path." data-evidence="examples/ktor/observability-ktor-demo/README.md; examples/ktor/observability-ktor-demo/src/main/kotlin" data-source-read="examples/ktor/observability-ktor-demo/README.md; examples/ktor/observability-ktor-demo/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1560" height="885" viewBox="0 0 1560 885" role="img" aria-label="Ktor Observability Demo Sequence" data-layout="sequence">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <style>
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+</defs>
+<rect class="canvas" width="1560" height="885"/>
+<rect class="frame" x="34" y="30" width="1492" height="825" rx="32"/>
+<text class="title" x="72" y="84">Ktor Observability Demo Sequence</text>
+<text class="subtitle" x="76" y="116">The sequence keeps request handling and the metrics scrape path explicit with numbered arrows.</text>
+<g id="client"><rect class="card" x="90" y="165" width="200" height="76" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="190" y="205" text-anchor="middle" dominant-baseline="middle">Client</text><line class="plain dashed" x1="190" y1="241" x2="190" y2="790" stroke="#5B8DEF"/></g>
+<g id="route"><rect class="card" x="345" y="165" width="230" height="76" rx="10" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="460" y="205" text-anchor="middle" dominant-baseline="middle">Ktor route</text><line class="plain dashed" x1="460" y1="241" x2="460" y2="790" stroke="#58A978"/></g>
+<g id="service"><rect class="card" x="630" y="165" width="260" height="76" rx="10" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="760" y="205" text-anchor="middle" dominant-baseline="middle">Telemetry service</text><line class="plain dashed" x1="760" y1="241" x2="760" y2="790" stroke="#D6A441"/></g>
+<g id="eventTelemetry"><rect class="card" x="955" y="165" width="250" height="76" rx="10" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1080" y="205" text-anchor="middle" dominant-baseline="middle">EventTelemetry</text><line class="plain dashed" x1="1080" y1="241" x2="1080" y2="790" stroke="#DC6B82"/></g>
+<g id="backend"><rect class="card" x="1260" y="165" width="210" height="76" rx="10" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="1365" y="205" text-anchor="middle" dominant-baseline="middle">Metrics / Traces</text><line class="plain dashed" x1="1365" y1="241" x2="1365" y2="790" stroke="#8A72D6"/></g>
+<g id="kobs1"><rect class="labelPill" x="240" y="291" width="170" height="28" rx="8"/><circle cx="258" cy="305" r="11" fill="#4F83BF"/><text class="detail" x="258" y="306" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">1</text><text class="detail" x="337" y="306" text-anchor="middle" dominant-baseline="middle">POST order event</text><path class="seq" d="M190 333 L460 333" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
+<g id="kobs2"><rect class="labelPill" x="512" y="376" width="196" height="28" rx="8"/><circle cx="530" cy="390" r="11" fill="#3E9868"/><text class="detail" x="530" y="391" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">2</text><text class="detail" x="622" y="391" text-anchor="middle" dominant-baseline="middle">extract id + payload</text><path class="seq" d="M460 418 L760 418" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="kobs3"><rect class="labelPill" x="825.5" y="461" width="189" height="28" rx="8"/><circle cx="843.5" cy="475" r="11" fill="#B9851B"/><text class="detail" x="843.5" y="476" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">3</text><text class="detail" x="932" y="476" text-anchor="middle" dominant-baseline="middle">publish observation</text><path class="seq" d="M760 503 L1080 503" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
+<g id="kobs4"><rect class="labelPill" x="1124.5" y="546" width="196" height="28" rx="8"/><circle cx="1142.5" cy="560" r="11" fill="#755BC6"/><text class="detail" x="1142.5" y="561" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">4</text><text class="detail" x="1234.5" y="561" text-anchor="middle" dominant-baseline="middle">record metric / span</text><path class="seq" d="M1080 588 L1365 588" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
+<g id="kobs5"><rect class="labelPill" x="525" y="631" width="170" height="28" rx="8"/><circle cx="543" cy="645" r="11" fill="#3E9868"/><text class="detail" x="543" y="646" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">5</text><text class="detail" x="622" y="646" text-anchor="middle" dominant-baseline="middle">domain response</text><path class="seqReturn" d="M760 673 L460 673" stroke="#3E9868" marker-end="url(#seqArrow-green)"/></g>
+<g id="kobs6"><rect class="labelPill" x="683" y="716" width="189" height="28" rx="8"/><circle cx="701" cy="730" r="11" fill="#C94D68"/><text class="detail" x="701" y="731" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="789.5" y="731" text-anchor="middle" dominant-baseline="middle">GET /metrics scrape</text><path class="seqReturn" d="M190 758 L1365 758" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
 </svg>

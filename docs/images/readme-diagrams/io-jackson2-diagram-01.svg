@@ -21,42 +21,42 @@
 <text class="subtitle" x="72" y="116">Source-ranked class model: contracts first, core mapper support second, format adapters at the edge.</text>
 <path class="inherit" data-from="jacksonSerializer" data-to="jsonSerializer" data-route-color="green" d="M991 556 L991 368" stroke="#3E9868"/>
 <path class="dependency" data-from="jacksonSerializer" data-to="objectMapper" data-route-color="amber" d="M1156 622 L1343 622" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="textSerializers" data-to="jacksonSerializer" data-route-color="teal" d="M475 875 L475 764 L899 764 L899 688" stroke="#2E8F89"/>
+<path class="inherit" data-from="textSerializers" data-to="jacksonSerializer" data-route-color="teal" d="M475 875 L475 622 L826 622" stroke="#2E8F89"/>
 <path class="inherit" data-from="binarySerializers" data-to="jacksonSerializer" data-route-color="amber" d="M991 875 L991 688" stroke="#B9851B"/>
 <path class="dependency" data-from="jackson" data-to="objectMapper" data-route-color="olive" d="M1508 368 L1508 556" stroke="#718A35" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="mapperSupport" data-to="objectMapper" data-route-color="indigo" d="M1860 334 L1767 334 L1767 590 L1673 590" stroke="#4F63C7" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="mapperSupport" data-to="objectMapper" data-route-color="indigo" d="M2025 368 L2025 622 L1673 622" stroke="#4F63C7" stroke-dasharray="8 7"/>
 <path class="dependency" data-from="uuidCryptoMask" data-to="objectMapper" data-route-color="coral" d="M1508 875 L1508 688" stroke="#C8644B" stroke-dasharray="8 7"/>
 <g id="jsonSerializer">
   <rect class="classCard" x="826" y="236" width="330" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="stereo" x="991" y="255" text-anchor="middle">interface</text>
   <text class="classTitle" x="991" y="283" text-anchor="middle">JsonSerializer</text>
   <line x1="826" y1="292" x2="1156" y2="292" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="844" y="326">+serialize(graph)</text>
-<text class="member" x="844" y="343">+deserialize(bytes, clazz)</text>
+  <text class="member" x="860" y="326">+serialize(graph)</text>
+<text class="member" x="860" y="343">+deserialize(bytes, clazz)</text>
 </g>
 <g id="jacksonSerializer">
   <rect class="classCard" x="826" y="556" width="330" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
   <text class="stereo" x="991" y="575" text-anchor="middle">open class</text>
   <text class="classTitle" x="991" y="603" text-anchor="middle">JacksonSerializer</text>
   <line x1="826" y1="612" x2="1156" y2="612" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="844" y="646">implements JsonSerializer</text>
-<text class="member" x="844" y="663">uses ObjectMapper</text>
+  <text class="member" x="860" y="646">implements JsonSerializer</text>
+<text class="member" x="860" y="663">uses ObjectMapper</text>
 </g>
 <g id="jackson">
   <rect class="classCard" x="1343" y="236" width="330" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
   <text class="stereo" x="1508" y="255" text-anchor="middle">object</text>
   <text class="classTitle" x="1508" y="283" text-anchor="middle">Jackson</text>
   <line x1="1343" y1="292" x2="1673" y2="292" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1361" y="326">defaultJsonMapper</text>
-<text class="member" x="1361" y="343">createTypedJsonMapper(...)</text>
+  <text class="member" x="1377" y="326">defaultJsonMapper</text>
+<text class="member" x="1377" y="343">createTypedJsonMapper(...)</text>
 </g>
 <g id="mapperSupport">
   <rect class="classCard" x="1860" y="236" width="330" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
   <text class="stereo" x="2025" y="255" text-anchor="middle">extension file</text>
   <text class="classTitle" x="2025" y="283" text-anchor="middle">JsonMapperSupport</text>
   <line x1="1860" y1="292" x2="2190" y2="292" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="1878" y="326">jsonMapper { ... }</text>
-<text class="member" x="1878" y="343">ObjectMapper read/write helpers</text>
+  <text class="member" x="1894" y="326">jsonMapper { ... }</text>
+<text class="member" x="1894" y="343">ObjectMapper read/write helpers</text>
 </g>
 <g id="objectMapper">
   <rect class="classCard" x="1343" y="556" width="330" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
@@ -64,8 +64,8 @@
   <text class="classTitle" x="1508" y="594" text-anchor="middle">ObjectMapper /</text>
 <text class="classTitle" x="1508" y="616" text-anchor="middle">JsonMapper</text>
   <line x1="1343" y1="620" x2="1673" y2="620" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="1361" y="650">readValue/writeValue</text>
-<text class="member" x="1361" y="667">module registration</text>
+  <text class="member" x="1377" y="650">readValue/writeValue</text>
+<text class="member" x="1377" y="667">module registration</text>
 </g>
 <g id="textSerializers">
   <rect class="classCard" x="310" y="875" width="330" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
@@ -73,8 +73,8 @@
   <text class="classTitle" x="475" y="913" text-anchor="middle">CSV/YAML/TOML</text>
 <text class="classTitle" x="475" y="935" text-anchor="middle">serializers</text>
   <line x1="310" y1="939" x2="640" y2="939" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="328" y="969">extend JacksonSerializer</text>
-<text class="member" x="328" y="986">format-specific mappers</text>
+  <text class="member" x="344" y="969">extend JacksonSerializer</text>
+<text class="member" x="344" y="986">format-specific mappers</text>
 </g>
 <g id="binarySerializers">
   <rect class="classCard" x="826" y="875" width="330" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
@@ -82,8 +82,8 @@
   <text class="classTitle" x="991" y="913" text-anchor="middle">CBOR/Ion/Smile</text>
 <text class="classTitle" x="991" y="935" text-anchor="middle">serializers</text>
   <line x1="826" y1="939" x2="1156" y2="939" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="844" y="969">extend JacksonSerializer</text>
-<text class="member" x="844" y="986">binary dataformats</text>
+  <text class="member" x="860" y="969">extend JacksonSerializer</text>
+<text class="member" x="860" y="986">binary dataformats</text>
 </g>
 <g id="uuidCryptoMask">
   <rect class="classCard" x="1343" y="875" width="330" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
@@ -91,8 +91,8 @@
   <text class="classTitle" x="1508" y="913" text-anchor="middle">UUID/Crypto/Mask</text>
 <text class="classTitle" x="1508" y="935" text-anchor="middle">modules</text>
   <line x1="1343" y1="939" x2="1673" y2="939" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1361" y="969">custom serializers</text>
-<text class="member" x="1361" y="986">contextual handlers</text>
+  <text class="member" x="1377" y="969">custom serializers</text>
+<text class="member" x="1377" y="986">contextual handlers</text>
 </g>
 <g>
   <rect x="2085" y="1115" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>

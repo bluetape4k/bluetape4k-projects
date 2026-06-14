@@ -20,7 +20,7 @@ const palette = {
 const colors = Object.keys(palette);
 
 const files = readdirSync(OUT)
-  .filter((file) => file.endsWith(".svg") && file.includes("sequence") && !file.endsWith("-sketch.svg") && !file.endsWith("-graphviz.svg"))
+  .filter((file) => file.endsWith(".svg") && file.includes("sequence"))
   .sort();
 
 let redrawn = 0;

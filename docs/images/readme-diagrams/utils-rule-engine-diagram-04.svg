@@ -24,30 +24,30 @@
 <rect class="frame" x="32" y="28" width="1302" height="760" rx="28"/>
 <text class="title" x="66" y="82">Composite Rules</text>
 <text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<path class="inheritLine" d="M1103 484 L1103 409 L760 409 L760 334"/>
-<path class="inheritLine" d="M263 484 L263 401 L606 401 L606 334"/>
-<path class="inheritLine" d="M683 484 L683 334"/>
-<g transform="translate(508,180)">
+<path class="inheritLine" d="M1103 539 L1103 464 L760 464 L760 389"/>
+<path class="inheritLine" d="M263 539 L263 456 L606 456 L606 389"/>
+<path class="inheritLine" d="M683 539 L683 389"/>
+<g transform="translate(508,235)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
   <text class="small" x="175" y="26" text-anchor="middle">«abstract»</text>
   <text class="label" x="175" y="61" text-anchor="middle">CompositeRule</text>
-  <text class="mono" x="18" y="108">#rules: SortedSet~Rule~</text>
-<text class="mono" x="18" y="129">+addRule(rule: Rule)</text>
+  <text class="mono" x="34" y="108">#rules: SortedSet~Rule~</text>
+<text class="mono" x="34" y="129">+addRule(rule: Rule)</text>
 </g>
-<g transform="translate(88,484)">
+<g transform="translate(88,539)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#EAF7EF" stroke="#58A978"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
     <text class="label" x="175" y="49" text-anchor="middle">ConditionalRuleGroup</text>
 
 </g>
-<g transform="translate(508,484)">
+<g transform="translate(508,539)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#D6A441"/>
     <text class="label" x="175" y="49" text-anchor="middle">ActivationRuleGroup</text>
 
 </g>
-<g transform="translate(928,484)">
+<g transform="translate(928,539)">
   <rect class="card" x="0" y="0" width="350" height="112" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#DC6B82"/>
     <text class="label" x="175" y="49" text-anchor="middle">UnitRuleGroup</text>

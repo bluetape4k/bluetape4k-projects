@@ -1,78 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="1299" viewBox="0 0 1720 1299" role="img" aria-label="Appointment Complex FSM">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
-  <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 1000" role="img" aria-labelledby="title desc" data-layout="state-machine" data-intent="Explain the clinic appointment finite state machine with pending request, confirmation, arrival, treatment, completion, no-show, and cancellation terminal branches." data-evidence="utils/states/README.md, clinic-appointment migration guide" data-source-read="utils/states/README.md;clinic-appointment source references in README">
+<title id="title">Appointment Complex FSM</title>
+<desc id="desc">Clinic flow with guarded lifecycle branches and terminal outcomes.</desc>
+<style>
+    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
+    .title { fill: #0f172a; font-size: 34px; font-weight: 800; letter-spacing: 0; }
+    .subtitle { fill: #475569; font-size: 18px; font-weight: 500; }
+    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    .panelTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+    .card { stroke-width: 1.7; filter: url(#cardShadow); }
+    .stateTitle { fill: #0f172a; font-size: 17px; font-weight: 800; }
+    .stateDetail { fill: #475569; font-size: 12px; font-weight: 600; }
+    .iconBadge { stroke-width: 1.5; }
+    .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .iconFill { fill: #ffffff; }
+    .arrow { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+    .arrowLabelBg { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
+    .arrowLabel { fill: #1e293b; font-size: 13px; font-weight: 800; text-anchor: middle; }
+    .footer { fill: #64748b; font-size: 13px; font-weight: 600; }
   </style>
-</defs>
-<rect class="canvas" width="1720" height="1299"/>
-<rect class="frame" x="32" y="28" width="1656" height="1243" rx="30"/>
-<text class="title" x="68" y="84">Appointment Complex FSM</text>
-<text class="subtitle" x="72" y="116">Source-checked flow phases with routed transitions.</text>
-<g><rect class="panel" x="78" y="165" width="1564" height="264" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Entry phase</text></g>
-<g><rect class="panel" x="78" y="511" width="1564" height="264" rx="22"/><text class="panelTitle" x="102" y="537" dominant-baseline="middle">Decision phase</text></g>
-<g><rect class="panel" x="78" y="857" width="1564" height="264" rx="22"/><text class="panelTitle" x="102" y="883" dominant-baseline="middle">Execution phase</text></g>
-<path class="flow" d="M463 321 L624.3 321" stroke="#4F83BF"/>
-<path class="flow" d="M934.3 321 L1095.7 321" stroke="#3E9868"/>
-<path class="flow" d="M1250.7 377 L1250.7 494 L54 494 L54 667 L153 667" stroke="#B9851B"/>
-<path class="flow" d="M463 667 L624.3 667" stroke="#755BC6"/>
-<path class="flow" d="M934.3 667 L1095.7 667" stroke="#2E8F89"/>
-<path class="flow" d="M1250.7 723 L1250.7 840 L54 840 L54 1013 L153 1013" stroke="#C94D68"/>
-<path class="flow" d="M463 1013 L860 1013" stroke="#718A35"/>
-<g id="node-0-0">
-    <rect class="card" x="153" y="265" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-
-    <text class="cardTitle" x="308" y="312" text-anchor="middle">CHECKED IN</text>
-    <text class="detail" x="308" y="349" text-anchor="middle">arrived at clinic</text>
-  </g>
-<g id="node-0-1">
-    <rect class="card" x="624.3" y="265" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-
-    <text class="cardTitle" x="779.3" y="312" text-anchor="middle">IN PROGRESS</text>
-    <text class="detail" x="779.3" y="349" text-anchor="middle">treatment started</text>
-  </g>
-<g id="node-0-2">
-    <rect class="card" x="1095.7" y="265" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-
-    <text class="cardTitle" x="1250.7" y="312" text-anchor="middle">PENDING</text>
-    <text class="detail" x="1250.7" y="349" text-anchor="middle">initial</text>
-  </g>
-<g id="node-1-0">
-    <rect class="card" x="153" y="611" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-
-    <text class="cardTitle" x="308" y="658" text-anchor="middle">REQUESTED</text>
-    <text class="detail" x="308" y="695" text-anchor="middle">patient requested</text>
-  </g>
-<g id="node-1-1">
-    <rect class="card" x="624.3" y="611" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-
-    <text class="cardTitle" x="779.3" y="658" text-anchor="middle">CONFIRMED</text>
-    <text class="detail" x="779.3" y="695" text-anchor="middle">schedule accepted</text>
-  </g>
-<g id="node-1-2">
-    <rect class="card" x="1095.7" y="611" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-
-    <text class="cardTitle" x="1250.7" y="658" text-anchor="middle">CANCELLED</text>
-    <text class="detail" x="1250.7" y="695" text-anchor="middle">final stop</text>
-  </g>
-<g id="node-2-0">
-    <rect class="card" x="153" y="957" width="310" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-
-    <text class="cardTitle" x="308" y="1004" text-anchor="middle">NO SHOW</text>
-    <text class="detail" x="308" y="1041" text-anchor="middle">final absence</text>
-  </g>
-<g id="node-2-1">
-    <rect class="card" x="860" y="957" width="310" height="112" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
-
-    <text class="cardTitle" x="1015" y="1004" text-anchor="middle">COMPLETED</text>
-    <text class="detail" x="1015" y="1041" text-anchor="middle">final success</text>
-  </g>
-<g><rect x="190" y="1207" width="1340" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="860" y="1233" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+  <defs>
+    <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
+    </marker>
+  </defs>
+<rect width="1720" height="1000" fill="#f8fafc"/>
+<rect x="30" y="30" width="1660" height="940" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+<text class="title" x="70" y="92">Appointment Complex FSM</text>
+<text class="subtitle" x="70" y="124">Clinic flow with guarded lifecycle branches and terminal outcomes.</text>
+<rect class="panel" x="55" y="145" width="1610" height="765" rx="18"/><text class="panelTitle" x="79" y="179">State transitions</text>
+<circle cx="86" cy="475" r="10" fill="#172033"/>
+<g><path class="route arrow" d="M65,475 L125,475" stroke="#2563eb"/><rect class="arrowLabelBg" x="58" y="441" width="74" height="22" rx="11"/><text class="arrowLabel" x="95" y="457">initial</text></g>
+<g><path class="route arrow" d="M345,475 L450,475" stroke="#2563eb"/><rect class="arrowLabelBg" x="360.5" y="441" width="74" height="22" rx="11"/><text class="arrowLabel" x="397.5" y="457">Request</text></g>
+<g><path class="route arrow" d="M670,475 L775,475" stroke="#2563eb"/><rect class="arrowLabelBg" x="685.5" y="441" width="74" height="22" rx="11"/><text class="arrowLabel" x="722.5" y="457">Confirm</text></g>
+<g><path class="route arrow" d="M885,430 L885,300" stroke="#0d9488"/><rect class="arrowLabelBg" x="844" y="331" width="82" height="22" rx="11"/><text class="arrowLabel" x="885" y="347">Check in</text></g>
+<g><path class="route arrow" d="M995,255 L1140,255" stroke="#2563eb"/><rect class="arrowLabelBg" x="1038.5" y="221" width="58" height="22" rx="11"/><text class="arrowLabel" x="1067.5" y="237">Start</text></g>
+<g><path class="route arrow" d="M1262,300 L1262,710" stroke="#16a34a"/><rect class="arrowLabelBg" x="1221" y="471" width="82" height="22" rx="11"/><text class="arrowLabel" x="1262" y="487">Complete</text></g>
+<g><path class="route arrow" d="M885,520 L885,710" stroke="#65a30d"/><rect class="arrowLabelBg" x="848" y="581" width="74" height="22" rx="11"/><text class="arrowLabel" x="885" y="597">No show</text></g>
+<g><path class="route arrow" d="M235,520 L235,710" stroke="#db2777"/><rect class="arrowLabelBg" x="202" y="581" width="66" height="22" rx="11"/><text class="arrowLabel" x="235" y="597">Cancel</text></g>
+<g><path class="route arrow" d="M560,520 L560,855 L235,855 L235,800" stroke="#db2777"/><rect class="arrowLabelBg" x="527" y="653.5" width="66" height="22" rx="11"/><text class="arrowLabel" x="560" y="669.5">Cancel</text></g>
+<g><path class="route arrow" d="M885,520 L885,855 L235,855 L235,800" stroke="#db2777"/><rect class="arrowLabelBg" x="527" y="821" width="66" height="22" rx="11"/><text class="arrowLabel" x="560" y="837">Cancel</text></g>
+<g id="pending"><rect class="card" x="125" y="430" width="220" height="90" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(145,453)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="205" y="467">PENDING</text><text class="stateDetail" x="205" y="493">initial</text></g>
+<g id="requested"><rect class="card" x="450" y="430" width="220" height="90" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(470,453)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="530" y="467">REQUESTED</text><text class="stateDetail" x="530" y="493">requested</text></g>
+<g id="confirmed"><rect class="card" x="775" y="430" width="220" height="90" rx="8" fill="#faf5ff" stroke="#9333ea"/><g transform="translate(795,453)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#9333ea" stroke="#9333ea"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="855" y="467">CONFIRMED</text><text class="stateDetail" x="855" y="493">accepted</text></g>
+<g id="checked"><rect class="card" x="775" y="210" width="220" height="90" rx="8" fill="#f0fdfa" stroke="#0d9488"/><g transform="translate(795,233)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#0d9488" stroke="#0d9488"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="855" y="247">CHECKED_IN</text><text class="stateDetail" x="855" y="273">arrived</text></g>
+<g id="progress"><rect class="card" x="1140" y="210" width="245" height="90" rx="8" fill="#fff7ed" stroke="#ea580c"/><g transform="translate(1160,233)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#ea580c" stroke="#ea580c"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="1220" y="247">IN_PROGRESS</text><text class="stateDetail" x="1220" y="273">treating</text></g>
+<g id="completed"><rect class="card" x="1140" y="710" width="245" height="90" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(1160,733)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="1220" y="747">COMPLETED</text><text class="stateDetail" x="1220" y="773">final success</text></g>
+<g id="cancelled"><rect class="card" x="125" y="710" width="245" height="90" rx="8" fill="#fdf2f8" stroke="#db2777"/><g transform="translate(145,733)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#db2777" stroke="#db2777"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="205" y="747">CANCELLED</text><text class="stateDetail" x="205" y="773">final stop</text></g>
+<g id="noshow"><rect class="card" x="775" y="710" width="220" height="90" rx="8" fill="#f7fee7" stroke="#65a30d"/><g transform="translate(795,733)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#65a30d" stroke="#65a30d"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="855" y="747">NO_SHOW</text><text class="stateDetail" x="855" y="773">final</text></g>
+<circle cx="1632" cy="882" r="13" fill="none" stroke="#172033" stroke-width="3"/><circle cx="1632" cy="882" r="8" fill="#172033"/>
+<text class="footer" x="70" y="956">Generated as direct SVG. Sequence diagrams are intentionally preserved.</text>
 </svg>

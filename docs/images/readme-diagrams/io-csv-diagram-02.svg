@@ -1,105 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1730" height="1020" viewBox="0 0 1730 1020" role="img" aria-label="CSV/TSV Processing Flow">
+<svg data-intent="Show real CSV/TSV processing flow: input source, sync reader/writer or suspend Flow path, lexer/writer engine, row mapping, and output." data-evidence="io/csv/README.md; io/csv/src/main/kotlin/io/bluetape4k/csv; io/csv/src/main/kotlin/io/bluetape4k/csv/coroutines; io/csv/src/main/kotlin/io/bluetape4k/csv/v2" data-source-read="io/csv/README.md; io/csv/src/main/kotlin/io/bluetape4k/csv; io/csv/src/main/kotlin/io/bluetape4k/csv/coroutines; io/csv/src/main/kotlin/io/bluetape4k/csv/v2" xmlns="http://www.w3.org/2000/svg" width="1600" height="1180" viewBox="0 0 1600 1180" role="img" aria-label="CSV/TSV Processing Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1730" height="1020"/>
-<rect class="frame" x="32" y="28" width="1666" height="964" rx="28"/>
-<text class="title" x="66" y="82">CSV/TSV Processing Flow</text>
-<text class="subtitle" x="70" y="104">Source-checked lifecycle flow with grouped phases and explicit transitions.</text>
-<g transform="translate(60,160)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Sources</text>
+<rect class="canvas" width="1600" height="1180"/>
+<rect class="frame" x="34" y="30" width="1532" height="1120" rx="32"/>
+<text class="title" x="72" y="84">CSV/TSV Processing Flow</text>
+<text class="subtitle" x="76" y="116">The flow separates synchronous Sequence parsing from coroutine Flow parsing while both converge on the same writer/output path.</text>
+<g><rect class="panel" x="82" y="160" width="1436" height="175" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Input and settings</text></g>
+<g><rect class="panel" x="82" y="410" width="1436" height="190" rx="22"/><text class="panelTitle" x="110" y="446" dominant-baseline="middle">Synchronous Sequence path</text></g>
+<g><rect class="panel" x="82" y="675" width="1436" height="190" rx="22"/><text class="panelTitle" x="110" y="711" dominant-baseline="middle">Coroutine Flow path</text></g>
+<g><rect class="panel" x="82" y="940" width="1436" height="155" rx="22"/><text class="panelTitle" x="110" y="976" dominant-baseline="middle">Output</text></g>
+<g id="source">
+  <rect class="card" x="180" y="235" width="370" height="74" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="365" y="265" text-anchor="middle" dominant-baseline="middle">File / InputStream / String</text>
+  <text class="detail" x="365" y="295" text-anchor="middle" dominant-baseline="middle">UTF-8 or caller charset</text>
 </g>
-<g transform="translate(105,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">File</text>
+<g id="settings">
+  <rect class="card" x="1000" y="235" width="360" height="74" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1180" y="265" text-anchor="middle" dominant-baseline="middle">CsvSettings / TsvSettings</text>
+  <text class="detail" x="1180" y="295" text-anchor="middle" dominant-baseline="middle">delimiter, quote, empty/null policy</text>
 </g>
-<g transform="translate(105,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">InputStream</text>
+<g id="syncReader">
+  <rect class="card" x="150" y="470" width="350" height="88" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="325" y="507" text-anchor="middle" dominant-baseline="middle">Csv/TsvRecordReader</text>
+  <text class="detail" x="325" y="537" text-anchor="middle" dominant-baseline="middle">read(...) returns Sequence&lt;Record&gt;</text>
 </g>
-<g transform="translate(105,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">String</text>
+<g id="lexer">
+  <rect class="card" x="615" y="465" width="350" height="98" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="790" y="498" text-anchor="middle" dominant-baseline="middle">CsvLexer / TsvLexer</text>
+  <text class="detail" x="790" y="528" text-anchor="middle" dominant-baseline="middle">RFC 4180 state machine</text>
+  <text class="detail" x="790" y="546" text-anchor="middle" dominant-baseline="middle">HeaderIndex + ArrayRecord</text>
 </g>
-<g transform="translate(480,160)">
-  <rect x="0" y="0" width="350" height="364" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Engine</text>
+<g id="sequence">
+  <rect class="card" x="1080" y="470" width="340" height="88" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="1250" y="507" text-anchor="middle" dominant-baseline="middle">Sequence&lt;T&gt;</text>
+  <text class="detail" x="1250" y="537" text-anchor="middle" dominant-baseline="middle">mapper transforms each Record</text>
 </g>
-<g transform="translate(525,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">CsvLexer TsvLexer</text>
+<g id="suspendReader">
+  <rect class="card" x="150" y="735" width="370" height="88" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="335" y="763" text-anchor="middle" dominant-baseline="middle">SuspendCsv/TsvRecordReader</text>
+  <text class="detail" x="335" y="793" text-anchor="middle" dominant-baseline="middle">cold Flow&lt;Record&gt;</text>
+  <text class="detail" x="335" y="811" text-anchor="middle" dominant-baseline="middle">parsed on collect</text>
 </g>
-<g transform="translate(525,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">DelimitedWriter</text>
+<g id="flowEngine">
+  <rect class="card" x="615" y="730" width="350" height="98" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="790" y="763" text-anchor="middle" dominant-baseline="middle">runInterruptible parser</text>
+  <text class="detail" x="790" y="793" text-anchor="middle" dominant-baseline="middle">uses same lexer semantics</text>
+  <text class="detail" x="790" y="811" text-anchor="middle" dominant-baseline="middle">cancellation-aware collection</text>
 </g>
-<g transform="translate(900,160)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Processing</text>
+<g id="flow">
+  <rect class="card" x="1080" y="735" width="340" height="88" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="1250" y="772" text-anchor="middle" dominant-baseline="middle">Flow&lt;T&gt;</text>
+  <text class="detail" x="1250" y="802" text-anchor="middle" dominant-baseline="middle">collect rows in order</text>
 </g>
-<g transform="translate(945,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">CsvRecordReader</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">TsvRecordReader</text>
+<g id="output">
+  <rect class="card" x="335" y="1005" width="360" height="68" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="515" y="1032" text-anchor="middle" dominant-baseline="middle">File / Writer output</text>
+  <text class="detail" x="515" y="1062" text-anchor="middle" dominant-baseline="middle">CSV or TSV rows</text>
 </g>
-<g transform="translate(945,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">CsvRecordWriter</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">TsvRecordWriter</text>
+<g id="writer">
+  <rect class="card" x="835" y="1005" width="430" height="68" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="1050" y="1032" text-anchor="middle" dominant-baseline="middle">RecordWriter / SuspendRecordWriter</text>
+  <text class="detail" x="1050" y="1062" text-anchor="middle" dominant-baseline="middle">DelimitedWriter / Okio writer fast path</text>
 </g>
-<g transform="translate(945,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Sequence&amp;lt;T&amp;gt;</text>
-</g>
-<g transform="translate(1320,160)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Processing</text>
-</g>
-<g transform="translate(1365,236)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">Suspend Csv Record</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">Reader Suspend Tsv</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">Record Reader</text>
-</g>
-<g transform="translate(1365,378)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">Suspend Csv Record</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">Writer Suspend Tsv</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">Record Writer</text>
-</g>
-<g transform="translate(1365,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">Flow&amp;lt;T&amp;gt;</text>
-</g>
-<g transform="translate(480,586)">
-  <rect x="0" y="0" width="350" height="364" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">Output</text>
-</g>
-<g transform="translate(525,662)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">OutputFile</text>
-</g>
-<g transform="translate(525,804)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">OutputWriter</text>
-</g>
+<path class="route" data-from="source" data-to="syncReader" d="M365 309 L365 385 L470 385 L470 470" stroke="#4F83BF"/>
+<path class="route" data-from="settings" data-to="lexer" d="M1180 309 L1180 360 L795 360 L795 465" stroke="#755BC6"/>
+<path class="route" data-from="syncReader" data-to="lexer" d="M500 514 L615 514" stroke="#3E9868"/>
+<path class="route" data-from="lexer" data-to="sequence" d="M965 514 L1080 514" stroke="#2E8F89"/>
+<path class="route dashed" data-from="source" data-to="suspendReader" d="M180 272 L100 272 L100 779 L150 779" stroke="#C94D68"/>
+<path class="route" data-from="suspendReader" data-to="flowEngine" d="M520 779 L615 779" stroke="#C94D68"/>
+<path class="route" data-from="flowEngine" data-to="flow" d="M965 779 L1080 779" stroke="#755BC6"/>
+<path class="route" data-from="sequence" data-to="writer" d="M1420 514 L1450 514 L1450 1020 L1265 1020" stroke="#B9851B"/>
+<path class="route" data-from="flow" data-to="writer" d="M1250 823 L1250 1005" stroke="#3E9868"/>
+<path class="route" data-from="writer" data-to="output" d="M835 1039 L695 1039" stroke="#2E8F89"/>
 </svg>

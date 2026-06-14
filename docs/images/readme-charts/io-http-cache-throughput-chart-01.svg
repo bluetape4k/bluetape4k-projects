@@ -105,6 +105,6 @@
 <g>
   <rect class="note" x="94" y="722" width="1612" height="50" rx="16"/>
   <text class="small" x="900" y="740" text-anchor="middle" dominant-baseline="middle">Source: io/http/README.ko.md HTTP client cache benchmark table</text>
-  <text class="tiny" x="900" y="758" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
+  <text class="tiny" x="900" y="758" text-anchor="middle" dominant-baseline="middle">Split scales are intentional; compare values inside each panel, not across panel axes.</text>
 </g>
 </svg>

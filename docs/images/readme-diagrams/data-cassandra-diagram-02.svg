@@ -1,48 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1590" height="1150" viewBox="0 0 1590 1150" role="img" aria-label="Cassandra Core API Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1173" viewBox="0 0 1500 1173" role="img" aria-label="Cassandra Core API Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
+  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1590" height="1150"/>
-<rect class="frame" x="32" y="28" width="1526" height="1094" rx="30"/>
+<rect class="canvas" width="1500" height="1173"/>
+<rect class="frame" x="32" y="28" width="1436" height="1117" rx="30"/>
 <text class="title" x="68" y="84">Cassandra Core API Structure</text>
-<text class="subtitle" x="72" y="116">Driver types stay above coroutine/session extensions and query-builder helpers to keep the layout short.</text>
-<g><rect class="panel" x="86" y="165" width="1420" height="210" rx="22"/><text class="panelTitle" x="110" y="199">Driver entry points</text></g>
-<g id="cql"><rect class="card" x="215" y="220" width="330" height="118" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="215" y1="286" x2="545" y2="286" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="380" y="240" text-anchor="middle">DataStax driver</text><text class="classTitle" x="380" y="268" text-anchor="middle">CqlSession</text><text class="member" x="233" y="308">+execute(statement)</text>
-<text class="member" x="233" y="325">+prepare(query)</text></g>
-<g id="builder"><rect class="card" x="965" y="220" width="330" height="118" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="965" y1="286" x2="1295" y2="286" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="1130" y="240" text-anchor="middle">DSL factory</text><text class="classTitle" x="1130" y="268" text-anchor="middle">StatementBuilders</text><text class="member" x="983" y="308">+selectFrom(...)</text>
-<text class="member" x="983" y="325">+insertInto(...)</text></g>
-<g><rect class="panel" x="86" y="480" width="1420" height="230" rx="22"/><text class="panelTitle" x="110" y="514">Coroutine and DSL extensions</text></g>
-<g id="async"><rect class="card" x="215" y="550" width="330" height="118" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="215" y1="616" x2="545" y2="616" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="380" y="570" text-anchor="middle">extension facade</text><text class="classTitle" x="380" y="598" text-anchor="middle">AsyncCqlSession</text><text class="member" x="233" y="638">+executeSuspending(...)</text>
-<text class="member" x="233" y="655">+executeFlow(...)</text></g>
-<g id="qb"><rect class="card" x="965" y="540" width="340" height="145" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="965" y1="606" x2="1305" y2="606" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="1135" y="560" text-anchor="middle">extension functions</text><text class="classTitle" x="1135" y="588" text-anchor="middle">QueryBuilderExtensions</text><text class="member" x="983" y="633">+whereEq(...)</text>
-<text class="member" x="983" y="650">+orderBy(...)</text>
-<text class="member" x="983" y="667">+bind(...)</text></g>
-<path class="flow" d="M380 338 L380 440 L555 440 L555 609 L545 609" stroke="#4F83BF"/>
-<path class="flow" d="M1135 338 L1135 540" stroke="#755BC6"/>
-<g><rect class="panel" x="86" y="820" width="1420" height="190" rx="22"/><text class="panelTitle" x="110" y="854">Result handling</text></g>
-<g id="row"><rect class="card" x="210" y="880" width="330" height="84" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="375" y="913" text-anchor="middle">Rows and mapped values</text><text class="detail" x="375" y="949" text-anchor="middle">typed extraction helpers</text></g>
-<g id="flow"><rect class="card" x="610" y="880" width="330" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="775" y="913" text-anchor="middle">FlowRow</text><text class="detail" x="775" y="949" text-anchor="middle">streamed query results</text></g>
-<g id="statement"><rect class="card" x="1010" y="880" width="330" height="84" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1175" y="913" text-anchor="middle">Bound statements</text><text class="detail" x="1175" y="949" text-anchor="middle">driver-ready CQL</text></g>
-<path class="flow" d="M380 668 L380 880" stroke="#3E9868"/>
-<path class="flow" d="M1135 685 L1135 790 L1175 790 L1175 880" stroke="#B9851B"/>
-<path class="flow" d="M545 609 L965 609" stroke="#758297"/>
-<g><rect x="210" y="1060" width="1170" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="795" y="1086" text-anchor="middle">AsyncCqlSession now sits directly under CqlSession, and QueryBuilderExtensions sits directly under StatementBuilders.</text></g>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="cql" data-to="async" data-route-color="teal" d="M717 303 L717 398" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="builder" data-to="qb" data-route-color="amber" d="M327 536 L327 631" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="async" data-to="row" data-route-color="pink" d="M717 536 L717 631" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="qb" data-to="statement" data-route-color="purple" d="M327 777 L327 865" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="async" data-to="qb" data-route-color="olive" d="M537 506 L522 506 L522 661 L507 661" stroke="#718A35" stroke-dasharray="8 7"/>
+<g id="cql">
+  <rect class="classCard" x="537" y="165" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="717" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="717" y="212" text-anchor="middle">CqlSession</text>
+  <line x1="537" y1="221" x2="897" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="571" y="258">+execute(statement)</text>
+<text class="member" x="571" y="275">+prepare(query)</text>
+</g>
+<g id="builder">
+  <rect class="classCard" x="147" y="398" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="327" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="327" y="445" text-anchor="middle">StatementBuilders</text>
+  <line x1="147" y1="454" x2="507" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="181" y="491">+selectFrom(...)</text>
+<text class="member" x="181" y="508">+insertInto(...)</text>
+</g>
+<g id="async">
+  <rect class="classCard" x="537" y="398" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="717" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="717" y="445" text-anchor="middle">AsyncCqlSession</text>
+  <line x1="537" y1="454" x2="897" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="571" y="491">+executeSuspending(...)</text>
+<text class="member" x="571" y="508">+executeFlow(...)</text>
+</g>
+<g id="qb">
+  <rect class="classCard" x="147" y="631" width="360" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="327" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="327" y="678" text-anchor="middle">QueryBuilderExtensions</text>
+  <line x1="147" y1="687" x2="507" y2="687" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="181" y="719">+whereEq(...)</text>
+<text class="member" x="181" y="736">+orderBy(...)</text>
+<text class="member" x="181" y="753">+bind(...)</text>
+</g>
+<g id="row">
+  <rect class="classCard" x="537" y="631" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="717" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="717" y="678" text-anchor="middle">Rows and mapped values</text>
+  <line x1="537" y1="687" x2="897" y2="687" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="571" y="732">typed extraction helpers</text>
+</g>
+<g id="flow">
+  <rect class="classCard" x="993" y="165" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1173" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1173" y="212" text-anchor="middle">FlowRow</text>
+  <line x1="993" y1="221" x2="1353" y2="221" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1027" y="266">streamed query results</text>
+</g>
+<g id="statement">
+  <rect class="classCard" x="147" y="865" width="360" height="138" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="327" y="884" text-anchor="middle">class</text>
+  <text class="classTitle" x="327" y="912" text-anchor="middle">Bound statements</text>
+  <line x1="147" y1="921" x2="507" y2="921" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="181" y="966">driver-ready CQL</text>
+</g>
+<g>
+  <rect x="1085" y="1065" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1103 1083 L1161 1083" stroke="#3E9868"/>
+  <text class="detail" x="1175" y="1088">inheritance / implementation</text>
+  <path class="dependency" d="M1103 1104 L1161 1104" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1175" y="1109">dependency / usage</text>
+</g>
+<g><rect x="180" y="1083" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="1109" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

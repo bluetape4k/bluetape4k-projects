@@ -1,54 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1044" height="526" viewBox="0 0 1044 526" role="img" aria-label="RestClient Coroutines DSL Structure">
+<svg data-intent="Explain how application code enters suspend RestClient helpers and how those helpers map to Spring RestClient plus HTTP exchange." data-evidence="spring-boot/core/README.md; RestClientCoroutinesExtensions.kt" data-source-read="spring-boot/core/README.md; RestClientCoroutinesExtensions.kt" xmlns="http://www.w3.org/2000/svg" width="1244" height="710" viewBox="0 0 1244 710" role="img" aria-label="RestClient Coroutine DSL Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
+    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1044" height="526"/>
-<rect class="frame" x="32" y="28" width="980" height="470" rx="28"/>
-<text class="title" x="66" y="82">RestClient Coroutines DSL Structure</text>
-<text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<path class="line" d="M372 220 C372 220 338 220 338 220"/>
-<path class="line" d="M706 220 C706 220 672 220 672 220"/>
-<path class="line" d="M839 386 C839 303 706 303 706 220"/>
-<path class="line" d="M505 386 C505 386 539 386 539 386"/>
-<path class="line" d="M706 220 C706 303 505 303 505 386"/>
-<g transform="translate(48,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Application Code</text>
+<rect class="canvas" width="1244" height="710"/>
+<rect class="frame" x="34" y="30" width="1176" height="650" rx="32"/>
+<text class="title" x="72" y="84">RestClient Coroutine DSL Flow</text>
+<text class="subtitle" x="76" y="116">Suspend helpers stay explicit between application code, Spring RestClient, and the actual HTTP exchange.</text>
+<g><rect class="panel" x="82" y="160" width="1080" height="180" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Coroutine-facing API</text></g>
+<g><rect class="panel" x="82" y="430" width="1080" height="170" rx="22"/><text class="panelTitle" x="110" y="466" dominant-baseline="middle">HTTP exchange</text></g>
+<g id="app">
+  <rect class="card" x="120" y="232" width="280" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="260" y="266" text-anchor="middle" dominant-baseline="middle">Application code</text>
+  <text class="detail" x="260" y="296" text-anchor="middle" dominant-baseline="middle">calls suspend helper</text>
 </g>
-<g transform="translate(382,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="140" y="21" text-anchor="middle">RestClient</text>
-<text class="smallLabel" x="140" y="47" text-anchor="middle">Coroutines DSL</text>
-<text class="smallLabel" x="140" y="73" text-anchor="middle">suspendGet /</text>
+<g id="dsl">
+  <rect class="card" x="485" y="218" width="330" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="650" y="258" text-anchor="middle" dominant-baseline="middle">RestClient coroutine DSL</text>
+  <text class="detail" x="650" y="288" text-anchor="middle" dominant-baseline="middle">awaitBody / awaitEntity</text>
+  <text class="detail" x="650" y="306" text-anchor="middle" dominant-baseline="middle">typed request helpers</text>
 </g>
-<g transform="translate(716,170)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">Spring RestClient</text>
+<g id="spring">
+  <rect class="card" x="900" y="232" width="220" height="82" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="1010" y="266" text-anchor="middle" dominant-baseline="middle">Spring RestClient</text>
+  <text class="detail" x="1010" y="296" text-anchor="middle" dominant-baseline="middle">blocking client facade</text>
 </g>
-<g transform="translate(215,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">HTTP Request</text>
+<g id="request">
+  <rect class="card" x="205" y="485" width="300" height="88" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="355" y="522" text-anchor="middle" dominant-baseline="middle">HTTP request</text>
+  <text class="detail" x="355" y="552" text-anchor="middle" dominant-baseline="middle">method, URI, headers, body</text>
 </g>
-<g transform="translate(549,336)">
-  <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="smallLabel" x="140" y="45" text-anchor="middle">External REST API</text>
+<g id="api">
+  <rect class="card" x="705" y="485" width="300" height="88" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="855" y="522" text-anchor="middle" dominant-baseline="middle">External REST API</text>
+  <text class="detail" x="855" y="552" text-anchor="middle" dominant-baseline="middle">status, headers, response body</text>
 </g>
+<path class="route" data-from="app" data-to="dsl" d="M400 273 L485 273" stroke="#4F83BF"/>
+<path class="route" data-from="dsl" data-to="spring" d="M815 274 L900 274" stroke="#3E9868"/>
+<path class="route" data-from="dsl" data-to="request" d="M650 330 L650 384 L355 384 L355 485" stroke="#755BC6"/>
+<path class="route" data-from="request" data-to="api" d="M505 529 L705 529" stroke="#C94D68"/>
+<path class="route" data-from="api" data-to="spring" d="M855 485 L855 384 L1010 384 L1010 314" stroke="#2E8F89"/>
 </svg>

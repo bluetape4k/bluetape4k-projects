@@ -18,36 +18,36 @@
 <rect class="frame" x="34" y="30" width="1532" height="760" rx="30"/>
 <text class="title" x="72" y="86">Snowflake Bit Layout</text>
 <text class="subtitle" x="76" y="118">The 64-bit ID is rendered as a horizontal bit array with explicit bit ranges.</text>
-<text class="detail" x="120" y="190">64-bit signed Long layout · high bit stays zero; timestamp is milliseconds since EPOCH=2015-01-01.</text>
-<g><rect class="card" x="130" y="270" width="70" height="150" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/>
-    <text class="bitLabel" x="165" y="318" text-anchor="middle">0</text>
-    <text class="bitMeta" x="165" y="348" text-anchor="middle">sign bit</text>
-    <text class="bitMeta" x="165" y="396" text-anchor="middle">bit 63</text>
+<text class="detail" x="120" y="176">64-bit signed Long layout · high bit stays zero; timestamp is milliseconds since EPOCH=2015-01-01.</text>
+<g><rect class="card" x="130" y="256" width="70" height="150" rx="10" fill="#F2F5F9" stroke="#9AA8B8"/>
+    <text class="bitLabel" x="165" y="304" text-anchor="middle">0</text>
+    <text class="bitMeta" x="165" y="334" text-anchor="middle">sign bit</text>
+    <text class="bitMeta" x="165" y="382" text-anchor="middle">bit 63</text>
   </g>
-<g><rect class="card" x="200" y="270" width="790" height="150" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
-    <text class="bitLabel" x="595" y="318" text-anchor="middle">timestamp</text>
-    <text class="bitMeta" x="595" y="348" text-anchor="middle">41 bits</text>
-    <text class="bitMeta" x="595" y="396" text-anchor="middle">bits 62..22</text>
+<g><rect class="card" x="200" y="256" width="790" height="150" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <text class="bitLabel" x="595" y="304" text-anchor="middle">timestamp</text>
+    <text class="bitMeta" x="595" y="334" text-anchor="middle">41 bits</text>
+    <text class="bitMeta" x="595" y="382" text-anchor="middle">bits 62..22</text>
   </g>
-<g><rect class="card" x="990" y="270" width="210" height="150" rx="10" fill="#EAF7EF" stroke="#58A978"/>
-    <text class="bitLabel" x="1095" y="318" text-anchor="middle">machineId</text>
-    <text class="bitMeta" x="1095" y="348" text-anchor="middle">10 bits</text>
-    <text class="bitMeta" x="1095" y="396" text-anchor="middle">bits 21..12</text>
+<g><rect class="card" x="990" y="256" width="210" height="150" rx="10" fill="#EAF7EF" stroke="#58A978"/>
+    <text class="bitLabel" x="1095" y="304" text-anchor="middle">machineId</text>
+    <text class="bitMeta" x="1095" y="334" text-anchor="middle">10 bits</text>
+    <text class="bitMeta" x="1095" y="382" text-anchor="middle">bits 21..12</text>
   </g>
-<g><rect class="card" x="1200" y="270" width="240" height="150" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
-    <text class="bitLabel" x="1320" y="318" text-anchor="middle">sequence</text>
-    <text class="bitMeta" x="1320" y="348" text-anchor="middle">12 bits</text>
-    <text class="bitMeta" x="1320" y="396" text-anchor="middle">bits 11..0</text>
+<g><rect class="card" x="1200" y="256" width="240" height="150" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
+    <text class="bitLabel" x="1320" y="304" text-anchor="middle">sequence</text>
+    <text class="bitMeta" x="1320" y="334" text-anchor="middle">12 bits</text>
+    <text class="bitMeta" x="1320" y="382" text-anchor="middle">bits 11..0</text>
   </g>
-<g><line x1="130" y1="458" x2="1440" y2="458" stroke="#8FA3B8" stroke-width="2"/>
-      <text class="bitMeta" x="130" y="490" text-anchor="middle">63</text>
-      <text class="bitMeta" x="200" y="490" text-anchor="middle">62</text>
-      <text class="bitMeta" x="990" y="490" text-anchor="middle">21</text>
-      <text class="bitMeta" x="1200" y="490" text-anchor="middle">11</text>
-      <text class="bitMeta" x="1440" y="490" text-anchor="middle">0</text>
+<g><line x1="130" y1="444" x2="1440" y2="444" stroke="#8FA3B8" stroke-width="2"/>
+      <text class="bitMeta" x="130" y="476" text-anchor="middle">63</text>
+      <text class="bitMeta" x="200" y="476" text-anchor="middle">62</text>
+      <text class="bitMeta" x="990" y="476" text-anchor="middle">21</text>
+      <text class="bitMeta" x="1200" y="476" text-anchor="middle">11</text>
+      <text class="bitMeta" x="1440" y="476" text-anchor="middle">0</text>
     </g>
-<g id="parse"><rect class="card" x="185" y="560" width="310" height="96" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="340" y="591" text-anchor="middle">parseSnowflakeId(id)</text><text class="detail" x="340" y="626" text-anchor="middle">timestamp = id &gt;&gt;&gt; 22 + EPOCH</text><text class="detail" x="340" y="644" text-anchor="middle">machineId = bits 21..12</text></g>
-<g id="make"><rect class="card" x="640" y="560" width="310" height="96" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="795" y="591" text-anchor="middle">makeId(...)</text><text class="detail" x="795" y="626" text-anchor="middle">timestamp shift 22</text><text class="detail" x="795" y="644" text-anchor="middle">machine shift 12</text></g>
-<g id="capacity"><rect class="card" x="1095" y="560" width="310" height="96" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1250" y="591" text-anchor="middle">Capacity</text><text class="detail" x="1250" y="626" text-anchor="middle">1,024 machines</text><text class="detail" x="1250" y="644" text-anchor="middle">4,096 IDs/ms/machine</text></g>
-<g><rect x="160" y="730" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="800" y="755" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g id="parse"><rect class="card" x="185" y="546" width="310" height="96" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="340" y="591" text-anchor="middle">parseSnowflakeId(id)</text><text class="detail" x="340" y="626" text-anchor="middle">timestamp = id &gt;&gt;&gt; 22 + EPOCH</text><text class="detail" x="340" y="644" text-anchor="middle">machineId = bits 21..12</text></g>
+<g id="make"><rect class="card" x="640" y="546" width="310" height="96" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="795" y="591" text-anchor="middle">makeId(...)</text><text class="detail" x="795" y="626" text-anchor="middle">timestamp shift 22</text><text class="detail" x="795" y="644" text-anchor="middle">machine shift 12</text></g>
+<g id="capacity"><rect class="card" x="1095" y="546" width="310" height="96" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1250" y="591" text-anchor="middle">Capacity</text><text class="detail" x="1250" y="626" text-anchor="middle">1,024 machines</text><text class="detail" x="1250" y="644" text-anchor="middle">4,096 IDs/ms/machine</text></g>
+<g><rect x="160" y="730" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="800" y="755" text-anchor="middle">Source: utils/idgenerators Snowflake ID bit allocation and parser helpers.</text></g>
 </svg>

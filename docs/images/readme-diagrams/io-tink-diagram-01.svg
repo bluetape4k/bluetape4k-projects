@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1792" height="1093" viewBox="0 0 1792 1093" role="img" aria-label="TinkEncryptor Class Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1832" height="1121" viewBox="0 0 1832 1121" role="img" aria-label="TinkEncryptor Class Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
@@ -12,124 +12,124 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="1792" height="1093"/>
-<rect class="frame" x="32" y="28" width="1728" height="1037" rx="30"/>
+<rect class="canvas" width="1832" height="1121"/>
+<rect class="frame" x="32" y="28" width="1768" height="1065" rx="30"/>
 <text class="title" x="68" y="84">TinkEncryptor Class Hierarchy</text>
 <text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="TinkDigesters" data-to="TinkDigester" data-route-color="teal" d="M1504 690 L1504 791" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TinkMacs" data-to="TinkMac" data-route-color="amber" d="M1504 297 L1504 398" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TinkAeads" data-to="TinkAead" data-route-color="pink" d="M806 530 L806 631" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TinkEncryptors" data-to="TinkDaeadEncryptor" data-route-color="purple" d="M745 297 L745 348 L416 348 L416 398" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TinkEncryptors" data-to="TinkAeadEncryptor" data-route-color="olive" d="M1001 297 L1001 398" stroke="#718A35" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TinkDaeadEncryptor" data-to="TinkDeterministicAead" data-route-color="indigo" d="M288 530 L288 631" stroke="#4F63C7" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="TinkAeadEncryptor" data-to="TinkAead" data-route-color="coral" d="M940 530 L940 631" stroke="#C8644B" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="TinkDaeadEncryptor" data-to="TinkEncryptor" data-route-color="indigo" d="M386 398 L386 297" stroke="#4F63C7"/>
-<path class="inherit" data-from="TinkAeadEncryptor" data-to="TinkEncryptor" data-route-color="coral" d="M940 398 L940 348 L514 348 L514 297" stroke="#C8644B"/>
+<path class="dependency" data-from="TinkDigesters" data-to="TinkDigester" data-route-color="teal" d="M1534 718 L1534 805" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TinkMacs" data-to="TinkMac" data-route-color="amber" d="M1534 311 L1534 398" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TinkAeads" data-to="TinkAead" data-route-color="pink" d="M786 544 L786 631" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TinkEncryptors" data-to="TinkDaeadEncryptor" data-route-color="purple" d="M745 311 L745 355 L436 355 L436 398" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TinkEncryptors" data-to="TinkAeadEncryptor" data-route-color="olive" d="M981 311 L981 398" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TinkDaeadEncryptor" data-to="TinkDeterministicAead" data-route-color="indigo" d="M298 544 L298 631" stroke="#4F63C7" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="TinkAeadEncryptor" data-to="TinkAead" data-route-color="coral" d="M981 544 L981 631" stroke="#C8644B" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="TinkDaeadEncryptor" data-to="TinkEncryptor" data-route-color="indigo" d="M347 398 L347 311" stroke="#4F63C7"/>
+<path class="inherit" data-from="TinkAeadEncryptor" data-to="TinkEncryptor" data-route-color="coral" d="M1030 398 L1030 335 L500 335 L500 311" stroke="#C8644B"/>
 <g id="TinkAeads">
-  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="678" y="445" text-anchor="middle">TinkAeads</text>
-  <line x1="508" y1="454" x2="848" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="526" y="479">+AES256_GCM: TinkAead</text>
-<text class="member" x="526" y="496">+AES128_GCM: TinkAead</text>
-<text class="member" x="526" y="513">+CHACHA20_POLY1305: TinkAead</text>
+  <rect class="classCard" x="508" y="398" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="688" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="688" y="445" text-anchor="middle">TinkAeads</text>
+  <line x1="508" y1="454" x2="868" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="542" y="486">+AES256_GCM: TinkAead</text>
+<text class="member" x="542" y="503">+AES128_GCM: TinkAead</text>
+<text class="member" x="542" y="520">+CHACHA20_POLY1305: TinkAead</text>
 </g>
 <g id="TinkEncryptor">
-  <rect class="classCard" x="216" y="165" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="386" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="386" y="212" text-anchor="middle">TinkEncryptor</text>
-  <line x1="216" y1="221" x2="556" y2="221" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="234" y="246">+encrypt(plaintext: ByteArray):</text>
-<text class="member" x="234" y="263">ByteArray</text>
-<text class="member" x="234" y="280">+decrypt(ciphertext: ByteArray):</text>
+  <rect class="classCard" x="216" y="165" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="396" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="396" y="212" text-anchor="middle">TinkEncryptor</text>
+  <line x1="216" y1="221" x2="576" y2="221" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="250" y="253">+encrypt(plaintext: ByteArray):</text>
+<text class="member" x="250" y="270">ByteArray</text>
+<text class="member" x="250" y="287">+decrypt(ciphertext: ByteArray):</text>
 </g>
 <g id="TinkAead">
-  <rect class="classCard" x="703" y="631" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="873" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="873" y="678" text-anchor="middle">TinkAead</text>
-  <line x1="703" y1="687" x2="1043" y2="687" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="721" y="712">-aead: Aead</text>
-<text class="member" x="721" y="729">+encrypt(plaintext,</text>
-<text class="member" x="721" y="746">associatedData):</text>
+  <rect class="classCard" x="703" y="631" width="360" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="883" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="883" y="678" text-anchor="middle">TinkAead</text>
+  <line x1="703" y1="687" x2="1063" y2="687" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="737" y="719">-aead: Aead</text>
+<text class="member" x="737" y="736">+encrypt(plaintext,</text>
+<text class="member" x="737" y="753">associatedData):</text>
 </g>
 <g id="TinkEncryptors">
-  <rect class="classCard" x="703" y="165" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="873" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="873" y="212" text-anchor="middle">TinkEncryptors</text>
-  <line x1="703" y1="221" x2="1043" y2="221" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="721" y="246">+AES256_GCM: TinkEncryptor</text>
-<text class="member" x="721" y="263">+AES128_GCM: TinkEncryptor</text>
-<text class="member" x="721" y="280">+CHACHA20_POLY1305: TinkEncryptor</text>
+  <rect class="classCard" x="703" y="165" width="360" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="883" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="883" y="212" text-anchor="middle">TinkEncryptors</text>
+  <line x1="703" y1="221" x2="1063" y2="221" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="737" y="253">+AES256_GCM: TinkEncryptor</text>
+<text class="member" x="737" y="270">+AES128_GCM: TinkEncryptor</text>
+<text class="member" x="737" y="287">+CHACHA20_POLY1305: TinkEncryptor</text>
 </g>
 <g id="TinkDeterministicAead">
-  <rect class="classCard" x="118" y="631" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="288" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="288" y="678" text-anchor="middle">TinkDeterministicAead</text>
-  <line x1="118" y1="687" x2="458" y2="687" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="136" y="712">-daead: DeterministicAead</text>
-<text class="member" x="136" y="729">+encryptDeterministically(plaintext):</text>
-<text class="member" x="136" y="746">ByteArray</text>
+  <rect class="classCard" x="118" y="631" width="360" height="146" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="298" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="678" text-anchor="middle">TinkDeterministicAead</text>
+  <line x1="118" y1="687" x2="478" y2="687" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="152" y="719">-daead: DeterministicAead</text>
+<text class="member" x="152" y="736">+encryptDeterministically(plaintext):</text>
+<text class="member" x="152" y="753">ByteArray</text>
 </g>
 <g id="TinkMac">
-  <rect class="classCard" x="1334" y="398" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1504" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="445" text-anchor="middle">TinkMac</text>
-  <line x1="1334" y1="454" x2="1674" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1352" y="479">-mac: Mac</text>
-<text class="member" x="1352" y="496">+computeMac(data: ByteArray):</text>
-<text class="member" x="1352" y="513">ByteArray</text>
+  <rect class="classCard" x="1354" y="398" width="360" height="146" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1534" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1534" y="445" text-anchor="middle">TinkMac</text>
+  <line x1="1354" y1="454" x2="1714" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1388" y="486">-mac: Mac</text>
+<text class="member" x="1388" y="503">+computeMac(data: ByteArray):</text>
+<text class="member" x="1388" y="520">ByteArray</text>
 </g>
 <g id="TinkDigester">
-  <rect class="classCard" x="1334" y="791" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1504" y="810" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="838" text-anchor="middle">TinkDigester</text>
-  <line x1="1334" y1="847" x2="1674" y2="847" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="1352" y="872">+algorithmName: String</text>
-<text class="member" x="1352" y="889">+digest(data: ByteArray):</text>
-<text class="member" x="1352" y="906">ByteArray</text>
+  <rect class="classCard" x="1354" y="805" width="360" height="146" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1534" y="824" text-anchor="middle">class</text>
+  <text class="classTitle" x="1534" y="852" text-anchor="middle">TinkDigester</text>
+  <line x1="1354" y1="861" x2="1714" y2="861" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="1388" y="893">+algorithmName: String</text>
+<text class="member" x="1388" y="910">+digest(data: ByteArray):</text>
+<text class="member" x="1388" y="927">ByteArray</text>
 </g>
 <g id="TinkDigesters">
-  <rect class="classCard" x="1334" y="558" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1504" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="605" text-anchor="middle">TinkDigesters</text>
-  <line x1="1334" y1="614" x2="1674" y2="614" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="1352" y="639">+MD5: TinkDigester</text>
-<text class="member" x="1352" y="656">+SHA1: TinkDigester</text>
-<text class="member" x="1352" y="673">+SHA256: TinkDigester</text>
+  <rect class="classCard" x="1354" y="572" width="360" height="146" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1534" y="591" text-anchor="middle">class</text>
+  <text class="classTitle" x="1534" y="619" text-anchor="middle">TinkDigesters</text>
+  <line x1="1354" y1="628" x2="1714" y2="628" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1388" y="660">+MD5: TinkDigester</text>
+<text class="member" x="1388" y="677">+SHA1: TinkDigester</text>
+<text class="member" x="1388" y="694">+SHA256: TinkDigester</text>
 </g>
 <g id="TinkMacs">
-  <rect class="classCard" x="1334" y="165" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1504" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="1504" y="212" text-anchor="middle">TinkMacs</text>
-  <line x1="1334" y1="221" x2="1674" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="1352" y="246">+HMAC_SHA256: TinkMac</text>
-<text class="member" x="1352" y="263">+HMAC_SHA512: TinkMac</text>
-<text class="member" x="1352" y="280">+HMAC_SHA512_512BITTAG: TinkMac</text>
+  <rect class="classCard" x="1354" y="165" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1534" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1534" y="212" text-anchor="middle">TinkMacs</text>
+  <line x1="1354" y1="221" x2="1714" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1388" y="253">+HMAC_SHA256: TinkMac</text>
+<text class="member" x="1388" y="270">+HMAC_SHA512: TinkMac</text>
+<text class="member" x="1388" y="287">+HMAC_SHA512_512BITTAG: TinkMac</text>
 </g>
 <g id="TinkAeadEncryptor">
-  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1068" y="445" text-anchor="middle">TinkAeadEncryptor</text>
-  <line x1="898" y1="454" x2="1238" y2="454" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="916" y="479">-aead: TinkAead</text>
-<text class="member" x="916" y="496">+encrypt(plaintext: ByteArray):</text>
-<text class="member" x="916" y="513">ByteArray</text>
+  <rect class="classCard" x="898" y="398" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1078" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1078" y="445" text-anchor="middle">TinkAeadEncryptor</text>
+  <line x1="898" y1="454" x2="1258" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="932" y="486">-aead: TinkAead</text>
+<text class="member" x="932" y="503">+encrypt(plaintext: ByteArray):</text>
+<text class="member" x="932" y="520">ByteArray</text>
 </g>
 <g id="TinkDaeadEncryptor">
-  <rect class="classCard" x="118" y="398" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="288" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="288" y="445" text-anchor="middle">TinkDaeadEncryptor</text>
-  <line x1="118" y1="454" x2="458" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="136" y="479">-daead: TinkDeterministicAead</text>
-<text class="member" x="136" y="496">+encrypt(plaintext: ByteArray):</text>
-<text class="member" x="136" y="513">ByteArray</text>
+  <rect class="classCard" x="118" y="398" width="360" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="298" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="298" y="445" text-anchor="middle">TinkDaeadEncryptor</text>
+  <line x1="118" y1="454" x2="478" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="152" y="486">-daead: TinkDeterministicAead</text>
+<text class="member" x="152" y="503">+encrypt(plaintext: ByteArray):</text>
+<text class="member" x="152" y="520">ByteArray</text>
 </g>
 <g>
-  <rect x="1377" y="985" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1395 1003 L1453 1003" stroke="#3E9868"/>
-  <text class="detail" x="1467" y="1008">inheritance / implementation</text>
-  <path class="dependency" d="M1395 1024 L1453 1024" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1467" y="1029">dependency / usage</text>
+  <rect x="1417" y="1013" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1435 1031 L1493 1031" stroke="#3E9868"/>
+  <text class="detail" x="1507" y="1036">inheritance / implementation</text>
+  <path class="dependency" d="M1435 1052 L1493 1052" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1507" y="1057">dependency / usage</text>
 </g>
-<g><rect x="180" y="1003" width="1152" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="756" y="1029" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<g><rect x="180" y="1031" width="1192" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="776" y="1057" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
 </svg>

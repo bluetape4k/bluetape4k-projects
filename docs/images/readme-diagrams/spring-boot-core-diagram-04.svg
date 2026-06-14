@@ -1,81 +1,91 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="1299" viewBox="0 0 1720 1299" role="img" aria-label="Retrofit2 Integration Structure">
+<svg data-intent="Redraw from scratch as an optional Spring Boot + Retrofit2 integration map: Spring owns bean configuration, bluetape4k-retrofit2 owns Retrofit assembly, and selectable HTTP clients/converters/call adapters route to the external API." data-evidence="spring-boot/core/README.md; io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/RetrofitSupport.kt; io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/result; io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/clients" data-source-read="spring-boot/core/README.md; io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/RetrofitSupport.kt; io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/result; io/retrofit2/src/main/kotlin/io/bluetape4k/retrofit2/clients" xmlns="http://www.w3.org/2000/svg" width="1440" height="1010" viewBox="0 0 1440 1010" role="img" aria-label="Spring Boot + Retrofit2 Integration Map">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
     .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
+    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
-<rect class="canvas" width="1720" height="1299"/>
-<rect class="frame" x="32" y="28" width="1656" height="1243" rx="30"/>
-<text class="title" x="68" y="84">Retrofit2 Integration Structure</text>
-<text class="subtitle" x="72" y="116">Source-checked architecture with responsibility groups and reserved label gutters.</text>
-<g><rect class="panel" x="78" y="165" width="1564" height="264" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Entry points</text></g>
-<g><rect class="panel" x="78" y="511" width="1564" height="264" rx="22"/><text class="panelTitle" x="102" y="537" dominant-baseline="middle">bluetape4k module support</text></g>
-<g><rect class="panel" x="78" y="857" width="1564" height="264" rx="22"/><text class="panelTitle" x="102" y="883" dominant-baseline="middle">Runtime adapters</text></g>
-<path class="flow" d="M463 321 L624.3 321" stroke="#4F83BF"/>
-<path class="flow" d="M934.3 321 L1095.7 321" stroke="#3E9868"/>
-<path class="flow" d="M1250.7 377 L1250.7 494 L54 494 L54 667 L153 667" stroke="#B9851B"/>
-<path class="flow" d="M463 667 L624.3 667" stroke="#755BC6"/>
-<path class="flow" d="M934.3 667 L1095.7 667" stroke="#2E8F89"/>
-<path class="flow" d="M1250.7 723 L1250.7 840 L54 840 L54 1013 L153 1013" stroke="#C94D68"/>
-<path class="flow" d="M463 1013 L860 1013" stroke="#718A35"/>
-<g id="node-0-0">
-    <rect class="card" x="153" y="265" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-
-    <text class="cardTitle" x="308" y="327" text-anchor="middle">Application</text>
-
-  </g>
-<g id="node-0-1">
-    <rect class="card" x="624.3" y="265" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-
-    <text class="cardTitle" x="779.3" y="303.5" text-anchor="middle">Retrofit Bean (@Bean</text>
-    <text class="detail" x="779.3" y="340.5" text-anchor="middle">retrofit.create&lt;T&gt;()</text>
-<text class="detail" x="779.3" y="357.5" text-anchor="middle">)</text>
-  </g>
-<g id="node-0-2">
-    <rect class="card" x="1095.7" y="265" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-
-    <text class="cardTitle" x="1250.7" y="327" text-anchor="middle">Retrofit2</text>
-
-  </g>
-<g id="node-1-0">
-    <rect class="card" x="153" y="611" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-
-    <text class="cardTitle" x="308" y="673" text-anchor="middle">OkHttp3 Client</text>
-
-  </g>
-<g id="node-1-1">
-    <rect class="card" x="624.3" y="611" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-
-    <text class="cardTitle" x="779.3" y="673" text-anchor="middle">Apache HttpClient5</text>
-
-  </g>
-<g id="node-1-2">
-    <rect class="card" x="1095.7" y="611" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-
-    <text class="cardTitle" x="1250.7" y="649.5" text-anchor="middle">Jackson 2 Serialization</text>
-    <text class="detail" x="1250.7" y="686.5" text-anchor="middle">Deseri</text>
-<text class="detail" x="1250.7" y="703.5" text-anchor="middle">Serialization Deseri</text>
-  </g>
-<g id="node-2-0">
-    <rect class="card" x="153" y="957" width="310" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-
-    <text class="cardTitle" x="308" y="995.5" text-anchor="middle">Coroutines Adapter</text>
-    <text class="detail" x="308" y="1032.5" text-anchor="middle">(suspend function</text>
-<text class="detail" x="308" y="1049.5" text-anchor="middle">support)</text>
-  </g>
-<g id="node-2-1">
-    <rect class="card" x="860" y="957" width="310" height="112" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
-
-    <text class="cardTitle" x="1015" y="1019" text-anchor="middle">External REST API</text>
-
-  </g>
-<g><rect x="190" y="1207" width="1340" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="860" y="1233" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
+<rect class="canvas" width="1440" height="1010"/>
+<rect class="frame" x="34" y="30" width="1372" height="950" rx="32"/>
+<text class="title" x="72" y="84">Spring Boot + Retrofit2 Integration Map</text>
+<text class="subtitle" x="76" y="116">This redraw treats Retrofit2 as an integration boundary: Spring config assembles the module, then Retrofit proxies route through selected HTTP clients.</text>
+<g><rect class="panel" x="82" y="160" width="1276" height="155" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Spring Boot application-owned configuration</text></g>
+<g><rect class="panel" x="82" y="390" width="1276" height="250" rx="22"/><text class="panelTitle" x="110" y="426" dominant-baseline="middle">bluetape4k-retrofit2 assembly</text></g>
+<g><rect class="panel" x="82" y="735" width="1276" height="190" rx="22"/><text class="panelTitle" x="110" y="771" dominant-baseline="middle">Runtime HTTP path</text></g>
+<g id="springApp">
+  <rect class="card" x="135" y="215" width="310" height="76" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="290" y="246" text-anchor="middle" dominant-baseline="middle">Spring Boot app</text>
+  <text class="detail" x="290" y="276" text-anchor="middle" dominant-baseline="middle">defines service beans and base URLs</text>
+</g>
+<g id="beanConfig">
+  <rect class="card" x="565" y="210" width="330" height="86" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="730" y="237" text-anchor="middle" dominant-baseline="middle">Retrofit @Bean config</text>
+  <text class="detail" x="730" y="267" text-anchor="middle" dominant-baseline="middle">calls retrofitOf / builder DSL</text>
+  <text class="detail" x="730" y="285" text-anchor="middle" dominant-baseline="middle">keeps credentials app-owned</text>
+</g>
+<g id="serviceIface">
+  <rect class="card" x="1015" y="215" width="260" height="76" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="1145" y="246" text-anchor="middle" dominant-baseline="middle">API service interface</text>
+  <text class="detail" x="1145" y="276" text-anchor="middle" dominant-baseline="middle">suspend functions / Call&lt;T&gt;</text>
+</g>
+<g id="retrofitOf">
+  <rect class="card" x="165" y="470" width="310" height="98" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="cardTitle" x="320" y="503" text-anchor="middle" dominant-baseline="middle">retrofitOf builder</text>
+  <text class="detail" x="320" y="533" text-anchor="middle" dominant-baseline="middle">baseUrl + converter factory</text>
+  <text class="detail" x="320" y="551" text-anchor="middle" dominant-baseline="middle">default ResultCallAdapterFactory</text>
+</g>
+<g id="callAdapters">
+  <rect class="card" x="575" y="455" width="320" height="126" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="735" y="493" text-anchor="middle" dominant-baseline="middle">Call adapters</text>
+  <text class="detail" x="735" y="523" text-anchor="middle" dominant-baseline="middle">Result&lt;T&gt; adapter</text>
+  <text class="detail" x="735" y="541" text-anchor="middle" dominant-baseline="middle">optional RxJava/Reactor adapters</text>
+  <text class="detail" x="735" y="559" text-anchor="middle" dominant-baseline="middle">coroutine service methods</text>
+</g>
+<g id="callFactory">
+  <rect class="card" x="1000" y="455" width="300" height="126" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="cardTitle" x="1150" y="493" text-anchor="middle" dominant-baseline="middle">HTTP call factories</text>
+  <text class="detail" x="1150" y="523" text-anchor="middle" dominant-baseline="middle">OkHttp default</text>
+  <text class="detail" x="1150" y="541" text-anchor="middle" dominant-baseline="middle">Apache HC5 bridge</text>
+  <text class="detail" x="1150" y="559" text-anchor="middle" dominant-baseline="middle">Vert.x bridge</text>
+</g>
+<g id="retrofit">
+  <rect class="card" x="185" y="805" width="300" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="335" y="840" text-anchor="middle" dominant-baseline="middle">Retrofit proxy</text>
+  <text class="detail" x="335" y="870" text-anchor="middle" dominant-baseline="middle">creates typed API implementation</text>
+</g>
+<g id="httpClient">
+  <rect class="card" x="590" y="805" width="300" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="740" y="840" text-anchor="middle" dominant-baseline="middle">HTTP client</text>
+  <text class="detail" x="740" y="870" text-anchor="middle" dominant-baseline="middle">request execution and cancellation</text>
+</g>
+<g id="remoteApi">
+  <rect class="card" x="1000" y="805" width="300" height="84" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="cardTitle" x="1150" y="840" text-anchor="middle" dominant-baseline="middle">External REST API</text>
+  <text class="detail" x="1150" y="870" text-anchor="middle" dominant-baseline="middle">JSON response or transport error</text>
+</g>
+<path class="route" data-from="springApp" data-to="beanConfig" d="M445 253 L565 253" stroke="#4F83BF"/>
+<path class="route" data-from="beanConfig" data-to="serviceIface" d="M895 253 L1015 253" stroke="#3E9868"/>
+<path class="route" data-from="beanConfig" data-to="retrofitOf" d="M730 296 L730 350 L500 350 L500 440 L320 440 L320 470" stroke="#2E8F89"/>
+<path class="route dashed" data-from="serviceIface" data-to="retrofit" d="M1145 291 L1145 350 L1320 350 L1320 950 L335 950 L335 889" stroke="#755BC6"/>
+<path class="route" data-from="retrofitOf" data-to="callAdapters" d="M475 519 L575 519" stroke="#B9851B"/>
+<path class="route" data-from="callAdapters" data-to="callFactory" d="M895 519 L1000 519" stroke="#C94D68"/>
+<path class="route" data-from="retrofitOf" data-to="retrofit" d="M320 568 L320 665 L500 665 L500 830 L485 830" stroke="#2E8F89"/>
+<path class="route" data-from="callFactory" data-to="httpClient" d="M1150 581 L1150 685 L740 685 L740 805" stroke="#C94D68"/>
+<path class="route" data-from="retrofit" data-to="httpClient" d="M485 847 L590 847" stroke="#755BC6"/>
+<path class="route" data-from="httpClient" data-to="remoteApi" d="M890 847 L1000 847" stroke="#3E9868"/>
 </svg>

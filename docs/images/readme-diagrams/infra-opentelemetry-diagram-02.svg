@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="760" viewBox="0 0 1640 760" role="img" aria-labelledby="title desc">
+<svg data-intent="Explain distributed trace propagation by showing incoming carrier extraction, context propagation, outbound injection, and exporter/runtime boundaries." data-evidence="infra/opentelemetry/README.md; infra/opentelemetry/src/main/kotlin" data-source-read="infra/opentelemetry/README.md; infra/opentelemetry/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1640" height="760" viewBox="0 0 1640 760" role="img" aria-labelledby="title desc">
   <title id="title">OpenTelemetry component relationships</title>
   <desc id="desc">Component relationship diagram for infra-opentelemetry showing instrumentation support, tracer and meter providers, processors, readers, exporters, collectors, and testing backends.</desc>
   <defs>

@@ -1,55 +1,122 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="1205" viewBox="0 0 1650 1205" role="img" aria-label="JCache NearCache Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
-  <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
-  </style>
-</defs>
-<rect class="canvas" width="1650" height="1205"/>
-<rect class="frame" x="32" y="28" width="1586" height="1149" rx="30"/>
-<text class="title" x="68" y="84">JCache NearCache Structure</text>
-<text class="subtitle" x="72" y="116">SuspendNearJCache composes a local Caffeine front tier with provider-backed suspend JCache implementations.</text>
-<g><rect class="panel" x="88" y="165" width="1475" height="240" rx="22"/><text class="panelTitle" x="112" y="199">Coroutine JCache composition</text></g>
-<g id="front"><rect class="card" x="150" y="235" width="335" height="118" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="150" y1="301" x2="485" y2="301" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="317.5" y="255" text-anchor="middle">front tier</text><text class="classTitle" x="317.5" y="283" text-anchor="middle">CaffeineSuspendJCache</text><text class="member" x="168" y="323">local Caffeine AsyncCache</text>
-<text class="member" x="168" y="340">low-latency reads</text></g>
-<g id="near"><rect class="card" x="630" y="225" width="360" height="138" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="630" y1="291" x2="990" y2="291" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="810" y="245" text-anchor="middle">2-tier coordinator</text><text class="classTitle" x="810" y="273" text-anchor="middle">SuspendNearJCache</text><text class="member" x="648" y="323">read-through front/back</text>
-<text class="member" x="648" y="340">optional listener propagation</text></g>
-<g id="back"><rect class="card" x="1135" y="235" width="335" height="118" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="1135" y1="301" x2="1470" y2="301" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="1302.5" y="255" text-anchor="middle">back tier</text><text class="classTitle" x="1302.5" y="283" text-anchor="middle">HazelcastSuspendJCache</text><text class="member" x="1153" y="323">cluster JCache wrapper</text>
-<text class="member" x="1153" y="340">shared distributed data</text></g>
-<path class="flow" d="M485 294 L630 294" stroke="#4F83BF"/>
-<path class="flow" d="M990 294 L1135 294" stroke="#755BC6"/>
-<g><rect class="panel" x="88" y="500" width="1475" height="255" rx="22"/><text class="panelTitle" x="112" y="534">Factory paths</text></g>
-<g id="without"><rect class="card" x="155" y="580" width="310" height="90" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="310" y="595" text-anchor="middle">withoutListener(front,</text><text class="cardTitle" x="310" y="619" text-anchor="middle">back)</text><text class="detail" x="310" y="655" text-anchor="middle">safe when back listener cannot</text>
-<text class="detail" x="310" y="673" text-anchor="middle">serialize front cache</text></g>
-<g id="invoke"><rect class="card" x="640" y="565" width="340" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="810" y="603" text-anchor="middle">invoke(front, back)</text><text class="detail" x="810" y="639" text-anchor="middle">registers back-cache listener</text>
-<text class="detail" x="810" y="657" text-anchor="middle">when provider supports it</text></g>
-<g id="provider"><rect class="card" x="1150" y="580" width="320" height="90" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1310" y="607" text-anchor="middle">Provider DSL</text><text class="detail" x="1310" y="643" text-anchor="middle">Hazelcast/Lettuce/Redisson</text>
-<text class="detail" x="1310" y="661" text-anchor="middle">factories compose tiers</text></g>
-<path class="flow" d="M310 353 L310 580" stroke="#4F83BF"/>
-<path class="flow" d="M810 363 L810 565" stroke="#3E9868"/>
-<path class="flow" d="M1302 353 L1302 580" stroke="#755BC6"/>
-<path class="flow" d="M465 625 L640 625" stroke="#B9851B"/>
-<path class="flow" d="M980 625 L1150 625" stroke="#2E8F89"/>
-<g><rect class="panel" x="88" y="850" width="1475" height="210" rx="22"/><text class="panelTitle" x="112" y="884">Read/write semantics</text></g>
-<g id="read"><rect class="card" x="185" y="920" width="290" height="82" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="330" y="952" text-anchor="middle">Read path</text><text class="detail" x="330" y="988" text-anchor="middle">front hit or back load</text></g>
-<g id="write"><rect class="card" x="620" y="920" width="290" height="82" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="765" y="952" text-anchor="middle">Write path</text><text class="detail" x="765" y="988" text-anchor="middle">front + back update</text></g>
-<g id="invalidate"><rect class="card" x="1055" y="920" width="320" height="82" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1215" y="952" text-anchor="middle">Invalidation</text><text class="detail" x="1215" y="988" text-anchor="middle">listener or explicit clear</text></g>
-<path class="flow" d="M475 961 L620 961" stroke="#4F83BF"/>
-<path class="flow" d="M910 961 L1055 961" stroke="#3E9868"/>
-<g><rect x="225" y="1112" width="1200" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="825" y="1138" text-anchor="middle">Adjacent front/coordinator/back classes use straight connectors; policy and runtime details stay in separate layers.</text></g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="1160" viewBox="0 0 1780 1160" role="img" aria-labelledby="title desc">
+  <title id="title">NearJCache Two-Tier Write-Through</title>
+  <desc id="desc">Explain the blocking NearJCache runtime flow, listener invalidation, and configuration boundary.</desc>
+  <defs>
+    <font-face font-family="Architects Daughter" src="url('file:///Users/debop/Library/Fonts/ArchitectsDaughter-Regular.ttf')"/>
+    <font-face font-family="Comic Mono" src="url('file:///Users/debop/Library/Fonts/ComicMono-Bold.ttf')"/>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.11"/></filter>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="context-stroke"/></marker>
+    <marker id="hollow" viewBox="0 0 7 6" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><path d="M 0.8 0.8 L 6.5 3 L 0.8 5.2 z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.2"/></marker>
+    <style>
+      .canvas{fill:#F6F9FC}.decor{fill:#FFFFFF;stroke:#C4D6E7;stroke-width:3.2;filter:url(#shadow)}
+      .innerFrame{fill:#FBFDFF;stroke:#D9E4EF;stroke-width:2}.group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .cardTitle,.classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .stereo,.detail,.member,.small{font-family:"Comic Mono";font-weight:400}
+      .stereo{font-size:13px;fill:#687789}.detail{font-size:14px;fill:#42556B}.member{font-size:13px;fill:#42556B}.small{font-size:13px;fill:#627184}
+      .card{filter:url(#shadow);stroke-width:2}.connector{fill:none;stroke-width:2.7;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.inherit{marker-end:url(#hollow)}.dashed{stroke-dasharray:7 6}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.1}
+    </style>
+  </defs>
+  <rect class="canvas" width="1780" height="1160"/>
+  <rect class="decor" x="44" y="36" width="1692" height="1088" rx="34"/>
+  <rect class="innerFrame" x="82" y="154" width="1616" height="874" rx="24"/>
+  <text class="title" x="72" y="88">NearJCache Two-Tier Write-Through</text>
+  <text class="subtitle" x="76" y="121">Blocking JCache callers hit the local front cache first while writes update front and synchronize the back cache.</text>
+  <g id="panel-caller">
+    <rect class="group" x="90" y="185" width="390" height="175" rx="20"/>
+    <text class="groupTitle" x="120" y="213" dominant-baseline="middle">Blocking caller</text>
+  </g>
+  <g id="panel-facade">
+    <rect class="group" x="555" y="165" width="620" height="300" rx="20"/>
+    <text class="groupTitle" x="585" y="193" dominant-baseline="middle">NearJCache facade</text>
+  </g>
+  <g id="panel-tiers">
+    <rect class="group" x="165" y="555" width="1450" height="210" rx="20"/>
+    <text class="groupTitle" x="195" y="583" dominant-baseline="middle">Two cache tiers</text>
+  </g>
+  <g id="panel-events">
+    <rect class="group" x="245" y="830" width="1285" height="170" rx="20"/>
+    <text class="groupTitle" x="275" y="858" dominant-baseline="middle">Back-cache event synchronization</text>
+  </g>
+  <path class="connector" data-edge="caller-&gt;near" data-label="JCache calls" d="M 455 291 L 670 291" stroke="#4F83BF"/>
+  <g transform="translate(508.1,254)">
+    <rect class="labelPill" x="0" y="0" width="108.8" height="26" rx="8"/>
+    <text class="small" x="54.4" y="13" text-anchor="middle" dominant-baseline="middle" fill="#4F83BF">JCache calls</text>
+  </g>
+  <path class="connector" data-edge="near-&gt;front" data-label="read first / fill" d="M 670 300 L 620 300 L 620 500 L 435 500 L 435 615" stroke="#45A7A1"/>
+  <g transform="translate(454.6,463)">
+    <rect class="labelPill" x="0" y="0" width="145.8" height="26" rx="8"/>
+    <text class="small" x="72.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#45A7A1">read first / fill</text>
+  </g>
+  <path class="connector" data-edge="front-&gt;back" data-label="front miss lookup" d="M 620 687 L 650 687 L 650 748 L 1290 748 L 1290 719" stroke="#D9AA4D"/>
+
+  <path class="connector" data-edge="sync-&gt;back" data-label="write-through" d="M 1005 658 L 1100 658" stroke="#6B7D90"/>
+
+  <path class="connector" data-edge="near-&gt;sync" data-label="mutations" d="M 1060 286 L 1095 286 L 1095 570 L 870 570 L 870 615" stroke="#58A978"/>
+  <g transform="translate(939.2,533)">
+    <rect class="labelPill" x="0" y="0" width="86.6" height="26" rx="8"/>
+    <text class="small" x="43.3" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">mutations</text>
+  </g>
+  <path class="connector" data-edge="back-&gt;listener" data-label="entry events" d="M 1380 719 L 1380 805 L 950 805 L 950 895" stroke="#DB7890"/>
+  <g transform="translate(1110.6,768)">
+    <rect class="labelPill" x="0" y="0" width="108.8" height="26" rx="8"/>
+    <text class="small" x="54.4" y="13" text-anchor="middle" dominant-baseline="middle" fill="#DB7890">entry events</text>
+  </g>
+  <path class="connector" data-edge="listener-&gt;front" data-label="invalidate/update" d="M 625 931 L 200 931 L 200 667 L 245 667" stroke="#DB7890"/>
+
+  <path class="connector" data-edge="config-&gt;near" data-label="configures" d="M 865 365 L 865 339" stroke="#8A72D6"/>
+
+  <g id="node-caller" transform="translate(125,250)">
+    <rect class="card" x="0" y="0" width="330" height="82" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="cardTitle" x="165" y="22" text-anchor="middle" dominant-baseline="middle">Application / JCache client</text>
+    <text class="detail" x="165" y="41" text-anchor="middle" dominant-baseline="middle">javax.cache.Cache&lt;K,V&gt;</text>
+    <text class="detail" x="165" y="60" text-anchor="middle" dominant-baseline="middle">blocking API</text>
+  </g>
+  <g id="node-near" transform="translate(670,235)">
+    <rect class="card" x="0" y="0" width="390" height="104" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="cardTitle" x="195" y="23.5" text-anchor="middle" dominant-baseline="middle">NearJCache&lt;K,V&gt;</text>
+    <text class="detail" x="195" y="42.5" text-anchor="middle" dominant-baseline="middle">JCache&lt;K,V&gt; by backCache</text>
+    <text class="detail" x="195" y="61.5" text-anchor="middle" dominant-baseline="middle">front-first getDeeply()</text>
+    <text class="detail" x="195" y="80.5" text-anchor="middle" dominant-baseline="middle">write-through operations</text>
+  </g>
+  <g id="node-config" transform="translate(690,365)">
+    <rect class="card" x="0" y="0" width="350" height="82" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="cardTitle" x="175" y="12.5" text-anchor="middle" dominant-baseline="middle">NearJCacheConfig DSL</text>
+    <text class="detail" x="175" y="31.5" text-anchor="middle" dominant-baseline="middle">Caffeine front factory</text>
+    <text class="detail" x="175" y="50.5" text-anchor="middle" dominant-baseline="middle">isSynchronous</text>
+    <text class="detail" x="175" y="69.5" text-anchor="middle" dominant-baseline="middle">syncRemoteTimeout</text>
+  </g>
+  <g id="node-front" transform="translate(245,615)">
+    <rect class="card" x="0" y="0" width="375" height="104" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="cardTitle" x="187.5" y="23.5" text-anchor="middle" dominant-baseline="middle">Front JCache</text>
+    <text class="detail" x="187.5" y="42.5" text-anchor="middle" dominant-baseline="middle">local provider</text>
+    <text class="detail" x="187.5" y="61.5" text-anchor="middle" dominant-baseline="middle">contains/get are front-only</text>
+    <text class="detail" x="187.5" y="80.5" text-anchor="middle" dominant-baseline="middle">clear() clears front</text>
+  </g>
+  <g id="node-back" transform="translate(1100,615)">
+    <rect class="card" x="0" y="0" width="380" height="104" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="cardTitle" x="190" y="23.5" text-anchor="middle" dominant-baseline="middle">Back JCache</text>
+    <text class="detail" x="190" y="42.5" text-anchor="middle" dominant-baseline="middle">distributed provider</text>
+    <text class="detail" x="190" y="61.5" text-anchor="middle" dominant-baseline="middle">source of invalidation events</text>
+    <text class="detail" x="190" y="80.5" text-anchor="middle" dominant-baseline="middle">removeAll chunking</text>
+  </g>
+  <g id="node-listener" transform="translate(625,895)">
+    <rect class="card" x="0" y="0" width="390" height="72" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+    <text class="cardTitle" x="195" y="17" text-anchor="middle" dominant-baseline="middle">JCacheEntryEventListener</text>
+    <text class="detail" x="195" y="36" text-anchor="middle" dominant-baseline="middle">created/updated -&gt; putAll</text>
+    <text class="detail" x="195" y="55" text-anchor="middle" dominant-baseline="middle">removed/expired -&gt; removeAll</text>
+  </g>
+  <g id="node-sync" transform="translate(735,615)">
+    <rect class="card" x="0" y="0" width="270" height="86" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
+    <text class="cardTitle" x="135" y="24" text-anchor="middle" dominant-baseline="middle">syncBackCache</text>
+    <text class="detail" x="135" y="43" text-anchor="middle" dominant-baseline="middle">put/remove/replace</text>
+    <text class="detail" x="135" y="62" text-anchor="middle" dominant-baseline="middle">remote timeout guard</text>
+  </g>
+  <g transform="translate(76,1056)">
+    <rect class="labelPill" x="0" y="0" width="1628" height="48" rx="10"/>
+    <text class="small" x="814" y="24" text-anchor="middle" dominant-baseline="middle">Source: cache README files and public cache contract implementations.</text>
+  </g>
 </svg>
