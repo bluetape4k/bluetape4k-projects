@@ -6,9 +6,9 @@ Java 21/25를 같은 프로젝트에서 모듈 분리로 지원하기 위한 구
 
 ## 아키텍처
 
-### 모듈 구조 및 런타임 선택
+### 런타임 선택 흐름
 
-![virtualthread Architecture diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
+![Virtual Thread Runtime Selection Flow diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
 
 ---
 

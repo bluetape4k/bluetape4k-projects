@@ -47,7 +47,7 @@
 <text class="member" x="718" y="1109">read-mostly table</text></g>
 <g id="join"><rect class="card" x="1190" y="1000" width="320" height="126" rx="7" fill="#F2F5F9" stroke="#9AA8B8"/><line x1="1190" y1="1066" x2="1510" y2="1066" stroke="#9AA8B8" stroke-width="1.5"/><text class="stereo" x="1350" y="1020" text-anchor="middle">entity</text><text class="classTitle" x="1350" y="1048" text-anchor="middle">Join / link entity</text><text class="member" x="1208" y="1092">association table</text>
 <text class="member" x="1208" y="1109">compact lifecycle</text></g>
-<path class="inherit" d="M370 1000 L370 878 L325 878 L325 742" style="stroke:#C94D68;"/>
+<path class="inherit" d="M530 1063 L555 1063 L555 878 L325 878 L325 742" style="stroke:#C94D68;"/>
 <path class="inherit" d="M860 1000 L860 850 L795 850 L795 760" style="stroke:#4F83BF;stroke-dasharray:8 7;"/>
 <path class="inherit" d="M1350 1000 L1350 850 L1280 850 L1280 742" style="stroke:#758297;stroke-dasharray:8 7;"/>
 <g><rect x="260" y="1225" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="900" y="1251" text-anchor="middle">Solid colored lines mark direct inheritance. Dashed colored lines mark optional interface or mapped-superclass relationships.</text></g>

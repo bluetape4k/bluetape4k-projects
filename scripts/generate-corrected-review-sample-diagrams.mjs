@@ -451,7 +451,7 @@ function cacheHibernateLayerStructure() {
     card("codec", 1090, 445, 290, 108, "Serializer / codec", "binary cache payload", "teal"),
     route("M520 499 L610 499", "green"),
     route("M990 499 L1090 499", "amber"),
-    route("M350 284 L350 445", "purple"),
+    route("M350 284 L350 360 L560 360 L560 470 L610 470", "purple"),
     route("M930 284 L930 432", "blue"),
 
     panel(86, 665, 1360, 170, "Storage layer"),
@@ -475,7 +475,7 @@ function dataCassandraApiStructure() {
     panel(86, 480, 1420, 230, "Coroutine and DSL extensions"),
     classBox("async", 215, 550, 330, 118, "AsyncCqlSession", "extension facade", ["+executeSuspending(...)", "+executeFlow(...)"], "green"),
     classBox("qb", 965, 540, 340, 145, "QueryBuilderExtensions", "extension functions", ["+whereEq(...)", "+orderBy(...)", "+bind(...)"], "amber"),
-    route("M380 338 L380 550", "blue"),
+    route("M380 338 L380 440 L555 440 L555 609 L545 609", "blue"),
     route("M1135 338 L1135 540", "purple"),
 
     panel(86, 820, 1420, 190, "Result handling"),
@@ -509,7 +509,7 @@ function dataHibernateHierarchy() {
     classBox("aggregate", 210, 1000, 320, 126, "Domain aggregate", "entity", ["business identity", "relationships"], "pink"),
     classBox("lookup", 700, 1000, 320, 126, "Lookup entity", "entity", ["stable id", "read-mostly table"], "blue"),
     classBox("join", 1190, 1000, 320, 126, "Join / link entity", "entity", ["association table", "compact lifecycle"], "gray"),
-    inheritRoute("M370 1000 L370 878 L325 878 L325 742", "pink"),
+    inheritRoute("M530 1063 L555 1063 L555 878 L325 878 L325 742", "pink"),
     inheritRoute("M860 1000 L860 850 L795 850 L795 760", "blue", true),
     inheritRoute("M1350 1000 L1350 850 L1280 850 L1280 742", "gray", true),
     footer(260, 1225, 1280, "Solid colored lines mark direct inheritance. Dashed colored lines mark optional interface or mapped-superclass relationships."),
@@ -558,7 +558,7 @@ function idGeneratorKtorLayered() {
     panel(86, 430, 1370, 190, "Application service layer"),
     card("service", 250, 500, 360, 86, "IdGenerator service", "selects generator by route", "purple"),
     card("registry", 850, 500, 360, 86, "Generator registry", "Snowflake, UUID, ULID families", "amber"),
-    route("M320 294 L320 500", "blue"),
+    route("M320 294 L320 380 L430 380 L430 500", "blue"),
     route("M610 543 L850 543", "purple"),
 
     panel(86, 735, 1370, 190, "Generator runtime layer"),
@@ -568,7 +568,7 @@ function idGeneratorKtorLayered() {
     route("M1030 586 L1030 805", "amber"),
     route("M480 846 L610 846", "teal"),
     route("M950 846 L1080 846", "green"),
-    footer(205, 975, 1130, "Layered layout replaces the old grid: request handling, service selection, and generator runtime are visually separated."),
+    footer(205, 975, 1130, "bluetape4k-projects examples - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("examples-ktor-idgenerator-ktor-demo-diagram-01", base(1540, 1065, "IdGenerator Ktor Demo Architecture", "Ktor routes delegate to a registry-backed generator service and return typed JSON responses.", body));
 }
@@ -585,7 +585,7 @@ function idGeneratorSpringLayered() {
     panel(86, 430, 1370, 190, "Application service layer"),
     card("service", 250, 500, 360, 86, "IdGenerator service", "Spring-managed generator facade", "purple"),
     card("props", 850, 500, 360, 86, "Configuration properties", "node id and generator choices", "amber"),
-    route("M325 294 L325 500", "blue"),
+    route("M325 294 L325 380 L430 380 L430 500", "blue"),
     route("M610 543 L850 543", "purple"),
 
     panel(86, 735, 1370, 190, "Generator runtime layer"),
@@ -595,7 +595,7 @@ function idGeneratorSpringLayered() {
     route("M1030 586 L1030 805", "amber"),
     route("M480 846 L610 846", "teal"),
     route("M950 846 L1080 846", "green"),
-    footer(205, 975, 1130, "Layered layout replaces the old grid and keeps Spring web concerns separate from generator mechanics."),
+    footer(205, 975, 1130, "bluetape4k-projects examples - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("examples-spring-boot-idgenerator-spring-boot-demo-diagram-01", base(1540, 1065, "IdGenerator Spring Boot Demo Architecture", "Spring controllers delegate to a configured generator service and expose typed REST responses.", body));
 }

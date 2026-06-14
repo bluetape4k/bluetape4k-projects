@@ -10,14 +10,14 @@ node HttpbinAdvancedController 16.4 5.0139 2.8 1.05 HttpbinAdvancedController ro
 node HttpbinStreamController 20.15 5.0139 2.8 1.05 HttpbinStreamController rounded,filled box #5B8DEF #E8F3FF
 node WebContentLoader 8.9 2.7694 2.8 1.05 WebContentLoader rounded,filled box #58A978 #EAF7EF
 node InMemoryRepositoryT 14.525 7.2583 2.8 1.05 InMemoryRepositoryT rounded,filled box #45A7A1 #E9F7F6
-edge PostsController JsonplaceholderService 4 2.3375 4.482 2.3375 4.1242 2.3375 3.6545 2.3375 3.2975 dashed #4F83BF
-edge JsonplaceholderService InMemoryRepository 4 3.275 2.2375 3.275 1.8798 3.275 1.4101 3.275 1.0531 dashed #3E9868
-edge MockWebfluxApplication PostsController 7 9.3715 7.4306 6.7562 7.4306 1.4 7.4306 1.4 7.4306 1.4 7.4306 1.4 6.2556 1.4 5.5442 dashed #2E8F89
-edge MockWebfluxApplication AdminController 7 9.3701 7.0833 7.704 7.0833 5.15 7.0833 5.15 7.0833 5.15 7.0833 5.15 6.1546 5.15 5.5415 dashed #2E8F89
-edge MockWebfluxApplication WebContentController 4 9.8375 6.7264 9.8375 6.3686 9.8375 5.899 9.8375 5.542 dashed #2E8F89
-edge MockWebfluxApplication HttpbinController 4 11.481 6.7264 11.481 6.3686 11.481 5.899 11.481 5.542 dashed #2E8F89
-edge MockWebfluxApplication HttpbinAdvancedController 10 11.712 6.7297 11.712 6.3595 11.712 5.9306 11.712 5.9306 11.712 5.9306 15.462 5.9306 15.462 5.9306 15.462 5.9306 15.462 5.7456 15.462 5.5418 dashed #2E8F89
-edge MockWebfluxApplication HttpbinStreamController 10 11.944 6.731 11.944 6.5233 11.944 6.3333 11.944 6.3333 11.944 6.3333 20.15 6.3333 20.15 6.3333 20.15 6.3333 20.15 5.91 20.15 5.543 dashed #2E8F89
-edge AdminController JsonplaceholderService 4 4.2125 4.482 4.2125 4.1242 4.2125 3.6545 4.2125 3.2975 dashed #B9851B
-edge WebContentController WebContentLoader 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 dashed #C94D68
+edge PostsController JsonplaceholderService 4 2.3375 4.482 2.3375 4.1242 2.3375 3.6545 2.3375 3.2975 dashed #755BC6
+edge JsonplaceholderService InMemoryRepository 4 3.275 2.2375 3.275 1.8798 3.275 1.4101 3.275 1.0531 dashed #B9851B
+edge MockWebfluxApplication PostsController 7 9.3715 7.4306 6.7562 7.4306 1.4 7.4306 1.4 7.4306 1.4 7.4306 1.4 6.2556 1.4 5.5442 dashed #C8644B
+edge MockWebfluxApplication AdminController 7 9.3701 7.0833 7.704 7.0833 5.15 7.0833 5.15 7.0833 5.15 7.0833 5.15 6.1546 5.15 5.5415 dashed #718A35
+edge MockWebfluxApplication WebContentController 4 9.8375 6.7264 9.8375 6.3686 9.8375 5.899 9.8375 5.542 dashed #4F63C7
+edge MockWebfluxApplication HttpbinController 4 11.481 6.7264 11.481 6.3686 11.481 5.899 11.481 5.542 dashed #A84B98
+edge MockWebfluxApplication HttpbinAdvancedController 10 11.712 6.7297 11.712 6.3595 11.712 5.9306 11.712 5.9306 11.712 5.9306 15.462 5.9306 15.462 5.9306 15.462 5.9306 15.462 5.7456 15.462 5.5418 dashed #2E83B8
+edge MockWebfluxApplication HttpbinStreamController 10 11.944 6.731 11.944 6.5233 11.944 6.3333 11.944 6.3333 11.944 6.3333 20.15 6.3333 20.15 6.3333 20.15 6.3333 20.15 5.91 20.15 5.543 dashed #8E6D43
+edge AdminController JsonplaceholderService 4 4.2125 4.482 4.2125 4.1242 4.2125 3.6545 4.2125 3.2975 dashed #C94D68
+edge WebContentController WebContentLoader 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 dashed #2E8F89
 stop

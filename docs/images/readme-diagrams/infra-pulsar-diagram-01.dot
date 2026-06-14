@@ -11,10 +11,10 @@ digraph G {
   ProducerExtensions [label="ProducerExtensions", fillcolor="#EEF6D9", color="#8BA84D"];
   Jackson3Schema [label="Jackson3Schema", fillcolor="#F2F5F9", color="#9AA8B8"];
   JacksonSchema [label="JacksonSchema", fillcolor="#E8F3FF", color="#5B8DEF"];
-  ReaderSupport -> ReaderExtensions [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
-  ConsumerSupport -> ConsumerExtensions [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  ProducerSupport -> ProducerExtensions [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  PulsarClient -> ReaderSupport [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  PulsarClient -> ConsumerSupport [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  PulsarClient -> ProducerSupport [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  ReaderSupport -> ReaderExtensions [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  ConsumerSupport -> ConsumerExtensions [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  ProducerSupport -> ProducerExtensions [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  PulsarClient -> ReaderSupport [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  PulsarClient -> ConsumerSupport [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  PulsarClient -> ProducerSupport [color="#4F63C7", fontcolor="#4F63C7", style="dashed", arrowhead="none", weight=2];
 }

@@ -122,7 +122,6 @@
 
   <g transform="translate(76,816)">
     <rect class="pill" x="0" y="0" width="1348" height="42" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: bluetape4k-coroutines-diagram-01.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="674" y="33" text-anchor="middle" dominant-baseline="middle">Gate: n=9, r=6, seg=18, endpoint/bend/cross/overlap/clear=0, margins=38/38/45/30, titleGap=69.</text>
+    <text class="small" x="674" y="23" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
   </g>
 </svg>

@@ -1,27 +1,17 @@
-graph 1 20.758 10.028
-node Codec 8.025 9.5028 2.8 1.05 Codec rounded,filled box #5B8DEF #E8F3FF
-node RedissonCodecs 10.858 7.2583 2.8 1.05 RedissonCodecs rounded,filled box #58A978 #EAF7EF
-node Lz4Codec 8.9417 5.0139 2.8 1.05 Lz4Codec rounded,filled box #45A7A1 #E9F7F6
-node Fastjson2Codec 5.1917 5.0139 2.8 1.05 Fastjson2Codec rounded,filled box #D6A441 #FFF3D9
-node ForyCodec 1.4 2.7694 2.8 1.05 ForyCodec rounded,filled box #DC6B82 #FDECEF
-node Kryo5Codec 19.358 0.525 2.8 1.05 Kryo5Codec rounded,filled box #8A72D6 #F1ECFF
-node Jackson3Codec 16.525 5.0139 2.8 1.05 Jackson3Codec rounded,filled box #8BA84D #EEF6D9
-node ZstdCodec 3.275 7.2583 2.8 1.05 ZstdCodec rounded,filled box #9AA8B8 #F2F5F9
-node GzipCodec 16.525 7.2583 2.8 1.05 GzipCodec rounded,filled box #5B8DEF #E8F3FF
-edge Codec Lz4Codec 4 8.4833 8.9746 8.4833 8.1102 8.4833 6.4032 8.4833 5.54 solid #2E8F89
-edge Codec Fastjson2Codec 7 7.0833 8.9746 7.0833 7.788 7.0833 5.0139 7.0833 5.0139 7.0833 5.0139 6.8748 5.0139 6.5962 5.0139 solid #B9851B
-edge Codec ForyCodec 7 7.3125 8.972 7.3125 7.434 7.3125 3.0833 7.3125 3.0833 7.3125 3.0833 4.5535 3.0833 2.8049 3.0833 solid #C94D68
-edge Codec Kryo5Codec 7 9.4308 9.7639 12.56 9.7639 19.825 9.7639 19.825 9.7639 19.825 9.7639 19.825 3.0181 19.825 1.0549 solid #755BC6
-edge Codec Jackson3Codec 10 9.4294 9.2361 11.108 9.2361 13.692 9.2361 13.692 9.2361 13.692 9.2361 13.692 5.1944 13.692 5.1944 13.692 5.1944 14.408 5.1944 15.121 5.1944 solid #718A35
-edge Codec ZstdCodec 7 6.8542 8.9745 6.8542 8.3606 6.8542 7.4306 6.8542 7.4306 6.8542 7.4306 5.682 7.4306 4.6793 7.4306 solid #758297
-edge Codec GzipCodec 7 9.4286 9.5 11.843 9.5 16.525 9.5 16.525 9.5 16.525 9.5 16.525 8.4525 16.525 7.7896 solid #4F83BF
-edge RedissonCodecs Lz4Codec 4 9.9 6.7264 9.9 6.3686 9.9 5.899 9.9 5.542 dashed #3E9868
-edge RedissonCodecs Fastjson2Codec 7 9.4581 7.0833 7.9104 7.0833 5.6333 7.0833 5.6333 7.0833 5.6333 7.0833 5.6333 6.1546 5.6333 5.5415 dashed #3E9868
-edge RedissonCodecs ForyCodec 7 10.821 6.7271 10.821 5.5185 10.821 2.6667 10.821 2.6667 10.821 2.6667 5.4315 2.6667 2.8053 2.6667 dashed #3E9868
-edge RedissonCodecs Kryo5Codec 7 11.3 6.7302 11.3 5.1435 11.3 0.52778 11.3 0.52778 11.3 0.52778 15.646 0.52778 17.955 0.52778 dashed #3E9868
-edge RedissonCodecs Jackson3Codec 7 11.779 6.7321 11.779 6.0189 11.779 4.8333 11.779 4.8333 11.779 4.8333 13.721 4.8333 15.12 4.8333 dashed #3E9868
-edge Lz4Codec ForyCodec 7 8.9417 4.4852 8.9417 3.8518 8.9417 2.875 8.9417 2.875 8.9417 2.875 4.9872 2.875 2.8053 2.875 dashed #2E8F89
-edge Fastjson2Codec ForyCodec 7 3.7863 5.0139 3.1303 5.0139 2.4917 5.0139 2.4917 5.0139 2.4917 5.0139 2.4917 3.9651 2.4917 3.3013 dashed #B9851B
-edge ForyCodec Kryo5Codec 7 2.8055 2.4583 6.9596 2.4583 18.892 2.4583 18.892 2.4583 18.892 2.4583 18.892 1.6257 18.892 1.0533 dashed #C94D68
-edge ZstdCodec ForyCodec 4 2.1833 6.7302 2.1833 5.8657 2.1833 4.1587 2.1833 3.2956 dashed #758297
+graph 1 7.9867 3.6944
+node RedissonCodecs 3.785 3.4444 1.4867 0.5 RedissonCodecs rounded,filled box #5B8DEF #E8F3FF
+node ForyCodec 0.535 1.8472 1.07 0.5 ForyCodec rounded,filled box #58A978 #EAF7EF
+node FastForyCodec 2.6739 1.8472 1.4033 0.5 FastForyCodec rounded,filled box #45A7A1 #E9F7F6
+node JsonCodecs 4.8961 1.8472 1.2367 0.5 "JSON codecs" rounded,filled box #D6A441 #FFF3D9
+node BuiltinCodecs 7.2017 1.8472 1.57 0.5 "Built-in codecs" rounded,filled box #9AA8B8 #F2F5F9
+node CompressionWrappers 1.3544 0.25 1.9867 0.5 "Compression wrappers" rounded,filled box #DC6B82 #FDECEF
+node CompositeCodecs 6.0489 0.25 1.6533 0.5 "Composite codecs" rounded,filled box #8A72D6 #F1ECFF
+edge RedissonCodecs ForyCodec 7 3.0353 3.4444 2.0755 3.4444 0.535 3.4444 0.535 3.4444 0.535 3.4444 0.535 2.2389 0.535 2.2389 dashed #3E9868
+edge RedissonCodecs FastForyCodec 4 3.2086 3.1878 3.2086 3.1878 3.2086 2.2383 3.2086 2.2383 dashed #2E8F89
+edge RedissonCodecs JsonCodecs 4 4.4031 3.1878 4.4031 3.1878 4.4031 2.2383 4.4031 2.2383 dashed #B9851B
+edge RedissonCodecs BuiltinCodecs 7 4.5348 3.4444 5.5406 3.4444 7.2017 3.4444 7.2017 3.4444 7.2017 3.4444 7.2017 2.2389 7.2017 2.2389 dashed #758297
+edge ForyCodec CompressionWrappers 4 0.71556 1.5906 0.71556 1.5906 0.71556 0.64105 0.71556 0.64105 dashed #C94D68
+edge FastForyCodec CompressionWrappers 4 2.16 1.5906 2.16 1.5906 2.16 0.64105 2.16 0.64105 dashed #C94D68
+edge JsonCodecs CompositeCodecs 4 5.3683 1.5906 5.3683 1.5906 5.3683 0.64105 5.3683 0.64105 dashed #755BC6
+edge BuiltinCodecs CompositeCodecs 4 6.6461 1.5906 6.6461 1.5906 6.6461 0.64105 6.6461 0.64105 dashed #755BC6
 stop

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-label="Snowflake Bit Layout">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M 0.7 0.7 L 5.4 3 L 0.7 5.3 Z" fill="context-stroke"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="inherit" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.25"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
@@ -49,5 +49,5 @@
 <g id="parse"><rect class="card" x="185" y="560" width="310" height="96" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="340" y="591" text-anchor="middle">parseSnowflakeId(id)</text><text class="detail" x="340" y="626" text-anchor="middle">timestamp = id &gt;&gt;&gt; 22 + EPOCH</text><text class="detail" x="340" y="644" text-anchor="middle">machineId = bits 21..12</text></g>
 <g id="make"><rect class="card" x="640" y="560" width="310" height="96" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="795" y="591" text-anchor="middle">makeId(...)</text><text class="detail" x="795" y="626" text-anchor="middle">timestamp shift 22</text><text class="detail" x="795" y="644" text-anchor="middle">machine shift 12</text></g>
 <g id="capacity"><rect class="card" x="1095" y="560" width="310" height="96" rx="14" fill="#FDECEF" stroke="#DC6B82"/><text class="cardTitle" x="1250" y="591" text-anchor="middle">Capacity</text><text class="detail" x="1250" y="626" text-anchor="middle">1,024 machines</text><text class="detail" x="1250" y="644" text-anchor="middle">4,096 IDs/ms/machine</text></g>
-<g><rect x="160" y="730" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="800" y="755" text-anchor="middle">Source truth: SnowflakeSupport.kt uses TIME_STAMP_SHIFT=22, MACHINE_ID_SHIFT=12, MAX_MACHINE_ID=1024, MAX_SEQUENCE=4096.</text></g>
+<g><rect x="160" y="730" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="800" y="755" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

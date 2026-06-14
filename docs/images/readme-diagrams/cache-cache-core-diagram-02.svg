@@ -1,72 +1,119 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1299" viewBox="0 0 1560 1299" role="img" aria-label="NearCacheOperations (Blocking)">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
-  <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1560" height="1299"/>
-<rect class="frame" x="32" y="28" width="1496" height="1243" rx="30"/>
-<text class="title" x="68" y="84">NearCacheOperations (Blocking)</text>
-<text class="subtitle" x="72" y="116">Source-checked architecture redrawn as layered/free layout with reserved label gutters.</text>
-<g><rect class="panel" x="78" y="165" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Entry points</text></g>
-<g><rect class="panel" x="78" y="511" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="537" dominant-baseline="middle">bluetape4k module support</text></g>
-<g><rect class="panel" x="78" y="857" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="883" dominant-baseline="middle">Runtime adapters</text></g>
-<path class="flow" d="M463 321 L780 321" stroke="#4F83BF"/>
-<path class="flow" d="M935 377 L935 494 L54 494 L54 667 L153 667" stroke="#3E9868"/>
-<path class="flow" d="M463 667 L780 667" stroke="#B9851B"/>
-<path class="flow" d="M935 723 L935 840 L54 840 L54 1013 L153 1013" stroke="#755BC6"/>
-<path class="flow" d="M463 1013 L780 1013" stroke="#2E8F89"/>
-<g id="node-0-0">
-    <rect class="card" x="153" y="265" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-
-    <text class="cardTitle" x="308" y="291.5" text-anchor="middle">«interface»</text>
-<text class="cardTitle" x="308" y="313.5" text-anchor="middle">NearCacheOperations</text>
-    <text class="detail" x="308" y="352.5" text-anchor="middle">NearCacheOperations</text>
-<text class="detail" x="308" y="369.5" text-anchor="middle">NearCacheOperations</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1080" viewBox="0 0 1680 1080" role="img" aria-labelledby="title desc">
+  <title id="title">NearCacheOperations Blocking Contract</title>
+  <desc id="desc">Explain the method families exposed by NearCacheOperations without implying a specific provider.</desc>
+  <defs>
+    <font-face font-family="Architects Daughter" src="url('file:///Users/debop/Library/Fonts/ArchitectsDaughter-Regular.ttf')"/>
+    <font-face font-family="Comic Mono" src="url('file:///Users/debop/Library/Fonts/ComicMono-Bold.ttf')"/>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.11"/></filter>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="context-stroke"/></marker>
+    <marker id="hollow" viewBox="0 0 7 6" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><path d="M 0.8 0.8 L 6.5 3 L 0.8 5.2 z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.2"/></marker>
+    <style>
+      .canvas{fill:#F6F9FC}.decor{fill:#FFFFFF;stroke:#C4D6E7;stroke-width:3.2;filter:url(#shadow)}
+      .innerFrame{fill:#FBFDFF;stroke:#D9E4EF;stroke-width:2}.group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .cardTitle,.classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .stereo,.detail,.member,.small{font-family:"Comic Mono";font-weight:400}
+      .stereo{font-size:13px;fill:#687789}.detail{font-size:14px;fill:#42556B}.member{font-size:13px;fill:#42556B}.small{font-size:13px;fill:#627184}
+      .card{filter:url(#shadow);stroke-width:2}.connector{fill:none;stroke-width:2.7;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.inherit{marker-end:url(#hollow)}.dashed{stroke-dasharray:7 6}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.1}
+    </style>
+  </defs>
+  <rect class="canvas" width="1680" height="1080"/>
+  <rect class="decor" x="44" y="36" width="1592" height="1008" rx="34"/>
+  <rect class="innerFrame" x="82" y="154" width="1516" height="794" rx="24"/>
+  <text class="title" x="72" y="88">NearCacheOperations Blocking Contract</text>
+  <text class="subtitle" x="76" y="121">Blocking callers use one contract for front-first reads, write-through updates, lifecycle, and statistics.</text>
+  <g id="panel-contract">
+    <rect class="group" x="610" y="190" width="460" height="220" rx="20"/>
+    <text class="groupTitle" x="640" y="218" dominant-baseline="middle">Central blocking contract</text>
   </g>
-<g id="node-0-1">
-    <rect class="card" x="780" y="265" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-
-    <text class="cardTitle" x="935" y="291.5" text-anchor="middle">«interface»</text>
-<text class="cardTitle" x="935" y="313.5" text-anchor="middle">NearCacheStatistics</text>
-    <text class="detail" x="935" y="352.5" text-anchor="middle">NearCacheStatistics</text>
-<text class="detail" x="935" y="369.5" text-anchor="middle">NearCacheStatistics</text>
+  <g id="panel-readwrite">
+    <rect class="group" x="92" y="475" width="1495" height="205" rx="20"/>
+    <text class="groupTitle" x="122" y="503" dominant-baseline="middle">Data operations</text>
   </g>
-<g id="node-1-0">
-    <rect class="card" x="153" y="611" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-
-    <text class="cardTitle" x="308" y="649.5" text-anchor="middle">RedissonNearCache</text>
-    <text class="detail" x="308" y="686.5" text-anchor="middle">-localCachedMap:</text>
-<text class="detail" x="308" y="703.5" text-anchor="middle">RLocalCachedMap</text>
+  <g id="panel-lifecycle">
+    <rect class="group" x="250" y="720" width="1300" height="170" rx="20"/>
+    <text class="groupTitle" x="280" y="748" dominant-baseline="middle">Lifecycle and observability</text>
   </g>
-<g id="node-1-1">
-    <rect class="card" x="780" y="611" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-
-    <text class="cardTitle" x="935" y="649.5" text-anchor="middle">HazelcastNearCache</text>
-    <text class="detail" x="935" y="686.5" text-anchor="middle">-imap: IMap</text>
-<text class="detail" x="935" y="703.5" text-anchor="middle">-entryListener: EntryListener</text>
+  <path class="connector" data-edge="ops-&gt;read" data-label="exposes" d="M 650 310 L 390 310 L 390 540" stroke="#45A7A1"/>
+  <g transform="translate(484.1,273)">
+    <rect class="labelPill" x="0" y="0" width="71.8" height="26" rx="8"/>
+    <text class="small" x="35.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#45A7A1">exposes</text>
   </g>
-<g id="node-2-0">
-    <rect class="card" x="153" y="957" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-
-    <text class="cardTitle" x="308" y="995.5" text-anchor="middle">LettuceNearCache</text>
-    <text class="detail" x="308" y="1032.5" text-anchor="middle">-redisClient: RedisClient</text>
-<text class="detail" x="308" y="1049.5" text-anchor="middle">-trackingListener:</text>
+  <path class="connector" data-edge="ops-&gt;write" data-label="exposes" d="M 740 378 L 740 540" stroke="#58A978"/>
+  <g transform="translate(762,446)">
+    <rect class="labelPill" x="0" y="0" width="71.8" height="26" rx="8"/>
+    <text class="small" x="35.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">exposes</text>
   </g>
-<g id="node-2-1">
-    <rect class="card" x="780" y="957" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-
-    <text class="cardTitle" x="935" y="995.5" text-anchor="middle">Resilient Near Cache</text>
-    <text class="detail" x="935" y="1032.5" text-anchor="middle">Decorator</text>
-<text class="detail" x="935" y="1049.5" text-anchor="middle">-delegate:</text>
+  <path class="connector" data-edge="ops-&gt;delete" data-label="exposes" d="M 940 378 L 940 540" stroke="#DB7890"/>
+  <g transform="translate(962,446)">
+    <rect class="labelPill" x="0" y="0" width="71.8" height="26" rx="8"/>
+    <text class="small" x="35.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#DB7890">exposes</text>
   </g>
-<g><rect x="190" y="1207" width="1180" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="780" y="1233" text-anchor="middle">Graphviz evidence: cards are grouped by responsibility with clear outer margin and label gutters.</text></g>
+  <path class="connector" data-edge="ops-&gt;manage" data-label="exposes" d="M 1030 310 L 1420 310 L 1420 540" stroke="#D9AA4D"/>
+  <g transform="translate(1189.1,273)">
+    <rect class="labelPill" x="0" y="0" width="71.8" height="26" rx="8"/>
+    <text class="small" x="35.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#D9AA4D">exposes</text>
+  </g>
+  <g id="node-ops" transform="translate(650,250)">
+    <rect class="card" x="0" y="0" width="380" height="128" rx="10" fill="#E8F3FF" stroke="#75A9E8"/>
+    <line x1="0" y1="50" x2="380" y2="50" stroke="#75A9E8" stroke-width="1.6"/>
+    <text class="stereo" x="190" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="classTitle" x="190" y="36" text-anchor="middle" dominant-baseline="middle">NearCacheOperations&lt;V&gt;</text>
+    <text class="member" x="190" y="71" text-anchor="middle" dominant-baseline="middle">AutoCloseable</text>
+    <text class="member" x="190" y="89" text-anchor="middle" dominant-baseline="middle">cacheName / isClosed</text>
+    <text class="member" x="190" y="107" text-anchor="middle" dominant-baseline="middle">front cache first, back cache fallback</text>
+  </g>
+  <g id="node-read" transform="translate(145,540)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="cardTitle" x="150" y="15.5" text-anchor="middle" dominant-baseline="middle">Read path</text>
+    <text class="detail" x="150" y="34.5" text-anchor="middle" dominant-baseline="middle">get(key)</text>
+    <text class="detail" x="150" y="53.5" text-anchor="middle" dominant-baseline="middle">getAll(keys)</text>
+    <text class="detail" x="150" y="72.5" text-anchor="middle" dominant-baseline="middle">containsKey(key)</text>
+  </g>
+  <g id="node-write" transform="translate(520,540)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="cardTitle" x="150" y="15.5" text-anchor="middle" dominant-baseline="middle">Write path</text>
+    <text class="detail" x="150" y="34.5" text-anchor="middle" dominant-baseline="middle">put / putAll</text>
+    <text class="detail" x="150" y="53.5" text-anchor="middle" dominant-baseline="middle">putIfAbsent</text>
+    <text class="detail" x="150" y="72.5" text-anchor="middle" dominant-baseline="middle">replace</text>
+  </g>
+  <g id="node-delete" transform="translate(895,540)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+    <text class="cardTitle" x="150" y="15.5" text-anchor="middle" dominant-baseline="middle">Delete path</text>
+    <text class="detail" x="150" y="34.5" text-anchor="middle" dominant-baseline="middle">remove / removeAll</text>
+    <text class="detail" x="150" y="53.5" text-anchor="middle" dominant-baseline="middle">getAndRemove</text>
+    <text class="detail" x="150" y="72.5" text-anchor="middle" dominant-baseline="middle">getAndReplace</text>
+  </g>
+  <g id="node-manage" transform="translate(1270,540)">
+    <rect class="card" x="0" y="0" width="300" height="88" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="cardTitle" x="150" y="15.5" text-anchor="middle" dominant-baseline="middle">Cache management</text>
+    <text class="detail" x="150" y="34.5" text-anchor="middle" dominant-baseline="middle">clearLocal()</text>
+    <text class="detail" x="150" y="53.5" text-anchor="middle" dominant-baseline="middle">clearAll()</text>
+    <text class="detail" x="150" y="72.5" text-anchor="middle" dominant-baseline="middle">local/back size</text>
+  </g>
+  <g id="node-stats" transform="translate(355,785)">
+    <rect class="card" x="0" y="0" width="315" height="82" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="cardTitle" x="157.5" y="22" text-anchor="middle" dominant-baseline="middle">NearCacheStatistics</text>
+    <text class="detail" x="157.5" y="41" text-anchor="middle" dominant-baseline="middle">local/back hit-miss</text>
+    <text class="detail" x="157.5" y="60" text-anchor="middle" dominant-baseline="middle">evictions and hitRate</text>
+  </g>
+  <g id="node-close" transform="translate(815,785)">
+    <rect class="card" x="0" y="0" width="260" height="82" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
+    <text class="cardTitle" x="130" y="22" text-anchor="middle" dominant-baseline="middle">Resource lifecycle</text>
+    <text class="detail" x="130" y="41" text-anchor="middle" dominant-baseline="middle">close()</text>
+    <text class="detail" x="130" y="60" text-anchor="middle" dominant-baseline="middle">isClosed guard</text>
+  </g>
+  <g id="node-resilience" transform="translate(1215,785)">
+    <rect class="card" x="0" y="0" width="300" height="82" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="cardTitle" x="150" y="22" text-anchor="middle" dominant-baseline="middle">Optional resilience</text>
+    <text class="detail" x="150" y="41" text-anchor="middle" dominant-baseline="middle">withResilience { ... }</text>
+    <text class="detail" x="150" y="60" text-anchor="middle" dominant-baseline="middle">Retry + get failure strategy</text>
+  </g>
+  <g transform="translate(76,976)">
+    <rect class="labelPill" x="0" y="0" width="1528" height="48" rx="10"/>
+    <text class="small" x="764" y="24" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects / cache modules - github.com/bluetape4k/bluetape4k-projects</text>
+  </g>
 </svg>

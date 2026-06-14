@@ -25,7 +25,7 @@
 <text class="title" x="66" y="82">HTTP (HC5)</text>
 <text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
 <path class="dashed" d="M1082 180 L1082 122 L262 122 L262 350"/>
-<path class="line" d="M672 350 L672 410 L877 410 L877 481"/>
+<path class="line" d="M600 350 L600 410 L877 410 L877 481"/>
 <path class="line" d="M672 180 L672 402 L1492 402 L1492 292"/>
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="170" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>

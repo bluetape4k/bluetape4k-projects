@@ -1,0 +1,17 @@
+graph 1 6.9045 6.9826
+node caller 1.658 6.4028 3.316 0.5 "Application / JCache client" rounded,filled box #75A9E8 #E8F3FF
+node near 3.533 4.8646 2.2118 0.5 "NearJCache<K,V>" rounded,filled box #69B888 #EAF7EF
+node config 5.408 6.4028 2.9931 0.5 "NearJCacheConfig DSL" rounded,filled box #8A72D6 #F1ECFF
+node front 2.2413 3.3264 1.8681 0.5 "Front JCache" rounded,filled box #45A7A1 #E9F7F6
+node back 4.6858 1.7882 1.7951 0.5 "Back JCache" rounded,filled box #D9AA4D #FFF3D9
+node listener 2.2552 0.25 3.3368 0.5 JCacheEntryEventListener rounded,filled box #DB7890 #FCE7F3
+node sync 4.8247 3.3264 2.0972 0.5 syncBackCache rounded,filled box #AAB7C4 #F6F8FA
+edge caller near 4 2.8715 6.1488 2.8715 6.1488 2.8715 5.2511 2.8715 5.2511 "JCache calls" 2.158 5.6337 solid #4F83BF
+edge near front 4 2.8012 4.6106 2.8012 4.6106 2.8012 3.7129 2.8012 3.7129 "read first / fill" 3.1997 4.0955 solid #45A7A1
+edge near sync 4 4.2075 4.6106 4.2075 4.6106 4.2075 3.7129 4.2075 3.7129 mutations 5.0747 4.0955 solid #58A978
+edge config near 4 4.2752 6.1488 4.2752 6.1488 4.2752 5.2511 4.2752 5.2511 configures 5.8247 5.6337 solid #8A72D6
+edge front back 7 2.5527 3.073 2.5527 2.6371 2.5527 1.7917 2.5527 1.7917 2.5527 1.7917 3.6552 1.7917 3.6552 1.7917 "front miss lookup" 3.4497 2.5573 solid #D9AA4D
+edge back listener 4 3.8559 1.5342 3.8559 1.5342 3.8559 0.63651 3.8559 0.63651 "entry events" 4.2135 1.0191 solid #DB7890
+edge listener front 4 1.93 0.50175 1.93 0.50175 1.93 2.939 1.93 2.939 "invalidate/update" 2.4774 1.7882 solid #DB7890
+edge sync back 4 4.6858 3.0724 4.6858 3.0724 4.6858 2.1747 4.6858 2.1747 "write-through" 5.3663 2.5573 solid #6B7D90
+stop

@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="3104" height="910" viewBox="0 0 3104 910" role="img" aria-label="Api Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1792" height="1253" viewBox="0 0 1792 1253" role="img" aria-label="Api Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -12,113 +12,113 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="3104" height="910"/>
-<rect class="frame" x="32" y="28" width="3040" height="854" rx="30"/>
+<rect class="canvas" width="1792" height="1253"/>
+<rect class="frame" x="32" y="28" width="1728" height="1197" rx="30"/>
 <text class="title" x="68" y="84">Api Class Structure</text>
-<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="StructuredTaskScopeProvider" data-to="StructuredTaskScopeSupervised" d="M657 306 L849 306" stroke="#3E9868" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="StructuredTaskScopes" data-to="StructuredTaskScopeProvider" d="M487 558 L487 372" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="VirtualThreads" data-to="VirtualThreadRuntime" d="M2489 558 L2489 465 L1680 465 L1680 372" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="PlatformThreadFallback" data-to="VirtualThreadRuntime" d="M1914 588 L1818 588 L1818 342 L1722 342" stroke="#3E9868"/>
-<path class="inherit" data-from="Jdk25VirtualThreadRuntime" data-to="VirtualThreadRuntime" d="M1189 588 L1286 588 L1286 342 L1382 342" stroke="#758297"/>
-<path class="inherit" data-from="Jdk21VirtualThreadRuntime" data-to="VirtualThreadRuntime" d="M1552 558 L1552 372" stroke="#4F83BF"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="StructuredTaskScopeProvider" data-to="StructuredTaskScopeSupervised" data-route-color="teal" d="M1504 530 L1504 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="StructuredTaskScopes" data-to="StructuredTaskScopeProvider" data-route-color="amber" d="M1504 297 L1504 398" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="VirtualThreads" data-to="VirtualThreadRuntime" data-route-color="pink" d="M678 297 L678 398" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="PlatformThreadFallback" data-to="VirtualThreadRuntime" data-route-color="amber" d="M898 661 L873 661 L873 500 L848 500" stroke="#B9851B"/>
+<path class="inherit" data-from="Jdk25VirtualThreadRuntime" data-to="VirtualThreadRuntime" data-route-color="pink" d="M458 661 L483 661 L483 500 L508 500" stroke="#C94D68"/>
+<path class="inherit" data-from="Jdk21VirtualThreadRuntime" data-to="VirtualThreadRuntime" data-route-color="purple" d="M678 631 L678 530" stroke="#755BC6"/>
 <g id="StructuredTaskScopeSupervised">
-  <rect class="classCard" x="849" y="240" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1019" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1019" y="278" text-anchor="middle">StructuredTaskScope</text>
-<text class="classTitle" x="1019" y="300" text-anchor="middle">Supervised</text>
-  <line x1="849" y1="304" x2="1189" y2="304" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="867" y="325">+fork(task) StructuredSubtask~T~</text>
-<text class="member" x="867" y="342">+join()</text>
-<text class="member" x="867" y="359">StructuredTaskScopeSupervised~T~</text>
+  <rect class="classCard" x="1334" y="631" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1504" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="669" text-anchor="middle">StructuredTaskScope</text>
+<text class="classTitle" x="1504" y="691" text-anchor="middle">Supervised</text>
+  <line x1="1334" y1="695" x2="1674" y2="695" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1352" y="716">+fork(task) StructuredSubtask~T~</text>
+<text class="member" x="1352" y="733">+join()</text>
+<text class="member" x="1352" y="750">StructuredTaskScopeSupervised~T~</text>
 </g>
 <g id="StructuredTaskScopeProvider">
-  <rect class="classCard" x="317" y="240" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="487" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="487" y="278" text-anchor="middle">StructuredTaskScope</text>
-<text class="classTitle" x="487" y="300" text-anchor="middle">Provider</text>
-  <line x1="317" y1="304" x2="657" y2="304" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="335" y="325">+providerName: String</text>
-<text class="member" x="335" y="342">+priority: Int</text>
-<text class="member" x="335" y="359">+isSupported() Boolean</text>
+  <rect class="classCard" x="1334" y="398" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1504" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="436" text-anchor="middle">StructuredTaskScope</text>
+<text class="classTitle" x="1504" y="458" text-anchor="middle">Provider</text>
+  <line x1="1334" y1="462" x2="1674" y2="462" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="1352" y="483">+providerName: String</text>
+<text class="member" x="1352" y="500">+priority: Int</text>
+<text class="member" x="1352" y="517">+isSupported() Boolean</text>
 </g>
 <g id="VirtualThreadRuntime">
-  <rect class="classCard" x="1382" y="240" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="1552" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1552" y="287" text-anchor="middle">VirtualThreadRuntime</text>
-  <line x1="1382" y1="296" x2="1722" y2="296" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="1400" y="321">+runtimeName: String</text>
-<text class="member" x="1400" y="338">+priority: Int</text>
-<text class="member" x="1400" y="355">+isSupported() Boolean</text>
+  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="445" text-anchor="middle">VirtualThreadRuntime</text>
+  <line x1="508" y1="454" x2="848" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="526" y="479">+runtimeName: String</text>
+<text class="member" x="526" y="496">+priority: Int</text>
+<text class="member" x="526" y="513">+isSupported() Boolean</text>
 </g>
 <g id="StructuredTaskScopes">
-  <rect class="classCard" x="317" y="558" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="487" y="577" text-anchor="middle">object</text>
-  <text class="classTitle" x="487" y="605" text-anchor="middle">StructuredTaskScopes</text>
-  <line x1="317" y1="614" x2="657" y2="614" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="335" y="639">+failFast(name, factory, block) T</text>
-<text class="member" x="335" y="656">+firstSuccess(name, factory,</text>
-<text class="member" x="335" y="673">block) T</text>
+  <rect class="classCard" x="1334" y="165" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1504" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="212" text-anchor="middle">StructuredTaskScopes</text>
+  <line x1="1334" y1="221" x2="1674" y2="221" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="1352" y="246">+failFast(name, factory, block) T</text>
+<text class="member" x="1352" y="263">+firstSuccess(name, factory,</text>
+<text class="member" x="1352" y="280">block) T</text>
 </g>
 <g id="VirtualThreads">
-  <rect class="classCard" x="2447" y="558" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="2617" y="577" text-anchor="middle">object</text>
-  <text class="classTitle" x="2617" y="605" text-anchor="middle">VirtualThreads</text>
-  <line x1="2447" y1="614" x2="2787" y2="614" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="2465" y="639">+runtime() VirtualThreadRuntime</text>
-<text class="member" x="2465" y="656">+runtimeName() String</text>
-<text class="member" x="2465" y="673">+threadFactory(prefix)</text>
+  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="212" text-anchor="middle">VirtualThreads</text>
+  <line x1="508" y1="221" x2="848" y2="221" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="526" y="246">+runtime() VirtualThreadRuntime</text>
+<text class="member" x="526" y="263">+runtimeName() String</text>
+<text class="member" x="526" y="280">+threadFactory(prefix)</text>
 </g>
 <g id="StructuredTaskScopeAll">
-  <rect class="classCard" x="1914" y="240" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="2084" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="2084" y="287" text-anchor="middle">StructuredTaskScopeAll</text>
-  <line x1="1914" y1="296" x2="2254" y2="296" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1932" y="321">+fork(task) StructuredSubtask~T~</text>
-<text class="member" x="1932" y="338">+join() StructuredTaskScopeAll</text>
-<text class="member" x="1932" y="355">+joinUntil(deadline)</text>
+  <rect class="classCard" x="1334" y="791" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1504" y="810" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="838" text-anchor="middle">StructuredTaskScopeAll</text>
+  <line x1="1334" y1="847" x2="1674" y2="847" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1352" y="872">+fork(task) StructuredSubtask~T~</text>
+<text class="member" x="1352" y="889">+join() StructuredTaskScopeAll</text>
+<text class="member" x="1352" y="906">+joinUntil(deadline)</text>
 </g>
 <g id="StructuredTaskScopeAnyT">
-  <rect class="classCard" x="2447" y="240" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="2617" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="2617" y="287" text-anchor="middle">StructuredTaskScopeAnyT</text>
-  <line x1="2447" y1="296" x2="2787" y2="296" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="2465" y="321">+fork(task) StructuredSubtask~T~</text>
-<text class="member" x="2465" y="338">+join() StructuredTaskScopeAny~T~</text>
-<text class="member" x="2465" y="355">+joinUntil(deadline)</text>
+  <rect class="classCard" x="1334" y="951" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1504" y="970" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="998" text-anchor="middle">StructuredTaskScopeAnyT</text>
+  <line x1="1334" y1="1007" x2="1674" y2="1007" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="1352" y="1032">+fork(task) StructuredSubtask~T~</text>
+<text class="member" x="1352" y="1049">+join() StructuredTaskScopeAny~T~</text>
+<text class="member" x="1352" y="1066">+joinUntil(deadline)</text>
 </g>
 <g id="Jdk25VirtualThreadRuntime">
-  <rect class="classCard" x="849" y="558" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1019" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="1019" y="596" text-anchor="middle">Jdk25VirtualThread</text>
-<text class="classTitle" x="1019" y="618" text-anchor="middle">Runtime</text>
-  <line x1="849" y1="622" x2="1189" y2="622" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="867" y="652">+runtimeName = jdk25</text>
-<text class="member" x="867" y="669">+priority = 25</text>
+  <rect class="classCard" x="118" y="631" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="288" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="669" text-anchor="middle">Jdk25VirtualThread</text>
+<text class="classTitle" x="288" y="691" text-anchor="middle">Runtime</text>
+  <line x1="118" y1="695" x2="458" y2="695" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="136" y="725">+runtimeName = jdk25</text>
+<text class="member" x="136" y="742">+priority = 25</text>
 </g>
 <g id="Jdk21VirtualThreadRuntime">
-  <rect class="classCard" x="1382" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1552" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="1552" y="596" text-anchor="middle">Jdk21VirtualThread</text>
-<text class="classTitle" x="1552" y="618" text-anchor="middle">Runtime</text>
-  <line x1="1382" y1="622" x2="1722" y2="622" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="1400" y="652">+runtimeName = jdk21</text>
-<text class="member" x="1400" y="669">+priority = 21</text>
+  <rect class="classCard" x="508" y="631" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="678" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="669" text-anchor="middle">Jdk21VirtualThread</text>
+<text class="classTitle" x="678" y="691" text-anchor="middle">Runtime</text>
+  <line x1="508" y1="695" x2="848" y2="695" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="526" y="725">+runtimeName = jdk21</text>
+<text class="member" x="526" y="742">+priority = 21</text>
 </g>
 <g id="PlatformThreadFallback">
-  <rect class="classCard" x="1914" y="558" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="2084" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="2084" y="605" text-anchor="middle">PlatformThreadFallback</text>
-  <line x1="1914" y1="614" x2="2254" y2="614" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1932" y="648">+runtimeName = platform-fallback</text>
-<text class="member" x="1932" y="665">+priority = MIN_VALUE</text>
+  <rect class="classCard" x="898" y="631" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1068" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="678" text-anchor="middle">PlatformThreadFallback</text>
+  <line x1="898" y1="687" x2="1238" y2="687" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="916" y="721">+runtimeName = platform-fallback</text>
+<text class="member" x="916" y="738">+priority = MIN_VALUE</text>
 </g>
 <g>
-  <rect x="2689" y="802" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M2707 820 L2765 820" stroke="#3E9868"/>
-  <text class="detail" x="2779" y="825">inheritance / implementation</text>
-  <path class="dependency" d="M2707 841 L2765 841" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="2779" y="846">dependency / usage</text>
+  <rect x="1377" y="1145" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1395 1163 L1453 1163" stroke="#3E9868"/>
+  <text class="detail" x="1467" y="1168">inheritance / implementation</text>
+  <path class="dependency" d="M1395 1184 L1453 1184" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1467" y="1189">dependency / usage</text>
 </g>
-<g><rect x="180" y="820" width="2464" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1412" y="846" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
+<g><rect x="180" y="1163" width="1152" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="756" y="1189" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

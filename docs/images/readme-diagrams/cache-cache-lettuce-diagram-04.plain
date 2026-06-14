@@ -1,15 +1,18 @@
-graph 1 5.8656 2.0923
-node node_0_0 2.153 0.91149 4.306 1.556 «interface» rounded,filled box #9AA8B8 #F7FBFF
-node node_0_1 2.2336 0.91149 4.306 1.556 LettuceNearCacheConfig rounded,filled box #9AA8B8 #F7FBFF
-node node_0_2 2.3143 0.91149 4.306 1.556 "Tracking Invalidation" rounded,filled box #9AA8B8 #F7FBFF
-node node_1_0 2.153 0.84474 4.306 1.556 «interface» rounded,filled box #9AA8B8 #F7FBFF
-node node_1_1 2.2739 0.84474 4.306 1.556 "«interface» Suspend Near" rounded,filled box #9AA8B8 #F7FBFF
-node node_2_0 2.153 0.778 4.306 1.556 "Lettuce Caffeine Local" rounded,filled box #9AA8B8 #F7FBFF
-node node_2_1 2.2739 0.778 4.306 1.556 "Lettuce Suspend Near" rounded,filled box #9AA8B8 #F7FBFF
-edge node_0_0 node_0_1 4 2.2327 0.91149 2.2329 0.91149 2.233 0.91149 2.2331 0.91149 solid #758297
-edge node_0_1 node_0_2 4 2.3134 0.91149 2.3135 0.91149 2.3136 0.91149 2.3137 0.91149 solid #758297
-edge node_0_2 node_1_0 4 2.1548 0.84549 2.1545 0.84536 2.1543 0.84526 2.154 0.84516 solid #758297
-edge node_1_0 node_1_1 4 2.2726 0.84474 2.2728 0.84474 2.273 0.84474 2.2732 0.84474 solid #758297
-edge node_1_1 node_2_0 4 2.1544 0.77875 2.1541 0.77863 2.1539 0.77852 2.1538 0.77843 solid #758297
-edge node_2_0 node_2_1 4 2.2726 0.778 2.2728 0.778 2.273 0.778 2.2732 0.778 solid #758297
+graph 1 8.3247 6.9826
+node caller 2.0278 6.4028 2.0972 0.5 "Application code" rounded,filled box #75A9E8 #E8F3FF
+node facade 3.2639 4.8646 3.441 0.5 "LettuceNearCache variants" rounded,filled box #69B888 #EAF7EF
+node keys 4.5 6.4028 1.6493 0.5 "Key isolation" rounded,filled box #8A72D6 #F1ECFF
+node front 1.7778 3.3264 3.5556 0.5 LettuceCaffeineLocalCache rounded,filled box #45A7A1 #E9F7F6
+node redis 4.4583 1.7882 1.8889 0.5 "Redis backend" rounded,filled box #D9AA4D #FFF3D9
+node tracking 1.7778 0.25 3.3889 0.5 TrackingInvalidationListener rounded,filled box #DB7890 #FCE7F3
+node queue 7.125 6.4028 2.3993 0.5 "Resilient write lane" rounded,filled box #69B888 #EAF7EF
+node push 5.3333 0.25 2.5139 0.5 "Redis push message" rounded,filled box #DB7F75 #FDECEC
+edge caller facade 4 2.3099 6.1488 2.3099 6.1488 2.3099 5.2511 2.3099 5.2511 "cache API" 2.4028 5.6337 solid #4F83BF
+edge facade front 4 2.5495 4.6106 2.5495 4.6106 2.5495 3.7129 2.5495 3.7129 "read first" 3.0833 4.0955 solid #45A7A1
+edge facade redis 4 4.5081 4.6128 4.5081 4.6128 4.5081 2.1756 4.5081 2.1756 "write-through" 5.2917 3.3264 solid #58A978
+edge keys facade 4 4.3299 6.1488 4.3299 6.1488 4.3299 5.2511 4.3299 5.2511 configures 4.9167 5.6337 solid #8A72D6
+edge front redis 7 3.5593 3.3333 3.8358 3.3333 4.0318 3.3333 4.0318 3.3333 4.0318 3.3333 4.0318 2.1755 4.0318 2.1755 "miss lookup" 3.5694 2.5573 solid #D9AA4D
+edge redis tracking 7 3.7951 1.5342 3.7951 1.0973 3.7951 0.25 3.7951 0.25 3.7951 0.25 3.6076 0.25 3.6076 0.25 "push event" 3.7083 1.0191 solid #DB7890
+edge redis push 4 4.7396 1.5342 4.7396 1.5342 4.7396 0.63651 4.7396 0.63651 invalidates 5.7917 1.0191 dashed #C85D55
+edge tracking front 4 1.7778 0.50175 1.7778 0.50175 1.7778 2.939 1.7778 2.939 invalidate 2.1944 1.7882 solid #DB7890
 stop

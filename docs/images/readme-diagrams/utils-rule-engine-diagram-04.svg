@@ -24,8 +24,8 @@
 <rect class="frame" x="32" y="28" width="1302" height="760" rx="28"/>
 <text class="title" x="66" y="82">Composite Rules</text>
 <text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<path class="inheritLine" d="M1103 484 L1103 409 L683 409 L683 334"/>
-<path class="inheritLine" d="M263 484 L263 401 L683 401 L683 334"/>
+<path class="inheritLine" d="M1103 484 L1103 409 L760 409 L760 334"/>
+<path class="inheritLine" d="M263 484 L263 401 L606 401 L606 334"/>
 <path class="inheritLine" d="M683 484 L683 334"/>
 <g transform="translate(508,180)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>

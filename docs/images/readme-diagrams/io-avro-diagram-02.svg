@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1020" viewBox="0 0 1320 1020" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1180" viewBox="0 0 1480 1180" role="img" aria-labelledby="title desc">
   <title id="title">Avro codec selection guide</title>
   <desc id="desc">Flowchart-style selection guide for Avro codec factories showing default, Snappy, archive, null codec, and custom codec choices before ByteArray output.</desc>
   <defs>
@@ -14,7 +14,7 @@
       .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
       .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
       .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
       .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
       .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
@@ -23,81 +23,79 @@
       .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
   </defs>
-  <rect class="canvas" width="1320" height="1020"/>
-  <rect class="frame" x="34" y="30" width="1252" height="960" rx="28"/>
+  <rect class="canvas" width="1480" height="1180"/>
+  <rect class="frame" x="34" y="30" width="1412" height="1120" rx="28"/>
   <text class="title" x="72" y="88">Avro codec selection guide</text>
   <text class="subtitle" x="76" y="121">Pick the compression profile from workload intent, then route every branch into the same ByteArray output path.</text>
 
   <g id="group-decision">
-    <rect class="group" x="76" y="154" width="1168" height="600" rx="18"/>
-    <text class="group-title" x="106" y="178" dominant-baseline="middle">Selection flow</text>
+    <rect class="group" x="76" y="154" width="590" height="820" rx="18"/>
+    <text class="groupTitle" x="106" y="172" dominant-baseline="middle">Selection criteria</text>
+  </g>
+  <g id="group-codec">
+    <rect class="group" x="770" y="154" width="610" height="960" rx="18"/>
+    <text class="groupTitle" x="800" y="172" dominant-baseline="middle">Codec result</text>
   </g>
 
-  <path id="route-start-compression" class="connector" d="M660 281 L660 310" stroke="#4F83BF"/>
-  <path id="route-compression-throughput" class="connector" d="M510 375 L290 375 L290 510" stroke="#45A7A1"/>
-  <path id="route-compression-deflate" class="connector" d="M660 440 L660 560" stroke="#58A978"/>
-  <path id="route-compression-archive" class="connector" d="M810 375 L1010 375 L1010 510" stroke="#D9AA4D"/>
-  <path id="route-throughput-snappy" class="connector" d="M290 636 L290 660" stroke="#45A7A1"/>
-  <path id="route-archive-zstd" class="connector" d="M1010 636 L1010 660" stroke="#D9AA4D"/>
-  <path id="route-deflate-output" class="connector" d="M660 632 L660 860" stroke="#58A978"/>
-  <path id="route-snappy-output" class="connector" d="M290 732 L290 775 L560 775 L560 860" stroke="#45A7A1"/>
-  <path id="route-zstd-output" class="connector" d="M1010 732 L1010 775 L760 775 L760 860" stroke="#D9AA4D"/>
-  <path id="route-null-output" class="connector" d="M430 836 L452 836 L452 896 L465 896" stroke="#6B7D90"/>
+  <path id="route-start-compression" class="connector" d="M370 286 L370 350" stroke="#4F83BF"/>
+  <path id="route-compression-null" class="connector" d="M530 416 L875 416" stroke="#6B7D90"/>
+  <path id="route-compression-throughput" class="connector" d="M370 482 L370 535" stroke="#45A7A1"/>
+  <path id="route-throughput-snappy" class="connector" d="M530 601 L760 601 L760 568 L875 568" stroke="#45A7A1"/>
+  <path id="route-throughput-archive" class="connector" d="M370 667 L370 720" stroke="#D9AA4D"/>
+  <path id="route-archive-zstd" class="connector" d="M530 786 L760 786 L760 738 L875 738" stroke="#D9AA4D"/>
+  <path id="route-archive-deflate" class="connector" d="M370 852 L370 878 L875 878" stroke="#58A978"/>
+  <path id="route-deflate-output" class="connector" d="M1050 916 L1050 1000" stroke="#58A978"/>
 
-  <g id="node-start" transform="translate(465,205)">
-    <rect class="card-shape" x="0" y="0" width="390" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="195" y="28.5" text-anchor="middle" dominant-baseline="middle">Start with payload workload</text>
-    <text class="detail" x="195" y="47.5" text-anchor="middle" dominant-baseline="middle">schema + record stream</text>
+  <g id="node-start" transform="translate(190,210)">
+    <rect class="card-shape" x="0" y="0" width="360" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
+    <text class="card-title" x="180" y="28.5" text-anchor="middle" dominant-baseline="middle">Start with payload workload</text>
+    <text class="detail" x="180" y="47.5" text-anchor="middle" dominant-baseline="middle">schema + record stream</text>
   </g>
-  <g id="node-compression" transform="translate(510,310)">
-    <polygon class="card-shape" points="150,0 300,65 150,130 0,65" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="150" y="55.5" text-anchor="middle" dominant-baseline="middle">Need compression?</text>
-    <text class="detail" x="150" y="74.5" text-anchor="middle" dominant-baseline="middle">storage or network pressure</text>
+  <g id="node-compression" transform="translate(210,350)">
+    <polygon class="card-shape" points="160,0 320,66 160,132 0,66" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="card-title" x="160" y="56.5" text-anchor="middle" dominant-baseline="middle">Need compression?</text>
+    <text class="detail" x="160" y="75.5" text-anchor="middle" dominant-baseline="middle">storage or network pressure</text>
   </g>
-  <g id="node-throughput" transform="translate(150,510)">
-    <polygon class="card-shape" points="140,0 280,63 140,126 0,63" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="140" y="53.5" text-anchor="middle" dominant-baseline="middle">Fast local transfer?</text>
-    <text class="detail" x="140" y="72.5" text-anchor="middle" dominant-baseline="middle">low CPU overhead</text>
+  <g id="node-throughput" transform="translate(210,535)">
+    <polygon class="card-shape" points="160,0 320,66 160,132 0,66" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="160" y="56.5" text-anchor="middle" dominant-baseline="middle">Fast local transfer?</text>
+    <text class="detail" x="160" y="75.5" text-anchor="middle" dominant-baseline="middle">low CPU overhead</text>
   </g>
-  <g id="node-snappy" transform="translate(120,660)">
-    <rect class="card-shape" x="0" y="0" width="340" height="72" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="170" y="17" text-anchor="middle" dominant-baseline="middle">SNAPPY_CODEC_FACTORY</text>
-    <text class="detail" x="170" y="36" text-anchor="middle" dominant-baseline="middle">fast transfer</text>
-    <text class="detail" x="170" y="55" text-anchor="middle" dominant-baseline="middle">balanced size</text>
+  <g id="node-archive" transform="translate(210,720)">
+    <polygon class="card-shape" points="160,0 320,66 160,132 0,66" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="160" y="56.5" text-anchor="middle" dominant-baseline="middle">Small archive?</text>
+    <text class="detail" x="160" y="75.5" text-anchor="middle" dominant-baseline="middle">long-lived files</text>
   </g>
-  <g id="node-deflate" transform="translate(490,560)">
-    <rect class="card-shape" x="0" y="0" width="340" height="72" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="170" y="17" text-anchor="middle" dominant-baseline="middle">DEFAULT_CODEC_FACTORY</text>
-    <text class="detail" x="170" y="36" text-anchor="middle" dominant-baseline="middle">Deflate default</text>
-    <text class="detail" x="170" y="55" text-anchor="middle" dominant-baseline="middle">general purpose</text>
+  <g id="node-null" transform="translate(875,360)">
+    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
+    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">NULL_CODEC_FACTORY</text>
+    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">external codec</text>
+    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">raw Avro block</text>
   </g>
-  <g id="node-archive" transform="translate(870,510)">
-    <polygon class="card-shape" points="140,0 280,63 140,126 0,63" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="140" y="53.5" text-anchor="middle" dominant-baseline="middle">Small archive?</text>
-    <text class="detail" x="140" y="72.5" text-anchor="middle" dominant-baseline="middle">long-lived files</text>
+  <g id="node-snappy" transform="translate(875,530)">
+    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
+    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">SNAPPY_CODEC_FACTORY</text>
+    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">fast transfer</text>
+    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">balanced size</text>
   </g>
-  <g id="node-zstd" transform="translate(840,660)">
-    <rect class="card-shape" x="0" y="0" width="340" height="72" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="170" y="17" text-anchor="middle" dominant-baseline="middle">ARCHIVE_CODEC_FACTORY</text>
-    <text class="detail" x="170" y="36" text-anchor="middle" dominant-baseline="middle">Zstandard level 9</text>
-    <text class="detail" x="170" y="55" text-anchor="middle" dominant-baseline="middle">smallest archive</text>
+  <g id="node-zstd" transform="translate(875,700)">
+    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">ARCHIVE_CODEC_FACTORY</text>
+    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">Zstandard level 9</text>
+    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">smallest archive</text>
   </g>
-  <g id="node-null" transform="translate(150,800)">
-    <rect class="card-shape" x="0" y="0" width="280" height="72" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
-    <text class="card-title" x="140" y="17" text-anchor="middle" dominant-baseline="middle">NULL_CODEC_FACTORY</text>
-    <text class="detail" x="140" y="36" text-anchor="middle" dominant-baseline="middle">external codec</text>
-    <text class="detail" x="140" y="55" text-anchor="middle" dominant-baseline="middle">raw Avro block</text>
+  <g id="node-deflate" transform="translate(875,840)">
+    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
+    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">DEFAULT_CODEC_FACTORY</text>
+    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">Deflate default</text>
+    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">general purpose</text>
   </g>
-  <g id="node-output" transform="translate(465,860)">
-    <rect class="card-shape" x="0" y="0" width="390" height="72" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="195" y="17" text-anchor="middle" dominant-baseline="middle">ByteArray output</text>
-    <text class="detail" x="195" y="36" text-anchor="middle" dominant-baseline="middle">encoder emits bytes</text>
-    <text class="detail" x="195" y="55" text-anchor="middle" dominant-baseline="middle">shared read path</text>
+  <g id="node-output" transform="translate(875,1000)">
+    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
+    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">ByteArray output</text>
+    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">all codec branches join</text>
+    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">shared read path</text>
   </g>
 
-  <g transform="translate(76,946)">
-    <rect class="pill" x="0" y="0" width="1168" height="44" rx="10"/>
-    <text class="small" x="584" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: io-avro-diagram-02.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="584" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=9, r=10, seg=18, endpoint/bend/cross/overlap/clear/label=0, margins=120/140/84/14, titleGap=84.</text>
-  </g>
+
 </svg>

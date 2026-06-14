@@ -1,72 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="998" height="1246" viewBox="0 0 998 1246" role="img" aria-label="Class Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="1040" viewBox="0 0 1420 1040" role="img" aria-label="gRPC Class Hierarchy">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:43px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#F7FBFF;stroke-width:5px;stroke-linejoin:round}
+    .card,.classCard{filter:url(#shadow);stroke-width:2}.cardTitle,.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:13px;fill:#102033}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .note{stroke-width:1.6}.flow{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
   </style>
 </defs>
-<rect class="canvas" width="998" height="1246"/>
-<rect class="frame" x="32" y="28" width="934" height="1190" rx="28"/>
-<text class="title" x="66" y="82">Class Hierarchy</text>
-<text class="subtitle" x="70" y="104">Source-checked class relationships with readable compartments and routed inheritance.</text>
-<path class="inheritLine" d="M724 505 L724 430 L274 430 L274 355"/>
-<path class="inheritLine" d="M499 851 L499 768 L274 768 L274 701"/>
-<path class="implLine" d="M274 505 L274 414 L724 414 L724 355"/>
-<g transform="translate(84,180)">
-  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#5B8DEF"/>
-    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcClient</text>
-  <text class="mono" x="18" y="108">#channel: ManagedChannel?</text>
-<text class="mono" x="18" y="129">+connect()</text>
-<text class="mono" x="18" y="150">+close()</text>
+<rect class="canvas" width="1420" height="1040"/>
+<rect class="frame" x="32" y="28" width="1356" height="984" rx="30"/>
+<text class="title" x="68" y="84">gRPC Class Hierarchy</text>
+<text class="subtitle" x="72" y="116">Server lifecycle and client channel families are separated before in-process test helpers are connected.</text>
+<path class="inherit" data-from="AbstractGrpcServer" data-to="GrpcServer" d="M320 395 L320 306" stroke="#4F83BF"/>
+<path class="inherit" data-from="AbstractGrpcInprocessServer" data-to="AbstractGrpcServer" d="M320 620 L320 537" stroke="#2E8F89"/>
+<path class="inherit" data-from="AbstractGrpcInprocessClient" data-to="AbstractGrpcClient" d="M1060 620 L1060 306" stroke="#3E9868"/>
+<path class="dependency" data-from="AbstractGrpcInprocessServer" data-to="AbstractGrpcInprocessClient" d="M490 691 L890 691" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="AbstractGrpcServer" data-to="ServerSupport" d="M490 466 L545 466" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="AbstractGrpcClient" data-to="ManagedChannelSupport" d="M1230 243 L1300 243 L1300 863 L1230 863" stroke="#718A35" stroke-dasharray="8 7"/>
+<g id="GrpcServer">
+  <rect class="classCard" x="150" y="180" width="340" height="126" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <path d="M150 250 L490 250" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="stereo" x="320" y="202" text-anchor="middle">interface</text>
+  <text class="classTitle" x="320" y="230" text-anchor="middle">GrpcServer</text>
+  <text class="member" x="168" y="272">start / stop / close</text>
+<text class="member" x="168" y="292">isRunning / isShutdown</text>
 </g>
-<g transform="translate(534,180)">
-  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#58A978"/>
-  <text class="small" x="190" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="190" y="61" text-anchor="middle">GrpcServer</text>
-  <text class="mono" x="18" y="108">+start()</text>
-<text class="mono" x="18" y="129">+stop()</text>
-<text class="mono" x="18" y="150">+blockUntilShutdown()</text>
+<g id="AbstractGrpcClient">
+  <rect class="classCard" x="890" y="180" width="340" height="126" rx="10" fill="#EAF7EF" stroke="#58A978"/>
+  <path d="M890 250 L1230 250" stroke="#58A978" stroke-width="1.4"/>
+  <text class="stereo" x="1060" y="202" text-anchor="middle">abstract class</text>
+  <text class="classTitle" x="1060" y="230" text-anchor="middle">AbstractGrpcClient</text>
+  <text class="member" x="908" y="272">ManagedChannel lifecycle</text>
+<text class="member" x="908" y="292">close with shutdownNow fallback</text>
 </g>
-<g transform="translate(84,505)">
-  <rect class="card" x="0" y="0" width="380" height="196" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#D6A441"/>
-    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcServer</text>
-  <text class="mono" x="18" y="108">#server: Server?</text>
-<text class="mono" x="18" y="129">+start()</text>
-<text class="mono" x="18" y="150">+stop()</text>
-<text class="mono" x="18" y="171">+blockUntilShutdown()</text>
+<g id="AbstractGrpcServer">
+  <rect class="classCard" x="150" y="395" width="340" height="142" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
+  <path d="M150 465 L490 465" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="stereo" x="320" y="417" text-anchor="middle">abstract class</text>
+  <text class="classTitle" x="320" y="445" text-anchor="middle">AbstractGrpcServer</text>
+  <text class="member" x="168" y="493">ServerBuilder + services</text>
+<text class="member" x="168" y="513">shutdown hook registration</text>
 </g>
-<g transform="translate(534,505)">
-  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#DC6B82"/>
-    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcInprocessClient</text>
-  <text class="mono" x="18" y="108">#serverName: String</text>
-<text class="mono" x="18" y="129">+connect()</text>
-<text class="mono" x="18" y="150">+close()</text>
+<g id="AbstractGrpcInprocessClient">
+  <rect class="classCard" x="890" y="620" width="340" height="142" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
+  <path d="M890 690 L1230 690" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="stereo" x="1060" y="642" text-anchor="middle">abstract class</text>
+  <text class="classTitle" x="1060" y="670" text-anchor="middle">AbstractGrpcInprocessClient</text>
+  <text class="member" x="908" y="718">InProcessChannelBuilder</text>
+<text class="member" x="908" y="738">serverName target</text>
 </g>
-<g transform="translate(309,851)">
-  <rect class="card" x="0" y="0" width="380" height="175" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="78" x2="380" y2="78" stroke="#45A7A1"/>
-    <text class="label" x="190" y="49" text-anchor="middle">AbstractGrpcInprocessServer</text>
-  <text class="mono" x="18" y="108">#serverName: String</text>
-<text class="mono" x="18" y="129">+start()</text>
-<text class="mono" x="18" y="150">+stop()</text>
+<g id="AbstractGrpcInprocessServer">
+  <rect class="classCard" x="150" y="620" width="340" height="142" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
+  <path d="M150 690 L490 690" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="stereo" x="320" y="642" text-anchor="middle">abstract class</text>
+  <text class="classTitle" x="320" y="670" text-anchor="middle">AbstractGrpcInprocessServer</text>
+  <text class="member" x="168" y="718">InProcessServerBuilder</text>
+<text class="member" x="168" y="738">same serverName contract</text>
 </g>
+<g id="ServerSupport">
+  <rect class="classCard" x="545" y="395" width="300" height="126" rx="10" fill="#FDECEF" stroke="#DC6B82"/>
+  <path d="M545 465 L845 465" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="stereo" x="695" y="417" text-anchor="middle">extensions</text>
+  <text class="classTitle" x="695" y="445" text-anchor="middle">ServerSupport</text>
+  <text class="member" x="563" y="487">serverOf helpers</text>
+<text class="member" x="563" y="507">interceptor utilities</text>
+</g>
+<g id="ManagedChannelSupport">
+  <rect class="classCard" x="890" y="800" width="340" height="126" rx="10" fill="#EEF6D9" stroke="#8BA84D"/>
+  <path d="M890 870 L1230 870" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="stereo" x="1060" y="822" text-anchor="middle">extensions</text>
+  <text class="classTitle" x="1060" y="850" text-anchor="middle">ManagedChannelSupport</text>
+  <text class="member" x="908" y="892">managedChannel builders</text>
+<text class="member" x="908" y="912">host/port validation</text>
+</g>
+<g><rect class="note" x="120" y="952" width="1180" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF"/><text class="detail" x="710" y="978" text-anchor="middle">bluetape4k-projects / io:grpc - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

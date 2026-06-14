@@ -8,7 +8,7 @@ const OUT = join(process.cwd(), "docs/images/readme-diagrams");
 const WORKLIST = process.env.CLASS_WORKLIST || "/tmp/bluetape4k-projects-diagram-redraw/kind-worklist.tsv";
 const rsvg = "/opt/homebrew/bin/rsvg-convert";
 const manualGenerator = join(process.cwd(), "scripts/generate-graphviz-class-diagrams.mjs");
-const manualFiles = new Set(["io-fastjson2-diagram-01", "io-jackson2-diagram-01"]);
+const manualFiles = new Set(["io-fastjson2-diagram-01", "io-jackson2-diagram-01", "io-io-diagram-01"]);
 
 const palette = {
   blue: ["#E8F3FF", "#5B8DEF", "#4F83BF"],
@@ -18,9 +18,17 @@ const palette = {
   pink: ["#FDECEF", "#DC6B82", "#C94D68"],
   purple: ["#F1ECFF", "#8A72D6", "#755BC6"],
   olive: ["#EEF6D9", "#8BA84D", "#718A35"],
+  indigo: ["#EEF1FF", "#6477D8", "#4F63C7"],
+  coral: ["#FFF0EA", "#E27D62", "#C8644B"],
+  brown: ["#F7EFE5", "#B58A55", "#8E6D43"],
+  cyan: ["#EAF8FF", "#4DA6D8", "#2E83B8"],
+  magenta: ["#FCEBFA", "#C867B8", "#A84B98"],
+  lime: ["#EFF8E8", "#7EAD4E", "#5F8B35"],
+  navy: ["#EAF0F8", "#617C9F", "#496581"],
   gray: ["#F2F5F9", "#9AA8B8", "#758297"],
 };
 const colorNames = ["blue", "green", "teal", "amber", "pink", "purple", "olive", "gray"];
+const routeColorNames = ["green", "blue", "teal", "amber", "pink", "purple", "olive", "indigo", "coral", "brown", "cyan", "magenta", "lime", "navy"];
 
 const targets = loadTargets();
 mkdirSync(OUT, { recursive: true });
@@ -68,15 +76,15 @@ function extractDiagram(file, svg) {
     ...item,
     color: colorNames[index % colorNames.length],
   }));
-  const edges = extractEdges(svg, nodes);
+  const edges = distinguishRouteColors(extractEdges(svg, nodes));
   if (nodes.length < 2) throw new Error(`${file}: expected at least two class cards`);
   return {
     file,
     title: normalizeTitle(title),
-    subtitle: "Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.",
+    subtitle: "Source-ranked class model with short colored inheritance and dependency routes.",
     rankdir: "TB",
     nodes,
-    edges: edges.length > 0 ? edges : fallbackEdges(nodes),
+    edges: edges.length > 0 ? edges : distinguishRouteColors(fallbackEdges(nodes)),
   };
 }
 
@@ -253,6 +261,17 @@ function uniqueEdges(edges) {
   return result.slice(0, 24);
 }
 
+function distinguishRouteColors(edges) {
+  return edges.map((edge, index) => {
+    const offset = edge.kind === "inherit" ? 0 : 2;
+    return {
+      ...edge,
+      color: routeColorNames[(index + offset) % routeColorNames.length],
+      laneIndex: index,
+    };
+  });
+}
+
 function fallbackEdges(nodes) {
   return nodes.slice(0, -1).map((node, index) => ({
     from: node.id,
@@ -276,7 +295,7 @@ function render(diagram) {
   execFileSync("dot", ["-Tpng", dotPath, "-o", sketchPngPath], { stdio: "inherit" });
   const layout = parsePlain(readFileSync(plainPath, "utf8"), diagram);
   const svg = toFinalSvg(diagram, layout);
-  writeFileSync(finalSvgPath, svg);
+  writeFileSync(finalSvgPath, cleanSvg(svg));
   execFileSync(rsvg, ["--format=png", "--output", finalPngPath, finalSvgPath], { stdio: "inherit" });
   console.log(`${diagram.file}: class nodes=${diagram.nodes.length} edges=${diagram.edges.length}`);
 }
@@ -343,20 +362,21 @@ function parsePlain(plain, diagram) {
 function toFinalSvg(diagram, layout) {
   let positioned;
   let size;
-  for (const scale of [142, 158, 176, 196, 218]) {
+  for (const scale of [104, 118, 132, 146, 162, 184, 206, 228]) {
     const attempt = positionNodes(layout, scale, diagram.edges);
-    if (countOverlaps([...attempt.positioned.values()]) === 0) {
-      positioned = attempt.positioned;
-      size = attempt.size;
+    const packed = balanceClassAspect(packDisconnectedComponents(attempt.positioned, diagram.edges, attempt.size).positioned, diagram.edges);
+    if (countOverlaps([...packed.positioned.values()]) === 0) {
+      positioned = packed.positioned;
+      size = packed.size;
       break;
     }
-    positioned = attempt.positioned;
-    size = attempt.size;
+    positioned = packed.positioned;
+    size = packed.size;
   }
 
   const routeSvg = diagram.edges.map((item) => renderEdge(item, positioned, [...positioned.values()])).join("\n");
   const nodeSvg = [...positioned.values()].map(renderClassCard).join("\n");
-  const body = `${routeSvg}\n${nodeSvg}\n${legend(size.width - 415, size.height - 108)}\n${footer(180, size.height - 90, size.width - 640, "Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.")}`;
+  const body = `${routeSvg}\n${nodeSvg}\n${legend(size.width - 415, size.height - 108)}\n${footer(180, size.height - 90, size.width - 640, "bluetape4k-projects class diagrams - github.com/bluetape4k/bluetape4k-projects")}`;
   return base(size.width, size.height, diagram.title, diagram.subtitle, body);
 }
 
@@ -380,43 +400,172 @@ function positionNodes(layout, scale, edges) {
 
 function packDisconnectedComponents(positioned, edges, size) {
   const components = connectedComponents([...positioned.keys()], edges);
-  if (components.length <= 2 || size.width <= 2300) return { positioned, size };
-
-  const targetInnerW = 1780;
-  const gapX = 110;
-  const gapY = 105;
-  let cursorX = 0;
-  let cursorY = 0;
-  let rowH = 0;
-  let maxW = 0;
+  if (components.length <= 1) return { positioned, size };
 
   const boxes = components
     .map((ids) => ({ ids, box: componentBox(ids, positioned) }))
-    .sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x);
+    .sort((a, b) => b.ids.length - a.ids.length || b.box.h - a.box.h || a.box.x - b.box.x);
 
-  for (const item of boxes) {
-    const componentW = item.box.w;
-    const componentH = item.box.h;
-    if (cursorX > 0 && cursorX + componentW > targetInnerW) {
-      maxW = Math.max(maxW, cursorX - gapX);
-      cursorX = 0;
-      cursorY += rowH + gapY;
-      rowH = 0;
+  const marginX = 118;
+  const marginTop = 165;
+  const gapX = 96;
+  const gapY = 28;
+  const main = boxes[0];
+  const sidecars = boxes.slice(1).sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x);
+
+  moveComponent(main.ids, positioned, marginX - main.box.x, marginTop - main.box.y);
+
+  const mainBox = componentBox(main.ids, positioned);
+  if (sidecars.length > 0 && (mainBox.w / Math.max(1, mainBox.h) > 2.4 || mainBox.w > 2500)) {
+    const maxCols = Math.max(2, Math.ceil(Math.sqrt(sidecars.length)));
+    let rowY = Math.round(mainBox.y + mainBox.h + gapY + 24);
+    for (let index = 0; index < sidecars.length; index += 1) {
+      const item = sidecars[index];
+      const box = componentBox(item.ids, positioned);
+      const col = index % maxCols;
+      const row = Math.floor(index / maxCols);
+      const targetX = marginX + col * (box.w + gapX);
+      const targetY = rowY + row * (box.h + gapY);
+      moveComponent(item.ids, positioned, targetX - box.x, targetY - box.y);
     }
-    const dx = size.marginX + cursorX - item.box.x;
-    const dy = size.marginTop + cursorY - item.box.y;
-    for (const id of item.ids) {
-      const node = positioned.get(id);
-      node.x = Math.round(node.x + dx);
-      node.y = Math.round(node.y + dy);
-    }
-    cursorX += componentW + gapX;
-    rowH = Math.max(rowH, componentH);
+    return normalizePositionedCanvas(positioned);
   }
-  maxW = Math.max(maxW, cursorX - gapX);
-  const width = Math.max(1500, Math.ceil(maxW + size.marginX * 2));
-  const height = Math.max(780, Math.ceil(size.marginTop + cursorY + rowH + 170));
+  const sideX = Math.round(mainBox.x + mainBox.w + gapX);
+  let sideY = marginTop;
+  let maxSideW = 0;
+  for (const item of sidecars) {
+    const box = componentBox(item.ids, positioned);
+    moveComponent(item.ids, positioned, sideX - box.x, sideY - box.y);
+    const nextBox = componentBox(item.ids, positioned);
+    sideY += nextBox.h + gapY;
+    maxSideW = Math.max(maxSideW, nextBox.w);
+  }
+
+  const allBox = componentBox([...positioned.keys()], positioned);
+  const width = Math.max(1500, Math.ceil(allBox.x + allBox.w + marginX));
+  const height = Math.max(780, Math.ceil(Math.max(allBox.y + allBox.h, sideY - gapY) + 170));
   return { positioned, size: { width, height } };
+}
+
+function balanceClassAspect(positioned, edges) {
+  const balanced = new Map([...positioned.entries()].map(([id, node]) => [id, { ...node }]));
+  for (let pass = 0; pass < 3; pass += 1) {
+    const box = componentBox([...balanced.keys()], balanced);
+    const width = box.w + 236;
+    const height = box.h + 335;
+    if (width / height <= 2.65) break;
+    const before = clonePositioned(balanced);
+    if (!wrapWidestRow(balanced, edges)) break;
+    if (countOverlaps([...balanced.values()]) > 0) {
+      balanced.clear();
+      for (const [id, node] of before) balanced.set(id, node);
+      break;
+    }
+  }
+  return normalizePositionedCanvas(balanced);
+}
+
+function clonePositioned(positioned) {
+  return new Map([...positioned.entries()].map(([id, node]) => [id, { ...node }]));
+}
+
+function wrapWidestRow(positioned, edges) {
+  const rows = clusterRows([...positioned.values()]);
+  const wideRows = rows
+    .map((items) => ({ items, box: componentBox(items.map((node) => node.id), positioned) }))
+    .filter(({ items }) => items.length >= 6)
+    .sort((a, b) => b.box.w - a.box.w || b.items.length - a.items.length);
+  if (wideRows.length === 0) return false;
+
+  const row = wideRows[0].items.toSorted((a, b) => a.x - b.x);
+  const maxCols = Math.max(3, Math.ceil(row.length / 2));
+  const cardW = Math.max(...row.map((node) => node.w));
+  const cardH = Math.max(...row.map((node) => node.h));
+  const gapX = 84;
+  const gapY = 78;
+  const rowWidth = Math.min(wideRows[0].box.w, maxCols * cardW + (maxCols - 1) * gapX);
+  const startX = Math.round(wideRows[0].box.x + Math.max(0, (wideRows[0].box.w - rowWidth) / 2));
+  const startY = Math.round(wideRows[0].box.y);
+  const rowCount = Math.ceil(row.length / maxCols);
+  const extraHeight = (rowCount - 1) * (cardH + gapY);
+  const rowTop = wideRows[0].box.y;
+
+  for (const node of positioned.values()) {
+    if (!row.some((item) => item.id === node.id) && node.y > rowTop + 48) node.y += extraHeight;
+  }
+  row.forEach((node, index) => {
+    const target = positioned.get(node.id);
+    const col = index % maxCols;
+    const wrapRow = Math.floor(index / maxCols);
+    target.x = startX + col * (cardW + gapX);
+    target.y = startY + wrapRow * (cardH + gapY);
+  });
+  return true;
+}
+
+function clusterRows(nodes) {
+  const sorted = nodes.toSorted((a, b) => a.y - b.y || a.x - b.x);
+  const rows = [];
+  for (const node of sorted) {
+    const row = rows.find((items) => Math.abs(items[0].y - node.y) <= 48);
+    if (row) row.push(node);
+    else rows.push([node]);
+  }
+  return rows;
+}
+
+function normalizePositionedCanvas(positioned) {
+  const marginX = 118;
+  const marginTop = 165;
+  const box = componentBox([...positioned.keys()], positioned);
+  const dx = marginX - box.x;
+  const dy = marginTop - box.y;
+  for (const node of positioned.values()) {
+    node.x = Math.round(node.x + dx);
+    node.y = Math.round(node.y + dy);
+  }
+  resolveCardOverlaps(positioned);
+  const allBox = componentBox([...positioned.keys()], positioned);
+  return {
+    positioned,
+    size: {
+      width: Math.max(1500, Math.ceil(allBox.x + allBox.w + marginX)),
+      height: Math.max(780, Math.ceil(allBox.y + allBox.h + 170)),
+    },
+  };
+}
+
+function resolveCardOverlaps(positioned) {
+  const gapX = 84;
+  const gapY = 78;
+  for (let pass = 0; pass < 8; pass += 1) {
+    let moved = false;
+    const nodes = [...positioned.values()].toSorted((a, b) => a.y - b.y || a.x - b.x);
+    for (let i = 0; i < nodes.length; i += 1) {
+      for (let j = i + 1; j < nodes.length; j += 1) {
+        const a = nodes[i];
+        const b = nodes[j];
+        if (!rectsOverlap(a, b)) continue;
+        const horizontalPush = a.x + a.w + gapX - b.x;
+        const verticalPush = a.y + a.h + gapY - b.y;
+        if (horizontalPush <= verticalPush || Math.abs(a.y - b.y) < 42) {
+          b.x += Math.max(gapX, horizontalPush);
+        } else {
+          b.y += Math.max(gapY, verticalPush);
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+}
+
+function moveComponent(ids, positioned, dx, dy) {
+  for (const id of ids) {
+    const node = positioned.get(id);
+    node.x = Math.round(node.x + dx);
+    node.y = Math.round(node.y + dy);
+  }
 }
 
 function connectedComponents(ids, edges) {
@@ -466,7 +615,7 @@ function renderEdge(edge, positioned, nodes) {
   const d = route.map((point, index) => `${index === 0 ? "M" : "L"}${Math.round(point.x)} ${Math.round(point.y)}`).join(" ");
   const cls = edge.kind === "inherit" ? "inherit" : "dependency";
   const dash = edge.kind === "inherit" ? "" : ` stroke-dasharray="8 7"`;
-  return `<path class="${cls}" data-from="${edge.from}" data-to="${edge.to}" d="${d}" stroke="${color}"${dash}/>`;
+  return `<path class="${cls}" data-from="${edge.from}" data-to="${edge.to}" data-route-color="${edge.color}" d="${d}" stroke="${color}"${dash}/>`;
 }
 
 function inheritanceRoute(from, to, nodes) {
@@ -560,7 +709,7 @@ function base(width, height, title, subtitle, body) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(title)}">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -578,6 +727,10 @@ function base(width, height, title, subtitle, body) {
 ${body}
 </svg>
 `;
+}
+
+function cleanSvg(svg) {
+  return `${svg.replace(/[ \t]+$/gm, "").trimEnd()}\n`;
 }
 
 function validateTargets(files) {

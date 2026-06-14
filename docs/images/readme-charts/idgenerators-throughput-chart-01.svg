@@ -312,6 +312,6 @@
 <g>
   <rect class="note" x="94" y="1207" width="1652" height="50" rx="16"/>
   <text class="small" x="920" y="1225" text-anchor="middle" dominant-baseline="middle">Source: utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables</text>
-  <text class="tiny" x="920" y="1243" text-anchor="middle" dominant-baseline="middle">Chart rule: keep benchmark mode, batch size, unit, and direction attached to each panel.</text>
+  <text class="tiny" x="920" y="1243" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
 </g>
 </svg>

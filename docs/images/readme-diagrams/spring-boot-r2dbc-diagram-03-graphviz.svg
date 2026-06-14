@@ -12,12 +12,12 @@
 <!-- select_All_Suspending_select_Suspending_query&#45;&gt;Service_Repository -->
 <g id="edge1" class="edge">
 <title>select_All_Suspending_select_Suspending_query&#45;&gt;Service_Repository</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M155.52,-161.1C155.52,-135.34 155.52,-101.52 155.52,-75.82"/>
+<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M155.52,-161.1C155.52,-135.34 155.52,-101.52 155.52,-75.82"/>
 </g>
 <!-- select_All_Suspending_select_Suspending_query&#45;&gt;insert_Suspending_entity_insert_Or_Null -->
 <g id="edge2" class="edge">
 <title>select_All_Suspending_select_Suspending_query&#45;&gt;insert_Suspending_entity_insert_Or_Null</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M311.44,-199C343.13,-199 367,-199 367,-199 367,-199 367,-123.67 367,-76"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M283.68,-161.15C283.68,-113.42 283.68,-38 283.68,-38 283.68,-38 334.59,-38 385.4,-38"/>
 </g>
 <!-- update_Suspending_query_update&#45;&gt;insert_Suspending_entity_insert_Or_Null -->
 <g id="edge3" class="edge">
@@ -27,7 +27,7 @@
 <!-- update_Suspending_query_update&#45;&gt;delete_Suspending_query_delete_All -->
 <g id="edge4" class="edge">
 <title>update_Suspending_query_update&#45;&gt;delete_Suspending_query_delete_All</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M594.38,-199C619.98,-199 640.02,-199 640.02,-199 640.02,-199 640.02,-38 640.02,-38 640.02,-38 661.39,-38 688.78,-38"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M594.49,-199C613.85,-199 628.02,-199 628.02,-199 628.02,-199 628.02,-38 628.02,-38 628.02,-38 655.38,-38 688.61,-38"/>
 </g>
 <!-- countAllSuspending_count_Suspending_query&#45;&gt;delete_Suspending_query_delete_All -->
 <g id="edge5" class="edge">
@@ -37,7 +37,7 @@
 <!-- countAllSuspending_count_Suspending_query&#45;&gt;R2dbcEntityOperations -->
 <g id="edge6" class="edge">
 <title>countAllSuspending_count_Suspending_query&#45;&gt;R2dbcEntityOperations</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M935.54,-161.15C935.54,-113.42 935.54,-38 935.54,-38 935.54,-38 974.53,-38 1016.42,-38"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" stroke-dasharray="5,2" d="M935.54,-161.15C935.54,-113.42 935.54,-38 935.54,-38 935.54,-38 974.53,-38 1016.42,-38"/>
 </g>
 <!-- Database&#45;&gt;R2dbcEntityOperations -->
 <g id="edge7" class="edge">
@@ -59,8 +59,8 @@
 <!-- insert_Suspending_entity_insert_Or_Null -->
 <g id="node3" class="node">
 <title>insert_Suspending_entity_insert_Or_Null</title>
-<path fill="#e9f7f6" stroke="#45a7a1" d="M606.04,-75.6C606.04,-75.6 367,-75.6 367,-75.6 361,-75.6 355,-69.6 355,-63.6 355,-63.6 355,-12 355,-12 355,-6 361,0 367,0 367,0 606.04,0 606.04,0 612.04,0 618.04,-6 618.04,-12 618.04,-12 618.04,-63.6 618.04,-63.6 618.04,-69.6 612.04,-75.6 606.04,-75.6"/>
-<text xml:space="preserve" text-anchor="middle" x="486.52" y="-33.73" font-family="Comic Mono" font-size="11.00">insert Suspending(entity) insert Or Null</text>
+<path fill="#e9f7f6" stroke="#45a7a1" d="M575.32,-75.6C575.32,-75.6 397.72,-75.6 397.72,-75.6 391.72,-75.6 385.72,-69.6 385.72,-63.6 385.72,-63.6 385.72,-12 385.72,-12 385.72,-6 391.72,0 397.72,0 397.72,0 575.32,0 575.32,0 581.32,0 587.32,-6 587.32,-12 587.32,-12 587.32,-63.6 587.32,-63.6 587.32,-69.6 581.32,-75.6 575.32,-75.6"/>
+<text xml:space="preserve" text-anchor="middle" x="486.52" y="-33.73" font-family="Comic Mono" font-size="11.00">insert Suspending(entity)</text>
 </g>
 <!-- update_Suspending_query_update -->
 <g id="node4" class="node">
@@ -90,7 +90,7 @@
 <g id="node8" class="node">
 <title>Database</title>
 <path fill="#f2f5f9" stroke="#9aa8b8" d="M1206.32,-237.2C1206.32,-237.2 1028.72,-237.2 1028.72,-237.2 1022.72,-237.2 1016.72,-231.2 1016.72,-225.2 1016.72,-225.2 1016.72,-173.6 1016.72,-173.6 1016.72,-167.6 1022.72,-161.6 1028.72,-161.6 1028.72,-161.6 1206.32,-161.6 1206.32,-161.6 1212.32,-161.6 1218.32,-167.6 1218.32,-173.6 1218.32,-173.6 1218.32,-225.2 1218.32,-225.2 1218.32,-231.2 1212.32,-237.2 1206.32,-237.2"/>
-<text xml:space="preserve" text-anchor="middle" x="1117.52" y="-195.33" font-family="Comic Mono" font-size="11.00">(Database)</text>
+<text xml:space="preserve" text-anchor="middle" x="1117.52" y="-195.33" font-family="Comic Mono" font-size="11.00">Database</text>
 </g>
 </g>
 </svg>

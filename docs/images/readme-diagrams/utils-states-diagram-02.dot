@@ -19,16 +19,16 @@ digraph G {
   SuspendStateMachineInterface [label="SuspendStateMachineInterface", fillcolor="#EEF6D9", color="#8BA84D"];
   DefaultStateMachine [label="DefaultStateMachine", fillcolor="#F2F5F9", color="#9AA8B8"];
   SuspendStateMachine [label="SuspendStateMachine", fillcolor="#E8F3FF", color="#5B8DEF"];
-  SuspendStateMachine -> StateMachineException [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  DefaultStateMachine -> StateMachineException [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  SuspendStateMachine -> TransitionResult [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  DefaultStateMachine -> TransitionResult [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  SuspendStateMachine -> TransitionTarget [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  SuspendStateMachine -> TransitionKey [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  DefaultStateMachine -> TransitionTarget [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  DefaultStateMachine -> TransitionKey [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  SuspendStateMachineInterface -> SuspendStateMachine [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
-  StateMachine -> DefaultStateMachine [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
-  BaseStateMachine -> SuspendStateMachineInterface [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  BaseStateMachine -> StateMachine [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  SuspendStateMachine -> StateMachineException [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> StateMachineException [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachine -> TransitionResult [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> TransitionResult [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachine -> TransitionTarget [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachine -> TransitionKey [color="#4F63C7", fontcolor="#4F63C7", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> TransitionTarget [color="#C8644B", fontcolor="#C8644B", style="dashed", arrowhead="none", weight=2];
+  DefaultStateMachine -> TransitionKey [color="#8E6D43", fontcolor="#8E6D43", style="dashed", arrowhead="none", weight=2];
+  SuspendStateMachineInterface -> SuspendStateMachine [color="#C8644B", fontcolor="#C8644B", style="solid", arrowhead="none", weight=10];
+  StateMachine -> DefaultStateMachine [color="#8E6D43", fontcolor="#8E6D43", style="solid", arrowhead="none", weight=10];
+  BaseStateMachine -> SuspendStateMachineInterface [color="#2E83B8", fontcolor="#2E83B8", style="solid", arrowhead="none", weight=10];
+  BaseStateMachine -> StateMachine [color="#A84B98", fontcolor="#A84B98", style="solid", arrowhead="none", weight=10];
 }

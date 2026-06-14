@@ -1,18 +1,18 @@
-graph 1 17.8 3.2944
-node StructuredTaskScopeSupervised 5.15 2.7694 2.8 1.05 StructuredTaskScopeSupervised rounded,filled box #5B8DEF #E8F3FF
+graph 1 17.8 5.5389
+node StructuredTaskScopeSupervised 1.4 0.525 2.8 1.05 StructuredTaskScopeSupervised rounded,filled box #5B8DEF #E8F3FF
 node StructuredTaskScopeProvider 1.4 2.7694 2.8 1.05 StructuredTaskScopeProvider rounded,filled box #58A978 #EAF7EF
 node VirtualThreadRuntime 8.9 2.7694 2.8 1.05 VirtualThreadRuntime rounded,filled box #45A7A1 #E9F7F6
-node StructuredTaskScopes 1.4 0.525 2.8 1.05 StructuredTaskScopes rounded,filled box #D6A441 #FFF3D9
-node VirtualThreads 16.4 0.525 2.8 1.05 VirtualThreads rounded,filled box #DC6B82 #FDECEF
-node StructuredTaskScopeAll 12.65 2.7694 2.8 1.05 StructuredTaskScopeAll rounded,filled box #8A72D6 #F1ECFF
-node StructuredTaskScopeAnyT 16.4 2.7694 2.8 1.05 StructuredTaskScopeAnyT rounded,filled box #8BA84D #EEF6D9
+node StructuredTaskScopes 1.4 5.0139 2.8 1.05 StructuredTaskScopes rounded,filled box #D6A441 #FFF3D9
+node VirtualThreads 8.9 5.0139 2.8 1.05 VirtualThreads rounded,filled box #DC6B82 #FDECEF
+node StructuredTaskScopeAll 12.65 5.0139 2.8 1.05 StructuredTaskScopeAll rounded,filled box #8A72D6 #F1ECFF
+node StructuredTaskScopeAnyT 16.4 5.0139 2.8 1.05 StructuredTaskScopeAnyT rounded,filled box #8BA84D #EEF6D9
 node Jdk25VirtualThreadRuntime 5.15 0.525 2.8 1.05 Jdk25VirtualThreadRuntime rounded,filled box #9AA8B8 #F2F5F9
 node Jdk21VirtualThreadRuntime 8.9 0.525 2.8 1.05 Jdk21VirtualThreadRuntime rounded,filled box #5B8DEF #E8F3FF
 node PlatformThreadFallback 12.65 0.525 2.8 1.05 PlatformThreadFallback rounded,filled box #58A978 #EAF7EF
-edge StructuredTaskScopeProvider StructuredTaskScopeSupervised 4 2.8017 2.7639 3.1096 2.7639 3.4357 2.7639 3.7438 2.7639 dashed #3E9868
-edge VirtualThreadRuntime Jdk25VirtualThreadRuntime 10 7.4933 2.7639 7.2245 2.7639 7.025 2.7639 7.025 2.7639 7.025 2.7639 7.025 0.52778 7.025 0.52778 7.025 0.52778 6.8255 0.52778 6.5567 0.52778 solid #758297
-edge VirtualThreadRuntime Jdk21VirtualThreadRuntime 4 8.4333 2.2375 8.4333 1.8798 8.4333 1.4101 8.4333 1.0531 solid #4F83BF
-edge VirtualThreadRuntime PlatformThreadFallback 10 10.307 2.7639 10.576 2.7639 10.775 2.7639 10.775 2.7639 10.775 2.7639 10.775 0.52778 10.775 0.52778 10.775 0.52778 10.974 0.52778 11.243 0.52778 solid #3E9868
-edge StructuredTaskScopes StructuredTaskScopeProvider 4 1.4 1.0569 1.4 1.4147 1.4 1.8844 1.4 2.2414 dashed #B9851B
-edge VirtualThreads VirtualThreadRuntime 10 16.4 1.0559 16.4 1.3484 16.4 1.6528 16.4 1.6528 16.4 1.6528 9.3667 1.6528 9.3667 1.6528 9.3667 1.6528 9.3667 1.9542 9.3667 2.2438 dashed #C94D68
+edge StructuredTaskScopeProvider StructuredTaskScopeSupervised 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #2E8F89
+edge VirtualThreadRuntime Jdk25VirtualThreadRuntime 7 7.4983 2.7639 6.4332 2.7639 5.15 2.7639 5.15 2.7639 5.15 2.7639 5.15 1.7177 5.15 1.0556 solid #C94D68
+edge VirtualThreadRuntime Jdk21VirtualThreadRuntime 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 solid #755BC6
+edge VirtualThreadRuntime PlatformThreadFallback 7 10.302 2.7639 11.367 2.7639 12.65 2.7639 12.65 2.7639 12.65 2.7639 12.65 1.7177 12.65 1.0556 solid #B9851B
+edge StructuredTaskScopes StructuredTaskScopeProvider 4 1.4 4.482 1.4 4.1242 1.4 3.6545 1.4 3.2975 dashed #B9851B
+edge VirtualThreads VirtualThreadRuntime 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 dashed #C94D68
 stop

@@ -5,9 +5,9 @@ node JetStreamExtensions 1.4 2.7694 2.8 1.05 JetStreamExtensions rounded,filled 
 node DSLBuilders 1.4 0.525 2.8 1.05 DSLBuilders rounded,filled box #D6A441 #FFF3D9
 node JetStreamManagementExtensions 5.15 2.7694 2.8 1.05 JetStreamManagementExtensions rounded,filled box #DC6B82 #FDECEF
 node NatsServiceExtensions 8.9 2.7694 2.8 1.05 NatsServiceExtensions rounded,filled box #8A72D6 #F1ECFF
-edge AbstractNatsTest ConnectionExtensions 4 5.15 6.7264 5.15 6.3686 5.15 5.899 5.15 5.542 dashed #4F83BF
-edge ConnectionExtensions JetStreamExtensions 7 3.7483 5.0139 2.6832 5.0139 1.4 5.0139 1.4 5.0139 1.4 5.0139 1.4 3.9651 1.4 3.3013 dashed #3E9868
-edge ConnectionExtensions JetStreamManagementExtensions 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #3E9868
-edge ConnectionExtensions NatsServiceExtensions 7 6.5517 5.0139 7.6168 5.0139 8.9 5.0139 8.9 5.0139 8.9 5.0139 8.9 3.9651 8.9 3.3013 dashed #3E9868
+edge AbstractNatsTest ConnectionExtensions 4 5.15 6.7264 5.15 6.3686 5.15 5.899 5.15 5.542 dashed #718A35
+edge ConnectionExtensions JetStreamExtensions 7 3.7483 5.0139 2.6832 5.0139 1.4 5.0139 1.4 5.0139 1.4 5.0139 1.4 3.9651 1.4 3.3013 dashed #755BC6
+edge ConnectionExtensions JetStreamManagementExtensions 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #C94D68
+edge ConnectionExtensions NatsServiceExtensions 7 6.5517 5.0139 7.6168 5.0139 8.9 5.0139 8.9 5.0139 8.9 5.0139 8.9 3.9651 8.9 3.3013 dashed #B9851B
 edge JetStreamExtensions DSLBuilders 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #2E8F89
 stop

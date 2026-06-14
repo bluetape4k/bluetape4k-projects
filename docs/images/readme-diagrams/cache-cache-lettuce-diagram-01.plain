@@ -1,19 +1,18 @@
-graph 1 13.052 3.5243
-node NearCacheOperations 8.4271 0.57986 2.7326 0.5 NearCacheOperations rounded,filled box #D7E2EC #F7FAFC
-node SuspendNearCacheOperations 1.8299 0.57986 3.6597 0.5 SuspendNearCacheOperations rounded,filled box #D7E2EC #F7FAFC
-node NearJCache 8.1493 1.9271 1.6285 0.5 NearJCache rounded,filled box #D7E2EC #F7FAFC
-node SuspendNearJCache 5.3576 1.9271 2.5556 0.5 SuspendNearJCache rounded,filled box #D7E2EC #F7FAFC
-node LettuceCaches 6.7465 3.2743 2.0035 0.5 LettuceCaches rounded,filled box #D7E2EC #F7FAFC
-node LocalCache 11.288 0.57986 1.5868 0.5 LocalCache rounded,filled box #D7E2EC #F7FAFC
-node LettuceJCache 5.3576 0.57986 2.0139 0.5 LettuceJCache rounded,filled box #D7E2EC #F7FAFC
-node TrackingInvalidationListener 11.358 1.9271 3.3889 0.5 TrackingInvalidationListener rounded,filled box #D7E2EC #F7FAFC
-edge NearJCache NearCacheOperations 4 7.8779 1.6737 7.8779 1.6737 7.8779 0.96884 7.8779 0.96884 solid #56708C
-edge NearJCache LocalCache 10 8.4207 1.6756 8.4207 1.5396 8.4207 1.3993 8.4207 1.3993 8.4207 1.3993 11.288 1.3993 11.288 1.3993 11.288 1.3993 11.288 0.96678 11.288 0.96678 solid #56708C
-edge NearJCache LettuceJCache 10 7.3289 1.9271 7.0691 1.9271 6.8481 1.9271 6.8481 1.9271 6.8481 1.9271 6.8481 0.57986 6.8481 0.57986 6.8481 0.57986 6.5004 0.57986 6.5004 0.57986 solid #56708C
-edge SuspendNearJCache SuspendNearCacheOperations 7 4.2153 1.6737 4.2153 1.2834 4.2153 0.57986 4.2153 0.57986 4.2153 0.57986 3.7942 0.57986 3.7942 0.57986 solid #56708C
-edge SuspendNearJCache LocalCache 10 6.5 1.6723 6.5 1.4317 6.5 1.1076 6.5 1.1076 6.5 1.1076 10.891 1.1076 10.891 1.1076 10.891 1.1076 10.891 0.96352 10.891 0.96352 solid #56708C
-edge SuspendNearJCache LettuceJCache 4 5.3576 1.6737 5.3576 1.6737 5.3576 0.96884 5.3576 0.96884 solid #56708C
-edge LettuceCaches NearJCache 4 7.5417 3.0209 7.5417 3.0209 7.5417 2.3161 7.5417 2.3161 solid #56708C
-edge LettuceCaches SuspendNearJCache 4 6.1901 3.0209 6.1901 3.0209 6.1901 2.3161 6.1901 2.3161 solid #56708C
-edge TrackingInvalidationListener LocalCache 4 11.685 1.6737 11.685 1.6737 11.685 0.96884 11.685 0.96884 solid #56708C
+graph 1 14.974 5.4444
+node ops 1.559 3.3264 3.1181 0.5 "NearCacheOperations<V>" rounded,filled box #75A9E8 #E8F3FF
+node suspendOps 5.7396 3.3264 4.0451 0.5 "SuspendNearCacheOperations<V>" rounded,filled box #45A7A1 #E9F7F6
+node near 1.559 4.8646 2.816 0.5 "LettuceNearCache<V>" rounded,filled box #69B888 #EAF7EF
+node suspendNear 5.7396 4.8646 3.7431 0.5 "LettuceSuspendNearCache<V>" rounded,filled box #69B888 #EAF7EF
+node local 10.059 0.25 3.1076 0.5 "LettuceLocalCache<K,V>" rounded,filled box #45A7A1 #E9F7F6
+node caffeine 10.059 1.7882 3.941 0.5 "LettuceCaffeineLocalCache<V>" rounded,filled box #D9AA4D #FFF3D9
+node redis 10.059 4.8646 2.2639 0.5 "Redis via Lettuce" rounded,filled box #8A72D6 #F1ECFF
+node tracking 10.059 3.3264 3.3889 0.5 TrackingInvalidationListener rounded,filled box #DB7890 #FCE7F3
+node factory 13.378 3.3264 2.0035 0.5 LettuceCaches rounded,filled box #75A9E8 #E8F3FF
+node config 13.378 4.8646 3.191 0.5 LettuceNearCacheConfig rounded,filled box #8A72D6 #F1ECFF
+edge near ops 4 1.559 4.6106 1.559 4.6106 1.559 3.7129 1.559 3.7129 implements 1.9757 4.0955 solid #58A978
+edge suspendNear suspendOps 4 5.7396 4.6106 5.7396 4.6106 5.7396 3.7129 5.7396 3.7129 implements 6.1562 4.0955 solid #58A978
+edge caffeine local 4 10.059 1.5342 10.059 1.5342 10.059 0.63651 10.059 0.63651 implements 10.476 1.0191 solid #D9AA4D
+edge redis tracking 4 10.059 4.6106 10.059 4.6106 10.059 3.7129 10.059 3.7129 "push invalidation" 10.767 4.0955 solid #DB7890
+edge tracking caffeine 4 10.059 3.0724 10.059 3.0724 10.059 2.1747 10.059 2.1747 invalidates 10.517 2.5573 solid #DB7890
+edge config factory 4 13.378 4.6106 13.378 4.6106 13.378 3.7129 13.378 3.7129 "feeds DSL" 13.753 4.0955 dashed #8A72D6
 stop

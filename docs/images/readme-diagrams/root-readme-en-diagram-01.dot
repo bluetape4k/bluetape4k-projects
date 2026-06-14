@@ -18,17 +18,15 @@ digraph G {
   "readmes" [label="README assets", fillcolor="#F6F8FA", color="#AAB7C4"];
   "examples" [label="Examples", fillcolor="#EAF7EF", color="#69B888"];
   "benchmark" [label="Benchmarks", fillcolor="#FFF3D9", color="#D9AA4D"];
-  "diagram-evidence" [label="Diagram evidence", fillcolor="#E8F3FF", color="#75A9E8"];
+  "diagram-assets" [label="Documentation assets", fillcolor="#E8F3FF", color="#75A9E8"];
   "bluetape4k" -> "io" [color="#4F83BF"];
   "bluetape4k" -> "data" [color="#4F83BF"];
   "bom" -> "infra" [color="#58A978"];
   "baseline" -> "utils" [color="#8A72D6"];
-  "io" -> "ktor" [color="#45A7A1"];
   "data" -> "spring-boot" [color="#D9AA4D"];
   "infra" -> "testing" [color="#DB7890"];
   "utils" -> "readmes" [color="#8BA84D"];
-  "ktor" -> "examples" [color="#45A7A1"];
   "spring-boot" -> "examples" [color="#8A72D6"];
   "testing" -> "benchmark" [color="#B88A44"];
-  "readmes" -> "diagram-evidence" [color="#6B7D90"];
+  "readmes" -> "diagram-assets" [color="#6B7D90"];
 }

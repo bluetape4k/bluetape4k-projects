@@ -12,37 +12,37 @@
 <!-- DeferredSupport&#45;&gt;DeferredValue -->
 <g id="edge6" class="edge">
 <title>DeferredSupport&#45;&gt;DeferredValue</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-322.7C100.8,-296.94 100.8,-263.12 100.8,-237.42"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-322.7C100.8,-296.94 100.8,-263.12 100.8,-237.42"/>
 </g>
 <!-- DeferredValue&#45;&gt;deferredValueOf -->
 <g id="edge7" class="edge">
 <title>DeferredValue&#45;&gt;deferredValueOf</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.1C100.8,-135.34 100.8,-101.52 100.8,-75.82"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.1C100.8,-135.34 100.8,-101.52 100.8,-75.82"/>
 </g>
 <!-- CoroutineScope&#45;&gt;ThreadPoolCoroutineScope -->
 <g id="edge3" class="edge">
 <title>CoroutineScope&#45;&gt;ThreadPoolCoroutineScope</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" d="M674.65,-361C554.69,-361 370.8,-361 370.8,-361 370.8,-361 370.8,-285.48 370.8,-237.7"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M674.65,-361C554.69,-361 370.8,-361 370.8,-361 370.8,-361 370.8,-285.48 370.8,-237.7"/>
 </g>
 <!-- CoroutineScope&#45;&gt;DefaultCoroutineScope -->
 <g id="edge5" class="edge">
 <title>CoroutineScope&#45;&gt;DefaultCoroutineScope</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M708.3,-322.7C708.3,-296.94 708.3,-263.12 708.3,-237.42"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M708.3,-322.7C708.3,-296.94 708.3,-263.12 708.3,-237.42"/>
 </g>
 <!-- CoroutineScope&#45;&gt;IoCoroutineScope -->
 <g id="edge4" class="edge">
 <title>CoroutineScope&#45;&gt;IoCoroutineScope</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M843.3,-322.7C843.3,-296.94 843.3,-263.12 843.3,-237.42"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" d="M843.3,-322.7C843.3,-296.94 843.3,-263.12 843.3,-237.42"/>
 </g>
 <!-- CoroutineScope&#45;&gt;VirtualThreadCoroutineScope -->
 <g id="edge2" class="edge">
 <title>CoroutineScope&#45;&gt;VirtualThreadCoroutineScope</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M876.95,-361C996.91,-361 1180.8,-361 1180.8,-361 1180.8,-361 1180.8,-285.48 1180.8,-237.7"/>
+<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M876.95,-361C996.91,-361 1180.8,-361 1180.8,-361 1180.8,-361 1180.8,-285.48 1180.8,-237.7"/>
 </g>
 <!-- FlowExtensions&#45;&gt;AsyncFlow -->
 <g id="edge1" class="edge">
 <title>FlowExtensions&#45;&gt;AsyncFlow</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M1450.8,-322.7C1450.8,-296.94 1450.8,-263.12 1450.8,-237.42"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M1450.8,-322.7C1450.8,-296.94 1450.8,-263.12 1450.8,-237.42"/>
 </g>
 <!-- DeferredSupport -->
 <g id="node1" class="node">

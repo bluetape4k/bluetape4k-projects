@@ -12,17 +12,17 @@
 <!-- StructuredTaskScopeTester&#45;&gt;SuspendedJobTester -->
 <g id="edge1" class="edge">
 <title>StructuredTaskScopeTester&#45;&gt;SuspendedJobTester</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M168.3,-161.1C168.3,-135.34 168.3,-101.52 168.3,-75.82"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M168.3,-161.1C168.3,-135.34 168.3,-101.52 168.3,-75.82"/>
 </g>
 <!-- MultithreadingTester&#45;&gt;SuspendedJobTester -->
 <g id="edge2" class="edge">
 <title>MultithreadingTester&#45;&gt;SuspendedJobTester</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M303.3,-161.1C303.3,-135.34 303.3,-101.52 303.3,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M303.3,-161.1C303.3,-135.34 303.3,-101.52 303.3,-75.82"/>
 </g>
 <!-- TempFolderExtension&#45;&gt;TempFolder -->
 <g id="edge3" class="edge">
 <title>TempFolderExtension&#45;&gt;TempFolder</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.1C640.8,-135.34 640.8,-101.52 640.8,-75.82"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.1C640.8,-135.34 640.8,-101.52 640.8,-75.82"/>
 </g>
 <!-- StructuredTaskScopeTester -->
 <g id="node1" class="node">

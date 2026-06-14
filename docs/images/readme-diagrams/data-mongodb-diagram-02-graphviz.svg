@@ -12,22 +12,22 @@
 <!-- DocumentExtensions&#45;&gt;MongoCollectionExtensions -->
 <g id="edge1" class="edge">
 <title>DocumentExtensions&#45;&gt;MongoCollectionExtensions</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.15C100.8,-113.42 100.8,-38 100.8,-38 100.8,-38 193.19,-38 269.88,-38"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.15C100.8,-113.42 100.8,-38 100.8,-38 100.8,-38 193.19,-38 269.88,-38"/>
 </g>
 <!-- AggregationSupport&#45;&gt;MongoCollectionExtensions -->
 <g id="edge2" class="edge">
 <title>AggregationSupport&#45;&gt;MongoCollectionExtensions</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
 </g>
 <!-- MongoClientSupport&#45;&gt;MongoClientProvider -->
 <g id="edge4" class="edge">
 <title>MongoClientSupport&#45;&gt;MongoClientProvider</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M910.8,-161.1C910.8,-135.34 910.8,-101.52 910.8,-75.82"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M910.8,-161.1C910.8,-135.34 910.8,-101.52 910.8,-75.82"/>
 </g>
 <!-- MongoDatabaseExtensions&#45;&gt;MongoCollectionExtensions -->
 <g id="edge3" class="edge">
 <title>MongoDatabaseExtensions&#45;&gt;MongoCollectionExtensions</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.15C640.8,-113.42 640.8,-38 640.8,-38 640.8,-38 548.41,-38 471.72,-38"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.15C640.8,-113.42 640.8,-38 640.8,-38 640.8,-38 548.41,-38 471.72,-38"/>
 </g>
 <!-- DocumentExtensions -->
 <g id="node1" class="node">

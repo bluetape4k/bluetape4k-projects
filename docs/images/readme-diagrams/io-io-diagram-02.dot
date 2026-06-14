@@ -10,12 +10,11 @@ digraph G {
   CompressableBinarySerializer [label="CompressableBinarySerializer", fillcolor="#F1ECFF", color="#8A72D6"];
   ForyBinarySerializer [label="ForyBinarySerializer", fillcolor="#EEF6D9", color="#8BA84D"];
   KryoBinarySerializer [label="KryoBinarySerializer", fillcolor="#F2F5F9", color="#9AA8B8"];
-  { rank=source; BinarySerializer; AbstractBinarySerializer; }
-  CompressableBinarySerializer -> Compressor [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
-  BinarySerializerDecorator -> CompressableBinarySerializer [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  AbstractBinarySerializer -> ForyBinarySerializer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  AbstractBinarySerializer -> KryoBinarySerializer [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
+  CompressableBinarySerializer -> Compressor [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  BinarySerializerDecorator -> CompressableBinarySerializer [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  AbstractBinarySerializer -> ForyBinarySerializer [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  AbstractBinarySerializer -> KryoBinarySerializer [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
   AbstractBinarySerializer -> JdkBinarySerializer [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
-  BinarySerializer -> BinarySerializerDecorator [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
-  BinarySerializer -> AbstractBinarySerializer [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  BinarySerializer -> BinarySerializerDecorator [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  BinarySerializer -> AbstractBinarySerializer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
 }

@@ -1,13 +1,13 @@
-graph 1 14.217 3.2944
-node Cache2kCacheMetrics 12.817 0.525 2.8 1.05 Cache2kCacheMetrics rounded,filled box #5B8DEF #E8F3FF
-node MeterRegistry 7.15 2.7694 2.8 1.05 MeterRegistry rounded,filled box #58A978 #EAF7EF
-node ObservationRegistry 3.3583 2.7694 2.8 1.05 ObservationRegistry rounded,filled box #45A7A1 #E9F7F6
-node MicrometerRetrofitMetricsFactory 5.2333 0.525 2.9867 1.05 MicrometerRetrofitMetricsFactory rounded,filled box #D6A441 #FFF3D9
-node ObservationExtensions 1.4 0.525 2.8 1.05 ObservationExtensions rounded,filled box #DC6B82 #FDECEF
-node TimerExtensions 9.0667 0.525 2.8 1.05 TimerExtensions rounded,filled box #8A72D6 #F1ECFF
-edge Cache2kCacheMetrics MeterRegistry 7 12.817 1.0556 12.817 1.7177 12.817 2.7639 12.817 2.7639 12.817 2.7639 10.233 2.7639 8.5544 2.7639 dashed #4F83BF
-edge ObservationRegistry MeterRegistry 4 4.7648 2.7639 5.0852 2.7639 5.4255 2.7639 5.7458 2.7639 dashed #2E8F89
-edge MicrometerRetrofitMetricsFactory MeterRegistry 4 6.2383 1.0569 6.2383 1.4147 6.2383 1.8844 6.2383 2.2414 dashed #B9851B
-edge ObservationExtensions ObservationRegistry 4 2.3792 1.0569 2.3792 1.4147 2.3792 1.8844 2.3792 2.2414 dashed #C94D68
-edge TimerExtensions MeterRegistry 4 8.1083 1.0569 8.1083 1.4147 8.1083 1.8844 8.1083 2.2414 dashed #755BC6
+graph 1 14.217 5.5389
+node Cache2kCacheMetrics 1.4 2.7694 2.8 1.05 Cache2kCacheMetrics rounded,filled box #5B8DEF #E8F3FF
+node MeterRegistry 7.0667 0.525 2.8 1.05 MeterRegistry rounded,filled box #58A978 #EAF7EF
+node ObservationRegistry 5.15 2.7694 2.8 1.05 ObservationRegistry rounded,filled box #45A7A1 #E9F7F6
+node MicrometerRetrofitMetricsFactory 8.9833 2.7694 2.9867 1.05 MicrometerRetrofitMetricsFactory rounded,filled box #D6A441 #FFF3D9
+node ObservationExtensions 5.15 5.0139 2.8 1.05 ObservationExtensions rounded,filled box #DC6B82 #FDECEF
+node TimerExtensions 12.817 2.7694 2.8 1.05 TimerExtensions rounded,filled box #8A72D6 #F1ECFF
+edge Cache2kCacheMetrics MeterRegistry 7 1.4 2.2382 1.4 1.5753 1.4 0.52778 1.4 0.52778 1.4 0.52778 3.9841 0.52778 5.6623 0.52778 dashed #B9851B
+edge ObservationRegistry MeterRegistry 4 6.1083 2.2375 6.1083 1.8798 6.1083 1.4101 6.1083 1.0531 dashed #2E8F89
+edge MicrometerRetrofitMetricsFactory MeterRegistry 4 7.9783 2.2375 7.9783 1.8798 7.9783 1.4101 7.9783 1.0531 dashed #C94D68
+edge ObservationExtensions ObservationRegistry 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #755BC6
+edge TimerExtensions MeterRegistry 7 12.817 2.2382 12.817 1.5753 12.817 0.52778 12.817 0.52778 12.817 0.52778 10.176 0.52778 8.4733 0.52778 dashed #718A35
 stop

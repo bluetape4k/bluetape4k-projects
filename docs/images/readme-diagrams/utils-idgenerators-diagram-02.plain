@@ -1,25 +1,25 @@
-graph 1 19.717 7.7833
+graph 1 17.8 7.7833
 node Uuid 1.4 0.525 2.8 1.05 Uuid rounded,filled box #5B8DEF #E8F3FF
-node Snowflake 12.65 7.2583 2.8 1.05 Snowflake rounded,filled box #58A978 #EAF7EF
+node Snowflake 16.4 2.7694 2.8 1.05 Snowflake rounded,filled box #58A978 #EAF7EF
 node IdGenerator 5.15 5.0139 2.8 1.05 IdGenerator rounded,filled box #45A7A1 #E9F7F6
-node Snowflakers 15.483 5.0139 2.8 1.05 Snowflakers rounded,filled box #D6A441 #FFF3D9
-node IdGeneratorT 16.4 7.2583 2.8 1.05 IdGeneratorT rounded,filled box #DC6B82 #FDECEF
+node Snowflakers 12.65 2.7694 2.8 1.05 Snowflakers rounded,filled box #D6A441 #FFF3D9
+node IdGeneratorT 10.775 7.2583 2.8 1.05 IdGeneratorT rounded,filled box #DC6B82 #FDECEF
 node UuidGenerator 1.4 2.7694 2.8 1.05 UuidGenerator rounded,filled box #8A72D6 #F1ECFF
-node GlobalSnowflake 12.65 2.7694 2.8 1.05 GlobalSnowflake rounded,filled box #8BA84D #EEF6D9
-node DefaultSnowflake 18.317 2.7694 2.8 1.05 DefaultSnowflake rounded,filled box #9AA8B8 #F2F5F9
+node GlobalSnowflake 16.4 0.525 2.8 1.05 GlobalSnowflake rounded,filled box #8BA84D #EEF6D9
+node DefaultSnowflake 12.65 0.525 2.8 1.05 DefaultSnowflake rounded,filled box #9AA8B8 #F2F5F9
 node LongIdGenerator 7.025 7.2583 2.8 1.05 LongIdGenerator rounded,filled box #5B8DEF #E8F3FF
 node KsuidGenerator 5.15 2.7694 2.8 1.05 KsuidGenerator rounded,filled box #58A978 #EAF7EF
 node UlidGenerator 8.9 2.7694 2.8 1.05 UlidGenerator rounded,filled box #45A7A1 #E9F7F6
 node SnowflakeGenerator 8.9 5.0139 2.8 1.05 SnowflakeGenerator rounded,filled box #D6A441 #FFF3D9
-edge Snowflake GlobalSnowflake 4 13.117 6.7302 13.117 5.8657 13.117 4.1587 13.117 3.2956 solid #718A35
-edge Snowflake DefaultSnowflake 10 12.183 6.7314 12.183 6.441 12.183 6.1389 12.183 6.1389 12.183 6.1389 17.506 6.1389 17.506 6.1389 17.506 6.1389 17.506 4.2485 17.506 3.2996 solid #758297
-edge IdGenerator UuidGenerator 7 3.7483 5.0139 2.6832 5.0139 1.4 5.0139 1.4 5.0139 1.4 5.0139 1.4 3.9651 1.4 3.3013 solid #755BC6
-edge IdGenerator KsuidGenerator 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 solid #3E9868
-edge IdGenerator UlidGenerator 10 6.5567 5.0139 6.8255 5.0139 7.025 5.0139 7.025 5.0139 7.025 5.0139 7.025 2.7639 7.025 2.7639 7.025 2.7639 7.2245 2.7639 7.4933 2.7639 solid #2E8F89
-edge Snowflakers GlobalSnowflake 7 15.483 4.4864 15.483 3.8213 15.483 2.7639 15.483 2.7639 15.483 2.7639 14.767 2.7639 14.054 2.7639 dashed #B9851B
-edge Snowflakers DefaultSnowflake 7 16.89 5.0139 17.08 5.0139 17.211 5.0139 17.211 5.0139 17.211 5.0139 17.211 3.9651 17.211 3.3013 dashed #B9851B
-edge UuidGenerator Uuid 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #755BC6
-edge LongIdGenerator IdGenerator 4 6.0875 6.7264 6.0875 6.3686 6.0875 5.899 6.0875 5.542 solid #4F83BF
-edge LongIdGenerator SnowflakeGenerator 4 7.9625 6.7264 7.9625 6.3686 7.9625 5.899 7.9625 5.542 solid #B9851B
-edge SnowflakeGenerator Snowflake 7 9.3625 5.5414 9.3625 6.2064 9.3625 7.2639 9.3625 7.2639 9.3625 7.2639 10.353 7.2639 11.246 7.2639 dashed #B9851B
+edge Snowflake GlobalSnowflake 4 16.4 2.2375 16.4 1.8798 16.4 1.4101 16.4 1.0531 solid #C94D68
+edge Snowflake DefaultSnowflake 10 14.993 2.5972 14.644 2.5972 14.367 2.5972 14.367 2.5972 14.367 2.5972 14.367 0.34722 14.367 0.34722 14.367 0.34722 14.24 0.34722 14.056 0.34722 solid #755BC6
+edge IdGenerator UuidGenerator 7 3.7483 5.0139 2.6832 5.0139 1.4 5.0139 1.4 5.0139 1.4 5.0139 1.4 3.9651 1.4 3.3013 solid #C8644B
+edge IdGenerator KsuidGenerator 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 solid #718A35
+edge IdGenerator UlidGenerator 10 6.5567 5.0139 6.8255 5.0139 7.025 5.0139 7.025 5.0139 7.025 5.0139 7.025 2.7639 7.025 2.7639 7.025 2.7639 7.2245 2.7639 7.4933 2.7639 solid #4F63C7
+edge Snowflakers GlobalSnowflake 10 14.057 2.9444 14.406 2.9444 14.683 2.9444 14.683 2.9444 14.683 2.9444 14.683 0.69444 14.683 0.69444 14.683 0.69444 14.81 0.69444 14.994 0.69444 dashed #C94D68
+edge Snowflakers DefaultSnowflake 4 12.65 2.2375 12.65 1.8798 12.65 1.4101 12.65 1.0531 dashed #755BC6
+edge UuidGenerator Uuid 4 1.4 2.2375 1.4 1.8798 1.4 1.4101 1.4 1.0531 dashed #2E8F89
+edge LongIdGenerator IdGenerator 4 6.0875 6.7264 6.0875 6.3686 6.0875 5.899 6.0875 5.542 solid #2E83B8
+edge LongIdGenerator SnowflakeGenerator 4 7.9625 6.7264 7.9625 6.3686 7.9625 5.899 7.9625 5.542 solid #8E6D43
+edge SnowflakeGenerator Snowflake 7 10.306 5.0139 12.478 5.0139 16.4 5.0139 16.4 5.0139 16.4 5.0139 16.4 3.9651 16.4 3.3013 dashed #B9851B
 stop

@@ -24,10 +24,10 @@
 <rect class="frame" x="32" y="28" width="1302" height="844" rx="28"/>
 <text class="title" x="66" y="82">ULID</text>
 <text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<path class="inheritLine" d="M683 547 L683 480 L263 480 L263 334"/>
+<path class="inheritLine" d="M620 547 L620 480 L263 480 L263 334"/>
 <path class="line" d="M683 547 L683 397"/>
 <path class="line" d="M263 334 L263 132 L683 132 L683 180"/>
-<path class="line" d="M683 180 L683 456 L1103 456 L1103 334"/>
+<path class="line" d="M745 180 L745 456 L1103 456 L1103 334"/>
 <g transform="translate(88,180)">
   <rect class="card" x="0" y="0" width="350" height="154" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>

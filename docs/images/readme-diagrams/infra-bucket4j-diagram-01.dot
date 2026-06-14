@@ -21,19 +21,18 @@ digraph G {
   DistributedSuspendRateLimiter [label="DistributedSuspendRateLimiter", fillcolor="#E8F3FF", color="#5B8DEF"];
   LocalRateLimiter [label="LocalRateLimiter", fillcolor="#EAF7EF", color="#58A978"];
   LocalSuspendRateLimiter [label="LocalSuspendRateLimiter", fillcolor="#E9F7F6", color="#45A7A1"];
-  { rank=source; RateLimiterK; SuspendRateLimiterK; }
-  RateLimitDiagnostics -> RateLimitRejectionReason [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  RateLimitResult -> RateLimitDiagnostics [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  RateLimitResult -> RateLimitStatus [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  AsyncBucketProxyProvider -> DistributedSuspendRateLimiter [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
+  RateLimitDiagnostics -> RateLimitRejectionReason [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  RateLimitResult -> RateLimitDiagnostics [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  RateLimitResult -> RateLimitStatus [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  AsyncBucketProxyProvider -> DistributedSuspendRateLimiter [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
   BucketProxyProvider -> DistributedRateLimiter [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  LocalSuspendBucketProvider -> SuspendLocalBucket [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  LocalSuspendBucketProvider -> LocalSuspendRateLimiter [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  LocalBucketProvider -> LocalRateLimiter [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
-  AbstractLocalBucketProvider -> LocalSuspendBucketProvider [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
-  AbstractLocalBucketProvider -> LocalBucketProvider [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  SuspendRateLimiter -> DistributedSuspendRateLimiter [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
-  SuspendRateLimiter -> LocalSuspendRateLimiter [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
-  RateLimiter -> DistributedRateLimiter [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  RateLimiter -> LocalRateLimiter [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
+  LocalSuspendBucketProvider -> SuspendLocalBucket [color="#4F63C7", fontcolor="#4F63C7", style="dashed", arrowhead="none", weight=2];
+  LocalSuspendBucketProvider -> LocalSuspendRateLimiter [color="#C8644B", fontcolor="#C8644B", style="dashed", arrowhead="none", weight=2];
+  LocalBucketProvider -> LocalRateLimiter [color="#8E6D43", fontcolor="#8E6D43", style="dashed", arrowhead="none", weight=2];
+  AbstractLocalBucketProvider -> LocalSuspendBucketProvider [color="#C8644B", fontcolor="#C8644B", style="solid", arrowhead="none", weight=10];
+  AbstractLocalBucketProvider -> LocalBucketProvider [color="#8E6D43", fontcolor="#8E6D43", style="solid", arrowhead="none", weight=10];
+  SuspendRateLimiter -> DistributedSuspendRateLimiter [color="#2E83B8", fontcolor="#2E83B8", style="solid", arrowhead="none", weight=10];
+  SuspendRateLimiter -> LocalSuspendRateLimiter [color="#A84B98", fontcolor="#A84B98", style="solid", arrowhead="none", weight=10];
+  RateLimiter -> DistributedRateLimiter [color="#5F8B35", fontcolor="#5F8B35", style="solid", arrowhead="none", weight=10];
+  RateLimiter -> LocalRateLimiter [color="#496581", fontcolor="#496581", style="solid", arrowhead="none", weight=10];
 }

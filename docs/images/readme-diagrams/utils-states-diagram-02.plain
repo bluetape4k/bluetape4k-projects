@@ -16,16 +16,16 @@ node StateMachine 5.15 5.0139 2.8 1.05 StateMachine rounded,filled box #8A72D6 #
 node SuspendStateMachineInterface 8.9 5.0139 2.8 1.05 SuspendStateMachineInterface rounded,filled box #8BA84D #EEF6D9
 node DefaultStateMachine 5.15 2.7694 2.8 1.05 DefaultStateMachine rounded,filled box #9AA8B8 #F2F5F9
 node SuspendStateMachine 8.9 2.7694 2.8 1.05 SuspendStateMachine rounded,filled box #5B8DEF #E8F3FF
-edge BaseStateMachine StateMachine 4 6.0875 6.7264 6.0875 6.3686 6.0875 5.899 6.0875 5.542 solid #755BC6
-edge BaseStateMachine SuspendStateMachineInterface 4 7.9625 6.7264 7.9625 6.3686 7.9625 5.899 7.9625 5.542 solid #718A35
-edge StateMachine DefaultStateMachine 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 solid #758297
-edge SuspendStateMachineInterface SuspendStateMachine 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 solid #4F83BF
-edge DefaultStateMachine TransitionResult 10 6.5558 2.5972 6.7401 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 0.34722 6.8667 0.34722 6.8667 0.34722 7.1437 0.34722 7.4933 0.34722 dashed #758297
-edge DefaultStateMachine StateMachineException 10 5.6167 2.2383 5.6167 2.0333 5.6167 1.8472 5.6167 1.8472 5.6167 1.8472 11.558 1.8472 11.558 1.8472 11.558 1.8472 11.558 1.423 11.558 1.0552 dashed #758297
-edge DefaultStateMachine TransitionKey 7 3.7459 2.7639 2.5193 2.7639 0.93333 2.7639 0.93333 2.7639 0.93333 2.7639 0.93333 1.7177 0.93333 1.0556 dashed #758297
-edge DefaultStateMachine TransitionTarget 4 4.6833 2.2375 4.6833 1.8798 4.6833 1.4101 4.6833 1.0531 dashed #758297
-edge SuspendStateMachine TransitionResult 4 9.3667 2.2375 9.3667 1.8798 9.3667 1.4101 9.3667 1.0531 dashed #4F83BF
-edge SuspendStateMachine StateMachineException 7 10.305 2.7639 11.072 2.7639 11.867 2.7639 11.867 2.7639 11.867 2.7639 11.867 1.7177 11.867 1.0556 dashed #4F83BF
-edge SuspendStateMachine TransitionKey 10 8.4333 2.2382 8.4333 1.8695 8.4333 1.4444 8.4333 1.4444 8.4333 1.4444 1.8667 1.4444 1.8667 1.4444 1.8667 1.4444 1.8667 1.2589 1.8667 1.0545 dashed #4F83BF
-edge SuspendStateMachine TransitionTarget 10 7.4942 2.9444 7.3099 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 0.69444 7.1833 0.69444 7.1833 0.69444 6.9063 0.69444 6.5567 0.69444 dashed #4F83BF
+edge BaseStateMachine StateMachine 4 6.0875 6.7264 6.0875 6.3686 6.0875 5.899 6.0875 5.542 solid #A84B98
+edge BaseStateMachine SuspendStateMachineInterface 4 7.9625 6.7264 7.9625 6.3686 7.9625 5.899 7.9625 5.542 solid #2E83B8
+edge StateMachine DefaultStateMachine 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 solid #8E6D43
+edge SuspendStateMachineInterface SuspendStateMachine 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 solid #C8644B
+edge DefaultStateMachine TransitionResult 10 6.5558 2.5972 6.7401 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 0.34722 6.8667 0.34722 6.8667 0.34722 7.1437 0.34722 7.4933 0.34722 dashed #755BC6
+edge DefaultStateMachine StateMachineException 10 5.6167 2.2383 5.6167 2.0333 5.6167 1.8472 5.6167 1.8472 5.6167 1.8472 11.558 1.8472 11.558 1.8472 11.558 1.8472 11.558 1.423 11.558 1.0552 dashed #B9851B
+edge DefaultStateMachine TransitionKey 7 3.7459 2.7639 2.5193 2.7639 0.93333 2.7639 0.93333 2.7639 0.93333 2.7639 0.93333 1.7177 0.93333 1.0556 dashed #8E6D43
+edge DefaultStateMachine TransitionTarget 4 4.6833 2.2375 4.6833 1.8798 4.6833 1.4101 4.6833 1.0531 dashed #C8644B
+edge SuspendStateMachine TransitionResult 4 9.3667 2.2375 9.3667 1.8798 9.3667 1.4101 9.3667 1.0531 dashed #C94D68
+edge SuspendStateMachine StateMachineException 7 10.305 2.7639 11.072 2.7639 11.867 2.7639 11.867 2.7639 11.867 2.7639 11.867 1.7177 11.867 1.0556 dashed #2E8F89
+edge SuspendStateMachine TransitionKey 10 8.4333 2.2382 8.4333 1.8695 8.4333 1.4444 8.4333 1.4444 8.4333 1.4444 1.8667 1.4444 1.8667 1.4444 1.8667 1.4444 1.8667 1.2589 1.8667 1.0545 dashed #4F63C7
+edge SuspendStateMachine TransitionTarget 10 7.4942 2.9444 7.3099 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 0.69444 7.1833 0.69444 7.1833 0.69444 6.9063 0.69444 6.5567 0.69444 dashed #718A35
 stop

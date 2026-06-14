@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1754" height="997" viewBox="0 0 1754 997" role="img" aria-label="UML Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
+  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="context-stroke" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="context-stroke" stroke-width="1.7"/></marker>
   <style>
     .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
     .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
@@ -24,10 +24,10 @@
 <rect class="frame" x="32" y="28" width="1690" height="941" rx="28"/>
 <text class="title" x="66" y="82">UML Diagram</text>
 <text class="subtitle" x="70" y="104">Source-checked class relationships with readable compartments and routed inheritance.</text>
-<path class="line" d="M672 334 L672 112 L1082 112 L1082 180"/>
-<path class="line" d="M1082 334 L1082 122 L262 122 L262 180"/>
-<path class="line" d="M672 334 L672 132 L1492 132 L1492 180"/>
-<path class="line" d="M877 518 L877 439 L672 439 L672 334"/>
+<path class="line" d="M672 334 L672 112 L1082 112 L1082 180" style="stroke:#3E9868;stroke:#3E9868" data-route-color="#3E9868"/>
+<path class="line" d="M1082 334 L1082 122 L262 122 L262 180" style="stroke:#4F83BF;stroke:#4F83BF" data-route-color="#4F83BF"/>
+<path class="line" d="M672 334 L672 132 L1492 132 L1492 180" style="stroke:#2E8F89;stroke:#2E8F89" data-route-color="#2E8F89"/>
+<path class="line" d="M877 518 L877 439 L672 439 L672 334" style="stroke:#B9851B;stroke:#B9851B" data-route-color="#B9851B"/>
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="212" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>

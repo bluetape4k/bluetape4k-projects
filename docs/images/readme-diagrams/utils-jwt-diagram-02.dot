@@ -9,12 +9,11 @@ digraph G {
   KeyChain [label="KeyChain", fillcolor="#FDECEF", color="#DC6B82"];
   InMemoryKeyChainRepository [label="InMemoryKeyChainRepository", fillcolor="#F1ECFF", color="#8A72D6"];
   RedisKeyChainRepository [label="RedisKeyChainRepository", fillcolor="#EEF6D9", color="#8BA84D"];
-  { rank=source; KeyChainRepository; }
-  KeyChainRepository -> RedisKeyChainRepository [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  KeyChainRepository -> InMemoryKeyChainRepository [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  JwtReader -> KeyChain [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
-  JwtComposer -> KeyChain [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  JwtProvider -> KeyChainRepository [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  JwtProvider -> JwtReader [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  JwtProvider -> JwtComposer [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  KeyChainRepository -> RedisKeyChainRepository [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
+  KeyChainRepository -> InMemoryKeyChainRepository [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  JwtReader -> KeyChain [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  JwtComposer -> KeyChain [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  JwtProvider -> KeyChainRepository [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  JwtProvider -> JwtReader [color="#4F63C7", fontcolor="#4F63C7", style="dashed", arrowhead="none", weight=2];
+  JwtProvider -> JwtComposer [color="#C8644B", fontcolor="#C8644B", style="dashed", arrowhead="none", weight=2];
 }

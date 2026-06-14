@@ -75,11 +75,11 @@ const overview = {
     card("split", "Split repositories", ["AWS, Exposed, image", "text, leader, JaVers"], "purple", 1050, 989, 380, 76),
   ],
   routes: [
-    route("settings", "core", "blue", [{ x: 315, y: 289 }, { x: 315, y: 350 }, { x: 254.5, y: 350 }, { x: 254.5, y: 430 }]),
+    route("settings", "core", "blue", [{ x: 315, y: 289 }, { x: 315, y: 350 }, { x: 520, y: 350 }, { x: 520, y: 420 }, { x: 254.5, y: 420 }, { x: 254.5, y: 430 }]),
     route("catalog", "io", "purple", [{ x: 760, y: 289 }, { x: 760, y: 340 }, { x: 577.5, y: 340 }, { x: 577.5, y: 430 }]),
     route("catalog", "infra", "purple", [{ x: 870, y: 289 }, { x: 870, y: 360 }, { x: 1223.5, y: 360 }, { x: 1223.5, y: 430 }]),
     route("published", "split", "green", [{ x: 1325, y: 289 }, { x: 1325, y: 350 }, { x: 1520, y: 350 }, { x: 1520, y: 960 }, { x: 1240, y: 960 }, { x: 1240, y: 989 }]),
-    route("core", "ktor", "blue", [{ x: 254.5, y: 526 }, { x: 254.5, y: 755 }]),
+    route("core", "ktor", "blue", [{ x: 254.5, y: 526 }, { x: 254.5, y: 675 }, { x: 560, y: 675 }, { x: 560, y: 745 }, { x: 300, y: 745 }, { x: 300, y: 755 }]),
     route("cache", "testing", "green", [{ x: 577.5, y: 641 }, { x: 577.5, y: 675 }, { x: 1000, y: 675 }, { x: 1000, y: 755 }]),
     route("testing", "benchmarks", "brown", [{ x: 1000, y: 837 }, { x: 1000, y: 920 }, { x: 700, y: 920 }, { x: 700, y: 995 }]),
   ],
@@ -93,13 +93,13 @@ const structure = {
   width: 1780,
   height: 1240,
   groups: [
-    panel("foundation", "Foundation", 70, 150, 1640, 160),
+    panel("foundation", "Base", 70, 150, 1640, 160),
     panel("runtime", "Runtime library families", 70, 370, 1640, 310),
     panel("application", "Application-facing stacks", 70, 740, 1640, 180),
-    panel("evidence", "Verification and examples", 70, 980, 1640, 130),
+    panel("evidence", "Evidence", 70, 980, 1640, 130),
   ],
   nodes: [
-    groupCard("bluetape4k", "Foundation", "blue", 140, 190, 320, 86, 5),
+    groupCard("bluetape4k", "Foundation", "blue", 210, 190, 320, 86, 5),
     card("bom", "BOM alignment", ["version catalog", "platform constraints"], "green", 560, 190, 300, 86),
     card("baseline", "Runtime baseline", ["Java 21", "Kotlin 2.3"], "purple", 960, 190, 300, 86),
     card("split-boundary", "Standalone repos", ["AWS, Exposed, image", "text, leader, JaVers"], "gray", 1360, 190, 300, 86),
@@ -118,21 +118,19 @@ const structure = {
 
     groupCard("examples", "Examples", "green", 275, 1012, 330, 74, 4),
     groupCard("benchmark", "Benchmarks", "amber", 725, 1012, 330, 74, 2),
-    card("diagram-evidence", "Diagram evidence", ["Graphviz sketch files", "geometry gate report"], "blue", 1175, 1012, 330, 74),
+    card("diagram-assets", "Documentation assets", ["PNG/SVG pairs", "README visual index"], "blue", 1175, 1012, 330, 74),
   ],
   routes: [
-    route("bluetape4k", "io", "blue", [{ x: 300, y: 276 }, { x: 300, y: 425 }]),
-    route("bluetape4k", "data", "blue", [{ x: 460, y: 233 }, { x: 485, y: 233 }, { x: 485, y: 457 }, { x: 500, y: 457 }]),
+    route("bluetape4k", "io", "blue", [{ x: 370, y: 276 }, { x: 370, y: 344 }, { x: 430, y: 344 }, { x: 430, y: 412 }, { x: 270, y: 412 }, { x: 270, y: 425 }]),
+    route("bluetape4k", "data", "blue", [{ x: 430, y: 276 }, { x: 430, y: 340 }, { x: 660, y: 340 }, { x: 660, y: 405 }]),
     route("bom", "infra", "green", [{ x: 710, y: 276 }, { x: 710, y: 344 }, { x: 1050, y: 344 }, { x: 1050, y: 425 }]),
     route("baseline", "utils", "purple", [{ x: 1110, y: 276 }, { x: 1110, y: 344 }, { x: 1440, y: 344 }, { x: 1440, y: 405 }]),
-    route("io", "ktor", "teal", [{ x: 270, y: 529 }, { x: 270, y: 785 }]),
     route("data", "spring-boot", "amber", [{ x: 820, y: 457 }, { x: 850, y: 457 }, { x: 850, y: 720 }, { x: 720, y: 720 }, { x: 720, y: 785 }]),
     route("infra", "testing", "pink", [{ x: 1210, y: 477 }, { x: 1240, y: 477 }, { x: 1240, y: 720 }, { x: 1105, y: 720 }, { x: 1105, y: 785 }]),
     route("utils", "readmes", "olive", [{ x: 1440, y: 509 }, { x: 1440, y: 785 }]),
-    route("ktor", "examples", "teal", [{ x: 335, y: 873 }, { x: 335, y: 1012 }]),
     route("spring-boot", "examples", "purple", [{ x: 720, y: 873 }, { x: 720, y: 950 }, { x: 440, y: 950 }, { x: 440, y: 1012 }]),
     route("testing", "benchmark", "brown", [{ x: 1105, y: 873 }, { x: 1105, y: 950 }, { x: 890, y: 950 }, { x: 890, y: 1012 }]),
-    route("readmes", "diagram-evidence", "gray", [{ x: 1490, y: 873 }, { x: 1490, y: 950 }, { x: 1340, y: 950 }, { x: 1340, y: 1012 }]),
+    route("readmes", "diagram-assets", "gray", [{ x: 1490, y: 873 }, { x: 1490, y: 950 }, { x: 1340, y: 950 }, { x: 1340, y: 1012 }]),
   ],
 };
 
@@ -267,7 +265,7 @@ function renderSvg(diagram, summary) {
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
     <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M0.5 0.5 L4.5 2.5 L0.5 4.5 Z" fill="context-stroke"/></marker>
     <style>
-      .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.panel{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}.card{filter:url(#shadow);stroke-width:2}.title{font-family:"Architects Daughter";font-size:44px;fill:#22344A;font-weight:400}.subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476;font-weight:400}.panel-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}.card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}.detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}.small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}.connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.footer{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
+      .canvas{fill:#F7FAFC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}.panel{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}.card{filter:url(#shadow);stroke-width:2}.title{font-family:"Architects Daughter";font-size:44px;fill:#22344A;font-weight:400}.subtitle{font-family:"Comic Mono";font-size:17px;fill:#536476;font-weight:400}.panelTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}.card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}.detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}.small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}.connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.footer{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
     </style>
   </defs>
   <rect class="canvas" width="${diagram.width}" height="${diagram.height}"/>
@@ -279,8 +277,7 @@ ${diagram.routes.map(renderRoute).join("\n")}
 ${diagram.nodes.map(renderCard).join("\n")}
   <g transform="translate(76,${diagram.height - 74})">
     <rect class="footer" x="0" y="0" width="${diagram.width - 152}" height="44" rx="10"/>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="17" text-anchor="middle" dominant-baseline="middle">Source: current Gradle module directories. Total modules: ${totalModules}.</text>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=${summary.nodes}, r=${summary.routes}, seg=${summary.segments}, endpoint/bend/card-cross/line-conflict/overlap/clear=0.</text>
+    <text class="small" x="${(diagram.width - 152) / 2}" y="23" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
   </g>
 </svg>
 `;
@@ -289,7 +286,7 @@ ${diagram.nodes.map(renderCard).join("\n")}
 function renderPanel(item) {
   return `  <g id="panel-${item.id}">
     <rect class="panel" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="18"/>
-    <text class="panel-title" x="${item.x + 30}" y="${item.y + 24}" dominant-baseline="middle">${escapeXml(item.title)}</text>
+    <text class="panelTitle" x="${item.x + 30}" y="${item.y + 18}" dominant-baseline="middle">${escapeXml(item.title)}</text>
   </g>`;
 }
 

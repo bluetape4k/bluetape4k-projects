@@ -12,87 +12,87 @@
 <!-- AwsEmulatorServer&#45;&gt;MiniStackServer -->
 <g id="edge1" class="edge">
 <title>AwsEmulatorServer&#45;&gt;MiniStackServer</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" d="M269.71,-361C181.39,-361 67.2,-361 67.2,-361 67.2,-361 67.2,-285.48 67.2,-237.7"/>
+<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M269.71,-361C181.39,-361 67.2,-361 67.2,-361 67.2,-361 67.2,-285.48 67.2,-237.7"/>
 </g>
 <!-- AwsEmulatorServer&#45;&gt;FlociServer -->
 <g id="edge2" class="edge">
 <title>AwsEmulatorServer&#45;&gt;FlociServer</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
+<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
 </g>
 <!-- AwsEmulatorServer&#45;&gt;LocalStackServer -->
 <g id="edge3" class="edge">
 <title>AwsEmulatorServer&#45;&gt;LocalStackServer</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M472.08,-338C536.25,-338 607.2,-338 607.2,-338 607.2,-338 607.2,-278.66 607.2,-237.64"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M472.08,-338C536.25,-338 607.2,-338 607.2,-338 607.2,-338 607.2,-278.66 607.2,-237.64"/>
 </g>
 <!-- GenericServer&#45;&gt;MiniStackServer -->
 <g id="edge9" class="edge">
 <title>GenericServer&#45;&gt;MiniStackServer</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" d="M1270.15,-322.87C1270.15,-301.86 1270.15,-280 1270.15,-280 1270.15,-280 134.4,-280 134.4,-280 134.4,-280 134.4,-258.25 134.4,-237.34"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" d="M1270.15,-322.79C1270.15,-310.03 1270.15,-299 1270.15,-299 1270.15,-299 134.4,-299 134.4,-299 134.4,-299 134.4,-265.71 134.4,-237.62"/>
 </g>
 <!-- GenericServer&#45;&gt;FlociServer -->
 <g id="edge10" class="edge">
 <title>GenericServer&#45;&gt;FlociServer</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M1253.65,-384C1028.53,-384 505.8,-384 505.8,-384 505.8,-384 505.8,-199 505.8,-199 505.8,-199 491.44,-199 472.08,-199"/>
+<path fill="none" stroke="#8e6d43" stroke-width="1.8" d="M1253.65,-384C1028.53,-384 505.8,-384 505.8,-384 505.8,-384 505.8,-199 505.8,-199 505.8,-199 491.44,-199 472.08,-199"/>
 </g>
 <!-- GenericServer&#45;&gt;PostgreSQLServer -->
 <g id="edge17" class="edge">
 <title>GenericServer&#45;&gt;PostgreSQLServer</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M1286.3,-323.02C1286.3,-275.14 1286.3,-199 1286.3,-199 1286.3,-199 1214.51,-199 1149.87,-199"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M1286.3,-323.02C1286.3,-275.14 1286.3,-199 1286.3,-199 1286.3,-199 1214.51,-199 1149.87,-199"/>
 </g>
 <!-- GenericServer&#45;&gt;LocalStackServer -->
 <g id="edge11" class="edge">
 <title>GenericServer&#45;&gt;LocalStackServer</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M1253.67,-369C1064.13,-369 674.4,-369 674.4,-369 674.4,-369 674.4,-287.47 674.4,-237.46"/>
+<path fill="none" stroke="#2e83b8" stroke-width="1.8" d="M1253.67,-369C1064.13,-369 674.4,-369 674.4,-369 674.4,-369 674.4,-287.47 674.4,-237.46"/>
 </g>
 <!-- GenericServer&#45;&gt;BluetapeHttpServer -->
 <g id="edge7" class="edge">
 <title>GenericServer&#45;&gt;BluetapeHttpServer</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" d="M1405.8,-322.7C1405.8,-296.94 1405.8,-263.12 1405.8,-237.42"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" d="M1370.23,-322.7C1370.23,-296.94 1370.23,-263.12 1370.23,-237.42"/>
 </g>
 <!-- GenericServer&#45;&gt;MySQL8Server -->
 <g id="edge14" class="edge">
 <title>GenericServer&#45;&gt;MySQL8Server</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M1455.96,-336C1566.12,-336 1726.8,-336 1726.8,-336 1726.8,-336 1726.8,-277.87 1726.8,-237.45"/>
+<path fill="none" stroke="#496581" stroke-width="1.8" d="M1384.46,-322.77C1384.46,-290.32 1384.46,-249 1384.46,-249 1384.46,-249 1675.8,-249 1675.8,-249 1675.8,-249 1675.8,-244.16 1675.8,-237.5"/>
 </g>
 <!-- GenericServer&#45;&gt;KafkaServer -->
 <g id="edge12" class="edge">
 <title>GenericServer&#45;&gt;KafkaServer</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M1455.82,-348C1636.61,-348 1996.8,-348 1996.8,-348 1996.8,-348 1996.8,-281.7 1996.8,-237.67"/>
+<path fill="none" stroke="#a84b98" stroke-width="1.8" d="M1398.69,-322.72C1398.69,-294.87 1398.69,-262 1398.69,-262 1398.69,-262 1996.8,-262 1996.8,-262 1996.8,-262 1996.8,-250.65 1996.8,-237.62"/>
 </g>
 <!-- GenericServer&#45;&gt;BluetapeWebfluxServer -->
 <g id="edge6" class="edge">
 <title>GenericServer&#45;&gt;BluetapeWebfluxServer</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M1455.88,-361C1693.33,-361 2266.8,-361 2266.8,-361 2266.8,-361 2266.8,-285.48 2266.8,-237.7"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M1412.91,-322.84C1412.91,-299.46 1412.91,-274 1412.91,-274 1412.91,-274 2266.8,-274 2266.8,-274 2266.8,-274 2266.8,-255.93 2266.8,-237.57"/>
 </g>
 <!-- GenericServer&#45;&gt;MailpitServer -->
 <g id="edge8" class="edge">
 <title>GenericServer&#45;&gt;MailpitServer</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" d="M1456.09,-374C1742.36,-374 2536.8,-374 2536.8,-374 2536.8,-374 2536.8,-288.64 2536.8,-237.29"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" d="M1427.14,-323.06C1427.14,-304.46 1427.14,-286 1427.14,-286 1427.14,-286 2536.8,-286 2536.8,-286 2536.8,-286 2536.8,-260.84 2536.8,-237.64"/>
 </g>
 <!-- GenericServer&#45;&gt;RedisServer -->
 <g id="edge13" class="edge">
 <title>GenericServer&#45;&gt;RedisServer</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M1456.04,-386C1785.62,-386 2806.8,-386 2806.8,-386 2806.8,-386 2806.8,-292.2 2806.8,-237.61"/>
+<path fill="none" stroke="#5f8b35" stroke-width="1.8" d="M1441.37,-322.85C1441.37,-316.01 1441.37,-311 1441.37,-311 1441.37,-311 2806.8,-311 2806.8,-311 2806.8,-311 2806.8,-269.82 2806.8,-237.49"/>
 </g>
 <!-- GenericServer&#45;&gt;PgvectorServer -->
 <g id="edge15" class="edge">
 <title>GenericServer&#45;&gt;PgvectorServer</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M1253.63,-353C1114.34,-353 880.5,-353 880.5,-353 880.5,-353 880.5,-159.65 880.5,-75.82"/>
+<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M1253.63,-353C1114.34,-353 880.5,-353 880.5,-353 880.5,-353 880.5,-159.65 880.5,-75.82"/>
 </g>
 <!-- GenericServer&#45;&gt;PostgisServer -->
 <g id="edge16" class="edge">
 <title>GenericServer&#45;&gt;PostgisServer</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M1302.45,-322.97C1302.45,-260.73 1302.45,-137.83 1302.45,-75.68"/>
+<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M1302.45,-322.97C1302.45,-260.73 1302.45,-137.83 1302.45,-75.68"/>
 </g>
 <!-- PostgreSQLServer&#45;&gt;PgvectorServer -->
 <g id="edge4" class="edge">
 <title>PostgreSQLServer&#45;&gt;PgvectorServer</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M981.3,-161.1C981.3,-135.34 981.3,-101.52 981.3,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" d="M981.3,-161.1C981.3,-135.34 981.3,-101.52 981.3,-75.82"/>
 </g>
 <!-- PostgreSQLServer&#45;&gt;PostgisServer -->
 <g id="edge5" class="edge">
 <title>PostgreSQLServer&#45;&gt;PostgisServer</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M1133.3,-161.1C1133.3,-135.34 1133.3,-101.52 1133.3,-75.82"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M1133.3,-161.1C1133.3,-135.34 1133.3,-101.52 1133.3,-75.82"/>
 </g>
 <!-- AwsEmulatorServer -->
 <g id="node1" class="node">
@@ -109,8 +109,8 @@
 <!-- ElasticMqServer -->
 <g id="node3" class="node">
 <title>ElasticMqServer</title>
-<path fill="#e9f7f6" stroke="#45a7a1" d="M1576.6,-75.6C1576.6,-75.6 1399,-75.6 1399,-75.6 1393,-75.6 1387,-69.6 1387,-63.6 1387,-63.6 1387,-12 1387,-12 1387,-6 1393,0 1399,0 1399,0 1576.6,0 1576.6,0 1582.6,0 1588.6,-6 1588.6,-12 1588.6,-12 1588.6,-63.6 1588.6,-63.6 1588.6,-69.6 1582.6,-75.6 1576.6,-75.6"/>
-<text xml:space="preserve" text-anchor="middle" x="1487.8" y="-33.73" font-family="Comic Mono" font-size="11.00">ElasticMqServer</text>
+<path fill="#e9f7f6" stroke="#45a7a1" d="M1713.6,-398.8C1713.6,-398.8 1536,-398.8 1536,-398.8 1530,-398.8 1524,-392.8 1524,-386.8 1524,-386.8 1524,-335.2 1524,-335.2 1524,-329.2 1530,-323.2 1536,-323.2 1536,-323.2 1713.6,-323.2 1713.6,-323.2 1719.6,-323.2 1725.6,-329.2 1725.6,-335.2 1725.6,-335.2 1725.6,-386.8 1725.6,-386.8 1725.6,-392.8 1719.6,-398.8 1713.6,-398.8"/>
+<text xml:space="preserve" text-anchor="middle" x="1624.8" y="-356.93" font-family="Comic Mono" font-size="11.00">ElasticMqServer</text>
 </g>
 <!-- MiniStackServer -->
 <g id="node4" class="node">

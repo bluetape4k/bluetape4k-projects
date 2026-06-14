@@ -10,12 +10,11 @@ digraph G {
   RuleSet [label="RuleSet", fillcolor="#F1ECFF", color="#8A72D6"];
   DefaultRule [label="DefaultRule", fillcolor="#EEF6D9", color="#8BA84D"];
   DefaultSuspendRule [label="DefaultSuspendRule", fillcolor="#F2F5F9", color="#9AA8B8"];
-  { rank=source; Rule; SuspendRule; }
-  DefaultRule -> Facts [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  DefaultSuspendRule -> Action [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  DefaultSuspendRule -> Condition [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  DefaultRule -> Action [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
+  DefaultRule -> Facts [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  DefaultSuspendRule -> Action [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  DefaultSuspendRule -> Condition [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  DefaultRule -> Action [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
   DefaultRule -> Condition [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  SuspendRule -> DefaultSuspendRule [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
+  SuspendRule -> DefaultSuspendRule [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
   Rule -> DefaultRule [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
 }

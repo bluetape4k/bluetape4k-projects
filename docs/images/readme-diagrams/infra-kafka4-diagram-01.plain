@@ -4,7 +4,7 @@ node entry 4.1042 2.75 2.3785 0.5 "Kafka4 extensions" rounded,filled box #69B888
 node producer 1.1736 1.5 2.3472 0.5 "Producer support" rounded,filled box #D9AA4D #FFF3D9
 node consumer 4.1042 1.5 2.3993 0.5 "Consumer support" rounded,filled box #45A7A1 #E9F7F6
 node serialization 7.0486 1.5 2.3681 0.5 "Serialization hooks" rounded,filled box #8A72D6 #F1ECFF
-node "kafka-clients" 1.3125 0.25 2.1806 0.5 "Kafka clients 4.x" rounded,filled box #D9AA4D #FFF3D9
+node "kafka-clients" 1.1736 0.25 2.1806 0.5 "Kafka clients 4.x" rounded,filled box #D9AA4D #FFF3D9
 node "spring-kafka" 6.7986 4 2.1701 0.5 "Spring Kafka 4.x" rounded,filled box #69B888 #EAF7EF
 node "reactor-kafka" 4.1042 0.25 2.0139 0.5 "Reactor Kafka" rounded,filled box #45A7A1 #E9F7F6
 node "json-stack" 8.5347 0.25 2.191 0.5 "Jackson 3 stack" rounded,filled box #8A72D6 #F1ECFF
@@ -13,8 +13,7 @@ edge app entry 4 4.1042 3.747 4.1042 3.747 4.1042 3.139 4.1042 3.139 solid #4F83
 edge entry producer 7 2.9122 2.75 2.1009 2.75 1.1736 2.75 1.1736 2.75 1.1736 2.75 1.1736 1.8851 1.1736 1.8851 solid #D9AA4D
 edge entry consumer 4 4.1042 2.497 4.1042 2.497 4.1042 1.889 4.1042 1.889 solid #45A7A1
 edge entry serialization 7 5.299 2.75 6.0487 2.75 6.8741 2.75 6.8741 2.75 6.8741 2.75 6.8741 1.8851 6.8741 1.8851 solid #8A72D6
-edge producer "kafka-clients" 4 1.2847 1.247 1.2847 1.247 1.2847 0.639 1.2847 0.639 solid #D9AA4D
-edge consumer "kafka-clients" 7 3.0009 1.247 3.0009 0.88179 3.0009 0.25 3.0009 0.25 3.0009 0.25 2.5377 0.25 2.5377 0.25 solid #45A7A1
+edge producer "kafka-clients" 4 1.1736 1.247 1.1736 1.247 1.1736 0.639 1.1736 0.639 solid #D9AA4D
 edge consumer "reactor-kafka" 4 4.1042 1.247 4.1042 1.247 4.1042 0.639 4.1042 0.639 solid #45A7A1
 edge serialization "json-stack" 4 7.8359 1.247 7.8359 1.247 7.8359 0.639 7.8359 0.639 solid #8A72D6
 edge governance "json-stack" 4 9.2066 1.247 9.2066 1.247 9.2066 0.639 9.2066 0.639 solid #6B7D90

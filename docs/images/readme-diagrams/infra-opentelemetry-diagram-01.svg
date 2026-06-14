@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="3104" height="945" viewBox="0 0 3104 945" role="img" aria-label="Core Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1167" viewBox="0 0 1500 1167" role="img" aria-label="Core Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -12,82 +12,81 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="3104" height="945"/>
-<rect class="frame" x="32" y="28" width="3040" height="889" rx="30"/>
+<rect class="canvas" width="1500" height="1167"/>
+<rect class="frame" x="32" y="28" width="1436" height="1111" rx="30"/>
 <text class="title" x="68" y="84">Core Class Structure</text>
-<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
-<path class="inherit" data-from="SdkMeterProvider" data-to="Meter" d="M1019 593 L1019 407" stroke="#755BC6"/>
-<path class="inherit" data-from="SdkTracerProvider" data-to="Tracer" d="M1552 593 L1552 407" stroke="#718A35"/>
-<path class="dependency" data-from="SpanBuilder" data-to="Span" d="M2254 341 L2447 341" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="Tracer" data-to="SpanBuilder" d="M1722 341 L1914 341" stroke="#3E9868" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="OpenTelemetry" data-to="Meter" d="M657 341 L849 341" stroke="#4F83BF" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="OpenTelemetry" data-to="Tracer" d="M657 341 L1382 341" stroke="#4F83BF" stroke-dasharray="8 7"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="inherit" data-from="SdkMeterProvider" data-to="Meter" data-route-color="green" d="M1068 631 L1068 530" stroke="#3E9868"/>
+<path class="inherit" data-from="SdkTracerProvider" data-to="Tracer" data-route-color="blue" d="M678 631 L678 530" stroke="#4F83BF"/>
+<path class="dependency" data-from="SpanBuilder" data-to="Span" data-route-color="pink" d="M288 763 L288 865" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="Tracer" data-to="SpanBuilder" data-route-color="purple" d="M508 500 L483 500 L483 661 L458 661" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="OpenTelemetry" data-to="Meter" data-route-color="olive" d="M1001 297 L1001 398" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="OpenTelemetry" data-to="Tracer" data-route-color="indigo" d="M745 297 L745 398" stroke="#4F63C7" stroke-dasharray="8 7"/>
 <g id="OpenTelemetry">
-  <rect class="classCard" x="317" y="275" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="487" y="294" text-anchor="middle">interface</text>
-  <text class="classTitle" x="487" y="322" text-anchor="middle">OpenTelemetry</text>
-  <line x1="317" y1="331" x2="657" y2="331" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="335" y="356">+getTracer(name) Tracer</text>
-<text class="member" x="335" y="373">+getMeter(name) Meter</text>
-<text class="member" x="335" y="390">+getPropagators()</text>
+  <rect class="classCard" x="703" y="165" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="873" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="873" y="212" text-anchor="middle">OpenTelemetry</text>
+  <line x1="703" y1="221" x2="1043" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="721" y="246">+getTracer(name) Tracer</text>
+<text class="member" x="721" y="263">+getMeter(name) Meter</text>
+<text class="member" x="721" y="280">+getPropagators()</text>
 </g>
 <g id="Tracer">
-  <rect class="classCard" x="1382" y="275" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1552" y="294" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1552" y="322" text-anchor="middle">Tracer</text>
-  <line x1="1382" y1="331" x2="1722" y2="331" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1400" y="373">+spanBuilder(spanName) SpanBuilder</text>
+  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="445" text-anchor="middle">Tracer</text>
+  <line x1="508" y1="454" x2="848" y2="454" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="526" y="496">+spanBuilder(spanName) SpanBuilder</text>
 </g>
 <g id="Meter">
-  <rect class="classCard" x="849" y="275" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="1019" y="294" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1019" y="322" text-anchor="middle">Meter</text>
-  <line x1="849" y1="331" x2="1189" y2="331" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="867" y="356">+counterBuilder(name)</text>
-<text class="member" x="867" y="373">LongCounterBuilder</text>
-<text class="member" x="867" y="390">+timerBuilder(name)</text>
+  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="445" text-anchor="middle">Meter</text>
+  <line x1="898" y1="454" x2="1238" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="916" y="479">+counterBuilder(name)</text>
+<text class="member" x="916" y="496">LongCounterBuilder</text>
+<text class="member" x="916" y="513">+timerBuilder(name)</text>
 </g>
 <g id="SpanBuilder">
-  <rect class="classCard" x="1914" y="275" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="2084" y="294" text-anchor="middle">interface</text>
-  <text class="classTitle" x="2084" y="322" text-anchor="middle">SpanBuilder</text>
-  <line x1="1914" y1="331" x2="2254" y2="331" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="1932" y="356">+setSpanKind(kind) SpanBuilder</text>
-<text class="member" x="1932" y="373">+setAttribute(key, value)</text>
-<text class="member" x="1932" y="390">SpanBuilder</text>
+  <rect class="classCard" x="118" y="631" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="288" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="678" text-anchor="middle">SpanBuilder</text>
+  <line x1="118" y1="687" x2="458" y2="687" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="136" y="721">+setSpanKind(kind) SpanBuilder</text>
+<text class="member" x="136" y="738">+setAttribute(key, value)</text>
 </g>
 <g id="Span">
-  <rect class="classCard" x="2447" y="275" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="2617" y="294" text-anchor="middle">interface</text>
-  <text class="classTitle" x="2617" y="322" text-anchor="middle">Span</text>
-  <line x1="2447" y1="331" x2="2787" y2="331" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="2465" y="356">+addEvent(name) Span</text>
-<text class="member" x="2465" y="373">+setAttribute(key, value) Span</text>
-<text class="member" x="2465" y="390">+recordException(t) Span</text>
+  <rect class="classCard" x="118" y="865" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="288" y="884" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="912" text-anchor="middle">Span</text>
+  <line x1="118" y1="921" x2="458" y2="921" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="136" y="946">+addEvent(name) Span</text>
+<text class="member" x="136" y="963">+setAttribute(key, value) Span</text>
+<text class="member" x="136" y="980">+recordException(t) Span</text>
 </g>
 <g id="SdkMeterProvider">
-  <rect class="classCard" x="849" y="593" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1019" y="612" text-anchor="middle">class</text>
-  <text class="classTitle" x="1019" y="640" text-anchor="middle">SdkMeterProvider</text>
-  <line x1="849" y1="649" x2="1189" y2="649" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="867" y="683">+registerMetricReader(mr)</text>
-<text class="member" x="867" y="700">SdkMeterProviderBuilder</text>
+  <rect class="classCard" x="898" y="631" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1068" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="678" text-anchor="middle">SdkMeterProvider</text>
+  <line x1="898" y1="687" x2="1238" y2="687" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="916" y="721">+registerMetricReader(mr)</text>
+<text class="member" x="916" y="738">SdkMeterProviderBuilder</text>
 </g>
 <g id="SdkTracerProvider">
-  <rect class="classCard" x="1382" y="593" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1552" y="612" text-anchor="middle">class</text>
-  <text class="classTitle" x="1552" y="640" text-anchor="middle">SdkTracerProvider</text>
-  <line x1="1382" y1="649" x2="1722" y2="649" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="1400" y="674">+addSpanProcessor(sp)</text>
-<text class="member" x="1400" y="691">SdkTracerProviderBuilder</text>
-<text class="member" x="1400" y="708">+setResource(resource)</text>
+  <rect class="classCard" x="508" y="631" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="678" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="678" text-anchor="middle">SdkTracerProvider</text>
+  <line x1="508" y1="687" x2="848" y2="687" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="526" y="712">+addSpanProcessor(sp)</text>
+<text class="member" x="526" y="729">SdkTracerProviderBuilder</text>
+<text class="member" x="526" y="746">+setResource(resource)</text>
 </g>
 <g>
-  <rect x="2689" y="837" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M2707 855 L2765 855" stroke="#3E9868"/>
-  <text class="detail" x="2779" y="860">inheritance / implementation</text>
-  <path class="dependency" d="M2707 876 L2765 876" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="2779" y="881">dependency / usage</text>
+  <rect x="1085" y="1059" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1103 1077 L1161 1077" stroke="#3E9868"/>
+  <text class="detail" x="1175" y="1082">inheritance / implementation</text>
+  <path class="dependency" d="M1103 1098 L1161 1098" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1175" y="1103">dependency / usage</text>
 </g>
-<g><rect x="180" y="855" width="2464" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1412" y="881" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
+<g><rect x="180" y="1077" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="1103" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

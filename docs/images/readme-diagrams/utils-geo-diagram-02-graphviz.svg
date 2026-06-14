@@ -12,27 +12,27 @@
 <!-- BingGeocoder&#45;&gt;GeoPoint -->
 <g id="edge2" class="edge">
 <title>BingGeocoder&#45;&gt;GeoPoint</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.15C100.8,-113.42 100.8,-38 100.8,-38 100.8,-38 193.19,-38 269.88,-38"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.15C100.8,-113.42 100.8,-38 100.8,-38 100.8,-38 193.19,-38 269.88,-38"/>
 </g>
 <!-- GeoHashUtils&#45;&gt;GeoPoint -->
 <g id="edge4" class="edge">
 <title>GeoHashUtils&#45;&gt;GeoPoint</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
 </g>
 <!-- GeoIp2Support&#45;&gt;CityResponse -->
 <g id="edge1" class="edge">
 <title>GeoIp2Support&#45;&gt;CityResponse</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M910.8,-322.7C910.8,-296.94 910.8,-263.12 910.8,-237.42"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M910.8,-322.7C910.8,-296.94 910.8,-263.12 910.8,-237.42"/>
 </g>
 <!-- GeoHashCircleQuery&#45;&gt;GeoHashUtils -->
 <g id="edge5" class="edge">
 <title>GeoHashCircleQuery&#45;&gt;GeoHashUtils</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
 </g>
 <!-- GoogleGeocoder&#45;&gt;GeoPoint -->
 <g id="edge3" class="edge">
 <title>GoogleGeocoder&#45;&gt;GeoPoint</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.15C640.8,-113.42 640.8,-38 640.8,-38 640.8,-38 548.41,-38 471.72,-38"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.15C640.8,-113.42 640.8,-38 640.8,-38 640.8,-38 548.41,-38 471.72,-38"/>
 </g>
 <!-- BingGeocoder -->
 <g id="node1" class="node">

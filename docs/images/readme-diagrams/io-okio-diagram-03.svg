@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="3637" height="1277" viewBox="0 0 3637 1277" role="img" aria-label="Coroutines Async I/O Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="1060" viewBox="0 0 1880 1060" role="img" aria-label="Coroutines Async I/O Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -12,125 +12,124 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="3637" height="1277"/>
-<rect class="frame" x="32" y="28" width="3573" height="1221" rx="30"/>
+<rect class="canvas" width="1880" height="1060"/>
+<rect class="frame" x="32" y="28" width="1816" height="1004" rx="30"/>
 <text class="title" x="68" y="84">Coroutines Async I/O Hierarchy</text>
-<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
-<path class="inherit" data-from="SuspendedPipe" data-to="SuspendedSink" d="M487 606 L487 419" stroke="#4F83BF"/>
-<path class="dependency" data-from="SuspendedSink" data-to="SuspendedSource" d="M657 353 L1914 353" stroke="#3E9868" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="SuspendedSource" data-to="BufferedSuspendedSink" d="M1914 353 L1189 353" stroke="#2E8F89"/>
-<path class="dependency" data-from="BufferedSuspendedSink" data-to="BufferedSuspendedSource" d="M1189 353 L1382 353" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="BufferedSuspendedSource" data-to="SuspendedFileChannelSink" d="M1552 419 L1552 606" stroke="#C94D68"/>
-<path class="dependency" data-from="SuspendedFileChannelSink" data-to="SuspendedFileChannelSource" d="M1722 708 L1818 708 L1818 955 L1914 955" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="SuspendedFileChannelSource" data-to="SuspendedSocketChannelSink" d="M2084 925 L2084 738" stroke="#718A35"/>
-<path class="dependency" data-from="SuspendedSocketChannelSink" data-to="SuspendedSocketChannelSource" d="M2254 708 L2351 708 L2351 955 L2447 955" stroke="#758297" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="SuspendedSocketChannelSource" data-to="RealBufferedSuspendedSink" d="M2617 925 L2617 738" stroke="#4F83BF"/>
-<path class="dependency" data-from="RealBufferedSuspendedSink" data-to="RealBufferedSuspendedSource" d="M2787 708 L2883 708 L2883 955 L2979 955" stroke="#3E9868" stroke-dasharray="8 7"/>
-<g id="SuspendedPipe">
-  <rect class="classCard" x="317" y="606" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="487" y="625" text-anchor="middle">class</text>
-  <text class="classTitle" x="487" y="653" text-anchor="middle">SuspendedPipe</text>
-  <line x1="317" y1="662" x2="657" y2="662" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="335" y="696">+sink: BufferedSuspendedSink</text>
-<text class="member" x="335" y="713">+source: BufferedSuspendedSource</text>
+<text class="subtitle" x="72" y="116">Sink and Source contracts stay at the top; concrete file, socket, buffering, and pipe adapters attach through short colored routes.</text>
+<path class="inherit" data-from="fileSink" data-to="sink" d="M390 455 L390 365 L320 365 L320 317" stroke="#755BC6"/>
+<path class="inherit" data-from="socketSink" data-to="sink" d="M760 455 L760 345 L320 345 L320 317" stroke="#758297"/>
+<path class="inherit" data-from="realSink" data-to="bufferedSink" d="M1130 455 L1130 365 L690 365 L690 317" stroke="#3E9868"/>
+<path class="inherit" data-from="fileSource" data-to="source" d="M390 735 L390 655 L80 655 L80 145 L1060 145 L1060 185" stroke="#718A35"/>
+<path class="inherit" data-from="socketSource" data-to="source" d="M760 735 L760 635 L120 635 L120 160 L1060 160 L1060 185" stroke="#4F83BF"/>
+<path class="inherit" data-from="realSource" data-to="bufferedSource" d="M1130 735 L1130 655 L1740 655 L1740 145 L1430 145 L1430 185" stroke="#2E8F89"/>
+<path class="dependency" data-from="bufferedSink" data-to="sink" d="M520 251 L490 251" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="bufferedSource" data-to="source" d="M1260 251 L1230 251" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="pipe" data-to="bufferedSink" d="M1500 455 L1500 340 L690 340 L690 317" stroke="#4F83BF" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="pipe" data-to="bufferedSource" d="M1500 455 L1500 317" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<g id="sink">
+  <rect class="classCard" x="150" y="185" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="320" y="204" text-anchor="middle">interface</text>
+  <text class="classTitle" x="320" y="232" text-anchor="middle">SuspendedSink</text>
+  <line x1="150" y1="241" x2="490" y2="241" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="168" y="266">write(Buffer, Long)</text>
+<text class="member" x="168" y="283">flush()</text>
+<text class="member" x="168" y="300">close()</text>
 </g>
-<g id="SuspendedSink">
-  <rect class="classCard" x="317" y="287" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="487" y="306" text-anchor="middle">interface</text>
-  <text class="classTitle" x="487" y="334" text-anchor="middle">SuspendedSink</text>
-  <line x1="317" y1="343" x2="657" y2="343" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="335" y="368">+write(source: Buffer, byteCount:</text>
-<text class="member" x="335" y="385">Long)*</text>
-<text class="member" x="335" y="402">+flush()*</text>
+<g id="bufferedSink">
+  <rect class="classCard" x="520" y="185" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="690" y="204" text-anchor="middle">interface</text>
+  <text class="classTitle" x="690" y="232" text-anchor="middle">BufferedSuspendedSink</text>
+  <line x1="520" y1="241" x2="860" y2="241" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="538" y="266">buffer: Buffer</text>
+<text class="member" x="538" y="283">write(ByteString)</text>
+<text class="member" x="538" y="300">writeUtf8(String)</text>
 </g>
-<g id="SuspendedSource">
-  <rect class="classCard" x="1914" y="287" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="2084" y="306" text-anchor="middle">interface</text>
-  <text class="classTitle" x="2084" y="334" text-anchor="middle">SuspendedSource</text>
-  <line x1="1914" y1="343" x2="2254" y2="343" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="1932" y="368">+read(sink: Buffer, byteCount:</text>
-<text class="member" x="1932" y="385">Long)* Long</text>
-<text class="member" x="1932" y="402">+close()*</text>
+<g id="source">
+  <rect class="classCard" x="890" y="185" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1060" y="204" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1060" y="232" text-anchor="middle">SuspendedSource</text>
+  <line x1="890" y1="241" x2="1230" y2="241" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="908" y="275">read(Buffer, Long)</text>
+<text class="member" x="908" y="292">close()</text>
 </g>
-<g id="BufferedSuspendedSink">
-  <rect class="classCard" x="849" y="287" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1019" y="306" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1019" y="334" text-anchor="middle">BufferedSuspendedSink</text>
-  <line x1="849" y1="343" x2="1189" y2="343" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="867" y="368">+buffer: Buffer</text>
-<text class="member" x="867" y="385">+write(byteString: ByteString)*</text>
-<text class="member" x="867" y="402">+writeUtf8(string: String)*</text>
+<g id="bufferedSource">
+  <rect class="classCard" x="1260" y="185" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1430" y="204" text-anchor="middle">interface</text>
+  <text class="classTitle" x="1430" y="232" text-anchor="middle">BufferedSuspendedSource</text>
+  <line x1="1260" y1="241" x2="1600" y2="241" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="1278" y="266">buffer: Buffer</text>
+<text class="member" x="1278" y="283">exhausted()</text>
+<text class="member" x="1278" y="300">require(Long)</text>
 </g>
-<g id="BufferedSuspendedSource">
-  <rect class="classCard" x="1382" y="287" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1552" y="306" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1552" y="334" text-anchor="middle">BufferedSuspendedSource</text>
-  <line x1="1382" y1="343" x2="1722" y2="343" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="1400" y="368">+buffer: Buffer</text>
-<text class="member" x="1400" y="385">+exhausted()* Boolean</text>
-<text class="member" x="1400" y="402">+require(byteCount: Long)*</text>
+<g id="fileSink">
+  <rect class="classCard" x="220" y="455" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="390" y="474" text-anchor="middle">class</text>
+  <text class="classTitle" x="390" y="502" text-anchor="middle">SuspendedFileChannelSink</text>
+  <line x1="220" y1="511" x2="560" y2="511" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="238" y="536">AsynchronousFileChannel</text>
+<text class="member" x="238" y="553">position: Long</text>
+<text class="member" x="238" y="570">writeBuffer</text>
 </g>
-<g id="SuspendedFileChannelSink">
-  <rect class="classCard" x="1382" y="606" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1552" y="625" text-anchor="middle">class</text>
-  <text class="classTitle" x="1552" y="653" text-anchor="middle">SuspendedFileChannelSink</text>
-  <line x1="1382" y1="662" x2="1722" y2="662" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1400" y="687">-channel: AsynchronousFileChannel</text>
-<text class="member" x="1400" y="704">-position: Long</text>
-<text class="member" x="1400" y="721">-writeBuffer: ByteBuffer</text>
+<g id="socketSink">
+  <rect class="classCard" x="590" y="455" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="760" y="474" text-anchor="middle">class</text>
+  <text class="classTitle" x="760" y="493" text-anchor="middle">SuspendedSocketChannel</text>
+<text class="classTitle" x="760" y="515" text-anchor="middle">Sink</text>
+  <line x1="590" y1="519" x2="930" y2="519" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="608" y="549">AsynchronousSocketChannel</text>
+<text class="member" x="608" y="566">network write adapter</text>
 </g>
-<g id="SuspendedFileChannelSource">
-  <rect class="classCard" x="1914" y="925" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="2084" y="944" text-anchor="middle">class</text>
-  <text class="classTitle" x="2084" y="963" text-anchor="middle">SuspendedFileChannel</text>
-<text class="classTitle" x="2084" y="985" text-anchor="middle">Source</text>
-  <line x1="1914" y1="989" x2="2254" y2="989" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="1932" y="1010">-channel: AsynchronousFileChannel</text>
-<text class="member" x="1932" y="1027">-position: Long</text>
-<text class="member" x="1932" y="1044">-readBuffer: ByteBuffer</text>
+<g id="realSink">
+  <rect class="classCard" x="960" y="455" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1130" y="474" text-anchor="middle">class</text>
+  <text class="classTitle" x="1130" y="493" text-anchor="middle">RealBufferedSuspended</text>
+<text class="classTitle" x="1130" y="515" text-anchor="middle">Sink</text>
+  <line x1="960" y1="519" x2="1300" y2="519" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="978" y="549">sink: SuspendedSink</text>
+<text class="member" x="978" y="566">closed guard</text>
 </g>
-<g id="SuspendedSocketChannelSink">
-  <rect class="classCard" x="1914" y="606" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="2084" y="625" text-anchor="middle">class</text>
-  <text class="classTitle" x="2084" y="644" text-anchor="middle">SuspendedSocketChannel</text>
-<text class="classTitle" x="2084" y="666" text-anchor="middle">Sink</text>
-  <line x1="1914" y1="670" x2="2254" y2="670" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="1932" y="700">-channel:</text>
-<text class="member" x="1932" y="717">AsynchronousSocketChannel</text>
+<g id="pipe">
+  <rect class="classCard" x="1330" y="455" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1500" y="474" text-anchor="middle">class</text>
+  <text class="classTitle" x="1500" y="502" text-anchor="middle">SuspendedPipe</text>
+  <line x1="1330" y1="511" x2="1670" y2="511" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1348" y="545">sink: BufferedSuspendedSink</text>
+<text class="member" x="1348" y="562">source: BufferedSuspendedSource</text>
 </g>
-<g id="SuspendedSocketChannelSource">
-  <rect class="classCard" x="2447" y="925" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="2617" y="944" text-anchor="middle">class</text>
-  <text class="classTitle" x="2617" y="963" text-anchor="middle">SuspendedSocketChannel</text>
-<text class="classTitle" x="2617" y="985" text-anchor="middle">Source</text>
-  <line x1="2447" y1="989" x2="2787" y2="989" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="2465" y="1019">-channel:</text>
-<text class="member" x="2465" y="1036">AsynchronousSocketChannel</text>
+<g id="fileSource">
+  <rect class="classCard" x="220" y="735" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="390" y="754" text-anchor="middle">class</text>
+  <text class="classTitle" x="390" y="773" text-anchor="middle">SuspendedFileChannel</text>
+<text class="classTitle" x="390" y="795" text-anchor="middle">Source</text>
+  <line x1="220" y1="799" x2="560" y2="799" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="238" y="820">AsynchronousFileChannel</text>
+<text class="member" x="238" y="837">position: Long</text>
+<text class="member" x="238" y="854">readBuffer</text>
 </g>
-<g id="RealBufferedSuspendedSink">
-  <rect class="classCard" x="2447" y="606" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="2617" y="625" text-anchor="middle">class</text>
-  <text class="classTitle" x="2617" y="644" text-anchor="middle">RealBufferedSuspended</text>
-<text class="classTitle" x="2617" y="666" text-anchor="middle">Sink</text>
-  <line x1="2447" y1="670" x2="2787" y2="670" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="2465" y="700">-sink: SuspendedSink</text>
-<text class="member" x="2465" y="717">-closed: AtomicBoolean</text>
+<g id="socketSource">
+  <rect class="classCard" x="590" y="735" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="760" y="754" text-anchor="middle">class</text>
+  <text class="classTitle" x="760" y="773" text-anchor="middle">SuspendedSocketChannel</text>
+<text class="classTitle" x="760" y="795" text-anchor="middle">Source</text>
+  <line x1="590" y1="799" x2="930" y2="799" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="608" y="829">AsynchronousSocketChannel</text>
+<text class="member" x="608" y="846">network read adapter</text>
 </g>
-<g id="RealBufferedSuspendedSource">
-  <rect class="classCard" x="2979" y="925" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="3149" y="944" text-anchor="middle">class</text>
-  <text class="classTitle" x="3149" y="963" text-anchor="middle">RealBufferedSuspended</text>
-<text class="classTitle" x="3149" y="985" text-anchor="middle">Source</text>
-  <line x1="2979" y1="989" x2="3319" y2="989" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="2997" y="1019">-source: SuspendedSource</text>
-<text class="member" x="2997" y="1036">-closed: AtomicBoolean</text>
+<g id="realSource">
+  <rect class="classCard" x="960" y="735" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1130" y="754" text-anchor="middle">class</text>
+  <text class="classTitle" x="1130" y="773" text-anchor="middle">RealBufferedSuspended</text>
+<text class="classTitle" x="1130" y="795" text-anchor="middle">Source</text>
+  <line x1="960" y1="799" x2="1300" y2="799" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="978" y="829">source: SuspendedSource</text>
+<text class="member" x="978" y="846">closed guard</text>
 </g>
 <g>
-  <rect x="3222" y="1169" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M3240 1187 L3298 1187" stroke="#3E9868"/>
-  <text class="detail" x="3312" y="1192">inheritance / implementation</text>
-  <path class="dependency" d="M3240 1208 L3298 1208" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="3312" y="1213">dependency / usage</text>
+  <rect x="1475" y="950" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1493 968 L1551 968" stroke="#3E9868"/>
+  <text class="detail" x="1565" y="973">inheritance / implementation</text>
+  <path class="dependency" d="M1493 989 L1551 989" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1565" y="994">dependency / usage</text>
 </g>
-<g><rect x="180" y="1187" width="2997" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1678.5" y="1213" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
+<g><rect x="180" y="968" width="1240" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="800" y="994" text-anchor="middle">bluetape4k-projects class diagrams - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

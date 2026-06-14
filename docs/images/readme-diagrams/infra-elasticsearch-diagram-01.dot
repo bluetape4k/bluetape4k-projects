@@ -8,10 +8,9 @@ digraph G {
   ElasticsearchClient [label="ElasticsearchClient", fillcolor="#FFF3D9", color="#D6A441"];
   ElasticsearchClientConfig [label="ElasticsearchClientConfig", fillcolor="#FDECEF", color="#DC6B82"];
   SearchApiCoroutines [label="SearchApiCoroutines", fillcolor="#F1ECFF", color="#8A72D6"];
-  { rank=source; BulkApiCoroutines; SearchApiCoroutines; }
-  ElasticsearchAsyncClient -> BulkApiCoroutines [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  ElasticsearchAsyncClient -> SearchApiCoroutines [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  ElasticsearchAsyncClient -> BulkApiCoroutines [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  ElasticsearchAsyncClient -> SearchApiCoroutines [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
   ElasticsearchClientConfig -> ElasticsearchAsyncClient [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
-  ElasticsearchClients -> ElasticsearchClient [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  ElasticsearchClients -> ElasticsearchAsyncClient [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  ElasticsearchClients -> ElasticsearchClient [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  ElasticsearchClients -> ElasticsearchAsyncClient [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
 }

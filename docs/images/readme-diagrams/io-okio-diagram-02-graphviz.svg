@@ -12,12 +12,12 @@
 <!-- Source&#45;&gt;Sink -->
 <g id="edge1" class="edge">
 <title>Source&#45;&gt;Sink</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M100.8,-161.1C100.8,-135.34 100.8,-101.52 100.8,-75.82"/>
+<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M100.8,-161.1C100.8,-135.34 100.8,-101.52 100.8,-75.82"/>
 </g>
 <!-- Source&#45;&gt;ByteChannelSink -->
 <g id="edge2" class="edge">
 <title>Source&#45;&gt;ByteChannelSink</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M202.08,-199C221.44,-199 235.8,-199 235.8,-199 235.8,-199 235.8,-38 235.8,-38 235.8,-38 250.16,-38 269.52,-38"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M202.08,-199C221.44,-199 235.8,-199 235.8,-199 235.8,-199 235.8,-38 235.8,-38 235.8,-38 250.16,-38 269.52,-38"/>
 </g>
 <!-- ByteChannelSource&#45;&gt;ByteChannelSink -->
 <g id="edge3" class="edge">
@@ -27,7 +27,7 @@
 <!-- ByteChannelSource&#45;&gt;FileChannelSink -->
 <g id="edge4" class="edge">
 <title>ByteChannelSource&#45;&gt;FileChannelSink</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M472.08,-199C491.44,-199 505.8,-199 505.8,-199 505.8,-199 505.8,-38 505.8,-38 505.8,-38 520.16,-38 539.52,-38"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M472.08,-199C491.44,-199 505.8,-199 505.8,-199 505.8,-199 505.8,-38 505.8,-38 505.8,-38 520.16,-38 539.52,-38"/>
 </g>
 <!-- FileChannelSource&#45;&gt;FileChannelSink -->
 <g id="edge5" class="edge">

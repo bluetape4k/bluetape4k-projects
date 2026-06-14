@@ -9,11 +9,10 @@ digraph G {
   JacksonKafkaCodec [label="JacksonKafkaCodec", fillcolor="#FDECEF", color="#DC6B82"];
   BinaryKafkaCodec [label="BinaryKafkaCodec", fillcolor="#F1ECFF", color="#8A72D6"];
   StringKafkaCodec [label="StringKafkaCodec", fillcolor="#EEF6D9", color="#8BA84D"];
-  { rank=source; KafkaCodec; }
   KafkaCodecs -> StringKafkaCodec [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  KafkaCodecs -> BinaryKafkaCodec [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  KafkaCodecs -> JacksonKafkaCodec [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  KafkaCodec -> StringKafkaCodec [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  KafkaCodec -> BinaryKafkaCodec [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  KafkaCodec -> JacksonKafkaCodec [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  KafkaCodecs -> BinaryKafkaCodec [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  KafkaCodecs -> JacksonKafkaCodec [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  KafkaCodec -> StringKafkaCodec [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
+  KafkaCodec -> BinaryKafkaCodec [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  KafkaCodec -> JacksonKafkaCodec [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
 }

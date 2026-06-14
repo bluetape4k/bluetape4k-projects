@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2572" height="1229" viewBox="0 0 2572 1229" role="img" aria-label="Pulsar Class Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1792" height="933" viewBox="0 0 1792 933" role="img" aria-label="Pulsar Class Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -12,100 +12,100 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="2572" height="1229"/>
-<rect class="frame" x="32" y="28" width="2508" height="1173" rx="30"/>
+<rect class="canvas" width="1792" height="933"/>
+<rect class="frame" x="32" y="28" width="1728" height="877" rx="30"/>
 <text class="title" x="68" y="84">Pulsar Class Structure</text>
-<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="ReaderSupport" data-to="ReaderExtensions" d="M1552 690 L1552 877" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="ConsumerSupport" data-to="ConsumerExtensions" d="M1019 690 L1019 877" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="ProducerSupport" data-to="ProducerExtensions" d="M487 690 L487 877" stroke="#4F83BF" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="PulsarClient" data-to="ReaderSupport" d="M1189 342 L1286 342 L1286 588 L1382 588" stroke="#3E9868" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="PulsarClient" data-to="ConsumerSupport" d="M1019 372 L1019 558" stroke="#3E9868" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="PulsarClient" data-to="ProducerSupport" d="M849 342 L753 342 L753 588 L657 588" stroke="#3E9868" stroke-dasharray="8 7"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="ReaderSupport" data-to="ReaderExtensions" data-route-color="teal" d="M1068 530 L1068 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ConsumerSupport" data-to="ConsumerExtensions" data-route-color="amber" d="M678 530 L678 631" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="ProducerSupport" data-to="ProducerExtensions" data-route-color="pink" d="M288 530 L288 631" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="PulsarClient" data-to="ReaderSupport" data-route-color="purple" d="M848 267 L873 267 L873 428 L898 428" stroke="#755BC6" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="PulsarClient" data-to="ConsumerSupport" data-route-color="olive" d="M678 297 L678 398" stroke="#718A35" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="PulsarClient" data-to="ProducerSupport" data-route-color="indigo" d="M508 267 L483 267 L483 428 L458 428" stroke="#4F63C7" stroke-dasharray="8 7"/>
 <g id="ProducerSupport">
-  <rect class="classCard" x="317" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="487" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="487" y="605" text-anchor="middle">ProducerSupport</text>
-  <line x1="317" y1="614" x2="657" y2="614" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="335" y="639">+PulsarClient.producer(schema,</text>
-<text class="member" x="335" y="656">setup)</text>
-<text class="member" x="335" y="673">+PulsarClient.withProducer(schema,</text>
+  <rect class="classCard" x="118" y="398" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="288" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="445" text-anchor="middle">ProducerSupport</text>
+  <line x1="118" y1="454" x2="458" y2="454" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="136" y="479">+PulsarClient.producer(schema,</text>
+<text class="member" x="136" y="496">setup)</text>
+<text class="member" x="136" y="513">+PulsarClient.withProducer(schema,</text>
 </g>
 <g id="PulsarClient">
-  <rect class="classCard" x="849" y="240" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1019" y="259" text-anchor="middle">class</text>
-  <text class="classTitle" x="1019" y="287" text-anchor="middle">PulsarClient</text>
-  <line x1="849" y1="296" x2="1189" y2="296" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="867" y="321">+pulsarClient(serviceUrl, setup)</text>
-<text class="member" x="867" y="338">+withPulsarClient(serviceUrl,</text>
-<text class="member" x="867" y="355">setup,</text>
+  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="212" text-anchor="middle">PulsarClient</text>
+  <line x1="508" y1="221" x2="848" y2="221" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="526" y="246">+pulsarClient(serviceUrl, setup)</text>
+<text class="member" x="526" y="263">+withPulsarClient(serviceUrl,</text>
+<text class="member" x="526" y="280">setup,</text>
 </g>
 <g id="ConsumerSupport">
-  <rect class="classCard" x="849" y="558" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="1019" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="1019" y="605" text-anchor="middle">ConsumerSupport</text>
-  <line x1="849" y1="614" x2="1189" y2="614" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="867" y="639">+PulsarClient.consumer(schema,</text>
-<text class="member" x="867" y="656">setup)</text>
-<text class="member" x="867" y="673">+PulsarClient.withConsumer(schema,</text>
+  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="445" text-anchor="middle">ConsumerSupport</text>
+  <line x1="508" y1="454" x2="848" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="526" y="479">+PulsarClient.consumer(schema,</text>
+<text class="member" x="526" y="496">setup)</text>
+<text class="member" x="526" y="513">+PulsarClient.withConsumer(schema,</text>
 </g>
 <g id="ReaderSupport">
-  <rect class="classCard" x="1382" y="558" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1552" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="1552" y="605" text-anchor="middle">ReaderSupport</text>
-  <line x1="1382" y1="614" x2="1722" y2="614" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="1400" y="639">+PulsarClient.reader(schema,</text>
-<text class="member" x="1400" y="656">setup)</text>
-<text class="member" x="1400" y="673">+PulsarClient.withReader(schema,</text>
+  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="445" text-anchor="middle">ReaderSupport</text>
+  <line x1="898" y1="454" x2="1238" y2="454" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="916" y="479">+PulsarClient.reader(schema,</text>
+<text class="member" x="916" y="496">setup)</text>
+<text class="member" x="916" y="513">+PulsarClient.withReader(schema,</text>
 </g>
 <g id="ReaderExtensions">
-  <rect class="classCard" x="1382" y="877" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1552" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="1552" y="924" text-anchor="middle">ReaderExtensions</text>
-  <line x1="1382" y1="933" x2="1722" y2="933" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="1400" y="967">+Reader.readNextSuspend()</text>
-<text class="member" x="1400" y="984">+Reader.readAsFlow()</text>
+  <rect class="classCard" x="898" y="631" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="1068" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="678" text-anchor="middle">ReaderExtensions</text>
+  <line x1="898" y1="687" x2="1238" y2="687" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="916" y="721">+Reader.readNextSuspend()</text>
+<text class="member" x="916" y="738">+Reader.readAsFlow()</text>
 </g>
 <g id="ConsumerExtensions">
-  <rect class="classCard" x="849" y="877" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1019" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="1019" y="924" text-anchor="middle">ConsumerExtensions</text>
-  <line x1="849" y1="933" x2="1189" y2="933" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="867" y="958">+Consumer.receiveSuspend()</text>
-<text class="member" x="867" y="975">+Consumer.receiveAsFlow()</text>
-<text class="member" x="867" y="992">+Consumer.acknowledgeSuspend(message)</text>
+  <rect class="classCard" x="508" y="631" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="678" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="678" text-anchor="middle">ConsumerExtensions</text>
+  <line x1="508" y1="687" x2="848" y2="687" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="526" y="712">+Consumer.receiveSuspend()</text>
+<text class="member" x="526" y="729">+Consumer.receiveAsFlow()</text>
+<text class="member" x="526" y="746">+Consumer.acknowledgeSuspend(message)</text>
 </g>
 <g id="ProducerExtensions">
-  <rect class="classCard" x="317" y="877" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="487" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="487" y="924" text-anchor="middle">ProducerExtensions</text>
-  <line x1="317" y1="933" x2="657" y2="933" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="335" y="958">+Producer.sendSuspend(message)</text>
-<text class="member" x="335" y="975">+Producer.sendSuspend(setup)</text>
-<text class="member" x="335" y="992">+Producer.sendAsFlow(messages)</text>
+  <rect class="classCard" x="118" y="631" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="288" y="650" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="678" text-anchor="middle">ProducerExtensions</text>
+  <line x1="118" y1="687" x2="458" y2="687" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="136" y="712">+Producer.sendSuspend(message)</text>
+<text class="member" x="136" y="729">+Producer.sendSuspend(setup)</text>
+<text class="member" x="136" y="746">+Producer.sendAsFlow(messages)</text>
 </g>
 <g id="Jackson3Schema">
-  <rect class="classCard" x="1382" y="240" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1552" y="259" text-anchor="middle">class</text>
-  <text class="classTitle" x="1552" y="287" text-anchor="middle">Jackson3Schema</text>
-  <line x1="1382" y1="296" x2="1722" y2="296" stroke="#9AA8B8" stroke-width="1.4"/>
-  <text class="member" x="1400" y="330">+jackson3Schema~T~(type, mapper)</text>
-<text class="member" x="1400" y="347">+jackson3Schema~T~(mapper)</text>
+  <rect class="classCard" x="1334" y="165" width="340" height="132" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <text class="stereo" x="1504" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="212" text-anchor="middle">Jackson3Schema</text>
+  <line x1="1334" y1="221" x2="1674" y2="221" stroke="#9AA8B8" stroke-width="1.4"/>
+  <text class="member" x="1352" y="255">+jackson3Schema~T~(type, mapper)</text>
+<text class="member" x="1352" y="272">+jackson3Schema~T~(mapper)</text>
 </g>
 <g id="JacksonSchema">
-  <rect class="classCard" x="1914" y="240" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="2084" y="259" text-anchor="middle">class</text>
-  <text class="classTitle" x="2084" y="287" text-anchor="middle">JacksonSchema</text>
-  <line x1="1914" y1="296" x2="2254" y2="296" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="1932" y="330">+jacksonSchema~T~(type, mapper)</text>
-<text class="member" x="1932" y="347">+jacksonSchema~T~(mapper)</text>
+  <rect class="classCard" x="1334" y="325" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="1504" y="344" text-anchor="middle">class</text>
+  <text class="classTitle" x="1504" y="372" text-anchor="middle">JacksonSchema</text>
+  <line x1="1334" y1="381" x2="1674" y2="381" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="1352" y="415">+jacksonSchema~T~(type, mapper)</text>
+<text class="member" x="1352" y="432">+jacksonSchema~T~(mapper)</text>
 </g>
 <g>
-  <rect x="2157" y="1121" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M2175 1139 L2233 1139" stroke="#3E9868"/>
-  <text class="detail" x="2247" y="1144">inheritance / implementation</text>
-  <path class="dependency" d="M2175 1160 L2233 1160" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="2247" y="1165">dependency / usage</text>
+  <rect x="1377" y="825" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1395 843 L1453 843" stroke="#3E9868"/>
+  <text class="detail" x="1467" y="848">inheritance / implementation</text>
+  <path class="dependency" d="M1395 864 L1453 864" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1467" y="869">dependency / usage</text>
 </g>
-<g><rect x="180" y="1139" width="1932" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1146" y="1165" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
+<g><rect x="180" y="843" width="1152" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="756" y="869" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

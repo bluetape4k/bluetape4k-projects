@@ -277,11 +277,9 @@ function renderSvg(diagram, layout) {
   const routeSummary = geometrySummary(diagram.file, layout, routes);
   const layerMarkup = layout.layers.map((layer) => renderLayer(layer)).join("\n");
   const routeMarkup = routes.map((route) => renderRoute(route)).join("\n");
-  const margins = `${routeSummary.margins.left}/${routeSummary.margins.right}/${routeSummary.margins.top}/${routeSummary.margins.bottom}`;
   const footer = `  <g transform="translate(76,${layout.footerY})">
     <rect class="pill" x="0" y="0" width="${layout.width - 152}" height="${layout.footerH}" rx="10"/>
-    <text class="small" x="${(layout.width - 152) / 2}" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: ${diagram.file}.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="${(layout.width - 152) / 2}" y="33" text-anchor="middle" dominant-baseline="middle">Gate: n=${routeSummary.nodes}, r=${routeSummary.routes}, seg=${routeSummary.segments}, endpoint/bend/cross/overlap/clear=0, margins=${margins}, titleGap=${routeSummary.titleGap}.</text>
+    <text class="small" x="${(layout.width - 152) / 2}" y="23" text-anchor="middle" dominant-baseline="middle">${escapeXml(diagram.footer ?? "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}</text>
   </g>`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="title desc">

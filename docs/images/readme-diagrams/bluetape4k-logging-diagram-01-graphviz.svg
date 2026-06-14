@@ -12,47 +12,47 @@
 <!-- KLoggerFactory&#45;&gt;Logger -->
 <g id="edge4" class="edge">
 <title>KLoggerFactory&#45;&gt;Logger</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M186.3,-323.02C186.3,-275.14 186.3,-199 186.3,-199 186.3,-199 247.62,-199 305.58,-199"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M186.3,-323.02C186.3,-275.14 186.3,-199 186.3,-199 186.3,-199 247.62,-199 305.58,-199"/>
 </g>
 <!-- Logger&#45;&gt;CoroutineMDC -->
 <g id="edge1" class="edge">
 <title>Logger&#45;&gt;CoroutineMDC</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M339.3,-161.1C339.3,-135.34 339.3,-101.52 339.3,-75.82"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M339.3,-161.1C339.3,-135.34 339.3,-101.52 339.3,-75.82"/>
 </g>
 <!-- Logger&#45;&gt;MDC -->
 <g id="edge2" class="edge">
 <title>Logger&#45;&gt;MDC</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M474.3,-161.1C474.3,-135.34 474.3,-101.52 474.3,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M474.3,-161.1C474.3,-135.34 474.3,-101.52 474.3,-75.82"/>
 </g>
 <!-- KLogging&#45;&gt;KLoggerFactory -->
 <g id="edge3" class="edge">
 <title>KLogging&#45;&gt;KLoggerFactory</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M677.66,-535C488.66,-535 100.8,-535 100.8,-535 100.8,-535 100.8,-450.4 100.8,-399.19"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M677.66,-535C488.66,-535 100.8,-535 100.8,-535 100.8,-535 100.8,-450.4 100.8,-399.19"/>
 </g>
 <!-- KLogging&#45;&gt;Logger -->
 <g id="edge9" class="edge">
 <title>KLogging&#45;&gt;Logger</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M677.5,-510C552.7,-510 357,-510 357,-510 357,-510 357,-320.42 357,-237.49"/>
+<path fill="none" stroke="#2e83b8" stroke-width="1.8" stroke-dasharray="5,2" d="M677.5,-510C552.7,-510 357,-510 357,-510 357,-510 357,-320.42 357,-237.49"/>
 </g>
 <!-- KLogging&#45;&gt;KLoggingChannel -->
 <g id="edge8" class="edge">
 <title>KLogging&#45;&gt;KLoggingChannel</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" d="M778.8,-484.3C778.8,-458.54 778.8,-424.72 778.8,-399.02"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" d="M778.8,-484.3C778.8,-458.54 778.8,-424.72 778.8,-399.02"/>
 </g>
 <!-- KotlinLogging&#45;&gt;Logger -->
 <g id="edge5" class="edge">
 <title>KotlinLogging&#45;&gt;Logger</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M457.8,-322.7C457.8,-296.94 457.8,-263.12 457.8,-237.42"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M457.8,-322.7C457.8,-296.94 457.8,-263.12 457.8,-237.42"/>
 </g>
 <!-- KLoggingChannel&#45;&gt;Logger -->
 <g id="edge6" class="edge">
 <title>KLoggingChannel&#45;&gt;Logger</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M677.53,-361C667.14,-361 660.3,-361 660.3,-361 660.3,-361 660.3,-199 660.3,-199 660.3,-199 578.69,-199 508.08,-199"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" stroke-dasharray="5,2" d="M677.53,-361C667.14,-361 660.3,-361 660.3,-361 660.3,-361 660.3,-199 660.3,-199 660.3,-199 578.69,-199 508.08,-199"/>
 </g>
 <!-- KLoggingChannel&#45;&gt;LogEvent -->
 <g id="edge7" class="edge">
 <title>KLoggingChannel&#45;&gt;LogEvent</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M778.8,-322.7C778.8,-296.94 778.8,-263.12 778.8,-237.42"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" stroke-dasharray="5,2" d="M778.8,-322.7C778.8,-296.94 778.8,-263.12 778.8,-237.42"/>
 </g>
 <!-- KLoggerFactory -->
 <g id="node1" class="node">

@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2714" height="1229" viewBox="0 0 2714 1229" role="img" aria-label="LettuceBinaryCodec Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1746" height="780" viewBox="0 0 1746 780" role="img" aria-label="LettuceBinaryCodec Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -12,75 +12,75 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="2714" height="1229"/>
-<rect class="frame" x="32" y="28" width="2650" height="1173" rx="30"/>
+<rect class="canvas" width="1746" height="780"/>
+<rect class="frame" x="32" y="28" width="1682" height="724" rx="30"/>
 <text class="title" x="68" y="84">LettuceBinaryCodec Hierarchy</text>
-<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="LettuceBinaryCodecs" data-to="LettuceBinaryCodec" d="M615 690 L615 784 L1294 784 L1294 877" stroke="#4F83BF" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="LettuceLongCodec" data-to="RedisCodec" d="M1654 588 L1623 588 L1623 342 L1592 342" stroke="#755BC6"/>
-<path class="inherit" data-from="LettuceIntCodec" data-to="RedisCodec" d="M1189 588 L1221 588 L1221 342 L1252 342" stroke="#B9851B"/>
-<path class="inherit" data-from="LettuceBinaryCodec" data-to="ToByteBufEncoder" d="M1592 907 L1824 907 L1824 342 L2056 342" stroke="#C94D68"/>
-<path class="inherit" data-from="LettuceBinaryCodec" data-to="RedisCodec" d="M1422 877 L1422 372" stroke="#C94D68"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="LettuceBinaryCodecs" data-to="LettuceBinaryCodec" data-route-color="teal" d="M458 267 L483 267 L483 428 L508 428" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="LettuceLongCodec" data-to="RedisCodec" data-route-color="blue" d="M1288 428 L1263 428 L1263 267 L1238 267" stroke="#4F83BF"/>
+<path class="inherit" data-from="LettuceIntCodec" data-to="RedisCodec" data-route-color="teal" d="M1068 398 L1068 297" stroke="#2E8F89"/>
+<path class="inherit" data-from="LettuceBinaryCodec" data-to="ToByteBufEncoder" data-route-color="amber" d="M678 398 L678 297" stroke="#B9851B"/>
+<path class="inherit" data-from="LettuceBinaryCodec" data-to="RedisCodec" data-route-color="pink" d="M848 428 L873 428 L873 267 L898 267" stroke="#C94D68"/>
 <g id="LettuceBinaryCodecs">
-  <rect class="classCard" x="317" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="487" y="577" text-anchor="middle">object</text>
-  <text class="classTitle" x="487" y="605" text-anchor="middle">LettuceBinaryCodecs</text>
-  <line x1="317" y1="614" x2="657" y2="614" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="335" y="639">+default~V~():</text>
-<text class="member" x="335" y="656">LettuceBinaryCodec~V~</text>
-<text class="member" x="335" y="673">+jdk~V~(): LettuceBinaryCodec~V~</text>
+  <rect class="classCard" x="118" y="165" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="288" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="212" text-anchor="middle">LettuceBinaryCodecs</text>
+  <line x1="118" y1="221" x2="458" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="136" y="246">+default~V~():</text>
+<text class="member" x="136" y="263">LettuceBinaryCodec~V~</text>
+<text class="member" x="136" y="280">+jdk~V~(): LettuceBinaryCodec~V~</text>
 </g>
 <g id="RedisCodec">
-  <rect class="classCard" x="1252" y="240" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1422" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1422" y="287" text-anchor="middle">RedisCodec</text>
-  <line x1="1252" y1="296" x2="1592" y2="296" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1270" y="321">+encodeKey(key): ByteBuffer</text>
-<text class="member" x="1270" y="338">+decodeKey(bytes): K</text>
-<text class="member" x="1270" y="355">+encodeValue(value): ByteBuffer</text>
+  <rect class="classCard" x="898" y="165" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="1068" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="212" text-anchor="middle">RedisCodec</text>
+  <line x1="898" y1="221" x2="1238" y2="221" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="916" y="246">+encodeKey(key): ByteBuffer</text>
+<text class="member" x="916" y="263">+decodeKey(bytes): K</text>
+<text class="member" x="916" y="280">+encodeValue(value): ByteBuffer</text>
 </g>
 <g id="ToByteBufEncoder">
-  <rect class="classCard" x="2056" y="240" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="2226" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="2226" y="287" text-anchor="middle">ToByteBufEncoder</text>
-  <line x1="2056" y1="296" x2="2396" y2="296" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="2074" y="321">+encodeKey(key, target: ByteBuf)</text>
-<text class="member" x="2074" y="338">+encodeValue(value, target:</text>
-<text class="member" x="2074" y="355">ByteBuf)</text>
+  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="212" text-anchor="middle">ToByteBufEncoder</text>
+  <line x1="508" y1="221" x2="848" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="526" y="246">+encodeKey(key, target: ByteBuf)</text>
+<text class="member" x="526" y="263">+encodeValue(value, target:</text>
+<text class="member" x="526" y="280">ByteBuf)</text>
 </g>
 <g id="LettuceIntCodec">
-  <rect class="classCard" x="849" y="558" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1019" y="577" text-anchor="middle">object</text>
-  <text class="classTitle" x="1019" y="605" text-anchor="middle">LettuceIntCodec</text>
-  <line x1="849" y1="614" x2="1189" y2="614" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="867" y="639">+encodeValue(value: Int):</text>
-<text class="member" x="867" y="656">ByteBuffer</text>
-<text class="member" x="867" y="673">+decodeValue(bytes): Int</text>
+  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="445" text-anchor="middle">LettuceIntCodec</text>
+  <line x1="898" y1="454" x2="1238" y2="454" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="916" y="479">+encodeValue(value: Int):</text>
+<text class="member" x="916" y="496">ByteBuffer</text>
+<text class="member" x="916" y="513">+decodeValue(bytes): Int</text>
 </g>
 <g id="LettuceBinaryCodec">
-  <rect class="classCard" x="1252" y="877" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1422" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="1422" y="924" text-anchor="middle">LettuceBinaryCodec</text>
-  <line x1="1252" y1="933" x2="1592" y2="933" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="1270" y="958">+serializer: BinarySerializer</text>
-<text class="member" x="1270" y="975">+encodeKey(key): ByteBuffer</text>
-<text class="member" x="1270" y="992">+encodeValue(value): ByteBuffer</text>
+  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="445" text-anchor="middle">LettuceBinaryCodec</text>
+  <line x1="508" y1="454" x2="848" y2="454" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="526" y="479">+serializer: BinarySerializer</text>
+<text class="member" x="526" y="496">+encodeKey(key): ByteBuffer</text>
+<text class="member" x="526" y="513">+encodeValue(value): ByteBuffer</text>
 </g>
 <g id="LettuceLongCodec">
-  <rect class="classCard" x="1654" y="558" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1824" y="577" text-anchor="middle">object</text>
-  <text class="classTitle" x="1824" y="605" text-anchor="middle">LettuceLongCodec</text>
-  <line x1="1654" y1="614" x2="1994" y2="614" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1672" y="639">+encodeValue(value: Long):</text>
-<text class="member" x="1672" y="656">ByteBuffer</text>
-<text class="member" x="1672" y="673">+decodeValue(bytes): Long</text>
+  <rect class="classCard" x="1288" y="398" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="1458" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1458" y="445" text-anchor="middle">LettuceLongCodec</text>
+  <line x1="1288" y1="454" x2="1628" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="1306" y="479">+encodeValue(value: Long):</text>
+<text class="member" x="1306" y="496">ByteBuffer</text>
+<text class="member" x="1306" y="513">+decodeValue(bytes): Long</text>
 </g>
 <g>
-  <rect x="2299" y="1121" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M2317 1139 L2375 1139" stroke="#3E9868"/>
-  <text class="detail" x="2389" y="1144">inheritance / implementation</text>
-  <path class="dependency" d="M2317 1160 L2375 1160" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="2389" y="1165">dependency / usage</text>
+  <rect x="1331" y="672" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1349 690 L1407 690" stroke="#3E9868"/>
+  <text class="detail" x="1421" y="695">inheritance / implementation</text>
+  <path class="dependency" d="M1349 711 L1407 711" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1421" y="716">dependency / usage</text>
 </g>
-<g><rect x="180" y="1139" width="2074" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1217" y="1165" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
+<g><rect x="180" y="690" width="1106" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="733" y="716" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

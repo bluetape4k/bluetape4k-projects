@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2856" height="1229" viewBox="0 0 2856 1229" role="img" aria-label="Kafka Class Hierarchy">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="884" viewBox="0 0 1500 884" role="img" aria-label="Kafka Class Hierarchy">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
@@ -12,82 +12,82 @@
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
-<rect class="canvas" width="2856" height="1229"/>
-<rect class="frame" x="32" y="28" width="2792" height="1173" rx="30"/>
+<rect class="canvas" width="1500" height="884"/>
+<rect class="frame" x="32" y="28" width="1436" height="828" rx="30"/>
 <text class="title" x="68" y="84">Kafka Class Hierarchy</text>
-<text class="subtitle" x="72" y="116">Graphviz-ranked class model: source relationships redrawn with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="KafkaCodecs" data-to="StringKafkaCodec" d="M1461 660 L1629 660 L1629 907 L1796 907" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="KafkaCodecs" data-to="BinaryKafkaCodec" d="M1419 690 L1419 877" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="KafkaCodecs" data-to="JacksonKafkaCodec" d="M1121 660 L1090 660 L1090 907 L1059 907" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="StringKafkaCodec" data-to="KafkaCodec" d="M1838 877 L1838 625 L1822 625 L1822 372" stroke="#718A35"/>
-<path class="inherit" data-from="BinaryKafkaCodec" data-to="KafkaCodec" d="M1561 877 L1561 625 L1566 625 L1566 372" stroke="#755BC6"/>
-<path class="inherit" data-from="JacksonKafkaCodec" data-to="KafkaCodec" d="M1017 877 L1017 625 L1566 625 L1566 372" stroke="#C94D68"/>
+<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
+<path class="dependency" data-from="KafkaCodecs" data-to="StringKafkaCodec" data-route-color="teal" d="M1068 297 L1068 398" stroke="#2E8F89" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="KafkaCodecs" data-to="BinaryKafkaCodec" data-route-color="amber" d="M898 267 L873 267 L873 428 L848 428" stroke="#B9851B" stroke-dasharray="8 7"/>
+<path class="dependency" data-from="KafkaCodecs" data-to="JacksonKafkaCodec" data-route-color="pink" d="M940 297 L940 348 L416 348 L416 398" stroke="#C94D68" stroke-dasharray="8 7"/>
+<path class="inherit" data-from="StringKafkaCodec" data-to="KafkaCodec" data-route-color="amber" d="M898 428 L873 428 L873 267 L848 267" stroke="#B9851B"/>
+<path class="inherit" data-from="BinaryKafkaCodec" data-to="KafkaCodec" data-route-color="pink" d="M678 398 L678 297" stroke="#C94D68"/>
+<path class="inherit" data-from="JacksonKafkaCodec" data-to="KafkaCodec" data-route-color="purple" d="M458 428 L483 428 L483 267 L508 267" stroke="#755BC6"/>
 <g id="SuspendKafkaConsumerTemplate">
-  <rect class="classCard" x="317" y="558" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="487" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="487" y="596" text-anchor="middle">SuspendKafkaConsumer</text>
-<text class="classTitle" x="487" y="618" text-anchor="middle">Template</text>
-  <line x1="317" y1="622" x2="657" y2="622" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="335" y="652">-receiverOptions: ReceiverOptions</text>
-<text class="member" x="335" y="669">+receive() Flow~ReceiverRecord~</text>
+  <rect class="classCard" x="118" y="582" width="340" height="132" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="stereo" x="288" y="601" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="620" text-anchor="middle">SuspendKafkaConsumer</text>
+<text class="classTitle" x="288" y="642" text-anchor="middle">Template</text>
+  <line x1="118" y1="646" x2="458" y2="646" stroke="#5B8DEF" stroke-width="1.4"/>
+  <text class="member" x="136" y="676">-receiverOptions: ReceiverOptions</text>
+<text class="member" x="136" y="693">+receive() Flow~ReceiverRecord~</text>
 </g>
 <g id="KafkaCodec">
-  <rect class="classCard" x="1524" y="240" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1694" y="259" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1694" y="287" text-anchor="middle">KafkaCodec</text>
-  <line x1="1524" y1="296" x2="1864" y2="296" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1542" y="330">+serialize(topic, data) ByteArray</text>
-<text class="member" x="1542" y="347">+deserialize(topic, bytes) T</text>
+  <rect class="classCard" x="508" y="165" width="340" height="132" rx="8" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="stereo" x="678" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="212" text-anchor="middle">KafkaCodec</text>
+  <line x1="508" y1="221" x2="848" y2="221" stroke="#58A978" stroke-width="1.4"/>
+  <text class="member" x="526" y="255">+serialize(topic, data) ByteArray</text>
+<text class="member" x="526" y="272">+deserialize(topic, bytes) T</text>
 </g>
 <g id="KafkaCodecs">
-  <rect class="classCard" x="1121" y="558" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="1291" y="577" text-anchor="middle">object</text>
-  <text class="classTitle" x="1291" y="605" text-anchor="middle">KafkaCodecs</text>
-  <line x1="1121" y1="614" x2="1461" y2="614" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="1139" y="639">+String: StringKafkaCodec</text>
-<text class="member" x="1139" y="656">+ByteArray: ByteArrayKafkaCodec</text>
-<text class="member" x="1139" y="673">+Jackson: JacksonKafkaCodec</text>
+  <rect class="classCard" x="898" y="165" width="340" height="132" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
+  <text class="stereo" x="1068" y="184" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="212" text-anchor="middle">KafkaCodecs</text>
+  <line x1="898" y1="221" x2="1238" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
+  <text class="member" x="916" y="246">+String: StringKafkaCodec</text>
+<text class="member" x="916" y="263">+ByteArray: ByteArrayKafkaCodec</text>
+<text class="member" x="916" y="280">+Jackson: JacksonKafkaCodec</text>
 </g>
 <g id="SuspendKafkaProducerTemplate">
-  <rect class="classCard" x="2198" y="558" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="2368" y="577" text-anchor="middle">class</text>
-  <text class="classTitle" x="2368" y="596" text-anchor="middle">SuspendKafkaProducer</text>
-<text class="classTitle" x="2368" y="618" text-anchor="middle">Template</text>
-  <line x1="2198" y1="622" x2="2538" y2="622" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="2216" y="643">-senderOptions: SenderOptions</text>
-<text class="member" x="2216" y="660">+send(topic, value) SenderResult</text>
-<text class="member" x="2216" y="677">+send(topic, key, value)</text>
+  <rect class="classCard" x="554" y="582" width="340" height="132" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="stereo" x="724" y="601" text-anchor="middle">class</text>
+  <text class="classTitle" x="724" y="620" text-anchor="middle">SuspendKafkaProducer</text>
+<text class="classTitle" x="724" y="642" text-anchor="middle">Template</text>
+  <line x1="554" y1="646" x2="894" y2="646" stroke="#D6A441" stroke-width="1.4"/>
+  <text class="member" x="572" y="667">-senderOptions: SenderOptions</text>
+<text class="member" x="572" y="684">+send(topic, value) SenderResult</text>
+<text class="member" x="572" y="701">+send(topic, key, value)</text>
 </g>
 <g id="JacksonKafkaCodec">
-  <rect class="classCard" x="719" y="877" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="889" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="889" y="924" text-anchor="middle">JacksonKafkaCodec</text>
-  <line x1="719" y1="933" x2="1059" y2="933" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="737" y="967">+serialize(topic, data) ByteArray</text>
-<text class="member" x="737" y="984">+deserialize(topic, bytes) T</text>
+  <rect class="classCard" x="118" y="398" width="340" height="132" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
+  <text class="stereo" x="288" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="288" y="445" text-anchor="middle">JacksonKafkaCodec</text>
+  <line x1="118" y1="454" x2="458" y2="454" stroke="#DC6B82" stroke-width="1.4"/>
+  <text class="member" x="136" y="488">+serialize(topic, data) ByteArray</text>
+<text class="member" x="136" y="505">+deserialize(topic, bytes) T</text>
 </g>
 <g id="BinaryKafkaCodec">
-  <rect class="classCard" x="1263" y="877" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1433" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="1433" y="924" text-anchor="middle">BinaryKafkaCodec</text>
-  <line x1="1263" y1="933" x2="1603" y2="933" stroke="#8A72D6" stroke-width="1.4"/>
-  <text class="member" x="1281" y="967">+serialize(topic, data) ByteArray</text>
-<text class="member" x="1281" y="984">+deserialize(topic, bytes) T</text>
+  <rect class="classCard" x="508" y="398" width="340" height="132" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="stereo" x="678" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="678" y="445" text-anchor="middle">BinaryKafkaCodec</text>
+  <line x1="508" y1="454" x2="848" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
+  <text class="member" x="526" y="488">+serialize(topic, data) ByteArray</text>
+<text class="member" x="526" y="505">+deserialize(topic, bytes) T</text>
 </g>
 <g id="StringKafkaCodec">
-  <rect class="classCard" x="1796" y="877" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1966" y="896" text-anchor="middle">class</text>
-  <text class="classTitle" x="1966" y="924" text-anchor="middle">StringKafkaCodec</text>
-  <line x1="1796" y1="933" x2="2136" y2="933" stroke="#8BA84D" stroke-width="1.4"/>
-  <text class="member" x="1814" y="967">+serialize(topic, data) ByteArray</text>
-<text class="member" x="1814" y="984">+deserialize(topic, bytes) String</text>
+  <rect class="classCard" x="898" y="398" width="340" height="132" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
+  <text class="stereo" x="1068" y="417" text-anchor="middle">class</text>
+  <text class="classTitle" x="1068" y="445" text-anchor="middle">StringKafkaCodec</text>
+  <line x1="898" y1="454" x2="1238" y2="454" stroke="#8BA84D" stroke-width="1.4"/>
+  <text class="member" x="916" y="488">+serialize(topic, data) ByteArray</text>
+<text class="member" x="916" y="505">+deserialize(topic, bytes) String</text>
 </g>
 <g>
-  <rect x="2441" y="1121" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M2459 1139 L2517 1139" stroke="#3E9868"/>
-  <text class="detail" x="2531" y="1144">inheritance / implementation</text>
-  <path class="dependency" d="M2459 1160 L2517 1160" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="2531" y="1165">dependency / usage</text>
+  <rect x="1085" y="776" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
+  <path class="inherit" d="M1103 794 L1161 794" stroke="#3E9868"/>
+  <text class="detail" x="1175" y="799">inheritance / implementation</text>
+  <path class="dependency" d="M1103 815 L1161 815" stroke="#758297" stroke-dasharray="8 7"/>
+  <text class="detail" x="1175" y="820">dependency / usage</text>
 </g>
-<g><rect x="180" y="1139" width="2216" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1288" y="1165" text-anchor="middle">Graphviz evidence: .dot, .plain, and -graphviz.svg define relationship order and route intent.</text></g>
+<g><rect x="180" y="794" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="820" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

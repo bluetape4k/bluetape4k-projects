@@ -12,22 +12,22 @@
 <!-- JsonSerializer&#45;&gt;JacksonSerializer -->
 <g id="edge5" class="edge">
 <title>JsonSerializer&#45;&gt;JacksonSerializer</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M370.8,-484.3C370.8,-458.54 370.8,-424.72 370.8,-399.02"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M370.8,-484.3C370.8,-458.54 370.8,-424.72 370.8,-399.02"/>
 </g>
 <!-- Jackson&#45;&gt;JsonMaskerModule -->
 <g id="edge2" class="edge">
 <title>Jackson&#45;&gt;JsonMaskerModule</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-199C193.19,-199 100.8,-199 100.8,-199 100.8,-199 100.8,-123.67 100.8,-76"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-199C193.19,-199 100.8,-199 100.8,-199 100.8,-199 100.8,-123.67 100.8,-76"/>
 </g>
 <!-- Jackson&#45;&gt;JsonTinkEncryptModule -->
 <g id="edge3" class="edge">
 <title>Jackson&#45;&gt;JsonTinkEncryptModule</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
 </g>
 <!-- Jackson&#45;&gt;JsonUuidModule -->
 <g id="edge1" class="edge">
 <title>Jackson&#45;&gt;JsonUuidModule</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M471.72,-199C548.41,-199 640.8,-199 640.8,-199 640.8,-199 640.8,-123.67 640.8,-76"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M471.72,-199C548.41,-199 640.8,-199 640.8,-199 640.8,-199 640.8,-123.67 640.8,-76"/>
 </g>
 <!-- JacksonSerializer&#45;&gt;Jackson -->
 <g id="edge4" class="edge">

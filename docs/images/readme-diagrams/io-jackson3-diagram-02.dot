@@ -8,10 +8,9 @@ digraph G {
   JsonTinkEncryptModule [label="JsonTinkEncryptModule", fillcolor="#FFF3D9", color="#D6A441"];
   JsonUuidModule [label="JsonUuidModule", fillcolor="#FDECEF", color="#DC6B82"];
   JacksonSerializer [label="JacksonSerializer", fillcolor="#F1ECFF", color="#8A72D6"];
-  { rank=source; JsonSerializer; }
-  Jackson -> JsonUuidModule [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  Jackson -> JsonMaskerModule [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  Jackson -> JsonTinkEncryptModule [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  Jackson -> JsonUuidModule [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  Jackson -> JsonMaskerModule [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  Jackson -> JsonTinkEncryptModule [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
   JacksonSerializer -> Jackson [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
-  JsonSerializer -> JacksonSerializer [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  JsonSerializer -> JacksonSerializer [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
 }

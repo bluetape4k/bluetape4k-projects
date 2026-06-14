@@ -1,133 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="2137" viewBox="0 0 1880 2137" role="img" aria-label="Module Dependency Structure">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Redis Umbrella Module Structure">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    .title{font-family:"Architects Daughter";font-size:43px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#F7FBFF;stroke-width:5px;stroke-linejoin:round}
+    .card,.classCard{filter:url(#shadow);stroke-width:2}.cardTitle,.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:13px;fill:#102033}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    .note{stroke-width:1.6}.flow{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
   </style>
 </defs>
-<rect class="canvas" width="1880" height="2137"/>
-<rect class="frame" x="32" y="28" width="1816" height="2081" rx="30"/>
-<text class="title" x="68" y="84">Module Dependency Structure</text>
-<text class="subtitle" x="72" y="116">Source-checked module relationships redrawn as layered boundaries instead of a grid.</text>
-<g><rect class="panel" x="78" y="165" width="1724" height="510" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Public module boundary</text></g>
-<g><rect class="panel" x="78" y="757" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="783" dominant-baseline="middle">Feature modules</text></g>
-<g><rect class="panel" x="78" y="1103" width="1724" height="510" rx="22"/><text class="panelTitle" x="102" y="1129" dominant-baseline="middle">Runtime integrations</text></g>
-<g><rect class="panel" x="78" y="1695" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="1721" dominant-baseline="middle">External dependencies</text></g>
-<path class="flow" d="M463 321 L940 321" stroke="#4F83BF"/>
-<path class="flow" d="M463 567 L940 567" stroke="#B9851B"/>
-<path class="flow" d="M1095 623 L1095 740 L54 740 L54 913 L153 913" stroke="#755BC6"/>
-<path class="flow" d="M463 913 L677.7 913" stroke="#2E8F89"/>
-<path class="flow" d="M987.7 913 L1202.3 913" stroke="#C94D68"/>
-<path class="flow" d="M1357.3 969 L1357.3 1086 L54 1086 L54 1259 L153 1259" stroke="#718A35"/>
-<path class="flow" d="M463 1259 L940 1259" stroke="#758297"/>
-<path class="flow" d="M463 1505 L940 1505" stroke="#3E9868"/>
-<path class="flow" d="M1095 1561 L1095 1678 L54 1678 L54 1851 L153 1851" stroke="#B9851B"/>
-<path class="flow" d="M463 1851 L677.7 1851" stroke="#755BC6"/>
-<path class="flow" d="M987.7 1851 L1202.3 1851" stroke="#2E8F89"/>
-<g id="node-0-0">
-    <rect class="card" x="153" y="265" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-
-    <text class="cardTitle" x="308" y="312" text-anchor="middle">bluetape4kredis</text>
-    <text class="detail" x="308" y="349" text-anchor="middle">umbrella</text>
-  </g>
-<g id="node-0-1">
-    <rect class="card" x="940" y="265" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-
-    <text class="cardTitle" x="1095" y="291.5" text-anchor="middle">bluetape4klettuce</text>
-<text class="cardTitle" x="1095" y="313.5" text-anchor="middle">Lettuce client</text>
-    <text class="detail" x="1095" y="352.5" text-anchor="middle">Lettuce client</text>
-<text class="detail" x="1095" y="369.5" text-anchor="middle">Lettuce client</text>
-  </g>
-<g id="node-0-2">
-    <rect class="card" x="153" y="511" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-
-    <text class="cardTitle" x="308" y="573" text-anchor="middle">redis</text>
-
-  </g>
-<g id="node-0-3">
-    <rect class="card" x="940" y="511" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-
-    <text class="cardTitle" x="1095" y="558" text-anchor="middle">bluetape4kredisson</text>
-    <text class="detail" x="1095" y="595" text-anchor="middle">Redisson client</text>
-  </g>
-<g id="node-1-0">
-    <rect class="card" x="153" y="857" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-
-    <text class="cardTitle" x="308" y="883.5" text-anchor="middle">LettuceClients</text>
-<text class="cardTitle" x="308" y="905.5" text-anchor="middle">Connection factory</text>
-    <text class="detail" x="308" y="944.5" text-anchor="middle">Connection factory</text>
-<text class="detail" x="308" y="961.5" text-anchor="middle">Connection factory</text>
-  </g>
-<g id="node-1-1">
-    <rect class="card" x="677.7" y="857" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-
-    <text class="cardTitle" x="832.7" y="895.5" text-anchor="middle">LettuceBinaryCodecs</text>
-    <text class="detail" x="832.7" y="932.5" text-anchor="middle">Serializer ×</text>
-<text class="detail" x="832.7" y="949.5" text-anchor="middle">compression codecs</text>
-  </g>
-<g id="node-1-2">
-    <rect class="card" x="1202.3" y="857" width="310" height="112" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
-
-    <text class="cardTitle" x="1357.3" y="895.5" text-anchor="middle">Redis Future.await</text>
-    <text class="detail" x="1357.3" y="932.5" text-anchor="middle">Suspending</text>
-<text class="detail" x="1357.3" y="949.5" text-anchor="middle">Coroutines adapter</text>
-  </g>
-<g id="node-2-0">
-    <rect class="card" x="153" y="1203" width="310" height="112" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
-
-    <text class="cardTitle" x="308" y="1229.5" text-anchor="middle">LettuceLoadedMap</text>
-<text class="cardTitle" x="308" y="1251.5" text-anchor="middle">Read-through</text>
-    <text class="detail" x="308" y="1290.5" text-anchor="middle">Read-through</text>
-<text class="detail" x="308" y="1307.5" text-anchor="middle">Read-through</text>
-  </g>
-<g id="node-2-1">
-    <rect class="card" x="940" y="1203" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-
-    <text class="cardTitle" x="1095" y="1241.5" text-anchor="middle">Lettuce Suspended Loaded</text>
-    <text class="detail" x="1095" y="1278.5" text-anchor="middle">Map Suspend</text>
-<text class="detail" x="1095" y="1295.5" text-anchor="middle">variant</text>
-  </g>
-<g id="node-2-2">
-    <rect class="card" x="153" y="1449" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-
-    <text class="cardTitle" x="308" y="1496" text-anchor="middle">redissonClient DSL</text>
-    <text class="detail" x="308" y="1533" text-anchor="middle">Client creation</text>
-  </g>
-<g id="node-2-3">
-    <rect class="card" x="940" y="1449" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-
-    <text class="cardTitle" x="1095" y="1487.5" text-anchor="middle">RedissonCodecs Fory</text>
-    <text class="detail" x="1095" y="1524.5" text-anchor="middle">Kryo5 ×</text>
-<text class="detail" x="1095" y="1541.5" text-anchor="middle">Fory Kryo5 ×</text>
-  </g>
-<g id="node-3-0">
-    <rect class="card" x="153" y="1795" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-
-    <text class="cardTitle" x="308" y="1833.5" text-anchor="middle">Redisson Leader Election</text>
-    <text class="detail" x="308" y="1870.5" text-anchor="middle">Distributed</text>
-<text class="detail" x="308" y="1887.5" text-anchor="middle">Election Distributed</text>
-  </g>
-<g id="node-3-1">
-    <rect class="card" x="677.7" y="1795" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-
-    <text class="cardTitle" x="832.7" y="1833.5" text-anchor="middle">RedissonNearCache 2-tier</text>
-    <text class="detail" x="832.7" y="1870.5" text-anchor="middle">Near Cache</text>
-<text class="detail" x="832.7" y="1887.5" text-anchor="middle">2-tier Near Cache</text>
-  </g>
-<g id="node-3-2">
-    <rect class="card" x="1202.3" y="1795" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-
-    <text class="cardTitle" x="1357.3" y="1821.5" text-anchor="middle">RedissonMemoizer</text>
-<text class="cardTitle" x="1357.3" y="1843.5" text-anchor="middle">Function result</text>
-    <text class="detail" x="1357.3" y="1882.5" text-anchor="middle">Function result</text>
-<text class="detail" x="1357.3" y="1899.5" text-anchor="middle">Function result</text>
-  </g>
-<g><rect x="190" y="2045" width="1500" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="940" y="2071" text-anchor="middle">Graphviz evidence: modules are grouped by responsibility and runtime boundary.</text></g>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="32" y="28" width="1436" height="944" rx="30"/>
+<text class="title" x="68" y="84">Redis Umbrella Module Structure</text>
+<text class="subtitle" x="72" y="116">The umbrella dependency bundles Lettuce and Redisson; Spring Data Redis serializers stay in a separate module family.</text>
+<g id="choiceLayer"><rect class="panel" x="72" y="165" width="1356" height="160" rx="20"/><text class="panelTitle" x="100" y="201">Dependency choice</text></g>
+<g id="clientLayer"><rect class="panel" x="72" y="365" width="860" height="310" rx="20"/><text class="panelTitle" x="100" y="401">Bundled Redis clients</text></g>
+<g id="springLayer"><rect class="panel" x="985" y="365" width="443" height="310" rx="20"/><text class="panelTitle" x="1013" y="401">Separate Spring Data Redis</text></g>
+<g id="usageLayer"><rect class="panel" x="72" y="715" width="1356" height="170" rx="20"/><text class="panelTitle" x="100" y="751">Reader guidance</text></g>
+<path class="flow" data-from="umbrella" data-to="lettuce" d="M390 294 L390 450" stroke="#3E9868"/>
+<path class="flow" data-from="umbrella" data-to="redisson" d="M740 294 L740 450" stroke="#755BC6"/>
+<path class="flow" data-from="springRedis" data-to="redisGuidance" d="M1200 566 L1200 785" stroke="#B9851B"/>
+<path class="flow" data-from="lettuce" data-to="redisGuidance" d="M300 566 L300 785" stroke="#3E9868"/>
+<path class="flow" data-from="redisson" data-to="redisGuidance" d="M740 566 L740 785" stroke="#755BC6"/>
+<g id="umbrella">
+  <rect class="card" x="245" y="220" width="1010" height="74" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <text class="cardTitle" x="750" y="254" text-anchor="middle" dominant-baseline="middle">bluetape4k-redis umbrella</text>
+  <text class="detail" x="750" y="283" text-anchor="middle" dominant-baseline="middle">keeps existing full-bundle dependency working</text>
+</g>
+<g id="lettuce">
+  <rect class="card" x="125" y="450" width="350" height="116" rx="10" fill="#EAF7EF" stroke="#58A978"/>
+  <text class="cardTitle" x="300" y="496" text-anchor="middle" dominant-baseline="middle">bluetape4k-lettuce</text>
+  <text class="detail" x="300" y="525" text-anchor="middle" dominant-baseline="middle">async/coroutine Redis client</text>
+<text class="detail" x="300" y="543" text-anchor="middle" dominant-baseline="middle">high-performance binary codecs</text>
+</g>
+<g id="redisson">
+  <rect class="card" x="565" y="450" width="350" height="116" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
+  <text class="cardTitle" x="740" y="496" text-anchor="middle" dominant-baseline="middle">bluetape4k-redisson</text>
+  <text class="detail" x="740" y="525" text-anchor="middle" dominant-baseline="middle">distributed objects</text>
+<text class="detail" x="740" y="543" text-anchor="middle" dominant-baseline="middle">NearCache, leader election</text>
+</g>
+<g id="springRedis">
+  <rect class="card" x="1035" y="450" width="330" height="116" rx="10" fill="#FFF3D9" stroke="#D6A441"/>
+  <text class="cardTitle" x="1200" y="496" text-anchor="middle" dominant-baseline="middle">spring-data-redis</text>
+  <text class="detail" x="1200" y="525" text-anchor="middle" dominant-baseline="middle">RedisTemplate serializers</text>
+<text class="detail" x="1200" y="543" text-anchor="middle" dominant-baseline="middle">ReactiveRedisTemplate context</text>
+</g>
+<g id="redisGuidance">
+  <rect class="note" x="245" y="785" width="1010" height="58" rx="12" fill="#FFFFFF" stroke="#9AA8B8"/>
+  <text class="detail" x="750" y="815" text-anchor="middle" dominant-baseline="middle">Use the umbrella for compatibility, choose Lettuce or Redisson directly for smaller dependencies, and use Spring Data Redis modules only for template serialization.</text>
+</g>
+<g><rect class="note" x="120" y="912" width="1260" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF"/><text class="detail" x="750" y="938" text-anchor="middle">bluetape4k-projects / infra:redis - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

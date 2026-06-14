@@ -46,9 +46,7 @@ function escapeXml(value) {
 }
 
 function markerDefs(colors, kind) {
-  const marker = kind === "sequence"
-    ? { w: 8, h: 8, refX: 7, refY: 4, path: "M 1 1 L 7 4 L 1 7 Z" }
-    : { w: 5, h: 5, refX: 4.5, refY: 2.5, path: "M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" };
+  const marker = { w: 5, h: 5, refX: 4.5, refY: 2.5, path: "M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" };
   return colors
     .map(({ id, color }) => `
     <marker id="${id}" viewBox="0 0 ${marker.w} ${marker.h}" markerWidth="${marker.w}" markerHeight="${marker.h}" refX="${marker.refX}" refY="${marker.refY}" orient="auto" markerUnits="strokeWidth">
@@ -105,9 +103,14 @@ function labelBox(label) {
   const h = label.h ?? 26;
   const x = label.x - w / 2;
   const y = label.y - h / 2;
+  const badge = label.number
+    ? `<circle cx="${x + 14}" cy="${label.y}" r="10" fill="${label.badgeFill ?? palette.request}" stroke="#FFFFFF" stroke-width="2"/>
+    <text class="edgeLabel" x="${x + 14}" y="${label.y + 1}" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF">${label.number}</text>`
+    : "";
   return `
     <rect class="labelPill" x="${x}" y="${y}" width="${w}" height="${h}" rx="7"/>
-    <text class="${label.className ?? "edgeLabel"}" x="${label.x}" y="${label.y + 1}" text-anchor="middle" dominant-baseline="middle">${escapeXml(label.text)}</text>`;
+    ${badge}
+    <text class="${label.className ?? "edgeLabel"}" x="${label.number ? label.x + 12 : label.x}" y="${label.y + 1}" text-anchor="middle" dominant-baseline="middle">${escapeXml(label.text)}</text>`;
 }
 
 function drawRoutes(routes) {
@@ -378,6 +381,11 @@ function renderSvg(diagram) {
     { id: "arrowMetrics", color: palette.metrics },
     { id: "arrowTrace", color: palette.trace },
     { id: "arrowResponse", color: palette.response },
+    { id: "seqArrow-blue", color: palette.request },
+    { id: "seqArrow-green", color: palette.event },
+    { id: "seqArrow-amber", color: palette.metrics },
+    { id: "seqArrow-purple", color: palette.trace },
+    { id: "seqArrow-pink", color: palette.response },
   ];
 
   const nodeMarkup = diagram.kind === "sequence"
@@ -386,13 +394,22 @@ function renderSvg(diagram) {
   const layerStyle = (diagram.layers ?? []).length > 0
     ? `
       .layerBand{fill:#FFFFFF;stroke:${palette.frame};stroke-width:1.4;opacity:.72}
-      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:${palette.muted};font-weight:400;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}`
+      .layerTitle{font-family:"Architects Daughter";font-size:18px;fill:${palette.muted};font-weight:400;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}`
     : "";
   const layerMarkup = (diagram.layers ?? []).length > 0
     ? `\n  ${(diagram.layers ?? [])
-      .map((layer) => `<g id="${layer.id}"><rect class="layerBand" x="${layer.x}" y="${layer.y}" width="${layer.w}" height="${layer.h}" rx="18"/><text class="layerLabel" x="${layer.x + 20}" y="${layer.y + 18}" dominant-baseline="middle">${escapeXml(layer.label)}</text></g>`)
+      .map((layer) => `<g id="${layer.id}"><rect class="layerBand" x="${layer.x}" y="${layer.y}" width="${layer.w}" height="${layer.h}" rx="18"/><text class="layerTitle" x="${layer.x + 20}" y="${layer.y + 15}" dominant-baseline="middle">${escapeXml(layer.label)}</text></g>`)
       .join("\n  ")}`
     : "";
+
+  const sequenceRoutes = diagram.kind === "sequence"
+    ? diagram.routes.map((route, index) => ({
+      ...route,
+      className: route.dash ? "seqReturn" : "seq",
+      marker: sequenceMarker(route.color, route.dash),
+      label: route.label ? { ...route.label, number: index + 1, badgeFill: route.color } : route.label,
+    }))
+    : [];
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${diagram.width}" height="${diagram.height}" viewBox="0 0 ${diagram.width} ${diagram.height}" role="img" aria-labelledby="${diagram.file}-title ${diagram.file}-desc">
   <title id="${diagram.file}-title">${escapeXml(diagram.title)}</title>
@@ -414,11 +431,19 @@ function renderSvg(diagram) {
   <rect class="frame" x="${diagram.frame.x}" y="${diagram.frame.y}" width="${diagram.frame.w}" height="${diagram.frame.h}" rx="26"/>
   <text class="title" x="66" y="82">${escapeXml(diagram.title)}</text>
   <text class="subtitle" x="70" y="${diagram.subtitleY}">${escapeXml(diagram.subtitle)}</text>${layerMarkup}
-  ${diagram.kind === "sequence" ? nodeMarkup + "\n" + drawRoutes(diagram.routes.map((route) => ({ ...route, className: "sequenceEdge" }))) : drawRoutes(diagram.routes) + "\n" + nodeMarkup}
-  <text class="note" x="${diagram.width / 2}" y="${diagram.height - 30}" text-anchor="middle">${escapeXml("Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.")}</text>
+  ${diagram.kind === "sequence" ? nodeMarkup + "\n" + drawRoutes(sequenceRoutes) : drawRoutes(diagram.routes) + "\n" + nodeMarkup}
+  <text class="note" x="${diagram.width / 2}" y="${diagram.height - 30}" text-anchor="middle">${escapeXml("bluetape4k-projects observability examples - github.com/bluetape4k/bluetape4k-projects")}</text>
 </svg>
 `;
   return svg.replace(/[ \t]+$/gm, "");
+}
+
+function sequenceMarker(color, dashed) {
+  if (dashed) return "seqArrow-pink";
+  if (color === palette.event) return "seqArrow-green";
+  if (color === palette.metrics) return "seqArrow-amber";
+  if (color === palette.trace) return "seqArrow-purple";
+  return "seqArrow-blue";
 }
 
 function generate(diagram) {
@@ -449,13 +474,13 @@ function generate(diagram) {
 
 function architectureSpring() {
   const layers = [
-    { id: "entry", label: "Entry layer", x: 54, y: 150, w: 1312, h: 140 },
-    { id: "application", label: "Application work layer", x: 54, y: 310, w: 1312, h: 140 },
-    { id: "observability", label: "Observation layer", x: 54, y: 470, w: 1312, h: 160 },
-    { id: "export", label: "Export layer", x: 54, y: 650, w: 1312, h: 160 },
+    { id: "entry", label: "Entry", x: 54, y: 150, w: 1312, h: 140 },
+    { id: "application", label: "Application", x: 54, y: 310, w: 1312, h: 140 },
+    { id: "observability", label: "Observe", x: 54, y: 470, w: 1312, h: 160 },
+    { id: "export", label: "Export", x: 54, y: 650, w: 1312, h: 160 },
   ];
   const nodes = [
-    { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET scrape output"], x: 120, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
+    { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET scrape output"], x: 180, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
     { id: "controller", layer: "entry", titleLines: ["Spring MVC", "Controller"], bodyLines: ["/orders/{orderId}/events", "X-Request-Id header"], x: 440, y: 170, w: 280, h: 112, fill: palette.cardTeal, stroke: palette.service },
     { id: "service", layer: "application", title: "OrderEventService", bodyLines: ["local publish + consume", "returns accepted JSON"], x: 570, y: 334, w: 320, h: 96, fill: palette.cardGreen, stroke: palette.event },
     { id: "springObs", layer: "observability", title: "observeSpring", bodyLines: ["orders.http.publish", "HTTP/service boundary"], x: 185, y: 500, w: 290, h: 100, fill: palette.cardTeal, stroke: palette.service },
@@ -465,7 +490,7 @@ function architectureSpring() {
     { id: "otlp", layer: "export", titleLines: ["OTLP Collector", "optional"], bodyLines: ["enabled by Spring config", "not required for tests"], x: 1110, y: 682, w: 250, h: 112, fill: palette.cardPurple, stroke: palette.trace },
   ];
   const routes = [
-    { id: "client-controller", from: "client", to: "controller", color: palette.request, marker: "arrowRequest", points: [{ x: 365, y: 222 }, { x: 440, y: 222 }] },
+    { id: "client-controller", from: "client", to: "controller", color: palette.request, marker: "arrowRequest", points: [{ x: 425, y: 222 }, { x: 440, y: 222 }] },
     { id: "controller-service", from: "controller", to: "service", color: palette.service, marker: "arrowService", points: [{ x: 580, y: 282 }, { x: 580, y: 304 }, { x: 730, y: 304 }, { x: 730, y: 334 }] },
     { id: "service-observe-spring", from: "service", to: "springObs", color: palette.service, marker: "arrowService", points: [{ x: 650, y: 430 }, { x: 650, y: 455 }, { x: 330, y: 455 }, { x: 330, y: 500 }] },
     { id: "service-registry", from: "service", to: "registry", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 730, y: 430 }, { x: 730, y: 500 }] },
@@ -496,13 +521,13 @@ function architectureSpring() {
 
 function architectureKtor() {
   const layers = [
-    { id: "entry", label: "Entry layer", x: 54, y: 150, w: 1312, h: 140 },
-    { id: "platform", label: "Ktor platform layer", x: 54, y: 310, w: 1312, h: 140 },
-    { id: "application", label: "Application event layer", x: 54, y: 470, w: 1312, h: 160 },
-    { id: "export", label: "Export layer", x: 54, y: 650, w: 1312, h: 160 },
+    { id: "entry", label: "Entry", x: 54, y: 150, w: 1312, h: 140 },
+    { id: "platform", label: "Platform", x: 54, y: 310, w: 1312, h: 140 },
+    { id: "application", label: "Events", x: 54, y: 470, w: 1312, h: 160 },
+    { id: "export", label: "Export", x: 54, y: 650, w: 1312, h: 160 },
   ];
   const nodes = [
-    { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET /metrics"], x: 120, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
+    { id: "client", layer: "entry", title: "HTTP Client", bodyLines: ["POST order event", "GET /metrics"], x: 180, y: 178, w: 245, h: 88, fill: palette.cardBlue, stroke: palette.request },
     { id: "routes", layer: "entry", title: "Ktor Routes", bodyLines: ["/orders/{orderId}/events", "/metrics + /health"], x: 440, y: 170, w: 280, h: 104, fill: palette.cardTeal, stroke: palette.service },
     { id: "core", layer: "platform", titleLines: ["bluetape4k", "Ktor Core"], bodyLines: ["JSON + errors", "health baseline"], x: 260, y: 326, w: 260, h: 112, fill: palette.cardWhite, stroke: palette.neutral },
     { id: "observability", layer: "platform", titleLines: ["Ktor", "Observability"], bodyLines: ["correlation + logging", "metrics + optional tracing"], x: 610, y: 326, w: 320, h: 112, fill: palette.cardAmber, stroke: palette.metrics },
@@ -512,7 +537,7 @@ function architectureKtor() {
     { id: "otel", layer: "export", titleLines: ["OpenTelemetry SDK", "optional"], bodyLines: ["server spans", "null disables tracing"], x: 1110, y: 682, w: 250, h: 112, fill: palette.cardPurple, stroke: palette.trace },
   ];
   const routes = [
-    { id: "client-routes", from: "client", to: "routes", color: palette.request, marker: "arrowRequest", points: [{ x: 365, y: 222 }, { x: 440, y: 222 }] },
+    { id: "client-routes", from: "client", to: "routes", color: palette.request, marker: "arrowRequest", points: [{ x: 425, y: 222 }, { x: 440, y: 222 }] },
     { id: "routes-core", from: "routes", to: "core", color: palette.neutral, marker: "arrowNeutral", points: [{ x: 510, y: 274 }, { x: 510, y: 304 }, { x: 390, y: 304 }, { x: 390, y: 326 }] },
     { id: "routes-observability", from: "routes", to: "observability", color: palette.metrics, marker: "arrowMetrics", points: [{ x: 630, y: 274 }, { x: 630, y: 304 }, { x: 770, y: 304 }, { x: 770, y: 326 }] },
     { id: "routes-service", from: "routes", to: "service", color: palette.event, marker: "arrowEvent", points: [{ x: 560, y: 274 }, { x: 560, y: 494 }] },

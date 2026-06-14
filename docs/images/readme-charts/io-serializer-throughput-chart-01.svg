@@ -132,6 +132,6 @@
 <g>
   <rect class="note" x="94" y="827" width="1612" height="50" rx="16"/>
   <text class="small" x="900" y="845" text-anchor="middle" dominant-baseline="middle">Source: io/io/src/test/kotlin/io/bluetape4k/io/benchmark/README.md serializer benchmark tables</text>
-  <text class="tiny" x="900" y="863" text-anchor="middle" dominant-baseline="middle">Chart rule: split scales when hot paths and remote paths differ by orders of magnitude.</text>
+  <text class="tiny" x="900" y="863" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
 </g>
 </svg>

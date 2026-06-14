@@ -12,22 +12,22 @@
 <g id="clust1" class="cluster">
 <title>cluster_entry</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M159,-440C159,-440 315,-440 315,-440 321,-440 327,-446 327,-452 327,-452 327,-612.5 327,-612.5 327,-618.5 321,-624.5 315,-624.5 315,-624.5 159,-624.5 159,-624.5 153,-624.5 147,-618.5 147,-612.5 147,-612.5 147,-452 147,-452 147,-446 153,-440 159,-440"/>
-<text xml:space="preserve" text-anchor="middle" x="237" y="-607.2" font-family="Times,serif" font-size="14.00">Entry layer</text>
+<text xml:space="preserve" text-anchor="middle" x="237" y="-607.2" font-family="Times,serif" font-size="14.00">Entry</text>
 </g>
 <g id="clust2" class="cluster">
 <title>cluster_application</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M170,-332C170,-332 304,-332 304,-332 310,-332 316,-338 316,-344 316,-344 316,-396.5 316,-396.5 316,-402.5 310,-408.5 304,-408.5 304,-408.5 170,-408.5 170,-408.5 164,-408.5 158,-402.5 158,-396.5 158,-396.5 158,-344 158,-344 158,-338 164,-332 170,-332"/>
-<text xml:space="preserve" text-anchor="middle" x="237" y="-391.2" font-family="Times,serif" font-size="14.00">Application work layer</text>
+<text xml:space="preserve" text-anchor="middle" x="237" y="-391.2" font-family="Times,serif" font-size="14.00">Application</text>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_observability</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M20,-116C20,-116 295,-116 295,-116 301,-116 307,-122 307,-128 307,-128 307,-288.5 307,-288.5 307,-294.5 301,-300.5 295,-300.5 295,-300.5 20,-300.5 20,-300.5 14,-300.5 8,-294.5 8,-288.5 8,-288.5 8,-128 8,-128 8,-122 14,-116 20,-116"/>
-<text xml:space="preserve" text-anchor="middle" x="157.5" y="-283.2" font-family="Times,serif" font-size="14.00">Observation layer</text>
+<text xml:space="preserve" text-anchor="middle" x="157.5" y="-283.2" font-family="Times,serif" font-size="14.00">Observe</text>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_export</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M85,-8C85,-8 457,-8 457,-8 463,-8 469,-14 469,-20 469,-20 469,-72.5 469,-72.5 469,-78.5 463,-84.5 457,-84.5 457,-84.5 85,-84.5 85,-84.5 79,-84.5 73,-78.5 73,-72.5 73,-72.5 73,-20 73,-20 73,-14 79,-8 85,-8"/>
-<text xml:space="preserve" text-anchor="middle" x="271" y="-67.2" font-family="Times,serif" font-size="14.00">Export layer</text>
+<text xml:space="preserve" text-anchor="middle" x="271" y="-67.2" font-family="Times,serif" font-size="14.00">Export</text>
 </g>
 <!-- client -->
 <g id="node1" class="node">

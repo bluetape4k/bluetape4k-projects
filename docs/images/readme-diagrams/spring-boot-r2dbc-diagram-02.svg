@@ -15,7 +15,7 @@
 <rect class="canvas" width="1560" height="1299"/>
 <rect class="frame" x="32" y="28" width="1496" height="1243" rx="30"/>
 <text class="title" x="68" y="84">R2DBC + Coroutines Data Flow</text>
-<text class="subtitle" x="72" y="116">Source-checked flow redrawn as layered phases with routed, non-grid transitions.</text>
+<text class="subtitle" x="72" y="116">Source-checked flow phases with routed transitions.</text>
 <g><rect class="panel" x="78" y="165" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Entry phase</text></g>
 <g><rect class="panel" x="78" y="511" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="537" dominant-baseline="middle">Decision phase</text></g>
 <g><rect class="panel" x="78" y="857" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="883" dominant-baseline="middle">Execution phase</text></g>
@@ -62,5 +62,5 @@
     <text class="cardTitle" x="935" y="1004" text-anchor="middle">(Relational Database)</text>
     <text class="detail" x="935" y="1041" text-anchor="middle">Database)</text>
   </g>
-<g><rect x="190" y="1207" width="1180" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="780" y="1233" text-anchor="middle">Graphviz evidence: phases are layered and connectors follow short orthogonal lanes.</text></g>
+<g><rect x="190" y="1207" width="1180" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="780" y="1233" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>
