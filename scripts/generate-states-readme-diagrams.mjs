@@ -195,7 +195,7 @@ function diagram({ title, subtitle, width, height, intent, evidence, sourceRead,
   lines.push(`<rect x="30" y="30" width="${width - 60}" height="${height - 60}" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>`);
   lines.push(`<text class="title" x="70" y="92">${esc(title)}</text>`);
   lines.push(`<text class="subtitle" x="70" y="124">${esc(subtitle)}</text>`);
-  for (const item of panels) lines.push(`<rect class="panel" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="18"/><text class="panelTitle" x="${item.x + 24}" y="${item.y + 34}">${esc(item.title)}</text>`);
+  for (const item of panels) lines.push(`<rect class="panel" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="8"/><text class="panelTitle" x="${item.x + 24}" y="${item.y + 34}">${esc(item.title)}</text>`);
   lines.push(`<circle cx="86" cy="${states[0].y + states[0].h / 2}" r="10" fill="#172033"/>`);
   for (const item of arrows) lines.push(arrowSvg(item));
   for (const item of states) lines.push(stateSvg(item));

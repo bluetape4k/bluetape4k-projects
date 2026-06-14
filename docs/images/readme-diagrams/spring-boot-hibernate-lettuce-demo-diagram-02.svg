@@ -1,88 +1,89 @@
 <svg data-intent="Redesign the demo runtime flow from source: Product REST requests use Spring Data JPA/Hibernate 2LC; L1 Caffeine, L2 Redis, H2, cache management, and actuator stats have distinct paths." data-evidence="spring-boot/hibernate-lettuce-demo/README.md; spring-boot/hibernate-lettuce-demo/src/main/kotlin/io/bluetape4k/examples/cache/lettuce" data-source-read="spring-boot/hibernate-lettuce-demo/README.md; spring-boot/hibernate-lettuce-demo/src/main/kotlin/io/bluetape4k/examples/cache/lettuce" xmlns="http://www.w3.org/2000/svg" width="1440" height="950" viewBox="0 0 1440 950" role="img" aria-label="Hibernate Lettuce Demo Runtime Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1440" height="950"/>
-<rect class="frame" x="34" y="30" width="1372" height="890" rx="32"/>
+<rect class="frame" x="34" y="30" width="1372" height="890" rx="8"/>
 <text class="title" x="72" y="84">Hibernate Lettuce Demo Runtime Flow</text>
 <text class="subtitle" x="76" y="116">The demo flow separates Product CRUD, cache-management endpoints, Hibernate 2LC, L1/L2 cache tiers, and backing storage.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="150" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">REST API</text></g>
-<g><rect class="panel" x="82" y="385" width="1276" height="235" rx="22"/><text class="panelTitle" x="110" y="421" dominant-baseline="middle">Hibernate second-level cache</text></g>
-<g><rect class="panel" x="82" y="695" width="1276" height="170" rx="22"/><text class="panelTitle" x="110" y="731" dominant-baseline="middle">Storage and management</text></g>
+<g><rect class="panel" x="82" y="160" width="1276" height="150" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">REST API</text></g>
+<g><rect class="panel" x="82" y="385" width="1276" height="235" rx="8"/><text class="panelTitle" x="110" y="421" dominant-baseline="middle">Hibernate second-level cache</text></g>
+<g><rect class="panel" x="82" y="695" width="1276" height="170" rx="8"/><text class="panelTitle" x="110" y="731" dominant-baseline="middle">Storage and management</text></g>
 <g id="client">
-  <rect class="card" x="125" y="215" width="270" height="74" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="125" y="215" width="270" height="74" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="260" y="245" text-anchor="middle" dominant-baseline="middle">HTTP client</text>
   <text class="detail" x="260" y="275" text-anchor="middle" dominant-baseline="middle">/api/products, /api/cache</text>
 </g>
 <g id="productApi">
-  <rect class="card" x="525" y="210" width="310" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="525" y="210" width="310" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="680" y="245" text-anchor="middle" dominant-baseline="middle">ProductController</text>
   <text class="detail" x="680" y="275" text-anchor="middle" dominant-baseline="middle">CRUD through ProductRepository</text>
 </g>
 <g id="cacheApi">
-  <rect class="card" x="980" y="210" width="290" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="980" y="210" width="290" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1125" y="245" text-anchor="middle" dominant-baseline="middle">CacheController</text>
   <text class="detail" x="1125" y="275" text-anchor="middle" dominant-baseline="middle">stats and L1-only eviction</text>
 </g>
 <g id="jpa">
-  <rect class="card" x="140" y="455" width="300" height="96" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="140" y="455" width="300" height="96" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="290" y="487" text-anchor="middle" dominant-baseline="middle">Spring Data JPA</text>
   <text class="detail" x="290" y="517" text-anchor="middle" dominant-baseline="middle">ProductRepository</text>
   <text class="detail" x="290" y="535" text-anchor="middle" dominant-baseline="middle">@Cacheable Product region</text>
 </g>
 <g id="hibernate">
-  <rect class="card" x="535" y="455" width="330" height="96" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="535" y="455" width="330" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="700" y="487" text-anchor="middle" dominant-baseline="middle">Hibernate SessionFactory</text>
   <text class="detail" x="700" y="517" text-anchor="middle" dominant-baseline="middle">2nd-level cache lookup</text>
   <text class="detail" x="700" y="535" text-anchor="middle" dominant-baseline="middle">RegionFactory service</text>
 </g>
 <g id="nearCache">
-  <rect class="card" x="970" y="455" width="310" height="96" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="970" y="455" width="310" height="96" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="1125" y="487" text-anchor="middle" dominant-baseline="middle">Lettuce Near Cache</text>
   <text class="detail" x="1125" y="517" text-anchor="middle" dominant-baseline="middle">L1 Caffeine</text>
   <text class="detail" x="1125" y="535" text-anchor="middle" dominant-baseline="middle">L2 Redis with RESP3 tracking</text>
 </g>
 <g id="h2">
-  <rect class="card" x="200" y="760" width="300" height="70" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <rect class="card" x="200" y="760" width="300" height="70" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
   <text class="cardTitle" x="350" y="788" text-anchor="middle" dominant-baseline="middle">H2 database</text>
   <text class="detail" x="350" y="818" text-anchor="middle" dominant-baseline="middle">source of truth for demo</text>
 </g>
 <g id="redis">
-  <rect class="card" x="540" y="760" width="360" height="70" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="540" y="760" width="360" height="70" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="720" y="788" text-anchor="middle" dominant-baseline="middle">Redis L2</text>
   <text class="detail" x="720" y="818" text-anchor="middle" dominant-baseline="middle">shared cached values and invalidation</text>
 </g>
 <g id="stats">
-  <rect class="card" x="915" y="760" width="350" height="70" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="915" y="760" width="350" height="70" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1090" y="788" text-anchor="middle" dominant-baseline="middle">Metrics / actuator stats</text>
   <text class="detail" x="1090" y="818" text-anchor="middle" dominant-baseline="middle">region size, hits, misses</text>
 </g>
-<path class="route" data-from="client" data-to="productApi" d="M395 252 L525 252" stroke="#4F83BF"/>
-<path class="route dashed" data-from="client" data-to="cacheApi" d="M260 289 L260 340 L1125 340 L1125 294" stroke="#755BC6"/>
-<path class="route" data-from="productApi" data-to="jpa" d="M680 294 L680 350 L290 350 L290 455" stroke="#3E9868"/>
-<path class="route" data-from="jpa" data-to="hibernate" d="M440 503 L535 503" stroke="#2E8F89"/>
-<path class="route" data-from="hibernate" data-to="nearCache" d="M865 503 L970 503" stroke="#B9851B"/>
-<path class="route dashed" data-from="hibernate" data-to="h2" d="M700 551 L700 640 L350 640 L350 760" stroke="#718A35"/>
-<g><rect class="labelPill" x="469" y="604" width="102" height="26" rx="8"/><text class="detail" x="520" y="618" text-anchor="middle" dominant-baseline="middle" style="fill:#718A35">cache miss</text></g>
-<path class="route" data-from="nearCache" data-to="redis" d="M1085 551 L720 760" stroke="#C94D68"/>
-<path class="route" data-from="cacheApi" data-to="stats" d="M1270 252 L1325 252 L1325 690 L1090 690 L1090 760" stroke="#755BC6"/>
-<path class="route" data-from="nearCache" data-to="stats" d="M1185 551 L1090 760" stroke="#755BC6"/>
+<path class="route" data-from="client" data-to="productApi" d="M395 252 L525 252" stroke="#1D4ED8"/>
+<path class="route dashed" data-from="client" data-to="cacheApi" d="M260 289 L260 340 L1125 340 L1125 294" stroke="#7E22CE"/>
+<path class="route" data-from="productApi" data-to="jpa" d="M680 294 L680 350 L290 350 L290 455" stroke="#15803D"/>
+<path class="route" data-from="jpa" data-to="hibernate" d="M440 503 L535 503" stroke="#0F766E"/>
+<path class="route" data-from="hibernate" data-to="nearCache" d="M865 503 L970 503" stroke="#C2410C"/>
+<path class="route dashed" data-from="hibernate" data-to="h2" d="M700 551 L700 640 L350 640 L350 760" stroke="#4D7C0F"/>
+<g><rect class="labelPill" x="469" y="604" width="102" height="26" rx="8"/><text class="detail" x="520" y="618" text-anchor="middle" dominant-baseline="middle" style="fill:#4D7C0F">cache miss</text></g>
+<path class="route" data-from="nearCache" data-to="redis" d="M1085 551 L720 760" stroke="#BE185D"/>
+<path class="route" data-from="cacheApi" data-to="stats" d="M1270 252 L1325 252 L1325 690 L1090 690 L1090 760" stroke="#7E22CE"/>
+<path class="route" data-from="nearCache" data-to="stats" d="M1185 551 L1090 760" stroke="#7E22CE"/>
 </svg>

@@ -1,91 +1,92 @@
 <svg data-intent="Explain the Spring Boot observability demo request path: controller delegates to OrderEventService, observeSpring wraps the HTTP boundary, EventTelemetry records publish/consume observations, and Actuator/OTLP expose metrics and optional traces." data-evidence="examples/spring-boot/observability-spring-boot-demo/README.md; examples/spring-boot/observability-spring-boot-demo/src/main/kotlin/io/bluetape4k/examples/spring/observability/ObservabilitySpringBootDemoApplication.kt; examples/spring-boot/observability-spring-boot-demo/src/main/resources/application.yaml" data-source-read="examples/spring-boot/observability-spring-boot-demo/README.md; examples/spring-boot/observability-spring-boot-demo/src/main/kotlin/io/bluetape4k/examples/spring/observability/ObservabilitySpringBootDemoApplication.kt; examples/spring-boot/observability-spring-boot-demo/src/main/resources/application.yaml" xmlns="http://www.w3.org/2000/svg" width="1540" height="1160" viewBox="0 0 1540 1160" role="img" aria-label="Spring Boot Observability Demo Architecture">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1540" height="1160"/>
-<rect class="frame" x="34" y="30" width="1472" height="1100" rx="32"/>
+<rect class="frame" x="34" y="30" width="1472" height="1100" rx="8"/>
 <text class="title" x="72" y="84">Spring Boot Observability Demo Architecture</text>
 <text class="subtitle" x="76" y="116">The demo records HTTP and order-event observations locally, then Spring Boot Actuator exposes Prometheus metrics while OTLP tracing remains optional.</text>
-<g><rect class="panel" x="82" y="160" width="1376" height="190" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">HTTP entry</text></g>
-<g><rect class="panel" x="82" y="415" width="1376" height="200" rx="22"/><text class="panelTitle" x="110" y="451" dominant-baseline="middle">Application work</text></g>
-<g><rect class="panel" x="82" y="680" width="1376" height="220" rx="22"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Observation model</text></g>
-<g><rect class="panel" x="82" y="960" width="1376" height="130" rx="22"/><text class="panelTitle" x="110" y="996" dominant-baseline="middle">Export endpoints</text></g>
+<g><rect class="panel" x="82" y="160" width="1376" height="190" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">HTTP entry</text></g>
+<g><rect class="panel" x="82" y="415" width="1376" height="200" rx="8"/><text class="panelTitle" x="110" y="451" dominant-baseline="middle">Application work</text></g>
+<g><rect class="panel" x="82" y="680" width="1376" height="220" rx="8"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Observation model</text></g>
+<g><rect class="panel" x="82" y="960" width="1376" height="130" rx="8"/><text class="panelTitle" x="110" y="996" dominant-baseline="middle">Export endpoints</text></g>
 <g id="client">
-  <rect class="card" x="170" y="235" width="320" height="78" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="170" y="235" width="320" height="78" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="330" y="258" text-anchor="middle" dominant-baseline="middle">HTTP client</text>
   <text class="detail" x="330" y="288" text-anchor="middle" dominant-baseline="middle">POST /orders/{id}/events</text>
   <text class="detail" x="330" y="306" text-anchor="middle" dominant-baseline="middle">optional X-Request-Id</text>
 </g>
 <g id="controller">
-  <rect class="card" x="600" y="230" width="360" height="88" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="600" y="230" width="360" height="88" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="780" y="258" text-anchor="middle" dominant-baseline="middle">OrderEventController</text>
   <text class="detail" x="780" y="288" text-anchor="middle" dominant-baseline="middle">Spring MVC route</text>
   <text class="detail" x="780" y="306" text-anchor="middle" dominant-baseline="middle">delegates to service</text>
 </g>
 <g id="health">
-  <rect class="card" x="1065" y="235" width="300" height="78" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="1065" y="235" width="300" height="78" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1215" y="267" text-anchor="middle" dominant-baseline="middle">Actuator / health</text>
   <text class="detail" x="1215" y="297" text-anchor="middle" dominant-baseline="middle">Spring Boot owned endpoint</text>
 </g>
 <g id="service">
-  <rect class="card" x="600" y="490" width="360" height="92" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="600" y="490" width="360" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="780" y="520" text-anchor="middle" dominant-baseline="middle">OrderEventService</text>
   <text class="detail" x="780" y="550" text-anchor="middle" dominant-baseline="middle">creates EventTelemetry</text>
   <text class="detail" x="780" y="568" text-anchor="middle" dominant-baseline="middle">returns accepted JSON</text>
 </g>
 <g id="observeSpring">
-  <rect class="card" x="180" y="760" width="340" height="92" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="180" y="760" width="340" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="350" y="790" text-anchor="middle" dominant-baseline="middle">observeSpring</text>
   <text class="detail" x="350" y="820" text-anchor="middle" dominant-baseline="middle">orders.http.publish</text>
   <text class="detail" x="350" y="838" text-anchor="middle" dominant-baseline="middle">HTTP/service boundary</text>
 </g>
 <g id="registry">
-  <rect class="card" x="600" y="760" width="340" height="92" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="600" y="760" width="340" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="770" y="790" text-anchor="middle" dominant-baseline="middle">ObservationRegistry</text>
   <text class="detail" x="770" y="820" text-anchor="middle" dominant-baseline="middle">Micrometer handlers</text>
   <text class="detail" x="770" y="838" text-anchor="middle" dominant-baseline="middle">metrics and optional spans</text>
 </g>
 <g id="eventTelemetry">
-  <rect class="card" x="1030" y="760" width="340" height="92" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="1030" y="760" width="340" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="1200" y="790" text-anchor="middle" dominant-baseline="middle">EventTelemetry</text>
   <text class="detail" x="1200" y="820" text-anchor="middle" dominant-baseline="middle">event.publish</text>
   <text class="detail" x="1200" y="838" text-anchor="middle" dominant-baseline="middle">event.consume</text>
 </g>
 <g id="prometheus">
-  <rect class="card" x="365" y="1010" width="350" height="66" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="365" y="1010" width="350" height="66" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="540" y="1036" text-anchor="middle" dominant-baseline="middle">Actuator Prometheus</text>
   <text class="detail" x="540" y="1066" text-anchor="middle" dominant-baseline="middle">/actuator/prometheus</text>
 </g>
 <g id="otlp">
-  <rect class="card" x="825" y="1010" width="350" height="66" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="825" y="1010" width="350" height="66" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1000" y="1036" text-anchor="middle" dominant-baseline="middle">Optional OTLP traces</text>
   <text class="detail" x="1000" y="1066" text-anchor="middle" dominant-baseline="middle">configured by Spring properties</text>
 </g>
-<path class="route" data-from="client" data-to="controller" d="M490 274 L600 274" stroke="#4F83BF"/>
-<path class="route dashed" data-from="controller" data-to="health" d="M960 274 L1065 274" stroke="#755BC6"/>
-<path class="route" data-from="controller" data-to="service" d="M780 318 L780 490" stroke="#2E8F89"/>
-<path class="route" data-from="service" data-to="observeSpring" d="M695 582 L695 650 L350 650 L350 760" stroke="#2E8F89"/>
-<path class="route" data-from="service" data-to="eventTelemetry" d="M865 582 L865 650 L1200 650 L1200 760" stroke="#3E9868"/>
-<path class="route" data-from="observeSpring" data-to="registry" d="M520 806 L600 806" stroke="#755BC6"/>
-<path class="route" data-from="eventTelemetry" data-to="registry" d="M1030 806 L940 806" stroke="#3E9868"/>
-<path class="route" data-from="registry" data-to="prometheus" d="M710 852 L710 925 L540 925 L540 1010" stroke="#B9851B"/>
-<path class="route dashed" data-from="registry" data-to="otlp" d="M830 852 L830 930 L1000 930 L1000 1010" stroke="#755BC6"/>
+<path class="route" data-from="client" data-to="controller" d="M490 274 L600 274" stroke="#1D4ED8"/>
+<path class="route dashed" data-from="controller" data-to="health" d="M960 274 L1065 274" stroke="#7E22CE"/>
+<path class="route" data-from="controller" data-to="service" d="M780 318 L780 490" stroke="#0F766E"/>
+<path class="route" data-from="service" data-to="observeSpring" d="M695 582 L695 650 L350 650 L350 760" stroke="#0F766E"/>
+<path class="route" data-from="service" data-to="eventTelemetry" d="M865 582 L865 650 L1200 650 L1200 760" stroke="#15803D"/>
+<path class="route" data-from="observeSpring" data-to="registry" d="M520 806 L600 806" stroke="#7E22CE"/>
+<path class="route" data-from="eventTelemetry" data-to="registry" d="M1030 806 L940 806" stroke="#15803D"/>
+<path class="route" data-from="registry" data-to="prometheus" d="M710 852 L710 925 L540 925 L540 1010" stroke="#C2410C"/>
+<path class="route dashed" data-from="registry" data-to="otlp" d="M830 852 L830 930 L1000 930 L1000 1010" stroke="#7E22CE"/>
 </svg>

@@ -30,9 +30,9 @@
 <rect x="30" y="30" width="1660" height="620" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
 <text class="title" x="70" y="92">States Architecture</text>
 <text class="subtitle" x="70" y="124">Typed events move through registry resolution into sync, coroutine, or reactive runtimes.</text>
-<rect class="panel" x="55" y="150" width="735" height="230" rx="18"/><text class="panelTitle" x="79" y="184">Definition and resolution</text>
-<rect class="panel" x="860" y="125" width="390" height="330" rx="18"/><text class="panelTitle" x="884" y="159">Runtime engines</text>
-<rect class="panel" x="1280" y="175" width="390" height="410" rx="18"/><text class="panelTitle" x="1304" y="209">Reactive observation</text>
+<rect class="panel" x="55" y="150" width="735" height="230" rx="8"/><text class="panelTitle" x="79" y="184">Definition and resolution</text>
+<rect class="panel" x="860" y="125" width="390" height="330" rx="8"/><text class="panelTitle" x="884" y="159">Runtime engines</text>
+<rect class="panel" x="1280" y="175" width="390" height="410" rx="8"/><text class="panelTitle" x="1304" y="209">Reactive observation</text>
 <circle cx="86" cy="261" r="10" fill="#172033"/>
 <g><path class="route arrow" d="M375,261 L500,261" stroke="#2563eb"/><rect class="arrowLabelBg" x="404.5" y="227" width="66" height="22" rx="11"/><text class="arrowLabel" x="437.5" y="243">builds</text></g>
 <g><path class="route arrow" d="M780,250 L905,216" stroke="#2563eb"/><rect class="arrowLabelBg" x="801.5" y="199" width="82" height="22" rx="11"/><text class="arrowLabel" x="842.5" y="215">resolves</text></g>

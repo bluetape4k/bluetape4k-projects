@@ -1,84 +1,85 @@
 <svg data-intent="Explain R2DBC extension APIs by showing ConnectionFactory/DatabaseClient receivers, bind/query helpers, transaction/coroutine bridges, and Flow/suspend result boundaries." data-evidence="data/r2dbc/README.md; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc" data-source-read="data/r2dbc/README.md; data/r2dbc/src/main/kotlin/io/bluetape4k/r2dbc" xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040" role="img" aria-label="R2DBC Extension API Overview">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1500" height="1040"/>
-<rect class="frame" x="34" y="30" width="1432" height="980" rx="32"/>
+<rect class="frame" x="34" y="30" width="1432" height="980" rx="8"/>
 <text class="title" x="72" y="84">R2DBC Extension API Overview</text>
 <text class="subtitle" x="76" y="116">The module adapts reactive database receivers into coroutine-friendly query, transaction, and result boundaries.</text>
-<g><rect class="panel" x="82" y="160" width="1350" height="180" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Caller boundary</text></g>
-<g><rect class="panel" x="82" y="425" width="1350" height="230" rx="22"/><text class="panelTitle" x="110" y="461" dominant-baseline="middle">Extension families</text></g>
-<g><rect class="panel" x="82" y="752" width="1350" height="220" rx="22"/><text class="panelTitle" x="110" y="788" dominant-baseline="middle">Reactive/coroutine result</text></g>
+<g><rect class="panel" x="82" y="160" width="1350" height="180" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Caller boundary</text></g>
+<g><rect class="panel" x="82" y="425" width="1350" height="230" rx="8"/><text class="panelTitle" x="110" y="461" dominant-baseline="middle">Extension families</text></g>
+<g><rect class="panel" x="82" y="752" width="1350" height="220" rx="8"/><text class="panelTitle" x="110" y="788" dominant-baseline="middle">Reactive/coroutine result</text></g>
 <g id="service">
-  <rect class="card" x="140" y="235" width="330" height="84" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="140" y="235" width="330" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="305" y="270" text-anchor="middle" dominant-baseline="middle">Repository/service code</text>
   <text class="detail" x="305" y="300" text-anchor="middle" dominant-baseline="middle">suspend and Flow callers</text>
 </g>
 <g id="client">
-  <rect class="card" x="585" y="235" width="320" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="585" y="235" width="320" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="745" y="270" text-anchor="middle" dominant-baseline="middle">DatabaseClient</text>
   <text class="detail" x="745" y="300" text-anchor="middle" dominant-baseline="middle">Spring reactive SQL facade</text>
 </g>
 <g id="factory">
-  <rect class="card" x="1035" y="235" width="320" height="84" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="1035" y="235" width="320" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="1195" y="270" text-anchor="middle" dominant-baseline="middle">ConnectionFactory</text>
   <text class="detail" x="1195" y="300" text-anchor="middle" dominant-baseline="middle">R2DBC connection source</text>
 </g>
 <g id="bind">
-  <rect class="card" x="170" y="500" width="300" height="86" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="170" y="500" width="300" height="86" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="320" y="536" text-anchor="middle" dominant-baseline="middle">Bind helpers</text>
   <text class="detail" x="320" y="566" text-anchor="middle" dominant-baseline="middle">named/indexed params</text>
 </g>
 <g id="query">
-  <rect class="card" x="600" y="500" width="320" height="86" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="600" y="500" width="320" height="86" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="760" y="536" text-anchor="middle" dominant-baseline="middle">Query helpers</text>
   <text class="detail" x="760" y="566" text-anchor="middle" dominant-baseline="middle">map rows, fetch one/all</text>
 </g>
 <g id="tx">
-  <rect class="card" x="1030" y="500" width="330" height="86" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="1030" y="500" width="330" height="86" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="1195" y="536" text-anchor="middle" dominant-baseline="middle">Transaction helpers</text>
   <text class="detail" x="1195" y="566" text-anchor="middle" dominant-baseline="middle">operator and connection scope</text>
 </g>
 <g id="rows">
-  <rect class="card" x="170" y="836" width="300" height="86" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <rect class="card" x="170" y="836" width="300" height="86" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
   <text class="cardTitle" x="320" y="872" text-anchor="middle" dominant-baseline="middle">Rows updated</text>
   <text class="detail" x="320" y="902" text-anchor="middle" dominant-baseline="middle">count and metadata</text>
 </g>
 <g id="publisher">
-  <rect class="card" x="585" y="836" width="300" height="86" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="585" y="836" width="300" height="86" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="735" y="872" text-anchor="middle" dominant-baseline="middle">Publisher results</text>
   <text class="detail" x="735" y="902" text-anchor="middle" dominant-baseline="middle">Mono / Flux</text>
 </g>
 <g id="coroutines">
-  <rect class="card" x="1025" y="836" width="340" height="86" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="1025" y="836" width="340" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="1195" y="872" text-anchor="middle" dominant-baseline="middle">Coroutine results</text>
   <text class="detail" x="1195" y="902" text-anchor="middle" dominant-baseline="middle">Flow&lt;T&gt;, suspend T?</text>
 </g>
-<path class="route" data-from="service" data-to="client" d="M470 277 L585 277" stroke="#4F83BF"/>
-<path class="route" data-from="client" data-to="bind" d="M705 319 L705 390 L380 390 L380 500" stroke="#755BC6"/>
-<path class="route" data-from="client" data-to="query" d="M745 319 L745 500" stroke="#B9851B"/>
-<path class="route" data-from="factory" data-to="tx" d="M1195 319 L1195 500" stroke="#3E9868"/>
-<path class="route" data-from="bind" data-to="query" d="M470 543 L600 543" stroke="#2E8F89"/>
-<path class="route" data-from="query" data-to="rows" d="M680 586 L680 710 L450 710 L450 836" stroke="#B9851B"/>
-<path class="route" data-from="query" data-to="publisher" d="M760 586 L760 836" stroke="#B9851B"/>
-<path class="route" data-from="tx" data-to="coroutines" d="M1195 586 L1195 836" stroke="#C94D68"/>
-<path class="route" data-from="publisher" data-to="coroutines" d="M885 879 L1025 879" stroke="#755BC6"/>
+<path class="route" data-from="service" data-to="client" d="M470 277 L585 277" stroke="#1D4ED8"/>
+<path class="route" data-from="client" data-to="bind" d="M705 319 L705 390 L380 390 L380 500" stroke="#7E22CE"/>
+<path class="route" data-from="client" data-to="query" d="M745 319 L745 500" stroke="#C2410C"/>
+<path class="route" data-from="factory" data-to="tx" d="M1195 319 L1195 500" stroke="#15803D"/>
+<path class="route" data-from="bind" data-to="query" d="M470 543 L600 543" stroke="#0F766E"/>
+<path class="route" data-from="query" data-to="rows" d="M680 586 L680 710 L450 710 L450 836" stroke="#C2410C"/>
+<path class="route" data-from="query" data-to="publisher" d="M760 586 L760 836" stroke="#C2410C"/>
+<path class="route" data-from="tx" data-to="coroutines" d="M1195 586 L1195 836" stroke="#BE185D"/>
+<path class="route" data-from="publisher" data-to="coroutines" d="M885 879 L1025 879" stroke="#7E22CE"/>
 </svg>

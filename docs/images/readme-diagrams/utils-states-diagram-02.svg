@@ -1,160 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2222" height="1635" viewBox="0 0 2222 1635" role="img" aria-label="States Class Structure 2">
+<svg data-intent="Regenerate States Class Structure from the current README and source package surface for utils/states." data-evidence="utils/states/README.md; utils/states; utils/states/src/main/kotlin" data-source-read="utils/states/README.md; utils/states; utils/states/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="States Class Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
-  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
-    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
-    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
-    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="2222" height="1635"/>
-<rect class="frame" x="32" y="28" width="2158" height="1579" rx="30"/>
-<text class="title" x="68" y="84">States Class Structure 2</text>
-<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="SuspendStateMachine" data-to="StateMachineException" data-route-color="teal" d="M1168 769 L1168 849 L1526 849 L1526 865" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultStateMachine" data-to="StateMachineException" data-route-color="amber" d="M767 769 L767 815 L1410 815 L1410 865" stroke="#B9851B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="SuspendStateMachine" data-to="TransitionResult" data-route-color="pink" d="M956 769 L956 865" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultStateMachine" data-to="TransitionResult" data-route-color="purple" d="M674 769 L674 803 L992 803 L992 865" stroke="#755BC6" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="SuspendStateMachine" data-to="TransitionTarget" data-route-color="olive" d="M1064 769 L1064 839 L630 839 L630 865" stroke="#718A35" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="SuspendStateMachine" data-to="TransitionKey" data-route-color="indigo" d="M988 769 L988 829 L356 829 L356 865" stroke="#4F63C7" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultStateMachine" data-to="TransitionTarget" data-route-color="coral" d="M818 769 L818 865" stroke="#C8644B" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="DefaultStateMachine" data-to="TransitionKey" data-route-color="brown" d="M598 769 L598 791 L262 791 L262 865" stroke="#8E6D43" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="SuspendStateMachine" data-to="SuspendStateMachineInterface" data-route-color="coral" d="M1078 631 L1078 536" stroke="#C8644B"/>
-<path class="inherit" data-from="DefaultStateMachine" data-to="StateMachine" data-route-color="brown" d="M688 631 L688 536" stroke="#8E6D43"/>
-<path class="inherit" data-from="SuspendStateMachineInterface" data-to="BaseStateMachine" data-route-color="cyan" d="M981 398 L981 303" stroke="#2E83B8"/>
-<path class="inherit" data-from="StateMachine" data-to="BaseStateMachine" data-route-color="magenta" d="M786 398 L786 303" stroke="#A84B98"/>
-<g id="TransitionResult">
-  <rect class="classCard" x="898" y="865" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1078" y="884" text-anchor="middle">class</text>
-  <text class="classTitle" x="1078" y="912" text-anchor="middle">TransitionResult</text>
-  <line x1="898" y1="921" x2="1258" y2="921" stroke="#5B8DEF" stroke-width="1.4"/>
-
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">States Class Structure</text>
+<text class="subtitle" x="76" y="116">utils/states: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
 </g>
-<g id="StateMachineException">
-  <rect class="classCard" x="1288" y="865" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1468" y="884" text-anchor="middle">class</text>
-  <text class="classTitle" x="1468" y="912" text-anchor="middle">StateMachineException</text>
-  <line x1="1288" y1="921" x2="1648" y2="921" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1322" y="966">+message: String</text>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Concept Overview</text>
 </g>
-<g id="BaseStateMachine">
-  <rect class="classCard" x="703" y="165" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="883" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="883" y="212" text-anchor="middle">BaseStateMachine</text>
-  <line x1="703" y1="221" x2="1063" y2="221" stroke="#45A7A1" stroke-width="1.4"/>
-
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">DSL Builder Structure</text>
 </g>
-<g id="TransitionKey">
-  <rect class="classCard" x="118" y="865" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="298" y="884" text-anchor="middle">class</text>
-  <text class="classTitle" x="298" y="912" text-anchor="middle">TransitionKey</text>
-  <line x1="118" y1="921" x2="478" y2="921" stroke="#D6A441" stroke-width="1.4"/>
-
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Key Features</text>
 </g>
-<g id="TransitionTarget">
-  <rect class="classCard" x="508" y="865" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="688" y="884" text-anchor="middle">class</text>
-  <text class="classTitle" x="688" y="912" text-anchor="middle">TransitionTarget</text>
-  <line x1="508" y1="921" x2="868" y2="921" stroke="#DC6B82" stroke-width="1.4"/>
-
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">states package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">states package (16)</text>
 </g>
-<g id="SuspendStateMachineInterfaceS">
-  <rect class="classCard" x="1744" y="165" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="1924" y="184" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="203" text-anchor="middle">SuspendStateMachine</text>
-<text class="classTitle" x="1924" y="225" text-anchor="middle">InterfaceS</text>
-  <line x1="1744" y1="229" x2="2104" y2="229" stroke="#8A72D6" stroke-width="1.4"/>
-
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">BaseStateMachine type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">BaseStateMachine type</text>
 </g>
-<g id="DefaultStateMachineS">
-  <rect class="classCard" x="1744" y="331" width="360" height="138" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1924" y="350" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="378" text-anchor="middle">DefaultStateMachineS</text>
-  <line x1="1744" y1="387" x2="2104" y2="387" stroke="#8BA84D" stroke-width="1.4"/>
-
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">StateMachine type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">StateMachine type</text>
 </g>
-<g id="BaseStateMachineS">
-  <rect class="classCard" x="1744" y="497" width="360" height="138" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="1924" y="516" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="544" text-anchor="middle">BaseStateMachineS</text>
-  <line x1="1744" y1="553" x2="2104" y2="553" stroke="#9AA8B8" stroke-width="1.4"/>
-
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">StateMachineException type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">StateMachineException type</text>
 </g>
-<g id="StateMachineS">
-  <rect class="classCard" x="1744" y="663" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1924" y="682" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="710" text-anchor="middle">StateMachineS</text>
-  <line x1="1744" y1="719" x2="2104" y2="719" stroke="#5B8DEF" stroke-width="1.4"/>
-
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
 </g>
-<g id="SuspendStateMachineS">
-  <rect class="classCard" x="1744" y="829" width="360" height="138" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1924" y="848" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="876" text-anchor="middle">SuspendStateMachineS</text>
-  <line x1="1744" y1="885" x2="2104" y2="885" stroke="#58A978" stroke-width="1.4"/>
-
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
 </g>
-<g id="TransitionResultS">
-  <rect class="classCard" x="1744" y="995" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="1924" y="1014" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="1042" text-anchor="middle">TransitionResultS</text>
-  <line x1="1744" y1="1051" x2="2104" y2="1051" stroke="#45A7A1" stroke-width="1.4"/>
-
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Metrics/tracing</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Metrics/tracing</text>
 </g>
-<g id="TransitionKeyS">
-  <rect class="classCard" x="1744" y="1161" width="360" height="138" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1924" y="1180" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="1208" text-anchor="middle">TransitionKeyS</text>
-  <line x1="1744" y1="1217" x2="2104" y2="1217" stroke="#D6A441" stroke-width="1.4"/>
-
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
 </g>
-<g id="TransitionTargetS">
-  <rect class="classCard" x="1744" y="1327" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1924" y="1346" text-anchor="middle">class</text>
-  <text class="classTitle" x="1924" y="1374" text-anchor="middle">TransitionTargetS</text>
-  <line x1="1744" y1="1383" x2="2104" y2="1383" stroke="#DC6B82" stroke-width="1.4"/>
-
-</g>
-<g id="StateMachine">
-  <rect class="classCard" x="508" y="398" width="360" height="138" rx="8" fill="#F1ECFF" stroke="#8A72D6"/>
-  <text class="stereo" x="688" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="688" y="445" text-anchor="middle">StateMachine</text>
-  <line x1="508" y1="454" x2="868" y2="454" stroke="#8A72D6" stroke-width="1.4"/>
-
-</g>
-<g id="SuspendStateMachineInterface">
-  <rect class="classCard" x="898" y="398" width="360" height="138" rx="8" fill="#EEF6D9" stroke="#8BA84D"/>
-  <text class="stereo" x="1078" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1078" y="436" text-anchor="middle">SuspendStateMachine</text>
-<text class="classTitle" x="1078" y="458" text-anchor="middle">Interface</text>
-  <line x1="898" y1="462" x2="1258" y2="462" stroke="#8BA84D" stroke-width="1.4"/>
-
-</g>
-<g id="DefaultStateMachine">
-  <rect class="classCard" x="508" y="631" width="360" height="138" rx="8" fill="#F2F5F9" stroke="#9AA8B8"/>
-  <text class="stereo" x="688" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="688" y="678" text-anchor="middle">DefaultStateMachine</text>
-  <line x1="508" y1="687" x2="868" y2="687" stroke="#9AA8B8" stroke-width="1.4"/>
-
-</g>
-<g id="SuspendStateMachine">
-  <rect class="classCard" x="898" y="631" width="360" height="138" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="1078" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="1078" y="678" text-anchor="middle">SuspendStateMachine</text>
-  <line x1="898" y1="687" x2="1258" y2="687" stroke="#5B8DEF" stroke-width="1.4"/>
-
-</g>
-<g>
-  <rect x="1807" y="1527" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1825 1545 L1883 1545" stroke="#3E9868"/>
-  <text class="detail" x="1897" y="1550">inheritance / implementation</text>
-  <path class="dependency" d="M1825 1566 L1883 1566" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1897" y="1571">dependency / usage</text>
-</g>
-<g><rect x="180" y="1545" width="1582" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="971" y="1571" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

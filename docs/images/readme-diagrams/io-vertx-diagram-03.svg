@@ -1,74 +1,93 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="947" viewBox="0 0 1500 947" role="img" aria-label="Vert.x Core Component Class Structure">
+<svg data-intent="Regenerate Vert.x Core Component Class Structure from the current README and source package surface for io/vertx." data-evidence="io/vertx/README.md; io/vertx; io/vertx/src/main/kotlin" data-source-read="io/vertx/README.md; io/vertx; io/vertx/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Vert.x Core Component Class Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
-  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
-    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
-    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
-    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="947"/>
-<rect class="frame" x="32" y="28" width="1436" height="891" rx="30"/>
-<text class="title" x="68" y="84">Vert.x Core Component Class Structure</text>
-<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="CoroutineVerticle" data-to="CircuitBreaker" data-route-color="teal" d="M750 544 L750 631" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="Pool" data-to="SqlClient" data-route-color="blue" d="M1140 631 L1140 311" stroke="#4F83BF"/>
-<path class="dependency" data-from="CoroutineVerticle" data-to="Pool" data-route-color="pink" d="M930 512 L1005 512 L1005 631" stroke="#C94D68" stroke-dasharray="8 7"/>
-<path class="dependency" data-from="CoroutineVerticle" data-to="EventBus" data-route-color="purple" d="M570 512 L495 512 L495 631" stroke="#755BC6" stroke-dasharray="8 7"/>
-<g id="EventBus">
-  <rect class="classCard" x="180" y="631" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="360" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="360" y="678" text-anchor="middle">EventBus</text>
-  <line x1="180" y1="687" x2="540" y2="687" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="214" y="719">+send(address, message)</text>
-<text class="member" x="214" y="736">+publish(address, message)</text>
-<text class="member" x="214" y="753">+consumer(address) MessageConsumer</text>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Vert.x Core Component Class Structure</text>
+<text class="subtitle" x="76" y="116">io/vertx: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">What's Included</text>
 </g>
-<g id="CoroutineVerticle">
-  <rect class="classCard" x="570" y="398" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="750" y="417" text-anchor="middle">VertxKotlin</text>
-  <text class="classTitle" x="750" y="445" text-anchor="middle">CoroutineVerticle</text>
-  <line x1="570" y1="454" x2="930" y2="454" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="604" y="486">+vertx: Vertx</text>
-<text class="member" x="604" y="503">+context: Context</text>
-<text class="member" x="604" y="520">+start()</text>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Vert.x Core (formerly</text>
+  <text class="detail" x="581" y="311" text-anchor="middle">vertx/core)</text>
 </g>
-<g id="CircuitBreaker">
-  <rect class="classCard" x="570" y="631" width="360" height="138" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="750" y="650" text-anchor="middle">Resilience4j</text>
-  <text class="classTitle" x="750" y="678" text-anchor="middle">CircuitBreaker</text>
-  <line x1="570" y1="687" x2="930" y2="687" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="604" y="724">+executeSuspend(block) T</text>
-<text class="member" x="604" y="741">+getState() State</text>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Vert.x SQL Client (formerly</text>
+  <text class="detail" x="919" y="311" text-anchor="middle">vertx/sqlclient)</text>
 </g>
-<g id="SqlClient">
-  <rect class="classCard" x="960" y="165" width="360" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="1140" y="184" text-anchor="middle">interface</text>
-  <text class="classTitle" x="1140" y="212" text-anchor="middle">SqlClient</text>
-  <line x1="960" y1="221" x2="1320" y2="221" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="994" y="253">+preparedQuery(sql) PreparedQuery</text>
-<text class="member" x="994" y="270">+query(sql) Query</text>
-<text class="member" x="994" y="287">+close() Future</text>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Resilience4j Integration</text>
+  <text class="detail" x="1257" y="311" text-anchor="middle">(formerly vertx/resilience4j)</text>
 </g>
-<g id="Pool">
-  <rect class="classCard" x="960" y="631" width="360" height="138" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1140" y="650" text-anchor="middle">class</text>
-  <text class="classTitle" x="1140" y="678" text-anchor="middle">Pool</text>
-  <line x1="960" y1="687" x2="1320" y2="687" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="994" y="724">+withConnection(handler) Future</text>
-<text class="member" x="994" y="741">+withTransaction(handler) Future</text>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">vertx package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">vertx package (25)</text>
 </g>
-<g>
-  <rect x="1085" y="839" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1103 857 L1161 857" stroke="#3E9868"/>
-  <text class="detail" x="1175" y="862">inheritance / implementation</text>
-  <path class="dependency" d="M1103 878 L1161 878" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1175" y="883">dependency / usage</text>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">VertxDecorators type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">VertxDecorators type</text>
 </g>
-<g><rect x="180" y="857" width="860" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="610" y="883" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">SuspendVertxDecorateSupplier type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">SuspendVertxDecorateSupplier</text>
+  <text class="detail" x="919" y="591" text-anchor="middle">type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">SqlLogger type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">SqlLogger type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Serialization</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Metrics/tracing</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Metrics/tracing</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

@@ -1,125 +1,87 @@
-<svg data-intent="Show Avro serializer decision routing from schema/record inputs through binary or JSON encoding branches to serialized bytes and decode outcomes." data-evidence="io/avro/README.md; io/avro/src/main/kotlin" data-source-read="io/avro/README.md; io/avro/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1480" height="1180" viewBox="0 0 1480 1180" role="img" aria-labelledby="title desc" data-layout="decision-flow">
-  <title id="title">Avro codec selection guide</title>
-  <desc id="desc">Flowchart-style selection guide for Avro codec factories showing default, Snappy, archive, null codec, and custom codec choices before ByteArray output.</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
-    </marker>
-    <style>
-      .canvas{fill:#F7FAFC}
-      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
-      .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
-      .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
-      .card-shape{filter:url(#shadow);stroke-width:2}
-      .connector{fill:none;stroke-width:2.6;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
-      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
-    </style>
-  </defs>
-  <rect class="canvas" width="1480" height="1180"/>
-  <rect class="frame" x="34" y="30" width="1412" height="1120" rx="28"/>
-  <text class="title" x="72" y="88">Avro codec selection guide</text>
-  <text class="subtitle" x="76" y="121">Pick the compression profile from workload intent, then route every branch into the same ByteArray output path.</text>
-
-  <g id="group-decision">
-    <rect class="group" x="76" y="154" width="590" height="820" rx="18"/>
-    <text class="groupTitle" x="106" y="172" dominant-baseline="middle">Selection criteria</text>
-  </g>
-  <g id="group-codec">
-    <rect class="group" x="770" y="154" width="610" height="960" rx="18"/>
-    <text class="groupTitle" x="800" y="172" dominant-baseline="middle">Codec result</text>
-  </g>
-
-  <path id="route-start-compression" class="connector" d="M370 286 L370 350" stroke="#4F83BF"/>
-  <path id="route-compression-null" class="connector" d="M530 416 L875 416" stroke="#6B7D90"/>
-  <g id="label-compression-null" transform="translate(679,382)">
-    <rect class="pill" x="0" y="0" width="42" height="24" rx="8"/>
-    <text class="small" x="21" y="12" text-anchor="middle" dominant-baseline="middle">no</text>
-  </g>
-  <path id="route-compression-throughput" class="connector" d="M370 482 L370 535" stroke="#45A7A1"/>
-  <g id="label-compression-throughput" transform="translate(382,496)">
-    <rect class="pill" x="0" y="0" width="46" height="24" rx="8"/>
-    <text class="small" x="23" y="12" text-anchor="middle" dominant-baseline="middle">yes</text>
-  </g>
-  <path id="route-throughput-snappy" class="connector" d="M530 601 L760 601 L760 568 L875 568" stroke="#45A7A1"/>
-  <g id="label-throughput-snappy" transform="translate(622,567)">
-    <rect class="pill" x="0" y="0" width="46" height="24" rx="8"/>
-    <text class="small" x="23" y="12" text-anchor="middle" dominant-baseline="middle">yes</text>
-  </g>
-  <path id="route-throughput-archive" class="connector" d="M370 667 L370 720" stroke="#D9AA4D"/>
-  <g id="label-throughput-archive" transform="translate(384,682)">
-    <rect class="pill" x="0" y="0" width="42" height="24" rx="8"/>
-    <text class="small" x="21" y="12" text-anchor="middle" dominant-baseline="middle">no</text>
-  </g>
-  <path id="route-archive-zstd" class="connector" d="M530 786 L760 786 L760 738 L875 738" stroke="#D9AA4D"/>
-  <g id="label-archive-zstd" transform="translate(622,752)">
-    <rect class="pill" x="0" y="0" width="46" height="24" rx="8"/>
-    <text class="small" x="23" y="12" text-anchor="middle" dominant-baseline="middle">yes</text>
-  </g>
-  <path id="route-archive-deflate" class="connector" d="M370 852 L370 878 L875 878" stroke="#58A978"/>
-  <g id="label-archive-deflate" transform="translate(601,844)">
-    <rect class="pill" x="0" y="0" width="42" height="24" rx="8"/>
-    <text class="small" x="21" y="12" text-anchor="middle" dominant-baseline="middle">no</text>
-  </g>
-  <path id="route-deflate-output" class="connector" d="M1050 916 L1050 1000" stroke="#58A978"/>
-
-  <g id="node-start" transform="translate(190,210)">
-    <rect class="card-shape" x="0" y="0" width="360" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="card-title" x="180" y="28.5" text-anchor="middle" dominant-baseline="middle">Start with payload workload</text>
-    <text class="detail" x="180" y="47.5" text-anchor="middle" dominant-baseline="middle">schema + record stream</text>
-  </g>
-  <g id="node-compression" transform="translate(210,350)">
-    <polygon class="card-shape" points="160,0 320,66 160,132 0,66" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="card-title" x="160" y="56.5" text-anchor="middle" dominant-baseline="middle">Need compression?</text>
-    <text class="detail" x="160" y="75.5" text-anchor="middle" dominant-baseline="middle">storage or network pressure</text>
-  </g>
-  <g id="node-throughput" transform="translate(210,535)">
-    <polygon class="card-shape" points="160,0 320,66 160,132 0,66" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="160" y="56.5" text-anchor="middle" dominant-baseline="middle">Fast local transfer?</text>
-    <text class="detail" x="160" y="75.5" text-anchor="middle" dominant-baseline="middle">low CPU overhead</text>
-  </g>
-  <g id="node-archive" transform="translate(210,720)">
-    <polygon class="card-shape" points="160,0 320,66 160,132 0,66" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="160" y="56.5" text-anchor="middle" dominant-baseline="middle">Small archive?</text>
-    <text class="detail" x="160" y="75.5" text-anchor="middle" dominant-baseline="middle">long-lived files</text>
-  </g>
-  <g id="node-null" transform="translate(875,360)">
-    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#F6F8FA" stroke="#AAB7C4"/>
-    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">NULL_CODEC_FACTORY</text>
-    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">external codec</text>
-    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">raw Avro block</text>
-  </g>
-  <g id="node-snappy" transform="translate(875,530)">
-    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">SNAPPY_CODEC_FACTORY</text>
-    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">fast transfer</text>
-    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">balanced size</text>
-  </g>
-  <g id="node-zstd" transform="translate(875,700)">
-    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">ARCHIVE_CODEC_FACTORY</text>
-    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">Zstandard level 9</text>
-    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">smallest archive</text>
-  </g>
-  <g id="node-deflate" transform="translate(875,840)">
-    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">DEFAULT_CODEC_FACTORY</text>
-    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">Deflate default</text>
-    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">general purpose</text>
-  </g>
-  <g id="node-output" transform="translate(875,1000)">
-    <rect class="card-shape" x="0" y="0" width="350" height="76" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="card-title" x="175" y="19" text-anchor="middle" dominant-baseline="middle">ByteArray output</text>
-    <text class="detail" x="175" y="38" text-anchor="middle" dominant-baseline="middle">all codec branches join</text>
-    <text class="detail" x="175" y="57" text-anchor="middle" dominant-baseline="middle">shared read path</text>
-  </g>
-
-
+<svg data-intent="Regenerate Compression Codec Selection Guide from the current README and source package surface for io/avro." data-evidence="io/avro/README.md; io/avro; io/avro/src/main/kotlin" data-source-read="io/avro/README.md; io/avro; io/avro/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Compression Codec Selection Guide">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Compression Codec Selection Guide</text>
+<text class="subtitle" x="76" y="116">io/avro: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Serializer Class Hierarchy</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Avro</text>
+  <text class="detail" x="919" y="311" text-anchor="middle">Serialization/Deserialization</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Compression Codec Selection</text>
+  <text class="detail" x="1257" y="311" text-anchor="middle">Guide</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">avro package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">avro package (7)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">AvroGenericRecordSerializer type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">AvroGenericRecordSerializer</text>
+  <text class="detail" x="581" y="591" text-anchor="middle">type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">AvroReflectSerializer type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">AvroReflectSerializer type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">AvroSpecificRecordSerializer type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">AvroSpecificRecordSerializer</text>
+  <text class="detail" x="1257" y="591" text-anchor="middle">type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="412" y="824" text-anchor="middle">Kafka messaging</text>
+  <text class="detail" x="412" y="852" text-anchor="middle">Kafka messaging</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="750" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="750" y="852" text-anchor="middle">Serialization</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
 </svg>

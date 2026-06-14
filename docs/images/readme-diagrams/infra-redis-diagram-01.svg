@@ -1,60 +1,61 @@
 <svg data-intent="Explain the Redis umbrella module dependency choice: bluetape4k-redis keeps the full Lettuce and Redisson bundle compatible, direct Lettuce/Redisson dependencies reduce footprint, and Spring Data Redis serializers stay in a separate module family." data-evidence="infra/redis/README.md; infra/lettuce/README.md; infra/redisson/README.md; spring-boot/redis/README.md" data-source-read="infra/redis/README.md; infra/lettuce/README.md; infra/redisson/README.md; spring-boot/redis/README.md" xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-label="Redis Umbrella Module Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1500" height="980"/>
-<rect class="frame" x="34" y="30" width="1432" height="920" rx="32"/>
+<rect class="frame" x="34" y="30" width="1432" height="920" rx="8"/>
 <text class="title" x="72" y="84">Redis Umbrella Module Structure</text>
 <text class="subtitle" x="76" y="116">The umbrella dependency bundles Lettuce and Redisson for compatibility; direct client dependencies and Spring Data Redis serializers remain separate choices.</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="170" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Compatibility dependency</text></g>
-<g><rect class="panel" x="82" y="405" width="1336" height="260" rx="22"/><text class="panelTitle" x="110" y="441" dominant-baseline="middle">Client module choices</text></g>
-<g><rect class="panel" x="82" y="740" width="1336" height="150" rx="22"/><text class="panelTitle" x="110" y="776" dominant-baseline="middle">Reader guidance</text></g>
+<g><rect class="panel" x="82" y="160" width="1336" height="170" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Compatibility dependency</text></g>
+<g><rect class="panel" x="82" y="405" width="1336" height="260" rx="8"/><text class="panelTitle" x="110" y="441" dominant-baseline="middle">Client module choices</text></g>
+<g><rect class="panel" x="82" y="740" width="1336" height="150" rx="8"/><text class="panelTitle" x="110" y="776" dominant-baseline="middle">Reader guidance</text></g>
 <g id="umbrella">
-  <rect class="card" x="240" y="230" width="1020" height="74" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="240" y="230" width="1020" height="74" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="750" y="260" text-anchor="middle" dominant-baseline="middle">bluetape4k-redis umbrella</text>
   <text class="detail" x="750" y="290" text-anchor="middle" dominant-baseline="middle">keeps existing full-bundle dependency working</text>
 </g>
 <g id="lettuce">
-  <rect class="card" x="135" y="495" width="330" height="94" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="135" y="495" width="330" height="94" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="300" y="526" text-anchor="middle" dominant-baseline="middle">bluetape4k-lettuce</text>
   <text class="detail" x="300" y="556" text-anchor="middle" dominant-baseline="middle">async/coroutine Redis client</text>
   <text class="detail" x="300" y="574" text-anchor="middle" dominant-baseline="middle">binary and Protobuf codecs</text>
 </g>
 <g id="redisson">
-  <rect class="card" x="585" y="495" width="330" height="94" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="585" y="495" width="330" height="94" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="750" y="526" text-anchor="middle" dominant-baseline="middle">bluetape4k-redisson</text>
   <text class="detail" x="750" y="556" text-anchor="middle" dominant-baseline="middle">distributed objects</text>
   <text class="detail" x="750" y="574" text-anchor="middle" dominant-baseline="middle">NearCache and leader election</text>
 </g>
 <g id="springData">
-  <rect class="card" x="1035" y="495" width="330" height="94" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="1035" y="495" width="330" height="94" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="1200" y="526" text-anchor="middle" dominant-baseline="middle">spring-data-redis</text>
   <text class="detail" x="1200" y="556" text-anchor="middle" dominant-baseline="middle">RedisTemplate serializers</text>
   <text class="detail" x="1200" y="574" text-anchor="middle" dominant-baseline="middle">ReactiveRedisTemplate context</text>
 </g>
 <g id="guidance">
-  <rect class="card" x="230" y="800" width="1040" height="66" rx="14" fill="#F2F5F9" stroke="#9AA8B8"/>
+  <rect class="card" x="230" y="800" width="1040" height="66" rx="8" fill="#F9FAFB" stroke="#6B7280"/>
   <text class="cardTitle" x="750" y="826" text-anchor="middle" dominant-baseline="middle">Choose by dependency boundary</text>
   <text class="detail" x="750" y="856" text-anchor="middle" dominant-baseline="middle">umbrella for compatibility; direct clients for smaller dependencies; Spring Data Redis only for template serialization</text>
 </g>
-<path class="route" data-from="umbrella" data-to="lettuce" d="M500 304 L500 542 L465 542" stroke="#3E9868"/>
-<path class="route" data-from="umbrella" data-to="redisson" d="M750 304 L750 495" stroke="#755BC6"/>
+<path class="route" data-from="umbrella" data-to="lettuce" d="M500 304 L500 542 L465 542" stroke="#15803D"/>
+<path class="route" data-from="umbrella" data-to="redisson" d="M750 304 L750 495" stroke="#7E22CE"/>
 </svg>

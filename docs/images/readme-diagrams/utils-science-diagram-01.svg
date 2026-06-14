@@ -1,157 +1,89 @@
-<svg data-intent="Explain science utilities as coordinate/projection helpers feeding geometry operations, file readers, Exposed persistence tables, repositories, and import services." data-evidence="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science" data-source-read="utils/science/README.md; utils/science/src/main/kotlin/io/bluetape4k/science" xmlns="http://www.w3.org/2000/svg" width="1620" height="1054" viewBox="0 0 1620 1054" role="img" aria-labelledby="title desc">
-  <title id="title">Science utilities architecture</title>
-  <desc id="desc">Layered module overview for utils/science showing coordinate types, projection registry, geometry helpers, shapefile and NetCDF models, Exposed tables, repositories, and services.</desc>
-  <defs>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/>
-    </marker>
-    <style>
-      .canvas{fill:#F7FAFC}
-      .frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
-      .layer{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .layer-title{font-family:"Architects Daughter";font-size:26px;fill:#22344A;font-weight:400}
-      .card-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
-      .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
-      .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
-      .card{filter:url(#shadow);stroke-width:2}
-      .connector{fill:none;stroke-width:2.4;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}
-      .pill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1}
-    </style>
-  </defs>
-  <rect class="canvas" width="1620" height="1054"/>
-  <rect class="frame" x="34" y="30" width="1552" height="994" rx="28"/>
-  <text class="title" x="72" y="88">Science utilities architecture</text>
-  <text class="subtitle" x="76" y="121">Coordinate models feed projections and geometry, then file readers and Exposed persistence services.</text>
-
-  <!-- README_LAYER_BANDS:START -->
-  <g id="layer-module-entrypoint">
-    <rect class="layer" x="72" y="166" width="1476" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="209" dominant-baseline="middle">Module entrypoint</text>
-    <g id="node-science" transform="translate(665,190)">
-      <rect class="card" x="0" y="0" width="520" height="86" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-      <text class="card-title" x="260" y="24" text-anchor="middle" dominant-baseline="middle">bluetape4k-science</text>
-      <text class="detail" x="260" y="43" text-anchor="middle" dominant-baseline="middle">geospatial coordinate</text>
-      <text class="detail" x="260" y="62" text-anchor="middle" dominant-baseline="middle">file and persistence utilities</text>
-    </g>
-  </g>
-  <g id="layer-coordinate-model">
-    <rect class="layer" x="72" y="328" width="1476" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="371" dominant-baseline="middle">Coordinate model</text>
-    <g id="node-coords" transform="translate(495,352)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Coordinate types</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">GeoLocation, BoundingBox</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">DM, DMS, Vector</text>
-    </g>
-    <g id="node-utm" transform="translate(1055,352)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">UTM helpers</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">UtmZone</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">cell bounding boxes</text>
-    </g>
-  </g>
-  <g id="layer-projection">
-    <rect class="layer" x="121" y="490" width="1476" height="134" rx="18"/>
-    <text class="layer-title" x="153" y="533" dominant-baseline="middle">Projection</text>
-    <g id="node-projection" transform="translate(495,514)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Projection registry</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">CrsRegistry</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">Projections</text>
-    </g>
-    <g id="node-geometry" transform="translate(1055,514)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Geometry operations</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">distance, angle, intersection</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">polygon extensions</text>
-    </g>
-  </g>
-  <g id="layer-file-and-data-model">
-    <rect class="layer" x="72" y="652" width="1476" height="134" rx="18"/>
-    <text class="layer-title" x="104" y="695" dominant-baseline="middle">File and data model</text>
-    <g id="node-shapefile" transform="translate(382,676)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Shapefile reader</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">loadShape/loadShapeAsync</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">ShapeHeader and records</text>
-    </g>
-    <g id="node-netcdf-model" transform="translate(775,676)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EEF6D9" stroke="#8BA84D"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">NetCDF models</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">file, variable, grid value</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">import progress</text>
-    </g>
-    <g id="node-spatial-model" transform="translate(1168,676)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Spatial models</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">layer and feature records</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">POI records</text>
-    </g>
-  </g>
-  <g id="layer-persistence">
-    <rect class="layer" x="115" y="814" width="1476" height="134" rx="18"/>
-    <text class="layer-title" x="147" y="857" dominant-baseline="middle">Persistence</text>
-    <g id="node-tables" transform="translate(382,838)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Exposed tables</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">SpatialTables</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">NetCdfTables</text>
-    </g>
-    <g id="node-repos" transform="translate(775,838)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Repositories</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">SpatialFeatureRepository</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">NetCdfRepository</text>
-    </g>
-    <g id="node-services" transform="translate(1168,838)">
-      <rect class="card" x="0" y="0" width="300" height="86" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-      <text class="card-title" x="150" y="24" text-anchor="middle" dominant-baseline="middle">Import services</text>
-      <text class="detail" x="150" y="43" text-anchor="middle" dominant-baseline="middle">ShapefileImportService</text>
-      <text class="detail" x="150" y="62" text-anchor="middle" dominant-baseline="middle">NetCdfCatalogService</text>
-    </g>
-  </g>
-  <!-- README_LAYER_BANDS:END -->
-
-  <g id="route-science-coords">
-    <path class="connector" d="M699 276 L699 304 L699 304 L699 352" stroke="#58A978"/>
-  </g>
-  <g id="route-science-utm">
-    <path class="connector" d="M1151 276 L1151 314 L1151 314 L1151 352" stroke="#45A7A1"/>
-  </g>
-  <g id="route-coords-projection">
-    <path class="connector" d="M657 438 L657 486 L657 486 L657 514" stroke="#8A72D6"/>
-  </g>
-  <g id="route-coords-geometry">
-    <path class="connector" d="M761 438 L761 466 L1089 466 L1089 514" stroke="#DB7890"/>
-  </g>
-  <g id="route-projection-shapefile">
-    <path class="connector" d="M532 600 L532 638 L532 638 L532 676" stroke="#D9AA4D"/>
-  </g>
-  <g id="route-geometry-spatial-model">
-    <path class="connector" d="M1321 600 L1321 648 L1321 648 L1321 676" stroke="#58A978"/>
-  </g>
-  <g id="route-projection-netcdf-model">
-    <path class="connector" d="M761 600 L761 628 L809 628 L809 676" stroke="#8BA84D"/>
-  </g>
-  <g id="route-shapefile-tables">
-    <path class="connector" d="M532 762 L532 800 L532 800 L532 838" stroke="#45A7A1"/>
-  </g>
-  <g id="route-netcdf-model-tables">
-    <path class="connector" d="M809 762 L809 810 L648 810 L648 838" stroke="#45A7A1"/>
-  </g>
-  <g id="route-spatial-model-repos">
-    <path class="connector" d="M1202 762 L1202 790 L1041 790 L1041 838" stroke="#8A72D6"/>
-  </g>
-  <g id="route-tables-repos">
-    <path class="connector" d="M682 881 L775 881" stroke="#8A72D6"/>
-  </g>
-  <g id="route-repos-services">
-    <path class="connector" d="M1075 881 L1168 881" stroke="#D9AA4D"/>
-  </g>
-  <g data-footer-note="source-note"><rect x="140" y="978" width="1340" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="810" y="1004" text-anchor="middle">Source: utils/science README and unit models; groups scientific quantities, conversion helpers, and domain values.</text></g>
+<svg data-intent="Regenerate Integrated Module Overview from the current README and source package surface for utils/science." data-evidence="utils/science/README.md; utils/science; utils/science/src/main/kotlin" data-source-read="utils/science/README.md; utils/science; utils/science/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Integrated Module Overview">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Integrated Module Overview</text>
+<text class="subtitle" x="76" y="116">utils/science: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Integrated Module Overview</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Coordinate Transformation Flow</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">science package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">science package (30)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">BoundingBox type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">BoundingBox type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">BoundingBoxRelation type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">BoundingBoxRelation type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">DM type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">DM type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Redis backend</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Redis backend</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Serialization</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Metrics/tracing</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Metrics/tracing</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

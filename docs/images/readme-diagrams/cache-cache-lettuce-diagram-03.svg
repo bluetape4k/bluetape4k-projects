@@ -1,204 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1040" viewBox="0 0 1900 1040" role="img" aria-labelledby="title desc">
-  <title id="title">Lettuce Cache Stability Contracts</title>
-  <desc id="desc">Summarize the Lettuce stability contracts described by the README and implemented across NearCache, JCache, and memoizers.</desc>
-  <defs>
-    <font-face font-family="Architects Daughter" src="url('file:///Users/debop/Library/Fonts/ArchitectsDaughter-Regular.ttf')"/>
-    <font-face font-family="Comic Mono" src="url('file:///Users/debop/Library/Fonts/ComicMono-Bold.ttf')"/>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.11"/></filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="context-stroke"/></marker>
-    <marker id="hollow" viewBox="0 0 7 6" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><path d="M 0.8 0.8 L 6.5 3 L 0.8 5.2 z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.2"/></marker>
-    <style>
-      .canvas{fill:#F6F9FC}.decor{fill:#FFFFFF;stroke:#C4D6E7;stroke-width:3.2;filter:url(#shadow)}
-      .innerFrame{fill:#FBFDFF;stroke:#D9E4EF;stroke-width:2}.group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
-      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
-      .cardTitle,.classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
-      .stereo,.detail,.member,.small{font-family:"Comic Mono";font-weight:400}
-      .stereo{font-size:13px;fill:#687789}.detail{font-size:14px;fill:#42556B}.member{font-size:13px;fill:#42556B}.small{font-size:13px;fill:#627184}
-      .card{filter:url(#shadow);stroke-width:2}.connector{fill:none;stroke-width:2.7;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.inherit{marker-end:url(#hollow)}.dashed{stroke-dasharray:7 6}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.1}
-    </style>
-  </defs>
-  <rect class="canvas" width="1900" height="1040"/>
-  <rect class="decor" x="44" y="36" width="1812" height="968" rx="34"/>
-  <rect class="innerFrame" x="82" y="154" width="1736" height="754" rx="24"/>
-  <text class="title" x="72" y="88">Lettuce Cache Stability Contracts</text>
-  <text class="subtitle" x="76" y="121">Independent runtime contracts protect atomic updates, deletes, close semantics, and memoizer recovery.</text>
-  <g id="panel-cas">
-    <rect class="group" x="105" y="195" width="390" height="670" rx="20"/>
-    <text class="groupTitle" x="135" y="223" dominant-baseline="middle">Atomic replace path</text>
-  </g>
-  <g id="panel-delete">
-    <rect class="group" x="545" y="195" width="390" height="670" rx="20"/>
-    <text class="groupTitle" x="575" y="223" dominant-baseline="middle">Non-blocking delete path</text>
-  </g>
-  <g id="panel-close">
-    <rect class="group" x="985" y="195" width="390" height="670" rx="20"/>
-    <text class="groupTitle" x="1015" y="223" dominant-baseline="middle">JCache close contract</text>
-  </g>
-  <g id="panel-memo">
-    <rect class="group" x="1425" y="195" width="365" height="670" rx="20"/>
-    <text class="groupTitle" x="1455" y="223" dominant-baseline="middle">Memoizer recovery</text>
-  </g>
-  <path class="connector" data-edge="cas1-&gt;cas2" data-label="executes" d="M 300 351 L 300 440" stroke="#8A72D6"/>
-  <g transform="translate(322,382.5)">
-    <rect class="labelPill" x="0" y="0" width="79.2" height="26" rx="8"/>
-    <text class="small" x="39.6" y="13" text-anchor="middle" dominant-baseline="middle" fill="#8A72D6">executes</text>
-  </g>
-  <path class="connector dashed" data-edge="cas2-&gt;cas3" data-label="if NOSCRIPT" d="M 300 516 L 300 605" stroke="#D9AA4D"/>
-  <g transform="translate(322,547.5)">
-    <rect class="labelPill" x="0" y="0" width="101.4" height="26" rx="8"/>
-    <text class="small" x="50.7" y="13" text-anchor="middle" dominant-baseline="middle" fill="#D9AA4D">if NOSCRIPT</text>
-  </g>
-  <path class="connector" data-edge="cas3-&gt;cas4" data-label="same result" d="M 300 681 L 300 770" stroke="#58A978"/>
-  <g transform="translate(322,712.5)">
-    <rect class="labelPill" x="0" y="0" width="101.4" height="26" rx="8"/>
-    <text class="small" x="50.7" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">same result</text>
-  </g>
-  <path class="connector" data-edge="del1-&gt;del2" data-label="uses" d="M 740 351 L 740 440" stroke="#8A72D6"/>
-  <g transform="translate(762,382.5)">
-    <rect class="labelPill" x="0" y="0" width="70" height="26" rx="8"/>
-    <text class="small" x="35" y="13" text-anchor="middle" dominant-baseline="middle" fill="#8A72D6">uses</text>
-  </g>
-  <path class="connector" data-edge="del2-&gt;del3" data-label="scans" d="M 740 516 L 740 605" stroke="#D9AA4D"/>
-  <g transform="translate(762,547.5)">
-    <rect class="labelPill" x="0" y="0" width="70" height="26" rx="8"/>
-    <text class="small" x="35" y="13" text-anchor="middle" dominant-baseline="middle" fill="#D9AA4D">scans</text>
-  </g>
-  <path class="connector" data-edge="del3-&gt;del4" data-label="clears" d="M 740 681 L 740 770" stroke="#58A978"/>
-  <g transform="translate(762,712.5)">
-    <rect class="labelPill" x="0" y="0" width="70" height="26" rx="8"/>
-    <text class="small" x="35" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">clears</text>
-  </g>
-  <path class="connector" data-edge="close1-&gt;close2" data-label="separates" d="M 1180 351 L 1180 440" stroke="#8A72D6"/>
-  <g transform="translate(1202,382.5)">
-    <rect class="labelPill" x="0" y="0" width="86.6" height="26" rx="8"/>
-    <text class="small" x="43.3" y="13" text-anchor="middle" dominant-baseline="middle" fill="#8A72D6">separates</text>
-  </g>
-  <path class="connector" data-edge="close2-&gt;close3" data-label="protects" d="M 1180 516 L 1180 605" stroke="#D9AA4D"/>
-  <g transform="translate(1202,547.5)">
-    <rect class="labelPill" x="0" y="0" width="79.2" height="26" rx="8"/>
-    <text class="small" x="39.6" y="13" text-anchor="middle" dominant-baseline="middle" fill="#D9AA4D">protects</text>
-  </g>
-  <path class="connector" data-edge="close3-&gt;close4" data-label="then releases" d="M 1180 681 L 1180 770" stroke="#58A978"/>
-  <g transform="translate(1202,712.5)">
-    <rect class="labelPill" x="0" y="0" width="116.2" height="26" rx="8"/>
-    <text class="small" x="58.1" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">then releases</text>
-  </g>
-  <path class="connector" data-edge="memo1-&gt;memo2" data-label="on error" d="M 1605 351 L 1605 440" stroke="#C85D55"/>
-  <g transform="translate(1627,382.5)">
-    <rect class="labelPill" x="0" y="0" width="79.2" height="26" rx="8"/>
-    <text class="small" x="39.6" y="13" text-anchor="middle" dominant-baseline="middle" fill="#C85D55">on error</text>
-  </g>
-  <path class="connector" data-edge="memo2-&gt;memo3" data-label="atomic cleanup" d="M 1605 516 L 1605 605" stroke="#8A72D6"/>
-  <g transform="translate(1627,547.5)">
-    <rect class="labelPill" x="0" y="0" width="123.6" height="26" rx="8"/>
-    <text class="small" x="61.8" y="13" text-anchor="middle" dominant-baseline="middle" fill="#8A72D6">atomic cleanup</text>
-  </g>
-  <path class="connector" data-edge="memo3-&gt;memo4" data-label="allows" d="M 1605 681 L 1605 770" stroke="#58A978"/>
-  <g transform="translate(1627,712.5)">
-    <rect class="labelPill" x="0" y="0" width="70" height="26" rx="8"/>
-    <text class="small" x="35" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">allows</text>
-  </g>
-  <g id="node-cas1" transform="translate(145,275)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">replace(old,new)</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">NearCache API</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">same sync/suspend contract</text>
-  </g>
-  <g id="node-cas2" transform="translate(145,440)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">EVALSHA CAS</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">COMPARE_AND_SET SHA1</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">20-byte script digest</text>
-  </g>
-  <g id="node-cas3" transform="translate(145,605)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">NOSCRIPT fallback</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">retry with full EVAL</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">identical semantics</text>
-  </g>
-  <g id="node-cas4" transform="translate(145,770)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">front update on success</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">local value refreshed</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">failure leaves value untouched</text>
-  </g>
-  <g id="node-del1" transform="translate(585,275)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">remove / clearBack</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">key-scoped delete</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">bulk removal path</text>
-  </g>
-  <g id="node-del2" transform="translate(585,440)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">UNLINK</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">background memory free</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">client roundtrip stays O(1)</text>
-  </g>
-  <g id="node-del3" transform="translate(585,605)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">SCAN namespace</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">cacheName:keyPrefix</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">no FLUSHDB</text>
-  </g>
-  <g id="node-del4" transform="translate(585,770)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">front invalidation</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">local remove/clear</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">tracking push handles peers</text>
-  </g>
-  <g id="node-close1" transform="translate(1025,275)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">LettuceJCache.close()</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">release resources</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">do not delete Redis data</text>
-  </g>
-  <g id="node-close2" transform="translate(1025,440)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">explicit clear()</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">data removal is caller-owned</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">JSR-107 compliant</text>
-  </g>
-  <g id="node-close3" transform="translate(1025,605)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">Suspend managers</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">non-cancellable cleanup</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">finish remaining closes</text>
-  </g>
-  <g id="node-close4" transform="translate(1025,770)">
-    <rect class="card" x="0" y="0" width="310" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="155" y="19" text-anchor="middle" dominant-baseline="middle">listener cleanup</text>
-    <text class="detail" x="155" y="38" text-anchor="middle" dominant-baseline="middle">deregister resources</text>
-    <text class="detail" x="155" y="57" text-anchor="middle" dominant-baseline="middle">connection handles released</text>
-  </g>
-  <g id="node-memo1" transform="translate(1460,275)">
-    <rect class="card" x="0" y="0" width="290" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="cardTitle" x="145" y="19" text-anchor="middle" dominant-baseline="middle">in-flight promise</text>
-    <text class="detail" x="145" y="38" text-anchor="middle" dominant-baseline="middle">share concurrent work</text>
-    <text class="detail" x="145" y="57" text-anchor="middle" dominant-baseline="middle">not durable cache data</text>
-  </g>
-  <g id="node-memo2" transform="translate(1460,440)">
-    <rect class="card" x="0" y="0" width="290" height="76" rx="12" fill="#FDECEC" stroke="#DB7F75"/>
-    <text class="cardTitle" x="145" y="19" text-anchor="middle" dominant-baseline="middle">failure / cancel</text>
-    <text class="detail" x="145" y="38" text-anchor="middle" dominant-baseline="middle">complete exceptionally</text>
-    <text class="detail" x="145" y="57" text-anchor="middle" dominant-baseline="middle">remove coordination state</text>
-  </g>
-  <g id="node-memo3" transform="translate(1460,605)">
-    <rect class="card" x="0" y="0" width="290" height="76" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="cardTitle" x="145" y="19" text-anchor="middle" dominant-baseline="middle">remove(key,promise)</text>
-    <text class="detail" x="145" y="38" text-anchor="middle" dominant-baseline="middle">avoid race eviction</text>
-    <text class="detail" x="145" y="57" text-anchor="middle" dominant-baseline="middle">only our promise removed</text>
-  </g>
-  <g id="node-memo4" transform="translate(1460,770)">
-    <rect class="card" x="0" y="0" width="290" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="145" y="19" text-anchor="middle" dominant-baseline="middle">next call recomputes</text>
-    <text class="detail" x="145" y="38" text-anchor="middle" dominant-baseline="middle">fresh evaluator run</text>
-    <text class="detail" x="145" y="57" text-anchor="middle" dominant-baseline="middle">no failed value cached</text>
-  </g>
-  <g transform="translate(76,936)">
-    <rect class="labelPill" x="0" y="0" width="1748" height="48" rx="10"/>
-    <text class="small" x="874" y="24" text-anchor="middle" dominant-baseline="middle">Source: cache README files and public cache contract implementations.</text>
-  </g>
+<svg data-intent="Regenerate Lettuce Cache Stability Contracts from the current README and source package surface for cache/cache-lettuce." data-evidence="cache/cache-lettuce/README.md; cache/cache-lettuce; cache/cache-lettuce/src/main/kotlin" data-source-read="cache/cache-lettuce/README.md; cache/cache-lettuce; cache/cache-lettuce/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Lettuce Cache Stability Contracts">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Lettuce Cache Stability Contracts</text>
+<text class="subtitle" x="76" y="116">cache/cache-lettuce: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Package / Import Stability</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">LettuceNearCache Class</text>
+  <text class="detail" x="581" y="311" text-anchor="middle">Hierarchy</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">RESP3 CLIENT TRACKING Flow</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Installation</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">cache package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">cache package (19)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">LettuceCaches type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">LettuceCaches type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">LettuceCacheConfig type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">LettuceCacheConfig type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">LettuceCacheManager type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">LettuceCacheManager type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Redis backend</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Redis backend</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

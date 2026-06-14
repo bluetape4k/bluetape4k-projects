@@ -1,115 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1080" viewBox="0 0 1760 1080" role="img" aria-labelledby="title desc">
-  <title id="title">SuspendJCache Interface Contract</title>
-  <desc id="desc">Explain SuspendJCache as the back/front cache contract used by SuspendNearJCache and CaffeineSuspendJCache.</desc>
-  <defs>
-    <font-face font-family="Architects Daughter" src="url('file:///Users/debop/Library/Fonts/ArchitectsDaughter-Regular.ttf')"/>
-    <font-face font-family="Comic Mono" src="url('file:///Users/debop/Library/Fonts/ComicMono-Bold.ttf')"/>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.11"/></filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="context-stroke"/></marker>
-    <marker id="hollow" viewBox="0 0 7 6" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><path d="M 0.8 0.8 L 6.5 3 L 0.8 5.2 z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.2"/></marker>
-    <style>
-      .canvas{fill:#F6F9FC}.decor{fill:#FFFFFF;stroke:#C4D6E7;stroke-width:3.2;filter:url(#shadow)}
-      .innerFrame{fill:#FBFDFF;stroke:#D9E4EF;stroke-width:2}.group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
-      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
-      .cardTitle,.classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
-      .stereo,.detail,.member,.small{font-family:"Comic Mono";font-weight:400}
-      .stereo{font-size:13px;fill:#687789}.detail{font-size:14px;fill:#42556B}.member{font-size:13px;fill:#42556B}.small{font-size:13px;fill:#627184}
-      .card{filter:url(#shadow);stroke-width:2}.connector{fill:none;stroke-width:2.7;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.inherit{marker-end:url(#hollow)}.dashed{stroke-dasharray:7 6}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.1}
-    </style>
-  </defs>
-  <rect class="canvas" width="1760" height="1080"/>
-  <rect class="decor" x="44" y="36" width="1672" height="1008" rx="34"/>
-  <rect class="innerFrame" x="82" y="154" width="1596" height="794" rx="24"/>
-  <text class="title" x="72" y="88">SuspendJCache Interface Contract</text>
-  <text class="subtitle" x="76" y="121">The coroutine JCache contract adds Flow entries and suspend mutations over listener-compatible cache operations.</text>
-  <g id="panel-api">
-    <rect class="group" x="545" y="182" width="610" height="250" rx="20"/>
-    <text class="groupTitle" x="575" y="210" dominant-baseline="middle">SuspendJCache core API</text>
-  </g>
-  <g id="panel-implementations">
-    <rect class="group" x="170" y="500" width="1385" height="225" rx="20"/>
-    <text class="groupTitle" x="200" y="528" dominant-baseline="middle">Implementations</text>
-  </g>
-  <g id="panel-listeners">
-    <rect class="group" x="270" y="760" width="1160" height="165" rx="20"/>
-    <text class="groupTitle" x="300" y="788" dominant-baseline="middle">Event listener boundary</text>
-  </g>
-  <path class="connector inherit" data-edge="caffeine-&gt;suspendJCache" data-label="implements" d="M 850 570 L 850 393" stroke="#58A978"/>
-  <g transform="translate(872,468.5)">
-    <rect class="labelPill" x="0" y="0" width="94" height="26" rx="8"/>
-    <text class="small" x="47" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">implements</text>
-  </g>
-  <path class="connector inherit" data-edge="near-&gt;suspendJCache" data-label="implements" d="M 1170 628 L 1140 628 L 1140 342 L 1080 342" stroke="#D9AA4D"/>
-  <g transform="translate(1162,472)">
-    <rect class="labelPill" x="0" y="0" width="94" height="26" rx="8"/>
-    <text class="small" x="47" y="13" text-anchor="middle" dominant-baseline="middle" fill="#D9AA4D">implements</text>
-  </g>
-  <path class="connector" data-edge="suspendJCache-&gt;entry" data-label="emits Flow entries" d="M 620 318 L 150 318 L 150 623 L 210 623" stroke="#8A72D6"/>
-  <g transform="translate(308.4,281)">
-    <rect class="labelPill" x="0" y="0" width="153.2" height="26" rx="8"/>
-    <text class="small" x="76.6" y="13" text-anchor="middle" dominant-baseline="middle" fill="#8A72D6">emits Flow entries</text>
-  </g>
-  <path class="connector" data-edge="jcacheEvents-&gt;listener" data-label="dispatches" d="M 940 866 L 815 866" stroke="#DB7890"/>
-  <g transform="translate(830.5,829)">
-    <rect class="labelPill" x="0" y="0" width="94" height="26" rx="8"/>
-    <text class="small" x="47" y="13" text-anchor="middle" dominant-baseline="middle" fill="#DB7890">dispatches</text>
-  </g>
-  <path class="connector dashed" data-edge="listener-&gt;suspendJCache" data-label="updates target" d="M 610 825 L 610 470 L 700 470 L 700 393" stroke="#DB7890"/>
-
-  <g id="node-suspendJCache" transform="translate(620,245)">
-    <rect class="card" x="0" y="0" width="460" height="148" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
-    <line x1="0" y1="50" x2="460" y2="50" stroke="#45A7A1" stroke-width="1.6"/>
-    <text class="stereo" x="230" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;interface&gt;&gt;</text>
-    <text class="classTitle" x="230" y="36" text-anchor="middle" dominant-baseline="middle">SuspendJCache&lt;K,V&gt;</text>
-    <text class="member" x="230" y="72" text-anchor="middle" dominant-baseline="middle">entries(): Flow&lt;SuspendJCacheEntry&lt;K,V&gt;&gt;</text>
-    <text class="member" x="230" y="90" text-anchor="middle" dominant-baseline="middle">suspend get / put / remove / replace</text>
-    <text class="member" x="230" y="108" text-anchor="middle" dominant-baseline="middle">registerCacheEntryListener(...)</text>
-    <text class="member" x="230" y="126" text-anchor="middle" dominant-baseline="middle">unwrap(clazz)</text>
-  </g>
-  <g id="node-entry" transform="translate(210,575)">
-    <rect class="card" x="0" y="0" width="330" height="112" rx="10" fill="#F1ECFF" stroke="#8A72D6"/>
-    <line x1="0" y1="50" x2="330" y2="50" stroke="#8A72D6" stroke-width="1.6"/>
-    <text class="stereo" x="165" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;data class&gt;&gt;</text>
-    <text class="classTitle" x="165" y="36" text-anchor="middle" dominant-baseline="middle">SuspendJCacheEntry&lt;K,V&gt;</text>
-    <text class="member" x="165" y="72" text-anchor="middle" dominant-baseline="middle">key</text>
-    <text class="member" x="165" y="90" text-anchor="middle" dominant-baseline="middle">value</text>
-  </g>
-  <g id="node-caffeine" transform="translate(635,570)">
-    <rect class="card" x="0" y="0" width="430" height="126" rx="10" fill="#EAF7EF" stroke="#69B888"/>
-    <line x1="0" y1="50" x2="430" y2="50" stroke="#69B888" stroke-width="1.6"/>
-    <text class="stereo" x="215" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;class&gt;&gt;</text>
-    <text class="classTitle" x="215" y="36" text-anchor="middle" dominant-baseline="middle">CaffeineSuspendJCache&lt;K,V&gt;</text>
-    <text class="member" x="215" y="70" text-anchor="middle" dominant-baseline="middle">AsyncCache&lt;K,V&gt;</text>
-    <text class="member" x="215" y="88" text-anchor="middle" dominant-baseline="middle">CompletableFuture.await()</text>
-    <text class="member" x="215" y="106" text-anchor="middle" dominant-baseline="middle">local listener no-op</text>
-  </g>
-  <g id="node-near" transform="translate(1170,570)">
-    <rect class="card" x="0" y="0" width="350" height="126" rx="10" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <line x1="0" y1="50" x2="350" y2="50" stroke="#D9AA4D" stroke-width="1.6"/>
-    <text class="stereo" x="175" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;class&gt;&gt;</text>
-    <text class="classTitle" x="175" y="36" text-anchor="middle" dominant-baseline="middle">SuspendNearJCache&lt;K,V&gt;</text>
-    <text class="member" x="175" y="70" text-anchor="middle" dominant-baseline="middle">frontCache + backCache</text>
-    <text class="member" x="175" y="88" text-anchor="middle" dominant-baseline="middle">front miss -&gt; back fill</text>
-    <text class="member" x="175" y="106" text-anchor="middle" dominant-baseline="middle">listener-backed invalidation</text>
-  </g>
-  <g id="node-listener" transform="translate(395,825)">
-    <rect class="card" x="0" y="0" width="420" height="82" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="cardTitle" x="210" y="12.5" text-anchor="middle" dominant-baseline="middle">SuspendJCacheEntryEventListener</text>
-    <text class="detail" x="210" y="31.5" text-anchor="middle" dominant-baseline="middle">created/updated -&gt; putAll</text>
-    <text class="detail" x="210" y="50.5" text-anchor="middle" dominant-baseline="middle">removed/expired -&gt; removeAll</text>
-    <text class="detail" x="210" y="69.5" text-anchor="middle" dominant-baseline="middle">SupervisorJob + Dispatchers.IO</text>
-  </g>
-  <g id="node-jcacheEvents" transform="translate(940,825)">
-    <rect class="card" x="0" y="0" width="360" height="82" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="cardTitle" x="180" y="22" text-anchor="middle" dominant-baseline="middle">JCache event source</text>
-    <text class="detail" x="180" y="41" text-anchor="middle" dominant-baseline="middle">CacheEntryCreated/Updated</text>
-    <text class="detail" x="180" y="60" text-anchor="middle" dominant-baseline="middle">CacheEntryRemoved/Expired</text>
-  </g>
-  <g transform="translate(76,976)">
-    <rect class="labelPill" x="0" y="0" width="1608" height="48" rx="10"/>
-    <text class="small" x="804" y="24" text-anchor="middle" dominant-baseline="middle">Source: cache README files and public cache contract implementations.</text>
-  </g>
+<svg data-intent="Regenerate JCache NearCache (nearcache.jcache ) from the current README and source package surface for cache/cache-core." data-evidence="cache/cache-core/README.ko.md; cache/cache-core; cache/cache-core/src/main/kotlin" data-source-read="cache/cache-core/README.ko.md; cache/cache-core; cache/cache-core/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="JCache NearCache (nearcache.jcache )">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">JCache NearCache (nearcache.jcache )</text>
+<text class="subtitle" x="76" y="116">cache/cache-core: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">패키지 / import 안정성</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">제공 기능</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">설치</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">제공 기능 (상세)</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">cache package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">cache package (49)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">CaffeineSuspendJCache type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">CaffeineSuspendJCache type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">JCacheEntryEventListener type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">JCacheEntryEventListener type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">JCaching type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">JCaching type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="750" y="824" text-anchor="middle">Redis backend</text>
+  <text class="detail" x="750" y="852" text-anchor="middle">Redis backend</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
 </svg>

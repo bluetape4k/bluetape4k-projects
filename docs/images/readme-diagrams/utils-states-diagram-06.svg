@@ -30,7 +30,7 @@
 <rect x="30" y="30" width="1660" height="940" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
 <text class="title" x="70" y="92">Appointment Complex FSM</text>
 <text class="subtitle" x="70" y="124">Clinic flow with guarded lifecycle branches and terminal outcomes.</text>
-<rect class="panel" x="55" y="145" width="1610" height="765" rx="18"/><text class="panelTitle" x="79" y="179">State transitions</text>
+<rect class="panel" x="55" y="145" width="1610" height="765" rx="8"/><text class="panelTitle" x="79" y="179">State transitions</text>
 <circle cx="86" cy="475" r="10" fill="#172033"/>
 <g><path class="route arrow" d="M65,475 L125,475" stroke="#2563eb"/><rect class="arrowLabelBg" x="58" y="441" width="74" height="22" rx="11"/><text class="arrowLabel" x="95" y="457">initial</text></g>
 <g><path class="route arrow" d="M345,475 L450,475" stroke="#2563eb"/><rect class="arrowLabelBg" x="360.5" y="441" width="74" height="22" rx="11"/><text class="arrowLabel" x="397.5" y="457">Request</text></g>

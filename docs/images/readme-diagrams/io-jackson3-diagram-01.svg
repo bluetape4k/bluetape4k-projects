@@ -1,68 +1,90 @@
-<svg data-intent="Explain Jackson3 module overview by grouping ObjectMapper setup, serializer implementations, Kotlin module support, and JSON-family byte/string boundaries." data-evidence="io/jackson3/README.md; io/jackson3/src/main/kotlin" data-source-read="io/jackson3/README.md; io/jackson3/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="890" height="736" viewBox="0 0 890 736" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
+<svg data-intent="Regenerate Jackson 2.x vs 3.x Module Comparison from the current README and source package surface for io/jackson3." data-evidence="io/jackson3/README.md; io/jackson3; io/jackson3/src/main/kotlin" data-source-read="io/jackson3/README.md; io/jackson3; io/jackson3/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Jackson 2.x vs 3.x Module Comparison">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="4.714" refX="4.714" refY="2.357" orient="auto" markerUnits="strokeWidth"><path d="M 0 0.393 L 4.714 2.357 L 0 4.321 Z" fill="#ffffff" stroke="#758297" stroke-width="1.8"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="890" height="736"/>
-<rect class="frame" x="32" y="28" width="826" height="680" rx="28"/>
-<text class="title" x="66" y="82">Jackson 2.x vs 3.x Module Co.</text>
-<text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<g transform="translate(60,114)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">bluetape4k-jackson2 (Jackso.</text>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Jackson 2.x vs 3.x Module Comparison</text>
+<text class="subtitle" x="76" y="116">io/jackson3: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
 </g>
-<g transform="translate(105,190)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">com.fasterxml.jackso</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">n.*</text>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Why Jackson3 in bluetape4k</text>
 </g>
-<g transform="translate(105,332)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">Module SPI:</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">com.fasterxml.jackso</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">n.databind.Module</text>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Jackson 2.x vs 3.x Module</text>
+  <text class="detail" x="919" y="311" text-anchor="middle">Comparison</text>
 </g>
-<g transform="translate(105,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="52.5" text-anchor="middle">@JsonTinkEncrypt →</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">auto-registered</text>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Class Structure</text>
 </g>
-<g transform="translate(480,114)">
-  <rect x="0" y="0" width="350" height="506" rx="18" fill="#ffffff" stroke="#d8e0ea" stroke-width="1.5"/>
-  <text class="smallLabel" x="175" y="44" text-anchor="middle">bluetape4k-jackson3 (Jackso.</text>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">jackson3 package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">jackson3 package (37)</text>
 </g>
-<g transform="translate(525,190)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="smallLabel" x="130" y="63" text-anchor="middle">tools.jackson.*</text>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">Jackson type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">Jackson type</text>
 </g>
-<g transform="translate(525,332)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="smallLabel" x="130" y="42" text-anchor="middle">Module SPI:</text>
-<text class="smallLabel" x="130" y="63" text-anchor="middle">tools.jackson.databi</text>
-<text class="smallLabel" x="130" y="84" text-anchor="middle">nd.Jackson Module</text>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">JacksonSerializer type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">JacksonSerializer type</text>
 </g>
-<g transform="translate(525,520)">
-  <rect class="card" x="0" y="0" width="260" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="smallLabel" x="130" y="31.5" text-anchor="middle">@JsonTinkEncrypt →</text>
-<text class="smallLabel" x="130" y="52.5" text-anchor="middle">manual Json Tink</text>
-<text class="smallLabel" x="130" y="73.5" text-anchor="middle">Encrypt Module</text>
-<text class="smallLabel" x="130" y="94.5" text-anchor="middle">registration</text>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">User type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">User type</text>
 </g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Kafka messaging</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Kafka messaging</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

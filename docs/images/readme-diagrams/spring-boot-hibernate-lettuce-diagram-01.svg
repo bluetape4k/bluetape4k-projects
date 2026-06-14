@@ -1,82 +1,83 @@
 <svg data-intent="Redesign the UML placeholder as the actual auto-configuration component map: properties, Hibernate customizer, metrics binder, and actuator endpoint around LettuceNearCacheRegionFactory." data-evidence="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce" data-source-read="spring-boot/hibernate-lettuce/README.md; spring-boot/hibernate-lettuce/src/main/kotlin/io/bluetape4k/spring/boot/autoconfigure/cache/lettuce" xmlns="http://www.w3.org/2000/svg" width="1440" height="910" viewBox="0 0 1440 910" role="img" aria-label="Hibernate Lettuce Near-Cache Components">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1440" height="910"/>
-<rect class="frame" x="34" y="30" width="1372" height="850" rx="32"/>
+<rect class="frame" x="34" y="30" width="1372" height="850" rx="8"/>
 <text class="title" x="72" y="84">Hibernate Lettuce Near-Cache Components</text>
 <text class="subtitle" x="76" y="116">The component map shows what Spring Boot registers and what remains Hibernate/cache runtime responsibility.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="150" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Spring Boot auto-configuration</text></g>
-<g><rect class="panel" x="82" y="385" width="1276" height="220" rx="22"/><text class="panelTitle" x="110" y="421" dominant-baseline="middle">Hibernate near-cache integration</text></g>
-<g><rect class="panel" x="82" y="680" width="1276" height="150" rx="22"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Observability surfaces</text></g>
+<g><rect class="panel" x="82" y="160" width="1276" height="150" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Spring Boot auto-configuration</text></g>
+<g><rect class="panel" x="82" y="385" width="1276" height="220" rx="8"/><text class="panelTitle" x="110" y="421" dominant-baseline="middle">Hibernate near-cache integration</text></g>
+<g><rect class="panel" x="82" y="680" width="1276" height="150" rx="8"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Observability surfaces</text></g>
 <g id="imports">
-  <rect class="card" x="110" y="215" width="320" height="74" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="110" y="215" width="320" height="74" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="270" y="245" text-anchor="middle" dominant-baseline="middle">AutoConfiguration imports</text>
   <text class="detail" x="270" y="275" text-anchor="middle" dominant-baseline="middle">three conditional configs</text>
 </g>
 <g id="props">
-  <rect class="card" x="520" y="210" width="400" height="84" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="520" y="210" width="400" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="720" y="236" text-anchor="middle" dominant-baseline="middle">LettuceNearCacheSpringProperties</text>
   <text class="detail" x="720" y="266" text-anchor="middle" dominant-baseline="middle">redisUri, codec, TTL</text>
   <text class="detail" x="720" y="284" text-anchor="middle" dominant-baseline="middle">local cache and metrics flags</text>
 </g>
 <g id="conditions">
-  <rect class="card" x="1000" y="215" width="290" height="74" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="1000" y="215" width="290" height="74" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="1145" y="245" text-anchor="middle" dominant-baseline="middle">Conditions</text>
   <text class="detail" x="1145" y="275" text-anchor="middle" dominant-baseline="middle">classpath + enabled property</text>
 </g>
 <g id="hibernateConfig">
-  <rect class="card" x="95" y="455" width="370" height="96" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="95" y="455" width="370" height="96" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="280" y="487" text-anchor="middle" dominant-baseline="middle">Hibernate auto-config</text>
   <text class="detail" x="280" y="517" text-anchor="middle" dominant-baseline="middle">registers HibernatePropertiesCustomizer</text>
   <text class="detail" x="280" y="535" text-anchor="middle" dominant-baseline="middle">maps Spring properties to Hibernate keys</text>
 </g>
 <g id="regionFactory">
-  <rect class="card" x="520" y="455" width="380" height="96" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="520" y="455" width="380" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="710" y="487" text-anchor="middle" dominant-baseline="middle">LettuceNearCacheRegionFactory</text>
   <text class="detail" x="710" y="517" text-anchor="middle" dominant-baseline="middle">Hibernate 2LC RegionFactory</text>
   <text class="detail" x="710" y="535" text-anchor="middle" dominant-baseline="middle">L1 Caffeine + L2 Redis</text>
 </g>
 <g id="hibernate">
-  <rect class="card" x="985" y="455" width="300" height="96" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="985" y="455" width="300" height="96" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="1135" y="487" text-anchor="middle" dominant-baseline="middle">Hibernate SessionFactory</text>
   <text class="detail" x="1135" y="517" text-anchor="middle" dominant-baseline="middle">2nd-level cache enabled</text>
   <text class="detail" x="1135" y="535" text-anchor="middle" dominant-baseline="middle">region metadata and statistics</text>
 </g>
 <g id="metrics">
-  <rect class="card" x="235" y="720" width="300" height="70" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="235" y="720" width="300" height="70" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="385" y="748" text-anchor="middle" dominant-baseline="middle">Micrometer binder</text>
   <text class="detail" x="385" y="778" text-anchor="middle" dominant-baseline="middle">lettuce.nearcache.* gauges</text>
 </g>
 <g id="actuator">
-  <rect class="card" x="870" y="720" width="300" height="70" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="870" y="720" width="300" height="70" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1020" y="748" text-anchor="middle" dominant-baseline="middle">Actuator endpoint</text>
   <text class="detail" x="1020" y="778" text-anchor="middle" dominant-baseline="middle">/actuator/nearcache</text>
 </g>
-<path class="route" data-from="imports" data-to="props" d="M430 252 L520 252" stroke="#4F83BF"/>
-<path class="route" data-from="props" data-to="conditions" d="M920 252 L1000 252" stroke="#755BC6"/>
-<path class="route" data-from="props" data-to="hibernateConfig" d="M660 294 L330 455" stroke="#2E8F89"/>
-<path class="route" data-from="conditions" data-to="hibernateConfig" d="M1140 289 L280 455" stroke="#3E9868"/>
-<path class="route" data-from="hibernateConfig" data-to="regionFactory" d="M465 503 L520 503" stroke="#2E8F89"/>
-<path class="route" data-from="regionFactory" data-to="hibernate" d="M900 503 L985 503" stroke="#B9851B"/>
-<path class="route" data-from="regionFactory" data-to="metrics" d="M710 551 L710 640 L385 640 L385 720" stroke="#3E9868"/>
-<path class="route" data-from="hibernate" data-to="actuator" d="M1135 551 L1135 640 L1020 640 L1020 720" stroke="#755BC6"/>
+<path class="route" data-from="imports" data-to="props" d="M430 252 L520 252" stroke="#1D4ED8"/>
+<path class="route" data-from="props" data-to="conditions" d="M920 252 L1000 252" stroke="#7E22CE"/>
+<path class="route" data-from="props" data-to="hibernateConfig" d="M660 294 L330 455" stroke="#0F766E"/>
+<path class="route" data-from="conditions" data-to="hibernateConfig" d="M1140 289 L280 455" stroke="#15803D"/>
+<path class="route" data-from="hibernateConfig" data-to="regionFactory" d="M465 503 L520 503" stroke="#0F766E"/>
+<path class="route" data-from="regionFactory" data-to="hibernate" d="M900 503 L985 503" stroke="#C2410C"/>
+<path class="route" data-from="regionFactory" data-to="metrics" d="M710 551 L710 640 L385 640 L385 720" stroke="#15803D"/>
+<path class="route" data-from="hibernate" data-to="actuator" d="M1135 551 L1135 640 L1020 640 L1020 720" stroke="#7E22CE"/>
 </svg>

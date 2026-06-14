@@ -1,62 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1515" viewBox="0 0 1700 1515" role="img" aria-label="Core Class Structure">
+<svg data-intent="Regenerate Core Class Structure from the current README and source package surface for bluetape4k/core." data-evidence="bluetape4k/core/README.md; bluetape4k/core; bluetape4k/core/src/main/kotlin" data-source-read="bluetape4k/core/README.md; bluetape4k/core; bluetape4k/core/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Core Class Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="1700" height="1515"/>
-<rect class="frame" x="32" y="28" width="1636" height="1459" rx="30"/>
-<text class="title" x="68" y="84">Core Class Structure</text>
-<text class="subtitle" x="72" y="116">Related contracts are grouped by encoding, ranges, value objects, and validation helpers.</text>
-<g><rect class="panel" x="80" y="160" width="1540" height="195" rx="22"/><text class="panelTitle" x="104" y="194">Encoding contracts</text></g>
-<g id="base58"><rect class="card" x="140" y="215" width="250" height="116" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="140" y1="281" x2="390" y2="281" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="265" y="235" text-anchor="middle">object</text><text class="classTitle" x="265" y="263" text-anchor="middle">Base58</text><text class="member" x="174" y="302">+encode(data)</text>
-<text class="member" x="174" y="319">+decode(text)</text></g>
-<g id="base62"><rect class="card" x="500" y="215" width="250" height="116" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="500" y1="281" x2="750" y2="281" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="625" y="235" text-anchor="middle">object</text><text class="classTitle" x="625" y="263" text-anchor="middle">Base62</text><text class="member" x="534" y="302">+encode(number)</text>
-<text class="member" x="534" y="319">+decode(text)</text></g>
-<g id="enc"><rect class="card" x="860" y="215" width="250" height="116" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="860" y1="281" x2="1110" y2="281" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="985" y="235" text-anchor="middle">interface</text><text class="classTitle" x="985" y="263" text-anchor="middle">StringEncoder</text><text class="member" x="894" y="302">+encode(bytes)</text>
-<text class="member" x="894" y="319">+decode(text)</text></g>
-<g id="hex"><rect class="card" x="1220" y="215" width="250" height="116" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="1220" y1="281" x2="1470" y2="281" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="1345" y="235" text-anchor="middle">class</text><text class="classTitle" x="1345" y="263" text-anchor="middle">HexStringEncoder</text><text class="member" x="1254" y="302">+encode(bytes)</text>
-<text class="member" x="1254" y="319">+decode(text)</text></g>
-<g><rect class="panel" x="80" y="430" width="1540" height="510" rx="22"/><text class="panelTitle" x="104" y="464">Range model</text></g>
-<g id="range"><rect class="card" x="670" y="475" width="300" height="150" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="670" y1="541" x2="970" y2="541" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="820" y="495" text-anchor="middle">interface</text><text class="classTitle" x="820" y="523" text-anchor="middle">Range</text><text class="member" x="704" y="570">+first / +last</text>
-<text class="member" x="704" y="587">+contains(value)</text>
-<text class="member" x="704" y="604">+isEmpty()</text></g>
-<g id="cc"><rect class="card" x="150" y="760" width="270" height="128" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="150" y1="826" x2="420" y2="826" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="285" y="780" text-anchor="middle">class</text><text class="classTitle" x="285" y="808" text-anchor="middle">ClosedClosedRange</text><text class="member" x="184" y="853">start inclusive</text>
-<text class="member" x="184" y="870">end inclusive</text></g>
-<g id="co"><rect class="card" x="510" y="760" width="270" height="128" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="510" y1="826" x2="780" y2="826" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="645" y="780" text-anchor="middle">class</text><text class="classTitle" x="645" y="808" text-anchor="middle">ClosedOpenRange</text><text class="member" x="544" y="853">start inclusive</text>
-<text class="member" x="544" y="870">end exclusive</text></g>
-<g id="oc"><rect class="card" x="870" y="760" width="270" height="128" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="870" y1="826" x2="1140" y2="826" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="1005" y="780" text-anchor="middle">class</text><text class="classTitle" x="1005" y="808" text-anchor="middle">OpenClosedRange</text><text class="member" x="904" y="853">start exclusive</text>
-<text class="member" x="904" y="870">end inclusive</text></g>
-<g id="oo"><rect class="card" x="1230" y="760" width="270" height="128" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="1230" y1="826" x2="1500" y2="826" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="1365" y="780" text-anchor="middle">class</text><text class="classTitle" x="1365" y="808" text-anchor="middle">OpenOpenRange</text><text class="member" x="1264" y="853">start exclusive</text>
-<text class="member" x="1264" y="870">end exclusive</text></g>
-<g><rect class="panel" x="80" y="990" width="1540" height="205" rx="22"/><text class="panelTitle" x="104" y="1024">Value object support</text></g>
-<g id="vo"><rect class="card" x="410" y="1050" width="300" height="112" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="410" y1="1116" x2="710" y2="1116" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="560" y="1070" text-anchor="middle">interface</text><text class="classTitle" x="560" y="1098" text-anchor="middle">ValueObject</text><text class="member" x="444" y="1143">+Serializable</text></g>
-<g id="avo"><rect class="card" x="940" y="1040" width="300" height="140" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="940" y1="1106" x2="1240" y2="1106" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="1090" y="1060" text-anchor="middle">abstract</text><text class="classTitle" x="1090" y="1088" text-anchor="middle">AbstractValueObject</text><text class="member" x="974" y="1130">+equals(other)</text>
-<text class="member" x="974" y="1147">+hashCode()</text>
-<text class="member" x="974" y="1164">+equalProperties(*)</text></g>
-<g><rect class="panel" x="620" y="1260" width="540" height="180" rx="22"/><text class="panelTitle" x="644" y="1294">Validation helpers</text></g>
-<g id="req"><rect class="card" x="740" y="1315" width="300" height="118" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="740" y1="1381" x2="1040" y2="1381" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="890" y="1335" text-anchor="middle">extension functions</text><text class="classTitle" x="890" y="1363" text-anchor="middle">RequireSupport</text><text class="member" x="774" y="1403">requireNotNull/Empty</text>
-<text class="member" x="774" y="1420">requireGt/Ge/Lt/Le</text></g>
-<path class="inherit" d="M1220 273 L1110 273"/>
-<path class="inherit" d="M285 760 L285 600 L670 600"/>
-<path class="inherit" d="M720 760 L720 625"/>
-<path class="inherit" d="M920 760 L920 625"/>
-<path class="inherit" d="M1365 760 L1365 600 L970 600"/>
-<path class="inherit" d="M940 1110 L710 1110"/>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Core Class Structure</text>
+<text class="subtitle" x="76" y="116">bluetape4k/core: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Module Overview</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Validation Chaining Flow</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Features</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">collections package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">collections package (45)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">support package</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">support package (35)</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">concurrent package</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">concurrent package (20)</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">javatimes package</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">javatimes package (15)</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Test support</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Virtual threads</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Virtual threads</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

@@ -30,7 +30,7 @@
 <rect x="30" y="30" width="1140" height="580" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
 <text class="title" x="70" y="92">Turnstile FSM</text>
 <text class="subtitle" x="70" y="124">Coin unlocks the turnstile; push locks it again.</text>
-<rect class="panel" x="55" y="145" width="1090" height="405" rx="18"/><text class="panelTitle" x="79" y="179">State transitions</text>
+<rect class="panel" x="55" y="145" width="1090" height="405" rx="8"/><text class="panelTitle" x="79" y="179">State transitions</text>
 <circle cx="86" cy="320" r="10" fill="#172033"/>
 <g><path class="route arrow" d="M120,320 L210,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="128" y="286" width="74" height="22" rx="11"/><text class="arrowLabel" x="165" y="302">initial</text></g>
 <g><path class="route arrow" d="M470,320 L730,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="573" y="286" width="54" height="22" rx="11"/><text class="arrowLabel" x="600" y="302">Coin</text></g>

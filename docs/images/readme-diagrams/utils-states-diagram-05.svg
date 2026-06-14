@@ -30,7 +30,7 @@
 <rect x="30" y="30" width="1540" height="700" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
 <text class="title" x="70" y="92">Order One-Way FSM</text>
 <text class="subtitle" x="70" y="124">Linear fulfillment with cancellation only from Created.</text>
-<rect class="panel" x="55" y="145" width="1490" height="525" rx="18"/><text class="panelTitle" x="79" y="179">State transitions</text>
+<rect class="panel" x="55" y="145" width="1490" height="525" rx="8"/><text class="panelTitle" x="79" y="179">State transitions</text>
 <circle cx="86" cy="320" r="10" fill="#172033"/>
 <g><path class="route arrow" d="M70,320 L130,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="63" y="286" width="74" height="22" rx="11"/><text class="arrowLabel" x="100" y="302">initial</text></g>
 <g><path class="route arrow" d="M360,320 L500,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="403" y="286" width="54" height="22" rx="11"/><text class="arrowLabel" x="430" y="302">Pay</text></g>

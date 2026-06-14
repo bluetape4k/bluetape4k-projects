@@ -1,133 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
-  <defs>
-    <style>
-      .title  { font-family:"Architects Daughter"; font-size: 18px; fill: #1e3a5f; }
-      .panel  { font-family:"Architects Daughter"; font-size: 20px; }
-      .sub    { font-family:"Architects Daughter"; font-size: 13px; }
-      .mono   { font-family:"Comic Mono"; font-size: 11px; fill: #374151; }
-      .mono-b { font-family:"Comic Mono"; font-size: 11px; font-weight: 700; fill: #374151; }
-      .cap    { font-family:"Comic Mono"; font-size: 11px; fill: #6b7280; }
-    </style>
-    <marker id="arr" markerWidth="4.5" markerHeight="4.5" refX="4" refY="2.25" orient="auto">
-      <path d="M0.5,0.5 L4,2.25 L0.5,4 Z" fill="#64748b"/>
-    </marker>
-  </defs>
-
-  <!-- Canvas -->
-  <rect width="960" height="540" rx="14" fill="#f7f9fc"/>
-  <rect x="8" y="8" width="944" height="524" rx="10" fill="white" stroke="#cbd5e1" stroke-width="1.5"/>
-
-  <!-- Title -->
-  <rect x="24" y="18" width="912" height="40" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="480" y="44" text-anchor="middle" class="title">HTTP Client Benchmark — Profiling Mode Comparison</text>
-
-  <!-- ── Panel 1: gc (blue) ── -->
-  <rect x="28" y="78" width="284" height="356" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
-  <!-- header -->
-  <rect x="28" y="78" width="284" height="52" rx="10" fill="#3b82f6"/>
-  <rect x="28" y="108" width="284" height="22" fill="#3b82f6"/>
-  <text x="170" y="111" text-anchor="middle" class="panel" fill="white">gc</text>
-
-  <!-- badge -->
-  <rect x="90" y="142" width="160" height="26" rx="13" fill="#bfdbfe" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="170" y="160" text-anchor="middle" class="sub" fill="#1d4ed8">JVM GC Logging</text>
-
-  <!-- description -->
-  <text x="170" y="192" text-anchor="middle" class="mono">Records GC pause times,</text>
-  <text x="170" y="207" text-anchor="middle" class="mono">allocation events, and</text>
-  <text x="170" y="222" text-anchor="middle" class="mono">safepoint stops.</text>
-
-  <!-- command -->
-  <rect x="44" y="238" width="252" height="36" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
-  <text x="170" y="253" text-anchor="middle" class="mono-b">-PbenchmarkProfile=gc</text>
-  <text x="170" y="267" text-anchor="middle" class="cap">No extra dependency</text>
-
-  <!-- output -->
-  <rect x="44" y="284" width="252" height="28" rx="5" fill="white" stroke="#93c5fd" stroke-width="1"/>
-  <text x="170" y="303" text-anchor="middle" class="mono">📄  gc.log</text>
-
-  <!-- tool -->
-  <text x="170" y="334" text-anchor="middle" class="cap">Open with any text editor</text>
-  <text x="170" y="349" text-anchor="middle" class="cap">or GC analysis tools</text>
-  <text x="170" y="364" text-anchor="middle" class="cap">(GCEasy, GCViewer)</text>
-
-  <!-- flag detail -->
-  <rect x="44" y="380" width="252" height="44" rx="5" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
-  <text x="170" y="397" text-anchor="middle" class="mono">-Xlog:gc*,safepoint:</text>
-  <text x="170" y="412" text-anchor="middle" class="mono">file=.../gc.log:time,uptime</text>
-
-  <!-- ── Panel 2: jfr (amber) ── -->
-  <rect x="338" y="78" width="284" height="356" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-  <!-- header -->
-  <rect x="338" y="78" width="284" height="52" rx="10" fill="#d97706"/>
-  <rect x="338" y="108" width="284" height="22" fill="#d97706"/>
-  <text x="480" y="111" text-anchor="middle" class="panel" fill="white">jfr</text>
-
-  <!-- badge -->
-  <rect x="400" y="142" width="160" height="26" rx="13" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
-  <text x="480" y="160" text-anchor="middle" class="sub" fill="#92400e">Java Flight Recorder</text>
-
-  <!-- description -->
-  <text x="480" y="192" text-anchor="middle" class="mono">CPU flame graph, GC events,</text>
-  <text x="480" y="207" text-anchor="middle" class="mono">lock contention, and</text>
-  <text x="480" y="222" text-anchor="middle" class="mono">memory allocation analysis.</text>
-
-  <!-- command -->
-  <rect x="354" y="238" width="252" height="36" rx="6" fill="#fffbeb" stroke="#fcd34d" stroke-width="1"/>
-  <text x="480" y="253" text-anchor="middle" class="mono-b">-PbenchmarkProfile=jfr</text>
-  <text x="480" y="267" text-anchor="middle" class="cap">JDK 11+ (built-in)</text>
-
-  <!-- output -->
-  <rect x="354" y="284" width="252" height="28" rx="5" fill="white" stroke="#fcd34d" stroke-width="1"/>
-  <text x="480" y="303" text-anchor="middle" class="mono">📦  benchmark.jfr</text>
-
-  <!-- tool -->
-  <text x="480" y="334" text-anchor="middle" class="cap">Open with JDK Mission Control</text>
-  <text x="480" y="349" text-anchor="middle" class="cap">or IntelliJ IDEA JFR viewer</text>
-  <text x="480" y="364" text-anchor="middle" class="cap">for CPU flame graph</text>
-
-  <!-- flag detail -->
-  <rect x="354" y="380" width="252" height="44" rx="5" fill="#fffbeb" stroke="#fcd34d" stroke-width="1"/>
-  <text x="480" y="397" text-anchor="middle" class="mono">-XX:StartFlightRecording=</text>
-  <text x="480" y="412" text-anchor="middle" class="mono">dumponexit=true,settings=profile</text>
-
-  <!-- ── Panel 3: async (purple) ── -->
-  <rect x="648" y="78" width="284" height="356" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
-  <!-- header -->
-  <rect x="648" y="78" width="284" height="52" rx="10" fill="#7c3aed"/>
-  <rect x="648" y="108" width="284" height="22" fill="#7c3aed"/>
-  <text x="790" y="111" text-anchor="middle" class="panel" fill="white">async</text>
-
-  <!-- badge -->
-  <rect x="710" y="142" width="160" height="26" rx="13" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="790" y="160" text-anchor="middle" class="sub" fill="#4c1d95">async-profiler</text>
-
-  <!-- description -->
-  <text x="790" y="192" text-anchor="middle" class="mono">Low-overhead CPU flame</text>
-  <text x="790" y="207" text-anchor="middle" class="mono">graph via native agent.</text>
-  <text x="790" y="222" text-anchor="middle" class="mono">Sampling-based profiler.</text>
-
-  <!-- command -->
-  <rect x="664" y="238" width="252" height="48" rx="6" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1"/>
-  <text x="790" y="252" text-anchor="middle" class="mono-b">-PbenchmarkProfile=async</text>
-  <text x="790" y="266" text-anchor="middle" class="cap">+  -PasyncProfilerLib=</text>
-  <text x="790" y="279" text-anchor="middle" class="cap">/path/to/libasyncProfiler.so</text>
-
-  <!-- output -->
-  <rect x="664" y="296" width="252" height="28" rx="5" fill="white" stroke="#c4b5fd" stroke-width="1"/>
-  <text x="790" y="315" text-anchor="middle" class="mono">🔥  async-cpu.html</text>
-
-  <!-- tool -->
-  <text x="790" y="346" text-anchor="middle" class="cap">Open in any web browser.</text>
-  <text x="790" y="361" text-anchor="middle" class="cap">Interactive flame graph.</text>
-  <text x="790" y="376" text-anchor="middle" class="cap">kotlinx-benchmark sets forks=0</text>
-
-  <!-- flag detail -->
-  <rect x="664" y="392" width="252" height="32" rx="5" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1"/>
-  <text x="790" y="407" text-anchor="middle" class="mono">Download from</text>
-  <text x="790" y="420" text-anchor="middle" class="mono">async-profiler/releases</text>
-
-  <rect x="28" y="454" width="904" height="58" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
-  <text x="480" y="475" text-anchor="middle" class="cap">Source: io/http benchmark profiling Gradle options and async-profiler/JFR/GC output conventions</text>
-  <text x="480" y="497" text-anchor="middle" class="cap">Interpretation: compare benchmark mode diagnostic scope and required setup; this is not a speed chart.</text>
+<svg data-intent="Regenerate Profiling mode comparison from the current README and source package surface for io/http." data-evidence="io/http/README.md; io/http; io/http/src/main/kotlin" data-source-read="io/http/README.md; io/http; io/http/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Profiling mode comparison">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Profiling mode comparison</text>
+<text class="subtitle" x="76" y="116">io/http: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Overall Architecture:</text>
+  <text class="detail" x="919" y="311" text-anchor="middle">Multi-Backend HTTP Client</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">HTTP Client Hierarchy (HC5)</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">http package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">http package (73)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">InMemoryHttpCacheStorage type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">InMemoryHttpCacheStorage type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">JavaCacheHttpCacheStorage type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">JavaCacheHttpCacheStorage type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">VirtualThreadHttpClients type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">VirtualThreadHttpClients type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Ktor runtime</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Ktor runtime</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Reactive bridge</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Reactive bridge</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Serialization</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

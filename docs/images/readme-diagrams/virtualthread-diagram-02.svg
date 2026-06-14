@@ -1,76 +1,66 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1766" height="780" viewBox="0 0 1766 780" role="img" aria-label="Virtual Thread Class Structure">
+<svg data-intent="Regenerate Virtual Thread Class Structure from the current README and source package surface for virtualthread." data-evidence="virtualthread/README.md; virtualthread; virtualthread/src/main/kotlin" data-source-read="virtualthread/README.md; virtualthread; virtualthread/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Virtual Thread Class Structure">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
-  <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
-    .inherit{fill:none;stroke-width:2.55;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
-    .dependency{fill:none;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
-    .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="1766" height="780"/>
-<rect class="frame" x="32" y="28" width="1702" height="724" rx="30"/>
-<text class="title" x="68" y="84">Virtual Thread Class Structure</text>
-<text class="subtitle" x="72" y="116">Source-ranked class model with short colored inheritance and dependency routes.</text>
-<path class="dependency" data-from="VirtualThreads" data-to="VirtualThreadFactory" data-route-color="teal" d="M1336 398 L1336 279 L868 279" stroke="#2E8F89" stroke-dasharray="8 7"/>
-<path class="inherit" data-from="PlatformThreadFallback" data-to="VirtualThreadFactory" data-route-color="blue" d="M1018 398 L1018 337 L814 337 L814 311" stroke="#4F83BF"/>
-<path class="inherit" data-from="Jdk25VirtualThreadFactory" data-to="VirtualThreadFactory" data-route-color="teal" d="M450 398 L450 279 L508 279" stroke="#2E8F89"/>
-<path class="inherit" data-from="Jdk21VirtualThreadFactory" data-to="VirtualThreadFactory" data-route-color="amber" d="M693 398 L693 311" stroke="#B9851B"/>
-<g id="VirtualThreadFactory">
-  <rect class="classCard" x="508" y="165" width="360" height="146" rx="8" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <text class="stereo" x="688" y="184" text-anchor="middle">interface</text>
-  <text class="classTitle" x="688" y="212" text-anchor="middle">VirtualThreadFactory</text>
-  <line x1="508" y1="221" x2="868" y2="221" stroke="#5B8DEF" stroke-width="1.4"/>
-  <text class="member" x="542" y="253">+isSupported() Boolean</text>
-<text class="member" x="542" y="270">+priority() Int</text>
-<text class="member" x="542" y="287">+newThread(runnable: Runnable) Thread</text>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">Virtual Thread Class Structure</text>
+<text class="subtitle" x="76" y="116">virtualthread: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
 </g>
-<g id="VirtualThreads">
-  <rect class="classCard" x="1288" y="398" width="360" height="146" rx="8" fill="#EAF7EF" stroke="#58A978"/>
-  <text class="stereo" x="1468" y="417" text-anchor="middle">object</text>
-  <text class="classTitle" x="1468" y="445" text-anchor="middle">VirtualThreads</text>
-  <line x1="1288" y1="454" x2="1648" y2="454" stroke="#58A978" stroke-width="1.4"/>
-  <text class="member" x="1322" y="486">+isSupported() Boolean</text>
-<text class="member" x="1322" y="503">+newThread(runnable: Runnable) Thread</text>
-<text class="member" x="1322" y="520">+executorService() ExecutorService</text>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Runtime Selection Flow</text>
 </g>
-<g id="Jdk25VirtualThreadFactory">
-  <rect class="classCard" x="118" y="398" width="380" height="146" rx="8" fill="#E9F7F6" stroke="#45A7A1"/>
-  <text class="stereo" x="308" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="308" y="445" text-anchor="middle">Jdk25VirtualThreadFactory</text>
-  <line x1="118" y1="454" x2="498" y2="454" stroke="#45A7A1" stroke-width="1.4"/>
-  <text class="member" x="152" y="486">+isSupported() Boolean</text>
-<text class="member" x="152" y="503">+priority() Int = 25</text>
-<text class="member" x="152" y="520">+newThread(runnable) Thread</text>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">ServiceLoader Selection</text>
+  <text class="detail" x="919" y="311" text-anchor="middle">Sequence</text>
 </g>
-<g id="Jdk21VirtualThreadFactory">
-  <rect class="classCard" x="508" y="398" width="380" height="146" rx="8" fill="#FFF3D9" stroke="#D6A441"/>
-  <text class="stereo" x="698" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="698" y="445" text-anchor="middle">Jdk21VirtualThreadFactory</text>
-  <line x1="508" y1="454" x2="888" y2="454" stroke="#D6A441" stroke-width="1.4"/>
-  <text class="member" x="542" y="486">+isSupported() Boolean</text>
-<text class="member" x="542" y="503">+priority() Int = 21</text>
-<text class="member" x="542" y="520">+newThread(runnable) Thread</text>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Modules</text>
 </g>
-<g id="PlatformThreadFallback">
-  <rect class="classCard" x="898" y="398" width="360" height="146" rx="8" fill="#FDECEF" stroke="#DC6B82"/>
-  <text class="stereo" x="1078" y="417" text-anchor="middle">class</text>
-  <text class="classTitle" x="1078" y="445" text-anchor="middle">PlatformThreadFallback</text>
-  <line x1="898" y1="454" x2="1258" y2="454" stroke="#DC6B82" stroke-width="1.4"/>
-  <text class="member" x="932" y="486">+isSupported() Boolean = false</text>
-<text class="member" x="932" y="503">+priority() Int = MIN_VALUE</text>
-<text class="member" x="932" y="520">+newThread(runnable) Thread</text>
+<g id="source0">
+  <rect class="card" x="262" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="412" y="544" text-anchor="middle">0 Kotlin source files</text>
+  <text class="detail" x="412" y="572" text-anchor="middle">0 Kotlin source files</text>
 </g>
-<g>
-  <rect x="1351" y="672" width="250" height="54" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/>
-  <path class="inherit" d="M1369 690 L1427 690" stroke="#3E9868"/>
-  <text class="detail" x="1441" y="695">inheritance / implementation</text>
-  <path class="dependency" d="M1369 711 L1427 711" stroke="#758297" stroke-dasharray="8 7"/>
-  <text class="detail" x="1441" y="716">dependency / usage</text>
+<g id="source1">
+  <rect class="card" x="600" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="750" y="544" text-anchor="middle">module public source</text>
+  <text class="detail" x="750" y="572" text-anchor="middle">module public source</text>
 </g>
-<g><rect x="180" y="690" width="1126" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="743" y="716" text-anchor="middle">Solid routes show inheritance or implementation; dashed routes show dependency or usage.</text></g>
+<g id="source2">
+  <rect class="card" x="938" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1088" y="544" text-anchor="middle">README-backed API surface</text>
+  <text class="detail" x="1088" y="572" text-anchor="middle">README-backed API surface</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="750" y="824" text-anchor="middle">Virtual threads</text>
+  <text class="detail" x="750" y="852" text-anchor="middle">Virtual threads</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L412 416 L412 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L750 416 L750 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L1088 416 L1088 510" stroke="#0F766E"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M412 602 L412 696 L750 696 L750 790" stroke="#7E22CE"/>
 </svg>

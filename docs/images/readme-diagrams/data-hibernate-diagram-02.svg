@@ -1,54 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1340" viewBox="0 0 1800 1340" role="img" aria-label="JPA Entity Class Hierarchy">
+<svg data-intent="Regenerate JPA Entity Class Hierarchy from the current README and source package surface for data/hibernate." data-evidence="data/hibernate/README.md; data/hibernate; data/hibernate/src/main/kotlin" data-source-read="data/hibernate/README.md; data/hibernate; data/hibernate/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="JPA Entity Class Hierarchy">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
-  <marker id="inherit" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:11px;fill:#102033}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}.inherit{fill:none;stroke:#758297;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inherit)}.muted{stroke:#A7B4C3;stroke-dasharray:7 7}
-    .lifeline{stroke:#A7B4C3;stroke-width:1.8;stroke-dasharray:8 8}.seq{fill:none;stroke-width:3;stroke-linecap:round}.seqReturn{fill:none;stroke-width:2.7;stroke-linecap:round;stroke-dasharray:8 7}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="1800" height="1340"/>
-<rect class="frame" x="32" y="28" width="1736" height="1284" rx="30"/>
-<text class="title" x="68" y="84">JPA Entity Class Hierarchy</text>
-<text class="subtitle" x="72" y="116">Class hierarchy is arranged top-down with colored solid and dashed relationships to avoid ambiguous overlaps.</text>
-<g><rect class="panel" x="80" y="180" width="1640" height="240" rx="22"/><text class="panelTitle" x="104" y="214">JPA base contracts</text></g>
-<g id="persistable"><rect class="card" x="180" y="250" width="310" height="122" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="180" y1="316" x2="490" y2="316" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="335" y="270" text-anchor="middle">interface</text><text class="classTitle" x="335" y="298" text-anchor="middle">Persistable</text><text class="member" x="214" y="340">+getId()</text>
-<text class="member" x="214" y="357">+isNew()</text></g>
-<g id="auditable"><rect class="card" x="690" y="240" width="340" height="142" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="690" y1="306" x2="1030" y2="306" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="860" y="260" text-anchor="middle">interface</text><text class="classTitle" x="860" y="288" text-anchor="middle">Auditable</text><text class="member" x="724" y="340">+createdAt / updatedAt</text>
-<text class="member" x="724" y="357">+createdBy / updatedBy</text></g>
-<g id="versioned"><rect class="card" x="1230" y="250" width="310" height="122" rx="7" fill="#F1ECFF" stroke="#8A72D6"/><line x1="1230" y1="316" x2="1540" y2="316" stroke="#8A72D6" stroke-width="1.5"/><text class="stereo" x="1385" y="270" text-anchor="middle">interface</text><text class="classTitle" x="1385" y="298" text-anchor="middle">Versioned</text><text class="member" x="1264" y="348">+version</text></g>
-<g><rect class="panel" x="80" y="525" width="1640" height="310" rx="22"/><text class="panelTitle" x="104" y="559">Entity hierarchy</text></g>
-<g id="mapped"><rect class="card" x="160" y="630" width="330" height="132" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="160" y1="696" x2="490" y2="696" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="325" y="650" text-anchor="middle">mapped superclass</text><text class="classTitle" x="325" y="678" text-anchor="middle">AbstractJpaEntity</text><text class="member" x="194" y="725">@MappedSuperclass</text>
-<text class="member" x="194" y="742">id and equality contract</text></g>
-<g id="auditEntity"><rect class="card" x="610" y="610" width="370" height="170" rx="7" fill="#EAF7EF" stroke="#58A978"/><line x1="610" y1="692" x2="980" y2="692" stroke="#58A978" stroke-width="1.5"/><text class="stereo" x="795" y="630" text-anchor="middle">mapped superclass</text><text class="classTitle" x="795" y="652" text-anchor="middle">AbstractAuditableJpa</text><text class="classTitle" x="795" y="674" text-anchor="middle">Entity</text><text class="member" x="644" y="732">auditing fields</text>
-<text class="member" x="644" y="749">Spring Data auditing hooks</text></g>
-<g id="tenantEntity"><rect class="card" x="1100" y="630" width="360" height="132" rx="7" fill="#E9F7F6" stroke="#45A7A1"/><line x1="1100" y1="696" x2="1460" y2="696" stroke="#45A7A1" stroke-width="1.5"/><text class="stereo" x="1280" y="650" text-anchor="middle">optional superclass</text><text class="classTitle" x="1280" y="678" text-anchor="middle">TenantAwareJpaEntity</text><text class="member" x="1134" y="725">tenant id</text>
-<text class="member" x="1134" y="742">multi-tenant boundary</text></g>
-<path class="inherit" d="M315 630 L315 372" style="stroke:#4F83BF;"/>
-<path class="inherit" d="M795 610 L795 382" style="stroke:#3E9868;stroke-dasharray:8 7;"/>
-<path class="inherit" d="M1280 630 L1280 372" style="stroke:#755BC6;stroke-dasharray:8 7;"/>
-<g><rect class="panel" x="80" y="935" width="1640" height="260" rx="22"/><text class="panelTitle" x="104" y="969">Domain models</text></g>
-<g id="lookup"><rect class="card" x="210" y="1020" width="320" height="126" rx="7" fill="#E8F3FF" stroke="#5B8DEF"/><line x1="210" y1="1086" x2="530" y2="1086" stroke="#5B8DEF" stroke-width="1.5"/><text class="stereo" x="370" y="1040" text-anchor="middle">entity</text><text class="classTitle" x="370" y="1068" text-anchor="middle">Lookup entity</text><text class="member" x="244" y="1112">stable id</text>
-<text class="member" x="244" y="1129">read-mostly table</text></g>
-<g id="aggregate"><rect class="card" x="700" y="1020" width="320" height="126" rx="7" fill="#FDECEF" stroke="#DC6B82"/><line x1="700" y1="1086" x2="1020" y2="1086" stroke="#DC6B82" stroke-width="1.5"/><text class="stereo" x="860" y="1040" text-anchor="middle">entity</text><text class="classTitle" x="860" y="1068" text-anchor="middle">Domain aggregate</text><text class="member" x="734" y="1112">business identity</text>
-<text class="member" x="734" y="1129">relationships</text></g>
-<g id="join"><rect class="card" x="1190" y="1020" width="320" height="126" rx="7" fill="#F2F5F9" stroke="#9AA8B8"/><line x1="1190" y1="1086" x2="1510" y2="1086" stroke="#9AA8B8" stroke-width="1.5"/><text class="stereo" x="1350" y="1040" text-anchor="middle">entity</text><text class="classTitle" x="1350" y="1068" text-anchor="middle">Join / link entity</text><text class="member" x="1224" y="1112">association table</text>
-<text class="member" x="1224" y="1129">compact lifecycle</text></g>
-<path class="inherit" d="M860 1020 L860 780" style="stroke:#C94D68;"/>
-<path class="inherit" d="M370 1020 L370 762" style="stroke:#4F83BF;stroke-dasharray:8 7;"/>
-<path class="inherit" d="M1350 1020 L1350 762" style="stroke:#758297;stroke-dasharray:8 7;"/>
-<g><rect x="260" y="1245" width="1280" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="900" y="1271" text-anchor="middle">Solid colored lines mark direct inheritance. Dashed colored lines mark optional interface or mapped-superclass relationships.</text></g>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">JPA Entity Class Hierarchy</text>
+<text class="subtitle" x="76" y="116">data/hibernate: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Overview</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Key Features</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">Dependency</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Spring Boot 4 Migration</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">hibernate package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">hibernate package (43)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">HibernateConsts type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">HibernateConsts type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">Option type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">Option type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">OptionAsJsonConverter type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">OptionAsJsonConverter type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Serialization</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Metrics/tracing</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Metrics/tracing</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>

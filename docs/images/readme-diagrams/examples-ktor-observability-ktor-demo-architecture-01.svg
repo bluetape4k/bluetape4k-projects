@@ -1,80 +1,81 @@
 <svg data-intent="Show the observability demo architecture: Ktor core + observability install, routes, service, EventTelemetry, and app-owned Prometheus/OpenTelemetry backends." data-evidence="examples/ktor/observability-ktor-demo/README.md; examples/ktor/observability-ktor-demo/src/main" data-source-read="examples/ktor/observability-ktor-demo/README.md; examples/ktor/observability-ktor-demo/src/main" xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-label="Ktor Observability Demo Architecture">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1440" height="960"/>
-<rect class="frame" x="34" y="30" width="1372" height="900" rx="32"/>
+<rect class="frame" x="34" y="30" width="1372" height="900" rx="8"/>
 <text class="title" x="72" y="84">Ktor Observability Demo Architecture</text>
 <text class="subtitle" x="76" y="116">The demo owns telemetry registries, installs Ktor observability, and routes order events into EventTelemetry before exporting metrics or traces.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="145" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Ktor setup</text></g>
-<g><rect class="panel" x="82" y="375" width="1276" height="230" rx="22"/><text class="panelTitle" x="110" y="411" dominant-baseline="middle">Demo domain flow</text></g>
-<g><rect class="panel" x="82" y="680" width="1276" height="185" rx="22"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Telemetry outputs</text></g>
+<g><rect class="panel" x="82" y="160" width="1276" height="145" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Ktor setup</text></g>
+<g><rect class="panel" x="82" y="375" width="1276" height="230" rx="8"/><text class="panelTitle" x="110" y="411" dominant-baseline="middle">Demo domain flow</text></g>
+<g><rect class="panel" x="82" y="680" width="1276" height="185" rx="8"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Telemetry outputs</text></g>
 <g id="module">
-  <rect class="card" x="130" y="215" width="300" height="70" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="130" y="215" width="300" height="70" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="280" y="243" text-anchor="middle" dominant-baseline="middle">observabilityKtorModule</text>
   <text class="detail" x="280" y="273" text-anchor="middle" dominant-baseline="middle">installs core + observability</text>
 </g>
 <g id="routes">
-  <rect class="card" x="560" y="215" width="300" height="70" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="560" y="215" width="300" height="70" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="710" y="243" text-anchor="middle" dominant-baseline="middle">observabilityRoutes</text>
   <text class="detail" x="710" y="273" text-anchor="middle" dominant-baseline="middle">order event + metrics routes</text>
 </g>
 <g id="registries">
-  <rect class="card" x="990" y="215" width="300" height="70" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="990" y="215" width="300" height="70" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1140" y="234" text-anchor="middle" dominant-baseline="middle">Telemetry registries</text>
   <text class="detail" x="1140" y="264" text-anchor="middle" dominant-baseline="middle">PrometheusMeterRegistry</text>
   <text class="detail" x="1140" y="282" text-anchor="middle" dominant-baseline="middle">ObservationRegistry / OTel</text>
 </g>
 <g id="orderRoute">
-  <rect class="card" x="140" y="445" width="300" height="92" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="140" y="445" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="290" y="475" text-anchor="middle" dominant-baseline="middle">Order event route</text>
   <text class="detail" x="290" y="505" text-anchor="middle" dominant-baseline="middle">POST /orders/{id}/events</text>
   <text class="detail" x="290" y="523" text-anchor="middle" dominant-baseline="middle">path parameter extraction</text>
 </g>
 <g id="service">
-  <rect class="card" x="550" y="445" width="320" height="92" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="550" y="445" width="320" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="710" y="484" text-anchor="middle" dominant-baseline="middle">OrderEventTelemetryService</text>
   <text class="detail" x="710" y="514" text-anchor="middle" dominant-baseline="middle">publish + consume observations</text>
 </g>
 <g id="eventTelemetry">
-  <rect class="card" x="980" y="445" width="310" height="92" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="980" y="445" width="310" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="1135" y="484" text-anchor="middle" dominant-baseline="middle">EventTelemetry</text>
   <text class="detail" x="1135" y="514" text-anchor="middle" dominant-baseline="middle">event name, outcome, latency tags</text>
 </g>
 <g id="metrics">
-  <rect class="card" x="250" y="755" width="300" height="66" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="250" y="755" width="300" height="66" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="400" y="781" text-anchor="middle" dominant-baseline="middle">Prometheus /metrics</text>
   <text class="detail" x="400" y="811" text-anchor="middle" dominant-baseline="middle">scrape application metrics</text>
 </g>
 <g id="traces">
-  <rect class="card" x="880" y="755" width="300" height="66" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="880" y="755" width="300" height="66" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1030" y="781" text-anchor="middle" dominant-baseline="middle">OpenTelemetry traces</text>
   <text class="detail" x="1030" y="811" text-anchor="middle" dominant-baseline="middle">optional OTLP export</text>
 </g>
-<path class="route" data-from="module" data-to="routes" d="M430 250 L560 250" stroke="#4F83BF"/>
-<path class="route" data-from="routes" data-to="registries" d="M860 250 L990 250" stroke="#3E9868"/>
-<path class="route" data-from="routes" data-to="orderRoute" d="M650 285 L650 350 L360 350 L360 445" stroke="#2E8F89"/>
-<path class="route" data-from="orderRoute" data-to="service" d="M440 491 L550 491" stroke="#B9851B"/>
-<path class="route" data-from="service" data-to="eventTelemetry" d="M870 491 L980 491" stroke="#C94D68"/>
-<path class="route" data-from="routes" data-to="metrics" d="M770 285 L770 330 L505 330 L505 720 L400 720 L400 755" stroke="#3E9868"/>
-<path class="route" data-from="eventTelemetry" data-to="traces" d="M1135 537 L1135 635 L1030 635 L1030 755" stroke="#755BC6"/>
-<path class="route" data-from="registries" data-to="eventTelemetry" d="M1140 285 L1140 445" stroke="#755BC6"/>
+<path class="route" data-from="module" data-to="routes" d="M430 250 L560 250" stroke="#1D4ED8"/>
+<path class="route" data-from="routes" data-to="registries" d="M860 250 L990 250" stroke="#15803D"/>
+<path class="route" data-from="routes" data-to="orderRoute" d="M650 285 L650 350 L360 350 L360 445" stroke="#0F766E"/>
+<path class="route" data-from="orderRoute" data-to="service" d="M440 491 L550 491" stroke="#C2410C"/>
+<path class="route" data-from="service" data-to="eventTelemetry" d="M870 491 L980 491" stroke="#BE185D"/>
+<path class="route" data-from="routes" data-to="metrics" d="M770 285 L770 330 L505 330 L505 720 L400 720 L400 755" stroke="#15803D"/>
+<path class="route" data-from="eventTelemetry" data-to="traces" d="M1135 537 L1135 635 L1030 635 L1030 755" stroke="#7E22CE"/>
+<path class="route" data-from="registries" data-to="eventTelemetry" d="M1140 285 L1140 445" stroke="#7E22CE"/>
 </svg>

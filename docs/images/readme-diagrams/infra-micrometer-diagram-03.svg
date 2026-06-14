@@ -1,59 +1,60 @@
 <svg data-intent="Explain Micrometer instrumentation components by grouping timers, observations, event telemetry, and framework collectors around the registry boundary." data-evidence="infra/micrometer/README.md; infra/micrometer/src/main/kotlin" data-source-read="infra/micrometer/README.md; infra/micrometer/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1420" height="900" viewBox="0 0 1420 900" role="img" aria-label="Micrometer Instrumentation Component Map">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1420" height="900"/>
-<rect class="frame" x="34" y="30" width="1352" height="840" rx="32"/>
+<rect class="frame" x="34" y="30" width="1352" height="840" rx="8"/>
 <text class="title" x="72" y="84">Micrometer Instrumentation Component Map</text>
 <text class="subtitle" x="76" y="116">Timer helpers, observation helpers, and framework collectors feed explicit registry boundaries before metrics or trace signals leave the module.</text>
 <g id="app">
-  <rect class="card" x="120" y="315" width="310" height="86" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="120" y="315" width="310" height="86" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="275" y="351" text-anchor="middle" dominant-baseline="middle">Application work</text>
   <text class="detail" x="275" y="381" text-anchor="middle" dominant-baseline="middle">suspend, Flow, HTTP, cache</text>
 </g>
 <g id="helpers">
-  <rect class="card" x="560" y="220" width="360" height="118" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="560" y="220" width="360" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="740" y="263" text-anchor="middle" dominant-baseline="middle">Instrumentation helpers</text>
   <text class="detail" x="740" y="293" text-anchor="middle" dominant-baseline="middle">Timer extensions</text>
   <text class="detail" x="740" y="311" text-anchor="middle" dominant-baseline="middle">Observation and event telemetry</text>
 </g>
 <g id="collectors">
-  <rect class="card" x="560" y="520" width="360" height="104" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="560" y="520" width="360" height="104" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="740" y="565" text-anchor="middle" dominant-baseline="middle">Framework collectors</text>
   <text class="detail" x="740" y="595" text-anchor="middle" dominant-baseline="middle">Retrofit, cache, events</text>
 </g>
 <g id="registries">
-  <rect class="card" x="1030" y="320" width="350" height="130" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="1030" y="320" width="350" height="130" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="1205" y="369" text-anchor="middle" dominant-baseline="middle">Registry boundary</text>
   <text class="detail" x="1205" y="399" text-anchor="middle" dominant-baseline="middle">MeterRegistry metrics</text>
   <text class="detail" x="1205" y="417" text-anchor="middle" dominant-baseline="middle">ObservationRegistry lifecycle</text>
 </g>
 <g id="exporters">
-  <rect class="card" x="1030" y="665" width="350" height="86" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <rect class="card" x="1030" y="665" width="350" height="86" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
   <text class="cardTitle" x="1205" y="701" text-anchor="middle" dominant-baseline="middle">Metrics and trace signals</text>
   <text class="detail" x="1205" y="731" text-anchor="middle" dominant-baseline="middle">Prometheus / tracing bridge</text>
 </g>
-<path class="route" data-from="app" data-to="helpers" d="M430 358 L560 279" stroke="#3E9868"/>
-<path class="route dashed" data-from="app" data-to="collectors" d="M430 358 L560 572" stroke="#C94D68"/>
-<path class="route" data-from="helpers" data-to="registries" d="M920 279 L1030 385" stroke="#2E8F89"/>
-<path class="route" data-from="collectors" data-to="registries" d="M920 572 L1030 385" stroke="#C94D68"/>
-<path class="route" data-from="registries" data-to="exporters" d="M1205 450 L1205 665" stroke="#718A35"/>
+<path class="route" data-from="app" data-to="helpers" d="M430 358 L560 279" stroke="#15803D"/>
+<path class="route dashed" data-from="app" data-to="collectors" d="M430 358 L560 572" stroke="#BE185D"/>
+<path class="route" data-from="helpers" data-to="registries" d="M920 279 L1030 385" stroke="#0F766E"/>
+<path class="route" data-from="collectors" data-to="registries" d="M920 572 L1030 385" stroke="#BE185D"/>
+<path class="route" data-from="registries" data-to="exporters" d="M1205 450 L1205 665" stroke="#4D7C0F"/>
 </svg>

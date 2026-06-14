@@ -1,95 +1,96 @@
 <svg data-intent="Show Elasticsearch client construction, transport/mapping support, and search/bulk runtime flows without tangent connector starts." data-evidence="infra/elasticsearch/README.md; ElasticsearchClients.kt; ElasticsearchClientExtensions.kt" data-source-read="infra/elasticsearch/README.md; ElasticsearchClients.kt; ElasticsearchClientExtensions.kt" xmlns="http://www.w3.org/2000/svg" width="1500" height="1040" viewBox="0 0 1500 1040" role="img" aria-label="Elasticsearch Module Architecture">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="1500" height="1040"/>
-<rect class="frame" x="34" y="30" width="1432" height="980" rx="32"/>
+<rect class="frame" x="34" y="30" width="1432" height="980" rx="8"/>
 <text class="title" x="72" y="84">Elasticsearch Module Architecture</text>
 <text class="subtitle" x="76" y="116">Client builders, transport support, and search/bulk flows are placed so every route lands on a visible card boundary.</text>
-<g><rect class="panel" x="82" y="160" width="1350" height="220" rx="22"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Client construction</text></g>
+<g><rect class="panel" x="82" y="160" width="1350" height="220" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Client construction</text></g>
 <g id="app">
-  <rect class="card" x="125" y="225" width="270" height="94" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="125" y="225" width="270" height="94" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="260" y="256" text-anchor="middle" dominant-baseline="middle">User application</text>
   <text class="detail" x="260" y="286" text-anchor="middle" dominant-baseline="middle">DSL config</text>
   <text class="detail" x="260" y="304" text-anchor="middle" dominant-baseline="middle">suspend and Flow calls</text>
 </g>
 <g id="builder">
-  <rect class="card" x="485" y="210" width="300" height="124" rx="14" fill="#EAF7EF" stroke="#58A978"/>
+  <rect class="card" x="485" y="210" width="300" height="124" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
   <text class="cardTitle" x="635" y="256" text-anchor="middle" dominant-baseline="middle">Client Builder DSL</text>
   <text class="detail" x="635" y="286" text-anchor="middle" dominant-baseline="middle">ElasticsearchClientConfig</text>
   <text class="detail" x="635" y="304" text-anchor="middle" dominant-baseline="middle">sync and async client builders</text>
 </g>
 <g id="clients">
-  <rect class="card" x="875" y="210" width="310" height="124" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="875" y="210" width="310" height="124" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="1030" y="256" text-anchor="middle" dominant-baseline="middle">ElasticsearchClients</text>
   <text class="detail" x="1030" y="286" text-anchor="middle" dominant-baseline="middle">clientOf / asyncClientOf</text>
   <text class="detail" x="1030" y="304" text-anchor="middle" dominant-baseline="middle">transport factory</text>
 </g>
 <g id="javaClients">
-  <rect class="card" x="1190" y="225" width="210" height="94" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
+  <rect class="card" x="1190" y="225" width="210" height="94" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
   <text class="cardTitle" x="1295" y="256" text-anchor="middle" dominant-baseline="middle">ES Java clients</text>
   <text class="detail" x="1295" y="286" text-anchor="middle" dominant-baseline="middle">async</text>
   <text class="detail" x="1295" y="304" text-anchor="middle" dominant-baseline="middle">blocking</text>
 </g>
-<g><rect class="panel" x="82" y="455" width="1350" height="170" rx="22"/><text class="panelTitle" x="110" y="491" dominant-baseline="middle">Transport support</text></g>
+<g><rect class="panel" x="82" y="455" width="1350" height="170" rx="8"/><text class="panelTitle" x="110" y="491" dominant-baseline="middle">Transport support</text></g>
 <g id="transport">
-  <rect class="card" x="355" y="525" width="320" height="62" rx="14" fill="#EEF6D9" stroke="#8BA84D"/>
+  <rect class="card" x="355" y="525" width="320" height="62" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
   <text class="cardTitle" x="515" y="549" text-anchor="middle" dominant-baseline="middle">Rest5ClientTransport</text>
   <text class="detail" x="515" y="579" text-anchor="middle" dominant-baseline="middle">HTTP client 5 / auth / SSL</text>
 </g>
 <g id="mapping">
-  <rect class="card" x="840" y="525" width="320" height="62" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
+  <rect class="card" x="840" y="525" width="320" height="62" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
   <text class="cardTitle" x="1000" y="549" text-anchor="middle" dominant-baseline="middle">JSON Mapping</text>
   <text class="detail" x="1000" y="579" text-anchor="middle" dominant-baseline="middle">JsonpMapper / Jackson fallback</text>
 </g>
-<g><rect class="panel" x="82" y="700" width="1350" height="275" rx="22"/><text class="panelTitle" x="110" y="736" dominant-baseline="middle">Runtime flows</text></g>
+<g><rect class="panel" x="82" y="700" width="1350" height="275" rx="8"/><text class="panelTitle" x="110" y="736" dominant-baseline="middle">Runtime flows</text></g>
 <g id="search">
-  <rect class="card" x="135" y="785" width="330" height="118" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
+  <rect class="card" x="135" y="785" width="330" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
   <text class="cardTitle" x="300" y="819" text-anchor="middle" dominant-baseline="middle">Search Flow</text>
   <text class="detail" x="300" y="849" text-anchor="middle" dominant-baseline="middle">open PIT</text>
   <text class="detail" x="300" y="867" text-anchor="middle" dominant-baseline="middle">page with search_after</text>
   <text class="detail" x="300" y="885" text-anchor="middle" dominant-baseline="middle">close PIT in finally</text>
 </g>
 <g id="bulk">
-  <rect class="card" x="590" y="785" width="330" height="118" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
+  <rect class="card" x="590" y="785" width="330" height="118" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
   <text class="cardTitle" x="755" y="819" text-anchor="middle" dominant-baseline="middle">Bulk Flow</text>
   <text class="detail" x="755" y="849" text-anchor="middle" dominant-baseline="middle">Flow&lt;BulkOperation&gt;</text>
   <text class="detail" x="755" y="867" text-anchor="middle" dominant-baseline="middle">chunked requests</text>
   <text class="detail" x="755" y="885" text-anchor="middle" dominant-baseline="middle">item error callback</text>
 </g>
 <g id="cluster">
-  <rect class="card" x="1075" y="780" width="300" height="126" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
+  <rect class="card" x="1075" y="780" width="300" height="126" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
   <text class="cardTitle" x="1225" y="818" text-anchor="middle" dominant-baseline="middle">Elasticsearch Cluster</text>
   <text class="detail" x="1225" y="848" text-anchor="middle" dominant-baseline="middle">Search API</text>
   <text class="detail" x="1225" y="866" text-anchor="middle" dominant-baseline="middle">Bulk API</text>
   <text class="detail" x="1225" y="884" text-anchor="middle" dominant-baseline="middle">PIT lifecycle</text>
 </g>
-<path class="route" data-from="app" data-to="builder" d="M395 272 L485 272" stroke="#4F83BF"/>
-<path class="route" data-from="builder" data-to="clients" d="M785 272 L875 272" stroke="#3E9868"/>
-<path class="route" data-from="clients" data-to="javaClients" d="M1185 272 L1190 272" stroke="#B9851B"/>
-<path class="route" data-from="javaClients" data-to="cluster" d="M1295 319 L1295 780" stroke="#C94D68"/>
-<path class="route" data-from="clients" data-to="transport" d="M1030 334 L1030 415 L515 415 L515 525" stroke="#718A35"/>
-<path class="route" data-from="clients" data-to="mapping" d="M1090 334 L1090 450 L1000 450 L1000 525" stroke="#4F83BF"/>
-<path class="route dashed" data-from="search" data-to="cluster" d="M465 870 L520 870 L520 940 L1225 940 L1225 906" stroke="#2E8F89"/>
-<path class="route" data-from="bulk" data-to="cluster" d="M920 844 L1075 844" stroke="#B9851B"/>
-<path class="route dashed" data-from="builder" data-to="search" d="M635 334 L635 405 L340 405 L340 785" stroke="#3E9868"/>
-<path class="route" data-from="builder" data-to="bulk" d="M700 334 L700 430 L810 430 L810 785" stroke="#3E9868"/>
+<path class="route" data-from="app" data-to="builder" d="M395 272 L485 272" stroke="#1D4ED8"/>
+<path class="route" data-from="builder" data-to="clients" d="M785 272 L875 272" stroke="#15803D"/>
+<path class="route" data-from="clients" data-to="javaClients" d="M1185 272 L1190 272" stroke="#C2410C"/>
+<path class="route" data-from="javaClients" data-to="cluster" d="M1295 319 L1295 780" stroke="#BE185D"/>
+<path class="route" data-from="clients" data-to="transport" d="M1030 334 L1030 415 L515 415 L515 525" stroke="#4D7C0F"/>
+<path class="route" data-from="clients" data-to="mapping" d="M1090 334 L1090 450 L1000 450 L1000 525" stroke="#1D4ED8"/>
+<path class="route dashed" data-from="search" data-to="cluster" d="M465 870 L520 870 L520 940 L1225 940 L1225 906" stroke="#0F766E"/>
+<path class="route" data-from="bulk" data-to="cluster" d="M920 844 L1075 844" stroke="#C2410C"/>
+<path class="route dashed" data-from="builder" data-to="search" d="M635 334 L635 405 L340 405 L340 785" stroke="#15803D"/>
+<path class="route" data-from="builder" data-to="bulk" d="M700 334 L700 430 L810 430 L810 785" stroke="#15803D"/>
 </svg>

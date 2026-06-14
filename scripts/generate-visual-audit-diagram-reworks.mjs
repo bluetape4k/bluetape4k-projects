@@ -5,18 +5,19 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const OUT = join(process.cwd(), "docs/images/readme-diagrams");
-const RSVG = "/opt/homebrew/bin/rsvg-convert";
+const CAIROSVG = process.env.CAIROSVG ?? "cairosvg";
+const RSVG = process.env.RSVG_CONVERT ?? "/opt/homebrew/bin/rsvg-convert";
 const ONLY = new Set((process.env.DIAGRAM_ONLY ?? "").split(",").map((item) => item.trim()).filter(Boolean));
 
 const colors = {
-  blue: ["#E8F3FF", "#5B8DEF", "#4F83BF"],
-  green: ["#EAF7EF", "#58A978", "#3E9868"],
-  teal: ["#E9F7F6", "#45A7A1", "#2E8F89"],
-  amber: ["#FFF3D9", "#D6A441", "#B9851B"],
-  pink: ["#FDECEF", "#DC6B82", "#C94D68"],
-  purple: ["#F1ECFF", "#8A72D6", "#755BC6"],
-  olive: ["#EEF6D9", "#8BA84D", "#718A35"],
-  gray: ["#F2F5F9", "#9AA8B8", "#758297"],
+  blue: ["#EFF6FF", "#2563EB", "#1D4ED8"],
+  green: ["#F0FDF4", "#16A34A", "#15803D"],
+  teal: ["#F0FDFA", "#0D9488", "#0F766E"],
+  amber: ["#FFF7ED", "#EA580C", "#C2410C"],
+  pink: ["#FDF2F8", "#DB2777", "#BE185D"],
+  purple: ["#FAF5FF", "#9333EA", "#7E22CE"],
+  olive: ["#F7FEE7", "#65A30D", "#4D7C0F"],
+  gray: ["#F9FAFB", "#6B7280", "#4B5563"],
 };
 
 const sourceModels = {
@@ -400,32 +401,41 @@ function esc(value) {
   return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
+function renderPng(svgPath, pngPath) {
+  try {
+    execFileSync(CAIROSVG, [svgPath, "-o", pngPath, "--scale", "2"], { stdio: "inherit" });
+  } catch (error) {
+    execFileSync(RSVG, ["--format", "png", "--output", pngPath, svgPath], { stdio: "inherit" });
+  }
+}
+
 function base(width, height, title, subtitle, body, layout = "") {
   const layoutAttr = layout ? ` data-layout="${esc(layout)}"` : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(title)}"${layoutAttr}>
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#3E9868"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#2E8F89"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#B9851B"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C94D68"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#755BC6"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#758297"/></marker>
+  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
+  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
+  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
+  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
+  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
+  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
+  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.5}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
     .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
     .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.plain{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
   </style>
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>
-<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="32"/>
+<rect class="frame" x="34" y="30" width="${width - 68}" height="${height - 60}" rx="8"/>
 <text class="title" x="72" y="84">${esc(title)}</text>
 <text class="subtitle" x="76" y="116">${esc(subtitle)}</text>
 ${body}
@@ -441,7 +451,7 @@ function card(id, x, y, w, h, title, details, color = "blue") {
   const total = titleHeight + (lines.length - 1) * lineHeight;
   const start = y + h / 2 - total / 2 + 14;
   return `<g id="${esc(id)}">
-  <rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="${fill}" stroke="${stroke}"/>
+  <rect class="card" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="${fill}" stroke="${stroke}"/>
   <text class="cardTitle" x="${x + w / 2}" y="${Math.round(start)}" text-anchor="middle" dominant-baseline="middle">${esc(title)}</text>
 ${lines.slice(1).map((line, index) => `  <text class="detail" x="${x + w / 2}" y="${Math.round(start + 30 + index * lineHeight)}" text-anchor="middle" dominant-baseline="middle">${esc(line)}</text>`).join("\n")}
 </g>`;
@@ -464,7 +474,7 @@ ${lines.slice(1).map((line, index) => `  <text class="detail" x="${cx}" y="${Mat
 }
 
 function panel(x, y, w, h, title) {
-  return `<g><rect class="panel" x="${x}" y="${y}" width="${w}" height="${h}" rx="22"/><text class="panelTitle" x="${x + 28}" y="${y + 36}" dominant-baseline="middle">${esc(title)}</text></g>`;
+  return `<g><rect class="panel" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/><text class="panelTitle" x="${x + 28}" y="${y + 36}" dominant-baseline="middle">${esc(title)}</text></g>`;
 }
 
 function labelPill(x, y, value, color = "gray", width = null) {
@@ -485,7 +495,7 @@ function text(x, y, value, klass = "detail", anchor = "middle") {
 
 function participant(id, x, y, w, title, color, lifeEnd) {
   const [fill, stroke] = colors[color] || colors.gray;
-  return `<g id="${esc(id)}"><rect class="card" x="${x}" y="${y}" width="${w}" height="76" rx="10" fill="${fill}" stroke="${stroke}"/><text class="cardTitle" x="${x + w / 2}" y="${y + 40}" text-anchor="middle" dominant-baseline="middle">${esc(title)}</text><line class="plain dashed" x1="${x + w / 2}" y1="${y + 76}" x2="${x + w / 2}" y2="${lifeEnd}" stroke="${stroke}"/></g>`;
+  return `<g id="${esc(id)}"><rect class="card" x="${x}" y="${y}" width="${w}" height="76" rx="10" fill="${fill}" stroke="${stroke}"/><text class="cardTitle" x="${x + w / 2}" y="${y + 40}" text-anchor="middle" dominant-baseline="middle">${esc(title)}</text><line class="lifeline dashed" x1="${x + w / 2}" y1="${y + 76}" x2="${x + w / 2}" y2="${lifeEnd}" stroke="${stroke}"/></g>`;
 }
 
 function seqMessage(id, fromId, toId, fromX, toX, y, label, number, color = "blue", dashed = false) {
@@ -2284,7 +2294,7 @@ function write(name, svg, graph) {
   const model = sourceModels[name];
   const stampedSvg = model ? stampSourceModel(svg, model) : svg;
   writeFileSync(svgPath, stampedSvg);
-  execFileSync(RSVG, ["--format", "png", "--output", pngPath, svgPath], { stdio: "inherit" });
+  renderPng(svgPath, pngPath);
 }
 
 function stampExisting(name) {
@@ -2297,7 +2307,7 @@ function stampExisting(name) {
   const stripped = replaceRepoOnlyFooter(current, model).replace(/\sdata-(?:intent|evidence|source-read)="[^"]*"/g, "");
   const stamped = stampSourceModel(stripped, model);
   writeFileSync(svgPath, stamped);
-  execFileSync(RSVG, ["--format", "png", "--output", pngPath, svgPath], { stdio: "inherit" });
+  renderPng(svgPath, pngPath);
 }
 
 function replaceRepoOnlyFooter(svg, model) {
@@ -2346,7 +2356,7 @@ function normalizeLegacyMonoTextPadding(names) {
       return `<g${attrs}>${normalizedBody}</g>`;
     });
     writeFileSync(svgPath, svg);
-    execFileSync(RSVG, ["--format", "png", "--output", pngPath, svgPath], { stdio: "inherit" });
+    renderPng(svgPath, pngPath);
   }
 }
 

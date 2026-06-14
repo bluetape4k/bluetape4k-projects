@@ -1,67 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1299" viewBox="0 0 1560 1299" role="img" aria-label="ULID (Universally Unique Lexicographically Sortable Identifier)">
+<svg data-intent="Regenerate ULID (Universally Unique Lexicographically Sortable Identif. from the current README and source package surface for utils/idgenerators." data-evidence="utils/idgenerators/README.md; utils/idgenerators; utils/idgenerators/src/main/kotlin" data-source-read="utils/idgenerators/README.md; utils/idgenerators; utils/idgenerators/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="ULID (Universally Unique Lexicographically Sortable Identif.">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="inheritArrow" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7 3.5 L 1 6 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
   <style>
-    .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
-    .panel{fill:#F7FBFF;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#31445A;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
-    .flow{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .inherit{fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
   </style>
 </defs>
-<rect class="canvas" width="1560" height="1299"/>
-<rect class="frame" x="32" y="28" width="1496" height="1243" rx="30"/>
-<text class="title" x="68" y="84">ULID (Universally Unique Lexicographically Sortable Identifier)</text>
-<text class="subtitle" x="72" y="116">Source-checked architecture with responsibility groups and reserved label gutters.</text>
-<g><rect class="panel" x="78" y="203" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="229" dominant-baseline="middle">Entry points</text></g>
-<g><rect class="panel" x="78" y="549" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="575" dominant-baseline="middle">bluetape4k module support</text></g>
-<g><rect class="panel" x="78" y="895" width="1404" height="264" rx="22"/><text class="panelTitle" x="102" y="921" dominant-baseline="middle">Runtime adapters</text></g>
-<path class="flow" d="M722 354 L838 354" stroke="#4F83BF"/>
-<path class="flow" d="M993 410 L993 527 L567 527 L567 644" stroke="#3E9868"/>
-<path class="flow" d="M722 700 L838 700" stroke="#B9851B"/>
-<path class="flow" d="M993 756 L993 873 L567 873 L567 990" stroke="#755BC6"/>
-<path class="flow" d="M722 1046 L838 1046" stroke="#2E8F89"/>
-<g id="node-0-0">
-    <rect class="card" x="412" y="298" width="310" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
-
-    <text class="cardTitle" x="567" y="360" text-anchor="middle">[Need a ULID]</text>
-
-  </g>
-<g id="node-0-1">
-    <rect class="card" x="838" y="298" width="310" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/>
-
-    <text class="cardTitle" x="993" y="345" text-anchor="middle">Ordering within same</text>
-    <text class="detail" x="993" y="382" text-anchor="middle">ms?</text>
-  </g>
-<g id="node-1-0">
-    <rect class="card" x="412" y="644" width="310" height="112" rx="14" fill="#FFF3D9" stroke="#D6A441"/>
-
-    <text class="cardTitle" x="567" y="691" text-anchor="middle">Manage previous</text>
-    <text class="detail" x="567" y="728" text-anchor="middle">value yourself?</text>
-  </g>
-<g id="node-1-1">
-    <rect class="card" x="838" y="644" width="310" height="112" rx="14" fill="#F1ECFF" stroke="#8A72D6"/>
-
-    <text class="cardTitle" x="993" y="682.5" text-anchor="middle">ULID.nextULID() Default</text>
-    <text class="detail" x="993" y="719.5" text-anchor="middle">random</text>
-<text class="detail" x="993" y="736.5" text-anchor="middle">Default random</text>
-  </g>
-<g id="node-2-0">
-    <rect class="card" x="412" y="990" width="310" height="112" rx="14" fill="#E9F7F6" stroke="#45A7A1"/>
-
-    <text class="cardTitle" x="567" y="1037" text-anchor="middle">ULImonotonic</text>
-    <text class="detail" x="567" y="1074" text-anchor="middle">nextULID(previous)</text>
-  </g>
-<g id="node-2-1">
-    <rect class="card" x="838" y="990" width="310" height="112" rx="14" fill="#FDECEF" stroke="#DC6B82"/>
-
-    <text class="cardTitle" x="993" y="1016.5" text-anchor="middle">ULID.stateful</text>
-<text class="cardTitle" x="993" y="1038.5" text-anchor="middle">Monotonic()</text>
-    <text class="detail" x="993" y="1077.5" text-anchor="middle">Monotonic()</text>
-<text class="detail" x="993" y="1094.5" text-anchor="middle">Monotonic()</text>
-  </g>
-<g><rect x="190" y="1207" width="1180" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="780" y="1233" text-anchor="middle">Source: utils/idgenerators README and public ULID contracts.</text></g>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">ULID (Universally Unique Lexicographically Sortable Identif.</text>
+<text class="subtitle" x="76" y="116">utils/idgenerators: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">Algorithm Selection Guide</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">All Algorithms at a Glance</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Snowflake Bit Layout</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">idgenerators package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">idgenerators package (43)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">IdGenerator type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">IdGenerator type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">LongIdGenerator type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">LongIdGenerator type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">Flake type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">Flake type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="750" y="824" text-anchor="middle">Serialization</text>
+  <text class="detail" x="750" y="852" text-anchor="middle">Serialization</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
 </svg>

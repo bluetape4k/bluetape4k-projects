@@ -1,139 +1,89 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1900" height="1200" viewBox="0 0 1900 1200" role="img" aria-labelledby="title desc">
-  <title id="title">Hazelcast Two-Tier NearCache Runtime</title>
-  <desc id="desc">Explain Hazelcast NearCache runtime flow, listener invalidation, and resilient write-behind separation.</desc>
-  <defs>
-    <font-face font-family="Architects Daughter" src="url('file:///Users/debop/Library/Fonts/ArchitectsDaughter-Regular.ttf')"/>
-    <font-face font-family="Comic Mono" src="url('file:///Users/debop/Library/Fonts/ComicMono-Bold.ttf')"/>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.11"/></filter>
-    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="context-stroke"/></marker>
-    <marker id="hollow" viewBox="0 0 7 6" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><path d="M 0.8 0.8 L 6.5 3 L 0.8 5.2 z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.2"/></marker>
-    <style>
-      .canvas{fill:#F6F9FC}.decor{fill:#FFFFFF;stroke:#C4D6E7;stroke-width:3.2;filter:url(#shadow)}
-      .innerFrame{fill:#FBFDFF;stroke:#D9E4EF;stroke-width:2}.group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
-      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
-      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
-      .cardTitle,.classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
-      .stereo,.detail,.member,.small{font-family:"Comic Mono";font-weight:400}
-      .stereo{font-size:13px;fill:#687789}.detail{font-size:14px;fill:#42556B}.member{font-size:13px;fill:#42556B}.small{font-size:13px;fill:#627184}
-      .card{filter:url(#shadow);stroke-width:2}.connector{fill:none;stroke-width:2.7;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.inherit{marker-end:url(#hollow)}.dashed{stroke-dasharray:7 6}
-      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.1}
-    </style>
-  </defs>
-  <rect class="canvas" width="1900" height="1200"/>
-  <rect class="decor" x="44" y="36" width="1812" height="1128" rx="34"/>
-  <rect class="innerFrame" x="82" y="154" width="1736" height="914" rx="24"/>
-  <text class="title" x="72" y="88">Hazelcast Two-Tier NearCache Runtime</text>
-  <text class="subtitle" x="76" y="121">Write-through reads and writes use Caffeine plus IMap; resilient mode adds an async remote-write lane.</text>
-  <g id="panel-caller">
-    <rect class="group" x="100" y="165" width="1700" height="195" rx="20"/>
-    <text class="groupTitle" x="130" y="193" dominant-baseline="middle">Application boundary</text>
-  </g>
-  <g id="panel-facade">
-    <rect class="group" x="100" y="390" width="1700" height="220" rx="20"/>
-    <text class="groupTitle" x="130" y="418" dominant-baseline="middle">NearCache facade</text>
-  </g>
-  <g id="panel-tiers">
-    <rect class="group" x="100" y="640" width="1700" height="220" rx="20"/>
-    <text class="groupTitle" x="130" y="668" dominant-baseline="middle">Two cache tiers</text>
-  </g>
-  <g id="panel-resilience">
-    <rect class="group" x="100" y="890" width="1700" height="165" rx="20"/>
-    <text class="groupTitle" x="130" y="918" dominant-baseline="middle">Optional resilient write-behind</text>
-  </g>
-  <path class="connector" data-edge="caller-&gt;facade" data-label="cache API" d="M 282 326 L 282 375 L 770 375 L 770 455" stroke="#4F83BF"/>
-  <g transform="translate(482.7,338)">
-    <rect class="labelPill" x="0" y="0" width="86.6" height="26" rx="8"/>
-    <text class="small" x="43.3" y="13" text-anchor="middle" dominant-baseline="middle" fill="#4F83BF">cache API</text>
-  </g>
-  <path class="connector" data-edge="config-&gt;facade" data-label="configures" d="M 1080 509 L 980 509" stroke="#8A72D6"/>
-
-  <path class="connector" data-edge="facade-&gt;front" data-label="read first / fill" d="M 680 563 L 680 625 L 415 625 L 415 705" stroke="#45A7A1"/>
-  <g transform="translate(474.6,588)">
-    <rect class="labelPill" x="0" y="0" width="145.8" height="26" rx="8"/>
-    <text class="small" x="72.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#45A7A1">read first / fill</text>
-  </g>
-  <path class="connector" data-edge="front-&gt;imap" data-label="miss lookup" d="M 415 801 L 415 875 L 1425 875 L 1425 801" stroke="#D9AA4D"/>
-  <g transform="translate(869.3,838)">
-    <rect class="labelPill" x="0" y="0" width="101.4" height="26" rx="8"/>
-    <text class="small" x="50.7" y="13" text-anchor="middle" dominant-baseline="middle" fill="#D9AA4D">miss lookup</text>
-  </g>
-  <path class="connector" data-edge="facade-&gt;imap" data-label="write-through" d="M 860 563 L 860 625 L 1425 625 L 1425 705" stroke="#58A978"/>
-  <g transform="translate(1084.4,588)">
-    <rect class="labelPill" x="0" y="0" width="116.2" height="26" rx="8"/>
-    <text class="small" x="58.1" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">write-through</text>
-  </g>
-  <path class="connector" data-edge="imap-&gt;listener" data-label="entry events" d="M 1235 753 L 1090 753" stroke="#DB7890"/>
-  <g transform="translate(1108.1,716)">
-    <rect class="labelPill" x="0" y="0" width="108.8" height="26" rx="8"/>
-    <text class="small" x="54.4" y="13" text-anchor="middle" dominant-baseline="middle" fill="#DB7890">entry events</text>
-  </g>
-  <path class="connector" data-edge="listener-&gt;front" data-label="invalidate" d="M 735 753 L 600 753" stroke="#DB7890"/>
-  <g transform="translate(620.5,716)">
-    <rect class="labelPill" x="0" y="0" width="94" height="26" rx="8"/>
-    <text class="small" x="47" y="13" text-anchor="middle" dominant-baseline="middle" fill="#DB7890">invalidate</text>
-  </g>
-  <path class="connector dashed" data-edge="queue-&gt;strategy" data-label="retry / fallback" d="M 880 993 L 1040 993" stroke="#C85D55"/>
-  <g transform="translate(890.8,956)">
-    <rect class="labelPill" x="0" y="0" width="138.4" height="26" rx="8"/>
-    <text class="small" x="69.2" y="13" text-anchor="middle" dominant-baseline="middle" fill="#C85D55">retry / fallback</text>
-  </g>
-  <g id="node-caller" transform="translate(140,250)">
-    <rect class="card" x="0" y="0" width="285" height="76" rx="12" fill="#E8F3FF" stroke="#75A9E8"/>
-    <text class="cardTitle" x="142.5" y="19" text-anchor="middle" dominant-baseline="middle">Application code</text>
-    <text class="detail" x="142.5" y="38" text-anchor="middle" dominant-baseline="middle">blocking or suspend API</text>
-    <text class="detail" x="142.5" y="57" text-anchor="middle" dominant-baseline="middle">String keys / typed values</text>
-  </g>
-  <g id="node-facade" transform="translate(560,455)">
-    <rect class="card" x="0" y="0" width="420" height="108" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="210" y="25.5" text-anchor="middle" dominant-baseline="middle">HazelcastNearCache variants</text>
-    <text class="detail" x="210" y="44.5" text-anchor="middle" dominant-baseline="middle">front hit returns immediately</text>
-    <text class="detail" x="210" y="63.5" text-anchor="middle" dominant-baseline="middle">front miss loads IMap</text>
-    <text class="detail" x="210" y="82.5" text-anchor="middle" dominant-baseline="middle">writes update both tiers</text>
-  </g>
-  <g id="node-config" transform="translate(1080,466)">
-    <rect class="card" x="0" y="0" width="400" height="86" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
-    <text class="cardTitle" x="200" y="14.5" text-anchor="middle" dominant-baseline="middle">HazelcastNearCacheConfig</text>
-    <text class="detail" x="200" y="33.5" text-anchor="middle" dominant-baseline="middle">cacheName validation</text>
-    <text class="detail" x="200" y="52.5" text-anchor="middle" dominant-baseline="middle">maxLocalSize &gt; 0</text>
-    <text class="detail" x="200" y="71.5" text-anchor="middle" dominant-baseline="middle">optional expiration rules</text>
-  </g>
-  <g id="node-front" transform="translate(230,705)">
-    <rect class="card" x="0" y="0" width="370" height="96" rx="12" fill="#E9F7F6" stroke="#45A7A1"/>
-    <text class="cardTitle" x="185" y="19.5" text-anchor="middle" dominant-baseline="middle">Caffeine front cache</text>
-    <text class="detail" x="185" y="38.5" text-anchor="middle" dominant-baseline="middle">local memory tier</text>
-    <text class="detail" x="185" y="57.5" text-anchor="middle" dominant-baseline="middle">fast contains/get</text>
-    <text class="detail" x="185" y="76.5" text-anchor="middle" dominant-baseline="middle">clearLocal keeps IMap</text>
-  </g>
-  <g id="node-imap" transform="translate(1235,705)">
-    <rect class="card" x="0" y="0" width="380" height="96" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
-    <text class="cardTitle" x="190" y="19.5" text-anchor="middle" dominant-baseline="middle">Hazelcast IMap</text>
-    <text class="detail" x="190" y="38.5" text-anchor="middle" dominant-baseline="middle">distributed remote tier</text>
-    <text class="detail" x="190" y="57.5" text-anchor="middle" dominant-baseline="middle">getAll / putAll</text>
-    <text class="detail" x="190" y="76.5" text-anchor="middle" dominant-baseline="middle">EntryListener source</text>
-  </g>
-  <g id="node-listener" transform="translate(735,710)">
-    <rect class="card" x="0" y="0" width="355" height="86" rx="12" fill="#FCE7F3" stroke="#DB7890"/>
-    <text class="cardTitle" x="177.5" y="24" text-anchor="middle" dominant-baseline="middle">IMap EntryListener</text>
-    <text class="detail" x="177.5" y="43" text-anchor="middle" dominant-baseline="middle">client-side event callback</text>
-    <text class="detail" x="177.5" y="62" text-anchor="middle" dominant-baseline="middle">invalidates front keys</text>
-  </g>
-  <g id="node-queue" transform="translate(520,955)">
-    <rect class="card" x="0" y="0" width="360" height="76" rx="12" fill="#EAF7EF" stroke="#69B888"/>
-    <text class="cardTitle" x="180" y="9.5" text-anchor="middle" dominant-baseline="middle">Write-behind queue</text>
-    <text class="detail" x="180" y="28.5" text-anchor="middle" dominant-baseline="middle">front updated immediately</text>
-    <text class="detail" x="180" y="47.5" text-anchor="middle" dominant-baseline="middle">remote write retry</text>
-    <text class="detail" x="180" y="66.5" text-anchor="middle" dominant-baseline="middle">stale-read prevention</text>
-  </g>
-  <g id="node-strategy" transform="translate(1040,955)">
-    <rect class="card" x="0" y="0" width="350" height="76" rx="12" fill="#FDECEC" stroke="#DB7F75"/>
-    <text class="cardTitle" x="175" y="9.5" text-anchor="middle" dominant-baseline="middle">Failure strategy</text>
-    <text class="detail" x="175" y="28.5" text-anchor="middle" dominant-baseline="middle">retry policy</text>
-    <text class="detail" x="175" y="47.5" text-anchor="middle" dominant-baseline="middle">graceful degradation</text>
-    <text class="detail" x="175" y="66.5" text-anchor="middle" dominant-baseline="middle">visible resilience config</text>
-  </g>
-  <g transform="translate(76,1096)">
-    <rect class="labelPill" x="0" y="0" width="1748" height="48" rx="10"/>
-    <text class="small" x="874" y="24" text-anchor="middle" dominant-baseline="middle">Source: cache README files and public cache contract implementations.</text>
-  </g>
+<svg data-intent="Regenerate HazelcastNearCache from the current README and source package surface for cache/cache-hazelcast." data-evidence="cache/cache-hazelcast/README.ko.md; cache/cache-hazelcast; cache/cache-hazelcast/src/main/kotlin" data-source-read="cache/cache-hazelcast/README.ko.md; cache/cache-hazelcast; cache/cache-hazelcast/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="HazelcastNearCache">
+<defs>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <style>
+    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect class="canvas" width="1500" height="1000"/>
+<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
+<text class="title" x="72" y="84">HazelcastNearCache</text>
+<text class="subtitle" x="76" y="116">cache/cache-hazelcast: README headings plus current Kotlin source surface</text>
+<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
+<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
+<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
+<g id="contract0">
+  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
+  <text class="detail" x="243" y="292" text-anchor="middle">패키지 / import 안정성</text>
+</g>
+<g id="contract1">
+  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="581" y="292" text-anchor="middle">제공 기능</text>
+</g>
+<g id="contract2">
+  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="919" y="292" text-anchor="middle">NearCache 아키텍처</text>
+</g>
+<g id="contract3">
+  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
+  <text class="detail" x="1257" y="292" text-anchor="middle">Write-through (기본)</text>
+</g>
+<g id="source0">
+  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="243" y="544" text-anchor="middle">cache package</text>
+  <text class="detail" x="243" y="572" text-anchor="middle">cache package (13)</text>
+</g>
+<g id="source1">
+  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="581" y="544" text-anchor="middle">HazelcastCaches type</text>
+  <text class="detail" x="581" y="572" text-anchor="middle">HazelcastCaches type</text>
+</g>
+<g id="source2">
+  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="919" y="544" text-anchor="middle">HazelcastJCaching type</text>
+  <text class="detail" x="919" y="572" text-anchor="middle">HazelcastJCaching type</text>
+</g>
+<g id="source3">
+  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <text class="cardTitle" x="1257" y="544" text-anchor="middle">HazelcastSuspendJCache type</text>
+  <text class="detail" x="1257" y="572" text-anchor="middle">HazelcastSuspendJCache type</text>
+</g>
+<g id="runtime0">
+  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
+  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
+</g>
+<g id="runtime1">
+  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="581" y="824" text-anchor="middle">Redis backend</text>
+  <text class="detail" x="581" y="852" text-anchor="middle">Redis backend</text>
+</g>
+<g id="runtime2">
+  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="919" y="824" text-anchor="middle">Test support</text>
+  <text class="detail" x="919" y="852" text-anchor="middle">Test support</text>
+</g>
+<g id="runtime3">
+  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Virtual threads</text>
+  <text class="detail" x="1257" y="852" text-anchor="middle">Virtual threads</text>
+</g>
+<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
+<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
+<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
+<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
+<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
+<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
+<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
+<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
 </svg>
