@@ -47,8 +47,8 @@ function base(width, height, title, subtitle, body) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(title)}">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M 0.7 0.7 L 5.4 3 L 0.7 5.3 Z" fill="context-stroke"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="inherit" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.25"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
@@ -179,9 +179,9 @@ function measuredUnitComposition() {
     path("M780 524 L780 600 L650 600 L650 682", "pink"),
     path("M1170 524 L1170 602 L1020 602 L1020 682", "purple"),
     path("M1270 524 L1270 586 L1365 586 L1365 682", "green"),
-    label(435, 392, "operator fun times", "amber", 180),
-    label(790, 392, "operator fun div", "pink", 170),
-    footer(140, 830, 1320, "Source truth: Units.kt composes suffix/ratio, and Measure operators return typed compound Measure values."),
+    label(424, 392, "operator fun times", "amber", 180),
+    label(720, 392, "operator fun div", "pink", 170),
+    footer(140, 830, 1320, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("utils-measured-diagram-02", base(1600, 920, "Unit Composition Flow", "Composable Units and Measure operators produce typed compound units without grid layout.", body), dotGraph("Unit Composition Flow", ["Number", "Units", "Measure", "UnitsProduct", "UnitsRatio", "InverseUnits", "Area", "Velocity", "Acceleration"], [["Number", "Units", "*"], ["Units", "Measure", "wrap"], ["Units", "UnitsProduct", "*"], ["Units", "UnitsRatio", "/"], ["Units", "InverseUnits", "reciprocal"], ["UnitsProduct", "Area", "Length*Length"], ["UnitsRatio", "Velocity", "Length/Time"], ["UnitsRatio", "Acceleration", "Length/Time^2"]]));
 }
@@ -207,7 +207,7 @@ function snowflakeBitLayout() {
     card("parse", 185, 560, 310, 96, "parseSnowflakeId(id)", ["timestamp = id >>> 22 + EPOCH", "machineId = bits 21..12"], "purple"),
     card("make", 640, 560, 310, 96, "makeId(...)", ["timestamp shift 22", "machine shift 12"], "teal"),
     card("capacity", 1095, 560, 310, 96, "Capacity", ["1,024 machines", "4,096 IDs/ms/machine"], "pink"),
-    footer(160, 730, 1280, "Source truth: SnowflakeSupport.kt uses TIME_STAMP_SHIFT=22, MACHINE_ID_SHIFT=12, MAX_MACHINE_ID=1024, MAX_SEQUENCE=4096."),
+    footer(160, 730, 1280, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("utils-idgenerators-diagram-03", base(1600, 820, "Snowflake Bit Layout", "The 64-bit ID is rendered as a horizontal bit array with explicit bit ranges.", body), dotGraph("Snowflake Bit Layout", ["sign", "timestamp", "machineId", "sequence", "makeId", "parseSnowflakeId"], [["timestamp", "makeId", "shl 22"], ["machineId", "makeId", "shl 12"], ["sequence", "makeId"], ["makeId", "parseSnowflakeId", "round-trip"]]));
 }
@@ -228,14 +228,14 @@ function virtualThreadJdk21Uml() {
     classBox("jsup", 1780, 455, 280, 128, "Jdk21SupervisedScope", "private class", ["wraps custom scope", "separates results"], "purple"),
     classBox("subtask", 1040, 650, 250, 92, "Jdk21Subtask", "private class", ["wraps Subtask<T>"], "gray"),
     classBox("scope", 1580, 650, 360, 92, "Jdk21SupervisedTaskScope", "private class", ["extends StructuredTaskScope<T>"], "pink"),
-    path("M300 455 L300 327", "blue", "inherit"),
+    path("M300 455 L300 445 L520 445 L520 350 L300 350 L300 327", "blue", "inherit"),
     path("M735 445 L735 390 L715 390 L715 337", "green", "inherit"),
     path("M1165 455 L1165 390 L1155 390 L1155 327", "teal", "inherit"),
     path("M1555 455 L1555 390 L1545 390 L1545 327", "amber", "inherit"),
     path("M1920 455 L1920 390 L1910 390 L1910 327", "purple", "inherit"),
     path("M1165 650 L1165 583", "gray"),
     path("M1760 650 L1760 616 L1920 616 L1920 583", "pink"),
-    footer(220, 818, 1760, "Source truth: JDK21 provider wraps Java 21 StructuredTaskScope variants and exposes the API contracts through ServiceLoader."),
+    footer(220, 818, 1760, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("virtualthread-jdk21-diagram-01", base(2220, 920, "JDK21 Virtual Thread UML", "Interfaces stay above Java 21 implementations; each UML arrow terminates on the real parent boundary.", body), dotGraph("JDK21 Virtual Thread UML", ["VirtualThreadRuntime", "StructuredTaskScopeProvider", "StructuredTaskScopeAll", "StructuredTaskScopeAny", "StructuredTaskScopeSupervised", "Jdk21VirtualThreadRuntime", "Jdk21StructuredTaskScopeProvider", "Jdk21AllScope", "Jdk21AnyScope", "Jdk21SupervisedScope"], [["Jdk21VirtualThreadRuntime", "VirtualThreadRuntime"], ["Jdk21StructuredTaskScopeProvider", "StructuredTaskScopeProvider"], ["Jdk21AllScope", "StructuredTaskScopeAll"], ["Jdk21AnyScope", "StructuredTaskScopeAny"], ["Jdk21SupervisedScope", "StructuredTaskScopeSupervised"]], "BT"));
 }
@@ -246,10 +246,10 @@ function stateDiagrams() {
     state("locked", 170, 285, 300, 112, "Locked", ["initial state", "push is rejected"], "blue"),
     state("unlocked", 730, 285, 300, 112, "Unlocked", ["coin accepted", "next push rotates"], "green"),
     path("M470 320 L730 320", "green"),
-    label(600, 285, "Coin", "green", 120),
+    label(600, 301, "Coin", "green", 120),
     path("M730 375 L470 375", "amber"),
-    label(600, 420, "Push", "amber", 120),
-    footer(150, 585, 900, "No grid: the reciprocal transitions use two separated direct horizontal lanes."),
+    label(600, 394, "Push", "amber", 120),
+    footer(150, 585, 900, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("utils-states-diagram-04", base(1200, 700, "Turnstile FSM", "Coin unlocks the gate; push locks it again through short separated transition lanes.", turnstile), dotGraph("Turnstile FSM", ["Locked", "Unlocked"], [["Locked", "Unlocked", "Coin"], ["Unlocked", "Locked", "Push"]]));
 
@@ -264,14 +264,52 @@ function stateDiagrams() {
     path("M350 315 L500 315", "green"),
     path("M720 315 L870 315", "amber"),
     path("M1090 315 L1240 315", "teal"),
-    path("M240 365 L240 579 L500 579", "pink"),
-    label(425, 282, "Pay", "green", 120),
-    label(795, 282, "Ship", "amber", 120),
-    label(1165, 282, "Deliver", "teal", 130),
-    label(370, 548, "Cancel", "pink", 120),
-    footer(180, 720, 1320, "One-way order flow stays left-to-right, with cancellation in a reserved terminal band instead of a grid."),
+    path("M240 365 L240 470 L430 470 L430 579 L500 579", "pink"),
+    label(425, 296, "Pay", "green", 120),
+    label(795, 296, "Ship", "amber", 120),
+    label(1165, 296, "Deliver", "teal", 130),
+    label(430, 560, "Cancel", "pink", 120),
+    footer(180, 720, 1320, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("utils-states-diagram-05", base(1680, 820, "Order One-Way FSM", "Linear business progress is horizontal; the cancellation branch is isolated below the main path.", order), dotGraph("Order One-Way FSM", ["Created", "Paid", "Shipped", "Delivered", "Cancelled"], [["Created", "Paid", "Pay"], ["Paid", "Shipped", "Ship"], ["Shipped", "Delivered", "Deliver"], ["Created", "Cancelled", "Cancel"]]));
+
+  const appointment = [
+    panel(80, 160, 1540, 210, "Active visit lane"),
+    panel(80, 450, 1540, 210, "Scheduling lane"),
+    panel(80, 745, 1540, 205, "Terminal outcomes"),
+    `<circle cx="92" cy="559" r="13" fill="#22344A"/>`,
+    state("checked-in", 830, 245, 220, 88, "CHECKED_IN", ["arrived at clinic"], "teal"),
+    state("in-progress", 1220, 245, 240, 88, "IN_PROGRESS", ["treatment started"], "amber"),
+    state("pending", 130, 515, 220, 88, "PENDING", ["initial"], "blue"),
+    state("requested", 480, 515, 220, 88, "REQUESTED", ["patient requested"], "green"),
+    state("confirmed", 830, 515, 220, 88, "CONFIRMED", ["schedule accepted"], "purple"),
+    state("cancelled", 130, 805, 240, 88, "CANCELLED", ["final stop"], "pink"),
+    state("no-show", 830, 805, 220, 88, "NO_SHOW", ["final absence"], "olive"),
+    state("completed", 1230, 805, 220, 88, "COMPLETED", ["final success"], "green"),
+    path("M105 559 L130 559", "gray"),
+    path("M350 559 L480 559", "green"),
+    path("M700 559 L830 559", "purple"),
+    path("M940 515 L940 333", "teal"),
+    path("M1050 289 L1220 289", "amber"),
+    path("M1340 333 L1340 805", "green"),
+    path("M940 603 L940 805", "olive"),
+    path("M240 603 L240 690 L70 690 L70 830 L130 830", "pink"),
+    path("M590 603 L590 690 L370 690 L370 805", "pink"),
+    path("M890 603 L890 725 L395 725 L395 832 L370 832", "pink"),
+    path("M830 289 L740 289 L740 420 L40 420 L40 856 L130 856", "pink"),
+    label(415, 540, "Request", "green", 118),
+    label(765, 540, "Confirm", "purple", 118),
+    label(877, 424, "CheckIn", "teal", 118),
+    label(1135, 270, "StartTreatment", "amber", 160),
+    label(1407, 560, "Complete", "green", 126),
+    label(1019, 700, "MarkNoShow", "olive", 150),
+    label(155, 671, "Cancel", "pink", 112),
+    label(480, 672, "Cancel", "pink", 112),
+    label(640, 707, "Cancel", "pink", 112),
+    label(520, 402, "Cancel", "pink", 112),
+    footer(180, 990, 1340, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
+  ].join("\n");
+  write("utils-states-diagram-06", base(1700, 1120, "Appointment Complex FSM", "State nodes and event-labeled transitions mirror the coroutine FSM example, including terminal cancellation and no-show paths.", appointment), dotGraph("Appointment Complex FSM", ["PENDING", "REQUESTED", "CONFIRMED", "CHECKED_IN", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"], [["PENDING", "REQUESTED", "Request"], ["REQUESTED", "CONFIRMED", "Confirm"], ["CONFIRMED", "CHECKED_IN", "CheckIn"], ["CHECKED_IN", "IN_PROGRESS", "StartTreatment"], ["IN_PROGRESS", "COMPLETED", "Complete"], ["PENDING", "CANCELLED", "Cancel"], ["REQUESTED", "CANCELLED", "Cancel"], ["CONFIRMED", "CANCELLED", "Cancel"], ["CHECKED_IN", "CANCELLED", "Cancel"], ["CONFIRMED", "NO_SHOW", "MarkNoShow"]]));
 }
 
 function cassandraLayered() {
@@ -301,7 +339,7 @@ function cassandraLayered() {
     path("M415 797 L415 842 L750 842 L750 902", "teal"),
     path("M1120 782 L1120 902", "amber"),
     path("M1460 782 L1460 902", "green"),
-    footer(190, 1030, 1360, "Layered, not snake-shaped: each extension family drops to the driver/runtime layer through the nearest clear lane."),
+    footer(190, 1030, 1360, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("data-cassandra-diagram-01", base(1740, 1120, "Cassandra Data Access Layer", "Application code, bluetape4k extensions, driver types, and Cassandra runtime stay in clear responsibility bands.", body), dotGraph("Cassandra Data Access Layer", ["Repository", "CqlSession DSL", "Coroutine queries", "Row/Gettable", "QueryBuilder", "CqlSession", "Statements", "ResultSet", "Cassandra"], [["Repository", "CqlSession DSL"], ["Repository", "Coroutine queries"], ["Coroutine queries", "CqlSession"], ["QueryBuilder", "Statements"], ["Row/Gettable", "ResultSet"], ["CqlSession", "Cassandra"], ["Statements", "Cassandra"], ["ResultSet", "Cassandra"]], "TB"));
 }
@@ -321,16 +359,16 @@ function lettuceNearCacheStack() {
     card("front", 250, 690, 330, 82, "LettuceCaffeineLocalCache", ["L1 Caffeine", "listener invalidation"], "teal"),
     card("redis", 705, 690, 330, 82, "Lettuce JCache backend", ["L2 Redis", "TTL + codec"], "purple"),
     card("tracking", 1160, 690, 330, 82, "TrackingInvalidationListener", ["peer invalidation", "front-cache clear"], "pink"),
-    path("M375 425 L375 292", "blue", "inherit"),
+    path("M430 425 L430 355 L375 355 L375 292", "blue", "inherit"),
     path("M820 425 L820 352 L735 352 L735 292", "green", "inherit"),
     path("M875 425 L875 336 L1120 336 L1120 292", "purple"),
     path("M900 425 L900 346 L1455 346 L1455 292", "teal"),
     path("M375 537 L375 690", "teal"),
     path("M820 537 L820 690", "purple"),
-    path("M1000 480 L1100 480", "amber"),
+    path("M1100 480 L1000 480", "amber"),
     path("M1035 731 L1160 731", "pink"),
     path("M580 731 L705 731", "purple"),
-    footer(170, 862, 1400, "Stack form keeps contract, adapter, and storage tiers separate; adjacent cards use direct connectors instead of snake routing."),
+    footer(170, 862, 1400, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("cache-cache-lettuce-diagram-01", base(1740, 960, "JCache NearCache Structure", "Lettuce NearCache is shown as a contract-to-adapter-to-tier stack with short direct relationships.", body), dotGraph("JCache NearCache Structure", ["NearCacheOperations", "SuspendNearCacheOperations", "NearJCache", "SuspendNearJCache", "LettuceCaches", "LocalCache", "LettuceJCache", "TrackingInvalidationListener"], [["NearJCache", "NearCacheOperations"], ["SuspendNearJCache", "SuspendNearCacheOperations"], ["LettuceCaches", "NearJCache"], ["LettuceCaches", "SuspendNearJCache"], ["NearJCache", "LocalCache"], ["NearJCache", "LettuceJCache"], ["SuspendNearJCache", "LocalCache"], ["SuspendNearJCache", "LettuceJCache"], ["TrackingInvalidationListener", "LocalCache"]], "TB"));
 }
@@ -338,7 +376,7 @@ function lettuceNearCacheStack() {
 function opentelemetryTracePropagation() {
   const body = [
     panel(80, 155, 420, 430, "Service A"),
-    panel(570, 220, 500, 260, "Carrier boundary"),
+    panel(570, 220, 500, 300, "Carrier boundary"),
     panel(1140, 155, 420, 500, "Service B"),
     panel(570, 710, 500, 155, "Telemetry backend"),
     card("spanA", 145, 230, 290, 88, "withSpan / useSpan", ["creates parent Span", "Context.current()"], "blue"),
@@ -354,10 +392,10 @@ function opentelemetryTracePropagation() {
     path("M970 455 L1205 455", "teal"),
     path("M1350 498 L1350 550", "green"),
     path("M1350 638 L1350 680 L995 680 L995 780", "pink"),
-    path("M290 470 L290 680 L645 680 L645 780", "pink"),
-    label(470, 382, "inject", "purple", 110),
-    label(1080, 420, "extract", "teal", 110),
-    footer(145, 910, 1350, "Free placement around the carrier keeps propagation routes short; no grid or forced snake path is used."),
+    path("M290 470 L290 680 L820 680 L820 780", "pink"),
+    label(470, 407, "inject", "purple", 110),
+    label(1080, 436, "extract", "teal", 110),
+    footer(145, 910, 1350, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"),
   ].join("\n");
   write("infra-opentelemetry-diagram-03", base(1640, 1000, "Distributed Trace Propagation", "Trace context moves through explicit propagators and carriers before the downstream service creates a child span.", body), dotGraph("Distributed Trace Propagation", ["Service A Span", "Coroutine Context", "ContextPropagators", "HTTP/Kafka carrier", "Extracted Context", "Child Span", "Exporter"], [["Service A Span", "Coroutine Context"], ["Coroutine Context", "ContextPropagators", "inject"], ["ContextPropagators", "HTTP/Kafka carrier"], ["HTTP/Kafka carrier", "Extracted Context", "extract"], ["Extracted Context", "Child Span"], ["Child Span", "Exporter"]], "LR"));
 }

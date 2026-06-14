@@ -1,25 +1,19 @@
-graph 1 5.8861 2.159
-node node_0_0 2.153 0.97824 4.306 1.556 LettuceJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_0_1 2.2542 0.97824 4.306 1.556 SuspendNearJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_0_2 2.3554 0.97824 4.306 1.556 NearJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_1_0 2.153 0.91149 4.306 1.556 CaffeineSuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_1_1 2.2542 0.91149 4.306 1.556 LettuceSuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_1_2 2.3554 0.91149 4.306 1.556 LettuceSuspendJCacheV rounded,filled box #9AA8B8 #F7FBFF
-node node_2_0 2.153 0.84475 4.306 1.556 "«frontCache» Caffeine" rounded,filled box #9AA8B8 #F7FBFF
-node node_2_1 2.2542 0.84475 4.306 1.556 NearJCacheConfig rounded,filled box #9AA8B8 #F7FBFF
-node node_2_2 2.3554 0.84475 4.306 1.556 "LettuceJCacheK V" rounded,filled box #9AA8B8 #F7FBFF
-node node_3_0 2.153 0.778 4.306 1.556 "NearJCacheConfigK V" rounded,filled box #9AA8B8 #F7FBFF
-node node_3_1 2.2542 0.778 4.306 1.556 "NearJCacheK V" rounded,filled box #9AA8B8 #F7FBFF
-node node_3_2 2.3554 0.778 4.306 1.556 "SuspendNearJCacheK V" rounded,filled box #9AA8B8 #F7FBFF
-edge node_0_0 node_0_1 4 2.2531 0.97824 2.2533 0.97824 2.2534 0.97824 2.2536 0.97824 solid #758297
-edge node_0_1 node_0_2 4 2.3543 0.97824 2.3545 0.97824 2.3546 0.97824 2.3548 0.97824 solid #758297
-edge node_0_2 node_1_0 4 2.1553 0.91224 2.1549 0.91211 2.1546 0.91201 2.1543 0.91191 solid #758297
-edge node_1_0 node_1_1 4 2.2531 0.91149 2.2533 0.91149 2.2534 0.91149 2.2536 0.91149 solid #758297
-edge node_1_1 node_1_2 4 2.3543 0.91149 2.3545 0.91149 2.3546 0.91149 2.3548 0.91149 solid #758297
-edge node_1_2 node_2_0 4 2.1553 0.8455 2.1549 0.84538 2.1546 0.84527 2.1543 0.84518 solid #758297
-edge node_2_0 node_2_1 4 2.2531 0.84475 2.2533 0.84475 2.2534 0.84475 2.2536 0.84475 solid #758297
-edge node_2_1 node_2_2 4 2.3543 0.84475 2.3545 0.84475 2.3546 0.84475 2.3548 0.84475 solid #758297
-edge node_2_2 node_3_0 4 2.1553 0.77875 2.1549 0.77863 2.1546 0.77852 2.1543 0.77843 solid #758297
-edge node_3_0 node_3_1 4 2.2531 0.778 2.2533 0.778 2.2534 0.778 2.2536 0.778 solid #758297
-edge node_3_1 node_3_2 4 2.3543 0.778 2.3545 0.778 2.3546 0.778 2.3548 0.778 solid #758297
+graph 1 7.2552 8.5208
+node caller 1.6024 7.941 3.066 0.5 "Application / JCache API" rounded,filled box #75A9E8 #E8F3FF
+node factory 1.6024 6.4028 2.0035 0.5 LettuceCaches rounded,filled box #75A9E8 #E8F3FF
+node near 3.3802 4.8646 4.2847 0.5 "NearJCache / SuspendNearJCache" rounded,filled box #69B888 #EAF7EF
+node config 4.3941 6.4028 2.3889 0.5 NearJCacheConfig rounded,filled box #8A72D6 #F1ECFF
+node front 2.0469 3.3264 2.9722 0.5 "Caffeine front JCache" rounded,filled box #45A7A1 #E9F7F6
+node back 4.7274 1.7882 5.0556 0.5 "LettuceJCache / LettuceSuspendJCache" rounded,filled box #D9AA4D #FFF3D9
+node listener 1.283 0.25 2.566 0.5 CacheEntryListener rounded,filled box #DB7890 #FCE7F3
+node map 4.7274 0.25 1.6285 0.5 LettuceMap rounded,filled box #AAB7C4 #F6F8FA
+edge caller factory 4 1.6024 7.687 1.6024 7.687 1.6024 6.7893 1.6024 6.7893 "factory call" 2.1024 7.1719 solid #4F83BF
+edge factory near 4 1.921 6.1488 1.921 6.1488 1.921 5.2511 1.921 5.2511 creates 2.658 5.6337 solid #4F83BF
+edge near front 4 2.3854 4.6106 2.3854 4.6106 2.3854 3.7129 2.3854 3.7129 "read first" 3.1997 4.0955 solid #45A7A1
+edge near back 4 4.5278 4.6128 4.5278 4.6128 4.5278 2.1756 4.5278 2.1756 "back delegate" 5.2691 3.3264 solid #58A978
+edge config near 4 4.3611 6.1488 4.3611 6.1488 4.3611 5.2511 4.3611 5.2511 configures 4.8108 5.6337 solid #8A72D6
+edge front back 4 2.8663 3.0724 2.8663 3.0724 2.8663 2.1747 2.8663 2.1747 "miss lookup / write" 3.1997 2.5573 solid #D9AA4D
+edge back listener 4 2.3828 1.5342 2.3828 1.5342 2.3828 0.63651 2.3828 0.63651 "entry events" 2.783 1.0191 solid #DB7890
+edge back map 4 4.7274 1.5342 4.7274 1.5342 4.7274 0.63651 4.7274 0.63651 "stores hash" 5.1858 1.0191 solid #6B7D90
+edge listener front 4 1.3802 0.50175 1.3802 0.50175 1.3802 2.939 1.3802 2.939 "updates front" 1.0608 1.7882 solid #DB7890
 stop

@@ -29,8 +29,6 @@
 <path class="line" d="M839 386 C839 303 706 303 706 220"/>
 <path class="line" d="M505 386 C505 386 539 386 539 386"/>
 <path class="line" d="M706 220 C706 303 505 303 505 386"/>
-<path class="line" d="M672 220 C672 220 706 220 706 220"/>
-<path class="line" d="M338 220 C338 220 372 220 372 220"/>
 <g transform="translate(48,170)">
   <rect class="card" x="0" y="0" width="280" height="100" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/>
   <text class="smallLabel" x="140" y="45" text-anchor="middle">Application Code</text>

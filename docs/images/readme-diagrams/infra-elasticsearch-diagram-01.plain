@@ -1,13 +1,13 @@
-graph 1 13.133 5.5389
-node BulkApiCoroutines 1.4 5.0139 2.8 1.05 BulkApiCoroutines rounded,filled box #5B8DEF #E8F3FF
-node ElasticsearchAsyncClient 6.5667 0.525 2.8 1.05 ElasticsearchAsyncClient rounded,filled box #58A978 #EAF7EF
-node ElasticsearchClients 11.733 2.7694 2.8 1.05 ElasticsearchClients rounded,filled box #45A7A1 #E9F7F6
-node ElasticsearchClient 11.733 0.525 2.8 1.05 ElasticsearchClient rounded,filled box #D6A441 #FFF3D9
-node ElasticsearchClientConfig 7.9833 2.7694 2.8 1.05 ElasticsearchClientConfig rounded,filled box #DC6B82 #FDECEF
-node SearchApiCoroutines 5.15 5.0139 2.8 1.05 SearchApiCoroutines rounded,filled box #8A72D6 #F1ECFF
-edge ElasticsearchAsyncClient BulkApiCoroutines 7 5.1617 0.52778 3.6317 0.52778 1.4 0.52778 1.4 0.52778 1.4 0.52778 1.4 3.3002 1.4 4.4861 dashed #3E9868
-edge ElasticsearchAsyncClient SearchApiCoroutines 4 5.8583 1.0531 5.8583 1.9176 5.8583 3.6246 5.8583 4.4878 dashed #3E9868
-edge ElasticsearchClients ElasticsearchAsyncClient 10 10.327 2.7639 10.058 2.7639 9.8583 2.7639 9.8583 2.7639 9.8583 2.7639 9.8583 0.52778 9.8583 0.52778 9.8583 0.52778 8.8668 0.52778 7.9722 0.52778 dashed #2E8F89
-edge ElasticsearchClients ElasticsearchClient 4 11.733 2.2375 11.733 1.8798 11.733 1.4101 11.733 1.0531 dashed #2E8F89
-edge ElasticsearchClientConfig ElasticsearchAsyncClient 4 7.275 2.2375 7.275 1.8798 7.275 1.4101 7.275 1.0531 dashed #C94D68
+graph 1 8.425 5.5389
+node BulkApiCoroutines 1.4 0.525 2.8 1.05 BulkApiCoroutines rounded,filled box #5B8DEF #E8F3FF
+node ElasticsearchAsyncClient 3.275 2.7694 2.8 1.05 ElasticsearchAsyncClient rounded,filled box #58A978 #EAF7EF
+node ElasticsearchClients 7.025 5.0139 2.8 1.05 ElasticsearchClients rounded,filled box #45A7A1 #E9F7F6
+node ElasticsearchClient 7.025 2.7694 2.8 1.05 ElasticsearchClient rounded,filled box #D6A441 #FFF3D9
+node ElasticsearchClientConfig 3.275 5.0139 2.8 1.05 ElasticsearchClientConfig rounded,filled box #DC6B82 #FDECEF
+node SearchApiCoroutines 5.15 0.525 2.8 1.05 SearchApiCoroutines rounded,filled box #8A72D6 #F1ECFF
+edge ElasticsearchAsyncClient BulkApiCoroutines 4 2.3375 2.2375 2.3375 1.8798 2.3375 1.4101 2.3375 1.0531 dashed #2E8F89
+edge ElasticsearchAsyncClient SearchApiCoroutines 4 4.2125 2.2375 4.2125 1.8798 4.2125 1.4101 4.2125 1.0531 dashed #B9851B
+edge ElasticsearchClients ElasticsearchAsyncClient 10 5.6183 5.0139 5.3495 5.0139 5.15 5.0139 5.15 5.0139 5.15 5.0139 5.15 2.7639 5.15 2.7639 5.15 2.7639 4.9505 2.7639 4.6817 2.7639 dashed #718A35
+edge ElasticsearchClients ElasticsearchClient 4 7.025 4.482 7.025 4.1242 7.025 3.6545 7.025 3.2975 dashed #755BC6
+edge ElasticsearchClientConfig ElasticsearchAsyncClient 4 3.275 4.482 3.275 4.1242 3.275 3.6545 3.275 3.2975 dashed #C94D68
 stop

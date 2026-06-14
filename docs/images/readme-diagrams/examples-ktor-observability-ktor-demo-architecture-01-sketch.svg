@@ -12,22 +12,22 @@
 <g id="clust1" class="cluster">
 <title>cluster_entry</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M387,-332C387,-332 475,-332 475,-332 481,-332 487,-338 487,-344 487,-344 487,-504.5 487,-504.5 487,-510.5 481,-516.5 475,-516.5 475,-516.5 387,-516.5 387,-516.5 381,-516.5 375,-510.5 375,-504.5 375,-504.5 375,-344 375,-344 375,-338 381,-332 387,-332"/>
-<text xml:space="preserve" text-anchor="middle" x="431" y="-499.2" font-family="Times,serif" font-size="14.00">Entry layer</text>
+<text xml:space="preserve" text-anchor="middle" x="431" y="-499.2" font-family="Times,serif" font-size="14.00">Entry</text>
 </g>
 <g id="clust2" class="cluster">
 <title>cluster_platform</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M258,-116C258,-116 592,-116 592,-116 598,-116 604,-122 604,-128 604,-128 604,-180.5 604,-180.5 604,-186.5 598,-192.5 592,-192.5 592,-192.5 258,-192.5 258,-192.5 252,-192.5 246,-186.5 246,-180.5 246,-180.5 246,-128 246,-128 246,-122 252,-116 258,-116"/>
-<text xml:space="preserve" text-anchor="middle" x="425" y="-175.2" font-family="Times,serif" font-size="14.00">Ktor platform layer</text>
+<text xml:space="preserve" text-anchor="middle" x="425" y="-175.2" font-family="Times,serif" font-size="14.00">Platform</text>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_application</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M20,-116C20,-116 226,-116 226,-116 232,-116 238,-122 238,-128 238,-128 238,-288.5 238,-288.5 238,-294.5 232,-300.5 226,-300.5 226,-300.5 20,-300.5 20,-300.5 14,-300.5 8,-294.5 8,-288.5 8,-288.5 8,-128 8,-128 8,-122 14,-116 20,-116"/>
-<text xml:space="preserve" text-anchor="middle" x="123" y="-283.2" font-family="Times,serif" font-size="14.00">Application event layer</text>
+<text xml:space="preserve" text-anchor="middle" x="123" y="-283.2" font-family="Times,serif" font-size="14.00">Events</text>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_export</title>
 <path fill="#f6f9fc" stroke="#d7e2ec" d="M314,-8C314,-8 748,-8 748,-8 754,-8 760,-14 760,-20 760,-20 760,-72.5 760,-72.5 760,-78.5 754,-84.5 748,-84.5 748,-84.5 314,-84.5 314,-84.5 308,-84.5 302,-78.5 302,-72.5 302,-72.5 302,-20 302,-20 302,-14 308,-8 314,-8"/>
-<text xml:space="preserve" text-anchor="middle" x="531" y="-67.2" font-family="Times,serif" font-size="14.00">Export layer</text>
+<text xml:space="preserve" text-anchor="middle" x="531" y="-67.2" font-family="Times,serif" font-size="14.00">Export</text>
 </g>
 <!-- client -->
 <g id="node1" class="node">

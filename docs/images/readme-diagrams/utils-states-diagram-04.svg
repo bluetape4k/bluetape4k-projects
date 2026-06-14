@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="Turnstile FSM">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M 0.7 0.7 L 5.4 3 L 0.7 5.3 Z" fill="context-stroke"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="inherit" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.25"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
@@ -22,8 +22,8 @@
 <g id="locked"><rect class="card" x="170" y="285" width="300" height="112" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="320" y="324" text-anchor="middle">Locked</text><text class="detail" x="320" y="359" text-anchor="middle">initial state</text><text class="detail" x="320" y="377" text-anchor="middle">push is rejected</text></g>
 <g id="unlocked"><rect class="card" x="730" y="285" width="300" height="112" rx="14" fill="#EAF7EF" stroke="#58A978"/><text class="cardTitle" x="880" y="324" text-anchor="middle">Unlocked</text><text class="detail" x="880" y="359" text-anchor="middle">coin accepted</text><text class="detail" x="880" y="377" text-anchor="middle">next push rotates</text></g>
 <path class="flow" d="M470 320 L730 320" stroke="#3E9868"/>
-<g><rect x="540" y="270" width="120" height="30" rx="8" fill="#FFFFFF" stroke="#58A978" stroke-width="1.2"/><text class="detail" x="600" y="286" text-anchor="middle" dominant-baseline="middle">Coin</text></g>
+<g><rect x="540" y="286" width="120" height="30" rx="8" fill="#FFFFFF" stroke="#58A978" stroke-width="1.2"/><text class="detail" x="600" y="302" text-anchor="middle" dominant-baseline="middle">Coin</text></g>
 <path class="flow" d="M730 375 L470 375" stroke="#B9851B"/>
-<g><rect x="540" y="405" width="120" height="30" rx="8" fill="#FFFFFF" stroke="#D6A441" stroke-width="1.2"/><text class="detail" x="600" y="421" text-anchor="middle" dominant-baseline="middle">Push</text></g>
-<g><rect x="150" y="585" width="900" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="600" y="610" text-anchor="middle">No grid: the reciprocal transitions use two separated direct horizontal lanes.</text></g>
+<g><rect x="540" y="379" width="120" height="30" rx="8" fill="#FFFFFF" stroke="#D6A441" stroke-width="1.2"/><text class="detail" x="600" y="395" text-anchor="middle" dominant-baseline="middle">Push</text></g>
+<g><rect x="150" y="585" width="900" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="600" y="610" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

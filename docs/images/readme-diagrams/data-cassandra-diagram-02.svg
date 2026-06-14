@@ -35,7 +35,7 @@
 <g id="qb"><rect class="card" x="965" y="540" width="340" height="145" rx="7" fill="#FFF3D9" stroke="#D6A441"/><line x1="965" y1="606" x2="1305" y2="606" stroke="#D6A441" stroke-width="1.5"/><text class="stereo" x="1135" y="560" text-anchor="middle">extension functions</text><text class="classTitle" x="1135" y="588" text-anchor="middle">QueryBuilderExtensions</text><text class="member" x="983" y="633">+whereEq(...)</text>
 <text class="member" x="983" y="650">+orderBy(...)</text>
 <text class="member" x="983" y="667">+bind(...)</text></g>
-<path class="flow" d="M380 338 L380 550" stroke="#4F83BF"/>
+<path class="flow" d="M380 338 L380 440 L555 440 L555 609 L545 609" stroke="#4F83BF"/>
 <path class="flow" d="M1135 338 L1135 540" stroke="#755BC6"/>
 <g><rect class="panel" x="86" y="820" width="1420" height="190" rx="22"/><text class="panelTitle" x="110" y="854">Result handling</text></g>
 <g id="row"><rect class="card" x="210" y="880" width="330" height="84" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="375" y="913" text-anchor="middle">Rows and mapped values</text><text class="detail" x="375" y="949" text-anchor="middle">typed extraction helpers</text></g>

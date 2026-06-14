@@ -4,14 +4,14 @@ node Action 8.9 0.525 2.8 1.05 Action rounded,filled box #58A978 #EAF7EF
 node Condition 5.15 0.525 2.8 1.05 Condition rounded,filled box #45A7A1 #E9F7F6
 node Rule 5.15 5.0139 2.8 1.05 Rule rounded,filled box #D6A441 #FFF3D9
 node SuspendRule 8.9 5.0139 2.8 1.05 SuspendRule rounded,filled box #DC6B82 #FDECEF
-node RuleSet 12.65 2.7694 2.8 1.05 RuleSet rounded,filled box #8A72D6 #F1ECFF
+node RuleSet 12.65 5.0139 2.8 1.05 RuleSet rounded,filled box #8A72D6 #F1ECFF
 node DefaultRule 5.15 2.7694 2.8 1.05 DefaultRule rounded,filled box #8BA84D #EEF6D9
 node DefaultSuspendRule 8.9 2.7694 2.8 1.05 DefaultSuspendRule rounded,filled box #9AA8B8 #F2F5F9
 edge Rule DefaultRule 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 solid #718A35
-edge SuspendRule DefaultSuspendRule 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 solid #758297
-edge DefaultRule Facts 7 3.7483 2.7639 2.6832 2.7639 1.4 2.7639 1.4 2.7639 1.4 2.7639 1.4 1.7177 1.4 1.0556 dashed #718A35
-edge DefaultRule Action 10 6.5567 2.9444 6.9063 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 0.69444 7.1833 0.69444 7.1833 0.69444 7.3099 0.69444 7.4942 0.69444 dashed #718A35
+edge SuspendRule DefaultSuspendRule 4 8.9 4.482 8.9 4.1242 8.9 3.6545 8.9 3.2975 solid #755BC6
+edge DefaultRule Facts 7 3.7483 2.7639 2.6832 2.7639 1.4 2.7639 1.4 2.7639 1.4 2.7639 1.4 1.7177 1.4 1.0556 dashed #2E8F89
+edge DefaultRule Action 10 6.5567 2.9444 6.9063 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 2.9444 7.1833 0.69444 7.1833 0.69444 7.1833 0.69444 7.3099 0.69444 7.4942 0.69444 dashed #755BC6
 edge DefaultRule Condition 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 dashed #718A35
-edge DefaultSuspendRule Action 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 dashed #758297
-edge DefaultSuspendRule Condition 10 7.4933 2.5972 7.1437 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 0.34722 6.8667 0.34722 6.8667 0.34722 6.7401 0.34722 6.5558 0.34722 dashed #758297
+edge DefaultSuspendRule Action 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 dashed #B9851B
+edge DefaultSuspendRule Condition 10 7.4933 2.5972 7.1437 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 2.5972 6.8667 0.34722 6.8667 0.34722 6.8667 0.34722 6.7401 0.34722 6.5558 0.34722 dashed #C94D68
 stop

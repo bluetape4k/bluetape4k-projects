@@ -1,13 +1,13 @@
-graph 1 15.05 5.5389
+graph 1 14.05 3.2944
 node LettuceBinaryCodecs 1.4 2.7694 2.8 1.05 LettuceBinaryCodecs rounded,filled box #5B8DEF #E8F3FF
-node RedisCodec 7.9833 5.0139 2.8 1.05 RedisCodec rounded,filled box #58A978 #EAF7EF
-node ToByteBufEncoder 13.65 5.0139 2.8 1.05 ToByteBufEncoder rounded,filled box #45A7A1 #E9F7F6
-node LettuceIntCodec 5.15 2.7694 2.8 1.05 LettuceIntCodec rounded,filled box #D6A441 #FFF3D9
-node LettuceBinaryCodec 7.9833 0.525 2.8 1.05 LettuceBinaryCodec rounded,filled box #DC6B82 #FDECEF
-node LettuceLongCodec 10.817 2.7694 2.8 1.05 LettuceLongCodec rounded,filled box #8A72D6 #F1ECFF
-edge LettuceBinaryCodecs LettuceBinaryCodec 7 1.4 2.2382 1.4 1.5753 1.4 0.52778 1.4 0.52778 1.4 0.52778 4.6457 0.52778 6.5791 0.52778 dashed #4F83BF
-edge RedisCodec LettuceIntCodec 7 7.5167 4.4864 7.5167 3.8213 7.5167 2.7639 7.5167 2.7639 7.5167 2.7639 7.0637 2.7639 6.5541 2.7639 solid #B9851B
-edge RedisCodec LettuceBinaryCodec 4 8.45 4.4858 8.45 3.6213 8.45 1.9143 8.45 1.0511 solid #C94D68
-edge RedisCodec LettuceLongCodec 7 9.3875 5.0139 10.1 5.0139 10.817 5.0139 10.817 5.0139 10.817 5.0139 10.817 3.9651 10.817 3.3013 solid #755BC6
-edge ToByteBufEncoder LettuceBinaryCodec 7 13.65 4.4861 13.65 3.3002 13.65 0.52778 13.65 0.52778 13.65 0.52778 11.066 0.52778 9.3877 0.52778 solid #C94D68
+node RedisCodec 8.9 2.7694 2.8 1.05 RedisCodec rounded,filled box #58A978 #EAF7EF
+node ToByteBufEncoder 5.15 2.7694 2.8 1.05 ToByteBufEncoder rounded,filled box #45A7A1 #E9F7F6
+node LettuceIntCodec 8.9 0.525 2.8 1.05 LettuceIntCodec rounded,filled box #D6A441 #FFF3D9
+node LettuceBinaryCodec 5.15 0.525 2.8 1.05 LettuceBinaryCodec rounded,filled box #DC6B82 #FDECEF
+node LettuceLongCodec 12.65 0.525 2.8 1.05 LettuceLongCodec rounded,filled box #8A72D6 #F1ECFF
+edge LettuceBinaryCodecs LettuceBinaryCodec 7 1.4 2.2382 1.4 1.5753 1.4 0.52778 1.4 0.52778 1.4 0.52778 2.6832 0.52778 3.7483 0.52778 dashed #2E8F89
+edge RedisCodec LettuceIntCodec 4 8.9 2.2375 8.9 1.8798 8.9 1.4101 8.9 1.0531 solid #2E8F89
+edge RedisCodec LettuceBinaryCodec 10 7.4933 2.7639 7.2245 2.7639 7.025 2.7639 7.025 2.7639 7.025 2.7639 7.025 0.52778 7.025 0.52778 7.025 0.52778 6.8255 0.52778 6.5567 0.52778 solid #C94D68
+edge RedisCodec LettuceLongCodec 7 10.302 2.7639 11.367 2.7639 12.65 2.7639 12.65 2.7639 12.65 2.7639 12.65 1.7177 12.65 1.0556 solid #4F83BF
+edge ToByteBufEncoder LettuceBinaryCodec 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 solid #B9851B
 stop

@@ -30,7 +30,7 @@ const diagrams = [
     width: 1500,
     height: 1060,
     groups: [
-      group("alignment", "Alignment surface", 420, 145, 1010, 178),
+      group("alignment", "Alignment surface", 74, 145, 1352, 178),
       group("modules", "Internal module families", 74, 360, 1352, 260),
       group("externals", "Governed external families", 74, 676, 1352, 156),
     ],
@@ -52,11 +52,11 @@ const diagrams = [
       route("consumer", "platform", "blue", [{ x: 226, y: 290 }, { x: 226, y: 334 }, { x: 820, y: 334 }, { x: 820, y: 294 }]),
       route("catalog", "platform", "purple", [{ x: 710, y: 249 }, { x: 790, y: 249 }]),
       route("platform", "published", "teal", [{ x: 1060, y: 249 }, { x: 1160, y: 249 }]),
-      route("platform", "foundation", "blue", [{ x: 850, y: 294 }, { x: 850, y: 342 }, { x: 265, y: 342 }, { x: 265, y: 428 }]),
+      route("platform", "foundation", "blue", [{ x: 850, y: 294 }, { x: 850, y: 346 }, { x: 430, y: 346 }, { x: 430, y: 416 }, { x: 265, y: 416 }, { x: 265, y: 428 }]),
       route("platform", "data", "pink", [{ x: 915, y: 294 }, { x: 915, y: 350 }, { x: 598, y: 350 }, { x: 598, y: 420 }]),
       route("platform", "infra", "amber", [{ x: 938, y: 294 }, { x: 938, y: 420 }]),
       route("platform", "spring", "green", [{ x: 990, y: 294 }, { x: 990, y: 350 }, { x: 1265, y: 350 }, { x: 1265, y: 428 }]),
-      route("foundation", "kotlin", "purple", [{ x: 265, y: 516 }, { x: 265, y: 642 }, { x: 420, y: 642 }, { x: 420, y: 782 }, { x: 390, y: 782 }]),
+      route("foundation", "kotlin", "purple", [{ x: 265, y: 516 }, { x: 265, y: 642 }, { x: 440, y: 642 }, { x: 440, y: 782 }, { x: 390, y: 782 }]),
       route("data", "serialization", "teal", [{ x: 598, y: 524 }, { x: 598, y: 744 }]),
       route("data", "databases", "pink", [{ x: 735, y: 472 }, { x: 762, y: 472 }, { x: 762, y: 782 }, { x: 784, y: 782 }]),
       route("infra", "databases", "pink", [{ x: 890, y: 524 }, { x: 890, y: 650 }, { x: 909, y: 650 }, { x: 909, y: 744 }]),
@@ -112,7 +112,7 @@ const diagrams = [
       card("server", "MongoDB server", ["pipeline execution", "indexes and collection data"], "purple", 875, 820, 310, 72),
     ],
     routes: [
-      route("service", "flow-api", "blue", [{ x: 340, y: 279 }, { x: 340, y: 390 }]),
+      route("service", "flow-api", "blue", [{ x: 430, y: 279 }, { x: 430, y: 390 }]),
       route("projection", "collection-api", "green", [{ x: 780, y: 279 }, { x: 780, y: 322 }, { x: 900, y: 322 }, { x: 900, y: 390 }]),
       route("criteria", "collection-api", "amber", [{ x: 1200, y: 279 }, { x: 1200, y: 322 }, { x: 1070, y: 322 }, { x: 1070, y: 390 }]),
       route("flow-api", "dsl-builder", "teal", [{ x: 430, y: 472 }, { x: 430, y: 595 }]),
@@ -132,7 +132,9 @@ const diagrams = [
     width: 1500,
     height: 900,
     groups: [
+      group("application", "Application usage", 74, 225, 290, 180),
       group("module", "bluetape4k-kafka4 module boundary", 370, 200, 760, 310),
+      group("governance", "Catalog governance lane", 1160, 245, 285, 180),
       group("dependencies", "Governed dependency families", 92, 610, 1316, 170),
     ],
     nodes: [
@@ -153,7 +155,6 @@ const diagrams = [
       route("entry", "consumer", "teal", [{ x: 735, y: 320 }, { x: 760, y: 320 }, { x: 760, y: 420 }, { x: 800, y: 420 }]),
       route("entry", "serialization", "purple", [{ x: 735, y: 278 }, { x: 810, y: 278 }]),
       route("producer", "kafka-clients", "amber", [{ x: 500, y: 462 }, { x: 500, y: 540 }, { x: 105, y: 540 }, { x: 105, y: 726 }, { x: 150, y: 726 }]),
-      route("consumer", "kafka-clients", "teal", [{ x: 850, y: 462 }, { x: 850, y: 585 }, { x: 430, y: 585 }, { x: 430, y: 726 }, { x: 410, y: 726 }]),
       route("consumer", "reactor-kafka", "teal", [{ x: 925, y: 462 }, { x: 925, y: 690 }]),
       route("serialization", "json-stack", "purple", [{ x: 1060, y: 293 }, { x: 1100, y: 293 }, { x: 1100, y: 600 }, { x: 1240, y: 600 }, { x: 1240, y: 690 }]),
       route("governance", "json-stack", "gray", [{ x: 1298, y: 388 }, { x: 1298, y: 690 }]),
@@ -173,18 +174,18 @@ const diagrams = [
       group("backends", "Backends and tests", 1240, 215, 310, 332),
     ],
     nodes: [
-      card("app", "Application instrumentation", ["trace/span helpers", "meter helpers"], "blue", 124, 230, 280, 84),
+      card("app", "Application instrumentation", ["trace/span helpers", "meter helpers"], "blue", 124, 234, 280, 84),
       card("support", "Bluetape4k OTel support", ["builder DSL", "resource attributes"], "green", 124, 338, 280, 84),
-      card("tracer", "SdkTracerProvider", ["span lifecycle", "context propagation"], "purple", 512, 205, 232, 86),
+      card("tracer", "SdkTracerProvider", ["span lifecycle", "context propagation"], "purple", 512, 206, 232, 86),
       card("meter", "SdkMeterProvider", ["instruments", "aggregation views"], "teal", 512, 360, 232, 86),
-      card("span-processor", "SpanProcessor", ["batch/simple processing", "sampling handoff"], "pink", 898, 230, 232, 82),
+      card("span-processor", "SpanProcessor", ["batch/simple processing", "sampling handoff"], "pink", 898, 234, 232, 82),
       card("metric-reader", "MetricReader", ["periodic export", "aggregation collect"], "amber", 898, 372, 232, 82),
       card("exporters", "Exporter set", ["OTLP, Jaeger, Zipkin", "logging, in-memory"], "green", 898, 510, 232, 82),
-      card("collector", "OTel Collector", ["OTLP ingest", "routing and processing"], "teal", 1276, 270, 236, 82),
+      card("collector", "OTel Collector", ["OTLP ingest", "routing and processing"], "teal", 1276, 271, 236, 82),
       card("test-backend", "Test backend", ["InMemory exporters", "assertions"], "gray", 1276, 410, 236, 82),
     ],
     routes: [
-      route("app", "support", "blue", [{ x: 264, y: 314 }, { x: 264, y: 338 }]),
+      route("app", "support", "blue", [{ x: 264, y: 318 }, { x: 264, y: 338 }]),
       route("support", "tracer", "purple", [{ x: 404, y: 360 }, { x: 438, y: 360 }, { x: 438, y: 248 }, { x: 512, y: 248 }]),
       route("support", "meter", "teal", [{ x: 404, y: 405 }, { x: 512, y: 405 }]),
       route("tracer", "span-processor", "pink", [{ x: 744, y: 248 }, { x: 898, y: 248 }]),
@@ -200,33 +201,60 @@ const diagrams = [
     title: "Avro codec selection guide",
     subtitle: "Pick the compression profile from workload intent, then route every branch into the same ByteArray output path.",
     desc: "Flowchart-style selection guide for Avro codec factories showing default, Snappy, archive, null codec, and custom codec choices before ByteArray output.",
-    width: 1320,
-    height: 1020,
+    width: 1480,
+    height: 1180,
     groups: [
-      group("decision", "Selection flow", 76, 154, 1168, 600),
+      group("decision", "Selection criteria", 76, 154, 590, 820),
+      group("codec", "Codec result", 770, 154, 610, 960),
     ],
     nodes: [
-      card("start", "Start with payload workload", ["schema + record stream"], "blue", 465, 205, 390, 76),
-      diamond("compression", "Need compression?", ["storage or network pressure"], "purple", 510, 310, 300, 130),
-      diamond("throughput", "Fast local transfer?", ["low CPU overhead"], "teal", 150, 510, 280, 126),
-      card("snappy", "SNAPPY_CODEC_FACTORY", ["fast transfer", "balanced size"], "teal", 120, 660, 340, 72),
-      card("deflate", "DEFAULT_CODEC_FACTORY", ["Deflate default", "general purpose"], "green", 490, 560, 340, 72),
-      diamond("archive", "Small archive?", ["long-lived files"], "amber", 870, 510, 280, 126),
-      card("zstd", "ARCHIVE_CODEC_FACTORY", ["Zstandard level 9", "smallest archive"], "amber", 840, 660, 340, 72),
-      card("null", "NULL_CODEC_FACTORY", ["external codec", "raw Avro block"], "gray", 150, 800, 280, 72),
-      card("output", "ByteArray output", ["encoder emits bytes", "shared read path"], "pink", 465, 860, 390, 72),
+      card("start", "Start with payload workload", ["schema + record stream"], "blue", 190, 210, 360, 76),
+      diamond("compression", "Need compression?", ["storage or network pressure"], "purple", 210, 350, 320, 132),
+      diamond("throughput", "Fast local transfer?", ["low CPU overhead"], "teal", 210, 535, 320, 132),
+      diamond("archive", "Small archive?", ["long-lived files"], "amber", 210, 720, 320, 132),
+      card("null", "NULL_CODEC_FACTORY", ["external codec", "raw Avro block"], "gray", 875, 360, 350, 76),
+      card("snappy", "SNAPPY_CODEC_FACTORY", ["fast transfer", "balanced size"], "teal", 875, 530, 350, 76),
+      card("zstd", "ARCHIVE_CODEC_FACTORY", ["Zstandard level 9", "smallest archive"], "amber", 875, 700, 350, 76),
+      card("deflate", "DEFAULT_CODEC_FACTORY", ["Deflate default", "general purpose"], "green", 875, 840, 350, 76),
+      card("output", "ByteArray output", ["all codec branches join", "shared read path"], "pink", 875, 1000, 350, 76),
     ],
     routes: [
-      route("start", "compression", "blue", [{ x: 660, y: 281 }, { x: 660, y: 310 }]),
-      route("compression", "throughput", "teal", [{ x: 510, y: 375 }, { x: 290, y: 375 }, { x: 290, y: 510 }]),
-      route("compression", "deflate", "green", [{ x: 660, y: 440 }, { x: 660, y: 560 }]),
-      route("compression", "archive", "amber", [{ x: 810, y: 375 }, { x: 1010, y: 375 }, { x: 1010, y: 510 }]),
-      route("throughput", "snappy", "teal", [{ x: 290, y: 636 }, { x: 290, y: 660 }]),
-      route("archive", "zstd", "amber", [{ x: 1010, y: 636 }, { x: 1010, y: 660 }]),
-      route("deflate", "output", "green", [{ x: 660, y: 632 }, { x: 660, y: 860 }]),
-      route("snappy", "output", "teal", [{ x: 290, y: 732 }, { x: 290, y: 775 }, { x: 560, y: 775 }, { x: 560, y: 860 }]),
-      route("zstd", "output", "amber", [{ x: 1010, y: 732 }, { x: 1010, y: 775 }, { x: 760, y: 775 }, { x: 760, y: 860 }]),
-      route("null", "output", "gray", [{ x: 430, y: 836 }, { x: 452, y: 836 }, { x: 452, y: 896 }, { x: 465, y: 896 }]),
+      route("start", "compression", "blue", [{ x: 370, y: 286 }, { x: 370, y: 350 }]),
+      route("compression", "null", "gray", [{ x: 530, y: 416 }, { x: 875, y: 416 }]),
+      route("compression", "throughput", "teal", [{ x: 370, y: 482 }, { x: 370, y: 535 }]),
+      route("throughput", "snappy", "teal", [{ x: 530, y: 601 }, { x: 760, y: 601 }, { x: 760, y: 568 }, { x: 875, y: 568 }]),
+      route("throughput", "archive", "amber", [{ x: 370, y: 667 }, { x: 370, y: 720 }]),
+      route("archive", "zstd", "amber", [{ x: 530, y: 786 }, { x: 760, y: 786 }, { x: 760, y: 738 }, { x: 875, y: 738 }]),
+      route("archive", "deflate", "green", [{ x: 370, y: 852 }, { x: 370, y: 878 }, { x: 875, y: 878 }]),
+      route("deflate", "output", "green", [{ x: 1050, y: 916 }, { x: 1050, y: 1000 }]),
+    ],
+  },
+  {
+    file: "virtualthread-diagram-01",
+    title: "Virtual Thread Runtime Selection Flow",
+    subtitle: "Application code calls the shared API; ServiceLoader chooses the highest compatible runtime and falls back safely.",
+    desc: "Decision flow for virtualthread runtime selection showing API entry, ServiceLoader provider discovery, Java 25 and Java 21 provider checks, and platform-thread fallback.",
+    width: 1520,
+    height: 980,
+    groups: [
+      group("selection", "Runtime selection flow", 76, 154, 1368, 680),
+    ],
+    nodes: [
+      card("api", "Application calls VirtualThreads", ["depends only on api module", "no implementation imports"], "blue", 560, 205, 400, 82),
+      card("loader", "Load VirtualThreadRuntime providers", ["ServiceLoader discovery", "priority-ordered candidates"], "green", 560, 325, 400, 82),
+      diamond("jdk25-check", "JDK 25 provider usable?", ["highest-priority runtime"], "purple", 575, 470, 370, 130),
+      card("jdk25", "JDK 25 runtime", ["virtual threads + extras", "joinUntil deadline support"], "purple", 1100, 493, 270, 84),
+      diamond("jdk21-check", "JDK 21 provider usable?", ["standard virtual thread runtime"], "teal", 575, 650, 370, 130),
+      card("jdk21", "JDK 21 runtime", ["Thread.ofVirtual", "StructuredTaskScope bridge"], "teal", 1100, 673, 270, 84),
+      card("fallback", "Platform thread fallback", ["safe degradation", "works without virtual threads"], "amber", 150, 673, 300, 84),
+    ],
+    routes: [
+      route("api", "loader", "blue", [{ x: 760, y: 287 }, { x: 760, y: 325 }]),
+      route("loader", "jdk25-check", "green", [{ x: 760, y: 407 }, { x: 760, y: 470 }]),
+      route("jdk25-check", "jdk25", "purple", [{ x: 945, y: 535 }, { x: 1100, y: 535 }], { text: "yes", x: 1016, y: 512 }),
+      route("jdk25-check", "jdk21-check", "gray", [{ x: 760, y: 600 }, { x: 760, y: 650 }], { text: "no", x: 790, y: 625 }),
+      route("jdk21-check", "jdk21", "teal", [{ x: 945, y: 715 }, { x: 1100, y: 715 }], { text: "yes", x: 1016, y: 692 }),
+      route("jdk21-check", "fallback", "amber", [{ x: 575, y: 715 }, { x: 450, y: 715 }], { text: "no", x: 510, y: 692 }),
     ],
   },
   {
@@ -273,21 +301,15 @@ function diamond(id, title, details, color, x, y, w = 280, h = 130) {
   return { id, title, details, color, x, y, w, h, shape: "diamond" };
 }
 
-function route(from, to, color, points) {
-  return { from, to, color, points };
+function route(from, to, color, points, label = null) {
+  return { from, to, color, points, label };
 }
 
 function renderSvg(diagram, summary) {
   const groupMarkup = diagram.groups.map(renderGroup).join("\n");
   const routeMarkup = diagram.routes.map((item) => renderRoute(item)).join("\n");
   const nodeMarkup = diagram.nodes.map(renderNode).join("\n");
-  const footerY = diagram.height - 74;
-  const margins = `${summary.margins.left}/${summary.margins.right}/${summary.margins.top}/${summary.margins.bottom}`;
-  const footer = `  <g transform="translate(76,${footerY})">
-    <rect class="pill" x="0" y="0" width="${diagram.width - 152}" height="44" rx="10"/>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: ${diagram.file}.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="${(diagram.width - 152) / 2}" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=${summary.nodes}, r=${summary.routes}, seg=${summary.segments}, endpoint/bend/cross/overlap/clear/label=0, margins=${margins}, titleGap=${summary.titleGap}.</text>
-  </g>`;
+  const footer = diagram.footer ? renderFooter(diagram, diagram.footer) : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${diagram.width}" height="${diagram.height}" viewBox="0 0 ${diagram.width} ${diagram.height}" role="img" aria-labelledby="title desc">
   <title id="title">${escapeXml(diagram.title)}</title>
@@ -305,7 +327,7 @@ function renderSvg(diagram, summary) {
       .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
       .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
       .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
       .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
       .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
@@ -330,10 +352,18 @@ ${footer}
 `;
 }
 
+function renderFooter(diagram, text) {
+  const footerY = diagram.height - 74;
+  return `  <g transform="translate(76,${footerY})">
+    <rect class="pill" x="0" y="0" width="${diagram.width - 152}" height="44" rx="10"/>
+    <text class="small" x="${(diagram.width - 152) / 2}" y="23" text-anchor="middle" dominant-baseline="middle">${escapeXml(text)}</text>
+  </g>`;
+}
+
 function renderGroup(item) {
   return `  <g id="group-${item.id}">
     <rect class="group" x="${item.x}" y="${item.y}" width="${item.w}" height="${item.h}" rx="18"/>
-    <text class="group-title" x="${item.x + 30}" y="${item.y + 24}" dominant-baseline="middle">${escapeXml(item.title)}</text>
+    <text class="groupTitle" x="${item.x + 30}" y="${item.y + 18}" dominant-baseline="middle">${escapeXml(item.title)}</text>
   </g>`;
 }
 
@@ -380,7 +410,14 @@ ${lines.map((line, index) => {
 function renderRoute(item) {
   const color = palette[item.color].line;
   const d = item.points.map((point, index) => `${index === 0 ? "M" : "L"}${fmt(point.x)} ${fmt(point.y)}`).join(" ");
-  return `  <path id="route-${item.from}-${item.to}" class="connector" d="${d}" stroke="${color}"/>`;
+  const path = `  <path id="route-${item.from}-${item.to}" class="connector" d="${d}" stroke="${color}"/>`;
+  if (!item.label) return path;
+  const labelWidth = Math.max(42, item.label.text.length * 8 + 22);
+  return `${path}
+  <g id="label-${item.from}-${item.to}" transform="translate(${fmt(item.label.x - labelWidth / 2)},${fmt(item.label.y - 12)})">
+    <rect class="pill" x="0" y="0" width="${labelWidth}" height="24" rx="8"/>
+    <text class="small" x="${fmt(labelWidth / 2)}" y="12" text-anchor="middle" dominant-baseline="middle">${escapeXml(item.label.text)}</text>
+  </g>`;
 }
 
 function renderDot(diagram) {

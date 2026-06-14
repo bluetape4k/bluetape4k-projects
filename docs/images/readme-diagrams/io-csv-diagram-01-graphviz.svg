@@ -12,62 +12,62 @@
 <!-- SuspendRecordReader&#45;&gt;SuspendCsvRecordReader -->
 <g id="edge8" class="edge">
 <title>SuspendRecordReader&#45;&gt;SuspendCsvRecordReader</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M168.3,-322.7C168.3,-296.94 168.3,-263.12 168.3,-237.42"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" d="M168.3,-322.7C168.3,-296.94 168.3,-263.12 168.3,-237.42"/>
 </g>
 <!-- SuspendRecordReader&#45;&gt;SuspendTsvRecordReader -->
 <g id="edge7" class="edge">
 <title>SuspendRecordReader&#45;&gt;SuspendTsvRecordReader</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" d="M303.3,-322.7C303.3,-296.94 303.3,-263.12 303.3,-237.42"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" d="M303.3,-322.7C303.3,-296.94 303.3,-263.12 303.3,-237.42"/>
 </g>
 <!-- RecordReader&#45;&gt;CsvRecordReader -->
 <g id="edge12" class="edge">
 <title>RecordReader&#45;&gt;CsvRecordReader</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M1248.3,-322.7C1248.3,-296.94 1248.3,-263.12 1248.3,-237.42"/>
+<path fill="none" stroke="#a84b98" stroke-width="1.8" d="M1248.3,-322.7C1248.3,-296.94 1248.3,-263.12 1248.3,-237.42"/>
 </g>
 <!-- RecordReader&#45;&gt;TsvRecordReader -->
 <g id="edge11" class="edge">
 <title>RecordReader&#45;&gt;TsvRecordReader</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M1383.3,-322.7C1383.3,-296.94 1383.3,-263.12 1383.3,-237.42"/>
+<path fill="none" stroke="#2e83b8" stroke-width="1.8" d="M1383.3,-322.7C1383.3,-296.94 1383.3,-263.12 1383.3,-237.42"/>
 </g>
 <!-- RecordWriter&#45;&gt;TsvRecordWriter -->
 <g id="edge9" class="edge">
 <title>RecordWriter&#45;&gt;TsvRecordWriter</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M843.3,-322.7C843.3,-296.94 843.3,-263.12 843.3,-237.42"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" d="M843.3,-322.7C843.3,-296.94 843.3,-263.12 843.3,-237.42"/>
 </g>
 <!-- RecordWriter&#45;&gt;CsvRecordWriter -->
 <g id="edge10" class="edge">
 <title>RecordWriter&#45;&gt;CsvRecordWriter</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" d="M708.3,-322.7C708.3,-296.94 708.3,-263.12 708.3,-237.42"/>
+<path fill="none" stroke="#8e6d43" stroke-width="1.8" d="M708.3,-322.7C708.3,-296.94 708.3,-263.12 708.3,-237.42"/>
 </g>
 <!-- SuspendRecordWriter&#45;&gt;SuspendCsvRecordWriter -->
 <g id="edge6" class="edge">
 <title>SuspendRecordWriter&#45;&gt;SuspendCsvRecordWriter</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M1788.3,-322.7C1788.3,-296.94 1788.3,-263.12 1788.3,-237.42"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M1788.3,-322.7C1788.3,-296.94 1788.3,-263.12 1788.3,-237.42"/>
 </g>
 <!-- SuspendRecordWriter&#45;&gt;SuspendTsvRecordWriter -->
 <g id="edge5" class="edge">
 <title>SuspendRecordWriter&#45;&gt;SuspendTsvRecordWriter</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M1923.3,-322.7C1923.3,-296.94 1923.3,-263.12 1923.3,-237.42"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M1923.3,-322.7C1923.3,-296.94 1923.3,-263.12 1923.3,-237.42"/>
 </g>
 <!-- TsvRecordWriter&#45;&gt;TsvSettings -->
 <g id="edge1" class="edge">
 <title>TsvRecordWriter&#45;&gt;TsvSettings</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M1012.08,-212C1037.25,-212 1057.2,-212 1057.2,-212 1057.2,-212 1057.2,-50 1057.2,-50 1057.2,-50 1066.31,-50 1079.58,-50"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M1012.08,-212C1037.25,-212 1057.2,-212 1057.2,-212 1057.2,-212 1057.2,-50 1057.2,-50 1057.2,-50 1066.31,-50 1079.58,-50"/>
 </g>
 <!-- CsvRecordWriter&#45;&gt;CsvSettings -->
 <g id="edge3" class="edge">
 <title>CsvRecordWriter&#45;&gt;CsvSettings</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.15C640.8,-113.42 640.8,-38 640.8,-38 640.8,-38 733.19,-38 809.88,-38"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.15C640.8,-113.42 640.8,-38 640.8,-38 640.8,-38 733.19,-38 809.88,-38"/>
 </g>
 <!-- CsvRecordReader&#45;&gt;CsvSettings -->
 <g id="edge4" class="edge">
 <title>CsvRecordReader&#45;&gt;CsvSettings</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M1079.52,-187C1054.35,-187 1034.4,-187 1034.4,-187 1034.4,-187 1034.4,-25 1034.4,-25 1034.4,-25 1025.29,-25 1012.02,-25"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M1079.52,-187C1054.35,-187 1034.4,-187 1034.4,-187 1034.4,-187 1034.4,-25 1034.4,-25 1034.4,-25 1025.29,-25 1012.02,-25"/>
 </g>
 <!-- TsvRecordReader&#45;&gt;TsvSettings -->
 <g id="edge2" class="edge">
 <title>TsvRecordReader&#45;&gt;TsvSettings</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M1450.8,-161.15C1450.8,-113.42 1450.8,-38 1450.8,-38 1450.8,-38 1358.41,-38 1281.72,-38"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M1450.8,-161.15C1450.8,-113.42 1450.8,-38 1450.8,-38 1450.8,-38 1358.41,-38 1281.72,-38"/>
 </g>
 <!-- SuspendRecordReader -->
 <g id="node1" class="node">

@@ -6,7 +6,7 @@ node AvroSerializer 13.424 2.7694 2.8 1.05 AvroSerializer rounded,filled box #D6
 node DefaultAvroReflectSerializer 9.6739 0.525 2.8 1.05 DefaultAvroReflectSerializer rounded,filled box #DC6B82 #FDECEF
 node DefaultAvroGenericRecordSerializer 5.7572 0.525 3.1533 1.05 DefaultAvroGenericRecordSerializer rounded,filled box #8A72D6 #F1ECFF
 node DefaultAvroSpecificRecordSerializer 1.6183 0.525 3.2367 1.05 DefaultAvroSpecificRecordSerializer rounded,filled box #8BA84D #EEF6D9
-edge AvroSpecificRecordSerializer DefaultAvroSpecificRecordSerializer 4 1.6183 2.2375 1.6183 1.8798 1.6183 1.4101 1.6183 1.0531 solid #718A35
-edge AvroGenericRecordSerializer DefaultAvroGenericRecordSerializer 4 5.7572 2.2375 5.7572 1.8798 5.7572 1.4101 5.7572 1.0531 solid #755BC6
-edge AvroReflectSerializer DefaultAvroReflectSerializer 4 9.6739 2.2375 9.6739 1.8798 9.6739 1.4101 9.6739 1.0531 solid #C94D68
+edge AvroSpecificRecordSerializer DefaultAvroSpecificRecordSerializer 4 1.6183 2.2375 1.6183 1.8798 1.6183 1.4101 1.6183 1.0531 solid #4F83BF
+edge AvroGenericRecordSerializer DefaultAvroGenericRecordSerializer 4 5.7572 2.2375 5.7572 1.8798 5.7572 1.4101 5.7572 1.0531 solid #2E8F89
+edge AvroReflectSerializer DefaultAvroReflectSerializer 4 9.6739 2.2375 9.6739 1.8798 9.6739 1.4101 9.6739 1.0531 solid #3E9868
 stop

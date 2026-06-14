@@ -12,22 +12,22 @@
 <!-- AbstractNatsTest&#45;&gt;ConnectionExtensions -->
 <g id="edge5" class="edge">
 <title>AbstractNatsTest&#45;&gt;ConnectionExtensions</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-484.3C370.8,-458.54 370.8,-424.72 370.8,-399.02"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-484.3C370.8,-458.54 370.8,-424.72 370.8,-399.02"/>
 </g>
 <!-- ConnectionExtensions&#45;&gt;JetStreamExtensions -->
 <g id="edge4" class="edge">
 <title>ConnectionExtensions&#45;&gt;JetStreamExtensions</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-361C193.19,-361 100.8,-361 100.8,-361 100.8,-361 100.8,-285.48 100.8,-237.7"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-361C193.19,-361 100.8,-361 100.8,-361 100.8,-361 100.8,-285.48 100.8,-237.7"/>
 </g>
 <!-- ConnectionExtensions&#45;&gt;JetStreamManagementExtensions -->
 <g id="edge3" class="edge">
 <title>ConnectionExtensions&#45;&gt;JetStreamManagementExtensions</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
 </g>
 <!-- ConnectionExtensions&#45;&gt;NatsServiceExtensions -->
 <g id="edge2" class="edge">
 <title>ConnectionExtensions&#45;&gt;NatsServiceExtensions</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M471.72,-361C548.41,-361 640.8,-361 640.8,-361 640.8,-361 640.8,-285.48 640.8,-237.7"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M471.72,-361C548.41,-361 640.8,-361 640.8,-361 640.8,-361 640.8,-285.48 640.8,-237.7"/>
 </g>
 <!-- JetStreamExtensions&#45;&gt;DSLBuilders -->
 <g id="edge1" class="edge">

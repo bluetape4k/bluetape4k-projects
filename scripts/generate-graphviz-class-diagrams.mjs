@@ -14,14 +14,23 @@ const palette = {
   amber: ["#FFF3D9", "#D6A441", "#B9851B"],
   pink: ["#FDECEF", "#DC6B82", "#C94D68"],
   purple: ["#F1ECFF", "#8A72D6", "#755BC6"],
+  olive: ["#EEF6D9", "#8BA84D", "#718A35"],
+  indigo: ["#EEF1FF", "#6477D8", "#4F63C7"],
+  coral: ["#FFF0EA", "#E27D62", "#C8644B"],
+  brown: ["#F7EFE5", "#B58A55", "#8E6D43"],
+  cyan: ["#EAF8FF", "#4DA6D8", "#2E83B8"],
+  magenta: ["#FCEBFA", "#C867B8", "#A84B98"],
+  lime: ["#EFF8E8", "#7EAD4E", "#5F8B35"],
+  navy: ["#EAF0F8", "#617C9F", "#496581"],
   gray: ["#F2F5F9", "#9AA8B8", "#758297"],
 };
+const routeColorNames = ["green", "blue", "teal", "amber", "pink", "purple", "olive", "indigo", "coral", "brown", "cyan", "magenta", "lime", "navy"];
 
 const diagrams = [
   {
     file: "io-fastjson2-diagram-01",
-    title: "Fastjson2 Class Relationships",
-    subtitle: "Graphviz-ranked class model: serializer contract, JSON/JSONB runtime APIs, and JSONObject extensions.",
+    title: "Fastjson2 Class Diagram",
+    subtitle: "Source-ranked class model: serializer contract, JSON/JSONB runtime APIs, and JSONObject extensions.",
     rankdir: "TB",
     nodes: [
       node("jsonSerializer", "JsonSerializer", "interface", ["+serialize(graph)", "+deserialize(bytes, clazz)"], "blue"),
@@ -47,8 +56,8 @@ const diagrams = [
   },
   {
     file: "io-jackson2-diagram-01",
-    title: "Jackson2 Class Relationships",
-    subtitle: "Graphviz-ranked class model: contracts first, core mapper support second, format adapters at the edge.",
+    title: "Jackson2 Class Diagram",
+    subtitle: "Source-ranked class model: contracts first, core mapper support second, format adapters at the edge.",
     rankdir: "TB",
     nodes: [
       node("jsonSerializer", "JsonSerializer", "interface", ["+serialize(graph)", "+deserialize(bytes, clazz)"], "blue"),
@@ -80,6 +89,7 @@ const diagrams = [
 for (const diagram of diagrams) {
   render(diagram);
 }
+renderIoIoCompressorStructure();
 
 function render(diagram) {
   mkdirSync(OUT, { recursive: true });
@@ -97,9 +107,171 @@ function render(diagram) {
 
   const layout = parsePlain(readFileSync(plainPath, "utf8"), diagram);
   const svg = toFinalSvg(diagram, layout);
-  writeFileSync(finalSvgPath, svg);
+  writeFileSync(finalSvgPath, cleanSvg(svg));
   execFileSync(rsvg, ["--format=png", "--output", finalPngPath, finalSvgPath], { stdio: "inherit" });
   console.log(`${diagram.file}: dot/plain/sketch/final generated nodes=${diagram.nodes.length} edges=${diagram.edges.length}`);
+}
+
+function renderIoIoCompressorStructure() {
+  const file = "io-io-diagram-01";
+  const dotPath = join(OUT, `${file}.dot`);
+  const plainPath = join(OUT, `${file}.plain`);
+  const sketchSvgPath = join(OUT, `${file}-graphviz.svg`);
+  const sketchPngPath = join(OUT, `${file}-graphviz.png`);
+  const finalSvgPath = join(OUT, `${file}.svg`);
+  const finalPngPath = join(OUT, `${file}.png`);
+
+  writeFileSync(dotPath, ioCompressorDot());
+  writeFileSync(plainPath, execFileSync("dot", ["-Tplain", dotPath], { encoding: "utf8" }));
+  writeFileSync(sketchSvgPath, execFileSync("dot", ["-Tsvg", dotPath], { encoding: "utf8" }));
+  execFileSync("dot", ["-Tpng", dotPath, "-o", sketchPngPath], { stdio: "inherit" });
+  writeFileSync(finalSvgPath, cleanSvg(ioCompressorSvg()));
+  execFileSync(rsvg, ["--format=png", "--output", finalPngPath, finalSvgPath], { stdio: "inherit" });
+  console.log(`${file}: source-modeled compressor structure generated nodes=12 routes=13`);
+}
+
+function ioCompressorDot() {
+  return `digraph G {
+  graph [rankdir=TB, splines=ortho, nodesep=0.9, ranksep=1.0, outputorder=edgesfirst];
+  node [shape=box, style="rounded,filled", fontname="Comic Mono", fontsize=11, margin="0.16,0.10"];
+  edge [fontname="Comic Mono", fontsize=10, arrowsize=0.7, penwidth=1.8];
+  Compressor [fillcolor="${palette.blue[0]}", color="${palette.blue[1]}"];
+  StreamingCompressor [fillcolor="${palette.green[0]}", color="${palette.green[1]}"];
+  AbstractCompressor [fillcolor="${palette.teal[0]}", color="${palette.teal[1]}"];
+  Compressors [fillcolor="${palette.amber[0]}", color="${palette.amber[1]}"];
+  StreamingCompressors [fillcolor="${palette.purple[0]}", color="${palette.purple[1]}"];
+  LowLatency [label="Low-latency implementations", fillcolor="${palette.green[0]}", color="${palette.green[1]}"];
+  StandardFormats [label="Standard format implementations", fillcolor="${palette.blue[0]}", color="${palette.blue[1]}"];
+  RatioOriented [label="Ratio-oriented implementations", fillcolor="${palette.pink[0]}", color="${palette.pink[1]}"];
+  ZipBuilder [fillcolor="${palette.amber[0]}", color="${palette.amber[1]}"];
+  ZipFileSupport [fillcolor="${palette.teal[0]}", color="${palette.teal[1]}"];
+  ZipBombGuards [label="ZIP bomb guards", fillcolor="${palette.pink[0]}", color="${palette.pink[1]}"];
+  { rank=same; Compressor; StreamingCompressor; }
+  { rank=same; AbstractCompressor; Compressors; StreamingCompressors; }
+  { rank=same; LowLatency; StandardFormats; RatioOriented; }
+  { rank=same; ZipBuilder; ZipFileSupport; ZipBombGuards; }
+  AbstractCompressor -> Compressor [color="${palette.teal[2]}", arrowhead=empty, weight=10];
+  LowLatency -> AbstractCompressor [color="${palette.green[2]}", arrowhead=empty, weight=8];
+  StandardFormats -> AbstractCompressor [color="${palette.blue[2]}", arrowhead=empty, weight=8];
+  RatioOriented -> AbstractCompressor [color="${palette.pink[2]}", arrowhead=empty, weight=8];
+  Compressors -> LowLatency [color="${palette.amber[2]}", style=dashed];
+  Compressors -> StandardFormats [color="${palette.amber[2]}", style=dashed];
+  Compressors -> RatioOriented [color="${palette.amber[2]}", style=dashed];
+  StreamingCompressors -> StreamingCompressor [color="${palette.purple[2]}", style=dashed];
+  StreamingCompressors -> Compressor [color="${palette.purple[2]}", style=dashed];
+  ZipBuilder -> ZipFileSupport [color="${palette.teal[2]}", style=dashed];
+  ZipFileSupport -> ZipBombGuards [color="${palette.pink[2]}", style=dashed];
+}\n`;
+}
+
+function ioCompressorSvg() {
+  const width = 1440;
+  const height = 1120;
+  const cards = [
+    ioSection(72, 150, 1296, 270, "Contracts and adapters", "blue"),
+    ioSection(72, 450, 1296, 330, "Registry and byte-array families", "amber"),
+    ioSection(72, 810, 1296, 165, "ZIP archive helpers", "teal"),
+
+    ioPill(124, 225, 235, 58, "one-shot payload API"),
+    ioPill(124, 305, 235, 58, "large stream API"),
+    ioBox("compressor", 405, 205, 360, 92, "Compressor", "interface", ["ByteArray, String, ByteBuffer", "InputStream convenience overloads"], "blue"),
+    ioBox("streaming", 890, 205, 360, 92, "StreamingCompressor", "interface", ["wrap input/output streams", "large payload streaming contract"], "green"),
+    ioBox("streamingFactory", 890, 325, 360, 72, "StreamingCompressors", "factory object", ["adapter extensions both ways"], "purple"),
+
+    ioBox("abstract", 124, 520, 360, 104, "AbstractCompressor", "abstract class", ["null and empty input policy", "doCompress / doDecompress hooks", "compressOrNull failure recovery"], "teal"),
+    ioBox("registry", 540, 520, 360, 104, "Compressors", "registry object", ["lazy shared instances", "algorithm selection surface", "nested Streaming registry"], "amber"),
+    ioWideNote(376, 650, 688, 32, "implementation families share AbstractCompressor policy and are exposed through Compressors", "amber"),
+    ioBox("speed", 124, 690, 350, 84, "Low-latency family", "implementation group", ["LZ4, BlockLZ4, FramedLZ4", "Snappy, FramedSnappy"], "green"),
+    ioBox("standard", 545, 690, 350, 84, "Standard format family", "implementation group", ["GZip, ApacheGZip", "Deflate, ZipCompressor"], "blue"),
+    ioBox("ratio", 966, 690, 350, 84, "Ratio-oriented family", "implementation group", ["Zstd, ApacheZstd, BZip2", "storage or network payloads"], "pink"),
+
+    ioBox("zipBuilder", 124, 870, 340, 76, "ZipBuilder", "builder class", ["in-memory or file ZIP creation"], "amber"),
+    ioBox("zipSupport", 550, 870, 340, 76, "ZipFileSupport", "extension file", ["gzip, zlib, unzip helpers"], "teal"),
+    ioBox("zipGuards", 976, 870, 340, 76, "ZIP safety guards", "constants", ["max entries 10,000", "max uncompressed size 1 GB"], "pink"),
+  ];
+
+  const routes = [
+    ioRoute("M359 254 L405 254", "blue", "dependency"),
+    ioRoute("M359 334 L890 334", "green", "dependency"),
+    ioRoute("M1070 325 L1070 297", "purple", "dependency"),
+    ioRoute("M464 908 L550 908", "teal", "dependency"),
+    ioRoute("M890 908 L976 908", "pink", "dependency"),
+  ];
+
+  const labels = [
+    ioRouteLabel(626, 314, "stream wrapper", "green", 142),
+  ];
+  const body = [...cards, ...routes, ...labels].join("\n");
+
+  return base(width, height, "Compressor API Structure", "Contracts, adapters, algorithm families, and ZIP helpers are grouped by how a reader chooses and uses compression.", `${body}\n${footer(140, 1022, 1160, "bluetape4k-projects / core compressors - github.com/bluetape4k/bluetape4k-projects")}`);
+}
+
+function ioPanel(x, y, w, h, title) {
+  return `<g><rect class="panel" x="${x}" y="${y}" width="${w}" height="${h}" rx="22"/><text class="panelTitle" x="${x + 28}" y="${y + 34}">${esc(title)}</text></g>`;
+}
+
+function ioSection(x, y, w, h, title, colorName) {
+  const stroke = palette[colorName]?.[1] || palette.gray[1];
+  const fill = colorName === "blue" ? "#EEF5FF" : colorName === "amber" ? "#FFF8E4" : "#EEF9F6";
+  return `<g>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+  <rect x="${x}" y="${y}" width="${w}" height="48" rx="18" fill="${fill}" stroke="${stroke}" stroke-width="0"/>
+  <path d="M${x} ${y + 48} L${x + w} ${y + 48}" stroke="${stroke}" stroke-width="1.4"/>
+  <circle cx="${x + 34}" cy="${y + 24}" r="11" fill="${palette[colorName]?.[2] || palette.gray[2]}"/>
+  <text class="panelTitle" x="${x + 54}" y="${y + 30}">${esc(title)}</text>
+</g>`;
+}
+
+function ioPill(x, y, w, h, text) {
+  return `<g>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="24" fill="#F8FAFC" stroke="#9FB0C3" stroke-width="1.8"/>
+  <text class="ioPillText" x="${x + w / 2}" y="${y + h / 2 + 1}" text-anchor="middle" dominant-baseline="middle">${esc(text)}</text>
+</g>`;
+}
+
+function ioWideNote(x, y, w, h, text, colorName) {
+  const stroke = palette[colorName]?.[1] || palette.gray[1];
+  return `<g>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="11" fill="#FFFFFF" stroke="${stroke}" stroke-width="1.4"/>
+  <text class="detail" x="${x + w / 2}" y="${y + h / 2 + 1}" text-anchor="middle" dominant-baseline="middle">${esc(text)}</text>
+</g>`;
+}
+
+function ioBox(id, x, y, w, h, title, stereotype, details, colorName) {
+  const [fill, stroke] = palette[colorName] || palette.gray;
+  const titleY = y + h / 2 - (details.length * 8) + 1;
+  const stereoY = titleY - 20;
+  const detailStart = titleY + 21;
+  return `<g id="${id}">
+  <rect class="classCard" x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${fill}" stroke="${stroke}"/>
+  <text class="stereo" x="${x + w / 2}" y="${stereoY}" text-anchor="middle" dominant-baseline="middle">${esc(stereotype)}</text>
+  <text class="classTitle" x="${x + w / 2}" y="${titleY}" text-anchor="middle" dominant-baseline="middle">${esc(title)}</text>
+  ${details.map((line, index) => `<text class="member" x="${x + w / 2}" y="${detailStart + index * 17}" text-anchor="middle" dominant-baseline="middle">${esc(line)}</text>`).join("\n")}
+</g>`;
+}
+
+function ioCard(id, x, y, w, h, title, stereotype, details, colorName) {
+  const [fill, stroke] = palette[colorName] || palette.gray;
+  const lineH = 17;
+  const detailStart = Math.round(y + h - 25 - (details.length - 1) * lineH);
+  return `<g id="${id}">
+  <rect class="classCard" x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${fill}" stroke="${stroke}"/>
+  <text class="stereo" x="${x + w / 2}" y="${y + 20}" text-anchor="middle">${esc(stereotype)}</text>
+  <text class="classTitle" x="${x + w / 2}" y="${y + 48}" text-anchor="middle">${esc(title)}</text>
+  ${details.map((line, index) => `<text class="member" x="${x + w / 2}" y="${detailStart + index * lineH}" text-anchor="middle">${esc(line)}</text>`).join("\n")}
+</g>`;
+}
+
+function ioRoute(d, colorName, kind = "flow") {
+  const stroke = palette[colorName]?.[2] || palette.gray[2];
+  const klass = kind === "inherit" ? "inherit" : "dependency";
+  const dash = klass === "dependency" ? ` stroke-dasharray="8 7"` : "";
+  return `<path class="${klass}" d="${d}" stroke="${stroke}"${dash}/>`;
+}
+
+function ioRouteLabel(x, y, text, colorName, w) {
+  const stroke = palette[colorName]?.[1] || palette.gray[1];
+  return `<g><rect class="labelPill" x="${x - w / 2}" y="${y - 15}" width="${w}" height="30" rx="8" fill="#FFFFFF" stroke="${stroke}" stroke-width="1.2"/><text class="detail" x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="middle">${esc(text)}</text></g>`;
 }
 
 function toDot(diagram) {
@@ -190,9 +362,9 @@ function toFinalSvg(diagram, layout) {
     x: marginX + point.x * scale,
     y: marginTop + (layout.graphH - point.y) * scale,
   });
-  const edgeSvg = layout.edges.map((item) => renderEdge(item, positioned, routeOf)).join("\n");
+  const edgeSvg = distinguishRouteColors(layout.edges).map((item) => renderEdge(item, positioned, routeOf)).join("\n");
   const nodeSvg = [...positioned.values()].map(renderClassCard).join("\n");
-  return base(width, height, diagram.title, diagram.subtitle, `${edgeSvg}\n${nodeSvg}\n${legend(width - 415, height - 108)}\n${footer(180, height - 90, width - 640, "Graphviz evidence: .dot, .plain, and -graphviz.svg define ranks, order, route sides, and endpoints.")}`);
+  return base(width, height, diagram.title, diagram.subtitle, `${edgeSvg}\n${nodeSvg}\n${legend(width - 415, height - 108)}\n${footer(180, height - 90, width - 640, "bluetape4k-projects / io modules - github.com/bluetape4k/bluetape4k-projects")}`);
 }
 
 function applyDiagramNudges(file, positioned) {
@@ -223,7 +395,7 @@ function renderEdge(edge, positioned, routeOf) {
   const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x} ${point.y}`).join(" ");
   const cls = edge.kind === "inherit" ? "inherit" : "dependency";
   const dash = edge.kind === "inherit" ? "" : ` stroke-dasharray="8 7"`;
-  return `<path class="${cls}" data-from="${edge.from}" data-to="${edge.to}" d="${d}" stroke="${color}"${dash}/>`;
+  return `<path class="${cls}" data-from="${edge.from}" data-to="${edge.to}" data-route-color="${edge.color}" d="${d}" stroke="${color}"${dash}/>`;
 }
 
 function renderInheritanceEdge(edge, from, to, color) {
@@ -238,7 +410,18 @@ function renderInheritanceEdge(edge, from, to, color) {
     ? [source, targetPort]
     : [source, { x: source.x, y: midY }, { x: targetPort.x, y: midY }, targetPort];
   const d = dedupeRoute(points).map((point, index) => `${index === 0 ? "M" : "L"}${Math.round(point.x)} ${Math.round(point.y)}`).join(" ");
-  return `<path class="inherit" data-from="${edge.from}" data-to="${edge.to}" d="${d}" stroke="${color}"/>`;
+  return `<path class="inherit" data-from="${edge.from}" data-to="${edge.to}" data-route-color="${edge.color}" d="${d}" stroke="${color}"/>`;
+}
+
+function distinguishRouteColors(edges) {
+  return edges.map((edge, index) => {
+    const offset = edge.kind === "inherit" ? 0 : 2;
+    return {
+      ...edge,
+      laneIndex: index,
+      color: routeColorNames[(index + offset) % routeColorNames.length],
+    };
+  });
 }
 
 function targetInheritancePort(sourceCenter, target) {
@@ -362,14 +545,17 @@ function base(width, height, title, subtitle, body) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(title)}">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="inheritArrow" markerWidth="11" markerHeight="10" refX="10.2" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1.2 1 L 10.2 5 L 1.2 9 Z" fill="#fff" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="inheritArrow" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#fff" stroke="context-stroke" stroke-width="1.25"/></marker>
   <marker id="depArrow" markerWidth="8" markerHeight="8" refX="7.4" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 7.4 4 L 1 7 Z" fill="context-stroke"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
+    .panel{fill:#F3F7FB;stroke:#D6E3EF;stroke-width:2}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#22344A;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
     .classCard{filter:url(#shadow);stroke-width:2}.classTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A}.stereo{font-family:"Comic Mono";font-size:10px;fill:#627184}.member{font-family:"Comic Mono";font-size:12px;fill:#102033}
+    .ioPillText{font-family:"Comic Mono";font-size:13px;fill:#22344A}
     .inherit{fill:none;stroke-width:2.45;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#inheritArrow)}
     .dependency{fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#depArrow)}
+    .labelPill{fill:#fff;stroke-width:1.2}
     .detail{font-family:"Comic Mono";font-size:13px;fill:#42556B}
   </style>
 </defs>
@@ -380,6 +566,10 @@ function base(width, height, title, subtitle, body) {
 ${body}
 </svg>
 `;
+}
+
+function cleanSvg(svg) {
+  return `${svg.replace(/[ \t]+$/gm, "").trimEnd()}\n`;
 }
 
 function boundaryPoint(rect, toward) {

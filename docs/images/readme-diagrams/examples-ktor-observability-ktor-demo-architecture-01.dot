@@ -3,7 +3,7 @@ digraph "examples-ktor-observability-ktor-demo-architecture-01" {
   node [shape=box, style="rounded,filled", color="#D7E2EC", fillcolor="#FFFFFF", fontname="Architects Daughter"];
   edge [color="#758297", arrowsize=0.8, fontname="Comic Mono"];
   subgraph cluster_entry {
-    label="Entry layer";
+    label="Entry";
     color="#D7E2EC";
     style="rounded";
     rank=same;
@@ -11,7 +11,7 @@ digraph "examples-ktor-observability-ktor-demo-architecture-01" {
     routes [label="Ktor Routes", fillcolor="#E9F7F6", color="#45A7A1"];
   }
   subgraph cluster_platform {
-    label="Ktor platform layer";
+    label="Platform";
     color="#D7E2EC";
     style="rounded";
     rank=same;
@@ -19,7 +19,7 @@ digraph "examples-ktor-observability-ktor-demo-architecture-01" {
     observability [label="Ktor Observability", fillcolor="#FFF3D9", color="#D6A441"];
   }
   subgraph cluster_application {
-    label="Application event layer";
+    label="Events";
     color="#D7E2EC";
     style="rounded";
     rank=same;
@@ -27,7 +27,7 @@ digraph "examples-ktor-observability-ktor-demo-architecture-01" {
     eventObs [label="Event Telemetry", fillcolor="#EAF7EF", color="#58A978"];
   }
   subgraph cluster_export {
-    label="Export layer";
+    label="Export";
     color="#D7E2EC";
     style="rounded";
     rank=same;

@@ -297,17 +297,17 @@ function layerTitle(kind, index, total) {
 }
 
 function subtitleFor(kind) {
-  if (kind === "class") return "Source-checked class relationships redrawn with colored solid and dashed connectors.";
-  if (kind === "flow") return "Source-checked flow redrawn as layered phases with routed, non-grid transitions.";
-  if (kind === "module") return "Source-checked module relationships redrawn as layered boundaries instead of a grid.";
-  return "Source-checked architecture redrawn as layered/free layout with reserved label gutters.";
+  if (kind === "class") return "Source-checked class relationships with colored solid and dashed connectors.";
+  if (kind === "flow") return "Source-checked flow phases with routed transitions.";
+  if (kind === "module") return "Source-checked module relationships grouped by responsibility boundaries.";
+  return "Source-checked architecture with responsibility groups and reserved label gutters.";
 }
 
 function footerText(kind) {
-  if (kind === "class") return "Graphviz evidence: class boxes use colored solid/dashed relationships with reserved spacing.";
-  if (kind === "flow") return "Graphviz evidence: phases are layered and connectors follow short orthogonal lanes.";
-  if (kind === "module") return "Graphviz evidence: modules are grouped by responsibility and runtime boundary.";
-  return "Graphviz evidence: cards are grouped by responsibility with clear outer margin and label gutters.";
+  if (kind === "class") return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
+  if (kind === "flow") return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
+  if (kind === "module") return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
+  return "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects";
 }
 
 function titleFromName(name) {

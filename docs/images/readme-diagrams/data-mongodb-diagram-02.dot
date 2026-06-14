@@ -8,8 +8,8 @@ digraph G {
   MongoClientProvider [label="MongoClientProvider", fillcolor="#FFF3D9", color="#D6A441"];
   MongoClientSupport [label="MongoClientSupport", fillcolor="#FDECEF", color="#DC6B82"];
   MongoDatabaseExtensions [label="MongoDatabaseExtensions", fillcolor="#F1ECFF", color="#8A72D6"];
-  DocumentExtensions -> MongoCollectionExtensions [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  AggregationSupport -> MongoCollectionExtensions [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  MongoDatabaseExtensions -> MongoCollectionExtensions [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
-  MongoClientSupport -> MongoClientProvider [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  DocumentExtensions -> MongoCollectionExtensions [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  AggregationSupport -> MongoCollectionExtensions [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  MongoDatabaseExtensions -> MongoCollectionExtensions [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  MongoClientSupport -> MongoClientProvider [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
 }

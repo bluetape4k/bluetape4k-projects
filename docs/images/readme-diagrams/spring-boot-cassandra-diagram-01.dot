@@ -8,9 +8,8 @@ digraph G {
   SchemaGenerator [label="SchemaGenerator", fillcolor="#FFF3D9", color="#D6A441"];
   WriteOptionsDsl [label="WriteOptionsDsl", fillcolor="#FDECEF", color="#DC6B82"];
   UserRepository [label="UserRepository", fillcolor="#F1ECFF", color="#8A72D6"];
-  { rank=source; CoroutineUserRepository; UserRepository; }
   CoroutineUserRepository -> ReactiveCassandraOperationsExt [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  ReactiveSessionExt -> ReactiveCassandraOperationsExt [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  SchemaGenerator -> ReactiveCassandraOperationsExt [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
-  ReactiveCassandraOperationsExt -> WriteOptionsDsl [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  ReactiveSessionExt -> ReactiveCassandraOperationsExt [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  SchemaGenerator -> ReactiveCassandraOperationsExt [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  ReactiveCassandraOperationsExt -> WriteOptionsDsl [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
 }

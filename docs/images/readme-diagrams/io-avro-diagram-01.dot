@@ -9,8 +9,7 @@ digraph G {
   DefaultAvroReflectSerializer [label="DefaultAvroReflectSerializer", fillcolor="#FDECEF", color="#DC6B82"];
   DefaultAvroGenericRecordSerializer [label="DefaultAvroGenericRecordSerializer", fillcolor="#F1ECFF", color="#8A72D6"];
   DefaultAvroSpecificRecordSerializer [label="DefaultAvroSpecificRecordSerializer", fillcolor="#EEF6D9", color="#8BA84D"];
-  { rank=source; AvroSpecificRecordSerializer; AvroGenericRecordSerializer; AvroReflectSerializer; AvroSerializer; }
-  AvroReflectSerializer -> DefaultAvroReflectSerializer [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
-  AvroSpecificRecordSerializer -> DefaultAvroSpecificRecordSerializer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  AvroGenericRecordSerializer -> DefaultAvroGenericRecordSerializer [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  AvroReflectSerializer -> DefaultAvroReflectSerializer [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
+  AvroSpecificRecordSerializer -> DefaultAvroSpecificRecordSerializer [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  AvroGenericRecordSerializer -> DefaultAvroGenericRecordSerializer [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
 }

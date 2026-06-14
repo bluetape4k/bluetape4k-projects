@@ -9,9 +9,9 @@ digraph G {
   GeoIp2Support [label="GeoIp2Support", fillcolor="#FDECEF", color="#DC6B82"];
   GeoHashCircleQuery [label="GeoHashCircleQuery", fillcolor="#F1ECFF", color="#8A72D6"];
   GoogleGeocoder [label="GoogleGeocoder", fillcolor="#EEF6D9", color="#8BA84D"];
-  GeoIp2Support -> CityResponse [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
-  BingGeocoder -> GeoPoint [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  GoogleGeocoder -> GeoPoint [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  GeoHashUtils -> GeoPoint [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  GeoHashCircleQuery -> GeoHashUtils [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  GeoIp2Support -> CityResponse [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  BingGeocoder -> GeoPoint [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  GoogleGeocoder -> GeoPoint [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  GeoHashUtils -> GeoPoint [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  GeoHashCircleQuery -> GeoHashUtils [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
 }

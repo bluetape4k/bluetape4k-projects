@@ -1,82 +1,144 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1366" height="995" viewBox="0 0 1366 995" role="img" aria-label="NearCache Interface Hierarchy">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#1f2937" flood-opacity="0.10"/></filter>
-  <marker id="openArrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5" fill="none" stroke="#758297" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
-  <marker id="inherit" markerWidth="5.5" markerHeight="5" refX="4.75" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.25 0.5 L 4.75 2.5 L 0.25 4.5 Z" fill="#ffffff" stroke="#758297" stroke-width="1.7"/></marker>
-  <style>
-    .canvas{fill:#f7f9fc}.frame{fill:#fff;stroke:#d8e0ea;stroke-width:1.5}
-    .title{font-family:"Architects Daughter";font-size:43px;font-weight:400;fill:#102033}
-    .subtitle{font-family:"Comic Mono";font-size:15px;font-weight:400;fill:#536273}
-    .label{font-family:"Architects Daughter";font-size:25px;font-weight:400;fill:#102033}
-    .smallLabel{font-family:"Architects Daughter";font-size:21px;font-weight:400;fill:#102033}
-    .mono{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#102033}
-    .small{font-family:"Comic Mono";font-size:12px;font-weight:400;fill:#536273}
-    .strong{font-family:"Comic Mono";font-size:13px;font-weight:400;fill:#102033}
-    .card{stroke-width:2.1;filter:url(#shadow)}.compartment{stroke-width:1.5;fill:none}
-    .line{stroke:#758297;stroke-width:2.1;fill:none;marker-end:url(#openArrow)}
-    .plainLine{stroke:#758297;stroke-width:2.1;fill:none}
-    .dashed{stroke:#758297;stroke-width:2.1;stroke-dasharray:7 6;fill:none;marker-end:url(#openArrow)}
-    .inheritLine{stroke:#758297;stroke-width:2.2;fill:none;marker-end:url(#inherit)}
-    .implLine{stroke:#758297;stroke-width:2.2;stroke-dasharray:8 7;fill:none;marker-end:url(#inherit)}
-  </style>
-</defs>
-<rect class="canvas" width="1366" height="995"/>
-<rect class="frame" x="32" y="28" width="1302" height="939" rx="28"/>
-<text class="title" x="66" y="82">NearCache Interface Hierarchy</text>
-<text class="subtitle" x="70" y="104">Source-checked class relationships with readable compartments and routed inheritance.</text>
-<path class="implLine" d="M893 584 L893 509 L1103 509 L1103 434"/>
-<path class="dashed" d="M683 180 L683 132 L263 132 L263 376"/>
-<path class="implLine" d="M473 584 L473 493 L683 493 L683 418"/>
-<g transform="translate(88,180)">
-  <rect class="card" x="0" y="0" width="350" height="196" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#5B8DEF"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">NearCacheStatistics</text>
-  <text class="mono" x="18" y="108">+localHits: Long</text>
-<text class="mono" x="18" y="129">+localMisses: Long</text>
-<text class="mono" x="18" y="150">+localSize: Long</text>
-<text class="mono" x="18" y="171">+hitRate: Double</text>
-</g>
-<g transform="translate(508,180)">
-  <rect class="card" x="0" y="0" width="350" height="238" rx="5" fill="#EAF7EF" stroke="#58A978"/>
-  <line class="compartment" x1="0" y1="78" x2="350" y2="78" stroke="#58A978"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="61" text-anchor="middle">NearCacheOperations</text>
-  <text class="mono" x="18" y="108">+cacheName: String</text>
-<text class="mono" x="18" y="129">+isClosed: Boolean</text>
-<text class="mono" x="18" y="150">+get(key: String) V?</text>
-<text class="mono" x="18" y="171">+put(key: String, value: V)</text>
-<text class="mono" x="18" y="192">+remove(key: String)</text>
-<text class="mono" x="18" y="213">+clearLocal()</text>
-</g>
-<g transform="translate(928,180)">
-  <rect class="card" x="0" y="0" width="350" height="254" rx="5" fill="#FFF3D9" stroke="#D6A441"/>
-  <line class="compartment" x1="0" y1="94" x2="350" y2="94" stroke="#D6A441"/>
-  <text class="small" x="175" y="26" text-anchor="middle">«interface»</text>
-  <text class="label" x="175" y="56.5" text-anchor="middle">Suspend Near Cache</text>
-<text class="label" x="175" y="81.5" text-anchor="middle">Operations</text>
-  <text class="mono" x="18" y="124">+cacheName: String</text>
-<text class="mono" x="18" y="145">+isClosed: Boolean</text>
-<text class="mono" x="18" y="166">+get(key: String) V?</text>
-<text class="mono" x="18" y="187">+put(key: String, value: V)</text>
-<text class="mono" x="18" y="208">+remove(key: String)</text>
-<text class="mono" x="18" y="229">+clearLocal()</text>
-</g>
-<g transform="translate(298,584)">
-  <rect class="card" x="0" y="0" width="350" height="191" rx="5" fill="#FDECEF" stroke="#DC6B82"/>
-  <line class="compartment" x1="0" y1="94" x2="350" y2="94" stroke="#DC6B82"/>
-    <text class="label" x="175" y="44.5" text-anchor="middle">Resilient Near Cache</text>
-<text class="label" x="175" y="69.5" text-anchor="middle">Decorator</text>
-  <text class="mono" x="18" y="124">-delegate: NearCacheOperations~V~</text>
-<text class="mono" x="18" y="145">-retry: Retry</text>
-<text class="mono" x="18" y="166">-config: NearCacheResilienceConfig</text>
-</g>
-<g transform="translate(718,584)">
-  <rect class="card" x="0" y="0" width="350" height="170" rx="5" fill="#E9F7F6" stroke="#45A7A1"/>
-  <line class="compartment" x1="0" y1="94" x2="350" y2="94" stroke="#45A7A1"/>
-    <text class="label" x="175" y="44.5" text-anchor="middle">Resilient Suspend Near</text>
-<text class="label" x="175" y="69.5" text-anchor="middle">Cache Decorator</text>
-  <text class="mono" x="18" y="124">-delegate: SuspendNearCacheOperations~V~</text>
-<text class="mono" x="18" y="145">-retry: Retry</text>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="1160" viewBox="0 0 1780 1160" role="img" aria-labelledby="title desc">
+  <title id="title">NearCache Interface Hierarchy</title>
+  <desc id="desc">Explain the public NearCache contracts and where decorators, statistics, and backend modules attach.</desc>
+  <defs>
+    <font-face font-family="Architects Daughter" src="url('file:///Users/debop/Library/Fonts/ArchitectsDaughter-Regular.ttf')"/>
+    <font-face font-family="Comic Mono" src="url('file:///Users/debop/Library/Fonts/ComicMono-Bold.ttf')"/>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.11"/></filter>
+    <marker id="arrow" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.2" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 5 2.5 L 0 5 z" fill="context-stroke"/></marker>
+    <marker id="hollow" viewBox="0 0 7 6" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><path d="M 0.8 0.8 L 6.5 3 L 0.8 5.2 z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.2"/></marker>
+    <style>
+      .canvas{fill:#F6F9FC}.decor{fill:#FFFFFF;stroke:#C4D6E7;stroke-width:3.2;filter:url(#shadow)}
+      .innerFrame{fill:#FBFDFF;stroke:#D9E4EF;stroke-width:2}.group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
+      .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
+      .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400}
+      .cardTitle,.classTitle{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
+      .stereo,.detail,.member,.small{font-family:"Comic Mono";font-weight:400}
+      .stereo{font-size:13px;fill:#687789}.detail{font-size:14px;fill:#42556B}.member{font-size:13px;fill:#42556B}.small{font-size:13px;fill:#627184}
+      .card{filter:url(#shadow);stroke-width:2}.connector{fill:none;stroke-width:2.7;marker-end:url(#arrow);stroke-linejoin:round;stroke-linecap:round}.inherit{marker-end:url(#hollow)}.dashed{stroke-dasharray:7 6}
+      .labelPill{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.1}
+    </style>
+  </defs>
+  <rect class="canvas" width="1780" height="1160"/>
+  <rect class="decor" x="44" y="36" width="1692" height="1088" rx="34"/>
+  <rect class="innerFrame" x="82" y="154" width="1616" height="874" rx="24"/>
+  <text class="title" x="72" y="88">NearCache Interface Hierarchy</text>
+  <text class="subtitle" x="76" y="121">Provider-neutral contracts stay above resilience wrappers and backend implementations.</text>
+  <g id="panel-contracts">
+    <rect class="group" x="96" y="168" width="1060" height="255" rx="20"/>
+    <text class="groupTitle" x="126" y="196" dominant-baseline="middle">Provider-neutral contracts</text>
+  </g>
+  <g id="panel-resilience">
+    <rect class="group" x="96" y="455" width="1060" height="245" rx="20"/>
+    <text class="groupTitle" x="126" y="483" dominant-baseline="middle">Resilience wrappers</text>
+  </g>
+  <g id="panel-backends">
+    <rect class="group" x="96" y="735" width="1060" height="195" rx="20"/>
+    <text class="groupTitle" x="126" y="763" dominant-baseline="middle">Backend modules implement the contracts</text>
+  </g>
+  <g id="panel-support">
+    <rect class="group" x="1230" y="230" width="430" height="630" rx="20"/>
+    <text class="groupTitle" x="1260" y="258" dominant-baseline="middle">Shared support types</text>
+  </g>
+  <path class="connector dashed" data-edge="decorator-&gt;ops" data-label="wraps" d="M 368 535 L 368 394" stroke="#58A978"/>
+
+  <path class="connector dashed" data-edge="suspendDecorator-&gt;suspendOps" data-label="wraps" d="M 888 535 L 888 394" stroke="#58A978"/>
+  <g transform="translate(910,451.5)">
+    <rect class="labelPill" x="0" y="0" width="70" height="26" rx="8"/>
+    <text class="small" x="35" y="13" text-anchor="middle" dominant-baseline="middle" fill="#58A978">wraps</text>
+  </g>
+  <path class="connector inherit" data-edge="nativeBackends-&gt;ops" data-label="implements" d="M 185 859 L 86 859 L 86 322 L 155 322" stroke="#D9AA4D"/>
+
+  <path class="connector inherit" data-edge="jcacheBackends-&gt;suspendOps" data-label="implements" d="M 1065 859 L 1140 859 L 1140 322 L 1100 322" stroke="#8A72D6"/>
+
+  <path class="connector" data-edge="resilienceConfig-&gt;failure" data-label="selects" d="M 1443 674 L 1443 730" stroke="#C85D55"/>
+  <g transform="translate(1465,689)">
+    <rect class="labelPill" x="0" y="0" width="71.8" height="26" rx="8"/>
+    <text class="small" x="35.9" y="13" text-anchor="middle" dominant-baseline="middle" fill="#C85D55">selects</text>
+  </g>
+  <g id="node-ops" transform="translate(155,250)">
+    <rect class="card" x="0" y="0" width="425" height="144" rx="10" fill="#E8F3FF" stroke="#75A9E8"/>
+    <line x1="0" y1="50" x2="425" y2="50" stroke="#75A9E8" stroke-width="1.6"/>
+    <text class="stereo" x="212.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="classTitle" x="212.5" y="36" text-anchor="middle" dominant-baseline="middle">NearCacheOperations&lt;V&gt;</text>
+    <text class="member" x="212.5" y="70" text-anchor="middle" dominant-baseline="middle">get / getAll / containsKey</text>
+    <text class="member" x="212.5" y="88" text-anchor="middle" dominant-baseline="middle">put / replace / remove</text>
+    <text class="member" x="212.5" y="106" text-anchor="middle" dominant-baseline="middle">clearLocal / clearAll / close</text>
+    <text class="member" x="212.5" y="124" text-anchor="middle" dominant-baseline="middle">stats(): NearCacheStatistics</text>
+  </g>
+  <g id="node-suspendOps" transform="translate(675,250)">
+    <rect class="card" x="0" y="0" width="425" height="144" rx="10" fill="#E9F7F6" stroke="#45A7A1"/>
+    <line x1="0" y1="50" x2="425" y2="50" stroke="#45A7A1" stroke-width="1.6"/>
+    <text class="stereo" x="212.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="classTitle" x="212.5" y="36" text-anchor="middle" dominant-baseline="middle">SuspendNearCacheOperations&lt;V&gt;</text>
+    <text class="member" x="212.5" y="70" text-anchor="middle" dominant-baseline="middle">suspend read/write/delete</text>
+    <text class="member" x="212.5" y="88" text-anchor="middle" dominant-baseline="middle">suspend clearAll / close</text>
+    <text class="member" x="212.5" y="106" text-anchor="middle" dominant-baseline="middle">localCacheSize()</text>
+    <text class="member" x="212.5" y="124" text-anchor="middle" dominant-baseline="middle">stats(): NearCacheStatistics</text>
+  </g>
+  <g id="node-decorator" transform="translate(155,535)">
+    <rect class="card" x="0" y="0" width="425" height="126" rx="10" fill="#EAF7EF" stroke="#69B888"/>
+    <line x1="0" y1="50" x2="425" y2="50" stroke="#69B888" stroke-width="1.6"/>
+    <text class="stereo" x="212.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;decorator&gt;&gt;</text>
+    <text class="classTitle" x="212.5" y="36" text-anchor="middle" dominant-baseline="middle">ResilientNearCacheDecorator&lt;V&gt;</text>
+    <text class="member" x="212.5" y="70" text-anchor="middle" dominant-baseline="middle">wraps blocking contract</text>
+    <text class="member" x="212.5" y="88" text-anchor="middle" dominant-baseline="middle">Retry + GetFailureStrategy</text>
+    <text class="member" x="212.5" y="106" text-anchor="middle" dominant-baseline="middle">write-through preserved</text>
+  </g>
+  <g id="node-suspendDecorator" transform="translate(675,535)">
+    <rect class="card" x="0" y="0" width="425" height="126" rx="10" fill="#EAF7EF" stroke="#69B888"/>
+    <line x1="0" y1="50" x2="425" y2="50" stroke="#69B888" stroke-width="1.6"/>
+    <text class="stereo" x="212.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;decorator&gt;&gt;</text>
+    <text class="classTitle" x="212.5" y="36" text-anchor="middle" dominant-baseline="middle">ResilientSuspendNearCacheDecorator&lt;V&gt;</text>
+    <text class="member" x="212.5" y="70" text-anchor="middle" dominant-baseline="middle">wraps coroutine contract</text>
+    <text class="member" x="212.5" y="88" text-anchor="middle" dominant-baseline="middle">Retry.executeSuspendFunction</text>
+    <text class="member" x="212.5" y="106" text-anchor="middle" dominant-baseline="middle">CancellationException propagates</text>
+  </g>
+  <g id="node-nativeBackends" transform="translate(185,815)">
+    <rect class="card" x="0" y="0" width="375" height="88" rx="12" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <text class="cardTitle" x="187.5" y="15.5" text-anchor="middle" dominant-baseline="middle">Native NearCache modules</text>
+    <text class="detail" x="187.5" y="34.5" text-anchor="middle" dominant-baseline="middle">Lettuce CLIENT TRACKING</text>
+    <text class="detail" x="187.5" y="53.5" text-anchor="middle" dominant-baseline="middle">Hazelcast IMap listener</text>
+    <text class="detail" x="187.5" y="72.5" text-anchor="middle" dominant-baseline="middle">Redisson local cached map</text>
+  </g>
+  <g id="node-jcacheBackends" transform="translate(690,815)">
+    <rect class="card" x="0" y="0" width="375" height="88" rx="12" fill="#F1ECFF" stroke="#8A72D6"/>
+    <text class="cardTitle" x="187.5" y="15.5" text-anchor="middle" dominant-baseline="middle">JCache-backed modules</text>
+    <text class="detail" x="187.5" y="34.5" text-anchor="middle" dominant-baseline="middle">NearJCache / SuspendNearJCache</text>
+    <text class="detail" x="187.5" y="53.5" text-anchor="middle" dominant-baseline="middle">Lettuce and Redisson JCache</text>
+    <text class="detail" x="187.5" y="72.5" text-anchor="middle" dominant-baseline="middle">Hazelcast listener-free factory</text>
+  </g>
+  <g id="node-stats" transform="translate(1265,310)">
+    <rect class="card" x="0" y="0" width="355" height="144" rx="10" fill="#FCE7F3" stroke="#DB7890"/>
+    <line x1="0" y1="50" x2="355" y2="50" stroke="#DB7890" stroke-width="1.6"/>
+    <text class="stereo" x="177.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;interface&gt;&gt;</text>
+    <text class="classTitle" x="177.5" y="36" text-anchor="middle" dominant-baseline="middle">NearCacheStatistics</text>
+    <text class="member" x="177.5" y="70" text-anchor="middle" dominant-baseline="middle">localHits / localMisses</text>
+    <text class="member" x="177.5" y="88" text-anchor="middle" dominant-baseline="middle">backHits / backMisses</text>
+    <text class="member" x="177.5" y="106" text-anchor="middle" dominant-baseline="middle">localSize / localEvictions</text>
+    <text class="member" x="177.5" y="124" text-anchor="middle" dominant-baseline="middle">hitRate</text>
+  </g>
+  <g id="node-resilienceConfig" transform="translate(1265,530)">
+    <rect class="card" x="0" y="0" width="355" height="144" rx="10" fill="#FFF3D9" stroke="#D9AA4D"/>
+    <line x1="0" y1="50" x2="355" y2="50" stroke="#D9AA4D" stroke-width="1.6"/>
+    <text class="stereo" x="177.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;data class&gt;&gt;</text>
+    <text class="classTitle" x="177.5" y="36" text-anchor="middle" dominant-baseline="middle">NearCacheResilienceConfig</text>
+    <text class="member" x="177.5" y="70" text-anchor="middle" dominant-baseline="middle">retryMaxAttempts &gt; 0</text>
+    <text class="member" x="177.5" y="88" text-anchor="middle" dominant-baseline="middle">retryWaitDuration &gt; 0</text>
+    <text class="member" x="177.5" y="106" text-anchor="middle" dominant-baseline="middle">retryExponentialBackoff</text>
+    <text class="member" x="177.5" y="124" text-anchor="middle" dominant-baseline="middle">getFailureStrategy</text>
+  </g>
+  <g id="node-failure" transform="translate(1265,730)">
+    <rect class="card" x="0" y="0" width="355" height="112" rx="10" fill="#FDECEC" stroke="#DB7F75"/>
+    <line x1="0" y1="50" x2="355" y2="50" stroke="#DB7F75" stroke-width="1.6"/>
+    <text class="stereo" x="177.5" y="17" text-anchor="middle" dominant-baseline="middle">&lt;&lt;enum&gt;&gt;</text>
+    <text class="classTitle" x="177.5" y="36" text-anchor="middle" dominant-baseline="middle">GetFailureStrategy</text>
+    <text class="member" x="177.5" y="72" text-anchor="middle" dominant-baseline="middle">RETURN_FRONT_OR_NULL</text>
+    <text class="member" x="177.5" y="90" text-anchor="middle" dominant-baseline="middle">PROPAGATE_EXCEPTION</text>
+  </g>
+  <g transform="translate(76,1056)">
+    <rect class="labelPill" x="0" y="0" width="1628" height="48" rx="10"/>
+    <text class="small" x="814" y="24" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects / cache modules - github.com/bluetape4k/bluetape4k-projects</text>
+  </g>
 </svg>

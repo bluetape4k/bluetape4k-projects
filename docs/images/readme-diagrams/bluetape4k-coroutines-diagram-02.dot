@@ -13,11 +13,11 @@ digraph G {
   DefaultCoroutineScope [label="DefaultCoroutineScope", fillcolor="#E8F3FF", color="#5B8DEF"];
   IoCoroutineScope [label="IoCoroutineScope", fillcolor="#EAF7EF", color="#58A978"];
   VirtualThreadCoroutineScope [label="VirtualThreadCoroutineScope", fillcolor="#E9F7F6", color="#45A7A1"];
-  FlowExtensions -> AsyncFlow [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
-  CoroutineScope -> VirtualThreadCoroutineScope [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
-  CoroutineScope -> ThreadPoolCoroutineScope [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
-  CoroutineScope -> IoCoroutineScope [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
-  CoroutineScope -> DefaultCoroutineScope [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
-  DeferredSupport -> DeferredValue [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  DeferredValue -> deferredValueOf [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  FlowExtensions -> AsyncFlow [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  CoroutineScope -> VirtualThreadCoroutineScope [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  CoroutineScope -> ThreadPoolCoroutineScope [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  CoroutineScope -> IoCoroutineScope [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
+  CoroutineScope -> DefaultCoroutineScope [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  DeferredSupport -> DeferredValue [color="#4F63C7", fontcolor="#4F63C7", style="dashed", arrowhead="none", weight=2];
+  DeferredValue -> deferredValueOf [color="#C8644B", fontcolor="#C8644B", style="dashed", arrowhead="none", weight=2];
 }

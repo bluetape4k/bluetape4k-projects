@@ -17,17 +17,17 @@
 <!-- SuspendRule&#45;&gt;DefaultSuspendRule -->
 <g id="edge6" class="edge">
 <title>SuspendRule&#45;&gt;DefaultSuspendRule</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" d="M640.8,-322.7C640.8,-296.94 640.8,-263.12 640.8,-237.42"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M640.8,-322.7C640.8,-296.94 640.8,-263.12 640.8,-237.42"/>
 </g>
 <!-- DefaultRule&#45;&gt;Facts -->
 <g id="edge1" class="edge">
 <title>DefaultRule&#45;&gt;Facts</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-199C193.19,-199 100.8,-199 100.8,-199 100.8,-199 100.8,-123.67 100.8,-76"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-199C193.19,-199 100.8,-199 100.8,-199 100.8,-199 100.8,-123.67 100.8,-76"/>
 </g>
 <!-- DefaultRule&#45;&gt;Action -->
 <g id="edge4" class="edge">
 <title>DefaultRule&#45;&gt;Action</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M472.08,-212C497.25,-212 517.2,-212 517.2,-212 517.2,-212 517.2,-50 517.2,-50 517.2,-50 526.31,-50 539.58,-50"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M472.08,-212C497.25,-212 517.2,-212 517.2,-212 517.2,-212 517.2,-50 517.2,-50 517.2,-50 526.31,-50 539.58,-50"/>
 </g>
 <!-- DefaultRule&#45;&gt;Condition -->
 <g id="edge5" class="edge">
@@ -37,12 +37,12 @@
 <!-- DefaultSuspendRule&#45;&gt;Action -->
 <g id="edge2" class="edge">
 <title>DefaultSuspendRule&#45;&gt;Action</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.1C640.8,-135.34 640.8,-101.52 640.8,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.1C640.8,-135.34 640.8,-101.52 640.8,-75.82"/>
 </g>
 <!-- DefaultSuspendRule&#45;&gt;Condition -->
 <g id="edge3" class="edge">
 <title>DefaultSuspendRule&#45;&gt;Condition</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M539.52,-187C514.35,-187 494.4,-187 494.4,-187 494.4,-187 494.4,-25 494.4,-25 494.4,-25 485.29,-25 472.02,-25"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M539.52,-187C514.35,-187 494.4,-187 494.4,-187 494.4,-187 494.4,-25 494.4,-25 494.4,-25 485.29,-25 472.02,-25"/>
 </g>
 <!-- Facts -->
 <g id="node1" class="node">
@@ -77,8 +77,8 @@
 <!-- RuleSet -->
 <g id="node6" class="node">
 <title>RuleSet</title>
-<path fill="#f1ecff" stroke="#8a72d6" d="M999.6,-237.2C999.6,-237.2 822,-237.2 822,-237.2 816,-237.2 810,-231.2 810,-225.2 810,-225.2 810,-173.6 810,-173.6 810,-167.6 816,-161.6 822,-161.6 822,-161.6 999.6,-161.6 999.6,-161.6 1005.6,-161.6 1011.6,-167.6 1011.6,-173.6 1011.6,-173.6 1011.6,-225.2 1011.6,-225.2 1011.6,-231.2 1005.6,-237.2 999.6,-237.2"/>
-<text xml:space="preserve" text-anchor="middle" x="910.8" y="-195.33" font-family="Comic Mono" font-size="11.00">RuleSet</text>
+<path fill="#f1ecff" stroke="#8a72d6" d="M999.6,-398.8C999.6,-398.8 822,-398.8 822,-398.8 816,-398.8 810,-392.8 810,-386.8 810,-386.8 810,-335.2 810,-335.2 810,-329.2 816,-323.2 822,-323.2 822,-323.2 999.6,-323.2 999.6,-323.2 1005.6,-323.2 1011.6,-329.2 1011.6,-335.2 1011.6,-335.2 1011.6,-386.8 1011.6,-386.8 1011.6,-392.8 1005.6,-398.8 999.6,-398.8"/>
+<text xml:space="preserve" text-anchor="middle" x="910.8" y="-356.93" font-family="Comic Mono" font-size="11.00">RuleSet</text>
 </g>
 <!-- DefaultRule -->
 <g id="node7" class="node">

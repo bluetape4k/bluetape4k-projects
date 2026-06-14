@@ -1,13 +1,13 @@
-graph 1 17.8 3.2944
-node Histogram 1.4 0.525 2.8 1.05 Histogram rounded,filled box #5B8DEF #E8F3FF
-node Interpolator 7.025 2.7694 2.8 1.05 Interpolator rounded,filled box #58A978 #EAF7EF
-node Descriptives 12.65 2.7694 2.8 1.05 Descriptives rounded,filled box #45A7A1 #E9F7F6
-node Integrator 16.4 2.7694 2.8 1.05 Integrator rounded,filled box #D6A441 #FFF3D9
-node WeightedDice 16.4 0.525 2.8 1.05 WeightedDice rounded,filled box #DC6B82 #FDECEF
-node LinearInterpolator 5.15 0.525 2.8 1.05 LinearInterpolator rounded,filled box #8A72D6 #F1ECFF
-node DoubleStatistics 12.65 0.525 2.8 1.05 DoubleStatistics rounded,filled box #8BA84D #EEF6D9
-node SplineInterpolator 8.9 0.525 2.8 1.05 SplineInterpolator rounded,filled box #9AA8B8 #F2F5F9
-edge Interpolator LinearInterpolator 4 6.0875 2.2375 6.0875 1.8798 6.0875 1.4101 6.0875 1.0531 solid #755BC6
-edge Interpolator SplineInterpolator 4 7.9625 2.2375 7.9625 1.8798 7.9625 1.4101 7.9625 1.0531 solid #758297
-edge Descriptives DoubleStatistics 4 12.65 2.2375 12.65 1.8798 12.65 1.4101 12.65 1.0531 solid #718A35
+graph 1 19.675 3.2944
+node Histogram 1.4 2.7694 2.8 1.05 Histogram rounded,filled box #5B8DEF #E8F3FF
+node Interpolator 5.15 2.7694 2.8 1.05 Interpolator rounded,filled box #58A978 #EAF7EF
+node Descriptives 10.775 2.7694 2.8 1.05 Descriptives rounded,filled box #45A7A1 #E9F7F6
+node Integrator 14.525 2.7694 2.8 1.05 Integrator rounded,filled box #D6A441 #FFF3D9
+node WeightedDice 18.275 2.7694 2.8 1.05 WeightedDice rounded,filled box #DC6B82 #FDECEF
+node LinearInterpolator 3.275 0.525 2.8 1.05 LinearInterpolator rounded,filled box #8A72D6 #F1ECFF
+node DoubleStatistics 10.775 0.525 2.8 1.05 DoubleStatistics rounded,filled box #8BA84D #EEF6D9
+node SplineInterpolator 7.025 0.525 2.8 1.05 SplineInterpolator rounded,filled box #9AA8B8 #F2F5F9
+edge Interpolator LinearInterpolator 4 4.2125 2.2375 4.2125 1.8798 4.2125 1.4101 4.2125 1.0531 solid #4F83BF
+edge Interpolator SplineInterpolator 4 6.0875 2.2375 6.0875 1.8798 6.0875 1.4101 6.0875 1.0531 solid #3E9868
+edge Descriptives DoubleStatistics 4 10.775 2.2375 10.775 1.8798 10.775 1.4101 10.775 1.0531 solid #2E8F89
 stop

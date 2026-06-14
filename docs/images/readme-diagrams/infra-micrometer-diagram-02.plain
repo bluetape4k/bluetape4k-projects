@@ -1,21 +1,20 @@
-graph 1 5.1311 2.159
-node node_0_0 2.153 0.97824 4.306 1.556 Application rounded,filled box #9AA8B8 #F7FBFF
-node node_0_1 2.2439 0.97824 4.306 1.556 "Timer Extensions" rounded,filled box #9AA8B8 #F7FBFF
-node node_0_2 2.3348 0.97824 4.306 1.556 "Observation Extensions" rounded,filled box #9AA8B8 #F7FBFF
-node node_1_0 2.153 0.91149 4.306 1.556 "Retrofit2 Metrics" rounded,filled box #9AA8B8 #F7FBFF
-node node_1_1 2.2894 0.91149 4.306 1.556 "Cache2k Metrics" rounded,filled box #9AA8B8 #F7FBFF
-node node_2_0 2.153 0.84475 4.306 1.556 MeterRegistry rounded,filled box #9AA8B8 #F7FBFF
-node node_2_1 2.2439 0.84475 4.306 1.556 ObservationRegistry rounded,filled box #9AA8B8 #F7FBFF
-node node_2_2 2.3348 0.84475 4.306 1.556 "Prometheus Exporter" rounded,filled box #9AA8B8 #F7FBFF
-node node_3_0 2.153 0.778 4.306 1.556 "Grafana Monitoring" rounded,filled box #9AA8B8 #F7FBFF
-node node_3_1 2.2894 0.778 4.306 1.556 Logging rounded,filled box #9AA8B8 #F7FBFF
-edge node_0_0 node_0_1 4 2.2429 0.97824 2.2431 0.97824 2.2432 0.97824 2.2433 0.97824 solid #758297
-edge node_0_1 node_0_2 4 2.3338 0.97824 2.334 0.97824 2.3341 0.97824 2.3343 0.97824 solid #758297
-edge node_0_2 node_1_0 4 2.155 0.91224 2.1547 0.91211 2.1544 0.91201 2.1542 0.91191 solid #758297
-edge node_1_0 node_1_1 4 2.2878 0.91149 2.2881 0.91149 2.2883 0.91149 2.2885 0.91149 solid #758297
-edge node_1_1 node_2_0 4 2.1545 0.8455 2.1543 0.84538 2.1541 0.84527 2.1539 0.84518 solid #758297
-edge node_2_0 node_2_1 4 2.2429 0.84475 2.2431 0.84475 2.2432 0.84475 2.2433 0.84475 solid #758297
-edge node_2_1 node_2_2 4 2.3338 0.84475 2.334 0.84475 2.3341 0.84475 2.3343 0.84475 solid #758297
-edge node_2_2 node_3_0 4 2.155 0.77875 2.1547 0.77863 2.1544 0.77852 2.1542 0.77843 solid #758297
-edge node_3_0 node_3_1 4 2.2878 0.778 2.2881 0.778 2.2883 0.778 2.2885 0.778 solid #758297
+graph 1 7.8478 5.2917
+node suspendFlow 0.99333 5.0417 1.9867 0.5 "Suspend or Flow work" rounded,filled box #5B8DEF #E8F3FF
+node clientWork 3.8406 5.0417 1.82 0.5 "HTTP or cache work" rounded,filled box #D6A441 #FFF3D9
+node eventWork 6.8128 5.0417 2.07 0.5 "Event publish/consume" rounded,filled box #58A978 #EAF7EF
+node timerHelper 0.99333 3.4444 1.6533 0.5 "Timer extensions" rounded,filled box #5B8DEF #E8F3FF
+node binderHelper 3.8406 3.4444 2.2367 0.5 "Instrumentation binders" rounded,filled box #D6A441 #FFF3D9
+node observationHelper 6.8128 3.4444 1.9033 0.5 "Observation helpers" rounded,filled box #58A978 #EAF7EF
+node meterRegistry 2.4239 1.8472 1.4033 0.5 MeterRegistry rounded,filled box #5B8DEF #E8F3FF
+node observationRegistry 6.8128 1.8472 1.9033 0.5 ObservationRegistry rounded,filled box #58A978 #EAF7EF
+node timerSignal 2.4239 0.25 1.4033 0.5 "Timer metrics" rounded,filled box #5B8DEF #E8F3FF
+node eventSignal 6.8128 0.25 1.82 0.5 "Observation signal" rounded,filled box #58A978 #EAF7EF
+edge suspendFlow timerHelper 4 0.99333 4.785 0.99333 4.785 0.99333 3.8355 0.99333 3.8355 dashed #4F83BF
+edge clientWork binderHelper 4 3.8406 4.785 3.8406 4.785 3.8406 3.8355 3.8406 3.8355 dashed #B9851B
+edge eventWork observationHelper 4 6.8128 4.785 6.8128 4.785 6.8128 3.8355 6.8128 3.8355 dashed #3E9868
+edge timerHelper meterRegistry 4 1.7711 3.1878 1.7711 3.1878 1.7711 2.2383 1.7711 2.2383 dashed #4F83BF
+edge binderHelper meterRegistry 4 2.9239 3.1878 2.9239 3.1878 2.9239 2.2383 2.9239 2.2383 dashed #B9851B
+edge observationHelper observationRegistry 4 6.8128 3.1878 6.8128 3.1878 6.8128 2.2383 6.8128 2.2383 dashed #3E9868
+edge meterRegistry timerSignal 4 2.4239 1.5906 2.4239 1.5906 2.4239 0.64105 2.4239 0.64105 dashed #4F83BF
+edge observationRegistry eventSignal 4 6.8128 1.5906 6.8128 1.5906 6.8128 0.64105 6.8128 0.64105 dashed #3E9868
 stop

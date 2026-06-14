@@ -12,62 +12,62 @@
 <!-- BaseStateMachine&#45;&gt;StateMachine -->
 <g id="edge12" class="edge">
 <title>BaseStateMachine&#45;&gt;StateMachine</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M438.3,-484.3C438.3,-458.54 438.3,-424.72 438.3,-399.02"/>
+<path fill="none" stroke="#a84b98" stroke-width="1.8" d="M438.3,-484.3C438.3,-458.54 438.3,-424.72 438.3,-399.02"/>
 </g>
 <!-- BaseStateMachine&#45;&gt;SuspendStateMachineInterface -->
 <g id="edge11" class="edge">
 <title>BaseStateMachine&#45;&gt;SuspendStateMachineInterface</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M573.3,-484.3C573.3,-458.54 573.3,-424.72 573.3,-399.02"/>
+<path fill="none" stroke="#2e83b8" stroke-width="1.8" d="M573.3,-484.3C573.3,-458.54 573.3,-424.72 573.3,-399.02"/>
 </g>
 <!-- StateMachine&#45;&gt;DefaultStateMachine -->
 <g id="edge10" class="edge">
 <title>StateMachine&#45;&gt;DefaultStateMachine</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
+<path fill="none" stroke="#8e6d43" stroke-width="1.8" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
 </g>
 <!-- SuspendStateMachineInterface&#45;&gt;SuspendStateMachine -->
 <g id="edge9" class="edge">
 <title>SuspendStateMachineInterface&#45;&gt;SuspendStateMachine</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M640.8,-322.7C640.8,-296.94 640.8,-263.12 640.8,-237.42"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" d="M640.8,-322.7C640.8,-296.94 640.8,-263.12 640.8,-237.42"/>
 </g>
 <!-- DefaultStateMachine&#45;&gt;TransitionResult -->
 <g id="edge4" class="edge">
 <title>DefaultStateMachine&#45;&gt;TransitionResult</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M472.02,-187C485.29,-187 494.4,-187 494.4,-187 494.4,-187 494.4,-25 494.4,-25 494.4,-25 514.35,-25 539.52,-25"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M472.02,-187C485.29,-187 494.4,-187 494.4,-187 494.4,-187 494.4,-25 494.4,-25 494.4,-25 514.35,-25 539.52,-25"/>
 </g>
 <!-- DefaultStateMachine&#45;&gt;StateMachineException -->
 <g id="edge2" class="edge">
 <title>DefaultStateMachine&#45;&gt;StateMachineException</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M404.4,-161.16C404.4,-146.4 404.4,-133 404.4,-133 404.4,-133 832.2,-133 832.2,-133 832.2,-133 832.2,-102.46 832.2,-75.97"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M404.4,-161.16C404.4,-146.4 404.4,-133 404.4,-133 404.4,-133 832.2,-133 832.2,-133 832.2,-133 832.2,-102.46 832.2,-75.97"/>
 </g>
 <!-- DefaultStateMachine&#45;&gt;TransitionKey -->
 <g id="edge8" class="edge">
 <title>DefaultStateMachine&#45;&gt;TransitionKey</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M269.71,-199C181.39,-199 67.2,-199 67.2,-199 67.2,-199 67.2,-123.67 67.2,-76"/>
+<path fill="none" stroke="#8e6d43" stroke-width="1.8" stroke-dasharray="5,2" d="M269.71,-199C181.39,-199 67.2,-199 67.2,-199 67.2,-199 67.2,-123.67 67.2,-76"/>
 </g>
 <!-- DefaultStateMachine&#45;&gt;TransitionTarget -->
 <g id="edge7" class="edge">
 <title>DefaultStateMachine&#45;&gt;TransitionTarget</title>
-<path fill="none" stroke="#758297" stroke-width="1.8" stroke-dasharray="5,2" d="M337.2,-161.1C337.2,-135.34 337.2,-101.52 337.2,-75.82"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" stroke-dasharray="5,2" d="M337.2,-161.1C337.2,-135.34 337.2,-101.52 337.2,-75.82"/>
 </g>
 <!-- SuspendStateMachine&#45;&gt;TransitionResult -->
 <g id="edge3" class="edge">
 <title>SuspendStateMachine&#45;&gt;TransitionResult</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M674.4,-161.1C674.4,-135.34 674.4,-101.52 674.4,-75.82"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M674.4,-161.1C674.4,-135.34 674.4,-101.52 674.4,-75.82"/>
 </g>
 <!-- SuspendStateMachine&#45;&gt;StateMachineException -->
 <g id="edge1" class="edge">
 <title>SuspendStateMachine&#45;&gt;StateMachineException</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M741.97,-199C797.18,-199 854.4,-199 854.4,-199 854.4,-199 854.4,-123.67 854.4,-76"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M741.97,-199C797.18,-199 854.4,-199 854.4,-199 854.4,-199 854.4,-123.67 854.4,-76"/>
 </g>
 <!-- SuspendStateMachine&#45;&gt;TransitionKey -->
 <g id="edge6" class="edge">
 <title>SuspendStateMachine&#45;&gt;TransitionKey</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M607.2,-161.15C607.2,-134.61 607.2,-104 607.2,-104 607.2,-104 134.4,-104 134.4,-104 134.4,-104 134.4,-90.64 134.4,-75.93"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" stroke-dasharray="5,2" d="M607.2,-161.15C607.2,-134.61 607.2,-104 607.2,-104 607.2,-104 134.4,-104 134.4,-104 134.4,-104 134.4,-90.64 134.4,-75.93"/>
 </g>
 <!-- SuspendStateMachine&#45;&gt;TransitionTarget -->
 <g id="edge5" class="edge">
 <title>SuspendStateMachine&#45;&gt;TransitionTarget</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M539.58,-212C526.31,-212 517.2,-212 517.2,-212 517.2,-212 517.2,-50 517.2,-50 517.2,-50 497.25,-50 472.08,-50"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M539.58,-212C526.31,-212 517.2,-212 517.2,-212 517.2,-212 517.2,-50 517.2,-50 517.2,-50 497.25,-50 472.08,-50"/>
 </g>
 <!-- TransitionResult -->
 <g id="node1" class="node">

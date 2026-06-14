@@ -9,6 +9,5 @@ digraph G {
   MoneySupport [label="MoneySupport", fillcolor="#FDECEF", color="#DC6B82"];
   TimestampSupport [label="TimestampSupport", fillcolor="#F1ECFF", color="#8A72D6"];
   ProtobufSerializer [label="ProtobufSerializer", fillcolor="#EEF6D9", color="#8BA84D"];
-  { rank=source; BinarySerializer; }
-  BinarySerializer -> ProtobufSerializer [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  BinarySerializer -> ProtobufSerializer [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
 }

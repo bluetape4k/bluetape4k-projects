@@ -12,11 +12,10 @@ digraph G {
   Jdk25VirtualThreadRuntime [label="Jdk25VirtualThreadRuntime", fillcolor="#F2F5F9", color="#9AA8B8"];
   Jdk21VirtualThreadRuntime [label="Jdk21VirtualThreadRuntime", fillcolor="#E8F3FF", color="#5B8DEF"];
   PlatformThreadFallback [label="PlatformThreadFallback", fillcolor="#EAF7EF", color="#58A978"];
-  { rank=source; StructuredTaskScopeSupervised; StructuredTaskScopeProvider; VirtualThreadRuntime; StructuredTaskScopeAll; StructuredTaskScopeAnyT; }
-  StructuredTaskScopeProvider -> StructuredTaskScopeSupervised [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
+  StructuredTaskScopeProvider -> StructuredTaskScopeSupervised [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
   StructuredTaskScopes -> StructuredTaskScopeProvider [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
   VirtualThreads -> VirtualThreadRuntime [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
-  VirtualThreadRuntime -> PlatformThreadFallback [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
-  VirtualThreadRuntime -> Jdk25VirtualThreadRuntime [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
-  VirtualThreadRuntime -> Jdk21VirtualThreadRuntime [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  VirtualThreadRuntime -> PlatformThreadFallback [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
+  VirtualThreadRuntime -> Jdk25VirtualThreadRuntime [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  VirtualThreadRuntime -> Jdk21VirtualThreadRuntime [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
 }

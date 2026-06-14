@@ -8,10 +8,9 @@ digraph G {
   MicrometerRetrofitMetricsFactory [label="MicrometerRetrofitMetricsFactory", fillcolor="#FFF3D9", color="#D6A441"];
   ObservationExtensions [label="ObservationExtensions", fillcolor="#FDECEF", color="#DC6B82"];
   TimerExtensions [label="TimerExtensions", fillcolor="#F1ECFF", color="#8A72D6"];
-  { rank=source; MeterRegistry; ObservationRegistry; }
   ObservationRegistry -> MeterRegistry [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  Cache2kCacheMetrics -> MeterRegistry [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  MicrometerRetrofitMetricsFactory -> MeterRegistry [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
-  ObservationExtensions -> ObservationRegistry [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
-  TimerExtensions -> MeterRegistry [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  Cache2kCacheMetrics -> MeterRegistry [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  MicrometerRetrofitMetricsFactory -> MeterRegistry [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  ObservationExtensions -> ObservationRegistry [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  TimerExtensions -> MeterRegistry [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
 }

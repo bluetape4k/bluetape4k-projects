@@ -1,0 +1,30 @@
+graph 1 12.582 5.4444
+node cas1 1.5799 4.8646 2.0556 0.5 "replace(old,new)" rounded,filled box #75A9E8 #E8F3FF
+node cas2 1.5799 3.3264 1.9201 0.5 "EVALSHA CAS" rounded,filled box #8A72D6 #F1ECFF
+node cas3 1.5799 1.7882 2.441 0.5 "NOSCRIPT fallback" rounded,filled box #D9AA4D #FFF3D9
+node cas4 1.5799 0.25 3.1597 0.5 "front update on success" rounded,filled box #69B888 #EAF7EF
+node del1 4.8299 4.8646 2.6285 0.5 "remove / clearBack" rounded,filled box #75A9E8 #E8F3FF
+node del2 4.8299 3.3264 1.0451 0.5 UNLINK rounded,filled box #8A72D6 #F1ECFF
+node del3 4.8299 1.7882 2.2326 0.5 "SCAN namespace" rounded,filled box #D9AA4D #FFF3D9
+node del4 4.8299 0.25 2.1493 0.5 "front invalidation" rounded,filled box #69B888 #EAF7EF
+node close1 8.1493 4.8646 2.8056 0.5 "LettuceJCache.close()" rounded,filled box #75A9E8 #E8F3FF
+node close2 8.1493 3.3264 1.8472 0.5 "explicit clear()" rounded,filled box #8A72D6 #F1ECFF
+node close3 8.1493 1.7882 2.3472 0.5 "Suspend managers" rounded,filled box #D9AA4D #FFF3D9
+node close4 8.1493 0.25 2.0139 0.5 "listener cleanup" rounded,filled box #69B888 #EAF7EF
+node memo1 11.247 4.8646 2.066 0.5 "in-flight promise" rounded,filled box #75A9E8 #E8F3FF
+node memo2 11.247 3.3264 2.0347 0.5 "failure / cancel" rounded,filled box #DB7F75 #FDECEC
+node memo3 11.247 1.7882 2.6389 0.5 "remove(key,promise)" rounded,filled box #8A72D6 #F1ECFF
+node memo4 11.247 0.25 2.6701 0.5 "next call recomputes" rounded,filled box #69B888 #EAF7EF
+edge cas1 cas2 4 1.5799 4.6106 1.5799 4.6106 1.5799 3.7129 1.5799 3.7129 executes 1.9132 4.0955 solid #8A72D6
+edge cas2 cas3 4 1.5799 3.0724 1.5799 3.0724 1.5799 2.1747 1.5799 2.1747 "if NOSCRIPT" 2.0382 2.5573 dashed #D9AA4D
+edge cas3 cas4 4 1.5799 1.5342 1.5799 1.5342 1.5799 0.63651 1.5799 0.63651 "same result" 2.0382 1.0191 solid #58A978
+edge del1 del2 4 4.8299 4.6106 4.8299 4.6106 4.8299 3.7129 4.8299 3.7129 uses 4.9965 4.0955 solid #8A72D6
+edge del2 del3 4 4.8299 3.0724 4.8299 3.0724 4.8299 2.1747 4.8299 2.1747 scans 5.0382 2.5573 solid #D9AA4D
+edge del3 del4 4 4.8299 1.5342 4.8299 1.5342 4.8299 0.63651 4.8299 0.63651 clears 5.0799 1.0191 solid #58A978
+edge close1 close2 4 8.1493 4.6106 8.1493 4.6106 8.1493 3.7129 8.1493 3.7129 separates 8.5243 4.0955 solid #8A72D6
+edge close2 close3 4 8.1493 3.0724 8.1493 3.0724 8.1493 2.1747 8.1493 2.1747 protects 8.4826 2.5573 solid #D9AA4D
+edge close3 close4 4 8.1493 1.5342 8.1493 1.5342 8.1493 0.63651 8.1493 0.63651 "then releases" 8.691 1.0191 solid #58A978
+edge memo1 memo2 4 11.247 4.6106 11.247 4.6106 11.247 3.7129 11.247 3.7129 "on error" 11.58 4.0955 solid #C85D55
+edge memo2 memo3 4 11.247 3.0724 11.247 3.0724 11.247 2.1747 11.247 2.1747 "atomic cleanup" 11.83 2.5573 solid #8A72D6
+edge memo3 memo4 4 11.247 1.5342 11.247 1.5342 11.247 0.63651 11.247 0.63651 allows 11.497 1.0191 solid #58A978
+stop

@@ -14,7 +14,7 @@
       .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
       .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
       .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
       .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
       .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
@@ -30,15 +30,15 @@
 
   <g id="group-execution">
     <rect class="group" x="88" y="176" width="330" height="430" rx="18"/>
-    <text class="group-title" x="118" y="200" dominant-baseline="middle">Test execution</text>
+    <text class="groupTitle" x="118" y="194" dominant-baseline="middle">Test execution</text>
   </g>
   <g id="group-report">
     <rect class="group" x="510" y="176" width="330" height="430" rx="18"/>
-    <text class="group-title" x="540" y="200" dominant-baseline="middle">Report model</text>
+    <text class="groupTitle" x="540" y="194" dominant-baseline="middle">Report model</text>
   </g>
   <g id="group-output">
     <rect class="group" x="932" y="176" width="330" height="430" rx="18"/>
-    <text class="group-title" x="962" y="200" dominant-baseline="middle">Reader-facing output</text>
+    <text class="groupTitle" x="962" y="194" dominant-baseline="middle">Reader-facing output</text>
   </g>
 
   <path id="route-gradle-extensions" class="connector" d="M253 320 L253 394" stroke="#4F83BF"/>
@@ -86,9 +86,5 @@
     <text class="detail" x="123" y="64" text-anchor="middle" dominant-baseline="middle">shared PNG/SVG asset</text>
   </g>
 
-  <g transform="translate(76,806)">
-    <rect class="pill" x="0" y="0" width="1268" height="44" rx="10"/>
-    <text class="small" x="634" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: testing-junit5-diagram-03.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="634" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=6, r=7, seg=7, endpoint/bend/cross/overlap/clear/label=0, margins=130/200/115/322, titleGap=115.</text>
-  </g>
+
 </svg>

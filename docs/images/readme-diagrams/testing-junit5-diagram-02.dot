@@ -11,7 +11,7 @@ digraph G {
   Fakers [label="Fakers", fillcolor="#EEF6D9", color="#8BA84D"];
   OutputCapturer [label="OutputCapturer", fillcolor="#F2F5F9", color="#9AA8B8"];
   StopwatchExtension [label="StopwatchExtension", fillcolor="#E8F3FF", color="#5B8DEF"];
-  StructuredTaskScopeTester -> SuspendedJobTester [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  MultithreadingTester -> SuspendedJobTester [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  TempFolderExtension -> TempFolder [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  StructuredTaskScopeTester -> SuspendedJobTester [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  MultithreadingTester -> SuspendedJobTester [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  TempFolderExtension -> TempFolder [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
 }

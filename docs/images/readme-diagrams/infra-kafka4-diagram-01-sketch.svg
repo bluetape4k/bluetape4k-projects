@@ -66,20 +66,14 @@
 <!-- kafka&#45;clients -->
 <g id="node6" class="node">
 <title>kafka&#45;clients</title>
-<path fill="#fff3d9" stroke="#d9aa4d" d="M161,-36C161,-36 28,-36 28,-36 22,-36 16,-30 16,-24 16,-24 16,-12 16,-12 16,-6 22,0 28,0 28,0 161,0 161,0 167,0 173,-6 173,-12 173,-12 173,-24 173,-24 173,-30 167,-36 161,-36"/>
-<text xml:space="preserve" text-anchor="middle" x="94.5" y="-13.65" font-family="Architects Daughter" font-size="18.00">Kafka clients 4.x</text>
+<path fill="#fff3d9" stroke="#d9aa4d" d="M151,-36C151,-36 18,-36 18,-36 12,-36 6,-30 6,-24 6,-24 6,-12 6,-12 6,-6 12,0 18,0 18,0 151,0 151,0 157,0 163,-6 163,-12 163,-12 163,-24 163,-24 163,-30 157,-36 151,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="84.5" y="-13.65" font-family="Architects Daughter" font-size="18.00">Kafka clients 4.x</text>
 </g>
 <!-- producer&#45;&gt;kafka&#45;clients -->
 <g id="edge5" class="edge">
 <title>producer&#45;&gt;kafka&#45;clients</title>
-<path fill="none" stroke="#d9aa4d" d="M92.5,-89.79C92.5,-89.79 92.5,-46.01 92.5,-46.01"/>
-<polygon fill="#d9aa4d" stroke="#d9aa4d" points="95.3,-46.01 92.5,-38.01 89.7,-46.01 95.3,-46.01"/>
-</g>
-<!-- consumer&#45;&gt;kafka&#45;clients -->
-<g id="edge6" class="edge">
-<title>consumer&#45;&gt;kafka&#45;clients</title>
-<path fill="none" stroke="#45a7a1" d="M216.06,-89.79C216.06,-63.49 216.06,-18 216.06,-18 216.06,-18 182.72,-18 182.72,-18"/>
-<polygon fill="#45a7a1" stroke="#45a7a1" points="182.72,-15.2 174.72,-18 182.72,-20.8 182.72,-15.2"/>
+<path fill="none" stroke="#d9aa4d" d="M84.5,-89.79C84.5,-89.79 84.5,-46.01 84.5,-46.01"/>
+<polygon fill="#d9aa4d" stroke="#d9aa4d" points="87.3,-46.01 84.5,-38.01 81.7,-46.01 87.3,-46.01"/>
 </g>
 <!-- reactor&#45;kafka -->
 <g id="node8" class="node">
@@ -88,7 +82,7 @@
 <text xml:space="preserve" text-anchor="middle" x="295.5" y="-13.65" font-family="Architects Daughter" font-size="18.00">Reactor Kafka</text>
 </g>
 <!-- consumer&#45;&gt;reactor&#45;kafka -->
-<g id="edge7" class="edge">
+<g id="edge6" class="edge">
 <title>consumer&#45;&gt;reactor&#45;kafka</title>
 <path fill="none" stroke="#45a7a1" d="M295.5,-89.79C295.5,-89.79 295.5,-46.01 295.5,-46.01"/>
 <polygon fill="#45a7a1" stroke="#45a7a1" points="298.3,-46.01 295.5,-38.01 292.7,-46.01 298.3,-46.01"/>
@@ -100,7 +94,7 @@
 <text xml:space="preserve" text-anchor="middle" x="614.5" y="-13.65" font-family="Architects Daughter" font-size="18.00">Jackson 3 stack</text>
 </g>
 <!-- serialization&#45;&gt;json&#45;stack -->
-<g id="edge8" class="edge">
+<g id="edge7" class="edge">
 <title>serialization&#45;&gt;json&#45;stack</title>
 <path fill="none" stroke="#8a72d6" d="M564.19,-89.79C564.19,-89.79 564.19,-46.01 564.19,-46.01"/>
 <polygon fill="#8a72d6" stroke="#8a72d6" points="566.99,-46.01 564.19,-38.01 561.39,-46.01 566.99,-46.01"/>
@@ -118,7 +112,7 @@
 <text xml:space="preserve" text-anchor="middle" x="722.5" y="-103.65" font-family="Architects Daughter" font-size="18.00">Catalog governance</text>
 </g>
 <!-- governance&#45;&gt;json&#45;stack -->
-<g id="edge9" class="edge">
+<g id="edge8" class="edge">
 <title>governance&#45;&gt;json&#45;stack</title>
 <path fill="none" stroke="#6b7d90" d="M662.88,-89.79C662.88,-89.79 662.88,-46.01 662.88,-46.01"/>
 <polygon fill="#6b7d90" stroke="#6b7d90" points="665.68,-46.01 662.88,-38.01 660.08,-46.01 665.68,-46.01"/>

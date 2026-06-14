@@ -1,13 +1,14 @@
-graph 1 5.6423 2.0923
-node node_0_0 2.153 0.91149 4.306 1.556 «interface» rounded,filled box #9AA8B8 #F7FBFF
-node node_0_1 2.2739 0.91149 4.306 1.556 «interface» rounded,filled box #9AA8B8 #F7FBFF
-node node_1_0 2.153 0.84474 4.306 1.556 RedissonNearCache rounded,filled box #9AA8B8 #F7FBFF
-node node_1_1 2.2739 0.84474 4.306 1.556 HazelcastNearCache rounded,filled box #9AA8B8 #F7FBFF
-node node_2_0 2.153 0.778 4.306 1.556 LettuceNearCache rounded,filled box #9AA8B8 #F7FBFF
-node node_2_1 2.2739 0.778 4.306 1.556 "Resilient Near Cache" rounded,filled box #9AA8B8 #F7FBFF
-edge node_0_0 node_0_1 4 2.2726 0.91149 2.2728 0.91149 2.273 0.91149 2.2732 0.91149 solid #758297
-edge node_0_1 node_1_0 4 2.1544 0.84549 2.1541 0.84536 2.1539 0.84526 2.1538 0.84516 solid #758297
-edge node_1_0 node_1_1 4 2.2726 0.84474 2.2728 0.84474 2.273 0.84474 2.2732 0.84474 solid #758297
-edge node_1_1 node_2_0 4 2.1544 0.77875 2.1541 0.77863 2.1539 0.77852 2.1538 0.77843 solid #758297
-edge node_2_0 node_2_1 4 2.2726 0.778 2.2728 0.778 2.273 0.778 2.2732 0.778 solid #758297
+graph 1 14.429 2.3681
+node ops 3.7587 1.7882 3.1181 0.5 "NearCacheOperations<V>" rounded,filled box #75A9E8 #E8F3FF
+node read 0.68924 0.25 1.3785 0.5 "Read path" rounded,filled box #45A7A1 #E9F7F6
+node write 2.717 0.25 1.4722 0.5 "Write path" rounded,filled box #69B888 #EAF7EF
+node delete 4.8142 0.25 1.5347 0.5 "Delete path" rounded,filled box #DB7890 #FCE7F3
+node manage 7.3976 0.25 2.441 0.5 "Cache management" rounded,filled box #D9AA4D #FFF3D9
+node stats 7.2031 1.7882 2.5764 0.5 NearCacheStatistics rounded,filled box #8A72D6 #F1ECFF
+node close 10.314 1.7882 2.4514 0.5 "Resource lifecycle" rounded,filled box #AAB7C4 #F6F8FA
+node resilience 13.286 1.7882 2.2847 0.5 "Optional resilience" rounded,filled box #69B888 #EAF7EF
+edge ops read 7 2.197 1.7917 1.4387 1.7917 0.68924 1.7917 0.68924 1.7917 0.68924 1.7917 0.68924 0.63671 0.68924 0.63671 exposes 0.9809 1.0191 solid #45A7A1
+edge ops write 4 2.8264 1.5342 2.8264 1.5342 2.8264 0.63651 2.8264 0.63651 exposes 3.0087 1.0191 solid #58A978
+edge ops delete 4 4.6823 1.5342 4.6823 1.5342 4.6823 0.63651 4.6823 0.63651 exposes 5.1059 1.0191 solid #DB7890
+edge ops manage 10 5.3214 1.7917 5.5706 1.7917 5.7483 1.7917 5.7483 1.7917 5.7483 1.7917 5.7483 0.25 5.7483 0.25 5.7483 0.25 6.0409 0.25 6.0409 0.25 exposes 7.6892 1.0191 solid #D9AA4D
 stop

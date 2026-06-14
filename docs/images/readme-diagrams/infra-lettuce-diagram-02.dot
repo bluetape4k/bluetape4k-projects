@@ -8,10 +8,9 @@ digraph G {
   LettuceIntCodec [label="LettuceIntCodec", fillcolor="#FFF3D9", color="#D6A441"];
   LettuceBinaryCodec [label="LettuceBinaryCodec", fillcolor="#FDECEF", color="#DC6B82"];
   LettuceLongCodec [label="LettuceLongCodec", fillcolor="#F1ECFF", color="#8A72D6"];
-  { rank=source; RedisCodec; ToByteBufEncoder; }
-  LettuceBinaryCodecs -> LettuceBinaryCodec [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  RedisCodec -> LettuceLongCodec [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  RedisCodec -> LettuceIntCodec [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
-  ToByteBufEncoder -> LettuceBinaryCodec [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  LettuceBinaryCodecs -> LettuceBinaryCodec [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  RedisCodec -> LettuceLongCodec [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  RedisCodec -> LettuceIntCodec [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
+  ToByteBufEncoder -> LettuceBinaryCodec [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
   RedisCodec -> LettuceBinaryCodec [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
 }

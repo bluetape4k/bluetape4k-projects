@@ -14,7 +14,7 @@
       .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
       .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
       .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
       .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
       .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
@@ -29,26 +29,26 @@
   <text class="subtitle" x="76" y="121">Consumer projects import one platform while the BOM groups internal modules and third-party dependency families.</text>
 
   <g id="group-alignment">
-    <rect class="group" x="420" y="145" width="1010" height="178" rx="18"/>
-    <text class="group-title" x="450" y="169" dominant-baseline="middle">Alignment surface</text>
+    <rect class="group" x="74" y="145" width="1352" height="178" rx="18"/>
+    <text class="groupTitle" x="104" y="163" dominant-baseline="middle">Alignment surface</text>
   </g>
   <g id="group-modules">
     <rect class="group" x="74" y="360" width="1352" height="260" rx="18"/>
-    <text class="group-title" x="104" y="384" dominant-baseline="middle">Internal module families</text>
+    <text class="groupTitle" x="104" y="378" dominant-baseline="middle">Internal module families</text>
   </g>
   <g id="group-externals">
     <rect class="group" x="74" y="676" width="1352" height="156" rx="18"/>
-    <text class="group-title" x="104" y="700" dominant-baseline="middle">Governed external families</text>
+    <text class="groupTitle" x="104" y="694" dominant-baseline="middle">Governed external families</text>
   </g>
 
   <path id="route-consumer-platform" class="connector" d="M226 290 L226 334 L820 334 L820 294" stroke="#4F83BF"/>
   <path id="route-catalog-platform" class="connector" d="M710 249 L790 249" stroke="#8A72D6"/>
   <path id="route-platform-published" class="connector" d="M1060 249 L1160 249" stroke="#45A7A1"/>
-  <path id="route-platform-foundation" class="connector" d="M850 294 L850 342 L265 342 L265 428" stroke="#4F83BF"/>
+  <path id="route-platform-foundation" class="connector" d="M850 294 L850 346 L430 346 L430 416 L265 416 L265 428" stroke="#4F83BF"/>
   <path id="route-platform-data" class="connector" d="M915 294 L915 350 L598 350 L598 420" stroke="#DB7890"/>
   <path id="route-platform-infra" class="connector" d="M938 294 L938 420" stroke="#D9AA4D"/>
   <path id="route-platform-spring" class="connector" d="M990 294 L990 350 L1265 350 L1265 428" stroke="#58A978"/>
-  <path id="route-foundation-kotlin" class="connector" d="M265 516 L265 642 L420 642 L420 782 L390 782" stroke="#8A72D6"/>
+  <path id="route-foundation-kotlin" class="connector" d="M265 516 L265 642 L440 642 L440 782 L390 782" stroke="#8A72D6"/>
   <path id="route-data-serialization" class="connector" d="M598 524 L598 744" stroke="#45A7A1"/>
   <path id="route-data-databases" class="connector" d="M735 472 L762 472 L762 782 L784 782" stroke="#DB7890"/>
   <path id="route-infra-databases" class="connector" d="M890 524 L890 650 L909 650 L909 744" stroke="#DB7890"/>
@@ -128,9 +128,5 @@
     <text class="detail" x="125" y="57" text-anchor="middle" dominant-baseline="middle">Micrometer, Kafka</text>
   </g>
 
-  <g transform="translate(76,986)">
-    <rect class="pill" x="0" y="0" width="1348" height="44" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: bluetape4k-bom-diagram-01.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="674" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=12, r=13, seg=30, endpoint/bend/cross/overlap/clear/label=0, margins=96/110/83/166, titleGap=83.</text>
-  </g>
+
 </svg>

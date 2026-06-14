@@ -25,11 +25,26 @@
     <marker id="arrowResponse" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
       <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
     </marker>
+    <marker id="seqArrow-blue" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#5B8DEF"/>
+    </marker>
+    <marker id="seqArrow-green" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#58A978"/>
+    </marker>
+    <marker id="seqArrow-amber" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#D6A441"/>
+    </marker>
+    <marker id="seqArrow-purple" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#8A72D6"/>
+    </marker>
+    <marker id="seqArrow-pink" viewBox="0 0 5 5" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#DC6B82"/>
+    </marker>
     <style>
       .canvas{fill:#F6F9FC}.frame{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:2}
       .card,.participant{filter:url(#shadow);stroke-width:2}
       .layerBand{fill:#FFFFFF;stroke:#D7E2EC;stroke-width:1.4;opacity:.72}
-      .layerLabel{font-family:"Architects Daughter";font-size:18px;fill:#627184;font-weight:400;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
+      .layerTitle{font-family:"Architects Daughter";font-size:18px;fill:#627184;font-weight:400;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
       .lifeline{stroke:#758297;stroke-width:1.8;stroke-dasharray:7 8}
       .edge{stroke-width:2.4;fill:none}
       .sequenceEdge{stroke-width:2.3;fill:none}
@@ -47,13 +62,13 @@
   <rect class="frame" x="32" y="28" width="1356" height="864" rx="26"/>
   <text class="title" x="66" y="82">Ktor Observability Demo Architecture</text>
   <text class="subtitle" x="70" y="116">Layered entry, platform, application event, and export responsibilities.</text>
-  <g id="entry"><rect class="layerBand" x="54" y="170" width="1312" height="140" rx="18"/><text class="layerLabel" x="74" y="188" dominant-baseline="middle">Entry layer</text></g>
-  <g id="platform"><rect class="layerBand" x="54" y="330" width="1312" height="140" rx="18"/><text class="layerLabel" x="74" y="348" dominant-baseline="middle">Ktor platform layer</text></g>
-  <g id="application"><rect class="layerBand" x="54" y="490" width="1312" height="160" rx="18"/><text class="layerLabel" x="74" y="508" dominant-baseline="middle">Application event layer</text></g>
-  <g id="export"><rect class="layerBand" x="54" y="670" width="1312" height="160" rx="18"/><text class="layerLabel" x="74" y="688" dominant-baseline="middle">Export layer</text></g>
+  <g id="entry"><rect class="layerBand" x="54" y="170" width="1312" height="140" rx="18"/><text class="layerTitle" x="74" y="185" dominant-baseline="middle">Entry</text></g>
+  <g id="platform"><rect class="layerBand" x="54" y="330" width="1312" height="140" rx="18"/><text class="layerTitle" x="74" y="345" dominant-baseline="middle">Platform</text></g>
+  <g id="application"><rect class="layerBand" x="54" y="490" width="1312" height="160" rx="18"/><text class="layerTitle" x="74" y="505" dominant-baseline="middle">Events</text></g>
+  <g id="export"><rect class="layerBand" x="54" y="670" width="1312" height="160" rx="18"/><text class="layerTitle" x="74" y="685" dominant-baseline="middle">Export</text></g>
 
   <g id="client-routes">
-    <path class="edge" d="M365 242 L440 242" stroke="#5B8DEF" marker-end="url(#arrowRequest)"/>
+    <path class="edge" d="M425 242 L440 242" stroke="#5B8DEF" marker-end="url(#arrowRequest)"/>
 
   </g>
 
@@ -98,10 +113,10 @@
   </g>
 
   <g id="client">
-    <rect class="card" x="120" y="198" width="245" height="88" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
-    <text class="cardTitle" x="242.5" y="213" text-anchor="middle" dominant-baseline="middle">HTTP Client</text>
-    <text class="body" x="242.5" y="254" text-anchor="middle" dominant-baseline="middle">POST order event</text>
-<text class="body" x="242.5" y="274" text-anchor="middle" dominant-baseline="middle">GET /metrics</text>
+    <rect class="card" x="180" y="198" width="245" height="88" rx="16" fill="#E8F3FF" stroke="#5B8DEF"/>
+    <text class="cardTitle" x="302.5" y="213" text-anchor="middle" dominant-baseline="middle">HTTP Client</text>
+    <text class="body" x="302.5" y="254" text-anchor="middle" dominant-baseline="middle">POST order event</text>
+<text class="body" x="302.5" y="274" text-anchor="middle" dominant-baseline="middle">GET /metrics</text>
   </g>
 
   <g id="routes">
@@ -158,5 +173,5 @@
     <text class="body" x="1235" y="783" text-anchor="middle" dominant-baseline="middle">server spans</text>
 <text class="body" x="1235" y="803" text-anchor="middle" dominant-baseline="middle">null disables tracing</text>
   </g>
-  <text class="note" x="710" y="910" text-anchor="middle">Graphviz DOT/plain/sketch evidence is stored next to this README PNG/SVG asset.</text>
+  <text class="note" x="710" y="910" text-anchor="middle">bluetape4k-projects observability examples - github.com/bluetape4k/bluetape4k-projects</text>
 </svg>

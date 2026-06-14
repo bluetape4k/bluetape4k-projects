@@ -12,17 +12,17 @@
 <!-- AvroSpecificRecordSerializer&#45;&gt;DefaultAvroSpecificRecordSerializer -->
 <g id="edge2" class="edge">
 <title>AvroSpecificRecordSerializer&#45;&gt;DefaultAvroSpecificRecordSerializer</title>
-<path fill="none" stroke="#718a35" stroke-width="1.8" d="M116.52,-161.1C116.52,-135.34 116.52,-101.52 116.52,-75.82"/>
+<path fill="none" stroke="#4f83bf" stroke-width="1.8" d="M116.52,-161.1C116.52,-135.34 116.52,-101.52 116.52,-75.82"/>
 </g>
 <!-- AvroGenericRecordSerializer&#45;&gt;DefaultAvroGenericRecordSerializer -->
 <g id="edge3" class="edge">
 <title>AvroGenericRecordSerializer&#45;&gt;DefaultAvroGenericRecordSerializer</title>
-<path fill="none" stroke="#755bc6" stroke-width="1.8" d="M414.52,-161.1C414.52,-135.34 414.52,-101.52 414.52,-75.82"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" d="M414.52,-161.1C414.52,-135.34 414.52,-101.52 414.52,-75.82"/>
 </g>
 <!-- AvroReflectSerializer&#45;&gt;DefaultAvroReflectSerializer -->
 <g id="edge1" class="edge">
 <title>AvroReflectSerializer&#45;&gt;DefaultAvroReflectSerializer</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" d="M696.52,-161.1C696.52,-135.34 696.52,-101.52 696.52,-75.82"/>
+<path fill="none" stroke="#3e9868" stroke-width="1.8" d="M696.52,-161.1C696.52,-135.34 696.52,-101.52 696.52,-75.82"/>
 </g>
 <!-- AvroSpecificRecordSerializer -->
 <g id="node1" class="node">

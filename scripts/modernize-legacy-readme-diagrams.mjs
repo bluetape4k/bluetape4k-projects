@@ -22,6 +22,9 @@ for (const file of files) {
 
   const kind = classify(file, extractTitle(original));
   let svg = modernizeSubtitle(original, kind);
+  if (kind === "class") {
+    svg = colorizeLegacyClassRoutes(svg);
+  }
   if (["architecture", "module", "flow-state"].includes(kind)) {
     const result = straightenAvoidableDoglegs(svg);
     svg = result.svg;
@@ -29,10 +32,39 @@ for (const file of files) {
   }
 
   if (svg !== original) {
-    writeFileSync(svgPath, svg);
+    writeFileSync(svgPath, cleanSvg(svg));
     execFileSync(RSVGC, ["--format", "png", "--output", svgPath.replace(/\.svg$/, ".png"), svgPath], { stdio: "inherit" });
     modernized += 1;
   }
+}
+
+function cleanSvg(svg) {
+  return `${svg.replace(/[ \t]+$/gm, "").trimEnd()}\n`;
+}
+
+function colorizeLegacyClassRoutes(svg) {
+  const colors = ["#3E9868", "#4F83BF", "#2E8F89", "#B9851B", "#C94D68", "#755BC6", "#718A35"];
+  let index = 0;
+  return svg
+    .replace(/(<marker id="openArrow"[^>]*><path d="M 0\.5 0\.5 L 4\.5 2\.5 L 0\.5 4\.5" fill="none" stroke=")[^"]+("[^>]*><\/marker>)/, "$1context-stroke$2")
+    .replace(/(<marker id="inherit"[^>]*><path d="M 0\.25 0\.5 L 4\.75 2\.5 L 0\.25 4\.5 Z" fill="#ffffff" stroke=")[^"]+("[^>]*><\/marker>)/, "$1context-stroke$2")
+    .replace(/<path\b([^>]*class="[^"]*(?:line|dashed|inheritLine|implLine)[^"]*"[^>]*)>/g, (tag, attrs) => {
+      const color = colors[index % colors.length];
+      index += 1;
+      return `<path${withRouteStroke(attrs, color)}/>`;
+    });
+}
+
+function withRouteStroke(attrs, color) {
+  let next = attrs.replace(/\s*\/\s*$/, "");
+  next = next.replace(/\s*\/\s+(?=style=)/, " ");
+  if (/\bstyle="/.test(next)) {
+    next = next.replace(/\bstyle="([^"]*)"/, (_match, style) => `style="${style.replace(/;?$/, ";")}stroke:${color}"`);
+  } else {
+    next += ` style="stroke:${color}"`;
+  }
+  if (!/\bdata-route-color=/.test(next)) next += ` data-route-color="${color}"`;
+  return next;
 }
 
 console.log(`legacy-readme-diagrams: modernized=${modernized} straightenedDoglegs=${straightened}`);

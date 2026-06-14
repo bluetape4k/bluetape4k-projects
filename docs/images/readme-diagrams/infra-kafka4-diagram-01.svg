@@ -14,7 +14,7 @@
       .title{font-family:"Architects Daughter";font-size:46px;fill:#22344A;font-weight:400}
       .subtitle{font-family:"Comic Mono";font-size:18px;fill:#536476;font-weight:400}
       .group{fill:#F3F7FB;stroke:#D7E2EC;stroke-width:2}
-      .group-title{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
+      .groupTitle{font-family:"Architects Daughter";font-size:23px;fill:#22344A;font-weight:400;paint-order:stroke;stroke:#F3F7FB;stroke-width:5px;stroke-linejoin:round}
       .card-title{font-family:"Architects Daughter";font-size:22px;fill:#22344A;font-weight:400}
       .detail{font-family:"Comic Mono";font-size:14px;fill:#42556B;font-weight:400}
       .small{font-family:"Comic Mono";font-size:13px;fill:#627184;font-weight:400}
@@ -28,13 +28,21 @@
   <text class="title" x="72" y="88">Kafka4 module dependency architecture</text>
   <text class="subtitle" x="76" y="121">The module boundary is separated from producer/consumer helpers and the governed Kafka 4 dependency families.</text>
 
+  <g id="group-application">
+    <rect class="group" x="74" y="225" width="290" height="180" rx="18"/>
+    <text class="groupTitle" x="104" y="243" dominant-baseline="middle">Application usage</text>
+  </g>
   <g id="group-module">
     <rect class="group" x="370" y="200" width="760" height="310" rx="18"/>
-    <text class="group-title" x="400" y="224" dominant-baseline="middle">bluetape4k-kafka4 module boundary</text>
+    <text class="groupTitle" x="400" y="218" dominant-baseline="middle">bluetape4k-kafka4 module boundary</text>
+  </g>
+  <g id="group-governance">
+    <rect class="group" x="1160" y="245" width="285" height="180" rx="18"/>
+    <text class="groupTitle" x="1190" y="263" dominant-baseline="middle">Catalog governance lane</text>
   </g>
   <g id="group-dependencies">
     <rect class="group" x="92" y="610" width="1316" height="170" rx="18"/>
-    <text class="group-title" x="122" y="634" dominant-baseline="middle">Governed dependency families</text>
+    <text class="groupTitle" x="122" y="628" dominant-baseline="middle">Governed dependency families</text>
   </g>
 
   <path id="route-app-entry" class="connector" d="M342 321 L455 321" stroke="#4F83BF"/>
@@ -42,7 +50,6 @@
   <path id="route-entry-consumer" class="connector" d="M735 320 L760 320 L760 420 L800 420" stroke="#45A7A1"/>
   <path id="route-entry-serialization" class="connector" d="M735 278 L810 278" stroke="#8A72D6"/>
   <path id="route-producer-kafka-clients" class="connector" d="M500 462 L500 540 L105 540 L105 726 L150 726" stroke="#D9AA4D"/>
-  <path id="route-consumer-kafka-clients" class="connector" d="M850 462 L850 585 L430 585 L430 726 L410 726" stroke="#45A7A1"/>
   <path id="route-consumer-reactor-kafka" class="connector" d="M925 462 L925 690" stroke="#45A7A1"/>
   <path id="route-serialization-json-stack" class="connector" d="M1060 293 L1100 293 L1100 600 L1240 600 L1240 690" stroke="#8A72D6"/>
   <path id="route-governance-json-stack" class="connector" d="M1298 388 L1298 690" stroke="#6B7D90"/>
@@ -108,9 +115,5 @@
     <text class="detail" x="122.5" y="62" text-anchor="middle" dominant-baseline="middle">security updates</text>
   </g>
 
-  <g transform="translate(76,826)">
-    <rect class="pill" x="0" y="0" width="1348" height="44" rx="10"/>
-    <text class="small" x="674" y="17" text-anchor="middle" dominant-baseline="middle">Graphviz: infra-kafka4-diagram-01.{dot,plain} + sketch SVG/PNG.</text>
-    <text class="small" x="674" y="34" text-anchor="middle" dominant-baseline="middle">Gate: n=10, r=9, seg=20, endpoint/bend/cross/overlap/clear/label=0, margins=92/80/129/64, titleGap=129.</text>
-  </g>
+
 </svg>

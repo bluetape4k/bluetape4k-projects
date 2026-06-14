@@ -9,9 +9,9 @@ digraph G {
   RedissonLeaderElection [label="RedissonLeaderElection", fillcolor="#FDECEF", color="#DC6B82"];
   RedissonCodecs [label="RedissonCodecs", fillcolor="#F1ECFF", color="#8A72D6"];
   RedissonNearCache [label="RedissonNearCache", fillcolor="#EEF6D9", color="#8BA84D"];
-  RedissonClientSupport -> RedissonNearCache [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  RedissonClientSupport -> RedissonLeaderElection [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  RedissonClientSupport -> RedissonCodecs [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  LettuceClients -> LettuceLoadedMap [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
-  LettuceClients -> LettuceBinaryCodecs [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  RedissonClientSupport -> RedissonNearCache [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  RedissonClientSupport -> RedissonLeaderElection [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  RedissonClientSupport -> RedissonCodecs [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  LettuceClients -> LettuceLoadedMap [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  LettuceClients -> LettuceBinaryCodecs [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
 }

@@ -128,6 +128,6 @@
 <g>
   <rect class="note" x="94" y="932" width="1612" height="50" rx="16"/>
   <text class="small" x="900" y="950" text-anchor="middle" dominant-baseline="middle">Source: cache/cache-lettuce/README.ko.md near-cache throughput table</text>
-  <text class="tiny" x="900" y="968" text-anchor="middle" dominant-baseline="middle">Chart rule: split scales when hot paths and remote paths differ by orders of magnitude.</text>
+  <text class="tiny" x="900" y="968" text-anchor="middle" dominant-baseline="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text>
 </g>
 </svg>

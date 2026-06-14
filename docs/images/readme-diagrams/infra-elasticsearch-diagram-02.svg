@@ -93,7 +93,7 @@
 <text class="edgeLabel" x="1165" y="234" text-anchor="middle">wraps</text>
 <path class="line" d="M1305 308 V392"/>
 <text class="edgeLabel" x="1336" y="354" text-anchor="middle">requests</text>
-<path class="line" d="M985 318 V660"/>
+<path class="line" d="M985 318 L1220 318 L1220 660"/>
 <text class="edgeLabel" x="1048" y="486" text-anchor="middle">creates transport</text>
 <path class="line" d="M462 541 H565"/>
 <text class="edgeLabel" x="514" y="531" text-anchor="middle">bulk operations</text>

@@ -6,9 +6,9 @@ node CityResponse 12.65 2.7694 2.8 1.05 CityResponse rounded,filled box #D6A441 
 node GeoIp2Support 12.65 5.0139 2.8 1.05 GeoIp2Support rounded,filled box #DC6B82 #FDECEF
 node GeoHashCircleQuery 5.15 5.0139 2.8 1.05 GeoHashCircleQuery rounded,filled box #8A72D6 #F1ECFF
 node GoogleGeocoder 8.9 2.7694 2.8 1.05 GoogleGeocoder rounded,filled box #8BA84D #EEF6D9
-edge BingGeocoder GeoPoint 7 1.4 2.2382 1.4 1.5753 1.4 0.52778 1.4 0.52778 1.4 0.52778 2.6832 0.52778 3.7483 0.52778 dashed #4F83BF
-edge GeoHashUtils GeoPoint 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 dashed #2E8F89
-edge GeoIp2Support CityResponse 4 12.65 4.482 12.65 4.1242 12.65 3.6545 12.65 3.2975 dashed #C94D68
-edge GeoHashCircleQuery GeoHashUtils 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #755BC6
-edge GoogleGeocoder GeoPoint 7 8.9 2.2382 8.9 1.5753 8.9 0.52778 8.9 0.52778 8.9 0.52778 7.6168 0.52778 6.5517 0.52778 dashed #718A35
+edge BingGeocoder GeoPoint 7 1.4 2.2382 1.4 1.5753 1.4 0.52778 1.4 0.52778 1.4 0.52778 2.6832 0.52778 3.7483 0.52778 dashed #B9851B
+edge GeoHashUtils GeoPoint 4 5.15 2.2375 5.15 1.8798 5.15 1.4101 5.15 1.0531 dashed #755BC6
+edge GeoIp2Support CityResponse 4 12.65 4.482 12.65 4.1242 12.65 3.6545 12.65 3.2975 dashed #2E8F89
+edge GeoHashCircleQuery GeoHashUtils 4 5.15 4.482 5.15 4.1242 5.15 3.6545 5.15 3.2975 dashed #718A35
+edge GoogleGeocoder GeoPoint 7 8.9 2.2382 8.9 1.5753 8.9 0.52778 8.9 0.52778 8.9 0.52778 7.6168 0.52778 6.5517 0.52778 dashed #C94D68
 stop

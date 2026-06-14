@@ -153,7 +153,7 @@ function rankingChart({ name, title, subtitle, source, unit, max, ticks, rows, n
   ${text("small", width / 2, bottom.noteY + 23, note, 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 42, "Higher is better. Keep units, benchmark mode, and source table visible with the chart.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, source, "Chart rule: do not merge unlike units; split axes when order-of-magnitude differences hide the message.")}
+${footer(bottom.footerY, width, source, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
 </svg>`;
   writeChart(name, svg, `${name}: rows=${rows.length} max=${max} unit=${unit}`);
 }
@@ -189,7 +189,7 @@ ${legend(width - 650, 110, seriesLabels.map((label) => ({ label, step: 205 })))}
   ${text("small", width / 2, bottom.noteY + 23, note, 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 43, "Use grouped rows only when each bar shares the same unit and benchmark mode.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, source, "Chart rule: preserve the Markdown table semantics; do not decorate away backpressure or benchmark caveats.")}
+${footer(bottom.footerY, width, source, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
 </svg>`;
   writeChart(name, svg, `${name}: groups=${groups.length} series=${seriesLabels.length} max=${max} unit=${unit}`);
 }
@@ -230,7 +230,7 @@ ${body}
   ${text("small", width / 2, bottom.noteY + 23, note, 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 42, "Split panels are intentional: one chart would compress slower paths into unreadable slivers.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, source, "Chart rule: split scales when hot paths and remote paths differ by orders of magnitude.")}
+${footer(bottom.footerY, width, source, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
 </svg>`;
   writeChart(name, svg, `${name}: panels=${panels.length}`);
 }
@@ -375,7 +375,7 @@ ${compactPanel({ x: 950, y: 650, w: panelW, h: panelH, title: "Concurrent batch=
   ${text("small", width / 2, bottom.noteY + 23, "UUID V7 leads every table; batch=10000 drops all generators because uniqueness verification dominates the measured work.", 'text-anchor="middle" dominant-baseline="middle"')}
   ${text("tiny", width / 2, bottom.noteY + 42, "Four panels are intentional: mixing batch sizes or execution modes into one axis hides the benchmark meaning.", 'text-anchor="middle" dominant-baseline="middle"')}
 </g>
-${footer(bottom.footerY, width, "utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables", "Chart rule: keep benchmark mode, batch size, unit, and direction attached to each panel.")}
+${footer(bottom.footerY, width, "utils/idgenerators/Benchmark.md and Benchmark.ko.md summary tables", "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects")}
 </svg>`;
   writeChart("idgenerators-throughput-chart-01", svg, "idgenerators-throughput-chart-01: panels=4 sourceTables=single/concurrent batch100/batch10000");
 }

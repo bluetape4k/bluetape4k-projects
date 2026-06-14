@@ -34,7 +34,7 @@
 <g id="service"><rect class="card" x="250" y="500" width="360" height="86" rx="14" fill="#F1ECFF" stroke="#8A72D6"/><text class="cardTitle" x="430" y="525" text-anchor="middle">IdGenerator service</text><text class="detail" x="430" y="561" text-anchor="middle">Spring-managed generator</text>
 <text class="detail" x="430" y="579" text-anchor="middle">facade</text></g>
 <g id="props"><rect class="card" x="850" y="500" width="360" height="86" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="1030" y="534" text-anchor="middle">Configuration properties</text><text class="detail" x="1030" y="570" text-anchor="middle">node id and generator choices</text></g>
-<path class="flow" d="M325 294 L325 500" stroke="#4F83BF"/>
+<path class="flow" d="M325 294 L325 380 L430 380 L430 500" stroke="#4F83BF"/>
 <path class="flow" d="M610 543 L850 543" stroke="#755BC6"/>
 <g><rect class="panel" x="86" y="735" width="1370" height="190" rx="22"/><text class="panelTitle" x="110" y="769">Generator runtime layer</text></g>
 <g id="clock"><rect class="card" x="180" y="805" width="300" height="82" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="330" y="837" text-anchor="middle">Clock source</text><text class="detail" x="330" y="873" text-anchor="middle">timestamp and sequence guard</text></g>
@@ -43,5 +43,5 @@
 <path class="flow" d="M1030 586 L1030 805" stroke="#B9851B"/>
 <path class="flow" d="M480 846 L610 846" stroke="#2E8F89"/>
 <path class="flow" d="M950 846 L1080 846" stroke="#3E9868"/>
-<g><rect x="205" y="975" width="1130" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="770" y="1001" text-anchor="middle">Layered layout replaces the old grid and keeps Spring web concerns separate from generator mechanics.</text></g>
+<g><rect x="205" y="975" width="1130" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="770" y="1001" text-anchor="middle">bluetape4k-projects examples - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

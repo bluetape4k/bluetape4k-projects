@@ -24,10 +24,10 @@
 <rect class="frame" x="32" y="28" width="1690" height="768" rx="28"/>
 <text class="title" x="66" y="82">OkHttp3</text>
 <text class="subtitle" x="70" y="104">Source-checked README diagram refreshed with stable SVG/PNG rendering.</text>
-<path class="dashed" d="M672 313 L672 400 L877 400 L877 455"/>
-<path class="line" d="M672 313 L672 122 L262 122 L262 180"/>
+<path class="dashed" d="M620 313 L620 400 L877 400 L877 455"/>
+<path class="line" d="M590 313 L590 122 L262 122 L262 180"/>
 <path class="line" d="M672 313 L672 132 L1082 132 L1082 180"/>
-<path class="line" d="M672 313 L672 376 L1492 376 L1492 180"/>
+<path class="line" d="M754 313 L754 376 L1492 376 L1492 180"/>
 <g transform="translate(92,180)">
   <rect class="card" x="0" y="0" width="340" height="149" rx="5" fill="#E8F3FF" stroke="#5B8DEF"/>
   <line class="compartment" x1="0" y1="94" x2="340" y2="94" stroke="#5B8DEF"/>

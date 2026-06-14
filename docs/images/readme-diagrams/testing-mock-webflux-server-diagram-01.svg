@@ -15,7 +15,7 @@
 <rect class="canvas" width="1880" height="1645"/>
 <rect class="frame" x="32" y="28" width="1816" height="1589" rx="30"/>
 <text class="title" x="68" y="84">Request Routing Overview</text>
-<text class="subtitle" x="72" y="116">Source-checked architecture redrawn as layered/free layout with reserved label gutters.</text>
+<text class="subtitle" x="72" y="116">Source-checked architecture with responsibility groups and reserved label gutters.</text>
 <g><rect class="panel" x="78" y="165" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="191" dominant-baseline="middle">Entry points</text></g>
 <g><rect class="panel" x="78" y="511" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="537" dominant-baseline="middle">bluetape4k module support</text></g>
 <g><rect class="panel" x="78" y="857" width="1724" height="264" rx="22"/><text class="panelTitle" x="102" y="883" dominant-baseline="middle">Runtime adapters</text></g>
@@ -104,5 +104,5 @@
     <text class="cardTitle" x="1095" y="1350" text-anchor="middle">WebContentLoader</text>
     <text class="detail" x="1095" y="1387" text-anchor="middle">cacheable</text>
   </g>
-<g><rect x="190" y="1553" width="1500" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="940" y="1579" text-anchor="middle">Graphviz evidence: cards are grouped by responsibility with clear outer margin and label gutters.</text></g>
+<g><rect x="190" y="1553" width="1500" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="940" y="1579" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

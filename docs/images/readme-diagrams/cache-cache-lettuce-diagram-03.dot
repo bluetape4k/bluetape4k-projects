@@ -1,0 +1,33 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="white", splines=ortho, nodesep=0.6, ranksep=0.85, fontname="Comic Mono", label="Lettuce Cache Stability Contracts evidence", labelloc=t];
+  node [shape=box, style="rounded,filled", fontname="Architects Daughter", fontsize=18, color="#D7E2EC", fillcolor="#F7FAFC"];
+  edge [fontname="Comic Mono", fontsize=11, color="#56708C", arrowsize=0.8];
+  "cas1" [label="replace(old,new)", fillcolor="#E8F3FF", color="#75A9E8"];
+  "cas2" [label="EVALSHA CAS", fillcolor="#F1ECFF", color="#8A72D6"];
+  "cas3" [label="NOSCRIPT fallback", fillcolor="#FFF3D9", color="#D9AA4D"];
+  "cas4" [label="front update on success", fillcolor="#EAF7EF", color="#69B888"];
+  "del1" [label="remove / clearBack", fillcolor="#E8F3FF", color="#75A9E8"];
+  "del2" [label="UNLINK", fillcolor="#F1ECFF", color="#8A72D6"];
+  "del3" [label="SCAN namespace", fillcolor="#FFF3D9", color="#D9AA4D"];
+  "del4" [label="front invalidation", fillcolor="#EAF7EF", color="#69B888"];
+  "close1" [label="LettuceJCache.close()", fillcolor="#E8F3FF", color="#75A9E8"];
+  "close2" [label="explicit clear()", fillcolor="#F1ECFF", color="#8A72D6"];
+  "close3" [label="Suspend managers", fillcolor="#FFF3D9", color="#D9AA4D"];
+  "close4" [label="listener cleanup", fillcolor="#EAF7EF", color="#69B888"];
+  "memo1" [label="in-flight promise", fillcolor="#E8F3FF", color="#75A9E8"];
+  "memo2" [label="failure / cancel", fillcolor="#FDECEC", color="#DB7F75"];
+  "memo3" [label="remove(key,promise)", fillcolor="#F1ECFF", color="#8A72D6"];
+  "memo4" [label="next call recomputes", fillcolor="#EAF7EF", color="#69B888"];
+  "cas1" -> "cas2" [label="executes", color="#8A72D6", style="solid"];
+  "cas2" -> "cas3" [label="if NOSCRIPT", color="#D9AA4D", style="dashed"];
+  "cas3" -> "cas4" [label="same result", color="#58A978", style="solid"];
+  "del1" -> "del2" [label="uses", color="#8A72D6", style="solid"];
+  "del2" -> "del3" [label="scans", color="#D9AA4D", style="solid"];
+  "del3" -> "del4" [label="clears", color="#58A978", style="solid"];
+  "close1" -> "close2" [label="separates", color="#8A72D6", style="solid"];
+  "close2" -> "close3" [label="protects", color="#D9AA4D", style="solid"];
+  "close3" -> "close4" [label="then releases", color="#58A978", style="solid"];
+  "memo1" -> "memo2" [label="on error", color="#C85D55", style="solid"];
+  "memo2" -> "memo3" [label="atomic cleanup", color="#8A72D6", style="solid"];
+  "memo3" -> "memo4" [label="allows", color="#58A978", style="solid"];
+}

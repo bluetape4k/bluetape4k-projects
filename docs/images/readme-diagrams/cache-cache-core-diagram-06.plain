@@ -1,21 +1,19 @@
-graph 1 5.6727 2.159
-node node_0_0 2.153 0.97824 4.306 1.556 LettuceSuspendJCacheV rounded,filled box #9AA8B8 #F7FBFF
-node node_0_1 2.2439 0.97824 4.306 1.556 "Caffeine Suspend JCache" rounded,filled box #9AA8B8 #F7FBFF
-node node_0_2 2.3348 0.97824 4.306 1.556 SuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_1_0 2.153 0.91149 4.306 1.556 "Hazelcast Suspend JCache" rounded,filled box #9AA8B8 #F7FBFF
-node node_1_1 2.2894 0.91149 4.306 1.556 "Redisson Suspend JCache" rounded,filled box #9AA8B8 #F7FBFF
-node node_2_0 2.153 0.84475 4.306 1.556 «interface» rounded,filled box #9AA8B8 #F7FBFF
-node node_2_1 2.2439 0.84475 4.306 1.556 LettuceSuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_2_2 2.3348 0.84475 4.306 1.556 CaffeineSuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_3_0 2.153 0.778 4.306 1.556 HazelcastSuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-node node_3_1 2.2894 0.778 4.306 1.556 RedissonSuspendJCache rounded,filled box #9AA8B8 #F7FBFF
-edge node_0_0 node_0_1 4 2.2429 0.97824 2.2431 0.97824 2.2432 0.97824 2.2433 0.97824 solid #758297
-edge node_0_1 node_0_2 4 2.3338 0.97824 2.334 0.97824 2.3341 0.97824 2.3343 0.97824 solid #758297
-edge node_0_2 node_1_0 4 2.155 0.91224 2.1547 0.91211 2.1544 0.91201 2.1542 0.91191 solid #758297
-edge node_1_0 node_1_1 4 2.2878 0.91149 2.2881 0.91149 2.2883 0.91149 2.2885 0.91149 solid #758297
-edge node_1_1 node_2_0 4 2.1545 0.8455 2.1543 0.84538 2.1541 0.84527 2.1539 0.84518 solid #758297
-edge node_2_0 node_2_1 4 2.2429 0.84475 2.2431 0.84475 2.2432 0.84475 2.2433 0.84475 solid #758297
-edge node_2_1 node_2_2 4 2.3338 0.84475 2.334 0.84475 2.3341 0.84475 2.3343 0.84475 solid #758297
-edge node_2_2 node_3_0 4 2.155 0.77875 2.1547 0.77863 2.1544 0.77852 2.1542 0.77843 solid #758297
-edge node_3_0 node_3_1 4 2.2878 0.778 2.2881 0.778 2.2883 0.778 2.2885 0.778 solid #758297
+graph 1 14.257 6.9826
+node caller 4.2569 6.4028 2.9826 0.5 "Coroutine service code" rounded,filled box #75A9E8 #E8F3FF
+node near 4.2569 4.8646 3.1389 0.5 "SuspendNearJCache<K,V>" rounded,filled box #69B888 #EAF7EF
+node entries 1.1319 3.3264 2.2639 0.5 "entries() / getAll()" rounded,filled box #45A7A1 #E9F7F6
+node front 4.2569 3.3264 2.7951 0.5 "Front SuspendJCache" rounded,filled box #45A7A1 #E9F7F6
+node back 7.0486 1.7882 2.7222 0.5 "Back SuspendJCache" rounded,filled box #D9AA4D #FFF3D9
+node listener 4.4931 0.25 4.2639 0.5 SuspendJCacheEntryEventListener rounded,filled box #DB7890 #FCE7F3
+node without 9.6875 3.3264 2.2951 0.5 "withoutListener(...)" rounded,filled box #8A72D6 #F1ECFF
+node factory 12.757 3.3264 2.6493 0.5 "Factory registration" rounded,filled box #AAB7C4 #F6F8FA
+edge caller near 4 4.2569 6.1488 4.2569 6.1488 4.2569 5.2511 4.2569 5.2511 "suspend API" 4.7153 5.6337 solid #4F83BF
+edge near entries 7 2.7734 4.6117 2.7734 4.1768 2.7734 3.3333 2.7734 3.3333 2.7734 3.3333 2.3997 3.3333 2.3997 3.3333 "Flow entries" 1.6319 4.0955 solid #45A7A1
+edge near front 4 4.2569 4.6106 4.2569 4.6106 4.2569 3.7129 4.2569 3.7129 "front fast path" 4.8819 4.0955 solid #45A7A1
+edge near back 4 5.7801 4.6128 5.7801 4.6128 5.7801 2.1756 5.7801 2.1756 "write-through" 7.3958 3.3264 solid #58A978
+edge front back 7 5.6585 3.3333 5.7062 3.3333 5.7338 3.3333 5.7338 3.3333 5.7338 3.3333 5.7338 2.1755 5.7338 2.1755 "miss lookup / fill" 5.7292 2.5573 solid #D9AA4D
+edge back listener 4 6.1562 1.5342 6.1562 1.5342 6.1562 0.63651 6.1562 0.63651 "entry events" 6.5069 1.0191 solid #DB7890
+edge listener front 4 4.2569 0.50175 4.2569 0.50175 4.2569 2.939 4.2569 2.939 "updates front" 4.5486 1.7882 solid #DB7890
+edge without back 7 9.6875 3.0736 9.6875 2.6577 9.6875 1.875 9.6875 1.875 9.6875 1.875 8.5466 1.875 8.5466 1.875 "listener-free option" 10.521 2.5573 dashed #8A72D6
+edge factory back 7 12.757 3.07 12.757 2.6138 12.757 1.7083 12.757 1.7083 12.757 1.7083 8.548 1.7083 8.548 1.7083 "registers listener" 13.507 2.5573 solid #6B7D90
 stop

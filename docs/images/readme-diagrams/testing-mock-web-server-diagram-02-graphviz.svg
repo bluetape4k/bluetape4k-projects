@@ -12,52 +12,52 @@
 <!-- PostsController&#45;&gt;JsonplaceholderService -->
 <g id="edge4" class="edge">
 <title>PostsController&#45;&gt;JsonplaceholderService</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M168.3,-322.7C168.3,-296.94 168.3,-263.12 168.3,-237.42"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M168.3,-322.7C168.3,-296.94 168.3,-263.12 168.3,-237.42"/>
 </g>
 <!-- JsonplaceholderService&#45;&gt;InMemoryRepository -->
 <g id="edge2" class="edge">
 <title>JsonplaceholderService&#45;&gt;InMemoryRepository</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M235.8,-161.1C235.8,-135.34 235.8,-101.52 235.8,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M235.8,-161.1C235.8,-135.34 235.8,-101.52 235.8,-75.82"/>
 </g>
 <!-- MockServerApplication&#45;&gt;PostsController -->
 <g id="edge7" class="edge">
 <title>MockServerApplication&#45;&gt;PostsController</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M674.75,-535C486.44,-535 100.8,-535 100.8,-535 100.8,-535 100.8,-450.4 100.8,-399.19"/>
+<path fill="none" stroke="#c8644b" stroke-width="1.8" stroke-dasharray="5,2" d="M674.75,-535C486.44,-535 100.8,-535 100.8,-535 100.8,-535 100.8,-450.4 100.8,-399.19"/>
 </g>
 <!-- MockServerApplication&#45;&gt;AdminController -->
 <g id="edge5" class="edge">
 <title>MockServerApplication&#45;&gt;AdminController</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M674.65,-510C554.69,-510 370.8,-510 370.8,-510 370.8,-510 370.8,-443.13 370.8,-398.98"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M674.65,-510C554.69,-510 370.8,-510 370.8,-510 370.8,-510 370.8,-443.13 370.8,-398.98"/>
 </g>
 <!-- MockServerApplication&#45;&gt;WebContentController -->
 <g id="edge6" class="edge">
 <title>MockServerApplication&#45;&gt;WebContentController</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M708.3,-484.3C708.3,-458.54 708.3,-424.72 708.3,-399.02"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" stroke-dasharray="5,2" d="M708.3,-484.3C708.3,-458.54 708.3,-424.72 708.3,-399.02"/>
 </g>
 <!-- MockServerApplication&#45;&gt;HttpbinController -->
 <g id="edge10" class="edge">
 <title>MockServerApplication&#45;&gt;HttpbinController</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M826.65,-484.3C826.65,-458.54 826.65,-424.72 826.65,-399.02"/>
+<path fill="none" stroke="#a84b98" stroke-width="1.8" stroke-dasharray="5,2" d="M826.65,-484.3C826.65,-458.54 826.65,-424.72 826.65,-399.02"/>
 </g>
 <!-- MockServerApplication&#45;&gt;HttpbinAdvancedController -->
 <g id="edge9" class="edge">
 <title>MockServerApplication&#45;&gt;HttpbinAdvancedController</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M843.3,-484.54C843.3,-457.88 843.3,-427 843.3,-427 843.3,-427 1113.3,-427 1113.3,-427 1113.3,-427 1113.3,-413.68 1113.3,-399.01"/>
+<path fill="none" stroke="#2e83b8" stroke-width="1.8" stroke-dasharray="5,2" d="M843.3,-484.54C843.3,-457.88 843.3,-427 843.3,-427 843.3,-427 1113.3,-427 1113.3,-427 1113.3,-427 1113.3,-413.68 1113.3,-399.01"/>
 </g>
 <!-- MockServerApplication&#45;&gt;HttpbinStreamController -->
 <g id="edge8" class="edge">
 <title>MockServerApplication&#45;&gt;HttpbinStreamController</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M859.95,-484.63C859.95,-469.67 859.95,-456 859.95,-456 859.95,-456 1450.8,-456 1450.8,-456 1450.8,-456 1450.8,-425.52 1450.8,-399.09"/>
+<path fill="none" stroke="#8e6d43" stroke-width="1.8" stroke-dasharray="5,2" d="M859.95,-484.63C859.95,-469.67 859.95,-456 859.95,-456 859.95,-456 1450.8,-456 1450.8,-456 1450.8,-456 1450.8,-425.52 1450.8,-399.09"/>
 </g>
 <!-- AdminController&#45;&gt;JsonplaceholderService -->
 <g id="edge3" class="edge">
 <title>AdminController&#45;&gt;JsonplaceholderService</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M303.3,-322.7C303.3,-296.94 303.3,-263.12 303.3,-237.42"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M303.3,-322.7C303.3,-296.94 303.3,-263.12 303.3,-237.42"/>
 </g>
 <!-- WebContentController&#45;&gt;WebContentLoader -->
 <g id="edge1" class="edge">
 <title>WebContentController&#45;&gt;WebContentLoader</title>
-<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-322.7C640.8,-296.94 640.8,-263.12 640.8,-237.42"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-322.7C640.8,-296.94 640.8,-263.12 640.8,-237.42"/>
 </g>
 <!-- PostsController -->
 <g id="node1" class="node">

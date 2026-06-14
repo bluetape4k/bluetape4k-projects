@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1640" height="1000" viewBox="0 0 1640 1000" role="img" aria-label="Distributed Trace Propagation">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="6" markerHeight="6" refX="5.4" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M 0.7 0.7 L 5.4 3 L 0.7 5.3 Z" fill="context-stroke"/></marker>
-  <marker id="inherit" markerWidth="11" markerHeight="10" refX="10" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 10 5 L 1 9 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.4"/></marker>
+  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <marker id="inherit" markerWidth="8.5" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 1 1 L 8 4 L 1 7 Z" fill="#FFFFFF" stroke="context-stroke" stroke-width="1.25"/></marker>
   <style>
     .canvas{fill:#F6F9FC}.frame{fill:#fff;stroke:#C7D7E7;stroke-width:3.2;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#22344A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#536476}
@@ -19,7 +19,7 @@
 <text class="title" x="72" y="86">Distributed Trace Propagation</text>
 <text class="subtitle" x="76" y="118">Trace context moves through explicit propagators and carriers before the downstream service creates a child span.</text>
 <g><rect class="panel" x="80" y="155" width="420" height="430" rx="22"/><text class="panelTitle" x="104" y="189">Service A</text></g>
-<g><rect class="panel" x="570" y="220" width="500" height="260" rx="22"/><text class="panelTitle" x="594" y="254">Carrier boundary</text></g>
+<g><rect class="panel" x="570" y="220" width="500" height="300" rx="22"/><text class="panelTitle" x="594" y="254">Carrier boundary</text></g>
 <g><rect class="panel" x="1140" y="155" width="420" height="500" rx="22"/><text class="panelTitle" x="1164" y="189">Service B</text></g>
 <g><rect class="panel" x="570" y="710" width="500" height="155" rx="22"/><text class="panelTitle" x="594" y="744">Telemetry backend</text></g>
 <g id="spanA"><rect class="card" x="145" y="230" width="290" height="88" rx="14" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="290" y="257" text-anchor="middle">withSpan / useSpan</text><text class="detail" x="290" y="292" text-anchor="middle">creates parent Span</text><text class="detail" x="290" y="310" text-anchor="middle">Context.current()</text></g>
@@ -35,8 +35,8 @@
 <path class="flow" d="M970 455 L1205 455" stroke="#2E8F89"/>
 <path class="flow" d="M1350 498 L1350 550" stroke="#3E9868"/>
 <path class="flow" d="M1350 638 L1350 680 L995 680 L995 780" stroke="#C94D68"/>
-<path class="flow" d="M290 470 L290 680 L645 680 L645 780" stroke="#C94D68"/>
-<g><rect x="415" y="367" width="110" height="30" rx="8" fill="#FFFFFF" stroke="#8A72D6" stroke-width="1.2"/><text class="detail" x="470" y="383" text-anchor="middle" dominant-baseline="middle">inject</text></g>
-<g><rect x="1025" y="405" width="110" height="30" rx="8" fill="#FFFFFF" stroke="#45A7A1" stroke-width="1.2"/><text class="detail" x="1080" y="421" text-anchor="middle" dominant-baseline="middle">extract</text></g>
-<g><rect x="145" y="910" width="1350" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="820" y="935" text-anchor="middle">Free placement around the carrier keeps propagation routes short; no grid or forced snake path is used.</text></g>
+<path class="flow" d="M290 470 L290 680 L820 680 L820 780" stroke="#C94D68"/>
+<g><rect x="415" y="392" width="110" height="30" rx="8" fill="#FFFFFF" stroke="#8A72D6" stroke-width="1.2"/><text class="detail" x="470" y="408" text-anchor="middle" dominant-baseline="middle">inject</text></g>
+<g><rect x="1025" y="421" width="110" height="30" rx="8" fill="#FFFFFF" stroke="#45A7A1" stroke-width="1.2"/><text class="detail" x="1080" y="437" text-anchor="middle" dominant-baseline="middle">extract</text></g>
+<g><rect x="145" y="910" width="1350" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.5"/><text class="small" x="820" y="935" text-anchor="middle">bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects</text></g>
 </svg>

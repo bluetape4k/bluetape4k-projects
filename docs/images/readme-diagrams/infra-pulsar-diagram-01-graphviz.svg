@@ -12,32 +12,32 @@
 <!-- ProducerSupport&#45;&gt;ProducerExtensions -->
 <g id="edge3" class="edge">
 <title>ProducerSupport&#45;&gt;ProducerExtensions</title>
-<path fill="none" stroke="#4f83bf" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.1C100.8,-135.34 100.8,-101.52 100.8,-75.82"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M100.8,-161.1C100.8,-135.34 100.8,-101.52 100.8,-75.82"/>
 </g>
 <!-- PulsarClient&#45;&gt;ProducerSupport -->
 <g id="edge6" class="edge">
 <title>PulsarClient&#45;&gt;ProducerSupport</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-361C193.19,-361 100.8,-361 100.8,-361 100.8,-361 100.8,-285.48 100.8,-237.7"/>
+<path fill="none" stroke="#4f63c7" stroke-width="1.8" stroke-dasharray="5,2" d="M269.88,-361C193.19,-361 100.8,-361 100.8,-361 100.8,-361 100.8,-285.48 100.8,-237.7"/>
 </g>
 <!-- PulsarClient&#45;&gt;ConsumerSupport -->
 <g id="edge5" class="edge">
 <title>PulsarClient&#45;&gt;ConsumerSupport</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-322.7C370.8,-296.94 370.8,-263.12 370.8,-237.42"/>
 </g>
 <!-- PulsarClient&#45;&gt;ReaderSupport -->
 <g id="edge4" class="edge">
 <title>PulsarClient&#45;&gt;ReaderSupport</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M472.08,-361C491.44,-361 505.8,-361 505.8,-361 505.8,-361 505.8,-199 505.8,-199 505.8,-199 520.16,-199 539.52,-199"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M472.08,-361C491.44,-361 505.8,-361 505.8,-361 505.8,-361 505.8,-199 505.8,-199 505.8,-199 520.16,-199 539.52,-199"/>
 </g>
 <!-- ConsumerSupport&#45;&gt;ConsumerExtensions -->
 <g id="edge2" class="edge">
 <title>ConsumerSupport&#45;&gt;ConsumerExtensions</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M370.8,-161.1C370.8,-135.34 370.8,-101.52 370.8,-75.82"/>
 </g>
 <!-- ReaderSupport&#45;&gt;ReaderExtensions -->
 <g id="edge1" class="edge">
 <title>ReaderSupport&#45;&gt;ReaderExtensions</title>
-<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.1C640.8,-135.34 640.8,-101.52 640.8,-75.82"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M640.8,-161.1C640.8,-135.34 640.8,-101.52 640.8,-75.82"/>
 </g>
 <!-- ProducerSupport -->
 <g id="node1" class="node">

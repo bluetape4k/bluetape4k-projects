@@ -16,17 +16,16 @@ digraph G {
   SuspendTsvRecordReader [label="SuspendTsvRecordReader", fillcolor="#FFF3D9", color="#D6A441"];
   SuspendCsvRecordWriter [label="SuspendCsvRecordWriter", fillcolor="#FDECEF", color="#DC6B82"];
   SuspendTsvRecordWriter [label="SuspendTsvRecordWriter", fillcolor="#F1ECFF", color="#8A72D6"];
-  { rank=source; SuspendRecordReader; RecordReader; RecordWriter; SuspendRecordWriter; }
-  TsvRecordWriter -> TsvSettings [color="#718A35", fontcolor="#718A35", style="dashed", arrowhead="none", weight=2];
-  TsvRecordReader -> TsvSettings [color="#3E9868", fontcolor="#3E9868", style="dashed", arrowhead="none", weight=2];
-  CsvRecordWriter -> CsvSettings [color="#758297", fontcolor="#758297", style="dashed", arrowhead="none", weight=2];
-  CsvRecordReader -> CsvSettings [color="#4F83BF", fontcolor="#4F83BF", style="dashed", arrowhead="none", weight=2];
-  SuspendRecordWriter -> SuspendTsvRecordWriter [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
-  SuspendRecordWriter -> SuspendCsvRecordWriter [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
-  SuspendRecordReader -> SuspendTsvRecordReader [color="#B9851B", fontcolor="#B9851B", style="solid", arrowhead="none", weight=10];
-  SuspendRecordReader -> SuspendCsvRecordReader [color="#2E8F89", fontcolor="#2E8F89", style="solid", arrowhead="none", weight=10];
-  RecordWriter -> TsvRecordWriter [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
-  RecordWriter -> CsvRecordWriter [color="#758297", fontcolor="#758297", style="solid", arrowhead="none", weight=10];
-  RecordReader -> TsvRecordReader [color="#3E9868", fontcolor="#3E9868", style="solid", arrowhead="none", weight=10];
-  RecordReader -> CsvRecordReader [color="#4F83BF", fontcolor="#4F83BF", style="solid", arrowhead="none", weight=10];
+  TsvRecordWriter -> TsvSettings [color="#2E8F89", fontcolor="#2E8F89", style="dashed", arrowhead="none", weight=2];
+  TsvRecordReader -> TsvSettings [color="#B9851B", fontcolor="#B9851B", style="dashed", arrowhead="none", weight=2];
+  CsvRecordWriter -> CsvSettings [color="#C94D68", fontcolor="#C94D68", style="dashed", arrowhead="none", weight=2];
+  CsvRecordReader -> CsvSettings [color="#755BC6", fontcolor="#755BC6", style="dashed", arrowhead="none", weight=2];
+  SuspendRecordWriter -> SuspendTsvRecordWriter [color="#C94D68", fontcolor="#C94D68", style="solid", arrowhead="none", weight=10];
+  SuspendRecordWriter -> SuspendCsvRecordWriter [color="#755BC6", fontcolor="#755BC6", style="solid", arrowhead="none", weight=10];
+  SuspendRecordReader -> SuspendTsvRecordReader [color="#718A35", fontcolor="#718A35", style="solid", arrowhead="none", weight=10];
+  SuspendRecordReader -> SuspendCsvRecordReader [color="#4F63C7", fontcolor="#4F63C7", style="solid", arrowhead="none", weight=10];
+  RecordWriter -> TsvRecordWriter [color="#C8644B", fontcolor="#C8644B", style="solid", arrowhead="none", weight=10];
+  RecordWriter -> CsvRecordWriter [color="#8E6D43", fontcolor="#8E6D43", style="solid", arrowhead="none", weight=10];
+  RecordReader -> TsvRecordReader [color="#2E83B8", fontcolor="#2E83B8", style="solid", arrowhead="none", weight=10];
+  RecordReader -> CsvRecordReader [color="#A84B98", fontcolor="#A84B98", style="solid", arrowhead="none", weight=10];
 }

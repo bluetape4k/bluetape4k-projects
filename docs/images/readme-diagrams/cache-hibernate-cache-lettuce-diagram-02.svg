@@ -38,7 +38,7 @@
 <g id="codec"><rect class="card" x="1090" y="445" width="290" height="108" rx="14" fill="#E9F7F6" stroke="#45A7A1"/><text class="cardTitle" x="1235" y="490" text-anchor="middle">Serializer / codec</text><text class="detail" x="1235" y="526" text-anchor="middle">binary cache payload</text></g>
 <path class="flow" d="M520 499 L610 499" stroke="#3E9868"/>
 <path class="flow" d="M990 499 L1090 499" stroke="#B9851B"/>
-<path class="flow" d="M350 284 L350 445" stroke="#755BC6"/>
+<path class="flow" d="M350 284 L350 360 L560 360 L560 470 L610 470" stroke="#755BC6"/>
 <path class="flow" d="M930 284 L930 432" stroke="#4F83BF"/>
 <g><rect class="panel" x="86" y="665" width="1360" height="170" rx="22"/><text class="panelTitle" x="110" y="699">Storage layer</text></g>
 <g id="front"><rect class="card" x="185" y="720" width="320" height="80" rx="14" fill="#FFF3D9" stroke="#D6A441"/><text class="cardTitle" x="345" y="751" text-anchor="middle">Caffeine local cache</text><text class="detail" x="345" y="787" text-anchor="middle">near hot-set</text></g>

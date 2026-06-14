@@ -6,9 +6,9 @@ This structure supports Java 21 and Java 25 in the same project by splitting the
 
 ## Architecture
 
-### Module Structure and Runtime Selection
+### Runtime Selection Flow
 
-![Module Structure and Runtime Selection diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
+![Virtual Thread Runtime Selection Flow diagram](../docs/images/readme-diagrams/virtualthread-diagram-01.png)
 
 ---
 

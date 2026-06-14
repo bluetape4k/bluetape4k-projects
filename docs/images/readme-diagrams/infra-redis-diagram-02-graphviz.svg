@@ -12,27 +12,27 @@
 <!-- RedissonClientSupport&#45;&gt;RedissonLeaderElection -->
 <g id="edge2" class="edge">
 <title>RedissonClientSupport&#45;&gt;RedissonLeaderElection</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M809.88,-199C733.19,-199 640.8,-199 640.8,-199 640.8,-199 640.8,-123.67 640.8,-76"/>
+<path fill="none" stroke="#b9851b" stroke-width="1.8" stroke-dasharray="5,2" d="M809.88,-199C733.19,-199 640.8,-199 640.8,-199 640.8,-199 640.8,-123.67 640.8,-76"/>
 </g>
 <!-- RedissonClientSupport&#45;&gt;RedissonCodecs -->
 <g id="edge3" class="edge">
 <title>RedissonClientSupport&#45;&gt;RedissonCodecs</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M910.8,-161.1C910.8,-135.34 910.8,-101.52 910.8,-75.82"/>
+<path fill="none" stroke="#c94d68" stroke-width="1.8" stroke-dasharray="5,2" d="M910.8,-161.1C910.8,-135.34 910.8,-101.52 910.8,-75.82"/>
 </g>
 <!-- RedissonClientSupport&#45;&gt;RedissonNearCache -->
 <g id="edge1" class="edge">
 <title>RedissonClientSupport&#45;&gt;RedissonNearCache</title>
-<path fill="none" stroke="#3e9868" stroke-width="1.8" stroke-dasharray="5,2" d="M1011.72,-199C1088.41,-199 1180.8,-199 1180.8,-199 1180.8,-199 1180.8,-123.67 1180.8,-76"/>
+<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M1011.72,-199C1088.41,-199 1180.8,-199 1180.8,-199 1180.8,-199 1180.8,-123.67 1180.8,-76"/>
 </g>
 <!-- LettuceClients&#45;&gt;LettuceBinaryCodecs -->
 <g id="edge5" class="edge">
 <title>LettuceClients&#45;&gt;LettuceBinaryCodecs</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M168.3,-161.1C168.3,-135.34 168.3,-101.52 168.3,-75.82"/>
+<path fill="none" stroke="#718a35" stroke-width="1.8" stroke-dasharray="5,2" d="M168.3,-161.1C168.3,-135.34 168.3,-101.52 168.3,-75.82"/>
 </g>
 <!-- LettuceClients&#45;&gt;LettuceLoadedMap -->
 <g id="edge4" class="edge">
 <title>LettuceClients&#45;&gt;LettuceLoadedMap</title>
-<path fill="none" stroke="#2e8f89" stroke-width="1.8" stroke-dasharray="5,2" d="M303.3,-161.1C303.3,-135.34 303.3,-101.52 303.3,-75.82"/>
+<path fill="none" stroke="#755bc6" stroke-width="1.8" stroke-dasharray="5,2" d="M303.3,-161.1C303.3,-135.34 303.3,-101.52 303.3,-75.82"/>
 </g>
 <!-- LettuceBinaryCodecs -->
 <g id="node1" class="node">

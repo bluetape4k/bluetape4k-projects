@@ -1,21 +1,19 @@
-graph 1 15.774 6.3611
-node start 7.6424 6.1111 3.5347 0.5 "Start with payload workload" rounded,filled box #75A9E8 #E8F3FF
-node compression 7.6424 4.6458 4.9444 0.93056 "Need compression?" rounded,filled diamond #8A72D6 #F1ECFF
-node throughput 2.6285 2.9653 5.2569 0.93056 "Fast local transfer?" rounded,filled diamond #45A7A1 #E9F7F6
-node snappy 3.8507 1.5 3.4514 0.5 SNAPPY_CODEC_FACTORY rounded,filled box #45A7A1 #E9F7F6
-node deflate 7.6424 2.9653 3.6493 0.5 DEFAULT_CODEC_FACTORY rounded,filled box #69B888 #EAF7EF
-node archive 11.878 2.9653 3.7153 0.93056 "Small archive?" rounded,filled diamond #D9AA4D #FFF3D9
-node zstd 10.267 1.5 3.5451 0.5 ARCHIVE_CODEC_FACTORY rounded,filled box #D9AA4D #FFF3D9
-node null 14.184 1.5 3.1806 0.5 NULL_CODEC_FACTORY rounded,filled box #AAB7C4 #F6F8FA
-node output 8.9479 0.25 2.3056 0.5 "ByteArray output" rounded,filled box #DB7890 #FCE7F3
-edge start compression 4 7.6424 5.8559 7.6424 5.8559 7.6424 5.2491 7.6424 5.2491 solid #4F83BF
-edge compression throughput 7 5.4167 4.597 5.4167 4.3624 5.4167 3.3611 5.4167 3.3611 5.4167 3.3611 3.1901 3.3611 3.1901 3.3611 solid #45A7A1
-edge compression deflate 4 7.6424 4.1777 7.6424 4.1777 7.6424 3.3499 7.6424 3.3499 solid #58A978
-edge compression archive 7 9.7439 4.5691 9.7439 4.2827 9.7439 3.2917 9.7439 3.2917 9.7439 3.2917 11.169 3.2917 11.169 3.2917 solid #D9AA4D
-edge throughput snappy 4 3.691 2.6828 3.691 2.6828 3.691 1.8844 3.691 1.8844 solid #45A7A1
-edge snappy output 7 5.5801 1.5 6.7294 1.5 8.0284 1.5 8.0284 1.5 8.0284 1.5 8.0284 0.63509 8.0284 0.63509 solid #45A7A1
-edge deflate output 4 8.2616 2.7098 8.2616 2.7098 8.2616 0.63888 8.2616 0.63888 solid #58A978
-edge archive zstd 4 11.03 2.71 11.03 2.71 11.03 1.8844 11.03 1.8844 solid #D9AA4D
-edge zstd output 4 9.2977 1.247 9.2977 1.247 9.2977 0.639 9.2977 0.639 solid #D9AA4D
-edge null output 7 14.184 1.247 14.184 0.88179 14.184 0.25 14.184 0.25 14.184 0.25 10.236 0.25 10.236 0.25 solid #6B7D90
+graph 1 12.28 8.0417
+node start 8.3003 7.7917 3.5347 0.5 "Start with payload workload" rounded,filled box #75A9E8 #E8F3FF
+node compression 8.3003 6.3264 4.9444 0.93056 "Need compression?" rounded,filled diamond #8A72D6 #F1ECFF
+node throughput 5.9115 4.6458 5.2569 0.93056 "Fast local transfer?" rounded,filled diamond #45A7A1 #E9F7F6
+node archive 3.842 2.9653 3.7153 0.93056 "Small archive?" rounded,filled diamond #D9AA4D #FFF3D9
+node null 10.689 4.6458 3.1806 0.5 NULL_CODEC_FACTORY rounded,filled box #AAB7C4 #F6F8FA
+node snappy 7.9809 2.9653 3.4514 0.5 SNAPPY_CODEC_FACTORY rounded,filled box #45A7A1 #E9F7F6
+node zstd 1.7726 1.5 3.5451 0.5 ARCHIVE_CODEC_FACTORY rounded,filled box #D9AA4D #FFF3D9
+node deflate 5.9253 1.5 3.6493 0.5 DEFAULT_CODEC_FACTORY rounded,filled box #69B888 #EAF7EF
+node output 5.9253 0.25 2.3056 0.5 "ByteArray output" rounded,filled box #DB7890 #FCE7F3
+edge start compression 4 8.3003 7.5364 8.3003 7.5364 8.3003 6.9297 8.3003 6.9297 solid #4F83BF
+edge compression throughput 4 7.184 6.0675 7.184 6.0675 7.184 5.0235 7.184 5.0235 solid #45A7A1
+edge compression null 4 9.9358 6.1653 9.9358 6.1653 9.9358 5.0337 9.9358 5.0337 solid #6B7D90
+edge throughput archive 4 4.4913 4.4261 4.4913 4.4261 4.4913 3.4026 4.4913 3.4026 solid #D9AA4D
+edge throughput snappy 4 7.3976 4.4398 7.3976 4.4398 7.3976 3.349 7.3976 3.349 solid #45A7A1
+edge archive zstd 4 2.7648 2.7677 2.7648 2.7677 2.7648 1.8855 2.7648 1.8855 solid #D9AA4D
+edge archive deflate 4 4.9002 2.7615 4.9002 2.7615 4.9002 1.8883 4.9002 1.8883 solid #58A978
+edge deflate output 4 5.9253 1.247 5.9253 1.247 5.9253 0.639 5.9253 0.639 solid #58A978
 stop

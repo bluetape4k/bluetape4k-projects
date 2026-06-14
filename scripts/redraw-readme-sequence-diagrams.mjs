@@ -76,7 +76,7 @@ function parseSequence(svg, file) {
   return {
     file,
     title: extractTitle(svg) || titleFromFile(file),
-    subtitle: "Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.",
+    subtitle: "Source-checked interaction flow with compact labels, numbered calls, and readable branch semantics.",
     participants,
     events,
   };
@@ -207,7 +207,7 @@ function parseFlowLikeSequence(svg, file) {
   return {
     file,
     title: extractTitle(svg) || titleFromFile(file),
-    subtitle: "Source-checked interaction flow redrawn with sequence lifelines, numbered calls, and compact labels.",
+    subtitle: "Source-checked interaction flow with sequence lifelines, numbered calls, and compact labels.",
     participants: cards.map((card, index) => ({
       id: card.id,
       label: card.title,
@@ -324,7 +324,7 @@ function renderSequence(model) {
     number += 1;
   }
 
-  body.push(renderFooter(side, footerY, width - side * 2, "Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows."));
+  body.push(renderFooter(side, footerY, width - side * 2, "bluetape4k-projects - github.com/bluetape4k/bluetape4k-projects"));
   return base(width, height, model.title, model.subtitle, body.join("\n"));
 }
 
