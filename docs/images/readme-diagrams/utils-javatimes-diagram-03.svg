@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1500" viewBox="0 0 2200 1500" role="img" aria-label="PeriodRelation timeline comparison">
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="2100" viewBox="0 0 1560 2100" role="img" aria-label="PeriodRelation timeline comparison">
 <defs>
 <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 <style>
@@ -12,172 +12,172 @@ svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif
 .group{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
 .groupTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
 .hint,.note,.tick{font-family:"Comic Mono";font-size:12.5px;fill:#475569}
-.relation{font-family:"Comic Mono";font-size:15px;font-weight:700;fill:#0F172A}
+.relation{font-family:"Comic Mono";font-size:14px;font-weight:700;fill:#0F172A}
 .axis{stroke:#94A3B8;stroke-width:1.4;stroke-dasharray:8 7}
 .barLabel{font-family:"Comic Mono";font-size:12px;font-weight:700}
 .pillText{font-family:"Comic Mono";font-size:12px;font-weight:700}
 </style>
 </defs>
-<rect class="canvas" width="2200" height="1500"/>
-<rect class="frame" x="38" y="30" width="2124" height="1434" rx="8"/>
+<rect class="canvas" width="1560" height="2100"/>
+<rect class="frame" x="38" y="30" width="1484" height="2034" rx="8"/>
 <text class="title" x="78" y="88">PeriodRelation - How Two Periods Relate</text>
 <text class="subtitle" x="82" y="120">A relationWith B compares A.start/A.end against B.start/B.end; overlapWith excludes only NoRelation, After, StartTouching, EndTouching, and Before.</text>
-<rect class="summary" x="90" y="155" width="2020" height="58" rx="8"/>
+<rect class="summary" x="90" y="155" width="1380" height="58" rx="8"/>
 <text class="summaryTitle" x="120" y="192">Read every row with A fixed</text>
 <text class="summaryText" x="525" y="190">Blue bar is the receiver period A. Orange bar is the argument period B. Names are the enum returned by source code.</text>
 <g>
-    <rect class="group" x="90" y="230" width="970" height="585" rx="8"/>
+    <rect class="group" x="90" y="230" width="1380" height="585" rx="8"/>
     <text class="groupTitle" x="118" y="274">outside or boundary only</text>
     <text class="hint" x="118" y="300">Result of: A relationWith B</text>
     <g>
-    <text class="relation" x="235" y="327" text-anchor="end">After</text>
-    <line class="axis" x1="390" y1="318" x2="960" y2="318"/>
-    <text class="tick" x="560" y="352" text-anchor="middle">A.start</text>
-    <text class="tick" x="750.4000000000001" y="352" text-anchor="middle">A.end</text>
-    <g><line x1="560" y1="307" x2="750.4000000000001" y2="307" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="560" cy="307" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="750.4000000000001" cy="307" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="655.2" y="287" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="400.2" y1="337" x2="509" y2="337" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="400.2" cy="337" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="509" cy="337" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="454.6" y="317" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(910 288)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
-    <text class="note" x="390" y="380">A starts after B ends</text>
+    <text class="relation" x="285" y="327" text-anchor="end">After</text>
+    <line class="axis" x1="350" y1="318" x2="1298" y2="318"/>
+    <text class="tick" x="600" y="352" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="352" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="307" x2="880" y2="307" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="307" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="307" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="287" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="365" y1="337" x2="525" y2="337" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="365" cy="337" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="525" cy="337" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="445" y="317" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 288)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
+    <text class="note" x="350" y="380">A starts after B ends</text>
   </g>
 <g>
-    <text class="relation" x="235" y="423" text-anchor="end">StartTouching</text>
-    <line class="axis" x1="390" y1="414" x2="960" y2="414"/>
-    <text class="tick" x="560" y="448" text-anchor="middle">A.start</text>
-    <text class="tick" x="750.4000000000001" y="448" text-anchor="middle">A.end</text>
-    <g><line x1="560" y1="403" x2="750.4000000000001" y2="403" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="560" cy="403" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="750.4000000000001" cy="403" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="655.2" y="383" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="400.2" y1="433" x2="560" y2="433" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="400.2" cy="433" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="560" cy="433" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="480.1" y="413" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(910 384)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
-    <text class="note" x="390" y="476">A.start == B.end</text>
+    <text class="relation" x="285" y="423" text-anchor="end">StartTouching</text>
+    <line class="axis" x1="350" y1="414" x2="1298" y2="414"/>
+    <text class="tick" x="600" y="448" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="448" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="403" x2="880" y2="403" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="403" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="403" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="383" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="365" y1="433" x2="600" y2="433" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="365" cy="433" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="600" cy="433" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="482.5" y="413" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 384)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
+    <text class="note" x="350" y="476">A.start == B.end</text>
   </g>
 <g>
-    <text class="relation" x="235" y="519" text-anchor="end">EndTouching</text>
-    <line class="axis" x1="390" y1="510" x2="960" y2="510"/>
-    <text class="tick" x="560" y="544" text-anchor="middle">A.start</text>
-    <text class="tick" x="750.4000000000001" y="544" text-anchor="middle">A.end</text>
-    <g><line x1="560" y1="499" x2="750.4000000000001" y2="499" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="560" cy="499" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="750.4000000000001" cy="499" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="655.2" y="479" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="750.4000000000001" y1="529" x2="910.2" y2="529" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="750.4000000000001" cy="529" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="910.2" cy="529" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="830.3000000000001" y="509" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(910 480)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
-    <text class="note" x="390" y="572">A.end == B.start</text>
+    <text class="relation" x="285" y="519" text-anchor="end">EndTouching</text>
+    <line class="axis" x1="350" y1="510" x2="1298" y2="510"/>
+    <text class="tick" x="600" y="544" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="544" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="499" x2="880" y2="499" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="499" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="499" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="479" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="880" y1="529" x2="1115" y2="529" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="880" cy="529" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1115" cy="529" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="997.5" y="509" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 480)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
+    <text class="note" x="350" y="572">A.end == B.start</text>
   </g>
 <g>
-    <text class="relation" x="235" y="615" text-anchor="end">Before</text>
-    <line class="axis" x1="390" y1="606" x2="960" y2="606"/>
-    <text class="tick" x="560" y="640" text-anchor="middle">A.start</text>
-    <text class="tick" x="750.4000000000001" y="640" text-anchor="middle">A.end</text>
-    <g><line x1="560" y1="595" x2="750.4000000000001" y2="595" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="560" cy="595" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="750.4000000000001" cy="595" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="655.2" y="575" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="791.2" y1="625" x2="923.8000000000001" y2="625" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="791.2" cy="625" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="923.8000000000001" cy="625" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="857.5" y="605" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(910 576)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
-    <text class="note" x="390" y="668">A ends before B starts</text>
+    <text class="relation" x="285" y="615" text-anchor="end">Before</text>
+    <line class="axis" x1="350" y1="606" x2="1298" y2="606"/>
+    <text class="tick" x="600" y="640" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="640" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="595" x2="880" y2="595" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="595" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="595" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="575" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="940" y1="625" x2="1135" y2="625" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="940" cy="625" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1135" cy="625" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="1037.5" y="605" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 576)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
+    <text class="note" x="350" y="668">A ends before B starts</text>
   </g>
 <g>
-    <text class="relation" x="235" y="711" text-anchor="end">NoRelation</text>
-    <line class="axis" x1="390" y1="702" x2="960" y2="702"/>
-    <text class="tick" x="560" y="736" text-anchor="middle">A.start</text>
-    <text class="tick" x="750.4000000000001" y="736" text-anchor="middle">A.end</text>
-    <g><line x1="560" y1="691" x2="750.4000000000001" y2="691" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="560" cy="691" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="750.4000000000001" cy="691" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="655.2" y="671" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><rect x="432" y="717" width="338" height="30" rx="8" fill="#F8FAFC" stroke="#EA580C" stroke-width="2" stroke-dasharray="9 7"/><text class="barLabel" x="601" y="737" text-anchor="middle" fill="#EA580C">B bounds unavailable</text></g>
-    <g transform="translate(910 672)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
-    <text class="note" x="390" y="764">both periods are not comparable</text>
+    <text class="relation" x="285" y="711" text-anchor="end">NoRelation</text>
+    <line class="axis" x1="350" y1="702" x2="1298" y2="702"/>
+    <text class="tick" x="600" y="736" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="736" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="691" x2="880" y2="691" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="691" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="691" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="671" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><rect x="410" y="717" width="700" height="30" rx="8" fill="#F8FAFC" stroke="#EA580C" stroke-width="2" stroke-dasharray="9 7"/><text class="barLabel" x="760" y="737" text-anchor="middle" fill="#EA580C">B bounds unavailable</text></g>
+    <g transform="translate(1320 672)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#64748B">no overlap</text></g>
+    <text class="note" x="350" y="764">both periods are not comparable</text>
   </g>
   </g>
 <g>
-    <rect class="group" x="1140" y="230" width="970" height="489" rx="8"/>
-    <text class="groupTitle" x="1168" y="274">A contains B</text>
-    <text class="hint" x="1168" y="300">Result of: A relationWith B</text>
+    <rect class="group" x="90" y="845" width="1380" height="489" rx="8"/>
+    <text class="groupTitle" x="118" y="889">A contains B</text>
+    <text class="hint" x="118" y="915">Result of: A relationWith B</text>
     <g>
-    <text class="relation" x="1285" y="327" text-anchor="end">EnclosingStartTouching</text>
-    <line class="axis" x1="1440" y1="318" x2="2010" y2="318"/>
-    <text class="tick" x="1610" y="352" text-anchor="middle">A.start</text>
-    <text class="tick" x="1800.4" y="352" text-anchor="middle">A.end</text>
-    <g><line x1="1610" y1="307" x2="1800.4" y2="307" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="1610" cy="307" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="1800.4" cy="307" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="1705.2" y="287" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="1610" y1="337" x2="1715.4" y2="337" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="1610" cy="337" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1715.4" cy="337" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="1662.7" y="317" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 288)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="1440" y="380">same start, B ends inside A</text>
+    <text class="relation" x="285" y="942" text-anchor="end">EnclosingStartTouching</text>
+    <line class="axis" x1="350" y1="933" x2="1298" y2="933"/>
+    <text class="tick" x="600" y="967" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="967" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="922" x2="880" y2="922" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="922" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="922" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="902" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="600" y1="952" x2="755" y2="952" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="952" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="755" cy="952" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="677.5" y="932" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 903)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="995">same start, B ends inside A</text>
   </g>
 <g>
-    <text class="relation" x="1285" y="423" text-anchor="end">Enclosing</text>
-    <line class="axis" x1="1440" y1="414" x2="2010" y2="414"/>
-    <text class="tick" x="1610" y="448" text-anchor="middle">A.start</text>
-    <text class="tick" x="1800.4" y="448" text-anchor="middle">A.end</text>
-    <g><line x1="1610" y1="403" x2="1800.4" y2="403" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="1610" cy="403" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="1800.4" cy="403" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="1705.2" y="383" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="1661" y1="433" x2="1749.4" y2="433" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="1661" cy="433" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1749.4" cy="433" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="1705.2" y="413" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 384)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="1440" y="476">B is fully inside A</text>
+    <text class="relation" x="285" y="1038" text-anchor="end">Enclosing</text>
+    <line class="axis" x1="350" y1="1029" x2="1298" y2="1029"/>
+    <text class="tick" x="600" y="1063" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1063" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1018" x2="880" y2="1018" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1018" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1018" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="998" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="675" y1="1048" x2="805" y2="1048" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="675" cy="1048" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="805" cy="1048" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="740" y="1028" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 999)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1091">B is fully inside A</text>
   </g>
 <g>
-    <text class="relation" x="1285" y="519" text-anchor="end">EnclosingEndTouching</text>
-    <line class="axis" x1="1440" y1="510" x2="2010" y2="510"/>
-    <text class="tick" x="1610" y="544" text-anchor="middle">A.start</text>
-    <text class="tick" x="1800.4" y="544" text-anchor="middle">A.end</text>
-    <g><line x1="1610" y1="499" x2="1800.4" y2="499" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="1610" cy="499" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="1800.4" cy="499" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="1705.2" y="479" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="1705.2" y1="529" x2="1800.4" y2="529" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="1705.2" cy="529" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1800.4" cy="529" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="1752.8000000000002" y="509" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 480)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="1440" y="572">B starts inside, same end</text>
+    <text class="relation" x="285" y="1134" text-anchor="end">EnclosingEndTouching</text>
+    <line class="axis" x1="350" y1="1125" x2="1298" y2="1125"/>
+    <text class="tick" x="600" y="1159" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1159" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1114" x2="880" y2="1114" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1114" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1114" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1094" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="740" y1="1144" x2="880" y2="1144" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="740" cy="1144" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="880" cy="1144" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="810" y="1124" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1095)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1187">B starts inside, same end</text>
   </g>
 <g>
-    <text class="relation" x="1285" y="615" text-anchor="end">ExactMatch</text>
-    <line class="axis" x1="1440" y1="606" x2="2010" y2="606"/>
-    <text class="tick" x="1610" y="640" text-anchor="middle">A.start</text>
-    <text class="tick" x="1800.4" y="640" text-anchor="middle">A.end</text>
-    <g><line x1="1610" y1="595" x2="1800.4" y2="595" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="1610" cy="595" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="1800.4" cy="595" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="1705.2" y="575" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="1610" y1="625" x2="1800.4" y2="625" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="1610" cy="625" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1800.4" cy="625" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="1705.2" y="605" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 576)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="1440" y="668">A and B have identical bounds</text>
+    <text class="relation" x="285" y="1230" text-anchor="end">ExactMatch</text>
+    <line class="axis" x1="350" y1="1221" x2="1298" y2="1221"/>
+    <text class="tick" x="600" y="1255" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1255" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1210" x2="880" y2="1210" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1210" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1210" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1190" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="600" y1="1240" x2="880" y2="1240" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1240" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="880" cy="1240" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="740" y="1220" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1191)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1283">A and B have identical bounds</text>
   </g>
   </g>
 <g>
-    <rect class="group" x="90" y="835" width="2020" height="585" rx="8"/>
-    <text class="groupTitle" x="118" y="879">B contains A or cuts into A</text>
-    <text class="hint" x="118" y="905">Result of: A relationWith B</text>
+    <rect class="group" x="90" y="1390" width="1380" height="585" rx="8"/>
+    <text class="groupTitle" x="118" y="1434">B contains A or cuts into A</text>
+    <text class="hint" x="118" y="1460">Result of: A relationWith B</text>
     <g>
-    <text class="relation" x="235" y="932" text-anchor="end">InsideStartTouching</text>
-    <line class="axis" x1="390" y1="923" x2="2010" y2="923"/>
-    <text class="tick" x="640" y="957" text-anchor="middle">A.start</text>
-    <text class="tick" x="920" y="957" text-anchor="middle">A.end</text>
-    <g><line x1="640" y1="912" x2="920" y2="912" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="640" cy="912" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="920" cy="912" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="780" y="892" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="640" y1="942" x2="1180" y2="942" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="640" cy="942" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1180" cy="942" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="910" y="922" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 893)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="390" y="985">same start, B extends after A</text>
+    <text class="relation" x="285" y="1487" text-anchor="end">InsideStartTouching</text>
+    <line class="axis" x1="350" y1="1478" x2="1298" y2="1478"/>
+    <text class="tick" x="600" y="1512" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1512" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1467" x2="880" y2="1467" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1467" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1467" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1447" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="600" y1="1497" x2="1140" y2="1497" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1497" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1140" cy="1497" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="870" y="1477" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1448)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1540">same start, B extends after A</text>
   </g>
 <g>
-    <text class="relation" x="235" y="1028" text-anchor="end">Inside</text>
-    <line class="axis" x1="390" y1="1019" x2="2010" y2="1019"/>
-    <text class="tick" x="640" y="1053" text-anchor="middle">A.start</text>
-    <text class="tick" x="920" y="1053" text-anchor="middle">A.end</text>
-    <g><line x1="640" y1="1008" x2="920" y2="1008" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="640" cy="1008" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="920" cy="1008" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="780" y="988" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="415" y1="1038" x2="1180" y2="1038" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="415" cy="1038" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1180" cy="1038" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="797.5" y="1018" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 989)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="390" y="1081">A is fully inside B</text>
+    <text class="relation" x="285" y="1583" text-anchor="end">Inside</text>
+    <line class="axis" x1="350" y1="1574" x2="1298" y2="1574"/>
+    <text class="tick" x="600" y="1608" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1608" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1563" x2="880" y2="1563" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1563" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1563" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1543" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="375" y1="1593" x2="1140" y2="1593" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="375" cy="1593" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1140" cy="1593" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="757.5" y="1573" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1544)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1636">A is fully inside B</text>
   </g>
 <g>
-    <text class="relation" x="235" y="1124" text-anchor="end">InsideEndTouching</text>
-    <line class="axis" x1="390" y1="1115" x2="2010" y2="1115"/>
-    <text class="tick" x="640" y="1149" text-anchor="middle">A.start</text>
-    <text class="tick" x="920" y="1149" text-anchor="middle">A.end</text>
-    <g><line x1="640" y1="1104" x2="920" y2="1104" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="640" cy="1104" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="920" cy="1104" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="780" y="1084" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="415" y1="1134" x2="920" y2="1134" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="415" cy="1134" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="920" cy="1134" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="667.5" y="1114" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 1085)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="390" y="1177">B starts before A, same end</text>
+    <text class="relation" x="285" y="1679" text-anchor="end">InsideEndTouching</text>
+    <line class="axis" x1="350" y1="1670" x2="1298" y2="1670"/>
+    <text class="tick" x="600" y="1704" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1704" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1659" x2="880" y2="1659" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1659" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1659" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1639" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="375" y1="1689" x2="880" y2="1689" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="375" cy="1689" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="880" cy="1689" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="627.5" y="1669" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1640)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1732">B starts before A, same end</text>
   </g>
 <g>
-    <text class="relation" x="235" y="1220" text-anchor="end">StartInside</text>
-    <line class="axis" x1="390" y1="1211" x2="2010" y2="1211"/>
-    <text class="tick" x="640" y="1245" text-anchor="middle">A.start</text>
-    <text class="tick" x="920" y="1245" text-anchor="middle">A.end</text>
-    <g><line x1="640" y1="1200" x2="920" y2="1200" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="640" cy="1200" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="920" cy="1200" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="780" y="1180" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="415" y1="1230" x2="780" y2="1230" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="415" cy="1230" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="780" cy="1230" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="597.5" y="1210" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 1181)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="390" y="1273">A.start is inside B only</text>
+    <text class="relation" x="285" y="1775" text-anchor="end">StartInside</text>
+    <line class="axis" x1="350" y1="1766" x2="1298" y2="1766"/>
+    <text class="tick" x="600" y="1800" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1800" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1755" x2="880" y2="1755" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1755" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1755" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1735" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="375" y1="1785" x2="740" y2="1785" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="375" cy="1785" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="740" cy="1785" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="557.5" y="1765" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1736)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1828">A.start is inside B only</text>
   </g>
 <g>
-    <text class="relation" x="235" y="1316" text-anchor="end">EndInside</text>
-    <line class="axis" x1="390" y1="1307" x2="2010" y2="1307"/>
-    <text class="tick" x="640" y="1341" text-anchor="middle">A.start</text>
-    <text class="tick" x="920" y="1341" text-anchor="middle">A.end</text>
-    <g><line x1="640" y1="1296" x2="920" y2="1296" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="640" cy="1296" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="920" cy="1296" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="780" y="1276" text-anchor="middle" fill="#2563EB">A</text></g>
-    <g><line x1="780" y1="1326" x2="1180" y2="1326" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="780" cy="1326" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1180" cy="1326" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="980" y="1306" text-anchor="middle" fill="#EA580C">B</text></g>
-    <g transform="translate(1960 1277)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
-    <text class="note" x="390" y="1369">A.end is inside B only</text>
+    <text class="relation" x="285" y="1871" text-anchor="end">EndInside</text>
+    <line class="axis" x1="350" y1="1862" x2="1298" y2="1862"/>
+    <text class="tick" x="600" y="1896" text-anchor="middle">A.start</text>
+    <text class="tick" x="880" y="1896" text-anchor="middle">A.end</text>
+    <g><line x1="600" y1="1851" x2="880" y2="1851" stroke="#2563EB" stroke-width="18" stroke-linecap="round"/><circle cx="600" cy="1851" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><circle cx="880" cy="1851" r="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="3"/><text class="barLabel" x="740" y="1831" text-anchor="middle" fill="#2563EB">A</text></g>
+    <g><line x1="740" y1="1881" x2="1140" y2="1881" stroke="#EA580C" stroke-width="18" stroke-linecap="round"/><circle cx="740" cy="1881" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><circle cx="1140" cy="1881" r="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="3"/><text class="barLabel" x="940" y="1861" text-anchor="middle" fill="#EA580C">B</text></g>
+    <g transform="translate(1320 1832)"><rect width="120" height="34" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.6"/><text class="pillText" x="60" y="23" text-anchor="middle" fill="#16A34A">overlap</text></g>
+    <text class="note" x="350" y="1924">A.end is inside B only</text>
   </g>
   </g>
 </svg>

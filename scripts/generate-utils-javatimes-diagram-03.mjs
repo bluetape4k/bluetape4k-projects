@@ -5,8 +5,8 @@ import { writeFileSync } from "node:fs";
 
 const svgPath = "docs/images/readme-diagrams/utils-javatimes-diagram-03.svg";
 const pngPath = "docs/images/readme-diagrams/utils-javatimes-diagram-03.png";
-const W = 2200;
-const H = 1500;
+const W = 1560;
+const H = 2100;
 const colors = {
   ink: "#0F172A",
   muted: "#475569",
@@ -27,7 +27,7 @@ const groups = [
     title: "outside or boundary only",
     x: 90,
     y: 230,
-    w: 970,
+    w: 1380,
     rows: [
       { name: "After", b: [15, 175], note: "A starts after B ends", flag: "no overlap" },
       { name: "StartTouching", b: [15, 250], note: "A.start == B.end", flag: "no overlap" },
@@ -38,9 +38,9 @@ const groups = [
   },
   {
     title: "A contains B",
-    x: 1140,
-    y: 230,
-    w: 970,
+    x: 90,
+    y: 845,
+    w: 1380,
     rows: [
       { name: "EnclosingStartTouching", b: [250, 405], note: "same start, B ends inside A", flag: "overlap" },
       { name: "Enclosing", b: [325, 455], note: "B is fully inside A", flag: "overlap" },
@@ -51,8 +51,8 @@ const groups = [
   {
     title: "B contains A or cuts into A",
     x: 90,
-    y: 835,
-    w: 2020,
+    y: 1390,
+    w: 1380,
     rows: [
       { name: "InsideStartTouching", b: [250, 790], note: "same start, B extends after A", flag: "overlap" },
       { name: "Inside", b: [25, 790], note: "A is fully inside B", flag: "overlap" },
@@ -82,23 +82,26 @@ function unknownBounds(x, y, w) {
 
 function row(g, row, i) {
   const rowY = g.y + 88 + i * 96;
-  const scale = g.w > 1200 ? 1 : 0.68;
-  const baseX = g.x + 145;
-  const axisX = g.x + 300;
-  const axisW = g.w - 400;
+  const scale = 1;
+  const baseX = g.x + 195;
+  const axisX = g.x + 260;
+  const axisW = g.w - 340;
   const aStart = axisX + 250 * scale;
   const aEnd = axisX + 530 * scale;
-  const bStart = row.b ? axisX + row.b[0] * scale : axisX + 42;
-  const bEnd = row.b ? axisX + row.b[1] * scale : axisX + axisW - 190;
+  const bStart = row.b ? axisX + row.b[0] * scale : axisX + 60;
+  const bEnd = row.b ? axisX + row.b[1] * scale : axisX + 760;
   const flagColor = row.flag === "overlap" ? colors.green : colors.gray;
+  const graphEnd = Math.max(aEnd, bEnd);
+  const pillX = g.x + 1230;
+  const axisEnd = pillX - 22;
   return `<g>
     <text class="relation" x="${baseX}" y="${rowY + 9}" text-anchor="end">${esc(row.name)}</text>
-    <line class="axis" x1="${axisX}" y1="${rowY}" x2="${axisX + axisW}" y2="${rowY}"/>
+    <line class="axis" x1="${axisX}" y1="${rowY}" x2="${axisEnd}" y2="${rowY}"/>
     <text class="tick" x="${aStart}" y="${rowY + 34}" text-anchor="middle">A.start</text>
     <text class="tick" x="${aEnd}" y="${rowY + 34}" text-anchor="middle">A.end</text>
     ${periodBar(aStart, rowY - 11, aEnd - aStart, colors.a, "A")}
     ${row.b ? periodBar(bStart, rowY + 19, bEnd - bStart, colors.b, "B") : unknownBounds(bStart, rowY + 15, bEnd - bStart)}
-    ${pill(g.x + g.w - 150, rowY - 30, row.flag, flagColor, 120)}
+    ${pill(pillX, rowY - 30, row.flag, flagColor, 120)}
     <text class="note" x="${axisX}" y="${rowY + 62}">${esc(row.note)}</text>
   </g>`;
 }
@@ -127,17 +130,17 @@ svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif
 .group{fill:#FFFFFF;stroke:${colors.line};stroke-width:1.5;filter:url(#softShadow)}
 .groupTitle{font-family:"Architects Daughter";font-size:24px;fill:${colors.ink}}
 .hint,.note,.tick{font-family:"Comic Mono";font-size:12.5px;fill:${colors.muted}}
-.relation{font-family:"Comic Mono";font-size:15px;font-weight:700;fill:${colors.ink}}
+.relation{font-family:"Comic Mono";font-size:14px;font-weight:700;fill:${colors.ink}}
 .axis{stroke:${colors.axis};stroke-width:1.4;stroke-dasharray:8 7}
 .barLabel{font-family:"Comic Mono";font-size:12px;font-weight:700}
 .pillText{font-family:"Comic Mono";font-size:12px;font-weight:700}
 </style>
 </defs>
 <rect class="canvas" width="${W}" height="${H}"/>
-<rect class="frame" x="38" y="30" width="2124" height="1434" rx="8"/>
+<rect class="frame" x="38" y="30" width="1484" height="2034" rx="8"/>
 <text class="title" x="78" y="88">PeriodRelation - How Two Periods Relate</text>
 <text class="subtitle" x="82" y="120">A relationWith B compares A.start/A.end against B.start/B.end; overlapWith excludes only NoRelation, After, StartTouching, EndTouching, and Before.</text>
-<rect class="summary" x="90" y="155" width="2020" height="58" rx="8"/>
+<rect class="summary" x="90" y="155" width="1380" height="58" rx="8"/>
 <text class="summaryTitle" x="120" y="192">Read every row with A fixed</text>
 <text class="summaryText" x="525" y="190">Blue bar is the receiver period A. Orange bar is the argument period B. Names are the enum returned by source code.</text>
 ${groups.map(group).join("\n")}
