@@ -1,83 +1,101 @@
-<svg data-intent="Regenerate ULID (Universally Unique Lexicographically Sortable Identif. from the current README and source package surface for utils/idgenerators." data-evidence="utils/idgenerators/README.md; utils/idgenerators; utils/idgenerators/src/main/kotlin" data-source-read="utils/idgenerators/README.md; utils/idgenerators; utils/idgenerators/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="ULID (Universally Unique Lexicographically Sortable Identif.">
+<svg data-intent="Explain ULID timestamp/randomness layout from current ULID source." data-evidence="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/Constants.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDValue.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/Crockford.kt" data-source-read="utils/idgenerators/README.md; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/ULID.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/Constants.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDValue.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/ULIDFactory.kt; utils/idgenerators/src/main/kotlin/io/bluetape4k/idgenerators/ulid/internal/Crockford.kt" xmlns="http://www.w3.org/2000/svg" width="3000" height="1900" viewBox="0 0 3000 1900" role="img" aria-label="ULID Layout">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .canvas{fill:#F8FAFC}
+    .frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .title{font-family:"Architects Daughter";font-size:58px;fill:#0F172A}
+    .subtitle,.sample{font-family:"Comic Mono";font-size:18px;fill:#475569}
+    .sampleValue{font-family:"Comic Mono";font-size:34px;fill:#0F172A;font-weight:700;letter-spacing:0}
+    .segmentBits{font-family:"Comic Mono";font-size:26px;fill:#0F172A;font-weight:700}
+    .segmentTitle{font-family:"Architects Daughter";font-size:36px;fill:#0F172A}
+    .segmentRange{font-family:"Comic Mono";font-size:17px;fill:#334155}
+    .card{filter:url(#shadow);stroke-width:2}
+    .cardTitle{font-family:"Architects Daughter";font-size:34px;fill:#0F172A}
+    .cardText{font-family:"Comic Mono";font-size:18px;fill:#334155}
+    .divider{stroke-width:1;opacity:.36}
+    .guide{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+    .bitLabel{font-family:"Comic Mono";font-size:18px;fill:#475569}
+    .tick{stroke:#94A3B8;stroke-width:1.5;stroke-dasharray:6 8}
+    .tickText{font-family:"Comic Mono";font-size:17px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">ULID (Universally Unique Lexicographically Sortable Identif.</text>
-<text class="subtitle" x="76" y="116">utils/idgenerators: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Algorithm Selection Guide</text>
+<rect class="canvas" width="3000" height="1900"/>
+<rect class="frame" x="36" y="30" width="2928" height="1840" rx="8"/>
+<text class="title" x="76" y="104">ULID Layout</text>
+<text class="subtitle" x="80" y="142">128-bit value: 48-bit timestamp + 80-bit randomness; 26 Crockford chars render 10 time + 16 random chars.</text>
+<text class="sample" x="170" y="228">example</text>
+<text class="sampleValue" x="170" y="278">01ARZ3NDEKTSV4RRFFQ69G5FAV</text>
+<text class="bitLabel" x="170" y="312">Most significant bit</text>
+<text class="bitLabel" x="2830" y="312" text-anchor="end">Least significant bit</text>
+<g><path class="tick" d="M170 402V618"/><text class="tickText" x="170" y="386" text-anchor="middle">127</text></g>
+<g><path class="tick" d="M1133.5 402V618"/><text class="tickText" x="1133.5" y="386" text-anchor="middle">80</text></g>
+<g><path class="tick" d="M1201.5 402V618"/><text class="tickText" x="1201.5" y="386" text-anchor="middle">79</text></g>
+<g><path class="tick" d="M2830 402V618"/><text class="tickText" x="2830" y="386" text-anchor="middle">0</text></g>
+<g>
+  <rect x="170" y="420" width="997.5" height="180" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="3"/>
+  <text class="segmentBits" x="668.75" y="474" text-anchor="middle">48 bits</text>
+  <text class="segmentTitle" x="668.75" y="524" text-anchor="middle">timestamp</text>
+  <text class="segmentRange" x="668.75" y="563" text-anchor="middle">mostSignificantBits &gt;&gt;&gt; 16</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Architecture</text>
+<g>
+  <rect x="1167.5" y="420" width="1662.5" height="180" rx="8" fill="#FFF7ED" stroke="#EA580C" stroke-width="3"/>
+  <text class="segmentBits" x="1998.75" y="474" text-anchor="middle">80 bits</text>
+  <text class="segmentTitle" x="1998.75" y="524" text-anchor="middle">randomness</text>
+  <text class="segmentRange" x="1998.75" y="563" text-anchor="middle">16 high bits + 64 low bits</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">All Algorithms at a Glance</text>
+<g>
+  <rect x="170" y="780" width="1023.0769230769231" height="170" rx="8" fill="#F0FDF4" stroke="#16A34A" stroke-width="3"/>
+  <text class="segmentBits" x="681.5384615384615" y="834" text-anchor="middle">10 chars</text>
+  <text class="segmentTitle" x="681.5384615384615" y="884" text-anchor="middle">time string</text>
+  <text class="segmentRange" x="681.5384615384615" y="923" text-anchor="middle">write(timestamp, 10, offset 0)</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Snowflake Bit Layout</text>
+<g>
+  <rect x="1193.076923076923" y="780" width="1636.923076923077" height="170" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="3"/>
+  <text class="segmentBits" x="2011.5384615384614" y="834" text-anchor="middle">16 chars</text>
+  <text class="segmentTitle" x="2011.5384615384614" y="884" text-anchor="middle">random string</text>
+  <text class="segmentRange" x="2011.5384615384614" y="923" text-anchor="middle">80 random bits in Crockford Base32</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">idgenerators package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">idgenerators package (43)</text>
+<path class="guide" d="M668.75 600 V690 H90 V1010 H770 V1060" stroke="#1D4ED8"/>
+<path class="guide" d="M1998.75 600 V690 H2910 V1010 H2230 V1060" stroke="#C2410C"/>
+<path class="guide" d="M681.5384615384615 950 V1400 H770 V1450" stroke="#15803D"/>
+<path class="guide" d="M2011.5384615384614 950 V1400 H2230 V1450" stroke="#6D28D9"/>
+<g>
+  <rect class="card" x="170" y="1060" width="1200" height="290" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="770" y="1114" text-anchor="middle">Timestamp bits</text>
+  <path class="divider" d="M170 1142H1370" stroke="#1D4ED8"/>
+  <text class="cardText" x="198" y="1182">48-bit millisecond timestamp</text>
+<text class="cardText" x="198" y="1216">stored in mostSignificantBits</text>
+<text class="cardText" x="198" y="1250">timestamp = msb &gt;&gt;&gt; 16</text>
+<text class="cardText" x="198" y="1284">10 time chars render this field</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">IdGenerator type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">IdGenerator type</text>
+<g>
+  <rect class="card" x="1630" y="1060" width="1200" height="290" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="2230" y="1114" text-anchor="middle">Randomness bits</text>
+  <path class="divider" d="M1630 1142H2830" stroke="#C2410C"/>
+  <text class="cardText" x="1658" y="1182">80-bit random payload</text>
+<text class="cardText" x="1658" y="1216">randomHigh: 16 bits</text>
+<text class="cardText" x="1658" y="1250">randomLow: 64 bits</text>
+<text class="cardText" x="1658" y="1284">Factory writes both into ULIDValue</text>
+<text class="cardText" x="1658" y="1318">monotonic variants increment payload</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">LongIdGenerator type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">LongIdGenerator type</text>
+<g>
+  <rect class="card" x="170" y="1450" width="1200" height="250" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="770" y="1504" text-anchor="middle">Time string</text>
+  <path class="divider" d="M170 1532H1370" stroke="#15803D"/>
+  <text class="cardText" x="198" y="1572">first 10 Crockford chars</text>
+<text class="cardText" x="198" y="1606">buffer.write(timestamp, 10, 0)</text>
+<text class="cardText" x="198" y="1640">50 char-slots encode 48 useful bits</text>
+<text class="cardText" x="198" y="1674">lexicographic order starts here</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">Flake type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">Flake type</text>
+<g>
+  <rect class="card" x="1630" y="1450" width="1200" height="250" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="cardTitle" x="2230" y="1504" text-anchor="middle">Random string</text>
+  <path class="divider" d="M1630 1532H2830" stroke="#6D28D9"/>
+  <text class="cardText" x="1658" y="1572">last 16 Crockford chars</text>
+<text class="cardText" x="1658" y="1606">80 random bits total</text>
+<text class="cardText" x="1658" y="1640">source code writes this as 8 + 8 chars</text>
+<text class="cardText" x="1658" y="1674">not an 80-bit-to-8-char mapping</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Serialization</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
 </svg>

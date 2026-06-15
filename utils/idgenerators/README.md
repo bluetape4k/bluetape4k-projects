@@ -139,6 +139,8 @@ check(a < b)
 
 ### KSUID (K-Sortable Unique ID)
 
+![KSUID Layout diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-06.png)
+
 ```kotlin
 // Second-based (27 chars, Base62)
 val id: String = Ksuid.Seconds.generate()   // e.g. "0ujtsYcgvSTl8PAuAdqWYSMnLOv"
@@ -153,6 +155,8 @@ val id2: String = gen.nextId()
 ```
 
 ### Flake (Boundary-style 128-bit)
+
+![Flake Layout diagram](../../docs/images/readme-diagrams/utils-idgenerators-diagram-07.png)
 
 ```kotlin
 val flake = Flake()
