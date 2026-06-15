@@ -1,72 +1,163 @@
-<svg data-intent="Explain JWT create and verify flow by showing claims/header input, algorithm/key selection, signing, token output, parser verification, and decoded claims/error outcomes." data-evidence="utils/jwt/README.md; utils/jwt/src/main/kotlin/io/bluetape4k/jwt" data-source-read="utils/jwt/README.md; utils/jwt/src/main/kotlin/io/bluetape4k/jwt" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="JWT Create and Verify Flow" data-layout="decision-flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1158"/>
-<rect class="frame" x="34" y="30" width="1432" height="1098" rx="8"/>
-<text class="title" x="72" y="84">JWT Create and Verify Flow</text>
-<text class="subtitle" x="76" y="116">The JWT helpers keep claim/header input, key/algorithm choice, signing, parser verification, and decoded outcome explicit.</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Creation</text></g>
-<g id="claims">
-  <rect class="card" x="146" y="256" width="280" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="286" y="291" text-anchor="middle" dominant-baseline="middle">Claims + headers</text>
-  <text class="detail" x="286" y="321" text-anchor="middle" dominant-baseline="middle">subject, issuer, expiration</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1320" viewBox="0 0 2200 1320" role="img" aria-label="JWT create and verify flow">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-providerLock" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
+<marker id="arrow-lockRepo" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#0D9488"/></marker>
+<marker id="arrow-rotationRepo" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#D97706"/></marker>
+<marker id="arrow-providerComposer" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
+<marker id="arrow-dslComposer" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#64748B"/></marker>
+<marker id="arrow-composerBuilder" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
+<marker id="arrow-repoBuilder" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#EA580C"/></marker>
+<marker id="arrow-builderToken" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#16A34A"/></marker>
+<marker id="arrow-tokenIncoming" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#7C3AED"/></marker>
+<marker id="arrow-incomingParser" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#7C3AED"/></marker>
+<marker id="arrow-parserLocator" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#64748B"/></marker>
+<marker id="arrow-repoLocator" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#EA580C"/></marker>
+<marker id="arrow-locatorReader" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#16A34A"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.lane{stroke:#94A3B8;stroke-width:1.8;stroke-dasharray:12 8}.laneTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.providerLane{fill:#F3F8FF}.composeLane{fill:#F7FEE7}.verifyLane{fill:#FDF4FF}.card{filter:url(#softShadow);stroke-width:2}.kicker{font-family:"Comic Mono";font-size:12.8px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.2px;fill:#475569}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:#475569}</style></defs>
+<rect class="canvas" width="2200" height="1320"/><rect class="frame" x="36" y="30" width="2128" height="1254" rx="8"/>
+<text class="title" x="78" y="88">JWT Create and Verify Flow</text>
+<text class="subtitle" x="82" y="120">Provider, Composer, Parser, and KeyChain repository responsibilities from current source: sign with the current private key, verify by kid with the matching public key.</text>
+<rect class="lane providerLane" x="82" y="165" width="2028" height="250" rx="8"/><text class="laneTitle" x="110" y="192">provider and key lifecycle</text>
+<rect class="lane composeLane" x="82" y="485" width="2028" height="285" rx="8"/><text class="laneTitle" x="110" y="512">create path</text>
+<rect class="lane verifyLane" x="82" y="835" width="2028" height="285" rx="8"/><text class="laneTitle" x="110" y="862">verify and read path</text>
+<g id="edges"><path class="edge" d="M510 290 L640 290" stroke="#2563EB" marker-end="url(#arrow-providerLock)"/>
+<path class="edge" d="M1010 290 L1160 290" stroke="#0D9488" marker-end="url(#arrow-lockRepo)"/>
+<path class="edge" d="M1710 290 L1580 290" stroke="#D97706" marker-end="url(#arrow-rotationRepo)"/>
+<path class="edge" d="M315 375 L315 440 L825 440 L825 535" stroke="#2563EB" marker-end="url(#arrow-providerComposer)"/>
+<path class="edge" d="M510 630 L640 630" stroke="#64748B" marker-end="url(#arrow-dslComposer)"/>
+<path class="edge" d="M1010 630 L1160 630" stroke="#2563EB" marker-end="url(#arrow-composerBuilder)"/>
+<path class="edge" d="M1370 375 L1370 535" stroke="#EA580C" marker-end="url(#arrow-repoBuilder)"/>
+<path class="edge" d="M1580 630 L1710 630" stroke="#16A34A" marker-end="url(#arrow-builderToken)"/>
+<path class="edge" d="M1890 720 L1890 790 L315 790 L315 890" stroke="#7C3AED" marker-end="url(#arrow-tokenIncoming)"/>
+<path class="edge" d="M510 980 L640 980" stroke="#7C3AED" marker-end="url(#arrow-incomingParser)"/>
+<path class="edge" d="M1010 980 L1160 980" stroke="#64748B" marker-end="url(#arrow-parserLocator)"/>
+<path class="edge" d="M1370 375 L1370 430 L2110 430 L2110 1180 L1370 1180 L1370 1075" stroke="#EA580C" marker-end="url(#arrow-repoLocator)"/>
+<path class="edge" d="M1580 980 L1710 980" stroke="#16A34A" marker-end="url(#arrow-locatorReader)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(527 247)"><rect width="96" height="30" rx="8"/><text x="48" y="20" text-anchor="middle">serializes</text></g>
+<g class="edgeLabel" transform="translate(1031 247)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">current key</text></g>
+<g class="edgeLabel" transform="translate(1606 247)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">rotate</text></g>
+<g class="edgeLabel" transform="translate(486 399)"><rect width="118" height="30" rx="8"/><text x="59" y="20" text-anchor="middle">compose path</text></g>
+<g class="edgeLabel" transform="translate(529 587)"><rect width="92" height="30" rx="8"/><text x="46" y="20" text-anchor="middle">configure</text></g>
+<g class="edgeLabel" transform="translate(1033 587)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">apply rules</text></g>
+<g class="edgeLabel" transform="translate(1404 441)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">private key</text></g>
+<g class="edgeLabel" transform="translate(1603 587)"><rect width="84" height="30" rx="8"/><text x="42" y="20" text-anchor="middle">compact</text></g>
+<g class="edgeLabel" transform="translate(1043 747)"><rect width="134" height="30" rx="8"/><text x="67" y="20" text-anchor="middle">distributed use</text></g>
+<g class="edgeLabel" transform="translate(540 937)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">parse</text></g>
+<g class="edgeLabel" transform="translate(1033 937)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">key lookup</text></g>
+<g class="edgeLabel" transform="translate(1968 797)"><rect width="140" height="30" rx="8"/><text x="70" y="20" text-anchor="middle">public key by kid</text></g>
+<g class="edgeLabel" transform="translate(1589 937)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">verified JWS</text></g></g>
+<g id="provider">
+  <rect class="card" x="120" y="205" width="390" height="170" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect x="140" y="231" width="50" height="50" rx="12" fill="#2563EB"/><path d="M147 244 H177 M147 253 H177 M147 262 H177" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <text class="kicker" x="214" y="243">entrypoint</text>
+  <text class="cardTitle" x="214" y="273">JwtProvider</text>
+  <text class="detail" x="214" y="307">composer() / compose()</text>
+  <text class="detail" x="214" y="330">parse() / tryParse()</text>
+  <text class="detail" x="214" y="353">rotate() / forcedRotate()</text>
 </g>
-<g id="sign">
-  <rect class="card" x="610" y="256" width="280" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="750" y="291" text-anchor="middle" dominant-baseline="middle">JWT signer</text>
-  <text class="detail" x="750" y="321" text-anchor="middle" dominant-baseline="middle">build compact token</text>
+<g id="lock">
+  <rect class="card" x="640" y="205" width="370" height="170" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect x="660" y="231" width="50" height="50" rx="12" fill="#0D9488"/><rect x="667" y="252" width="30" height="18" rx="4" fill="none" stroke="#fff" stroke-width="3"/><path d="M673 252 V244 C673 235, 691 235, 691 244 V252" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <text class="kicker" x="734" y="243">thread-safe gateway</text>
+  <text class="cardTitle" x="734" y="273">AbstractJwtProvider</text>
+  <text class="detail" x="734" y="307">ReentrantLock protects</text>
+  <text class="detail" x="734" y="330">currentKeyChain selection</text>
+  <text class="detail" x="734" y="353">Composer gets explicit key</text>
 </g>
-<g id="alg">
-  <rect class="card" x="1074" y="256" width="280" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1214" y="291" text-anchor="middle" dominant-baseline="middle">Algorithm / key</text>
-  <text class="detail" x="1214" y="321" text-anchor="middle" dominant-baseline="middle">HMAC or RSA/ECDSA key</text>
+<g id="repository">
+  <rect class="card" x="1160" y="205" width="420" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <rect x="1180" y="231" width="50" height="50" rx="12" fill="#EA580C"/><ellipse cx="1202" cy="241" rx="16" ry="7" fill="none" stroke="#fff" stroke-width="3"/><path d="M1186 241 V265 C1186 273, 1218 273, 1218 265 V241 M1186 253 C1186 261, 1218 261, 1218 253" fill="none" stroke="#fff" stroke-width="3"/>
+  <text class="kicker" x="1254" y="243">current + history</text>
+  <text class="cardTitle" x="1254" y="273">KeyChainRepository</text>
+  <text class="detail" x="1254" y="307">current() for signing</text>
+  <text class="detail" x="1254" y="330">findOrNull(kid) for verify</text>
+  <text class="detail" x="1254" y="353">InMemory or Redis backing</text>
 </g>
-<g><rect class="panel" x="82" y="478" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="514" dominant-baseline="middle">Transport</text></g>
+<g id="rotation">
+  <rect class="card" x="1710" y="205" width="360" height="170" rx="8" fill="#FFFBEB" stroke="#D97706"/>
+  <rect x="1730" y="231" width="50" height="50" rx="12" fill="#D97706"/><path d="M1765 249 A15 15 0 1 0 1758 265" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round"/><path d="M1765 249 L1765 238 L1755 243" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="1804" y="243">DefaultJwtProvider</text>
+  <text class="cardTitle" x="1804" y="273">Rotation Timer</text>
+  <text class="detail" x="1804" y="307">initial rotate()</text>
+  <text class="detail" x="1804" y="330">checks every 60 seconds</text>
+  <text class="detail" x="1804" y="353">keeps previous keys</text>
+</g>
+<g id="dsl">
+  <rect class="card" x="120" y="540" width="390" height="180" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="140" y="566" width="50" height="50" rx="12" fill="#64748B"/><path d="M148 578 L158 588 L148 598 M176 578 L166 588 L176 598" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="214" y="578">caller input</text>
+  <text class="cardTitle" x="214" y="608">Builder or DSL</text>
+  <text class="detail" x="214" y="642">header(...)</text>
+  <text class="detail" x="214" y="665">claim(...)</text>
+  <text class="detail" x="214" y="688">issuer / subject / exp</text>
+  <text class="detail" x="214" y="711">optional compression</text>
+</g>
+<g id="composer">
+  <rect class="card" x="640" y="535" width="370" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect x="660" y="561" width="50" height="50" rx="12" fill="#2563EB"/><path d="M668 571 H690 L697 578 V597 H668 Z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="M675 584 H690 M675 592 H690" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+  <text class="kicker" x="734" y="573">composition state</text>
+  <text class="cardTitle" x="734" y="603">JwtComposer</text>
+  <text class="detail" x="734" y="637">stores custom headers</text>
+  <text class="detail" x="734" y="660">stores custom claims</text>
+  <text class="detail" x="734" y="683">guards reserved names</text>
+  <text class="detail" x="734" y="706">defaults iat when absent</text>
+</g>
+<g id="builder">
+  <rect class="card" x="1160" y="535" width="420" height="190" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <rect x="1180" y="561" width="50" height="50" rx="12" fill="#16A34A"/><path d="M1188 595 L1215 568 M1201 580 L1212 591 M1194 587 L1203 596" stroke="#fff" stroke-width="3.3" stroke-linecap="round"/>
+  <text class="kicker" x="1254" y="573">compact signing</text>
+  <text class="cardTitle" x="1254" y="603">jjwt Builder</text>
+  <text class="detail" x="1254" y="637">adds kid and typ=JWT</text>
+  <text class="detail" x="1254" y="660">signs with private key</text>
+  <text class="detail" x="1254" y="683">compresses if configured</text>
+  <text class="detail" x="1254" y="706">outputs compact JWS</text>
+</g>
 <g id="token">
-  <rect class="card" x="570" y="574" width="360" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="609" text-anchor="middle" dominant-baseline="middle">Compact JWT token</text>
-  <text class="detail" x="750" y="639" text-anchor="middle" dominant-baseline="middle">header.payload.signature</text>
+  <rect class="card" x="1710" y="540" width="360" height="180" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <rect x="1730" y="566" width="50" height="50" rx="12" fill="#7C3AED"/><rect x="1735" y="575" width="34" height="26" rx="5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="1744" cy="588" r="2.8" fill="#fff"/><circle cx="1752" cy="588" r="2.8" fill="#fff"/><circle cx="1760" cy="588" r="2.8" fill="#fff"/>
+  <text class="kicker" x="1804" y="578">header.payload.signature</text>
+  <text class="cardTitle" x="1804" y="608">JWT String</text>
+  <text class="detail" x="1804" y="642">URL-safe compact form</text>
+  <text class="detail" x="1804" y="665">kid identifies key</text>
+  <text class="detail" x="1804" y="688">can travel across nodes</text>
 </g>
-<g><rect class="panel" x="82" y="796" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="832" dominant-baseline="middle">Verification</text></g>
-<g id="decoded">
-  <rect class="card" x="146" y="892" width="280" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="286" y="927" text-anchor="middle" dominant-baseline="middle">Decoded claims</text>
-  <text class="detail" x="286" y="957" text-anchor="middle" dominant-baseline="middle">trusted application input</text>
+<g id="incoming">
+  <rect class="card" x="120" y="890" width="390" height="180" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <rect x="140" y="916" width="50" height="50" rx="12" fill="#7C3AED"/><rect x="145" y="925" width="34" height="26" rx="5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="154" cy="938" r="2.8" fill="#fff"/><circle cx="162" cy="938" r="2.8" fill="#fff"/><circle cx="170" cy="938" r="2.8" fill="#fff"/>
+  <text class="kicker" x="214" y="928">parse(jwtString)</text>
+  <text class="cardTitle" x="214" y="958">Incoming JWT</text>
+  <text class="detail" x="214" y="992">same compact JWS</text>
+  <text class="detail" x="214" y="1015">header exposes kid + alg</text>
+  <text class="detail" x="214" y="1038">claims require signature</text>
 </g>
 <g id="parser">
-  <rect class="card" x="610" y="892" width="280" height="84" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="750" y="927" text-anchor="middle" dominant-baseline="middle">JWT parser</text>
-  <text class="detail" x="750" y="957" text-anchor="middle" dominant-baseline="middle">verify signature and claims</text>
+  <rect class="card" x="640" y="885" width="370" height="190" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="660" y="911" width="50" height="50" rx="12" fill="#64748B"/><path d="M667 921 H697 V945 H667 Z M675 930 H689 M675 939 H685" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="734" y="923">provider cache</text>
+  <text class="cardTitle" x="734" y="953">currentJwtParser()</text>
+  <text class="detail" x="734" y="987">ConcurrentHashMap cache</text>
+  <text class="detail" x="734" y="1010">jjwt parser instance</text>
+  <text class="detail" x="734" y="1033">built with key locator</text>
+  <text class="detail" x="734" y="1056">DEF/GZIP supported</text>
 </g>
-<g id="error">
-  <rect class="card" x="1074" y="892" width="280" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1214" y="927" text-anchor="middle" dominant-baseline="middle">Validation error</text>
-  <text class="detail" x="1214" y="957" text-anchor="middle" dominant-baseline="middle">expired / invalid token</text>
+<g id="locator">
+  <rect class="card" x="1160" y="885" width="420" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <rect x="1180" y="911" width="50" height="50" rx="12" fill="#EA580C"/><circle cx="1197" cy="929" r="11" fill="none" stroke="#fff" stroke-width="3"/><path d="M1206 938 L1217 949" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
+  <text class="kicker" x="1254" y="923">kid based verification</text>
+  <text class="cardTitle" x="1254" y="953">Key Locator</text>
+  <text class="detail" x="1254" y="987">requires kid header</text>
+  <text class="detail" x="1254" y="1010">finds matching KeyChain</text>
+  <text class="detail" x="1254" y="1033">checks alg equality</text>
+  <text class="detail" x="1254" y="1056">returns public key</text>
 </g>
-<path class="route" data-from="claims" data-to="sign" d="M426 298 L610 298" stroke="#1D4ED8"/>
-<path class="route" data-from="alg" data-to="sign" d="M1074 298 L890 298" stroke="#7E22CE"/>
-<path class="route" data-from="sign" data-to="token" d="M750 340 L750 574" stroke="#15803D"/>
-<path class="route" data-from="token" data-to="parser" d="M750 658 L750 892" stroke="#C2410C"/>
-<path class="route" data-from="parser" data-to="decoded" d="M610 934 L426 934" stroke="#0F766E"/>
-<path class="route dashed" data-from="parser" data-to="error" d="M890 934 L1074 934" stroke="#BE185D"/>
+<g id="reader">
+  <rect class="card" x="1710" y="885" width="360" height="190" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <rect x="1730" y="911" width="50" height="50" rx="12" fill="#16A34A"/><path d="M1737 920 H1767 V946 H1737 Z M1744 929 H1760 M1744 938 H1760" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="1804" y="923">typed read API</text>
+  <text class="cardTitle" x="1804" y="953">JwtReader</text>
+  <text class="detail" x="1804" y="987">Claims delegate</text>
+  <text class="detail" x="1804" y="1010">header&lt;T&gt;(key)</text>
+  <text class="detail" x="1804" y="1033">claim&lt;T&gt;(name)</text>
+  <text class="detail" x="1804" y="1056">isExpired / expiredTtl</text>
+</g>
 </svg>
