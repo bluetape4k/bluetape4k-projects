@@ -1,31 +1,31 @@
-<svg data-intent="Explain Mutiny Uni and Multi type surface for README diagram 01." data-evidence="utils/mutiny/README.md; utils/mutiny/src/main/kotlin/io/bluetape4k/mutiny/UniSupport.kt; utils/mutiny/src/main/kotlin/io/bluetape4k/mutiny/MultiSupport.kt; utils/mutiny/src/main/kotlin/io/bluetape4k/mutiny/CoroutineSupport.kt" data-source-read="utils/mutiny/README.md; utils/mutiny/src/main/kotlin/io/bluetape4k/mutiny/UniSupport.kt; utils/mutiny/src/main/kotlin/io/bluetape4k/mutiny/MultiSupport.kt; utils/mutiny/src/main/kotlin/io/bluetape4k/mutiny/CoroutineSupport.kt" xmlns="http://www.w3.org/2000/svg" width="2600" height="1540" viewBox="0 0 2600 1540" role="img" aria-label="Mutiny Type Diagram">
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1300" viewBox="0 0 2600 1300" role="img" aria-label="Mutiny Type Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
 
-  <marker id="arrow-teal" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#0F766E"/></marker>
+  <marker id="arrow-teal" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#0F766E"/></marker>
 
-  <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#1D4ED8"/></marker>
+  <marker id="arrow-blue" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#1D4ED8"/></marker>
 
-  <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#15803D"/></marker>
+  <marker id="arrow-green" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#15803D"/></marker>
 
-  <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#C2410C"/></marker>
+  <marker id="arrow-amber" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#C2410C"/></marker>
 
-  <marker id="arrow-pink" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#BE185D"/></marker>
+  <marker id="arrow-pink" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#BE185D"/></marker>
 
-  <marker id="arrow-slate" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#475569"/></marker>
+  <marker id="arrow-slate" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#475569"/></marker>
 
-  <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="#6D28D9"/></marker>
+  <marker id="arrow-violet" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="#6D28D9"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
     .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
     .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="2600" height="1540"/>
-<rect class="frame" x="34" y="30" width="2532" height="1480" rx="8"/>
+<rect class="canvas" width="2600" height="1300"/>
+<rect class="frame" x="34" y="30" width="2532" height="1240" rx="8"/>
 <text class="title" x="72" y="86">Mutiny Type Diagram</text>
 <text class="subtitle" x="76" y="120">bluetape4k-mutiny keeps SmallRye Mutiny's Uni and Multi model, then adds Kotlin-friendly creation, conversion, and coroutine interop helpers.</text>
 <g id="Mutiny">
@@ -95,26 +95,26 @@
 </g>
 <g data-from="Mutiny" data-to="Uni">
   <path class="edge " d="M1020 420 L1020 485 L450 485 L450 555" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
-  <text class="edgeLabel" x="620" y="466">single-result side</text>
+  <g class="edgeLabel" transform="translate(535 451)"><rect width="170" height="30" rx="8"/><text x="85" y="20" text-anchor="middle">single-result side</text></g>
 </g>
 <g data-from="Mutiny" data-to="Multi">
   <path class="edge " d="M1500 420 L1500 485 L2150 485 L2150 555" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
-  <text class="edgeLabel" x="1770" y="466">stream side</text>
+  <g class="edgeLabel" transform="translate(1713 451)"><rect width="114" height="30" rx="8"/><text x="57" y="20" text-anchor="middle">stream side</text></g>
 </g>
 <g data-from="UniSupport" data-to="Uni">
   <path class="edge dashed" d="M450 955 L450 815" stroke="#15803D" marker-end="url(#arrow-green)"/>
-  <text class="edgeLabel" x="468" y="890">creates and converts</text>
+  <g class="edgeLabel" transform="translate(472 875)"><rect width="186" height="30" rx="8"/><text x="93" y="20" text-anchor="middle">creates and converts</text></g>
 </g>
 <g data-from="CoroutineSupport" data-to="Uni">
   <path class="edge dashed" d="M930 1075 L830 1075 L830 885 L450 885 L450 815" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
-  <text class="edgeLabel" x="845" y="1048">suspend block -&gt; Uni</text>
+  <g class="edgeLabel" transform="translate(837 1033)"><rect width="186" height="30" rx="8"/><text x="93" y="20" text-anchor="middle">suspend block -&gt; Uni</text></g>
 </g>
 <g data-from="MultiSupport" data-to="Multi">
   <path class="edge dashed" d="M2150 955 L2150 815" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
-  <text class="edgeLabel" x="2168" y="890">creates streams</text>
+  <g class="edgeLabel" transform="translate(2192 875)"><rect width="146" height="30" rx="8"/><text x="73" y="20" text-anchor="middle">creates streams</text></g>
 </g>
 <g data-from="Uni" data-to="Multi">
   <path class="edge dashed" d="M750 685 L1850 685" stroke="#475569" marker-end="url(#arrow-slate)"/>
-  <text class="edgeLabel" x="1170" y="664">different item cardinality</text>
+  <g class="edgeLabel" transform="translate(1053 649)"><rect width="234" height="30" rx="8"/><text x="117" y="20" text-anchor="middle">different item cardinality</text></g>
 </g>
 </svg>

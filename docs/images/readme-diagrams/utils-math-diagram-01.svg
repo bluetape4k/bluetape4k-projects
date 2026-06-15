@@ -1,72 +1,120 @@
-<svg data-intent="Regenerate Feature Structure from the current README and source package surface for utils/math." data-evidence="utils/math/README.md; utils/math; utils/math/src/main/kotlin" data-source-read="utils/math/README.md; utils/math; utils/math/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Feature Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Feature Structure</text>
-<text class="subtitle" x="76" y="116">utils/math: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2060" height="1280" viewBox="0 0 2060 1280" role="img" aria-label="Math module feature structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-apiStats" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
+<marker id="arrow-apiRandom" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#16A34A"/></marker>
+<marker id="arrow-apiCalculus" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#0D9488"/></marker>
+<marker id="arrow-apiSolving" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#EA580C"/></marker>
+<marker id="arrow-statsSpecial" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#7C3AED"/></marker>
+<marker id="arrow-randomAlgebra" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#DB2777"/></marker>
+<marker id="arrow-calculusGeometry" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#D97706"/></marker>
+<marker id="arrow-solvingMl" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#64748B"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.lane{fill:#F3F8FF;stroke:#94A3B8;stroke-width:1.8;stroke-dasharray:12 8}.laneTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.card{filter:url(#softShadow);stroke-width:2}.kicker{font-family:"Comic Mono";font-size:12.8px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.2px;fill:#475569}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:#475569}</style></defs>
+<rect class="canvas" width="2060" height="1280"/><rect class="frame" x="34" y="30" width="1992" height="1214" rx="8"/>
+<text class="title" x="78" y="88">Math Feature Structure</text>
+<text class="subtitle" x="82" y="120">A task-oriented map of bluetape4k-math: statistics, random sampling, numeric methods, algebra, geometry, and ML helpers over Apache Commons Math3.</text>
+<rect class="lane" x="70" y="455" width="1875" height="592" rx="8"/><text class="laneTitle" x="98" y="442">reader-facing feature groups backed by concrete package/file families</text>
+<g id="edges"><path class="edge " d="M310 345 L310 510" stroke="#2563EB" marker-end="url(#arrow-apiStats)"/>
+<path class="edge " d="M760 345 L760 510" stroke="#16A34A" marker-end="url(#arrow-apiRandom)"/>
+<path class="edge " d="M1230 345 L1230 510" stroke="#0D9488" marker-end="url(#arrow-apiCalculus)"/>
+<path class="edge " d="M1705 345 L1705 510" stroke="#EA580C" marker-end="url(#arrow-apiSolving)"/>
+<path class="edge " d="M310 700 L310 820" stroke="#7C3AED" marker-end="url(#arrow-statsSpecial)"/>
+<path class="edge " d="M760 700 L760 820" stroke="#DB2777" marker-end="url(#arrow-randomAlgebra)"/>
+<path class="edge " d="M1230 700 L1230 820" stroke="#D97706" marker-end="url(#arrow-calculusGeometry)"/>
+<path class="edge " d="M1705 700 L1705 820" stroke="#64748B" marker-end="url(#arrow-solvingMl)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(336 406)"><rect width="136" height="30" rx="8"/><text x="68" y="20" text-anchor="middle">descriptive data</text></g>
+<g class="edgeLabel" transform="translate(795 406)"><rect width="90" height="30" rx="8"/><text x="45" y="20" text-anchor="middle">sampling</text></g>
+<g class="edgeLabel" transform="translate(1262 406)"><rect width="136" height="30" rx="8"/><text x="68" y="20" text-anchor="middle">numeric methods</text></g>
+<g class="edgeLabel" transform="translate(1738 406)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">root finding</text></g>
+<g class="edgeLabel" transform="translate(348 748)"><rect width="92" height="30" rx="8"/><text x="46" y="20" text-anchor="middle">functions</text></g>
+<g class="edgeLabel" transform="translate(792 748)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">data vectors</text></g>
+<g class="edgeLabel" transform="translate(1270 748)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">coordinates</text></g>
+<g class="edgeLabel" transform="translate(1747 748)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">distance</text></g></g>
+<g id="api">
+  <rect class="card" x="115" y="170" width="1785" height="175" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="135" y="196" width="50" height="50" rx="12" fill="#64748B"/><path d="M141 218 H173 M157 202 V234" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <text class="kicker" x="209" y="208">Kotlin helper module</text>
+  <text class="cardTitle" x="209" y="238">bluetape4k-math</text>
+  <text class="detail" x="209" y="274">Kotlin extension functions and small wrappers</text>
+  <text class="detail" x="209" y="298">built on Apache Commons Math3</text>
+  <text class="detail" x="209" y="322">groups numerical APIs by reader task</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Feature Structure</text>
+<g id="stats">
+  <rect class="card" x="115" y="510" width="390" height="190" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect x="135" y="536" width="50" height="50" rx="12" fill="#2563EB"/><path d="M142 571 V556 M157 571 V544 M172 571 V551" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <text class="kicker" x="209" y="548">core package</text>
+  <text class="cardTitle" x="209" y="578">Statistics</text>
+  <text class="detail" x="209" y="614">Descriptives</text>
+  <text class="detail" x="209" y="638">Double/BigDecimal statistics</text>
+  <text class="detail" x="209" y="662">histograms, rank, correlation</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Key Features</text>
+<g id="random">
+  <rect class="card" x="565" y="510" width="390" height="190" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <rect x="585" y="536" width="50" height="50" rx="12" fill="#16A34A"/><rect x="593" y="544" width="28" height="28" rx="5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="600" cy="551" r="2.6" fill="#fff"/><circle cx="614" cy="558" r="2.6" fill="#fff"/><circle cx="600" cy="565" r="2.6" fill="#fff"/>
+  <text class="kicker" x="659" y="548">RandomSupport.kt</text>
+  <text class="cardTitle" x="659" y="578">Sampling</text>
+  <text class="detail" x="659" y="614">randomFirst / random</text>
+  <text class="detail" x="659" y="638">randomDistinct</text>
+  <text class="detail" x="659" y="662">weighted coin and dice</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Statistics and Descriptive</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">Statistics</text>
+<g id="calculus">
+  <rect class="card" x="1015" y="510" width="430" height="190" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect x="1035" y="536" width="50" height="50" rx="12" fill="#0D9488"/><path d="M1041 570 C1052 540, 1061 576, 1073 546" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <text class="kicker" x="1109" y="548">interpolation + integration</text>
+  <text class="cardTitle" x="1109" y="578">Curves and Area</text>
+  <text class="detail" x="1109" y="614">Linear, Spline, Loess, Akima</text>
+  <text class="detail" x="1109" y="638">Romberg, Simpson, Trapezoid</text>
+  <text class="detail" x="1109" y="662">MidPoint integrator</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">math package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">math package (86)</text>
+<g id="solving">
+  <rect class="card" x="1510" y="510" width="390" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <rect x="1530" y="536" width="50" height="50" rx="12" fill="#EA580C"/><path d="M1536 565 L1547 565 L1553 546 L1560 570 L1569 570" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="1604" y="548">equation package</text>
+  <text class="cardTitle" x="1604" y="578">Equation Solving</text>
+  <text class="detail" x="1604" y="614">Bisection, Brent, Secant</text>
+  <text class="detail" x="1604" y="638">Pegasus, Ridders</text>
+  <text class="detail" x="1604" y="662">Regula Falsi</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">Event type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">Event type</text>
+<g id="special">
+  <rect class="card" x="115" y="820" width="390" height="190" rx="8" fill="#FAF5FF" stroke="#7C3AED"/>
+  <rect x="135" y="846" width="50" height="50" rx="12" fill="#7C3AED"/><path d="M170 853 H144 L159 868 L144 883 H170" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="kicker" x="209" y="858">special + commons</text>
+  <text class="cardTitle" x="209" y="888">Special Functions</text>
+  <text class="detail" x="209" y="924">Gamma, Beta, Factorial</text>
+  <text class="detail" x="209" y="948">Harmonic</text>
+  <text class="detail" x="209" y="972">primes, combinations</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">Price type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">Price type</text>
+<g id="algebra">
+  <rect class="card" x="565" y="820" width="390" height="190" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect x="585" y="846" width="50" height="50" rx="12" fill="#DB2777"/><path d="M591 854 H623 M591 868 H623 M591 882 H623 M601 852 V884 M614 852 V884" stroke="#fff" stroke-width="2.5"/>
+  <text class="kicker" x="659" y="858">linear package</text>
+  <text class="cardTitle" x="659" y="888">Linear Algebra</text>
+  <text class="detail" x="659" y="924">matrix/vector helpers</text>
+  <text class="detail" x="659" y="948">field and real variants</text>
+  <text class="detail" x="659" y="972">Commons Math bridge</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">Bin type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">Bin type</text>
+<g id="geometry">
+  <rect class="card" x="1015" y="820" width="430" height="190" rx="8" fill="#FFFBEB" stroke="#D97706"/>
+  <rect x="1035" y="846" width="50" height="50" rx="12" fill="#D97706"/><path d="M1042 881 L1057 853 L1072 881 Z" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/><circle cx="1057" cy="872" r="4" fill="#fff"/>
+  <text class="kicker" x="1109" y="858">geometry + transform</text>
+  <text class="cardTitle" x="1109" y="888">Geometry and Transform</text>
+  <text class="detail" x="1109" y="924">1D/2D/3D vectors</text>
+  <text class="detail" x="1109" y="948">spherical geometry</text>
+  <text class="detail" x="1109" y="972">transform helpers</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Test support</text>
+<g id="ml">
+  <rect class="card" x="1510" y="820" width="390" height="190" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="1530" y="846" width="50" height="50" rx="12" fill="#64748B"/><circle cx="1542" cy="863" r="6" fill="#fff"/><circle cx="1561" cy="858" r="6" fill="#fff"/><circle cx="1555" cy="879" r="6" fill="#fff"/><path d="M1547 861 L1556 859 M1546 868 L1551 875 M1560 864 L1557 873" stroke="#fff" stroke-width="2.6"/>
+  <text class="kicker" x="1604" y="858">ml package</text>
+  <text class="cardTitle" x="1604" y="888">ML Utilities</text>
+  <text class="detail" x="1604" y="924">K-Means clustering</text>
+  <text class="detail" x="1604" y="948">DoublePoint helpers</text>
+  <text class="detail" x="1604" y="972">distance measures</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L750 696 L750 790" stroke="#7E22CE"/>
+<g id="foundation">
+  <rect class="card" x="345" y="1068" width="1330" height="124" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="365" y="1094" width="50" height="50" rx="12" fill="#64748B"/><path d="M371 1128 H403 M376 1128 V1111 H385 V1128 M391 1128 V1103 H400 V1128" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  <text class="kicker" x="439" y="1106">external dependency</text>
+  <text class="cardTitle" x="439" y="1136">Apache Commons Math3 Foundation</text>
+  <text class="detail" x="439" y="1172">the module mostly exposes Kotlin-friendly entry points over stable Commons Math primitives</text>
+</g>
 </svg>

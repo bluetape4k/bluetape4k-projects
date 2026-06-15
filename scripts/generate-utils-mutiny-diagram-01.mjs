@@ -49,7 +49,7 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="${dark}"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="${dark}"/></marker>`).join("\n");
 }
 
 function card({ id, x, y, w, h, color, kicker, title, lines = [], footer = "" }) {
@@ -68,9 +68,10 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
   const [, , dark] = palette[color];
   const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
+  const labelWidth = label ? Math.max(72, label.length * 8 + 26) : 0;
   return `<g data-from="${esc(from)}" data-to="${esc(to)}">
   <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>
-  ${label ? `<text class="edgeLabel" x="${p[0]}" y="${p[1]}">${esc(label)}</text>` : ""}
+  ${label ? `<g class="edgeLabel" transform="translate(${p[0] - labelWidth / 2} ${p[1] - 15})"><rect width="${labelWidth}" height="30" rx="8"/><text x="${labelWidth / 2}" y="20" text-anchor="middle">${esc(label)}</text></g>` : ""}
 </g>`;
 }
 
@@ -108,8 +109,51 @@ function validateEdgeEndpoints(edgeSpecs, cards) {
   }
 }
 
+function orthogonalSegments(points) {
+  return points.slice(1).map((point, index) => ({
+    a: { x: points[index][0], y: points[index][1] },
+    b: { x: point[0], y: point[1] },
+  }));
+}
+
+function isEndpoint(point, segment) {
+  return (Math.abs(point.x - segment.a.x) < 0.1 && Math.abs(point.y - segment.a.y) < 0.1) ||
+    (Math.abs(point.x - segment.b.x) < 0.1 && Math.abs(point.y - segment.b.y) < 0.1);
+}
+
+function segmentsCross(a, b) {
+  const aHorizontal = a.a.y === a.b.y;
+  const aVertical = a.a.x === a.b.x;
+  const bHorizontal = b.a.y === b.b.y;
+  const bVertical = b.a.x === b.b.x;
+  if (!((aHorizontal && bVertical) || (aVertical && bHorizontal))) return false;
+  const h = aHorizontal ? a : b;
+  const v = aVertical ? a : b;
+  const point = { x: v.a.x, y: h.a.y };
+  const hMin = Math.min(h.a.x, h.b.x);
+  const hMax = Math.max(h.a.x, h.b.x);
+  const vMin = Math.min(v.a.y, v.b.y);
+  const vMax = Math.max(v.a.y, v.b.y);
+  const inside = point.x > hMin + 0.1 && point.x < hMax - 0.1 && point.y > vMin + 0.1 && point.y < vMax - 0.1;
+  return inside && !isEndpoint(point, a) && !isEndpoint(point, b);
+}
+
+function validateEdgeCrossings(edgeSpecs) {
+  for (let i = 0; i < edgeSpecs.length; i++) {
+    for (let j = i + 1; j < edgeSpecs.length; j++) {
+      for (const a of orthogonalSegments(edgeSpecs[i].points)) {
+        for (const b of orthogonalSegments(edgeSpecs[j].points)) {
+          if (segmentsCross(a, b)) {
+            throw new Error(`${edgeSpecs[i].from}->${edgeSpecs[i].to} crosses ${edgeSpecs[j].from}->${edgeSpecs[j].to}`);
+          }
+        }
+      }
+    }
+  }
+}
+
 const width = 2600;
-const height = 1540;
+const height = 1300;
 const validationCards = [
   { id: "Mutiny", x: 770, y: 205, w: 980, h: 215 },
   { id: "Uni", x: 150, y: 555, w: 600, h: 260 },
@@ -118,6 +162,15 @@ const validationCards = [
   { id: "CoroutineSupport", x: 930, y: 955, w: 650, h: 265 },
   { id: "MultiSupport", x: 1850, y: 955, w: 600, h: 265 },
 ];
+const edgeSpecs = [
+  { from: "Mutiny", to: "Uni", points: [[1020, 420], [1020, 485], [450, 485], [450, 555]], color: "blue", label: "single-result side", labelAt: [620, 466] },
+  { from: "Mutiny", to: "Multi", points: [[1500, 420], [1500, 485], [2150, 485], [2150, 555]], color: "violet", label: "stream side", labelAt: [1770, 466] },
+  { from: "UniSupport", to: "Uni", points: [[450, 955], [450, 815]], color: "green", dashed: true, label: "creates and converts", labelAt: [565, 890] },
+  { from: "CoroutineSupport", to: "Uni", points: [[930, 1075], [830, 1075], [830, 885], [450, 885], [450, 815]], color: "teal", dashed: true, label: "suspend block -> Uni", labelAt: [930, 1048] },
+  { from: "MultiSupport", to: "Multi", points: [[2150, 955], [2150, 815]], color: "amber", dashed: true, label: "creates streams", labelAt: [2265, 890] },
+  { from: "Uni", to: "Multi", points: [[750, 685], [1850, 685]], color: "slate", dashed: true, label: "different item cardinality", labelAt: [1170, 664] },
+];
+
 const body = [
   card({
     id: "Mutiny",
@@ -191,25 +244,14 @@ const body = [
     lines: ["multiOf(...), multiRangeOf(...)", "Iterable/Sequence/Stream.asMulti()", "Int/Long/Float/Double arrays", "MultiRepetition.deferUni/deferCompletionStage"],
     footer: "stream sources keep order and lazy behavior",
   }),
-  edge({ from: "Mutiny", to: "Uni", points: [[1020, 420], [1020, 485], [450, 485], [450, 555]], color: "blue", label: "single-result side", labelAt: [620, 466] }),
-  edge({ from: "Mutiny", to: "Multi", points: [[1500, 420], [1500, 485], [2150, 485], [2150, 555]], color: "violet", label: "stream side", labelAt: [1770, 466] }),
-  edge({ from: "UniSupport", to: "Uni", points: [[450, 955], [450, 815]], color: "green", dashed: true, label: "creates and converts", labelAt: [468, 890] }),
-  edge({ from: "CoroutineSupport", to: "Uni", points: [[930, 1075], [830, 1075], [830, 885], [450, 885], [450, 815]], color: "teal", dashed: true, label: "suspend block -> Uni", labelAt: [845, 1048] }),
-  edge({ from: "MultiSupport", to: "Multi", points: [[2150, 955], [2150, 815]], color: "amber", dashed: true, label: "creates streams", labelAt: [2168, 890] }),
-  edge({ from: "Uni", to: "Multi", points: [[750, 685], [1850, 685]], color: "slate", dashed: true, label: "different item cardinality", labelAt: [1170, 664] }),
+  ...edgeSpecs.map(edge),
 ];
 
 validateNoCardOverlap(validationCards);
-validateEdgeEndpoints([
-  { from: "Mutiny", to: "Uni", points: [[1020, 420], [1020, 485], [450, 485], [450, 555]] },
-  { from: "Mutiny", to: "Multi", points: [[1500, 420], [1500, 485], [2150, 485], [2150, 555]] },
-  { from: "UniSupport", to: "Uni", points: [[450, 955], [450, 815]] },
-  { from: "CoroutineSupport", to: "Uni", points: [[930, 1075], [830, 1075], [830, 885], [450, 885], [450, 815]] },
-  { from: "MultiSupport", to: "Multi", points: [[2150, 955], [2150, 815]] },
-  { from: "Uni", to: "Multi", points: [[750, 685], [1850, 685]] },
-], validationCards);
+validateEdgeEndpoints(edgeSpecs, validationCards);
+validateEdgeCrossings(edgeSpecs);
 
-const svg = `<svg data-intent="Explain Mutiny Uni and Multi type surface for README diagram 01." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Mutiny Type Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Mutiny Type Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -219,7 +261,7 @@ const svg = `<svg data-intent="Explain Mutiny Uni and Multi type surface for REA
     .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
     .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
     .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>

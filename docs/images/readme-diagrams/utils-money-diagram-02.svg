@@ -1,72 +1,108 @@
-<svg data-intent="Explain currency operation flow by showing MonetaryAmount inputs, currency/exchange-rate support, arithmetic/conversion helpers, rounding, and formatted output." data-evidence="utils/money/README.md; utils/money/src/main/kotlin/io/bluetape4k/money" data-source-read="utils/money/README.md; utils/money/src/main/kotlin/io/bluetape4k/money" xmlns="http://www.w3.org/2000/svg" width="1500" height="1158" viewBox="0 0 1500 1158" role="img" aria-label="Currency Operation Flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1158"/>
-<rect class="frame" x="34" y="30" width="1432" height="1098" rx="8"/>
-<text class="title" x="72" y="84">Currency Operation Flow</text>
-<text class="subtitle" x="76" y="116">Money utilities convert caller amounts through currency/exchange/rounding support before returning monetary values or formatted text.</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Inputs</text></g>
-<g id="amount">
-  <rect class="card" x="146" y="256" width="280" height="84" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="286" y="291" text-anchor="middle" dominant-baseline="middle">MonetaryAmount</text>
-  <text class="detail" x="286" y="321" text-anchor="middle" dominant-baseline="middle">number + currency</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="2040" height="1100" viewBox="0 0 2040 1100" role="img" aria-label="Money currency operation flow">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-inputCurrency" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#2563EB"/></marker>
+<marker id="arrow-currencyCreate" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#64748B"/></marker>
+<marker id="arrow-createOps" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#16A34A"/></marker>
+<marker id="arrow-opsRound" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#0D9488"/></marker>
+<marker id="arrow-opsAgg" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#DB2777"/></marker>
+<marker id="arrow-providersConversion" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#9333EA"/></marker>
+<marker id="arrow-createConversion" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#EA580C"/></marker>
+<marker id="arrow-conversionResult" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#EA580C"/></marker>
+<marker id="arrow-roundResult" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#D97706"/></marker>
+<marker id="arrow-aggResult" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#DB2777"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.lane{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4;stroke-dasharray:10 8}.laneTitle{font-family:"Comic Mono";font-size:13px;fill:#475569}.card{filter:url(#softShadow);stroke-width:2}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.4px;fill:#475569}.edge{fill:none;stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:#475569}</style></defs>
+<rect class="canvas" width="2040" height="1100"/><rect class="frame" x="38" y="30" width="1964" height="1034" rx="8"/>
+<text class="title" x="78" y="88">Currency Operation Flow</text>
+<text class="subtitle" x="82" y="120">From currency lookup to amount creation, local arithmetic, rounding, aggregation, and provider-backed exchange conversion.</text>
+<rect class="lane" x="80" y="205" width="1880" height="555" rx="8"/><text class="laneTitle" x="108" y="232">operations provided by bluetape4k-money</text>
+<g id="edges"><path class="edge" d="M450 342 L560 342" stroke="#2563EB" marker-end="url(#arrow-inputCurrency)"/>
+<path class="edge" d="M900 342 L1010 342" stroke="#64748B" marker-end="url(#arrow-currencyCreate)"/>
+<path class="edge" d="M1390 342 L1520 342" stroke="#16A34A" marker-end="url(#arrow-createOps)"/>
+<path class="edge" d="M1700 435 L1700 495 L1200 495 L1200 555" stroke="#0D9488" marker-end="url(#arrow-opsRound)"/>
+<path class="edge" d="M1700 435 L1700 555" stroke="#DB2777" marker-end="url(#arrow-opsAgg)"/>
+<path class="edge" d="M450 640 L560 640" stroke="#9333EA" marker-end="url(#arrow-providersConversion)"/>
+<path class="edge" d="M1200 435 L1200 485 L730 485 L730 555" stroke="#EA580C" marker-end="url(#arrow-createConversion)"/>
+<path class="edge" d="M730 725 L730 875" stroke="#EA580C" marker-end="url(#arrow-conversionResult)"/>
+<path class="edge" d="M1200 725 L1200 875" stroke="#D97706" marker-end="url(#arrow-roundResult)"/>
+<path class="edge" d="M1700 725 L1700 805 L1460 805 L1460 875" stroke="#DB2777" marker-end="url(#arrow-aggResult)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(453 300)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">code/Locale</text></g>
+<g class="edgeLabel" transform="translate(901 300)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">CurrencyUnit</text></g>
+<g class="edgeLabel" transform="translate(1387 300)"><rect width="136" height="30" rx="8"/><text x="68" y="20" text-anchor="middle">Money/FastMoney</text></g>
+<g class="edgeLabel" transform="translate(1462 490)"><rect width="96" height="30" rx="8"/><text x="48" y="20" text-anchor="middle">needs scale</text></g>
+<g class="edgeLabel" transform="translate(1733 485)"><rect width="104" height="30" rx="8"/><text x="52" y="20" text-anchor="middle">collections</text></g>
+<g class="edgeLabel" transform="translate(470 598)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">rates</text></g>
+<g class="edgeLabel" transform="translate(919 479)"><rect width="92" height="30" rx="8"/><text x="46" y="20" text-anchor="middle">convertTo</text></g>
+<g class="edgeLabel" transform="translate(749 787)"><rect width="132" height="30" rx="8"/><text x="66" y="20" text-anchor="middle">target currency</text></g>
+<g class="edgeLabel" transform="translate(1243 787)"><rect width="84" height="30" rx="8"/><text x="42" y="20" text-anchor="middle">rounded</text></g>
+<g class="edgeLabel" transform="translate(1572 800)"><rect width="66" height="30" rx="8"/><text x="33" y="20" text-anchor="middle">total</text></g></g>
+<g id="inputs">
+  <rect class="card" x="110" y="250" width="340" height="185" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <rect x="128" y="276" width="48" height="48" rx="12" fill="#2563EB"/><path d="M134 296 H162" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <text class="cardTitle" x="202" y="306">Inputs</text>
+  <text class="detail" x="202" y="342">Number or MonetaryAmount</text>
+  <text class="detail" x="202" y="366">currency code / Locale</text>
+  <text class="detail" x="202" y="390">Money vs FastMoney choice</text>
 </g>
 <g id="currency">
-  <rect class="card" x="1074" y="256" width="280" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1214" y="291" text-anchor="middle" dominant-baseline="middle">CurrencyUnit</text>
-  <text class="detail" x="1214" y="321" text-anchor="middle" dominant-baseline="middle">ISO code and scale</text>
+  <rect class="card" x="560" y="250" width="340" height="185" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="578" y="276" width="48" height="48" rx="12" fill="#64748B"/><text x="598" y="306" text-anchor="middle" font-family="Comic Mono" font-size="28" font-weight="700" fill="#FFFFFF">$</text>
+  <text class="cardTitle" x="652" y="306">Currency lookup</text>
+  <text class="detail" x="652" y="342">currencyUnitOf(...)</text>
+  <text class="detail" x="652" y="366">ConcurrentHashMap cache</text>
+  <text class="detail" x="652" y="390">KRW / USD / EUR / CNY / JPY</text>
 </g>
-<g><rect class="panel" x="82" y="478" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="514" dominant-baseline="middle">Operations</text></g>
-<g id="math">
-  <rect class="card" x="146" y="574" width="280" height="84" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="286" y="609" text-anchor="middle" dominant-baseline="middle">Arithmetic helpers</text>
-  <text class="detail" x="286" y="639" text-anchor="middle" dominant-baseline="middle">plus/minus/times/divide</text>
+<g id="create">
+  <rect class="card" x="1010" y="250" width="380" height="185" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <rect x="1028" y="276" width="48" height="48" rx="12" fill="#16A34A"/><path d="M1033 286 H1063 V308 H1033 Z M1040 278 H1056" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardTitle" x="1102" y="306">Amount factories</text>
+  <text class="detail" x="1102" y="342">moneyOf -&gt; Money</text>
+  <text class="detail" x="1102" y="366">fastMoneyOf -&gt; FastMoney</text>
+  <text class="detail" x="1102" y="390">monetaryAmountOf -&gt; default factory</text>
 </g>
-<g id="convert">
-  <rect class="card" x="610" y="574" width="280" height="84" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="609" text-anchor="middle" dominant-baseline="middle">Exchange conversion</text>
-  <text class="detail" x="750" y="639" text-anchor="middle" dominant-baseline="middle">rate provider boundary</text>
+<g id="arithmetic">
+  <rect class="card" x="1520" y="250" width="360" height="185" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <rect x="1538" y="276" width="48" height="48" rx="12" fill="#0D9488"/><path d="M1544 296 H1572 M1558 282 V310" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/><circle cx="1572" cy="310" r="3" fill="#FFFFFF"/>
+  <text class="cardTitle" x="1612" y="306">Local operations</text>
+  <text class="detail" x="1612" y="342">+  -  *  /  unary -</text>
+  <text class="detail" x="1612" y="366">numberValue properties</text>
+  <text class="detail" x="1612" y="390">same-currency arithmetic</text>
 </g>
-<g id="round">
-  <rect class="card" x="1074" y="574" width="280" height="84" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1214" y="609" text-anchor="middle" dominant-baseline="middle">Rounding helpers</text>
-  <text class="detail" x="1214" y="639" text-anchor="middle" dominant-baseline="middle">scale and monetary rounding</text>
+<g id="rounding">
+  <rect class="card" x="1010" y="555" width="380" height="170" rx="8" fill="#FFFBEB" stroke="#D97706"/>
+  <rect x="1028" y="581" width="48" height="48" rx="12" fill="#D97706"/><path d="M1032 603 C1040 587, 1056 587, 1064 603" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/><path d="M1056 600 L1065 604 L1057 610" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardTitle" x="1102" y="611">Rounding</text>
+  <text class="detail" x="1102" y="647">round(currency rule)</text>
+  <text class="detail" x="1102" y="671">defaultRound()</text>
+  <text class="detail" x="1102" y="695">returns same amount type</text>
 </g>
-<g><rect class="panel" x="82" y="796" width="1336" height="234" rx="8"/><text class="panelTitle" x="110" y="832" dominant-baseline="middle">Outputs</text></g>
-<g id="money">
-  <rect class="card" x="146" y="892" width="280" height="84" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="286" y="927" text-anchor="middle" dominant-baseline="middle">Monetary result</text>
-  <text class="detail" x="286" y="957" text-anchor="middle" dominant-baseline="middle">converted or rounded amount</text>
+<g id="conversion">
+  <rect class="card" x="560" y="555" width="340" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <rect x="578" y="581" width="48" height="48" rx="12" fill="#EA580C"/><path d="M582 593 H614 M606 585 L614 593 L606 601 M614 610 H582 M590 602 L582 610 L590 618" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardTitle" x="652" y="611">Exchange conversion</text>
+  <text class="detail" x="652" y="647">convertTo(code/unit)</text>
+  <text class="detail" x="652" y="671">CurrencyConvertor cache</text>
+  <text class="detail" x="652" y="695">MonetaryConversions</text>
 </g>
-<g id="format">
-  <rect class="card" x="1074" y="892" width="280" height="84" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1214" y="927" text-anchor="middle" dominant-baseline="middle">Formatted text</text>
-  <text class="detail" x="1214" y="957" text-anchor="middle" dominant-baseline="middle">localized display</text>
+<g id="providers">
+  <rect class="card" x="110" y="555" width="340" height="170" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <rect x="128" y="581" width="48" height="48" rx="12" fill="#9333EA"/><path d="M130 609 H163 C170 609, 170 597, 161 597 C158 584, 140 586, 139 597 C128 595, 124 609, 130 609 Z" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
+  <text class="cardTitle" x="202" y="611">Rate providers</text>
+  <text class="detail" x="202" y="647">ECB</text>
+  <text class="detail" x="202" y="671">IMF</text>
+  <text class="detail" x="202" y="695">availability checks</text>
 </g>
-<path class="route" data-from="amount" data-to="math" d="M358 340 L358 574" stroke="#1D4ED8"/>
-<path class="route" data-from="currency" data-to="convert" d="M1214 340 L1214 446 L750 446 L750 574" stroke="#15803D"/>
-<path class="route" data-from="math" data-to="money" d="M286 658 L286 892" stroke="#0F766E"/>
-<path class="route" data-from="convert" data-to="money" d="M750 658 L750 786 L336 786 L336 892" stroke="#C2410C"/>
-<path class="route" data-from="round" data-to="money" d="M1214 658 L1214 798 L386 798 L386 892" stroke="#7E22CE"/>
-<path class="route" data-from="money" data-to="format" d="M426 934 L1074 934" stroke="#BE185D"/>
+<g id="aggregation">
+  <rect class="card" x="1520" y="555" width="360" height="170" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect x="1538" y="581" width="48" height="48" rx="12" fill="#DB2777"/><path d="M1545 587 H1572 L1556 601 L1572 615 H1545" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardTitle" x="1612" y="611">Aggregation</text>
+  <text class="detail" x="1612" y="647">Collection&lt;MonetaryAmount&gt;.sum()</text>
+  <text class="detail" x="1612" y="671">empty -&gt; zero amount</text>
+  <text class="detail" x="1612" y="695">convert each item to target</text>
+</g>
+<g id="result">
+  <rect class="card" x="420" y="875" width="1200" height="130" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <rect x="438" y="901" width="48" height="48" rx="12" fill="#64748B"/><path d="M443 921 L453 931 L475 909" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardTitle" x="538" y="931">Result</text>
+  <text class="detail" x="538" y="967">A typed MonetaryAmount in the requested currency, rounded or converted according to JSR-354 provider rules.</text>
+</g>
 </svg>

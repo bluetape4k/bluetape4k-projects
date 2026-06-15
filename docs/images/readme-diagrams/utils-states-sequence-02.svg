@@ -16,8 +16,8 @@
     .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="2077.2" height="1208"/>
-<rect class="frame" x="32" y="28" width="2013.1999999999998" height="1152" rx="30"/>
+<rect class="canvas" width="2077.2" height="1150"/>
+<rect class="frame" x="32" y="28" width="2013.1999999999998" height="1094" rx="30"/>
 <text class="title" x="68" y="84">Coroutine FSM Transition Flow (SuspendStateMachine)</text>
 <text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
 <g id="seq-caller"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Caller</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1066"/></g>
@@ -38,5 +38,4 @@
 <g id="m6"><rect class="labelPill" x="930.6" y="737" width="216.1" height="26" rx="7"/><circle cx="949.6" cy="750" r="12" fill="#2E8F89"/><text class="detail" x="949.6" y="751" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">6</text><text class="detail" x="1056.6" y="751" text-anchor="middle" dominant-baseline="middle">value = nextState</text><path class="seqReturn" d="M646.8 780 L1430.4 780" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
 <g id="m7"><rect class="labelPill" x="1082.7" y="827" width="303.7" height="26" rx="7"/><circle cx="1101.7" cy="840" r="12" fill="#4F83BF"/><text class="detail" x="1101.7" y="841" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">7</text><text class="detail" x="1252.5" y="841" text-anchor="middle" dominant-baseline="middle">invoke(previous, event, next)</text><path class="seq" d="M646.8 870 L1822.2 870" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
 <g id="m8"><rect class="labelPill" x="284.5" y="901" width="332.9" height="42" rx="7"/><circle cx="303.5" cy="922" r="12" fill="#2E8F89"/><text class="detail" x="303.5" y="923" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">8</text><text class="detail" x="468.9" y="914" text-anchor="middle" dominant-baseline="middle">TransitionResult(previous, event,</text><text class="detail" x="468.9" y="929" text-anchor="middle" dominant-baseline="middle">next)</text><path class="seqReturn" d="M646.8 960 L255 960" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g><rect x="140" y="1090" width="1797.1999999999998" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="1038.6" y="1116" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

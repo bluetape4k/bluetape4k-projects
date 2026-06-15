@@ -16,8 +16,8 @@
     .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1741.2" height="1568"/>
-<rect class="frame" x="32" y="28" width="1677.2" height="1512" rx="30"/>
+<rect class="canvas" width="1741.2" height="1510"/>
+<rect class="frame" x="32" y="28" width="1677.2" height="1454" rx="30"/>
 <text class="title" x="68" y="84">Coroutine Conversion Sequence</text>
 <text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
 <g id="seq-application"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Application</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1426"/></g>
@@ -40,5 +40,4 @@
 <g id="m10"><rect class="labelPill" x="1176" y="1097" width="210" height="26" rx="7"/><circle cx="1195" cy="1110" r="12" fill="#2E8F89"/><text class="detail" x="1195" y="1111" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">10</text><text class="detail" x="1299" y="1111" text-anchor="middle" dominant-baseline="middle">Row stream</text><path class="seqReturn" d="M1486.2 1140 L1075.8 1140" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
 <g id="m11"><rect class="labelPill" x="765.6" y="1187" width="210" height="26" rx="7"/><circle cx="784.6" cy="1200" r="12" fill="#2E8F89"/><text class="detail" x="784.6" y="1201" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="888.6" y="1201" text-anchor="middle" dominant-baseline="middle">Flux&lt;Post&gt;</text><path class="seqReturn" d="M1075.8 1230 L665.4 1230" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
 <g id="m12"><rect class="labelPill" x="308.4" y="1277" width="303.7" height="26" rx="7"/><circle cx="327.4" cy="1290" r="12" fill="#2E8F89"/><text class="detail" x="327.4" y="1291" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="478.2" y="1291" text-anchor="middle" dominant-baseline="middle">Flow&lt;Post&gt; (coroutine stream)</text><path class="seqReturn" d="M665.4 1320 L255 1320" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g><rect x="140" y="1450" width="1461.2" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="870.6" y="1476" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

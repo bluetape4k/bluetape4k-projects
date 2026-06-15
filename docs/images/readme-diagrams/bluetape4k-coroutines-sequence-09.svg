@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1870" height="1476" viewBox="0 0 1870 1476" role="img" aria-label="9. takeUntil(notifier) / skipUntil(notifier) — Gate Control">
+<svg xmlns="http://www.w3.org/2000/svg" width="1870" height="1418" viewBox="0 0 1870 1418" role="img" aria-label="9. takeUntil(notifier) / skipUntil(notifier) — Gate Control">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#203040" flood-opacity="0.10"/></filter>
   <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4F83BF"/></marker>
@@ -16,8 +16,8 @@
     .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1870" height="1476"/>
-<rect class="frame" x="32" y="28" width="1806" height="1420" rx="30"/>
+<rect class="canvas" width="1870" height="1418"/>
+<rect class="frame" x="32" y="28" width="1806" height="1362" rx="30"/>
 <text class="title" x="68" y="84">9. takeUntil(notifier) / skipUntil(notifier) — Gate Control</text>
 <text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
 <g id="seq-flow-source"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Flow Source</text><line class="lifeline" x1="255" y1="248" x2="255" y2="1334"/></g>
@@ -43,5 +43,4 @@
 <g id="m11"><rect class="labelPill" x="1340" y="1047" width="210" height="26" rx="7"/><circle cx="1359" cy="1060" r="12" fill="#C94D68"/><text class="detail" x="1359" y="1061" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">11</text><text class="detail" x="1463" y="1061" text-anchor="middle" dominant-baseline="middle">emit(C)</text><path class="seq" d="M1275 1090 L1615 1090" stroke="#C94D68" marker-end="url(#seqArrow-pink)"/></g>
 <g id="m12"><rect class="labelPill" x="660" y="1123" width="210" height="26" rx="7"/><circle cx="679" cy="1136" r="12" fill="#755BC6"/><text class="detail" x="679" y="1137" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">12</text><text class="detail" x="783" y="1137" text-anchor="middle" dominant-baseline="middle">emit(D)</text><path class="seq" d="M255 1166 L1275 1166" stroke="#755BC6" marker-end="url(#seqArrow-purple)"/></g>
 <g id="m13"><rect class="labelPill" x="1340" y="1199" width="210" height="26" rx="7"/><circle cx="1359" cy="1212" r="12" fill="#4F83BF"/><text class="detail" x="1359" y="1213" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">13</text><text class="detail" x="1463" y="1213" text-anchor="middle" dominant-baseline="middle">emit(D)</text><path class="seq" d="M1275 1242 L1615 1242" stroke="#4F83BF" marker-end="url(#seqArrow-blue)"/></g>
-<g><rect x="140" y="1358" width="1590" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="935" y="1384" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

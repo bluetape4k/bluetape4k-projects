@@ -16,8 +16,8 @@
     .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1405.2" height="2808"/>
-<rect class="frame" x="32" y="28" width="1341.2" height="2752" rx="30"/>
+<rect class="canvas" width="1405.2" height="2750"/>
+<rect class="frame" x="32" y="28" width="1341.2" height="2694" rx="30"/>
 <text class="title" x="68" y="84">compress/decompress Flow</text>
 <text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
 <g id="seq-caller"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Caller</text><line class="lifeline" x1="255" y1="248" x2="255" y2="2666"/></g>
@@ -50,5 +50,4 @@
 <g id="m14"><rect class="labelPill" x="373.8" y="2259" width="210" height="26" rx="7"/><circle cx="392.8" cy="2272" r="12" fill="#2E8F89"/><text class="detail" x="392.8" y="2273" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">14</text><text class="detail" x="496.8" y="2273" text-anchor="middle" dominant-baseline="middle">plain</text><path class="seqReturn" d="M702.6 2302 L255 2302" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
 <g id="m15"><rect class="labelPill" x="756.3" y="2359" width="340.2" height="42" rx="7"/><circle cx="775.3" cy="2380" r="12" fill="#2E8F89"/><text class="detail" x="775.3" y="2381" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">15</text><text class="detail" x="944.4" y="2372" text-anchor="middle" dominant-baseline="middle">IOException /</text><text class="detail" x="944.4" y="2387" text-anchor="middle" dominant-baseline="middle">IllegalArgumentException / library</text><path class="seqReturn" d="M1150.2 2418 L702.6 2418" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
 <g id="m16"><rect class="labelPill" x="356.2" y="2491" width="245.3" height="26" rx="7"/><circle cx="375.2" cy="2504" r="12" fill="#2E8F89"/><text class="detail" x="375.2" y="2505" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">16</text><text class="detail" x="496.8" y="2505" text-anchor="middle" dominant-baseline="middle">throws same exception</text><path class="seqReturn" d="M702.6 2534 L255 2534" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g><rect x="140" y="2690" width="1125.2" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="702.6" y="2716" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>

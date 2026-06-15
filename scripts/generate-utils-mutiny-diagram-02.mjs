@@ -49,7 +49,7 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M .9 .9 L 7 4 L .9 7.1 Z" fill="${dark}"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16"><path d="M2 2 L18 8 L2 14 Z" fill="${dark}"/></marker>`).join("\n");
 }
 
 function card({ id, x, y, w, h, color, kicker, title, lines = [], footer = "" }) {
@@ -73,9 +73,10 @@ function edge({ from, to, points, color, dashed = false, label = "", labelAt }) 
   const [, , dark] = palette[color];
   const d = points.map((point, index) => `${index === 0 ? "M" : "L"}${point[0]} ${point[1]}`).join(" ");
   const p = labelAt ?? points[Math.floor(points.length / 2)];
+  const labelWidth = label ? Math.max(70, label.length * 8 + 26) : 0;
   return `<g data-from="${esc(from)}" data-to="${esc(to)}">
   <path class="edge ${dashed ? "dashed" : ""}" d="${d}" stroke="${dark}" marker-end="url(#arrow-${color})"/>
-  ${label ? `<text class="edgeLabel" x="${p[0]}" y="${p[1]}">${esc(label)}</text>` : ""}
+  ${label ? `<g class="edgeLabel" transform="translate(${p[0] - labelWidth / 2} ${p[1] - 15})"><rect width="${labelWidth}" height="30" rx="8"/><text x="${labelWidth / 2}" y="20" text-anchor="middle">${esc(label)}</text></g>` : ""}
 </g>`;
 }
 
@@ -113,6 +114,49 @@ function validateEdgeEndpoints(edgeSpecs, cards) {
   }
 }
 
+function orthogonalSegments(points) {
+  return points.slice(1).map((point, index) => ({
+    a: { x: points[index][0], y: points[index][1] },
+    b: { x: point[0], y: point[1] },
+  }));
+}
+
+function isEndpoint(point, segment) {
+  return (Math.abs(point.x - segment.a.x) < 0.1 && Math.abs(point.y - segment.a.y) < 0.1) ||
+    (Math.abs(point.x - segment.b.x) < 0.1 && Math.abs(point.y - segment.b.y) < 0.1);
+}
+
+function segmentsCross(a, b) {
+  const aHorizontal = a.a.y === a.b.y;
+  const aVertical = a.a.x === a.b.x;
+  const bHorizontal = b.a.y === b.b.y;
+  const bVertical = b.a.x === b.b.x;
+  if (!((aHorizontal && bVertical) || (aVertical && bHorizontal))) return false;
+  const h = aHorizontal ? a : b;
+  const v = aVertical ? a : b;
+  const point = { x: v.a.x, y: h.a.y };
+  const hMin = Math.min(h.a.x, h.b.x);
+  const hMax = Math.max(h.a.x, h.b.x);
+  const vMin = Math.min(v.a.y, v.b.y);
+  const vMax = Math.max(v.a.y, v.b.y);
+  const inside = point.x > hMin + 0.1 && point.x < hMax - 0.1 && point.y > vMin + 0.1 && point.y < vMax - 0.1;
+  return inside && !isEndpoint(point, a) && !isEndpoint(point, b);
+}
+
+function validateEdgeCrossings(edgeSpecs) {
+  for (let i = 0; i < edgeSpecs.length; i++) {
+    for (let j = i + 1; j < edgeSpecs.length; j++) {
+      for (const a of orthogonalSegments(edgeSpecs[i].points)) {
+        for (const b of orthogonalSegments(edgeSpecs[j].points)) {
+          if (segmentsCross(a, b)) {
+            throw new Error(`${edgeSpecs[i].from}->${edgeSpecs[i].to} crosses ${edgeSpecs[j].from}->${edgeSpecs[j].to}`);
+          }
+        }
+      }
+    }
+  }
+}
+
 const width = 2700;
 const height = 1540;
 const validationCards = [
@@ -128,6 +172,18 @@ const validationCards = [
   { id: "CoroutineBridge", x: 1110, y: 1095, w: 520, h: 220 },
   { id: "InteropResult", x: 1800, y: 1095, w: 520, h: 220 },
 ];
+const edgeSpecs = [
+  { from: "UniSources", to: "UniHelpers", points: [[540, 355], [700, 355]], color: "blue", label: "wrapped by", labelAt: [620, 334] },
+  { from: "UniHelpers", to: "UniPipeline", points: [[1160, 355], [1320, 355]], color: "green", label: "produces Uni", labelAt: [1240, 334] },
+  { from: "UniPipeline", to: "UniTerminal", points: [[1780, 355], [1940, 355]], color: "teal", label: "terminal choice", labelAt: [1860, 334] },
+  { from: "MultiSources", to: "MultiHelpers", points: [[540, 780], [700, 780]], color: "violet", label: "converted by", labelAt: [620, 759] },
+  { from: "MultiHelpers", to: "MultiPipeline", points: [[1160, 780], [1320, 780]], color: "amber", label: "produces Multi", labelAt: [1240, 759] },
+  { from: "MultiPipeline", to: "MultiTerminal", points: [[1780, 780], [1940, 780]], color: "teal", label: "terminal choice", labelAt: [1860, 759] },
+  { from: "CoroutineBlock", to: "CoroutineBridge", points: [[940, 1205], [1110, 1205]], color: "teal", label: "async", labelAt: [1025, 1184] },
+  { from: "CoroutineBridge", to: "InteropResult", points: [[1630, 1205], [1800, 1205]], color: "teal", label: "asUni", labelAt: [1715, 1184] },
+  { from: "InteropResult", to: "UniPipeline", points: [[2060, 1095], [2060, 990], [2520, 990], [2520, 530], [1550, 530], [1550, 470]], color: "blue", dashed: true, label: "uses Uni pipeline", labelAt: [2175, 971] },
+];
+
 const body = [
   lane({ x: 95, y: 205, text: "Uni processing lane", color: "blue" }),
   card({ id: "UniSources", x: 110, y: 240, w: 430, h: 230, color: "blue", kicker: "source", title: "single result inputs", lines: ["item, supplier, failure", "CompletionStage", "Future with timeout"], footer: "0 or 1 item intent" }),
@@ -146,31 +202,14 @@ const body = [
   card({ id: "CoroutineBridge", x: 1110, y: 1095, w: 520, h: 220, color: "teal", kicker: "kotlinx.coroutines.mutiny", title: "async(...).asUni()", lines: ["Deferred result becomes Uni", "block exception becomes failed Uni", "cancellation follows coroutine machinery"], footer: "bridge targets Uni<T>" }),
   card({ id: "InteropResult", x: 1800, y: 1095, w: 520, h: 220, color: "blue", kicker: "Mutiny result", title: "Uni<T>", lines: ["continues through normal Uni pipeline", "can use onEach", "can await or subscribe"], footer: "same terminal surface as UniSupport" }),
 
-  edge({ from: "UniSources", to: "UniHelpers", points: [[540, 355], [700, 355]], color: "blue", label: "wrapped by", labelAt: [585, 334] }),
-  edge({ from: "UniHelpers", to: "UniPipeline", points: [[1160, 355], [1320, 355]], color: "green", label: "produces Uni", labelAt: [1200, 334] }),
-  edge({ from: "UniPipeline", to: "UniTerminal", points: [[1780, 355], [1940, 355]], color: "teal", label: "terminal choice", labelAt: [1810, 334] }),
-  edge({ from: "MultiSources", to: "MultiHelpers", points: [[540, 780], [700, 780]], color: "violet", label: "converted by", labelAt: [585, 759] }),
-  edge({ from: "MultiHelpers", to: "MultiPipeline", points: [[1160, 780], [1320, 780]], color: "amber", label: "produces Multi", labelAt: [1195, 759] }),
-  edge({ from: "MultiPipeline", to: "MultiTerminal", points: [[1780, 780], [1940, 780]], color: "teal", label: "terminal choice", labelAt: [1810, 759] }),
-  edge({ from: "CoroutineBlock", to: "CoroutineBridge", points: [[940, 1205], [1110, 1205]], color: "teal", label: "async", labelAt: [1000, 1184] }),
-  edge({ from: "CoroutineBridge", to: "InteropResult", points: [[1630, 1205], [1800, 1205]], color: "teal", label: "asUni", labelAt: [1695, 1184] }),
-  edge({ from: "InteropResult", to: "UniPipeline", points: [[2060, 1095], [2060, 990], [2520, 990], [2520, 530], [1550, 530], [1550, 470]], color: "blue", dashed: true, label: "uses Uni pipeline", labelAt: [2120, 971] }),
+  ...edgeSpecs.map(edge),
 ];
 
 validateNoCardOverlap(validationCards);
-validateEdgeEndpoints([
-  { from: "UniSources", to: "UniHelpers", points: [[540, 355], [700, 355]] },
-  { from: "UniHelpers", to: "UniPipeline", points: [[1160, 355], [1320, 355]] },
-  { from: "UniPipeline", to: "UniTerminal", points: [[1780, 355], [1940, 355]] },
-  { from: "MultiSources", to: "MultiHelpers", points: [[540, 780], [700, 780]] },
-  { from: "MultiHelpers", to: "MultiPipeline", points: [[1160, 780], [1320, 780]] },
-  { from: "MultiPipeline", to: "MultiTerminal", points: [[1780, 780], [1940, 780]] },
-  { from: "CoroutineBlock", to: "CoroutineBridge", points: [[940, 1205], [1110, 1205]] },
-  { from: "CoroutineBridge", to: "InteropResult", points: [[1630, 1205], [1800, 1205]] },
-  { from: "InteropResult", to: "UniPipeline", points: [[2060, 1095], [2060, 990], [2520, 990], [2520, 530], [1550, 530], [1550, 470]] },
-], validationCards);
+validateEdgeEndpoints(edgeSpecs, validationCards);
+validateEdgeCrossings(edgeSpecs);
 
-const svg = `<svg data-intent="Explain Mutiny processing flow for README diagram 02." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Mutiny Processing Flow Diagram">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Mutiny Processing Flow Diagram">
 <defs>
   <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   ${markerDefs()}
@@ -181,7 +220,7 @@ const svg = `<svg data-intent="Explain Mutiny processing flow for README diagram
     .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
     .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
     .lane{font-family:"Comic Mono";font-size:16px;font-weight:700;letter-spacing:0}
-    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
 <rect class="canvas" width="${width}" height="${height}"/>

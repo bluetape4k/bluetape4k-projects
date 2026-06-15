@@ -16,8 +16,8 @@
     .labelPill{fill:#fff;stroke:#D6E3EF;stroke-width:1.4}.altBox{fill:#FFFFFF;fill-opacity:.42;stroke:#D6A441;stroke-width:1.8;stroke-dasharray:8 8}
   </style>
 </defs>
-<rect class="canvas" width="1666.8000000000002" height="2750"/>
-<rect class="frame" x="32" y="28" width="1602.8000000000002" height="2694" rx="30"/>
+<rect class="canvas" width="1666.8000000000002" height="2692"/>
+<rect class="frame" x="32" y="28" width="1602.8000000000002" height="2636" rx="30"/>
 <text class="title" x="68" y="84">SuspendCache Operation Sequence Diagram</text>
 <text class="subtitle" x="72" y="116">Source-checked interaction flow redrawn with compact labels, numbered calls, and readable branch semantics.</text>
 <g id="seq-caller"><rect class="card" x="140" y="170" width="230" height="78" rx="10" fill="#E8F3FF" stroke="#5B8DEF"/><text class="cardTitle" x="255" y="215" text-anchor="middle">Caller</text><line class="lifeline" x1="255" y1="248" x2="255" y2="2608"/></g>
@@ -49,5 +49,4 @@
 <g id="m16"><rect class="labelPill" x="878" y="2201" width="296.4" height="26" rx="7"/><circle cx="897" cy="2214" r="12" fill="#B9851B"/><text class="detail" x="897" y="2215" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">16</text><text class="detail" x="1044.2" y="2215" text-anchor="middle" dominant-baseline="middle">execute loader() as fallback</text><path class="seq" d="M640.6 2244 L1411.8 2244" stroke="#B9851B" marker-end="url(#seqArrow-amber)"/></g>
 <g id="m17"><rect class="labelPill" x="921.2" y="2317" width="210" height="26" rx="7"/><circle cx="940.2" cy="2330" r="12" fill="#2E8F89"/><text class="detail" x="940.2" y="2331" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">17</text><text class="detail" x="1044.2" y="2331" text-anchor="middle" dominant-baseline="middle">loadedValue</text><path class="seqReturn" d="M1411.8 2360 L640.6 2360" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
 <g id="m18"><rect class="labelPill" x="342.8" y="2433" width="210" height="26" rx="7"/><circle cx="361.8" cy="2446" r="12" fill="#2E8F89"/><text class="detail" x="361.8" y="2447" text-anchor="middle" dominant-baseline="middle" style="fill:#fff;font-size:12px">18</text><text class="detail" x="465.8" y="2447" text-anchor="middle" dominant-baseline="middle">loadedValue</text><path class="seqReturn" d="M640.6 2476 L255 2476" stroke="#2E8F89" marker-end="url(#seqArrow-teal)"/></g>
-<g><rect x="140" y="2632" width="1386.8000000000002" height="42" rx="12" fill="#FFFFFF" stroke="#D6E3EF" stroke-width="1.6"/><text class="detail" x="833.4000000000001" y="2658" text-anchor="middle">Every sequence asset uses rectangular participants, dashed lifelines, numbered labels, compact 5x5 arrows, and non-overlapping branch rows.</text></g>
 </svg>
