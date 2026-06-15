@@ -1,71 +1,218 @@
-<svg data-intent="Regenerate Unit Composition Flow from the current README and source package surface for utils/measured." data-evidence="utils/measured/README.md; utils/measured; utils/measured/src/main/kotlin" data-source-read="utils/measured/README.md; utils/measured; utils/measured/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Unit Composition Flow">
+<svg data-intent="Explain measured unit composition flow from the current README and Kotlin operator sources." data-evidence="utils/measured/README.md; utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt" data-source-read="utils/measured/README.md; utils/measured/src/main/kotlin/io/bluetape4k/measured/Units.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/TypeAliases.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Motion.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Area.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/Volume.kt; utils/measured/src/main/kotlin/io/bluetape4k/measured/EnergyPower.kt" xmlns="http://www.w3.org/2000/svg" width="2700" height="1680" viewBox="0 0 2700 1680" role="img" aria-label="Unit Composition Flow">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#475569"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#1D4ED8"/></marker>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#0F766E"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#15803D"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#C2410C"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#BE185D"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#6D28D9"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .title{font-family:"Architects Daughter";font-size:48px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .lane{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.card{stroke-width:1.8;filter:url(#shadow)}
+    .kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
+    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:.8;opacity:.94}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#334155}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Unit Composition Flow</text>
-<text class="subtitle" x="76" y="116">utils/measured: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Core Concepts</text>
+<rect class="canvas" width="2700" height="1680"/>
+<rect class="frame" x="34" y="30" width="2632" height="1620" rx="8"/>
+<text class="title" x="72" y="88">Unit Composition Flow</text>
+<text class="subtitle" x="76" y="122">Values become typed Measure instances; unit and measure operators compose ratios/products, while domain specializations return Area, Volume, Energy, or restored base units.</text>
+<g data-from="UnitConstants" data-to="UnitArithmetic">
+  <path class="edge " d="M620 342 L745 342" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <rect class="edgeLabelBg" x="646" y="301" width="110" height="24" rx="4"/><text class="edgeLabel" x="654" y="318">A / B</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Provided Units</text>
+<g data-from="UnitArithmetic" data-to="AliasUnits">
+  <path class="edge " d="M1185 342 L1310 342" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <rect class="edgeLabelBg" x="1207" y="301" width="110" height="24" rx="4"/><text class="edgeLabel" x="1215" y="318">UnitsRatio</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Quick Example</text>
+<g data-from="NumberAndUnits" data-to="MeasureInputs">
+  <path class="edge " d="M620 722 L745 722" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="627" y="681" width="120" height="24" rx="4"/><text class="edgeLabel" x="635" y="698">Number.times</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Test</text>
+<g data-from="MeasureInputs" data-to="GenericMeasureOps">
+  <path class="edge " d="M1185 722 L1310 722" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="1192" y="681" width="160" height="24" rx="4"/><text class="edgeLabel" x="1200" y="698">Measure / Measure</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">measured package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">measured package (16)</text>
+<g data-from="GenericMeasureOps" data-to="SpeedResult">
+  <path class="edge " d="M1750 722 L1875 722" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="1767" y="681" width="112" height="24" rx="4"/><text class="edgeLabel" x="1775" y="698">typed ratio</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">Angle type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">Angle type</text>
+<g data-from="SpeedResult" data-to="RecoveredLength">
+  <path class="edge dashed" d="M2095 870 L2095 948" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <rect class="edgeLabelBg" x="2108" y="903" width="110" height="24" rx="4"/><text class="edgeLabel" x="2116" y="920">* Time</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">Area type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">Area type</text>
+<g data-from="ShapeInputs" data-to="ShapeOps">
+  <path class="edge " d="M620 1132 L745 1132" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <rect class="edgeLabelBg" x="622" y="1091" width="128" height="24" rx="4"/><text class="edgeLabel" x="630" y="1108">specialized *</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">BinarySize type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">BinarySize type</text>
+<g data-from="ShapeOps" data-to="ShapeResults">
+  <path class="edge " d="M1185 1132 L1310 1132" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <rect class="edgeLabelBg" x="1197" y="1091" width="128" height="24" rx="4"/><text class="edgeLabel" x="1205" y="1108">Area / Volume</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Test support</text>
+<g data-from="PowerInputs" data-to="EnergyOps">
+  <path class="edge " d="M1750 1392 L1875 1392" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="1767" y="1351" width="110" height="24" rx="4"/><text class="edgeLabel" x="1775" y="1368">W * s</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L750 696 L750 790" stroke="#7E22CE"/>
+<g data-from="EnergyOps" data-to="Presentation">
+  <path class="edge dashed" d="M2315 1392 L2525 1392 L2525 880" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="2537" y="1113" width="136" height="24" rx="4"/><text class="edgeLabel" x="2545" y="1130">convert result</text>
+</g>
+<g data-from="SpeedResult" data-to="Presentation">
+  <path class="edge dashed" d="M2315 722 L2390 722" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <rect class="edgeLabelBg" x="2320" y="681" width="128" height="24" rx="4"/><text class="edgeLabel" x="2328" y="698">render result</text>
+</g>
+<text class="lane" x="106" y="204">Unit composition</text>
+<g id="UnitConstants">
+  <rect class="card" x="140" y="245" width="480" height="195" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="162" y="275">base unit constants</text>
+  <text class="cardTitle" x="162" y="309">Length.meters / Time.seconds</text>
+  <path class="divider" d="M140 329H620" stroke="#15803D"/>
+  <text class="body" x="162" y="361">Units carry suffix and ratio</text>
+<text class="body" x="162" y="385">m ratio = 1.0</text>
+<text class="body" x="162" y="409">s ratio = 1000.0</text>
+  <path class="divider" d="M140 396H620" stroke="#15803D"/><text class="foot" x="162" y="424">constants are immutable unit values</text>
+</g>
+<g id="UnitArithmetic">
+  <rect class="card" x="745" y="245" width="440" height="195" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="767" y="275">Units.kt</text>
+  <text class="cardTitle" x="767" y="309">A.div(B)</text>
+  <path class="divider" d="M745 329H1185" stroke="#15803D"/>
+  <text class="body" x="767" y="361">creates UnitsRatio&lt;A,B&gt;</text>
+<text class="body" x="767" y="385">suffix = numerator/denominator</text>
+<text class="body" x="767" y="409">ratio = A.ratio / B.ratio</text>
+  <path class="divider" d="M745 396H1185" stroke="#15803D"/><text class="foot" x="767" y="424">A.times(B) creates UnitsProduct&lt;A,B&gt;</text>
+</g>
+<g id="AliasUnits">
+  <rect class="card" x="1310" y="245" width="495" height="195" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1332" y="275">TypeAliases.kt + Motion.kt</text>
+  <text class="cardTitle" x="1332" y="309">Velocity / Acceleration</text>
+  <path class="divider" d="M1310 329H1805" stroke="#0F766E"/>
+  <text class="body" x="1332" y="361">Velocity = UnitsRatio&lt;Length, Time&gt;</text>
+<text class="body" x="1332" y="385">Acceleration = UnitsRatio&lt;Length, Square&lt;Time&gt;&gt;</text>
+<text class="body" x="1332" y="409">MotionUnits exposes m/s, km/hr, m/s^2</text>
+  <path class="divider" d="M1310 396H1805" stroke="#0F766E"/><text class="foot" x="1332" y="424">aliases preserve generic unit structure</text>
+</g>
+<text class="lane" x="106" y="584">Value composition</text>
+<g id="NumberAndUnits">
+  <rect class="card" x="140" y="625" width="480" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="162" y="655">Number extensions</text>
+  <text class="cardTitle" x="162" y="689">10 * meters, 2 * seconds</text>
+  <path class="divider" d="M140 709H620" stroke="#1D4ED8"/>
+  <text class="body" x="162" y="741">Number.times(unit)</text>
+<text class="body" x="162" y="765">Number.meters()</text>
+<text class="body" x="162" y="789">Number.seconds()</text>
+  <path class="divider" d="M140 776H620" stroke="#1D4ED8"/><text class="foot" x="162" y="804">each call creates Measure&lt;T&gt;</text>
+</g>
+<g id="MeasureInputs">
+  <rect class="card" x="745" y="625" width="440" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="767" y="655">typed values</text>
+  <text class="cardTitle" x="767" y="689">Measure&lt;Length&gt; and Measure&lt;Time&gt;</text>
+  <path class="divider" d="M745 709H1185" stroke="#1D4ED8"/>
+  <text class="body" x="767" y="741">amount is stored as Double</text>
+<text class="body" x="767" y="765">units keeps the exact type</text>
+<text class="body" x="767" y="789">conversion uses ratio</text>
+  <path class="divider" d="M745 776H1185" stroke="#1D4ED8"/><text class="foot" x="767" y="804">values are immutable</text>
+</g>
+<g id="GenericMeasureOps">
+  <rect class="card" x="1310" y="625" width="440" height="195" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="1332" y="655">generic operators</text>
+  <text class="cardTitle" x="1332" y="689">Measure&lt;A&gt;.div(Measure&lt;B&gt;)</text>
+  <path class="divider" d="M1310 709H1750" stroke="#1D4ED8"/>
+  <text class="body" x="1332" y="741">amount / other.amount</text>
+<text class="body" x="1332" y="765">units / other.units</text>
+<text class="body" x="1332" y="789">returns Measure&lt;UnitsRatio&lt;A,B&gt;&gt;</text>
+  <path class="divider" d="M1310 776H1750" stroke="#1D4ED8"/><text class="foot" x="1332" y="804">same pattern for product units</text>
+</g>
+<g id="SpeedResult">
+  <rect class="card" x="1875" y="625" width="440" height="245" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1897" y="655">example result</text>
+  <text class="cardTitle" x="1897" y="689">Measure&lt;Velocity&gt;</text>
+  <path class="divider" d="M1875 709H2315" stroke="#0F766E"/>
+  <text class="body" x="1897" y="741">10.meters() / 2.seconds()</text>
+<text class="body" x="1897" y="765">speed in m/s = 5.0</text>
+<text class="body" x="1897" y="789">speed * 5.seconds() restores Length</text>
+  <path class="divider" d="M1875 826H2315" stroke="#0F766E"/><text class="foot" x="1897" y="854">ratio-by-denominator returns numerator unit</text>
+</g>
+<g id="RecoveredLength">
+  <rect class="card" x="1875" y="948" width="440" height="135" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1897" y="978">inverse composition</text>
+  <text class="cardTitle" x="1897" y="1012">Measure&lt;Length&gt;</text>
+  <path class="divider" d="M1875 1032H2315" stroke="#0F766E"/>
+  <text class="body" x="1897" y="1064">(A/B) * B -&gt; A</text>
+
+</g>
+<g id="Presentation">
+  <rect class="card" x="2390" y="660" width="250" height="220" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="2412" y="690">output</text>
+  <text class="cardTitle" x="2412" y="724">convert</text>
+  <path class="divider" d="M2390 744H2640" stroke="#475569"/>
+  <text class="body" x="2412" y="776">`in` target unit</text>
+<text class="body" x="2412" y="800">`as` target unit</text>
+<text class="body" x="2412" y="824">toHuman()</text>
+  <path class="divider" d="M2390 836H2640" stroke="#475569"/><text class="foot" x="2412" y="864">README example prints distance</text>
+</g>
+<text class="lane" x="106" y="994">Domain specializations</text>
+<g id="ShapeInputs">
+  <rect class="card" x="140" y="1035" width="480" height="235" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="162" y="1065">Area.kt + Volume.kt</text>
+  <text class="cardTitle" x="162" y="1099">Length, Area, Volume</text>
+  <path class="divider" d="M140 1119H620" stroke="#6D28D9"/>
+  <text class="body" x="162" y="1151">Length * Length</text>
+<text class="body" x="162" y="1175">Area * Length</text>
+<text class="body" x="162" y="1199">Volume / Area</text>
+<text class="body" x="162" y="1223">Volume / Length</text>
+  <path class="divider" d="M140 1226H620" stroke="#6D28D9"/><text class="foot" x="162" y="1254">specialized overloads return domain types</text>
+</g>
+<g id="ShapeOps">
+  <rect class="card" x="745" y="1035" width="440" height="235" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="767" y="1065">canonical conversion</text>
+  <text class="cardTitle" x="767" y="1099">meters and meters2</text>
+  <path class="divider" d="M745 1119H1185" stroke="#6D28D9"/>
+  <text class="body" x="767" y="1151">length uses Length.meters</text>
+<text class="body" x="767" y="1175">area uses Area.meters2</text>
+<text class="body" x="767" y="1199">volume uses Volume.cubicMeters</text>
+  <path class="divider" d="M745 1226H1185" stroke="#6D28D9"/><text class="foot" x="767" y="1254">source converts before arithmetic</text>
+</g>
+<g id="ShapeResults">
+  <rect class="card" x="1310" y="1035" width="440" height="235" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="1332" y="1065">typed result</text>
+  <text class="cardTitle" x="1332" y="1099">Area or Volume</text>
+  <path class="divider" d="M1310 1119H1750" stroke="#6D28D9"/>
+  <text class="body" x="1332" y="1151">Measure&lt;Area&gt;</text>
+<text class="body" x="1332" y="1175">Measure&lt;Volume&gt;</text>
+<text class="body" x="1332" y="1199">division recovers Length or Area</text>
+  <path class="divider" d="M1310 1226H1750" stroke="#6D28D9"/><text class="foot" x="1332" y="1254">domain type is clearer than raw UnitsProduct</text>
+</g>
+<g id="PowerInputs">
+  <rect class="card" x="1310" y="1325" width="440" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1332" y="1355">EnergyPower.kt</text>
+  <text class="cardTitle" x="1332" y="1389">Power and Time</text>
+  <path class="divider" d="M1310 1409H1750" stroke="#C2410C"/>
+  <text class="body" x="1332" y="1441">Power * Time</text>
+<text class="body" x="1332" y="1465">Time * Power</text>
+<text class="body" x="1332" y="1489">Energy / Time</text>
+
+</g>
+<g id="EnergyOps">
+  <rect class="card" x="1875" y="1325" width="440" height="190" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="1897" y="1355">canonical conversion</text>
+  <text class="cardTitle" x="1897" y="1389">watts and seconds</text>
+  <path class="divider" d="M1875 1409H2315" stroke="#C2410C"/>
+  <text class="body" x="1897" y="1441">W * s -&gt; J</text>
+<text class="body" x="1897" y="1465">J / s -&gt; W</text>
+<text class="body" x="1897" y="1489">kWh display via conversion</text>
+
+</g>
 </svg>
