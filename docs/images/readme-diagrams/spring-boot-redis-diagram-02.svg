@@ -1,84 +1,218 @@
-<svg data-intent="Redesign ReactiveRedisTemplate serialization flow around RedisSerializationContext, key/value/hash serializers, BinarySerializer/Compressor choices, and Redis wire bytes." data-evidence="spring-boot/redis/README.md; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer" data-source-read="spring-boot/redis/README.md; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer" xmlns="http://www.w3.org/2000/svg" width="1440" height="905" viewBox="0 0 1440 905" role="img" aria-label="ReactiveRedisTemplate Serialization Flow">
+<svg data-intent="Explain Spring Boot Redis ReactiveRedisTemplate serialization flow for README diagram 02." data-evidence="spring-boot/redis/README.md; spring-boot/redis/README.ko.md; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisSerializationContextSupport.kt; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisBinarySerializers.kt; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisBinarySerializer.kt; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisCompressSerializer.kt" data-source-read="spring-boot/redis/README.md; spring-boot/redis/README.ko.md; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisSerializationContextSupport.kt; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisBinarySerializers.kt; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisBinarySerializer.kt; spring-boot/redis/src/main/kotlin/io/bluetape4k/spring/redis/serializer/RedisCompressSerializer.kt" xmlns="http://www.w3.org/2000/svg" width="2780" height="1640" viewBox="0 0 2780 1640" role="img" aria-label="ReactiveRedisTemplate Serialization Flow Diagram">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#0F766E"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#1D4ED8"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#15803D"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#C2410C"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#BE185D"/></marker>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#475569"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 3 3 L 19 11 L 3 19 Z" fill="#6D28D9"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
+    .laneLabel{font-family:"Comic Mono";font-size:16px;font-weight:700;letter-spacing:0}
+    .edge{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabelBg{fill:#FFFFFF;stroke:#E2E8F0;stroke-width:.8;opacity:.94}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1440" height="905"/>
-<rect class="frame" x="34" y="30" width="1372" height="845" rx="8"/>
-<text class="title" x="72" y="84">ReactiveRedisTemplate Serialization Flow</text>
-<text class="subtitle" x="76" y="116">The flow shows how a RedisSerializationContext selects binary/compression serializers before bytes are sent to Redis.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="145" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Template configuration</text></g>
-<g><rect class="panel" x="82" y="375" width="1276" height="230" rx="8"/><text class="panelTitle" x="110" y="411" dominant-baseline="middle">Serialization choices</text></g>
-<g><rect class="panel" x="82" y="680" width="1276" height="145" rx="8"/><text class="panelTitle" x="110" y="716" dominant-baseline="middle">Redis wire</text></g>
-<g id="config">
-  <rect class="card" x="130" y="215" width="300" height="70" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="280" y="243" text-anchor="middle" dominant-baseline="middle">Spring configuration</text>
-  <text class="detail" x="280" y="273" text-anchor="middle" dominant-baseline="middle">ReactiveRedisTemplate bean</text>
+<rect class="canvas" width="2780" height="1640"/>
+<rect class="frame" x="34" y="30" width="2712" height="1580" rx="8"/>
+<text class="title" x="72" y="86">ReactiveRedisTemplate Serialization Flow</text>
+<text class="subtitle" x="76" y="120">How bluetape4k RedisSerializationContext helpers bind serializer slots, then encode writes and decode reads for Spring Data Redis.</text>
+<text class="laneLabel" x="96" y="190" fill="#0F766E">configuration path</text>
+<g id="ConfigCode">
+  <rect class="card" x="110" y="220" width="430" height="230" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="134" y="251">Application @Bean</text>
+  <text class="cardTitle" x="134" y="285">ReactiveRedisTemplate config</text>
+  <path class="divider" d="M110 306H540" stroke="#0F766E"/>
+  <text class="body" x="134" y="339">redisSerializationContextOf(...)</text>
+<text class="body" x="134" y="363">valueSerializer = LZ4Kryo</text>
+<text class="body" x="134" y="387">or builder { value(...); hashValue(...) }</text>
+  <path class="divider" d="M110 402H540" stroke="#0F766E"/><text class="foot" x="134" y="432">supplies the context before template construction</text>
 </g>
-<g id="context">
-  <rect class="card" x="515" y="210" width="410" height="80" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="720" y="243" text-anchor="middle" dominant-baseline="middle">RedisSerializationContext DSL</text>
-  <text class="detail" x="720" y="273" text-anchor="middle" dominant-baseline="middle">key, value, hashKey, hashValue serializers</text>
+<g id="ContextBuilder">
+  <rect class="card" x="700" y="200" width="520" height="270" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="724" y="231">RedisSerializationContextSupport</text>
+  <text class="cardTitle" x="724" y="265">RedisSerializationContext&lt;K,V&gt;</text>
+  <path class="divider" d="M700 286H1220" stroke="#15803D"/>
+  <text class="body" x="724" y="319">key -&gt; StringRedisSerializer.UTF_8</text>
+<text class="body" x="724" y="343">value -&gt; RedisSerializer&lt;V&gt;</text>
+<text class="body" x="724" y="367">hashKey -&gt; StringRedisSerializer.UTF_8</text>
+<text class="body" x="724" y="391">hashValue -&gt; RedisSerializer&lt;V&gt;</text>
+  <path class="divider" d="M700 422H1220" stroke="#15803D"/><text class="foot" x="724" y="452">default serializer is optional</text>
 </g>
-<g id="template">
-  <rect class="card" x="990" y="215" width="310" height="70" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1145" y="243" text-anchor="middle" dominant-baseline="middle">ReactiveRedisTemplate</text>
-  <text class="detail" x="1145" y="273" text-anchor="middle" dominant-baseline="middle">uses context for every command</text>
+<g id="ReactiveTemplate">
+  <rect class="card" x="1380" y="220" width="470" height="230" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="1404" y="251">Spring Data Redis</text>
+  <text class="cardTitle" x="1404" y="285">ReactiveRedisTemplate</text>
+  <path class="divider" d="M1380 306H1850" stroke="#1D4ED8"/>
+  <text class="body" x="1404" y="339">created with connection factory</text>
+<text class="body" x="1404" y="363">uses context slots per operation</text>
+<text class="body" x="1404" y="387">returns reactive publisher results</text>
+  <path class="divider" d="M1380 402H1850" stroke="#1D4ED8"/><text class="foot" x="1404" y="432">template does not choose binary format by itself</text>
 </g>
-<g id="binary">
-  <rect class="card" x="125" y="445" width="300" height="88" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="275" y="473" text-anchor="middle" dominant-baseline="middle">RedisBinarySerializer</text>
-  <text class="detail" x="275" y="503" text-anchor="middle" dominant-baseline="middle">BinarySerializer -&gt; ByteArray</text>
-  <text class="detail" x="275" y="521" text-anchor="middle" dominant-baseline="middle">JDK/Kryo/Fory variants</text>
+<g id="RedisConnection">
+  <rect class="card" x="2040" y="220" width="410" height="230" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="2064" y="251">Redis connection</text>
+  <text class="cardTitle" x="2064" y="285">Redis wire protocol</text>
+  <path class="divider" d="M2040 306H2450" stroke="#475569"/>
+  <text class="body" x="2064" y="339">stores ByteArray payloads</text>
+<text class="body" x="2064" y="363">keys are String UTF-8 in helper overload</text>
+<text class="body" x="2064" y="387">values come from selected serializer</text>
+  <path class="divider" d="M2040 402H2450" stroke="#475569"/><text class="foot" x="2064" y="432">Redis sees bytes, not object graphs</text>
 </g>
-<g id="compress">
-  <rect class="card" x="525" y="445" width="300" height="88" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="675" y="473" text-anchor="middle" dominant-baseline="middle">RedisCompressSerializer</text>
-  <text class="detail" x="675" y="503" text-anchor="middle" dominant-baseline="middle">ByteArray compression only</text>
-  <text class="detail" x="675" y="521" text-anchor="middle" dominant-baseline="middle">LZ4/Zstd/Snappy/GZip</text>
+<text class="laneLabel" x="96" y="640" fill="#C2410C">write path</text>
+<g id="DomainValue">
+  <rect class="card" x="110" y="680" width="380" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="134" y="711">caller value</text>
+  <text class="cardTitle" x="134" y="745">Domain object</text>
+  <path class="divider" d="M110 766H490" stroke="#C2410C"/>
+  <text class="body" x="134" y="799">Any value passed to opsForValue()</text>
+<text class="body" x="134" y="823">or hash value operation</text>
+<text class="body" x="134" y="847">null serializes to emptyByteArray</text>
+  <path class="divider" d="M110 842H490" stroke="#C2410C"/><text class="foot" x="134" y="872">example: TestBean</text>
 </g>
-<g id="factory">
-  <rect class="card" x="925" y="445" width="330" height="88" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1090" y="473" text-anchor="middle" dominant-baseline="middle">RedisBinarySerializers</text>
-  <text class="detail" x="1090" y="503" text-anchor="middle" dominant-baseline="middle">prebuilt serializer combinations</text>
-  <text class="detail" x="1090" y="521" text-anchor="middle" dominant-baseline="middle">LZ4Fory, ZstdFory, LZ4Kryo</text>
+<g id="WriteSlot">
+  <rect class="card" x="610" y="680" width="420" height="210" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="634" y="711">context slot</text>
+  <text class="cardTitle" x="634" y="745">value / hashValue serializer</text>
+  <path class="divider" d="M610 766H1030" stroke="#15803D"/>
+  <text class="body" x="634" y="799">selected from RedisBinarySerializers</text>
+<text class="body" x="634" y="823">same slot used by reactive operations</text>
+<text class="body" x="634" y="847">key serializer stays separate</text>
+  <path class="divider" d="M610 842H1030" stroke="#15803D"/><text class="foot" x="634" y="872">source of the write codec</text>
 </g>
-<g id="bytes">
-  <rect class="card" x="315" y="720" width="300" height="66" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="465" y="746" text-anchor="middle" dominant-baseline="middle">Redis bytes</text>
-  <text class="detail" x="465" y="776" text-anchor="middle" dominant-baseline="middle">keys and values serialized</text>
+<g id="LZ4Kryo">
+  <rect class="card" x="1150" y="680" width="420" height="210" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="1174" y="711">lazy singleton</text>
+  <text class="cardTitle" x="1174" y="745">RedisBinarySerializers.LZ4Kryo</text>
+  <path class="divider" d="M1150 766H1570" stroke="#6D28D9"/>
+  <text class="body" x="1174" y="799">wraps BinarySerializers.LZ4Kryo</text>
+<text class="body" x="1174" y="823">created as RedisBinarySerializer</text>
+<text class="body" x="1174" y="847">combines Kryo encoding and LZ4</text>
+  <path class="divider" d="M1150 842H1570" stroke="#6D28D9"/><text class="foot" x="1174" y="872">one of many factory constants</text>
 </g>
-<g id="redis">
-  <rect class="card" x="820" y="720" width="300" height="66" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="970" y="746" text-anchor="middle" dominant-baseline="middle">Redis server</text>
-  <text class="detail" x="970" y="776" text-anchor="middle" dominant-baseline="middle">stores wire byte payloads</text>
+<g id="WriteCodec">
+  <rect class="card" x="1690" y="680" width="420" height="210" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="1714" y="711">RedisBinarySerializer</text>
+  <text class="cardTitle" x="1714" y="745">serialize(t)</text>
+  <path class="divider" d="M1690 766H2110" stroke="#BE185D"/>
+  <text class="body" x="1714" y="799">serializer.serialize(t)</text>
+<text class="body" x="1714" y="823">binary serializer owns object encoding</text>
+<text class="body" x="1714" y="847">compression is inside combined serializer</text>
+  <path class="divider" d="M1690 842H2110" stroke="#BE185D"/><text class="foot" x="1714" y="872">returns ByteArray</text>
 </g>
-<path class="route" data-from="config" data-to="context" d="M430 250 L515 250" stroke="#1D4ED8"/>
-<path class="route" data-from="context" data-to="template" d="M925 250 L990 250" stroke="#15803D"/>
-<path class="route" data-from="context" data-to="binary" d="M620 290 L275 445" stroke="#0F766E"/>
-<path class="route" data-from="context" data-to="compress" d="M720 290 L675 445" stroke="#C2410C"/>
-<path class="route" data-from="context" data-to="factory" d="M820 290 L1090 445" stroke="#BE185D"/>
-<path class="route" data-from="binary" data-to="bytes" d="M275 533 L385 720" stroke="#0F766E"/>
-<path class="route" data-from="compress" data-to="bytes" d="M675 533 L465 720" stroke="#C2410C"/>
-<path class="route" data-from="factory" data-to="bytes" d="M1090 533 L545 720" stroke="#BE185D"/>
-<path class="route" data-from="bytes" data-to="redis" d="M615 753 L820 753" stroke="#1D4ED8"/>
-<path class="route" data-from="template" data-to="redis" d="M1300 250 L1335 250 L1335 755 L1120 755" stroke="#7E22CE"/>
+<g id="StoredBytes">
+  <rect class="card" x="2230" y="680" width="260" height="210" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="2254" y="711">Redis payload</text>
+  <text class="cardTitle" x="2254" y="745">ByteArray</text>
+  <path class="divider" d="M2230 766H2490" stroke="#475569"/>
+  <text class="body" x="2254" y="799">written through connection</text>
+<text class="body" x="2254" y="823">opaque to Redis</text>
+<text class="body" x="2254" y="847">decoded only by matching serializer</text>
+  <path class="divider" d="M2230 842H2490" stroke="#475569"/><text class="foot" x="2254" y="872">stored value</text>
+</g>
+<text class="laneLabel" x="96" y="1075" fill="#1D4ED8">read path</text>
+<g id="StoredBytesRead">
+  <rect class="card" x="2230" y="1110" width="260" height="210" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="2254" y="1141">Redis payload</text>
+  <text class="cardTitle" x="2254" y="1175">ByteArray</text>
+  <path class="divider" d="M2230 1196H2490" stroke="#475569"/>
+  <text class="body" x="2254" y="1229">loaded by reactive command</text>
+<text class="body" x="2254" y="1253">same bytes written earlier</text>
+<text class="body" x="2254" y="1277">may be emptyByteArray</text>
+  <path class="divider" d="M2230 1272H2490" stroke="#475569"/><text class="foot" x="2254" y="1302">wire value</text>
+</g>
+<g id="ReadCodec">
+  <rect class="card" x="1690" y="1110" width="420" height="210" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="1714" y="1141">RedisBinarySerializer</text>
+  <text class="cardTitle" x="1714" y="1175">deserialize(bytes)</text>
+  <path class="divider" d="M1690 1196H2110" stroke="#BE185D"/>
+  <text class="body" x="1714" y="1229">serializer.deserialize(bytes)</text>
+<text class="body" x="1714" y="1253">decompresses when combined codec needs it</text>
+<text class="body" x="1714" y="1277">rebuilds the object graph</text>
+  <path class="divider" d="M1690 1272H2110" stroke="#BE185D"/><text class="foot" x="1714" y="1302">returns Any?</text>
+</g>
+<g id="ReactiveResult">
+  <rect class="card" x="1110" y="1110" width="460" height="210" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="1134" y="1141">reactive result</text>
+  <text class="cardTitle" x="1134" y="1175">Mono / Flux value</text>
+  <path class="divider" d="M1110 1196H1570" stroke="#1D4ED8"/>
+  <text class="body" x="1134" y="1229">template maps ByteArray to V</text>
+<text class="body" x="1134" y="1253">caller observes typed result</text>
+<text class="body" x="1134" y="1277">serializer mismatch fails at decode time</text>
+  <path class="divider" d="M1110 1272H1570" stroke="#1D4ED8"/><text class="foot" x="1134" y="1302">same context closes the loop</text>
+</g>
+<g id="CompressOnly">
+  <rect class="card" x="110" y="1110" width="760" height="210" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="134" y="1141">ByteArray alternative</text>
+  <text class="cardTitle" x="134" y="1175">RedisCompressSerializer path</text>
+  <path class="divider" d="M110 1196H870" stroke="#C2410C"/>
+  <text class="body" x="134" y="1229">RedisBinarySerializers.LZ4 / Gzip / Snappy / Zstd create compression-only serializers</text>
+<text class="body" x="134" y="1253">use when application value type is already ByteArray</text>
+<text class="body" x="134" y="1277">serialize -&gt; compressor.compress, deserialize -&gt; compressor.decompress</text>
+  <path class="divider" d="M110 1272H870" stroke="#C2410C"/><text class="foot" x="134" y="1302">not the object serializer path used by LZ4Kryo</text>
+</g>
+<g data-from="ConfigCode" data-to="ContextBuilder">
+  <path class="edge " d="M540 335 L700 335" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <rect class="edgeLabelBg" x="582" y="297" width="110" height="24" rx="4"/><text class="edgeLabel" x="590" y="314">builds</text>
+</g>
+<g data-from="ContextBuilder" data-to="ReactiveTemplate">
+  <path class="edge " d="M1220 335 L1380 335" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <rect class="edgeLabelBg" x="1247" y="297" width="184" height="24" rx="4"/><text class="edgeLabel" x="1255" y="314">constructor argument</text>
+</g>
+<g data-from="ReactiveTemplate" data-to="RedisConnection">
+  <path class="edge " d="M1850 335 L2040 335" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <rect class="edgeLabelBg" x="1902" y="297" width="110" height="24" rx="4"/><text class="edgeLabel" x="1910" y="314">uses</text>
+</g>
+<g data-from="DomainValue" data-to="WriteSlot">
+  <path class="edge " d="M490 785 L610 785" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="504" y="747" width="144" height="24" rx="4"/><text class="edgeLabel" x="512" y="764">operation value</text>
+</g>
+<g data-from="WriteSlot" data-to="LZ4Kryo">
+  <path class="edge " d="M1030 785 L1150 785" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="1044" y="747" width="136" height="24" rx="4"/><text class="edgeLabel" x="1052" y="764">selected codec</text>
+</g>
+<g data-from="LZ4Kryo" data-to="WriteCodec">
+  <path class="edge " d="M1570 785 L1690 785" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="1586" y="747" width="110" height="24" rx="4"/><text class="edgeLabel" x="1594" y="764">delegates</text>
+</g>
+<g data-from="WriteCodec" data-to="StoredBytes">
+  <path class="edge " d="M2110 785 L2230 785" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="2134" y="747" width="110" height="24" rx="4"/><text class="edgeLabel" x="2142" y="764">ByteArray</text>
+</g>
+<g data-from="StoredBytes" data-to="RedisConnection">
+  <path class="edge dashed" d="M2360 680 L2360 450" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="2370" y="558" width="144" height="24" rx="4"/><text class="edgeLabel" x="2378" y="575">stored in Redis</text>
+</g>
+<g data-from="RedisConnection" data-to="StoredBytesRead">
+  <path class="edge dashed" d="M2450 335 L2630 335 L2630 1215 L2490 1215" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="2530" y="993" width="120" height="24" rx="4"/><text class="edgeLabel" x="2538" y="1010">loaded bytes</text>
+</g>
+<g data-from="StoredBytesRead" data-to="ReadCodec">
+  <path class="edge " d="M2230 1215 L2110 1215" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="2134" y="1177" width="110" height="24" rx="4"/><text class="edgeLabel" x="2142" y="1194">ByteArray</text>
+</g>
+<g data-from="ReadCodec" data-to="ReactiveResult">
+  <path class="edge " d="M1690 1215 L1570 1215" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="1580" y="1177" width="136" height="24" rx="4"/><text class="edgeLabel" x="1588" y="1194">decoded object</text>
+</g>
+<g data-from="ReactiveResult" data-to="WriteSlot">
+  <path class="edge dashed" d="M1340 1110 L1340 1015 L820 1015 L820 890" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <rect class="edgeLabelBg" x="882" y="979" width="184" height="24" rx="4"/><text class="edgeLabel" x="890" y="996">same serializer slot</text>
+</g>
+<g data-from="CompressOnly" data-to="WriteSlot">
+  <path class="edge dashed" d="M490 1110 L490 1000 L820 1000 L820 890" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <rect class="edgeLabelBg" x="512" y="963" width="192" height="24" rx="4"/><text class="edgeLabel" x="520" y="980">ByteArray-only option</text>
+</g>
 </svg>
