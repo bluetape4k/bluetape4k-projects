@@ -58,9 +58,9 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="${dark}"/></marker>
-  <marker id="triangle-${name}" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="1.4"/></marker>
-  <marker id="diamond-${name}" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="1.4"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>
+  <marker id="triangle-${name}" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2.2"/></marker>
+  <marker id="diamond-${name}" markerWidth="24" markerHeight="22" refX="22" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 11 L 12 2 L 22 11 L 12 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2.2"/></marker>`).join("\n");
 }
 
 function classBox({ id, x, y, w, h, color, stereotype, title, attrs = [], methods = [] }) {
