@@ -1,83 +1,155 @@
-<svg data-intent="Regenerate JCache NearCache (nearcache.jcache ) from the current README and source package surface for cache/cache-core." data-evidence="cache/cache-core/README.ko.md; cache/cache-core; cache/cache-core/src/main/kotlin" data-source-read="cache/cache-core/README.ko.md; cache/cache-core; cache/cache-core/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="JCache NearCache (nearcache.jcache )">
+<svg data-intent="Explain synchronous NearJCache two-tier class structure for cache-core README diagram 05." data-evidence="cache/cache-core/README.ko.md; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/jcache/JCacheType.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/jcache/JCaching.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/jcache/JCacheEntryEventListener.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCacheConfig.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCacheConfigBuilder.kt" data-source-read="cache/cache-core/README.ko.md; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/jcache/JCacheType.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/jcache/JCaching.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/jcache/JCacheEntryEventListener.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCacheConfig.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCacheConfigBuilder.kt" xmlns="http://www.w3.org/2000/svg" width="2500" height="1680" viewBox="0 0 2500 1680" role="img" aria-label="NearJCache Synchronous Class Diagram">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#0F766E"/></marker>
+  <marker id="triangle-teal" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#1D4ED8"/></marker>
+  <marker id="triangle-blue" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#15803D"/></marker>
+  <marker id="triangle-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-amber" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#C2410C"/></marker>
+  <marker id="triangle-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-pink" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#BE185D"/></marker>
+  <marker id="triangle-pink" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-slate" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#475569"/></marker>
+  <marker id="triangle-slate" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#475569" stroke-width="1.4"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .sectionLabel{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+    .chip{stroke-width:1.6}.chipText{font-family:"Comic Mono";font-size:14px;fill:#334155}
+    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
+    .noteBox{stroke-width:1.7;filter:url(#shadow)}.noteTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}.noteLine{font-family:"Comic Mono";font-size:14px;fill:#334155}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">JCache NearCache (nearcache.jcache )</text>
-<text class="subtitle" x="76" y="116">cache/cache-core: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">패키지 / import 안정성</text>
+<rect class="canvas" width="2500" height="1680"/>
+<rect class="frame" x="34" y="30" width="2432" height="1620" rx="8"/>
+<text class="title" x="72" y="86">NearJCache Synchronous Two-Tier Cache</text>
+<text class="subtitle" x="76" y="120">cache-core JCache alias, local front cache, remote back cache delegation, listener propagation, and sync/async back writes.</text>
+<g>
+  <rect class="chip" x="1420" y="78" width="170" height="54" rx="18" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="chipText" x="1505" y="112" text-anchor="middle">JCache</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">제공 기능</text>
+<g>
+  <rect class="chip" x="1615" y="78" width="210" height="54" rx="18" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="chipText" x="1720" y="112" text-anchor="middle">near-cache</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">설치</text>
+<g>
+  <rect class="chip" x="1850" y="78" width="190" height="54" rx="18" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="chipText" x="1945" y="112" text-anchor="middle">config</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">제공 기능 (상세)</text>
+<g>
+  <rect class="chip" x="2065" y="78" width="190" height="54" rx="18" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="chipText" x="2160" y="112" text-anchor="middle">listener</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">cache package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">cache package (49)</text>
+<text class="sectionLabel" x="880" y="205">JCache contract</text>
+<text class="sectionLabel" x="900" y="770">Two-tier NearJCache</text>
+<text class="sectionLabel" x="335" y="1295">Front cache</text>
+<text class="sectionLabel" x="1510" y="1295">Back cache providers</text>
+<g id="JCache">
+  <rect class="classBox" x="685" y="245" width="760" height="290" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereotype" x="1065" y="273" text-anchor="middle">&lt;&lt;typealias&gt;&gt;</text>
+  <text class="classTitle" x="1065" y="303" text-anchor="middle">JCache&lt;K,V&gt;</text>
+  <path class="divider" d="M685 321H1445" stroke="#0F766E"/>
+  <text class="member" x="709" y="347">javax.cache.Cache&lt;K,V&gt;</text>
+<text class="member" x="709" y="369">iterator(): Cache.Entry&lt;K,V&gt;</text>
+<text class="member" x="709" y="391">registerCacheEntryListener(...)</text>
+  <path class="divider" d="M685 421H1445" stroke="#0F766E"/>
+  <text class="member" x="709" y="447">standard reads: get / getAll / containsKey</text>
+<text class="member" x="709" y="469">standard writes: put / putAll / putIfAbsent</text>
+<text class="member" x="709" y="491">mutations: remove / removeAll / replace</text>
+<text class="member" x="709" y="513">lifecycle: clear / close / isClosed</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">CaffeineSuspendJCache type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">CaffeineSuspendJCache type</text>
+<g id="NearJCache">
+  <rect class="classBox" x="735" y="840" width="900" height="380" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="stereotype" x="1185" y="868" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1185" y="898" text-anchor="middle">NearJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M735 916H1635" stroke="#15803D"/>
+  <text class="member" x="759" y="942">frontCache: JCache&lt;K,V&gt;</text>
+<text class="member" x="759" y="964">backCache: JCache&lt;K,V&gt;</text>
+<text class="member" x="759" y="986">config: NearJCacheConfig&lt;K,V&gt;</text>
+<text class="member" x="759" y="1008">JCache&lt;K,V&gt; by backCache</text>
+  <path class="divider" d="M735 1038H1635" stroke="#15803D"/>
+  <text class="member" x="759" y="1064">get() and getAll() read front only</text>
+<text class="member" x="759" y="1086">getDeeply() fills front after back hit</text>
+<text class="member" x="759" y="1108">put/replace/remove update front first</text>
+<text class="member" x="759" y="1130">syncBackCache() writes back sync or async</text>
+<text class="member" x="759" y="1152">clear() clears front; clearAllCache() clears both</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">JCacheEntryEventListener type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">JCacheEntryEventListener type</text>
+<g id="NearJCacheConfig">
+  <rect class="classBox" x="1730" y="250" width="560" height="315" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereotype" x="2010" y="278" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="classTitle" x="2010" y="308" text-anchor="middle">NearJCacheConfig&lt;K,V&gt;</text>
+  <path class="divider" d="M1730 326H2290" stroke="#C2410C"/>
+  <text class="member" x="1754" y="352">cacheManagerFactory: Factory&lt;CacheManager&gt;</text>
+<text class="member" x="1754" y="374">cacheName: String</text>
+<text class="member" x="1754" y="396">frontCacheConfiguration: MutableConfiguration&lt;K,V&gt;</text>
+<text class="member" x="1754" y="418">isSynchronous: Boolean</text>
+<text class="member" x="1754" y="440">syncRemoteTimeout: Long</text>
+  <path class="divider" d="M1730 470H2290" stroke="#C2410C"/>
+  <text class="member" x="1754" y="496">default front cache: Caffeine</text>
+<text class="member" x="1754" y="518">default expiry: accessed 30 minutes</text>
+<text class="member" x="1754" y="540">DSL builder creates immutable config</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">JCaching type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">JCaching type</text>
+<g id="JCacheEntryEventListener">
+  <rect class="classBox" x="80" y="300" width="520" height="285" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="stereotype" x="340" y="328" text-anchor="middle">&lt;&lt;listener&gt;&gt;</text>
+  <text class="classTitle" x="340" y="358" text-anchor="middle">JCacheEntryEventListener</text>
+  <path class="divider" d="M80 376H600" stroke="#BE185D"/>
+  <text class="member" x="104" y="402">generic listener for &lt;K,V&gt;</text>
+<text class="member" x="104" y="424">targetCache: JCache&lt;K,V&gt;</text>
+  <path class="divider" d="M80 454H600" stroke="#BE185D"/>
+  <text class="member" x="104" y="480">created/updated -&gt; putAll</text>
+<text class="member" x="104" y="502">removed/expired -&gt; removeAll</text>
+<text class="member" x="104" y="524">runs on provider event delivery path</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
+<g id="FrontCache">
+  <rect class="noteBox" x="210" y="1340" width="680" height="215" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="noteTitle" x="238" y="1388">Local front JCache</text>
+  <text class="noteLine" x="240" y="1432">Created by config.cacheManagerFactory</text>
+<text class="noteLine" x="240" y="1462">Default factory loads Caffeine JCache provider</text>
+<text class="noteLine" x="240" y="1492">NearJCache.get() intentionally checks front only</text>
+<text class="noteLine" x="240" y="1522">getDeeply() can refill front from back</text>
 </g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Redis backend</text>
+<g id="BackCache">
+  <rect class="noteBox" x="1420" y="1340" width="760" height="215" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="noteTitle" x="1448" y="1388">Remote/back JCache</text>
+  <text class="noteLine" x="1450" y="1432">Provided by Lettuce, Hazelcast, Redisson, or another JCache</text>
+<text class="noteLine" x="1450" y="1462">NearJCache delegates un-overridden JCache methods to backCache</text>
+<text class="noteLine" x="1450" y="1492">Back events are registered to update the local front cache</text>
+<text class="noteLine" x="1450" y="1522">syncBackCache chooses immediate or async remote write</text>
 </g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
+<g data-from="NearJCache" data-to="JCache">
+  <path class="edge dashed" d="M1185 840 L1185 535" stroke="#15803D" marker-end="url(#triangle-green)"/>
+  <text class="edgeLabel" x="1212" y="692">implements</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
+<g data-from="NearJCacheConfig" data-to="NearJCache">
+  <path class="edge dashed" d="M2010 565 L2010 1030 L1635 1030" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="2030" y="807">configures</text>
+</g>
+<g data-from="JCacheEntryEventListener" data-to="JCache">
+  <path class="edge dashed" d="M600 435 L685 435" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+
+</g>
+<g data-from="NearJCache" data-to="FrontCache">
+  <path class="edge dashed" d="M915 1220 L915 1270 L550 1270 L550 1340" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="618" y="1249">frontCache</text>
+</g>
+<g data-from="NearJCache" data-to="BackCache">
+  <path class="edge dashed" d="M1455 1220 L1455 1270 L1800 1270 L1800 1340" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <text class="edgeLabel" x="1593" y="1249">backCache</text>
+</g>
+<g data-from="BackCache" data-to="JCacheEntryEventListener">
+  <path class="edge dashed" d="M1420 1550 L1420 1590 L118 1590 L118 585" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="488" y="1570">entry events</text>
+</g>
 </svg>

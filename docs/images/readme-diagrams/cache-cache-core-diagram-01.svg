@@ -1,85 +1,227 @@
-<svg data-intent="Regenerate NearCache Interface Hierarchy from the current README and source package surface for cache/cache-core." data-evidence="cache/cache-core/README.md; cache/cache-core; cache/cache-core/src/main/kotlin" data-source-read="cache/cache-core/README.md; cache/cache-core; cache/cache-core/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="NearCache Interface Hierarchy">
+<svg data-intent="Recreate cache-cache-core diagram 01 as a source-backed UML class hierarchy with no icons." data-evidence="cache/cache-core/README.md; cache/cache-core/README.ko.md; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheOperations.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCacheOperations.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheStatistics.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheResilienceConfig.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheDecorator.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCacheDecorator.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/SuspendNearJCache.kt" data-source-read="cache/cache-core/README.md; cache/cache-core/README.ko.md; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheOperations.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/SuspendNearCacheOperations.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheStatistics.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/NearCacheResilienceConfig.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientNearCacheDecorator.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/ResilientSuspendNearCacheDecorator.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/NearJCache.kt; cache/cache-core/src/main/kotlin/io/bluetape4k/cache/nearcache/jcache/SuspendNearJCache.kt" xmlns="http://www.w3.org/2000/svg" width="2600" height="1850" viewBox="0 0 2600 1850" role="img" aria-label="NearCache Interface Hierarchy">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#1D4ED8"/></marker>
+  <marker id="triangle-blue" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.4"/></marker>
+  <marker id="diamond-blue" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-teal" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#0F766E"/></marker>
+  <marker id="triangle-teal" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.4"/></marker>
+  <marker id="diamond-teal" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#15803D"/></marker>
+  <marker id="triangle-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="1.4"/></marker>
+  <marker id="diamond-green" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#15803D" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-amber" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#C2410C"/></marker>
+  <marker id="triangle-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.4"/></marker>
+  <marker id="diamond-amber" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-pink" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#BE185D"/></marker>
+  <marker id="triangle-pink" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="1.4"/></marker>
+  <marker id="diamond-pink" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#BE185D" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-purple" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#7E22CE"/></marker>
+  <marker id="triangle-purple" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#7E22CE" stroke-width="1.4"/></marker>
+  <marker id="diamond-purple" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#7E22CE" stroke-width="1.4"/></marker>
+
+  <marker id="arrow-slate" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="#475569"/></marker>
+  <marker id="triangle-slate" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="#475569" stroke-width="1.4"/></marker>
+  <marker id="diamond-slate" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 4.5 L 5.5 1 L 10 4.5 L 5.5 8 Z" fill="#FFFFFF" stroke="#475569" stroke-width="1.4"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .title{font-family:"Architects Daughter";font-size:46px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .group{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}.groupTitle{font-family:"Architects Daughter";font-size:26px;fill:#0F172A}.groupDetail{font-family:"Comic Mono";font-size:14px;fill:#64748B}
+    .classBox{stroke-width:1.8;filter:url(#shadow)}.stereotype{font-family:"Comic Mono";font-size:14px;fill:#475569}.classTitle{font-family:"Architects Daughter";font-size:27px;fill:#0F172A}
+    .member{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.45}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">NearCache Interface Hierarchy</text>
-<text class="subtitle" x="76" y="116">cache/cache-core: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Package / Import Stability</text>
+<rect class="canvas" width="2600" height="1850"/>
+<rect class="frame" x="34" y="30" width="2532" height="1790" rx="8"/>
+<text class="title" x="72" y="86">NearCache Interface Hierarchy</text>
+<text class="subtitle" x="76" y="120">cache-core contracts, decorators, statistics, and implementation boundaries from README and source.</text>
+<g>
+  <rect class="chip" x="1425" y="78" width="190" height="54" rx="18" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="chipText" x="1520" y="112" text-anchor="middle">interface</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Provided Features</text>
+<g>
+  <rect class="chip" x="1640" y="78" width="190" height="54" rx="18" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="chipText" x="1735" y="112" text-anchor="middle">decorator</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">NearCache get() Sequence</text>
-  <text class="detail" x="919" y="311" text-anchor="middle">(front miss → back lookup →</text>
+<g>
+  <rect class="chip" x="1855" y="78" width="190" height="54" rx="18" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="chipText" x="1950" y="112" text-anchor="middle">support</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">NearCache put() Sequence</text>
-  <text class="detail" x="1257" y="311" text-anchor="middle">(write-through)</text>
+<g>
+  <rect class="chip" x="2070" y="78" width="250" height="54" rx="18" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="chipText" x="2195" y="112" text-anchor="middle">JCache bridge</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">cache package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">cache package (49)</text>
+<text class="sectionLabel" x="260" y="205">Provider-neutral operation contracts</text>
+<text class="sectionLabel" x="360" y="1100">JCache two-tier implementations</text>
+<g id="NearCacheOperations">
+  <rect class="classBox" x="250" y="245" width="660" height="335" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereotype" x="580" y="273" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="580" y="303" text-anchor="middle">NearCacheOperations&lt;V&gt;</text>
+  <path class="divider" d="M250 321H910" stroke="#1D4ED8"/>
+  <text class="member" x="274" y="347">+ cacheName: String</text>
+<text class="member" x="274" y="369">+ isClosed: Boolean</text>
+  <path class="divider" d="M250 399H910" stroke="#1D4ED8"/>
+  <text class="member" x="274" y="425">+ get / getAll / containsKey</text>
+<text class="member" x="274" y="447">+ put / replace / remove</text>
+<text class="member" x="274" y="469">+ clearLocal / clearAll / sizes</text>
+<text class="member" x="274" y="491">+ stats(): NearCacheStatistics</text>
+<text class="member" x="274" y="513">+ close(): Unit</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">CaffeineSuspendJCache type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">CaffeineSuspendJCache type</text>
+<g id="ResilientNearCacheDecorator">
+  <rect class="classBox" x="250" y="755" width="660" height="245" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="stereotype" x="580" y="783" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="580" y="813" text-anchor="middle">ResilientNearCacheDecorator&lt;V&gt;</text>
+  <path class="divider" d="M250 831H910" stroke="#BE185D"/>
+  <text class="member" x="274" y="857">delegate: NearCacheOperations&lt;V&gt;</text>
+<text class="member" x="274" y="879">config: NearCacheResilienceConfig</text>
+  <path class="divider" d="M250 909H910" stroke="#BE185D"/>
+  <text class="member" x="274" y="935">+ retries blocking operations</text>
+<text class="member" x="274" y="957">+ exposes same contract</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">JCacheEntryEventListener type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">JCacheEntryEventListener type</text>
+<g id="SuspendNearCacheOperations">
+  <rect class="classBox" x="1575" y="245" width="740" height="335" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereotype" x="1945" y="273" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1945" y="303" text-anchor="middle">SuspendNearCacheOperations&lt;V&gt;</text>
+  <path class="divider" d="M1575 321H2315" stroke="#0F766E"/>
+  <text class="member" x="1599" y="347">+ cacheName: String</text>
+<text class="member" x="1599" y="369">+ isClosed: Boolean</text>
+  <path class="divider" d="M1575 399H2315" stroke="#0F766E"/>
+  <text class="member" x="1599" y="425">+ suspend get / put / remove</text>
+<text class="member" x="1599" y="447">+ clearLocal(): Unit</text>
+<text class="member" x="1599" y="469">+ suspend clearAll / backCacheSize / close</text>
+<text class="member" x="1599" y="491">+ stats(): NearCacheStatistics</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">JCaching type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">JCaching type</text>
+<g id="ResilientSuspendNearCacheDecorator">
+  <rect class="classBox" x="1575" y="755" width="740" height="245" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="stereotype" x="1945" y="783" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1945" y="813" text-anchor="middle">ResilientSuspendNearCacheDecorator&lt;V&gt;</text>
+  <path class="divider" d="M1575 831H2315" stroke="#7E22CE"/>
+  <text class="member" x="1599" y="857">delegate: SuspendNearCacheOperations&lt;V&gt;</text>
+<text class="member" x="1599" y="879">config: NearCacheResilienceConfig</text>
+  <path class="divider" d="M1575 909H2315" stroke="#7E22CE"/>
+  <text class="member" x="1599" y="935">+ retries suspend operations</text>
+<text class="member" x="1599" y="957">+ rethrows CancellationException</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="262" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="412" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="412" y="852" text-anchor="middle">Coroutine APIs</text>
+<g id="NearCacheStatistics">
+  <rect class="classBox" x="1045" y="285" width="380" height="220" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="stereotype" x="1235" y="313" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1235" y="343" text-anchor="middle">NearCacheStatistics</text>
+  <path class="divider" d="M1045 361H1425" stroke="#15803D"/>
+  <text class="member" x="1069" y="387">+ localHits / localMisses</text>
+<text class="member" x="1069" y="409">+ backHits / backMisses</text>
+<text class="member" x="1069" y="431">+ localSize / evictions</text>
+  <path class="divider" d="M1045 461H1425" stroke="#15803D"/>
+  <text class="member" x="1069" y="487">+ hitRate: Double</text>
 </g>
-<g id="runtime1">
-  <rect class="card" x="600" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="750" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="750" y="852" text-anchor="middle">Redis backend</text>
+<g id="ResilienceConfig">
+  <rect class="classBox" x="1045" y="765" width="380" height="215" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereotype" x="1235" y="793" text-anchor="middle">&lt;&lt;config&gt;&gt;</text>
+  <text class="classTitle" x="1235" y="823" text-anchor="middle">NearCacheResilienceConfig</text>
+  <path class="divider" d="M1045 841H1425" stroke="#C2410C"/>
+  <text class="member" x="1069" y="867">+ maxAttempts</text>
+<text class="member" x="1069" y="889">+ waitDuration / backoff</text>
+<text class="member" x="1069" y="911">+ getFailureStrategy</text>
+  <path class="divider" d="M1045 941H1425" stroke="#C2410C"/>
+  <text class="member" x="1069" y="967">retry policy for wrappers</text>
 </g>
-<g id="runtime2">
-  <rect class="card" x="938" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1088" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1088" y="852" text-anchor="middle">Test support</text>
+<g id="JCache">
+  <rect class="classBox" x="350" y="1150" width="520" height="185" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereotype" x="610" y="1178" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="610" y="1208" text-anchor="middle">JCache&lt;K,V&gt;</text>
+  <path class="divider" d="M350 1226H870" stroke="#1D4ED8"/>
+  <text class="member" x="374" y="1252">cache contract</text>
+  <path class="divider" d="M350 1284H870" stroke="#1D4ED8"/>
+  <text class="member" x="374" y="1310">blocking API</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L412 696 L412 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L750 696 L750 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L1088 696 L1088 790" stroke="#BE185D"/>
+<g id="NearJCache">
+  <rect class="classBox" x="350" y="1465" width="520" height="305" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereotype" x="610" y="1493" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="610" y="1523" text-anchor="middle">NearJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M350 1541H870" stroke="#1D4ED8"/>
+  <text class="member" x="374" y="1567">frontCache: JCache&lt;K,V&gt;</text>
+<text class="member" x="374" y="1589">backCache: JCache&lt;K,V&gt;</text>
+<text class="member" x="374" y="1611">config: NearJCacheConfig&lt;K,V&gt;</text>
+  <path class="divider" d="M350 1641H870" stroke="#1D4ED8"/>
+  <text class="member" x="374" y="1667">JCache&lt;K,V&gt; by backCache</text>
+<text class="member" x="374" y="1689">get() reads front cache only</text>
+<text class="member" x="374" y="1711">getDeeply() reads back and fills front</text>
+<text class="member" x="374" y="1733">put/remove/replace sync back cache</text>
+</g>
+<g id="SuspendJCache">
+  <rect class="classBox" x="1500" y="1150" width="620" height="185" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereotype" x="1810" y="1178" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="classTitle" x="1810" y="1208" text-anchor="middle">SuspendJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M1500 1226H2120" stroke="#0F766E"/>
+  <text class="member" x="1524" y="1252">cache contract</text>
+  <path class="divider" d="M1500 1284H2120" stroke="#0F766E"/>
+  <text class="member" x="1524" y="1310">suspend API</text>
+</g>
+<g id="SuspendNearJCache">
+  <rect class="classBox" x="1500" y="1465" width="620" height="305" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereotype" x="1810" y="1493" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="classTitle" x="1810" y="1523" text-anchor="middle">SuspendNearJCache&lt;K,V&gt;</text>
+  <path class="divider" d="M1500 1541H2120" stroke="#0F766E"/>
+  <text class="member" x="1524" y="1567">frontCache: SuspendJCache&lt;K,V&gt;</text>
+<text class="member" x="1524" y="1589">backCache: SuspendJCache&lt;K,V&gt;</text>
+<text class="member" x="1524" y="1611">config: NearJCacheConfig&lt;K,V&gt;</text>
+  <path class="divider" d="M1500 1641H2120" stroke="#0F766E"/>
+  <text class="member" x="1524" y="1667">SuspendJCache&lt;K,V&gt; by backCache</text>
+<text class="member" x="1524" y="1689">get() delegates to getDeeply()</text>
+<text class="member" x="1524" y="1711">front miss reads back and fills front</text>
+<text class="member" x="1524" y="1733">withoutListener() returns fallback</text>
+</g>
+<g>
+  <rect class="noteBox" x="955" y="1185" width="450" height="245" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="noteTitle" x="983" y="1233">Provider boundary</text>
+  <text class="noteLine" x="985" y="1277">Lettuce, Hazelcast, Redisson</text>
+<text class="noteLine" x="985" y="1311">implement operation contracts</text>
+<text class="noteLine" x="985" y="1345">JCache bridges are separate types</text>
+</g>
+<g>
+  <rect class="noteBox" x="955" y="1495" width="450" height="245" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="noteTitle" x="983" y="1543">Reading rule</text>
+  <text class="noteLine" x="985" y="1587">Hollow triangle = realization</text>
+<text class="noteLine" x="985" y="1621">Dashed line = dependency/implements</text>
+<text class="noteLine" x="985" y="1655">Cards are moved before routing lines</text>
+</g>
+<g data-from="ResilientNearCacheDecorator" data-to="NearCacheOperations">
+  <path class="edge dashed" d="M580 755 L580 580" stroke="#BE185D" marker-end="url(#triangle-pink)"/>
+  <text class="edgeLabel" x="604" y="666">implements</text>
+</g>
+<g data-from="ResilientSuspendNearCacheDecorator" data-to="SuspendNearCacheOperations">
+  <path class="edge dashed" d="M1945 755 L1945 580" stroke="#7E22CE" marker-end="url(#triangle-purple)"/>
+  <text class="edgeLabel" x="1969" y="666">implements</text>
+</g>
+<g data-from="NearCacheOperations" data-to="NearCacheStatistics">
+  <path class="edge dashed" d="M910 395 L1045 395" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="950" y="374">stats()</text>
+</g>
+<g data-from="SuspendNearCacheOperations" data-to="NearCacheStatistics">
+  <path class="edge dashed" d="M1575 425 L1425 425" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1458" y="404">stats()</text>
+</g>
+<g data-from="ResilientNearCacheDecorator" data-to="ResilienceConfig">
+  <path class="edge dashed" d="M910 875 L1045 875" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="964" y="854">uses</text>
+</g>
+<g data-from="ResilientSuspendNearCacheDecorator" data-to="ResilienceConfig">
+  <path class="edge dashed" d="M1575 895 L1425 895" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1476" y="874">uses</text>
+</g>
+<g data-from="NearJCache" data-to="JCache">
+  <path class="edge dashed" d="M610 1465 L610 1335" stroke="#1D4ED8" marker-end="url(#triangle-blue)"/>
+  <text class="edgeLabel" x="634" y="1398">implements</text>
+</g>
+<g data-from="SuspendNearJCache" data-to="SuspendJCache">
+  <path class="edge dashed" d="M1810 1465 L1810 1335" stroke="#0F766E" marker-end="url(#triangle-teal)"/>
+  <text class="edgeLabel" x="1834" y="1398">implements</text>
+</g>
 </svg>
