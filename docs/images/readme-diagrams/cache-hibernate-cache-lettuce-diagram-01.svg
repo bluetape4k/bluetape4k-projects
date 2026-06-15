@@ -1,92 +1,148 @@
-<svg data-intent="Regenerate Near Cache 2-Tier Structure from the current README and source package surface for cache/hibernate-cache-lettuce." data-evidence="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce; cache/hibernate-cache-lettuce/src/main/kotlin" data-source-read="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce; cache/hibernate-cache-lettuce/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Near Cache 2-Tier Structure">
+<svg data-intent="Explain Hibernate Lettuce near cache two-tier structure for README diagram 01." data-evidence="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt" data-source-read="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt" xmlns="http://www.w3.org/2000/svg" width="2700" height="1260" viewBox="0 0 2700 1260" role="img" aria-label="Hibernate Lettuce Near Cache Two Tier Structure Diagram">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D"/></marker>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#475569"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .card{stroke-width:1.8;filter:url(#shadow)}.kicker{font-family:"Comic Mono";font-size:14px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:25px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.foot{font-family:"Comic Mono";font-size:13px;fill:#475569}.divider{stroke-width:1.1;opacity:.42}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Near Cache 2-Tier Structure</text>
-<text class="subtitle" x="76" y="116">cache/hibernate-cache-lettuce: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Package / Import Stability</text>
+<rect class="canvas" width="2700" height="1260"/>
+<rect class="frame" x="34" y="30" width="2632" height="1200" rx="8"/>
+<text class="title" x="72" y="86">Hibernate Lettuce Near Cache 2-Tier Structure</text>
+<text class="subtitle" x="76" y="120">RegionFactory creates one region-scoped LettuceNearCache that fronts Redis with Caffeine, while StorageAccess bridges Hibernate cache operations.</text>
+<g id="HibernateRegion">
+  <rect class="card" x="120" y="265" width="470" height="250" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="142" y="296">Hibernate ORM 7.2</text>
+  <text class="cardTitle" x="142" y="329">2nd Level Cache region</text>
+  <path class="divider" d="M120 351H590" stroke="#475569"/>
+  <text class="body" x="142" y="383">entity, collection, query, timestamp regions</text>
+<text class="body" x="142" y="407">AccessType.NONSTRICT_READ_WRITE</text>
+<text class="body" x="142" y="431">Hibernate calls StorageAccess APIs</text>
+  <path class="divider" d="M120 469H590" stroke="#475569"/><text class="foot" x="142" y="498">regionName becomes the cache boundary</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Requirements</text>
+<g id="RegionFactory">
+  <rect class="card" x="740" y="220" width="540" height="300" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="kicker" x="762" y="251">RegionFactoryTemplate</text>
+  <text class="cardTitle" x="762" y="284">LettuceNearCacheRegionFactory</text>
+  <path class="divider" d="M740 306H1280" stroke="#1D4ED8"/>
+  <text class="body" x="762" y="338">parses hibernate.cache.lettuce.* properties</text>
+<text class="body" x="762" y="362">creates one RedisClient and one codec</text>
+<text class="body" x="762" y="386">caches.computeIfAbsent(regionName)</text>
+<text class="body" x="762" y="410">shares LettuceNearCache per region</text>
+  <path class="divider" d="M740 474H1280" stroke="#1D4ED8"/><text class="foot" x="762" y="503">owns cache and RedisClient lifecycle</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Architecture</text>
+<g id="Properties">
+  <rect class="card" x="740" y="820" width="540" height="280" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="kicker" x="762" y="851">configuration parser</text>
+  <text class="cardTitle" x="762" y="884">LettuceNearCacheProperties</text>
+  <path class="divider" d="M740 906H1280" stroke="#15803D"/>
+  <text class="body" x="762" y="938">redis_uri, codec, use_resp3</text>
+<text class="body" x="762" y="962">local.max_size and expire_after_write</text>
+<text class="body" x="762" y="986">redis_ttl.default plus per-region TTLs</text>
+<text class="body" x="762" y="1010">buildNearCacheConfig(regionName)</text>
+  <path class="divider" d="M740 1054H1280" stroke="#15803D"/><text class="foot" x="762" y="1083">timestamp region disables Redis TTL</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Near Cache 2-Tier Structure</text>
+<g id="StorageAccess">
+  <rect class="card" x="1430" y="265" width="520" height="310" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="kicker" x="1452" y="296">DomainDataStorageAccess</text>
+  <text class="cardTitle" x="1452" y="329">LettuceNearCacheStorageAccess</text>
+  <path class="divider" d="M1430 351H1950" stroke="#0F766E"/>
+  <text class="body" x="1452" y="383">normalizes Hibernate cache keys</text>
+<text class="body" x="1452" y="407">getFromCache -&gt; nearCache.get(key)</text>
+<text class="body" x="1452" y="431">putIntoCache -&gt; nearCache.put(key, value)</text>
+<text class="body" x="1452" y="455">evictData -&gt; remove or clearAll</text>
+  <path class="divider" d="M1430 529H1950" stroke="#0F766E"/><text class="foot" x="1452" y="558">Redis failures are logged and ignored or return null</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">hibernate package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">hibernate package (3)</text>
+<g id="NearCache">
+  <rect class="card" x="1430" y="820" width="520" height="280" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="kicker" x="1452" y="851">per-region near cache</text>
+  <text class="cardTitle" x="1452" y="884">LettuceNearCache</text>
+  <path class="divider" d="M1430 906H1950" stroke="#6D28D9"/>
+  <text class="body" x="1452" y="938">cacheName == regionName</text>
+<text class="body" x="1452" y="962">read path: L1 first, then Redis L2</text>
+<text class="body" x="1452" y="986">write-through: local and Redis are updated</text>
+<text class="body" x="1452" y="1010">evict: key removal or whole-region clearAll</text>
+  <path class="divider" d="M1430 1054H1950" stroke="#6D28D9"/><text class="foot" x="1452" y="1083">RegionFactory reuses the same instance per region</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">LettuceNearCacheProperties type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">LettuceNearCacheProperties</text>
-  <text class="detail" x="581" y="591" text-anchor="middle">type</text>
+<g id="L1">
+  <rect class="card" x="2130" y="640" width="420" height="230" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="kicker" x="2152" y="671">tier 1</text>
+  <text class="cardTitle" x="2152" y="704">Caffeine local cache</text>
+  <path class="divider" d="M2130 726H2550" stroke="#C2410C"/>
+  <text class="body" x="2152" y="758">fast in-process reads</text>
+<text class="body" x="2152" y="782">maxLocalSize bound</text>
+<text class="body" x="2152" y="806">expireAfterWrite controls freshness</text>
+  <path class="divider" d="M2130 824H2550" stroke="#C2410C"/><text class="foot" x="2152" y="853">cleared on evict and invalidation</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">LettuceNearCacheRegionFactory type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">LettuceNearCacheRegionFactory</text>
-  <text class="detail" x="919" y="591" text-anchor="middle">type</text>
+<g id="L2">
+  <rect class="card" x="2130" y="950" width="420" height="250" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="kicker" x="2152" y="981">tier 2</text>
+  <text class="cardTitle" x="2152" y="1014">Redis backing cache</text>
+  <path class="divider" d="M2130 1036H2550" stroke="#BE185D"/>
+  <text class="body" x="2152" y="1068">shared distributed cache</text>
+<text class="body" x="2152" y="1092">region-prefixed keys avoid collisions</text>
+<text class="body" x="2152" y="1116">codec selected from LettuceBinaryCodecs</text>
+<text class="body" x="2152" y="1140">TTL comes from default or region override</text>
+  <path class="divider" d="M2130 1154H2550" stroke="#BE185D"/><text class="foot" x="2152" y="1183">RESP3 enables client tracking</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">LettuceNearCacheStorageAccess type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">LettuceNearCacheStorageAccess</text>
-  <text class="detail" x="1257" y="591" text-anchor="middle">type</text>
+<g id="DbFallback">
+  <rect class="card" x="120" y="900" width="470" height="220" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="kicker" x="142" y="931">miss / failure behavior</text>
+  <text class="cardTitle" x="142" y="964">Database fallback</text>
+  <path class="divider" d="M120 986H590" stroke="#475569"/>
+  <text class="body" x="142" y="1018">get failure returns null</text>
+<text class="body" x="142" y="1042">Hibernate can load from DB</text>
+<text class="body" x="142" y="1066">put/evict failures do not break transactions</text>
+  <path class="divider" d="M120 1074H590" stroke="#475569"/><text class="foot" x="142" y="1103">cache is an optimization layer</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
+<g data-from="HibernateRegion" data-to="RegionFactory">
+  <path class="edge " d="M590 390 L665 350 L740 360" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="610" y="330">requests region access</text>
 </g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Redis backend</text>
+<g data-from="Properties" data-to="RegionFactory">
+  <path class="edge dashed" d="M1010 820 L1010 520" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="1028" y="690">builds config and codec</text>
 </g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Serialization</text>
+<g data-from="RegionFactory" data-to="StorageAccess">
+  <path class="edge " d="M1280 390 L1365 330 L1430 365" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="1308" y="318">creates StorageAccess</text>
 </g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
+<g data-from="StorageAccess" data-to="NearCache">
+  <path class="edge " d="M1690 575 L1690 820" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <text class="edgeLabel" x="1710" y="705">delegates operations</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<g data-from="NearCache" data-to="L1">
+  <path class="edge " d="M1950 895 L2040 842 L2130 765" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="1985" y="848">L1 read/write/evict</text>
+</g>
+<g data-from="NearCache" data-to="L2">
+  <path class="edge " d="M1950 1010 L2040 1060 L2130 1080" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1982" y="1058">L2 read/write/evict</text>
+</g>
+<g data-from="L2" data-to="L1">
+  <path class="edge dashed" d="M2340 950 L2340 870" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="2358" y="920">client tracking invalidation</text>
+</g>
+<g data-from="StorageAccess" data-to="DbFallback">
+  <path class="edge dashed" d="M1430 470 L1340 470 L1340 720 L360 720 L360 900" stroke="#475569" marker-end="url(#arrow-slate)"/>
+  <text class="edgeLabel" x="760" y="700">null on cache read failure</text>
+</g>
 </svg>

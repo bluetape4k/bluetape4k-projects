@@ -1,92 +1,200 @@
-<svg data-intent="Regenerate Layer Structure from the current README and source package surface for cache/hibernate-cache-lettuce." data-evidence="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce; cache/hibernate-cache-lettuce/src/main/kotlin" data-source-read="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce; cache/hibernate-cache-lettuce/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="Layer Structure">
+<svg data-intent="Explain Hibernate Lettuce cache module layer structure for README diagram 02." data-evidence="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt" data-source-read="cache/hibernate-cache-lettuce/README.md; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheProperties.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheRegionFactory.kt; cache/hibernate-cache-lettuce/src/main/kotlin/io/bluetape4k/hibernate/cache/lettuce/LettuceNearCacheStorageAccess.kt" xmlns="http://www.w3.org/2000/svg" width="2700" height="1620" viewBox="0 0 2700 1620" role="img" aria-label="Hibernate Lettuce Cache Layer Structure Diagram">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
+  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+
+  <marker id="arrow-teal" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#0F766E"/></marker>
+
+  <marker id="arrow-blue" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#1D4ED8"/></marker>
+
+  <marker id="arrow-green" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#15803D"/></marker>
+
+  <marker id="arrow-amber" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#C2410C"/></marker>
+
+  <marker id="arrow-pink" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#BE185D"/></marker>
+
+  <marker id="arrow-slate" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#475569"/></marker>
+
+  <marker id="arrow-violet" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="#6D28D9"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
     .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
+    .title{font-family:"Architects Daughter";font-size:47px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
+    .band{stroke-width:1.4;opacity:.38}.bandLabel{font-family:"Comic Mono";font-size:16px;font-weight:700;fill:#334155}
+    .card{stroke-width:1.8;filter:url(#shadow)}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}
+    .body{font-family:"Comic Mono";font-size:14px;fill:#334155}.divider{stroke-width:1.1;opacity:.42}
+    .edge{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 7}.edgeLabel{font-family:"Comic Mono";font-size:13px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">Layer Structure</text>
-<text class="subtitle" x="76" y="116">cache/hibernate-cache-lettuce: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Package / Import Stability</text>
+<rect class="canvas" width="2700" height="1620"/>
+<rect class="frame" x="34" y="30" width="2632" height="1560" rx="8"/>
+<text class="title" x="72" y="86">Hibernate Lettuce Cache Layer Structure</text>
+<text class="subtitle" x="76" y="120">A vertical view of how Hibernate settings become region-scoped StorageAccess, NearCache configuration, and Caffeine plus Redis infrastructure.</text>
+<g id="ConfigLayer">
+  <rect class="band" x="90" y="180" width="2520" height="210" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="bandLabel" x="112" y="214">configuration layer</text>
 </g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Requirements</text>
+<g id="HibernateProps">
+  <rect class="card" x="260" y="230" width="610" height="125" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="282" y="268">hibernate.cache.lettuce.*</text>
+  <path class="divider" d="M260 288H870" stroke="#15803D"/>
+  <text class="body" x="282" y="318">redis_uri, codec, use_resp3</text>
+<text class="body" x="282" y="341">local sizing, local expiry, Redis TTL overrides</text>
 </g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">Architecture</text>
+<g id="Properties">
+  <rect class="card" x="1060" y="230" width="610" height="125" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="1082" y="268">LettuceNearCacheProperties</text>
+  <path class="divider" d="M1060 288H1670" stroke="#15803D"/>
+  <text class="body" x="1082" y="318">validates values and parses durations</text>
+<text class="body" x="1082" y="341">creates codec and builds LettuceNearCacheConfig</text>
 </g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Near Cache 2-Tier Structure</text>
+<g id="HibernateLayer">
+  <rect class="band" x="90" y="445" width="2520" height="250" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="bandLabel" x="112" y="479">Hibernate cache SPI layer</text>
 </g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">hibernate package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">hibernate package (3)</text>
+<g id="RegionFactory">
+  <rect class="card" x="210" y="500" width="620" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="232" y="538">LettuceNearCacheRegionFactory</text>
+  <path class="divider" d="M210 558H830" stroke="#1D4ED8"/>
+  <text class="body" x="232" y="588">extends RegionFactoryTemplate</text>
+<text class="body" x="232" y="611">creates domain/query/timestamp StorageAccess</text>
+<text class="body" x="232" y="634">default access type is NONSTRICT_READ_WRITE</text>
 </g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">LettuceNearCacheProperties type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">LettuceNearCacheProperties</text>
-  <text class="detail" x="581" y="591" text-anchor="middle">type</text>
+<g id="FactoryState">
+  <rect class="card" x="1040" y="500" width="620" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="1062" y="538">factory runtime state</text>
+  <path class="divider" d="M1040 558H1660" stroke="#1D4ED8"/>
+  <text class="body" x="1062" y="588">single RedisClient per factory</text>
+<text class="body" x="1062" y="611">single LettuceBinaryCodec per factory</text>
+<text class="body" x="1062" y="634">ConcurrentHashMap regionName -&gt; LettuceNearCache</text>
 </g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">LettuceNearCacheRegionFactory type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">LettuceNearCacheRegionFactory</text>
-  <text class="detail" x="919" y="591" text-anchor="middle">type</text>
+<g id="Lifecycle">
+  <rect class="card" x="1870" y="500" width="520" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="cardTitle" x="1892" y="538">lifecycle</text>
+  <path class="divider" d="M1870 558H2390" stroke="#1D4ED8"/>
+  <text class="body" x="1892" y="588">prepareForUse initializes client</text>
+<text class="body" x="1892" y="611">releaseFromUse closes caches first</text>
+<text class="body" x="1892" y="634">ShutdownQueue also shuts RedisClient down</text>
 </g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">LettuceNearCacheStorageAccess type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">LettuceNearCacheStorageAccess</text>
-  <text class="detail" x="1257" y="591" text-anchor="middle">type</text>
+<g id="BridgeLayer">
+  <rect class="band" x="90" y="750" width="2520" height="240" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="bandLabel" x="112" y="784">Hibernate to NearCache bridge layer</text>
 </g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Spring Boot</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Spring Boot</text>
+<g id="StorageAccess">
+  <rect class="card" x="300" y="805" width="700" height="140" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="322" y="843">LettuceNearCacheStorageAccess</text>
+  <path class="divider" d="M300 863H1000" stroke="#0F766E"/>
+  <text class="body" x="322" y="893">wraps DomainDataStorageAccess</text>
+<text class="body" x="322" y="916">normalizes Hibernate cache keys</text>
+<text class="body" x="322" y="939">delegates get, put, contains, evict to nearCache</text>
 </g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Redis backend</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Redis backend</text>
+<g id="FailurePolicy">
+  <rect class="card" x="1320" y="805" width="700" height="140" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="cardTitle" x="1342" y="843">failure policy</text>
+  <path class="divider" d="M1320 863H2020" stroke="#0F766E"/>
+  <text class="body" x="1342" y="893">get failure logs and returns null</text>
+<text class="body" x="1342" y="916">put and evict failures are logged and ignored</text>
+<text class="body" x="1342" y="939">release is no-op; factory owns shared caches</text>
 </g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Serialization</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Serialization</text>
+<g id="NearCacheLayer">
+  <rect class="band" x="90" y="1045" width="2520" height="235" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="bandLabel" x="112" y="1079">bluetape4k NearCache core layer</text>
 </g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
+<g id="NearCacheConfig">
+  <rect class="card" x="270" y="1090" width="600" height="160" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="cardTitle" x="292" y="1128">LettuceNearCacheConfig</text>
+  <path class="divider" d="M270 1148H870" stroke="#6D28D9"/>
+  <text class="body" x="292" y="1178">cacheName is regionName</text>
+<text class="body" x="292" y="1201">maxLocalSize and front expiry</text>
+<text class="body" x="292" y="1224">redisTtl and RESP3 tracking flag</text>
 </g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<g id="NearCache">
+  <rect class="card" x="1040" y="1090" width="600" height="160" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="cardTitle" x="1062" y="1128">LettuceNearCache</text>
+  <path class="divider" d="M1040 1148H1640" stroke="#6D28D9"/>
+  <text class="body" x="1062" y="1178">Caffeine front cache</text>
+<text class="body" x="1062" y="1201">Redis backing cache</text>
+<text class="body" x="1062" y="1224">read-through, write-through, remove, clearAll</text>
+</g>
+<g id="RegionIsolation">
+  <rect class="card" x="1810" y="1090" width="520" height="160" rx="8" fill="#F5F3FF" stroke="#7C3AED"/>
+  <text class="cardTitle" x="1832" y="1128">region isolation</text>
+  <path class="divider" d="M1810 1148H2330" stroke="#6D28D9"/>
+  <text class="body" x="1832" y="1178">one NearCache per region</text>
+<text class="body" x="1832" y="1201">regionName prefixes Redis keys</text>
+<text class="body" x="1832" y="1224">timestamp region has no Redis TTL</text>
+</g>
+<g id="InfraLayer">
+  <rect class="band" x="90" y="1335" width="2520" height="190" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="bandLabel" x="112" y="1369">infrastructure layer</text>
+</g>
+<g id="Caffeine">
+  <rect class="card" x="310" y="1385" width="520" height="95" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="cardTitle" x="332" y="1423">Caffeine L1</text>
+  <path class="divider" d="M310 1443H830" stroke="#C2410C"/>
+  <text class="body" x="332" y="1473">process-local speed and expiry</text>
+</g>
+<g id="LettuceRedis">
+  <rect class="card" x="1090" y="1385" width="520" height="95" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="cardTitle" x="1112" y="1423">Lettuce Redis L2</text>
+  <path class="divider" d="M1090 1443H1610" stroke="#BE185D"/>
+  <text class="body" x="1112" y="1473">RedisClient, RESP3, shared TTL-backed entries</text>
+</g>
+<g id="Codec">
+  <rect class="card" x="1870" y="1385" width="520" height="95" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <text class="cardTitle" x="1892" y="1423">LettuceBinaryCodec</text>
+  <path class="divider" d="M1870 1443H2390" stroke="#15803D"/>
+  <text class="body" x="1892" y="1473">jdk/kryo/fory and compressed codec choices</text>
+</g>
+<g data-from="HibernateProps" data-to="Properties">
+  <path class="edge " d="M870 292 L1060 292" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="920" y="271">parsed by</text>
+</g>
+<g data-from="Properties" data-to="RegionFactory">
+  <path class="edge " d="M1365 355 L1365 420 L520 420 L520 500" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="900" y="440">configures</text>
+</g>
+<g data-from="RegionFactory" data-to="FactoryState">
+  <path class="edge " d="M830 575 L1040 575" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="915" y="554">owns</text>
+</g>
+<g data-from="FactoryState" data-to="Lifecycle">
+  <path class="edge " d="M1660 575 L1870 575" stroke="#1D4ED8" marker-end="url(#arrow-blue)"/>
+  <text class="edgeLabel" x="1710" y="554">shutdown order</text>
+</g>
+<g data-from="RegionFactory" data-to="StorageAccess">
+  <path class="edge " d="M520 650 L520 805" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="538" y="735">creates</text>
+</g>
+<g data-from="StorageAccess" data-to="FailurePolicy">
+  <path class="edge " d="M1000 875 L1320 875" stroke="#0F766E" marker-end="url(#arrow-teal)"/>
+  <text class="edgeLabel" x="1060" y="854">guards Redis failures</text>
+</g>
+<g data-from="StorageAccess" data-to="NearCache">
+  <path class="edge " d="M650 945 L650 1016 L1340 1016 L1340 1090" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <text class="edgeLabel" x="930" y="997">delegates to</text>
+</g>
+<g data-from="Properties" data-to="NearCacheConfig">
+  <path class="edge dashed" d="M1365 355 L1365 405 L65 405 L65 1020 L570 1020 L570 1090" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="175" y="1005">builds region config</text>
+</g>
+<g data-from="NearCacheConfig" data-to="NearCache">
+  <path class="edge " d="M870 1170 L1040 1170" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <text class="edgeLabel" x="910" y="1149">initializes</text>
+</g>
+<g data-from="NearCache" data-to="RegionIsolation">
+  <path class="edge " d="M1640 1170 L1810 1170" stroke="#6D28D9" marker-end="url(#arrow-violet)"/>
+  <text class="edgeLabel" x="1680" y="1149">scoped by</text>
+</g>
+<g data-from="NearCache" data-to="Caffeine">
+  <path class="edge " d="M1240 1250 L1240 1308 L570 1308 L570 1385" stroke="#C2410C" marker-end="url(#arrow-amber)"/>
+  <text class="edgeLabel" x="830" y="1289">front tier</text>
+</g>
+<g data-from="NearCache" data-to="LettuceRedis">
+  <path class="edge " d="M1340 1250 L1340 1385" stroke="#BE185D" marker-end="url(#arrow-pink)"/>
+  <text class="edgeLabel" x="1358" y="1325">back tier</text>
+</g>
+<g data-from="Properties" data-to="Codec">
+  <path class="edge dashed" d="M1670 292 L2520 292 L2520 1432 L2390 1432" stroke="#15803D" marker-end="url(#arrow-green)"/>
+  <text class="edgeLabel" x="2538" y="840">createCodec()</text>
+</g>
 </svg>
