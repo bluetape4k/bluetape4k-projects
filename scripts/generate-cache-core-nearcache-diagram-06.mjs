@@ -54,8 +54,8 @@ function esc(value) {
 
 function markerDefs() {
   return Object.entries(palette).map(([name, [, , dark]]) => `
-  <marker id="arrow-${name}" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M .8 .8 L 6 3.5 L .8 6.2 Z" fill="${dark}"/></marker>
-  <marker id="triangle-${name}" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 4.5 L 1 8 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="1.4"/></marker>`).join("\n");
+  <marker id="arrow-${name}" markerWidth="22" markerHeight="22" refX="19" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 19 11 L 2 20 Z" fill="${dark}"/></marker>
+  <marker id="triangle-${name}" markerWidth="26" markerHeight="22" refX="23" refY="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M 2 2 L 23 11 L 2 20 Z" fill="#FFFFFF" stroke="${dark}" stroke-width="2.2"/></marker>`).join("\n");
 }
 
 function card({ id, x, y, w, h, color, title, subtitle = "", lines = [] }) {
@@ -189,11 +189,11 @@ const body = [
   edge({ from: "SuspendNearJCache", to: "WritePath", points: [[1295, 550], [1295, 735]], color: "amber", marker: "arrow", dashed: true, label: "write API", labelAt: [1312, 655] }),
   edge({ from: "SuspendNearJCache", to: "FlowPath", points: [[1508, 550], [1508, 650], [2110, 650], [2110, 740]], color: "slate", marker: "arrow", dashed: true, label: "Flow reads", labelAt: [1760, 637] }),
   edge({ from: "ReadPath", to: "FrontCache", points: [[500, 1000], [500, 1220]], color: "blue", marker: "arrow", dashed: true, label: "front first", labelAt: [518, 1110] }),
-  edge({ from: "WritePath", to: "FrontCache", points: [[990, 865], [900, 865], [900, 1160], [800, 1160], [800, 1220]], color: "blue", marker: "arrow", dashed: true, label: "front update", labelAt: [918, 1015] }),
-  edge({ from: "WritePath", to: "BackCache", points: [[1610, 865], [1700, 865], [1700, 1220]], color: "slate", marker: "arrow", dashed: true, label: "back update", labelAt: [1718, 1040] }),
-  edge({ from: "ReadPath", to: "BackCache", points: [[810, 850], [900, 850], [900, 1110], [1510, 1110]], color: "slate", marker: "arrow", dashed: true, label: "miss lookup", labelAt: [1120, 1097] }),
-  edge({ from: "BackCache", to: "FrontCache", points: [[1510, 1340], [980, 1340]], color: "blue", marker: "arrow", dashed: true, label: "fill or event sync", labelAt: [1150, 1327] }),
-  edge({ from: "BackCache", to: "Listener", points: [[2270, 1340], [2485, 1340], [2485, 390], [2480, 390]], color: "pink", marker: "arrow", dashed: true, label: "entry events", labelAt: [2320, 1010] }),
+  edge({ from: "WritePath", to: "FrontCache", points: [[990, 875], [860, 875], [860, 1168], [790, 1168], [790, 1220]], color: "blue", marker: "arrow", dashed: true, label: "front update", labelAt: [878, 1020] }),
+  edge({ from: "WritePath", to: "BackCache", points: [[1610, 875], [1740, 875], [1740, 1168], [1840, 1168], [1840, 1220]], color: "slate", marker: "arrow", dashed: true, label: "back update", labelAt: [1758, 1026] }),
+  edge({ from: "ReadPath", to: "BackCache", points: [[810, 842], [890, 842], [890, 1108], [1470, 1108], [1470, 1260], [1510, 1260]], color: "slate", marker: "arrow", dashed: true, label: "miss lookup", labelAt: [1060, 1095] }),
+  edge({ from: "BackCache", to: "FrontCache", points: [[1510, 1348], [1220, 1348], [980, 1348]], color: "blue", marker: "arrow", dashed: true, label: "fill or event sync", labelAt: [1140, 1335] }),
+  edge({ from: "BackCache", to: "Listener", points: [[2270, 1340], [2530, 1340], [2530, 390], [2480, 390]], color: "pink", marker: "arrow", dashed: true, label: "entry events", labelAt: [2345, 1010] }),
 ];
 
 const svg = `<svg data-intent="Explain SuspendNearJCache coroutine two-tier operations for cache-core README diagram 06." data-evidence="${esc(sources.join("; "))}" data-source-read="${esc(sources.join("; "))}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="SuspendNearJCache Coroutine Operation Diagram">
