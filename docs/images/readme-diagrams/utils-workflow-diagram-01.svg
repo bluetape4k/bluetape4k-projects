@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="980" viewBox="0 0 1680 980" role="img" aria-label="Workflow Concept Overview">
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="980" viewBox="0 0 1760 980" role="img" aria-label="Workflow Concept Overview">
 <defs>
   <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
   <marker id="arrow-builds" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
@@ -8,9 +8,6 @@
     <path d="M2 2 L18 8 L2 14 Z" fill="#2563EB"/>
   </marker>
   <marker id="arrow-contextInput" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
-    <path d="M2 2 L18 8 L2 14 Z" fill="#EA580C"/>
-  </marker>
-  <marker id="arrow-stateVisible" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
     <path d="M2 2 L18 8 L2 14 Z" fill="#EA580C"/>
   </marker>
   <marker id="arrow-dispatch" markerWidth="20" markerHeight="16" refX="18" refY="8" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 20 16">
@@ -39,109 +36,104 @@
     .legend text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1680" height="980"/>
-<rect class="frame" x="38" y="30" width="1604" height="914" rx="8"/>
+<rect class="canvas" width="1760" height="980"/>
+<rect class="frame" x="38" y="30" width="1684" height="914" rx="8"/>
 <text class="title" x="78" y="86">Workflow Concept Overview</text>
 <text class="subtitle" x="82" y="118">DSL builders compose sync and suspend work units; each unit receives shared context and returns a WorkReport that drives flow control.</text>
 
 <g id="edges">
-  <path class="edge" data-from="dsl" data-to="flow" d="M430 445 L1100 445" stroke="#2563EB" marker-end="url(#arrow-builds)"/>
-  <path class="edge dashed" data-from="dsl" data-to="work" d="M430 505 L500 505 L500 594 L560 594" stroke="#2563EB" marker-end="url(#arrow-adds)"/>
-  <path class="edge" data-from="context" data-to="work" d="M740 348 L740 530" stroke="#EA580C" marker-end="url(#arrow-contextInput)"/>
-  <path class="edge dashed" data-from="context" data-to="flow" d="M920 284 L1040 284 L1040 385 L1100 385" stroke="#EA580C" marker-end="url(#arrow-stateVisible)"/>
-  <path class="edge" data-from="flow" data-to="work" d="M1100 505 L1010 505 L1010 594 L920 594" stroke="#16A34A" marker-end="url(#arrow-dispatch)"/>
-  <path class="edge" data-from="work" data-to="report" d="M740 658 L740 765" stroke="#0D9488" marker-end="url(#arrow-returns)"/>
-  <path class="edge dashed" data-from="report" data-to="flow" d="M920 829 L1040 829 L1040 517 L1100 517" stroke="#9333EA" marker-end="url(#arrow-controls)"/>
+  <path class="edge" data-from="dsl" data-to="flow" d="M470 255 L1180 255" stroke="#2563EB" marker-end="url(#arrow-builds)"/>
+  <path class="edge dashed" data-from="dsl" data-to="work" d="M290 320 L290 445 L960 445 L960 500" stroke="#2563EB" marker-end="url(#arrow-adds)"/>
+  <path class="edge" data-from="context" data-to="work" d="M760 584 L900 584" stroke="#EA580C" marker-end="url(#arrow-contextInput)"/>
+  <path class="edge" data-from="flow" data-to="work" d="M1395 328 L1395 564 L1310 564" stroke="#16A34A" marker-end="url(#arrow-dispatch)"/>
+  <path class="edge" data-from="work" data-to="report" d="M1105 632 L1105 730" stroke="#0D9488" marker-end="url(#arrow-returns)"/>
+  <path class="edge dashed" data-from="report" data-to="flow" d="M1310 796 L1510 796 L1510 328" stroke="#9333EA" marker-end="url(#arrow-controls)"/>
 </g>
 <g id="labels">
-  <g class="edgeLabel" transform="translate(647 406)">
+  <g class="edgeLabel" transform="translate(712 215)">
   <rect width="226" height="30" rx="8"/>
   <text x="113" y="20" text-anchor="middle">builds orchestration graph</text>
 </g>
-  <g class="edgeLabel" transform="translate(382 545)">
+  <g class="edgeLabel" transform="translate(538 405)">
   <rect width="176" height="30" rx="8"/>
   <text x="88" y="20" text-anchor="middle">adds execute blocks</text>
 </g>
-  <g class="edgeLabel" transform="translate(793 472)">
+  <g class="edgeLabel" transform="translate(777 600)">
   <rect width="106" height="30" rx="8"/>
   <text x="53" y="20" text-anchor="middle">input state</text>
 </g>
-  <g class="edgeLabel" transform="translate(957 241)">
-  <rect width="156" height="30" rx="8"/>
-  <text x="78" y="20" text-anchor="middle">shared across run</text>
-</g>
-  <g class="edgeLabel" transform="translate(942 620)">
+  <g class="edgeLabel" transform="translate(1356 437)">
   <rect width="144" height="30" rx="8"/>
   <text x="72" y="20" text-anchor="middle">dispatches units</text>
 </g>
-  <g class="edgeLabel" transform="translate(752 702)">
+  <g class="edgeLabel" transform="translate(1124 669)">
   <rect width="124" height="30" rx="8"/>
   <text x="62" y="20" text-anchor="middle">returns result</text>
 </g>
-  <g class="edgeLabel" transform="translate(1045 663)">
+  <g class="edgeLabel" transform="translate(1463 565)">
   <rect width="158" height="30" rx="8"/>
   <text x="79" y="20" text-anchor="middle">controls next step</text>
 </g>
 </g>
 
 <g id="dsl">
-  <rect class="card" x="90" y="385" width="340" height="120" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <g class="icon" transform="translate(114 409)" stroke="#2563EB">
+  <rect class="card" x="110" y="190" width="360" height="130" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(134 214)" stroke="#2563EB">
     <path d="M22 4 C12 4 13 18 8 21 C13 24 12 38 22 38" fill="none"/>
     <path d="M42 4 C52 4 51 18 56 21 C51 24 52 38 42 38" fill="none"/>
     <circle cx="32" cy="21" r="4" fill="#2563EB" stroke="none"/>
   </g>
-  <text class="cardTitle" x="260" y="425" text-anchor="middle">Workflow DSL</text>
-  <text class="detail" x="260" y="463" text-anchor="middle">workflow { ... }</text>
-<text class="detail" x="260" y="482" text-anchor="middle">sequential, parallel, retry</text>
+  <text class="cardTitle" x="290" y="230" text-anchor="middle">Workflow DSL</text>
+  <text class="detail" x="290" y="268" text-anchor="middle">workflow { ... }</text>
+<text class="detail" x="290" y="287" text-anchor="middle">sequential, parallel, retry</text>
 </g>
 <g id="context">
-  <rect class="card" x="560" y="220" width="360" height="128" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <g class="icon" transform="translate(584 244)" stroke="#EA580C">
+  <rect class="card" x="350" y="500" width="410" height="132" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(374 524)" stroke="#EA580C">
     <ellipse cx="31" cy="9" rx="25" ry="8" fill="#FFFFFF"/>
     <path d="M6 9 V35 C6 40 56 40 56 35 V9" fill="#FFFFFF"/>
     <path d="M6 22 C6 27 56 27 56 22" fill="none"/>
     <ellipse cx="31" cy="9" rx="25" ry="8" fill="none"/>
   </g>
-  <text class="cardTitle" x="740" y="260" text-anchor="middle">WorkContext</text>
-  <text class="detail" x="740" y="298" text-anchor="middle">ConcurrentHashMap-backed state</text>
-<text class="detail" x="740" y="317" text-anchor="middle">get, set, compute, merge</text>
+  <text class="cardTitle" x="555" y="540" text-anchor="middle">WorkContext</text>
+  <text class="detail" x="555" y="578" text-anchor="middle">ConcurrentHashMap-backed state</text>
+<text class="detail" x="555" y="597" text-anchor="middle">get, set, compute, merge</text>
 </g>
 <g id="work">
-  <rect class="card" x="560" y="530" width="360" height="128" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <g class="icon" transform="translate(584 554)" stroke="#16A34A">
+  <rect class="card" x="900" y="500" width="410" height="132" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(924 524)" stroke="#16A34A">
     <rect x="5" y="6" width="52" height="36" rx="7" fill="#FFFFFF"/>
     <path d="M20 17 L13 24 L20 31" fill="none"/>
     <path d="M42 17 L49 24 L42 31" fill="none"/>
     <path d="M35 14 L27 34" fill="none"/>
   </g>
-  <text class="cardTitle" x="762" y="570" text-anchor="middle">Work / SuspendWork</text>
-  <text class="detail" x="740" y="608" text-anchor="middle">execute(context): WorkReport</text>
-<text class="detail" x="740" y="627" text-anchor="middle">sync Work and suspend Work</text>
+  <text class="cardTitle" x="1127" y="540" text-anchor="middle">Work / SuspendWork</text>
+  <text class="detail" x="1105" y="578" text-anchor="middle">execute(context): WorkReport</text>
+<text class="detail" x="1105" y="597" text-anchor="middle">sync Work and suspend Work</text>
 </g>
 <g id="flow">
-  <rect class="card" x="1100" y="385" width="390" height="132" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <g class="icon" transform="translate(1124 409)" stroke="#9333EA">
+  <rect class="card" x="1180" y="190" width="430" height="138" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <g class="icon" transform="translate(1204 214)" stroke="#9333EA">
     <circle cx="13" cy="22" r="8" fill="#FFFFFF"/>
     <circle cx="49" cy="10" r="8" fill="#FFFFFF"/>
     <circle cx="49" cy="34" r="8" fill="#FFFFFF"/>
     <path d="M21 22 H32 C38 22 37 10 41 10" fill="none"/>
     <path d="M21 22 H32 C38 22 37 34 41 34" fill="none"/>
   </g>
-  <text class="cardTitle" x="1329" y="425" text-anchor="middle">Flow implementations</text>
-  <text class="detail" x="1295" y="463" text-anchor="middle">Sequential, Parallel, Conditional</text>
-<text class="detail" x="1295" y="482" text-anchor="middle">Repeat and Retry strategies</text>
+  <text class="cardTitle" x="1429" y="230" text-anchor="middle">Flow implementations</text>
+  <text class="detail" x="1395" y="268" text-anchor="middle">Sequential, Parallel, Conditional</text>
+<text class="detail" x="1395" y="287" text-anchor="middle">Repeat and Retry strategies</text>
 </g>
 <g id="report">
-  <rect class="card" x="560" y="765" width="360" height="128" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <g class="icon" transform="translate(584 789)" stroke="#0D9488">
+  <rect class="card" x="900" y="730" width="410" height="132" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(924 754)" stroke="#0D9488">
     <rect x="6" y="7" width="50" height="36" rx="7" fill="#FFFFFF"/>
     <path d="M17 19 H45 M17 30 H38" fill="none"/>
     <circle cx="47" cy="31" r="5" fill="#0D9488" stroke="none"/>
   </g>
-  <text class="cardTitle" x="762" y="805" text-anchor="middle">WorkReport outcomes</text>
-  <text class="detail" x="740" y="843" text-anchor="middle">Success / Failure / PartialSuccess</text>
-<text class="detail" x="740" y="862" text-anchor="middle">Aborted and Cancelled terminate</text>
+  <text class="cardTitle" x="1127" y="770" text-anchor="middle">WorkReport outcomes</text>
+  <text class="detail" x="1105" y="808" text-anchor="middle">Success / Failure / PartialSuccess</text>
+<text class="detail" x="1105" y="827" text-anchor="middle">Aborted and Cancelled terminate</text>
 </g>
 
 <g class="legend" transform="translate(94 900)">

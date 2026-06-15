@@ -1,68 +1,53 @@
-<svg data-intent="Explain workflow failure handling by showing exception capture, retry/backoff policy, compensation or fallback branch, and terminal failure reporting." data-evidence="utils/workflow/README.md; utils/workflow/src/main/kotlin" data-source-read="utils/workflow/README.md; utils/workflow/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1700" height="850" viewBox="0 0 1700 850" role="img" aria-label="Conditional Flow Branching" data-layout="decision-flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1700" height="850"/>
-<rect class="frame" x="34" y="30" width="1632" height="790" rx="8"/>
-<text class="title" x="72" y="84">Conditional Flow Branching</text>
-<text class="subtitle" x="76" y="116">The predicate chooses exactly one branch; a missing otherwise branch is a successful no-op, not a hidden failure path.</text>
-<g id="start">
-  <rect class="card" x="145" y="330" width="290" height="78" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="290" y="362" text-anchor="middle" dominant-baseline="middle">Conditional flow</text>
-  <text class="detail" x="290" y="392" text-anchor="middle" dominant-baseline="middle">evaluate predicate</text>
-</g>
-<g id="predicate">
-  <polygon class="card card-shape" points="735,285 910,355 735,425 560,355" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="735" y="347" text-anchor="middle" dominant-baseline="middle">Predicate true?</text>
-  <text class="detail" x="735" y="376" text-anchor="middle" dominant-baseline="middle">WorkContext -&gt; Boolean</text>
-</g>
-<g id="then">
-  <rect class="card" x="1040" y="220" width="330" height="86" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1205" y="256" text-anchor="middle" dominant-baseline="middle">Then work</text>
-  <text class="detail" x="1205" y="286" text-anchor="middle" dominant-baseline="middle">execute selected branch</text>
-</g>
-<g id="otherwise">
-  <rect class="card" x="1040" y="430" width="330" height="86" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1205" y="466" text-anchor="middle" dominant-baseline="middle">Otherwise work</text>
-  <text class="detail" x="1205" y="496" text-anchor="middle" dominant-baseline="middle">optional false branch</text>
-</g>
-<g id="default">
-  <rect class="card" x="610" y="635" width="330" height="82" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="775" y="669" text-anchor="middle" dominant-baseline="middle">Default Success</text>
-  <text class="detail" x="775" y="699" text-anchor="middle" dominant-baseline="middle">when otherwise is absent</text>
-</g>
-<g id="report">
-  <rect class="card" x="1370" y="345" width="260" height="110" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1500" y="393" text-anchor="middle" dominant-baseline="middle">Branch WorkReport</text>
-  <text class="detail" x="1500" y="423" text-anchor="middle" dominant-baseline="middle">returned unchanged</text>
-</g>
-<path class="route" data-from="start" data-to="predicate" d="M435 369 L560 355" stroke="#1D4ED8"/>
-<path class="route" data-from="predicate" data-to="then" d="M910 355 L1040 263" stroke="#15803D"/>
-<g><rect class="labelPill" x="954" y="272" width="52" height="26" rx="8"/><text class="detail" x="980" y="286" text-anchor="middle" dominant-baseline="middle" style="fill:#15803D">yes</text></g>
-<path class="route" data-from="predicate" data-to="otherwise" d="M910 355 L1040 473" stroke="#BE185D"/>
-<g><rect class="labelPill" x="956" y="417" width="48" height="26" rx="8"/><text class="detail" x="980" y="431" text-anchor="middle" dominant-baseline="middle" style="fill:#BE185D">no</text></g>
-<path class="route dashed" data-from="predicate" data-to="default" d="M735 425 L735 635" stroke="#C2410C"/>
-<g><rect class="labelPill" x="741" y="521" width="102" height="26" rx="8"/><text class="detail" x="792" y="535" text-anchor="middle" dominant-baseline="middle" style="fill:#C2410C">no branch</text></g>
-<path class="route" data-from="then" data-to="report" d="M1370 263 L1498 345" stroke="#15803D"/>
-<path class="route" data-from="otherwise" data-to="report" d="M1370 473 L1498 455" stroke="#BE185D"/>
-<path class="route dashed" data-from="default" data-to="report" d="M940 676 L1500 676 L1500 455" stroke="#C2410C"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-label="Conditional Flow Branching">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-evaluate" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+<marker id="arrow-yes" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-missing" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<marker id="arrow-no" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
+<marker id="arrow-thenReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-noopReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<marker id="arrow-otherwiseReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1680" height="900"/><rect class="frame" x="38" y="30" width="1604" height="834" rx="8"/>
+<text class="title" x="78" y="86">Conditional Flow Branching</text>
+<text class="subtitle" x="82" y="118">The predicate selects exactly one branch. Sync returns branch reports; suspend converts non-cancellation exceptions to Failure.</text>
+<g id="edges"><path class="edge" d="M840 306 L840 350" stroke="#2563EB" marker-end="url(#arrow-evaluate)"/>
+<path class="edge" d="M675 435 L520 435 L520 560" stroke="#16A34A" marker-end="url(#arrow-yes)"/>
+<path class="edge dashed" d="M840 520 L840 560" stroke="#EA580C" marker-end="url(#arrow-missing)"/>
+<path class="edge" d="M1005 435 L1160 435 L1160 560" stroke="#DB2777" marker-end="url(#arrow-no)"/>
+<path class="edge" d="M400 678 L400 782 L580 782" stroke="#16A34A" marker-end="url(#arrow-thenReport)"/>
+<path class="edge dashed" d="M840 678 L840 725" stroke="#EA580C" marker-end="url(#arrow-noopReport)"/>
+<path class="edge" d="M1280 678 L1280 782 L1100 782" stroke="#DB2777" marker-end="url(#arrow-otherwiseReport)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(869 315)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">evaluate</text></g>
+<g class="edgeLabel" transform="translate(531 395)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">true</text></g>
+<g class="edgeLabel" transform="translate(883 525)"><rect width="94" height="30" rx="8"/><text x="47" y="20" text-anchor="middle">no branch</text></g>
+<g class="edgeLabel" transform="translate(1089 395)"><rect width="62" height="30" rx="8"/><text x="31" y="20" text-anchor="middle">false</text></g>
+<g class="edgeLabel" transform="translate(437 745)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">returns</text></g>
+<g class="edgeLabel" transform="translate(879 689)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">success</text></g>
+<g class="edgeLabel" transform="translate(1165 745)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">returns</text></g></g>
+<g id="start"><rect class="card" x="635" y="190" width="410" height="116" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(659 214)" stroke="#2563EB"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M24 17 L40 28 L24 39 Z" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="864" y="232" text-anchor="middle">Conditional flow</text>
+  <text class="detail" x="840" y="268" text-anchor="middle">condition { ctx -&gt; ... }</text>
+  <text class="detail" x="840" y="287" text-anchor="middle">shared WorkContext</text></g>
+<g id="decision"><polygon class="card" points="840,350 1005,435 840,520 675,435" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="840" y="427" text-anchor="middle">Predicate true?</text>
+  <text class="detail" x="840" y="458" text-anchor="middle">WorkContext -&gt; Boolean</text></g>
+<g id="then"><rect class="card" x="220" y="560" width="360" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(244 584)" stroke="#16A34A"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="424" y="602" text-anchor="middle">Then work</text>
+  <text class="detail" x="400" y="638" text-anchor="middle">execute selected true branch</text></g>
+<g id="otherwise"><rect class="card" x="1100" y="560" width="360" height="118" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(1124 584)" stroke="#DB2777"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="1304" y="602" text-anchor="middle">Otherwise work</text>
+  <text class="detail" x="1280" y="638" text-anchor="middle">optional false branch</text></g>
+<g id="noop"><rect class="card" x="660" y="560" width="360" height="118" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(684 584)" stroke="#EA580C"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M18 29 L26 37 L40 19" fill="none"/></g>
+  <text class="cardTitle" x="864" y="602" text-anchor="middle">Default Success</text>
+  <text class="detail" x="840" y="638" text-anchor="middle">when otherwise is absent</text></g>
+<g id="report"><rect class="card" x="580" y="725" width="520" height="114" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(604 749)" stroke="#0D9488"><rect x="8" y="10" width="48" height="36" rx="7" fill="#fff"/><path d="M18 24 H44 M18 34 H38" fill="none"/><circle cx="46" cy="35" r="4" fill="#0D9488" stroke="none"/></g>
+  <text class="cardTitle" x="864" y="767" text-anchor="middle">Branch WorkReport</text>
+  <text class="detail" x="840" y="803" text-anchor="middle">branch report returned</text>
+  <text class="detail" x="840" y="822" text-anchor="middle">or default success</text></g>
 </svg>

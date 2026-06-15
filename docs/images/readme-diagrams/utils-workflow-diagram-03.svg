@@ -1,75 +1,94 @@
-<svg data-intent="Explain workflow retry flow by showing failure detection, backoff, retry decision, repeated execution, and terminal failed/completed branches." data-evidence="utils/workflow/README.md; utils/workflow/src/main/kotlin" data-source-read="utils/workflow/README.md; utils/workflow/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-label="Workflow Execution Model" data-layout="decision-flow">
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="940" viewBox="0 0 1680 940" role="img" aria-label="Workflow Execution Model">
 <defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
+  <filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+  <marker id="arrow-syncBuild" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+  <marker id="arrow-suspendBuild" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
+  <marker id="arrow-syncRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#65A30D"/></marker>
+  <marker id="arrow-suspendRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+  <marker id="arrow-dslFamilies" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+  <marker id="arrow-runtimeReportA" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
+  <marker id="arrow-runtimeReportB" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
+  <marker id="arrow-familiesReport" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
   <style>
     svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
+    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}
     .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}
+    .icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}
+    .edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}
   </style>
 </defs>
-<rect class="canvas" width="1500" height="940"/>
-<rect class="frame" x="34" y="30" width="1432" height="880" rx="8"/>
-<text class="title" x="72" y="84">Workflow Execution Model</text>
-<text class="subtitle" x="76" y="116">The same DSL selects sync or suspend execution while flow families and runtime primitives converge on the shared WorkReport contract.</text>
-<g id="caller">
-  <rect class="card" x="120" y="210" width="320" height="80" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="280" y="243" text-anchor="middle" dominant-baseline="middle">Caller DSL</text>
-  <text class="detail" x="280" y="273" text-anchor="middle" dominant-baseline="middle">builds workflow definition</text>
+<rect class="canvas" width="1680" height="940"/>
+<rect class="frame" x="38" y="30" width="1604" height="874" rx="8"/>
+<text class="title" x="78" y="86">Workflow Execution Model</text>
+<text class="subtitle" x="82" y="118">The same workflow shape can execute as sync WorkFlow or suspend WorkFlow; runtime primitives differ, but results converge on WorkReport.</text>
+<g id="edges">
+  <path class="edge" d="M445 322 L500 322 L500 253 L555 253" stroke="#16A34A" marker-end="url(#arrow-syncBuild)"/>
+  <path class="edge" d="M445 370 L500 370 L500 483 L555 483" stroke="#0D9488" marker-end="url(#arrow-suspendBuild)"/>
+  <path class="edge" d="M945 253 L1110 253" stroke="#65A30D" marker-end="url(#arrow-syncRuntime)"/>
+  <path class="edge" d="M945 483 L1110 483" stroke="#9333EA" marker-end="url(#arrow-suspendRuntime)"/>
+  <path class="edge dashed" d="M270 412 L270 733 L330 733" stroke="#EA580C" marker-end="url(#arrow-dslFamilies)"/>
+  <path class="edge" d="M1520 253 L1580 253 L1580 733 L1360 733" stroke="#DB2777" marker-end="url(#arrow-runtimeReportA)"/>
+  <path class="edge" d="M1315 546 L1315 610 L1145 610 L1145 670" stroke="#DB2777" marker-end="url(#arrow-runtimeReportB)"/>
+  <path class="edge" d="M760 733 L930 733" stroke="#2563EB" marker-end="url(#arrow-familiesReport)"/>
 </g>
-<g id="model">
-  <polygon class="card card-shape" points="745,185 920,250 745,315 570,250" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="745" y="242" text-anchor="middle" dominant-baseline="middle">Use sync model?</text>
-  <text class="detail" x="745" y="271" text-anchor="middle" dominant-baseline="middle">no branch uses suspend</text>
+<g id="labels">
+  <g class="edgeLabel" transform="translate(442 277)"><rect width="122" height="30" rx="8"/><text x="61" y="20" text-anchor="middle">sync builders</text></g>
+  <g class="edgeLabel" transform="translate(432 411)"><rect width="148" height="30" rx="8"/><text x="74" y="20" text-anchor="middle">suspend builders</text></g>
+  <g class="edgeLabel" transform="translate(972 213)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">parallel uses</text></g>
+  <g class="edgeLabel" transform="translate(972 443)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">parallel uses</text></g>
+  <g class="edgeLabel" transform="translate(198 595)"><rect width="148" height="30" rx="8"/><text x="74" y="20" text-anchor="middle">shared flow types</text></g>
+  <g class="edgeLabel" transform="translate(1518 491)"><rect width="128" height="30" rx="8"/><text x="64" y="20" text-anchor="middle">returns report</text></g>
+  <g class="edgeLabel" transform="translate(1178 577)"><rect width="108" height="30" rx="8"/><text x="54" y="20" text-anchor="middle">same result</text></g>
+  <g class="edgeLabel" transform="translate(774 693)"><rect width="142" height="30" rx="8"/><text x="71" y="20" text-anchor="middle">unified contract</text></g>
+</g>
+<g id="dsl">
+  <rect class="card" x="95" y="280" width="350" height="132" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(119 304)" stroke="#2563EB"><path d="M22 4 C12 4 13 18 8 21 C13 24 12 38 22 38" fill="none"/><path d="M42 4 C52 4 51 18 56 21 C51 24 52 38 42 38" fill="none"/><circle cx="32" cy="21" r="4" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="292" y="320" text-anchor="middle">Caller DSL</text>
+  <text class="detail" x="270" y="358" text-anchor="middle">workflow / sequentialFlow</text>
+  <text class="detail" x="270" y="377" text-anchor="middle">suspendWorkflow variants</text>
 </g>
 <g id="sync">
-  <rect class="card" x="1050" y="160" width="330" height="82" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="1215" y="194" text-anchor="middle" dominant-baseline="middle">Sync WorkFlow</text>
-  <text class="detail" x="1215" y="224" text-anchor="middle" dominant-baseline="middle">virtual-thread friendly work</text>
+  <rect class="card" x="555" y="190" width="390" height="126" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(579 214)" stroke="#16A34A"><rect x="7" y="10" width="50" height="34" rx="7" fill="#fff"/><path d="M18 27 H46 M38 19 L46 27 L38 35" fill="none"/></g>
+  <text class="cardTitle" x="772" y="230" text-anchor="middle">Sync WorkFlow</text>
+  <text class="detail" x="750" y="268" text-anchor="middle">WorkFlow extends Work</text>
+  <text class="detail" x="750" y="287" text-anchor="middle">blocking API, virtual-thread friendly</text>
 </g>
 <g id="suspend">
-  <rect class="card" x="1050" y="295" width="330" height="82" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="1215" y="329" text-anchor="middle" dominant-baseline="middle">SuspendWorkFlow</text>
-  <text class="detail" x="1215" y="359" text-anchor="middle" dominant-baseline="middle">coroutine cancellation aware</text>
+  <rect class="card" x="555" y="420" width="390" height="126" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(579 444)" stroke="#0D9488"><circle cx="18" cy="28" r="9" fill="#fff"/><circle cx="42" cy="28" r="9" fill="#fff"/><path d="M27 28 H33" fill="none"/></g>
+  <text class="cardTitle" x="772" y="460" text-anchor="middle">SuspendWorkFlow</text>
+  <text class="detail" x="750" y="498" text-anchor="middle">SuspendWorkFlow extends SuspendWork</text>
+  <text class="detail" x="750" y="517" text-anchor="middle">cancellation-aware suspend API</text>
+</g>
+<g id="syncRuntime">
+  <rect class="card" x="1110" y="190" width="410" height="126" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
+  <g class="icon" transform="translate(1134 214)" stroke="#65A30D"><circle cx="30" cy="28" r="22" fill="#fff"/><path d="M30 12 V28 L43 36" fill="none"/></g>
+  <text class="cardTitle" x="1337" y="230" text-anchor="middle">Virtual-thread runtime</text>
+  <text class="detail" x="1315" y="268" text-anchor="middle">StructuredTaskScope</text>
+  <text class="detail" x="1315" y="287" text-anchor="middle">timeout returns Cancelled</text>
+</g>
+<g id="suspendRuntime">
+  <rect class="card" x="1110" y="420" width="410" height="126" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <g class="icon" transform="translate(1134 444)" stroke="#9333EA"><circle cx="18" cy="28" r="9" fill="#fff"/><circle cx="42" cy="28" r="9" fill="#fff"/><path d="M27 28 H33" fill="none"/></g>
+  <text class="cardTitle" x="1337" y="460" text-anchor="middle">Coroutine runtime</text>
+  <text class="detail" x="1315" y="498" text-anchor="middle">coroutineScope, async, awaitAll</text>
+  <text class="detail" x="1315" y="517" text-anchor="middle">delay and CancellationException</text>
 </g>
 <g id="families">
-  <rect class="card" x="250" y="500" width="410" height="116" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="455" y="542" text-anchor="middle" dominant-baseline="middle">Flow families</text>
-  <text class="detail" x="455" y="572" text-anchor="middle" dominant-baseline="middle">sequential, parallel, conditional</text>
-  <text class="detail" x="455" y="590" text-anchor="middle" dominant-baseline="middle">repeat, retry</text>
-</g>
-<g id="runtime">
-  <rect class="card" x="860" y="480" width="420" height="126" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1070" y="527" text-anchor="middle" dominant-baseline="middle">Runtime primitives</text>
-  <text class="detail" x="1070" y="557" text-anchor="middle" dominant-baseline="middle">StructuredTaskScope for sync parallel</text>
-  <text class="detail" x="1070" y="575" text-anchor="middle" dominant-baseline="middle">coroutineScope + delay for suspend</text>
+  <rect class="card" x="330" y="670" width="430" height="126" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(354 694)" stroke="#EA580C"><circle cx="12" cy="28" r="7" fill="#fff"/><circle cx="32" cy="16" r="7" fill="#fff"/><circle cx="52" cy="28" r="7" fill="#fff"/><circle cx="32" cy="40" r="7" fill="#fff"/><path d="M19 26 L25 20 M39 20 L46 26 M45 31 L39 37 M25 36 L19 30" fill="none"/></g>
+  <text class="cardTitle" x="567" y="710" text-anchor="middle">Flow families</text>
+  <text class="detail" x="545" y="748" text-anchor="middle">sequential, parallel, conditional</text>
+  <text class="detail" x="545" y="767" text-anchor="middle">repeat and retry</text>
 </g>
 <g id="report">
-  <rect class="card" x="565" y="745" width="360" height="88" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="745" y="782" text-anchor="middle" dominant-baseline="middle">WorkReport</text>
-  <text class="detail" x="745" y="812" text-anchor="middle" dominant-baseline="middle">unifies success, failure, stop states</text>
+  <rect class="card" x="930" y="670" width="430" height="126" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(954 694)" stroke="#DB2777"><rect x="8" y="10" width="48" height="36" rx="7" fill="#fff"/><path d="M18 24 H44 M18 34 H38" fill="none"/><circle cx="46" cy="35" r="4" fill="#DB2777" stroke="none"/></g>
+  <text class="cardTitle" x="1167" y="710" text-anchor="middle">WorkReport contract</text>
+  <text class="detail" x="1145" y="748" text-anchor="middle">Success / Failure / PartialSuccess</text>
+  <text class="detail" x="1145" y="767" text-anchor="middle">Aborted / Cancelled</text>
 </g>
-<path class="route" data-from="caller" data-to="model" d="M440 250 L570 250" stroke="#1D4ED8"/>
-<path class="route" data-from="model" data-to="sync" d="M920 238 L1050 201" stroke="#15803D"/>
-<g><rect class="labelPill" x="942" y="183" width="86" height="26" rx="8"/><text class="detail" x="985" y="197" text-anchor="middle" dominant-baseline="middle" style="fill:#15803D">yes sync</text></g>
-<path class="route" data-from="model" data-to="suspend" d="M920 250 L1050 336" stroke="#0F766E"/>
-<g><rect class="labelPill" x="943" y="291" width="104" height="26" rx="8"/><text class="detail" x="995" y="305" text-anchor="middle" dominant-baseline="middle" style="fill:#0F766E">no suspend</text></g>
-<path class="route" data-from="model" data-to="families" d="M745 315 L745 438 L455 438 L455 500" stroke="#C2410C"/>
-<path class="route" data-from="sync" data-to="runtime" d="M1380 201 L1430 201 L1430 543 L1280 543" stroke="#BE185D"/>
-<path class="route" data-from="suspend" data-to="runtime" d="M1215 377 L1215 480" stroke="#0F766E"/>
-<path class="route" data-from="families" data-to="report" d="M455 616 L455 700 L650 700 L650 745" stroke="#C2410C"/>
-<path class="route" data-from="runtime" data-to="report" d="M1070 606 L1070 700 L840 700 L840 745" stroke="#BE185D"/>
 </svg>

@@ -1,78 +1,57 @@
-<svg data-intent="Explain workflow decision routing by showing branch condition checks, selected transition, retry/failure alternatives, and final workflow outcome." data-evidence="utils/workflow/README.md; utils/workflow/src/main/kotlin" data-source-read="utils/workflow/README.md; utils/workflow/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1460" height="940" viewBox="0 0 1460 940" role="img" aria-label="Repeat Flow State Loop" data-layout="decision-flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1460" height="940"/>
-<rect class="frame" x="34" y="30" width="1392" height="880" rx="8"/>
-<text class="title" x="72" y="84">Repeat Flow State Loop</text>
-<text class="subtitle" x="76" y="116">Each iteration feeds the latest WorkReport into the repeat predicate; terminal reports and maxIterations stop the loop.</text>
-<g id="start">
-  <rect class="card" x="130" y="245" width="290" height="76" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="275" y="276" text-anchor="middle" dominant-baseline="middle">Repeat flow starts</text>
-  <text class="detail" x="275" y="306" text-anchor="middle" dominant-baseline="middle">iteration = 0</text>
-</g>
-<g id="work">
-  <rect class="card" x="560" y="230" width="330" height="96" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="725" y="271" text-anchor="middle" dominant-baseline="middle">Execute work</text>
-  <text class="detail" x="725" y="301" text-anchor="middle" dominant-baseline="middle">one iteration produces report</text>
-</g>
-<g id="terminal">
-  <polygon class="card card-shape" points="1190,215 1350,278 1190,341 1030,278" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1190" y="270" text-anchor="middle" dominant-baseline="middle">Abort/cancel?</text>
-  <text class="detail" x="1190" y="299" text-anchor="middle" dominant-baseline="middle">terminal states bypass loop</text>
-</g>
-<g id="predicate">
-  <polygon class="card card-shape" points="725,490 885,553 725,616 565,553" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="725" y="545" text-anchor="middle" dominant-baseline="middle">Repeat predicate?</text>
-  <text class="detail" x="725" y="574" text-anchor="middle" dominant-baseline="middle">uses latest WorkReport</text>
-</g>
-<g id="limit">
-  <polygon class="card card-shape" points="325,490 475,553 325,616 175,553" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="325" y="545" text-anchor="middle" dominant-baseline="middle">Max iterations?</text>
-  <text class="detail" x="325" y="574" text-anchor="middle" dominant-baseline="middle">safety guard</text>
-</g>
-<g id="delay">
-  <rect class="card" x="565" y="715" width="320" height="78" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="725" y="747" text-anchor="middle" dominant-baseline="middle">Repeat delay</text>
-  <text class="detail" x="725" y="777" text-anchor="middle" dominant-baseline="middle">suspend flow may wait</text>
-</g>
-<g id="done">
-  <rect class="card" x="1030" y="520" width="320" height="82" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1190" y="554" text-anchor="middle" dominant-baseline="middle">Return last report</text>
-  <text class="detail" x="1190" y="584" text-anchor="middle" dominant-baseline="middle">predicate false or limit reached</text>
-</g>
-<path class="route" data-from="start" data-to="work" d="M420 283 L560 278" stroke="#1D4ED8"/>
-<path class="route" data-from="work" data-to="terminal" d="M890 278 L1030 278" stroke="#15803D"/>
-<path class="route" data-from="terminal" data-to="done" d="M1190 341 L1190 520" stroke="#BE185D"/>
-<g><rect class="labelPill" x="1220" y="417" width="52" height="26" rx="8"/><text class="detail" x="1246" y="431" text-anchor="middle" dominant-baseline="middle" style="fill:#BE185D">yes</text></g>
-<path class="route" data-from="terminal" data-to="predicate" d="M1085 341 L1085 430 L725 430 L725 490" stroke="#15803D"/>
-<g><rect class="labelPill" x="1020" y="373" width="48" height="26" rx="8"/><text class="detail" x="1044" y="387" text-anchor="middle" dominant-baseline="middle" style="fill:#15803D">no</text></g>
-<path class="route" data-from="predicate" data-to="done" d="M885 553 L1030 561" stroke="#4D7C0F"/>
-<g><rect class="labelPill" x="926" y="507" width="64" height="26" rx="8"/><text class="detail" x="958" y="521" text-anchor="middle" dominant-baseline="middle" style="fill:#4D7C0F">false</text></g>
-<path class="route" data-from="predicate" data-to="limit" d="M565 553 L475 553" stroke="#C2410C"/>
-<g><rect class="labelPill" x="491" y="507" width="58" height="26" rx="8"/><text class="detail" x="520" y="521" text-anchor="middle" dominant-baseline="middle" style="fill:#C2410C">true</text></g>
-<path class="route dashed" data-from="limit" data-to="done" d="M400 616 L400 665 L1190 665 L1190 602" stroke="#C2410C"/>
-<g><rect class="labelPill" x="699" y="627" width="122" height="26" rx="8"/><text class="detail" x="760" y="641" text-anchor="middle" dominant-baseline="middle" style="fill:#C2410C">limit reached</text></g>
-<path class="route" data-from="limit" data-to="delay" d="M250 616 L250 754 L565 754" stroke="#0F766E"/>
-<g><rect class="labelPill" x="395" y="715" width="100" height="26" rx="8"/><text class="detail" x="445" y="729" text-anchor="middle" dominant-baseline="middle" style="fill:#0F766E">room left</text></g>
-<path class="route dashed" data-from="delay" data-to="work" d="M885 754 L1390 754 L1390 190 L725 190 L725 230" stroke="#0F766E"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="900" viewBox="0 0 1680 900" role="img" aria-label="Repeat Flow Loop">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-startWork" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+<marker id="arrow-workGuard" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-breakResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<marker id="arrow-guardGate" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<marker id="arrow-gateResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
+<marker id="arrow-gateDelay" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
+<marker id="arrow-delayLoop" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#DB2777"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1680" height="900"/><rect class="frame" x="38" y="30" width="1604" height="834" rx="8"/>
+<text class="title" x="78" y="86">Repeat Flow Loop</text>
+<text class="subtitle" x="82" y="118">Repeat executes at least once, stops on Aborted or Cancelled, and otherwise loops while the predicate and max iteration guard allow it.</text>
+<g id="edges"><path class="edge" d="M840 281 L840 320" stroke="#2563EB" marker-end="url(#arrow-startWork)"/>
+<path class="edge" d="M840 438 L840 480" stroke="#16A34A" marker-end="url(#arrow-workGuard)"/>
+<path class="edge" d="M1045 539 L1320 539 L1320 686" stroke="#EA580C" marker-end="url(#arrow-breakResult)"/>
+<path class="edge" d="M840 598 L840 660" stroke="#9333EA" marker-end="url(#arrow-guardGate)"/>
+<path class="edge" d="M1005 745 L1140 745" stroke="#0D9488" marker-end="url(#arrow-gateResult)"/>
+<path class="edge" d="M675 745 L540 745" stroke="#DB2777" marker-end="url(#arrow-gateDelay)"/>
+<path class="edge dashed" d="M360 686 L360 379 L635 379" stroke="#DB2777" marker-end="url(#arrow-delayLoop)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(874 289)"><rect width="76" height="30" rx="8"/><text x="38" y="20" text-anchor="middle">context</text></g>
+<g class="edgeLabel" transform="translate(877 447)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">report</text></g>
+<g class="edgeLabel" transform="translate(1170 501)"><rect width="150" height="30" rx="8"/><text x="75" y="20" text-anchor="middle">aborted / cancelled</text></g>
+<g class="edgeLabel" transform="translate(874 615)"><rect width="92" height="30" rx="8"/><text x="46" y="20" text-anchor="middle">otherwise</text></g>
+<g class="edgeLabel" transform="translate(1041 703)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">stop</text></g>
+<g class="edgeLabel" transform="translate(569 703)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">repeat</text></g>
+<g class="edgeLabel" transform="translate(391 342)"><rect width="118" height="30" rx="8"/><text x="59" y="20" text-anchor="middle">next iteration</text></g></g>
+<g id="start"><rect class="card" x="635" y="165" width="410" height="116" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(659 189)" stroke="#2563EB"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M24 17 L40 28 L24 39 Z" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="864" y="207" text-anchor="middle">Repeat flow starts</text>
+  <text class="detail" x="840" y="243" text-anchor="middle">initial WorkReport.Success</text>
+  <text class="detail" x="840" y="262" text-anchor="middle">iteration starts at zero</text></g>
+<g id="work"><rect class="card" x="635" y="320" width="410" height="118" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(659 344)" stroke="#16A34A"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="864" y="362" text-anchor="middle">Execute work</text>
+  <text class="detail" x="840" y="398" text-anchor="middle">work.execute(context)</text>
+  <text class="detail" x="840" y="417" text-anchor="middle">exceptions become Failure</text></g>
+<g id="guard"><rect class="card" x="635" y="480" width="410" height="118" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(659 504)" stroke="#EA580C"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M17 17 L39 39 M39 17 L17 39" fill="none"/></g>
+  <text class="cardTitle" x="864" y="522" text-anchor="middle">Stop guard</text>
+  <text class="detail" x="840" y="558" text-anchor="middle">Aborted / Cancelled</text>
+  <text class="detail" x="840" y="577" text-anchor="middle">return immediately</text></g>
+<g id="gate"><polygon class="card" points="840,660 1005,745 840,830 675,745" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="cardTitle" x="840" y="737" text-anchor="middle">Repeat again?</text>
+  <text class="detail" x="840" y="768" text-anchor="middle">iteration &lt; maxIterations</text>
+  <text class="detail" x="840" y="787" text-anchor="middle">repeatPredicate(report)</text></g>
+<g id="delay"><rect class="card" x="180" y="686" width="360" height="118" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(204 710)" stroke="#DB2777"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M28 13 V28 L41 36" fill="none"/></g>
+  <text class="cardTitle" x="384" y="728" text-anchor="middle">Suspend delay</text>
+  <text class="detail" x="360" y="764" text-anchor="middle">suspend repeatDelay only</text>
+  <text class="detail" x="360" y="783" text-anchor="middle">before next iteration</text></g>
+<g id="result"><rect class="card" x="1140" y="686" width="380" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(1164 710)" stroke="#0D9488"><rect x="8" y="10" width="48" height="36" rx="7" fill="#fff"/><path d="M18 24 H44 M18 34 H38" fill="none"/><circle cx="46" cy="35" r="4" fill="#0D9488" stroke="none"/></g>
+  <text class="cardTitle" x="1354" y="728" text-anchor="middle">Last WorkReport</text>
+  <text class="detail" x="1330" y="764" text-anchor="middle">final report returned</text>
+  <text class="detail" x="1330" y="783" text-anchor="middle">last executed work wins</text></g>
 </svg>

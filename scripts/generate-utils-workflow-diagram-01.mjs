@@ -6,7 +6,7 @@ import { writeFileSync } from "node:fs";
 const svgPath = "docs/images/readme-diagrams/utils-workflow-diagram-01.svg";
 const pngPath = "docs/images/readme-diagrams/utils-workflow-diagram-01.png";
 
-const W = 1680;
+const W = 1760;
 const H = 980;
 
 const colors = {
@@ -23,11 +23,11 @@ const colors = {
 };
 
 const cards = {
-  dsl: { x: 90, y: 385, w: 340, h: 120, fill: "#EFF6FF", stroke: colors.blue, title: "Workflow DSL" },
-  context: { x: 560, y: 220, w: 360, h: 128, fill: "#FFF7ED", stroke: colors.orange, title: "WorkContext" },
-  work: { x: 560, y: 530, w: 360, h: 128, fill: "#F0FDF4", stroke: colors.green, title: "Work / SuspendWork" },
-  flow: { x: 1100, y: 385, w: 390, h: 132, fill: "#FAF5FF", stroke: colors.purple, title: "Flow implementations" },
-  report: { x: 560, y: 765, w: 360, h: 128, fill: "#F0FDFA", stroke: colors.teal, title: "WorkReport outcomes" },
+  dsl: { x: 110, y: 190, w: 360, h: 130, fill: "#EFF6FF", stroke: colors.blue, title: "Workflow DSL" },
+  flow: { x: 1180, y: 190, w: 430, h: 138, fill: "#FAF5FF", stroke: colors.purple, title: "Flow implementations" },
+  context: { x: 350, y: 500, w: 410, h: 132, fill: "#FFF7ED", stroke: colors.orange, title: "WorkContext" },
+  work: { x: 900, y: 500, w: 410, h: 132, fill: "#F0FDF4", stroke: colors.green, title: "Work / SuspendWork" },
+  report: { x: 900, y: 730, w: 410, h: 132, fill: "#F0FDFA", stroke: colors.teal, title: "WorkReport outcomes" },
 };
 
 const edges = [
@@ -36,59 +36,50 @@ const edges = [
     color: colors.blue,
     from: "dsl",
     to: "flow",
-    d: "M430 445 L1100 445",
-    label: { x: 760, y: 421, text: "builds orchestration graph", w: 226 },
+    d: "M470 255 L1180 255",
+    label: { x: 825, y: 230, text: "builds orchestration graph", w: 226 },
   },
   {
     id: "adds",
     color: colors.blue,
     from: "dsl",
     to: "work",
-    d: "M430 505 L500 505 L500 594 L560 594",
+    d: "M290 320 L290 445 L960 445 L960 500",
     dashed: true,
-    label: { x: 470, y: 560, text: "adds execute blocks", w: 176 },
+    label: { x: 626, y: 420, text: "adds execute blocks", w: 176 },
   },
   {
     id: "contextInput",
     color: colors.orange,
     from: "context",
     to: "work",
-    d: "M740 348 L740 530",
-    label: { x: 846, y: 487, text: "input state", w: 106 },
-  },
-  {
-    id: "stateVisible",
-    color: colors.orange,
-    from: "context",
-    to: "flow",
-    d: "M920 284 L1040 284 L1040 385 L1100 385",
-    dashed: true,
-    label: { x: 1035, y: 256, text: "shared across run", w: 156 },
+    d: "M760 584 L900 584",
+    label: { x: 830, y: 615, text: "input state", w: 106 },
   },
   {
     id: "dispatch",
     color: colors.green,
     from: "flow",
     to: "work",
-    d: "M1100 505 L1010 505 L1010 594 L920 594",
-    label: { x: 1014, y: 635, text: "dispatches units", w: 144 },
+    d: "M1395 328 L1395 564 L1310 564",
+    label: { x: 1428, y: 452, text: "dispatches units", w: 144 },
   },
   {
     id: "returns",
     color: colors.teal,
     from: "work",
     to: "report",
-    d: "M740 658 L740 765",
-    label: { x: 814, y: 717, text: "returns result", w: 124 },
+    d: "M1105 632 L1105 730",
+    label: { x: 1186, y: 684, text: "returns result", w: 124 },
   },
   {
     id: "controls",
     color: colors.purple,
     from: "report",
     to: "flow",
-    d: "M920 829 L1040 829 L1040 517 L1100 517",
+    d: "M1310 796 L1510 796 L1510 328",
     dashed: true,
-    label: { x: 1124, y: 678, text: "controls next step", w: 158 },
+    label: { x: 1542, y: 580, text: "controls next step", w: 158 },
   },
 ];
 
@@ -185,6 +176,10 @@ function touches(cardBox, p) {
   return onLeftRight || onTopBottom;
 }
 
+function isEndpointFor(edge, id, p) {
+  return (edge.from === id || edge.to === id) && touches(cards[id], p);
+}
+
 function segmentIntersectsBox(seg, box, pad = 0) {
   const minX = Math.min(seg.a.x, seg.b.x);
   const maxX = Math.max(seg.a.x, seg.b.x);
@@ -220,7 +215,7 @@ function validateGeometry() {
 
     for (const seg of pathToSegments(edge.d)) {
       for (const id of ids) {
-        if (id === edge.from || id === edge.to) continue;
+        if (isEndpointFor(edge, id, seg.a) || isEndpointFor(edge, id, seg.b)) continue;
         if (segmentIntersectsBox(seg, cards[id], 6)) throw new Error(`${edge.id} crosses ${id}`);
       }
     }
@@ -251,7 +246,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   </style>
 </defs>
 <rect class="canvas" width="${W}" height="${H}"/>
-<rect class="frame" x="38" y="30" width="1604" height="914" rx="8"/>
+<rect class="frame" x="38" y="30" width="1684" height="914" rx="8"/>
 <text class="title" x="78" y="86">Workflow Concept Overview</text>
 <text class="subtitle" x="82" y="118">DSL builders compose sync and suspend work units; each unit receives shared context and returns a WorkReport that drives flow control.</text>
 
