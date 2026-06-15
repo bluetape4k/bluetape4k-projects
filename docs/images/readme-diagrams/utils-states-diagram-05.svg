@@ -1,47 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760" role="img" aria-labelledby="title desc" data-layout="state-machine" data-intent="Explain the order finite state machine from Created through Paid, Shipped, and Delivered final state, with Cancel as a terminal branch from Created." data-evidence="utils/states/README.md, README quick-start order example" data-source-read="utils/states/README.md">
-<title id="title">Order One-Way FSM</title>
-<desc id="desc">Linear fulfillment with cancellation only from Created.</desc>
-<style>
-    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
-    .title { fill: #0f172a; font-size: 34px; font-weight: 800; letter-spacing: 0; }
-    .subtitle { fill: #475569; font-size: 18px; font-weight: 500; }
-    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
-    .panelTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
-    .card { stroke-width: 1.7; filter: url(#cardShadow); }
-    .stateTitle { fill: #0f172a; font-size: 17px; font-weight: 800; }
-    .stateDetail { fill: #475569; font-size: 12px; font-weight: 600; }
-    .iconBadge { stroke-width: 1.5; }
-    .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-    .iconFill { fill: #ffffff; }
-    .arrow { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
-    .arrowLabelBg { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
-    .arrowLabel { fill: #1e293b; font-size: 13px; font-weight: 800; text-anchor: middle; }
-    .footer { fill: #64748b; font-size: 13px; font-weight: 600; }
-  </style>
-  <defs>
-    <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
-      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
-      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
-    </marker>
-  </defs>
-<rect width="1600" height="760" fill="#f8fafc"/>
-<rect x="30" y="30" width="1540" height="700" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="title" x="70" y="92">Order One-Way FSM</text>
-<text class="subtitle" x="70" y="124">Linear fulfillment with cancellation only from Created.</text>
-<rect class="panel" x="55" y="145" width="1490" height="525" rx="8"/><text class="panelTitle" x="79" y="179">State transitions</text>
-<circle cx="86" cy="320" r="10" fill="#172033"/>
-<g><path class="route arrow" d="M70,320 L130,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="63" y="286" width="74" height="22" rx="11"/><text class="arrowLabel" x="100" y="302">initial</text></g>
-<g><path class="route arrow" d="M360,320 L500,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="403" y="286" width="54" height="22" rx="11"/><text class="arrowLabel" x="430" y="302">Pay</text></g>
-<g><path class="route arrow" d="M730,320 L870,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="773" y="286" width="54" height="22" rx="11"/><text class="arrowLabel" x="800" y="302">Ship</text></g>
-<g><path class="route arrow" d="M1100,320 L1240,320" stroke="#2563eb"/><rect class="arrowLabelBg" x="1133" y="286" width="74" height="22" rx="11"/><text class="arrowLabel" x="1170" y="302">Deliver</text></g>
-<g><path class="route arrow" d="M245,370 L245,563 L500,563" stroke="#db2777"/><rect class="arrowLabelBg" x="339.5" y="529" width="66" height="22" rx="11"/><text class="arrowLabel" x="372.5" y="545">Cancel</text></g>
-<g id="created"><rect class="card" x="130" y="270" width="230" height="100" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(150,298)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="210" y="312">Created</text><text class="stateDetail" x="210" y="338">initial</text></g>
-<g id="paid"><rect class="card" x="500" y="270" width="230" height="100" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(520,298)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="580" y="312">Paid</text><text class="stateDetail" x="580" y="338">payment accepted</text></g>
-<g id="shipped"><rect class="card" x="870" y="270" width="230" height="100" rx="8" fill="#fff7ed" stroke="#ea580c"/><g transform="translate(890,298)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#ea580c" stroke="#ea580c"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="950" y="312">Shipped</text><text class="stateDetail" x="950" y="338">carrier handoff</text></g>
-<g id="delivered"><rect class="card" x="1240" y="270" width="230" height="100" rx="8" fill="#f0fdfa" stroke="#0d9488"/><g transform="translate(1260,298)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#0d9488" stroke="#0d9488"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="1320" y="312">Delivered</text><text class="stateDetail" x="1320" y="338">final success</text></g>
-<g id="cancelled"><rect class="card" x="500" y="515" width="280" height="96" rx="8" fill="#fdf2f8" stroke="#db2777"/><g transform="translate(520,541)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#db2777" stroke="#db2777"/><circle class="iconStroke" cx="22" cy="22" r="12"/><path class="iconStroke" d="M22 15v7l5 4"/></g><text class="stateTitle" x="580" y="555">Cancelled</text><text class="stateDetail" x="580" y="581">final stop</text></g>
-<circle cx="1512" cy="642" r="13" fill="none" stroke="#172033" stroke-width="3"/><circle cx="1512" cy="642" r="8" fill="#172033"/>
-<text class="footer" x="70" y="716">Generated as direct SVG. Sequence diagrams are intentionally preserved.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1780" height="820" viewBox="0 0 1780 820" role="img" aria-label="Order One-Way FSM">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-startCreated" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#64748B"/></marker>
+<marker id="arrow-pay" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+<marker id="arrow-ship" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-deliver" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
+<marker id="arrow-cancelCreated" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<marker id="arrow-cancelPaid" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<marker id="arrow-cancelRejected" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card,.note{filter:url(#softShadow);stroke-width:2}.stateTitle{font-family:"Architects Daughter";font-size:31px;fill:#0F172A}.detail,.noteText{font-family:"Comic Mono";font-size:14px;fill:#475569}.badge{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.2}.badgeText{font-family:"Comic Mono";font-size:11.5px;fill:#475569}.start{fill:#0F172A}.edge{fill:none;stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1780" height="820"/><rect class="frame" x="38" y="30" width="1704" height="754" rx="8"/>
+<text class="title" x="78" y="86">Order One-Way FSM</text>
+<text class="subtitle" x="82" y="118">Orders move forward from creation to delivery. Cancellation is only allowed before shipping.</text>
+<g id="edges"><path class="edge" d="M199 342 L275 342" stroke="#64748B" marker-end="url(#arrow-startCreated)"/>
+<path class="edge" d="M525 328 L635 328" stroke="#2563EB" marker-end="url(#arrow-pay)"/>
+<path class="edge" d="M885 328 L995 328" stroke="#16A34A" marker-end="url(#arrow-ship)"/>
+<path class="edge" d="M1245 328 L1355 328" stroke="#0D9488" marker-end="url(#arrow-deliver)"/>
+<path class="edge" d="M400 405 L400 485 L565 485 L565 555" stroke="#9333EA" marker-end="url(#arrow-cancelCreated)"/>
+<path class="edge" d="M760 405 L760 485 L645 485 L645 555" stroke="#9333EA" marker-end="url(#arrow-cancelPaid)"/>
+<path class="edge" d="M1120 405 L1120 570" stroke="#EA580C" marker-end="url(#arrow-cancelRejected)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(201 302)"><rect width="72" height="30" rx="8"/><text x="36" y="20" text-anchor="middle">initial</text></g>
+<g class="edgeLabel" transform="translate(553 287)"><rect width="54" height="30" rx="8"/><text x="27" y="20" text-anchor="middle">Pay</text></g>
+<g class="edgeLabel" transform="translate(911 287)"><rect width="58" height="30" rx="8"/><text x="29" y="20" text-anchor="middle">Ship</text></g>
+<g class="edgeLabel" transform="translate(1261 287)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">Deliver</text></g>
+<g class="edgeLabel" transform="translate(446 443)"><rect width="74" height="30" rx="8"/><text x="37" y="20" text-anchor="middle">Cancel</text></g>
+<g class="edgeLabel" transform="translate(666 443)"><rect width="74" height="30" rx="8"/><text x="37" y="20" text-anchor="middle">Cancel</text></g>
+<g class="edgeLabel" transform="translate(1172 473)"><rect width="78" height="30" rx="8"/><text x="39" y="20" text-anchor="middle">Cancel?</text></g></g>
+<circle id="start" class="start" cx="187" cy="342" r="12"/>
+<g id="created"><rect class="card" x="275" y="250" width="250" height="155" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+
+  <text class="stateTitle" x="400" y="315" text-anchor="middle">CREATED</text>
+  <text class="detail" x="400" y="350" text-anchor="middle">initial state</text>
+  <text class="detail" x="400" y="372" text-anchor="middle">can pay or cancel</text></g>
+<g id="paid"><rect class="card" x="635" y="250" width="250" height="155" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+
+  <text class="stateTitle" x="760" y="315" text-anchor="middle">PAID</text>
+  <text class="detail" x="760" y="350" text-anchor="middle">can ship or cancel</text>
+  <text class="detail" x="760" y="372" text-anchor="middle">refund path still open</text></g>
+<g id="shipped"><rect class="card" x="995" y="250" width="250" height="155" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+
+  <text class="stateTitle" x="1120" y="315" text-anchor="middle">SHIPPED</text>
+  <text class="detail" x="1120" y="350" text-anchor="middle">can only deliver</text>
+  <text class="detail" x="1120" y="372" text-anchor="middle">cancel is rejected</text></g>
+<g id="delivered"><rect class="card" x="1355" y="250" width="250" height="155" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <rect class="badge" x="1517" y="266" width="66" height="28" rx="8"/><text class="badgeText" x="1550" y="285" text-anchor="middle">final</text>
+  <text class="stateTitle" x="1480" y="315" text-anchor="middle">DELIVERED</text>
+  <text class="detail" x="1480" y="350" text-anchor="middle">successful terminal state</text></g>
+<g id="cancelled"><rect class="card" x="455" y="555" width="300" height="145" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <rect class="badge" x="667" y="571" width="66" height="28" rx="8"/><text class="badgeText" x="700" y="590" text-anchor="middle">final</text>
+  <text class="stateTitle" x="605" y="620" text-anchor="middle">CANCELLED</text>
+  <text class="detail" x="605" y="655" text-anchor="middle">terminal cancellation state</text></g>
+<g id="reject"><rect class="note" x="985" y="570" width="420" height="96" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="noteText" x="1195" y="610" text-anchor="middle">After SHIPPED, Cancel is rejected</text>
+  <text class="detail" x="1195" y="636" text-anchor="middle">test asserts this transition fails</text></g>
 </svg>

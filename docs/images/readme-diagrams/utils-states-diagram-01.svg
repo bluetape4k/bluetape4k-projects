@@ -1,51 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 680" role="img" aria-labelledby="title desc" data-layout="state-machine" data-intent="Explain the states module architecture from Kotlin DSL declaration into transition registry resolution, synchronous transition execution, coroutine StateFlow observation, and optional reactive effect emission." data-evidence="utils/states/README.md, StateMachineDsl.kt, TransitionRegistry.kt, DefaultStateMachine.kt, SuspendStateMachine.kt" data-source-read="utils/states/README.md;utils/states/src/main/kotlin/**/*.kt">
-<title id="title">States Architecture</title>
-<desc id="desc">Typed events move through registry resolution into sync, coroutine, or reactive runtimes.</desc>
-<style>
-    svg { font-family: "Architects Daughter", "Comic Mono", "Comic Sans MS", ui-sans-serif, system-ui, sans-serif; }
-    .title { fill: #0f172a; font-size: 34px; font-weight: 800; letter-spacing: 0; }
-    .subtitle { fill: #475569; font-size: 18px; font-weight: 500; }
-    .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
-    .panelTitle { fill: #334155; font-size: 14px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
-    .card { stroke-width: 1.7; filter: url(#cardShadow); }
-    .stateTitle { fill: #0f172a; font-size: 17px; font-weight: 800; }
-    .stateDetail { fill: #475569; font-size: 12px; font-weight: 600; }
-    .iconBadge { stroke-width: 1.5; }
-    .iconStroke { fill: none; stroke: #ffffff; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-    .iconFill { fill: #ffffff; }
-    .arrow { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
-    .arrowLabelBg { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1; }
-    .arrowLabel { fill: #1e293b; font-size: 13px; font-weight: 800; text-anchor: middle; }
-    .footer { fill: #64748b; font-size: 13px; font-weight: 600; }
-  </style>
-  <defs>
-    <filter id="cardShadow" x="-8%" y="-12%" width="116%" height="130%">
-      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/>
-    </filter>
-    <marker id="arrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
-      <path d="M0,0 L12,4 L0,8 Z" fill="#475569"/>
-    </marker>
-  </defs>
-<rect width="1720" height="680" fill="#f8fafc"/>
-<rect x="30" y="30" width="1660" height="620" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-<text class="title" x="70" y="92">States Architecture</text>
-<text class="subtitle" x="70" y="124">Typed events move through registry resolution into sync, coroutine, or reactive runtimes.</text>
-<rect class="panel" x="55" y="150" width="735" height="230" rx="8"/><text class="panelTitle" x="79" y="184">Definition and resolution</text>
-<rect class="panel" x="860" y="125" width="390" height="330" rx="8"/><text class="panelTitle" x="884" y="159">Runtime engines</text>
-<rect class="panel" x="1280" y="175" width="390" height="410" rx="8"/><text class="panelTitle" x="1304" y="209">Reactive observation</text>
-<circle cx="86" cy="261" r="10" fill="#172033"/>
-<g><path class="route arrow" d="M375,261 L500,261" stroke="#2563eb"/><rect class="arrowLabelBg" x="404.5" y="227" width="66" height="22" rx="11"/><text class="arrowLabel" x="437.5" y="243">builds</text></g>
-<g><path class="route arrow" d="M780,250 L905,216" stroke="#2563eb"/><rect class="arrowLabelBg" x="801.5" y="199" width="82" height="22" rx="11"/><text class="arrowLabel" x="842.5" y="215">resolves</text></g>
-<g><path class="route arrow" d="M780,274 L905,366" stroke="#2563eb"/><rect class="arrowLabelBg" x="801.5" y="286" width="82" height="22" rx="11"/><text class="arrowLabel" x="842.5" y="302">resolves</text></g>
-<g><path class="route arrow" d="M1205,366 L1320,291" stroke="#2563eb"/><rect class="arrowLabelBg" x="1225.5" y="294.5" width="74" height="22" rx="11"/><text class="arrowLabel" x="1262.5" y="310.5">extends</text></g>
-<g><path class="route arrow" d="M1470,342 L1470,430" stroke="#2563eb"/><rect class="arrowLabelBg" x="1441" y="352" width="58" height="22" rx="11"/><text class="arrowLabel" x="1470" y="368">emits</text></g>
-<g><path class="route arrow" d="M1055,417 L1055,560 L1470,560 L1470,532" stroke="#0d9488"/><rect class="arrowLabelBg" x="1221.5" y="526" width="82" height="22" rx="11"/><text class="arrowLabel" x="1262.5" y="542">observes</text></g>
-<g id="dsl"><rect class="card" x="95" y="210" width="280" height="102" rx="8" fill="#eff6ff" stroke="#2563eb"/><g transform="translate(115,239)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#2563eb" stroke="#2563eb"/><path class="iconStroke" d="M13 14l-5 8 5 8M31 14l5 8-5 8M25 11l-6 22"/></g><text class="stateTitle" x="175" y="253">DSL Definition</text><text class="stateDetail" x="175" y="279">initialState</text><text class="stateDetail" x="175" y="297">guarded transition</text></g>
-<g id="registry"><rect class="card" x="500" y="210" width="280" height="102" rx="8" fill="#faf5ff" stroke="#9333ea"/><g transform="translate(520,239)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#9333ea" stroke="#9333ea"/><path class="iconStroke" d="M12 12h20v20H12zM17 18h10M17 24h10"/></g><text class="stateTitle" x="580" y="253">TransitionRegistry</text><text class="stateDetail" x="580" y="279">exact keys</text><text class="stateDetail" x="580" y="297">parent keys</text></g>
-<g id="sync"><rect class="card" x="905" y="165" width="300" height="102" rx="8" fill="#f0fdf4" stroke="#16a34a"/><g transform="translate(925,194)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#16a34a" stroke="#16a34a"/><path class="iconStroke" d="M22 10a12 12 0 1 1-9 4M13 14h8v8"/></g><text class="stateTitle" x="985" y="208">StateMachine</text><text class="stateDetail" x="985" y="234">AtomicReference</text><text class="stateDetail" x="985" y="252">TransitionResult</text></g>
-<g id="suspend"><rect class="card" x="905" y="315" width="300" height="102" rx="8" fill="#f0fdfa" stroke="#0d9488"/><g transform="translate(925,344)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#0d9488" stroke="#0d9488"/><path class="iconStroke" d="M14 15h16M14 22h16M14 29h16"/><circle class="iconFill" cx="30" cy="15" r="2"/></g><text class="stateTitle" x="985" y="358">SuspendStateMachine</text><text class="stateDetail" x="985" y="384">Mutex</text><text class="stateDetail" x="985" y="402">StateFlow</text></g>
-<g id="reactive"><rect class="card" x="1320" y="240" width="300" height="102" rx="8" fill="#fff7ed" stroke="#ea580c"/><g transform="translate(1340,269)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#ea580c" stroke="#ea580c"/><path class="iconStroke" d="M10 22h9M25 22h9M22 10v9M22 25v9"/><circle class="iconStroke" cx="22" cy="22" r="4"/></g><text class="stateTitle" x="1400" y="283">Reactive Runtime</text><text class="stateDetail" x="1400" y="309">send(event)</text><text class="stateDetail" x="1400" y="327">effects</text></g>
-<g id="consumer"><rect class="card" x="1320" y="430" width="300" height="102" rx="8" fill="#fdf2f8" stroke="#db2777"/><g transform="translate(1340,459)"><rect class="iconBadge" x="0" y="0" width="44" height="44" rx="10" fill="#db2777" stroke="#db2777"/><path class="iconStroke" d="M10 22c5-7 19-7 24 0-5 7-19 7-24 0z"/><circle class="iconFill" cx="22" cy="22" r="3"/></g><text class="stateTitle" x="1400" y="473">Observers</text><text class="stateDetail" x="1400" y="499">StateFlow</text><text class="stateDetail" x="1400" y="517">effects</text></g>
-<circle cx="1632" cy="562" r="13" fill="none" stroke="#172033" stroke-width="3"/><circle cx="1632" cy="562" r="8" fill="#172033"/>
-<text class="footer" x="70" y="636">Source-backed: exact transitions, parent transitions, guards, final-state checks, and StateFlow are modeled separately.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1720" height="940" viewBox="0 0 1720 940" role="img" aria-label="States Concept Overview">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-dslRegistry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#2563EB"/></marker>
+<marker id="arrow-registryRuntime" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<marker id="arrow-eventRules" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#0D9488"/></marker>
+<marker id="arrow-runtimeRules" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#16A34A"/></marker>
+<marker id="arrow-rulesResult" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#EA580C"/></marker>
+<marker id="arrow-rulesRegistry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12 Z" fill="#9333EA"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.cardTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13.5px;fill:#475569}.icon{stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.edge{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}.dashed{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.5px;fill:#475569}</style></defs>
+<rect class="canvas" width="1720" height="940"/><rect class="frame" x="38" y="30" width="1644" height="874" rx="8"/>
+<text class="title" x="78" y="86">States Concept Overview</text>
+<text class="subtitle" x="82" y="118">Typed states and events become transition rules. Runtime checks final states and guards before returning results or publishing observations.</text>
+<text class="subtitle" x="860" y="650" text-anchor="middle">Runtime implementations share the same transition contract with different concurrency and observation models.</text>
+<g id="edges"><path class="edge" d="M490 250 L670 250" stroke="#2563EB" marker-end="url(#arrow-dslRegistry)"/>
+<path class="edge" d="M1050 250 L1230 250" stroke="#9333EA" marker-end="url(#arrow-registryRuntime)"/>
+<path class="edge" d="M490 489 L670 489" stroke="#0D9488" marker-end="url(#arrow-eventRules)"/>
+<path class="edge" d="M1420 315 L1420 365 L1000 365 L1000 405" stroke="#16A34A" marker-end="url(#arrow-runtimeRules)"/>
+<path class="edge" d="M1050 489 L1230 489" stroke="#EA580C" marker-end="url(#arrow-rulesResult)"/>
+<path class="edge dashed" d="M860 405 L860 315" stroke="#9333EA" marker-end="url(#arrow-rulesRegistry)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(545 209)"><rect width="70" height="30" rx="8"/><text x="35" y="20" text-anchor="middle">builds</text></g>
+<g class="edgeLabel" transform="translate(1099 209)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">resolves</text></g>
+<g class="edgeLabel" transform="translate(516 448)"><rect width="128" height="30" rx="8"/><text x="64" y="20" text-anchor="middle">transition(event)</text></g>
+<g class="edgeLabel" transform="translate(1164 325)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">current state</text></g>
+<g class="edgeLabel" transform="translate(1097 448)"><rect width="86" height="30" rx="8"/><text x="43" y="20" text-anchor="middle">accepted</text></g>
+<g class="edgeLabel" transform="translate(884 345)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">exact or parent</text></g></g>
+<g id="dsl"><rect class="card" x="110" y="185" width="380" height="130" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(134 209)" stroke="#2563EB"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M24 17 L40 28 L24 39 Z" fill="#2563EB" stroke="none"/></g>
+  <text class="cardTitle" x="324" y="227" text-anchor="middle">Typed FSM DSL</text>
+  <text class="detail" x="300" y="263" text-anchor="middle">initialState / finalStates</text>
+  <text class="detail" x="300" y="282" text-anchor="middle">transition(from, on&lt;E&gt;(), to)</text></g>
+<g id="registry"><rect class="card" x="670" y="185" width="380" height="130" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <g class="icon" transform="translate(694 209)" stroke="#9333EA"><path d="M28 7 L51 28 L28 49 L5 28 Z" fill="#fff"/><path d="M18 24 H38 M18 33 H38" fill="none"/></g>
+  <text class="cardTitle" x="884" y="227" text-anchor="middle">TransitionRegistry</text>
+  <text class="detail" x="860" y="263" text-anchor="middle">TransitionKey + Target</text>
+  <text class="detail" x="860" y="282" text-anchor="middle">exact state wins over parent</text></g>
+<g id="runtime"><rect class="card" x="1230" y="185" width="380" height="130" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
+  <g class="icon" transform="translate(1254 209)" stroke="#16A34A"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="1444" y="227" text-anchor="middle">StateMachine runtime</text>
+  <text class="detail" x="1420" y="263" text-anchor="middle">holds current state</text>
+  <text class="detail" x="1420" y="282" text-anchor="middle">blocks final-state changes</text></g>
+<g id="event"><rect class="card" x="110" y="430" width="380" height="118" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(134 454)" stroke="#0D9488"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M19 28 H40 M34 20 L42 28 L34 36" fill="none"/></g>
+  <text class="cardTitle" x="324" y="472" text-anchor="middle">Event arrives</text>
+  <text class="detail" x="300" y="508" text-anchor="middle">event instance</text>
+  <text class="detail" x="300" y="527" text-anchor="middle">typed by event class</text></g>
+<g id="rules"><rect class="card" x="670" y="405" width="380" height="170" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <g class="icon" transform="translate(694 429)" stroke="#EA580C"><circle cx="28" cy="28" r="22" fill="#fff"/><path d="M17 29 L25 37 L41 19" fill="none"/></g>
+  <text class="cardTitle" x="884" y="447" text-anchor="middle">Transition checks</text>
+  <text class="detail" x="860" y="483" text-anchor="middle">resolve transition</text>
+  <text class="detail" x="860" y="502" text-anchor="middle">evaluate guard condition</text></g>
+<g id="result"><rect class="card" x="1230" y="430" width="380" height="118" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <g class="icon" transform="translate(1254 454)" stroke="#DB2777"><rect x="8" y="10" width="48" height="36" rx="7" fill="#fff"/><path d="M18 24 H44 M18 34 H38" fill="none"/><circle cx="46" cy="35" r="4" fill="#DB2777" stroke="none"/></g>
+  <text class="cardTitle" x="1444" y="472" text-anchor="middle">TransitionResult</text>
+  <text class="detail" x="1420" y="508" text-anchor="middle">previous + event + current</text>
+  <text class="detail" x="1420" y="527" text-anchor="middle">callback after accepted change</text></g>
+<g id="sync"><rect class="card" x="175" y="685" width="330" height="112" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <g class="icon" transform="translate(199 709)" stroke="#2563EB"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="364" y="727" text-anchor="middle">Sync FSM</text>
+  <text class="detail" x="340" y="763" text-anchor="middle">AtomicReference CAS</text>
+  <text class="detail" x="340" y="782" text-anchor="middle">synchronous transition()</text></g>
+<g id="suspend"><rect class="card" x="695" y="685" width="330" height="112" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <g class="icon" transform="translate(719 709)" stroke="#16A34A"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="884" y="727" text-anchor="middle">Suspend FSM</text>
+  <text class="detail" x="860" y="763" text-anchor="middle">Mutex serialization</text>
+  <text class="detail" x="860" y="782" text-anchor="middle">StateFlow observation</text></g>
+<g id="reactive"><rect class="card" x="1215" y="685" width="330" height="112" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <g class="icon" transform="translate(1239 709)" stroke="#0D9488"><rect x="8" y="12" width="48" height="34" rx="7" fill="#fff"/><path d="M18 24 H46 M18 34 H38" fill="none"/></g>
+  <text class="cardTitle" x="1404" y="727" text-anchor="middle">Reactive runtime</text>
+  <text class="detail" x="1380" y="763" text-anchor="middle">queued send(event)</text>
+  <text class="detail" x="1380" y="782" text-anchor="middle">one-time effects</text></g>
 </svg>

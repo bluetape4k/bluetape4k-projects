@@ -1,89 +1,125 @@
-<svg data-intent="Regenerate States Class Structure from the current README and source package surface for utils/states." data-evidence="utils/states/README.md; utils/states; utils/states/src/main/kotlin" data-source-read="utils/states/README.md; utils/states; utils/states/src/main/kotlin" xmlns="http://www.w3.org/2000/svg" width="1500" height="1000" viewBox="0 0 1500 1000" role="img" aria-label="States Class Structure">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:22px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-  </style>
-</defs>
-<rect class="canvas" width="1500" height="1000"/>
-<rect class="frame" x="34" y="30" width="1432" height="940" rx="8"/>
-<text class="title" x="72" y="84">States Class Structure</text>
-<text class="subtitle" x="76" y="116">utils/states: README headings plus current Kotlin source surface</text>
-<g><rect class="panel" x="82" y="160" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="198">README-derived contract</text></g>
-<g><rect class="panel" x="82" y="440" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="478">Current source surface</text></g>
-<g><rect class="panel" x="82" y="720" width="1336" height="190" rx="8"/><text class="panelTitle" x="110" y="758">Runtime or usage boundary</text></g>
-<g id="contract0">
-  <rect class="card" x="93" y="230" width="300" height="92" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="243" y="264" text-anchor="middle">README contract</text>
-  <text class="detail" x="243" y="292" text-anchor="middle">Architecture</text>
-</g>
-<g id="contract1">
-  <rect class="card" x="431" y="230" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="581" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="581" y="292" text-anchor="middle">Concept Overview</text>
-</g>
-<g id="contract2">
-  <rect class="card" x="769" y="230" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="919" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="919" y="292" text-anchor="middle">DSL Builder Structure</text>
-</g>
-<g id="contract3">
-  <rect class="card" x="1107" y="230" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="1257" y="264" text-anchor="middle">Reader feature</text>
-  <text class="detail" x="1257" y="292" text-anchor="middle">Key Features</text>
-</g>
-<g id="source0">
-  <rect class="card" x="93" y="510" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="243" y="544" text-anchor="middle">states package</text>
-  <text class="detail" x="243" y="572" text-anchor="middle">states package (16)</text>
-</g>
-<g id="source1">
-  <rect class="card" x="431" y="510" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="581" y="544" text-anchor="middle">BaseStateMachine type</text>
-  <text class="detail" x="581" y="572" text-anchor="middle">BaseStateMachine type</text>
-</g>
-<g id="source2">
-  <rect class="card" x="769" y="510" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="919" y="544" text-anchor="middle">StateMachine type</text>
-  <text class="detail" x="919" y="572" text-anchor="middle">StateMachine type</text>
-</g>
-<g id="source3">
-  <rect class="card" x="1107" y="510" width="300" height="92" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="1257" y="544" text-anchor="middle">StateMachineException type</text>
-  <text class="detail" x="1257" y="572" text-anchor="middle">StateMachineException type</text>
-</g>
-<g id="runtime0">
-  <rect class="card" x="93" y="790" width="300" height="92" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="243" y="824" text-anchor="middle">Coroutine APIs</text>
-  <text class="detail" x="243" y="852" text-anchor="middle">Coroutine APIs</text>
-</g>
-<g id="runtime1">
-  <rect class="card" x="431" y="790" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="581" y="824" text-anchor="middle">Reactive bridge</text>
-  <text class="detail" x="581" y="852" text-anchor="middle">Reactive bridge</text>
-</g>
-<g id="runtime2">
-  <rect class="card" x="769" y="790" width="300" height="92" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="919" y="824" text-anchor="middle">Metrics/tracing</text>
-  <text class="detail" x="919" y="852" text-anchor="middle">Metrics/tracing</text>
-</g>
-<g id="runtime3">
-  <rect class="card" x="1107" y="790" width="300" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1257" y="824" text-anchor="middle">Test support</text>
-  <text class="detail" x="1257" y="852" text-anchor="middle">Test support</text>
-</g>
-<path class="route" data-from="contract0" data-to="source0" d="M243 322 L243 416 L243 416 L243 510" stroke="#1D4ED8"/>
-<path class="route" data-from="contract1" data-to="source1" d="M581 322 L581 416 L581 416 L581 510" stroke="#15803D"/>
-<path class="route" data-from="contract2" data-to="source2" d="M919 322 L919 416 L919 416 L919 510" stroke="#0F766E"/>
-<path class="route" data-from="contract3" data-to="source3" d="M1257 322 L1257 416 L1257 416 L1257 510" stroke="#C2410C"/>
-<path class="route" data-from="source0" data-to="runtime0" d="M243 602 L243 696 L243 696 L243 790" stroke="#7E22CE"/>
-<path class="route" data-from="source1" data-to="runtime1" d="M581 602 L581 696 L581 696 L581 790" stroke="#0F766E"/>
-<path class="route" data-from="source2" data-to="runtime2" d="M919 602 L919 696 L919 696 L919 790" stroke="#BE185D"/>
-<path class="route" data-from="source3" data-to="runtime3" d="M1257 602 L1257 696 L1257 696 L1257 790" stroke="#4D7C0F"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2040" height="1400" viewBox="0 0 2040 1400" role="img" aria-label="States Class Structure">
+<defs><filter id="softShadow" x="-8%" y="-10%" width="116%" height="124%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<marker id="arrow-syncBase" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4"/></marker>
+<marker id="arrow-suspendBase" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.4"/></marker>
+<marker id="arrow-reactiveBase" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.4"/></marker>
+<marker id="arrow-syncImplApi" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.4"/></marker>
+<marker id="arrow-suspendImplApi" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.4"/></marker>
+<marker id="arrow-reactiveImplApi" markerWidth="22" markerHeight="18" refX="20" refY="9" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 22 18"><path d="M2 2 L20 9 L2 16 Z" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.4"/></marker>
+<marker id="arrow-syncRegistry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12" fill="none" stroke="#2563EB" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="arrow-suspendRegistry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="arrow-reactiveRegistry" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12" fill="none" stroke="#0D9488" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="arrow-registryKey" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="arrow-registryParent" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="arrow-registryTarget" markerWidth="18" markerHeight="14" refX="16" refY="7" orient="auto" markerUnits="userSpaceOnUse" viewBox="0 0 18 14"><path d="M2 2 L16 7 L2 12" fill="none" stroke="#9333EA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}.canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#softShadow)}.title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}.card{filter:url(#softShadow);stroke-width:1.9}.stereo{font-family:"Comic Mono";font-size:12.5px;fill:#475569}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.member{font-family:"Comic Mono";font-size:13.2px;fill:#475569}.divider{stroke:#CBD5E1;stroke-width:1.2}.edge{fill:none;stroke-width:3.0;stroke-linecap:round;stroke-linejoin:round}.implements{stroke-dasharray:9 8}.edgeLabel rect{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.25;opacity:.96}.edgeLabel text{font-family:"Comic Mono";font-size:12.2px;fill:#475569}</style></defs>
+<rect class="canvas" width="2040" height="1400"/><rect class="frame" x="38" y="30" width="1964" height="1334" rx="8"/>
+<text class="title" x="78" y="86">States Class Structure</text>
+<text class="subtitle" x="82" y="118">Sync, suspend, and reactive machines share the read-only FSM contract while keeping different transition APIs and concurrency models.</text>
+<g id="edges"><path class="edge" d="M335 420 L335 360 L920 360 L920 317" stroke="#2563EB" marker-end="url(#arrow-syncBase)"/>
+<path class="edge" d="M1020 420 L1020 317" stroke="#16A34A" marker-end="url(#arrow-suspendBase)"/>
+<path class="edge" d="M1705 420 L1705 360 L1120 360 L1120 317" stroke="#0D9488" marker-end="url(#arrow-reactiveBase)"/>
+<path class="edge implements" d="M335 675 L335 570" stroke="#2563EB" marker-end="url(#arrow-syncImplApi)"/>
+<path class="edge implements" d="M1020 675 L1020 570" stroke="#16A34A" marker-end="url(#arrow-suspendImplApi)"/>
+<path class="edge implements" d="M1705 675 L1705 570" stroke="#0D9488" marker-end="url(#arrow-reactiveImplApi)"/>
+<path class="edge" d="M335 825 L335 875 L910 875 L910 925" stroke="#2563EB" marker-end="url(#arrow-syncRegistry)"/>
+<path class="edge" d="M1020 825 L1020 925" stroke="#16A34A" marker-end="url(#arrow-suspendRegistry)"/>
+<path class="edge" d="M1705 825 L1705 875 L1130 875 L1130 925" stroke="#0D9488" marker-end="url(#arrow-reactiveRegistry)"/>
+<path class="edge" d="M895 1067 L895 1125 L270 1125 L270 1150" stroke="#9333EA" marker-end="url(#arrow-registryKey)"/>
+<path class="edge" d="M980 1067 L980 1137 L725 1137 L725 1150" stroke="#9333EA" marker-end="url(#arrow-registryParent)"/>
+<path class="edge" d="M1100 1067 L1100 1125 L1180 1125 L1180 1150" stroke="#9333EA" marker-end="url(#arrow-registryTarget)"/></g>
+<g id="labels"><g class="edgeLabel" transform="translate(587 323)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">extends</text></g>
+<g class="edgeLabel" transform="translate(1049 357)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">extends</text></g>
+<g class="edgeLabel" transform="translate(1371 323)"><rect width="82" height="30" rx="8"/><text x="41" y="20" text-anchor="middle">extends</text></g>
+<g class="edgeLabel" transform="translate(367 609)"><rect width="106" height="30" rx="8"/><text x="53" y="20" text-anchor="middle">implements</text></g>
+<g class="edgeLabel" transform="translate(1059 609)"><rect width="106" height="30" rx="8"/><text x="53" y="20" text-anchor="middle">implements</text></g>
+<g class="edgeLabel" transform="translate(1747 609)"><rect width="106" height="30" rx="8"/><text x="53" y="20" text-anchor="middle">implements</text></g>
+<g class="edgeLabel" transform="translate(566 837)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">has registry</text></g>
+<g class="edgeLabel" transform="translate(1058 859)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">has registry</text></g>
+<g class="edgeLabel" transform="translate(1362 837)"><rect width="112" height="30" rx="8"/><text x="56" y="20" text-anchor="middle">has registry</text></g>
+<g class="edgeLabel" transform="translate(550 1089)"><rect width="64" height="30" rx="8"/><text x="32" y="20" text-anchor="middle">exact</text></g>
+<g class="edgeLabel" transform="translate(814 1109)"><rect width="76" height="30" rx="8"/><text x="38" y="20" text-anchor="middle">parent</text></g>
+<g class="edgeLabel" transform="translate(1104 1089)"><rect width="72" height="30" rx="8"/><text x="36" y="20" text-anchor="middle">target</text></g></g>
+<g id="base"><rect class="card" x="820" y="145" width="400" height="172" rx="8" fill="#F8FAFC" stroke="#64748B"/>
+  <text class="stereo" x="1020" y="175" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="1020" y="203" text-anchor="middle">BaseStateMachine&lt;S, E&gt;</text>
+  <line class="divider" x1="838" y1="217" x2="1202" y2="217"/>
+  <text class="member" x="846" y="233">+ currentState: S</text>
+  <text class="member" x="846" y="253">+ initialState: S</text>
+  <text class="member" x="846" y="273">+ finalStates: Set&lt;S&gt;</text>
+  <text class="member" x="846" y="293">+ canTransition(event): Boolean</text>
+  <text class="member" x="846" y="313">+ allowedEvents(): Set&lt;Class&lt;out E&gt;&gt;</text></g>
+<g id="syncApi"><rect class="card" x="115" y="420" width="440" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="335" y="450" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="335" y="478" text-anchor="middle">StateMachine&lt;S, E&gt;</text>
+  <line class="divider" x1="133" y1="492" x2="537" y2="492"/>
+  <text class="member" x="141" y="508">+ transition(event): TransitionResult</text>
+  <text class="member" x="141" y="528">Thread-safe via AtomicReference CAS</text></g>
+<g id="suspendApi"><rect class="card" x="780" y="420" width="480" height="150" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <text class="stereo" x="1020" y="450" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="1020" y="478" text-anchor="middle">SuspendStateMachineInterface&lt;S, E&gt;</text>
+  <line class="divider" x1="798" y1="492" x2="1242" y2="492"/>
+  <text class="member" x="806" y="508">+ suspend transition(event): TransitionResult</text>
+  <text class="member" x="806" y="528">+ stateFlow: StateFlow&lt;S&gt;</text>
+  <text class="member" x="806" y="548">Serialized with Mutex</text></g>
+<g id="reactiveApi"><rect class="card" x="1485" y="420" width="440" height="150" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereo" x="1705" y="450" text-anchor="middle">&lt;&lt;interface&gt;&gt;</text>
+  <text class="cardTitle" x="1705" y="478" text-anchor="middle">ReactiveStateMachine&lt;S, E, F&gt;</text>
+  <line class="divider" x1="1503" y1="492" x2="1907" y2="492"/>
+  <text class="member" x="1511" y="508">+ send(event): TransitionResult</text>
+  <text class="member" x="1511" y="528">+ stateFlow: StateFlow&lt;S&gt;</text>
+  <text class="member" x="1511" y="548">+ effects: Flow&lt;F&gt;</text>
+  <text class="member" x="1511" y="568">+ close()</text></g>
+<g id="syncImpl"><rect class="card" x="115" y="675" width="440" height="150" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
+  <text class="stereo" x="335" y="705" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="cardTitle" x="335" y="733" text-anchor="middle">DefaultStateMachine&lt;S, E&gt;</text>
+  <line class="divider" x1="133" y1="747" x2="537" y2="747"/>
+  <text class="member" x="141" y="763">- currentState: AtomicReference&lt;S&gt;</text>
+  <text class="member" x="141" y="783">- registry: TransitionRegistry</text>
+  <text class="member" x="141" y="803">throws on CAS collision</text></g>
+<g id="suspendImpl"><rect class="card" x="800" y="675" width="440" height="150" rx="8" fill="#ECFDF5" stroke="#16A34A"/>
+  <text class="stereo" x="1020" y="705" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="cardTitle" x="1020" y="733" text-anchor="middle">SuspendStateMachine&lt;S, E&gt;</text>
+  <line class="divider" x1="818" y1="747" x2="1222" y2="747"/>
+  <text class="member" x="826" y="763">- mutex: Mutex</text>
+  <text class="member" x="826" y="783">- stateFlow: MutableStateFlow&lt;S&gt;</text>
+  <text class="member" x="826" y="803">- registry: TransitionRegistry</text></g>
+<g id="reactiveImpl"><rect class="card" x="1485" y="675" width="440" height="150" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
+  <text class="stereo" x="1705" y="705" text-anchor="middle">&lt;&lt;class&gt;&gt;</text>
+  <text class="cardTitle" x="1705" y="733" text-anchor="middle">DefaultReactiveStateMachine&lt;S, E, F&gt;</text>
+  <line class="divider" x1="1503" y1="747" x2="1907" y2="747"/>
+  <text class="member" x="1511" y="763">- mutex: Mutex</text>
+  <text class="member" x="1511" y="783">- effects: MutableSharedFlow&lt;F&gt;</text>
+  <text class="member" x="1511" y="803">- sideEffects + lifecycle Job</text></g>
+<g id="registry"><rect class="card" x="800" y="925" width="440" height="142" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
+  <text class="stereo" x="1020" y="955" text-anchor="middle">&lt;&lt;internal class&gt;&gt;</text>
+  <text class="cardTitle" x="1020" y="983" text-anchor="middle">TransitionRegistry&lt;S, E&gt;</text>
+  <line class="divider" x1="818" y1="997" x2="1222" y2="997"/>
+  <text class="member" x="826" y="1013">+ resolve(state, event): TransitionMatch?</text>
+  <text class="member" x="826" y="1033">+ allowedEvents(state): Set&lt;Class&lt;out E&gt;&gt;</text>
+  <text class="member" x="826" y="1053">exact transitions win before parent matches</text></g>
+<g id="key"><rect class="card" x="90" y="1150" width="360" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereo" x="270" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="cardTitle" x="270" y="1208" text-anchor="middle">TransitionKey&lt;S, E&gt;</text>
+  <line class="divider" x1="108" y1="1222" x2="432" y2="1222"/>
+  <text class="member" x="116" y="1238">state + eventType</text></g>
+<g id="parentKey"><rect class="card" x="545" y="1150" width="360" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereo" x="725" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="cardTitle" x="725" y="1208" text-anchor="middle">ParentTransitionKey&lt;S, E&gt;</text>
+  <line class="divider" x1="563" y1="1222" x2="887" y2="1222"/>
+  <text class="member" x="571" y="1238">stateType + eventType</text>
+  <text class="member" x="571" y="1258">nested state-family match</text></g>
+<g id="target"><rect class="card" x="1000" y="1150" width="360" height="145" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
+  <text class="stereo" x="1180" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="cardTitle" x="1180" y="1208" text-anchor="middle">TransitionTarget&lt;S, E&gt;</text>
+  <line class="divider" x1="1018" y1="1222" x2="1342" y2="1222"/>
+  <text class="member" x="1026" y="1238">state</text>
+  <text class="member" x="1026" y="1258">guard: ((S, E) -&gt; Boolean)?</text></g>
+<g id="result"><rect class="card" x="1455" y="1150" width="360" height="145" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
+  <text class="stereo" x="1635" y="1180" text-anchor="middle">&lt;&lt;data class&gt;&gt;</text>
+  <text class="cardTitle" x="1635" y="1208" text-anchor="middle">TransitionResult&lt;S, E&gt;</text>
+  <line class="divider" x1="1473" y1="1222" x2="1797" y2="1222"/>
+  <text class="member" x="1481" y="1238">previousState</text>
+  <text class="member" x="1481" y="1258">event</text>
+  <text class="member" x="1481" y="1278">currentState</text></g>
 </svg>
