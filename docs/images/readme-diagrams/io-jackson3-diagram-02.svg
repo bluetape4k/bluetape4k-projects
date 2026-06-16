@@ -97,31 +97,31 @@
   <text x="756" y="352" class="member">tools.jackson.databind.ObjectMapper</text>
   <text x="756" y="374" class="member">registeredModuleNames / ids helpers</text>
 
-  <rect x="690" y="494" width="228" height="144" rx="7" class="format"/>
-  <text x="804" y="526" text-anchor="middle" class="class-title">JacksonBinary</text>
-  <line x1="690" y1="548" x2="918" y2="548" class="sep"/>
-  <text x="714" y="574" class="member">CBOR, ION, Smile</text>
-  <text x="714" y="596" class="member">mapper + factory</text>
-  <text x="714" y="618" class="member">format serializers</text>
+  <rect x="678" y="494" width="228" height="144" rx="7" class="format"/>
+  <text x="792" y="526" text-anchor="middle" class="class-title">JacksonBinary</text>
+  <line x1="678" y1="548" x2="906" y2="548" class="sep"/>
+  <text x="702" y="574" class="member">CBOR, ION, Smile</text>
+  <text x="702" y="596" class="member">mapper + factory</text>
+  <text x="702" y="618" class="member">format serializers</text>
 
-  <rect x="954" y="494" width="228" height="144" rx="7" class="format"/>
-  <text x="1068" y="526" text-anchor="middle" class="class-title">JacksonText</text>
-  <line x1="954" y1="548" x2="1182" y2="548" class="sep"/>
-  <text x="978" y="574" class="member">CSV, Props, TOML, YAML</text>
-  <text x="978" y="596" class="member">mapper + factory</text>
-  <text x="978" y="618" class="member">text serializers</text>
+  <rect x="942" y="494" width="228" height="144" rx="7" class="format"/>
+  <text x="1056" y="526" text-anchor="middle" class="class-title">JacksonText</text>
+  <line x1="942" y1="548" x2="1170" y2="548" class="sep"/>
+  <text x="966" y="574" class="member">CSV, Props, TOML, YAML</text>
+  <text x="966" y="596" class="member">mapper + factory</text>
+  <text x="966" y="618" class="member">text serializers</text>
 
-  <rect x="690" y="762" width="228" height="112" rx="7" class="serializer"/>
-  <text x="804" y="794" text-anchor="middle" class="class-title">Binary serializers</text>
-  <line x1="690" y1="816" x2="918" y2="816" class="sep"/>
-  <text x="714" y="842" class="member">Cbor / Ion / Smile</text>
-  <text x="714" y="864" class="member">extend JacksonSerializer</text>
+  <rect x="678" y="762" width="228" height="112" rx="7" class="serializer"/>
+  <text x="792" y="794" text-anchor="middle" class="class-title">Binary serializers</text>
+  <line x1="678" y1="816" x2="906" y2="816" class="sep"/>
+  <text x="702" y="842" class="member">Cbor / Ion / Smile</text>
+  <text x="702" y="864" class="member">extend JacksonSerializer</text>
 
-  <rect x="954" y="762" width="228" height="112" rx="7" class="serializer"/>
-  <text x="1068" y="794" text-anchor="middle" class="class-title">Text serializers</text>
-  <line x1="954" y1="816" x2="1182" y2="816" class="sep"/>
-  <text x="978" y="842" class="member">Csv / Props / Toml / Yaml</text>
-  <text x="978" y="864" class="member">string oriented formats</text>
+  <rect x="942" y="762" width="228" height="112" rx="7" class="serializer"/>
+  <text x="1056" y="794" text-anchor="middle" class="class-title">Text serializers</text>
+  <line x1="942" y1="816" x2="1170" y2="816" class="sep"/>
+  <text x="966" y="842" class="member">Csv / Props / Toml / Yaml</text>
+  <text x="966" y="864" class="member">string oriented formats</text>
 
   <rect x="1260" y="150" width="508" height="858" rx="16" class="feature-panel"/>
   <text x="1290" y="190" class="panel-title">Streaming and annotation modules</text>
@@ -162,13 +162,14 @@
 
   <path d="M 322 404 L 322 482" class="usesBlue"/>
   <path d="M 506 338 L 732 338" class="usesBlue"/>
-  <path d="M 924 404 L 924 452 L 804 452 L 804 494" class="usesGreen"/>
-  <path d="M 924 404 L 924 452 L 1068 452 L 1068 494" class="usesGreen"/>
-  <path d="M 804 638 L 804 762" class="flowBlue"/>
-  <path d="M 1068 638 L 1068 762" class="flowBlue"/>
+  <path d="M 924 404 L 924 452 L 792 452 L 792 494" class="usesGreen"/>
+  <path d="M 924 404 L 924 452 L 1056 452 L 1056 494" class="usesGreen"/>
+  <path d="M 792 638 L 792 762" class="flowBlue"/>
+  <path d="M 1056 638 L 1056 762" class="flowBlue"/>
 
-  <path d="M 804 874 L 804 1020 L 1068 1020 L 1068 874" class="inheritBus"/>
-  <path d="M 936 1020 H 558 L 558 930 H 506" class="extends"/>
+  <path d="M 792 874 V 930" class="inheritBus"/>
+  <path d="M 1056 874 V 930" class="inheritBus"/>
+  <path d="M 1056 930 H 506" class="extends"/>
 
   <path d="M 1194 338 H 1324" class="usesGold"/>
   <path d="M 1194 526 H 1324" class="usesGold"/>

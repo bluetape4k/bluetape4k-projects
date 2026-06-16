@@ -77,11 +77,11 @@
   <text x="162" y="586" class="member">+ serialize(graph): ByteArray</text>
   <text x="162" y="608" class="member">+ deserialize(bytes, clazz)</text>
 
-  <rect x="138" y="738" width="348" height="126" rx="7" class="serializer" filter="url(#softShadow)"/>
-  <text x="312" y="770" text-anchor="middle" class="class-title">JacksonSerializer</text>
-  <line x1="138" y1="790" x2="486" y2="790" class="sep"/>
-  <text x="162" y="816" class="member">uses ObjectMapper.writeAsBytes</text>
-  <text x="162" y="838" class="member">throws JsonSerializationException</text>
+  <rect x="138" y="840" width="348" height="126" rx="7" class="serializer" filter="url(#softShadow)"/>
+  <text x="312" y="872" text-anchor="middle" class="class-title">JacksonSerializer</text>
+  <line x1="138" y1="892" x2="486" y2="892" class="sep"/>
+  <text x="162" y="918" class="member">uses ObjectMapper.writeAsBytes</text>
+  <text x="162" y="940" class="member">throws JsonSerializationException</text>
 
   <rect x="640" y="150" width="540" height="842" rx="16" class="format-panel"/>
   <text x="670" y="190" class="panel-title">Format serializer families</text>
@@ -151,13 +151,14 @@
   <text x="122" y="1066" class="panel-title">Reader contract</text>
   <text x="122" y="1094" class="small">Pick Jackson.defaultJsonMapper for JSON, JacksonBinary or JacksonText for explicit formats, Async/Suspend parsers for chunked streams, and annotations for field-only representation changes.</text>
 
-  <path d="M 312 738 L 312 634" class="realize"/>
-  <rect x="334" y="674" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
-  <text x="379" y="691" text-anchor="middle" class="label">implements</text>
+  <path d="M 312 840 L 312 634" class="realize"/>
+  <rect x="334" y="724" width="90" height="24" rx="12" fill="#ffffff" stroke="#d7e0e4"/>
+  <text x="379" y="741" text-anchor="middle" class="label">implements</text>
 
   <path d="M 312 406 L 312 508" class="usesBlue"/>
-  <path d="M 788 856 L 788 914 L 312 914 L 312 864" class="extends"/>
-  <path d="M 1036 856 L 1036 944 L 312 944 L 312 864" class="extends"/>
+  <path d="M 788 856 V 903" class="inheritBus"/>
+  <path d="M 1036 856 V 903" class="inheritBus"/>
+  <path d="M 1036 903 H 486" class="extends"/>
 
   <path d="M 486 342 L 730 342" class="usesBlue"/>
   <path d="M 910 400 L 910 456 L 788 456 L 788 492" class="usesGreen"/>
