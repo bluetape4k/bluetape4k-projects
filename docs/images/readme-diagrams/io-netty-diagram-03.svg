@@ -1,84 +1,140 @@
-<svg data-intent="Replace the unsupported channel-pipeline inventory with the actual module processing story: ByteBuf read/write families transform bytes through endian/offset/smart/string helpers." data-evidence="io/netty/README.md; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufExtensions.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufUtilSupport.kt" data-source-read="io/netty/README.md; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufExtensions.kt; io/netty/src/main/kotlin/io/bluetape4k/netty/buffer/ByteBufUtilSupport.kt" xmlns="http://www.w3.org/2000/svg" width="1440" height="985" viewBox="0 0 1440 985" role="img" aria-label="ByteBuf Processing Flow">
-<defs>
-  <filter id="shadow" x="-8%" y="-8%" width="116%" height="116%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.10"/></filter>
-  <marker id="arrow" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="context-stroke"/></marker>
-  <marker id="seqArrow-blue" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#1D4ED8"/></marker>
-  <marker id="seqArrow-green" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#15803D"/></marker>
-  <marker id="seqArrow-teal" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#0F766E"/></marker>
-  <marker id="seqArrow-amber" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#C2410C"/></marker>
-  <marker id="seqArrow-pink" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#BE185D"/></marker>
-  <marker id="seqArrow-purple" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#7E22CE"/></marker>
-  <marker id="seqArrow-gray" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto" markerUnits="strokeWidth"><path d="M 0.5 0.5 L 4.5 2.5 L 0.5 4.5 Z" fill="#4B5563"/></marker>
-  <style>
-    svg{font-family:"Architects Daughter","Comic Mono","Comic Sans MS",ui-sans-serif,system-ui,sans-serif}
-    .canvas{fill:#F8FAFC}.frame{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5;filter:url(#shadow)}
-    .title{font-family:"Architects Daughter";font-size:44px;fill:#0F172A}.subtitle{font-family:"Comic Mono";font-size:16px;fill:#475569}
-    .panel{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.5}.panelTitle{font-family:"Architects Daughter";font-size:24px;fill:#0F172A;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
-    .card{filter:url(#shadow);stroke-width:1.7}.cardTitle{font-family:"Architects Daughter";font-size:23px;fill:#0F172A}.detail{font-family:"Comic Mono";font-size:13px;fill:#475569}
-    .labelPill{fill:#FFFFFF;stroke:#CBD5E1;stroke-width:1.4}
-    .route{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#arrow)}
-    .seq,.seqReturn{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.seqReturn{stroke-dasharray:8 7}
-    .dashed{stroke-dasharray:8 7}.lifeline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  </style>
-</defs>
-<rect class="canvas" width="1440" height="985"/>
-<rect class="frame" x="34" y="30" width="1372" height="925" rx="8"/>
-<text class="title" x="72" y="84">ByteBuf Processing Flow</text>
-<text class="subtitle" x="76" y="116">The diagram now matches the module source: ByteBuf helpers transform binary data through read, decode, encode, and write paths.</text>
-<g><rect class="panel" x="82" y="160" width="1276" height="160" rx="8"/><text class="panelTitle" x="110" y="196" dominant-baseline="middle">Input</text></g>
-<g><rect class="panel" x="82" y="395" width="1276" height="240" rx="8"/><text class="panelTitle" x="110" y="431" dominant-baseline="middle">ByteBuf extension families</text></g>
-<g><rect class="panel" x="82" y="710" width="1276" height="190" rx="8"/><text class="panelTitle" x="110" y="746" dominant-baseline="middle">Output</text></g>
-<g id="source">
-  <rect class="card" x="135" y="215" width="290" height="74" rx="8" fill="#EFF6FF" stroke="#2563EB"/>
-  <text class="cardTitle" x="280" y="245" text-anchor="middle" dominant-baseline="middle">ByteBuf input</text>
-  <text class="detail" x="280" y="275" text-anchor="middle" dominant-baseline="middle">network frame or binary payload</text>
-</g>
-<g id="cursor">
-  <rect class="card" x="560" y="210" width="330" height="84" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="725" y="245" text-anchor="middle" dominant-baseline="middle">Reader / writer index</text>
-  <text class="detail" x="725" y="275" text-anchor="middle" dominant-baseline="middle">sequential and indexed access</text>
-</g>
-<g id="target">
-  <rect class="card" x="1010" y="215" width="270" height="74" rx="8" fill="#FAF5FF" stroke="#9333EA"/>
-  <text class="cardTitle" x="1145" y="245" text-anchor="middle" dominant-baseline="middle">ByteBuf output</text>
-  <text class="detail" x="1145" y="275" text-anchor="middle" dominant-baseline="middle">encoded response payload</text>
-</g>
-<g id="endian">
-  <rect class="card" x="150" y="470" width="300" height="92" rx="8" fill="#F0FDFA" stroke="#0D9488"/>
-  <text class="cardTitle" x="300" y="500" text-anchor="middle" dominant-baseline="middle">Endian / offset helpers</text>
-  <text class="detail" x="300" y="530" text-anchor="middle" dominant-baseline="middle">LE, ME, IME variants</text>
-  <text class="detail" x="300" y="548" text-anchor="middle" dominant-baseline="middle">add/subtract transforms</text>
-</g>
-<g id="smart">
-  <rect class="card" x="535" y="470" width="300" height="92" rx="8" fill="#FFF7ED" stroke="#EA580C"/>
-  <text class="cardTitle" x="685" y="500" text-anchor="middle" dominant-baseline="middle">Smart / VarInt helpers</text>
-  <text class="detail" x="685" y="530" text-anchor="middle" dominant-baseline="middle">compact numeric encodings</text>
-  <text class="detail" x="685" y="548" text-anchor="middle" dominant-baseline="middle">range markers</text>
-</g>
-<g id="strings">
-  <rect class="card" x="920" y="470" width="310" height="92" rx="8" fill="#FDF2F8" stroke="#DB2777"/>
-  <text class="cardTitle" x="1075" y="500" text-anchor="middle" dominant-baseline="middle">String / byte-array helpers</text>
-  <text class="detail" x="1075" y="530" text-anchor="middle" dominant-baseline="middle">null-terminated strings</text>
-  <text class="detail" x="1075" y="548" text-anchor="middle" dominant-baseline="middle">reversed byte arrays</text>
-</g>
-<g id="domain">
-  <rect class="card" x="230" y="790" width="300" height="70" rx="8" fill="#F7FEE7" stroke="#65A30D"/>
-  <text class="cardTitle" x="380" y="818" text-anchor="middle" dominant-baseline="middle">Domain values</text>
-  <text class="detail" x="380" y="848" text-anchor="middle" dominant-baseline="middle">numbers, strings, payload blocks</text>
-</g>
-<g id="writeBack">
-  <rect class="card" x="790" y="790" width="330" height="70" rx="8" fill="#F0FDF4" stroke="#16A34A"/>
-  <text class="cardTitle" x="955" y="818" text-anchor="middle" dominant-baseline="middle">Write helpers</text>
-  <text class="detail" x="955" y="848" text-anchor="middle" dominant-baseline="middle">write* mirrors read* families</text>
-</g>
-<path class="route" data-from="source" data-to="cursor" d="M425 252 L560 252" stroke="#1D4ED8"/>
-<path class="route" data-from="cursor" data-to="target" d="M890 252 L1010 252" stroke="#15803D"/>
-<path class="route" data-from="cursor" data-to="endian" d="M650 294 L650 350 L300 350 L300 470" stroke="#0F766E"/>
-<path class="route" data-from="cursor" data-to="smart" d="M725 294 L725 470" stroke="#C2410C"/>
-<path class="route" data-from="cursor" data-to="strings" d="M800 294 L800 350 L1075 350 L1075 470" stroke="#BE185D"/>
-<path class="route" data-from="endian" data-to="domain" d="M300 562 L300 790" stroke="#0F766E"/>
-<path class="route" data-from="smart" data-to="domain" d="M685 562 L685 690 L380 690 L380 790" stroke="#C2410C"/>
-<path class="route" data-from="strings" data-to="writeBack" d="M1075 562 L1075 690 L955 690 L955 790" stroke="#BE185D"/>
-<path class="route" data-from="domain" data-to="writeBack" d="M530 825 L790 825" stroke="#4D7C0F"/>
-<path class="route" data-from="writeBack" data-to="target" d="M1120 825 L1305 825 L1305 252 L1280 252" stroke="#15803D"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100" role="img" aria-labelledby="title desc">
+  <title id="title">bluetape4k-netty ByteBuf processing flow</title>
+  <desc id="desc">Source-backed flow showing how callers use ByteBuf helpers to read, transform, encode, write, release, and inspect Netty buffers.</desc>
+  <defs>
+    <style>
+      .title { font-family: "Architects Daughter"; font-size: 42px; fill: #263238; }
+      .subtitle, .member, .small, .footer, .label { font-family: "Comic Mono"; fill: #36464f; }
+      .subtitle { font-size: 18px; }
+      .panel-title, .class-title { font-family: "Architects Daughter"; fill: #1f3138; }
+      .panel-title { font-size: 25px; }
+      .class-title { font-size: 21px; }
+      .member { font-size: 14px; }
+      .small { font-size: 13px; }
+      .label { font-size: 12px; fill: #546a73; }
+      .footer { font-size: 14px; fill: #60727d; }
+      .frame { fill: #fbfcf8; stroke: #41545d; stroke-width: 3; }
+      .input-panel { fill: #eef6f8; stroke: #b2cbd2; stroke-width: 2; }
+      .transform-panel { fill: #f3f8ef; stroke: #aec99d; stroke-width: 2; }
+      .output-panel { fill: #f7f4ed; stroke: #d0c4ad; stroke-width: 2; }
+      .rule-panel { fill: #ffffff; stroke: #c6d2d5; stroke-width: 2; }
+      .source { fill: #ffffff; stroke: #4f6c77; stroke-width: 2; }
+      .indexed { fill: #f7fbff; stroke: #6c86a1; stroke-width: 2; }
+      .sequential { fill: #fdfefe; stroke: #5d7b63; stroke-width: 2; }
+      .encoding { fill: #fffdf7; stroke: #8a7447; stroke-width: 2; }
+      .string { fill: #fffafa; stroke: #b65f68; stroke-width: 2; }
+      .result { fill: #f7f3ff; stroke: #8870a8; stroke-width: 2; }
+      .safety { fill: #f0f7f8; stroke: #5f8d94; stroke-width: 2; }
+      .sep { stroke: #d6dee2; stroke-width: 1.5; }
+      .bus { fill: none; stroke: #455a64; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .flowSlate { fill: none; stroke: #455a64; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowSlate); }
+      .flowBlue { fill: none; stroke: #4b74a5; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowBlue); }
+      .flowGreen { fill: none; stroke: #5d7b63; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGreen); }
+      .flowGold { fill: none; stroke: #a2743d; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowGold); }
+      .flowRed { fill: none; stroke: #b65f68; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowRed); }
+      .flowTeal { fill: none; stroke: #5f8d94; stroke-width: 2.2; stroke-dasharray: 7 5; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowTeal); }
+    </style>
+    <marker id="arrowSlate" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#455a64" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#4b74a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5d7b63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#a2743d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#b65f68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 14 12" markerWidth="13" markerHeight="11" refX="12" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 1 1 L 13 6 L 1 11" fill="none" stroke="#5f8d94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="none"/>
+    </marker>
+    <filter id="softShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#22333b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1052" rx="20" class="frame"/>
+  <text x="900" y="78" text-anchor="middle" class="title">bluetape4k-netty ByteBuf Processing Flow</text>
+  <text x="900" y="108" text-anchor="middle" class="subtitle">The module does not build ChannelPipeline stages; it gives callers precise ByteBuf read, transform, write, and cleanup helpers.</text>
+
+  <rect x="72" y="150" width="1656" height="250" rx="16" class="input-panel"/>
+  <text x="102" y="190" class="panel-title">1. Start from a Netty buffer</text>
+  <text x="102" y="218" class="small">A caller owns a ByteBuf from Netty, an allocator, or a test fixture and decides whether indexes may move.</text>
+
+  <rect x="130" y="270" width="330" height="88" rx="7" class="source" filter="url(#softShadow)"/>
+  <text x="295" y="302" text-anchor="middle" class="class-title">Incoming ByteBuf</text>
+  <line x1="130" y1="322" x2="460" y2="322" class="sep"/>
+  <text x="158" y="348" class="member">network frame or binary payload</text>
+
+  <rect x="620" y="252" width="420" height="124" rx="7" class="source" filter="url(#softShadow)"/>
+  <text x="830" y="284" text-anchor="middle" class="class-title">Index decision</text>
+  <line x1="620" y1="304" x2="1040" y2="304" class="sep"/>
+  <text x="652" y="330" class="member">get/set: positional access</text>
+  <text x="652" y="352" class="member">read/write: move readerIndex or writerIndex</text>
+
+  <rect x="1210" y="270" width="330" height="88" rx="7" class="source" filter="url(#softShadow)"/>
+  <text x="1375" y="302" text-anchor="middle" class="class-title">ByteBufUtil bridge</text>
+  <line x1="1210" y1="322" x2="1540" y2="322" class="sep"/>
+  <text x="1238" y="348" class="member">hex, compare, text detection</text>
+
+  <rect x="72" y="440" width="1656" height="320" rx="16" class="transform-panel"/>
+  <text x="102" y="480" class="panel-title">2. Apply the needed binary transform</text>
+  <text x="102" y="508" class="small">Families mirror get/set and read/write variants.</text>
+
+  <rect x="126" y="562" width="330" height="132" rx="7" class="indexed" filter="url(#softShadow)"/>
+  <text x="291" y="594" text-anchor="middle" class="class-title">Endian and offset bytes</text>
+  <line x1="126" y1="614" x2="456" y2="614" class="sep"/>
+  <text x="154" y="640" class="member">Add / Sub / Neg byte transforms</text>
+  <text x="154" y="662" class="member">LE, LME, RME, ME, IME layouts</text>
+
+  <rect x="532" y="562" width="330" height="132" rx="7" class="encoding" filter="url(#softShadow)"/>
+  <text x="697" y="594" text-anchor="middle" class="class-title">Smart and VarInt numbers</text>
+  <line x1="532" y1="614" x2="862" y2="614" class="sep"/>
+  <text x="560" y="640" class="member">ShortSmart / IntSmart ranges</text>
+  <text x="560" y="662" class="member">USmart and nullable sentinel</text>
+
+  <rect x="938" y="562" width="330" height="132" rx="7" class="string" filter="url(#softShadow)"/>
+  <text x="1103" y="594" text-anchor="middle" class="class-title">Strings and byte arrays</text>
+  <line x1="938" y1="614" x2="1268" y2="614" class="sep"/>
+  <text x="966" y="640" class="member">NUL-terminated and versioned strings</text>
+  <text x="966" y="662" class="member">reversed / add-offset arrays</text>
+
+  <rect x="1344" y="562" width="330" height="132" rx="7" class="sequential" filter="url(#softShadow)"/>
+  <text x="1509" y="594" text-anchor="middle" class="class-title">Bit-level wrapper</text>
+  <line x1="1344" y1="614" x2="1674" y2="614" class="sep"/>
+  <text x="1372" y="640" class="member">ByteBuf.toBitBuf()</text>
+  <text x="1372" y="662" class="member">read/write arbitrary bit widths</text>
+
+  <rect x="72" y="810" width="1656" height="210" rx="16" class="output-panel"/>
+  <text x="102" y="850" class="panel-title">3. Return values, write bytes, then release safely</text>
+
+  <rect x="180" y="902" width="350" height="68" rx="7" class="result" filter="url(#softShadow)"/>
+  <text x="355" y="930" text-anchor="middle" class="class-title">Decoded domain values</text>
+  <text x="355" y="956" text-anchor="middle" class="member">numbers, text, byte arrays, bits</text>
+
+  <rect x="720" y="902" width="350" height="68" rx="7" class="result" filter="url(#softShadow)"/>
+  <text x="895" y="930" text-anchor="middle" class="class-title">Encoded response bytes</text>
+  <text x="895" y="956" text-anchor="middle" class="member">write* mirrors read* families</text>
+
+  <rect x="1260" y="902" width="350" height="68" rx="7" class="safety" filter="url(#softShadow)"/>
+  <text x="1435" y="930" text-anchor="middle" class="class-title">ReferenceCounted cleanup</text>
+  <text x="1435" y="956" text-anchor="middle" class="member">use { } releases even on failure</text>
+
+  <path d="M 460 314 H 620" class="flowSlate"/>
+  <path d="M 1040 314 H 1210" class="flowTeal"/>
+
+  <path d="M 830 376 V 530" class="bus"/>
+  <path d="M 291 562 V 530 H 1509 V 562" class="bus"/>
+  <path d="M 697 530 V 562" class="flowGold"/>
+  <path d="M 1103 530 V 562" class="flowRed"/>
+
+  <path d="M 291 694 V 780 H 355 V 902" class="flowBlue"/>
+  <path d="M 697 694 V 780 H 895 V 902" class="flowGold"/>
+  <path d="M 1103 694 V 780 H 895 V 902" class="flowRed"/>
+  <path d="M 1509 694 V 780 H 1435 V 902" class="flowGreen"/>
+  <path d="M 1070 936 H 1260" class="flowTeal"/>
 </svg>

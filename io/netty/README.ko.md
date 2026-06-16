@@ -36,9 +36,9 @@ dependencies {
 
 ![Smart diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
 
-### Netty 채널 파이프라인 처리 흐름
+### ByteBuf 처리 흐름
 
-![Netty diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
+![ByteBuf Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## 기본 사용법
 

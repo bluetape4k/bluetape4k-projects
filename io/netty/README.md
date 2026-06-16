@@ -36,9 +36,9 @@ dependencies {
 
 ![Smart Encoding Data Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-02.png)
 
-### Netty Channel Pipeline Processing Flow
+### ByteBuf Processing Flow
 
-![Netty Channel Pipeline Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
+![ByteBuf Processing Flow diagram](../../docs/images/readme-diagrams/io-netty-diagram-03.png)
 
 ## Basic Usage
 
